@@ -18,13 +18,16 @@ import type { Model } from "./Organization.model.js";
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { isTenantRoot } from "@beep/shared-domain/entities/Organization/Organization.behavior"
  * import * as Shared from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeOrganizationId = S.decodeUnknownSync(Shared.OrganizationId)
- * const id = decodeOrganizationId(1)
- * console.log(isTenantRoot({ id, orgId: id }))
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(Shared.OrganizationId)(1)
+ *   return isTenantRoot({ id, orgId: id })
+ * })
+ * void program
  * ```
  *
  * @category predicates
@@ -61,14 +64,17 @@ export const hasParentOrganization = (organization: Pick<Model, "parentOrgId">):
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { Organization } from "@beep/shared-domain/entities/index"
  * import * as Shared from "@beep/shared-domain/identity/Shared"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
- * const decodeOrganizationId = S.decodeUnknownSync(Shared.OrganizationId)
- * const id = decodeOrganizationId(1)
- * console.log(Organization.hasValidTenantPlacement({ id, orgId: id, parentOrgId: O.none() }))
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(Shared.OrganizationId)(1)
+ *   return Organization.hasValidTenantPlacement({ id, orgId: id, parentOrgId: O.none() })
+ * })
+ * void program
  * ```
  *
  * @category predicates

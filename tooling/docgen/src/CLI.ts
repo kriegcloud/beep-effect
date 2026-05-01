@@ -18,7 +18,7 @@ import * as Core from "./Core.js";
 import * as Domain from "./Domain.js";
 import * as InternalVersion from "./internal/version.js";
 
-const decodeCompilerOptions = S.decodeUnknownSync(S.fromJsonString(S.toEncoded(TSConfigCompilerOptions)));
+const decodeCompilerOptions = S.decodeUnknownEffect(S.fromJsonString(S.toEncoded(TSConfigCompilerOptions)));
 
 const parseTsconfigFile = Flag.file("parse-tsconfig-file", { mustExist: true }).pipe(Flag.optional);
 const parseCompilerOptionsText = Flag.string("parse-compiler-options").pipe(Flag.optional);
@@ -83,13 +83,14 @@ const tscExecutable = Flag.string("tscExecutable").pipe(
 );
 
 const decodeCompilerOptionsText = (value: string) =>
-  Effect.try({
-    try: () => decodeCompilerOptions(value),
-    catch: (cause) =>
-      new Domain.DocgenError({
-        message: `[CLI.decodeCompilerOptionsText] Invalid compiler options JSON\n${cause instanceof Error ? cause.message : String(cause)}`,
-      }),
-  });
+  decodeCompilerOptions(value).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Domain.DocgenError({
+          message: `[CLI.decodeCompilerOptionsText] Invalid compiler options JSON\n${cause.message}`,
+        })
+    )
+  );
 
 const resolveCompilerOptionsInput = (filePath: O.Option<string>, text: O.Option<string>) =>
   O.isSome(filePath)

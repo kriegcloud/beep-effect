@@ -13,7 +13,7 @@ The foundation of Effect domain modeling combines three key features:
 
 1. **S.TaggedStruct** - Automatic `_tag` discriminator for union types
 2. **S.Data** - Automatic `Equal` implementation for structural equality
-3. **S.decodeSync** - Type-safe constructors with validation
+3. **Effect Schema codecs** - Type-safe constructors with validation
 
 ```typescript
 import * as Eq from "effect/Equal"
@@ -135,7 +135,7 @@ export const User = S.Union(Admin, Customer).pipe(
 export type User = S.Schema.Type<typeof User>
 ```
 
-### 2. Constructors Using S.decodeSync
+### 2. Constructors Using Effect Schema Codecs
 
 ```typescript
 import * as S from "effect/Schema"
@@ -157,20 +157,20 @@ declare const Completed: S.Schema<any, any, never>
  * import * as Task from "@/schemas/Task"
  * import * as DateTime from "effect/DateTime"
  *
- * const task = Task.makePending({
+ * const task = yield* Task.makePending({
  * 
  * 
  * })
- * // Result: { _tag: "pending", id: "task-123", createdAt: ... }
+ * // Effect success: { _tag: "pending", id: "task-123", createdAt: ... }
  *
  * // Structural equality from S.Data:
- * const another = Task.makePending({
+ * const another = yield* Task.makePending({
  * 
  * 
  * })
  * Eq.equals(task, another) // true if all fields match
  */
-export const makePending = S.decodeSync(Pending)
+export const makePending = S.decodeEffect(Pending)
 
 /**
  * Create an active task.
@@ -178,7 +178,7 @@ export const makePending = S.decodeSync(Pending)
  * @category DomainModel
  * @since 0.1.0
  */
-export const makeActive = S.decodeSync(Active)
+export const makeActive = S.decodeEffect(Active)
 
 /**
  * Create a completed task.
@@ -186,14 +186,20 @@ export const makeActive = S.decodeSync(Active)
  * @category DomainModel
  * @since 0.1.0
  */
-export const makeCompleted = S.decodeSync(Completed)
+export const makeCompleted = S.decodeEffect(Completed)
 ```
 
-**Why decodeSync?**
+**Why Effect codecs?**
 - `S.Data` returns a schema that needs decoding
-- `decodeSync` creates a validated constructor
+- `decodeEffect` creates a validated constructor in the Effect error channel
 - Automatically applies the `_tag` discriminator
-- Throws on invalid input (use `decodeUnknownSync` for unknown data)
+- Keeps invalid input in typed control flow instead of throwing
+- Use `Effect.mapError(...)` when schema errors cross a local boundary
+- Use `S.decodeResult` / `S.decodeUnknownResult` or `S.decodeUnknownOption`
+  only for deliberate non-throwing synchronous helpers
+- Do not add `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or
+  `S.encodeUnknownSync`; if a legacy sync wrapper must throw, use Result
+  codecs with `Result.getOrThrowWith(...)` to map schema issues explicitly
 
 ### 3. Guards and Type Predicates
 
@@ -314,8 +320,8 @@ declare const Task: S.Schema<Task, any, never>
  * @example
  * import * as Eq from "effect/Equal"
  *
- * const task1 = Task.makePending({ ... })
- * const task2 = Task.makePending({ ... })
+ * const task1 = yield* Task.makePending({ ... })
+ * const task2 = yield* Task.makePending({ ... })
  *
  * // Structural equality (automatic from S.Data)
  * if (Eq.equals(task1, task2)) {
@@ -612,7 +618,7 @@ export const Category = S.Struct({
 )
 
 export type Category = S.Schema.Type<typeof Category>
-export const make = S.decodeSync(Category)
+export const make = S.decodeEffect(Category)
 
 /**
  * Example usage:
@@ -660,7 +666,7 @@ export const EmailSchema: S.BrandSchema<Email, string> =
 /**
  * @example
  * const email = Email("user@example.com")
- * const decoded = S.decodeSync(EmailSchema)("user@example.com")
+ * const decoded = yield* S.decodeEffect(EmailSchema)("user@example.com")
  */
 ```
 
@@ -727,7 +733,7 @@ declare const tasks: ReadonlyArray<Task.Task>
 declare const task1: Task.Task
 declare const task2: Task.Task
 
-const task = Task.makePending({
+const task = yield* Task.makePending({
   id: "123",
   createdAt: DateTime.unsafeNow()
 })
@@ -820,12 +826,12 @@ declare const Pending: S.Schema<any, any, never>
  * import * as Task from "@/schemas/Task"
  * import * as DateTime from "effect/DateTime"
  *
- * const task = Task.makePending({
+ * const task = yield* Task.makePending({
  * 
  * 
  * })
  */
-export const makePending = S.decodeSync(Pending)
+export const makePending = S.decodeEffect(Pending)
 ```
 
 ## Quality Checklist
@@ -835,7 +841,7 @@ export const makePending = S.decodeSync(Pending)
 - [ ] Type definition using `S.TaggedStruct` for each variant
 - [ ] `.pipe(S.Data)` for automatic `Equal` implementation
 - [ ] Schema annotations (identifier, title, description) on all schemas
-- [ ] Constructor functions using `S.decodeSync`
+- [ ] Constructor functions using `S.decodeEffect` by default, with Result/Option codecs only for intentional non-throwing sync helpers
 - [ ] Type guard using `S.is` for union
 - [ ] Refinement predicates for each variant (e.g., `isPending`)
 - [ ] Match function using `Match.typeTags`
@@ -937,14 +943,14 @@ export type User = S.Schema.Type<typeof User>
  * import * as User from "@/schemas/User"
  * import * as DateTime from "effect/DateTime"
  *
- * const admin = User.makeAdmin({
+ * const admin = yield* User.makeAdmin({
  * 
  * 
  * 
  * 
  * })
  */
-export const makeAdmin = S.decodeSync(Admin)
+export const makeAdmin = S.decodeEffect(Admin)
 
 /**
  * Create a customer user.
@@ -952,7 +958,7 @@ export const makeAdmin = S.decodeSync(Admin)
  * @category DomainModel
  * @since 0.1.0
  */
-export const makeCustomer = S.decodeSync(Customer)
+export const makeCustomer = S.decodeEffect(Customer)
 
 // =============================================================================
 // Guards
@@ -1109,7 +1115,7 @@ export const setName: {
 
 1. **S.TaggedStruct** - Use for all tagged union variants
 2. **S.Data** - Apply for automatic Equal implementation
-3. **S.decodeSync** - Create type-safe constructors
+3. **Effect Schema codecs** - Create type-safe constructors without throwing
 4. **S.annotations** - Document all schemas
 5. **Order.mapInput** - Compose orders from base orders
 6. **Match.typeTags** - Pattern match on discriminated unions

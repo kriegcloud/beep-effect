@@ -17,7 +17,7 @@ import { ChildProcess } from "effect/unstable/process";
 const require = createRequire(import.meta.url);
 const biomeExecutable = require.resolve("@biomejs/biome/bin/biome");
 const moduleDir = fileURLToPath(new URL(".", import.meta.url));
-const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 const textEncoder = new TextEncoder();
 
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
@@ -57,11 +57,14 @@ export const renderBiomeJson: {
       relativeToCwd.length > 0 && relativeToCwd !== ".." && !Str.startsWith("../")(relativeToCwd)
         ? relativeToCwd
         : filePath;
+    const encoded = yield* encodeJson(value).pipe(
+      Effect.mapError((cause) => new DomainError({ message: `Failed to encode JSON for "${filePath}".`, cause }))
+    );
     const command = ChildProcess.make(
       biomeExecutable,
       ["format", `--config-path=${biomeConfigPath}`, `--stdin-file-path=${stdinFilePath}`],
       {
-        stdin: Stream.make(textEncoder.encode(encodeJson(value))),
+        stdin: Stream.make(textEncoder.encode(encoded)),
         stdout: "pipe",
         stderr: "pipe",
       }

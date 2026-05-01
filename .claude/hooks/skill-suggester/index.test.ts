@@ -414,6 +414,8 @@ describe("skill-suggester", () => {
         expect(block.value).toContain("R.getSomes({...})");
         expect(block.value).toContain("O.all({...})");
         expect(block.value).toContain("S.OptionFrom*");
+        expect(block.value).toContain("S.decodeUnknownEffect");
+        expect(block.value).toContain("Effect.mapError(...)");
         expect(block.value).toContain("Match.type<T>().pipe(...)");
         expect(block.value).toContain("nested Bool.match(...)");
       }

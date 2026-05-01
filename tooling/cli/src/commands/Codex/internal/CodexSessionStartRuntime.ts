@@ -8,7 +8,7 @@
 import { SessionStartCommandInput } from "@beep/codex/Domain/Hooks/SessionStart.ts";
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Console, Effect, pipe } from "effect";
+import { Console, Effect, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
@@ -49,8 +49,8 @@ class CodexSessionStartHookRuntimeError extends TaggedErrorClass<CodexSessionSta
   })
 ) {}
 
-const decodeSessionStartCommandInput = S.decodeUnknownSync(S.fromJsonString(SessionStartCommandInput));
-const encodeSessionStartHookOutput = S.encodeSync(S.fromJsonString(SessionStartHookOutput));
+const decodeSessionStartCommandInput = S.decodeUnknownEffect(S.fromJsonString(SessionStartCommandInput));
+const encodeSessionStartHookOutputResult = S.encodeResult(S.fromJsonString(SessionStartHookOutput));
 const isString = S.is(S.String);
 const asString = (value: unknown): string | undefined => (isString(value) ? value : undefined);
 
@@ -63,13 +63,15 @@ const messageFromUnknown = (error: unknown): string => {
 };
 
 const parseHookInput = (text: string): Effect.Effect<Record<string, unknown>, CodexSessionStartHookRuntimeError> =>
-  Effect.try({
-    try: () => ({ ...decodeSessionStartCommandInput(text) }) as Record<string, unknown>,
-    catch: (cause) =>
-      new CodexSessionStartHookRuntimeError({
-        message: `Failed to decode Codex SessionStart hook input: ${messageFromUnknown(cause)}`,
-      }),
-  });
+  decodeSessionStartCommandInput(text).pipe(
+    Effect.map((input) => ({ ...input }) as Record<string, unknown>),
+    Effect.mapError(
+      (cause) =>
+        new CodexSessionStartHookRuntimeError({
+          message: `Failed to decode Codex SessionStart hook input: ${messageFromUnknown(cause)}`,
+        })
+    )
+  );
 
 /**
  * Read and decode the optional JSON payload passed to the Codex SessionStart hook via stdin.
@@ -161,14 +163,16 @@ export const buildCodexSessionStartContext: {
  * @since 0.0.0
  */
 export const buildSessionStartHookOutput = (additionalContext: string): string =>
-  encodeSessionStartHookOutput(
-    new SessionStartHookOutput({
-      continue: true,
-      hookSpecificOutput: new SessionStartHookSpecificOutput({
-        additionalContext,
-        hookEventName: "SessionStart",
-      }),
-    })
+  Result.getOrThrow(
+    encodeSessionStartHookOutputResult(
+      new SessionStartHookOutput({
+        continue: true,
+        hookSpecificOutput: new SessionStartHookSpecificOutput({
+          additionalContext,
+          hookEventName: "SessionStart",
+        }),
+      })
+    )
   );
 
 /**

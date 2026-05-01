@@ -119,8 +119,8 @@ const TARGET_PATHLESS_FILES = [
   "tooling/cli/src/commands/CreatePackage/templates/AGENTS.md.hbs",
 ] as const;
 
-const decodeJsonString = S.decodeUnknownSync(S.UnknownFromJsonString);
-const decodeManagedFilesManifest = S.decodeUnknownSync(ManagedFilesManifest);
+const decodeJsonString = S.decodeUnknownEffect(S.UnknownFromJsonString);
+const decodeManagedFilesManifest = S.decodeUnknownEffect(ManagedFilesManifest);
 
 const findSlashColumn = (line: string): O.Option<number> => {
   const slashColumn = Str.indexOf("/")(line);
@@ -176,13 +176,22 @@ const agentsCheckCommand = Command.make(
 
     const manifestText = yield* fs.readFileString(manifestPath);
 
-    const manifest = yield* Effect.try({
-      try: () => decodeManagedFilesManifest(decodeJsonString(manifestText)),
-      catch: (cause) =>
-        new AgentsManifestDecodeError({
-          message: `[agents-check] failed to decode manifest: ${Inspectable.toStringUnknown(cause, 0)}`,
-        }),
-    });
+    const parsedManifest = yield* decodeJsonString(manifestText).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AgentsManifestDecodeError({
+            message: `[agents-check] failed to parse manifest: ${Inspectable.toStringUnknown(cause, 0)}`,
+          })
+      )
+    );
+    const manifest = yield* decodeManagedFilesManifest(parsedManifest).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AgentsManifestDecodeError({
+            message: `[agents-check] failed to decode manifest: ${Inspectable.toStringUnknown(cause, 0)}`,
+          })
+      )
+    );
 
     const agentPaths = pipe(
       manifest.files,

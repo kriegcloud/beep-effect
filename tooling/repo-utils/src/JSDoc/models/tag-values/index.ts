@@ -509,7 +509,7 @@ const tagNames = [
 /**
  * LiteralKit over all 113 canonical JSDoc tag names.
  *
- * Provides `.Enum`, `.is`, `.$match`, `S.decodeSync(TagName)`, and
+ * Provides `.Enum`, `.is`, `.$match`, `S.decodeUnknownResult(TagName)`, and
  * `TagName.Type` (`"param" | "returns" | ... | "overload"`).
  *
  * @example

@@ -6,7 +6,7 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Context, Effect, Layer, MutableRef, pipe } from "effect";
+import { Context, Effect, Layer, MutableRef, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -14,7 +14,9 @@ import type * as HttpBody from "effect/unstable/http/HttpBody";
 import * as OtlpSerialization from "effect/unstable/observability/OtlpSerialization";
 
 const $I = $ObservabilityId.create("experimental/server/OtlpPacketLab");
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const decodeNonNegativeInt = (input: unknown) =>
+  Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 const textDecoder = new TextDecoder();
 
 /**

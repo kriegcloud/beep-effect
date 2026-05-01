@@ -1,16 +1,17 @@
 import * as Schemas from "@beep/claude/hooks/schemas/index";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
 const decode =
   <SchemaType extends S.Top>(schema: SchemaType) =>
   (input: unknown): SchemaType["Type"] =>
-    S.decodeUnknownSync(schema as unknown as S.Decoder<SchemaType["Type"], never>)(input);
+    Effect.runSync(S.decodeUnknownEffect(schema as unknown as S.Decoder<SchemaType["Type"], never>)(input));
 
 const encode =
   <SchemaType extends S.Top>(schema: SchemaType) =>
   (value: SchemaType["Type"]): SchemaType["Encoded"] =>
-    S.encodeUnknownSync(schema as unknown as S.Encoder<SchemaType["Encoded"], never>)(value);
+    Effect.runSync(S.encodeUnknownEffect(schema as unknown as S.Encoder<SchemaType["Encoded"], never>)(value));
 
 describe("schemas", () => {
   describe("HookInputBase", () => {

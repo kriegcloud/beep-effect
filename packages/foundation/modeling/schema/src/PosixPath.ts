@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { identity, SchemaTransformation } from "effect";
+import { identity, Result, SchemaTransformation } from "effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -82,7 +82,8 @@ export const NativePathToPosixPath = S.String.pipe(
   )
 );
 
-const decodePosixPath = S.decodeUnknownSync(NativePathToPosixPath);
+const decodePosixPath = S.decodeUnknownResult(NativePathToPosixPath);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 /**
  * Normalize a file-system path string to POSIX separators.
@@ -100,4 +101,5 @@ const decodePosixPath = S.decodeUnknownSync(NativePathToPosixPath);
  * @since 0.0.0
  * @category Utility
  */
-export const normalizePath = (value: string): PosixPath => decodePosixPath(value);
+export const normalizePath = (value: string): PosixPath =>
+  Result.getOrThrowWith(decodePosixPath(value), schemaIssueToError);

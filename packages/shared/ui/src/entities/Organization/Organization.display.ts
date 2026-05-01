@@ -18,22 +18,25 @@ const $I = $SharedUiId.create("entities/Organization/Organization.display");
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { Display } from "@beep/shared-ui/entities/Organization/Organization.display"
  * import * as S from "effect/Schema"
  *
- * const decodeDisplay = S.decodeUnknownSync(S.make<S.Decoder<Display>>(Display.ast))
- * const display = decodeDisplay({
- *   id: 1,
- *   legalName: "Acme Legal LLC",
- *   licenseTier: "team",
- *   name: "Acme",
- *   settings: {
- *     allowAgentActions: true,
- *     defaultRetentionDays: 90,
- *   },
- *   slug: "acme",
+ * const program = Effect.gen(function* () {
+ *   const display = yield* S.decodeUnknownEffect(Display)({
+ *     id: 1,
+ *     legalName: "Acme Legal LLC",
+ *     licenseTier: "team",
+ *     name: "Acme",
+ *     settings: {
+ *       allowAgentActions: true,
+ *       defaultRetentionDays: 90,
+ *     },
+ *     slug: "acme",
+ *   })
+ *   return display.name
  * })
- * console.log(display.name)
+ * void program
  * ```
  *
  * @category models
@@ -61,21 +64,24 @@ export class Display extends S.Class<Display>($I`Display`)(
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { Form } from "@beep/shared-ui/entities/Organization/Organization.display"
  * import * as S from "effect/Schema"
  *
- * const decodeForm = S.decodeUnknownSync(S.make<S.Decoder<Form>>(Form.ast))
- * const form = decodeForm({
- *   legalName: "Acme Legal LLC",
- *   licenseTier: "team",
- *   name: "Acme",
- *   settings: {
- *     allowAgentActions: true,
- *     defaultRetentionDays: 90,
- *   },
- *   slug: "acme",
+ * const program = Effect.gen(function* () {
+ *   const form = yield* S.decodeUnknownEffect(Form)({
+ *     legalName: "Acme Legal LLC",
+ *     licenseTier: "team",
+ *     name: "Acme",
+ *     settings: {
+ *       allowAgentActions: true,
+ *       defaultRetentionDays: 90,
+ *     },
+ *     slug: "acme",
+ *   })
+ *   return form.slug
  * })
- * console.log(form.slug)
+ * void program
  * ```
  *
  * @category models
@@ -102,25 +108,28 @@ export class Form extends S.Class<Form>($I`Form`)(
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import {
  *   Display,
  *   primaryLabel,
  * } from "@beep/shared-ui/entities/Organization/Organization.display"
  * import * as S from "effect/Schema"
  *
- * const decodeDisplay = S.decodeUnknownSync(S.make<S.Decoder<Display>>(Display.ast))
- * const display = decodeDisplay({
- *   id: 1,
- *   legalName: "Acme Legal LLC",
- *   licenseTier: "team",
- *   name: "Acme",
- *   settings: {
- *     allowAgentActions: true,
- *     defaultRetentionDays: 90,
- *   },
- *   slug: "acme",
+ * const program = Effect.gen(function* () {
+ *   const display = yield* S.decodeUnknownEffect(Display)({
+ *     id: 1,
+ *     legalName: "Acme Legal LLC",
+ *     licenseTier: "team",
+ *     name: "Acme",
+ *     settings: {
+ *       allowAgentActions: true,
+ *       defaultRetentionDays: 90,
+ *     },
+ *     slug: "acme",
+ *   })
+ *   return primaryLabel(display)
  * })
- * console.log(primaryLabel(display))
+ * void program
  * ```
  *
  * @category getters

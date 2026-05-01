@@ -19,12 +19,15 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.values");
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { Organization } from "@beep/shared-domain/entities/index"
  * import * as S from "effect/Schema"
  *
- * const decodeLicenseTier = S.decodeUnknownSync(Organization.LicenseTier)
- * const tier = decodeLicenseTier("enterprise")
- * console.log(Organization.LicenseTier.is.enterprise(tier))
+ * const program = Effect.gen(function* () {
+ *   const tier = yield* S.decodeUnknownEffect(Organization.LicenseTier)("enterprise")
+ *   return Organization.LicenseTier.is.enterprise(tier)
+ * })
+ * void program
  * ```
  *
  * @category schemas
@@ -41,11 +44,10 @@ export const LicenseTier = LiteralKit(["free", "team", "enterprise"]).annotate(
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-domain/entities";
- * import * as S from "effect/Schema";
+ * import { Organization } from "@beep/shared-domain/entities/index"
  *
- * const tier: Organization.LicenseTier = S.decodeUnknownSync(Organization.LicenseTier)("team");
- * console.log(tier);
+ * const printTier = (tier: Organization.LicenseTier) => console.log(tier)
+ * void printTier
  * ```
  *
  * @category models
@@ -58,15 +60,19 @@ export type LicenseTier = typeof LicenseTier.Type;
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { Organization } from
- * "@beep/shared-domain/entities"
+ * "@beep/shared-domain/entities/index"
  * import * as S from "effect/Schema"
  *
- * const settings = S.decodeUnknownSync(Organization.Settings)({
- *   allowAgentActions: true,
- *   defaultRetentionDays: 90,
+ * const program = Effect.gen(function* () {
+ *   const settings = yield* S.decodeUnknownEffect(Organization.Settings)({
+ *     allowAgentActions: true,
+ *     defaultRetentionDays: 90,
+ *   })
+ *   return settings.allowAgentActions
  * })
- * console.log(settings.allowAgentActions)
+ * void program
  * ```
  *
  * @category models

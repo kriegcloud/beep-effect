@@ -7,7 +7,7 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings, LiteralKit, SchemaUtils } from "@beep/schema";
-import { flow, Order, pipe, SchemaAST } from "effect";
+import { flow, Order, pipe, Result, SchemaAST } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -276,7 +276,7 @@ export const make: {
   <const Tag extends TSCategoryTagBase>(meta: Omit<TSCategory, "_tag">): (tag: Tag) => ReturnType<typeof S.Literal>;
   <const Tag extends TSCategoryTagBase>(_tag: Tag, meta: Omit<TSCategory, "_tag">): ReturnType<typeof S.Literal>;
 } = dual(2, <const Tag extends TSCategoryTagBase>(_tag: Tag, meta: Omit<TSCategory, "_tag">) => {
-  const definition = S.decodeSync(TSCategoryDefinition)({ _tag, ...meta });
+  const definition = Result.getOrThrow(S.decodeResult(TSCategoryDefinition)({ _tag, ...meta }));
   return S.Literal(_tag).annotate({ tsCategoryMetadata: definition });
 });
 
@@ -1040,7 +1040,7 @@ export const CATEGORY_TAXONOMY: ReadonlyArray<TSCategory> = pipe(
       return categories;
     }
 
-    return A.append(categories, S.encodeSync(TSCategoryDefinition)(metadata));
+    return A.append(categories, Result.getOrThrow(S.encodeResult(TSCategoryDefinition)(metadata)));
   })
 );
 

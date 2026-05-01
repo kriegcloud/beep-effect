@@ -672,16 +672,20 @@ export const daysInMonth: {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { LocalDateFromString } from "@beep/shared-domain/values/LocalDate/index"
  *
- * const decodeLocalDate = S.decodeUnknownSync(LocalDateFromString)
- * const encodeLocalDate = S.encodeSync(LocalDateFromString)
+ * const program = Effect.gen(function* () {
+ *   const decodeLocalDate = S.decodeUnknownEffect(LocalDateFromString)
+ *   const encodeLocalDate = S.encodeEffect(LocalDateFromString)
  *
- * const date = decodeLocalDate("2024-06-15")
- * const encoded = encodeLocalDate(date)
+ *   const date = yield* decodeLocalDate("2024-06-15")
+ *   const encoded = yield* encodeLocalDate(date)
  *
- * console.log(encoded) // "2024-06-15"
+ *   return encoded
+ * })
+ * void program
  * ```
  *
  * @category constructors

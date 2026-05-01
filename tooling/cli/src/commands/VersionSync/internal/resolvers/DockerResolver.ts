@@ -180,7 +180,9 @@ const UnknownDockerImageValueToString = S.Unknown.pipe(
     })
   )
 );
-const decodeDockerImageValueToString = S.decodeUnknownSync(UnknownDockerImageValueToString);
+const decodeDockerImageValueToString = S.decodeUnknownOption(UnknownDockerImageValueToString);
+const dockerImageValueToString = (value: unknown): string =>
+  O.getOrElse(decodeDockerImageValueToString(value), () => `${value}`);
 
 // ── Semver-like sorting ─────────────────────────────────────────────────────
 
@@ -373,7 +375,7 @@ export const resolveDockerImages: {
         continue;
       }
 
-      const imageStr = decodeDockerImageValueToString(service.image);
+      const imageStr = dockerImageValueToString(service.image);
       const yamlPath = ["services", serviceName, "image"] as const;
       const ref = parseImageRef(serviceName, imageStr, yamlPath);
 

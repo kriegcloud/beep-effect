@@ -148,12 +148,12 @@ export class ReuseCandidateNotFoundError extends TaggedErrorClass<ReuseCandidate
   })
 ) {}
 
-const decodeJsonString = S.decodeUnknownSync(S.UnknownFromJsonString);
-const decodeWorkspacePackageManifest = S.decodeUnknownSync(WorkspacePackageManifest);
-const decodeFileOutlineRequest = S.decodeUnknownSync(TsMorphFileOutlineRequest);
-const decodeProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
-const decodeSymbolLookupRequest = S.decodeUnknownSync(TsMorphSymbolLookupRequest);
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const decodeJsonString = S.decodeUnknownEffect(S.UnknownFromJsonString);
+const decodeWorkspacePackageManifest = S.decodeUnknownEffect(WorkspacePackageManifest);
+const decodeFileOutlineRequest = S.decodeUnknownEffect(TsMorphFileOutlineRequest);
+const decodeProjectScopeRequest = S.decodeUnknownEffect(TsMorphProjectScopeRequest);
+const decodeSymbolLookupRequest = S.decodeUnknownEffect(TsMorphSymbolLookupRequest);
+const decodeNonNegativeInt = S.decodeUnknownEffect(NonNegativeInt);
 
 const PRODUCTION_FILE_IGNORE_PATTERNS = [
   "**/*.d.ts",
@@ -226,46 +226,47 @@ const CURATED_EFFECT_V4_ENTRIES = [
 
 const PATTERN_DEFINITIONS = [
   {
-    id: "schema-json-encode-sync",
+    id: "schema-json-encode-effect",
     kind: "extract-function",
-    title: "Shared schema JSON encoder helper",
-    regex: /S\.encodeUnknownSync\(S\.UnknownFromJsonString\)/u,
+    title: "Shared Effect schema JSON encoder helper",
+    regex: /S\.encode(?:Unknown)?Effect\(S\.(?:UnknownFromJsonString|fromJsonString\()/u,
     specialistLabel: "JSON codec specialist",
     rationale:
-      "Multiple files create the same schema JSON encoder inline, which is a high-confidence extraction candidate.",
+      "Multiple files create similar Effect schema JSON encoders inline, which is a high-confidence extraction candidate.",
     recommendedAction:
-      "Extract a shared schema JSON encoder helper and replace repeated inline initializers with the shared function.",
+      "Extract a shared Effect schema JSON encoder helper and replace repeated inline initializers with the shared function.",
     proposedDestinationPackage: "@beep/schema",
     proposedDestinationModule: "packages/foundation/modeling/schema/src/json/SchemaJsonCodec.ts",
     blockingConcerns: [
-      "Confirm the shared helper preserves existing formatting and caller expectations before replacing all call sites.",
+      "Confirm the shared helper preserves caller-specific schema error mapping before replacing all call sites.",
     ],
     implementationSteps: [
-      "Create a schema JSON codec helper in the proposed destination module.",
+      "Create an Effect-returning schema JSON encoder helper in the proposed destination module.",
       "Replace repeated inline encoder initializers with the shared helper.",
-      "Re-run tooling command tests that rely on JSON rendering or manifest generation.",
+      "Map schema errors into each caller's local typed error before returning across command or service boundaries.",
     ],
     verificationCommands: ["bun run check --filter=@beep/repo-cli", "bun run test --filter=@beep/repo-cli"],
     catalogKeywords: ["schema", "json", "encode"],
   },
   {
-    id: "schema-json-decode-sync",
+    id: "schema-json-decode-effect",
     kind: "extract-function",
-    title: "Shared schema JSON decoder helper",
-    regex: /S\.decodeUnknownSync\(S\.UnknownFromJsonString\)/u,
+    title: "Shared Effect schema JSON decoder helper",
+    regex: /S\.decode(?:Unknown)?Effect\(S\.(?:UnknownFromJsonString|fromJsonString\()/u,
     specialistLabel: "JSON codec specialist",
     rationale:
-      "Multiple files decode JSON strings through the same Schema helper shape, which is a good candidate for a shared boundary utility.",
-    recommendedAction: "Extract a shared schema JSON decoder helper and route repeated inline decoders through it.",
+      "Multiple files decode JSON strings through similar Effect schema helpers, which is a good candidate for a shared boundary utility.",
+    recommendedAction:
+      "Extract a shared Effect schema JSON decoder helper and route repeated inline decoders through it.",
     proposedDestinationPackage: "@beep/schema",
     proposedDestinationModule: "packages/foundation/modeling/schema/src/json/SchemaJsonCodec.ts",
     blockingConcerns: [
-      "Confirm callers agree on sync decoding semantics and failure presentation before centralizing the helper.",
+      "Confirm callers agree on the Effect error shape and map schema issues into local typed boundary errors.",
     ],
     implementationSteps: [
-      "Create a shared decoder helper adjacent to the encoder helper or an existing JSON boundary module.",
+      "Create an Effect-returning decoder helper adjacent to the encoder helper or an existing JSON boundary module.",
       "Replace repeated inline decoder initializers with the shared helper.",
-      "Verify callers still render decode failures with the same user-facing text.",
+      "Verify callers still render decode failures with the same user-facing text after Effect.mapError mapping.",
     ],
     verificationCommands: ["bun run check --filter=@beep/repo-cli", "bun run test --filter=@beep/repo-cli"],
     catalogKeywords: ["schema", "json", "decode"],
@@ -566,7 +567,12 @@ const buildCatalogEntry = (scope: WorkspaceScope, symbol: TsMorphSymbol): ReuseC
     applicability: lowerKeywordsFromParts([scope.packageName, scope.packagePath, symbol.kind]),
   });
 
-const resolveScopeRequest = (repoRoot: string, tsConfigPath: string) =>
+const resolveScopeRequest = (
+  repoRoot: string,
+  tsConfigPath: string,
+  operation: string,
+  packagePath: string
+): Effect.Effect<TsMorphProjectScopeRequest, ReuseAnalysisError> =>
   decodeProjectScopeRequest({
     entrypoint: {
       _tag: "tsconfig",
@@ -575,7 +581,7 @@ const resolveScopeRequest = (repoRoot: string, tsConfigPath: string) =>
     mode: "syntax",
     referencePolicy: "workspaceOnly",
     repoRootPath: repoRoot,
-  });
+  }).pipe(Effect.mapError(mapAnalysisError(operation, `Failed to build ts-morph scope request for ${packagePath}`)));
 
 const scanPatternsInFile = (
   filePath: string,
@@ -735,10 +741,12 @@ const discoverWorkspaceScopes = (analysisContext: ReuseAnalysisContextShape, sco
         const content = yield* runtime.fs
           .readFileString(absolutePackageJsonPath)
           .pipe(Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to read ${packageJsonPath}`)));
-        const manifest = yield* Effect.try({
-          try: () => decodeWorkspacePackageManifest(decodeJsonString(content)),
-          catch: mapAnalysisError("discoverWorkspaceScopes", `Failed to decode ${packageJsonPath}`),
-        });
+        const parsedManifest = yield* decodeJsonString(content).pipe(
+          Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to parse ${packageJsonPath}`))
+        );
+        const manifest = yield* decodeWorkspacePackageManifest(parsedManifest).pipe(
+          Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to decode ${packageJsonPath}`))
+        );
 
         const packagePath = normalizeRelativePath(runtime.path.dirname(packageJsonPath));
         const srcPath = normalizeRelativePath(runtime.path.join(packagePath, "src"));
@@ -796,8 +804,14 @@ const collectCatalogEntriesForScope = (analysisContext: ReuseAnalysisContextShap
     Effect.gen(function* () {
       const runtime = analysisContext.runtime;
       const files = yield* collectScopeFiles(analysisContext, scope);
+      const projectScopeRequest = yield* resolveScopeRequest(
+        runtime.repoRoot,
+        scope.tsConfigPath,
+        "collectCatalogEntriesForScope",
+        scope.packagePath
+      );
       const projectScope = yield* runtime.tsmorph
-        .resolveProjectScope(resolveScopeRequest(runtime.repoRoot, scope.tsConfigPath))
+        .resolveProjectScope(projectScopeRequest)
         .pipe(
           Effect.mapError(
             mapAnalysisError(
@@ -809,14 +823,15 @@ const collectCatalogEntriesForScope = (analysisContext: ReuseAnalysisContextShap
       const entries: ReuseCatalogEntry[] = [];
 
       for (const filePath of files) {
-        const outlineOption = yield* runtime.tsmorph
-          .getFileOutline(
-            decodeFileOutlineRequest({
-              scopeId: projectScope.scopeId,
-              filePath,
-            })
+        const fileOutlineRequest = yield* decodeFileOutlineRequest({
+          scopeId: projectScope.scopeId,
+          filePath,
+        }).pipe(
+          Effect.mapError(
+            mapAnalysisError("collectCatalogEntriesForScope", `Failed to build file outline request for ${filePath}`)
           )
-          .pipe(Effect.option);
+        );
+        const outlineOption = yield* runtime.tsmorph.getFileOutline(fileOutlineRequest).pipe(Effect.option);
 
         if (O.isNone(outlineOption)) {
           continue;
@@ -839,8 +854,14 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
     Effect.gen(function* () {
       const runtime = analysisContext.runtime;
       const files = yield* collectScopeFiles(analysisContext, scope);
+      const projectScopeRequest = yield* resolveScopeRequest(
+        runtime.repoRoot,
+        scope.tsConfigPath,
+        "collectPatternOccurrencesForScope",
+        scope.packagePath
+      );
       const projectScope = yield* runtime.tsmorph
-        .resolveProjectScope(resolveScopeRequest(runtime.repoRoot, scope.tsConfigPath))
+        .resolveProjectScope(projectScopeRequest)
         .pipe(
           Effect.mapError(
             mapAnalysisError(
@@ -855,14 +876,18 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
         const sourceTextOption = yield* runtime.fs
           .readFileString(runtime.path.join(runtime.repoRoot, filePath))
           .pipe(Effect.option);
-        const outlineOption = yield* runtime.tsmorph
-          .getFileOutline(
-            decodeFileOutlineRequest({
-              scopeId: projectScope.scopeId,
-              filePath,
-            })
+        const fileOutlineRequest = yield* decodeFileOutlineRequest({
+          scopeId: projectScope.scopeId,
+          filePath,
+        }).pipe(
+          Effect.mapError(
+            mapAnalysisError(
+              "collectPatternOccurrencesForScope",
+              `Failed to build file outline request for ${filePath}`
+            )
           )
-          .pipe(Effect.option);
+        );
+        const outlineOption = yield* runtime.tsmorph.getFileOutline(fileOutlineRequest).pipe(Effect.option);
 
         if (O.isNone(sourceTextOption)) {
           continue;
@@ -1191,7 +1216,9 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
         scopeSelector: scopeSelectorLabel(scopeSelector, scopes),
         scoutUnits,
         specialistUnits,
-        catalogEntryCount: decodeNonNegativeInt(catalogEntries.length),
+        catalogEntryCount: yield* decodeNonNegativeInt(catalogEntries.length).pipe(
+          Effect.mapError(mapAnalysisError("buildPartitions", "Failed to normalize reuse catalog entry count"))
+        ),
       });
     });
 
@@ -1306,20 +1333,29 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
       }
 
       if (O.isSome(symbolId)) {
+        const projectScopeRequest = yield* resolveScopeRequest(
+          runtime.repoRoot,
+          owningScope.tsConfigPath,
+          "findReuseOptions",
+          owningScope.packagePath
+        );
         const projectScope = yield* runtime.tsmorph
-          .resolveProjectScope(resolveScopeRequest(runtime.repoRoot, owningScope.tsConfigPath))
+          .resolveProjectScope(projectScopeRequest)
           .pipe(
             Effect.mapError(
               mapAnalysisError("findReuseOptions", `Failed to resolve ts-morph scope for ${owningScope.packagePath}`)
             )
           );
-        const lookup = yield* runtime.tsmorph
-          .getSymbolById(
-            decodeSymbolLookupRequest({
-              scopeId: projectScope.scopeId,
-              symbolId: symbolId.value,
-            })
+        const symbolLookupRequest = yield* decodeSymbolLookupRequest({
+          scopeId: projectScope.scopeId,
+          symbolId: symbolId.value,
+        }).pipe(
+          Effect.mapError(
+            mapAnalysisError("findReuseOptions", `Failed to build symbol lookup request for ${symbolId.value}`)
           )
+        );
+        const lookup = yield* runtime.tsmorph
+          .getSymbolById(symbolLookupRequest)
           .pipe(Effect.mapError(mapAnalysisError("findReuseOptions", `Failed to lookup symbol ${symbolId.value}`)));
 
         queryKeywords.push(
@@ -1386,8 +1422,12 @@ export const ReuseInventoryServiceLive = Layer.effect(
       return new ReuseInventory({
         scopeSelector: scopeSelectorLabel(scopeSelector, scopes),
         generatedAt,
-        catalogEntryCount: decodeNonNegativeInt(catalogEntries.length),
-        candidateCount: decodeNonNegativeInt(candidates.length),
+        catalogEntryCount: yield* decodeNonNegativeInt(catalogEntries.length).pipe(
+          Effect.mapError(mapAnalysisError("buildInventory", "Failed to normalize reuse catalog entry count"))
+        ),
+        candidateCount: yield* decodeNonNegativeInt(candidates.length).pipe(
+          Effect.mapError(mapAnalysisError("buildInventory", "Failed to normalize reuse candidate count"))
+        ),
         candidates,
       });
     });

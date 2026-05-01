@@ -35,8 +35,6 @@ import { makeSemanticSchemaMetadata } from "../semantic-schema-metadata.ts";
 
 const $I = $SemanticWebId.create("services/provenance");
 
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-
 const serviceContractMetadata = (canonicalName: string, overview: string) =>
   makeSemanticSchemaMetadata({
     kind: "serviceContract",
@@ -298,11 +296,26 @@ const isExtensionTierRecord = (record: ProvRecord): boolean =>
 const countRecords = (
   records: ReadonlyArray<ProvRecord>,
   predicate: (record: ProvRecord) => boolean
-): typeof NonNegativeInt.Type =>
+): Effect.Effect<typeof NonNegativeInt.Type, ProvenanceServiceError> =>
   decodeNonNegativeInt(
     pipe(
       records,
       A.reduce(0, (count, record) => (predicate(record) ? count + 1 : count))
+    ),
+    "record count"
+  );
+
+const decodeNonNegativeInt = (
+  value: number,
+  label: string
+): Effect.Effect<typeof NonNegativeInt.Type, ProvenanceServiceError> =>
+  S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
+    Effect.mapError(
+      (cause) =>
+        new ProvenanceServiceError({
+          reason: "projectionLimit",
+          message: `Failed to decode non-negative ${label}: ${String(cause)}`,
+        })
     )
   );
 
@@ -354,20 +367,18 @@ export const ProvenanceServiceLive = Layer.succeed(
 
       return createProjection(request.bundle, request.anchors, request.maxItems);
     }),
-    summarize: Effect.fn((request: SummarizeProvenanceRequest) =>
-      Effect.succeed(
-        ProvenanceSummary.make({
-          recordCount: decodeNonNegativeInt(request.bundle.records.length),
-          entityCount: countRecords(request.bundle.records, isEntityRecord),
-          activityCount: countRecords(request.bundle.records, isActivityRecord),
-          agentCount: countRecords(
-            request.bundle.records,
-            (record) => isAgentRecord(record) || isSoftwareAgentRecord(record)
-          ),
-          anchorCount: decodeNonNegativeInt(request.anchors.length),
-        })
-      )
-    ),
+    summarize: Effect.fn(function* (request: SummarizeProvenanceRequest) {
+      return ProvenanceSummary.make({
+        recordCount: yield* decodeNonNegativeInt(request.bundle.records.length, "record count"),
+        entityCount: yield* countRecords(request.bundle.records, isEntityRecord),
+        activityCount: yield* countRecords(request.bundle.records, isActivityRecord),
+        agentCount: yield* countRecords(
+          request.bundle.records,
+          (record) => isAgentRecord(record) || isSoftwareAgentRecord(record)
+        ),
+        anchorCount: yield* decodeNonNegativeInt(request.anchors.length, "anchor count"),
+      });
+    }),
     exportBundle: Effect.fn(function* (request: ExportProvenanceRequest) {
       if (request.profile === "prov-core-v1" && pipe(request.bundle.records, A.some(isExtensionTierRecord))) {
         return yield* new ProvenanceServiceError({

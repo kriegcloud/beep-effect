@@ -8,6 +8,7 @@
 import { $ChalkId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { P } from "@beep/utils";
+import { Result } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { ansiStyles, getModelAnsi, getStyleEntry, type StyleName } from "./AnsiStyles.ts";
@@ -53,8 +54,9 @@ const styleNameValues: ReadonlyArray<StyleName> = [
   ...backgroundColorNameValues,
 ];
 
-const decodeColorSupportLevel = S.decodeUnknownSync(ColorSupportLevel);
-const decodeColorSupportLevelInput = S.decodeUnknownSync(ColorSupportLevelInput);
+const decodeColorSupportLevel = S.decodeUnknownResult(ColorSupportLevel);
+const decodeColorSupportLevelInput = S.decodeUnknownResult(ColorSupportLevelInput);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 class MissingBuilderMetadataError extends TaggedErrorClass<MissingBuilderMetadataError>(
   $I`MissingBuilderMetadataError`
@@ -68,8 +70,11 @@ class MissingBuilderMetadataError extends TaggedErrorClass<MissingBuilderMetadat
   })
 ) {}
 
-const normalizeColorSupportLevel = (level: unknown): S.Schema.Type<typeof ColorSupportLevel> =>
-  decodeColorSupportLevel(decodeColorSupportLevelInput(level));
+const normalizeColorSupportLevel = (level: unknown): S.Schema.Type<typeof ColorSupportLevel> => {
+  const input = Result.getOrThrowWith(decodeColorSupportLevelInput(level), schemaIssueToError);
+
+  return Result.getOrThrowWith(decodeColorSupportLevel(input), schemaIssueToError);
+};
 
 const getBuilderMeta = (builder: ChalkFunction): BuilderMeta => {
   const meta = builderMetaMap.get(builder);

@@ -14,7 +14,7 @@ import {
   Sha256Hex,
   Sha256HexFromBytes,
 } from "@beep/schema";
-import { Effect, Match, SchemaGetter, Tuple } from "effect";
+import { Effect, Match, Result, SchemaGetter, Tuple } from "effect";
 
 import * as S from "effect/Schema";
 import { Project, SourceFile, Node as TsMorphNode } from "ts-morph";
@@ -1034,9 +1034,9 @@ export const TypeScriptImplementationFilePathToSymbolFilePath = TypeScriptImplem
   )
 );
 
-const decodeSymbolId = S.decodeUnknownSync(SymbolId);
-const decodeProjectScopeId = S.decodeUnknownSync(ProjectScopeId);
-const decodeContentHash = S.decodeUnknownSync(ContentHash);
+const decodeSymbolIdResult = S.decodeUnknownResult(SymbolId);
+const decodeProjectScopeIdResult = S.decodeUnknownResult(ProjectScopeId);
+const decodeContentHashEffect = S.decodeUnknownEffect(ContentHash);
 const decodeSha256HexFromBytesEffect = S.decodeUnknownEffect(Sha256HexFromBytes);
 
 /**
@@ -1054,8 +1054,8 @@ export const ContentHashFromBytes = S.Uint8Array.pipe(
   S.decodeTo(ContentHash, {
     decode: SchemaGetter.transformOrFail((value) =>
       decodeSha256HexFromBytesEffect(value).pipe(
-        Effect.mapError((error) => error.issue),
-        Effect.map(decodeContentHash)
+        Effect.flatMap(decodeContentHashEffect),
+        Effect.mapError((error) => error.issue)
       )
     ),
     encode: SchemaGetter.forbidden(
@@ -1302,7 +1302,7 @@ export const makeSymbolId = (parts: {
   readonly filePath: SymbolFilePath;
   readonly qualifiedName: SymbolQualifiedName;
   readonly kind: SymbolKind;
-}): SymbolId => decodeSymbolId(`${parts.filePath}::${parts.qualifiedName}#${parts.kind}`);
+}): SymbolId => Result.getOrThrow(decodeSymbolIdResult(`${parts.filePath}::${parts.qualifiedName}#${parts.kind}`));
 
 /**
  * Builds a stable `ProjectScopeId` from validated scope identity parts.
@@ -1321,9 +1321,10 @@ export const makeProjectScopeId = (parts: {
   readonly tsConfigPath: TsConfigFilePath;
   readonly mode: TsMorphScopeMode;
   readonly referencePolicy: TsMorphReferencePolicy;
-}): ProjectScopeId => decodeProjectScopeId(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`);
+}): ProjectScopeId =>
+  Result.getOrThrow(decodeProjectScopeIdResult(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`));
 
-const decodeProjectCacheKey = S.decodeUnknownSync(ProjectCacheKey);
+const decodeProjectCacheKeyResult = S.decodeUnknownResult(ProjectCacheKey);
 
 /**
  * Builds a stable `ProjectCacheKey` from validated scope identity parts.
@@ -1342,7 +1343,8 @@ export const makeProjectCacheKey = (parts: {
   readonly tsConfigPath: TsConfigFilePath;
   readonly mode: TsMorphScopeMode;
   readonly referencePolicy: TsMorphReferencePolicy;
-}): ProjectCacheKey => decodeProjectCacheKey(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`);
+}): ProjectCacheKey =>
+  Result.getOrThrow(decodeProjectCacheKeyResult(`${parts.tsConfigPath}::${parts.mode}#${parts.referencePolicy}`));
 
 /**
  * Normalizes symbol input by deriving missing identity and category fields.

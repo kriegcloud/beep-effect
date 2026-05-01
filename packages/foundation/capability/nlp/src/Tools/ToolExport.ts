@@ -156,9 +156,15 @@ const decodeToolParameters = <T extends NlpTool>(
   tool: T,
   parameterNames: ReadonlyArray<string>,
   args: ReadonlyArray<unknown>
-): Tool.Parameters<T> =>
-  SchemaParser.decodeUnknownSync(S.make<S.Decoder<Tool.Parameters<T>>>(tool.parametersSchema.ast))(
+): Effect.Effect<Tool.Parameters<T>, ExportedToolError> =>
+  SchemaParser.decodeUnknownEffect(S.make<S.Decoder<Tool.Parameters<T>>>(tool.parametersSchema.ast))(
     buildArgsObject(parameterNames, args)
+  ).pipe(
+    Effect.mapError((cause) =>
+      ExportedToolError.fromCause(cause, tool.name, {
+        message: `Invalid parameters for ${tool.name}: ${renderError(cause)}`,
+      })
+    )
   );
 
 const handleTool = <T extends NlpTool>(
@@ -189,13 +195,7 @@ const buildExportedTool: {
     description: Tool.getDescription(tool) ?? "",
     handle: Effect.fn(
       function* (args) {
-        const params = yield* Effect.try({
-          try: () => decodeToolParameters(tool, parameterNames, args),
-          catch: (cause) =>
-            ExportedToolError.fromCause(cause, tool.name, {
-              message: `Invalid parameters for ${tool.name}: ${renderError(cause)}`,
-            }),
-        });
+        const params = yield* decodeToolParameters(tool, parameterNames, args);
         const stream = yield* handleTool(toolkit, tool, params).pipe(
           Effect.mapError((cause) =>
             ExportedToolError.fromCause(cause, tool.name, {

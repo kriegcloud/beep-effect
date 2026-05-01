@@ -7,6 +7,7 @@
 
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, NonNegativeInt, SchemaUtils } from "@beep/schema";
+import { Result } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -14,6 +15,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $NlpId.create("Core/Pattern");
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 const EmptyPatternChoice = S.Literal("");
 const MeaningfulPatternOptionChoice = S.makeFilter((values: ReadonlyArray<string>) => A.some(values, Str.isNonEmpty), {
@@ -476,8 +478,10 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
    */
   static readonly POS = POSPatternElement.pipe(
     SchemaUtils.withStatics(() => ({
-      decode: S.decodeUnknownSync(POSPatternElement),
-      encode: S.encodeSync(POSPatternElement),
+      decode: (input: unknown) =>
+        Result.getOrThrowWith(S.decodeUnknownResult(POSPatternElement)(input), schemaIssueToError),
+      encode: (input: typeof POSPatternElement.Type) =>
+        Result.getOrThrowWith(S.encodeResult(POSPatternElement)(input), schemaIssueToError),
       is: S.is(POSPatternElement),
       toBracketString: (value: POSPatternOption): string => renderBracketString(value),
     }))
@@ -488,8 +492,10 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
    */
   static readonly Entity = EntityPatternElement.pipe(
     SchemaUtils.withStatics(() => ({
-      decode: S.decodeUnknownSync(EntityPatternElement),
-      encode: S.encodeSync(EntityPatternElement),
+      decode: (input: unknown) =>
+        Result.getOrThrowWith(S.decodeUnknownResult(EntityPatternElement)(input), schemaIssueToError),
+      encode: (input: typeof EntityPatternElement.Type) =>
+        Result.getOrThrowWith(S.encodeResult(EntityPatternElement)(input), schemaIssueToError),
       is: S.is(EntityPatternElement),
       toBracketString: (value: EntityPatternOption): string => renderBracketString(value),
     }))
@@ -500,8 +506,10 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
    */
   static readonly Literal = LiteralPatternElement.pipe(
     SchemaUtils.withStatics(() => ({
-      decode: S.decodeUnknownSync(LiteralPatternElement),
-      encode: S.encodeSync(LiteralPatternElement),
+      decode: (input: unknown) =>
+        Result.getOrThrowWith(S.decodeUnknownResult(LiteralPatternElement)(input), schemaIssueToError),
+      encode: (input: typeof LiteralPatternElement.Type) =>
+        Result.getOrThrowWith(S.encodeResult(LiteralPatternElement)(input), schemaIssueToError),
       is: S.is(LiteralPatternElement),
       toBracketString: (value: LiteralPatternOption): string => renderBracketString(value),
     }))
@@ -516,7 +524,10 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
   } = dual<
     () => (pattern: Pattern) => S.Codec.Encoded<typeof Pattern>,
     (pattern: Pattern) => S.Codec.Encoded<typeof Pattern>
-  >((args) => args.length >= 1, S.encodeSync(Pattern));
+  >(
+    (args) => args.length >= 1,
+    (pattern) => Result.getOrThrowWith(S.encodeResult(Pattern)(pattern), schemaIssueToError)
+  );
 
   /**
    * Decode unknown input into a pattern.
@@ -527,7 +538,10 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
   } = dual<
     () => (input: S.Codec.Encoded<typeof Pattern>) => Pattern,
     (input: S.Codec.Encoded<typeof Pattern>) => Pattern
-  >((args) => args.length >= 1, S.decodeUnknownSync(Pattern));
+  >(
+    (args) => args.length >= 1,
+    (input) => Result.getOrThrowWith(S.decodeUnknownResult(Pattern)(input), schemaIssueToError)
+  );
 
   /**
    * Runtime predicate for pattern values.

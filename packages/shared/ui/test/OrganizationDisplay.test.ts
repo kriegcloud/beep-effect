@@ -1,7 +1,17 @@
 import * as Organization from "@beep/shared-ui/entities/Organization/index";
-import { describe, expect, it } from "@effect/vitest";
+import { assert, describe, expect, it } from "@effect/vitest";
+import { Effect, Exit } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+
+const decodeDisplay = S.decodeUnknownEffect(Organization.Display);
+const decodeForm = S.decodeUnknownEffect(Organization.Form);
+const encodeDisplay = S.encodeEffect(Organization.Display);
+const encodeForm = S.encodeEffect(Organization.Form);
+const expectFailure = Effect.fn("expectFailure")(function* <A, E>(effect: Effect.Effect<A, E, never>) {
+  const exit = yield* Effect.exit(effect);
+  assert.strictEqual(Exit.isFailure(exit), true);
+});
 
 const displayInput = {
   id: 1,
@@ -27,85 +37,97 @@ const formInput = {
 } as const;
 
 describe("Organization UI contracts", () => {
-  it("decodes browser-safe display payloads", () => {
-    const display = S.decodeUnknownSync(Organization.Display)(displayInput);
+  it.effect("decodes browser-safe display payloads", () =>
+    Effect.gen(function* () {
+      const display = yield* decodeDisplay(displayInput);
 
-    expect(display.id).toBe(1);
-    expect(display.licenseTier).toBe("team");
-    expect(display.settings.defaultRetentionDays).toBe(90);
-    expect(O.isNone(display.parentOrgId)).toBe(true);
-  });
+      expect(display.id).toBe(1);
+      expect(display.licenseTier).toBe("team");
+      expect(display.settings.defaultRetentionDays).toBe(90);
+      expect(O.isNone(display.parentOrgId)).toBe(true);
+    })
+  );
 
-  it("decodes browser-safe form payloads with parent organizations", () => {
-    const form = S.decodeUnknownSync(Organization.Form)({
-      ...formInput,
-      parentOrgId: 1,
-    });
+  it.effect("decodes browser-safe form payloads with parent organizations", () =>
+    Effect.gen(function* () {
+      const form = yield* decodeForm({
+        ...formInput,
+        parentOrgId: 1,
+      });
 
-    expect(form.slug).toBe("acme");
-    expect(O.getOrThrow(form.parentOrgId)).toBe(1);
-  });
+      expect(form.slug).toBe("acme");
+      expect(O.getOrThrow(form.parentOrgId)).toBe(1);
+    })
+  );
 
-  it("decodes null parent organization ids as None", () => {
-    const display = S.decodeUnknownSync(Organization.Display)({
-      ...displayInput,
-      parentOrgId: null,
-    });
-    const form = S.decodeUnknownSync(Organization.Form)({
-      ...formInput,
-      parentOrgId: null,
-    });
-
-    expect(display.parentOrgId).toEqual(O.none());
-    expect(form.parentOrgId).toEqual(O.none());
-  });
-
-  it("derives the primary display label from the organization name", () => {
-    const display = S.decodeUnknownSync(Organization.Display)(displayInput);
-
-    expect(Organization.primaryLabel(display)).toBe("Acme");
-  });
-
-  it("encodes nullish parent organization ids for browser payloads", () => {
-    const withoutParent = S.decodeUnknownSync(Organization.Display)(displayInput);
-    const withParent = S.decodeUnknownSync(Organization.Display)({
-      ...displayInput,
-      parentOrgId: 1,
-    });
-    const formWithoutParent = S.decodeUnknownSync(Organization.Form)(formInput);
-
-    expect(S.encodeSync(Organization.Display)(withoutParent).parentOrgId).toBeNull();
-    expect(S.encodeSync(Organization.Display)(withParent).parentOrgId).toBe(1);
-    expect(S.encodeSync(Organization.Form)(formWithoutParent).parentOrgId).toBeNull();
-  });
-
-  it("rejects invalid browser-safe organization payload fields", () => {
-    expect(() =>
-      S.decodeUnknownSync(Organization.Display)({
+  it.effect("decodes null parent organization ids as None", () =>
+    Effect.gen(function* () {
+      const display = yield* decodeDisplay({
         ...displayInput,
-        licenseTier: "custom",
-      })
-    ).toThrow();
-    expect(() =>
-      S.decodeUnknownSync(Organization.Display)({
+        parentOrgId: null,
+      });
+      const form = yield* decodeForm({
+        ...formInput,
+        parentOrgId: null,
+      });
+
+      expect(display.parentOrgId).toEqual(O.none());
+      expect(form.parentOrgId).toEqual(O.none());
+    })
+  );
+
+  it.effect("derives the primary display label from the organization name", () =>
+    Effect.gen(function* () {
+      const display = yield* decodeDisplay(displayInput);
+
+      expect(Organization.primaryLabel(display)).toBe("Acme");
+    })
+  );
+
+  it.effect("encodes nullish parent organization ids for browser payloads", () =>
+    Effect.gen(function* () {
+      const withoutParent = yield* decodeDisplay(displayInput);
+      const withParent = yield* decodeDisplay({
         ...displayInput,
-        name: "",
-      })
-    ).toThrow();
-    expect(() =>
-      S.decodeUnknownSync(Organization.Display)({
-        ...displayInput,
-        settings: {
-          ...displayInput.settings,
-          defaultRetentionDays: 0,
-        },
-      })
-    ).toThrow();
-    expect(() =>
-      S.decodeUnknownSync(Organization.Display)({
-        ...displayInput,
-        slug: "Invalid Slug",
-      })
-    ).toThrow();
-  });
+        parentOrgId: 1,
+      });
+      const formWithoutParent = yield* decodeForm(formInput);
+
+      expect((yield* encodeDisplay(withoutParent)).parentOrgId).toBeNull();
+      expect((yield* encodeDisplay(withParent)).parentOrgId).toBe(1);
+      expect((yield* encodeForm(formWithoutParent)).parentOrgId).toBeNull();
+    })
+  );
+
+  it.effect("rejects invalid browser-safe organization payload fields", () =>
+    Effect.gen(function* () {
+      yield* expectFailure(
+        decodeDisplay({
+          ...displayInput,
+          licenseTier: "custom",
+        })
+      );
+      yield* expectFailure(
+        decodeDisplay({
+          ...displayInput,
+          name: "",
+        })
+      );
+      yield* expectFailure(
+        decodeDisplay({
+          ...displayInput,
+          settings: {
+            ...displayInput.settings,
+            defaultRetentionDays: 0,
+          },
+        })
+      );
+      yield* expectFailure(
+        decodeDisplay({
+          ...displayInput,
+          slug: "Invalid Slug",
+        })
+      );
+    })
+  );
 });

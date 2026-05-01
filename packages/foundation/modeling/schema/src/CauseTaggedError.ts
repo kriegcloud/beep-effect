@@ -6,7 +6,7 @@
  */
 
 import type { Struct } from "effect";
-import { Effect } from "effect";
+import { Effect, Result } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -266,7 +266,9 @@ const hasExtraFields = (fields: CauseTaggedErrorFields): boolean => !R.isEmptyRe
 const isSchemaFields = (value: unknown): value is CauseTaggedErrorFields =>
   P.isObject(value) && R.every({ ...value }, S.isSchema);
 
-const decodeCauseTaggedErrorMessage = S.decodeUnknownSync(S.String);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const decodeCauseTaggedErrorMessage = (input: unknown) =>
+  Result.getOrThrowWith(S.decodeUnknownResult(S.String)(input), schemaIssueToError);
 
 const makeCauseTaggedErrorExtrasDecoder = <Fields extends CauseTaggedErrorFields>(
   fields: Fields

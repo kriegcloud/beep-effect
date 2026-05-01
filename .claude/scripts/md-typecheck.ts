@@ -66,7 +66,7 @@ const createTsConfig = (tsconfigBasePath: string, projectRoot: string) => ({
 
 // Directories to skip when crawling for markdown files
 const SKIP_DIRECTORIES = HashSet.fromIterable(["node_modules", "dist-types", ".git", "dist", "build"]);
-const stringifyJson = S.encodeSync(S.UnknownFromJsonString);
+const stringifyJson = S.encodeEffect(S.UnknownFromJsonString);
 
 // ============================================================================
 // File System Operations
@@ -191,7 +191,8 @@ const writeCodeBlocksToOutput = (
 
     // Write tsconfig.json that extends the project's root config
     const tsconfig = createTsConfig(tsconfigBasePath, projectRoot);
-    yield* fs.writeFileString(path.join(outputDir, "tsconfig.json"), stringifyJson(tsconfig)).pipe(Effect.orDie);
+    const tsconfigJson = yield* stringifyJson(tsconfig).pipe(Effect.orDie);
+    yield* fs.writeFileString(path.join(outputDir, "tsconfig.json"), tsconfigJson).pipe(Effect.orDie);
 
     // Write code blocks AS-IS - users must provide valid TypeScript with all imports
 

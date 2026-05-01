@@ -14,6 +14,13 @@ const make = EntityId.factory("shared", $I);
 /**
  * Organization entity identifier.
  *
+ * @example
+ * ```ts
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(OrganizationId.tableName)
+ * ```
+ *
  * @since 0.0.0
  * @category entity ids
  */
@@ -26,14 +33,15 @@ export const OrganizationId = make("organization", {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeOrganizationId = S.decodeUnknownSync(
- *   S.make<S.Decoder<typeof OrganizationId.Type>>(OrganizationId.ast)
- * )
- * const id = decodeOrganizationId(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(OrganizationId)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -43,6 +51,13 @@ export type OrganizationId = typeof OrganizationId.Type;
 
 /**
  * User entity identifier.
+ *
+ * @example
+ * ```ts
+ * import { UserId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(UserId.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category entity ids
@@ -56,12 +71,15 @@ export const UserId = make("user", {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { UserId } from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeUserId = S.decodeUnknownSync(S.make<S.Decoder<typeof UserId.Type>>(UserId.ast))
- * const id = decodeUserId(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(UserId)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -71,6 +89,13 @@ export type UserId = typeof UserId.Type;
 
 /**
  * Team entity identifier.
+ *
+ * @example
+ * ```ts
+ * import { TeamId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(TeamId.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category entity ids
@@ -84,12 +109,15 @@ export const TeamId = make("team", {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { TeamId } from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeTeamId = S.decodeUnknownSync(S.make<S.Decoder<typeof TeamId.Type>>(TeamId.ast))
- * const id = decodeTeamId(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(TeamId)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -99,6 +127,13 @@ export type TeamId = typeof TeamId.Type;
 
 /**
  * Service-account entity identifier.
+ *
+ * @example
+ * ```ts
+ * import { ServiceAccountId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(ServiceAccountId.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category entity ids
@@ -112,14 +147,15 @@ export const ServiceAccountId = make("service_account", {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ServiceAccountId } from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeServiceAccountId = S.decodeUnknownSync(
- *   S.make<S.Decoder<typeof ServiceAccountId.Type>>(ServiceAccountId.ast)
- * )
- * const id = decodeServiceAccountId(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(ServiceAccountId)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -129,6 +165,13 @@ export type ServiceAccountId = typeof ServiceAccountId.Type;
 
 /**
  * Agent entity identifier.
+ *
+ * @example
+ * ```ts
+ * import { AgentId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(AgentId.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category entity ids
@@ -142,12 +185,15 @@ export const AgentId = make("agent", {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { AgentId } from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeAgentId = S.decodeUnknownSync(S.make<S.Decoder<typeof AgentId.Type>>(AgentId.ast))
- * const id = decodeAgentId(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(AgentId)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -157,6 +203,13 @@ export type AgentId = typeof AgentId.Type;
 
 /**
  * Agent-version entity identifier.
+ *
+ * @example
+ * ```ts
+ * import { AgentVersionId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(AgentVersionId.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category entity ids
@@ -170,14 +223,15 @@ export const AgentVersionId = make("agent_version", {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { AgentVersionId } from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeAgentVersionId = S.decodeUnknownSync(
- *   S.make<S.Decoder<typeof AgentVersionId.Type>>(AgentVersionId.ast)
- * )
- * const id = decodeAgentVersionId(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(AgentVersionId)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -187,6 +241,13 @@ export type AgentVersionId = typeof AgentVersionId.Type;
 
 /**
  * Connector-account entity identifier.
+ *
+ * @example
+ * ```ts
+ * import { ConnectorAccountId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(ConnectorAccountId.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category entity ids
@@ -200,14 +261,15 @@ export const ConnectorAccountId = make("connector_account", {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ConnectorAccountId } from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeConnectorAccountId = S.decodeUnknownSync(
- *   S.make<S.Decoder<typeof ConnectorAccountId.Type>>(ConnectorAccountId.ast)
- * )
- * const id = decodeConnectorAccountId(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(ConnectorAccountId)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -217,6 +279,13 @@ export type ConnectorAccountId = typeof ConnectorAccountId.Type;
 
 /**
  * Activity entity identifier used by provenance and lifecycle mixins.
+ *
+ * @example
+ * ```ts
+ * import { ActivityId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(ActivityId.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category entity ids
@@ -230,12 +299,15 @@ export const ActivityId = make("activity", {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ActivityId } from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeActivityId = S.decodeUnknownSync(S.make<S.Decoder<typeof ActivityId.Type>>(ActivityId.ast))
- * const id = decodeActivityId(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(ActivityId)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -245,6 +317,13 @@ export type ActivityId = typeof ActivityId.Type;
 
 /**
  * Local-machine entity identifier used by synchronization metadata.
+ *
+ * @example
+ * ```ts
+ * import { LocalMachineId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(LocalMachineId.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category entity ids
@@ -258,14 +337,15 @@ export const LocalMachineId = make("local_machine", {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { LocalMachineId } from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const decodeLocalMachineId = S.decodeUnknownSync(
- *   S.make<S.Decoder<typeof LocalMachineId.Type>>(LocalMachineId.ast)
- * )
- * const id = decodeLocalMachineId(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(LocalMachineId)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0

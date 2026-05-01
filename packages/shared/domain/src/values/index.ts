@@ -8,6 +8,13 @@
 /**
  * LocalDate - Value object representing a local date.
  *
+ * @example
+ * ```ts
+ * import { LocalDate } from "@beep/shared-domain/values/index"
+ *
+ * console.log(LocalDate.today().toISOString())
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */

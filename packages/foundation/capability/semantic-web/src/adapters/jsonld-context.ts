@@ -24,9 +24,6 @@ import {
 
 const schemePrefix = /^[A-Za-z][A-Za-z0-9+.-]*:/;
 
-const decodeIriReference = S.decodeUnknownSync(IRIReference);
-const decodeNonEmptyString = S.decodeUnknownSync(S.NonEmptyString);
-
 const byTermAscending: Order.Order<readonly [string, string | { readonly "@id": string }]> = Order.mapInput(
   Order.String,
   ([term]) => term
@@ -42,6 +39,28 @@ const makeContextError = (
     message,
     subject: subject === undefined ? O.none() : O.some(subject),
   });
+
+const decodeIriReference = (
+  value: string,
+  reason: JsonLdContextError["reason"],
+  subject: string
+): Effect.Effect<typeof IRIReference.Type, JsonLdContextError> =>
+  S.decodeUnknownEffect(IRIReference)(value).pipe(
+    Effect.mapError((cause) =>
+      makeContextError(reason, `Failed to decode JSON-LD IRI reference "${value}": ${String(cause)}`, subject)
+    )
+  );
+
+const decodeNonEmptyString = (
+  value: string,
+  reason: JsonLdContextError["reason"],
+  subject: string
+): Effect.Effect<typeof S.NonEmptyString.Type, JsonLdContextError> =>
+  S.decodeUnknownEffect(S.NonEmptyString)(value).pipe(
+    Effect.mapError((cause) =>
+      makeContextError(reason, `Failed to decode JSON-LD compact term "${value}": ${String(cause)}`, subject)
+    )
+  );
 
 const bindingIdentifier = (binding: string | { readonly "@id": string }): string =>
   P.isString(binding) ? binding : binding["@id"];
@@ -128,9 +147,11 @@ export const JsonLdContextServiceLive = Layer.succeed(
         return yield* makeContextError("unknownTerm", `Unable to expand JSON-LD term: ${request.term}`, request.term);
       }
 
+      const decodedIri = yield* decodeIriReference(iri, "unknownTerm", request.term);
+
       return ExpandJsonLdTermResult.make({
         term: request.term,
-        iri: decodeIriReference(iri),
+        iri: decodedIri,
       });
     }),
     compactIri: Effect.fn(function* (request) {
@@ -143,9 +164,11 @@ export const JsonLdContextServiceLive = Layer.succeed(
         );
       }
 
+      const decodedTerm = yield* decodeNonEmptyString(term, "compactionFailure", request.iri);
+
       return CompactJsonLdIriResult.make({
         iri: request.iri,
-        term: decodeNonEmptyString(term),
+        term: decodedTerm,
       });
     }),
     merge: Effect.fn((request) =>

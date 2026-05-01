@@ -109,14 +109,21 @@ Use:
 
 - `S.is(schema)` for guards
 - `S.toEquivalence(schema)` for comparisons
-- `S.decodeUnknown*` for decoders
-- `S.encode*` for encoders
+- `S.decodeUnknownEffect` / `S.decodeEffect` for default decoders
+- `S.encodeUnknownEffect` / `S.encodeEffect` for default encoders
+- `S.decodeUnknownResult`, `S.decodeResult`, or `S.decodeUnknownOption` only
+  for explicit non-throwing synchronous helpers
 
 Avoid:
 
 - hand-written `isX`
 - duplicate comparison logic
 - manual conversion helpers that restate schema behavior
+- sync throwing schema codecs (`S.decodeSync`, `S.decodeUnknownSync`,
+  `S.encodeSync`, `S.encodeUnknownSync`) as the default constructor pattern
+
+When decoder or encoder failures leave the local helper, wrap the Effect codec
+with `Effect.mapError(...)` and return the boundary's typed error.
 
 ## 8. Use JSON String Codecs
 

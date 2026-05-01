@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity";
-import { Effect, Number as Num, RegExp as Regex } from "effect";
+import { Effect, Number as Num, pipe, RegExp as Regex, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -34,7 +34,7 @@ const SingleCharacterText = S.String.check(
   })
 );
 
-const decodeRegExpSync = S.decodeSync(RegExpFromStr);
+const decodeRegExpResult = S.decodeResult(RegExpFromStr);
 const ParserOptionsErrorFields = {
   cause: S.OptionFromOptionalKey(S.DefectWithStack),
   message: S.String,
@@ -82,16 +82,16 @@ export class ParserOptionsError extends ParserOptionsErrorBase {}
 const toParserOptionsError = (fallbackMessage: string, cause?: unknown): ParserOptionsError =>
   new ParserOptionsError({
     cause: P.isError(cause) ? O.some(cause) : O.none(),
-    message: P.isError(cause) ? cause.message : fallbackMessage,
+    message: P.isError(cause) ? cause.message : P.isUndefined(cause) ? fallbackMessage : String(cause),
   });
 
-const buildNextTokenRegExp = (escapedDelimiter: string): globalThis.RegExp => {
-  try {
-    return decodeRegExpSync(`([^\\s]|\\r\\n|\\n|\\r|${escapedDelimiter})`);
-  } catch (cause) {
-    throw toParserOptionsError("Failed to build parser next-token regular expression.", cause);
-  }
-};
+const buildNextTokenRegExp = (escapedDelimiter: string): globalThis.RegExp =>
+  pipe(
+    decodeRegExpResult(`([^\\s]|\\r\\n|\\n|\\r|${escapedDelimiter})`),
+    Result.getOrThrowWith((cause) =>
+      toParserOptionsError("Failed to build parser next-token regular expression.", cause)
+    )
+  );
 
 /**
  * Schema-backed CSV parser options.
@@ -188,13 +188,11 @@ export class ParserOptions extends S.Class<ParserOptions>($I`ParserOptions`)(
    * Decode raw parser option input into a normalized {@link ParserOptions}
    * instance.
    */
-  static readonly new = (input?: ParserOptionsArgs): ParserOptions => {
-    try {
-      return decodeParserOptionsUnknownSync(input ?? {}, parserOptionsParseOptions);
-    } catch (cause) {
-      throw toParserOptionsError("Failed to decode parser options.", cause);
-    }
-  };
+  static readonly new = (input?: ParserOptionsArgs): ParserOptions =>
+    pipe(
+      decodeParserOptionsUnknownResult(input ?? {}, parserOptionsParseOptions),
+      Result.getOrThrowWith((cause) => toParserOptionsError("Failed to decode parser options.", cause))
+    );
 
   get escapedDelimiter(): string {
     return Regex.escape(this.delimiter);
@@ -217,7 +215,7 @@ export class ParserOptions extends S.Class<ParserOptions>($I`ParserOptions`)(
   }
 }
 
-const decodeParserOptionsUnknownSync = S.decodeUnknownSync(ParserOptions);
+const decodeParserOptionsUnknownResult = S.decodeUnknownResult(ParserOptions);
 
 /**
  * Encoded/raw constructor input for {@link ParserOptions}.

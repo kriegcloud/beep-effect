@@ -151,7 +151,13 @@ const PackagePathToTstychePattern = PackagePath.pipe(
   )
 );
 
-const decodeTstychePattern = S.decodeUnknownSync(PackagePathToTstychePattern);
+const decodeTstychePattern = S.decodeUnknownOption(PackagePathToTstychePattern);
+const fallbackTstychePattern = (packagePath: string): string => `${packagePath}/dtslint/**/*.tst.*`;
+const toTstychePattern = (packagePath: string): string =>
+  pipe(
+    decodeTstychePattern(packagePath),
+    O.getOrElse(() => fallbackTstychePattern(packagePath))
+  );
 const isPackagePath = S.is(PackagePath);
 const stringEquivalence = S.toEquivalence(S.String);
 const stringArrayEquivalence = S.toEquivalence(S.Array(S.String));
@@ -216,7 +222,7 @@ const isTstycheEntryCovered: {
   (packagePath: string): (testFileMatch: ReadonlyArray<unknown>) => boolean;
 } = dual(2, (testFileMatch: ReadonlyArray<unknown>, packagePath: string): boolean => {
   if (!isPackagePath(packagePath)) return false;
-  const candidatePattern = decodeTstychePattern(packagePath);
+  const candidatePattern = toTstychePattern(packagePath);
   if (A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, candidatePattern))) return true;
   const lastSlash = pipe(packagePath, Str.lastIndexOf("/"), O.getOrElse(thunkNegative1));
   if (lastSlash < 0) return false;
@@ -433,8 +439,8 @@ export const updateTstycheConfig: {
         const candidatePattern = pipe(
           packagePath,
           O.liftPredicate(isPackagePath),
-          O.map(decodeTstychePattern),
-          O.getOrElse(() => `${packagePath}/dtslint/**/*.tst.*`)
+          O.map(toTstychePattern),
+          O.getOrElse(() => fallbackTstychePattern(packagePath))
         );
         return applyJsoncModification(content, ["testFileMatch"], A.append(testFileMatch, candidatePattern));
       })

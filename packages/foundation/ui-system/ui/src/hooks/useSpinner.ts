@@ -1,6 +1,6 @@
 import { $UiId } from "@beep/identity";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Match, pipe } from "effect";
+import { Match, pipe, Result } from "effect";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -8,6 +8,7 @@ import * as S from "effect/Schema";
 import React, { useCallback, useRef, useState } from "react";
 
 const $I = $UiId.create("hooks/useSpinner");
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 const SpinnerAction = LiteralKit(["increment", "decrement"]).pipe(
   $I.annoteSchema("SpinnerAction", {
@@ -27,7 +28,8 @@ class SpinnerSchedule extends S.Class<SpinnerSchedule>($I`SpinnerSchedule`)(
   })
 ) {}
 
-const decodeSpinnerSchedule = S.decodeUnknownSync(SpinnerSchedule);
+const decodeSpinnerSchedule = (input: unknown) =>
+  Result.getOrThrowWith(S.decodeUnknownResult(SpinnerSchedule)(input), schemaIssueToError);
 
 const spinnerSchedule = decodeSpinnerSchedule({
   continuousChangeInterval: 50,

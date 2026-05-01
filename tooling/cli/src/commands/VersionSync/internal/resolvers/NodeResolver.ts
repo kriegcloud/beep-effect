@@ -117,7 +117,8 @@ const UnknownNodeVersionValueToString = S.Unknown.pipe(
   )
 );
 
-const decodeNodeVersionString = S.decodeUnknownSync(UnknownNodeVersionValueToString);
+const decodeNodeVersionString = S.decodeUnknownOption(UnknownNodeVersionValueToString);
+const nodeVersionString = (value: unknown): string => O.getOrElse(decodeNodeVersionString(value), () => `${value}`);
 const stringEquivalence = S.toEquivalence(S.String);
 
 // ── Public API ──────────────────────────────────────────────────────────────
@@ -218,7 +219,7 @@ const findNodeVersionLocations: (
         continue;
       }
 
-      const nodeVersion = decodeNodeVersionString(withBlock["node-version"]);
+      const nodeVersion = nodeVersionString(withBlock["node-version"]);
       locations = A.append(
         locations,
         new NodeVersionLocation({

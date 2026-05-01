@@ -36,7 +36,7 @@ import {
 } from "./FFmpeg.models.ts";
 
 const $I = $FfmpegId.create("FFmpeg.service");
-const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 const NumberOrString = S.Union([S.Number, S.String]);
 
 class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
@@ -750,13 +750,14 @@ const renderManifest = Effect.fn("FFmpeg.renderManifest")(function* (
     )
   );
 
-  return yield* Effect.try({
-    try: () => `${encodeJson(encoded)}\n`,
-    catch: (cause) =>
+  return yield* encodeJson(encoded).pipe(
+    Effect.map((json) => `${json}\n`),
+    Effect.mapError((cause) =>
       FFmpegError.fromUnknown("extractFrames", `Failed to render extract-frames manifest: "${manifestPath}"`, {
         cause,
-      }),
-  });
+      })
+    )
+  );
 });
 
 const commitFrames = Effect.fn("FFmpeg.commitFrames")(function* (

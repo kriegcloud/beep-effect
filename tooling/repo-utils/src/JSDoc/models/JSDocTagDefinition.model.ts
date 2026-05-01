@@ -6,7 +6,7 @@
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings } from "@beep/schema";
-import { Effect, SchemaGetter } from "effect";
+import { Effect, Result, SchemaGetter } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 /* cspell:ignore Derivability derivability */
@@ -182,7 +182,7 @@ export const make: {
     _tag: Tag,
     meta: Omit<JSDocTagDefinition.Instance<Tag, Def>, "_tag">
   ) => {
-    const def = S.decodeSync(JSDocTagDefinition)({ _tag, ...meta });
+    const def = Result.getOrThrow(S.decodeResult(JSDocTagDefinition)({ _tag, ...meta }));
     return JSDocTagDefinition.mapFields((_) => ({
       _tag: S.tag(_tag),
       value: TagValue.cases[_tag],

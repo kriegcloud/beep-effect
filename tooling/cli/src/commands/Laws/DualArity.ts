@@ -9,7 +9,6 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { TSMorphService, TsMorphProjectInspectionRequest } from "@beep/repo-utils/TSMorph/index";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
-import { thunkUndefined } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, HashMap, MutableHashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -243,9 +242,9 @@ type PublicApiCandidate = {
   readonly callableType: Type;
 };
 
-const decodeInventoryDocument = S.decodeUnknownSync(DualArityInventoryDocument);
-const encodeInventoryDocument = S.encodeUnknownSync(DualArityInventoryDocument);
-const decodeProjectInspectionRequest = S.decodeUnknownSync(TsMorphProjectInspectionRequest);
+const decodeInventoryDocument = S.decodeUnknownEffect(DualArityInventoryDocument);
+const encodeInventoryDocument = S.encodeUnknownEffect(DualArityInventoryDocument);
+const decodeProjectInspectionRequest = S.decodeUnknownEffect(TsMorphProjectInspectionRequest);
 
 const makeEntryKey = (entry: DualArityInventoryEntry): string => `${entry.file}::${entry.qualifiedName}::${entry.kind}`;
 
@@ -446,7 +445,7 @@ const isFunctionExportInitializer = (
 };
 
 const SCHEMA_CALLABLE_VALUE_FACTORY_PATTERN =
-  /^(?:S|Schema)\.(?:decodeUnknownEffect|decodeUnknownOption|decodeUnknownSync|encodeEffect|encodeOption|encodeSync|encodeUnknownEffect|encodeUnknownOption|encodeUnknownSync|toEquivalence)$/u;
+  /^(?:S|Schema)\.(?:decodeEffect|decodeOption|decodeResult|decodeUnknownEffect|decodeUnknownOption|decodeUnknownResult|encodeEffect|encodeOption|encodeResult|encodeUnknownEffect|encodeUnknownOption|encodeUnknownResult|toEquivalence)$/u;
 
 const isOrderValueType = (type: Type): boolean => {
   const typeText = type.getText();
@@ -1032,15 +1031,7 @@ const readInventoryDocument = Effect.fn(function* () {
   }
 
   const content = yield* fs.readFileString(absolutePath);
-  return yield* Effect.try({
-    try: () => decodeInventoryDocument(parse(content)),
-    catch: thunkUndefined,
-  }).pipe(
-    Effect.match({
-      onFailure: O.none,
-      onSuccess: O.some,
-    })
-  );
+  return yield* decodeInventoryDocument(parse(content)).pipe(Effect.option);
 });
 
 const writeInventoryDocument = Effect.fn("DualArity.writeInventoryDocument")(function* (
@@ -1049,7 +1040,7 @@ const writeInventoryDocument = Effect.fn("DualArity.writeInventoryDocument")(fun
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absolutePath = path.resolve(process.cwd(), INVENTORY_PATH);
-  const encodedDocument = encodeInventoryDocument(document);
+  const encodedDocument = yield* encodeInventoryDocument(document);
   const serialized = yield* renderBiomeJson(absolutePath, encodedDocument);
   yield* fs.makeDirectory(path.dirname(absolutePath), { recursive: true });
   yield* fs.writeFileString(absolutePath, serialized);
@@ -1066,39 +1057,37 @@ const scanDualArityInventory = Effect.fn("DualArity.scanDualArityInventory")(fun
     MutableHashSet.add(excludePaths, toPosixPath(excludePath));
   }
 
-  const entries = yield* service.inspectProject(
-    decodeProjectInspectionRequest({
-      entrypoint: {
-        _tag: "tsconfig",
-        tsConfigPath: "tsconfig.json",
-      },
-      repoRootPath: null,
-      mode: "semantic",
-      referencePolicy: "workspaceOnly",
-      filePaths: A.empty(),
-      sourceFileGlobs: A.fromIterable(INCLUDED_GLOBS),
-    }),
-    ({ scope, sourceFiles }) => {
-      let liveEntries = A.empty<DualArityInventoryEntry>();
+  const request = yield* decodeProjectInspectionRequest({
+    entrypoint: {
+      _tag: "tsconfig",
+      tsConfigPath: "tsconfig.json",
+    },
+    repoRootPath: null,
+    mode: "semantic",
+    referencePolicy: "workspaceOnly",
+    filePaths: A.empty(),
+    sourceFileGlobs: A.fromIterable(INCLUDED_GLOBS),
+  });
+  const entries = yield* service.inspectProject(request, ({ scope, sourceFiles }) => {
+    let liveEntries = A.empty<DualArityInventoryEntry>();
 
-      for (const sourceFile of sourceFiles) {
-        const filePath = toPosixPath(path.relative(scope.repoRootPath, sourceFile.getFilePath()));
-        if (isExcludedFile(excludePaths, filePath)) {
-          continue;
-        }
-
-        const owner = ownerResolver(sourceFile.getFilePath());
-        for (const candidate of collectCandidatesForSourceFile(sourceFile, filePath, owner)) {
-          const entry = makeInventoryEntry(candidate, collectCandidateDiagnostics(candidate));
-          if (O.isSome(entry)) {
-            liveEntries = A.append(liveEntries, entry.value);
-          }
-        }
+    for (const sourceFile of sourceFiles) {
+      const filePath = toPosixPath(path.relative(scope.repoRootPath, sourceFile.getFilePath()));
+      if (isExcludedFile(excludePaths, filePath)) {
+        continue;
       }
 
-      return sortEntries(A.dedupeWith(liveEntries, (left, right) => makeEntryKey(left) === makeEntryKey(right)));
+      const owner = ownerResolver(sourceFile.getFilePath());
+      for (const candidate of collectCandidatesForSourceFile(sourceFile, filePath, owner)) {
+        const entry = makeInventoryEntry(candidate, collectCandidateDiagnostics(candidate));
+        if (O.isSome(entry)) {
+          liveEntries = A.append(liveEntries, entry.value);
+        }
+      }
     }
-  );
+
+    return sortEntries(A.dedupeWith(liveEntries, (left, right) => makeEntryKey(left) === makeEntryKey(right)));
+  });
 
   return new DualArityInventoryDocument({
     version: 1,

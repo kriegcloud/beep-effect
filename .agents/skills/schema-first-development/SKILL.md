@@ -46,6 +46,8 @@ Keep `Schema` as the source of truth for pure data models.
 - Annotate reusable schemas with `$I.annote(...)`.
 - Derive guards, equivalence, and codecs from the schema instead of writing
   parallel helpers.
+- Prefer Effect schema codecs; map schema errors with `Effect.mapError(...)`
+  when the error leaves the local helper/module boundary.
 
 4. Verify before finishing.
 - No exported pure-data `interface` or type literal remains.
@@ -81,6 +83,13 @@ Keep `Schema` as the source of truth for pure data models.
 - Use `S.is(schema)` for guards and `S.toEquivalence(schema)` for comparisons.
 - Use `S.UnknownFromJsonString` or `S.fromJsonString(schema)` for JSON string
   boundaries.
+- Use `S.decodeUnknownEffect` / `S.decodeEffect` and `S.encodeUnknownEffect` /
+  `S.encodeEffect` by default. Reach for `S.decodeUnknownResult`,
+  `S.decodeResult`, or `S.decodeUnknownOption` only for deliberate
+  non-throwing synchronous helpers; do not teach or add `S.decodeSync`,
+  `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync`. If a
+  legacy synchronous wrapper must still throw, convert Result failures with
+  `Result.getOrThrowWith(...)` so raw schema issues do not escape the boundary.
 
 ## Escalation
 

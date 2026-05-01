@@ -16,7 +16,7 @@ import {
 } from "@beep/repo-utils";
 import { LiteralKit, normalizePath } from "@beep/schema";
 import { thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { DateTime, Effect, FileSystem, flow, HashMap, MutableHashSet, Order, Path, pipe, Stream } from "effect";
+import { DateTime, Effect, FileSystem, flow, HashMap, MutableHashSet, Order, Path, pipe, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -66,7 +66,7 @@ type ResolveDocgenWorkspacePackageOptions = {
 const isResolveDocgenWorkspacePackageDataFirst = (args: IArguments): boolean =>
   (args.length === 1 && P.isString(args[0])) || args.length === 2;
 
-const parseJsonText = S.decodeUnknownSync(S.UnknownFromJsonString);
+const parseJsonText = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const byRelativePathAscending: Order.Order<DocgenWorkspacePackage> = Order.mapInput(
   Order.String,
   (pkg: DocgenWorkspacePackage) => pkg.relativePath
@@ -325,9 +325,9 @@ const stringFromUnknown = (value: unknown): string => {
   return `${value}`;
 };
 
-const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const encodeJsonResult = S.encodeUnknownResult(S.UnknownFromJsonString);
 const jsonText = (value: unknown): string => {
-  const encoded = encodeJson(value);
+  const encoded = Result.getOrThrow(encodeJsonResult(value));
   const edits = jsonc.format(encoded, undefined, {
     tabSize: 2,
     insertSpaces: true,
@@ -346,14 +346,15 @@ const readUnknownJsonFile = Effect.fn("DocgenOperations.readUnknownJsonFile")(fu
         })
     )
   );
-  const parsed = yield* Effect.try({
-    try: () => parseJsonText(content),
-    catch: (cause) =>
-      new DomainError({
-        message: `Invalid JSON in "${filePath}"`,
-        cause,
-      }),
-  });
+  const parsed = yield* parseJsonText(content).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Invalid JSON in "${filePath}"`,
+          cause,
+        })
+    )
+  );
   return parsed;
 });
 

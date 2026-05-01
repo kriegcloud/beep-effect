@@ -6,7 +6,7 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { Effect, flow, Match, pipe, SchemaGetter, SchemaIssue } from "effect";
+import { Effect, flow, Match, pipe, Result, SchemaGetter, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
@@ -25,6 +25,7 @@ import {
 } from "./Pattern.ts";
 
 const $I = $NlpId.create("Core/PatternParsers");
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 type NonEmptyChoices<A> = readonly [A, ...A[]];
 
@@ -240,4 +241,8 @@ export type BracketStringToPatternElement = typeof BracketStringToPatternElement
  * @since 0.0.0
  * @category Validation
  */
-export const PatternFromString = S.decodeUnknownSync(S.NonEmptyArray(BracketStringToPatternElement));
+export const PatternFromString = (input: unknown) =>
+  Result.getOrThrowWith(
+    S.decodeUnknownResult(S.NonEmptyArray(BracketStringToPatternElement))(input),
+    schemaIssueToError
+  );

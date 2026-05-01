@@ -10,11 +10,13 @@ import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
 import type * as VariantSchema from "@beep/schema/VariantSchema";
 import type { TUtils } from "@beep/types";
 import * as Struct from "@beep/utils/Struct";
+import { Result } from "effect";
 import * as A from "effect/Array";
 import { dual, flow, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type * as SchemaIssue from "effect/SchemaIssue";
 import * as Str from "effect/String";
 
 const $I = $SharedDomainId.create("entity/EntityMixin");
@@ -579,6 +581,13 @@ export const FieldDescriptorInput: S.Decoder<FieldDescriptorInput> & FieldDescri
  * Descriptor refinement that materializes `valueStrategy` as a discriminated
  * union for consumers that need nested strategy-aware narrowing.
  *
+ * @example
+ * ```ts
+ * import type { FieldDescriptorByValueStrategy } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type Descriptor = FieldDescriptorByValueStrategy
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -604,6 +613,16 @@ type OptionalIndexHints<Input extends FieldDescriptorInputShape> = Input extends
 /**
  * Literal-preserving field descriptor materialized from keyed descriptor input.
  *
+ * @example
+ * ```ts
+ * import type {
+ *   FieldDescriptorFromInput,
+ *   FieldDescriptorInputShape,
+ * } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type Descriptor = FieldDescriptorFromInput<"name", FieldDescriptorInputShape>
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -624,6 +643,13 @@ export type FieldDescriptorFromInput<
 /**
  * Descriptor map keyed by field names.
  *
+ * @example
+ * ```ts
+ * import type { FieldDescriptorMap } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type Map = FieldDescriptorMap
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -633,6 +659,13 @@ export type FieldDescriptorMap<Fields extends object = VariantSchema.Struct.Fiel
 
 /**
  * Descriptor input map keyed by field names.
+ *
+ * @example
+ * ```ts
+ * import type { FieldDescriptorInputMap } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type Map = FieldDescriptorInputMap
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -644,6 +677,18 @@ export type FieldDescriptorInputMap<Fields extends object = VariantSchema.Struct
 /**
  * Descriptor map materialized from a literal-preserving definition.
  *
+ * @example
+ * ```ts
+ * import type {
+ *   Definition,
+ *   FieldDescriptorMapFromDefinition,
+ * } from "@beep/shared-domain/entity/EntityMixin"
+ * import * as S from "effect/Schema"
+ *
+ * type Fields = { readonly name: typeof S.String }
+ * type Map = FieldDescriptorMapFromDefinition<Fields, Definition<Fields>>
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -654,6 +699,13 @@ export type FieldDescriptorMapFromDefinition<Fields extends object, Def extends 
 /**
  * Any descriptor map keyed by field names.
  *
+ * @example
+ * ```ts
+ * import type { AnyFieldDescriptorMap } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type Map = AnyFieldDescriptorMap
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -661,6 +713,13 @@ export type AnyFieldDescriptorMap = object;
 
 /**
  * Definition metadata required to build an entity mixin.
+ *
+ * @example
+ * ```ts
+ * import type { Definition } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type MixinDefinition = Definition
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -675,6 +734,13 @@ export type Definition<
 
 /**
  * Explicit field override wrapper.
+ *
+ * @example
+ * ```ts
+ * import type { FieldOverride } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type Override = FieldOverride<string>
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -697,6 +763,13 @@ type UnwrapFieldOverrides<Fields extends object> = {
 
 /**
  * Entity mixin contract object.
+ *
+ * @example
+ * ```ts
+ * import type { EntityMixin } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type Mixin = EntityMixin
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -739,6 +812,13 @@ type MixinFieldMap<Mixins extends ReadonlyArray<EntityMixin>, Acc extends object
 /**
  * Packed entity mixins ready for BaseEntity and Table.make.
  *
+ * @example
+ * ```ts
+ * import type { Pack } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type MixinPack = Pack
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -757,6 +837,13 @@ export type Pack<
 /**
  * Packed mixin type materialized from a literal mixin tuple.
  *
+ * @example
+ * ```ts
+ * import type { PackFromMixins } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type Empty = PackFromMixins<readonly []>
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -769,6 +856,13 @@ export type PackFromMixins<Mixins extends ReadonlyArray<EntityMixin>> = Pack<
 /**
  * Empty packed mixin collection.
  *
+ * @example
+ * ```ts
+ * import type { EmptyPack } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * type Empty = EmptyPack
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -776,6 +870,14 @@ export type EmptyPack = PackFromMixins<readonly []>;
 
 /**
  * Error thrown when a field is contributed twice without an explicit override.
+ *
+ * @example
+ * ```ts
+ * import { EntityMixinFieldCollisionError } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * const error = new EntityMixinFieldCollisionError({ key: "name" })
+ * console.log(error.key)
+ * ```
  *
  * @since 0.0.0
  * @category errors
@@ -795,6 +897,14 @@ export class EntityMixinFieldCollisionError extends TaggedErrorClass<EntityMixin
 /**
  * Error thrown when a mixin field lacks descriptor metadata.
  *
+ * @example
+ * ```ts
+ * import { EntityMixinDescriptorMissingError } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * const error = new EntityMixinDescriptorMissingError({ key: "name" })
+ * console.log(error.key)
+ * ```
+ *
  * @since 0.0.0
  * @category errors
  */
@@ -809,6 +919,37 @@ export class EntityMixinDescriptorMissingError extends TaggedErrorClass<EntityMi
     description: "Raised when an EntityMixin field lacks descriptor metadata.",
   })
 ) {}
+
+/**
+ * Error thrown when a mixin field descriptor fails schema validation.
+ *
+ * @example
+ * ```ts
+ * import { EntityMixinDescriptorInvalidError } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * const error = new EntityMixinDescriptorInvalidError({ key: "name", cause: "invalid descriptor" })
+ * console.log(error.message)
+ * ```
+ *
+ * @since 0.0.0
+ * @category errors
+ */
+export class EntityMixinDescriptorInvalidError extends TaggedErrorClass<EntityMixinDescriptorInvalidError>(
+  $I`EntityMixinDescriptorInvalidError`
+)(
+  "EntityMixinDescriptorInvalidError",
+  {
+    cause: S.Unknown,
+    key: S.String,
+  },
+  $I.annote("EntityMixinDescriptorInvalidError", {
+    description: "Raised when an EntityMixin field descriptor fails schema validation.",
+  })
+) {
+  override get message() {
+    return `EntityMixin descriptor metadata is invalid for field "${this.key}".`;
+  }
+}
 
 /**
  * Wrap a field so it can intentionally override an earlier field.
@@ -839,6 +980,13 @@ export const Override: {
 /**
  * Test whether an unknown value is an explicit field override.
  *
+ * @example
+ * ```ts
+ * import { isOverride, Override } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * console.log(isOverride(Override("replacement", "fixture")))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -847,6 +995,30 @@ export const isOverride = (u: unknown): u is FieldOverride<unknown> => P.hasProp
 /**
  * Test whether an unknown value is an entity mixin.
  *
+ * @example
+ * ```ts
+ * import { isMixin, make } from "@beep/shared-domain/entity/EntityMixin"
+ * import { $SharedDomainId } from "@beep/identity/packages"
+ * import * as S from "effect/Schema"
+ *
+ * const $I = $SharedDomainId.create("entity/example")
+ * const Example = make($I`Example`)({
+ *   note: S.String,
+ * }, {
+ *   description: "Example mixin.",
+ *   fields: {
+ *     note: {
+ *       columnName: "note",
+ *       description: "Example note.",
+ *       nullable: false,
+ *       storageKind: "text",
+ *       valueStrategy: "provided",
+ *     },
+ *   },
+ * })
+ * console.log(isMixin(Example))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -854,6 +1026,13 @@ export const isMixin = (u: unknown): u is EntityMixin => P.hasProperty(u, TypeId
 
 /**
  * Test whether an unknown value is a packed mixin collection.
+ *
+ * @example
+ * ```ts
+ * import { isPack, pack } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * console.log(isPack(pack()))
+ * ```
  *
  * @since 0.0.0
  * @category guards
@@ -865,6 +1044,10 @@ const unwrapField = <Field>(field: Field | FieldOverride<Field>): Field => (isOv
 const failCollision = (key: string): never => {
   throw new EntityMixinFieldCollisionError({ key });
 };
+
+const decodeFieldDescriptorResult = S.decodeUnknownResult(FieldDescriptor);
+const mapDescriptorIssue = (key: string) => (cause: SchemaIssue.Issue) =>
+  new EntityMixinDescriptorInvalidError({ cause, key });
 
 const decodeFieldDescriptor = <
   Fields extends FieldInputMap,
@@ -879,10 +1062,11 @@ const decodeFieldDescriptor = <
   if (descriptor === undefined) {
     throw new EntityMixinDescriptorMissingError({ key });
   }
-  return S.decodeUnknownSync(FieldDescriptor)(Struct.assign(descriptor, { key })) as FieldDescriptorFromInput<
-    Key,
-    Def["fields"][Key]
-  >;
+  return pipe(
+    decodeFieldDescriptorResult(Struct.assign(descriptor, { key })),
+    Result.mapError(mapDescriptorIssue(key)),
+    Result.getOrThrow
+  ) as FieldDescriptorFromInput<Key, Def["fields"][Key]>;
 };
 
 const fieldMapFromRuntime = <Fields extends FieldInputMap, Def extends Definition<Fields>>(
@@ -960,6 +1144,14 @@ export const make =
 
 /**
  * Pack mixins in declaration order for BaseEntity and Table.make.
+ *
+ * @example
+ * ```ts
+ * import { pack } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * const empty = pack()
+ * console.log(empty.fieldKeys.length)
+ * ```
  *
  * @since 0.0.0
  * @category constructors

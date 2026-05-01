@@ -9,6 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { Effect, FileSystem, Inspectable, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { parseDocument } from "yaml";
@@ -31,7 +32,9 @@ const YamlNodeValueAsString = S.Unknown.pipe(
   )
 );
 
-const decodeYamlNodeValueAsString = S.decodeUnknownSync(YamlNodeValueAsString);
+const decodeYamlNodeValueAsString = S.decodeUnknownOption(YamlNodeValueAsString);
+const yamlNodeValueAsString = (value: unknown): string =>
+  O.getOrElse(decodeYamlNodeValueAsString(value), () => `${value}`);
 const stringEquivalence = S.toEquivalence(S.String);
 
 type UpdateYamlValueOptions = {
@@ -75,7 +78,7 @@ export const updateYamlValue: {
     const doc = parseDocument(original);
     const currentValue = doc.getIn(yamlPath);
 
-    if (stringEquivalence(decodeYamlNodeValueAsString(currentValue), options.value)) {
+    if (stringEquivalence(yamlNodeValueAsString(currentValue), options.value)) {
       return false;
     }
 
