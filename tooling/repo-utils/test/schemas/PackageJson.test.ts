@@ -691,6 +691,37 @@ describe("PackageJson schema", () => {
     );
 
     it.effect(
+      "preserves repo-local beep metadata in canonical output",
+      Effect.fn(function* () {
+        const json = yield* encodePackageJsonCanonicalPrettyEffect({
+          name: "@beep/schema",
+          repository: {
+            type: "git",
+            url: "git@github.com:kriegcloud/beep-effect.git",
+            directory: "packages/foundation/modeling/schema",
+          },
+          beep: {
+            family: "foundation",
+            kind: "modeling",
+          },
+        });
+
+        expect(json).toBe(`{
+  "name": "@beep/schema",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/foundation/modeling/schema"
+  },
+  "beep": {
+    "family": "foundation",
+    "kind": "modeling"
+  }
+}`);
+      })
+    );
+
+    it.effect(
       "diffs and applies typed JSON Patch with escaped scoped dependency keys",
       Effect.fn(function* () {
         const patch = yield* diffPackageJsonEffect(

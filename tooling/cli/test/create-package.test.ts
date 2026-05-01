@@ -42,12 +42,20 @@ const TstycheConfig = S.Struct({
 const PackageScripts = S.Struct({
   scripts: S.Record(S.String, S.String),
 });
+const FoundationPackageMetadata = S.Struct({
+  beep: S.Struct({
+    family: S.Literal("foundation"),
+    kind: S.Literals(["primitive", "modeling", "capability", "ui-system"] as const),
+  }),
+  scripts: S.Record(S.String, S.String),
+});
 
 const decodeRootPackage = S.decodeUnknownSync(RootPackage);
 const decodeTsconfigReferences = S.decodeUnknownSync(TsconfigReferences);
 const decodeTsconfigPaths = S.decodeUnknownSync(TsconfigPaths);
 const decodeTstycheConfig = S.decodeUnknownSync(TstycheConfig);
 const decodePackageScripts = S.decodeUnknownSync(PackageScripts);
+const decodeFoundationPackageMetadata = S.decodeUnknownSync(FoundationPackageMetadata);
 const ExpectedGeneratedQualityScripts = {
   audit: "bun run --if-present beep:audit",
   babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -129,9 +137,9 @@ export default config;
 `
   );
 
-const bootstrapIdentityWorkspace = Effect.fn(function* (rootDir: string) {
+const bootstrapIdentityWorkspace = Effect.fn(function* (rootDir: string, relativeDir = "packages/common/identity") {
   const path = yield* Path.Path;
-  const identityDir = path.join(rootDir, "packages", "common", "identity");
+  const identityDir = path.join(rootDir, ...relativeDir.split("/"));
 
   yield* writeJsonFile(path.join(identityDir, "package.json"), {
     name: "@beep/identity",
@@ -288,6 +296,83 @@ describe.sequential("create-package", () => {
             );
             expect(identityPackages).toContain(`"example-domain"`);
             expect(identityPackages).toContain(`export const $ExampleDomainId`);
+          })
+        )
+      );
+    },
+    CreatePackageTestTimeoutMs
+  );
+
+  it(
+    "creates canonical foundation packages with family metadata and workspace-resolved identity registration",
+    async () => {
+      await Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
+
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: ["packages/foundation/*/*"],
+              references: ["packages/foundation/modeling/identity"],
+              paths: {
+                "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+                "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
+              },
+              testFileMatch: [
+                "packages/foundation/*/*/dtslint/**/*.tst.*",
+                "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
+              ],
+              syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
+            });
+            yield* bootstrapIdentityWorkspace(rootDir, "packages/foundation/modeling/identity");
+
+            yield* runCreatePackageCommand([
+              "schema-kit",
+              "--family",
+              "foundation",
+              "--kind",
+              "modeling",
+              "--description",
+              "A schema helper package",
+            ]);
+
+            const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
+            expect(rootPackage.workspaces).toEqual(["packages/foundation/*/*"]);
+
+            const generatedPackage = decodeFoundationPackageMetadata(
+              yield* readJsonFile(
+                path.join(rootDir, "packages", "foundation", "modeling", "schema-kit", "package.json")
+              )
+            );
+            expect(generatedPackage.beep).toEqual({
+              family: "foundation",
+              kind: "modeling",
+            });
+            expect(generatedPackage.scripts).toMatchObject(ExpectedGeneratedQualityScripts);
+            expect(generatedPackage.scripts.docgen).toBe("bun run ../../../../tooling/docgen/src/bin.ts");
+
+            const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
+            expect(rootTsconfig.compilerOptions.paths).toMatchObject({
+              "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+              "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
+              "@beep/schema-kit": ["./packages/foundation/modeling/schema-kit/src/index.ts"],
+              "@beep/schema-kit/*": ["./packages/foundation/modeling/schema-kit/src/*"],
+            });
+
+            const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
+            expect(tstycheConfig.testFileMatch).toEqual(["packages/foundation/*/*/dtslint/**/*.tst.*"]);
+
+            const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
+            expect(syncpackConfig).toContain(`"packages/foundation/*/*/package.json"`);
+            expect(syncpackConfig).not.toContain(`"packages/foundation/modeling/schema-kit/package.json"`);
+
+            const identityPackages = yield* fs.readFileString(
+              path.join(rootDir, "packages", "foundation", "modeling", "identity", "src", "packages.ts")
+            );
+            expect(identityPackages).toContain(`"schema-kit"`);
+            expect(identityPackages).toContain(`export const $SchemaKitId`);
           })
         )
       );

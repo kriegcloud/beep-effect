@@ -17,6 +17,7 @@ import {
   decodePackageJsonEffect,
   encodePackageJsonCanonicalPrettyEffect,
   findRepoRoot,
+  getWorkspaceDir,
   TSMorphService,
 } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
@@ -101,6 +102,8 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (
  * @since 0.0.0
  */
 const VALID_TYPES = ["library", "tool", "app"] as const;
+const VALID_FAMILIES = ["foundation"] as const;
+const VALID_FOUNDATION_KINDS = ["primitive", "modeling", "capability", "ui-system"] as const;
 const PACKAGE_NAME_PATTERN = /^[a-z_][a-z0-9._-]*$/;
 const PARENT_DIR_PATTERN = /^(?!.*\/\/)(?!.*\/$)(?!.*(?:^|\/)\.{1,2}(?:\/|$))[a-z0-9][a-z0-9/_-]*$/;
 
@@ -114,6 +117,25 @@ const isPackageType = S.is(PackageType);
 const decodePackageType = S.decodeUnknownSync(PackageType);
 const packageTypeEquivalence = S.toEquivalence(PackageType);
 const stringEquivalence = S.toEquivalence(S.String);
+
+const PackageFamily = LiteralKit(VALID_FAMILIES).annotate(
+  $I.annote("PackageFamily", {
+    description: "Supported canonical package family scaffold targets.",
+  })
+);
+type PackageFamily = typeof PackageFamily.Type;
+const isPackageFamily = S.is(PackageFamily);
+const decodePackageFamily = S.decodeUnknownSync(PackageFamily);
+const packageFamilyEquivalence = S.toEquivalence(PackageFamily);
+
+const FoundationKind = LiteralKit(VALID_FOUNDATION_KINDS).annotate(
+  $I.annote("FoundationKind", {
+    description: "Supported foundation package kinds.",
+  })
+);
+type FoundationKind = typeof FoundationKind.Type;
+const isFoundationKind = S.is(FoundationKind);
+const decodeFoundationKind = S.decodeUnknownSync(FoundationKind);
 
 const ParentDir = S.String.check(S.isPattern(PARENT_DIR_PATTERN)).pipe(
   S.brand("ParentDir"),
@@ -187,7 +209,8 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   tabSize: 2,
   insertSpaces: true,
 };
-const IDENTITY_PACKAGES_FILE_PATH = "packages/common/identity/src/packages.ts" as const;
+const IDENTITY_PACKAGE_NAME = "@beep/identity" as const;
+const IDENTITY_PACKAGES_EXPORT_PATH = ["src", "packages.ts"] as const;
 
 // ── Template context ──────────────────────────────────────────────────────────
 
@@ -207,6 +230,8 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
     parentDir: ParentDir,
     packagePath: S.String,
     rootRelative: S.String,
+    family: S.optionalKey(PackageFamily),
+    kind: S.optionalKey(FoundationKind),
     isTool: S.Boolean,
     isApp: S.Boolean,
     isLibrary: S.Boolean,
@@ -412,9 +437,22 @@ const typedIdentityExportBlock = (packageName: string): string => {
   ]);
 };
 
-const ensureIdentityPackageRegistration = Effect.fn(function* (packageName: string) {
+const resolveIdentityPackagesFilePath = Effect.fn(function* (repoRoot: string) {
+  const path = yield* Path.Path;
+  const identityWorkspaceDir = yield* getWorkspaceDir(repoRoot, IDENTITY_PACKAGE_NAME);
+
+  if (O.isNone(identityWorkspaceDir)) {
+    return yield* new DomainError({
+      message: `Unable to resolve ${IDENTITY_PACKAGE_NAME} workspace for package identity registration.`,
+    });
+  }
+
+  return path.relative(repoRoot, path.join(identityWorkspaceDir.value, ...IDENTITY_PACKAGES_EXPORT_PATH));
+});
+
+const ensureIdentityPackageRegistration = Effect.fn(function* (identityPackagesFilePath: string, packageName: string) {
   const tsMorphService = yield* TSMorphService;
-  return yield* tsMorphService.updateSourceFile(IDENTITY_PACKAGES_FILE_PATH, (sourceFile) => {
+  return yield* tsMorphService.updateSourceFile(identityPackagesFilePath, (sourceFile) => {
     const composersDeclaration = sourceFile.getVariableDeclarationOrThrow("composers");
     const composersCall = composersDeclaration.getInitializerIfKindOrThrow(SyntaxKind.CallExpression);
     const existingSegments = pipe(
@@ -434,10 +472,14 @@ const ensureIdentityPackageRegistration = Effect.fn(function* (packageName: stri
   });
 });
 
-const identityPackageRegistrationNeeded = Effect.fn(function* (repoRoot: string, packageName: string) {
+const identityPackageRegistrationNeeded = Effect.fn(function* (
+  repoRoot: string,
+  identityPackagesFilePath: string,
+  packageName: string
+) {
   const path = yield* Path.Path;
   const fs = yield* FileSystem.FileSystem;
-  const filePath = path.join(repoRoot, IDENTITY_PACKAGES_FILE_PATH);
+  const filePath = path.join(repoRoot, identityPackagesFilePath);
   const content = yield* fs
     .readFileString(filePath)
     .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause })));
@@ -464,7 +506,15 @@ export const createPackageCommand = Command.make(
       Flag.withDefault("library")
     ),
     parentDir: Flag.string("parent-dir").pipe(
-      Flag.withDescription("Optional output parent directory relative to repo root (e.g. packages/common)"),
+      Flag.withDescription("Optional output parent directory relative to repo root (e.g. tooling or packages/shared)"),
+      Flag.withDefault("")
+    ),
+    family: Flag.string("family").pipe(
+      Flag.withDescription("Optional canonical package family. Currently supports: foundation"),
+      Flag.withDefault("")
+    ),
+    kind: Flag.string("kind").pipe(
+      Flag.withDescription("Package kind for --family foundation: primitive, modeling, capability, or ui-system"),
       Flag.withDefault("")
     ),
     dirName: Flag.string("dir-name").pipe(
@@ -477,7 +527,16 @@ export const createPackageCommand = Command.make(
     dryRun: Flag.boolean("dry-run").pipe(Flag.withDescription("Preview changes without writing files")),
   },
   Effect.fn(function* (config) {
-    const { name, type, parentDir: parentDirOverride, dirName: dirNameOverride, description, dryRun } = config;
+    const {
+      name,
+      type,
+      parentDir: parentDirOverride,
+      family: familyOption,
+      kind: kindOption,
+      dirName: dirNameOverride,
+      description,
+      dryRun,
+    } = config;
 
     // ── Validate type ──────────────────────────────────────────────────
     if (P.not(isPackageType)(type)) {
@@ -486,6 +545,34 @@ export const createPackageCommand = Command.make(
       });
     }
     const packageType = decodePackageType(type);
+
+    // ── Validate family/kind ──────────────────────────────────────────
+    if (Str.isNonEmpty(familyOption) && P.not(isPackageFamily)(familyOption)) {
+      return yield* new DomainError({
+        message: `Invalid package family "${familyOption}". Must be one of: ${A.join(VALID_FAMILIES, ", ")}`,
+      });
+    }
+    const packageFamily = Str.isNonEmpty(familyOption) ? O.some(decodePackageFamily(familyOption)) : O.none();
+
+    if (O.isNone(packageFamily) && Str.isNonEmpty(kindOption)) {
+      return yield* new DomainError({
+        message: `Package kind "${kindOption}" requires --family foundation.`,
+      });
+    }
+
+    if (
+      O.isSome(packageFamily) &&
+      packageFamilyEquivalence(packageFamily.value, "foundation") &&
+      !isFoundationKind(kindOption)
+    ) {
+      return yield* new DomainError({
+        message: `Invalid foundation kind "${kindOption}". Must be one of: ${A.join(VALID_FOUNDATION_KINDS, ", ")}`,
+      });
+    }
+    const foundationKind =
+      O.isSome(packageFamily) && packageFamilyEquivalence(packageFamily.value, "foundation")
+        ? O.some(decodeFoundationKind(kindOption))
+        : O.none<FoundationKind>();
 
     // ── Validate package name ─────────────────────────────────────────
     if (!isPackageName(name)) {
@@ -503,11 +590,21 @@ export const createPackageCommand = Command.make(
     }
 
     // ── Resolve parent directory ───────────────────────────────────────
-    const defaultParentDir = packageTypeEquivalence(packageType, "app") ? "apps" : "tooling";
+    if (O.isSome(foundationKind) && Str.isNonEmpty(parentDirOverride)) {
+      return yield* new DomainError({
+        message: `Foundation package paths are derived from --family foundation --kind ${foundationKind.value}; omit --parent-dir.`,
+      });
+    }
+
+    const defaultParentDir = O.isSome(foundationKind)
+      ? `packages/foundation/${foundationKind.value}`
+      : packageTypeEquivalence(packageType, "app")
+        ? "apps"
+        : "tooling";
     const parentDir = Str.isNonEmpty(parentDirOverride) ? parentDirOverride : defaultParentDir;
     if (!isParentDir(parentDir)) {
       return yield* new DomainError({
-        message: `Invalid parent dir "${parentDir}". Use a repo-relative path like "tooling", "apps", or "packages/common".`,
+        message: `Invalid parent dir "${parentDir}". Use a repo-relative path like "tooling", "apps", or "packages/shared".`,
       });
     }
     const packagePath = `${parentDir}/${dirName}`;
@@ -518,6 +615,7 @@ export const createPackageCommand = Command.make(
 
     // ── Discover repo root ─────────────────────────────────────────────
     const repoRoot = yield* findRepoRoot();
+    const identityPackagesFilePath = yield* resolveIdentityPackagesFilePath(repoRoot);
 
     // ── Determine output directory ─────────────────────────────────────
     const outputDir = path.join(repoRoot, packagePath);
@@ -535,9 +633,19 @@ export const createPackageCommand = Command.make(
     // ── Dry-run: preview output and bootstrap repo mutations ───────────
     if (dryRun) {
       const workspaceEntryNeeded = yield* rootWorkspaceEntryNeeded(repoRoot, packagePath);
-      const identityRegistrationMissing = yield* identityPackageRegistrationNeeded(repoRoot, name);
+      const identityRegistrationMissing = yield* identityPackageRegistrationNeeded(
+        repoRoot,
+        identityPackagesFilePath,
+        name
+      );
 
       yield* Console.log(`[dry-run] Would create package @beep/${name} (type: ${type})`);
+      if (O.isSome(packageFamily)) {
+        yield* Console.log(`[dry-run] Family: ${packageFamily.value}`);
+      }
+      if (O.isSome(foundationKind)) {
+        yield* Console.log(`[dry-run] Kind: ${foundationKind.value}`);
+      }
       if (dirName !== name) {
         yield* Console.log(`[dry-run] Directory name: ${dirName} (overridden from package name "${name}")`);
       }
@@ -551,7 +659,7 @@ export const createPackageCommand = Command.make(
         `  - package.json workspaces: ${workspaceEntryNeeded ? `Add "${packagePath}"` : "SKIP (already covered by an existing workspace entry)"}`
       );
       yield* Console.log(
-        `  - ${IDENTITY_PACKAGES_FILE_PATH}: ${identityRegistrationMissing ? `Register "${name}" and export ${toIdentityAccessorName(name)}` : "SKIP (already registered)"}`
+        `  - ${identityPackagesFilePath}: ${identityRegistrationMissing ? `Register "${name}" and export ${toIdentityAccessorName(name)}` : "SKIP (already registered)"}`
       );
       yield* Console.log(
         `[dry-run] Derived repo configs: shared sync runs after scaffolding to update tsconfig references, aliases, tstyche, syncpack, and docgen`
@@ -570,6 +678,8 @@ export const createPackageCommand = Command.make(
       parentDir,
       packagePath,
       rootRelative: toRootRelative(packagePath),
+      ...(O.isSome(packageFamily) ? { family: packageFamily.value } : {}),
+      ...(O.isSome(foundationKind) ? { kind: foundationKind.value } : {}),
       isTool: packageTypeEquivalence(packageType, "tool"),
       isApp: packageTypeEquivalence(packageType, "app"),
       isLibrary: packageTypeEquivalence(packageType, "library"),
@@ -585,7 +695,7 @@ export const createPackageCommand = Command.make(
       })
     );
 
-    const packageJson = yield* generatePackageJson(name, packageType, description, packagePath);
+    const packageJson = yield* generatePackageJson(name, packageType, description, packagePath, foundationKind);
 
     const plan = fileGenerationPlanService.createPlan(
       new FileGenerationPlanInput({
@@ -610,7 +720,7 @@ export const createPackageCommand = Command.make(
     yield* fileGenerationPlanService.executePlan(plan);
 
     const workspaceUpdated = yield* ensureRootWorkspaceEntry(repoRoot, packagePath);
-    const identityUpdated = yield* ensureIdentityPackageRegistration(name);
+    const identityUpdated = yield* ensureIdentityPackageRegistration(identityPackagesFilePath, name);
     const syncResult = yield* syncTsconfigAtRoot(repoRoot, {
       mode: "sync",
       filter: undefined,
@@ -629,9 +739,7 @@ export const createPackageCommand = Command.make(
         yield* Console.log(`  - package.json: added workspace "${packagePath}"`);
       }
       if (identityUpdated) {
-        yield* Console.log(
-          `  - ${IDENTITY_PACKAGES_FILE_PATH}: registered "${name}" as ${toIdentityAccessorName(name)}`
-        );
+        yield* Console.log(`  - ${identityPackagesFilePath}: registered "${name}" as ${toIdentityAccessorName(name)}`);
       }
       for (const change of syncResult.changes) {
         yield* Console.log(`  - ${path.relative(repoRoot, change.filePath)} [${change.section}] ${change.summary}`);
@@ -664,76 +772,87 @@ const generatePackageJson: (
   name: string,
   type: PackageType,
   description: string,
-  packagePath: string
-) => Effect.Effect<string, DomainError | S.SchemaError> = Effect.fn(function* (name, type, description, packagePath) {
-  const rootRelative = toRootRelative(packagePath);
-  const babelScript = "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps";
-  const dependencies: Record<string, string> = {
-    effect: "catalog:",
-  };
+  packagePath: string,
+  foundationKind: O.Option<FoundationKind>
+) => Effect.Effect<string, DomainError | S.SchemaError> = Effect.fn(
+  function* (name, type, description, packagePath, foundationKind) {
+    const rootRelative = toRootRelative(packagePath);
+    const babelScript = "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps";
+    const dependencies: Record<string, string> = {
+      effect: "catalog:",
+    };
 
-  if (packageTypeEquivalence(type, "tool")) {
-    dependencies["@effect/platform-node"] = "catalog:";
-  }
+    if (packageTypeEquivalence(type, "tool")) {
+      dependencies["@effect/platform-node"] = "catalog:";
+    }
 
-  const pkg = {
-    name: `@beep/${name}`,
-    version: "0.0.0",
-    type: "module",
-    private: true,
-    license: "MIT",
-    description,
-    homepage: `https://github.com/kriegcloud/beep-effect/tree/main/${packagePath}`,
-    repository: {
-      type: "git",
-      url: "git@github.com:kriegcloud/beep-effect.git",
-      directory: packagePath,
-    },
-    sideEffects: [],
-    exports: {
-      "./package.json": "./package.json",
-      ".": "./src/index.ts",
-      "./*": "./src/*.ts",
-      "./internal/*": null,
-    },
-    files: ["src/**/*.ts", "dist/**/*.js", "dist/**/*.js.map", "dist/**/*.d.ts", "dist/**/*.d.ts.map"],
-    publishConfig: {
-      access: "public",
-      provenance: true,
+    const pkg = {
+      name: `@beep/${name}`,
+      version: "0.0.0",
+      type: "module",
+      private: true,
+      license: "MIT",
+      description,
+      homepage: `https://github.com/kriegcloud/beep-effect/tree/main/${packagePath}`,
+      repository: {
+        type: "git",
+        url: "git@github.com:kriegcloud/beep-effect.git",
+        directory: packagePath,
+      },
+      ...(O.isSome(foundationKind)
+        ? {
+            beep: {
+              family: "foundation" as const,
+              kind: foundationKind.value,
+            },
+          }
+        : {}),
+      sideEffects: [],
       exports: {
         "./package.json": "./package.json",
-        ".": "./dist/index.ts",
-        "./*": "./dist/*.js",
+        ".": "./src/index.ts",
+        "./*": "./src/*.ts",
         "./internal/*": null,
       },
-    },
-    scripts: {
-      audit: "bun run --if-present beep:audit",
-      babel: babelScript,
-      "beep:audit":
-        "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
-      "beep:build": "tsc -b tsconfig.json && bun run babel",
-      "beep:check": "tsgo -b tsconfig.json",
-      "beep:lint": "biome check .",
-      "beep:lint:fix": "biome check . --write",
-      "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
-      "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
-      build: "bun run beep:build",
-      check: "bun run beep:check",
-      coverage: "bunx --bun vitest run --coverage --passWithNoTests --exclude=test/integration/**",
-      docgen: `bun run ${rootRelative}tooling/docgen/src/bin.ts`,
-      lint: "bun run beep:lint",
-      "lint:fix": "bun run beep:lint:fix",
-      test: "bun run beep:test",
-      "test:integration": "bun run beep:test:integration",
-    },
-    dependencies,
-    devDependencies: {
-      "@types/node": "catalog:",
-      "@effect/vitest": "catalog:",
-    },
-  };
+      files: ["src/**/*.ts", "dist/**/*.js", "dist/**/*.js.map", "dist/**/*.d.ts", "dist/**/*.d.ts.map"],
+      publishConfig: {
+        access: "public",
+        provenance: true,
+        exports: {
+          "./package.json": "./package.json",
+          ".": "./dist/index.ts",
+          "./*": "./dist/*.js",
+          "./internal/*": null,
+        },
+      },
+      scripts: {
+        audit: "bun run --if-present beep:audit",
+        babel: babelScript,
+        "beep:audit":
+          "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
+        "beep:build": "tsc -b tsconfig.json && bun run babel",
+        "beep:check": "tsgo -b tsconfig.json",
+        "beep:lint": "biome check .",
+        "beep:lint:fix": "biome check . --write",
+        "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+        "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
+        build: "bun run beep:build",
+        check: "bun run beep:check",
+        coverage: "bunx --bun vitest run --coverage --passWithNoTests --exclude=test/integration/**",
+        docgen: `bun run ${rootRelative}tooling/docgen/src/bin.ts`,
+        lint: "bun run beep:lint",
+        "lint:fix": "bun run beep:lint:fix",
+        test: "bun run beep:test",
+        "test:integration": "bun run beep:test:integration",
+      },
+      dependencies,
+      devDependencies: {
+        "@types/node": "catalog:",
+        "@effect/vitest": "catalog:",
+      },
+    };
 
-  const json = yield* encodePackageJsonCanonicalPrettyEffect(pkg);
-  return `${json}\n`;
-});
+    const json = yield* encodePackageJsonCanonicalPrettyEffect(pkg);
+    return `${json}\n`;
+  }
+);

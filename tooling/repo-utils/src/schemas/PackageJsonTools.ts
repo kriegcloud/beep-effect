@@ -141,6 +141,7 @@ const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJs
     ...(encoded.workspaces === undefined ? {} : { workspaces: encoded.workspaces }),
     ...(encoded.homepage === undefined ? {} : { homepage: encoded.homepage }),
     ...(encoded.repository === undefined ? {} : { repository: encoded.repository }),
+    ...(encoded.beep === undefined ? {} : { beep: encoded.beep }),
     ...(encoded.bugs === undefined ? {} : { bugs: encoded.bugs }),
     ...(encoded.author === undefined ? {} : { author: encoded.author }),
     ...(encoded.contributors === undefined ? {} : { contributors: encoded.contributors }),
