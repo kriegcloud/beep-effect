@@ -667,7 +667,7 @@ const rootBuildSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
 ];
 
 const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
-  turboStep(repoRoot, "check", ["check", "check:dtslint:tsgo", "check:tsgo:tests", "check:tsgo:smoke"], args),
+  turboStep(repoRoot, "check", ["check"], args),
 ];
 
 const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
@@ -681,7 +681,7 @@ const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
     }),
     ...optionalQualityTaskStep({
       enabled: lanes.types,
-      step: () => turboStep(repoRoot, "test:types", ["check:types"], lanes.args),
+      step: () => turboStep(repoRoot, "test:types", ["type-test"], lanes.args),
     }),
     ...optionalQualityTaskStep({
       enabled: lanes.integration,
@@ -691,35 +691,7 @@ const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
 };
 
 const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boolean) =>
-  fix
-    ? [
-        turboStep(repoRoot, "lint:effect-imports:fix", ["lint:effect-imports:fix"], args),
-        turboStep(repoRoot, "lint:fix", ["lint:fix"], args),
-      ]
-    : [
-        turboStep(
-          repoRoot,
-          "lint",
-          [
-            "lint",
-            "lint:effect-imports:check",
-            "lint:terse-effect",
-            "lint:native-runtime",
-            "lint:dual-arity",
-            "lint:allowlist",
-            "lint:package-test-imports",
-            "lint:schema-first",
-            "lint:jsdoc",
-            "lint:docgen",
-            "lint:spell",
-            "lint:markdown",
-            "lint:circular",
-            "lint:tooling-tagged-errors",
-            "lint:typos",
-          ],
-          args
-        ),
-      ];
+  fix ? [turboStep(repoRoot, "lint:fix", ["lint:fix"], args)] : [turboStep(repoRoot, "lint", ["lint"], args)];
 
 const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   const selection = parseRootAuditSelection(args);

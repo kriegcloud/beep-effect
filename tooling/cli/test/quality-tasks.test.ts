@@ -133,27 +133,19 @@ describe("quality task adapter", () => {
       "turbo",
       "run",
       "check",
-      "check:dtslint:tsgo",
-      "check:tsgo:tests",
-      "check:tsgo:smoke",
       ...(process.env.CI === "true" ? [] : ["--cache=local:rw"]),
       "--summarize",
     ]);
   });
 
-  it("keeps scope args in both lint --fix steps", () => {
+  it("keeps scope args in the aggregate lint --fix step", () => {
     const steps = rootQualityStepsForTesting(
       "/repo",
       getInvocation(["lint", "--fix", "--filter=@beep/schema", "--affected", "--dry=json"])
     );
 
-    expect(steps).toHaveLength(2);
+    expect(steps).toHaveLength(1);
     expect(steps[0]).toMatchObject({
-      label: "lint:effect-imports:fix",
-      command: "bunx",
-      args: expectedTurboArgs("lint:effect-imports:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
-    });
-    expect(steps[1]).toMatchObject({
       label: "lint:fix",
       command: "bunx",
       args: expectedTurboArgs("lint:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
@@ -175,7 +167,7 @@ describe("quality task adapter", () => {
     expect(steps[1]).toMatchObject({
       label: "test:types",
       command: "bunx",
-      args: expectedTurboArgs("check:types", ["--filter=@beep/schema", "--summarize"]),
+      args: expectedTurboArgs("type-test", ["--filter=@beep/schema", "--summarize"]),
     });
   });
 
@@ -266,12 +258,11 @@ describe("quality task adapter", () => {
     expect(O.isNone(parseQualityTaskInvocation(["lint", "schema-first"]))).toBe(true);
   });
 
-  it("includes package test import policy in the root lint lane", () => {
+  it("delegates root lint to the aggregate repo lint lane", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--summarize"]));
 
     expect(steps).toHaveLength(1);
-    expect(steps[0]?.args).toContain("lint:package-test-imports");
-    expect(steps[0]?.args).toContain("lint:schema-first");
+    expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--summarize"]));
   });
 
   it("treats unsupported package tasks as explicit no-ops", async () => {

@@ -1,0 +1,22 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "cache": false,
+      "dependsOn": [],
+      "outputs": []
+    },
+    "check": {
+      "cache": false
+    },
+    "lint": {
+      "cache": false
+    },
+    "lint:fix": {
+      "cache": false
+    },
+    "type-test": {
+      "cache": false
+    }
+  }
+}
