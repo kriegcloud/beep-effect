@@ -22,9 +22,6 @@
       "path": "packages/_internal/db-admin"
     },
     {
-      "path": "packages/common/chalk"
-    },
-    {
       "path": "packages/common/md"
     },
     {
@@ -68,6 +65,9 @@
     },
     {
       "path": "packages/fixture-lab/specimen/use-cases"
+    },
+    {
+      "path": "packages/foundation/capability/chalk"
     },
     {
       "path": "packages/foundation/capability/colors"

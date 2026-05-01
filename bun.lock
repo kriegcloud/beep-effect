@@ -164,19 +164,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/common/chalk": {
-      "name": "@beep/chalk",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/common/md": {
       "name": "@beep/md",
       "version": "0.0.0",
@@ -445,6 +432,19 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/fixture-lab-specimen-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/chalk": {
+      "name": "@beep/chalk",
+      "version": "0.0.0",
+      "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "effect": "catalog:",
@@ -1268,7 +1268,7 @@
 
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
-    "@beep/chalk": ["@beep/chalk@workspace:packages/common/chalk"],
+    "@beep/chalk": ["@beep/chalk@workspace:packages/foundation/capability/chalk"],
 
     "@beep/claude": ["@beep/claude@workspace:.claude"],
 

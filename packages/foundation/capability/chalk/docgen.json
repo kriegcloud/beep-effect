@@ -1,7 +1,7 @@
 {
-  "$schema": "../../../tooling/docgen/schema.json",
+  "$schema": "../../../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts", "src/Chalk.browser.ts", "src/index.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/chalk/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/capability/chalk/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -29,22 +29,26 @@
     "types": ["node"],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/chalk": ["../../../packages/common/chalk/src/index.ts"],
-      "@beep/chalk/*": ["../../../packages/common/chalk/src/*.ts"],
+      "@beep/chalk": [
+        "../../../../packages/foundation/capability/chalk/src/index.ts"
+      ],
+      "@beep/chalk/*": [
+        "../../../../packages/foundation/capability/chalk/src/*.ts"
+      ],
       "@beep/identity": [
-        "../../../packages/foundation/modeling/identity/src/index.ts"
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
       ],
       "@beep/identity/*": [
-        "../../../packages/foundation/modeling/identity/src/*.ts"
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
       ],
       "@beep/identity/packages": [
-        "../../../packages/foundation/modeling/identity/src/packages.ts"
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/schema": [
-        "../../../packages/foundation/modeling/schema/src/index.ts"
+        "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],
       "@beep/schema/*": [
-        "../../../packages/foundation/modeling/schema/src/*.ts"
+        "../../../../packages/foundation/modeling/schema/src/*.ts"
       ]
     }
   }

@@ -5,11 +5,11 @@
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/chalk",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/capability/chalk",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/common/chalk"
+    "directory": "packages/foundation/capability/chalk"
   },
   "scripts": {
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -17,7 +17,7 @@
     "check": "bun run beep:check",
     "codegen": "echo 'no codegen needed'",
     "coverage": "bunx --bun vitest run --coverage",
-    "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
+    "docgen": "bun run ../../../../tooling/docgen/src/bin.ts",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
     "test": "bun run beep:test",
@@ -67,5 +67,9 @@
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:"
+  },
+  "beep": {
+    "family": "foundation",
+    "kind": "capability"
   }
 }
