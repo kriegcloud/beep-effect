@@ -164,25 +164,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/common/nlp": {
-      "name": "@beep/nlp",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-        "wink-eng-lite-web-model": "catalog:",
-        "wink-nlp": "catalog:",
-        "wink-nlp-utils": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/common/observability": {
       "name": "@beep/observability",
       "version": "0.0.0",
@@ -446,6 +427,25 @@
       "devDependencies": {
         "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/nlp": {
+      "name": "@beep/nlp",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+        "wink-eng-lite-web-model": "catalog:",
+        "wink-nlp": "catalog:",
+        "wink-nlp-utils": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/bun": "catalog:",
         "@types/node": "catalog:",
       },
     },
@@ -1310,7 +1310,7 @@
 
     "@beep/messages": ["@beep/messages@workspace:packages/foundation/modeling/messages"],
 
-    "@beep/nlp": ["@beep/nlp@workspace:packages/common/nlp"],
+    "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/capability/nlp"],
 
     "@beep/observability": ["@beep/observability@workspace:packages/common/observability"],
 
