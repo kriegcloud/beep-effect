@@ -9,6 +9,7 @@ import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { Duration, Effect, FileSystem, HashSet } from "effect";
 import * as A from "effect/Array";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Display } from "./Display.ts";
@@ -216,7 +217,7 @@ export const resolvePrompt = Effect.fn("Prompt.resolvePrompt")(function* (option
 export const validateNoArgsWithInlinePrompt = Effect.fn("Prompt.validateNoArgsWithInlinePrompt")(function* (
   args: PromptArgs
 ) {
-  if (Object.keys(args).length === 0) {
+  if (R.isEmptyRecord(args)) {
     return;
   }
 
@@ -236,7 +237,7 @@ export const validateNoBuiltInArgOverride = Effect.fn("Prompt.validateNoBuiltInA
   args: PromptArgs
 ) {
   for (const key of BUILT_IN_PROMPT_ARG_KEYS) {
-    if (Object.hasOwn(args, key)) {
+    if (R.has(key)(args)) {
       return yield* PromptError.new(
         "built-in prompt argument override",
         `"${key}" is a built-in prompt argument and cannot be overridden via promptArgs`
@@ -265,7 +266,7 @@ export const findMissingPromptArgKeys = (prompt: string, providedArgs: PromptArg
     if (BuiltInPromptArgKey.is.SOURCE_BRANCH(key) || BuiltInPromptArgKey.is.TARGET_BRANCH(key)) {
       continue;
     }
-    if (Object.hasOwn(providedArgs, key)) {
+    if (R.has(key)(providedArgs)) {
       continue;
     }
     missing.push(key);
@@ -306,7 +307,7 @@ export const substitutePromptArgs = Effect.fn("Prompt.substitutePromptArgs")(fun
     }
   }
 
-  for (const key of Object.keys(args)) {
+  for (const key of R.keys(args)) {
     if (!HashSet.has(referenced, key) && !HashSet.has(silentKeys, key)) {
       yield* display.status(`Prompt argument "${key}" was provided but not referenced in the prompt`, "Warn");
     }

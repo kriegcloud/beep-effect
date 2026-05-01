@@ -7,7 +7,7 @@
 
 import { $SandboxId } from "@beep/identity";
 import { A } from "@beep/utils";
-import { Duration, Effect, Path, pipe } from "effect";
+import { DateTime, Duration, Effect, Path, pipe } from "effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { WorktreeError, WorktreeTimeoutError } from "./Sandbox.errors.ts";
@@ -20,10 +20,13 @@ const NO_CONFIG_LOCK_FLAGS = ["-c", "branch.autoSetupMerge=false", "-c", "push.a
 
 const pad2 = (value: number): string => value.toString().padStart(2, "0");
 
-const formatTimestamp = (date: Date): string =>
-  `${date.getFullYear()}${pad2(date.getMonth() + 1)}${pad2(date.getDate())}-${pad2(date.getHours())}${pad2(
-    date.getMinutes()
-  )}${pad2(date.getSeconds())}`;
+const formatTimestamp = (dateTime: DateTime.DateTime): string => {
+  const parts = DateTime.toParts(DateTime.setZone(dateTime, DateTime.zoneMakeLocal()));
+
+  return `${parts.year}${pad2(parts.month)}${pad2(parts.day)}-${pad2(parts.hour)}${pad2(parts.minute)}${pad2(
+    parts.second
+  )}`;
+};
 
 /**
  * Information about a created git worktree.
@@ -73,8 +76,8 @@ export const sanitizeName = (name: string): string => pipe(Str.toLowerCase(name)
  * @category constructors
  * @since 0.0.0
  */
-export const generateTempBranchName = (name?: string, date: Date = new Date()): string => {
-  const timestamp = formatTimestamp(date);
+export const generateTempBranchName = (name?: string, dateTime: DateTime.DateTime = DateTime.nowUnsafe()): string => {
+  const timestamp = formatTimestamp(dateTime);
 
   return name === undefined ? `sandcastle/${timestamp}` : `sandcastle/${sanitizeName(name)}/${timestamp}`;
 };
@@ -144,7 +147,7 @@ export const createWorktreeInfo = Effect.fn("Worktree.createWorktreeInfo")(funct
 ) {
   const path = yield* Path.Path;
   const worktreesDir = path.join(options.repoDir, ".sandcastle", "worktrees");
-  const timestamp = formatTimestamp(new Date());
+  const timestamp = formatTimestamp(yield* DateTime.now);
   const branch =
     options.branch ??
     (options.name === undefined ? `sandcastle/${timestamp}` : `sandcastle/${sanitizeName(options.name)}/${timestamp}`);

@@ -6,7 +6,7 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { Effect, FileSystem, Path, pipe } from "effect";
+import { DateTime, Effect, FileSystem, flow, Path } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -20,10 +20,13 @@ const $I = $SandboxId.create("SyncOut");
 
 const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
 const pad2 = (value: number): string => value.toString().padStart(2, "0");
-const formatTimestamp = (date: Date): string =>
-  `${date.getFullYear()}${pad2(date.getMonth() + 1)}${pad2(date.getDate())}-${pad2(date.getHours())}${pad2(
-    date.getMinutes()
-  )}${pad2(date.getSeconds())}`;
+const formatTimestamp = (dateTime: DateTime.DateTime): string => {
+  const parts = DateTime.toParts(DateTime.setZone(dateTime, DateTime.zoneMakeLocal()));
+
+  return `${parts.year}${pad2(parts.month)}${pad2(parts.day)}-${pad2(parts.hour)}${pad2(parts.minute)}${pad2(
+    parts.second
+  )}`;
+};
 
 /**
  * Optional sync-out recovery settings.
@@ -131,11 +134,16 @@ const execSandboxOk = Effect.fn("SyncOut.execSandboxOk")(function* <R>(
 
 const isNonEmptyPath = (value: string): boolean => value.length > 0;
 
-const parseNulSeparatedPaths = (output: string): ReadonlyArray<string> =>
-  pipe(output, Str.split("\u0000"), A.filter(isNonEmptyPath));
+const parseNulSeparatedPaths: (output: string) => ReadonlyArray<string> = flow(
+  Str.split("\u0000"),
+  A.filter(isNonEmptyPath)
+);
 
-const parseLineSeparatedPaths = (output: string): ReadonlyArray<string> =>
-  pipe(output, Str.trim, Str.split("\n"), A.filter(isNonEmptyPath));
+const parseLineSeparatedPaths: (output: string) => ReadonlyArray<string> = flow(
+  Str.trim,
+  Str.split("\n"),
+  A.filter(isNonEmptyPath)
+);
 
 const validateRepoRelativePath = Effect.fn("SyncOut.validateRepoRelativePath")(function* (
   relativePath: string,
@@ -158,7 +166,7 @@ const validateRepoRelativePath = Effect.fn("SyncOut.validateRepoRelativePath")(f
 const createPatchDir = Effect.fn("SyncOut.createPatchDir")(function* (hostRepoDir: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const base = formatTimestamp(new Date());
+  const base = formatTimestamp(yield* DateTime.now);
   const patchesRoot = path.join(hostRepoDir, ".sandcastle", "patches");
 
   yield* fs

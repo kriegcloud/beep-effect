@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Match, pipe } from "effect";
+import { flow, Match } from "effect";
 import type { SandboxError } from "./Sandbox.errors.ts";
 import { redactSensitiveText } from "./Sandbox.observability.ts";
 
@@ -54,5 +54,4 @@ const formatErrorMessageUnsafe = Match.type<SandboxError>().pipe(
  * @category error handling
  * @since 0.0.0
  */
-export const formatErrorMessage = (error: SandboxError): string =>
-  pipe(error, formatErrorMessageUnsafe, redactSensitiveText);
+export const formatErrorMessage: (error: SandboxError) => string = flow(formatErrorMessageUnsafe, redactSensitiveText);

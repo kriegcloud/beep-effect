@@ -9,6 +9,7 @@ import { $SandboxId } from "@beep/identity";
 import { profilePhase } from "@beep/observability";
 import { Effect, Metric } from "effect";
 import { dual } from "effect/Function";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -112,7 +113,7 @@ export const profileSandboxPhase: {
     const attributes: Record<string, string> = {
       package: "@beep/sandbox",
     };
-    for (const [key, value] of Object.entries(run.options.attributes ?? {})) {
+    for (const [key, value] of R.toEntries(run.options.attributes ?? {})) {
       attributes[redactSensitiveText(key)] = redactSensitiveText(value);
     }
 

@@ -10,6 +10,7 @@ Somes = "Somes"
 annote = "annote"
 retriev = "retriev"
 Uncommited = "Uncommited"
+Overrideable = "Overrideable"
 
 # Biome rule names
 Inferrable = "Inferrable"

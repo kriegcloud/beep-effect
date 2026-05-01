@@ -11,7 +11,7 @@ import chalk from "@beep/chalk";
 import { encodeTSConfigPrettyEffect, FsUtils } from "@beep/repo-utils";
 import { thunkEmptyStr, thunkFalse } from "@beep/utils";
 import markdownToc from "@effect/markdown-toc";
-import { Effect, FileSystem, flow, Path, pipe, Stream } from "effect";
+import { Effect, FileSystem, flow, HashSet, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
@@ -212,18 +212,18 @@ const getExampleFiles = Effect.fn("getExampleFiles")(function* (modules: Readonl
   const config = yield* Configuration.Configuration;
   const path = yield* Path.Path;
   let warnings: Array<string> = [];
-  const usedExampleFileNames = new Set<string>();
+  let usedExampleFileNames = HashSet.empty<string>();
 
   const uniqueExamplePath = (fileName: string): string => {
     let candidate = fileName;
     let suffix = 1;
 
-    while (usedExampleFileNames.has(Str.toLowerCase(candidate))) {
+    while (HashSet.has(usedExampleFileNames, Str.toLowerCase(candidate))) {
       candidate = fileName.replace(/\.ts$/, `-${suffix}.ts`);
       suffix += 1;
     }
 
-    usedExampleFileNames.add(Str.toLowerCase(candidate));
+    usedExampleFileNames = HashSet.add(usedExampleFileNames, Str.toLowerCase(candidate));
     return path.join(config.outDir, "examples", candidate);
   };
 

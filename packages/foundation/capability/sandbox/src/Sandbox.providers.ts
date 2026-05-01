@@ -7,7 +7,7 @@
 
 import { $SandboxId } from "@beep/identity";
 import { A, Struct } from "@beep/utils";
-import { Effect, pipe } from "effect";
+import { Clock, Effect, flow, pipe } from "effect";
 import * as S from "effect/Schema";
 import { CopyError, DockerError, PodmanError } from "./Sandbox.errors.ts";
 import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
@@ -121,12 +121,10 @@ const processResultOrCopyError = (action: string, result: ProcessResult): Effect
         })
       );
 
-const containerEnvArgs = (env: Readonly<Record<string, string>>): ReadonlyArray<string> =>
-  pipe(
-    env,
-    Struct.entries,
-    A.flatMap(([key, value]) => ["-e", `${key}=${value}`])
-  );
+const containerEnvArgs: (env: Readonly<Record<string, string>>) => ReadonlyArray<string> = flow(
+  Struct.entries,
+  A.flatMap(([key, value]) => ["-e", `${key}=${value}`])
+);
 
 const containerMountArgs = (options: BindMountCreateOptions, sandboxWorkdir: string): ReadonlyArray<string> =>
   pipe(
@@ -239,7 +237,8 @@ const createContainerProvider = (
   createBindMountSandboxProvider<SandboxProcess>({
     create: Effect.fn("ContainerProvider.create")(function* (createOptions) {
       const process = yield* SandboxProcess;
-      const containerName = options.containerName ?? `beep-sandbox-${runtime}-${Date.now().toString(36)}`;
+      const nowMs = yield* Clock.currentTimeMillis;
+      const containerName = options.containerName ?? `beep-sandbox-${runtime}-${nowMs.toString(36)}`;
       const env = {
         ...createOptions.env,
         ...options.env,

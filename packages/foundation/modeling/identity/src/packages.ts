@@ -798,8 +798,18 @@ export const $IamUseCasesId: Identity.IdentityComposer<"@beep/iam-use-cases"> = 
 export const $ScratchpadId: Identity.IdentityComposer<"@beep/scratchpad"> = composers.$ScratchpadId;
 
 /**
+ * Identity composer for the `@beep/sandbox` package.
+ *
+ * Pre-registered ahead of sandbox package creation.
+ *
+ * @example
+ * ```typescript
+ * import { $SandboxId } from "@beep/identity"
+ *
+ * const id = $SandboxId.make("Worktree")
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/sandbox">}
+ * @category configuration
  */
 export const $SandboxId: Identity.IdentityComposer<"@beep/sandbox"> = composers.$SandboxId;

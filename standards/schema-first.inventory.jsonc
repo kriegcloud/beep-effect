@@ -1,7 +1,11 @@
 {
   "version": 1,
   "generatedOn": "2026-05-01",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
     "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -608,14 +612,6 @@
       "status": "exception",
       "owner": "@beep/schema",
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
-      "symbol": "EncodedFieldShape",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/schema",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",

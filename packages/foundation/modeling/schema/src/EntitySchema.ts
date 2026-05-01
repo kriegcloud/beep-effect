@@ -6,16 +6,16 @@
  */
 
 import { $SchemaId } from "@beep/identity";
-import * as Str from "@beep/utils/Str";
-import * as Struct from "@beep/utils/Struct";
+import { A, P, Str, Struct } from "@beep/utils";
 import { SchemaAST as AST, Match, pipe, Tuple } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type { Simplify, Assign as StructAssign } from "effect/Struct";
 import { LiteralKit } from "./LiteralKit.ts";
 import * as Model from "./Model.ts";
 import * as SchemaUtils from "./SchemaUtils/index.ts";
+import { TaggedErrorClass } from "./TaggedErrorClass.ts";
 
 const $I = $SchemaId.create("EntitySchema");
 
@@ -740,8 +740,8 @@ const descriptor =
       valueStrategy: options?.valueStrategy ?? ("provided" as Strategy),
     };
     return Struct.assign(
-      Struct.assign(base, options?.columnName === undefined ? {} : { columnName: options.columnName }),
-      options?.indexHints === undefined ? {} : { indexHints: options.indexHints }
+      Struct.assign(base, P.isUndefined(options?.columnName) ? {} : { columnName: options.columnName }),
+      P.isUndefined(options?.indexHints) ? {} : { indexHints: options.indexHints }
     ) as unknown as PersistDescriptor<TStorageKind, Strategy, ColumnName, IndexHints>;
   };
 
@@ -852,6 +852,25 @@ class AstAbsence extends S.Class<AstAbsence>($I`AstAbsence`)(
   })
 ) {}
 
+type EncodedFieldShapeMember<T extends EncodedAbsenceKind> = {
+  readonly absenceKind: T;
+  readonly allowsNull: boolean;
+  readonly allowsUndefined: boolean;
+  readonly isAmbiguous: boolean;
+  readonly isOptional: boolean;
+};
+
+class SelectedRowFieldShapeError extends TaggedErrorClass<SelectedRowFieldShapeError>($I`SelectedRowFieldShapeError`)(
+  "SelectedRowFieldShapeError",
+  {
+    field: S.String,
+    message: S.String,
+  },
+  $I.annote("SelectedRowFieldShapeError", {
+    description: "Selected-row field shape validation failure.",
+  })
+) {}
+
 const knownAstAbsence = (allowsNull: boolean, allowsUndefined: boolean, isAmbiguous = false): AstAbsence => ({
   allowsNull,
   allowsUndefined,
@@ -881,7 +900,7 @@ const astAbsence: (input: AST.AST) => AstAbsence = Match.type<AST.AST>().pipe(
     Declaration: (ast) => (isJsonDeclaration(ast) ? knownAstAbsence(true, false) : knownAstAbsence(false, false, true)),
     Suspend: (ast) => astAbsence(ast.thunk()),
     Union: (ast) =>
-      A.reduce(ast.types ?? [], knownAstAbsence(false, false), (accumulator, member) =>
+      A.reduce(ast.types ?? A.empty(), knownAstAbsence(false, false), (accumulator, member) =>
         combineAstAbsence(accumulator, astAbsence(member))
       ),
   }),
@@ -894,16 +913,20 @@ const astAbsence: (input: AST.AST) => AstAbsence = Match.type<AST.AST>().pipe(
  * @since 0.0.0
  * @category models
  */
-//  ["required", "nullable", "undefined", "nullish", "optionalKey", "optionalNullable", "optionalUndefined", "optionalNullish", "ambiguous"], undefined>
 export const EncodedFieldShape = EncodedAbsenceKind.mapMembers((members) => {
   const make = <T extends EncodedAbsenceKind>(literal: S.Literal<T>) =>
-    S.Struct({
-      absenceKind: S.tag(literal.literal),
-      allowsNull: S.Boolean,
-      allowsUndefined: S.Boolean,
-      isAmbiguous: S.Boolean,
-      isOptional: S.Boolean,
-    });
+    S.Class<EncodedFieldShapeMember<T>>($I`EncodedFieldShapeMember`)(
+      {
+        absenceKind: S.tag(literal.literal),
+        allowsNull: S.Boolean,
+        allowsUndefined: S.Boolean,
+        isAmbiguous: S.Boolean,
+        isOptional: S.Boolean,
+      },
+      $I.annote("EncodedFieldShapeMember", {
+        description: "Encoded field shape member with absence kind and null/undefined handling flags.",
+      })
+    );
 
   return pipe(members, Tuple.evolve([make, make, make, make, make, make, make, make, make]));
 }).pipe(
@@ -913,6 +936,12 @@ export const EncodedFieldShape = EncodedAbsenceKind.mapMembers((members) => {
   S.toTaggedUnion("absenceKind")
 );
 
+/**
+ * Runtime type for encoded field shape metadata.
+ *
+ * @since 0.0.0
+ * @category models
+ */
 export type EncodedFieldShape = typeof EncodedFieldShape.Type;
 
 /**
@@ -983,9 +1012,10 @@ export const selectedRowFieldShape: {
 } = dual(2, (key: string, field: S.Top): EncodedFieldShape => {
   const shape = encodedFieldShape(field);
   if (shape.isAmbiguous || shape.isOptional || shape.allowsUndefined) {
-    throw new Error(
-      `Persisted selected-row field '${key}' must encode SQL absence as null, not undefined, a missing key, or an ambiguous declared schema.`
-    );
+    throw new SelectedRowFieldShapeError({
+      field: key,
+      message: `Persisted selected-row field '${key}' must encode SQL absence as null, not undefined, a missing key, or an ambiguous declared schema.`,
+    });
   }
   return shape;
 });
@@ -1026,7 +1056,7 @@ const normalizeDefinition = <
   input: ClassInput<FieldMap, Persisted, TableName, EntityId>
 ): Definition<FieldMap, Persisted, TableName, EntityId> =>
   ({
-    ...(input.entityId === undefined ? {} : { entityId: input.entityId }),
+    ...(P.isUndefined(input.entityId) ? {} : { entityId: input.entityId }),
     fields: input.fields,
     persisted: input.persisted,
     tableName: (input.tableName ?? input.entityId?.tableName ?? tableNameFromIdentifier(identifier)) as TableName,
@@ -1101,7 +1131,7 @@ const variantFieldsFor = <const FieldMap extends Fields, const Persisted extends
   fields: FieldMap,
   persisted: Persisted
 ): VariantFieldsFor<FieldMap, Persisted> => {
-  const output: Record<string, unknown> = {};
+  const output = R.empty<string, unknown>();
   for (const [key, field] of Struct.entries(fields)) {
     output[key] = variantFieldFor(field, persisted[key]);
   }
@@ -1202,10 +1232,10 @@ const withClassFactory = <
         input.persisted
       );
       const childInput = defineClassInput({
-        ...(input.entityId === undefined ? {} : { entityId: input.entityId }),
+        ...(P.isUndefined(input.entityId) ? {} : { entityId: input.entityId }),
         fields: childParts.fields,
         persisted: childParts.persisted,
-        ...(input.tableName === undefined ? {} : { tableName: input.tableName }),
+        ...(P.isUndefined(input.tableName) ? {} : { tableName: input.tableName }),
       });
       const childDefinition = normalizeDefinition(identifier, childInput);
       const childClass = extendEntityModelClass<
