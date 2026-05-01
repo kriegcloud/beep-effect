@@ -802,7 +802,7 @@ const runRootTestTask = Effect.fn("QualityTasks.runRootTestTask")(function* (
     }),
     ...optionalQualityTaskStep({
       enabled: lanes.types,
-      step: () => turboStep(repoRoot, "test:types", ["check:types"], lanes.args),
+      step: () => turboStep(repoRoot, "test:types", ["type-test"], lanes.args),
     }),
   ];
 
