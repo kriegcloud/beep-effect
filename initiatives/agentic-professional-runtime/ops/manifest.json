@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "1.0.0",
+  "initiative": {
+    "id": "agentic-professional-runtime",
+    "title": "Agentic Professional Runtime",
+    "status": "active",
+    "created": "2026-05-01",
+    "updated": "2026-05-01",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "productProofs": [
+    {
+      "id": "law-practice",
+      "title": "Agentic Solo Practice Law Firm",
+      "status": "product-definition",
+      "document": "docs/product-vision-law-practice.md",
+      "dataModel": "docs/data-model-law-practice.md"
+    },
+    {
+      "id": "wealth-management",
+      "title": "Todox.ai Wealth Management Runtime",
+      "status": "product-definition",
+      "document": "docs/product-vision-todox.md",
+      "dataModel": "docs/data-model-wealth-management.md"
+    }
+  ],
+  "runtimeSlices": [
+    "tenancy",
+    "workspace",
+    "agent-capability",
+    "epistemic"
+  ],
+  "verticalSlices": [
+    "law-practice",
+    "wealth-management"
+  ],
+  "documents": {
+    "root": [
+      "README.md",
+      "SPEC.md",
+      "PLAN.md"
+    ],
+    "product": [
+      "docs/product-vision-law-practice.md",
+      "docs/product-vision-todox.md",
+      "docs/product-feature-map.md",
+      "docs/shared-capabilities.md"
+    ],
+    "dataAndArchitecture": [
+      "docs/data-model-shared-core.md",
+      "docs/data-model-law-practice.md",
+      "docs/data-model-wealth-management.md",
+      "docs/architecture-map.md"
+    ],
+    "history": [
+      "history/sources.md"
+    ]
+  },
+  "sourcePolicy": {
+    "olderPackets": "reference-not-merge",
+    "notionPages": "synthesize-not-copy",
+    "archivedApps": "capability-reference-only",
+    "repoFixtures": "synthetic-only"
+  },
+  "firstProof": {
+    "name": "runtime-data-loop",
+    "status": "planned",
+    "flow": [
+      "onboard organization/user/workspace",
+      "ingest synthetic email/calendar/document/thread artifacts",
+      "produce candidate claims/tasks/artifacts",
+      "attach evidence and activity provenance",
+      "gate authoritative promotion through approval",
+      "expose bounded context through local SDK"
+    ],
+    "deferred": [
+      "realtime phone calls",
+      "multi-machine sync",
+      "direct authoritative agent writes",
+      "MCP as canonical contract",
+      "full governance dashboard"
+    ]
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Packet Bootstrap",
+      "status": "completed",
+      "outputs": [
+        "README.md",
+        "SPEC.md",
+        "PLAN.md",
+        "docs/",
+        "history/sources.md",
+        "ops/manifest.json"
+      ]
+    },
+    {
+      "id": "P1",
+      "name": "Product Interview Tightening",
+      "status": "pending",
+      "outputs": [
+        "docs/product-vision-law-practice.md",
+        "docs/product-vision-todox.md"
+      ]
+    },
+    {
+      "id": "P2",
+      "name": "Runtime Data Loop Specification",
+      "status": "pending",
+      "outputs": [
+        "docs/data-model-shared-core.md",
+        "docs/architecture-map.md"
+      ]
+    },
+    {
+      "id": "P3",
+      "name": "Slice Implementation Plan",
+      "status": "pending",
+      "outputs": [
+        "PLAN.md"
+      ]
+    },
+    {
+      "id": "P4",
+      "name": "Native First-Run Onboarding Design",
+      "status": "pending",
+      "outputs": [
+        "docs/shared-capabilities.md"
+      ]
+    }
+  ],
+  "acceptanceChecks": [
+    "Every product proof has a vision doc and data-model overlay.",
+    "Shared runtime data model is separate from vertical overlays.",
+    "Architecture map names slice ownership and shared-kernel limits.",
+    "Older packets and archived apps are referenced as sources, not promoted to authority.",
+    "The first proof is scoped to synthetic data and local SDK candidate writes."
+  ]
+}

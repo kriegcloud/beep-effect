@@ -26,6 +26,7 @@ actually lives here.
 
 ## Current Initiatives
 
+- `agentic-professional-runtime`
 - `agent-governance-control-plane`
 - `ip-law-knowledge-graph`
 - `law-kg-prd`
