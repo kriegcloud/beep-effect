@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-04-27
-- **Updated:** 2026-04-27
+- **Updated:** 2026-05-01
 
 ## Mission
 
@@ -48,7 +48,6 @@ The feature branch removes these active surfaces:
 - `packages/editor`
 - `packages/runtime`
 - `packages/repo-memory`
-- `packages/shared`
 - `initiatives/repo-expert-memory-local-first-v0`
 - `initiatives/expert-memory-big-picture`
 - `initiatives/repo-architecture-convergence`
@@ -59,6 +58,7 @@ The lean slate keeps these families unless a later packet changes the target:
 
 - `apps/codedank-web`
 - `packages/foundation/*/*`
+- `packages/shared/*`
 - `packages/fixture-lab/specimen/*` as temporary private golden fixture
   workspaces
 - `packages/_internal/*`
@@ -114,6 +114,7 @@ Fixture graduation requires:
 ## Required Verification
 
 - `bun run config-sync:check`
+- `bun run beep lint schema-first`
 - targeted fixture checks for the golden slice contract;
 - search audits for deleted path and package references outside archived,
   generated, or fixture-approved contexts;

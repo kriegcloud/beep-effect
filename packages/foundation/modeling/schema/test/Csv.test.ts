@@ -1,10 +1,10 @@
-import { $ScratchId } from "@beep/identity";
+import { $SchemaId } from "@beep/identity";
 import { CSV } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";
 
-const $I = $ScratchId.create("csv_test");
+const $I = $SchemaId.create("csv_test");
 
 class UserRow extends S.Class<UserRow>($I`UserRow`)(
   {

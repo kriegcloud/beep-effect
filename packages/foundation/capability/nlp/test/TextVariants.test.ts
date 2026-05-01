@@ -9,30 +9,30 @@ describe("@beep/nlp deterministic helpers", () => {
   it("normalizes question and phrase text deterministically", () => {
     expect(QueryText.normalizeQuestion("  describe   `answer`  ")).toBe("describe `answer`");
     expect(QueryText.normalizePhrase(' " src / index.ts ? ')).toBe("src/index.ts");
-    expect(O.getOrThrow(QueryText.extractBacktickValue("describe `repoMemoryAnswerHelper`"))).toBe(
-      "repoMemoryAnswerHelper"
+    expect(O.getOrThrow(QueryText.extractBacktickValue("describe `knowledgeGraphAnswerHelper`"))).toBe(
+      "knowledgeGraphAnswerHelper"
     );
   });
 
   it("returns none for missing or empty backtick captures", () => {
-    expect(O.isNone(QueryText.extractBacktickValue("describe repoMemoryAnswerHelper"))).toBe(true);
+    expect(O.isNone(QueryText.extractBacktickValue("describe knowledgeGraphAnswerHelper"))).toBe(true);
     expect(O.isNone(QueryText.extractBacktickValue("describe ``"))).toBe(true);
   });
 
   it("generates identifier variants for spaced and camelCase phrases", () => {
-    const spaced = IdentifierText.variants("repo memory answer helper");
-    const camel = IdentifierText.variants("repoMemoryAnswerHelper");
+    const spaced = IdentifierText.variants("knowledge graph answer helper");
+    const camel = IdentifierText.variants("knowledgeGraphAnswerHelper");
 
-    expect(spaced).toContain("repoMemoryAnswerHelper");
-    expect(spaced).toContain("repo_memory_answer_helper");
-    expect(spaced).toContain("repo-memory-answer-helper");
-    expect(spaced).toContain("repomemoryanswerhelper");
-    expect(camel).toContain("repo memory answer helper");
-    expect(camel).toContain("repoMemoryAnswerHelper");
+    expect(spaced).toContain("knowledgeGraphAnswerHelper");
+    expect(spaced).toContain("knowledge_graph_answer_helper");
+    expect(spaced).toContain("knowledge-graph-answer-helper");
+    expect(spaced).toContain("knowledgegraphanswerhelper");
+    expect(camel).toContain("knowledge graph answer helper");
+    expect(camel).toContain("knowledgeGraphAnswerHelper");
   });
 
   it("tokenizes mixed identifier styles and drops punctuation-only inputs", () => {
-    expect(IdentifierText.tokens("RepoMemory-answer_helper")).toEqual(["repo", "memory", "answer", "helper"]);
+    expect(IdentifierText.tokens("KnowledgeGraph-answer_helper")).toEqual(["knowledge", "graph", "answer", "helper"]);
     expect(IdentifierText.variants("...")).toEqual([]);
   });
 

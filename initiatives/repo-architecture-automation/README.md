@@ -25,6 +25,8 @@ Active destructive work happens only on:
 - `main` is preserved by the archive branch before deletion work begins.
 - The feature branch removes the active legacy topology instead of carrying it
   as migration scaffolding.
+- The shared-kernel packages remain active while foundation and fixture
+  workspaces carry the target topology forward.
 - The old convergence packet is reduced to a digest in this initiative.
 - The first proof target is the checked synthetic golden fixture
   `fixture-lab/Specimen`.

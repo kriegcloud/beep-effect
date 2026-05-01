@@ -1,10 +1,10 @@
-import { $ScratchId } from "@beep/identity";
+import { $SchemaId } from "@beep/identity";
 import { decodeXmlTextAs, XmlTextToUnknown } from "@beep/schema/Xml";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";
 
-const $I = $ScratchId.create("xml_test");
+const $I = $SchemaId.create("xml_test");
 
 class PersonNode extends S.Class<PersonNode>($I`PersonNode`)(
   {

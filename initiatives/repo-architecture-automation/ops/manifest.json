@@ -5,7 +5,7 @@
     "title": "Repo Architecture Automation",
     "status": "active",
     "created": "2026-04-27",
-    "updated": "2026-04-27",
+    "updated": "2026-05-01",
     "packetAnchorDocument": "SPEC.md"
   },
   "branches": {
@@ -18,7 +18,6 @@
     "packages/editor",
     "packages/runtime",
     "packages/repo-memory",
-    "packages/shared",
     "initiatives/repo-expert-memory-local-first-v0",
     "initiatives/expert-memory-big-picture",
     "initiatives/repo-architecture-convergence"
@@ -26,6 +25,7 @@
   "retainedActiveSurfaces": [
     "apps/codedank-web",
     "packages/foundation/*/*",
+    "packages/shared/*",
     "packages/fixture-lab/specimen/*",
     "packages/_internal/*",
     "infra",
@@ -80,6 +80,10 @@
     {
       "id": "config-sync",
       "command": "bun run config-sync:check"
+    },
+    {
+      "id": "schema-first",
+      "command": "bun run beep lint schema-first"
     },
     {
       "id": "fixture-contract",

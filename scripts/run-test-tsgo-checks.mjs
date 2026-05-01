@@ -12,7 +12,6 @@ const tsgoPath = path.join(rootDir, "node_modules", ".bin", "tsgo");
 const extraArgs = process.argv.slice(2);
 const ignoredDirectoryNames = new Set(["node_modules", "dist", "coverage", "tmp"]);
 const ignoredPathSegments = ["/test/fixtures/"];
-const ignoredPathPrefixes = ["/apps/desktop/test/", "/apps/editor-app/test/"];
 
 /**
  * @param {string} filePath
@@ -25,8 +24,7 @@ const normalizePath = (filePath) => filePath.split(path.sep).join("/");
  * @returns {boolean}
  */
 const isIgnoredTestPath = (normalizedPath) =>
-  ignoredPathSegments.some((segment) => normalizedPath.includes(segment)) ||
-  ignoredPathPrefixes.some((prefix) => normalizedPath.includes(prefix));
+  ignoredPathSegments.some((segment) => normalizedPath.includes(segment));
 
 /**
  * @param {string} dir

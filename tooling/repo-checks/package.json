@@ -22,6 +22,7 @@
     "lint:dual-arity": "cd ../.. && bun run tooling/cli/src/bin.ts -- laws dual-arity --check",
     "lint:allowlist": "cd ../.. && bun run tooling/cli/src/bin.ts -- laws allowlist-check",
     "lint:package-test-imports": "cd ../.. && bun run tooling/cli/src/bin.ts -- lint package-test-imports",
+    "lint:schema-first": "cd ../.. && bun run tooling/cli/src/bin.ts -- lint schema-first",
     "lint:effect-imports:fix": "cd ../.. && bun run tooling/cli/src/bin.ts -- laws effect-imports --write",
     "lint:jsdoc": "cd ../.. && bunx eslint .",
     "lint:markdown": "cd ../.. && bunx markdownlint-cli2",

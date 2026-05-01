@@ -47,10 +47,7 @@ const composers = $I.compose(
   // IaC Infra Package
   "infra",
 
-  // Scratchpad Package
-  "scratch",
-
-  // Common Packages
+  // Foundation Packages
   "chalk",
   "colors",
   "data",
@@ -72,6 +69,7 @@ const composers = $I.compose(
   "repo-cli",
   "repo-configs",
   "docgen",
+  "repo-checks",
   "repo-utils",
   "test-utils",
 
@@ -86,31 +84,14 @@ const composers = $I.compose(
   "shared-tables",
   "shared-ui",
   "shared-config",
-  "runtime-protocol",
-  "runtime-server",
-  "repo-memory-model",
-  "repo-memory-store",
-  "repo-memory-sqlite",
-  "repo-memory-runtime",
-  "repo-memory-client",
-  "codegraph",
 
-  // editor
-  "editor-client",
-  "editor-domain",
-  "editor-lexical",
-  "editor-app",
-  "editor-protocol",
-  "editor-runtime",
-
-  "firecrawl",
   "codedank-web",
   "drizzle",
   "ffmpeg",
   "postgres"
 );
 
-// --- common ---
+// --- foundation ---
 
 /**
  * Identity composer for the `@beep/data` package.
@@ -375,130 +356,6 @@ export const $SharedUiId = composers.$SharedUiId;
  */
 export const $SharedConfigId = composers.$SharedConfigId;
 
-// --- runtime ---
-
-/**
- * Identity composer for the `@beep/runtime-protocol` package.
- *
- * @example
- * ```typescript
- * import { $RuntimeProtocolId } from "@beep/identity"
- *
- * const id = $RuntimeProtocolId.make("Message")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $RuntimeProtocolId = composers.$RuntimeProtocolId;
-
-/**
- * Identity composer for the `@beep/runtime-server` package.
- *
- * @example
- * ```typescript
- * import { $RuntimeServerId } from "@beep/identity"
- *
- * const id = $RuntimeServerId.make("Runtime")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $RuntimeServerId = composers.$RuntimeServerId;
-
-// --- repo-memory ---
-
-/**
- * Identity composer for the `@beep/repo-memory-model` package.
- *
- * @example
- * ```typescript
- * import { $RepoMemoryModelId } from "@beep/identity"
- *
- * const id = $RepoMemoryModelId.make("Chunk")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $RepoMemoryModelId = composers.$RepoMemoryModelId;
-
-/**
- * Identity composer for the `@beep/repo-memory-store` package.
- *
- * @example
- * ```typescript
- * import { $RepoMemoryStoreId } from "@beep/identity"
- *
- * const id = $RepoMemoryStoreId.make("VectorStore")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $RepoMemoryStoreId = composers.$RepoMemoryStoreId;
-
-/**
- * Identity composer for the `@beep/repo-memory-sqlite` package.
- *
- * @example
- * ```typescript
- * import { $RepoMemorySqliteId } from "@beep/identity"
- *
- * const id = $RepoMemorySqliteId.make("Connection")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $RepoMemorySqliteId = composers.$RepoMemorySqliteId;
-
-/**
- * Identity composer for the `@beep/repo-memory-runtime` package.
- *
- * @example
- * ```typescript
- * import { $RepoMemoryRuntimeId } from "@beep/identity"
- *
- * const id = $RepoMemoryRuntimeId.make("Worker")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $RepoMemoryRuntimeId = composers.$RepoMemoryRuntimeId;
-
-/**
- * Identity composer for the `@beep/repo-memory-client` package.
- *
- * @example
- * ```typescript
- * import { $RepoMemoryClientId } from "@beep/identity"
- *
- * const id = $RepoMemoryClientId.make("QueryClient")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $RepoMemoryClientId = composers.$RepoMemoryClientId;
-
-/**
- * Identity composer for the `@beep/codegraph` package.
- *
- * @example
- * ```typescript
- * import { $CodegraphId } from "@beep/identity"
- *
- * const id = $CodegraphId.make("Node")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $CodegraphId: Identity.IdentityComposer<"@beep/codegraph"> = composers.$CodegraphId;
-
 /**
  * Identity composer for the `@beep/semantic-web` package.
  *
@@ -528,36 +385,6 @@ export const $SemanticWebId: Identity.IdentityComposer<"@beep/semantic-web"> = c
  * @category configuration
  */
 export const $NlpId: Identity.IdentityComposer<"@beep/nlp"> = composers.$NlpId;
-
-/**
- * Identity composer for the `@beep/editor-domain` package.
- *
- * @example
- * ```typescript
- * import { $EditorDomainId } from "@beep/identity"
- *
- * const id = $EditorDomainId.make("Document")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $EditorDomainId: Identity.IdentityComposer<"@beep/editor-domain"> = composers.$EditorDomainId;
-
-/**
- * Identity composer for the `@beep/scratch` package.
- *
- * @example
- * ```typescript
- * import { $ScratchId } from "@beep/identity"
- *
- * const id = $ScratchId.make("Sandbox")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $ScratchId: Identity.IdentityComposer<"@beep/scratch"> = composers.$ScratchId;
 
 /**
  * Identity composer for the `@beep/observability` package.
@@ -635,79 +462,19 @@ export const $ChalkId: Identity.IdentityComposer<"@beep/chalk"> = composers.$Cha
 export const $DocgenId: Identity.IdentityComposer<"@beep/docgen"> = composers.$DocgenId;
 
 /**
- * Identity composer for the `@beep/editor-app` package.
+ * Identity composer for the `@beep/repo-checks` package.
  *
  * @example
  * ```typescript
- * import { $EditorAppId } from "@beep/identity"
+ * import { $RepoChecksId } from "@beep/identity"
  *
- * const id = $EditorAppId.make("Workspace")
+ * const id = $RepoChecksId.make("QualityGate")
  * ```
  *
  * @since 0.0.0
  * @category configuration
  */
-export const $EditorAppId: Identity.IdentityComposer<"@beep/editor-app"> = composers.$EditorAppId;
-
-/**
- * Identity composer for the `@beep/editor-lexical` package.
- *
- * @example
- * ```typescript
- * import { $EditorLexicalId } from "@beep/identity"
- *
- * const id = $EditorLexicalId.make("Plugin")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $EditorLexicalId: Identity.IdentityComposer<"@beep/editor-lexical"> = composers.$EditorLexicalId;
-
-/**
- * Identity composer for the `@beep/editor-protocol` package.
- *
- * @example
- * ```typescript
- * import { $EditorProtocolId } from "@beep/identity"
- *
- * const id = $EditorProtocolId.make("Command")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $EditorProtocolId: Identity.IdentityComposer<"@beep/editor-protocol"> = composers.$EditorProtocolId;
-
-/**
- * Identity composer for the `@beep/editor-client` package.
- *
- * @example
- * ```typescript
- * import { $EditorClientId } from "@beep/identity"
- *
- * const id = $EditorClientId.make("Adapter")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $EditorClientId: Identity.IdentityComposer<"@beep/editor-client"> = composers.$EditorClientId;
-
-/**
- * Identity composer for the `@beep/editor-runtime` package.
- *
- * @example
- * ```typescript
- * import { $EditorRuntimeId } from "@beep/identity"
- *
- * const id = $EditorRuntimeId.make("Layer")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $EditorRuntimeId: Identity.IdentityComposer<"@beep/editor-runtime"> = composers.$EditorRuntimeId;
+export const $RepoChecksId: Identity.IdentityComposer<"@beep/repo-checks"> = composers.$RepoChecksId;
 
 /**
  * Identity composer for the `@beep/infra` package.
@@ -725,12 +492,19 @@ export const $EditorRuntimeId: Identity.IdentityComposer<"@beep/editor-runtime">
 export const $InfraId: Identity.IdentityComposer<"@beep/infra"> = composers.$InfraId;
 
 /**
- * Identity composer for the `@beep/firecrawl` package.
+ * Identity composer for the `@beep/shared-use-cases` package.
+ *
+ * @example
+ * ```typescript
+ * import { $SharedUseCasesId } from "@beep/identity"
+ *
+ * const id = $SharedUseCasesId.make("Workflow")
+ * ```
  *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
-export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;
+export const $SharedUseCasesId: Identity.IdentityComposer<"@beep/shared-use-cases"> = composers.$SharedUseCasesId;
 
 /**
  * Identity composer for the synthetic `@beep/fixture-lab-specimen-*` packages.

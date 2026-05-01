@@ -271,6 +271,7 @@ describe("quality task adapter", () => {
 
     expect(steps).toHaveLength(1);
     expect(steps[0]?.args).toContain("lint:package-test-imports");
+    expect(steps[0]?.args).toContain("lint:schema-first");
   });
 
   it("treats unsupported package tasks as explicit no-ops", async () => {

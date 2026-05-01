@@ -708,6 +708,7 @@ const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boole
             "lint:dual-arity",
             "lint:allowlist",
             "lint:package-test-imports",
+            "lint:schema-first",
             "lint:jsdoc",
             "lint:docgen",
             "lint:spell",

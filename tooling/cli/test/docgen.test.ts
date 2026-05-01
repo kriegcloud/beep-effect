@@ -516,15 +516,15 @@ describe("Docgen operations", () => {
             })
           );
 
-          const staleDocgenPath = path.join(tmpDir, "packages", "repo-memory", "runtime", "docgen.json");
+          const staleDocgenPath = path.join(tmpDir, "packages", "retired", "runtime", "docgen.json");
           yield* fs.makeDirectory(path.dirname(staleDocgenPath), { recursive: true });
           yield* fs.writeFileString(staleDocgenPath, encodeJson({ srcDir: "src" }));
 
           const orphaned = yield* discoverOrphanDocgenConfigPaths(tmpDir);
           const error = yield* aggregateGeneratedDocs().pipe(Effect.flip);
 
-          expect(orphaned).toEqual(["packages/repo-memory/runtime/docgen.json"]);
-          expect(error.message).toContain("packages/repo-memory/runtime/docgen.json");
+          expect(orphaned).toEqual(["packages/retired/runtime/docgen.json"]);
+          expect(error.message).toContain("packages/retired/runtime/docgen.json");
         })
       )
     );

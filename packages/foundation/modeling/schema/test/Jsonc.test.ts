@@ -1,10 +1,10 @@
-import { $ScratchId } from "@beep/identity";
+import { $SchemaId } from "@beep/identity";
 import { decodeJsoncTextAs, JsoncTextToUnknown } from "@beep/schema/Jsonc";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";
 
-const $I = $ScratchId.create("jsonc_test");
+const $I = $SchemaId.create("jsonc_test");
 
 class JsoncPerson extends S.Class<JsoncPerson>($I`JsoncPerson`)(
   {
