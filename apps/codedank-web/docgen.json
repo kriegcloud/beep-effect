@@ -42,8 +42,10 @@
       ],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["../../tooling/repo-utils/src/*.ts"],
-      "@beep/schema": ["../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../packages/common/schema/src/*.ts"],
+      "@beep/schema": [
+        "../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": ["../../packages/foundation/modeling/schema/src/*.ts"],
       "@beep/ui": ["../../packages/common/ui/src/index.ts"],
       "@beep/ui/*": ["../../packages/common/ui/src/*.ts"],
       "@beep/ui/themes": ["../../packages/common/ui/src/themes/index.ts"],

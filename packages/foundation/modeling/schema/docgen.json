@@ -1,8 +1,8 @@
 {
   "$schema": "../../../../tooling/docgen/schema.json",
-  "exclude": ["src/internal/**/*.ts", "src/**/index.ts"],
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
   "examplesCompilerOptions": {
-    "types": ["node"],
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
@@ -26,16 +26,20 @@
     "noFallthroughCasesInSwitch": true,
     "stripInternal": false,
     "noErrorTruncation": true,
+    "types": ["node", "bun"],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/fixture-lab-specimen-domain": [
-        "../../../../packages/fixture-lab/specimen/domain/src/index.ts"
+      "@beep/schema": [
+        "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],
-      "@beep/fixture-lab-specimen-domain/*": [
-        "../../../../packages/fixture-lab/specimen/domain/src/*.ts"
+      "@beep/schema/*": [
+        "../../../../packages/foundation/modeling/schema/src/*.ts"
       ],
-      "@beep/fixture-lab-specimen-domain/entities/Specimen": [
-        "../../../../packages/fixture-lab/specimen/domain/src/entities/Specimen/index.ts"
+      "@beep/data": [
+        "../../../../packages/foundation/primitive/data/src/index.ts"
+      ],
+      "@beep/data/*": [
+        "../../../../packages/foundation/primitive/data/src/*.ts"
       ],
       "@beep/identity": [
         "../../../../packages/foundation/modeling/identity/src/index.ts"
@@ -46,13 +50,24 @@
       "@beep/identity/packages": [
         "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
-      "@beep/schema": [
-        "../../../../packages/foundation/modeling/schema/src/index.ts"
+      "@beep/messages": [
+        "../../../../packages/foundation/modeling/messages/src/index.ts"
       ],
-      "@beep/schema/*": [
-        "../../../../packages/foundation/modeling/schema/src/*.ts"
+      "@beep/messages/*": [
+        "../../../../packages/foundation/modeling/messages/src/*.ts"
+      ],
+      "@beep/types": [
+        "../../../../packages/foundation/primitive/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../../../packages/foundation/primitive/types/src/*.ts"
+      ],
+      "@beep/utils": [
+        "../../../../packages/foundation/modeling/utils/src/index.ts"
+      ],
+      "@beep/utils/*": [
+        "../../../../packages/foundation/modeling/utils/src/*.ts"
       ]
     }
-  },
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/fixture-lab/specimen/domain/src/"
+  }
 }

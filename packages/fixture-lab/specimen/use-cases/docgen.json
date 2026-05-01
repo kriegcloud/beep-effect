@@ -67,8 +67,12 @@
       "@beep/identity/packages": [
         "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
-      "@beep/schema": ["../../../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../../../packages/common/schema/src/*.ts"]
+      "@beep/schema": [
+        "../../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../../packages/foundation/modeling/schema/src/*.ts"
+      ]
     }
   },
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/fixture-lab/specimen/use-cases/src/"

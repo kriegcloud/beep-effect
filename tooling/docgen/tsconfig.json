@@ -12,10 +12,10 @@
       "path": "../../packages/common/chalk/tsconfig.json"
     },
     {
-      "path": "../../packages/common/schema/tsconfig.json"
+      "path": "../../packages/foundation/modeling/identity/tsconfig.json"
     },
     {
-      "path": "../../packages/foundation/modeling/identity/tsconfig.json"
+      "path": "../../packages/foundation/modeling/schema/tsconfig.json"
     },
     {
       "path": "../../packages/foundation/modeling/utils/tsconfig.json"

@@ -248,30 +248,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/common/schema": {
-      "name": "@beep/schema",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/data": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/messages": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "@noble/hashes": "catalog:",
-        "@scure/base": "catalog:",
-        "effect": "catalog:",
-        "fast-xml-parser": "catalog:",
-        "jsonc-parser": "catalog:",
-        "micromark": "catalog:",
-        "micromark-extension-gfm": "catalog:",
-        "uuid": "catalog:",
-        "yaml": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/common/semantic-web": {
       "name": "@beep/semantic-web",
       "version": "0.0.0",
@@ -513,6 +489,30 @@
         "i18next": "catalog:",
       },
       "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/schema": {
+      "name": "@beep/schema",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/data": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/messages": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@noble/hashes": "catalog:",
+        "@scure/base": "catalog:",
+        "effect": "catalog:",
+        "fast-xml-parser": "catalog:",
+        "jsonc-parser": "catalog:",
+        "micromark": "catalog:",
+        "micromark-extension-gfm": "catalog:",
+        "uuid": "catalog:",
+        "yaml": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -1324,7 +1324,7 @@
 
     "@beep/repo-utils": ["@beep/repo-utils@workspace:tooling/repo-utils"],
 
-    "@beep/schema": ["@beep/schema@workspace:packages/common/schema"],
+    "@beep/schema": ["@beep/schema@workspace:packages/foundation/modeling/schema"],
 
     "@beep/semantic-web": ["@beep/semantic-web@workspace:packages/common/semantic-web"],
 

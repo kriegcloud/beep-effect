@@ -66,8 +66,10 @@
       "@beep/repo-configs/*": ["../../tooling/configs/src/*.ts"],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["../../tooling/repo-utils/src/*.ts"],
-      "@beep/schema": ["../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../packages/common/schema/src/*.ts"],
+      "@beep/schema": [
+        "../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": ["../../packages/foundation/modeling/schema/src/*.ts"],
       "@beep/test-utils": ["../../tooling/test-utils/src/index.ts"],
       "@beep/test-utils/*": ["../../tooling/test-utils/src/*.ts"]
     }

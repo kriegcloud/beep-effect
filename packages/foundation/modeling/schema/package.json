@@ -12,7 +12,7 @@
     "check": "bun run beep:check",
     "test": "bun run beep:test",
     "coverage": "bunx --bun vitest run --coverage",
-    "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
+    "docgen": "bun run ../../../../tooling/docgen/src/bin.ts",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
     "beep:build": "tsc -b tsconfig.json && bun run babel",
@@ -59,9 +59,9 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/common/schema"
+    "directory": "packages/foundation/modeling/schema"
   },
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema",
   "sideEffects": [],
   "publishConfig": {
     "access": "public",
@@ -72,5 +72,9 @@
       "./*": "./dist/*.js",
       "./internal/*": null
     }
+  },
+  "beep": {
+    "family": "foundation",
+    "kind": "modeling"
   }
 }

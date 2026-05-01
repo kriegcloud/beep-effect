@@ -17,9 +17,6 @@
     },
     {
       "path": "../packages/foundation/primitive/types/tsconfig.json"
-    },
-    {
-      "path": "../packages/common/schema/tsconfig.json"
     }
   ]
 }

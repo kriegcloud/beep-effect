@@ -64,8 +64,8 @@
         "./packages/foundation/modeling/identity/src/index.ts"
       ],
       "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
-      "@beep/schema": ["./packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["./packages/common/schema/src/*"],
+      "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
+      "@beep/schema/*": ["./packages/foundation/modeling/schema/src/*"],
       "@beep/messages": [
         "./packages/foundation/modeling/messages/src/index.ts"
       ],

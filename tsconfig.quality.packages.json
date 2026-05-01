@@ -34,9 +34,6 @@
       "path": "packages/common/observability"
     },
     {
-      "path": "packages/common/schema"
-    },
-    {
       "path": "packages/common/semantic-web"
     },
     {
@@ -77,6 +74,9 @@
     },
     {
       "path": "packages/foundation/modeling/messages"
+    },
+    {
+      "path": "packages/foundation/modeling/schema"
     },
     {
       "path": "packages/foundation/modeling/utils"
