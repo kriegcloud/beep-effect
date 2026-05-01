@@ -845,7 +845,7 @@ export const createPackageCommand = Command.make(
  * @param name - The unscoped package name (e.g. `"my-utils"`). Will be prefixed with `@beep/`.
  * @param type - One of `"library"`, `"tool"`, or `"app"`. Tools receive an extra `@effect/platform-node` dependency.
  * @param description - Human-readable package description for the `"description"` field.
- * @param packagePath - Package path relative to repo root (e.g. `"tooling/my-utils"`).
+ * @param packagePath - Package path relative to repo root (e.g. `"packages/tooling/library/my-utils"`).
  * @returns A JSON string (with trailing newline) ready to be written to disk.
  * @category Utility
  * @since 0.0.0

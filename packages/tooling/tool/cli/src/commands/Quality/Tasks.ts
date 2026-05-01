@@ -416,13 +416,10 @@ const isTurboCacheControlArg = (arg: string): boolean =>
   Str.startsWith("--remote-cache-read-only=")(arg) ||
   Str.startsWith("--cache=")(arg);
 
-const isTurboSelectionArg = (arg: string): boolean =>
-  arg === "--affected" ||
-  Str.startsWith("--affected-")(arg) ||
-  Str.startsWith("--filter")(arg) ||
-  Str.startsWith("--since")(arg);
+const isExplicitTurboScopeArg = (arg: string): boolean =>
+  Str.startsWith("--filter")(arg) || Str.startsWith("--since")(arg);
 
-const shouldRunRepoWideSteps = (args: ReadonlyArray<string>): boolean => !A.some(args, isTurboSelectionArg);
+const shouldRunRepoWideSteps = (args: ReadonlyArray<string>): boolean => !A.some(args, isExplicitTurboScopeArg);
 
 const localTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
   process.env.CI === "true" || A.some(args, isTurboCacheControlArg) ? A.empty() : ["--cache=local:rw"];

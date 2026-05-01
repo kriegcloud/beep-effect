@@ -249,8 +249,8 @@ bunx @beep/repo-cli kg parity --profile code-graph-functional --group beep-ast-k
 bunx @beep/repo-cli kg parity --profile code-graph-strict --group beep-ast-kg --strict-min-paths 1
 
 # Replay previously spooled envelopes
-bunx @beep/repo-cli kg replay --from-spool tooling/ast-kg/.cache/graphiti-spool/<sha>.jsonl --target both
-bunx @beep/repo-cli kg replay --from-spool tooling/ast-kg/.cache/graphiti-spool/<sha>.jsonl --target both --group beep-ast-kg-drill
+bunx @beep/repo-cli kg replay --from-spool .beep/ast-kg/.cache/graphiti-spool/<sha>.jsonl --target both
+bunx @beep/repo-cli kg replay --from-spool .beep/ast-kg/.cache/graphiti-spool/<sha>.jsonl --target both --group beep-ast-kg-drill
 ```
 
 ## License

@@ -316,7 +316,7 @@ const modifyFileString: {
  * Idempotent: if the reference already exists, the file is left untouched.
  *
  * @param repoRoot - Absolute path to the repository root directory.
- * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
+ * @param packagePath - Relative path from the repo root to the new package (e.g. `"packages/tooling/library/my-utils"`).
  * @returns `true` when the file was modified, `false` when the entry already existed.
  * @depends FileSystem, Path
  * @category Utility
@@ -357,7 +357,7 @@ export const updateTsconfigPackages: {
  *
  * @param repoRoot - Absolute path to the repository root directory.
  * @param packageName - Unscoped package name (e.g. `"my-utils"`).
- * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
+ * @param packagePath - Relative path from the repo root to the new package (e.g. `"packages/tooling/library/my-utils"`).
  * @returns `true` when the file was modified, `false` when the aliases already existed.
  * @depends FileSystem, Path
  * @category Utility

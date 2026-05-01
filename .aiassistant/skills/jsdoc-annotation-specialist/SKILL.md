@@ -460,5 +460,5 @@ done
 - `tsdoc.json` (workspace root) — custom tag registrations for `@effects`,
   `@precondition`, `@postcondition`, `@invariant`
 - `packages/common/schema/src/SemanticVersion.ts` — TemplateLiteral + annoteSchema
-- `tooling/cli/src/commands/Quality/Tasks.ts` — TaggedErrorClass + annote
+- `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts` — TaggedErrorClass + annote
 - `packages/common/schema/src/Duration.ts` — S.Class + annote + LiteralKit + annotate

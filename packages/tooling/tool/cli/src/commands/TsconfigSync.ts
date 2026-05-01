@@ -872,9 +872,7 @@ const readTstycheTsconfig = (parsed: Record<string, unknown>): string | undefine
   P.isString(parsed.tsconfig) ? parsed.tsconfig : undefined;
 
 const isManagedTstycheWorkspace = (relativeDir: string): boolean =>
-  Str.startsWith("packages/")(relativeDir) ||
-  Str.startsWith("tooling/")(relativeDir) ||
-  Str.startsWith("apps/")(relativeDir);
+  Str.startsWith("packages/")(relativeDir) || Str.startsWith("apps/")(relativeDir);
 
 const workspacePatternCoversPath = (workspacePattern: string, relativeDir: string): boolean => {
   const patternSegments = pathSegments(workspacePattern);

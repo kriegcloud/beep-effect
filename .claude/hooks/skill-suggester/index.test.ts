@@ -435,7 +435,7 @@ describe("skill-suggester", () => {
 
     it("builds bounded kg-context block from latest snapshot", async () => {
       const cwd = `${process.cwd()}/.claude/_test-kg-hook-${Date.now()}`;
-      const snapshotRoot = `${cwd}/tooling/ast-kg/.cache/snapshots`;
+      const snapshotRoot = `${cwd}/.beep/ast-kg/.cache/snapshots`;
       await writeSnapshotFile(
         `${snapshotRoot}/test-commit.jsonl`,
         [
@@ -467,7 +467,7 @@ describe("skill-suggester", () => {
 
     it("escapes XML-like content from snapshot filenames", async () => {
       const cwd = `${process.cwd()}/.claude/_test-kg-hook-escape-${Date.now()}`;
-      const snapshotRoot = `${cwd}/tooling/ast-kg/.cache/snapshots`;
+      const snapshotRoot = `${cwd}/.beep/ast-kg/.cache/snapshots`;
       await writeSnapshotFile(
         `${snapshotRoot}/escape-commit.jsonl`,
         JSON.stringify({

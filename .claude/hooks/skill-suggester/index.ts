@@ -443,7 +443,7 @@ const readLatestSnapshotFile = Effect.fn("readLatestSnapshotFile")(
   function* (cwd: string) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    const snapshotRoot = path.join(cwd, "tooling", "ast-kg", ".cache", "snapshots");
+    const snapshotRoot = path.join(cwd, ".beep", "ast-kg", ".cache", "snapshots");
     const exists = yield* fs.exists(snapshotRoot);
     if (!exists) {
       return O.none<string>();
