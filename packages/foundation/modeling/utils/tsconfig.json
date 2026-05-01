@@ -1,6 +1,6 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
-  "extends": "../../../tsconfig.base.json",
+  "extends": "../../../../tsconfig.base.json",
   "include": ["src"],
   "compilerOptions": {
     "types": ["node", "bun"],
@@ -9,7 +9,10 @@
   },
   "references": [
     {
-      "path": "../../foundation/primitive/types/tsconfig.json"
+      "path": "../identity/tsconfig.json"
+    },
+    {
+      "path": "../../primitive/types/tsconfig.json"
     }
   ]
 }

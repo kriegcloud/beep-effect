@@ -43,10 +43,10 @@
       "path": "../../packages/common/ui/tsconfig.json"
     },
     {
-      "path": "../../packages/common/utils/tsconfig.json"
+      "path": "../../packages/foundation/modeling/identity/tsconfig.json"
     },
     {
-      "path": "../../packages/foundation/modeling/identity/tsconfig.json"
+      "path": "../../packages/foundation/modeling/utils/tsconfig.json"
     },
     {
       "path": "../../tooling/repo-utils/tsconfig.json"

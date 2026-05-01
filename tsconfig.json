@@ -58,8 +58,8 @@
       "@beep/repo-utils/*": ["./tooling/repo-utils/src/*"],
       "@beep/types": ["./packages/foundation/primitive/types/src/index.ts"],
       "@beep/types/*": ["./packages/foundation/primitive/types/src/*"],
-      "@beep/utils": ["./packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["./packages/common/utils/src/*"],
+      "@beep/utils": ["./packages/foundation/modeling/utils/src/index.ts"],
+      "@beep/utils/*": ["./packages/foundation/modeling/utils/src/*"],
       "@beep/identity": [
         "./packages/foundation/modeling/identity/src/index.ts"
       ],

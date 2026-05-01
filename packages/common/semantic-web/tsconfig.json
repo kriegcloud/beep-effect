@@ -16,9 +16,6 @@
     },
     {
       "path": "../../foundation/primitive/types/tsconfig.json"
-    },
-    {
-      "path": "../utils/tsconfig.json"
     }
   ]
 }

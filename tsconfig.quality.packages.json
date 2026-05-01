@@ -43,9 +43,6 @@
       "path": "packages/common/ui"
     },
     {
-      "path": "packages/common/utils"
-    },
-    {
       "path": "packages/drivers/drizzle"
     },
     {
@@ -80,6 +77,9 @@
     },
     {
       "path": "packages/foundation/modeling/messages"
+    },
+    {
+      "path": "packages/foundation/modeling/utils"
     },
     {
       "path": "packages/foundation/primitive/data"

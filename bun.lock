@@ -349,22 +349,6 @@
         "react-dom": "^19",
       },
     },
-    "packages/common/utils": {
-      "name": "@beep/utils",
-      "version": "0.0.0",
-      "dependencies": {
-        "@effect/platform-node-shared": "catalog:",
-        "effect": "catalog:",
-        "picomatch": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-        "@types/picomatch": "catalog:",
-        "type-fest": "catalog:",
-      },
-    },
     "packages/drivers/drizzle": {
       "name": "@beep/drizzle",
       "version": "0.0.0",
@@ -531,6 +515,23 @@
       "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/utils": {
+      "name": "@beep/utils",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@effect/platform-node-shared": "catalog:",
+        "effect": "catalog:",
+        "picomatch": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "@types/picomatch": "catalog:",
+        "type-fest": "catalog:",
       },
     },
     "packages/foundation/primitive/data": {
@@ -1347,7 +1348,7 @@
 
     "@beep/ui": ["@beep/ui@workspace:packages/common/ui"],
 
-    "@beep/utils": ["@beep/utils@workspace:packages/common/utils"],
+    "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
 
     "@bergos/jsonparse": ["@bergos/jsonparse@1.4.2", "", { "dependencies": { "buffer": "^6.0.3" } }, "sha512-qUt0QNJjvg4s1zk+AuLM6s/zcsQ8MvGn7+1f0vPuxvpCYa08YtTryuDInngbEyW5fNGGYe2znKt61RMGd5HnXg=="],
 

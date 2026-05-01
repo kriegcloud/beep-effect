@@ -1,7 +1,7 @@
 {
-  "$schema": "../../../tooling/docgen/schema.json",
+  "$schema": "../../../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/utils/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/utils/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -29,12 +29,27 @@
     "types": ["node", "bun"],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"],
-      "@beep/types": [
-        "../../../packages/foundation/primitive/types/src/index.ts"
+      "@beep/utils": [
+        "../../../../packages/foundation/modeling/utils/src/index.ts"
       ],
-      "@beep/types/*": ["../../../packages/foundation/primitive/types/src/*.ts"]
+      "@beep/utils/*": [
+        "../../../../packages/foundation/modeling/utils/src/*.ts"
+      ],
+      "@beep/identity": [
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/types": [
+        "../../../../packages/foundation/primitive/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../../../packages/foundation/primitive/types/src/*.ts"
+      ]
     }
   }
 }
