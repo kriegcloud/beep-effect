@@ -5,6 +5,8 @@ standard. Amend this file when the standard changes.
 
 ## 2026-04-21: Adopt Hexagonal Vertical Slice Architecture
 
+- **Status:** Active
+
 Decision:
 
 beep-effect uses slice package families with domain, use-cases, optional config,
@@ -19,6 +21,8 @@ leaking inward.
 
 ## 2026-04-21: Treat `shared` As A DDD Shared Kernel
 
+- **Status:** Active
+
 Decision:
 
 The `shared` package family is cross-cutting shared-kernel language, not a
@@ -31,6 +35,8 @@ small, deliberate, and driver-neutral where possible.
 
 ## 2026-04-21: Add `use-cases` As A Canonical Slice Package
 
+- **Status:** Active
+
 Decision:
 
 Use-cases are first-class. Product ports live in use-cases by default.
@@ -41,6 +47,8 @@ Domain should not own application ports, and server should not define the
 product language it implements. Use-cases are the correct application boundary.
 
 ## 2026-04-21: Keep `tables` Canonical
+
+- **Status:** Active
 
 Decision:
 
@@ -53,6 +61,8 @@ Drivers own generic Drizzle/Postgres safety wrappers. Tables own slice-specific
 persistence shape.
 
 ## 2026-04-21: Drivers Own Technical Capability Only
+
+- **Status:** Active
 
 Decision:
 
@@ -67,6 +77,8 @@ names into product topology.
 
 ## 2026-04-21: Use Domain-Kind Folders
 
+- **Status:** Active
+
 Decision:
 
 Domain concepts are grouped by `aggregates/`, `entities/`, and `values/`.
@@ -78,6 +90,8 @@ Domain-kind folders preserve DDD meaning and keep concept topology expressive
 without flattening everything into one root.
 
 ## 2026-04-21: Use Concept-Qualified Role Suffixes
+
+- **Status:** Active
 
 Decision:
 
@@ -94,6 +108,8 @@ what the file may do.
 
 ## 2026-04-21: Split Access From Policy
 
+- **Status:** Active
+
 Decision:
 
 Use both `.access.ts` and `.policy.ts` where needed.
@@ -104,6 +120,8 @@ Rationale:
 domain permits to be true.
 
 ## 2026-04-21: Prefer Hybrid Rich Domain Models
+
+- **Status:** Active
 
 Decision:
 
@@ -117,6 +135,8 @@ handlers, client state, and UI.
 
 ## 2026-04-21: Reduce Runtime God Layers
 
+- **Status:** Active
+
 Decision:
 
 Favor slice-local Layer composition over central runtime packages that merge all
@@ -129,6 +149,8 @@ preserve ownership and reduce cross-slice coupling.
 
 ## 2026-04-21: Keep Codegen And Linting Downstream
 
+- **Status:** Active
+
 Decision:
 
 This standard defines architecture. Repo-cli, codegen, codemods, package
@@ -139,6 +161,9 @@ Rationale:
 The architecture needs to be clear before enforcement is designed.
 
 ## 2026-04-21: Restrict Client-Safe Use-Case Imports
+
+- **Status:** Superseded
+- **Superseded-by:** [2026-04-23: Make Boundary-Sensitive Export Subpaths Canonical](#2026-04-23-make-boundary-sensitive-export-subpaths-canonical)
 
 Decision:
 
@@ -158,6 +183,8 @@ server-only orchestration or infrastructure contracts.
 
 ## 2026-04-21: Put Protocol Declarations In `use-cases`
 
+- **Status:** Active
+
 Decision:
 
 Use-case `.http.ts`, `.rpc.ts`, `.tools.ts`, and `.cluster.ts` files define
@@ -169,11 +196,13 @@ Rationale:
 The application boundary should own command/query and protocol language without
 owning the runtime side effects that execute that language.
 
-## 2026-04-22: Add `config` As A Canonical Optional Slice Package
+## 2026-04-22: Add `config` As An Optional Canonical-Shape Slice Package
+
+- **Status:** Active
 
 Decision:
 
-`config` is the canonical optional package kind for typed slice configuration.
+`config` is the optional canonical-shape package kind for typed slice configuration.
 Package names use `@beep/<slice>-config` and `@beep/<kernel>-config`.
 
 Rationale:
@@ -184,6 +213,8 @@ config, server config, secrets, defaults, and config Layers a clear home without
 leaking runtime reads into domain code.
 
 ## 2026-04-22: Treat `env` Package Naming As Legacy
+
+- **Status:** Active
 
 Decision:
 
@@ -198,6 +229,8 @@ packages after config preserves the Effect `Config` abstraction and allows other
 `ConfigProvider` sources.
 
 ## 2026-04-22: Keep Driver Config Driver-Local
+
+- **Status:** Active
 
 Decision:
 
@@ -214,6 +247,8 @@ technical config driver-local preserves the driver boundary.
 
 ## 2026-04-23: Recast Provider Packages As Repo-Level Drivers
 
+- **Status:** Active
+
 Decision:
 
 Third-party dev-safe wrappers live in flat repo-level drivers under
@@ -228,6 +263,8 @@ and keep `shared` focused on cross-slice product semantics.
 
 ## 2026-04-23: Driver Packages Use Short Capability Names
 
+- **Status:** Active
+
 Decision:
 
 Driver packages use short public names such as `@beep/drizzle`,
@@ -240,6 +277,8 @@ The driver role is already visible from the canonical root
 without adding clarity.
 
 ## 2026-04-23: Add Explicit Non-Slice Artifact Families
+
+- **Status:** Active
 
 Decision:
 
@@ -260,6 +299,8 @@ still need topology that compresses context for humans and agents. Naming
 families explicitly prevents generic buckets from becoming junk drawers.
 
 ## 2026-04-23: Give Every Non-Slice Artifact A Family And, When Applicable, A Kind
+
+- **Status:** Active
 
 Decision:
 
@@ -294,6 +335,8 @@ expectations visible from the path and machine-readable in metadata, while
 
 ## 2026-04-23: Allow `shared/use-cases` As A High-Bar Shared-Kernel Exception
 
+- **Status:** Active
+
 Decision:
 
 `shared/use-cases` is canonical only as a high-bar shared-kernel exception. It
@@ -314,6 +357,9 @@ shared must stay small and must not become a runtime/orchestration bucket.
 
 ## 2026-04-23: Make Boundary-Sensitive Export Subpaths Canonical
 
+- **Status:** Active
+- **Supersedes:** [2026-04-21: Restrict Client-Safe Use-Case Imports](#2026-04-21-restrict-client-safe-use-case-imports)
+
 Decision:
 
 Boundary-sensitive packages publish explicit canonical subpaths:
@@ -327,7 +373,7 @@ For `use-cases`, `/public` is the client-safe application contract surface and
 `shared/use-cases` exception uses the same names but remains narrower than slice
 `use-cases`.
 
-Required subpaths are required names when that role exists, not a requirement
+Canonical subpath names are required names when that role exists, not a requirement
 to publish placeholder exports. Package roots and `./*` wildcard exports may
 remain during migration, but they are transitional only.
 
@@ -337,6 +383,8 @@ Explicit subpaths make browser/server safety visible in imports and let the
 target doctrine coexist with migration-era root exports.
 
 ## 2026-04-23: Keep Live Application Layer Composition Out Of `use-cases`
+
+- **Status:** Active
 
 Decision:
 
@@ -357,6 +405,8 @@ with top-level application entrypoints composing those boundaries.
 
 ## 2026-04-23: Use Semantic Foundation Names And Repo-Scoped Tooling Names
 
+- **Status:** Active
+
 Decision:
 
 Foundation packages use semantic public names such as `@beep/schema`,
@@ -372,6 +422,8 @@ Tooling packages are repo-operational by design and should advertise that role
 in their names. Agent bundles are content artifacts rather than libraries.
 
 ## 2026-04-23: Keep Agent Content Portable And Runtime Wiring Declarative
+
+- **Status:** Active
 
 Decision:
 
@@ -393,6 +445,8 @@ the content itself.
 
 ## 2026-04-23: Ban Script-Only Pseudo-Packages As A Canonical Pattern
 
+- **Status:** Active
+
 Decision:
 
 Script-only pseudo-packages are not a canonical architecture style. Repo-wide
@@ -406,6 +460,8 @@ real role contract that humans and agents can infer from structure instead of a
 single `package.json` full of scripts.
 
 ## 2026-04-27: Split Postgres And Drizzle Drivers From Product Repositories
+
+- **Status:** Active
 
 Decision:
 
@@ -473,6 +529,8 @@ first real repositories drive any helper extraction with evidence.
 
 ## 2026-04-27: Keep Shared Entity Metadata In The Shared Kernel
 
+- **Status:** Active
+
 Decision:
 
 The shared entity metadata kernel (`EntityId`, `BaseEntity`, `EntityMixin`,
@@ -500,6 +558,8 @@ extract the generic portion into foundation/modeling with tests proving the
 shared-domain exports remain product-language wrappers.
 
 ## 2026-05-01: Add Enforcement Lanes And Rough-Edge Refinements
+
+- **Status:** Active
 
 Decision:
 
@@ -547,3 +607,16 @@ soft: "high bar", "avoid God Layers", target-first migration, and
 `foundation/capability` all needed operational tests. The refinement preserves
 the target doctrine while naming what belongs in future generators, future hard
 checks, and present-day review gates.
+
+## Known Unknowns
+
+Areas the doctrine does not yet cover and which the authors expect to revise as the architecture is load-tested:
+
+- **Testing strategy.** Doc `08-testing.md` codifies slice-isolation testing, port stubs via `Layer.mock`, fixture ownership, and contract tests between use-cases and server adapters. The doctrine has not yet been load-tested against a real refactor; first contact with a non-trivial slice may surface gaps in the fixture-ownership and contract-test rules.
+- **Cross-slice coordination.** Doc `10-cross-slice-coordination.md` codifies workflow / saga / process-manager governance, event contracts in `shared/use-cases`, and the God Process Manager anti-pattern. The open question is how the rules hold up the first time a real workflow needs to span three or more slices with partial-failure semantics.
+- **Evolution and deprecation.** Doc `11-evolution-and-deprecation.md` codifies slice retirement, `shared/use-cases` versioning, port deprecation, and feature-flag lifetime. The deprecation-window durations and the five-step retirement procedure are unproven; the first real slice retirement will tell us whether the windows are realistic and whether the DECISIONS-entry requirement creates useful pressure or just paperwork.
+- **Observability conventions.** Doc `12-observability.md` codifies span naming, attribute conventions, the logging-vs-tracing-vs-Console split, and slice boundaries as span boundaries. The open question is whether the span/attribute namespacing survives contact with a real distributed trace across three or more slices, and whether the conventions need adjustment once a tracer backend is wired up end-to-end.
+- **Error translation across boundaries.** Doc `09-errors-across-boundaries.md` codifies who translates, where translation lives, and the canonical translator function shape. The doctrine has not been exercised against a real driver-to-server-to-domain error path yet; the first non-trivial adapter will tell us whether the translator placement rules are precise enough or need a worked example per boundary kind.
+- **Promotion record enforcement.** Records are required by doctrine; lint enforcement (`lint:promotion-records`) is planned but not yet implemented.
+
+Pull requests revising these areas should append entries here documenting the decision and removing the corresponding "planned" line.

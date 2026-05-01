@@ -1,6 +1,6 @@
 # Configuration Boundaries
 
-`config` is a canonical optional slice package kind.
+`config` is an optional canonical-shape slice package kind.
 
 The name is deliberate. `config` names the typed runtime contract the slice
 understands. `env` names only one possible source for those values. Effect
@@ -79,7 +79,7 @@ Config packages publish an explicit export contract:
 - `/layer` remains canonical, but it is server/runtime-only config resolution
   surface rather than a client-safe API.
 
-Required subpaths are required names when that role exists, not a requirement
+Canonical subpath names are required names when that role exists, not a requirement
 to publish placeholder exports. Package-root and `./*` exports may remain during
 migration, but they are compatibility leftovers rather than the canonical
 boundary contract.
@@ -122,6 +122,10 @@ Config must not import drivers. Drivers keep technical driver config in driver
 `.config.ts` files. Slice config can expose application-facing settings that
 influence driver wiring, but it should not own Drizzle, Postgres, EventLog,
 queue, or workflow-engine internals.
+
+For a worked example showing how a feature flag splits across the boundary
+(driver owns the values, slice owns the flag selecting them), see
+[`03-driver-boundaries.md`](./03-driver-boundaries.md#worked-example-a-tunable-that-spans-both).
 
 ## Shared Config
 

@@ -48,6 +48,11 @@ top-level application entrypoint composition decides which Layers to provide.
 `use-cases` and `shared/use-cases` stop at the contract surface; they do not
 export live Layer values.
 
+Slice-to-slice direct imports across `domain`, `use-cases`, `server`, `tables`,
+`client`, or `ui` packages of *different* slices are forbidden. Cross-slice
+integration goes through `shared/use-cases` (commands, queries, events,
+contracts) or through emitted events.
+
 ## Context.Service Shape
 
 Services should be explicit, small, and composed at the boundary:
@@ -151,6 +156,12 @@ public slice/package Layers, runtime providers required by the app boundary,
 and config/driver boundaries through approved public subpaths. It exports only
 app-specific live Layers and app-specific test Layers or fixtures.
 
+**Private** = anything not exported through a canonical subpath (`/public`,
+`/server`, `/secrets`, `/layer`, `/test`) of a package's public root. App-level
+composition may import only from canonical subpaths; reaching past them into a
+package's internal module structure is the boundary violation. (Same definition
+is in `GLOSSARY.md` under "Private (in app-layer composition)".)
+
 The God Layer rejection test is Boundary + Ownership. The smell is a runtime
 Layer that reaches through slice boundaries and wires the private details of
 many slices at once. A global config Layer that aggregates every slice's private
@@ -163,3 +174,47 @@ Forbidden app composition shapes include:
 - owning product policy, handlers, repositories, schedules, workflows, or
   cross-slice orchestration
 - moving unrelated slice internals into a shared runtime package
+
+### Side-by-side: God-Layer vs slice-local app composition
+
+#### Bad — God Layer reaching past canonical subpaths
+
+```ts
+// apps/web/src/runtime/Layer.ts
+import { MembershipRepositoryLive } from "@beep/iam-server/internal/MembershipRepository"
+import { SubscriptionRepositoryLive } from "@beep/billing-server/internal/SubscriptionRepository"
+import { OrgPolicyServiceLive } from "@beep/iam-server/internal/OrgPolicyService"
+import { Layer } from "effect"
+
+export const AppLayer = Layer.mergeAll(
+  MembershipRepositoryLive,
+  SubscriptionRepositoryLive,
+  OrgPolicyServiceLive,
+  // ...repeats for every slice the app uses
+)
+```
+
+The app reaches into each slice's internal module structure, hand-wires
+individual repositories and services, and becomes the runtime registry for
+unrelated slices. Renaming or restructuring any slice's internals breaks this
+file.
+
+#### Good — App composes published slice Layers
+
+```ts
+// apps/web/src/runtime/Layer.ts
+import { IamLive } from "@beep/iam-server/layer"
+import { BillingLive } from "@beep/billing-server/layer"
+import { Layer } from "effect"
+
+export const AppLayer = Layer.mergeAll(IamLive, BillingLive)
+```
+
+Each slice publishes a single live Layer from its `/layer` canonical subpath.
+The slice owns its own composition; the app composes slices, not concepts.
+Renaming a slice's internal repository changes nothing in `apps/web`.
+
+**Diagnostic:** if `apps/<app>/src/runtime/Layer.ts` mentions a concept name
+(e.g., `Membership`, `Subscription`), it has reached past the slice boundary.
+Slice-local Layer composers are the only place a concept name appears in a
+Layer wiring.

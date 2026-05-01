@@ -53,11 +53,41 @@ Route in this order:
   wrapping
 - no repo-operational/tooling purpose
 - no UI primitive, design-system role, or React ergonomics layer
-- multiple real consumers or an explicit platform-capability rationale
+- **≥2 named consumers currently importing the package**, listed by name in the
+  package's README
+
+One importer is not promotion-ready. The README must name each importer with a
+one-line note on what it uses the capability for; this list is checked at PR
+review.
 
 Reusable shape alone is not proof. A `Context.Service` or Layer can belong in
 the owning slice, `drivers`, `tooling`, or `foundation/ui-system` depending on
 what it wraps and who owns the meaning.
+
+### Worked rejection example: "schema validator wrapper"
+
+A proposed `foundation/capability/schema-validator` package wraps
+`S.decodeUnknownEffect` with a custom error formatter and is imported by the
+iam slice's HTTP handlers.
+
+Looks like a capability: domain-agnostic, reusable, no product semantics,
+would-be importable from anywhere.
+
+Fails the gate because:
+
+- Only one current consumer (iam HTTP handlers); the gate requires ≥2.
+- The functionality is a thin formatter over a v4 `Schema` API; "reusable shape
+  alone is not proof."
+- The owning home is correct: it's an HTTP-layer concern. It belongs in iam's
+  server package as an internal helper, or — if a second slice's HTTP handlers
+  later want the same formatter — in `tooling/library/http-formatters` (a
+  tooling library), not in foundation.
+
+The shape of the rejection: a capability candidate is rejected by **(a)** a
+consumer count below 2, **(b)** the existence of a more specific home
+(`drivers`, `tooling`, slice-local), or **(c)** the candidate being an
+ergonomic wrapper around an existing capability rather than a capability
+itself.
 
 ## The Family And Kind Grammar
 

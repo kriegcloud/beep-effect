@@ -84,6 +84,31 @@ packages reuse when resolving typed settings. Domain behavior must still receive
 explicit values from callers rather than reading `Config`, `ConfigProvider`,
 `@beep/<kernel>-config`, environment variables, secrets, files, or process state.
 
+### Forbidden Effect dependencies in domain
+
+Pure does not mean Effect-free. It does mean none of these dependencies appear
+in the requirements (`R`) channel of any Effect returned from a domain function:
+
+- `Sql` (any database client)
+- `HttpClient`
+- `FileSystem` (from `effect`)
+- `Path` (from `effect`)
+- `Terminal` (from `effect`)
+- `ChildProcessSpawner` (from `effect/unstable/process`)
+- `Config` and `ConfigProvider`
+- Anything exported from a `packages/drivers/*` package
+- Anything exported from a slice's `server`, `tables`, `client`, or `ui` packages
+
+A domain Effect's signature is allowed to use `Effect.Effect<A, E>` (no `R`) or
+`Effect.Effect<A, E, R>` only when `R` resolves to other domain services or to
+`never`. If `R` resolves to any of the above, the function does not belong in
+domain — move it to a use-case service or to the appropriate adapter.
+
+Schema is the one borderline case: domain may construct and apply schemas, and
+may yield decoded values, because schemas are pure values themselves. Domain may
+not, however, depend on `S.Layer`-style live encoder/decoder services that read
+configuration.
+
 ## Example Shape
 
 `Membership.model.ts` can own simple behavior:

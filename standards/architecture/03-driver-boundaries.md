@@ -120,6 +120,29 @@ Do not move Drizzle, Postgres, EventLog, workflow-engine, or queue internals
 into `@beep/<slice>-config`. Do not put product ports or business repository
 implementations into driver config files.
 
+### Worked Example: A Tunable That Spans Both
+
+A retry-policy feature flag is the canonical gray-zone case. Resolution:
+
+- The **values** of the policy (max attempts, base delay, backoff curve, jitter)
+  are technical knobs of the driver. They live in the driver's `.config.ts`
+  because they describe *how* the driver retries, not *what* the application
+  wants.
+- The **flag controlling whether to apply the new policy** is application
+  policy. It lives in the slice's `config/` package because the application is
+  deciding when to enable a behavior.
+- **Composition:** the slice's `server` package reads the application flag from
+  slice config and passes the right driver-config selector into the driver's
+  Layer at composition time. The driver never reads the application flag
+  directly.
+
+Diagnostic: if the driver imports anything from a slice, the boundary is wrong.
+The driver remains application-unaware; the slice's `server` package is the
+only place that knows about both sides.
+
+This pattern generalizes: any "should we use the experimental X" tunable is a
+slice-config flag selecting between technical-knob bundles owned by the driver.
+
 ## Tables Are Not Drivers
 
 `tables` stays canonical because product-specific persistence shape is not the

@@ -51,6 +51,14 @@ Work`, and `Pending Automation/Generator Support`. Cleanup-on-touch is scoped
 to the boundary being edited; it is not a default instruction to sweep whole
 package families.
 
+## Start here
+
+New to this architecture? Read
+[`13-onboarding-the-minimum-viable-slice.md`](./13-onboarding-the-minimum-viable-slice.md)
+first. It walks through the smallest legal slice, the smallest legal
+cross-slice promotion, and a 60-second guide to reading any slice path. Come
+back here for the rationale once the shape clicks.
+
 ## Document Index
 
 | Document                                                             | Purpose                                                                        |
@@ -65,6 +73,37 @@ package families.
 | [`05-layer-composition.md`](05-layer-composition.md)                 | Why slice-local Layer composition replaces runtime God Layers.                 |
 | [`06-configuration-boundaries.md`](06-configuration-boundaries.md)   | Why config is a typed contract package, not env access or a constants dump.    |
 | [`07-non-slice-families.md`](07-non-slice-families.md)               | Why foundation, drivers, tooling, and agents need explicit topology grammar.   |
+| [`08-testing.md`](./08-testing.md)                                   | Testing strategy: domain in isolation, use-case stubs, fixture ownership, contract tests, slice-isolation guarantee. |
+| [`09-errors-across-boundaries.md`](./09-errors-across-boundaries.md) | Error translation across hexagonal boundaries: who translates, where, what the function looks like. |
+| [`10-cross-slice-coordination.md`](./10-cross-slice-coordination.md) | Workflow / saga / process-manager governance; event contracts in `shared/use-cases`; God Process Manager anti-pattern. |
+| [`11-evolution-and-deprecation.md`](./11-evolution-and-deprecation.md) | Slice retirement, `shared/use-cases` versioning, port deprecation, feature-flag lifetime. |
+| [`12-observability.md`](./12-observability.md)                       | Span naming, attribute conventions, logging vs tracing vs Console; slice boundaries as span boundaries. |
+| [`13-onboarding-the-minimum-viable-slice.md`](./13-onboarding-the-minimum-viable-slice.md) | Minimum-viable-slice walkthrough, first cross-slice promotion, slice-path reading guide. |
+
+## Known Unknowns
+
+The architecture standards in this set were authored over a 10-day burst
+(2026-04-21 → 2026-05-01) and have not yet been load-tested at scale. The
+following areas are most likely to be revised after first contact:
+
+- **Promotion record enforcement.** The schema (`02-shared-kernel.md` Appendix)
+  is in place but lint enforcement (`lint:promotion-records`) is planned, not
+  implemented.
+- **Cross-slice workflow boundaries.** `10-cross-slice-coordination.md`
+  codifies the rules but the God Process Manager diagnostic has not yet caught
+  a real case in this repo.
+- **Deprecation windows.** `11-evolution-and-deprecation.md` proposes
+  2-minor-release / 1-quarter / 6-week defaults; these are starting values that
+  should be tightened or relaxed based on actual evolution velocity.
+- **Span/attribute conventions.** `12-observability.md` codifies the mapping
+  but no live trace from this repo has yet validated that the names render
+  legibly in our actual tracing tooling.
+- **Onboarding claims.** `13-onboarding-the-minimum-viable-slice.md` claims a
+  "smallest legal slice" of ~15 files; this should be verified by an actual new
+  contributor on a real task.
+
+When any of the above is revised, append a corresponding `DECISIONS.md` entry
+and remove or update the bullet here.
 
 ## Relationship To Standards
 

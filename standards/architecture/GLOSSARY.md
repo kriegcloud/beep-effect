@@ -99,12 +99,12 @@ The slice package that owns typed config contracts for a slice:
 `@beep/<slice>-config`. It may define public config, server config, redacted
 secret config, config services, config vocabulary, and server/runtime-only
 config resolution helpers that read from the ambient `ConfigProvider`. Config
-packages publish those boundaries through required subpaths such as `/public`,
+packages publish those boundaries through canonical subpath names such as `/public`,
 `/server`, `/secrets`, `/layer`, and `/test`. `/public` is the only
-browser-safe config surface. Required subpaths are required names when that
+browser-safe config surface. Canonical subpath names are required names when that
 role exists, not a placeholder-export requirement. Package roots and `./*`
 exports may remain during migration, but they are transitional rather than the
-canonical boundary contract. A config package is canonical but optional, and it
+canonical boundary contract. A config package is optional canonical-shape, and it
 is not a broad constants package.
 
 ## Cleanup-On-Touch
@@ -208,6 +208,10 @@ without taking product-domain dependencies.
 A product-language capability required by use-cases. Ports live in
 `use-cases` by default and are implemented by adapters, usually in `server`.
 
+## Private (in app-layer composition)
+
+Anything not exported through a canonical subpath (`/public`, `/server`, `/secrets`, `/layer`, `/test`) of a package's public root. App-level composition (e.g., `apps/<app>/src/runtime/Layer.ts`) may import only from canonical subpaths; reaching past them into a package's internal module structure is the boundary violation. The same rule applies to any consumer outside the owning package: only canonical subpaths are public.
+
 ## Product Port Implementation
 
 A server-side implementation of a use-case port. Example:
@@ -220,7 +224,7 @@ A package README entry that proves a high-bar shared export earned its home. It
 records shared product semantics, consumers or cross-slice rationale, exported
 surface, rejected homes, runtime/driver/Layer limits, and review evidence.
 
-## Required Subpath
+## Canonical Subpath Name
 
 A canonical export name for a boundary-sensitive package role. Required means
 use this subpath name when the role exists; it does not require placeholder
@@ -326,6 +330,8 @@ Shared packages consume shared-kernel language from shared and may consume
 appropriate `foundation` packages beside it; they do not own drivers. Shared
 is not a synonym for `common` or `foundation`, and it is not a place for
 miscellaneous leftovers from product slices.
+
+**Terminology caveat:** strict DDD uses "shared kernel" for code shared across team boundaries with explicit cross-team coordination. In this monorepo the term is used for *deliberate cross-slice product language within a single team's codebase* — closer to a "published language for an internal context." The connotations of high coordination cost still apply (every promotion record is a small coordination act), but the cross-team framing does not. The term is kept because it does the work of distinguishing "deliberate cross-slice" from "junk drawer."
 
 ## Slice
 

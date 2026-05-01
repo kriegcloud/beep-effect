@@ -670,8 +670,7 @@ const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
   turboStep(repoRoot, "check", ["check"], args),
 ];
 
-const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
-  const lanes = parseTestLaneSelection(args);
+const rootUnitAndTypeTestSteps = (repoRoot: string, lanes: TestLaneSelectionState) => {
   const unitArgs = lanes.args;
 
   return [
@@ -683,6 +682,14 @@ const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
       enabled: lanes.types,
       step: () => turboStep(repoRoot, "test:types", ["type-test"], lanes.args),
     }),
+  ];
+};
+
+const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
+  const lanes = parseTestLaneSelection(args);
+
+  return [
+    ...rootUnitAndTypeTestSteps(repoRoot, lanes),
     ...optionalQualityTaskStep({
       enabled: lanes.integration,
       step: () => turboStep(repoRoot, "test:integration", ["test:integration"], ["--concurrency=1", ...lanes.args]),
@@ -795,16 +802,7 @@ const runRootTestTask = Effect.fn("QualityTasks.runRootTestTask")(function* (
   args: ReadonlyArray<string>
 ) {
   const lanes = parseTestLaneSelection(args);
-  const unitAndTypeSteps = [
-    ...optionalQualityTaskStep({
-      enabled: lanes.unit,
-      step: () => turboStep(repoRoot, "test:unit", ["test"], lanes.args),
-    }),
-    ...optionalQualityTaskStep({
-      enabled: lanes.types,
-      step: () => turboStep(repoRoot, "test:types", ["type-test"], lanes.args),
-    }),
-  ];
+  const unitAndTypeSteps = rootUnitAndTypeTestSteps(repoRoot, lanes);
 
   yield* runSteps(unitAndTypeSteps);
   if (lanes.integration) {

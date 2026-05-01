@@ -55,7 +55,7 @@ Start with the smallest boundary that owns the meaning:
 
 The core vocabulary is deliberately small at the entry point: slice, domain,
 use-cases, adapter, driver, shared kernel, foundation, config contract, Layer,
-and required subpath. More specialized terms remain canonical, but use the
+and canonical subpath name. More specialized terms remain canonical, but use the
 [glossary](architecture/GLOSSARY.md) when they first matter instead of loading
 the whole vocabulary at once.
 
@@ -279,7 +279,7 @@ Do not create packages only for symmetry. Future generators should default to
 minimal packages and add optional packages only through explicit flags or
 prompts.
 
-`config` is canonical but optional. Create it only when a slice has meaningful
+`config` is optional canonical-shape. Create it only when a slice has meaningful
 configuration contracts. The canonical shared package names are
 `@beep/<kernel>-domain`, `@beep/<kernel>-config`, and high-bar
 `@beep/<kernel>-use-cases` when that package exists. `env` package naming is
@@ -375,7 +375,7 @@ Driver browser safety is also explicit: if a driver exposes a browser-safe
 surface, it must do so from `@beep/<driver>/browser`. The package root is never
 browser-safe by default.
 
-Required subpaths are required names when that role exists. They are not a
+Canonical subpath names are required names when that role exists. They are not a
 requirement to publish placeholder exports from packages that do not need that
 role.
 
@@ -583,9 +583,14 @@ appropriate ways:
   packages.
 - `server` and `tables` may import drivers directly.
 - `client` may import only browser-safe driver entrypoints exposed from the
-  required subpath `@beep/<driver>/browser`.
+  canonical subpath name `@beep/<driver>/browser`.
 - `domain`, `use-cases`, `config`, `ui`, and all `shared/*` packages do not
   import drivers.
+- Slice-to-slice direct imports across `domain`, `use-cases`, `server`,
+  `tables`, `client`, or `ui` packages of *different* slices are forbidden.
+  Cross-slice integration goes through `shared/use-cases` (commands, queries,
+  events, contracts) or through emitted events. This is the same family of
+  acyclic ceiling that drivers respect among themselves, applied to slices.
 - Product slices and shared-kernel packages do not depend on `tooling/*` or
   `agents/*`.
 - `foundation`, `drivers`, `tooling`, and `agents` do not depend on product
@@ -894,7 +899,7 @@ Use-cases publish explicit boundary subpaths:
   workflow/process/scheduler contracts when present
 - `@beep/<slice>-use-cases/test` for test helpers and fixtures
 
-Required subpaths are required names when that role exists, not a requirement
+Canonical subpath names are required names when that role exists, not a requirement
 to add placeholder exports. Package roots and `./*` exports may remain during
 migration, but they are not the canonical boundary contract.
 
@@ -926,7 +931,7 @@ These roles map to explicit export subpaths:
   helpers
 - `@beep/<slice>-config/test` for test helpers and fixtures
 
-`@beep/<kernel>-config` follows the same contract. Required subpaths are required
+`@beep/<kernel>-config` follows the same contract. Canonical subpath names are required
 names when that role exists. Package roots and `./*` exports may remain during
 migration, but they are not the canonical boundary contract.
 
@@ -1713,7 +1718,7 @@ High-risk rules get an explicit lane and current status:
 | Shared promotion records | `Review Gate` | Docs-only package README requirement | Promotion metadata or README template checks |
 | `foundation/capability` routing | `Doctrine` + `Review Gate` | Docs-only negative gate and proof | Package metadata and dependency-boundary checks |
 | Package creation gates | `Doctrine` + `Generated Default` | Docs-only rule | Generator prompts and package metadata checks |
-| Required subpaths and browser roots | `Hard Check` | Target doctrine with transitional roots allowed | Export-map and import-boundary checks |
+| Canonical subpath names and browser roots | `Hard Check` | Target doctrine with transitional roots allowed | Export-map and import-boundary checks |
 | App Layer boundaries | `Doctrine` + `Review Gate` | Docs-only ownership test | No private reach-through imports from app runtime helpers |
 | Migration posture | `Doctrine` | Docs-only taxonomy | Repo-check reporting by bucket |
 | Browser capability routing | `Doctrine` + future `Hard Check` | Docs-only routing table | Browser-root and driver-root import checks |

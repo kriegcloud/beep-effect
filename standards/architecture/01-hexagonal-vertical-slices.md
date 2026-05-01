@@ -68,6 +68,11 @@ composition are not. Client imports from config must stay public/browser-safe;
 server-only config, secrets, and live server config Layers stay out of the
 browser.
 
+Slice-to-slice direct imports across `domain`, `use-cases`, `server`, `tables`,
+`client`, or `ui` packages of *different* slices are forbidden. Cross-slice
+integration goes through `shared/use-cases` (commands, queries, events,
+contracts) or through emitted events.
+
 ## Same Concept, Different Lens
 
 The same domain concept appears across layers with a different role:
@@ -86,14 +91,25 @@ suffix are the architectural lens.
 
 ## Cross-Concept Escape Hatches
 
-Most roles are concept-local by default. Cross-concept behavior is allowed when
-the behavior is genuinely cross-concept:
+Most roles are concept-local by default. Cross-concept behavior is allowed for:
 
 - process managers that coordinate multiple concepts
 - projections built from several event streams
 - slice-wide pure policies
 - package-level composers
 - package-level config composers
+
+A behavior qualifies as cross-concept (and may live outside a single concept
+folder) when at least one is true:
+
+- it reads or writes >=2 aggregates from different concepts in the same slice
+- it consumes events emitted by >=2 concepts in the same slice
+- it composes >=2 concept-level Layers (package-level composers)
+- it expresses a policy whose preconditions reference >=2 concepts
+  simultaneously
+
+A behavior touching only one concept must live in that concept's folder, even if
+it feels generic.
 
 The default remains concept-local because concept locality is what makes the
 slice navigable.
