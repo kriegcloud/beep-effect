@@ -1,7 +1,9 @@
 import { $SchemaId } from "@beep/identity";
 import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as Model from "@beep/schema/Model";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { Model as UpstreamModel } from "effect/unstable/schema";
 import { describe, expect, it } from "tstyche";
 
 const $I = $SchemaId.create("EntitySchema.dtslint");
@@ -65,6 +67,84 @@ const servicefulPersisted: EntitySchema.PersistedFor<typeof servicefulFields> = 
   value: EntitySchema.persist.text(),
 };
 
+const BinaryUuid = Model.Uint8Array.pipe(S.brand("BinaryUuid"));
+
+const explicitFields = {
+  appCode: Model.GeneratedByApp(S.String),
+  binaryUuid: Model.UuidV4Insert(BinaryUuid),
+  createdAt: Model.DateTimeInsertFromNumber,
+  generatedValue: Model.Generated(S.String),
+  happenedAt: Model.DateTimeInsertFromDate,
+  optionalName: Model.FieldOption(S.String),
+  payloadText: Model.JsonFromString(
+    S.Struct({
+      enabled: S.Boolean,
+    })
+  ),
+  secret: Model.Sensitive(S.String),
+  updatedAt: Model.DateTimeUpdateFromNumber,
+} as const;
+
+const explicitPersisted = {
+  appCode: EntitySchema.persist.text({
+    valueStrategy: "providedByContext",
+  }),
+  binaryUuid: EntitySchema.persist.blob({
+    valueStrategy: "defaultedOnInsert",
+  }),
+  createdAt: EntitySchema.persist.timestampMillis({
+    valueStrategy: "defaultedOnInsert",
+  }),
+  generatedValue: EntitySchema.persist.text({
+    valueStrategy: "generatedOnInsert",
+  }),
+  happenedAt: EntitySchema.persist.timestampDate({
+    valueStrategy: "defaultedOnInsert",
+  }),
+  optionalName: EntitySchema.persist.text(),
+  payloadText: EntitySchema.persist.text(),
+  secret: EntitySchema.persist.text(),
+  updatedAt: EntitySchema.persist.timestampMillis({
+    valueStrategy: "updatedOnWrite",
+  }),
+} as const satisfies EntitySchema.PersistedFor<typeof explicitFields>;
+
+const insertOnlyFields = {
+  value: Model.FieldOnly(["insert"])(S.String),
+} as const;
+
+// @ts-expect-error!
+type MissingSelectPersisted = EntitySchema.PersistedFor<typeof insertOnlyFields>;
+
+const jsonTextFields = {
+  payload: Model.JsonFromString(
+    S.Struct({
+      enabled: S.Boolean,
+    })
+  ),
+} as const;
+
+const jsonTextPersisted: EntitySchema.PersistedFor<typeof jsonTextFields> = {
+  // @ts-expect-error!
+  payload: EntitySchema.persist.jsonb(),
+};
+
+const upstreamFields = {
+  createdAt: UpstreamModel.DateTimeInsertFromNumber,
+  payloadText: UpstreamModel.JsonFromString(
+    S.Struct({
+      enabled: S.Boolean,
+    })
+  ),
+} as const;
+
+const upstreamPersisted = {
+  createdAt: EntitySchema.persist.timestampMillis({
+    valueStrategy: "defaultedOnInsert",
+  }),
+  payloadText: EntitySchema.persist.text(),
+} as const satisfies EntitySchema.PersistedFor<typeof upstreamFields>;
+
 EntitySchema.defineClassInput({
   fields: {
     name: S.String,
@@ -87,6 +167,18 @@ const Fixture = EntitySchema.ClassFactory($I`Fixture`)(
     description: "Fixture schema-first entity.",
   })
 );
+
+const ExplicitFixture = EntitySchema.ClassFactory($I`ExplicitFixture`)({
+  fields: explicitFields,
+  persisted: explicitPersisted,
+  tableName: "explicit_fixture",
+});
+
+const UpstreamFixture = EntitySchema.ClassFactory($I`UpstreamFixture`)({
+  fields: upstreamFields,
+  persisted: upstreamPersisted,
+  tableName: "upstream_fixture",
+});
 
 describe("EntitySchema types", () => {
   it("preserves definition and descriptor literals", () => {
@@ -116,7 +208,33 @@ describe("EntitySchema types", () => {
     expect<"name">().type.toBeAssignableTo<keyof S.Schema.Type<typeof Fixture.insert>>();
     expect<S.Schema.Type<typeof Fixture>["optionalName"]>().type.toBe<O.Option<string>>();
   });
+
+  it("extracts selected fields from explicit Model helpers", () => {
+    expect<typeof ExplicitFixture.definition.tableName>().type.toBe<"explicit_fixture">();
+    expect<typeof ExplicitFixture.definition.inputFields.optionalName>().type.toBe<
+      typeof explicitFields.optionalName
+    >();
+    expect<typeof ExplicitFixture.definition.variantFields.optionalName>().type.toBe<
+      typeof explicitFields.optionalName
+    >();
+    expect<typeof ExplicitFixture.definition.fields.optionalName>().type.toBe<
+      typeof explicitFields.optionalName.schemas.select
+    >();
+    expect<EntitySchema.TypeShape<typeof explicitFields>["optionalName"]>().type.toBe<O.Option<string>>();
+    expect<EntitySchema.EncodedShape<typeof explicitFields>["optionalName"]>().type.toBe<string | null>();
+    expect<EntitySchema.EncodedShape<typeof explicitFields>["payloadText"]>().type.toBe<string>();
+    expect<EntitySchema.EncodedShape<typeof explicitFields>["happenedAt"]>().type.toBe<Date>();
+    expect<"secret">().type.not.toBeAssignableTo<keyof S.Schema.Type<typeof ExplicitFixture.json>>();
+    expect<"appCode">().type.not.toBeAssignableTo<keyof S.Schema.Type<typeof ExplicitFixture.jsonCreate>>();
+    expect<"payloadText">().type.toBeAssignableTo<keyof S.Schema.Type<typeof ExplicitFixture.jsonCreate>>();
+    expect<typeof UpstreamFixture.definition.inputFields.createdAt>().type.toBe<
+      typeof UpstreamModel.DateTimeInsertFromNumber
+    >();
+    expect<EntitySchema.EncodedShape<typeof upstreamFields>["payloadText"]>().type.toBe<string>();
+  });
 });
 
 void optionalKeyPersisted;
 void servicefulPersisted;
+void jsonTextPersisted;
+void (null as unknown as MissingSelectPersisted);

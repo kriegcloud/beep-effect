@@ -1,6 +1,7 @@
 import { EntityTable } from "@beep/drizzle";
 import { $SchemaId } from "@beep/identity";
 import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as Model from "@beep/schema/Model";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
@@ -58,6 +59,41 @@ const Fixture = EntitySchema.ClassFactory($I`Fixture`)(
 const Table = EntityTable.pgTableFrom(Fixture);
 const Columns = EntityTable.columns(Table);
 
+const BinaryUuid = Model.Uint8Array.pipe(S.brand("BinaryUuid"));
+
+const ExplicitFixture = EntitySchema.ClassFactory($I`ExplicitFixture`)({
+  fields: {
+    binaryUuid: Model.UuidV4Insert(BinaryUuid),
+    occurredAt: Model.DateTimeInsertFromDate,
+    optionalName: Model.FieldOption(S.String),
+    payloadText: Model.JsonFromString(
+      S.Struct({
+        enabled: S.Boolean,
+      })
+    ),
+    secret: Model.Sensitive(S.String),
+  },
+  persisted: {
+    binaryUuid: EntitySchema.persist.blob({
+      valueStrategy: "defaultedOnInsert",
+    }),
+    occurredAt: EntitySchema.persist.timestampDate({
+      valueStrategy: "defaultedOnInsert",
+    }),
+    optionalName: EntitySchema.persist.text({
+      columnName: "optional_name",
+    }),
+    payloadText: EntitySchema.persist.text({
+      columnName: "payload_text",
+    }),
+    secret: EntitySchema.persist.text(),
+  },
+  tableName: "explicit_fixture",
+});
+
+const ExplicitTable = EntityTable.pgTableFrom(ExplicitFixture);
+const ExplicitColumns = EntityTable.columns(ExplicitTable);
+
 describe("EntityTable types", () => {
   it("preserves table definition metadata", () => {
     expect<typeof Table.definition.tableName>().type.toBe<"fixture">();
@@ -73,5 +109,8 @@ describe("EntityTable types", () => {
     expect<typeof Columns.isActive.name>().type.toBe<string>();
     expect<typeof Columns.optionalName.name>().type.toBe<string>();
     expect<typeof Columns.payload.name>().type.toBe<string>();
+    expect<typeof ExplicitColumns.occurredAt.name>().type.toBe<string>();
+    expect<typeof ExplicitTable.definition.persisted.occurredAt.storageKind>().type.toBe<"timestampDate">();
+    expect<typeof ExplicitTable.definition.persisted.payloadText.storageKind>().type.toBe<"text">();
   });
 });

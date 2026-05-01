@@ -16,18 +16,73 @@ import { LiteralKit } from "./LiteralKit.ts";
 import * as Model from "./Model.ts";
 import * as SchemaUtils from "./SchemaUtils/index.ts";
 import { TaggedErrorClass } from "./TaggedErrorClass.ts";
+import * as VariantSchema from "./VariantSchema.ts";
 
 const $I = $SchemaId.create("EntitySchema");
 
 const DefinitionAnnotationKey = "@beep/schema/EntitySchema/definition" as const;
 
 /**
- * Schema field map accepted by {@link ClassFactory}.
+ * Selected-row schema field map attached to entity definitions.
  *
  * @since 0.0.0
  * @category models
  */
 export type Fields = Readonly<Record<string, S.Top>>;
+
+/**
+ * Explicit variant field accepted by {@link ClassFactory}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EntityVariantFieldInput = VariantSchema.Field.Any & {
+  readonly schemas: VariantSchema.Field.ConfigWithKeys<Model.Variant> & {
+    readonly select: S.Top;
+  };
+};
+
+/**
+ * Field input accepted by {@link ClassFactory}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EntityFieldInput = S.Top | EntityVariantFieldInput;
+
+/**
+ * Entity field input map accepted by {@link ClassFactory}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EntityFieldInputs = Readonly<Record<string, EntityFieldInput>>;
+
+/**
+ * Extract the selected-row schema from one entity field input.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type SelectedFieldOf<Field extends EntityFieldInput> = Field extends {
+  readonly schemas: {
+    readonly select: infer Select extends S.Top;
+  };
+}
+  ? Select
+  : Field extends S.Top
+    ? Field
+    : never;
+
+/**
+ * Extract selected-row schemas from an entity field input map.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type SelectedFieldsOf<FieldMap extends EntityFieldInputs> = {
+  readonly [K in keyof FieldMap]: SelectedFieldOf<FieldMap[K]>;
+};
 
 /**
  * Physical storage kind projected by table adapters.
@@ -43,6 +98,7 @@ export const StorageKind = LiteralKit([
   "jsonb",
   "literal",
   "text",
+  "timestampDate",
   "timestampMillis",
 ]).pipe(
   $I.annoteSchema("StorageKind", {
@@ -286,6 +342,7 @@ const PersistDescriptorCases = {
   jsonb: PersistDescriptorFields,
   literal: PersistDescriptorFields,
   text: PersistDescriptorFields,
+  timestampDate: PersistDescriptorFields,
   timestampMillis: PersistDescriptorFields,
 } as const;
 
@@ -364,11 +421,24 @@ type BoolStorage<Encoded> = NonNullish<Encoded> extends boolean ? PersistDescrip
 
 type BlobStorage<Encoded> = NonNullish<Encoded> extends Uint8Array ? PersistDescriptor<"blob"> : never;
 
-type JsonStorage<Encoded> = NonNullish<Encoded> extends JsonContainer ? PersistDescriptor<"jsonb"> : never;
+type DateStorage<Encoded> = NonNullish<Encoded> extends Date ? PersistDescriptor<"timestampDate"> : never;
+
+type JsonStorage<Encoded> =
+  NonNullish<Encoded> extends JsonContainer
+    ? NonNullish<Encoded> extends Date | Uint8Array
+      ? never
+      : PersistDescriptor<"jsonb">
+    : never;
 
 type PersistDescriptorForEncoded<Encoded> = undefined extends Encoded
   ? never
-  : NumericStorage<Encoded> | TextStorage<Encoded> | BoolStorage<Encoded> | BlobStorage<Encoded> | JsonStorage<Encoded>;
+  :
+      | NumericStorage<Encoded>
+      | TextStorage<Encoded>
+      | BoolStorage<Encoded>
+      | BlobStorage<Encoded>
+      | DateStorage<Encoded>
+      | JsonStorage<Encoded>;
 
 /**
  * Persistence descriptor type permitted for one schema field.
@@ -385,13 +455,21 @@ export type PersistDescriptorFor<Schema extends S.Top> = Schema["~encoded.option
     : never;
 
 /**
+ * Persistence descriptor type permitted for one entity field input.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type PersistDescriptorForInput<Field extends EntityFieldInput> = PersistDescriptorFor<SelectedFieldOf<Field>>;
+
+/**
  * Exact persisted descriptor map permitted for a field map.
  *
  * @since 0.0.0
  * @category models
  */
-export type PersistedFor<FieldMap extends Fields> = {
-  readonly [K in keyof FieldMap]: PersistDescriptorFor<FieldMap[K]>;
+export type PersistedFor<FieldMap extends EntityFieldInputs> = {
+  readonly [K in keyof FieldMap]: PersistDescriptorForInput<FieldMap[K]>;
 };
 
 /**
@@ -402,12 +480,12 @@ export type PersistedFor<FieldMap extends Fields> = {
  */
 export type PersistedMap = Readonly<Record<string, PersistDescriptor>>;
 
-type ExtraPersistedKeys<FieldMap extends Fields, Persisted extends PersistedMap> = Exclude<
+type ExtraPersistedKeys<FieldMap extends EntityFieldInputs, Persisted extends PersistedMap> = Exclude<
   keyof Persisted,
   keyof FieldMap
 >;
 
-type NoExtraPersistedKeys<FieldMap extends Fields, Persisted extends PersistedMap> = {
+type NoExtraPersistedKeys<FieldMap extends EntityFieldInputs, Persisted extends PersistedMap> = {
   readonly [K in ExtraPersistedKeys<FieldMap, Persisted>]: never;
 };
 
@@ -417,8 +495,10 @@ type NoExtraPersistedKeys<FieldMap extends Fields, Persisted extends PersistedMa
  * @since 0.0.0
  * @category models
  */
-export type CheckedPersistedFor<FieldMap extends Fields, Persisted extends PersistedFor<FieldMap>> = Persisted &
-  NoExtraPersistedKeys<FieldMap, Persisted>;
+export type CheckedPersistedFor<
+  FieldMap extends EntityFieldInputs,
+  Persisted extends PersistedFor<FieldMap>,
+> = Persisted & NoExtraPersistedKeys<FieldMap, Persisted>;
 
 /**
  * Entity metadata attached to entity schema classes.
@@ -427,14 +507,17 @@ export type CheckedPersistedFor<FieldMap extends Fields, Persisted extends Persi
  * @category models
  */
 export type Definition<
-  FieldMap extends Fields = Fields,
+  FieldMap extends EntityFieldInputs = EntityFieldInputs,
+  SelectedFieldMap extends Fields = SelectedFieldsOf<FieldMap>,
   Persisted extends PersistedMap = PersistedMap,
   TableName extends string = string,
   EntityId extends EntityIdLike | undefined = EntityIdLike | undefined,
 > = {
-  readonly fields: FieldMap;
+  readonly fields: SelectedFieldMap;
+  readonly inputFields: FieldMap;
   readonly persisted: Persisted;
   readonly tableName: TableName;
+  readonly variantFields: VariantFieldsFor<FieldMap, Persisted>;
 } & (EntityId extends EntityIdLike
   ? {
       readonly entityId: EntityId;
@@ -449,8 +532,8 @@ export type Definition<
  * @since 0.0.0
  * @category models
  */
-export type EncodedShape<FieldMap extends Fields> = {
-  readonly [K in keyof FieldMap]: S.Codec.Encoded<FieldMap[K]>;
+export type EncodedShape<FieldMap extends EntityFieldInputs> = {
+  readonly [K in keyof FieldMap]: S.Codec.Encoded<SelectedFieldOf<FieldMap[K]>>;
 };
 
 /**
@@ -459,8 +542,8 @@ export type EncodedShape<FieldMap extends Fields> = {
  * @since 0.0.0
  * @category models
  */
-export type TypeShape<FieldMap extends Fields> = {
-  readonly [K in keyof FieldMap]: S.Schema.Type<FieldMap[K]>;
+export type TypeShape<FieldMap extends EntityFieldInputs> = {
+  readonly [K in keyof FieldMap]: S.Schema.Type<SelectedFieldOf<FieldMap[K]>>;
 };
 
 /**
@@ -516,7 +599,7 @@ export type ColumnNameFor<Key extends string, Descriptor extends PersistDescript
  * @category models
  */
 export type ClassInput<
-  FieldMap extends Fields,
+  FieldMap extends EntityFieldInputs,
   Persisted extends PersistedFor<FieldMap>,
   TableName extends string = string,
   EntityId extends EntityIdLike | undefined = undefined,
@@ -534,7 +617,7 @@ export type ClassInput<
  * @category constructors
  */
 export const defineClassInput = <
-  const FieldMap extends Fields,
+  const FieldMap extends EntityFieldInputs,
   const Persisted extends PersistedFor<FieldMap>,
   const TableName extends string = string,
   const EntityId extends EntityIdLike | undefined = undefined,
@@ -552,17 +635,28 @@ type VariantFieldFor<
     : Descriptor["valueStrategy"] extends "defaultedOnInsert"
       ? Descriptor["storageKind"] extends "timestampMillis"
         ? Model.DateTimeInsertFromNumber
-        : Model.GeneratedByApp<Field>
+        : Descriptor["storageKind"] extends "timestampDate"
+          ? Model.DateTimeInsertFromDate
+          : Model.GeneratedByApp<Field>
       : Descriptor["valueStrategy"] extends "updatedOnWrite"
         ? Descriptor["storageKind"] extends "timestampMillis"
           ? Model.DateTimeUpdateFromNumber
-          : Model.GeneratedByApp<Field>
+          : Descriptor["storageKind"] extends "timestampDate"
+            ? Model.DateTimeUpdateFromDate
+            : Model.GeneratedByApp<Field>
         : Descriptor["valueStrategy"] extends "providedByContext" | "derived" | "computedByService"
           ? Model.GeneratedByApp<Field>
           : Field;
 
-type VariantFieldsFor<FieldMap extends Fields, Persisted extends PersistedMap> = {
-  readonly [K in keyof FieldMap]: K extends keyof Persisted ? VariantFieldFor<FieldMap[K], Persisted[K]> : FieldMap[K];
+type VariantFieldForInput<
+  Field extends EntityFieldInput,
+  Descriptor extends PersistDescriptor.Any,
+> = Field extends EntityVariantFieldInput ? Field : VariantFieldFor<SelectedFieldOf<Field>, Descriptor>;
+
+type VariantFieldsFor<FieldMap extends EntityFieldInputs, Persisted extends PersistedMap> = {
+  readonly [K in keyof FieldMap]: K extends keyof Persisted
+    ? VariantFieldForInput<FieldMap[K], Persisted[K]>
+    : FieldMap[K];
 };
 
 /**
@@ -573,14 +667,14 @@ type VariantFieldsFor<FieldMap extends Fields, Persisted extends PersistedMap> =
  */
 export type EntityClass<
   Self,
-  FieldMap extends Fields,
+  FieldMap extends EntityFieldInputs,
   Persisted extends PersistedFor<FieldMap>,
   Inherited = {},
   TableName extends string = string,
   EntityId extends EntityIdLike | undefined = EntityIdLike | undefined,
 > = S.Codec<Self, EncodedShape<FieldMap>, never, never> &
   Model.ClassShape<Self, VariantFieldsFor<FieldMap, Persisted>, {}, Inherited> & {
-    readonly definition: Definition<FieldMap, Persisted, TableName, EntityId>;
+    readonly definition: Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>;
   };
 
 /**
@@ -623,7 +717,9 @@ export namespace EntityClass {
  * @since 0.0.0
  * @category models
  */
-export type Assign<Base extends Fields, Extension extends Fields> = Simplify<StructAssign<Base, Extension>>;
+export type Assign<Base extends EntityFieldInputs, Extension extends EntityFieldInputs> = Simplify<
+  StructAssign<Base, Extension>
+>;
 
 /**
  * Assign persisted maps with right-hand override.
@@ -643,9 +739,9 @@ export type AssignPersisted<BasePersisted extends PersistedMap, ExtensionPersist
  * @category models
  */
 type AssignedEntityParts<
-  BaseFields extends Fields,
+  BaseFields extends EntityFieldInputs,
   BasePersisted extends PersistedFor<BaseFields>,
-  ExtensionFields extends Fields,
+  ExtensionFields extends EntityFieldInputs,
   ExtensionPersisted extends PersistedFor<ExtensionFields>,
 > = {
   readonly fields: Assign<BaseFields, ExtensionFields>;
@@ -659,9 +755,9 @@ type AssignedEntityParts<
  * @category models
  */
 export type AssignedPersisted<
-  BaseFields extends Fields,
+  BaseFields extends EntityFieldInputs,
   BasePersisted extends PersistedFor<BaseFields>,
-  ExtensionFields extends Fields,
+  ExtensionFields extends EntityFieldInputs,
   ExtensionPersisted extends PersistedFor<ExtensionFields>,
 > = CheckedPersistedFor<
   Assign<BaseFields, ExtensionFields>,
@@ -676,9 +772,9 @@ export type AssignedPersisted<
  * @category constructors
  */
 const assignEntityParts = <
-  const BaseFields extends Fields,
+  const BaseFields extends EntityFieldInputs,
   const BasePersisted extends PersistedFor<BaseFields>,
-  const ExtensionFields extends Fields,
+  const ExtensionFields extends EntityFieldInputs,
   const ExtensionPersisted extends PersistedFor<ExtensionFields>,
 >(
   baseFields: BaseFields,
@@ -699,7 +795,7 @@ const assignEntityParts = <
  */
 export type ClassFactory<
   Self,
-  FieldMap extends Fields,
+  FieldMap extends EntityFieldInputs,
   Persisted extends PersistedFor<FieldMap>,
   TableName extends string = string,
   EntityId extends EntityIdLike | undefined = EntityIdLike | undefined,
@@ -707,7 +803,7 @@ export type ClassFactory<
   readonly Class: <Child = never>(
     identifier: string
   ) => <
-    const ChildFields extends Fields,
+    const ChildFields extends EntityFieldInputs,
     const ChildPersisted extends PersistedFor<ChildFields>,
     const ChildTableName extends string = string,
     const ChildEntityId extends EntityIdLike | undefined = undefined,
@@ -759,6 +855,7 @@ export const persist = {
   jsonb: descriptor("jsonb"),
   literal: descriptor("literal"),
   text: descriptor("text"),
+  timestampDate: descriptor("timestampDate"),
   timestampMillis: descriptor("timestampMillis"),
 } as const;
 
@@ -871,6 +968,17 @@ class SelectedRowFieldShapeError extends TaggedErrorClass<SelectedRowFieldShapeE
   })
 ) {}
 
+class EntityFieldInputError extends TaggedErrorClass<EntityFieldInputError>($I`EntityFieldInputError`)(
+  "EntityFieldInputError",
+  {
+    field: S.String,
+    message: S.String,
+  },
+  $I.annote("EntityFieldInputError", {
+    description: "Entity field input validation failure.",
+  })
+) {}
+
 const knownAstAbsence = (allowsNull: boolean, allowsUndefined: boolean, isAmbiguous = false): AstAbsence => ({
   allowsNull,
   allowsUndefined,
@@ -891,13 +999,28 @@ const isJsonDeclaration = (ast: AST.Declaration): boolean => {
     | undefined;
   return typeConstructor?._tag === "effect/Json" || typeConstructor?._tag === "effect/MutableJson";
 };
+
+const isKnownRequiredDeclaration = (ast: AST.Declaration): boolean => {
+  const typeConstructor = ast.annotations?.typeConstructor as
+    | {
+        readonly _tag?: string;
+      }
+    | undefined;
+  return typeConstructor?._tag === "Date" || typeConstructor?._tag === "Uint8Array";
+};
+
 const astAbsence: (input: AST.AST) => AstAbsence = Match.type<AST.AST>().pipe(
   Match.withReturnType<AstAbsence>(),
   Match.tag("Null", () => knownAstAbsence(true, false)),
   Match.tag("Undefined", "Void", () => knownAstAbsence(false, true)),
   Match.tag("Any", "Unknown", () => knownAstAbsence(true, true)),
   Match.tags({
-    Declaration: (ast) => (isJsonDeclaration(ast) ? knownAstAbsence(true, false) : knownAstAbsence(false, false, true)),
+    Declaration: (ast) =>
+      isJsonDeclaration(ast)
+        ? knownAstAbsence(true, false)
+        : isKnownRequiredDeclaration(ast)
+          ? knownAstAbsence(false, false)
+          : knownAstAbsence(false, false, true),
     Suspend: (ast) => astAbsence(ast.thunk()),
     Union: (ast) =>
       A.reduce(ast.types ?? A.empty(), knownAstAbsence(false, false), (accumulator, member) =>
@@ -1036,43 +1159,163 @@ export const isEncodedNullable = (field: S.Top): boolean => encodedFieldShape(fi
  */
 export const isEncodedOptional = (field: S.Top): boolean => encodedFieldShape(field).isOptional;
 
+const failEntityFieldInput = (field: string, message: string): never => {
+  throw new EntityFieldInputError({ field, message });
+};
+
+const modelVariantKeys: ReadonlySet<Model.Variant> = new Set<Model.Variant>([
+  "select",
+  "insert",
+  "update",
+  "json",
+  "jsonCreate",
+  "jsonUpdate",
+]);
+
+const isModelVariantKey = (key: string): key is Model.Variant => modelVariantKeys.has(key as Model.Variant);
+
+const hasVariant = (field: EntityVariantFieldInput, variant: Model.Variant): boolean =>
+  S.isSchema(field.schemas[variant]);
+
+const assertModelVariantField = (key: string, field: EntityVariantFieldInput): void => {
+  for (const variant of Struct.keys(field.schemas)) {
+    if (!isModelVariantKey(variant)) {
+      failEntityFieldInput(key, `Entity field '${key}' uses unsupported model variant '${variant}'.`);
+    }
+    const schema = field.schemas[variant];
+    if (!P.isUndefined(schema) && !S.isSchema(schema)) {
+      failEntityFieldInput(key, `Entity field '${key}' variant '${variant}' must be a Schema.`);
+    }
+  }
+  if (!hasVariant(field, "select")) {
+    failEntityFieldInput(key, `Persisted entity field '${key}' must define a select variant.`);
+  }
+};
+
+const selectedFieldFor = <const Field extends EntityFieldInput>(key: string, field: Field): SelectedFieldOf<Field> => {
+  if (VariantSchema.isField(field)) {
+    const variantField = field as EntityVariantFieldInput;
+    assertModelVariantField(key, variantField);
+    return variantField.schemas.select as SelectedFieldOf<Field>;
+  }
+  if (!S.isSchema(field)) {
+    failEntityFieldInput(key, `Entity field '${key}' must be a Schema or a Model variant field.`);
+  }
+  return field as SelectedFieldOf<Field>;
+};
+
+const selectedFieldsFor = <const FieldMap extends EntityFieldInputs>(fields: FieldMap): SelectedFieldsOf<FieldMap> => {
+  const output = R.empty<string, S.Top>();
+  for (const [key, field] of Struct.entries(fields)) {
+    const selected = selectedFieldFor(key, field);
+    selectedRowFieldShape(key, selected);
+    output[key] = selected;
+  }
+  return output as SelectedFieldsOf<FieldMap>;
+};
+
+const assertExplicitVariantCompatible = (
+  key: string,
+  field: EntityVariantFieldInput,
+  descriptor: PersistDescriptor.Any
+): void => {
+  assertModelVariantField(key, field);
+
+  const insert = hasVariant(field, "insert");
+  const update = hasVariant(field, "update");
+  const jsonCreate = hasVariant(field, "jsonCreate");
+  const jsonUpdate = hasVariant(field, "jsonUpdate");
+
+  switch (descriptor.valueStrategy) {
+    case "generatedOnInsert":
+      if (insert) {
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses valueStrategy 'generatedOnInsert' but its explicit helper defines an insert variant.`
+        );
+      }
+      break;
+    case "incrementedOnWrite":
+      if (insert || !update) {
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses valueStrategy 'incrementedOnWrite' and must omit insert while keeping update.`
+        );
+      }
+      break;
+    case "defaultedOnInsert":
+      if (!insert || jsonCreate) {
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses valueStrategy 'defaultedOnInsert' and must define insert while omitting jsonCreate.`
+        );
+      }
+      break;
+    case "updatedOnWrite":
+      if (!insert || !update || jsonCreate || jsonUpdate) {
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses valueStrategy 'updatedOnWrite' and must define insert/update while omitting jsonCreate/jsonUpdate.`
+        );
+      }
+      break;
+    case "providedByContext":
+    case "derived":
+    case "computedByService":
+      if (!insert || !update || jsonCreate || jsonUpdate) {
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses server-side valueStrategy '${descriptor.valueStrategy}' and must define insert/update while omitting jsonCreate/jsonUpdate.`
+        );
+      }
+      break;
+    case "provided":
+      break;
+  }
+};
+
 const withDefinitionAnnotation = <
-  FieldMap extends Fields,
+  FieldMap extends EntityFieldInputs,
   Persisted extends PersistedFor<FieldMap>,
   TableName extends string,
   EntityId extends EntityIdLike | undefined,
 >(
-  definition: Definition<FieldMap, Persisted, TableName, EntityId>,
+  definition: Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>,
   annotations?: SchemaAnnotations
 ): SchemaAnnotations => Struct.assign(annotations ?? {}, { [DefinitionAnnotationKey]: definition });
 
 const normalizeDefinition = <
-  const FieldMap extends Fields,
+  const FieldMap extends EntityFieldInputs,
   const Persisted extends PersistedFor<FieldMap>,
   const TableName extends string,
   const EntityId extends EntityIdLike | undefined,
 >(
   identifier: string,
   input: ClassInput<FieldMap, Persisted, TableName, EntityId>
-): Definition<FieldMap, Persisted, TableName, EntityId> =>
-  ({
+): Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId> => {
+  const fields = selectedFieldsFor(input.fields);
+  const variantFields = variantFieldsFor(input.fields, input.persisted);
+  return {
     ...(P.isUndefined(input.entityId) ? {} : { entityId: input.entityId }),
-    fields: input.fields,
+    fields,
+    inputFields: input.fields,
     persisted: input.persisted,
     tableName: (input.tableName ?? input.entityId?.tableName ?? tableNameFromIdentifier(identifier)) as TableName,
-  }) as unknown as Definition<FieldMap, Persisted, TableName, EntityId>;
+    variantFields,
+  } as unknown as Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>;
+};
 
 const attachDefinition = <
   Class extends object,
-  FieldMap extends Fields,
+  FieldMap extends EntityFieldInputs,
   Persisted extends PersistedFor<FieldMap>,
   TableName extends string,
   EntityId extends EntityIdLike | undefined,
 >(
   entityClass: Class,
-  definition: Definition<FieldMap, Persisted, TableName, EntityId>
+  definition: Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>
 ): Class & {
-  readonly definition: Definition<FieldMap, Persisted, TableName, EntityId>;
+  readonly definition: Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>;
 } => {
   Reflect.defineProperty(entityClass, "definition", {
     configurable: false,
@@ -1080,20 +1323,20 @@ const attachDefinition = <
     value: definition,
   });
   return entityClass as Class & {
-    readonly definition: Definition<FieldMap, Persisted, TableName, EntityId>;
+    readonly definition: Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>;
   };
 };
 
 const attachEntityClassDefinition = <
   Self,
-  const FieldMap extends Fields,
+  const FieldMap extends EntityFieldInputs,
   const Persisted extends PersistedFor<FieldMap>,
   Inherited,
   const TableName extends string,
   const EntityId extends EntityIdLike | undefined,
 >(
   entityClass: Model.ClassShape<Self, VariantFieldsFor<FieldMap, Persisted>, {}, Inherited>,
-  definition: Definition<FieldMap, Persisted, TableName, EntityId>
+  definition: Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>
 ): EntityClass<Self, FieldMap, Persisted, Inherited, TableName, EntityId> =>
   attachDefinition(entityClass, definition) as EntityClass<Self, FieldMap, Persisted, Inherited, TableName, EntityId>;
 
@@ -1116,6 +1359,14 @@ const variantFieldFor = <const Field extends S.Top, const Descriptor extends Per
       () => Model.DateTimeUpdateFromNumber
     ),
     Match.when(
+      (self) => self.valueStrategy === "defaultedOnInsert" && self.storageKind === "timestampDate",
+      () => Model.DateTimeInsertFromDate
+    ),
+    Match.when(
+      (self) => self.valueStrategy === "updatedOnWrite" && self.storageKind === "timestampDate",
+      () => Model.DateTimeUpdateFromDate
+    ),
+    Match.when(
       (self) =>
         self.valueStrategy === "defaultedOnInsert" ||
         self.valueStrategy === "updatedOnWrite" ||
@@ -1127,18 +1378,38 @@ const variantFieldFor = <const Field extends S.Top, const Descriptor extends Per
     Match.orElse(() => field)
   ) as VariantFieldFor<Field, Descriptor>;
 
-const variantFieldsFor = <const FieldMap extends Fields, const Persisted extends PersistedMap>(
+const variantFieldForInput = <const Field extends EntityFieldInput, const Descriptor extends PersistDescriptor.Any>(
+  key: string,
+  field: Field,
+  descriptor: Descriptor
+): VariantFieldForInput<Field, Descriptor> => {
+  if (VariantSchema.isField(field)) {
+    assertExplicitVariantCompatible(key, field as EntityVariantFieldInput, descriptor);
+    return field as VariantFieldForInput<Field, Descriptor>;
+  }
+  return variantFieldFor(selectedFieldFor(key, field) as S.Top, descriptor) as VariantFieldForInput<Field, Descriptor>;
+};
+
+const variantFieldsFor = <const FieldMap extends EntityFieldInputs, const Persisted extends PersistedMap>(
   fields: FieldMap,
   persisted: Persisted
 ): VariantFieldsFor<FieldMap, Persisted> => {
   const output = R.empty<string, unknown>();
   for (const [key, field] of Struct.entries(fields)) {
-    output[key] = variantFieldFor(field, persisted[key]);
+    const descriptor = persisted[key];
+    if (P.isUndefined(descriptor)) {
+      failEntityFieldInput(key, `Entity field '${key}' is missing a persistence descriptor.`);
+    }
+    output[key] = variantFieldForInput(key, field, descriptor);
   }
   return output as VariantFieldsFor<FieldMap, Persisted>;
 };
 
-const makeEntityModelClass = <Self, const FieldMap extends Fields, const Persisted extends PersistedFor<FieldMap>>(
+const makeEntityModelClass = <
+  Self,
+  const FieldMap extends EntityFieldInputs,
+  const Persisted extends PersistedFor<FieldMap>,
+>(
   identifier: string,
   fields: VariantFieldsFor<FieldMap, Persisted>,
   annotations?: SchemaAnnotations
@@ -1153,9 +1424,9 @@ const makeEntityModelClass = <Self, const FieldMap extends Fields, const Persist
 const extendEntityModelClass = <
   Self,
   Child,
-  const FieldMap extends Fields,
+  const FieldMap extends EntityFieldInputs,
   const Persisted extends PersistedFor<FieldMap>,
-  const ChildFields extends Fields,
+  const ChildFields extends EntityFieldInputs,
   const ChildPersisted extends PersistedFor<ChildFields>,
   const TableName extends string,
   const EntityId extends EntityIdLike | undefined,
@@ -1187,7 +1458,7 @@ const extendEntityModelClass = <
 
 const createClass = <
   Self,
-  const FieldMap extends Fields,
+  const FieldMap extends EntityFieldInputs,
   const Persisted extends PersistedFor<FieldMap>,
   const TableName extends string,
   const EntityId extends EntityIdLike | undefined,
@@ -1199,7 +1470,7 @@ const createClass = <
   const definition = normalizeDefinition(identifier, input);
   const entityClass = makeEntityModelClass<Self, FieldMap, Persisted>(
     identifier,
-    variantFieldsFor(definition.fields, definition.persisted),
+    definition.variantFields,
     withDefinitionAnnotation(definition, annotations)
   );
   return attachEntityClassDefinition(entityClass, definition);
@@ -1207,7 +1478,7 @@ const createClass = <
 
 const withClassFactory = <
   Self,
-  const FieldMap extends Fields,
+  const FieldMap extends EntityFieldInputs,
   const Persisted extends PersistedFor<FieldMap>,
   const TableName extends string,
   const EntityId extends EntityIdLike | undefined,
@@ -1217,7 +1488,7 @@ const withClassFactory = <
   const Class =
     <Child = never>(identifier: string) =>
     <
-      const ChildFields extends Fields,
+      const ChildFields extends EntityFieldInputs,
       const ChildPersisted extends PersistedFor<ChildFields>,
       const ChildTableName extends string = string,
       const ChildEntityId extends EntityIdLike | undefined = undefined,
@@ -1226,7 +1497,7 @@ const withClassFactory = <
       annotations?: SchemaAnnotations
     ) => {
       const childParts = assignEntityParts(
-        baseClass.definition.fields,
+        baseClass.definition.inputFields,
         baseClass.definition.persisted,
         input.fields,
         input.persisted
@@ -1253,7 +1524,16 @@ const withClassFactory = <
         variantFieldsFor<ChildFields, ChildPersisted>(input.fields, input.persisted),
         withDefinitionAnnotation(childDefinition, annotations)
       );
-      return attachEntityClassDefinition(childClass, childDefinition);
+      return attachEntityClassDefinition(
+        childClass,
+        childDefinition as Definition<
+          Assign<FieldMap, ChildFields>,
+          SelectedFieldsOf<Assign<FieldMap, ChildFields>>,
+          AssignedPersisted<FieldMap, Persisted, ChildFields, ChildPersisted>,
+          ChildTableName,
+          ChildEntityId
+        >
+      );
     };
 
   Reflect.defineProperty(baseClass, "Class", {
@@ -1272,7 +1552,7 @@ const withClassFactory = <
 export const ClassFactory =
   (identifier: string) =>
   <
-    const FieldMap extends Fields,
+    const FieldMap extends EntityFieldInputs,
     const Persisted extends PersistedFor<FieldMap>,
     const TableName extends string = string,
     const EntityId extends EntityIdLike | undefined = undefined,

@@ -1,5 +1,6 @@
 import { $SharedDomainId } from "@beep/identity/packages";
 import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as Model from "@beep/schema/Model";
 import * as DomainBarrel from "@beep/shared-domain";
 import * as EntityBarrel from "@beep/shared-domain/entity";
 import * as BaseEntity from "@beep/shared-domain/entity/BaseEntity";
@@ -44,6 +45,20 @@ class Document extends BaseEntity.BaseEntity.Class<Document>($I`Document`)(
   })
 ) {}
 
+class ConfidentialDocument extends BaseEntity.BaseEntity.Class<ConfidentialDocument>($I`ConfidentialDocument`)(
+  CustomDocumentId,
+  {
+    fields: {
+      optionalSecret: Model.FieldOption(S.String),
+      secret: Model.Sensitive(S.String),
+    },
+    persisted: {
+      optionalSecret: EntitySchema.persist.text(),
+      secret: EntitySchema.persist.text(),
+    },
+  }
+) {}
+
 declare const documentIdValue: typeof DocumentId.Type;
 
 describe("shared entity kernel types", () => {
@@ -83,10 +98,12 @@ describe("shared entity kernel types", () => {
     expect<Document["id"]>().type.toBe<typeof DocumentId.Type>();
     expect<Document["orgId"]>().type.toBe<Shared.OrganizationId>();
     expect<Document["optionalNote"]>().type.toBe<O.Option<string>>();
+    expect<ConfidentialDocument["optionalSecret"]>().type.toBe<O.Option<string>>();
     expect<typeof Document.fields.optionalNote.Type>().type.toBe<O.Option<string>>();
     expect<"id">().type.not.toBeAssignableTo<keyof S.Schema.Type<typeof Document.insert>>();
     expect<"entityType">().type.toBeAssignableTo<keyof S.Schema.Type<typeof Document.insert>>();
     expect<"note">().type.toBeAssignableTo<keyof S.Schema.Type<typeof Document.insert>>();
+    expect<"secret">().type.not.toBeAssignableTo<keyof S.Schema.Type<typeof ConfidentialDocument.json>>();
   });
 
   it("keeps public barrel exports type-equivalent to module exports", () => {

@@ -12,7 +12,6 @@
 import type { TUnsafe } from "@beep/types";
 import { DateTime, Effect, SchemaGetter as Getter, SchemaTransformation as Transformation } from "effect";
 import type { Brand } from "effect/Brand";
-import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -303,69 +302,38 @@ export const fields: <A extends VariantSchema.Struct<TUnsafe.Any>>(self: A) => A
 export const Override: <A>(value: A) => A & Brand<"Override"> = VariantSchema.Override;
 
 /**
- * Schema whose decoded type is optional with a default value injected during encoding.
+ * Schema whose constructor can supply a generated default unless callers pass
+ * {@link Override}.
  *
  * @since 0.0.0
  * @category overridable
  */
-export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
-  extends S.Bottom<
-    (S["Type"] & Brand<"Override">) | undefined,
-    S["Encoded"],
-    S["DecodingServices"],
-    S["EncodingServices"],
-    S["ast"],
-    Overridable<S>,
-    S["~type.make.in"],
-    (S["Type"] & Brand<"Override">) | undefined,
-    S["~type.parameters"],
-    (S["Type"] & Brand<"Override">) | undefined,
-    S["~type.mutability"],
-    "optional",
-    "with-default",
-    S["~encoded.mutability"],
-    S["~encoded.optionality"]
-  > {}
+export interface Overridable<S extends S.Top & S.WithoutConstructorDefault> extends VariantSchema.Overridable<S> {}
 
 /**
- * Build an `Overridable` schema that falls back to `defaultValue` when no override is provided.
+ * Upstream-compatible spelling for {@link Overridable}.
  *
  * @since 0.0.0
  * @category overridable
  */
-export const Overridable: {
-  <S extends S.Top & S.WithoutConstructorDefault>(options: {
-    readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
-  }): (schema: S) => Overridable<S>;
-  <S extends S.Top & S.WithoutConstructorDefault>(
-    schema: S,
-    options: {
-      readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
-    }
-  ): Overridable<S>;
-} = dual(
-  2,
-  <S extends S.Top & S.WithoutConstructorDefault>(
-    schema: S,
-    options: {
-      readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
-    }
-  ): Overridable<S> =>
-    schema.pipe(
-      S.decodeTo(
-        S.toType(schema).pipe(S.brand("Override"), S.optional),
-        Transformation.make({
-          decode: Getter.passthrough(),
-          encode: new Getter.Getter((o) => {
-            if (O.isSome(o) && o.value !== undefined) {
-              return Effect.succeed(o);
-            }
-            return Effect.asSome(options.defaultValue);
-          }),
-        })
-      )
-    ) as TUnsafe.Any
-);
+export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> extends Overridable<S> {}
+
+/**
+ * Build an `Overridable` schema that falls back to `defaultValue` during
+ * constructor creation.
+ *
+ * @since 0.0.0
+ * @category overridable
+ */
+export const Overridable: typeof VariantSchema.Overridable = VariantSchema.Overridable;
+
+/**
+ * Upstream-compatible spelling for {@link Overridable}.
+ *
+ * @since 0.0.0
+ * @category overridable
+ */
+export const Overrideable: typeof Overridable = Overridable;
 
 /**
  * Interface for a database-generated field present in `select`, `update`, and `json` variants.
@@ -1080,7 +1048,7 @@ export interface JsonFromString<S extends S.Top>
  * @category json
  */
 export const JsonFromString = <S extends S.Top>(schema: S): JsonFromString<S> => {
-  const parsed = S.fromJsonString(schema);
+  const parsed = schema.pipe(S.toCodecJson, S.fromJsonString) as TUnsafe.Any;
   return Field({
     select: parsed,
     insert: parsed,

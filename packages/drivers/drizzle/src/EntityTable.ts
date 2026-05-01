@@ -27,12 +27,14 @@ import {
   type PgTableExtraConfigValue,
   type PgTableWithColumns,
   type PgTextBuilder,
+  type PgTimestampBuilder,
   pgTable,
   type Set$Type,
   type SetIsPrimaryKey,
   type SetNotNull,
   serial,
   text,
+  timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { Match, pipe } from "effect";
@@ -74,7 +76,9 @@ type ColumnBuilderRuntimeBaseFor<Descriptor extends FieldDescriptor> = Descripto
             ? PgJsonbBuilder
             : Descriptor["storageKind"] extends "timestampMillis"
               ? PgBigInt53Builder
-              : PgTextBuilder
+              : Descriptor["storageKind"] extends "timestampDate"
+                ? PgTimestampBuilder
+                : PgTextBuilder
   : never;
 
 type ColumnBuilderBaseFor<Descriptor extends FieldDescriptor, Encoded> = TypedBuilder<
@@ -210,6 +214,7 @@ const baseColumnFor = <const Descriptor extends FieldDescriptor>(
       jsonb: () => jsonb(columnName),
       literal: () => text(columnName),
       text: () => text(columnName),
+      timestampDate: () => timestamp(columnName, { mode: "date" }),
       timestampMillis: () => bigint(columnName, { mode: "number" }),
     })
   );
@@ -256,6 +261,7 @@ const isScalarIndexableStorageKind = (storageKind: EntitySchema.StorageKind): bo
   EntitySchema.StorageKind.is.int(storageKind) ||
   EntitySchema.StorageKind.is.literal(storageKind) ||
   EntitySchema.StorageKind.is.text(storageKind) ||
+  EntitySchema.StorageKind.is.timestampDate(storageKind) ||
   EntitySchema.StorageKind.is.timestampMillis(storageKind);
 
 const supportsIndexHint = (descriptor: EntitySchema.PersistDescriptor, hint: EntitySchema.IndexHint): boolean =>

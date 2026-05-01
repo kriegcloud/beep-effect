@@ -17,10 +17,10 @@ import { SourceKind } from "./SourceKind.js";
 
 const $I = $SharedDomainId.create("entity/BaseEntity");
 
-type EntityInput<FieldMap extends EntitySchema.Fields, Persisted extends EntitySchema.PersistedFor<FieldMap>> = Omit<
-  EntitySchema.ClassInput<FieldMap, Persisted>,
-  "entityId" | "tableName"
->;
+type EntityInput<
+  FieldMap extends EntitySchema.EntityFieldInputs,
+  Persisted extends EntitySchema.PersistedFor<FieldMap>,
+> = Omit<EntitySchema.ClassInput<FieldMap, Persisted>, "entityId" | "tableName">;
 
 type EntityIdentityFields<Entity extends EntitySchema.EntityIdLike> = {
   readonly entityType: S.Literal<Entity["entityType"]>;
@@ -34,12 +34,12 @@ type EntityIdentityPersisted = {
 
 type EntityFieldsFor<
   Entity extends EntitySchema.EntityIdLike,
-  ChildFields extends EntitySchema.Fields,
+  ChildFields extends EntitySchema.EntityFieldInputs,
 > = EntitySchema.Assign<ChildFields, EntityIdentityFields<Entity>>;
 
 type EntityPersistedFor<
   Entity extends EntitySchema.EntityIdLike,
-  ChildFields extends EntitySchema.Fields,
+  ChildFields extends EntitySchema.EntityFieldInputs,
   ChildPersisted extends EntitySchema.PersistedFor<ChildFields>,
 > = EntitySchema.CheckedPersistedFor<
   EntityFieldsFor<Entity, ChildFields>,
@@ -145,7 +145,7 @@ const identityPersisted = {
 
 const entityPartsFor = <
   const Entity extends EntitySchema.EntityIdLike,
-  const ChildFields extends EntitySchema.Fields,
+  const ChildFields extends EntitySchema.EntityFieldInputs,
   const ChildPersisted extends EntitySchema.PersistedFor<ChildFields>,
 >(
   entityId: Entity,
@@ -166,7 +166,7 @@ const Class =
   <Child = never>(identifier: string) =>
   <
     const Entity extends EntitySchema.EntityIdLike,
-    const ChildFields extends EntitySchema.Fields,
+    const ChildFields extends EntitySchema.EntityFieldInputs,
     const ChildPersisted extends EntitySchema.PersistedFor<ChildFields>,
   >(
     entityId: Entity,

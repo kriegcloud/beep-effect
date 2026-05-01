@@ -628,6 +628,35 @@ export const Overridable: {
     ) as Overridable<S>
 );
 
+/**
+ * Upstream-compatible alias for {@link Overridable}.
+ *
+ * @example
+ * ```ts
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * import * as VariantSchema from "@beep/schema/VariantSchema"
+ *
+ * const field = VariantSchema.Overrideable(S.String, {
+ *   defaultValue: Effect.succeed("generated")
+ * })
+ *
+ * void field
+ * ```
+ *
+ * @since 0.0.0
+ * @category overridable
+ */
+export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> extends Overridable<S> {}
+
+/**
+ * Upstream-compatible alias for {@link Overridable}.
+ *
+ * @since 0.0.0
+ * @category overridable
+ */
+export const Overrideable: typeof Overridable = Overridable;
+
 const Struct = <const A extends Field.Fields>(fields: A): Struct<A> => {
   return {
     [TypeId]: fields,

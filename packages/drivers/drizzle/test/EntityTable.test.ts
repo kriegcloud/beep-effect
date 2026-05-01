@@ -1,6 +1,7 @@
 import { EntityTable } from "@beep/drizzle";
 import { $SchemaId } from "@beep/identity";
 import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as Model from "@beep/schema/Model";
 import { describe, expect, it } from "@effect/vitest";
 import { getTableConfig } from "drizzle-orm/pg-core";
 import * as A from "effect/Array";
@@ -66,6 +67,41 @@ const Fixture = EntitySchema.ClassFactory($I`Fixture`)(
 
 const Table = EntityTable.pgTableFrom(Fixture);
 
+const BinaryUuid = Model.Uint8Array.pipe(S.brand("BinaryUuid"));
+
+const ExplicitFixture = EntitySchema.ClassFactory($I`ExplicitFixture`)({
+  fields: {
+    binaryUuid: Model.UuidV4Insert(BinaryUuid),
+    occurredAt: Model.DateTimeInsertFromDate,
+    optionalName: Model.FieldOption(S.String),
+    payloadText: Model.JsonFromString(
+      S.Struct({
+        enabled: S.Boolean,
+      })
+    ),
+    secret: Model.Sensitive(S.String),
+  },
+  persisted: {
+    binaryUuid: EntitySchema.persist.blob({
+      valueStrategy: "defaultedOnInsert",
+    }),
+    occurredAt: EntitySchema.persist.timestampDate({
+      indexHints: [EntitySchema.IndexHint.btree],
+      valueStrategy: "defaultedOnInsert",
+    }),
+    optionalName: EntitySchema.persist.text({
+      columnName: "optional_name",
+    }),
+    payloadText: EntitySchema.persist.text({
+      columnName: "payload_text",
+    }),
+    secret: EntitySchema.persist.text(),
+  },
+  tableName: "explicit_fixture",
+});
+
+const ExplicitTable = EntityTable.pgTableFrom(ExplicitFixture);
+
 const indexConfigNamed = (name: string) =>
   pipe(
     getTableConfig(Table).indexes,
@@ -92,6 +128,20 @@ describe("EntityTable", () => {
     expect(columns.payload.columnType).toBe("PgJsonb");
     expect(columns.rowVersion.name).toBe("row_version");
     expect(columns.rowVersion.columnType).toBe("PgInteger");
+  });
+
+  it("projects explicit Model helper fields from selected persistence schemas", () => {
+    const columns = EntityTable.columns(ExplicitTable);
+
+    expect(ExplicitTable.definition.fields.optionalName).toBe(ExplicitFixture.definition.fields.optionalName);
+    expect(columns.binaryUuid.columnType).toBe("PgBytea");
+    expect(columns.occurredAt.columnType).toBe("PgTimestamp");
+    expect(columns.optionalName.name).toBe("optional_name");
+    expect(columns.optionalName.notNull).toBe(false);
+    expect(columns.payloadText.name).toBe("payload_text");
+    expect(columns.payloadText.columnType).toBe("PgText");
+    expect(columns.payloadText.notNull).toBe(true);
+    expect(columns.secret.columnType).toBe("PgText");
   });
 
   it("builds supported indexes from schema-first hints", () => {
