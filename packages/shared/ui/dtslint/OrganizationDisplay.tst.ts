@@ -1,6 +1,6 @@
-import type * as OrganizationDomain from "@beep/shared-domain/entities/Organization/index";
+import type * as OrganizationDomain from "@beep/shared-domain/entities/Organization";
 import type * as Shared from "@beep/shared-domain/identity/Shared";
-import type * as OrganizationUi from "@beep/shared-ui/entities/Organization/index";
+import type * as OrganizationUi from "@beep/shared-ui/entities/Organization";
 import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
 

@@ -4,19 +4,22 @@
   "extends": "./tsconfig.packages.json",
   "references": [
     {
-      "path": ".claude"
-    },
-    {
-      "path": ".codex"
-    },
-    {
       "path": "apps/codedank-web"
+    },
+    {
+      "path": "apps/professional-runtime-proof"
     },
     {
       "path": "infra"
     },
     {
       "path": "packages/_internal/db-admin"
+    },
+    {
+      "path": "packages/agent-capability/domain"
+    },
+    {
+      "path": "packages/agent-capability/use-cases"
     },
     {
       "path": "packages/drivers/drizzle"
@@ -26,6 +29,9 @@
     },
     {
       "path": "packages/drivers/postgres"
+    },
+    {
+      "path": "packages/epistemic/domain"
     },
     {
       "path": "packages/fixture-lab/specimen/client"
@@ -88,6 +94,9 @@
       "path": "packages/foundation/ui-system/ui"
     },
     {
+      "path": "packages/law-practice/domain"
+    },
+    {
       "path": "packages/shared/client"
     },
     {
@@ -109,6 +118,9 @@
       "path": "packages/shared/use-cases"
     },
     {
+      "path": "packages/tenancy/domain"
+    },
+    {
       "path": "packages/tooling/library/repo-utils"
     },
     {
@@ -122,6 +134,12 @@
     },
     {
       "path": "packages/tooling/tool/docgen"
+    },
+    {
+      "path": "packages/wealth-management/domain"
+    },
+    {
+      "path": "packages/workspace/domain"
     }
   ]
 }

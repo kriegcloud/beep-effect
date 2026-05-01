@@ -44,7 +44,7 @@ Shared should not contain:
 - generic schema kits, identity kits, or reusable technical capability packages
 - product-agnostic UI primitive libraries
 - technical wrappers or external drivers
-- repo tooling, agent policy packs, or runtime-specific agent wiring
+- repo tooling or runtime-specific assistant wiring
 
 `shared/tables` may use a metadata-only table constructor for shared entity
 descriptors when the resulting tables encode shared product language. It must

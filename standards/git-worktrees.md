@@ -137,7 +137,8 @@ Default recommendation for this repo:
 
 - Use manual Git worktrees.
 - Launch Claude from the worktree root.
-- Keep using the checked-in `.claude/settings.json` and `$CLAUDE_PROJECT_DIR` hook paths.
+- Keep using the checked-in `.claude/settings.json` and `.mcp.json` project
+  settings.
 
 Good:
 
@@ -159,8 +160,10 @@ Why:
 
 Still useful to know:
 
-- Tracked `.claude/settings.json`, `.mcp.json`, and hook scripts come along automatically in any worktree.
-- Gitignored files like `.claude/settings.local.json`, `CLAUDE.local.md`, and `.env` do not.
+- Tracked `.claude/settings.json` and `.mcp.json` come along automatically in
+  any worktree.
+- Gitignored files like `.claude/settings.local.json`, `CLAUDE.local.md`, and
+  `.env` do not.
 - If you ever choose Claude-managed worktrees for throwaway tasks, `.worktreeinclude` can copy selected ignored files, but that is not part of the default `beep-effect` setup.
 
 ### Codex CLI
@@ -185,8 +188,9 @@ codex -C /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground
 
 Why:
 
-- Codex CLI is cwd-driven for config discovery, hooks, trust, and resume filtering.
-- The repo’s checked-in `.codex/config.toml`, `AGENTS.md`, and SessionStart guidance already fit that model well.
+- Codex CLI is cwd-driven for instruction discovery, trust, and resume
+  filtering.
+- The repo’s checked-in `AGENTS.md` already fits that model well.
 
 ### Codex App
 
@@ -224,10 +228,9 @@ For an existing duplicate clone:
 ## Repo-Specific Gotchas
 
 - `flake.nix` now derives its Bun cache name from the active worktree root, so each worktree gets its own cache namespace.
-- `.claude/.hook-state.json`, `.idea`, `.turbo`, `.sst`, `.beep`, and `node_modules` are intentionally local to each worktree.
-- The repo contains a Git submodule at `.agents/skills/effect-v4`; verify submodules in a fresh worktree before assuming every skill is available.
+- `.idea`, `.turbo`, `.sst`, `.beep`, and `node_modules` are intentionally
+  local to each worktree.
 - The Graphiti proxy is machine-global enough that you can keep using the same helper commands across worktrees:
-  - `bun run codex:hook:session-start`
   - `bun run graphiti:proxy`
   - `bun run graphiti:proxy:ensure`
 

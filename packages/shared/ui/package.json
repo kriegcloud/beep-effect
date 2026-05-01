@@ -30,6 +30,8 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./entities": "./src/entities/index.ts",
+    "./entities/Organization": "./src/entities/Organization/index.ts",
     "./*": "./src/*.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
@@ -47,6 +49,8 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.js",
+      "./entities": "./dist/entities/index.js",
+      "./entities/Organization": "./dist/entities/Organization/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"

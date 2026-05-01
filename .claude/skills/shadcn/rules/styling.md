@@ -43,21 +43,17 @@ For positive, negative, or status indicators, use Badge variants, semantic token
 **Incorrect:**
 
 ```tsx
-<>
-  <span className="text-emerald-600">+20.1%</span>
-  <span className="text-green-500">Active</span>
-  <span className="text-red-600">-3.2%</span>
-</>
+<span className="text-emerald-600">+20.1%</span>
+<span className="text-green-500">Active</span>
+<span className="text-red-600">-3.2%</span>
 ```
 
 **Correct:**
 
 ```tsx
-<>
-  <Badge variant="secondary">+20.1%</Badge>
-  <Badge>Active</Badge>
-  <span className="text-destructive">-3.2%</span>
-</>
+<Badge variant="secondary">+20.1%</Badge>
+<Badge>Active</Badge>
+<span className="text-destructive">-3.2%</span>
 ```
 
 If you need a success/positive color that doesn't exist as a semantic token, use a Badge variant or ask the user about adding a custom CSS variable to the theme (see [customization.md](../customization.md)).
@@ -149,8 +145,6 @@ Use the `cn()` utility from the project for conditional or merged class names. D
 
 ```tsx
 <div className={`flex items-center ${isActive ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-  Content
-</div>
 ```
 
 **Correct:**
@@ -159,8 +153,6 @@ Use the `cn()` utility from the project for conditional or merged class names. D
 import { cn } from "@/lib/utils"
 
 <div className={cn("flex items-center", isActive ? "bg-primary text-primary-foreground" : "bg-muted")}>
-  Content
-</div>
 ```
 
 ---

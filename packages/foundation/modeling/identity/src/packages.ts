@@ -40,10 +40,6 @@ import * as Identity from "./Id.ts";
 export const $I = Identity.make("beep").$BeepId;
 
 const composers = $I.compose(
-  // Agent Config Packages
-  "claude",
-  "codex",
-
   // IaC Infra Package
   "infra",
 
@@ -257,23 +253,6 @@ export const $RepoUtilsId = composers.$RepoUtilsId;
  */
 export const $TestUtilsId = composers.$TestUtilsId;
 
-// --- claude ---
-
-/**
- * Identity composer for the `@beep/claude` package.
- *
- * @example
- * ```typescript
- * import { $ClaudeId } from "@beep/identity"
- *
- * const id = $ClaudeId.make("Agent")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $ClaudeId = composers.$ClaudeId;
-
 // --- shared ---
 
 /**
@@ -410,21 +389,6 @@ export const $NlpId: Identity.IdentityComposer<"@beep/nlp"> = composers.$NlpId;
  * @category configuration
  */
 export const $ObservabilityId: Identity.IdentityComposer<"@beep/observability"> = composers.$ObservabilityId;
-
-/**
- * Identity composer for the `@beep/codex` package.
- *
- * @example
- * ```typescript
- * import { $CodexId } from "@beep/identity"
- *
- * const id = $CodexId.make("Prompt")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $CodexId: Identity.IdentityComposer<"@beep/codex"> = composers.$CodexId;
 
 /**
  * Identity composer for the `@beep/colors` package.

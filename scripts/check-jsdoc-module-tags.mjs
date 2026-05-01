@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "..");
-const scannedRoots = [".claude", ".codex", ".patterns", "apps", "packages", "tooling"];
+const scannedRoots = [".patterns", "apps", "packages", "tooling"];
 const scannedExtensions = new Set([".hbs", ".md", ".ts", ".tsx"]);
 const moduleTagPattern = /^\s*\* @module\b.*$/;
 

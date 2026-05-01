@@ -17,7 +17,7 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.model");
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-domain/entities/index"
+ * import { Organization } from "@beep/shared-domain/entities"
  *
  * console.log(Organization.Model.definition.entityId.tableName)
  * ```

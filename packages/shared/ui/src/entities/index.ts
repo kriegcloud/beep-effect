@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-ui/entities/index"
+ * import { Organization } from "@beep/shared-ui/entities"
  *
  * console.log(Organization.primaryLabel({ name: "Acme" }))
  * ```

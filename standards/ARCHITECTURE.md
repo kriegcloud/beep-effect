@@ -1,11 +1,10 @@
 # beep-effect Architecture Standard
 
 This document is the binding architecture constitution for beep-effect. It
-defines how slice packages, non-slice families, and repo-local agent bundles are
-shaped, where responsibilities live, and how agents and humans should infer
-intent from topology. If a proposed slice, package, adapter, or dependency
-contradicts this document, the proposal must change or this document must be
-amended.
+defines how slice packages and non-slice families are shaped, where
+responsibilities live, and how readers should infer intent from topology. If a
+proposed slice, package, adapter, or dependency contradicts this document, the
+proposal must change or this document must be amended.
 
 The companion rationale packet lives in
 [`standards/architecture/`](architecture/README.md). The companion packet
@@ -21,8 +20,8 @@ sketches unless they explicitly reference the fixture package.
 beep-effect uses a hexagonal vertical slice architecture for product code.
 
 Domain-agnostic reusable substrate, developer-operational packages, and
-repo-local AI steering artifacts use explicit non-slice family/kind grammar so
-they are as legible as slices instead of becoming generic `common` buckets.
+technical boundary wrappers use explicit non-slice family/kind grammar so they
+are as legible as slices instead of becoming generic `common` buckets.
 
 A slice is a domain-bounded module family with its own domain language,
 application use-cases, typed configuration contracts when those exist, server
@@ -39,7 +38,7 @@ The architecture optimizes for four things:
    other infrastructure do not leak into domain language.
 3. Reusable rich domain concepts without turning the repo into one giant shared
    horizontal layer.
-4. Agent-readable topology where file paths and role suffixes carry enough
+4. Reviewable topology where file paths and role suffixes carry enough
    context to keep work consistent.
 
 ## How To Use This Standard
@@ -111,8 +110,8 @@ should be schema-first whenever `Schema` can represent the shape.
 
 ### 6. Topology Is Compressed Context
 
-Humans get the map from mirrored package paths. Agents get instruction from role
-suffixes. This is why the repo uses concept-qualified role module names such as
+Readers get the map from mirrored package paths and role suffixes. This is why
+the repo uses concept-qualified role module names such as
 `Membership.policy.ts`, `Membership.event-handlers.ts`, and
 `Membership.command-client.ts`.
 
@@ -126,11 +125,10 @@ Non-slice artifacts are never `misc`.
 - `foundation` owns domain-agnostic reusable substrate
 - `drivers` owns flat repo-level technical boundary wrappers
 - `tooling` owns developer-operational code packages
-- `agents` owns repo-local AI steering bundles
 
-Every non-slice artifact declares exactly one family so humans, agents, and
-tooling can infer the intended boundary before opening the first file. `kind` is
-required only for families that intentionally declare a kind segment;
+Every non-slice artifact declares exactly one family so readers, reviewers, and
+tooling can infer the intended boundary before opening the first file. `kind`
+is required only for families that intentionally declare a kind segment;
 `drivers` remains the flat family exception.
 
 ## Package Dependency Graph
@@ -213,7 +211,7 @@ Forbidden by default:
 - `drivers/*` depending on product concepts from any slice or `shared/*`.
 - `ui`, `tables`, or `drivers/*` importing slice `config` directly.
 - `shared/*` depending on product slices or drivers.
-- slice packages importing `packages/tooling/*/*` packages or `agents/*` bundles.
+- slice packages importing `packages/tooling/*/*` packages.
 - Runtime packages merging all slice layers into one global dependency object.
 
 Client/UI dependency caveats:
@@ -397,7 +395,6 @@ The canonical non-slice families are:
 | `foundation` | `primitive`, `modeling`, `capability`, `ui-system`      | Repo-owned domain-agnostic reusable substrate.    |
 | `drivers`    | flat family; no extra kind segment                      | External engines, SDKs, services, and frameworks. |
 | `tooling`    | `library`, `tool`, `policy-pack`, `test-kit`            | Developer-operational code packages.              |
-| `agents`     | `skill-pack`, `policy-pack`, `runtime-adapter`          | Repo-local AI steering bundles.                   |
 
 The `shared` package family is not part of this table. `shared` remains the DDD
 shared kernel and canonical cross-slice slice. `foundation` is not a rename of
@@ -447,7 +444,6 @@ The canonical roots are:
 packages/foundation/<kind>/<name>
 packages/drivers/<name>
 packages/tooling/<kind>/<name>
-agents/<kind>/<name>
 ```
 
 These roots sit beside slice roots such as `packages/iam/*` and the shared
@@ -459,7 +455,6 @@ Public package names follow the family role:
 foundation -> @beep/<purpose>
 drivers    -> @beep/<driver>
 tooling    -> @beep/repo-<purpose>
-agents     -> path-identified repo-local bundles
 ```
 
 Examples:
@@ -474,9 +469,6 @@ packages/tooling/tool/cli                 -> @beep/repo-cli
 packages/tooling/library/repo-utils       -> @beep/repo-utils
 packages/tooling/policy-pack/repo-configs -> @beep/repo-configs
 packages/tooling/test-kit/test-utils      -> @beep/test-utils
-agents/skill-pack/schema-first-development
-agents/policy-pack/core
-agents/runtime-adapter/codex
 ```
 
 A shared UI primitives library such as `@beep/ui` is a
@@ -487,8 +479,8 @@ package. It is not a slice kind and not shared-kernel language.
 ### Required Metadata
 
 Every non-slice artifact declares machine-readable family metadata. `kind` is
-required for `foundation`, `tooling`, and `agents`. `drivers` is the explicit
-flat-family exception and omits `kind`.
+required for `foundation` and `tooling`. `drivers` is the explicit flat-family
+exception and omits `kind`.
 
 Code packages record it in `package.json`:
 
@@ -508,16 +500,6 @@ Code packages record it in `package.json`:
   "beep": {
     "family": "drivers"
   }
-}
-```
-
-Agent bundles record family and kind in `beep.json`:
-
-```json
-{
-  "family": "agents",
-  "kind": "skill-pack",
-  "id": "schema-first-development"
 }
 ```
 
@@ -545,7 +527,7 @@ directory names alone.
   `foundation/capability`
 - drivers may depend on other drivers when the dependency stays acyclic and the
   boundary remains product-neutral
-- drivers do not depend on `shared/*`, product slices, `packages/tooling/*/*`, or `agents/*`
+- drivers do not depend on `shared/*`, product slices, or `packages/tooling/*/*`
 - if the repo increasingly owns the implementation as reusable substrate, move
   it to `foundation` instead of keeping it in `drivers`
 
@@ -562,17 +544,6 @@ These rules are dependency ceilings, not permission for cycles.
 
 Repo-wide orchestration is behavior inside `tool`. It is not a separate
 canonical kind.
-
-`agents` stays portable by default:
-
-| Kind              | Dependency rule                                                                 |
-|-------------------|----------------------------------------------------------------------------------|
-| `skill-pack`      | portable content only; no executable logic or runtime-specific wiring            |
-| `policy-pack`     | declarative steering packets; may reference skill ids/selectors, not skill text |
-| `runtime-adapter` | declaratively composes skill/policy packs; may contain config/templates only    |
-
-Executable hooks, CLIs, and synchronization code live in `tooling/tool`, not in
-`agents`.
 
 ### Slice Consumption Rules
 
@@ -596,10 +567,10 @@ appropriate ways:
   Cross-slice integration goes through `shared/use-cases` (commands, queries,
   events, contracts) or through emitted events. This is the same family of
   acyclic ceiling that drivers respect among themselves, applied to slices.
-- Product slices and shared-kernel packages do not depend on `packages/tooling/*/*` or
-  `agents/*`.
-- `foundation`, `drivers`, `tooling`, and `agents` do not depend on product
-  slices or the shared kernel.
+- Product slices and shared-kernel packages do not depend on
+  `packages/tooling/*/*`.
+- `foundation`, `drivers`, and `tooling` do not depend on product slices or the
+  shared kernel.
 
 ### Canonical File-Role Anchors
 
@@ -617,9 +588,6 @@ canonical:
 | `tooling/tool`             | `src/bin.ts`, `commands/`, `*.command.ts`, `*.service.ts`, `*.schema.ts`, `index.ts` |
 | `tooling/policy-pack`      | `*.config.ts`, `*.policy.ts`, `index.ts`                                          |
 | `tooling/test-kit`         | `*.test-kit.ts`, optional `fixtures/`, `layers/`, `index.ts`                     |
-| `agents/skill-pack`        | required `SKILL.md` and `beep.json`; optional `references/`, `assets/`, `_shared/` |
-| `agents/policy-pack`       | required `beep.json`; declarative policy packets and optional `README.md`         |
-| `agents/runtime-adapter`   | required `beep.json`; runtime config/templates/mappings only                      |
 
 Script-only pseudo-packages are not canonical. If an artifact matters enough to
 name in the architecture, it should have a real family/kind contract and a real
@@ -818,7 +786,7 @@ concept is really a consistency boundary.
 
 ## Role Suffixes
 
-Role suffixes are the filename vocabulary that tells humans and agents what a
+Role suffixes are the filename vocabulary that tells readers what a
 module is allowed to do.
 
 The grammar is:
@@ -1769,7 +1737,7 @@ Architecture rules use four enforcement lanes:
 |------|---------|
 | `Doctrine` | Binding architecture rule or concept. |
 | `Generated Default` | Future generators/scaffolds should make this the default. |
-| `Review Gate` | Requires human or agent review evidence because the rule is contextual or exception-based. |
+| `Review Gate` | Requires review evidence because the rule is contextual or exception-based. |
 | `Hard Check` | Should be enforced by lint, package metadata, import-boundary checks, fixture checks, or similar automation. |
 
 High-risk rules get an explicit lane and current status:

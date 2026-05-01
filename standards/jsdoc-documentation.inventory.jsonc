@@ -1,12 +1,12 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-05-01T06:01:54.019Z",
+  "generatedAt": "2026-05-01T08:11:16.101Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "scripts/generate-jsdoc-documentation-inventory.mjs",
     "policy": ".patterns/jsdoc-documentation.md",
-    "skill": ".agents/skills/jsdoc-annotation-specialist/SKILL.md"
+    "skill": ".claude/skills/jsdoc-annotation-specialist/SKILL.md"
   },
   "requiredExportTags": [
     "@example",
@@ -61,22 +61,22 @@
     "status": "resolved"
   },
   "totals": {
-    "packages": 41,
+    "packages": 39,
     "cleanPackages": 14,
-    "packagesWithoutPublicSrcSurface": 3,
+    "packagesWithoutPublicSrcSurface": 1,
     "packagesNeedingRemediation": 24,
     "publicModules": 612,
-    "publicExports": 4319,
+    "publicExports": 4313,
     "openModules": 125,
     "openExports": 2571,
-    "missingExportExamples": 1969,
-    "missingExportCategories": 741,
+    "missingExportExamples": 1970,
+    "missingExportCategories": 742,
     "missingExportSince": 439,
     "forbiddenTagFindings": 9,
     "malformedConditionalTagFindings": 0,
     "exampleImportFindings": 22,
     "unsafeExampleFindings": 66,
-    "schemaAnnotationFindings": 111,
+    "schemaAnnotationFindings": 109,
     "rootPolicyOpen": 0
   },
   "packages": [
@@ -448,7 +448,7 @@
         "srcDir": "src",
         "sourceFileCount": 3,
         "publicModuleCount": 3,
-        "publicExportCount": 63
+        "publicExportCount": 61
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -524,7 +524,7 @@
           "missingSummary": false,
           "malformedConditionalTags": [],
           "categoryViolations": [],
-          "exportCount": 41,
+          "exportCount": 39,
           "remediationStatus": "resolved"
         }
       ],
@@ -1039,8 +1039,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 119,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-119-dataid",
+          "line": 115,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-115-dataid",
           "currentTags": [
             "@example",
             "@since",
@@ -1060,8 +1060,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 134,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-134-identityid",
+          "line": 130,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-130-identityid",
           "currentTags": [
             "@example",
             "@since",
@@ -1081,8 +1081,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 149,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-149-messagesid",
+          "line": 145,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-145-messagesid",
           "currentTags": [
             "@example",
             "@since",
@@ -1102,8 +1102,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 164,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-164-schemaid",
+          "line": 160,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-160-schemaid",
           "currentTags": [
             "@example",
             "@since",
@@ -1123,8 +1123,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 179,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-179-typesid",
+          "line": 175,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-175-typesid",
           "currentTags": [
             "@example",
             "@since",
@@ -1144,8 +1144,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 194,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-194-utilsid",
+          "line": 190,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-190-utilsid",
           "currentTags": [
             "@example",
             "@since",
@@ -1165,8 +1165,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 211,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-211-uiid",
+          "line": 207,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-207-uiid",
           "currentTags": [
             "@example",
             "@since",
@@ -1186,8 +1186,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 228,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-228-repocliid",
+          "line": 224,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-224-repocliid",
           "currentTags": [
             "@example",
             "@since",
@@ -1207,8 +1207,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 243,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-243-repoutilsid",
+          "line": 239,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-239-repoutilsid",
           "currentTags": [
             "@example",
             "@since",
@@ -1228,29 +1228,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 258,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-258-testutilsid",
-          "currentTags": [
-            "@example",
-            "@since",
-            "@category"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "$ClaudeId",
-          "exportKind": "const",
-          "filePath": "src/packages.ts",
-          "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 275,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-275-claudeid",
+          "line": 254,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-254-testutilsid",
           "currentTags": [
             "@example",
             "@since",
@@ -1270,8 +1249,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 292,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-292-shareddomainid",
+          "line": 271,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-271-shareddomainid",
           "currentTags": [
             "@example",
             "@since",
@@ -1291,8 +1270,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 307,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-307-sharedtablesid",
+          "line": 286,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-286-sharedtablesid",
           "currentTags": [
             "@example",
             "@since",
@@ -1312,8 +1291,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 322,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-322-sharedclientid",
+          "line": 301,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-301-sharedclientid",
           "currentTags": [
             "@example",
             "@since",
@@ -1333,8 +1312,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 337,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-337-sharedserverid",
+          "line": 316,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-316-sharedserverid",
           "currentTags": [
             "@example",
             "@since",
@@ -1354,8 +1333,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 352,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-352-shareduiid",
+          "line": 331,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-331-shareduiid",
           "currentTags": [
             "@example",
             "@since",
@@ -1375,8 +1354,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 367,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-367-sharedconfigid",
+          "line": 346,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-346-sharedconfigid",
           "currentTags": [
             "@example",
             "@since",
@@ -1396,8 +1375,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 382,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-382-semanticwebid",
+          "line": 361,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-361-semanticwebid",
           "currentTags": [
             "@example",
             "@since",
@@ -1417,8 +1396,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 397,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-397-nlpid",
+          "line": 376,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-376-nlpid",
           "currentTags": [
             "@example",
             "@since",
@@ -1438,29 +1417,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 412,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-412-observabilityid",
-          "currentTags": [
-            "@example",
-            "@since",
-            "@category"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "$CodexId",
-          "exportKind": "const",
-          "filePath": "src/packages.ts",
-          "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 427,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-427-codexid",
+          "line": 391,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-391-observabilityid",
           "currentTags": [
             "@example",
             "@since",
@@ -1480,8 +1438,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 442,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-442-colorsid",
+          "line": 406,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-406-colorsid",
           "currentTags": [
             "@example",
             "@since",
@@ -1501,8 +1459,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 457,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-457-chalkid",
+          "line": 421,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-421-chalkid",
           "currentTags": [
             "@example",
             "@since",
@@ -1522,8 +1480,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 472,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-472-repodocgenid",
+          "line": 436,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-436-repodocgenid",
           "currentTags": [
             "@example",
             "@since",
@@ -1543,8 +1501,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 487,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-487-infraid",
+          "line": 451,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-451-infraid",
           "currentTags": [
             "@example",
             "@since",
@@ -1564,8 +1522,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 502,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-502-sharedusecasesid",
+          "line": 466,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-466-sharedusecasesid",
           "currentTags": [
             "@example",
             "@since",
@@ -1585,8 +1543,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 517,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-517-fixturelabspecimenid",
+          "line": 481,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-481-fixturelabspecimenid",
           "currentTags": [
             "@example",
             "@since",
@@ -1606,8 +1564,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 526,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-526-repopkgs",
+          "line": 490,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-490-repopkgs",
           "currentTags": [
             "@category",
             "@since"
@@ -1628,8 +1586,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 532,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-532-mdid",
+          "line": 496,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-496-mdid",
           "currentTags": [
             "@since",
             "@category"
@@ -1650,8 +1608,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 538,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-538-codedankwebid",
+          "line": 502,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-502-codedankwebid",
           "currentTags": [
             "@since",
             "@category"
@@ -1672,8 +1630,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 544,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-544-drizzleid",
+          "line": 508,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-508-drizzleid",
           "currentTags": [
             "@since",
             "@category"
@@ -1694,8 +1652,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 550,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-550-ffmpegid",
+          "line": 514,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-514-ffmpegid",
           "currentTags": [
             "@since",
             "@category"
@@ -1716,8 +1674,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 556,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-556-postgresid",
+          "line": 520,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-520-postgresid",
           "currentTags": [
             "@since",
             "@category"
@@ -1738,8 +1696,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 575,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-575-billingdomainid",
+          "line": 539,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-539-billingdomainid",
           "currentTags": [
             "@example",
             "@since",
@@ -1759,8 +1717,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 592,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-592-billingserverid",
+          "line": 556,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-556-billingserverid",
           "currentTags": [
             "@example",
             "@since",
@@ -1780,8 +1738,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 609,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-609-billingusecasesid",
+          "line": 573,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-573-billingusecasesid",
           "currentTags": [
             "@example",
             "@since",
@@ -1801,8 +1759,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 628,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-628-iamdomainid",
+          "line": 592,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-592-iamdomainid",
           "currentTags": [
             "@example",
             "@since",
@@ -1822,8 +1780,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 645,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-645-iamserverid",
+          "line": 609,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-609-iamserverid",
           "currentTags": [
             "@example",
             "@since",
@@ -1843,8 +1801,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 662,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-662-iamtablesid",
+          "line": 626,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-626-iamtablesid",
           "currentTags": [
             "@example",
             "@since",
@@ -1864,8 +1822,8 @@
           "exportKind": "const",
           "filePath": "src/packages.ts",
           "repoPath": "packages/foundation/modeling/identity/src/packages.ts",
-          "line": 679,
-          "anchor": "packages-foundation-modeling-identity-src-packages-ts-679-iamusecasesid",
+          "line": 643,
+          "anchor": "packages-foundation-modeling-identity-src-packages-ts-643-iamusecasesid",
           "currentTags": [
             "@example",
             "@since",
@@ -57930,8 +57888,8 @@
           "exportKind": "const",
           "filePath": "src/eslint/NoNativeRuntimeHotspots.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
-          "line": 52,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-eslint-nonativeruntimehotspots-ts-52-no-native-runtime-extra-check-patterns",
+          "line": 47,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-eslint-nonativeruntimehotspots-ts-47-no-native-runtime-extra-check-patterns",
           "currentTags": [
             "@example",
             "@category",
@@ -57951,8 +57909,8 @@
           "exportKind": "const",
           "filePath": "src/eslint/NoNativeRuntimeHotspots.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
-          "line": 86,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-eslint-nonativeruntimehotspots-ts-86-isnonativeruntimeerrorfile",
+          "line": 76,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-eslint-nonativeruntimehotspots-ts-76-isnonativeruntimeerrorfile",
           "currentTags": [
             "@param",
             "@returns",
@@ -57974,8 +57932,8 @@
           "exportKind": "const",
           "filePath": "src/eslint/NoNativeRuntimeHotspots.ts",
           "repoPath": "packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
-          "line": 103,
-          "anchor": "packages-tooling-policy-pack-repo-configs-src-eslint-nonativeruntimehotspots-ts-103-isnonativeruntimeextracheckhotspot",
+          "line": 93,
+          "anchor": "packages-tooling-policy-pack-repo-configs-src-eslint-nonativeruntimehotspots-ts-93-isnonativeruntimeextracheckhotspot",
           "currentTags": [
             "@param",
             "@returns",
@@ -58640,7 +58598,7 @@
         "srcDir": "src",
         "sourceFileCount": 5,
         "publicModuleCount": 5,
-        "publicExportCount": 7
+        "publicExportCount": 9
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -58695,7 +58653,7 @@
           "missingSummary": false,
           "malformedConditionalTags": [],
           "categoryViolations": [],
-          "exportCount": 1,
+          "exportCount": 3,
           "remediationStatus": "resolved"
         },
         {
@@ -58818,6 +58776,48 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "SpecimenRepositoryNotFound",
+          "exportKind": "class",
+          "filePath": "src/entities/Specimen/Specimen.errors.ts",
+          "repoPath": "packages/fixture-lab/specimen/use-cases/src/entities/Specimen/Specimen.errors.ts",
+          "line": 51,
+          "anchor": "packages-fixture-lab-specimen-use-cases-src-entities-specimen-specimen-errors-ts-51-specimenrepositorynotfound",
+          "currentTags": [
+            "@example",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "toSpecimenActionError",
+          "exportKind": "const",
+          "filePath": "src/entities/Specimen/Specimen.errors.ts",
+          "repoPath": "packages/fixture-lab/specimen/use-cases/src/entities/Specimen/Specimen.errors.ts",
+          "line": 80,
+          "anchor": "packages-fixture-lab-specimen-use-cases-src-entities-specimen-specimen-errors-ts-80-tospecimenactionerror",
+          "currentTags": [
+            "@example",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "remediationStatus": "resolved"
+        },
+        {
           "symbolName": "SpecimenRepository",
           "exportKind": "interface",
           "filePath": "src/entities/Specimen/Specimen.ports.ts",
@@ -58886,8 +58886,8 @@
           "exportKind": "const",
           "filePath": "src/entities/Specimen/Specimen.service.ts",
           "repoPath": "packages/fixture-lab/specimen/use-cases/src/entities/Specimen/Specimen.service.ts",
-          "line": 47,
-          "anchor": "packages-fixture-lab-specimen-use-cases-src-entities-specimen-specimen-service-ts-47-makespecimenusecases",
+          "line": 52,
+          "anchor": "packages-fixture-lab-specimen-use-cases-src-entities-specimen-specimen-service-ts-52-makespecimenusecases",
           "currentTags": [
             "@example",
             "@category",
@@ -58911,9 +58911,9 @@
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
-        "sourceFileCount": 22,
-        "publicModuleCount": 21,
-        "publicExportCount": 174
+        "sourceFileCount": 26,
+        "publicModuleCount": 25,
+        "publicExportCount": 178
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -58923,9 +58923,9 @@
       },
       "counts": {
         "openModules": 0,
-        "openExports": 26,
-        "missingExportExamples": 26,
-        "missingExportCategories": 3,
+        "openExports": 30,
+        "missingExportExamples": 30,
+        "missingExportCategories": 7,
         "missingExportSince": 2,
         "missingExportSummaries": 2,
         "forbiddenTagFindings": 0,
@@ -58935,6 +58935,24 @@
         "schemaAnnotationFindings": 0
       },
       "modules": [
+        {
+          "docKind": "packageDocumentation",
+          "filePath": "src/aggregates.ts",
+          "repoPath": "packages/shared/domain/src/aggregates.ts",
+          "line": 1,
+          "anchor": "packages-shared-domain-src-aggregates-ts-1-module",
+          "currentTags": [
+            "@packageDocumentation",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "categoryViolations": [],
+          "exportCount": 1,
+          "remediationStatus": "resolved"
+        },
         {
           "docKind": "packageDocumentation",
           "filePath": "src/entities.ts",
@@ -59036,6 +59054,24 @@
             "@example",
             "@since",
             "@category"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "categoryViolations": [],
+          "exportCount": 1,
+          "remediationStatus": "resolved"
+        },
+        {
+          "docKind": "packageDocumentation",
+          "filePath": "src/entity.ts",
+          "repoPath": "packages/shared/domain/src/entity.ts",
+          "line": 1,
+          "anchor": "packages-shared-domain-src-entity-ts-1-module",
+          "currentTags": [
+            "@packageDocumentation",
+            "@since"
           ],
           "missingRequiredTags": [],
           "forbiddenTags": [],
@@ -59191,6 +59227,24 @@
         },
         {
           "docKind": "packageDocumentation",
+          "filePath": "src/identity.ts",
+          "repoPath": "packages/shared/domain/src/identity.ts",
+          "line": 1,
+          "anchor": "packages-shared-domain-src-identity-ts-1-module",
+          "currentTags": [
+            "@packageDocumentation",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "categoryViolations": [],
+          "exportCount": 1,
+          "remediationStatus": "resolved"
+        },
+        {
+          "docKind": "packageDocumentation",
           "filePath": "src/identity/Shared.ts",
           "repoPath": "packages/shared/domain/src/identity/Shared.ts",
           "line": 1,
@@ -59241,6 +59295,24 @@
           "malformedConditionalTags": [],
           "categoryViolations": [],
           "exportCount": 11,
+          "remediationStatus": "resolved"
+        },
+        {
+          "docKind": "packageDocumentation",
+          "filePath": "src/values.ts",
+          "repoPath": "packages/shared/domain/src/values.ts",
+          "line": 1,
+          "anchor": "packages-shared-domain-src-values-ts-1-module",
+          "currentTags": [
+            "@packageDocumentation",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "categoryViolations": [],
+          "exportCount": 1,
           "remediationStatus": "resolved"
         },
         {
@@ -59317,6 +59389,28 @@
         }
       ],
       "exports": [
+        {
+          "symbolName": "export * from \"./aggregates/index.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/aggregates.ts",
+          "repoPath": "packages/shared/domain/src/aggregates.ts",
+          "line": 11,
+          "anchor": "packages-shared-domain-src-aggregates-ts-11-export-from-aggregates-index-ts",
+          "currentTags": [
+            "@since"
+          ],
+          "missingRequiredTags": [
+            "@example",
+            "@category"
+          ],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "remediationStatus": "open"
+        },
         {
           "symbolName": "export * from \"./entities/index.ts\";",
           "exportKind": "re-export",
@@ -59613,6 +59707,28 @@
           "unsafeExampleViolations": [],
           "schemaAnnotationGaps": [],
           "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "export * from \"./entity/index.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/entity.ts",
+          "repoPath": "packages/shared/domain/src/entity.ts",
+          "line": 11,
+          "anchor": "packages-shared-domain-src-entity-ts-11-export-from-entity-index-ts",
+          "currentTags": [
+            "@since"
+          ],
+          "missingRequiredTags": [
+            "@example",
+            "@category"
+          ],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "remediationStatus": "open"
         },
         {
           "symbolName": "fieldMapFor",
@@ -61738,6 +61854,28 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "export * from \"./identity/index.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/identity.ts",
+          "repoPath": "packages/shared/domain/src/identity.ts",
+          "line": 11,
+          "anchor": "packages-shared-domain-src-identity-ts-11-export-from-identity-index-ts",
+          "currentTags": [
+            "@since"
+          ],
+          "missingRequiredTags": [
+            "@example",
+            "@category"
+          ],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "remediationStatus": "open"
+        },
+        {
           "symbolName": "OrganizationId",
           "exportKind": "const",
           "filePath": "src/identity/Shared.ts",
@@ -62366,6 +62504,28 @@
           "unsafeExampleViolations": [],
           "schemaAnnotationGaps": [],
           "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "export * from \"./values/index.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/values.ts",
+          "repoPath": "packages/shared/domain/src/values.ts",
+          "line": 11,
+          "anchor": "packages-shared-domain-src-values-ts-11-export-from-values-index-ts",
+          "currentTags": [
+            "@since"
+          ],
+          "missingRequiredTags": [
+            "@example",
+            "@category"
+          ],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "remediationStatus": "open"
         },
         {
           "symbolName": "make",
@@ -76157,9 +76317,9 @@
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
-        "sourceFileCount": 69,
-        "publicModuleCount": 67,
-        "publicExportCount": 453
+        "sourceFileCount": 65,
+        "publicModuleCount": 63,
+        "publicExportCount": 443
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -76169,16 +76329,16 @@
       },
       "counts": {
         "openModules": 0,
-        "openExports": 363,
-        "missingExportExamples": 349,
-        "missingExportCategories": 24,
+        "openExports": 359,
+        "missingExportExamples": 346,
+        "missingExportCategories": 21,
         "missingExportSince": 0,
         "missingExportSummaries": 0,
         "forbiddenTagFindings": 0,
         "malformedConditionalTagFindings": 0,
         "exampleImportFindings": 0,
         "unsafeExampleFindings": 0,
-        "schemaAnnotationFindings": 8
+        "schemaAnnotationFindings": 6
       },
       "modules": [
         {
@@ -76201,42 +76361,6 @@
         },
         {
           "docKind": "packageDocumentation",
-          "filePath": "src/commands/Agents/index.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Agents/index.ts",
-          "line": 1,
-          "anchor": "packages-tooling-tool-cli-src-commands-agents-index-ts-1-module",
-          "currentTags": [
-            "@packageDocumentation",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "categoryViolations": [],
-          "exportCount": 1,
-          "remediationStatus": "resolved"
-        },
-        {
-          "docKind": "packageDocumentation",
-          "filePath": "src/commands/Claude/index.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Claude/index.ts",
-          "line": 1,
-          "anchor": "packages-tooling-tool-cli-src-commands-claude-index-ts-1-module",
-          "currentTags": [
-            "@packageDocumentation",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "categoryViolations": [],
-          "exportCount": 1,
-          "remediationStatus": "resolved"
-        },
-        {
-          "docKind": "packageDocumentation",
           "filePath": "src/commands/Codegen.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Codegen.ts",
           "line": 1,
@@ -76251,42 +76375,6 @@
           "malformedConditionalTags": [],
           "categoryViolations": [],
           "exportCount": 1,
-          "remediationStatus": "resolved"
-        },
-        {
-          "docKind": "packageDocumentation",
-          "filePath": "src/commands/Codex/index.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Codex/index.ts",
-          "line": 1,
-          "anchor": "packages-tooling-tool-cli-src-commands-codex-index-ts-1-module",
-          "currentTags": [
-            "@packageDocumentation",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "categoryViolations": [],
-          "exportCount": 1,
-          "remediationStatus": "resolved"
-        },
-        {
-          "docKind": "packageDocumentation",
-          "filePath": "src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "line": 1,
-          "anchor": "packages-tooling-tool-cli-src-commands-codex-internal-codexsessionstartruntime-ts-1-module",
-          "currentTags": [
-            "@packageDocumentation",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "categoryViolations": [],
-          "exportCount": 4,
           "remediationStatus": "resolved"
         },
         {
@@ -77385,7 +77473,7 @@
           "missingSummary": false,
           "malformedConditionalTags": [],
           "categoryViolations": [],
-          "exportCount": 19,
+          "exportCount": 16,
           "remediationStatus": "resolved"
         }
       ],
@@ -77457,173 +77545,12 @@
           "remediationStatus": "open"
         },
         {
-          "symbolName": "agentsCommand",
-          "exportKind": "const",
-          "filePath": "src/commands/Agents/index.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Agents/index.ts",
-          "line": 318,
-          "anchor": "packages-tooling-tool-cli-src-commands-agents-index-ts-318-agentscommand",
-          "currentTags": [
-            "@example",
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "claudeCommand",
-          "exportKind": "const",
-          "filePath": "src/commands/Claude/index.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Claude/index.ts",
-          "line": 53,
-          "anchor": "packages-tooling-tool-cli-src-commands-claude-index-ts-53-claudecommand",
-          "currentTags": [
-            "@example",
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "resolved"
-        },
-        {
           "symbolName": "codegenCommand",
           "exportKind": "const",
           "filePath": "src/commands/Codegen.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Codegen.ts",
           "line": 258,
           "anchor": "packages-tooling-tool-cli-src-commands-codegen-ts-258-codegencommand",
-          "currentTags": [
-            "@example",
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "codexCommand",
-          "exportKind": "const",
-          "filePath": "src/commands/Codex/index.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Codex/index.ts",
-          "line": 30,
-          "anchor": "packages-tooling-tool-cli-src-commands-codex-index-ts-30-codexcommand",
-          "currentTags": [
-            "@example",
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "readHookInput",
-          "exportKind": "const",
-          "filePath": "src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "line": 87,
-          "anchor": "packages-tooling-tool-cli-src-commands-codex-internal-codexsessionstartruntime-ts-87-readhookinput",
-          "currentTags": [
-            "@returns",
-            "@example",
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "buildCodexSessionStartContext",
-          "exportKind": "const",
-          "filePath": "src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "line": 131,
-          "anchor": "packages-tooling-tool-cli-src-commands-codex-internal-codexsessionstartruntime-ts-131-buildcodexsessionstartcontext",
-          "currentTags": [
-            "@param",
-            "@returns",
-            "@example",
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [
-            {
-              "rule": "missing-schema-annotation",
-              "detail": "Exported schemas should carry $I.annote or $I.annoteSchema metadata."
-            },
-            {
-              "rule": "missing-schema-runtime-type-alias",
-              "detail": "Exported non-class schema buildCodexSessionStartContext should have an exported same-name runtime type alias."
-            }
-          ],
-          "remediationStatus": "open"
-        },
-        {
-          "symbolName": "buildSessionStartHookOutput",
-          "exportKind": "const",
-          "filePath": "src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "line": 165,
-          "anchor": "packages-tooling-tool-cli-src-commands-codex-internal-codexsessionstartruntime-ts-165-buildsessionstarthookoutput",
-          "currentTags": [
-            "@param",
-            "@returns",
-            "@example",
-            "@category",
-            "@since"
-          ],
-          "missingRequiredTags": [],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "resolved"
-        },
-        {
-          "symbolName": "runCodexSessionStartHook",
-          "exportKind": "const",
-          "filePath": "src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "repoPath": "packages/tooling/tool/cli/src/commands/Codex/internal/CodexSessionStartRuntime.ts",
-          "line": 188,
-          "anchor": "packages-tooling-tool-cli-src-commands-codex-internal-codexsessionstartruntime-ts-188-runcodexsessionstarthook",
           "currentTags": [
             "@example",
             "@category",
@@ -78618,8 +78545,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/index.ts",
-          "line": 605,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-index-ts-605-docgencommand",
+          "line": 607,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-index-ts-607-docgencommand",
           "currentTags": [
             "@category",
             "@since"
@@ -78640,8 +78567,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 91,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-91-docgenpackagestatus",
+          "line": 89,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-89-docgenpackagestatus",
           "currentTags": [
             "@category",
             "@since"
@@ -78662,8 +78589,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 106,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-106-docgenpackagestatus",
+          "line": 104,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-104-docgenpackagestatus",
           "currentTags": [
             "@category",
             "@since"
@@ -78684,8 +78611,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 120,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-120-docgenconfigdocument",
+          "line": 118,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-118-docgenconfigdocument",
           "currentTags": [
             "@category",
             "@since"
@@ -78706,8 +78633,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 149,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-149-docgenworkspacepackage",
+          "line": 147,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-147-docgenworkspacepackage",
           "currentTags": [
             "@category",
             "@since"
@@ -78728,8 +78655,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 170,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-170-docgenissuepriority",
+          "line": 168,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-168-docgenissuepriority",
           "currentTags": [
             "@category",
             "@since"
@@ -78750,8 +78677,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 181,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-181-docgenissuepriority",
+          "line": 179,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-179-docgenissuepriority",
           "currentTags": [
             "@category",
             "@since"
@@ -78772,8 +78699,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 189,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-189-docgenexportkind",
+          "line": 187,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-187-docgenexportkind",
           "currentTags": [
             "@category",
             "@since"
@@ -78794,8 +78721,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 210,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-210-docgenexportkind",
+          "line": 208,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-208-docgenexportkind",
           "currentTags": [
             "@category",
             "@since"
@@ -78816,8 +78743,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 218,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-218-docgenexportanalysis",
+          "line": 216,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-216-docgenexportanalysis",
           "currentTags": [
             "@category",
             "@since"
@@ -78838,8 +78765,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 242,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-242-docgenanalysissummary",
+          "line": 240,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-240-docgenanalysissummary",
           "currentTags": [
             "@category",
             "@since"
@@ -78860,8 +78787,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 262,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-262-docgenpackageanalysis",
+          "line": 260,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-260-docgenpackageanalysis",
           "currentTags": [
             "@category",
             "@since"
@@ -78882,8 +78809,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 281,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-281-docgengenerationresult",
+          "line": 279,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-279-docgengenerationresult",
           "currentTags": [
             "@category",
             "@since"
@@ -78904,8 +78831,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 301,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-301-docgenaggregateresult",
+          "line": 299,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-299-docgenaggregateresult",
           "currentTags": [
             "@category",
             "@since"
@@ -78926,8 +78853,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 414,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-414-discoverorphandocgenconfigpaths",
+          "line": 412,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-412-discoverorphandocgenconfigpaths",
           "currentTags": [
             "@param",
             "@returns",
@@ -78949,8 +78876,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 468,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-468-assertnoorphandocgenconfigpaths",
+          "line": 466,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-466-assertnoorphandocgenconfigpaths",
           "currentTags": [
             "@param",
             "@returns",
@@ -78972,8 +78899,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1019,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1019-normalizedocsoutputpath",
+          "line": 1017,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1017-normalizedocsoutputpath",
           "currentTags": [
             "@param",
             "@returns",
@@ -78996,8 +78923,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1030,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1030-loaddocgenconfigdocument",
+          "line": 1028,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1028-loaddocgenconfigdocument",
           "currentTags": [
             "@param",
             "@returns",
@@ -79020,8 +78947,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1058,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1058-createdocgenconfigdocument",
+          "line": 1056,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1056-createdocgenconfigdocument",
           "currentTags": [
             "@param",
             "@returns",
@@ -79044,8 +78971,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1101,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1101-discoverdocgenworkspacepackages",
+          "line": 1099,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1099-discoverdocgenworkspacepackages",
           "currentTags": [
             "@param",
             "@returns",
@@ -79068,8 +78995,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1144,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1144-resolvedocgenworkspacepackage",
+          "line": 1142,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1142-resolvedocgenworkspacepackage",
           "currentTags": [
             "@param",
             "@returns",
@@ -79092,8 +79019,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1196,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1196-analyzepackagedocumentation",
+          "line": 1194,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1194-analyzepackagedocumentation",
           "currentTags": [
             "@param",
             "@returns",
@@ -79116,8 +79043,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1240,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1240-generateanalysisreport",
+          "line": 1238,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1238-generateanalysisreport",
           "currentTags": [
             "@param",
             "@returns",
@@ -79140,8 +79067,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1354,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1354-generateanalysisjson",
+          "line": 1352,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1352-generateanalysisjson",
           "currentTags": [
             "@param",
             "@returns",
@@ -79164,8 +79091,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1364,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1364-aggregategenerateddocs",
+          "line": 1362,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1362-aggregategenerateddocs",
           "currentTags": [
             "@param",
             "@returns",
@@ -79188,8 +79115,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Docgen/internal/Operations.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-          "line": 1514,
-          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1514-rundocgenforpackage",
+          "line": 1512,
+          "anchor": "packages-tooling-tool-cli-src-commands-docgen-internal-operations-ts-1512-rundocgenforpackage",
           "currentTags": [
             "@param",
             "@returns",
@@ -83506,8 +83433,8 @@
           "exportKind": "namespace",
           "filePath": "src/commands/Laws/DualArity.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
-          "line": 117,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-dualarity-ts-117-dualarityinventoryentry",
+          "line": 116,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-dualarity-ts-116-dualarityinventoryentry",
           "currentTags": [
             "@example",
             "@category",
@@ -83527,8 +83454,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/DualArity.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
-          "line": 163,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-dualarity-ts-163-dualarityrulesoptions",
+          "line": 162,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-dualarity-ts-162-dualarityrulesoptions",
           "currentTags": [
             "@example",
             "@category",
@@ -83548,8 +83475,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/DualArity.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
-          "line": 193,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-dualarity-ts-193-dualarityrulessummary",
+          "line": 192,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-dualarity-ts-192-dualarityrulessummary",
           "currentTags": [
             "@example",
             "@category",
@@ -83569,8 +83496,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/DualArity.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
-          "line": 1189,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-dualarity-ts-1189-rundualarityrules",
+          "line": 1185,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-dualarity-ts-1185-rundualarityrules",
           "currentTags": [
             "@example",
             "@category",
@@ -83632,8 +83559,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/EffectImports.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts",
-          "line": 122,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-effectimports-ts-122-runeffectimportrules",
+          "line": 121,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-effectimports-ts-121-runeffectimportrules",
           "currentTags": [
             "@example",
             "@category",
@@ -83653,8 +83580,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/NoNativeRuntime.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts",
-          "line": 92,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-92-nonativeruntimerulesoptions",
+          "line": 91,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-91-nonativeruntimerulesoptions",
           "currentTags": [
             "@example",
             "@category",
@@ -83674,8 +83601,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/NoNativeRuntime.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts",
-          "line": 120,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-120-nonativeruntimediagnostic",
+          "line": 119,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-119-nonativeruntimediagnostic",
           "currentTags": [
             "@example",
             "@category",
@@ -83695,8 +83622,8 @@
           "exportKind": "namespace",
           "filePath": "src/commands/Laws/NoNativeRuntime.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts",
-          "line": 144,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-144-nonativeruntimediagnostic",
+          "line": 143,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-143-nonativeruntimediagnostic",
           "currentTags": [
             "@example",
             "@category",
@@ -83716,8 +83643,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Laws/NoNativeRuntime.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts",
-          "line": 168,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-168-nonativeruntimerulessummary",
+          "line": 167,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-167-nonativeruntimerulessummary",
           "currentTags": [
             "@example",
             "@category",
@@ -83737,8 +83664,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/NoNativeRuntime.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts",
-          "line": 436,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-436-runnonativeruntimerules",
+          "line": 435,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-nonativeruntime-ts-435-runnonativeruntimerules",
           "currentTags": [
             "@example",
             "@category",
@@ -83800,8 +83727,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Laws/TerseEffect.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts",
-          "line": 517,
-          "anchor": "packages-tooling-tool-cli-src-commands-laws-terseeffect-ts-517-runterseeffectrules",
+          "line": 516,
+          "anchor": "packages-tooling-tool-cli-src-commands-laws-terseeffect-ts-516-runterseeffectrules",
           "currentTags": [
             "@example",
             "@category",
@@ -83863,8 +83790,8 @@
           "exportKind": "namespace",
           "filePath": "src/commands/Lint/SchemaFirst.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-          "line": 83,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-schemafirst-ts-83-schemafirstinventoryentry",
+          "line": 82,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-schemafirst-ts-82-schemafirstinventoryentry",
           "currentTags": [
             "@example",
             "@category",
@@ -83884,8 +83811,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Lint/SchemaFirst.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-          "line": 466,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-schemafirst-ts-466-runschemafirstlint",
+          "line": 462,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-schemafirst-ts-462-runschemafirstlint",
           "currentTags": [
             "@example",
             "@category",
@@ -83905,8 +83832,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Lint/SchemaFirst.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-          "line": 560,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-schemafirst-ts-560-lintschemafirstcommand",
+          "line": 556,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-schemafirst-ts-556-lintschemafirstcommand",
           "currentTags": [
             "@example",
             "@category",
@@ -83926,8 +83853,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 136,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-136-collecttypescriptfiles",
+          "line": 131,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-131-collecttypescriptfiles",
           "currentTags": [
             "@param",
             "@returns",
@@ -83949,8 +83876,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Lint/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-          "line": 612,
-          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-612-lintcommand",
+          "line": 607,
+          "anchor": "packages-tooling-tool-cli-src-commands-lint-index-ts-607-lintcommand",
           "currentTags": [
             "@example",
             "@category",
@@ -84203,8 +84130,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Quality/Tasks.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-          "line": 667,
-          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-667-sqlintegrationstepfortesting",
+          "line": 664,
+          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-664-sqlintegrationstepfortesting",
           "currentTags": [
             "@param",
             "@returns",
@@ -84227,8 +84154,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Quality/Tasks.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-          "line": 681,
-          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-681-runsqlintegrationtestlanefortesting",
+          "line": 678,
+          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-678-runsqlintegrationtestlanefortesting",
           "currentTags": [
             "@category",
             "@since"
@@ -84249,8 +84176,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Quality/Tasks.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-          "line": 821,
-          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-821-rootqualitystepsfortesting",
+          "line": 818,
+          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-818-rootqualitystepsfortesting",
           "currentTags": [
             "@param",
             "@returns",
@@ -84273,8 +84200,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Quality/Tasks.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-          "line": 940,
-          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-940-parsequalitytaskinvocation",
+          "line": 937,
+          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-937-parsequalitytaskinvocation",
           "currentTags": [
             "@param",
             "@returns",
@@ -84296,8 +84223,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Quality/Tasks.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-          "line": 984,
-          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-984-runqualitytask",
+          "line": 981,
+          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-981-runqualitytask",
           "currentTags": [
             "@param",
             "@example",
@@ -84318,8 +84245,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Quality/Tasks.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-          "line": 1018,
-          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-1018-runqualitytaskifrequested",
+          "line": 1015,
+          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-1015-runqualitytaskifrequested",
           "currentTags": [
             "@param",
             "@returns",
@@ -84341,8 +84268,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Quality/Tasks.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-          "line": 1050,
-          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-1050-collectstepoutput",
+          "line": 1047,
+          "anchor": "packages-tooling-tool-cli-src-commands-quality-tasks-ts-1047-collectstepoutput",
           "currentTags": [
             "@param",
             "@returns",
@@ -84364,8 +84291,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Reuse/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-          "line": 355,
-          "anchor": "packages-tooling-tool-cli-src-commands-reuse-index-ts-355-reusecommand",
+          "line": 361,
+          "anchor": "packages-tooling-tool-cli-src-commands-reuse-index-ts-361-reusecommand",
           "currentTags": [
             "@category",
             "@since"
@@ -84496,8 +84423,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Root.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Root.ts",
-          "line": 42,
-          "anchor": "packages-tooling-tool-cli-src-commands-root-ts-42-rootcommand",
+          "line": 39,
+          "anchor": "packages-tooling-tool-cli-src-commands-root-ts-39-rootcommand",
           "currentTags": [
             "@internal",
             "@example",
@@ -85738,8 +85665,8 @@
           "exportKind": "const",
           "filePath": "src/commands/TsconfigSync.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/TsconfigSync.ts",
-          "line": 1697,
-          "anchor": "packages-tooling-tool-cli-src-commands-tsconfigsync-ts-1697-synctsconfigatroot",
+          "line": 1695,
+          "anchor": "packages-tooling-tool-cli-src-commands-tsconfigsync-ts-1695-synctsconfigatroot",
           "currentTags": [
             "@param",
             "@returns",
@@ -85762,8 +85689,8 @@
           "exportKind": "const",
           "filePath": "src/commands/TsconfigSync.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/TsconfigSync.ts",
-          "line": 1832,
-          "anchor": "packages-tooling-tool-cli-src-commands-tsconfigsync-ts-1832-tsconfigsynccommand",
+          "line": 1830,
+          "anchor": "packages-tooling-tool-cli-src-commands-tsconfigsync-ts-1830-tsconfigsynccommand",
           "currentTags": [
             "@category",
             "@since"
@@ -87092,78 +87019,12 @@
           "remediationStatus": "open"
         },
         {
-          "symbolName": "export {\n  /**\n   * Agent policy command group.\n   *\n   * @since 0.0.0\n   */\n  agentsCommand,\n} from \"./commands/Agents/index.js\";",
-          "exportKind": "re-export",
-          "filePath": "src/index.ts",
-          "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 19,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-19-export-agent-policy-command-group-since-0-0-0-agentscommand-from-commands-agents-index-js",
-          "currentTags": [
-            "@since"
-          ],
-          "missingRequiredTags": [
-            "@example",
-            "@category"
-          ],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "open"
-        },
-        {
-          "symbolName": "export {\n  /**\n   * Claude helper command group.\n   *\n   * @since 0.0.0\n   */\n  claudeCommand,\n} from \"./commands/Claude/index.js\";",
-          "exportKind": "re-export",
-          "filePath": "src/index.ts",
-          "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 32,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-32-export-claude-helper-command-group-since-0-0-0-claudecommand-from-commands-claude-index-js",
-          "currentTags": [
-            "@since"
-          ],
-          "missingRequiredTags": [
-            "@example",
-            "@category"
-          ],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "open"
-        },
-        {
           "symbolName": "export {\n  /**\n   * Code generation command for workspace barrels and exports.\n   *\n   * @since 0.0.0\n   */\n  codegenCommand,\n} from \"./commands/Codegen.js\";",
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 45,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-45-export-code-generation-command-for-workspace-barrels-and-exports-since-0-0-0-codegencommand-from-commands-codegen-js",
-          "currentTags": [
-            "@since"
-          ],
-          "missingRequiredTags": [
-            "@example",
-            "@category"
-          ],
-          "forbiddenTags": [],
-          "missingSummary": false,
-          "malformedConditionalTags": [],
-          "exampleImportViolations": [],
-          "unsafeExampleViolations": [],
-          "schemaAnnotationGaps": [],
-          "remediationStatus": "open"
-        },
-        {
-          "symbolName": "export {\n  /**\n   * Codex helper command group.\n   *\n   * @since 0.0.0\n   */\n  codexCommand,\n} from \"./commands/Codex/index.js\";",
-          "exportKind": "re-export",
-          "filePath": "src/index.ts",
-          "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 58,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-58-export-codex-helper-command-group-since-0-0-0-codexcommand-from-commands-codex-index-js",
+          "line": 19,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-19-export-code-generation-command-for-workspace-barrels-and-exports-since-0-0-0-codegencommand-from-commands-codegen-js",
           "currentTags": [
             "@since"
           ],
@@ -87184,8 +87045,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 71,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-71-export-package-scaffolding-command-for-creating-new-workspace-packages-since-0-0-0-createpackagecommand-from-commands-createpackage-index-js",
+          "line": 32,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-32-export-package-scaffolding-command-for-creating-new-workspace-packages-since-0-0-0-createpackagecommand-from-commands-createpackage-index-js",
           "currentTags": [
             "@since"
           ],
@@ -87206,8 +87067,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 84,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-84-export-human-first-docgen-command-group-since-0-0-0-docgencommand-from-commands-docgen-index-js",
+          "line": 45,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-45-export-human-first-docgen-command-group-since-0-0-0-docgencommand-from-commands-docgen-index-js",
           "currentTags": [
             "@since"
           ],
@@ -87228,8 +87089,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 97,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-97-export-command-first-docs-discovery-command-tree-since-0-0-0-docscommand-from-commands-docs-js",
+          "line": 58,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-58-export-command-first-docs-discovery-command-tree-since-0-0-0-docscommand-from-commands-docs-js",
           "currentTags": [
             "@since"
           ],
@@ -87250,8 +87111,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 110,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-110-export-dataset-file-curation-command-group-since-0-0-0-filescommand-from-commands-files-index-js",
+          "line": 71,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-71-export-dataset-file-curation-command-group-since-0-0-0-filescommand-from-commands-files-index-js",
           "currentTags": [
             "@since"
           ],
@@ -87272,8 +87133,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 123,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-123-export-graphiti-operational-command-group-since-0-0-0-graphiticommand-from-commands-graphiti-index-js",
+          "line": 84,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-84-export-graphiti-operational-command-group-since-0-0-0-graphiticommand-from-commands-graphiti-index-js",
           "currentTags": [
             "@since"
           ],
@@ -87294,8 +87155,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 136,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-136-export-image-and-video-curation-command-group-since-0-0-0-imagecommand-from-commands-image-index-js",
+          "line": 97,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-97-export-image-and-video-curation-command-group-since-0-0-0-imagecommand-from-commands-image-index-js",
           "currentTags": [
             "@since"
           ],
@@ -87316,8 +87177,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 149,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-149-export-effect-laws-command-group-since-0-0-0-lawscommand-from-commands-laws-index-js",
+          "line": 110,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-110-export-effect-laws-command-group-since-0-0-0-lawscommand-from-commands-laws-index-js",
           "currentTags": [
             "@since"
           ],
@@ -87338,8 +87199,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 162,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-162-export-lint-policy-command-group-since-0-0-0-lintcommand-from-commands-lint-index-js",
+          "line": 123,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-123-export-lint-policy-command-group-since-0-0-0-lintcommand-from-commands-lint-index-js",
           "currentTags": [
             "@since"
           ],
@@ -87360,8 +87221,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 175,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-175-export-purge-command-for-removing-root-workspace-build-artifacts-since-0-0-0-purgecommand-from-commands-purge-js",
+          "line": 136,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-136-export-purge-command-for-removing-root-workspace-build-artifacts-since-0-0-0-purgecommand-from-commands-purge-js",
           "currentTags": [
             "@since"
           ],
@@ -87382,8 +87243,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 188,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-188-export-reuse-discovery-command-group-since-0-0-0-reusecommand-from-commands-reuse-index-js",
+          "line": 149,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-149-export-reuse-discovery-command-group-since-0-0-0-reusecommand-from-commands-reuse-index-js",
           "currentTags": [
             "@since"
           ],
@@ -87404,8 +87265,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 201,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-201-export-root-cli-command-that-composes-subcommands-since-0-0-0-rootcommand-from-commands-root-js",
+          "line": 162,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-162-export-root-cli-command-that-composes-subcommands-since-0-0-0-rootcommand-from-commands-root-js",
           "currentTags": [
             "@since"
           ],
@@ -87426,8 +87287,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 214,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-214-export-official-data-sync-command-for-checked-in-generated-typescript-modules-since-0-0-0-syncdatatotscommand-from-commands-syncdatatots-index-js",
+          "line": 175,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-175-export-official-data-sync-command-for-checked-in-generated-typescript-modules-since-0-0-0-syncdatatotscommand-from-commands-syncdatatots-index-js",
           "currentTags": [
             "@since"
           ],
@@ -87448,8 +87309,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 227,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-227-export-dependency-topological-sort-command-since-0-0-0-toposortcommand-from-commands-toposort-js",
+          "line": 188,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-188-export-dependency-topological-sort-command-since-0-0-0-toposortcommand-from-commands-toposort-js",
           "currentTags": [
             "@since"
           ],
@@ -87470,8 +87331,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 240,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-240-export-tsconfig-sync-command-for-workspace-tsconfig-references-and-root-aliases-since-0-0-0-tsconfigsynccommand-from-commands-tsconfigsync-js",
+          "line": 201,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-201-export-tsconfig-sync-command-for-workspace-tsconfig-references-and-root-aliases-since-0-0-0-tsconfigsynccommand-from-commands-tsconfigsync-js",
           "currentTags": [
             "@since"
           ],
@@ -87492,8 +87353,8 @@
           "exportKind": "re-export",
           "filePath": "src/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/index.ts",
-          "line": 253,
-          "anchor": "packages-tooling-tool-cli-src-index-ts-253-export-version-sync-command-for-detecting-and-fixing-version-drift-since-0-0-0-versionsynccommand-from-commands-versionsync-index-js",
+          "line": 214,
+          "anchor": "packages-tooling-tool-cli-src-index-ts-214-export-version-sync-command-for-detecting-and-fixing-version-drift-since-0-0-0-versionsynccommand-from-commands-versionsync-index-js",
           "currentTags": [
             "@since"
           ],
@@ -97500,42 +97361,9 @@
       ]
     },
     {
-      "packageName": "@beep/codex",
-      "packagePath": ".codex",
-      "topoOrder": 32,
-      "status": "no-public-src-surface",
-      "sourceCoverage": {
-        "srcDir": "src",
-        "sourceFileCount": 0,
-        "publicModuleCount": 0,
-        "publicExportCount": 0
-      },
-      "docgenCoverage": {
-        "hasDocgenConfig": false,
-        "enforceDescriptions": false,
-        "enforceExamples": false,
-        "enforceVersion": true
-      },
-      "counts": {
-        "openModules": 0,
-        "openExports": 0,
-        "missingExportExamples": 0,
-        "missingExportCategories": 0,
-        "missingExportSince": 0,
-        "missingExportSummaries": 0,
-        "forbiddenTagFindings": 0,
-        "malformedConditionalTagFindings": 0,
-        "exampleImportFindings": 0,
-        "unsafeExampleFindings": 0,
-        "schemaAnnotationFindings": 0
-      },
-      "modules": [],
-      "exports": []
-    },
-    {
       "packageName": "@beep/fixture-lab-specimen-ui",
       "packagePath": "packages/fixture-lab/specimen/ui",
-      "topoOrder": 33,
+      "topoOrder": 32,
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
@@ -97631,7 +97459,7 @@
     {
       "packageName": "@beep/nlp",
       "packagePath": "packages/foundation/capability/nlp",
-      "topoOrder": 34,
+      "topoOrder": 33,
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
@@ -104415,7 +104243,7 @@
     {
       "packageName": "@beep/infra",
       "packagePath": "infra",
-      "topoOrder": 35,
+      "topoOrder": 34,
       "status": "clean",
       "sourceCoverage": {
         "srcDir": "src",
@@ -104489,7 +104317,7 @@
     {
       "packageName": "@beep/codedank-web",
       "packagePath": "apps/codedank-web",
-      "topoOrder": 36,
+      "topoOrder": 35,
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
@@ -104745,7 +104573,7 @@
     {
       "packageName": "@beep/fixture-lab-specimen-client",
       "packagePath": "packages/fixture-lab/specimen/client",
-      "topoOrder": 37,
+      "topoOrder": 36,
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
@@ -105160,7 +104988,7 @@
     {
       "packageName": "@beep/shared-client",
       "packagePath": "packages/shared/client",
-      "topoOrder": 38,
+      "topoOrder": 37,
       "status": "clean",
       "sourceCoverage": {
         "srcDir": "src",
@@ -105234,7 +105062,7 @@
     {
       "packageName": "@beep/postgres",
       "packagePath": "packages/drivers/postgres",
-      "topoOrder": 39,
+      "topoOrder": 38,
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
@@ -106134,42 +105962,9 @@
       ]
     },
     {
-      "packageName": "@beep/claude",
-      "packagePath": ".claude",
-      "topoOrder": 40,
-      "status": "no-public-src-surface",
-      "sourceCoverage": {
-        "srcDir": "src",
-        "sourceFileCount": 0,
-        "publicModuleCount": 0,
-        "publicExportCount": 0
-      },
-      "docgenCoverage": {
-        "hasDocgenConfig": false,
-        "enforceDescriptions": false,
-        "enforceExamples": false,
-        "enforceVersion": true
-      },
-      "counts": {
-        "openModules": 0,
-        "openExports": 0,
-        "missingExportExamples": 0,
-        "missingExportCategories": 0,
-        "missingExportSince": 0,
-        "missingExportSummaries": 0,
-        "forbiddenTagFindings": 0,
-        "malformedConditionalTagFindings": 0,
-        "exampleImportFindings": 0,
-        "unsafeExampleFindings": 0,
-        "schemaAnnotationFindings": 0
-      },
-      "modules": [],
-      "exports": []
-    },
-    {
       "packageName": "@beep/shared-ui",
       "packagePath": "packages/shared/ui",
-      "topoOrder": 41,
+      "topoOrder": 39,
       "status": "clean",
       "sourceCoverage": {
         "srcDir": "src",

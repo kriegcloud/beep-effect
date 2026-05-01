@@ -36,8 +36,8 @@ Rich annotated schemas pay back that ceremony because the same definition can:
 - provide constructors, defaults, normalization, JSON codecs, and boundary
   decoders
 - derive guards and equivalence instead of hand-written predicate helpers
-- feed generated docs, validation messages, and agent context with the same
-  domain descriptions humans read
+- feed generated docs and validation messages with the same domain descriptions
+  humans read
 - keep runtime guarantees attached to the domain language instead of scattered
   through handlers and adapters
 

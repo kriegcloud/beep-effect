@@ -1,3 +1,0 @@
-[submodule ".agents/skills/effect-v4"]
-	path = .agents/skills/effect-v4
-	url = git@github.com:kriegcloud/effect-v4-skill.git

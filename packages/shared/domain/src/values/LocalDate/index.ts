@@ -10,7 +10,7 @@
  *
  * @example
  * ```ts
- * import { today } from "@beep/shared-domain/values/LocalDate/index"
+ * import { today } from "@beep/shared-domain/values/LocalDate"
  *
  * console.log(today().toISOString())
  * ```
@@ -25,7 +25,7 @@ export * from "./LocalDate.behavior.ts";
  *
  * @example
  * ```ts
- * import { Model } from "@beep/shared-domain/values/LocalDate/index"
+ * import { Model } from "@beep/shared-domain/values/LocalDate"
  *
  * console.log(Model)
  * ```

@@ -97,12 +97,7 @@ const ALIAS_RULES: Readonly<Record<string, string>> = {
   "effect/Boolean": "Bool",
 };
 
-const INCLUDED_GLOBS = [
-  "apps/**/*.{ts,tsx}",
-  "packages/**/*.{ts,tsx}",
-  "infra/**/*.ts",
-  ".claude/hooks/**/*.ts",
-] as const;
+const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
 const ROOT_IMPORT_EXCLUDED_STABLE_SUBMODULES = ["effect/Function"] as const;
 const toStableName = Str.slice("effect/".length);
 const isStableSubmodule = P.and(Str.startsWith("effect/"), P.not(Str.startsWith("effect/unstable/")));

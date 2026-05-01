@@ -6,7 +6,7 @@
     "callbackFinding": "AST + typechecker: function-typed callback arg for Effect.flatMap/Effect.andThen not wrapped by Effect.fn/Effect.fnUntraced (or local wrapped identifier)"
   },
   "totals": {
-    "workspacePackages": 21,
+    "workspacePackages": 19,
     "findings": 0,
     "packagesWithFindings": 0,
     "byKind": {
@@ -16,24 +16,6 @@
     }
   },
   "packages": [
-    {
-      "package": ".claude",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": ".codex",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
     {
       "package": "infra",
       "findings": [],

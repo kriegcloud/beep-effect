@@ -3,8 +3,6 @@ import type { RcFile } from "syncpack";
 const config = {
   source: [
     "package.json",
-    ".claude/package.json",
-    ".codex/package.json",
     "infra/package.json",
     "packages/_internal/*/package.json",
     "packages/foundation/capability/*/package.json",
@@ -22,6 +20,14 @@ const config = {
     "packages/tooling/test-kit/*/package.json",
     "packages/tooling/tool/*/package.json",
     "apps/codedank-web/package.json",
+    "apps/professional-runtime-proof/package.json",
+    "packages/agent-capability/domain/package.json",
+    "packages/agent-capability/use-cases/package.json",
+    "packages/epistemic/domain/package.json",
+    "packages/law-practice/domain/package.json",
+    "packages/tenancy/domain/package.json",
+    "packages/wealth-management/domain/package.json",
+    "packages/workspace/domain/package.json",
     "packages/shared/use-cases/package.json",
     "packages/shared/config/package.json",
     "packages/drivers/drizzle/package.json",

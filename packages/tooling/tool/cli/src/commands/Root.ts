@@ -7,10 +7,7 @@
  */
 
 import { Command } from "effect/unstable/cli";
-import { agentsCommand } from "./Agents/index.js";
-import { claudeCommand } from "./Claude/index.js";
 import { codegenCommand } from "./Codegen.js";
-import { codexCommand } from "./Codex/index.js";
 import { createPackageCommand } from "./CreatePackage/index.js";
 import { docgenCommand } from "./Docgen/index.js";
 import { docsCommand } from "./Docs.js";
@@ -47,12 +44,9 @@ export const rootCommand = Command.make("beep-cli").pipe(
     docsCommand,
     filesCommand,
     imageCommand,
-    agentsCommand,
     lintCommand,
     lawsCommand,
-    codexCommand,
     graphitiCommand,
-    claudeCommand,
     createPackageCommand,
     codegenCommand,
     purgeCommand,

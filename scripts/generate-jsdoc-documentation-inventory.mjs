@@ -979,7 +979,7 @@ const main = () => {
       packageUniverseCommand: "bun run topo-sort",
       generator: "scripts/generate-jsdoc-documentation-inventory.mjs",
       policy: ".patterns/jsdoc-documentation.md",
-      skill: ".agents/skills/jsdoc-annotation-specialist/SKILL.md",
+      skill: ".claude/skills/jsdoc-annotation-specialist/SKILL.md",
     },
     requiredExportTags,
     requiredModuleTags,

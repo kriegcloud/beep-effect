@@ -1,4 +1,4 @@
-import * as Organization from "@beep/shared-ui/entities/Organization/index";
+import * as Organization from "@beep/shared-ui/entities/Organization";
 import { assert, describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";
 import * as O from "effect/Option";

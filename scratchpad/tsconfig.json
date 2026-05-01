@@ -46,9 +46,6 @@
     },
     {
       "path": "../packages/tooling/test-kit/test-utils/tsconfig.json"
-    },
-    {
-      "path": "../.claude/tsconfig.json"
     }
   ]
 }

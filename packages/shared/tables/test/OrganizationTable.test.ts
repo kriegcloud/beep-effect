@@ -1,4 +1,4 @@
-import * as Organization from "@beep/shared-tables/entities/Organization/index";
+import * as Organization from "@beep/shared-tables/entities/Organization";
 import { describe, expect, it } from "@effect/vitest";
 import { getTableColumns } from "drizzle-orm";
 import { getTableConfig } from "drizzle-orm/pg-core";

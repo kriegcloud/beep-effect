@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-domain/entities/index"
+ * import { Organization } from "@beep/shared-domain/entities"
  *
  * console.log(Organization.ProfilePack.fieldMap.name.columnName)
  * ```

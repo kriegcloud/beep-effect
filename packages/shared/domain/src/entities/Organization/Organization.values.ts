@@ -20,7 +20,7 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.values");
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { Organization } from "@beep/shared-domain/entities/index"
+ * import { Organization } from "@beep/shared-domain/entities"
  * import * as S from "effect/Schema"
  *
  * const program = Effect.gen(function* () {
@@ -44,7 +44,7 @@ export const LicenseTier = LiteralKit(["free", "team", "enterprise"]).annotate(
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-domain/entities/index"
+ * import { Organization } from "@beep/shared-domain/entities"
  *
  * const printTier = (tier: Organization.LicenseTier) => console.log(tier)
  * void printTier
@@ -62,7 +62,7 @@ export type LicenseTier = typeof LicenseTier.Type;
  * ```ts
  * import { Effect } from "effect"
  * import { Organization } from
- * "@beep/shared-domain/entities/index"
+ * "@beep/shared-domain/entities"
  * import * as S from "effect/Schema"
  *
  * const program = Effect.gen(function* () {
@@ -94,7 +94,7 @@ export class Settings extends S.Class<Settings>($I`Settings`)(
  * @example
  * ```ts
  * import { Organization } from
- * "@beep/shared-domain/entities/index"
+ * "@beep/shared-domain/entities"
  *
  * console.log(Organization.ProfileMixin.fieldMap.slug.columnName)
  * ```
@@ -170,7 +170,7 @@ export const ProfileMixin = EntityMixin.make($I`ProfileMixin`)(
  * @example
  * ```ts
  * import { Organization } from
- * "@beep/shared-domain/entities/index"
+ * "@beep/shared-domain/entities"
  *
  * console.log(Organization.ProfilePack.fieldMap.licenseTier.storageKind)
  * ```

@@ -41,13 +41,7 @@ const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
 const DOCGEN_CONFIG_FILENAME = "docgen.json" as const;
 const DOCS_MODULES_SEGMENTS = ["docs", "modules"] as const;
 const DOCGEN_REQUIRED_TAGS = ["@example", "@since"] as const;
-const DOCGEN_CONFIG_SCAN_GLOBS = [
-  "apps/**/docgen.json",
-  "packages/**/docgen.json",
-  "infra/docgen.json",
-  ".claude/docgen.json",
-  ".codex/docgen.json",
-] as const;
+const DOCGEN_CONFIG_SCAN_GLOBS = ["apps/**/docgen.json", "packages/**/docgen.json", "infra/docgen.json"] as const;
 const DOCGEN_CONFIG_SCAN_IGNORES = [
   "**/.git/**",
   "**/.turbo/**",

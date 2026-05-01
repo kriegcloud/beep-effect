@@ -1,4 +1,4 @@
-import type * as Organization from "@beep/shared-domain/entities/Organization/index";
+import type * as Organization from "@beep/shared-domain/entities/Organization";
 import type * as Shared from "@beep/shared-domain/identity/Shared";
 import type * as O from "effect/Option";
 import type * as S from "effect/Schema";

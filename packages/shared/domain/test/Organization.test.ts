@@ -1,4 +1,4 @@
-import * as Organization from "@beep/shared-domain/entities/Organization/index";
+import * as Organization from "@beep/shared-domain/entities/Organization";
 import * as Shared from "@beep/shared-domain/identity/Shared";
 import { assert, describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";

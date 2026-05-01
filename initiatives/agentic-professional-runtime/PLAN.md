@@ -16,16 +16,58 @@
 |---|---|---|---|
 | P0 | Complete | Bootstrap this initiative packet. | Root docs, product docs, data docs, architecture map, source inventory, and manifest exist. |
 | P1 | Pending | Tighten product interviews. | Law and Todox product docs contain concrete workflows, target users, non-goals, and open questions with owner labels. |
-| P2 | Pending | Specify the runtime data-loop proof. | One synthetic Law fixture and one synthetic Wealth fixture can be traced through ingest -> claim/evidence -> task/approval -> SDK context. |
-| P3 | Pending | Convert the runtime proof into slice implementation plan. | Slice package names, role packages, public/server exports, and test surfaces are decision-complete. |
+| P2 | Complete | Specify the runtime data-loop proof. | One synthetic Law fixture and one synthetic Wealth fixture can be traced through ingest -> claim/evidence -> task/approval -> SDK context. |
+| P3 | Complete | Convert the runtime proof into slice implementation plan. | Slice package names, role packages, public/server exports, and test surfaces are executable through the app-level proof harness. |
 | P4 | Pending | Native first-run onboarding design. | First-run app flow covers dependency checks, local runtime bootstrap, user credentials, client connection, and workspace seed. |
+
+## P2 Outputs
+
+- [docs/runtime-data-loop.md](./docs/runtime-data-loop.md)
+- [docs/runtime-fixture-catalog.md](./docs/runtime-fixture-catalog.md)
+- [docs/sdk-context-packet-contract.md](./docs/sdk-context-packet-contract.md)
+- [docs/approval-and-autonomy-policy.md](./docs/approval-and-autonomy-policy.md)
+- [docs/runtime-proof-slice-map.md](./docs/runtime-proof-slice-map.md)
+- [history/decision-log.md](./history/decision-log.md)
+- [fixtures/runtime-data-loop](./fixtures/runtime-data-loop)
+
+Validate the fixture packet with:
+
+```sh
+node initiatives/agentic-professional-runtime/fixtures/runtime-data-loop/validate-fixtures.mjs
+```
+
+## P3 Outputs
+
+- [docs/p3-slice-implementation.md](./docs/p3-slice-implementation.md)
+- `packages/tenancy/domain`
+- `packages/workspace/domain`
+- `packages/epistemic/domain`
+- `packages/agent-capability/domain`
+- `packages/agent-capability/use-cases`
+- `packages/law-practice/domain`
+- `packages/wealth-management/domain`
+- `apps/professional-runtime-proof`
+
+Validate the executable proof with:
+
+```sh
+bun run --cwd apps/professional-runtime-proof test
+```
+
+## Next Implementation Target
+
+P4 should design native first-run onboarding and the local runtime bootstrap:
+
+- dependency checks for git, Node/Bun, and Python
+- Claude Desktop and OpenClaw setup guidance
+- MCP configuration
+- local workspace seeding
+- credential and connector setup boundaries
 
 ## Follow-Up Work
 
-- Review this packet against `standards/ARCHITECTURE.md` before implementation.
-- Expand synthetic fixtures before real data is touched.
+- Keep P3 persistence-free until the contract test stays stable.
 - Keep Notion source pages as evidence until their relevant content is
   synthesized into repo docs.
-- Update package topology only after the runtime data-loop proof is specified.
 - Promote shared-kernel concepts only with promotion records and at least two
   product consumers.

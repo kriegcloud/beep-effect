@@ -12,32 +12,6 @@
  */
 
 /**
- * Agent policy command group.
- *
- * @since 0.0.0
- */
-export {
-  /**
-   * Agent policy command group.
-   *
-   * @since 0.0.0
-   */
-  agentsCommand,
-} from "./commands/Agents/index.js";
-/**
- * Claude helper command group.
- *
- * @since 0.0.0
- */
-export {
-  /**
-   * Claude helper command group.
-   *
-   * @since 0.0.0
-   */
-  claudeCommand,
-} from "./commands/Claude/index.js";
-/**
  * Code generation command for workspace barrels and exports.
  *
  * @since 0.0.0
@@ -50,19 +24,6 @@ export {
    */
   codegenCommand,
 } from "./commands/Codegen.js";
-/**
- * Codex helper command group.
- *
- * @since 0.0.0
- */
-export {
-  /**
-   * Codex helper command group.
-   *
-   * @since 0.0.0
-   */
-  codexCommand,
-} from "./commands/Codex/index.js";
 /**
  * Package scaffolding command for creating new workspace packages.
  *

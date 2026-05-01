@@ -22,7 +22,7 @@ import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 const $I = $RepoCliId.create("commands/Lint");
 
 const TOOLING_ROOT = "packages/tooling/tool/cli/src";
-const RUNTIME_SCHEMA_FIRST_ROOTS = [TOOLING_ROOT, ".claude/hooks"] as const;
+const RUNTIME_SCHEMA_FIRST_ROOTS = [TOOLING_ROOT] as const;
 const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
   "packages/tooling/tool/cli/src/commands/DocsAggregate.ts",
   "packages/tooling/tool/cli/src/commands/Lint/index.ts",
@@ -32,11 +32,6 @@ const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
   "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
   "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
   "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
-  ".claude/hooks/schemas/index.ts",
-  ".claude/hooks/skill-suggester/index.ts",
-  ".claude/hooks/subagent-init/index.ts",
-  ".claude/hooks/agent-init/index.ts",
-  ".claude/hooks/pattern-detector/core.ts",
 ]);
 const ALLOWED_NON_PASCAL_FILENAMES = HashSet.fromIterable(["index", "bin"]);
 const REQUIRED_TAGGED_UNIONS = [

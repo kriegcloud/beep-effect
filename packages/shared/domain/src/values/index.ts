@@ -10,7 +10,7 @@
  *
  * @example
  * ```ts
- * import { LocalDate } from "@beep/shared-domain/values/index"
+ * import { LocalDate } from "@beep/shared-domain/values"
  *
  * console.log(LocalDate.today().toISOString())
  * ```

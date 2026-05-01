@@ -18,7 +18,7 @@ import {
   Order,
   today,
   todayEffect,
-} from "@beep/shared-domain/values/LocalDate/index";
+} from "@beep/shared-domain/values/LocalDate";
 import { type Effect, pipe } from "effect";
 import type * as DateTime from "effect/DateTime";
 import type * as O from "effect/Option";

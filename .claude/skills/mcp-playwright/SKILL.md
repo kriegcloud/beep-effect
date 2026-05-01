@@ -1,21 +1,30 @@
+---
+name: mcp-playwright
+description: "Use for Playwright MCP browser automation checks, page interactions, and startup diagnostics in headless mode."
+---
+
 # MCP Playwright
 
-Use this skill for browser automation through Playwright MCP in headless mode.
-
 ## Use When
-- You need to navigate pages, inspect DOM state, or capture screenshots.
-- You need to verify Playwright MCP startup and available tools.
+- You need browser automation via MCP tools.
+- You need to verify Playwright MCP startup and tool availability.
 
 ## Quick Smoke
-1. Confirm tools list includes browser actions.
-2. Run one lightweight read flow (`browser_navigate` + `browser_snapshot`).
+1. Verify startup and tools via inspector:
+   `npx -y @modelcontextprotocol/inspector --cli --transport stdio --method tools/list -- npx -y @playwright/mcp@latest --headless`
+2. Confirm browser tools exist (`browser_navigate`, `browser_snapshot`).
+
+## Representative Calls
+- Navigation: `browser_navigate`, `browser_navigate_back`.
+- Read state: `browser_snapshot`, `browser_console_messages`.
+- Interaction: `browser_click`, `browser_fill_form`, `browser_wait_for`.
 
 ## Common Failures
-- Missing `-y` causes install prompt and startup hang.
-- First-run browser dependencies not available.
-- Page load delays causing timeout.
+- Missing `-y` causes install prompt/hang.
+- Browser install/runtime issues on first launch.
+- Timeouts from long pages or blocked network.
 
 ## Fix Patterns
 - Use args: `-y @playwright/mcp@latest --headless`.
-- Keep smoke calls short and deterministic.
-- Add wait steps before snapshot/interaction on dynamic pages.
+- Keep first smoke lightweight and read-only.
+- Add explicit waits before snapshotting dynamic pages.

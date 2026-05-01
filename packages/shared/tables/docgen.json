@@ -31,8 +31,35 @@
     "paths": {
       "@beep/shared-tables": ["../../../packages/shared/tables/src/index.ts"],
       "@beep/shared-tables/*": ["../../../packages/shared/tables/src/*.ts"],
+      "@beep/shared-tables/entities": [
+        "../../../packages/shared/tables/src/entities/index.ts"
+      ],
+      "@beep/shared-tables/entities/Organization": [
+        "../../../packages/shared/tables/src/entities/Organization/index.ts"
+      ],
       "@beep/shared-domain": ["../../../packages/shared/domain/src/index.ts"],
-      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"]
+      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"],
+      "@beep/shared-domain/aggregates": [
+        "../../../packages/shared/domain/src/aggregates.ts"
+      ],
+      "@beep/shared-domain/entities": [
+        "../../../packages/shared/domain/src/entities.ts"
+      ],
+      "@beep/shared-domain/entities/Organization": [
+        "../../../packages/shared/domain/src/entities/Organization/index.ts"
+      ],
+      "@beep/shared-domain/entity": [
+        "../../../packages/shared/domain/src/entity.ts"
+      ],
+      "@beep/shared-domain/identity": [
+        "../../../packages/shared/domain/src/identity.ts"
+      ],
+      "@beep/shared-domain/values": [
+        "../../../packages/shared/domain/src/values.ts"
+      ],
+      "@beep/shared-domain/values/LocalDate": [
+        "../../../packages/shared/domain/src/values/LocalDate/index.ts"
+      ]
     }
   }
 }

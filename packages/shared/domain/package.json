@@ -30,6 +30,13 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./aggregates": "./src/aggregates.ts",
+    "./entities": "./src/entities.ts",
+    "./entities/Organization": "./src/entities/Organization/index.ts",
+    "./entity": "./src/entity.ts",
+    "./identity": "./src/identity.ts",
+    "./values": "./src/values.ts",
+    "./values/LocalDate": "./src/values/LocalDate/index.ts",
     "./*": "./src/*.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
@@ -47,6 +54,13 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.js",
+      "./aggregates": "./dist/aggregates.js",
+      "./entities": "./dist/entities.js",
+      "./entities/Organization": "./dist/entities/Organization/index.js",
+      "./entity": "./dist/entity.js",
+      "./identity": "./dist/identity.js",
+      "./values": "./dist/values.js",
+      "./values/LocalDate": "./dist/values/LocalDate/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"

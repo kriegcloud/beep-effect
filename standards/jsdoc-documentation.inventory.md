@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-05-01T06:01:54.019Z
+Generated: 2026-05-01T08:11:16.101Z
 
 ## Scope
 
@@ -10,22 +10,22 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 41 |
+| packages | 39 |
 | cleanPackages | 14 |
-| packagesWithoutPublicSrcSurface | 3 |
+| packagesWithoutPublicSrcSurface | 1 |
 | packagesNeedingRemediation | 24 |
 | publicModules | 612 |
-| publicExports | 4319 |
+| publicExports | 4313 |
 | openModules | 125 |
 | openExports | 2571 |
-| missingExportExamples | 1969 |
-| missingExportCategories | 741 |
+| missingExportExamples | 1970 |
+| missingExportCategories | 742 |
 | missingExportSince | 439 |
 | forbiddenTagFindings | 9 |
 | malformedConditionalTagFindings | 0 |
 | exampleImportFindings | 22 |
 | unsafeExampleFindings | 66 |
-| schemaAnnotationFindings | 111 |
+| schemaAnnotationFindings | 109 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -42,7 +42,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | Order | Package | Path | Status | Modules | Exports | Open Modules | Open Exports |
 |---:|---|---|---|---:|---:|---:|---:|
 | 1 | `@beep/types` | `packages/foundation/primitive/types` | needs-remediation | 5 | 10 | 0 | 3 |
-| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 63 | 0 | 10 |
+| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 61 | 0 | 10 |
 | 3 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 20 | 129 | 2 | 35 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | clean | 7 | 39 | 0 | 0 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | needs-remediation | 2 | 6 | 0 | 1 |
@@ -57,13 +57,13 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 14 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 131 | 3 | 33 |
 | 15 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | clean | 6 | 18 | 0 | 0 |
 | 16 | `@beep/fixture-lab-specimen-config` | `packages/fixture-lab/specimen/config` | needs-remediation | 6 | 15 | 0 | 9 |
-| 17 | `@beep/fixture-lab-specimen-use-cases` | `packages/fixture-lab/specimen/use-cases` | needs-remediation | 5 | 7 | 0 | 1 |
-| 18 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 21 | 174 | 0 | 26 |
+| 17 | `@beep/fixture-lab-specimen-use-cases` | `packages/fixture-lab/specimen/use-cases` | needs-remediation | 5 | 9 | 0 | 1 |
+| 18 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 25 | 178 | 0 | 30 |
 | 19 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 118 | 506 | 109 | 506 |
 | 20 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 21 | `@beep/fixture-lab-specimen-tables` | `packages/fixture-lab/specimen/tables` | clean | 2 | 6 | 0 | 0 |
 | 22 | `@beep/db-admin` | `packages/_internal/db-admin` | clean | 1 | 1 | 0 | 0 |
-| 23 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 67 | 453 | 0 | 363 |
+| 23 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 63 | 443 | 0 | 359 |
 | 24 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
 | 25 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
 | 26 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
@@ -72,16 +72,14 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 29 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
 | 30 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
 | 31 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 3 | 9 | 0 | 2 |
-| 32 | `@beep/codex` | `.codex` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 33 | `@beep/fixture-lab-specimen-ui` | `packages/fixture-lab/specimen/ui` | needs-remediation | 1 | 2 | 0 | 1 |
-| 34 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 203 |
-| 35 | `@beep/infra` | `infra` | clean | 1 | 1 | 0 | 0 |
-| 36 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
-| 37 | `@beep/fixture-lab-specimen-client` | `packages/fixture-lab/specimen/client` | needs-remediation | 3 | 15 | 0 | 11 |
-| 38 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
-| 39 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 35 | 0 | 5 |
-| 40 | `@beep/claude` | `.claude` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 41 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
+| 32 | `@beep/fixture-lab-specimen-ui` | `packages/fixture-lab/specimen/ui` | needs-remediation | 1 | 2 | 0 | 1 |
+| 33 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 203 |
+| 34 | `@beep/infra` | `infra` | clean | 1 | 1 | 0 | 0 |
+| 35 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
+| 36 | `@beep/fixture-lab-specimen-client` | `packages/fixture-lab/specimen/client` | needs-remediation | 3 | 15 | 0 | 11 |
+| 37 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
+| 38 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 35 | 0 | 5 |
+| 39 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
 
 ## Open Findings
 
@@ -103,12 +101,12 @@ Export findings:
 - `src/Id.ts:119` `IdentitySegmentCountError` (class) - 1 schema annotation/type-alias gap(s)
 - `src/Id.ts:350` `IdentityString` (type) - 1 unsafe example violation(s)
 - `src/Id.ts:367` `IdentitySymbol` (type) - 1 unsafe example violation(s)
-- `src/packages.ts:526` `RepoPkgs` (const) - missing @example
-- `src/packages.ts:532` `$MdId` (const) - missing summary; missing @example
-- `src/packages.ts:538` `$CodedankWebId` (const) - missing summary; missing @example
-- `src/packages.ts:544` `$DrizzleId` (const) - missing summary; missing @example
-- `src/packages.ts:550` `$FfmpegId` (const) - missing summary; missing @example
-- `src/packages.ts:556` `$PostgresId` (const) - missing summary; missing @example
+- `src/packages.ts:490` `RepoPkgs` (const) - missing @example
+- `src/packages.ts:496` `$MdId` (const) - missing summary; missing @example
+- `src/packages.ts:502` `$CodedankWebId` (const) - missing summary; missing @example
+- `src/packages.ts:508` `$DrizzleId` (const) - missing summary; missing @example
+- `src/packages.ts:514` `$FfmpegId` (const) - missing summary; missing @example
+- `src/packages.ts:520` `$PostgresId` (const) - missing summary; missing @example
 
 ### @beep/utils
 
@@ -1846,7 +1844,9 @@ Export findings:
 Path: `packages/shared/domain`
 
 Export findings:
+- `src/aggregates.ts:11` `export * from "./aggregates/index.ts";` (re-export) - missing @example, @category
 - `src/entities.ts:11` `export * from "./entities/index.ts";` (re-export) - missing @example, @category
+- `src/entity.ts:11` `export * from "./entity/index.ts";` (re-export) - missing @example, @category
 - `src/entity/BaseEntity.ts:450` `fieldMapFor` (function) - missing summary; missing @example, @category, @since
 - `src/entity/BaseEntity.ts:454` `fieldMapFor` (function) - missing summary; missing @example, @category, @since
 - `src/entity/BaseEntity.ts:75` `EntityFieldMap` (type) - missing @example
@@ -1872,6 +1872,8 @@ Export findings:
 - `src/entity/Principal.ts:152` `Principal` (type) - missing @example
 - `src/entity/Principal.ts:160` `Principal` (namespace) - missing @example
 - `src/entity/SourceKind.ts:38` `SourceKind` (type) - missing @example
+- `src/identity.ts:11` `export * from "./identity/index.ts";` (re-export) - missing @example, @category
+- `src/values.ts:11` `export * from "./values/index.ts";` (re-export) - missing @example, @category
 
 ### @beep/ui
 
@@ -2504,7 +2506,6 @@ Export findings:
 - `src/commands/AIDocs/AIDocs.ts:23` `AIDocsError` (class) - missing @example
 - `src/commands/AIDocs/AIDocs.ts:37` `AIDocKind` (const) - missing @example
 - `src/commands/AIDocs/AIDocs.ts:87` `AIDocKind` (type) - missing @example
-- `src/commands/Codex/internal/CodexSessionStartRuntime.ts:131` `buildCodexSessionStartContext` (const) - 2 schema annotation/type-alias gap(s)
 - `src/commands/CreatePackage/ConfigUpdater.ts:41` `ConfigUpdateResult` (class) - missing @example
 - `src/commands/CreatePackage/ConfigUpdater.ts:58` `ConfigUpdateTarget` (class) - missing @example
 - `src/commands/CreatePackage/ConfigUpdater.ts:76` `ConfigUpdateTargetResult` (class) - missing @example
@@ -2548,30 +2549,30 @@ Export findings:
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:234` `TsMorphIntegrationService` (class) - missing @example
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:258` `createTsMorphIntegrationService` (const) - missing @example
 - `src/commands/CreatePackage/index.ts:16` `createPackageCommand` (const) - missing @example
-- `src/commands/Docgen/index.ts:605` `docgenCommand` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:91` `DocgenPackageStatus` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:106` `DocgenPackageStatus` (type) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:120` `DocgenConfigDocument` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:149` `DocgenWorkspacePackage` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:170` `DocgenIssuePriority` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:181` `DocgenIssuePriority` (type) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:189` `DocgenExportKind` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:210` `DocgenExportKind` (type) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:218` `DocgenExportAnalysis` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:242` `DocgenAnalysisSummary` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:262` `DocgenPackageAnalysis` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:281` `DocgenGenerationResult` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:301` `DocgenAggregateResult` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1019` `normalizeDocsOutputPath` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1030` `loadDocgenConfigDocument` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1058` `createDocgenConfigDocument` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1101` `discoverDocgenWorkspacePackages` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1144` `resolveDocgenWorkspacePackage` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1196` `analyzePackageDocumentation` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1240` `generateAnalysisReport` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1354` `generateAnalysisJson` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1364` `aggregateGeneratedDocs` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1514` `runDocgenForPackage` (const) - missing @example
+- `src/commands/Docgen/index.ts:607` `docgenCommand` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:89` `DocgenPackageStatus` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:104` `DocgenPackageStatus` (type) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:118` `DocgenConfigDocument` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:147` `DocgenWorkspacePackage` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:168` `DocgenIssuePriority` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:179` `DocgenIssuePriority` (type) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:187` `DocgenExportKind` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:208` `DocgenExportKind` (type) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:216` `DocgenExportAnalysis` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:240` `DocgenAnalysisSummary` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:260` `DocgenPackageAnalysis` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:279` `DocgenGenerationResult` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:299` `DocgenAggregateResult` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1017` `normalizeDocsOutputPath` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1028` `loadDocgenConfigDocument` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1056` `createDocgenConfigDocument` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1099` `discoverDocgenWorkspacePackages` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1142` `resolveDocgenWorkspacePackage` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1194` `analyzePackageDocumentation` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1238` `generateAnalysisReport` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1352` `generateAnalysisJson` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1362` `aggregateGeneratedDocs` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1512` `runDocgenForPackage` (const) - missing @example
 - `src/commands/Files/Files.command.ts:386` `filesCommand` (const) - missing @example
 - `src/commands/Files/Files.errors.ts:54` `formatPlatformError` (const) - missing @example
 - `src/commands/Files/Files.errors.ts:74` `failOnExtensionlessFile` (const) - missing @example
@@ -2739,14 +2740,14 @@ Export findings:
 - `src/commands/Quality/Tasks.ts:80` `PackageTaskProfile` (class) - resolved
 - `src/commands/Quality/Tasks.ts:107` `QualityTaskStep` (class) - resolved
 - `src/commands/Quality/Tasks.ts:136` `QualityTaskInvocation` (class) - resolved
-- `src/commands/Quality/Tasks.ts:667` `sqlIntegrationStepForTesting` (const) - missing @example
-- `src/commands/Quality/Tasks.ts:681` `runSqlIntegrationTestLaneForTesting` (const) - missing @example
-- `src/commands/Quality/Tasks.ts:821` `rootQualityStepsForTesting` (const) - missing @example
-- `src/commands/Quality/Tasks.ts:940` `parseQualityTaskInvocation` (const) - resolved
-- `src/commands/Quality/Tasks.ts:984` `runQualityTask` (const) - resolved
-- `src/commands/Quality/Tasks.ts:1018` `runQualityTaskIfRequested` (const) - resolved
-- `src/commands/Quality/Tasks.ts:1050` `collectStepOutput` (const) - resolved
-- `src/commands/Reuse/index.ts:355` `reuseCommand` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:664` `sqlIntegrationStepForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:678` `runSqlIntegrationTestLaneForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:818` `rootQualityStepsForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:937` `parseQualityTaskInvocation` (const) - resolved
+- `src/commands/Quality/Tasks.ts:981` `runQualityTask` (const) - resolved
+- `src/commands/Quality/Tasks.ts:1015` `runQualityTaskIfRequested` (const) - resolved
+- `src/commands/Quality/Tasks.ts:1047` `collectStepOutput` (const) - resolved
+- `src/commands/Reuse/index.ts:361` `reuseCommand` (const) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:23` `CodexRunnerStage` (const) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:37` `CodexRunnerStage` (type) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:45` `CodexSmokeResult` (class) - missing @example
@@ -2799,8 +2800,8 @@ Export findings:
 - `src/commands/TsconfigSync.ts:623` `WorkspaceDescriptor` (class) - missing @example
 - `src/commands/TsconfigSync.ts:674` `TsconfigWithReferences` (class) - missing @example
 - `src/commands/TsconfigSync.ts:689` `TsconfigWithPaths` (class) - missing @example
-- `src/commands/TsconfigSync.ts:1697` `syncTsconfigAtRoot` (const) - missing @example
-- `src/commands/TsconfigSync.ts:1832` `tsconfigSyncCommand` (const) - missing @example
+- `src/commands/TsconfigSync.ts:1695` `syncTsconfigAtRoot` (const) - missing @example
+- `src/commands/TsconfigSync.ts:1830` `tsconfigSyncCommand` (const) - missing @example
 - `src/commands/VersionSync/index.ts:48` `versionSyncCommand` (const) - missing @example
 - `src/commands/VersionSync/internal/Handler.ts:70` `handleVersionSync` (const) - missing @example
 - `src/commands/VersionSync/internal/Models.ts:25` `VersionSyncError` (class) - missing @example
@@ -2862,37 +2863,13 @@ Export findings:
 - `src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:116` `replaceNodeVersionWithFile` (const) - missing @example
 - `src/index.ts:19` `export {
   /**
-   * Agent policy command group.
-   *
-   * @since 0.0.0
-   */
-  agentsCommand,
-} from "./commands/Agents/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:32` `export {
-  /**
-   * Claude helper command group.
-   *
-   * @since 0.0.0
-   */
-  claudeCommand,
-} from "./commands/Claude/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:45` `export {
-  /**
    * Code generation command for workspace barrels and exports.
    *
    * @since 0.0.0
    */
   codegenCommand,
 } from "./commands/Codegen.js";` (re-export) - missing @example, @category
-- `src/index.ts:58` `export {
-  /**
-   * Codex helper command group.
-   *
-   * @since 0.0.0
-   */
-  codexCommand,
-} from "./commands/Codex/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:71` `export {
+- `src/index.ts:32` `export {
   /**
    * Package scaffolding command for creating new workspace packages.
    *
@@ -2900,7 +2877,7 @@ Export findings:
    */
   createPackageCommand,
 } from "./commands/CreatePackage/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:84` `export {
+- `src/index.ts:45` `export {
   /**
    * Human-first docgen command group.
    *
@@ -2908,7 +2885,7 @@ Export findings:
    */
   docgenCommand,
 } from "./commands/Docgen/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:97` `export {
+- `src/index.ts:58` `export {
   /**
    * Command-first docs discovery command tree.
    *
@@ -2916,7 +2893,7 @@ Export findings:
    */
   docsCommand,
 } from "./commands/Docs.js";` (re-export) - missing @example, @category
-- `src/index.ts:110` `export {
+- `src/index.ts:71` `export {
   /**
    * Dataset file curation command group.
    *
@@ -2924,7 +2901,7 @@ Export findings:
    */
   filesCommand,
 } from "./commands/Files/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:123` `export {
+- `src/index.ts:84` `export {
   /**
    * Graphiti operational command group.
    *
@@ -2932,7 +2909,7 @@ Export findings:
    */
   graphitiCommand,
 } from "./commands/Graphiti/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:136` `export {
+- `src/index.ts:97` `export {
   /**
    * Image and video curation command group.
    *
@@ -2940,7 +2917,7 @@ Export findings:
    */
   imageCommand,
 } from "./commands/Image/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:149` `export {
+- `src/index.ts:110` `export {
   /**
    * Effect laws command group.
    *
@@ -2948,7 +2925,7 @@ Export findings:
    */
   lawsCommand,
 } from "./commands/Laws/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:162` `export {
+- `src/index.ts:123` `export {
   /**
    * Lint policy command group.
    *
@@ -2956,7 +2933,7 @@ Export findings:
    */
   lintCommand,
 } from "./commands/Lint/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:175` `export {
+- `src/index.ts:136` `export {
   /**
    * Purge command for removing root/workspace build artifacts.
    *
@@ -2964,7 +2941,7 @@ Export findings:
    */
   purgeCommand,
 } from "./commands/Purge.js";` (re-export) - missing @example, @category
-- `src/index.ts:188` `export {
+- `src/index.ts:149` `export {
   /**
    * Reuse-discovery command group.
    *
@@ -2972,7 +2949,7 @@ Export findings:
    */
   reuseCommand,
 } from "./commands/Reuse/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:201` `export {
+- `src/index.ts:162` `export {
   /**
    * Root CLI command that composes subcommands.
    *
@@ -2980,7 +2957,7 @@ Export findings:
    */
   rootCommand,
 } from "./commands/Root.js";` (re-export) - missing @example, @category
-- `src/index.ts:214` `export {
+- `src/index.ts:175` `export {
   /**
    * Official data sync command for checked-in generated TypeScript modules.
    *
@@ -2988,7 +2965,7 @@ Export findings:
    */
   syncDataToTsCommand,
 } from "./commands/SyncDataToTs/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:227` `export {
+- `src/index.ts:188` `export {
   /**
    * Dependency topological sort command.
    *
@@ -2996,7 +2973,7 @@ Export findings:
    */
   topoSortCommand,
 } from "./commands/TopoSort.js";` (re-export) - missing @example, @category
-- `src/index.ts:240` `export {
+- `src/index.ts:201` `export {
   /**
    * Tsconfig sync command for workspace tsconfig references and root aliases.
    *
@@ -3004,7 +2981,7 @@ Export findings:
    */
   tsconfigSyncCommand,
 } from "./commands/TsconfigSync.js";` (re-export) - missing @example, @category
-- `src/index.ts:253` `export {
+- `src/index.ts:214` `export {
   /**
    * Version sync command for detecting and fixing version drift.
    *

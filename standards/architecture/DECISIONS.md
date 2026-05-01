@@ -103,8 +103,8 @@ The canonical grammar is:
 
 Rationale:
 
-The path tells humans the concept. The role suffix tells agents and reviewers
-what the file may do.
+The path tells readers the concept. The role suffix tells reviewers what the
+file may do.
 
 ## 2026-04-21: Split Access From Policy
 
@@ -278,7 +278,8 @@ without adding clarity.
 
 ## 2026-04-23: Add Explicit Non-Slice Artifact Families
 
-- **Status:** Active
+- **Status:** Superseded
+- **Superseded by:** [2026-05-01: Retire Assistant Bundles From Architecture](#2026-05-01-retire-assistant-bundles-from-architecture)
 
 Decision:
 
@@ -300,7 +301,8 @@ families explicitly prevents generic buckets from becoming junk drawers.
 
 ## 2026-04-23: Give Every Non-Slice Artifact A Family And, When Applicable, A Kind
 
-- **Status:** Active
+- **Status:** Superseded
+- **Superseded by:** [2026-05-01: Retire Assistant Bundles From Architecture](#2026-05-01-retire-assistant-bundles-from-architecture)
 
 Decision:
 
@@ -412,18 +414,18 @@ Decision:
 Foundation packages use semantic public names such as `@beep/schema`,
 `@beep/identity`, and `@beep/ui`. Driver packages use short capability names
 such as `@beep/drizzle` and `@beep/postgres`. Tooling packages use repo-scoped
-public names such as `@beep/repo-cli` and `@beep/repo-configs`. Agent bundles
-are path-identified repo-local artifacts, not workspace packages.
+public names such as `@beep/repo-cli` and `@beep/repo-configs`.
 
 Rationale:
 
 Foundation packages are reusable substrate and should read cleanly in imports.
 Tooling packages are repo-operational by design and should advertise that role
-in their names. Agent bundles are content artifacts rather than libraries.
+in their names.
 
 ## 2026-04-23: Keep Agent Content Portable And Runtime Wiring Declarative
 
-- **Status:** Active
+- **Status:** Superseded
+- **Superseded by:** [2026-05-01: Retire Assistant Bundles From Architecture](#2026-05-01-retire-assistant-bundles-from-architecture)
 
 Decision:
 
@@ -456,7 +458,7 @@ with explicit topology and entrypoints.
 Rationale:
 
 If a package matters enough to be named in the architecture, it should have a
-real role contract that humans and agents can infer from structure instead of a
+real role contract that readers can infer from structure instead of a
 single `package.json` full of scripts.
 
 ## 2026-04-27: Split Postgres And Drizzle Drivers From Product Repositories
@@ -643,6 +645,37 @@ The previous doctrine had the right direction, but "application errors" and
 client, handler, and use-case signatures easier to reason about and gives tests
 one precise thing to prove. Keeping the proof fixture-first avoids turning
 architecture prose into a wish list.
+
+## 2026-05-01: Retire Assistant Bundles From Architecture
+
+- **Status:** Active
+- **Supersedes:**
+  - [2026-04-23: Add Explicit Non-Slice Artifact Families](#2026-04-23-add-explicit-non-slice-artifact-families)
+  - [2026-04-23: Give Every Non-Slice Artifact A Family And, When Applicable, A Kind](#2026-04-23-give-every-non-slice-artifact-a-family-and-when-applicable-a-kind)
+  - [2026-04-23: Keep Agent Content Portable And Runtime Wiring Declarative](#2026-04-23-keep-agent-content-portable-and-runtime-wiring-declarative)
+
+Decision:
+
+Assistant runtime configuration is no longer an architecture family, package
+family, or topology taxonomy in this repo. The canonical non-slice families are
+now only:
+
+- `foundation` for domain-agnostic reusable substrate
+- `drivers` for flat repo-level external boundary wrappers
+- `tooling` for developer-operational code packages
+
+Runtime-specific assistant files may exist only as normal harness-native
+configuration, such as Claude project settings or skills. They are not
+workspace packages, do not carry `beep` family/kind metadata, and are not part
+of the package dependency model.
+
+Rationale:
+
+Claude, Codex, and similar harnesses are changing faster than this repo should
+architect around. Treating their project configuration as first-class repo
+architecture created extra maintenance without improving product boundaries.
+The architecture should describe durable code ownership; harness configuration
+should stay minimal, runtime-native, and easy to delete.
 
 ## Known Unknowns
 

@@ -30,11 +30,6 @@ export const NO_NATIVE_RUNTIME_ERROR_FILES = [
   "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
   "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
   "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
-  ".claude/hooks/schemas/index.ts",
-  ".claude/hooks/skill-suggester/index.ts",
-  ".claude/hooks/subagent-init/index.ts",
-  ".claude/hooks/agent-init/index.ts",
-  ".claude/hooks/pattern-detector/core.ts",
 ] as const;
 
 /**
@@ -62,11 +57,6 @@ export const NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS = [
   /^tooling\/cli\/src\/commands\/Graphiti\/internal\/ProxyConfig\.ts$/,
   /^tooling\/cli\/src\/commands\/Graphiti\/internal\/ProxyServices\.ts$/,
   /^tooling\/cli\/src\/commands\/Graphiti\/internal\/ProxyRuntime\.ts$/,
-  /^\.claude\/hooks\/schemas\/index\.ts$/,
-  /^\.claude\/hooks\/skill-suggester\/index\.ts$/,
-  /^\.claude\/hooks\/subagent-init\/index\.ts$/,
-  /^\.claude\/hooks\/agent-init\/index\.ts$/,
-  /^\.claude\/hooks\/pattern-detector\/core\.ts$/,
 ] as const;
 
 /**

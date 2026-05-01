@@ -35,12 +35,7 @@ import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScrip
 
 const $I = $RepoCliId.create("commands/Laws/DualArity");
 const INVENTORY_PATH = "standards/dual-arity.inventory.jsonc";
-const INCLUDED_GLOBS = [
-  "apps/**/*.{ts,tsx}",
-  "packages/**/*.{ts,tsx}",
-  "infra/**/*.ts",
-  ".claude/hooks/**/*.ts",
-] as const;
+const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
 const ENFORCED_ROOTS = [
   "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
   "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts",
@@ -705,9 +700,6 @@ const makeOwnerResolver = Effect.fn("DualArity.makeOwnerResolver")(function* () 
     }
     if (Str.startsWith("packages/tooling/library/repo-utils/")(relativePath)) {
       return "@beep/repo-utils";
-    }
-    if (Str.startsWith(".claude/")(relativePath)) {
-      return "@beep/claude";
     }
     if (Str.startsWith("infra/")(relativePath)) {
       return "@beep/infra";

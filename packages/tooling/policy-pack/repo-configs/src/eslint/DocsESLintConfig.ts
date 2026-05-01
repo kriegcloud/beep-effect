@@ -240,7 +240,7 @@ export const DocsESLintConfig: DocsESLintConfigShape = [
     },
   },
   {
-    files: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts", ".claude/hooks/**/*.ts"],
+    files: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
     ignores: [
       "**/*.d.ts",
       "**/*.test.ts",

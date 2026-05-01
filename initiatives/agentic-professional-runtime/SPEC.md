@@ -27,12 +27,28 @@ not two separate platforms.
 
 - The runtime is organized around professional workspaces, not generic chat.
 - Tenancy is organization-first. A solo practice is a one-person organization.
-- The first end-to-end proof is the runtime data loop:
+- The first end-to-end proof is the runtime data loop. The v1 trace starts with
+  normalized incoming email fixtures:
   1. onboard organization, user, and workspace;
-  2. ingest synthetic email, calendar, document, and assistant-thread artifacts;
-  3. produce candidate claims, tasks, and artifacts;
+  2. ingest one synthetic email artifact with stable source spans;
+  3. run a deterministic fixture agent;
+  4. produce candidate claims, tasks, and one client-facing draft;
+  5. create a strict human approval gate;
+  6. expose bounded context through the internal SDK.
+- Later proof loops may add calendar, document, assistant-thread, and connector
+  execution paths after the email loop is stable.
+- The canonical v1 scenario pair is:
+  1. Law patent intake before a public-demo deadline.
+  2. Wealth cash request before a payment deadline.
+- Product fixture IDs are readable and stable. Evidence uses stable source span
+  IDs, not whole-artifact-only citations or byte offsets.
+- The v1 proof produces candidate runtime truth only:
+  1. candidate claims;
+  2. candidate tasks;
+  3. candidate draft artifacts;
   4. attach evidence and provenance;
-  5. expose bounded context through the internal SDK.
+  5. pending approval gates;
+  6. evidence-bounded context packets.
 - Claim plus evidence plus provenance plus lifecycle is the authoritative memory
   primitive. Search, graph views, retrieval packets, summaries, and MCP outputs
   are projections.
@@ -73,6 +89,55 @@ AdvicePeriod or Mariner:
 - evidence-backed memory with bitemporal lifecycle
 - usage, model, tool, and cost attribution
 - local-first deployment that can later grow toward org sync
+
+## Runtime Data Loop Proof
+
+The active P2 proof lives in:
+
+- `docs/runtime-data-loop.md`
+- `docs/runtime-fixture-catalog.md`
+- `docs/sdk-context-packet-contract.md`
+- `docs/approval-and-autonomy-policy.md`
+- `docs/runtime-proof-slice-map.md`
+- `docs/p3-slice-implementation.md`
+- `fixtures/runtime-data-loop`
+
+The proof is intentionally deterministic. It uses synthetic fixture inputs and
+expected snapshots so implementation can later prove schema, package, and SDK
+contracts without depending on model nondeterminism.
+
+The terminal output of each scenario is:
+
+- candidate claims with evidence spans
+- candidate project/task work
+- one client-facing email draft
+- one pending approval gate
+- one SDK context packet
+
+The Law scenario seeds an existing legal client, contact, matter, and patent
+asset. The Wealth scenario seeds an existing household, client, party, and
+account reference. Entity resolution from arbitrary email is deferred.
+
+## Executable P3 Proof
+
+The first executable package proof lives in:
+
+- `packages/tenancy/domain`
+- `packages/workspace/domain`
+- `packages/epistemic/domain`
+- `packages/agent-capability/domain`
+- `packages/agent-capability/use-cases`
+- `packages/law-practice/domain`
+- `packages/wealth-management/domain`
+- `apps/professional-runtime-proof`
+
+The proof keeps slice domains schema-first, maps readable fixture keys to
+repo-native entity IDs, exposes SDK candidate output and context-packet
+contracts from `@beep/agent-capability-use-cases/public`, and runs the paired
+fixtures through `@beep/agent-capability-use-cases/test`.
+
+The app-level proof harness is the only place that composes both verticals in
+P3. Slice packages still do not import from other product slices directly.
 
 ## Initial Slice Topology
 

@@ -10,7 +10,7 @@
  *
  * @example
  * ```ts
- * import { Shared } from "@beep/shared-domain/identity/index"
+ * import { Shared } from "@beep/shared-domain/identity"
  *
  * console.log(Shared.OrganizationId.tableName)
  * ```

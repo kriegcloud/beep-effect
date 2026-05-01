@@ -18,8 +18,8 @@
     "./packages/**/dtslint/**/*.ts",
     "./packages/**/dtslint/**/*.tsx",
     "./syncpack.config.ts",
-    "./.claude/*.ts",
-    "./.claude/*.json"
+    "./*.ts",
+    "./*.json"
   ],
   "exclude": [
     "**/node_modules/**",
@@ -49,7 +49,9 @@
       // These will be populated as packages are created
       "@beep/repo-cli": ["./packages/tooling/tool/cli/src/index.ts"],
       "@beep/repo-cli/*": ["./packages/tooling/tool/cli/src/*"],
-      "@beep/repo-utils": ["./packages/tooling/library/repo-utils/src/index.ts"],
+      "@beep/repo-utils": [
+        "./packages/tooling/library/repo-utils/src/index.ts"
+      ],
       "@beep/repo-utils/*": ["./packages/tooling/library/repo-utils/src/*"],
       "@beep/types": ["./packages/foundation/primitive/types/src/index.ts"],
       "@beep/types/*": ["./packages/foundation/primitive/types/src/*"],
@@ -69,9 +71,15 @@
       "@beep/data/*": ["./packages/foundation/primitive/data/src/*"],
       "@beep/ui": ["./packages/foundation/ui-system/ui/src/index.ts"],
       "@beep/ui/*": ["./packages/foundation/ui-system/ui/src/*"],
-      "@beep/repo-configs": ["./packages/tooling/policy-pack/repo-configs/src/index.ts"],
-      "@beep/repo-configs/*": ["./packages/tooling/policy-pack/repo-configs/src/*"],
-      "@beep/test-utils": ["./packages/tooling/test-kit/test-utils/src/index.ts"],
+      "@beep/repo-configs": [
+        "./packages/tooling/policy-pack/repo-configs/src/index.ts"
+      ],
+      "@beep/repo-configs/*": [
+        "./packages/tooling/policy-pack/repo-configs/src/*"
+      ],
+      "@beep/test-utils": [
+        "./packages/tooling/test-kit/test-utils/src/index.ts"
+      ],
       "@beep/test-utils/*": ["./packages/tooling/test-kit/test-utils/src/*"],
       "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
       "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*"],
@@ -101,7 +109,52 @@
       "@beep/md/*": ["./packages/foundation/capability/md/src/*"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
       "@beep/codedank-web/*": ["./apps/codedank-web/src/*"],
-      "@beep/repo-docgen/schema.json": ["./packages/tooling/tool/docgen/schema.json"],
+      "@beep/professional-runtime-proof": [
+        "./apps/professional-runtime-proof/src/index.ts"
+      ],
+      "@beep/professional-runtime-proof/*": [
+        "./apps/professional-runtime-proof/src/*"
+      ],
+      "@beep/agent-capability-domain": [
+        "./packages/agent-capability/domain/src/index.ts"
+      ],
+      "@beep/agent-capability-domain/*": [
+        "./packages/agent-capability/domain/src/*"
+      ],
+      "@beep/agent-capability-use-cases": [
+        "./packages/agent-capability/use-cases/src/index.ts"
+      ],
+      "@beep/agent-capability-use-cases/*": [
+        "./packages/agent-capability/use-cases/src/*"
+      ],
+      "@beep/agent-capability-use-cases/public": [
+        "./packages/agent-capability/use-cases/src/public.ts"
+      ],
+      "@beep/agent-capability-use-cases/server": [
+        "./packages/agent-capability/use-cases/src/server.ts"
+      ],
+      "@beep/agent-capability-use-cases/test": [
+        "./packages/agent-capability/use-cases/src/test.ts"
+      ],
+      "@beep/epistemic-domain": ["./packages/epistemic/domain/src/index.ts"],
+      "@beep/epistemic-domain/*": ["./packages/epistemic/domain/src/*"],
+      "@beep/law-practice-domain": [
+        "./packages/law-practice/domain/src/index.ts"
+      ],
+      "@beep/law-practice-domain/*": ["./packages/law-practice/domain/src/*"],
+      "@beep/tenancy-domain": ["./packages/tenancy/domain/src/index.ts"],
+      "@beep/tenancy-domain/*": ["./packages/tenancy/domain/src/*"],
+      "@beep/wealth-management-domain": [
+        "./packages/wealth-management/domain/src/index.ts"
+      ],
+      "@beep/wealth-management-domain/*": [
+        "./packages/wealth-management/domain/src/*"
+      ],
+      "@beep/workspace-domain": ["./packages/workspace/domain/src/index.ts"],
+      "@beep/workspace-domain/*": ["./packages/workspace/domain/src/*"],
+      "@beep/repo-docgen/schema.json": [
+        "./packages/tooling/tool/docgen/schema.json"
+      ],
       "@beep/fixture-lab-specimen-client": [
         "./packages/fixture-lab/specimen/client/src/index.ts"
       ],
@@ -269,7 +322,36 @@
       "@beep/ffmpeg": ["./packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["./packages/drivers/ffmpeg/src/*"],
       "@beep/postgres": ["./packages/drivers/postgres/src/index.ts"],
-      "@beep/postgres/*": ["./packages/drivers/postgres/src/*"]
+      "@beep/postgres/*": ["./packages/drivers/postgres/src/*"],
+      "@beep/shared-domain/aggregates": [
+        "./packages/shared/domain/src/aggregates.ts"
+      ],
+      "@beep/shared-domain/entities": [
+        "./packages/shared/domain/src/entities.ts"
+      ],
+      "@beep/shared-domain/entities/Organization": [
+        "./packages/shared/domain/src/entities/Organization/index.ts"
+      ],
+      "@beep/shared-domain/entity": ["./packages/shared/domain/src/entity.ts"],
+      "@beep/shared-domain/identity": [
+        "./packages/shared/domain/src/identity.ts"
+      ],
+      "@beep/shared-domain/values": ["./packages/shared/domain/src/values.ts"],
+      "@beep/shared-domain/values/LocalDate": [
+        "./packages/shared/domain/src/values/LocalDate/index.ts"
+      ],
+      "@beep/shared-tables/entities": [
+        "./packages/shared/tables/src/entities/index.ts"
+      ],
+      "@beep/shared-tables/entities/Organization": [
+        "./packages/shared/tables/src/entities/Organization/index.ts"
+      ],
+      "@beep/shared-ui/entities": [
+        "./packages/shared/ui/src/entities/index.ts"
+      ],
+      "@beep/shared-ui/entities/Organization": [
+        "./packages/shared/ui/src/entities/Organization/index.ts"
+      ]
     }
   }
 }

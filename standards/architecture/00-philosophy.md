@@ -4,7 +4,7 @@ beep-effect wants a repo where experimentation is cheap and quality is not.
 
 The architecture is built for a workflow where new domains, slices, and product
 ideas appear quickly. That only works if the repo has strong defaults. Without
-defaults, every experiment invents its own package boundaries, every agent
+defaults, every experiment invents its own package boundaries, every contributor
 chooses a slightly different file shape, and every successful prototype becomes
 harder to promote into real product code.
 
@@ -32,9 +32,6 @@ reader has to reconstruct intent from the contents; when it is explicit,
 the path itself tells you what is and is not in scope before you open the
 file. This shortens code review, lowers onboarding cost, and prevents the
 slow drift where similar concepts grow incompatible shapes across slices.
-(Agents reading the codebase benefit from the same signal — vague topology
-causes both human and agent improvisation — but the primary audience here is
-human reviewers and contributors.)
 
 This is why role suffixes matter. `Membership.events.ts` and
 `Membership.event-handlers.ts` are slightly more verbose than one generic

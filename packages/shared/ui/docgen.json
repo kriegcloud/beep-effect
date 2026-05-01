@@ -31,6 +31,12 @@
     "paths": {
       "@beep/shared-ui": ["../../../packages/shared/ui/src/index.ts"],
       "@beep/shared-ui/*": ["../../../packages/shared/ui/src/*.ts"],
+      "@beep/shared-ui/entities": [
+        "../../../packages/shared/ui/src/entities/index.ts"
+      ],
+      "@beep/shared-ui/entities/Organization": [
+        "../../../packages/shared/ui/src/entities/Organization/index.ts"
+      ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],
@@ -47,7 +53,28 @@
         "../../../packages/foundation/modeling/schema/src/*.ts"
       ],
       "@beep/shared-domain": ["../../../packages/shared/domain/src/index.ts"],
-      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"]
+      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"],
+      "@beep/shared-domain/aggregates": [
+        "../../../packages/shared/domain/src/aggregates.ts"
+      ],
+      "@beep/shared-domain/entities": [
+        "../../../packages/shared/domain/src/entities.ts"
+      ],
+      "@beep/shared-domain/entities/Organization": [
+        "../../../packages/shared/domain/src/entities/Organization/index.ts"
+      ],
+      "@beep/shared-domain/entity": [
+        "../../../packages/shared/domain/src/entity.ts"
+      ],
+      "@beep/shared-domain/identity": [
+        "../../../packages/shared/domain/src/identity.ts"
+      ],
+      "@beep/shared-domain/values": [
+        "../../../packages/shared/domain/src/values.ts"
+      ],
+      "@beep/shared-domain/values/LocalDate": [
+        "../../../packages/shared/domain/src/values/LocalDate/index.ts"
+      ]
     }
   }
 }

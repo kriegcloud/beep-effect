@@ -24,7 +24,7 @@ import {
   startOfYear,
   today,
   todayEffect,
-} from "@beep/shared-domain/values/LocalDate/index";
+} from "@beep/shared-domain/values/LocalDate";
 import { assert, describe, expect, it } from "@effect/vitest";
 import { Effect, Equal, Exit } from "effect";
 import * as DateTime from "effect/DateTime";

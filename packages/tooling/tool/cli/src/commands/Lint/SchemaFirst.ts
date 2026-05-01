@@ -21,12 +21,7 @@ import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScrip
 
 const $I = $RepoCliId.create("commands/Lint/SchemaFirst");
 const INVENTORY_PATH = "standards/schema-first.inventory.jsonc";
-const INCLUDED_GLOBS = [
-  "apps/**/*.{ts,tsx}",
-  "packages/**/*.{ts,tsx}",
-  "infra/**/*.ts",
-  ".claude/hooks/**/*.ts",
-] as const;
+const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
 const ENFORCED_ROOTS = [
   "packages/tooling/tool/cli/src",
   "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -211,9 +206,6 @@ const makeOwnerResolver = Effect.fn("makeOwnerResolver")(function* () {
     );
     if (O.isSome(workspaceMatch)) {
       return workspaceMatch.value[0];
-    }
-    if (Str.startsWith(".claude/")(relativePath)) {
-      return "@beep/claude";
     }
     if (Str.startsWith("infra/")(relativePath)) {
       return "@beep/infra";

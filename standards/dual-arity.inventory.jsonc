@@ -5,8 +5,7 @@
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
     "packages/tooling/**/*.{ts,tsx}",
-    "infra/**/*.ts",
-    ".claude/hooks/**/*.ts"
+    "infra/**/*.ts"
   ],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",

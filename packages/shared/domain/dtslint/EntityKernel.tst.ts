@@ -1,11 +1,11 @@
 import { $SharedDomainId } from "@beep/identity/packages";
 import * as Model from "@beep/schema/Model";
 import * as DomainBarrel from "@beep/shared-domain";
+import * as EntityBarrel from "@beep/shared-domain/entity";
 import * as BaseEntity from "@beep/shared-domain/entity/BaseEntity";
 import * as EntityId from "@beep/shared-domain/entity/EntityId";
 import * as EntityMixin from "@beep/shared-domain/entity/EntityMixin";
 import * as EntityRef from "@beep/shared-domain/entity/EntityRef";
-import * as EntityBarrel from "@beep/shared-domain/entity/index";
 import type * as Shared from "@beep/shared-domain/identity/Shared";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";

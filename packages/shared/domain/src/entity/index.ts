@@ -10,7 +10,7 @@
  *
  * @example
  * ```ts
- * import { BaseEntity } from "@beep/shared-domain/entity/index"
+ * import { BaseEntity } from "@beep/shared-domain/entity"
  *
  * console.log(BaseEntity.BaseEntity.definition.fieldMap.createdAt.columnName)
  * ```
@@ -25,7 +25,7 @@ export * as BaseEntity from "./BaseEntity.ts";
  *
  * @example
  * ```ts
- * import { EntityId } from "@beep/shared-domain/entity/index"
+ * import { EntityId } from "@beep/shared-domain/entity"
  *
  * console.log(EntityId.EntityIdValue)
  * ```
@@ -40,7 +40,7 @@ export * as EntityId from "./EntityId.ts";
  *
  * @example
  * ```ts
- * import { EntityMixin } from "@beep/shared-domain/entity/index"
+ * import { EntityMixin } from "@beep/shared-domain/entity"
  *
  * console.log(EntityMixin.TypeId)
  * ```
@@ -55,7 +55,7 @@ export * as EntityMixin from "./EntityMixin.ts";
  *
  * @example
  * ```ts
- * import { EntityRef } from "@beep/shared-domain/entity/index"
+ * import { EntityRef } from "@beep/shared-domain/entity"
  *
  * console.log(EntityRef.EntityRef)
  * ```
@@ -70,7 +70,7 @@ export * as EntityRef from "./EntityRef.ts";
  *
  * @example
  * ```ts
- * import { Principal } from "@beep/shared-domain/entity/index"
+ * import { Principal } from "@beep/shared-domain/entity"
  *
  * console.log(Principal.Principal)
  * ```
@@ -85,7 +85,7 @@ export * as Principal from "./Principal.ts";
  *
  * @example
  * ```ts
- * import { primitives } from "@beep/shared-domain/entity/index"
+ * import { primitives } from "@beep/shared-domain/entity"
  *
  * console.log(primitives.VectorClock)
  * ```
@@ -100,7 +100,7 @@ export * as primitives from "./primitives.ts";
  *
  * @example
  * ```ts
- * import { SourceKind } from "@beep/shared-domain/entity/index"
+ * import { SourceKind } from "@beep/shared-domain/entity"
  *
  * console.log(SourceKind.SourceKind)
  * ```

@@ -1,5 +1,5 @@
-import type * as Organization from "@beep/shared-domain/entities/Organization/index";
-import type * as OrganizationTables from "@beep/shared-tables/entities/Organization/index";
+import type * as Organization from "@beep/shared-domain/entities/Organization";
+import type * as OrganizationTables from "@beep/shared-tables/entities/Organization";
 import type * as Table from "@beep/shared-tables/table/Table";
 import { bigint, integer, jsonb, pgTable, serial, text } from "drizzle-orm/pg-core";
 import { describe, expect, it } from "tstyche";

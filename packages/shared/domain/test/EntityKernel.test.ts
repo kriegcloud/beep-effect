@@ -1,11 +1,11 @@
 import { $SharedDomainId } from "@beep/identity/packages";
 import * as Model from "@beep/schema/Model";
 import * as VariantSchema from "@beep/schema/VariantSchema";
+import * as EntityBarrel from "@beep/shared-domain/entity";
 import * as BaseEntity from "@beep/shared-domain/entity/BaseEntity";
 import * as EntityId from "@beep/shared-domain/entity/EntityId";
 import * as EntityMixin from "@beep/shared-domain/entity/EntityMixin";
 import * as EntityRef from "@beep/shared-domain/entity/EntityRef";
-import * as EntityBarrel from "@beep/shared-domain/entity/index";
 import * as Principal from "@beep/shared-domain/entity/Principal";
 import * as primitives from "@beep/shared-domain/entity/primitives";
 import * as SourceKind from "@beep/shared-domain/entity/SourceKind";

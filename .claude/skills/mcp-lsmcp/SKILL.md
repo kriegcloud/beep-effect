@@ -1,23 +1,33 @@
+---
+name: mcp-lsmcp
+description: "Use for lsmcp symbol and index workflows plus troubleshooting startup, handshake, and timeout issues."
+---
+
 # MCP LSMCP
 
-Use this skill for TypeScript symbol indexing/search and lsmcp startup diagnosis.
-
 ## Use When
-- You need fast symbol-level navigation across repo files.
-- lsmcp startup reports handshake close or times out.
+- You need symbol-aware exploration and LSP-backed code navigation.
+- lsmcp startup fails or times out.
 
 ## Quick Smoke
-1. `get_symbol_search_guidance`.
-2. `list_memories` for repo root.
+1. Call `mcp__lsmcp__get_symbol_search_guidance`.
+2. Call `mcp__lsmcp__list_memories` with this root:
+   `/home/elpresidank/YeeBois/projects/beep-effect`
+   or `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground`.
+
+## Representative Calls
+- Guidance/health: `get_symbol_search_guidance`, `lsp_check_capabilities`.
+- Symbol flows: `search_symbols`, `get_symbol_details`.
+- File-aware LSP: `lsp_get_definitions`, `lsp_find_references`.
 
 ## Common Failures
-- Startup closes during initialize.
-- Slow/heavy calls timeout.
-- `--bun` launch args crash on `node:sqlite`.
-- Full-repo root scans can timeout even when startup is healthy.
+- Handshake closes with `initialize response`.
+- Timeout on wider scans when root is the full monorepo.
+- Runtime crash on `node:sqlite` when launched with `--bun`.
 
 ## Fix Patterns
-- Use launch args: `bunx -y @mizchi/lsmcp -p typescript`.
-- Remove `--bun` from MCP config.
-- Prefer lightweight calls first, then narrow query scope.
-- Use a scoped `root` (for example `packages/tooling/policy-pack/repo-configs` or a package directory) for symbol queries.
+- Launch args should be:
+  `bunx -y @mizchi/lsmcp -p typescript`
+- Do not include `--bun` in MCP config args.
+- Use scoped roots for reliability (for example `packages/tooling/policy-pack/repo-configs` or a package path) instead of the repo root.
+- Start with low-cost calls, then narrow scope (`file`, `paths`, `limit`).

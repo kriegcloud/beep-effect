@@ -36,7 +36,7 @@ product meaning.
 - `EntityRef`
 - `Principal`
 - `SourceKind`
-- `@beep/shared-domain/entity/index`
+- `@beep/shared-domain/entity`
 - `@beep/shared-domain/entity/primitives`
 
 ## Source Map

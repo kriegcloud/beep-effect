@@ -12,14 +12,14 @@ invariants, or transitions span multiple child entities or values.
 ## Artifact Family
 
 The top-level architecture class for a non-slice artifact. The canonical
-non-slice families are `foundation`, `drivers`, `tooling`, and `agents`.
+non-slice families are `foundation`, `drivers`, and `tooling`.
 
 ## Artifact Kind
 
 The canonical role inside an artifact family. Every non-slice artifact belongs
 to exactly one family. Kinds remain required for families that intentionally
-declare a kind segment, such as `foundation`, `tooling`, and `agents`;
-`drivers` is the flat-family exception.
+declare a kind segment, such as `foundation` and `tooling`; `drivers` is the
+flat-family exception.
 
 ## Adapter
 
@@ -246,8 +246,7 @@ exports from packages that do not need that role.
 ## Policy Pack
 
 A declarative policy/configuration bundle. In `tooling`, policy packs publish
-shared governance data or config presets. In `agents`, policy packs publish
-bounded steering packets and activation rules. Policy packs are not executable
+shared governance data or config presets. Policy packs are not executable
 applications.
 
 ## Public Config
@@ -283,19 +282,7 @@ be instance methods, exported pure functions, `*.behavior.ts`, or pure
 ## Review Gate
 
 An enforcement lane for contextual or exception-based rules that need explicit
-human or agent review evidence instead of purely mechanical checking.
-
-## Portable Agent Bundle
-
-A repo-local bundle under `agents/<kind>/<name>` with required `beep.json`
-metadata. Portable bundles are runtime-neutral content artifacts; they are not
-workspace packages.
-
-## Runtime Adapter
-
-An `agents` kind that declaratively assembles `skill-pack` and `policy-pack`
-bundles for a concrete runtime such as Codex or Claude. Runtime adapters may
-contain config, templates, and mappings, but not executable logic.
+review evidence instead of purely mechanical checking.
 
 ## Schema-First Model
 
@@ -303,12 +290,6 @@ A pure data model whose `Schema` value is the source of truth. TypeScript types,
 constructors, decoders, encoders, guards, equivalence, defaults, validation
 messages, and documentation metadata derive from that schema instead of living
 beside it as parallel definitions.
-
-## Skill Pack
-
-An `agents` kind for portable task guidance. Skill packs are anchored by
-`SKILL.md`, declare metadata in `beep.json`, and may include sidecars such as
-`references/`, `assets/`, or `_shared/`.
 
 ## Role Suffix
 

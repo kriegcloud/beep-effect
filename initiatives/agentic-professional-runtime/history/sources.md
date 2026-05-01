@@ -16,6 +16,8 @@ file conflicts with `SPEC.md`, the spec wins.
 | `standards/architecture/12-observability.md` | Span, logging, and usage-boundary guidance. |
 | `standards/architecture/13-onboarding-the-minimum-viable-slice.md` | Minimum legal slice shape. |
 | `initiatives/repo-architecture-automation` | Lean-slate posture, archive branch, fixture-first topology proof. |
+| `history/decision-log.md` | Initiative-local record of locked grilling decisions. |
+| `fixtures/runtime-data-loop` | Synthetic proof inputs and expected output snapshots. |
 | `initiatives/knowledge-workspace` | Prior event-sourced workspace and graph design context; marked as needing refresh. |
 | `initiatives/ip-law-knowledge-graph` | IP law ontology and graph grounding reference. |
 | `initiatives/law-kg-prd` | Earlier lawyer-facing product seed. |

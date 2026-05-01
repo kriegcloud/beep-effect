@@ -16,10 +16,10 @@ Build and maintain features with effect first development.
 - Keep repo quality commands green.
 - `graphiti-memory` is the primary durable repository knowledge base for this repo.
 - Prefer the repo-local helpers when useful:
-  - `bun run codex:hook:session-start`
   - `bun run graphiti:proxy`
   - `bun run graphiti:proxy:ensure`
-- If `graphiti-memory` is unavailable in-session, fall back to repo-local docs, code search, and the checked-in `.codex` and `.claude` guidance.
+- If `graphiti-memory` is unavailable in-session, fall back to repo-local docs,
+  code search, and the checked-in `AGENTS.md` / `CLAUDE.md` guidance.
 - Graphiti memory MCP startup gotcha: the server expects `group_ids` as a list. If the tool wrapper exposes `group_ids` as `string`, pass a JSON array literal string containing `beep_dev` instead of the plain string `beep_dev`.
 - When the user asks questions on differences between effect v3 and effect v4, prefer the `effect-v4` skill and only reach for `graphiti-memory` when the legacy graph adds useful historical context.
 - When working with shadcn in this monorepo, treat the editor app as the app workspace and the shared UI package as the shared base package. Prefer the shadcn skill and the shadcn MCP server for registry discovery and installs.

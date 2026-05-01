@@ -57,46 +57,6 @@
         "vitest": "catalog:",
       },
     },
-    ".claude": {
-      "name": "@beep/claude",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "@effect/platform-bun": "catalog:",
-        "@effect/platform-node": "catalog:",
-        "effect": "catalog:",
-        "picomatch": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-        "@types/picomatch": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    ".codex": {
-      "name": "@beep/codex",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "@effect/platform-bun": "catalog:",
-        "@effect/platform-node": "catalog:",
-        "effect": "catalog:",
-        "picomatch": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-        "@types/picomatch": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "apps/codedank-web": {
       "name": "@beep/codedank-web",
       "version": "0.0.0",
@@ -130,6 +90,25 @@
         "typescript": "catalog:",
       },
     },
+    "apps/professional-runtime-proof": {
+      "name": "@beep/professional-runtime-proof",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/agent-capability-domain": "workspace:^",
+        "@beep/agent-capability-use-cases": "workspace:^",
+        "@beep/epistemic-domain": "workspace:^",
+        "@beep/law-practice-domain": "workspace:^",
+        "@beep/tenancy-domain": "workspace:^",
+        "@beep/wealth-management-domain": "workspace:^",
+        "@beep/workspace-domain": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "infra": {
       "name": "@beep/infra",
       "version": "0.0.0",
@@ -157,6 +136,31 @@
       "name": "@beep/db-admin",
       "version": "0.0.0",
       "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/agent-capability/domain": {
+      "name": "@beep/agent-capability-domain",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/agent-capability/use-cases": {
+      "name": "@beep/agent-capability-use-cases",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/schema": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -207,6 +211,19 @@
       },
       "devDependencies": {
         "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/epistemic/domain": {
+      "name": "@beep/epistemic-domain",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -556,6 +573,18 @@
         "react-dom": "^19",
       },
     },
+    "packages/law-practice/domain": {
+      "name": "@beep/law-practice-domain",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/shared-domain": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/shared/client": {
       "name": "@beep/shared-client",
       "version": "0.0.0",
@@ -635,6 +664,19 @@
       "name": "@beep/shared-use-cases",
       "version": "0.0.0",
       "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/tenancy/domain": {
+      "name": "@beep/tenancy-domain",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -761,6 +803,31 @@
         "@effect/vitest": "catalog:",
         "@types/babel__code-frame": "catalog:",
         "@types/doctrine": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/wealth-management/domain": {
+      "name": "@beep/wealth-management-domain",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/shared-domain": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/workspace/domain": {
+      "name": "@beep/workspace-domain",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
     },
@@ -1256,13 +1323,13 @@
 
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
+    "@beep/agent-capability-domain": ["@beep/agent-capability-domain@workspace:packages/agent-capability/domain"],
+
+    "@beep/agent-capability-use-cases": ["@beep/agent-capability-use-cases@workspace:packages/agent-capability/use-cases"],
+
     "@beep/chalk": ["@beep/chalk@workspace:packages/foundation/capability/chalk"],
 
-    "@beep/claude": ["@beep/claude@workspace:.claude"],
-
     "@beep/codedank-web": ["@beep/codedank-web@workspace:apps/codedank-web"],
-
-    "@beep/codex": ["@beep/codex@workspace:.codex"],
 
     "@beep/colors": ["@beep/colors@workspace:packages/foundation/capability/colors"],
 
@@ -1271,6 +1338,8 @@
     "@beep/db-admin": ["@beep/db-admin@workspace:packages/_internal/db-admin"],
 
     "@beep/drizzle": ["@beep/drizzle@workspace:packages/drivers/drizzle"],
+
+    "@beep/epistemic-domain": ["@beep/epistemic-domain@workspace:packages/epistemic/domain"],
 
     "@beep/ffmpeg": ["@beep/ffmpeg@workspace:packages/drivers/ffmpeg"],
 
@@ -1292,6 +1361,8 @@
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
 
+    "@beep/law-practice-domain": ["@beep/law-practice-domain@workspace:packages/law-practice/domain"],
+
     "@beep/md": ["@beep/md@workspace:packages/foundation/capability/md"],
 
     "@beep/messages": ["@beep/messages@workspace:packages/foundation/modeling/messages"],
@@ -1301,6 +1372,8 @@
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
 
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
+
+    "@beep/professional-runtime-proof": ["@beep/professional-runtime-proof@workspace:apps/professional-runtime-proof"],
 
     "@beep/repo-cli": ["@beep/repo-cli@workspace:packages/tooling/tool/cli"],
 
@@ -1328,6 +1401,8 @@
 
     "@beep/shared-use-cases": ["@beep/shared-use-cases@workspace:packages/shared/use-cases"],
 
+    "@beep/tenancy-domain": ["@beep/tenancy-domain@workspace:packages/tenancy/domain"],
+
     "@beep/test-utils": ["@beep/test-utils@workspace:packages/tooling/test-kit/test-utils"],
 
     "@beep/types": ["@beep/types@workspace:packages/foundation/primitive/types"],
@@ -1335,6 +1410,10 @@
     "@beep/ui": ["@beep/ui@workspace:packages/foundation/ui-system/ui"],
 
     "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
+
+    "@beep/wealth-management-domain": ["@beep/wealth-management-domain@workspace:packages/wealth-management/domain"],
+
+    "@beep/workspace-domain": ["@beep/workspace-domain@workspace:packages/workspace/domain"],
 
     "@bergos/jsonparse": ["@bergos/jsonparse@1.4.2", "", { "dependencies": { "buffer": "^6.0.3" } }, "sha512-qUt0QNJjvg4s1zk+AuLM6s/zcsQ8MvGn7+1f0vPuxvpCYa08YtTryuDInngbEyW5fNGGYe2znKt61RMGd5HnXg=="],
 

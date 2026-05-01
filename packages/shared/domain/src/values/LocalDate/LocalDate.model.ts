@@ -25,7 +25,7 @@ const $I = $SharedDomainId.create("values/LocalDate/LocalDate.model");
  *
  * @example
  * ```ts
- * import { Model } from "@beep/shared-domain/values/LocalDate/index"
+ * import { Model } from "@beep/shared-domain/values/LocalDate"
  *
  * const date = Model.make({ year: 2024, month: 6, day: 15 })
  *
@@ -51,7 +51,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    *
    * @example
    * ```ts
-   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate"
    *
    * const date = Model.make({ year: 99, month: 2, day: 5 })
    *
@@ -74,7 +74,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    *
    * @example
    * ```ts
-   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate"
    *
    * const date = Model.make({ year: 2024, month: 6, day: 15 })
    *
@@ -93,7 +93,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    * @example
    * ```ts
    * import { Equal } from "effect"
-   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate"
    *
    * const left = Model.make({ year: 2024, month: 6, day: 15 })
    * const right = Model.make({ year: 2024, month: 6, day: 15 })
@@ -116,7 +116,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    * @example
    * ```ts
    * import { Hash } from "effect"
-   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate"
    *
    * const date = Model.make({ year: 2024, month: 6, day: 15 })
    *
@@ -137,7 +137,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    * @example
    * ```ts
    * import * as DateTime from "effect/DateTime"
-   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate"
    *
    * const date = Model.make({ year: 2024, month: 6, day: 15 })
    * const parts = DateTime.toPartsUtc(date.toDateTime())
@@ -162,7 +162,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    *
    * @example
    * ```ts
-   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate"
    *
    * const date = Model.make({ year: 2024, month: 6, day: 15 })
    *

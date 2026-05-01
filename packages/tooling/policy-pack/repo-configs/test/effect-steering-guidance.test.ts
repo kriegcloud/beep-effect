@@ -4,7 +4,7 @@ import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem } from "effect";
 
 const skillFilePath = fileURLToPath(
-  new URL("../../../../../.agents/skills/effect-first-development/SKILL.md", import.meta.url)
+  new URL("../../../../../.claude/skills/effect-first-development/SKILL.md", import.meta.url)
 );
 
 const readText = Effect.fn(function* (path: string) {

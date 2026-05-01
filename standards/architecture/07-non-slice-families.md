@@ -3,8 +3,8 @@
 Not every important artifact in the repo is a product slice.
 
 Some packages exist to provide domain-agnostic substrate. Some exist to support
-development and operations. Some exist to steer coding agents. Some exist to
-wrap external engines and SDKs. If those artifacts are all described as
+development and operations. Some exist to wrap external engines and SDKs. If
+those artifacts are all described as
 `common`, `shared`, or `core`, the repo loses the same compressed context that
 slice topology gives product code.
 
@@ -16,14 +16,13 @@ applicable.
 Those names are attractive because they feel flexible. The problem is that they
 compress nothing.
 
-If a package is called `common`, an agent still has to open files to discover
+If a package is called `common`, a reader still has to open files to discover
 whether it is:
 
 - a schema/identity substrate
 - a shared UI primitive library
 - a repo CLI
 - a config preset bundle
-- a prompt/policy asset directory
 
 That is exactly the ambiguity the architecture is trying to remove.
 
@@ -96,7 +95,6 @@ The canonical non-slice families are:
 - `foundation`: domain-agnostic reusable substrate
 - `drivers`: flat repo-level external boundary wrappers
 - `tooling`: developer-operational code packages
-- `agents`: repo-local AI steering bundles
 
 Every non-slice artifact declares one canonical family. Kind remains required
 only for families that intentionally declare a kind segment.
@@ -105,11 +103,7 @@ only for families that intentionally declare a kind segment.
 packages/foundation/<kind>/<name>
 packages/drivers/<name>
 packages/tooling/<kind>/<name>
-agents/<kind>/<name>
 ```
-
-`agents/` is intentionally a top-level repo directory rather than a
-`packages/` subfolder.
 
 The path is the first layer of context compression. The manifest metadata is the
 second. Humans should infer role from the path. Tooling should enforce the same
@@ -200,23 +194,6 @@ This keeps the family legible while still making dependency rules visible.
 Repo-wide orchestration is behavior inside `tool`, not a separate one-off
 package kind.
 
-## Why Agents Are Portable Bundles Plus Runtime Adapters
-
-Agent content has two very different concerns:
-
-- portable guidance and steering content
-- runtime-specific assembly for Claude, Codex, or future runtimes
-
-The architecture keeps those concerns separate.
-
-- `skill-pack` owns portable task guidance
-- `policy-pack` owns declarative steering packets
-- `runtime-adapter` owns declarative runtime-specific composition
-
-The adapter is where composition happens. It references skill/policy packs by
-id and adds runtime-local config or templates. It does not own executable logic.
-Executable hooks, CLIs, generators, and sync flows live in `tooling/tool`.
-
 ## Worked Examples
 
 ```txt
@@ -234,12 +211,6 @@ packages/tooling/tool/cli
 
 packages/tooling/policy-pack/repo-configs
   -> shared governance/config packets
-
-agents/skill-pack/schema-first-development
-  -> portable schema-first guidance bundle
-
-agents/runtime-adapter/codex
-  -> declarative Codex wiring over shared skill/policy packs
 ```
 
 The pattern is the point: a reader should know the job of the artifact before

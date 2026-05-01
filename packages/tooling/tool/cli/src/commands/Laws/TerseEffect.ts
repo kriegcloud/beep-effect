@@ -114,12 +114,7 @@ class TerseEffectRulesPersistenceError extends TaggedErrorClass<TerseEffectRules
   })
 ) {}
 
-const INCLUDED_GLOBS = [
-  "apps/**/*.{ts,tsx}",
-  "packages/**/*.{ts,tsx}",
-  "infra/**/*.ts",
-  ".claude/hooks/**/*.ts",
-] as const;
+const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
 
 const getCallExpressionArgument = (callExpression: CallExpression, index: number): O.Option<import("ts-morph").Node> =>
   A.get(callExpression.getArguments(), index);

@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { hasParentOrganization } from "@beep/shared-domain/entities/Organization/index"
+ * import { hasParentOrganization } from "@beep/shared-domain/entities/Organization"
  * import * as O from "effect/Option"
  *
  * console.log(hasParentOrganization({ parentOrgId: O.none() }))
@@ -19,7 +19,7 @@ export * from "./Organization.behavior.js";
  *
  * @example
  * ```ts
- * import { Model } from "@beep/shared-domain/entities/Organization/index"
+ * import { Model } from "@beep/shared-domain/entities/Organization"
  *
  * console.log(Model.definition.entityId.tableName)
  * ```
@@ -34,7 +34,7 @@ export * from "./Organization.model.js";
  *
  * @example
  * ```ts
- * import { ProfilePack } from "@beep/shared-domain/entities/Organization/index"
+ * import { ProfilePack } from "@beep/shared-domain/entities/Organization"
  *
  * console.log(ProfilePack.fieldMap.slug.columnName)
  * ```
