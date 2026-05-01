@@ -33,7 +33,7 @@ bun run test
 bun run lint:fix
 ```
 
-`ui-add` is intentionally scoped to `packages/common/ui`. It is meant for shared primitives, hooks, libs, and styles that should live in `@beep/ui`.
+`ui-add` is intentionally scoped to `packages/foundation/ui-system/ui`. It is meant for shared primitives, hooks, libs, and styles that should live in `@beep/ui`.
 
 ## License
 

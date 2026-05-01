@@ -29,16 +29,13 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@beep/ui": ["../../packages/common/ui/src/index.ts"],
-      "@beep/ui/*": ["../../packages/common/ui/src/*"]
+      "@beep/ui": ["../../packages/foundation/ui-system/ui/src/index.ts"],
+      "@beep/ui/*": ["../../packages/foundation/ui-system/ui/src/*"]
     },
     "outDir": "dist",
     "rootDir": "../.."
   },
   "references": [
-    {
-      "path": "../../packages/common/ui/tsconfig.json"
-    },
     {
       "path": "../../packages/foundation/modeling/identity/tsconfig.json"
     },
@@ -47,6 +44,9 @@
     },
     {
       "path": "../../packages/foundation/modeling/utils/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/ui-system/ui/tsconfig.json"
     },
     {
       "path": "../../tooling/repo-utils/tsconfig.json"

@@ -19,9 +19,6 @@
       "path": "packages/_internal/db-admin"
     },
     {
-      "path": "packages/common/ui"
-    },
-    {
       "path": "packages/drivers/drizzle"
     },
     {
@@ -86,6 +83,9 @@
     },
     {
       "path": "packages/foundation/primitive/types"
+    },
+    {
+      "path": "packages/foundation/ui-system/ui"
     },
     {
       "path": "packages/shared/client"
