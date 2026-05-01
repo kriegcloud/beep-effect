@@ -33,10 +33,14 @@
       "@beep/postgres/*": ["../../../packages/drivers/postgres/src/*.ts"],
       "@beep/colors": ["../../../packages/common/colors/src/index.ts"],
       "@beep/colors/*": ["../../../packages/common/colors/src/*.ts"],
-      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
       "@beep/identity/packages": [
-        "../../../packages/common/identity/src/packages.ts"
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],

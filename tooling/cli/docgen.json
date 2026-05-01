@@ -40,10 +40,14 @@
       "@beep/docgen/schema.json": ["../../tooling/docgen/schema.json"],
       "@beep/ffmpeg": ["../../packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["../../packages/drivers/ffmpeg/src/*.ts"],
-      "@beep/identity": ["../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/identity": [
+        "../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../packages/foundation/modeling/identity/src/*.ts"
+      ],
       "@beep/identity/packages": [
-        "../../packages/common/identity/src/packages.ts"
+        "../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/observability": [
         "../../packages/common/observability/src/index.ts"

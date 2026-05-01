@@ -191,19 +191,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/common/identity": {
-      "name": "@beep/identity",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-        "type-fest": "catalog:",
-      },
-    },
     "packages/common/md": {
       "name": "@beep/md",
       "version": "0.0.0",
@@ -519,6 +506,19 @@
       "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/identity": {
+      "name": "@beep/identity",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "type-fest": "catalog:",
       },
     },
     "packages/foundation/modeling/messages": {
@@ -1301,7 +1301,7 @@
 
     "@beep/fixture-lab-specimen-use-cases": ["@beep/fixture-lab-specimen-use-cases@workspace:packages/fixture-lab/specimen/use-cases"],
 
-    "@beep/identity": ["@beep/identity@workspace:packages/common/identity"],
+    "@beep/identity": ["@beep/identity@workspace:packages/foundation/modeling/identity"],
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
 

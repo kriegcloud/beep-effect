@@ -60,8 +60,10 @@
       "@beep/types/*": ["./packages/foundation/primitive/types/src/*"],
       "@beep/utils": ["./packages/common/utils/src/index.ts"],
       "@beep/utils/*": ["./packages/common/utils/src/*"],
-      "@beep/identity": ["./packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["./packages/common/identity/src/*"],
+      "@beep/identity": [
+        "./packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
       "@beep/schema": ["./packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["./packages/common/schema/src/*"],
       "@beep/messages": [
@@ -181,7 +183,9 @@
       "@beep/fixture-lab-specimen-use-cases/test": [
         "./packages/fixture-lab/specimen/use-cases/src/test.ts"
       ],
-      "@beep/identity/packages": ["./packages/common/identity/src/packages.ts"],
+      "@beep/identity/packages": [
+        "./packages/foundation/modeling/identity/src/packages.ts"
+      ],
       "@beep/md/Md": ["./packages/common/md/src/Md.ts"],
       "@beep/md/Md.model": ["./packages/common/md/src/Md.model.ts"],
       "@beep/md/Md.render": ["./packages/common/md/src/Md.render.ts"],

@@ -34,10 +34,14 @@
       "@beep/docgen/schema.json": ["../../tooling/docgen/schema.json"],
       "@beep/chalk": ["../../packages/common/chalk/src/index.ts"],
       "@beep/chalk/*": ["../../packages/common/chalk/src/*.ts"],
-      "@beep/identity": ["../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/identity": [
+        "../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../packages/foundation/modeling/identity/src/*.ts"
+      ],
       "@beep/identity/packages": [
-        "../../packages/common/identity/src/packages.ts"
+        "../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["../../tooling/repo-utils/src/*.ts"],

@@ -25,9 +25,6 @@
       "path": "packages/common/colors"
     },
     {
-      "path": "packages/common/identity"
-    },
-    {
       "path": "packages/common/md"
     },
     {
@@ -77,6 +74,9 @@
     },
     {
       "path": "packages/fixture-lab/specimen/use-cases"
+    },
+    {
+      "path": "packages/foundation/modeling/identity"
     },
     {
       "path": "packages/foundation/modeling/messages"

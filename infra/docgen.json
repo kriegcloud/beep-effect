@@ -31,10 +31,12 @@
     "paths": {
       "@beep/infra": ["../infra/src/index.ts"],
       "@beep/infra/*": ["../infra/src/*.ts"],
-      "@beep/identity": ["../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../packages/common/identity/src/*.ts"],
+      "@beep/identity": [
+        "../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": ["../packages/foundation/modeling/identity/src/*.ts"],
       "@beep/identity/packages": [
-        "../packages/common/identity/src/packages.ts"
+        "../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/types": ["../packages/foundation/primitive/types/src/index.ts"],
       "@beep/types/*": ["../packages/foundation/primitive/types/src/*.ts"]

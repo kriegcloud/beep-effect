@@ -49,10 +49,14 @@
       "@beep/fixture-lab-specimen-config/test": [
         "../../../../packages/fixture-lab/specimen/config/src/TestLayer.ts"
       ],
-      "@beep/identity": ["../../../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../../../packages/common/identity/src/*.ts"],
+      "@beep/identity": [
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
       "@beep/identity/packages": [
-        "../../../../packages/common/identity/src/packages.ts"
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ]
     }
   },

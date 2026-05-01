@@ -9,13 +9,13 @@
   },
   "references": [
     {
-      "path": "../../common/identity/tsconfig.json"
-    },
-    {
       "path": "../../common/schema/tsconfig.json"
     },
     {
       "path": "../../common/utils/tsconfig.json"
+    },
+    {
+      "path": "../../foundation/modeling/identity/tsconfig.json"
     },
     {
       "path": "../../foundation/primitive/types/tsconfig.json"

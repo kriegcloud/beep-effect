@@ -6,13 +6,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "codegen": "bun run ../../../tooling/cli/src/bin.ts -- codegen --package .",
+    "codegen": "bun run ../../../../tooling/cli/src/bin.ts -- codegen --package .",
     "build": "bun run beep:build",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "bun run beep:check",
     "test": "bun run beep:test",
     "coverage": "bunx --bun vitest run --coverage",
-    "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
+    "docgen": "bun run ../../../../tooling/docgen/src/bin.ts",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
     "beep:build": "tsc -b tsconfig.json && bun run babel",
@@ -49,9 +49,9 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/common/identity"
+    "directory": "packages/foundation/modeling/identity"
   },
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity",
   "sideEffects": [],
   "publishConfig": {
     "access": "public",
@@ -62,5 +62,9 @@
       "./*": "./dist/*.js",
       "./internal/*": null
     }
+  },
+  "beep": {
+    "family": "foundation",
+    "kind": "modeling"
   }
 }

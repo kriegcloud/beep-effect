@@ -9,9 +9,6 @@
   },
   "references": [
     {
-      "path": "../../../common/identity/tsconfig.json"
-    },
-    {
       "path": "../config/tsconfig.json"
     },
     {
@@ -19,6 +16,9 @@
     },
     {
       "path": "../use-cases/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/modeling/identity/tsconfig.json"
     }
   ]
 }

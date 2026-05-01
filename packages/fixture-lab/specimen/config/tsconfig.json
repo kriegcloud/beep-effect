@@ -9,7 +9,7 @@
   },
   "references": [
     {
-      "path": "../../../common/identity/tsconfig.json"
+      "path": "../../../foundation/modeling/identity/tsconfig.json"
     }
   ]
 }

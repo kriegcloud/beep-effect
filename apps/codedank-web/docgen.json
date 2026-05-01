@@ -31,10 +31,14 @@
     "paths": {
       "@beep/codedank-web": ["../../apps/codedank-web/src/index.ts"],
       "@beep/codedank-web/*": ["../../apps/codedank-web/src/*.ts"],
-      "@beep/identity": ["../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/identity": [
+        "../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../packages/foundation/modeling/identity/src/*.ts"
+      ],
       "@beep/identity/packages": [
-        "../../packages/common/identity/src/packages.ts"
+        "../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["../../tooling/repo-utils/src/*.ts"],
