@@ -9,6 +9,7 @@ import { $SharedDomainId } from "@beep/identity/packages";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { PosInt } from "@beep/schema/Int";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
+import * as P from "effect/Predicate";
 import type * as S from "effect/Schema";
 import * as Shared from "../identity/Shared.js";
 import { Principal } from "./Principal.js";
@@ -27,8 +28,8 @@ type EntityIdentityFields<Entity extends EntitySchema.EntityIdLike> = {
 };
 
 type EntityIdentityPersisted = {
-  readonly entityType: EntitySchema.PersistDescriptor<"literal", "derived", "entity_type">;
-  readonly id: EntitySchema.PersistDescriptor<"entityId", "generatedOnInsert">;
+  readonly entityType: EntitySchema.PersistDescriptor<"literal", "derived", "entity_type", undefined>;
+  readonly id: EntitySchema.PersistDescriptor<"entityId", "generatedOnInsert", undefined, undefined>;
 };
 
 type EntityFieldsFor<
@@ -40,12 +41,7 @@ type EntityPersistedFor<
   Entity extends EntitySchema.EntityIdLike,
   ChildFields extends EntitySchema.EntityFieldInputs,
   ChildPersisted extends EntitySchema.PersistedFor<ChildFields>,
-> = EntitySchema.AssignedPersisted<
-  ChildFields,
-  ChildPersisted,
-  EntityIdentityFields<Entity>,
-  EntityIdentityPersisted
->;
+> = EntitySchema.AssignedPersisted<ChildFields, ChildPersisted, EntityIdentityFields<Entity>, EntityIdentityPersisted>;
 
 /**
  * BaseEntity fields shared by every persisted product entity except the
@@ -153,8 +149,7 @@ const entityPartsFor = <
 ): {
   readonly fields: EntityFieldsFor<Entity, ChildFields>;
   readonly persisted: EntityPersistedFor<Entity, ChildFields, ChildPersisted>;
-} =>
-  EntitySchema.assignEntityParts(input.fields, input.persisted, identityFields(entityId), identityPersisted);
+} => EntitySchema.assignEntityParts(input.fields, input.persisted, identityFields(entityId), identityPersisted);
 
 const Class =
   <Child = never>(identifier: string) =>
@@ -193,8 +188,14 @@ const replaceClass = <Base extends object>(base: Base): Omit<Base, "Class"> & { 
     configurable: true,
     value: Class,
   });
-  return base as Omit<Base, "Class"> & { readonly Class: typeof Class };
+  if (hasReplacementClass(base)) {
+    return base;
+  }
+  throw new TypeError("Failed to attach BaseEntity Class factory.");
 };
+
+const hasReplacementClass = <Base extends object>(base: Base): base is Base & { readonly Class: typeof Class } =>
+  P.hasProperty(base, "Class") && Reflect.get(base, "Class") === Class;
 
 /**
  * Product-facing persisted entity base.

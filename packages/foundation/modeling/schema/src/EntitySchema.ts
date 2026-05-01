@@ -354,7 +354,7 @@ const attachPersistDescriptorStatics = <Schema extends S.Decoder<PersistDescript
 ): Schema & PersistDescriptorStatics =>
   SchemaUtils.withStatics(schema, () =>
     Struct.pick(PersistDescriptorStorageBase, ["cases", "guards", "isAnyOf", "match"])
-  ) as Schema & PersistDescriptorStatics;
+  );
 
 /**
  * Schema-backed discriminated persistence descriptor.
@@ -732,9 +732,9 @@ export type AssignPersisted<BasePersisted extends PersistedMap, ExtensionPersist
  */
 export type AssignedEntityParts<
   BaseFields extends EntityFieldInputs,
-  BasePersisted extends PersistedFor<BaseFields>,
+  BasePersisted extends PersistedMap,
   ExtensionFields extends EntityFieldInputs,
-  ExtensionPersisted extends PersistedFor<ExtensionFields>,
+  ExtensionPersisted extends PersistedMap,
 > = {
   readonly fields: Assign<BaseFields, ExtensionFields>;
   readonly persisted: AssignedPersisted<BaseFields, BasePersisted, ExtensionFields, ExtensionPersisted>;
@@ -748,9 +748,9 @@ export type AssignedEntityParts<
  */
 export type AssignedPersisted<
   BaseFields extends EntityFieldInputs,
-  BasePersisted extends PersistedFor<BaseFields>,
+  BasePersisted extends PersistedMap,
   ExtensionFields extends EntityFieldInputs,
-  ExtensionPersisted extends PersistedFor<ExtensionFields>,
+  ExtensionPersisted extends PersistedMap,
 > = CheckedPersistedFor<
   Assign<BaseFields, ExtensionFields>,
   AssignPersisted<BasePersisted, ExtensionPersisted> & PersistedFor<Assign<BaseFields, ExtensionFields>>
@@ -767,7 +767,7 @@ export const assignEntityParts = <
   const BaseFields extends EntityFieldInputs,
   const BasePersisted extends PersistedFor<BaseFields>,
   const ExtensionFields extends EntityFieldInputs,
-  const ExtensionPersisted extends PersistedFor<ExtensionFields>,
+  const ExtensionPersisted extends PersistedMap,
 >(
   baseFields: BaseFields,
   basePersisted: BasePersisted,
@@ -1156,32 +1156,44 @@ const isModelVariantKey = (key: string): key is Model.Variant => modelVariantKey
 const hasVariant = (field: EntityVariantFieldInput, variant: Model.Variant): boolean =>
   S.isSchema(field.schemas[variant]);
 
-const assertEntityVariantFieldInput = (key: string, field: unknown): asserts field is EntityVariantFieldInput => {
-  if (!VariantSchema.isField(field)) {
-    failEntityFieldInput(key, `Entity field '${key}' must be a Model variant field.`);
-  }
-
-  for (const variant of Struct.keys(field.schemas)) {
-    if (!isModelVariantKey(variant)) {
-      failEntityFieldInput(key, `Entity field '${key}' uses unsupported model variant '${variant}'.`);
-    }
-    const schema = field.schemas[variant];
-    if (!P.isUndefined(schema) && !S.isSchema(schema)) {
-      failEntityFieldInput(key, `Entity field '${key}' variant '${variant}' must be a Schema.`);
-    }
-  }
-  if (!S.isSchema(field.schemas.select)) {
-    failEntityFieldInput(key, `Persisted entity field '${key}' must define a select variant.`);
-  }
+type VariantFieldShape = VariantSchema.Field.Any & {
+  readonly schemas: VariantSchema.Field.Config;
 };
+
+function isVariantFieldShape(field: unknown): field is VariantFieldShape {
+  return VariantSchema.isField(field);
+}
+
+function isSchemaField(field: unknown): field is S.Top {
+  return S.isSchema(field);
+}
+
+function assertEntityVariantFieldInput(key: string, field: unknown): asserts field is EntityVariantFieldInput {
+  if (isVariantFieldShape(field)) {
+    for (const variant of Struct.keys(field.schemas)) {
+      if (!isModelVariantKey(variant)) {
+        failEntityFieldInput(key, `Entity field '${key}' uses unsupported model variant '${variant}'.`);
+      }
+      const schema = field.schemas[variant];
+      if (!P.isUndefined(schema) && !S.isSchema(schema)) {
+        failEntityFieldInput(key, `Entity field '${key}' variant '${variant}' must be a Schema.`);
+      }
+    }
+    if (!S.isSchema(field.schemas.select)) {
+      failEntityFieldInput(key, `Persisted entity field '${key}' must define a select variant.`);
+    }
+    return;
+  }
+  failEntityFieldInput(key, `Entity field '${key}' must be a Model variant field.`);
+}
 
 function selectedFieldFor<const Field extends EntityFieldInput>(key: string, field: Field): SelectedFieldOf<Field>;
 function selectedFieldFor(key: string, field: EntityFieldInput): S.Top {
-  if (VariantSchema.isField(field)) {
+  if (isVariantFieldShape(field)) {
     assertEntityVariantFieldInput(key, field);
     return field.schemas.select;
   }
-  if (!S.isSchema(field)) {
+  if (!isSchemaField(field)) {
     failEntityFieldInput(key, `Entity field '${key}' must be a Schema or a Model variant field.`);
   }
   return field;
@@ -1197,11 +1209,11 @@ const selectedFieldsFor = <const FieldMap extends EntityFieldInputs>(fields: Fie
   return output as SelectedFieldsOf<FieldMap>;
 };
 
-const assertExplicitVariantCompatible = (
+function assertExplicitVariantCompatible(
   key: string,
   field: unknown,
   descriptor: PersistDescriptor.Any
-): asserts field is EntityVariantFieldInput => {
+): asserts field is EntityVariantFieldInput {
   assertEntityVariantFieldInput(key, field);
 
   const insert = hasVariant(field, "insert");
@@ -1255,7 +1267,7 @@ const assertExplicitVariantCompatible = (
     case "provided":
       break;
   }
-};
+}
 
 const withDefinitionAnnotation = <
   FieldMap extends EntityFieldInputs,
@@ -1305,10 +1317,24 @@ const attachDefinition = <
     enumerable: true,
     value: definition,
   });
-  return entityClass as Class & {
-    readonly definition: Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>;
-  };
+  if (hasAttachedDefinition(entityClass, definition)) {
+    return entityClass;
+  }
+  throw new TypeError("Failed to attach EntitySchema definition metadata.");
 };
+
+const hasAttachedDefinition = <
+  Class extends object,
+  FieldMap extends EntityFieldInputs,
+  Persisted extends PersistedFor<FieldMap>,
+  TableName extends string,
+  EntityId extends EntityIdLike | undefined,
+>(
+  entityClass: Class,
+  definition: Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>
+): entityClass is Class & {
+  readonly definition: Definition<FieldMap, SelectedFieldsOf<FieldMap>, Persisted, TableName, EntityId>;
+} => P.hasProperty(entityClass, "definition") && Reflect.get(entityClass, "definition") === definition;
 
 const attachEntityClassDefinition = <
   Self,
@@ -1371,7 +1397,7 @@ function variantFieldForInput(
   field: EntityFieldInput,
   descriptor: PersistDescriptor.Any
 ): EntityFieldInput {
-  if (VariantSchema.isField(field)) {
+  if (isVariantFieldShape(field)) {
     assertExplicitVariantCompatible(key, field, descriptor);
     return field;
   }
@@ -1560,5 +1586,15 @@ export const ClassFactory =
  */
 export const getDefinition = <Entity extends EntityClass.Any>(entity: Entity): EntityClass.DefinitionOf<Entity> => {
   const annotated = entity.ast.annotations?.[DefinitionAnnotationKey];
-  return (annotated ?? entity.definition) as EntityClass.DefinitionOf<Entity>;
+  return isDefinitionAnnotationFor(entity, annotated) ? annotated : entity.definition;
 };
+
+const isDefinitionAnnotationFor = <Entity extends EntityClass.Any>(
+  entity: Entity,
+  value: unknown
+): value is EntityClass.DefinitionOf<Entity> =>
+  P.isObject(value) &&
+  P.hasProperty(value, "fields") &&
+  P.hasProperty(value, "persisted") &&
+  P.hasProperty(value, "tableName") &&
+  Reflect.get(value, "tableName") === entity.definition.tableName;

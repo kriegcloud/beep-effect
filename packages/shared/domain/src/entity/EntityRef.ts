@@ -110,19 +110,21 @@ export type EntityRefFor<Entity extends EntityId.Any> = Omit<EntityRef, "entityT
 
 const decodeEntityTypeResult = S.decodeUnknownResult(EntityType);
 
-const isEntityRefFor = <const Entity extends EntityId.Any>(
+function isEntityRefFor<const Entity extends EntityId.Any>(
   entityId: Entity,
   ref: EntityRef
-): ref is EntityRefFor<Entity> => ref.entityType === entityId.entityType && S.is(entityId)(ref.id);
+): ref is EntityRefFor<Entity> {
+  return ref.entityType === entityId.entityType && S.is(entityId)(ref.id);
+}
 
-const assertEntityRefFor = <const Entity extends EntityId.Any>(
+function assertEntityRefFor<const Entity extends EntityId.Any>(
   entityId: Entity,
   ref: EntityRef
-): asserts ref is EntityRefFor<Entity> => {
+): asserts ref is EntityRefFor<Entity> {
   if (!isEntityRefFor(entityId, ref)) {
     throw new TypeError(`EntityRef invariant failed for '${entityId.entityType}'.`);
   }
-};
+}
 
 /**
  * Build a polymorphic reference result for a known entity id schema.

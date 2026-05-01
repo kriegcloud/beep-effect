@@ -283,6 +283,11 @@ export * from "./Primitive.ts";
 export * from "./person/index.ts";
 /**
  * @since 0.0.0
+ * @category schemas
+ */
+export * from "./Record.ts";
+/**
+ * @since 0.0.0
  * @category Validation
  */
 export * from "./RegExp.ts";

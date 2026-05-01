@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 import { $WorkspaceDomainId } from "@beep/identity/packages";
+import { UnknownRecord } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Workspace from "@beep/shared-domain/identity/Workspace";
@@ -12,8 +13,6 @@ import { ApprovalDecision, CandidateLifecycle } from "@beep/workspace-domain/val
 import * as S from "effect/Schema";
 
 const $I = $WorkspaceDomainId.create("entities/ApprovalGate/ApprovalGate.model");
-
-const UnknownRecord = S.Record(S.String, S.Unknown);
 
 /**
  * Human approval gate for candidate work.

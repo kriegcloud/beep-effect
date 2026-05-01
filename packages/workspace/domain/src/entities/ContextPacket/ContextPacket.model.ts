@@ -5,14 +5,13 @@
  * @since 0.0.0
  */
 import { $WorkspaceDomainId } from "@beep/identity/packages";
+import { UnknownRecord } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Workspace from "@beep/shared-domain/identity/Workspace";
 import * as S from "effect/Schema";
 
 const $I = $WorkspaceDomainId.create("entities/ContextPacket/ContextPacket.model");
-
-const UnknownRecord = S.Record(S.String, S.Unknown);
 
 /**
  * Bounded context packet returned through the SDK facade.

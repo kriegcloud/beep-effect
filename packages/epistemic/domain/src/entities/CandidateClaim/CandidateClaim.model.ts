@@ -7,14 +7,13 @@
 
 import { ClaimLifecycle } from "@beep/epistemic-domain/values";
 import { $EpistemicDomainId } from "@beep/identity/packages";
+import { UnknownRecord } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
 import * as S from "effect/Schema";
 
 const $I = $EpistemicDomainId.create("entities/CandidateClaim/CandidateClaim.model");
-
-const UnknownRecord = S.Record(S.String, S.Unknown);
 
 /**
  * Candidate claim proposed by an agent with source evidence.

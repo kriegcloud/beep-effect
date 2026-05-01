@@ -144,7 +144,9 @@ const hasCallableProperty = (self: object, key: PropertyKey): boolean =>
   P.hasProperty(self, key) && P.isFunction(Reflect.get(self, key));
 
 const hasColumnMethods = <Builder extends AnyPgColumnBuilder>(column: Builder): column is ColumnMethods<Builder> =>
-  hasCallableProperty(column, "$type") && hasCallableProperty(column, "notNull") && hasCallableProperty(column, "primaryKey");
+  hasCallableProperty(column, "$type") &&
+  hasCallableProperty(column, "notNull") &&
+  hasCallableProperty(column, "primaryKey");
 
 const columnMethods = <Builder extends AnyPgColumnBuilder>(column: Builder): ColumnMethods<Builder> => {
   if (hasColumnMethods(column)) {

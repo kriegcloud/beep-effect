@@ -5,13 +5,13 @@
  * @since 0.0.0
  */
 
-import {$SharedDomainId, type IdentityComposer} from "@beep/identity";
-import {SchemaUtils} from "@beep/schema";
-import {PosInt} from "@beep/schema/Int";
+import { $SharedDomainId, type IdentityComposer } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
+import { PosInt } from "@beep/schema/Int";
 import * as Str from "@beep/utils/Str";
-import {pipe} from "effect";
+import { pipe } from "effect";
 import type * as BrandNS from "effect/Brand";
-import {dual} from "effect/Function";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("entity/EntityId");
@@ -35,15 +35,23 @@ const $I = $SharedDomainId.create("entity/EntityId");
  * @since 0.0.0
  * @category schemas
  */
-export const EntityIdValue = PosInt.check(S.isBetween({
-  minimum: 1,
-  maximum: 2_147_483_647,
-}, {
-  description: "A positive generated entity id in the v1 integer id range.",
-  title: "Generated Entity Id Range",
-})).pipe(S.brand("EntityIdValue"), $I.annoteSchema("EntityIdValue", {
-  description: "Storage-neutral positive integer used by shared-kernel persisted entity ids.",
-}));
+export const EntityIdValue = PosInt.check(
+  S.isBetween(
+    {
+      minimum: 1,
+      maximum: 2_147_483_647,
+    },
+    {
+      description: "A positive generated entity id in the v1 integer id range.",
+      title: "Generated Entity Id Range",
+    }
+  )
+).pipe(
+  S.brand("EntityIdValue"),
+  $I.annoteSchema("EntityIdValue", {
+    description: "Storage-neutral positive integer used by shared-kernel persisted entity ids.",
+  })
+);
 
 /**
  * Runtime type for {@link EntityIdValue}.
@@ -91,16 +99,18 @@ export type EntityIdValueFor<TBrand extends string> = BrandNS.Branded<EntityIdVa
  * @since 0.0.0
  * @category models
  */
-export class Options extends S.Class<Options>($I`Options`)({
-  brand: S.optionalKey(S.String),
-  description: S.optionalKey(S.String),
-  entityType: S.optionalKey(S.String),
-  resource: S.optionalKey(S.String),
-  tableName: S.optionalKey(S.String),
-}, $I.annote("Options", {
-  description: "Constrained metadata overrides accepted by EntityId.factory.",
-})) {
-}
+export class Options extends S.Class<Options>($I`Options`)(
+  {
+    brand: S.optionalKey(S.String),
+    description: S.optionalKey(S.String),
+    entityType: S.optionalKey(S.String),
+    resource: S.optionalKey(S.String),
+    tableName: S.optionalKey(S.String),
+  },
+  $I.annote("Options", {
+    description: "Constrained metadata overrides accepted by EntityId.factory.",
+  })
+) {}
 
 /**
  * Default SQL table name derived from a slice and entity segment.
@@ -193,10 +203,26 @@ type OverrideString<Overrides, Key extends keyof OptionsInput, Default extends s
       : Extract<Overrides[Key], string>
     : Default;
 
-type ResolvedTableName<Slice extends string, Name extends string, Overrides> = OverrideString<Overrides, "tableName", TableName<Slice, Name>>;
-type ResolvedResource<Slice extends string, Name extends string, Overrides> = OverrideString<Overrides, "resource", Resource<Slice, Name>>;
-type ResolvedEntityType<Slice extends string, Name extends string, Overrides> = OverrideString<Overrides, "entityType", EntityType<Slice, Name>>;
-type ResolvedBrand<Slice extends string, Name extends string, Overrides> = OverrideString<Overrides, "brand", Brand<Slice, Name>>;
+type ResolvedTableName<Slice extends string, Name extends string, Overrides> = OverrideString<
+  Overrides,
+  "tableName",
+  TableName<Slice, Name>
+>;
+type ResolvedResource<Slice extends string, Name extends string, Overrides> = OverrideString<
+  Overrides,
+  "resource",
+  Resource<Slice, Name>
+>;
+type ResolvedEntityType<Slice extends string, Name extends string, Overrides> = OverrideString<
+  Overrides,
+  "entityType",
+  EntityType<Slice, Name>
+>;
+type ResolvedBrand<Slice extends string, Name extends string, Overrides> = OverrideString<
+  Overrides,
+  "brand",
+  Brand<Slice, Name>
+>;
 
 /**
  * Materialized entity-id definition metadata.
@@ -212,19 +238,21 @@ type ResolvedBrand<Slice extends string, Name extends string, Overrides> = Overr
  * @since 0.0.0
  * @category models
  */
-export class Definition extends S.Class<Definition>($I`Definition`)({
-  brand: S.String,
-  description: S.String,
-  entityType: S.String,
-  name: S.String,
-  overrides: Options,
-  resource: S.String,
-  slice: S.String,
-  tableName: S.String,
-}, $I.annote("Definition", {
-  description: "Materialized entity-id metadata derived from a slice and entity name.",
-})) {
-}
+export class Definition extends S.Class<Definition>($I`Definition`)(
+  {
+    brand: S.String,
+    description: S.String,
+    entityType: S.String,
+    name: S.String,
+    overrides: Options,
+    resource: S.String,
+    slice: S.String,
+    tableName: S.String,
+  },
+  $I.annote("Definition", {
+    description: "Materialized entity-id metadata derived from a slice and entity name.",
+  })
+) {}
 
 /**
  * Literal-preserving entity-id definition metadata.
@@ -242,9 +270,14 @@ export class Definition extends S.Class<Definition>($I`Definition`)({
  * @since 0.0.0
  * @category models
  */
-export type DefinitionFor<Slice extends string, Name extends string, TTableName extends string = TableName<Slice, Name>, TResource extends string = Resource<Slice, Name>, TEntityType extends string = EntityType<Slice, Name>, TBrand extends string = Brand<Slice, Name>, > =
-  Omit<Definition, "brand" | "entityType" | "name" | "resource" | "slice" | "tableName">
-  & {
+export type DefinitionFor<
+  Slice extends string,
+  Name extends string,
+  TTableName extends string = TableName<Slice, Name>,
+  TResource extends string = Resource<Slice, Name>,
+  TEntityType extends string = EntityType<Slice, Name>,
+  TBrand extends string = Brand<Slice, Name>,
+> = Omit<Definition, "brand" | "entityType" | "name" | "resource" | "slice" | "tableName"> & {
   readonly brand: TBrand;
   readonly entityType: TEntityType;
   readonly name: Name;
@@ -267,11 +300,24 @@ export type DefinitionFor<Slice extends string, Name extends string, TTableName 
  * @since 0.0.0
  * @category models
  */
-export type EntityId<Slice extends string = string, Name extends string = string, TTableName extends string = TableName<Slice, Name>, TResource extends string = Resource<Slice, Name>, TEntityType extends string = EntityType<Slice, Name>, TBrand extends string = Brand<Slice, Name>, > =
-  S.Codec<EntityIdValueFor<TBrand>, number>
-  & EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>;
+export type EntityId<
+  Slice extends string = string,
+  Name extends string = string,
+  TTableName extends string = TableName<Slice, Name>,
+  TResource extends string = Resource<Slice, Name>,
+  TEntityType extends string = EntityType<Slice, Name>,
+  TBrand extends string = Brand<Slice, Name>,
+> = S.Codec<EntityIdValueFor<TBrand>, number> &
+  EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>;
 
-type EntityIdStatics<Slice extends string, Name extends string, TTableName extends string, TResource extends string, TEntityType extends string, TBrand extends string, > = {
+type EntityIdStatics<
+  Slice extends string,
+  Name extends string,
+  TTableName extends string,
+  TResource extends string,
+  TEntityType extends string,
+  TBrand extends string,
+> = {
   readonly brand: TBrand;
   readonly definition: DefinitionFor<Slice, Name, TTableName, TResource, TEntityType, TBrand>;
   readonly entityType: TEntityType;
@@ -282,10 +328,7 @@ type EntityIdStatics<Slice extends string, Name extends string, TTableName exten
 };
 
 type EntityIdEquivalence<TBrand extends string> = {
-  bivarianceHack(
-    self: EntityIdValueFor<TBrand>,
-    that: EntityIdValueFor<TBrand>,
-  ): boolean;
+  bivarianceHack(self: EntityIdValueFor<TBrand>, that: EntityIdValueFor<TBrand>): boolean;
 }["bivarianceHack"];
 
 /**
@@ -304,74 +347,108 @@ type EntityIdEquivalence<TBrand extends string> = {
  */
 export type Any = EntityId<string, string, string, string, string, string>;
 
-type Maker<Slice extends string> = <const Name extends string, const Overrides extends OptionsInput | undefined = undefined, >(
+type Maker<Slice extends string> = <
+  const Name extends string,
+  const Overrides extends OptionsInput | undefined = undefined,
+>(
   name: Name,
-  overrides?: Overrides,
-) => EntityId<Slice, Name, ResolvedTableName<Slice, Name, Overrides>, ResolvedResource<Slice, Name, Overrides>, ResolvedEntityType<Slice, Name, Overrides>, ResolvedBrand<Slice, Name, Overrides>>;
+  overrides?: Overrides
+) => EntityId<
+  Slice,
+  Name,
+  ResolvedTableName<Slice, Name, Overrides>,
+  ResolvedResource<Slice, Name, Overrides>,
+  ResolvedEntityType<Slice, Name, Overrides>,
+  ResolvedBrand<Slice, Name, Overrides>
+>;
 
 type Factory = {
-  <const Slice extends string>(
-    slice: Slice,
-    identity: IdentityComposer<string>,
-  ): Maker<Slice>;
+  <const Slice extends string>(slice: Slice, identity: IdentityComposer<string>): Maker<Slice>;
   (identity: IdentityComposer<string>): <const Slice extends string>(slice: Slice) => Maker<Slice>;
 };
 
 const defaultResource = <const Slice extends string, const Name extends string>(
   slice: Slice,
-  name: Name,
+  name: Name
 ): Resource<Slice, Name> => `${slice}.${name}`;
 
 const defaultTableName = <const Slice extends string, const Name extends string>(
   slice: Slice,
-  name: Name,
+  name: Name
 ): TableName<Slice, Name> => `${slice}_${name}`;
 
-const literalDefinition = <const Slice extends string, const Name extends string, const Overrides extends OptionsInput | undefined, >(definition: Definition): DefinitionFor<Slice, Name, ResolvedTableName<Slice, Name, Overrides>, ResolvedResource<Slice, Name, Overrides>, ResolvedEntityType<Slice, Name, Overrides>, ResolvedBrand<Slice, Name, Overrides>> => definition as DefinitionFor<Slice, Name, ResolvedTableName<Slice, Name, Overrides>, ResolvedResource<Slice, Name, Overrides>, ResolvedEntityType<Slice, Name, Overrides>, ResolvedBrand<Slice, Name, Overrides>>;
+const literalDefinition = <
+  const Slice extends string,
+  const Name extends string,
+  const Overrides extends OptionsInput | undefined,
+>(
+  definition: Definition
+): DefinitionFor<
+  Slice,
+  Name,
+  ResolvedTableName<Slice, Name, Overrides>,
+  ResolvedResource<Slice, Name, Overrides>,
+  ResolvedEntityType<Slice, Name, Overrides>,
+  ResolvedBrand<Slice, Name, Overrides>
+> =>
+  definition as DefinitionFor<
+    Slice,
+    Name,
+    ResolvedTableName<Slice, Name, Overrides>,
+    ResolvedResource<Slice, Name, Overrides>,
+    ResolvedEntityType<Slice, Name, Overrides>,
+    ResolvedBrand<Slice, Name, Overrides>
+  >;
 
-const attachEntityIdStatics = <const Slice extends string, const Name extends string, const TTableName extends string, const TResource extends string, const TEntityType extends string, const TBrand extends string, const Schema extends S.Codec<EntityIdValueFor<TBrand>, number, never, never>, >(
+const attachEntityIdStatics = <
+  const Slice extends string,
+  const Name extends string,
+  const TTableName extends string,
+  const TResource extends string,
+  const TEntityType extends string,
+  const TBrand extends string,
+  const Schema extends S.Codec<EntityIdValueFor<TBrand>, number, never, never>,
+>(
   schema: Schema,
-  statics: EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>,
-): Schema & EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand> => SchemaUtils.withStatics(
-  schema,
-  () => statics,
-);
+  statics: EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>
+): Schema & EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand> =>
+  SchemaUtils.withStatics(schema, () => statics);
 
-const entityIdSchema = <const TBrand extends string>(
-  brand: TBrand,
-  identity: IdentityComposer<string>,
-  description: string,
-): S.Codec<EntityIdValueFor<TBrand>, number> =>
-  EntityIdValue.pipe(
-    S.brand(brand),
-    identity.annoteSchema(brand, {
-      description,
-    }),
-  );
-
-const buildDefinition = <const Slice extends string, const Name extends string, const Overrides extends OptionsInput | undefined, >(
+const buildDefinition = <
+  const Slice extends string,
+  const Name extends string,
+  const Overrides extends OptionsInput | undefined,
+>(
   slice: Slice,
   name: Name,
-  input?: Overrides,
-): DefinitionFor<Slice, Name, ResolvedTableName<Slice, Name, Overrides>, ResolvedResource<Slice, Name, Overrides>, ResolvedEntityType<Slice, Name, Overrides>, ResolvedBrand<Slice, Name, Overrides>> => {
+  input?: Overrides
+): DefinitionFor<
+  Slice,
+  Name,
+  ResolvedTableName<Slice, Name, Overrides>,
+  ResolvedResource<Slice, Name, Overrides>,
+  ResolvedEntityType<Slice, Name, Overrides>,
+  ResolvedBrand<Slice, Name, Overrides>
+> => {
   const overrides = new Options(input ?? {});
-  const defaultEntityType = Str.prefix(pipe(
-    name,
-    Str.snakeCase,
-    Str.snakeToPascal,
-  ), pipe(slice, Str.snakeCase, Str.snakeToPascal));
+  const defaultEntityType = Str.prefix(
+    pipe(name, Str.snakeCase, Str.snakeToPascal),
+    pipe(slice, Str.snakeCase, Str.snakeToPascal)
+  );
   const entityType = overrides.entityType ?? defaultEntityType;
   const brand = overrides.brand ?? Str.postfix(entityType, "Id");
-  return literalDefinition<Slice, Name, Overrides>(new Definition({
-    brand,
-    description: overrides.description ?? `${entityType} entity identifier.`,
-    entityType,
-    name,
-    overrides,
-    resource: overrides.resource ?? defaultResource(slice, name),
-    slice,
-    tableName: overrides.tableName ?? defaultTableName(slice, name),
-  }));
+  return literalDefinition<Slice, Name, Overrides>(
+    new Definition({
+      brand,
+      description: overrides.description ?? `${entityType} entity identifier.`,
+      entityType,
+      name,
+      overrides,
+      resource: overrides.resource ?? defaultResource(slice, name),
+      slice,
+      tableName: overrides.tableName ?? defaultTableName(slice, name),
+    })
+  );
 };
 
 /**
@@ -394,27 +471,35 @@ const buildDefinition = <const Slice extends string, const Name extends string, 
  */
 export const factory: Factory = dual(
   2,
-  <const Slice extends string>(
-    slice: Slice,
-    identity: IdentityComposer<string>,
-  ): Maker<Slice> => <const Name extends string, const Overrides extends OptionsInput | undefined = undefined>(
-    name: Name,
-    overrides?: Overrides,
-  ): EntityId<Slice, Name, ResolvedTableName<Slice, Name, Overrides>, ResolvedResource<Slice, Name, Overrides>, ResolvedEntityType<Slice, Name, Overrides>, ResolvedBrand<Slice, Name, Overrides>> => {
-    const definition = buildDefinition(slice, name, overrides);
-    const schema = entityIdSchema(definition.brand, identity, definition.description);
+  <const Slice extends string>(slice: Slice, identity: IdentityComposer<string>): Maker<Slice> =>
+    <const Name extends string, const Overrides extends OptionsInput | undefined = undefined>(
+      name: Name,
+      overrides?: Overrides
+    ): EntityId<
+      Slice,
+      Name,
+      ResolvedTableName<Slice, Name, Overrides>,
+      ResolvedResource<Slice, Name, Overrides>,
+      ResolvedEntityType<Slice, Name, Overrides>,
+      ResolvedBrand<Slice, Name, Overrides>
+    > => {
+      const definition = buildDefinition(slice, name, overrides);
+      const schema = EntityIdValue.pipe(
+        S.brand(definition.brand),
+        identity.annoteSchema(definition.brand, {
+          description: definition.description,
+        })
+      );
+      const typedSchema = schema as S.Codec<EntityIdValueFor<ResolvedBrand<Slice, Name, Overrides>>, number>;
 
-    return attachEntityIdStatics(
-      schema,
-      {
+      return attachEntityIdStatics(typedSchema, {
         brand: definition.brand,
         definition,
         entityType: definition.entityType,
-        equivalence: S.toEquivalence(schema),
+        equivalence: S.toEquivalence(typedSchema),
         resource: definition.resource,
         slice,
         tableName: definition.tableName,
-      },
-    );
-  },
+      });
+    }
 );

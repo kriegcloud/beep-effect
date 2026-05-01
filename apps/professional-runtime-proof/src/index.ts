@@ -19,6 +19,7 @@ import { LegalClient } from "@beep/law-practice-domain/entities/LegalClient";
 import { LegalContact } from "@beep/law-practice-domain/entities/LegalContact";
 import { Matter } from "@beep/law-practice-domain/entities/Matter";
 import { PatentAsset } from "@beep/law-practice-domain/entities/PatentAsset";
+import { UnknownRecord } from "@beep/schema";
 import { Membership } from "@beep/tenancy-domain/entities/Membership";
 import { Organization } from "@beep/tenancy-domain/entities/Organization";
 import { Principal } from "@beep/tenancy-domain/entities/Principal";
@@ -58,8 +59,6 @@ class MissingRuntimeAgentPrincipalError extends S.TaggedErrorClass<MissingRuntim
   message: S.String,
   scenarioId: S.String,
 }) {}
-
-const UnknownRecord = S.Record(S.String, S.Unknown);
 
 class SeedAgentFixture extends S.Class<SeedAgentFixture>("SeedAgentFixture")({
   agentId: S.String,
