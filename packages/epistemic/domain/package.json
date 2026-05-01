@@ -1,0 +1,59 @@
+{
+  "name": "@beep/epistemic-domain",
+  "version": "0.0.0",
+  "description": "Epistemic domain models for claims, evidence, activities, and usage.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/epistemic/domain",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/epistemic/domain"
+  },
+  "scripts": {
+    "audit": "bun run --if-present beep:audit",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+    "beep:build": "tsc -b tsconfig.json",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "beep:test": "bunx --bun vitest run",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "coverage": "bunx --bun vitest run --coverage",
+    "docgen": "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./entities": "./src/entities/index.ts",
+    "./entities/Activity": "./src/entities/Activity/index.ts",
+    "./entities/CandidateClaim": "./src/entities/CandidateClaim/index.ts",
+    "./entities/Evidence": "./src/entities/Evidence/index.ts",
+    "./entities/UsageRecord": "./src/entities/UsageRecord/index.ts",
+    "./values": "./src/values/index.ts",
+    "./values/ClaimLifecycle": "./src/values/ClaimLifecycle/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

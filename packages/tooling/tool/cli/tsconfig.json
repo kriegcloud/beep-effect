@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../../../tsconfig.base.json",
+  "include": ["src", "madge.d.ts"],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [
+    {
+      "path": "../../../drivers/ffmpeg/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/capability/chalk/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/capability/observability/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/modeling/schema/tsconfig.json"
+    },
+    {
+      "path": "../../library/repo-utils/tsconfig.json"
+    },
+    {
+      "path": "../../policy-pack/repo-configs/tsconfig.json"
+    },
+    {
+      "path": "../../test-kit/test-utils/tsconfig.json"
+    },
+    {
+      "path": "../docgen/tsconfig.json"
+    }
+  ]
+}

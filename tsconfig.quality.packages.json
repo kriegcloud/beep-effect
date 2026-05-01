@@ -4,19 +4,10 @@
   "extends": "./tsconfig.packages.json",
   "references": [
     {
-      "path": ".claude"
-    },
-    {
-      "path": ".codex"
-    },
-    {
       "path": "apps/codedank-web"
     },
     {
-      "path": "apps/desktop"
-    },
-    {
-      "path": "apps/editor-app"
+      "path": "apps/professional-runtime-proof"
     },
     {
       "path": "infra"
@@ -25,79 +16,88 @@
       "path": "packages/_internal/db-admin"
     },
     {
-      "path": "packages/common/chalk"
+      "path": "packages/agent-capability/domain"
     },
     {
-      "path": "packages/common/colors"
+      "path": "packages/agent-capability/use-cases"
     },
     {
-      "path": "packages/common/data"
+      "path": "packages/drivers/drizzle"
     },
     {
-      "path": "packages/common/identity"
+      "path": "packages/drivers/ffmpeg"
     },
     {
-      "path": "packages/common/md"
+      "path": "packages/drivers/postgres"
     },
     {
-      "path": "packages/common/messages"
+      "path": "packages/epistemic/domain"
     },
     {
-      "path": "packages/common/nlp"
+      "path": "packages/fixture-lab/specimen/client"
     },
     {
-      "path": "packages/common/observability"
+      "path": "packages/fixture-lab/specimen/config"
     },
     {
-      "path": "packages/common/schema"
+      "path": "packages/fixture-lab/specimen/domain"
     },
     {
-      "path": "packages/common/semantic-web"
+      "path": "packages/fixture-lab/specimen/server"
     },
     {
-      "path": "packages/common/types"
+      "path": "packages/fixture-lab/specimen/tables"
     },
     {
-      "path": "packages/common/ui"
+      "path": "packages/fixture-lab/specimen/ui"
     },
     {
-      "path": "packages/common/utils"
+      "path": "packages/fixture-lab/specimen/use-cases"
     },
     {
-      "path": "packages/editor/client"
+      "path": "packages/foundation/capability/chalk"
     },
     {
-      "path": "packages/editor/domain"
+      "path": "packages/foundation/capability/colors"
     },
     {
-      "path": "packages/editor/lexical"
+      "path": "packages/foundation/capability/md"
     },
     {
-      "path": "packages/editor/protocol"
+      "path": "packages/foundation/capability/nlp"
     },
     {
-      "path": "packages/editor/runtime"
+      "path": "packages/foundation/capability/observability"
     },
     {
-      "path": "packages/repo-memory/client"
+      "path": "packages/foundation/capability/sandbox"
     },
     {
-      "path": "packages/repo-memory/model"
+      "path": "packages/foundation/capability/semantic-web"
     },
     {
-      "path": "packages/repo-memory/runtime"
+      "path": "packages/foundation/modeling/identity"
     },
     {
-      "path": "packages/repo-memory/sqlite"
+      "path": "packages/foundation/modeling/messages"
     },
     {
-      "path": "packages/repo-memory/store"
+      "path": "packages/foundation/modeling/schema"
     },
     {
-      "path": "packages/runtime/protocol"
+      "path": "packages/foundation/modeling/utils"
     },
     {
-      "path": "packages/runtime/server"
+      "path": "packages/foundation/primitive/data"
+    },
+    {
+      "path": "packages/foundation/primitive/types"
+    },
+    {
+      "path": "packages/foundation/ui-system/ui"
+    },
+    {
+      "path": "packages/law-practice/domain"
     },
     {
       "path": "packages/shared/client"
@@ -109,9 +109,6 @@
       "path": "packages/shared/domain"
     },
     {
-      "path": "packages/shared/providers/firecrawl"
-    },
-    {
       "path": "packages/shared/server"
     },
     {
@@ -121,19 +118,31 @@
       "path": "packages/shared/ui"
     },
     {
-      "path": "tooling/cli"
+      "path": "packages/shared/use-cases"
     },
     {
-      "path": "tooling/configs"
+      "path": "packages/tenancy/domain"
     },
     {
-      "path": "tooling/docgen"
+      "path": "packages/tooling/library/repo-utils"
     },
     {
-      "path": "tooling/repo-utils"
+      "path": "packages/tooling/policy-pack/repo-configs"
     },
     {
-      "path": "tooling/test-utils"
+      "path": "packages/tooling/test-kit/test-utils"
+    },
+    {
+      "path": "packages/tooling/tool/cli"
+    },
+    {
+      "path": "packages/tooling/tool/docgen"
+    },
+    {
+      "path": "packages/wealth-management/domain"
+    },
+    {
+      "path": "packages/workspace/domain"
     }
   ]
 }

@@ -1,0 +1,704 @@
+- generic [ref=e64]:
+  - banner [ref=e65]:
+    - generic [ref=e66]:
+      - generic [ref=e70]:
+        - link "OpenClaw" [ref=e71] [cursor=pointer]:
+          - /url: /overview
+        - generic [ref=e72]: ›
+        - generic [ref=e73]: Cron Jobs
+      - generic [ref=e74]:
+        - button "Open command palette" [ref=e75] [cursor=pointer]:
+          - generic [ref=e76]: Search
+          - generic [ref=e77]: ⌘K
+        - group "Color mode" [ref=e79]:
+          - 'button "Color mode: System" [pressed] [ref=e80] [cursor=pointer]':
+            - img [ref=e81]
+          - 'button "Color mode: Light" [ref=e83] [cursor=pointer]':
+            - img [ref=e84]
+          - 'button "Color mode: Dark" [ref=e90] [cursor=pointer]':
+            - img [ref=e91]
+  - complementary [ref=e94]:
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - generic [ref=e97]:
+          - img "OpenClaw" [ref=e98]
+          - generic [ref=e99]:
+            - generic [ref=e100]: Control
+            - generic [ref=e101]: OpenClaw
+        - button "Collapse sidebar" [ref=e102] [cursor=pointer]:
+          - img [ref=e104]
+      - navigation [ref=e108]:
+        - generic [ref=e109]:
+          - button "Chat" [expanded] [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]: Chat
+            - img [ref=e113]
+          - link "Chat" [ref=e116] [cursor=pointer]:
+            - /url: /chat
+            - img [ref=e118]
+            - generic [ref=e120]: Chat
+        - generic [ref=e121]:
+          - button "Control" [expanded] [ref=e122] [cursor=pointer]:
+            - generic [ref=e123]: Control
+            - img [ref=e125]
+          - generic [ref=e127]:
+            - link "Overview" [ref=e128] [cursor=pointer]:
+              - /url: /overview
+              - img [ref=e130]
+              - generic [ref=e131]: Overview
+            - link "Channels" [ref=e132] [cursor=pointer]:
+              - /url: /channels
+              - img [ref=e134]
+              - generic [ref=e137]: Channels
+            - link "Instances" [ref=e138] [cursor=pointer]:
+              - /url: /instances
+              - img [ref=e140]
+              - generic [ref=e143]: Instances
+            - link "Sessions" [ref=e144] [cursor=pointer]:
+              - /url: /sessions
+              - img [ref=e146]
+              - generic [ref=e149]: Sessions
+            - link "Usage" [ref=e150] [cursor=pointer]:
+              - /url: /usage
+              - img [ref=e152]
+              - generic [ref=e153]: Usage
+            - link "Cron Jobs" [active] [ref=e154] [cursor=pointer]:
+              - /url: /cron
+              - img [ref=e156]
+              - generic [ref=e161]: Cron Jobs
+        - generic [ref=e162]:
+          - button "Agent" [expanded] [ref=e163] [cursor=pointer]:
+            - generic [ref=e164]: Agent
+            - img [ref=e166]
+          - generic [ref=e168]:
+            - link "Agents" [ref=e169] [cursor=pointer]:
+              - /url: /agents
+              - img [ref=e171]
+              - generic [ref=e173]: Agents
+            - link "Skills" [ref=e174] [cursor=pointer]:
+              - /url: /skills
+              - img [ref=e176]
+              - generic [ref=e178]: Skills
+            - link "Nodes" [ref=e179] [cursor=pointer]:
+              - /url: /nodes
+              - img [ref=e181]
+              - generic [ref=e183]: Nodes
+            - link "Dreaming" [ref=e184] [cursor=pointer]:
+              - /url: /dreaming
+              - img [ref=e186]
+              - generic [ref=e188]: Dreaming
+        - generic [ref=e189]:
+          - button "Settings" [expanded] [ref=e190] [cursor=pointer]:
+            - generic [ref=e191]: Settings
+            - img [ref=e193]
+          - generic [ref=e195]:
+            - link "Config" [ref=e196] [cursor=pointer]:
+              - /url: /config
+              - img [ref=e198]
+              - generic [ref=e201]: Config
+            - link "Communications" [ref=e202] [cursor=pointer]:
+              - /url: /communications
+              - img [ref=e204]
+              - generic [ref=e207]: Communications
+            - link "Appearance" [ref=e208] [cursor=pointer]:
+              - /url: /appearance
+              - img [ref=e210]
+              - generic [ref=e212]: Appearance
+            - link "Automation" [ref=e213] [cursor=pointer]:
+              - /url: /automation
+              - img [ref=e215]
+              - generic [ref=e217]: Automation
+            - link "Infrastructure" [ref=e218] [cursor=pointer]:
+              - /url: /infrastructure
+              - img [ref=e220]
+              - generic [ref=e223]: Infrastructure
+            - link "AI & Agents" [ref=e224] [cursor=pointer]:
+              - /url: /ai-agents
+              - img [ref=e226]
+              - generic [ref=e236]: AI & Agents
+            - link "Debug" [ref=e237] [cursor=pointer]:
+              - /url: /debug
+              - img [ref=e239]
+              - generic [ref=e248]: Debug
+            - link "Logs" [ref=e249] [cursor=pointer]:
+              - /url: /logs
+              - img [ref=e251]
+              - generic [ref=e254]: Logs
+      - generic [ref=e256]:
+        - link "Docs" [ref=e257] [cursor=pointer]:
+          - /url: https://docs.openclaw.ai
+          - img [ref=e259]
+          - generic [ref=e261]: Docs
+          - img [ref=e263]
+        - generic "v2026.4.29" [ref=e266]:
+          - generic [ref=e267]: Version
+          - generic [ref=e268]: v2026.4.29
+          - 'img "Gateway status: Online" [ref=e269]'
+  - main [ref=e270]:
+    - generic [ref=e272]:
+      - generic [ref=e273]: Cron Jobs
+      - generic [ref=e274]: Wakeups and recurring runs.
+    - generic [ref=e3286]:
+      - generic [ref=e3287]:
+        - generic [ref=e3288]:
+          - generic [ref=e3289]: Enabled
+          - generic [ref=e3291]: "Yes"
+        - generic [ref=e3292]:
+          - generic [ref=e3293]: Jobs
+          - generic [ref=e3294]: "1"
+        - generic [ref=e3295]:
+          - generic [ref=e3296]: Next wake
+          - generic [ref=e3297]: Fri, 5/1/2026, 10:00:00 PM (in 17h)
+      - generic [ref=e3298]:
+        - button "+ New" [ref=e3299] [cursor=pointer]
+        - button "Refresh" [ref=e3300] [cursor=pointer]
+    - generic [ref=e3301]:
+      - generic [ref=e3302]:
+        - generic [ref=e3303]:
+          - generic [ref=e3304]:
+            - generic [ref=e3305]:
+              - generic [ref=e3306]: Jobs
+              - generic [ref=e3307]: All scheduled jobs stored in the gateway.
+            - generic [ref=e3308]: 1 shown of 1
+          - generic [ref=e3309]:
+            - generic [ref=e3310]:
+              - generic [ref=e3311]: Search jobs
+              - textbox "Search jobs" [ref=e3312]:
+                - /placeholder: Name, description, or agent
+            - generic [ref=e3313]:
+              - generic [ref=e3314]: Enabled
+              - combobox "Enabled" [ref=e3315] [cursor=pointer]:
+                - option "All" [selected]
+                - option "Enabled"
+                - option "Disabled"
+            - generic [ref=e3316]:
+              - generic [ref=e3317]: Schedule
+              - combobox "Schedule" [ref=e3318] [cursor=pointer]:
+                - option "All" [selected]
+                - option "At"
+                - option "Every"
+                - option "Cron"
+            - generic [ref=e3319]:
+              - generic [ref=e3320]: Last run
+              - combobox "Last run" [ref=e3321] [cursor=pointer]:
+                - option "All" [selected]
+                - option "OK"
+                - option "Error"
+                - option "Skipped"
+            - generic [ref=e3322]:
+              - generic [ref=e3323]: Sort
+              - combobox "Sort" [ref=e3324] [cursor=pointer]:
+                - option "Next run" [selected]
+                - option "Recently updated"
+                - option "Name"
+            - generic [ref=e3325]:
+              - generic [ref=e3326]: Direction
+              - combobox "Direction" [ref=e3327] [cursor=pointer]:
+                - option "Ascending" [selected]
+                - option "Descending"
+            - generic [ref=e3328]:
+              - generic [ref=e3329]: Reset
+              - button "Reset" [disabled] [ref=e3330]
+          - generic [ref=e3332] [cursor=pointer]:
+            - generic [ref=e3333]:
+              - generic [ref=e3334]:
+                - generic [ref=e3335]: Memory Dreaming Promotion
+                - generic [ref=e3336]: Cron 0 3 * * *
+              - generic [ref=e3338]:
+                - generic [ref=e3339]:
+                  - generic [ref=e3340]: Status
+                  - generic [ref=e3341]: OK
+                - generic [ref=e3342]:
+                  - generic [ref=e3343]: Next
+                  - generic "5/1/2026, 10:00:00 PM" [ref=e3344]: in 17h
+                - generic [ref=e3345]:
+                  - generic [ref=e3346]: Last
+                  - generic "4/30/2026, 10:00:00 PM" [ref=e3347]: 7h ago
+            - generic [ref=e3348]:
+              - generic [ref=e3349]:
+                - generic [ref=e3350]: Prompt
+                - paragraph [ref=e3352]:
+                  - strong [ref=e3353]: openclaw_memory_core_short_term_promotion_dream
+              - generic [ref=e3354]:
+                - generic [ref=e3355]: Delivery
+                - generic [ref=e3356]: none
+            - generic [ref=e3357]:
+              - generic [ref=e3358]:
+                - generic [ref=e3359]: enabled
+                - generic [ref=e3360]: isolated
+                - generic [ref=e3361]: now
+              - generic [ref=e3362]:
+                - button "Edit" [ref=e3363]
+                - button "Clone" [ref=e3364]
+                - button "Disable" [ref=e3365]
+                - button "Run" [ref=e3366]
+                - button "Run if due" [ref=e3367]
+                - button "History" [ref=e3368]
+                - button "Remove" [ref=e3369]
+        - generic [ref=e3370]:
+          - generic [ref=e3371]:
+            - generic [ref=e3372]:
+              - generic [ref=e3373]: Run history
+              - generic [ref=e3374]: Latest runs across all jobs.
+            - generic [ref=e3375]: 21 shown of 21
+          - generic [ref=e3376]:
+            - generic [ref=e3377]:
+              - generic [ref=e3378]:
+                - generic [ref=e3379]: Scope
+                - combobox "Scope" [ref=e3380] [cursor=pointer]:
+                  - option "All jobs" [selected]
+                  - option "Selected job" [disabled]
+              - generic [ref=e3381]:
+                - generic [ref=e3382]: Search runs
+                - textbox "Search runs" [ref=e3383]:
+                  - /placeholder: Summary, error, or job
+              - generic [ref=e3384]:
+                - generic [ref=e3385]: Sort
+                - combobox "Sort" [ref=e3386] [cursor=pointer]:
+                  - option "Newest first" [selected]
+                  - option "Oldest first"
+            - generic [ref=e3387]:
+              - generic [ref=e3388]:
+                - generic [ref=e3389]: Status
+                - group [ref=e3390]:
+                  - generic "All statuses" [ref=e3391] [cursor=pointer]:
+                    - generic [ref=e3392]: All statuses
+              - generic [ref=e3393]:
+                - generic [ref=e3394]: Delivery
+                - group [ref=e3395]:
+                  - generic "All delivery" [ref=e3396] [cursor=pointer]:
+                    - generic [ref=e3397]: All delivery
+          - generic [ref=e3398]:
+            - generic [ref=e3399]:
+              - generic [ref=e3400]:
+                - generic [ref=e3401]:
+                  - generic [ref=e3402]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3403]: · OK
+                  - generic [ref=e3404]:
+                    - generic [ref=e3405]: Not requested
+                    - generic [ref=e3406]: gpt-5.4
+                    - generic [ref=e3407]: openai-codex
+                - generic [ref=e3408]:
+                  - generic [ref=e3409]: 4/30/2026, 10:00:02 PM
+                  - generic [ref=e3410]: Run at 4/30/2026, 10:00:00 PM
+                  - generic [ref=e3411]: 2293ms
+                  - generic [ref=e3412]: Next in 17h
+                  - link "Open run chat" [ref=e3414] [cursor=pointer]:
+                    - /url: /chat?session=agent%3Acodex-chat%3Acron%3A8de1dc12-c296-4c1d-a66c-58cdc6318004%3Arun%3A560b8831-62e4-4b4d-8985-14b0314d262b
+              - paragraph [ref=e3416]: NO_REPLY
+            - generic [ref=e3417]:
+              - generic [ref=e3418]:
+                - generic [ref=e3419]:
+                  - generic [ref=e3420]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3421]: · OK
+                  - generic [ref=e3422]:
+                    - generic [ref=e3423]: Not requested
+                    - generic [ref=e3424]: gpt-5.4
+                    - generic [ref=e3425]: openai-codex
+                - generic [ref=e3426]:
+                  - generic [ref=e3427]: 4/29/2026, 10:00:02 PM
+                  - generic [ref=e3428]: Run at 4/29/2026, 10:00:00 PM
+                  - generic [ref=e3429]: 2127ms
+                  - generic [ref=e3430]: Due 7h ago
+                  - link "Open run chat" [ref=e3432] [cursor=pointer]:
+                    - /url: /chat?session=agent%3Acodex-chat%3Acron%3A8de1dc12-c296-4c1d-a66c-58cdc6318004%3Arun%3A553d7b36-1f64-459d-b170-fc342c7e38e8
+              - paragraph [ref=e3434]: NO_REPLY
+            - generic [ref=e3435]:
+              - generic [ref=e3436]:
+                - generic [ref=e3437]:
+                  - generic [ref=e3438]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3439]: · OK
+                  - generic [ref=e3440]:
+                    - generic [ref=e3441]: Not requested
+                    - generic [ref=e3442]: gpt-5.4
+                    - generic [ref=e3443]: openai-codex
+                - generic [ref=e3444]:
+                  - generic [ref=e3445]: 4/28/2026, 10:00:02 PM
+                  - generic [ref=e3446]: Run at 4/28/2026, 10:00:00 PM
+                  - generic [ref=e3447]: 2086ms
+                  - generic [ref=e3448]: Due 31h ago
+                  - link "Open run chat" [ref=e3450] [cursor=pointer]:
+                    - /url: /chat?session=agent%3Acodex-chat%3Acron%3A8de1dc12-c296-4c1d-a66c-58cdc6318004%3Arun%3Ab3bd6dd2-6278-47c5-be79-c9ddfb9c4939
+              - paragraph [ref=e3452]: NO_REPLY
+            - generic [ref=e3453]:
+              - generic [ref=e3454]:
+                - generic [ref=e3455]:
+                  - generic [ref=e3456]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3457]: · OK
+                  - generic [ref=e3458]:
+                    - generic [ref=e3459]: Not requested
+                    - generic [ref=e3460]: gpt-5.4
+                    - generic [ref=e3461]: openai-codex
+                - generic [ref=e3462]:
+                  - generic [ref=e3463]: 4/27/2026, 10:00:02 PM
+                  - generic [ref=e3464]: Run at 4/27/2026, 10:00:00 PM
+                  - generic [ref=e3465]: 2005ms
+                  - generic [ref=e3466]: Due 2d ago
+                  - link "Open run chat" [ref=e3468] [cursor=pointer]:
+                    - /url: /chat?session=agent%3Acodex-chat%3Acron%3A8de1dc12-c296-4c1d-a66c-58cdc6318004%3Arun%3Ac0096219-4fff-43cd-b917-b5bff2d479b6
+              - paragraph [ref=e3470]: NO_REPLY
+            - generic [ref=e3471]:
+              - generic [ref=e3472]:
+                - generic [ref=e3473]:
+                  - generic [ref=e3474]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3475]: · OK
+                  - generic [ref=e3476]:
+                    - generic [ref=e3477]: Not requested
+                    - generic [ref=e3478]: gpt-5.4
+                    - generic [ref=e3479]: openai-codex
+                - generic [ref=e3480]:
+                  - generic [ref=e3481]: 4/26/2026, 10:00:01 PM
+                  - generic [ref=e3482]: Run at 4/26/2026, 10:00:00 PM
+                  - generic [ref=e3483]: 1223ms
+                  - generic [ref=e3484]: Due 3d ago
+                  - link "Open run chat" [ref=e3486] [cursor=pointer]:
+                    - /url: /chat?session=agent%3Acodex-chat%3Acron%3A8de1dc12-c296-4c1d-a66c-58cdc6318004%3Arun%3A8a64cb96-68ca-4080-8e72-f240898a4a66
+              - paragraph [ref=e3488]: NO_REPLY
+            - generic [ref=e3489]:
+              - generic [ref=e3490]:
+                - generic [ref=e3491]:
+                  - generic [ref=e3492]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3493]: · Skipped
+                  - generic [ref=e3495]: Not requested
+                - generic [ref=e3496]:
+                  - generic [ref=e3497]: 4/25/2026, 10:00:00 PM
+                  - generic [ref=e3498]: Run at 4/25/2026, 10:00:00 PM
+                  - generic [ref=e3499]: 16ms
+                  - generic [ref=e3500]: Due 4d ago
+                  - generic [ref=e3501]: disabled
+              - paragraph [ref=e3503]:
+                - strong [ref=e3504]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3505]:
+              - generic [ref=e3506]:
+                - generic [ref=e3507]:
+                  - generic [ref=e3508]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3509]: · Skipped
+                  - generic [ref=e3511]: Not requested
+                - generic [ref=e3512]:
+                  - generic [ref=e3513]: 4/24/2026, 10:00:00 PM
+                  - generic [ref=e3514]: Run at 4/24/2026, 10:00:00 PM
+                  - generic [ref=e3515]: 29ms
+                  - generic [ref=e3516]: Due 5d ago
+                  - generic [ref=e3517]: disabled
+              - paragraph [ref=e3519]:
+                - strong [ref=e3520]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3521]:
+              - generic [ref=e3522]:
+                - generic [ref=e3523]:
+                  - generic [ref=e3524]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3525]: · Skipped
+                  - generic [ref=e3527]: Not requested
+                - generic [ref=e3528]:
+                  - generic [ref=e3529]: 4/23/2026, 10:43:47 PM
+                  - generic [ref=e3530]: Run at 4/23/2026, 10:43:47 PM
+                  - generic [ref=e3531]: 3ms
+                  - generic [ref=e3532]: Due 6d ago
+                  - generic [ref=e3533]: disabled
+              - paragraph [ref=e3535]:
+                - strong [ref=e3536]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3537]:
+              - generic [ref=e3538]:
+                - generic [ref=e3539]:
+                  - generic [ref=e3540]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3541]: · Skipped
+                  - generic [ref=e3543]: Not requested
+                - generic [ref=e3544]:
+                  - generic [ref=e3545]: 4/22/2026, 10:00:00 PM
+                  - generic [ref=e3546]: Run at 4/22/2026, 10:00:00 PM
+                  - generic [ref=e3547]: 3ms
+                  - generic [ref=e3548]: Due 7d ago
+                  - generic [ref=e3549]: disabled
+              - paragraph [ref=e3551]:
+                - strong [ref=e3552]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3553]:
+              - generic [ref=e3554]:
+                - generic [ref=e3555]:
+                  - generic [ref=e3556]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3557]: · Skipped
+                  - generic [ref=e3559]: Not requested
+                - generic [ref=e3560]:
+                  - generic [ref=e3561]: 4/21/2026, 10:00:00 PM
+                  - generic [ref=e3562]: Run at 4/21/2026, 10:00:00 PM
+                  - generic [ref=e3563]: 7ms
+                  - generic [ref=e3564]: Due 8d ago
+                  - generic [ref=e3565]: disabled
+              - paragraph [ref=e3567]:
+                - strong [ref=e3568]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3569]:
+              - generic [ref=e3570]:
+                - generic [ref=e3571]:
+                  - generic [ref=e3572]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3573]: · Skipped
+                  - generic [ref=e3575]: Not requested
+                - generic [ref=e3576]:
+                  - generic [ref=e3577]: 4/20/2026, 10:00:00 PM
+                  - generic [ref=e3578]: Run at 4/20/2026, 10:00:00 PM
+                  - generic [ref=e3579]: 6ms
+                  - generic [ref=e3580]: Due 9d ago
+                  - generic [ref=e3581]: disabled
+              - paragraph [ref=e3583]:
+                - strong [ref=e3584]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3585]:
+              - generic [ref=e3586]:
+                - generic [ref=e3587]:
+                  - generic [ref=e3588]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3589]: · Skipped
+                  - generic [ref=e3591]: Not requested
+                - generic [ref=e3592]:
+                  - generic [ref=e3593]: 4/19/2026, 10:00:00 PM
+                  - generic [ref=e3594]: Run at 4/19/2026, 10:00:00 PM
+                  - generic [ref=e3595]: 4ms
+                  - generic [ref=e3596]: Due 10d ago
+                  - generic [ref=e3597]: disabled
+              - paragraph [ref=e3599]:
+                - strong [ref=e3600]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3601]:
+              - generic [ref=e3602]:
+                - generic [ref=e3603]:
+                  - generic [ref=e3604]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3605]: · Skipped
+                  - generic [ref=e3607]: Not requested
+                - generic [ref=e3608]:
+                  - generic [ref=e3609]: 4/18/2026, 10:00:00 PM
+                  - generic [ref=e3610]: Run at 4/18/2026, 10:00:00 PM
+                  - generic [ref=e3611]: 6ms
+                  - generic [ref=e3612]: Due 11d ago
+                  - generic [ref=e3613]: disabled
+              - paragraph [ref=e3615]:
+                - strong [ref=e3616]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3617]:
+              - generic [ref=e3618]:
+                - generic [ref=e3619]:
+                  - generic [ref=e3620]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3621]: · Skipped
+                  - generic [ref=e3623]: Not requested
+                - generic [ref=e3624]:
+                  - generic [ref=e3625]: 4/17/2026, 10:00:00 PM
+                  - generic [ref=e3626]: Run at 4/17/2026, 10:00:00 PM
+                  - generic [ref=e3627]: 6ms
+                  - generic [ref=e3628]: Due 12d ago
+                  - generic [ref=e3629]: disabled
+              - paragraph [ref=e3631]:
+                - strong [ref=e3632]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3633]:
+              - generic [ref=e3634]:
+                - generic [ref=e3635]:
+                  - generic [ref=e3636]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3637]: · Skipped
+                  - generic [ref=e3639]: Not requested
+                - generic [ref=e3640]:
+                  - generic [ref=e3641]: 4/16/2026, 10:00:00 PM
+                  - generic [ref=e3642]: Run at 4/16/2026, 10:00:00 PM
+                  - generic [ref=e3643]: 3ms
+                  - generic [ref=e3644]: Due 13d ago
+                  - generic [ref=e3645]: disabled
+              - paragraph [ref=e3647]:
+                - strong [ref=e3648]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3649]:
+              - generic [ref=e3650]:
+                - generic [ref=e3651]:
+                  - generic [ref=e3652]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3653]: · Skipped
+                  - generic [ref=e3655]: Not requested
+                - generic [ref=e3656]:
+                  - generic [ref=e3657]: 4/15/2026, 10:00:00 PM
+                  - generic [ref=e3658]: Run at 4/15/2026, 10:00:00 PM
+                  - generic [ref=e3659]: 3ms
+                  - generic [ref=e3660]: Due 14d ago
+                  - generic [ref=e3661]: disabled
+              - paragraph [ref=e3663]:
+                - strong [ref=e3664]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3665]:
+              - generic [ref=e3666]:
+                - generic [ref=e3667]:
+                  - generic [ref=e3668]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3669]: · OK
+                  - generic [ref=e3671]: Not requested
+                - generic [ref=e3672]:
+                  - generic [ref=e3673]: 4/14/2026, 10:00:00 PM
+                  - generic [ref=e3674]: Run at 4/14/2026, 10:00:00 PM
+                  - generic [ref=e3675]: 7ms
+                  - generic [ref=e3676]: Due 15d ago
+              - paragraph [ref=e3678]:
+                - strong [ref=e3679]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3680]:
+              - generic [ref=e3681]:
+                - generic [ref=e3682]:
+                  - generic [ref=e3683]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3684]: · OK
+                  - generic [ref=e3686]: Not requested
+                - generic [ref=e3687]:
+                  - generic [ref=e3688]: 4/13/2026, 10:00:00 PM
+                  - generic [ref=e3689]: Run at 4/13/2026, 10:00:00 PM
+                  - generic [ref=e3690]: 7ms
+                  - generic [ref=e3691]: Due 16d ago
+              - paragraph [ref=e3693]:
+                - strong [ref=e3694]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3695]:
+              - generic [ref=e3696]:
+                - generic [ref=e3697]:
+                  - generic [ref=e3698]:
+                    - text: Memory Dreaming Promotion
+                    - generic [ref=e3699]: · OK
+                  - generic [ref=e3701]: Not requested
+                - generic [ref=e3702]:
+                  - generic [ref=e3703]: 4/12/2026, 10:00:00 PM
+                  - generic [ref=e3704]: Run at 4/12/2026, 10:00:00 PM
+                  - generic [ref=e3705]: 2ms
+                  - generic [ref=e3706]: Due 17d ago
+              - paragraph [ref=e3708]:
+                - strong [ref=e3709]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3710]:
+              - generic [ref=e3711]:
+                - generic [ref=e3712]:
+                  - generic [ref=e3713]:
+                    - text: 3ad28a7b-5be5-4511-bfe1-8229400668ba
+                    - generic [ref=e3714]: · OK
+                  - generic [ref=e3716]: Not requested
+                - generic [ref=e3717]:
+                  - generic [ref=e3718]: 4/9/2026, 10:00:00 PM
+                  - generic [ref=e3719]: Run at 4/9/2026, 10:00:00 PM
+                  - generic [ref=e3720]: 3ms
+                  - generic [ref=e3721]: Due 20d ago
+              - paragraph [ref=e3723]:
+                - strong [ref=e3724]: openclaw_memory_core_short_term_promotion_dream
+            - generic [ref=e3725]:
+              - generic [ref=e3726]:
+                - generic [ref=e3727]:
+                  - generic [ref=e3728]:
+                    - text: 3ad28a7b-5be5-4511-bfe1-8229400668ba
+                    - generic [ref=e3729]: · OK
+                  - generic [ref=e3731]: Not requested
+                - generic [ref=e3732]:
+                  - generic [ref=e3733]: 4/8/2026, 10:00:00 PM
+                  - generic [ref=e3734]: Run at 4/8/2026, 10:00:00 PM
+                  - generic [ref=e3735]: 13ms
+                  - generic [ref=e3736]: Due 21d ago
+              - paragraph [ref=e3738]:
+                - strong [ref=e3739]: openclaw_memory_core_short_term_promotion_dream
+      - generic [ref=e3740]:
+        - generic [ref=e3741]: New Job
+        - generic [ref=e3742]: Create a scheduled wakeup or agent run.
+        - generic [ref=e3743]:
+          - generic [ref=e3744]: "* Required"
+          - generic [ref=e3745]:
+            - generic [ref=e3746]: Basics
+            - generic [ref=e3747]: Name it, choose the assistant, and set enabled state.
+            - generic [ref=e3748]:
+              - generic [ref=e3749]:
+                - generic [ref=e3750]:
+                  - text: Name *
+                  - generic [ref=e3751]: required
+                - textbox "Name required" [ref=e3752]:
+                  - /placeholder: Morning brief
+              - generic [ref=e3753]:
+                - generic [ref=e3754]: Description
+                - textbox "Description" [ref=e3755]:
+                  - /placeholder: Optional context for this job
+              - generic [ref=e3756]:
+                - generic [ref=e3757]: Agent ID
+                - combobox "Agent ID Start typing to pick a known agent, or enter a custom one." [ref=e3758]
+                - generic [ref=e3759]: Start typing to pick a known agent, or enter a custom one.
+              - generic [ref=e3760]:
+                - checkbox "Enabled" [checked] [ref=e3761]
+                - generic [ref=e3762]: Enabled
+          - generic [ref=e3763]:
+            - generic [ref=e3764]: Schedule
+            - generic [ref=e3765]: Control when this job runs.
+            - generic [ref=e3767]:
+              - generic [ref=e3768]: Schedule
+              - combobox "Schedule" [ref=e3769] [cursor=pointer]:
+                - option "Every" [selected]
+                - option "At"
+                - option "Cron"
+            - generic [ref=e3770]:
+              - generic [ref=e3771]:
+                - generic [ref=e3772]:
+                  - text: Every *
+                  - generic [ref=e3773]: required
+                - textbox "Every required" [ref=e3774]:
+                  - /placeholder: "30"
+                  - text: "30"
+              - generic [ref=e3775]:
+                - generic [ref=e3776]: Unit
+                - combobox "Unit" [ref=e3777] [cursor=pointer]:
+                  - option "Minutes" [selected]
+                  - option "Hours"
+                  - option "Days"
+          - generic [ref=e3778]:
+            - generic [ref=e3779]: Execution
+            - generic [ref=e3780]: Choose when to wake, and what this job should do.
+            - generic [ref=e3781]:
+              - generic [ref=e3782]:
+                - generic [ref=e3783]: Session
+                - combobox "Session Main posts a system event. Isolated runs a dedicated agent turn." [ref=e3784] [cursor=pointer]:
+                  - option "Main"
+                  - option "Isolated" [selected]
+                - generic [ref=e3785]: Main posts a system event. Isolated runs a dedicated agent turn.
+              - generic [ref=e3786]:
+                - generic [ref=e3787]: Wake mode
+                - combobox "Wake mode Now triggers immediately. Next heartbeat waits for the next cycle." [ref=e3788] [cursor=pointer]:
+                  - option "Now" [selected]
+                  - option "Next heartbeat"
+                - generic [ref=e3789]: Now triggers immediately. Next heartbeat waits for the next cycle.
+              - generic [ref=e3790]:
+                - generic [ref=e3791]: What should run?
+                - combobox "What should run? Starts an assistant run in its own session using your prompt." [ref=e3792] [cursor=pointer]:
+                  - option "Post message to main timeline"
+                  - option "Run assistant task (isolated)" [selected]
+                - generic [ref=e3793]: Starts an assistant run in its own session using your prompt.
+              - generic [ref=e3794]:
+                - generic [ref=e3795]: Timeout (seconds)
+                - textbox "Timeout (seconds) Optional. Leave blank to use the gateway default timeout behavior for this run." [ref=e3796]:
+                  - /placeholder: Optional, e.g. 90
+                - generic [ref=e3797]: Optional. Leave blank to use the gateway default timeout behavior for this run.
+            - generic [ref=e3798]:
+              - generic [ref=e3799]:
+                - text: Assistant task prompt *
+                - generic [ref=e3800]: required
+              - textbox "Assistant task prompt required" [ref=e3801]
+          - generic [ref=e3802]:
+            - generic [ref=e3803]: Delivery
+            - generic [ref=e3804]: Choose where run summaries are sent.
+            - generic [ref=e3805]:
+              - generic [ref=e3806]:
+                - generic [ref=e3807]: Result delivery
+                - combobox "Result delivery Announce posts a summary to chat. None keeps execution internal." [ref=e3808] [cursor=pointer]:
+                  - option "Announce summary (default)" [selected]
+                  - option "Webhook POST"
+                  - option "None (internal)"
+                - generic [ref=e3809]: Announce posts a summary to chat. None keeps execution internal.
+              - generic [ref=e3810]:
+                - generic [ref=e3811]: Channel
+                - combobox "Channel Choose which connected channel receives the summary." [ref=e3812] [cursor=pointer]:
+                  - option "last" [selected]
+                  - option "Discord"
+                  - option "Telegram"
+                - generic [ref=e3813]: Choose which connected channel receives the summary.
+              - generic [ref=e3814]:
+                - generic [ref=e3815]: To
+                - combobox "To Optional recipient override (chat id, phone, or user id)." [ref=e3816]
+                - generic [ref=e3817]: Optional recipient override (chat id, phone, or user id).
+          - group [ref=e3818]:
+            - generic "Advanced" [ref=e3819] [cursor=pointer]
+            - option "Inherit global setting" [selected]
+            - option "Disable for this job"
+            - option "Custom per-job settings"
+        - button "Add job" [ref=e3821] [cursor=pointer]

@@ -1,24 +1,27 @@
 # beep-effect Architecture Standard
 
 This document is the binding architecture constitution for beep-effect. It
-defines how slice packages, non-slice families, and repo-local agent bundles are
-shaped, where responsibilities live, and how agents and humans should infer
-intent from topology. If a proposed slice, package, adapter, or dependency
-contradicts this document, the proposal must change or this document must be
-amended.
+defines how slice packages and non-slice families are shaped, where
+responsibilities live, and how readers should infer intent from topology. If a
+proposed slice, package, adapter, or dependency contradicts this document, the
+proposal must change or this document must be amended.
 
 The companion rationale packet lives in
 [`standards/architecture/`](architecture/README.md). The companion packet
 explains why these rules exist. This file states the rules and teaches the
 default way to apply them.
 
+Canonical executable examples live in `packages/fixture-lab/specimen` and are
+covered by tests. Longer membership snippets in this document are architectural
+sketches unless they explicitly reference the fixture package.
+
 ## North Star
 
 beep-effect uses a hexagonal vertical slice architecture for product code.
 
 Domain-agnostic reusable substrate, developer-operational packages, and
-repo-local AI steering artifacts use explicit non-slice family/kind grammar so
-they are as legible as slices instead of becoming generic `common` buckets.
+technical boundary wrappers use explicit non-slice family/kind grammar so they
+are as legible as slices instead of becoming generic `common` buckets.
 
 A slice is a domain-bounded module family with its own domain language,
 application use-cases, typed configuration contracts when those exist, server
@@ -35,8 +38,29 @@ The architecture optimizes for four things:
    other infrastructure do not leak into domain language.
 3. Reusable rich domain concepts without turning the repo into one giant shared
    horizontal layer.
-4. Agent-readable topology where file paths and role suffixes carry enough
+4. Reviewable topology where file paths and role suffixes carry enough
    context to keep work consistent.
+
+## How To Use This Standard
+
+Start with the smallest boundary that owns the meaning:
+
+| Task | Default home |
+|------|--------------|
+| Product behavior or product language | The owning slice. |
+| Product language deliberately shared by multiple slices | `shared/*`, after the shared-kernel promotion gate. |
+| External engines, SDKs, services, frameworks, or browser platform wrappers | `drivers/*`. |
+| Domain-agnostic reusable substrate owned by this repo | `foundation/*`, after the specific-home-first routing test. |
+| Typed application/runtime configuration contracts | The slice or shared `config` package. |
+| Product-agnostic UI primitives, themes, tokens, hooks, or composition helpers | `foundation/ui-system`. |
+| Browser/client product state, adapters, or interaction behavior | The slice `client` or `ui` package. |
+| App runtime wiring | The app entrypoint or an app-local `src/runtime/Layer.ts` helper. |
+
+The core vocabulary is deliberately small at the entry point: slice, domain,
+use-cases, adapter, driver, shared kernel, foundation, config contract, Layer,
+and canonical subpath name. More specialized terms remain canonical, but use the
+[glossary](architecture/GLOSSARY.md) when they first matter instead of loading
+the whole vocabulary at once.
 
 ## Core Principles
 
@@ -60,9 +84,9 @@ libraries.
 
 ### 3. Shared Is A Shared Kernel
 
-`packages/shared` is the DDD shared kernel. It contains cross-cutting language
-that multiple slices deliberately share. It is not a dumping ground for code
-that did not fit elsewhere. Domain-agnostic reusable substrate belongs in
+The `shared` package family is the DDD shared kernel. It contains cross-cutting
+language that multiple slices deliberately share. It is not a dumping ground for
+code that did not fit elsewhere. Domain-agnostic reusable substrate belongs in
 `packages/foundation`, not in `shared`.
 
 ### 4. Rich Domain, Pure Behavior
@@ -84,10 +108,33 @@ Service contracts and type-level-only utility surfaces may stay as TypeScript
 types. Domain payloads, wire payloads, persisted rows, and config payloads
 should be schema-first whenever `Schema` can represent the shape.
 
+Persisted entities follow the same law. `@beep/schema/EntitySchema` is the
+generic source-of-truth kernel: entity models are schema classes, their decoded
+side is domain language, and their encoded side is the persistence row shape.
+Entity fields use normal Effect Schema optional/nullish codecs
+(`S.OptionFromNullOr`, `S.OptionFromOptionalKey`, `S.optionalKey`, and related
+variants) instead of bespoke nullable wrappers. Table projection code reads the
+Schema AST and rejects persisted selected-row fields whose encoded absence is
+optional, `undefined`, or ambiguous; SQL row absence must encode as `null`.
+
+Product entity invariants belong in class factories. Shared product entities
+use the `BaseEntity.Class` export from
+`@beep/shared-domain/entity/BaseEntity` to compose
+invariant fields such as entity identity, organization scope, provenance, schema
+version, and row version into the schema class. Entity-specific `.model.ts`
+files inline their own rich fields plus `persisted` descriptors next to the
+schema so domain shape and persistence shape drift together at compile time.
+
+Drizzle tables are projected, not hand-mapped. `@beep/drizzle/EntityTable`
+owns the generic Drizzle projection and exposes `pgTableFrom(entity)`.
+Slice/shared `tables` packages may own concrete table metadata for their product
+language, but they do not own a second SQL DSL, live database execution,
+transactions, repositories, or migrations.
+
 ### 6. Topology Is Compressed Context
 
-Humans get the map from mirrored package paths. Agents get instruction from role
-suffixes. This is why the repo uses concept-qualified role module names such as
+Readers get the map from mirrored package paths and role suffixes. This is why
+the repo uses concept-qualified role module names such as
 `Membership.policy.ts`, `Membership.event-handlers.ts`, and
 `Membership.command-client.ts`.
 
@@ -101,11 +148,10 @@ Non-slice artifacts are never `misc`.
 - `foundation` owns domain-agnostic reusable substrate
 - `drivers` owns flat repo-level technical boundary wrappers
 - `tooling` owns developer-operational code packages
-- `agents` owns repo-local AI steering bundles
 
-Every non-slice artifact declares exactly one family so humans, agents, and
-tooling can infer the intended boundary before opening the first file. `kind` is
-required only for families that intentionally declare a kind segment;
+Every non-slice artifact declares exactly one family so readers, reviewers, and
+tooling can infer the intended boundary before opening the first file. `kind`
+is required only for families that intentionally declare a kind segment;
 `drivers` remains the flat family exception.
 
 ## Package Dependency Graph
@@ -129,9 +175,9 @@ flowchart TD
   domain["@beep/<slice>-domain"]
   tables["@beep/<slice>-tables"]
   drivers["@beep/<driver>"]
-  sharedDomain["@beep/shared-domain"]
-  sharedUseCases["@beep/shared-use-cases"]
-  sharedConfig["@beep/shared-config"]
+  sharedDomain["@beep/<kernel>-domain"]
+  sharedUseCases["@beep/<kernel>-use-cases"]
+  sharedConfig["@beep/<kernel>-config"]
   foundation["foundation primitive/modeling"]
 
   ui --> client
@@ -178,7 +224,7 @@ Forbidden by default:
 
 - `domain` depending on anything except shared-kernel language and
   `foundation/primitive` or `foundation/modeling` packages. This excludes slice
-  `config`, `@beep/shared-config`, `foundation/capability`,
+  `config`, `@beep/<kernel>-config`, `foundation/capability`,
   `foundation/ui-system`, `Config`, `ConfigProvider`, server, client, tables,
   UI, drivers, and use-cases.
 - `use-cases` depending on `server`, `client`, `ui`, `tables`, or concrete
@@ -188,7 +234,7 @@ Forbidden by default:
 - `drivers/*` depending on product concepts from any slice or `shared/*`.
 - `ui`, `tables`, or `drivers/*` importing slice `config` directly.
 - `shared/*` depending on product slices or drivers.
-- slice packages importing `tooling/*` packages or `agents/*` bundles.
+- slice packages importing `packages/tooling/*/*` packages.
 - Runtime packages merging all slice layers into one global dependency object.
 
 Client/UI dependency caveats:
@@ -197,13 +243,13 @@ Client/UI dependency caveats:
   value objects; domain must never import config or read runtime configuration.
 - `client` may import `use-cases` only through required client-safe contract
   subpaths such as `@beep/<slice>-use-cases/public` and
-  `@beep/shared-use-cases/public`. Those exports may include command/query
+  `@beep/<kernel>-use-cases/public`. Those exports may include command/query
   language, driver-neutral boundary contracts, driver-neutral DTOs, actionable
   application errors, and client-safe facade contracts. They must not include
   product ports, server-only service/facade contracts, workflows, process
   managers, schedulers, or live Layer values.
 - `client` may import config only through `@beep/<slice>-config/public` and
-  `@beep/shared-config/public`. It must not import `/server`, `/secrets`,
+  `@beep/<kernel>-config/public`. It must not import `/server`, `/secrets`,
   `/layer`, or `/test`.
 - `client` may import drivers only through the required browser-safe subpath
   `@beep/<driver>/browser`. Driver package roots are never browser-safe by
@@ -218,6 +264,10 @@ Client/UI dependency caveats:
 - `shared/domain` and `shared/config` follow the same inward rules as slice
   `domain` and `config`. High-bar `shared/use-cases`, `shared/client`,
   `shared/server`, `shared/tables`, and `shared/ui` packages never own drivers.
+- `shared/tables` may import `@beep/drizzle` only for metadata-only table
+  projection from shared-kernel entity schemas. This exception does not permit
+  live driver capability, query execution, migrations, repositories, seeders, or
+  database transactions in shared packages.
 
 ## Slice Package Topology
 
@@ -247,17 +297,28 @@ The package names follow the public package convention:
 @beep/<slice>-ui
 ```
 
-`config` is canonical but optional. Create it only when a slice has meaningful
+The canonical spine is vocabulary, not a scaffold mandate. Create the smallest
+real package set that carries current behavior. A new package needs both:
+
+- a concrete architecture role
+- meaningful exported behavior, contract, adapter, config surface, or test
+  fixture
+
+Do not create packages only for symmetry. Future generators should default to
+minimal packages and add optional packages only through explicit flags or
+prompts.
+
+`config` is optional canonical-shape. Create it only when a slice has meaningful
 configuration contracts. The canonical shared package names are
-`@beep/shared-domain`, `@beep/shared-config`, and high-bar
-`@beep/shared-use-cases` when that package exists. `env` package naming is
+`@beep/<kernel>-domain`, `@beep/<kernel>-config`, and high-bar
+`@beep/<kernel>-use-cases` when that package exists. `env` package naming is
 legacy source-specific vocabulary, not a slice package kind. Environment
 variables are one possible `ConfigProvider` source for config declarations.
 
 `shared` is the canonical cross-slice slice with a reduced spine:
 
 ```txt
-packages/shared/
+packages/<kernel>/
   domain/
   config/
   use-cases/ # high bar only
@@ -271,10 +332,25 @@ packages/shared/
 `shared/client`, `shared/server`, `shared/tables`, and `shared/ui` are high-bar
 exceptions. `shared/use-cases` is contract-only: deliberate cross-slice
 commands, queries, driver-neutral DTOs, driver-neutral boundary contracts,
-client-safe application errors, facade interfaces, and product ports are
-allowed. It never owns workflows, process managers, schedulers, handlers,
-concrete adapters, driver imports, or live Layer values. `shared` never owns
-drivers or generic substrate.
+client-safe application errors, facade interfaces, and ultra-high-bar product
+ports are allowed. A shared product port must prove why a shared command,
+query, event, or facade contract is insufficient. It never owns workflows,
+process managers, schedulers, handlers, concrete adapters, driver imports, or
+live Layer values. `shared` never owns drivers or generic substrate.
+
+Meaningful exports in high-bar `shared/*` packages require a promotion record in
+that package's README before or alongside the export. The record must include:
+
+- the shared product semantics being accepted
+- the current consumers or explicit cross-slice rationale
+- the exported surface being promoted
+- rejected homes, especially the owning slice and `foundation`
+- runtime, adapter, driver, and Layer limits
+- contract-only proof for `shared/use-cases`
+- review evidence for the deliberate coupling
+
+`standards/architecture/DECISIONS.md` records architecture-wide policy changes.
+It does not replace package-level promotion records.
 
 Technical wrappers live in the flat repo-level drivers family:
 
@@ -299,10 +375,10 @@ package guidance.
 @beep/<slice>-use-cases/test
 ```
 
-When it exists, `@beep/shared-use-cases` follows the same contract.
+When it exists, `@beep/<kernel>-use-cases` follows the same contract.
 
 - `/public` is client-safe: commands, queries, driver-neutral DTOs, boundary
-  contracts, actionable application errors, and client-safe facade interfaces.
+  contracts, public action errors, and client-safe facade interfaces.
 - `/server` is the server-only application contract surface, including product
   ports, server-only service or facade contracts, and slice-local
   workflow/process/scheduler contracts when that slice uses them.
@@ -318,7 +394,7 @@ When it exists, `@beep/shared-use-cases` follows the same contract.
 @beep/<slice>-config/test
 ```
 
-`@beep/shared-config` follows the same contract.
+`@beep/<kernel>-config` follows the same contract.
 
 - `/public` is the only browser/client-safe config surface.
 - `/server`, `/secrets`, and `/test` are server/test-only.
@@ -329,7 +405,7 @@ Driver browser safety is also explicit: if a driver exposes a browser-safe
 surface, it must do so from `@beep/<driver>/browser`. The package root is never
 browser-safe by default.
 
-Required subpaths are required names when that role exists. They are not a
+Canonical subpath names are required names when that role exists. They are not a
 requirement to publish placeholder exports from packages that do not need that
 role.
 
@@ -346,11 +422,46 @@ The canonical non-slice families are:
 | `foundation` | `primitive`, `modeling`, `capability`, `ui-system`      | Repo-owned domain-agnostic reusable substrate.    |
 | `drivers`    | flat family; no extra kind segment                      | External engines, SDKs, services, and frameworks. |
 | `tooling`    | `library`, `tool`, `policy-pack`, `test-kit`            | Developer-operational code packages.              |
-| `agents`     | `skill-pack`, `policy-pack`, `runtime-adapter`          | Repo-local AI steering bundles.                   |
 
-`packages/shared` is not part of this table. `shared` remains the DDD shared
-kernel and canonical cross-slice slice. `foundation` is not a rename of the
-shared kernel. `drivers` are not candidates for `shared`.
+The `shared` package family is not part of this table. `shared` remains the DDD
+shared kernel and canonical cross-slice slice. `foundation` is not a rename of
+the shared kernel. `drivers` are not candidates for `shared`.
+
+Route specific homes before reaching for `foundation/capability`:
+
+1. Product semantics go to the owning slice or `shared/*`.
+2. External engines, SDKs, services, frameworks, and browser platform wrappers
+   go to `drivers`.
+3. Repo operations, generators, policy packs, and automation go to `tooling`.
+4. Product-agnostic UI primitives, themes, tokens, hooks, and composition
+   helpers go to `foundation/ui-system`.
+5. Only remaining repo-owned, domain-agnostic technical services may go to
+   `foundation/capability`.
+
+`foundation/capability` is accepted only after a negative gate plus proof:
+
+- it carries no product semantics
+- it does not wrap an external engine, third-party SDK, service, framework, or
+  browser platform API
+- it is not repo-operational tooling
+- it is not a UI primitive, design-system role, or React ergonomics layer
+- it has multiple real consumers or an explicit platform-capability rationale
+
+Reusable shape alone is not enough. A service or Layer does not belong in
+`foundation/capability` merely because it is technical.
+
+Browser/runtime capability routing is platform-first:
+
+| Concern | Home |
+|---------|------|
+| Low-level browser platform wrapper | `drivers/*` with `@beep/<driver>/browser` |
+| Product-agnostic React hook or component over a browser capability | `foundation/ui-system` |
+| Product-specific browser behavior or state | Slice `client` or `ui` |
+| Rare runtime-neutral repo-owned technical service | `foundation/capability`, only after the capability gate |
+
+Driver package roots are not browser-safe by default. Foundation package roots
+must be runtime-neutral or browser-safe by contract; any environment-specific
+foundation surface needs an explicit environment entrypoint.
 
 ### Canonical Roots And Names
 
@@ -360,11 +471,10 @@ The canonical roots are:
 packages/foundation/<kind>/<name>
 packages/drivers/<name>
 packages/tooling/<kind>/<name>
-agents/<kind>/<name>
 ```
 
 These roots sit beside slice roots such as `packages/iam/*` and the shared
-cross-slice root `packages/shared/*`.
+cross-slice root `packages/<kernel>/*`.
 
 Public package names follow the family role:
 
@@ -372,7 +482,6 @@ Public package names follow the family role:
 foundation -> @beep/<purpose>
 drivers    -> @beep/<driver>
 tooling    -> @beep/repo-<purpose>
-agents     -> path-identified repo-local bundles
 ```
 
 Examples:
@@ -387,9 +496,6 @@ packages/tooling/tool/cli                 -> @beep/repo-cli
 packages/tooling/library/repo-utils       -> @beep/repo-utils
 packages/tooling/policy-pack/repo-configs -> @beep/repo-configs
 packages/tooling/test-kit/test-utils      -> @beep/test-utils
-agents/skill-pack/schema-first-development
-agents/policy-pack/core
-agents/runtime-adapter/codex
 ```
 
 A shared UI primitives library such as `@beep/ui` is a
@@ -400,8 +506,8 @@ package. It is not a slice kind and not shared-kernel language.
 ### Required Metadata
 
 Every non-slice artifact declares machine-readable family metadata. `kind` is
-required for `foundation`, `tooling`, and `agents`. `drivers` is the explicit
-flat-family exception and omits `kind`.
+required for `foundation` and `tooling`. `drivers` is the explicit flat-family
+exception and omits `kind`.
 
 Code packages record it in `package.json`:
 
@@ -421,16 +527,6 @@ Code packages record it in `package.json`:
   "beep": {
     "family": "drivers"
   }
-}
-```
-
-Agent bundles record family and kind in `beep.json`:
-
-```json
-{
-  "family": "agents",
-  "kind": "skill-pack",
-  "id": "schema-first-development"
 }
 ```
 
@@ -458,7 +554,7 @@ directory names alone.
   `foundation/capability`
 - drivers may depend on other drivers when the dependency stays acyclic and the
   boundary remains product-neutral
-- drivers do not depend on `shared/*`, product slices, `tooling/*`, or `agents/*`
+- drivers do not depend on `shared/*`, product slices, or `packages/tooling/*/*`
 - if the repo increasingly owns the implementation as reusable substrate, move
   it to `foundation` instead of keeping it in `drivers`
 
@@ -476,17 +572,6 @@ These rules are dependency ceilings, not permission for cycles.
 Repo-wide orchestration is behavior inside `tool`. It is not a separate
 canonical kind.
 
-`agents` stays portable by default:
-
-| Kind              | Dependency rule                                                                 |
-|-------------------|----------------------------------------------------------------------------------|
-| `skill-pack`      | portable content only; no executable logic or runtime-specific wiring            |
-| `policy-pack`     | declarative steering packets; may reference skill ids/selectors, not skill text |
-| `runtime-adapter` | declaratively composes skill/policy packs; may contain config/templates only    |
-
-Executable hooks, CLIs, and synchronization code live in `tooling/tool`, not in
-`agents`.
-
 ### Slice Consumption Rules
 
 Slices and the shared kernel may consume `foundation`, but only in boundary-
@@ -501,13 +586,18 @@ appropriate ways:
   packages.
 - `server` and `tables` may import drivers directly.
 - `client` may import only browser-safe driver entrypoints exposed from the
-  required subpath `@beep/<driver>/browser`.
+  canonical subpath name `@beep/<driver>/browser`.
 - `domain`, `use-cases`, `config`, `ui`, and all `shared/*` packages do not
   import drivers.
-- Product slices and shared-kernel packages do not depend on `tooling/*` or
-  `agents/*`.
-- `foundation`, `drivers`, `tooling`, and `agents` do not depend on product
-  slices or the shared kernel.
+- Slice-to-slice direct imports across `domain`, `use-cases`, `server`,
+  `tables`, `client`, or `ui` packages of *different* slices are forbidden.
+  Cross-slice integration goes through `shared/use-cases` (commands, queries,
+  events, contracts) or through emitted events. This is the same family of
+  acyclic ceiling that drivers respect among themselves, applied to slices.
+- Product slices and shared-kernel packages do not depend on
+  `packages/tooling/*/*`.
+- `foundation`, `drivers`, and `tooling` do not depend on product slices or the
+  shared kernel.
 
 ### Canonical File-Role Anchors
 
@@ -525,9 +615,6 @@ canonical:
 | `tooling/tool`             | `src/bin.ts`, `commands/`, `*.command.ts`, `*.service.ts`, `*.schema.ts`, `index.ts` |
 | `tooling/policy-pack`      | `*.config.ts`, `*.policy.ts`, `index.ts`                                          |
 | `tooling/test-kit`         | `*.test-kit.ts`, optional `fixtures/`, `layers/`, `index.ts`                     |
-| `agents/skill-pack`        | required `SKILL.md` and `beep.json`; optional `references/`, `assets/`, `_shared/` |
-| `agents/policy-pack`       | required `beep.json`; declarative policy packets and optional `README.md`         |
-| `agents/runtime-adapter`   | required `beep.json`; runtime config/templates/mappings only                      |
 
 Script-only pseudo-packages are not canonical. If an artifact matters enough to
 name in the architecture, it should have a real family/kind contract and a real
@@ -693,11 +780,11 @@ packages/iam/
 
 packages/drivers/
   postgres/src/
-    Postgres.service.ts
-    Postgres.layer.ts
+    PostgresClient.service.ts
+    PostgresClient.layer.ts
     Postgres.errors.ts
     Postgres.config.ts
-    Postgres.test-layer.ts
+    PostgresClient.test-layer.ts
   drizzle/src/
     Drizzle.service.ts
     Drizzle.layer.ts
@@ -726,7 +813,7 @@ concept is really a consistency boundary.
 
 ## Role Suffixes
 
-Role suffixes are the filename vocabulary that tells humans and agents what a
+Role suffixes are the filename vocabulary that tells readers what a
 module is allowed to do.
 
 The grammar is:
@@ -812,16 +899,18 @@ Use-cases publish explicit boundary subpaths:
   workflow/process/scheduler contracts when present
 - `@beep/<slice>-use-cases/test` for test helpers and fixtures
 
-Required subpaths are required names when that role exists, not a requirement
+Canonical subpath names are required names when that role exists, not a requirement
 to add placeholder exports. Package roots and `./*` exports may remain during
 migration, but they are not the canonical boundary contract.
 
 The high-bar `shared/use-cases` exception follows the same `/public`, `/server`,
 and `/test` contract. It is narrower than slice `use-cases`: only commands,
 queries, driver-neutral DTOs, driver-neutral boundary contracts, client-safe
-application errors, facade interfaces, and product ports are allowed. It never
-owns workflows, process managers, schedulers, handlers, concrete adapters,
-driver imports, or live Layer values.
+application errors, facade interfaces, and ultra-high-bar product ports are
+allowed. Product ports require proof that a command/query/event/facade contract
+would not preserve the intended boundary. It never owns workflows, process
+managers, schedulers, handlers, concrete adapters, driver imports, or live
+Layer values.
 
 ### Config Role Vocabulary
 
@@ -844,7 +933,7 @@ These roles map to explicit export subpaths:
   helpers
 - `@beep/<slice>-config/test` for test helpers and fixtures
 
-`@beep/shared-config` follows the same contract. Required subpaths are required
+`@beep/<kernel>-config` follows the same contract. Canonical subpath names are required
 names when that role exists. Package roots and `./*` exports may remain during
 migration, but they are not the canonical boundary contract.
 
@@ -913,7 +1002,11 @@ needs in product language. Protocol declarations also live here by default.
 Slice `use-cases` may also declare workflow/process/scheduler contracts. High-
 bar `shared/use-cases` does not: it is contract-only and limited to deliberate
 cross-slice commands, queries, driver-neutral DTOs, driver-neutral boundary
-contracts, client-safe application errors, facade interfaces, and product ports.
+contracts, client-safe application errors, facade interfaces, and
+ultra-high-bar product ports.
+Product ports in `shared/use-cases` are exceptional even inside the high-bar
+exception and require explicit proof that a less coupled shared contract is
+insufficient.
 
 Use-cases may import config contracts and services, but neither slice
 `use-cases` nor `shared/use-cases` own live Layers that read the runtime
@@ -936,7 +1029,7 @@ Config owns typed runtime/application configuration contracts:
 
 Config may depend inward on `domain` and `shared` for driver-neutral schemas,
 brands, value objects, and validation. That dependency is one-way: domain must
-not import config, `@beep/shared-config`, `Config`, `ConfigProvider`, or any
+not import config, `@beep/<kernel>-config`, `Config`, `ConfigProvider`, or any
 runtime configuration helper. Config must not import use-cases, server, client,
 UI, tables, or concrete drivers.
 
@@ -973,9 +1066,10 @@ High-bar exceptions are:
 
 `shared/use-cases` is contract-only. It may own cross-slice commands, queries,
 driver-neutral DTOs, driver-neutral boundary contracts, client-safe application
-errors, facade interfaces, and product ports. It never owns workflows, process
-managers, schedulers, handlers, concrete adapters, driver imports, or live
-Layer values.
+errors, facade interfaces, and ultra-high-bar product ports. Product ports must
+prove why a command/query/event/facade contract is insufficient. It never owns
+workflows, process managers, schedulers, handlers, concrete adapters, driver
+imports, or live Layer values.
 
 Shared packages encode deliberate cross-slice product semantics. They do not
 own generic substrate, technical wrappers, or drivers.
@@ -1023,8 +1117,8 @@ Layer composition:
 - atoms, form models, optimistic state, and client state machines
 
 Client may depend on `@beep/<slice>-use-cases/public`,
-`@beep/shared-use-cases/public` when that package exists,
-`@beep/<slice>-config/public`, `@beep/shared-config/public`, and browser-safe
+`@beep/<kernel>-use-cases/public` when that package exists,
+`@beep/<slice>-config/public`, `@beep/<kernel>-config/public`, and browser-safe
 driver entrypoints exposed from `@beep/<driver>/browser`. It must not import
 server config, secret config, config `/layer`, server-only live Layers, driver
 package roots, or non-browser driver surfaces.
@@ -1089,7 +1183,7 @@ flowchart LR
   server["server\nMembership.repo.ts"]
   tables["tables\nMembership.table.ts"]
   drizzle["drivers/drizzle\nDrizzle.service.ts"]
-  postgres["drivers/postgres\nPostgres.service.ts"]
+  postgres["drivers/postgres\nPostgresClient.service.ts"]
   db[("Postgres")]
 
   server -. "implements" .-> usecases
@@ -1106,156 +1200,169 @@ event-sourced projection.
 Driver services use Effect v4 `Context.Service` and expose technical
 capability, not product verbs:
 
-```ts
-import { $BeepDriversId } from "@beep/identity/packages"
-import { TaggedErrorClass } from "@beep/schema"
-import { Context, Effect, Layer } from "effect"
-import * as O from "effect/Option"
-import * as S from "effect/Schema"
+````ts
+import { $DrizzleId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import { Context, type Effect, Layer } from "effect";
+import * as S from "effect/Schema";
 
-const $I = $BeepDriversId.create("drizzle/Drizzle.service")
+const $I = $DrizzleId.create("Drizzle.service");
 
-export class DrizzleError extends TaggedErrorClass<DrizzleError>(
-  $I`DrizzleError`,
-)(
+/**
+ * Technical Drizzle driver failure scoped to a driver operation.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError`)(
   "DrizzleError",
   {
     operation: S.String,
-    cause: S.OptionFromOptionalKey(S.Defect),
+    cause: S.OptionFromOptionalKey(S.DefectWithStack),
   },
   $I.annote("DrizzleError", {
-    description: "Technical Drizzle driver failure.",
-  }),
+    description: "Technical Drizzle driver failure scoped to a driver operation.",
+  })
 ) {}
 
-const toDrizzleError = (operation: string, cause?: unknown): DrizzleError =>
-  new DrizzleError({
-    operation,
-    cause: O.fromUndefinedOr(cause),
-  })
-
+/**
+ * Narrow product-neutral Drizzle adapter consumed by `Drizzle.makeLayer`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export interface DrizzleClient {
   readonly execute: (
     statement: string,
-    parameters: ReadonlyArray<unknown>,
-  ) => Promise<ReadonlyArray<unknown>>
+    parameters: ReadonlyArray<unknown>
+  ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>;
+  readonly withTransaction: <A, R>(
+    use: (transaction: DrizzleClient) => Effect.Effect<A, DrizzleError, R>
+  ) => Effect.Effect<A, DrizzleError, R>;
 }
 
-export class Drizzle extends Context.Service<
-  Drizzle,
-  {
-    readonly execute: (
-      statement: string,
-      parameters: ReadonlyArray<unknown>,
-    ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
-  }
->()($I`Drizzle`) {}
+/**
+ * Runtime shape exposed by the {@link Drizzle} service.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export interface DrizzleShape {
+  readonly execute: (
+    statement: string,
+    parameters: ReadonlyArray<unknown>
+  ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>;
+  readonly withTransaction: <A, R>(
+    use: (transaction: DrizzleShape) => Effect.Effect<A, DrizzleError, R>
+  ) => Effect.Effect<A, DrizzleError, R>;
+}
 
-export const makeDrizzleLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
-  Layer.effect(
-    Drizzle,
-    Effect.succeed({
-      execute: (statement, parameters) =>
-        Effect.tryPromise({
-          try: () => client.execute(statement, parameters),
-          catch: (cause) => toDrizzleError("execute", cause),
-        }),
-    }),
-)
-```
+const makeService = (client: DrizzleClient): DrizzleShape => ({
+  execute: client.execute,
+  withTransaction: (use) => client.withTransaction((transaction) => use(makeService(transaction))),
+});
 
-Product ports use product language. Actionable port failures live in
+/**
+ * Effect service for product-neutral Drizzle execution.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class Drizzle extends Context.Service<Drizzle, DrizzleShape>()($I`Drizzle`) {
+  /**
+   * Build a Layer from a narrow product-neutral Drizzle adapter.
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
+    Layer.succeed(Drizzle, Drizzle.of(makeService(client)));
+}
+````
+
+Product ports use product language. Server-only port failures live in
 `Membership.errors.ts`; the port file imports those errors instead of defining
-technical/driver failures inline:
+technical/driver failures inline or leaking them through the public use-case
+API:
 
-```ts
-import { $IamUseCasesId } from "@beep/identity/packages"
-import { Context, type Effect } from "effect"
-import type * as O from "effect/Option"
-import type {
-  Membership,
-  MembershipId,
-} from "@beep/iam-domain/entities/Membership"
-import type { MembershipRepositoryError } from "./Membership.errors.js"
+````ts
+import { $IamUseCasesId } from "@beep/identity/packages";
+import { Context, type Effect } from "effect";
+import type * as O from "effect/Option";
+import type { Membership, MembershipId } from "@beep/iam-domain/entities/Membership";
+import type { MembershipRepositoryUnavailable } from "./Membership.errors.js";
 
-const $I = $IamUseCasesId.create("entities/Membership/Membership.ports")
+const $I = $IamUseCasesId.create("entities/Membership/Membership.ports");
 
+/**
+ * Port describing the persistence surface required by Membership use cases.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export class MembershipRepository extends Context.Service<
   MembershipRepository,
   {
-    readonly save: (
-      model: Membership,
-    ) => Effect.Effect<void, MembershipRepositoryError>
-    readonly findById: (
-      id: MembershipId,
-    ) => Effect.Effect<O.Option<Membership>, MembershipRepositoryError>
+    readonly save: (model: Membership) => Effect.Effect<void, MembershipRepositoryUnavailable>;
+    readonly findById: (id: MembershipId) => Effect.Effect<O.Option<Membership>, MembershipRepositoryUnavailable>;
   }
 >()($I`MembershipRepository`) {}
-```
+````
 
 The implementation belongs in server:
 
-```ts
-import { Effect, Layer } from "effect"
-import * as A from "effect/Array"
-import * as O from "effect/Option"
-import * as S from "effect/Schema"
-import { Drizzle } from "@beep/drizzle"
-import {
-  MembershipRepository,
-  toMembershipRepositoryError,
-} from "@beep/iam-use-cases/server"
-import {
-  MembershipRow,
-  MembershipTable,
-} from "@beep/iam-tables/entities/Membership"
+````ts
+import { Effect, Layer } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { Drizzle } from "@beep/drizzle";
+import { MembershipRepository } from "@beep/iam-use-cases/server";
+import { toMembershipRepositoryUnavailable } from "@beep/iam-use-cases/server/Membership.errors";
+import { MembershipRow, MembershipTable } from "@beep/iam-tables/entities/Membership";
+import type { Membership, MembershipId } from "@beep/iam-domain/entities/Membership";
 
+/**
+ * Server-side Drizzle adapter implementing the Membership repository port.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
 export const MembershipRepositoryLive = Layer.effect(
   MembershipRepository,
   Effect.gen(function* () {
-    const drizzle = yield* Drizzle
+    const drizzle = yield* Drizzle;
 
     return {
-      save: Effect.fn("MembershipRepository.save")((model) =>
-        drizzle
-          .execute(`upsert into ${MembershipTable.name}`, [
-            MembershipTable.toRow(model),
-          ])
+      save: Effect.fn("MembershipRepository.save")(function* (model: Membership) {
+        yield* drizzle
+          .execute(`upsert into ${MembershipTable.name}`, [MembershipTable.toRow(model)])
           .pipe(
             Effect.asVoid,
-            Effect.mapError((error) =>
-              toMembershipRepositoryError("save", error),
+            Effect.mapError((error) => toMembershipRepositoryUnavailable("save", error))
+          );
+      }),
+      findById: Effect.fn("MembershipRepository.findById")(function* (id: MembershipId) {
+        return yield* drizzle
+          .execute(`select * from ${MembershipTable.name} where id = $1 limit 1`, [id])
+          .pipe(
+            Effect.flatMap((rows) =>
+              O.match(A.head(rows), {
+                onNone: () => Effect.succeed(O.none<Membership>()),
+                onSome: (row) =>
+                  S.decodeUnknownEffect(MembershipRow)(row).pipe(
+                    Effect.map(MembershipTable.fromRow),
+                    Effect.map(O.some)
+                  ),
+              })
             ),
-          )),
-      findById: Effect.fn("MembershipRepository.findById")(
-        (id) =>
-          drizzle
-            .execute(
-              `select * from ${MembershipTable.name} where id = $1 limit 1`,
-              [id],
-            )
-            .pipe(
-              Effect.flatMap((rows) =>
-                A.head(rows).pipe(
-                  O.match({
-                    onNone: () => Effect.succeed(O.none()),
-                    onSome: (row) =>
-                      S.decodeUnknownEffect(MembershipRow)(row).pipe(
-                        Effect.map(MembershipTable.fromRow),
-                        Effect.map(O.some),
-                      ),
-                  }),
-                ),
-              ),
-              Effect.mapError((error) =>
-                toMembershipRepositoryError("findById", error),
-              ),
-            ),
-      ),
-    }
-  }),
-)
-```
+            Effect.mapError((error) => toMembershipRepositoryUnavailable("findById", error))
+          );
+      }),
+    };
+  })
+);
+````
 
 ## CQRS, Events, Workflows, Cluster, And Read Models
 
@@ -1392,65 +1499,125 @@ Package-level Layer composers are still useful. The rule is that they should
 compose a slice or adapter boundary, not become the place where unrelated slices
 are welded together.
 
+App-level composition is also allowed when it stays app-local and boring. Use an
+entrypoint or an app-local helper such as:
+
+```txt
+apps/<app>/src/runtime/Layer.ts
+```
+
+That helper may import public slice/package Layers, runtime providers required
+by the app boundary, and config/driver boundaries through approved public
+subpaths. It may export only app-specific live Layers and app-specific test
+Layers or fixtures.
+
+The God Layer rejection test is Boundary + Ownership. An app Layer helper is
+forbidden when it:
+
+- reaches into private concept-level slice internals
+- re-exports slice Layers as a convenience barrel
+- owns product policy, handlers, repositories, schedules, workflows, or
+  cross-slice orchestration
+- aggregates unrelated slice internals into a shared runtime package
+- hides server-only config or driver roots behind a browser/client-safe surface
+
 ## Worked `iam/Membership` Example
 
 Domain errors are actionable, and domain model behavior is pure:
 
-```ts
-import { $IamDomainId } from "@beep/identity/packages"
-import { TaggedErrorClass } from "@beep/schema"
+````ts
+import { $IamDomainId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 
-const $I = $IamDomainId.create("entities/Membership/Membership.errors")
+const $I = $IamDomainId.create("entities/Membership/Membership.errors");
 
+/**
+ * Domain failure raised when revoking a Membership that is already revoked.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export class MembershipAlreadyRevoked extends TaggedErrorClass<MembershipAlreadyRevoked>(
-  $I`MembershipAlreadyRevoked`,
+  $I`MembershipAlreadyRevoked`
 )(
   "MembershipAlreadyRevoked",
   {},
   $I.annote("MembershipAlreadyRevoked", {
     description: "Membership revocation failed because it is already revoked.",
-  }),
+  })
 ) {}
-```
+````
 
-```ts
-import { $IamDomainId } from "@beep/identity/packages"
-import { LiteralKit } from "@beep/schema"
-import * as Model from "@beep/schema/Model"
-import { Effect } from "effect"
-import * as S from "effect/Schema"
-import { AccountId } from "@beep/iam-domain/entities/Account"
-import { OrganizationId } from "@beep/iam-domain/entities/Organization"
-import { MembershipAlreadyRevoked } from "./Membership.errors.js"
+````ts
+import { $IamDomainId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import * as Model from "@beep/schema/Model";
+import { Effect } from "effect";
+import * as S from "effect/Schema";
+import { AccountId } from "@beep/iam-domain/entities/Account";
+import { OrganizationId } from "@beep/iam-domain/entities/Organization";
+import { MembershipAlreadyRevoked } from "./Membership.errors.js";
 
-const $I = $IamDomainId.create("entities/Membership/Membership.model")
+const $I = $IamDomainId.create("entities/Membership/Membership.model");
 
+/**
+ * Branded identifier for an organization membership.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const MembershipId = S.String.pipe(
   S.brand("MembershipId"),
   $I.annoteSchema("MembershipId", {
     description: "Unique identifier for an organization membership.",
-  }),
-)
-export type MembershipId = typeof MembershipId.Type
+  })
+);
+/**
+ * @category schemas
+ * @since 0.0.0
+ */
+export type MembershipId = typeof MembershipId.Type;
 
+/**
+ * Role granted by an organization membership.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const MembershipRole = LiteralKit(["owner", "admin", "member"]).pipe(
   $I.annoteSchema("MembershipRole", {
     description: "Role granted by an organization membership.",
-  }),
-)
-export type MembershipRole = typeof MembershipRole.Type
+  })
+);
+/**
+ * @category schemas
+ * @since 0.0.0
+ */
+export type MembershipRole = typeof MembershipRole.Type;
 
-export const MembershipStatus = LiteralKit([
-  "active",
-  "invited",
-  "revoked",
-]).pipe(
+/**
+ * Lifecycle status of an organization membership.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const MembershipStatus = LiteralKit(["active", "invited", "revoked"]).pipe(
   $I.annoteSchema("MembershipStatus", {
     description: "Lifecycle status of an organization membership.",
-  }),
-)
-export type MembershipStatus = typeof MembershipStatus.Type
+  })
+);
+/**
+ * @category schemas
+ * @since 0.0.0
+ */
+export type MembershipStatus = typeof MembershipStatus.Type;
 
+/**
+ * Account participation in an organization with pure lifecycle behavior.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class Membership extends Model.Class<Membership>($I`Membership`)(
   {
     id: MembershipId,
@@ -1461,11 +1628,11 @@ export class Membership extends Model.Class<Membership>($I`Membership`)(
   },
   $I.annote("Membership", {
     description: "Account participation in an organization.",
-  }),
+  })
 ) {
-  readonly canRevoke = (): boolean => !MembershipStatus.is.revoked(this.status)
+  readonly canRevoke = (): boolean => !MembershipStatus.is.revoked(this.status);
 
-  readonly revoke = Effect.fn("Membership.revoke")(() =>
+  readonly revoke = (): Effect.Effect<Membership, MembershipAlreadyRevoked> =>
     this.canRevoke()
       ? Effect.succeed(
           Membership.make({
@@ -1474,101 +1641,106 @@ export class Membership extends Model.Class<Membership>($I`Membership`)(
             accountId: this.accountId,
             role: this.role,
             status: MembershipStatus.Enum.revoked,
-          }),
+          })
         )
-      : Effect.fail(new MembershipAlreadyRevoked()),
-  )
+      : Effect.fail(new MembershipAlreadyRevoked());
 }
-```
+````
 
 Use-case service defines the contract in product language:
 
-```ts
-import { $IamUseCasesId } from "@beep/identity/packages"
-import { Context, type Effect } from "effect"
-import type { MembershipAlreadyRevoked } from "@beep/iam-domain/entities/Membership"
-import type { RevokeMembershipCommand } from "./Membership.commands.js"
-import {
-  MembershipAccessDenied,
+````ts
+import { $IamUseCasesId } from "@beep/identity/packages";
+import { Context, type Effect } from "effect";
+import type { RevokeMembershipCommand } from "./Membership.commands.js";
+import type {
   MembershipNotFound,
-  MembershipRepositoryError,
-} from "./Membership.errors.js"
-import { MembershipRepository } from "./Membership.ports.js"
+  MembershipRevocationDenied,
+  MembershipRevocationFailed,
+} from "./Membership.errors.js";
 
-const $I = $IamUseCasesId.create("entities/Membership/Membership.service")
+const $I = $IamUseCasesId.create("entities/Membership/Membership.service");
 
+/**
+ * Use-case service that defines the Membership product contract.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export class MembershipService extends Context.Service<
   MembershipService,
   {
     readonly revoke: (
-      command: RevokeMembershipCommand,
-    ) => Effect.Effect<
-      void,
-      | MembershipAccessDenied
-      | MembershipAlreadyRevoked
-      | MembershipNotFound
-      | MembershipRepositoryError
-    >
+      command: RevokeMembershipCommand
+    ) => Effect.Effect<void, MembershipNotFound | MembershipRevocationDenied | MembershipRevocationFailed>;
   }
 >()($I`MembershipService`) {}
-```
+````
 
 Server layer wires that contract to the runtime boundary:
 
-```ts
-import { Effect, Layer } from "effect"
-import * as O from "effect/Option"
-import {
-  MembershipNotFound,
-  type RevokeMembershipCommand,
-} from "@beep/iam-use-cases/public"
-import {
-  MembershipAccess,
-  MembershipRepository,
-  MembershipService,
-} from "@beep/iam-use-cases/server"
+````ts
+import { Effect, Layer } from "effect";
+import * as O from "effect/Option";
+import { MembershipNotFound, type RevokeMembershipCommand } from "@beep/iam-use-cases/public";
+import { MembershipAccess, MembershipRepository, MembershipService } from "@beep/iam-use-cases/server";
 
+/**
+ * Live composition wiring the Membership service to its ports.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
 export const MembershipLayer = Layer.effect(
   MembershipService,
   Effect.gen(function* () {
-    const access = yield* MembershipAccess
-    const repo = yield* MembershipRepository
+    const access = yield* MembershipAccess;
+    const repo = yield* MembershipRepository;
 
     return {
-      revoke: Effect.fn("MembershipLayer.revoke")(function* (
-        command: RevokeMembershipCommand,
-      ) {
-        yield* access.assertCanRevoke(command)
+      revoke: Effect.fn("MembershipLayer.revoke")(function* (command: RevokeMembershipCommand) {
+        yield* access.assertCanRevoke(command);
         const model = yield* repo.findById(command.membershipId).pipe(
           Effect.flatMap(
             O.match({
               onNone: () => Effect.fail(new MembershipNotFound()),
               onSome: Effect.succeed,
-            }),
-          ),
-        )
+            })
+          )
+        );
 
-        yield* model.revoke().pipe(Effect.flatMap(repo.save))
+        yield* model.revoke().pipe(Effect.flatMap(repo.save));
       }),
-    }
-  }),
-)
-```
+    };
+  })
+);
+````
+
+The service contract exposes public action failures only. Repository, driver,
+and domain failures are translated before the use-case returns; the
+compile-ready `fixture-lab/Specimen` slice is the executable proof for that
+boundary rule.
 
 Server handlers consume use-case services:
 
-```ts
-import { Effect } from "effect"
-import type { RevokeMembershipCommand } from "@beep/iam-use-cases/public"
-import { MembershipService } from "@beep/iam-use-cases/server"
+````ts
+import { Effect } from "effect";
+import type { RevokeMembershipCommand } from "@beep/iam-use-cases/public";
+import { MembershipService } from "@beep/iam-use-cases/server";
 
-export const revokeMembershipHandler = Effect.fn("revokeMembershipHandler")(
-  function* (command: RevokeMembershipCommand) {
-    const membership = yield* MembershipService
-    return yield* membership.revoke(command)
-  },
-)
-```
+/**
+ * HTTP handler that delegates revoke commands to the Membership use-case service.
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const revokeMembershipHandler = Effect.fn("revokeMembershipHandler")(function* (
+  command: RevokeMembershipCommand
+) {
+  const membership = yield* MembershipService;
+  return yield* membership.revoke(command);
+});
+````
 
 The important part is not the exact method names. The important part is the
 dependency direction:
@@ -1580,11 +1752,50 @@ domain model behavior
   <- protocol/entrypoint adapter
 ```
 
-## Enforcement Later
+## Enforcement And Migration Posture
 
 This document defines the architecture. Repo checks, lint rules, package
-constraints, codemods, and repo-cli commands may later enforce it, but they are
-downstream mechanisms.
+constraints, codemods, repo-cli commands, and generators are downstream
+mechanisms that must obey it.
 
-Do not treat this standard as a generator design. Treat it as the map that
-generators, lint rules, reviewers, and agents must obey.
+Architecture rules use four enforcement lanes:
+
+| Lane | Meaning |
+|------|---------|
+| `Doctrine` | Binding architecture rule or concept. |
+| `Generated Default` | Future generators/scaffolds should make this the default. |
+| `Review Gate` | Requires review evidence because the rule is contextual or exception-based. |
+| `Hard Check` | Should be enforced by lint, package metadata, import-boundary checks, fixture checks, or similar automation. |
+
+High-risk rules get an explicit lane and current status:
+
+| Rule area | Target lane | Current status | Future automation target |
+|-----------|-------------|----------------|--------------------------|
+| Shared promotion records | `Review Gate` | Docs-only package README requirement | Promotion metadata or README template checks |
+| `foundation/capability` routing | `Doctrine` + `Review Gate` | Docs-only negative gate and proof | Package metadata and dependency-boundary checks |
+| Package creation gates | `Doctrine` + `Generated Default` | Docs-only rule | Generator prompts and package metadata checks |
+| Canonical subpath names and browser roots | `Hard Check` | Target doctrine with transitional roots allowed | Export-map and import-boundary checks |
+| App Layer boundaries | `Doctrine` + `Review Gate` | Docs-only ownership test | No private reach-through imports from app runtime helpers |
+| Migration posture | `Doctrine` | Docs-only taxonomy | Repo-check reporting by bucket |
+| Browser capability routing | `Doctrine` + future `Hard Check` | Docs-only routing table | Browser-root and driver-root import checks |
+
+The migration posture has five buckets:
+
+| Bucket | Meaning |
+|--------|---------|
+| `Target Doctrine` | The architecture shape new work should follow. |
+| `Transitional Compatibility` | Existing shapes tolerated only to keep migration moving. |
+| `Cleanup-On-Touch` | Shapes that need not trigger a sweep, but must be cleaned when their boundary is edited. |
+| `Forbidden In New Work` | Shapes architecture-sensitive new work must not introduce. |
+| `Pending Automation/Generator Support` | Target shapes that should not trigger broad manual sweeps until tooling makes them repeatable. |
+
+New architecture-sensitive work must not introduce legacy labels as homes,
+package-root or `./*` wildcard exports as the canonical boundary contract,
+global runtime/config aggregation, direct env reads in slice code, or
+symmetry-only packages.
+
+Cleanup-on-touch is triggered by boundary edits: package manifests, exports,
+boundary-sensitive imports, ownership docs, config/shared/Layer surfaces, and
+architecture examples. Clean the touched boundary and adjacent docs/tests needed
+to keep that boundary honest; do not require whole-package or whole-family
+migration by default.

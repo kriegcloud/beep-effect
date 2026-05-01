@@ -3,25 +3,8 @@
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": ["node"],
     "outDir": "dist",
     "rootDir": "src"
-  },
-  "references": [
-    {
-      "path": "../../common/identity/tsconfig.json"
-    },
-    {
-      "path": "../../common/schema/tsconfig.json"
-    },
-    {
-      "path": "../../common/utils/tsconfig.json"
-    },
-    {
-      "path": "../tables/tsconfig.json"
-    },
-    {
-      "path": "../../../tooling/test-utils/tsconfig.json"
-    }
-  ]
+  }
 }

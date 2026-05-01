@@ -107,7 +107,7 @@ Don't manually loop `Button` components with active state.
 **Incorrect:**
 
 ```tsx
-const [selected, setSelected] = useState("daily");
+const [selected, setSelected] = useState("daily")
 
 <div className="flex gap-2">
   {["daily", "weekly", "monthly"].map((option) => (
@@ -175,20 +175,18 @@ Use `FieldSet` + `FieldLegend` for related checkboxes, radios, or switches — n
 Both attributes are needed — `data-invalid`/`data-disabled` styles the field (label, description), while `aria-invalid`/`disabled` styles the control.
 
 ```tsx
-<>
-  {/* Invalid. */}
-  <Field data-invalid>
-    <FieldLabel htmlFor="email">Email</FieldLabel>
-    <Input id="email" aria-invalid />
-    <FieldDescription>Invalid email address.</FieldDescription>
-  </Field>
+// Invalid.
+<Field data-invalid>
+  <FieldLabel htmlFor="email">Email</FieldLabel>
+  <Input id="email" aria-invalid />
+  <FieldDescription>Invalid email address.</FieldDescription>
+</Field>
 
-  {/* Disabled. */}
-  <Field data-disabled>
-    <FieldLabel htmlFor="email">Email</FieldLabel>
-    <Input id="email" disabled />
-  </Field>
-</>
+// Disabled.
+<Field data-disabled>
+  <FieldLabel htmlFor="email">Email</FieldLabel>
+  <Input id="email" disabled />
+</Field>
 ```
 
 Works for all controls: `Input`, `Textarea`, `Select`, `Checkbox`, `RadioGroupItem`, `Switch`, `Slider`, `NativeSelect`, `InputOTP`.

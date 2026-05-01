@@ -1,0 +1,162 @@
+---
+name: effect-error-handling
+description: >
+  Replacing try/catch, null/undefined, and if/else with Effect patterns.
+  Trigger on: error handling, null checks, Option, Match, TaggedErrorClass, try/catch replacement.
+version: 0.1.0
+status: active
+---
+
+# Error Handling, Option, and Match (Effect v4)
+
+## Replacing try/catch
+
+Choose based on what throws:
+
+| Situation | Use | Why |
+|-----------|-----|-----|
+| Sync code that throws | `Effect.try({ try: () => new URL(raw), catch: (e) => new MyError({ cause: e }) })` | Wraps sync exceptions |
+| Promise that rejects | `Effect.tryPromise({ try: (signal) => fetch(url, { signal }), catch: (e) => new MyError({ cause: e }) })` | Wraps promise rejection with typed error |
+| Pure computation | `Result.try(() => parseInt(s))` | No Effect overhead, returns `Result<A, E>` |
+
+For schema decoding/encoding, prefer `S.decodeUnknownEffect` / `S.decodeEffect`
+and `S.encodeUnknownEffect` / `S.encodeEffect`. When schema failures cross a
+local boundary, translate them with `Effect.mapError(...)`; reserve
+Result/Option schema codecs for deliberate non-throwing synchronous helpers.
+
+### Worked Example: Wrapping a Throwable API
+
+```ts
+import { Effect } from "effect"
+import * as S from "effect/Schema"
+import { $PackageNameId } from "@beep/identity/packages"
+import { TaggedErrorClass } from "@beep/schema"
+
+const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+// Step 1: Define a tagged error with Schema annotations.
+// WHY: TaggedErrorClass gives you a _tag discriminant for catchTag + Schema encode/decode.
+class UrlParseError extends TaggedErrorClass<UrlParseError>($I`UrlParseError`)(
+  "UrlParseError",
+  { input: S.String, message: S.String },
+  // WHY: Annotations make errors self-documenting and inspectable.
+  $I.annote("UrlParseError", { title: "URL Parse Error", description: "Failed to parse URL input" })
+) {}
+
+// Step 2: Wrap the throwable call.
+// WHY: Effect.try captures the exception and maps it to your tagged error.
+const parseUrl = Effect.fn("parseUrl")(function*(raw: string) {
+  return yield* Effect.try({
+    try: () => new URL(raw),
+    catch: (e) => new UrlParseError({ input: raw, message: String(e) })
+  })
+})
+
+// Step 3: Handle by tag downstream.
+const safe = parseUrl("bad").pipe(
+  Effect.catchTag("UrlParseError", (e) => Effect.succeed({ fallback: true }))
+)
+```
+
+## Replacing null/undefined with Option
+
+```ts
+import * as O from "effect/Option"
+
+// NEVER: return users.find(u => u.id === id) ?? null
+// WHY: Option makes the absence case explicit in the type — callers must handle it.
+const findUser = (id: string): O.Option<User> =>
+  pipe(users, A.findFirst((u) => u.id === id))
+
+// Consuming an Option:
+const name = pipe(
+  findUser("123"),
+  O.map((u) => u.name),
+  O.getOrElse(() => "Anonymous")
+)
+```
+
+**Boundary rule:** `O.fromNullishOr(externalApi.getUser())` at library boundaries. Never let `null` leak inward.
+
+## Replacing if/else and switch with Match
+
+```ts
+import * as Match from "effect/Match"
+
+// NEVER: if (status === "active") ... else if (status === "pending") ...
+// WHY: Match provides exhaustiveness checking — the compiler catches missing cases.
+
+// For tagged unions (discriminated by _tag):
+const handleEvent = Match.type<AppEvent>().pipe(
+  Match.tags({
+    UserCreated: (e) => notifyAdmin(e.userId),
+    UserDeleted: (e) => cleanupUser(e.userId),
+  }),
+  Match.exhaustive  // Compile error if a tag is missing
+)
+
+// For plain values:
+const label = Match.type<number>().pipe(
+  Match.when(200, () => "OK"),
+  Match.when((n) => n >= 400 && n < 500, () => "Client Error"),
+  Match.when((n) => n >= 500, () => "Server Error"),
+  Match.orElse(() => "Unknown")
+)(statusCode)
+```
+
+## Boundary Recovery With Cause
+
+At HTTP, worker, request, and adapter recovery boundaries, recover with `Effect.catchCause` or `Effect.matchCauseEffect`, then render/log the cause with `Cause.pretty(...)` or `Cause.prettyErrors(...)`.
+
+At Bun/Node process entrypoints, do not recover the root cause just to set `process.exitCode` and print `Cause.pretty(...)`. Pass the root effect directly to `BunRuntime.runMain` / `NodeRuntime.runMain`; if custom terminal rendering is required, use `runMain(..., { teardown })` and delegate final status calculation to `Runtime.defaultTeardown`.
+
+```ts
+import { Cause, Effect, Match } from "effect"
+import * as P from "effect/Predicate"
+
+const statusForUnknown = Match.type<unknown>().pipe(
+  Match.when(P.isTagged("SchemaError"), () => 400),
+  Match.when(P.isTagged("HttpBodyError"), () => 400),
+  Match.orElse(() => 500)
+)
+
+const handleBoundary = <A>(effect: Effect.Effect<A, DomainError>) =>
+  effect.pipe(
+    Effect.catchCause((cause) => {
+      const error = Cause.squash(cause)
+      return Effect.logError({
+        message: "request failed",
+        status: statusForUnknown(error),
+        rendered: Cause.pretty(cause)
+      }).pipe(
+        Effect.zipRight(Effect.fail(error))
+      )
+    })
+  )
+```
+
+```ts
+import { BunRuntime } from "@effect/platform-bun"
+import { Cause, Exit, Runtime } from "effect"
+
+BunRuntime.runMain(program, {
+  disableErrorReporting: true,
+  teardown: (exit, onExit) => {
+    if (Exit.isFailure(exit)) {
+      console.error(Cause.pretty(exit.cause))
+    }
+    Runtime.defaultTeardown(exit, onExit)
+  }
+})
+```
+
+## Verify
+
+1. No `try`/`catch` blocks in your code — grep for `catch (` to confirm.
+2. No `null` or `undefined` return types — grep for `: null` and `| undefined`.
+3. No `if`/`else` chains longer than 2 branches — all use `Match`.
+4. Every error class extends `TaggedErrorClass` from `@beep/schema` with Identity-based key and annotations.
+5. No manual `_tag` guards — use `P.isTagged(...)`.
+6. Boundary recovery paths use `Effect.catchCause` / `Effect.matchCauseEffect` plus `Cause.pretty(...)` or `Cause.prettyErrors(...)`.
+7. Process entrypoints do not wrap the root effect in `catchCause` just to set `process.exitCode`; use `BunRuntime.runMain` / `NodeRuntime.runMain` teardown.
+8. Direct-return or reusable matchers use `Match.type<T>().pipe(...)` / `Match.tags(...)`, not `Match.value(...)`.

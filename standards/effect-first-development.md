@@ -21,7 +21,7 @@ The goal is to make failure, absence, decoding, and dependency wiring explicit a
 Use three layers:
 
 1. Boundary layer:
-   - Parse and decode unknown input with `S.decodeUnknown*`.
+   - Parse and decode unknown input with Effect schema codecs such as `S.decodeUnknownEffect`.
    - Convert nullish values to `Option`.
    - Convert throwable/rejecting APIs to typed Effect failures.
 2. Domain layer:
@@ -93,8 +93,10 @@ const toDisplayName = (rawName: string | null | undefined) =>
 ### EF-3: Decode unknown input with `Schema`
 
 - Unknown or external data must be decoded at the boundary.
-- Prefer `S.decodeUnknownEffect` for effectful paths and `S.decodeUnknownSync` only where sync failure handling is explicit.
-- Never use `JSON.parse` / `JSON.stringify`; use schema JSON codecs (`S.UnknownFromJsonString`, `S.fromJsonString`, `S.decodeUnknown*`, `S.encode*`).
+- Prefer Effect codecs by default: `S.decodeUnknownEffect` / `S.decodeEffect` for decoding, and `S.encodeUnknownEffect` / `S.encodeEffect` for encoding.
+- When schema errors cross a local boundary, immediately map them into the boundary's typed error with `Effect.mapError(...)`.
+- Use `S.decodeUnknownResult` / `S.decodeResult` or `S.decodeUnknownOption` only for deliberately synchronous, non-throwing local paths. Do not use `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync` by default.
+- Never use `JSON.parse` / `JSON.stringify`; use schema JSON codecs (`S.UnknownFromJsonString`, `S.fromJsonString`, `S.decodeUnknownEffect`, `S.encodeUnknownEffect`, or the explicit non-throwing Result/Option forms).
 - Prefer `S.Class` over `S.Struct` for object/domain schemas.
 - Repo-wide outstanding schema-first findings are tracked in `standards/schema-first.inventory.jsonc` and verified by `bun run beep lint schema-first`.
 - Do not name schemas with a `Schema` suffix; schema constants should be named after the domain type.
@@ -104,9 +106,19 @@ Example:
 
 ```ts
 import { $PackageNameId } from "@beep/identity/packages"
+import { Effect } from "effect"
 import * as S from "effect/Schema"
+import { TaggedErrorClass } from "@beep/schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+class CreateTaskInputError extends TaggedErrorClass<CreateTaskInputError>($I`CreateTaskInputError`)(
+  "CreateTaskInputError",
+  { message: S.String },
+  $I.annote("CreateTaskInputError", {
+    description: "Failed to decode create-task input."
+  })
+) {}
 
 export class CreateTaskInput extends S.Class<CreateTaskInput>($I`CreateTaskInput`)({
   id: S.String,
@@ -114,7 +126,10 @@ export class CreateTaskInput extends S.Class<CreateTaskInput>($I`CreateTaskInput
   priority: S.Int
 }) {}
 
-export const decodeCreateTaskInput = S.decodeUnknownEffect(CreateTaskInput)
+export const decodeCreateTaskInput = (input: unknown) =>
+  S.decodeUnknownEffect(CreateTaskInput)(input).pipe(
+    Effect.mapError((error) => new CreateTaskInputError({ message: error.message }))
+  )
 ```
 
 ### EF-4: Canonical imports
@@ -456,15 +471,27 @@ const b = pipe("value", addPrefix("p:"))
 - Use `S.UnknownFromJsonString` for unknown JSON payloads.
 - Use `S.fromJsonString(MySchema)` for typed JSON string boundaries.
 - Avoid direct `JSON.parse` / `JSON.stringify` in Effect-first code.
+- Prefer Effect codecs for JSON boundaries; map schema errors with `Effect.mapError(...)` when returning from a local module or service boundary.
+- Use Result/Option codecs only for intentional non-throwing synchronous helpers.
 - Reference: [UnknownFromJsonString](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:4011) and [fromJsonString](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:4028).
 
 Example:
 
 ```ts
 import { $PackageNameId } from "@beep/identity/packages"
+import { Effect } from "effect"
 import * as S from "effect/Schema"
+import { TaggedErrorClass } from "@beep/schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+class UserJsonError extends TaggedErrorClass<UserJsonError>($I`UserJsonError`)(
+  "UserJsonError",
+  { message: S.String },
+  $I.annote("UserJsonError", {
+    description: "Failed to decode or encode a user JSON payload."
+  })
+) {}
 
 export class User extends S.Class<User>($I`User`)({
   id: S.String,
@@ -473,8 +500,15 @@ export class User extends S.Class<User>($I`User`)({
 
 const UserJson = S.fromJsonString(User)
 
-const decodeUserJson = S.decodeUnknownEffect(UserJson)
-const encodeUserJson = S.encodeUnknownEffect(UserJson)
+const decodeUserJson = (input: unknown) =>
+  S.decodeUnknownEffect(UserJson)(input).pipe(
+    Effect.mapError((error) => new UserJsonError({ message: error.message }))
+  )
+
+const encodeUserJson = (user: User) =>
+  S.encodeEffect(UserJson)(user).pipe(
+    Effect.mapError((error) => new UserJsonError({ message: error.message }))
+  )
 ```
 
 ### EF-20: Completion gate is strict

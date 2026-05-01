@@ -15,7 +15,7 @@
     "moduleDetection": "force", // Treat every non-declaration file as a module.
     "verbatimModuleSyntax": true, // Only transform/eliminate type-only import/export statements.
     "allowImportingTsExtensions": true,
-    "allowJs": false, // If you touch this, a puppy dies.
+    "allowJs": false, // Keep JavaScript out of TypeScript project graphs.
     "rewriteRelativeImportExtensions": true, // Rewrite `.ts` imports to `.js` at build time.
     "erasableSyntaxOnly": true, // Allows to run directly with bun and type removal
     // Emit source- & declaration maps.
@@ -45,6 +45,18 @@
         "includeSuggestionsInTsc": true,
         "skipDisabledOptimization": false,
         "effectFn": ["span", "inferred-span", "suggested-span"],
+        "overrides": [
+          {
+            "include": ["**/test/**/*.ts", "**/test/**/*.tsx"],
+            "options": {
+              "diagnosticSeverity": {
+                "missingEffectContext": "off",
+                "nodeBuiltinImport": "off",
+                "strictEffectProvide": "off"
+              }
+            }
+          }
+        ],
 
         "importAliases": {
           "Array": "A",

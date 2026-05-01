@@ -9,13 +9,10 @@
   },
   "references": [
     {
-      "path": "../../common/identity/tsconfig.json"
+      "path": "../../drivers/drizzle/tsconfig.json"
     },
     {
-      "path": "../../common/schema/tsconfig.json"
-    },
-    {
-      "path": "../../common/utils/tsconfig.json"
+      "path": "../domain/tsconfig.json"
     }
   ]
 }

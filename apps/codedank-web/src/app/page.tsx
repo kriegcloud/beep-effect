@@ -2,7 +2,7 @@
  * Home page for the codedank web app.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { Button } from "@beep/ui/components/ui/button";

@@ -1,0 +1,65 @@
+import {
+  formatSql,
+  getPgErrorAliases,
+  getPgErrorName,
+  makeDrizzle,
+  makeDrizzleLayer,
+  migrate,
+  PgErrorCode,
+  type PgErrorCode as PgErrorCodeType,
+  type PgErrorName as PgErrorNameType,
+  PostgresClient,
+  type PostgresClientValue,
+  type PostgresDrizzle,
+  type PostgresDrizzleDatabase,
+  PostgresError,
+  PostgresErrorContext,
+} from "@beep/postgres";
+import { type EffectDrizzlePgConfig, type EffectPgDatabase, NativePgClient } from "@beep/postgres/interop";
+import type { Effect, Layer } from "effect";
+import type * as O from "effect/Option";
+import { describe, expect, it } from "tstyche";
+
+declare const client: PostgresClientValue;
+declare const db: PostgresDrizzleDatabase;
+
+describe("@beep/postgres", () => {
+  it("exports SQLSTATE models", () => {
+    expect<PgErrorCodeType>().type.toBe<"23505" | PgErrorCodeType>();
+    expect<PgErrorNameType>().type.toBe<"UNIQUE_VIOLATION" | PgErrorNameType>();
+    expect(PgErrorCode).type.not.toBe<never>();
+    expect(getPgErrorName("23505")).type.toBe<O.Option<PgErrorNameType>>();
+    expect(getPgErrorAliases("23505")).type.toBeAssignableTo<O.Option<ReadonlyArray<PgErrorNameType>>>();
+  });
+
+  it("exports Postgres errors and formatting helpers", () => {
+    expect(
+      new PostgresErrorContext({ query: "select 1", sqlStateName: "UNIQUE_VIOLATION" })
+    ).type.toBe<PostgresErrorContext>();
+    expect(PostgresError.fromUnknown("query", new Error("boom"))).type.toBe<PostgresError>();
+    expect(
+      PostgresError.fromUnknown(
+        "query",
+        new Error("boom"),
+        new PostgresErrorContext({ query: "select 1", sqlStateName: "UNIQUE_VIOLATION" })
+      )
+    ).type.toBe<PostgresError>();
+    expect(formatSql("select 1")).type.toBe<string>();
+
+    // @ts-expect-error!
+    PostgresError.fromUnknown("query", new Error("boom"), { sqlStateName: "NOT_A_SQLSTATE_NAME" });
+  });
+
+  it("exports client and Drizzle layer helpers", () => {
+    expect(PostgresClient.fromPgClient(client)).type.not.toBe<never>();
+    expect(makeDrizzle()).type.toBe<Effect.Effect<PostgresDrizzleDatabase, PostgresError, PostgresClientValue>>();
+    expect(makeDrizzleLayer()).type.toBe<Layer.Layer<PostgresDrizzle, PostgresError, PostgresClientValue>>();
+    expect(migrate(db, { migrationsFolder: "./drizzle" })).type.toBe<Effect.Effect<undefined, PostgresError>>();
+  });
+
+  it("exports native interop namespaces", () => {
+    expect(NativePgClient.PgClient).type.not.toBe<never>();
+    expect<EffectDrizzlePgConfig>().type.not.toBe<never>();
+    expect<EffectPgDatabase>().type.not.toBe<never>();
+  });
+});

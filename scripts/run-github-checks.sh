@@ -91,7 +91,7 @@ run_repo_sanity() {
   bun run config-sync:check
 
   log "repo-sanity: versions"
-  bunx turbo run lint:versions --cache=local:rw
+  bun run version-sync --skip-network
 
   log "repo-sanity: dependency policy"
   bunx syncpack lint

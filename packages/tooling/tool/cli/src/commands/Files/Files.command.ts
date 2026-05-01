@@ -1,0 +1,397 @@
+/**
+ * Command definitions for dataset file curation.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { Console, Effect } from "effect";
+import * as O from "effect/Option";
+import { Command, Flag } from "effect/unstable/cli";
+import type { FilesCommandError } from "./Files.errors.js";
+import {
+  ArchivePoorCandidatesOptions,
+  CreateCaptionFilesOptions,
+  CropBordersOptions,
+  DetectBordersOptions,
+  NormalizeFilesOptions,
+} from "./Files.schemas.js";
+import {
+  archivePoorCandidates,
+  createCaptionFiles,
+  cropBordersFiles,
+  detectBordersFiles,
+  type FilesCommandService,
+  FilesCommandServiceLive,
+  normalizeFiles,
+  printFilesIndex,
+  sortAndRenameFiles,
+  stripMetadataFiles,
+} from "./Files.service.js";
+
+const runFilesProgram = <A>(
+  effect: Effect.Effect<A, FilesCommandError, FilesCommandService>
+): Effect.Effect<void, never, FilesCommandService> =>
+  effect.pipe(
+    Effect.catchTag(
+      "FilesCommandError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`[files] ${error.message}`);
+      })
+    ),
+    Effect.asVoid
+  );
+
+const sortDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
+  Flag.withDescription("Directory whose direct regular files should be sorted and renamed")
+);
+const stripDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
+  Flag.withDescription("Directory whose direct image and video files should have metadata stripped")
+);
+const normalizeDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
+  Flag.withDescription("Directory whose direct image files should be normalized")
+);
+const createCaptionsDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
+  Flag.withDescription("Directory whose direct image files should receive same-stem caption sidecars")
+);
+const detectBordersDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
+  Flag.withDescription("Directory whose direct image files should be scanned for solid borders")
+);
+const cropBordersDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
+  Flag.withDescription("Directory whose direct image files should be cropped when solid borders are detected")
+);
+const archiveCandidatesDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
+  Flag.withDescription("Directory whose direct image files should be assessed for poor-candidate archival")
+);
+const archiveDirFlag = Flag.directory("archive-dir").pipe(
+  Flag.withDescription("Directory that receives archived poor image candidates")
+);
+const normalizeOutDirFlag = Flag.directory("out-dir").pipe(
+  Flag.withDescription("Output directory for normalized image files")
+);
+const normalizeFormatFlag = Flag.choiceWithValue("format", [
+  ["png", "png"],
+  ["jpg", "jpg"],
+  ["jpeg", "jpg"],
+  ["webp", "webp"],
+]).pipe(Flag.withDefault("png"), Flag.withDescription("Output image format: png, jpg/jpeg, or webp"));
+const maxLongEdgeFlag = Flag.integer("max-long-edge").pipe(
+  Flag.withDescription("Resize long edge down to this pixel count without upscaling"),
+  Flag.optional
+);
+const manifestFlag = Flag.path("manifest", { pathType: "file" }).pipe(
+  Flag.withDescription("Manifest output path; defaults to --out-dir/normalize-manifest.json"),
+  Flag.optional
+);
+const archiveManifestFlag = Flag.path("manifest", { pathType: "file" }).pipe(
+  Flag.withDescription("Manifest output path; defaults to --archive-dir/archive-poor-candidates-manifest.json"),
+  Flag.optional
+);
+const prefixFlag = Flag.string("prefix").pipe(
+  Flag.withDescription("Generated filename prefix without dots, path separators, or embedded NUL bytes")
+);
+const sortDryRunFlag = Flag.boolean("dry-run").pipe(
+  Flag.withDescription("Print the planned renames without touching files")
+);
+const stripDryRunFlag = Flag.boolean("dry-run").pipe(
+  Flag.withDescription("Print the planned metadata rewrites without touching files")
+);
+const normalizeDryRunFlag = Flag.boolean("dry-run").pipe(
+  Flag.withDescription("Print the planned normalizations without writing files")
+);
+const createCaptionsDryRunFlag = Flag.boolean("dry-run").pipe(
+  Flag.withDescription("Print the planned caption sidecars without writing files")
+);
+const archiveDryRunFlag = Flag.boolean("dry-run").pipe(
+  Flag.withDescription("Print the planned poor-candidate archival without moving files")
+);
+const captionTextFlag = Flag.string("caption").pipe(
+  Flag.withDefault(""),
+  Flag.withDescription("Caption text to write to newly created sidecar files")
+);
+const normalizeDedupeFlag = Flag.boolean("dedupe").pipe(
+  Flag.withDescription(
+    "Skip later files whose normalized bytes exactly duplicate an earlier normalized output; implied by --move-duplicates-to"
+  )
+);
+const normalizeMoveDuplicatesToFlag = Flag.directory("move-duplicates-to").pipe(
+  Flag.withDescription("Move later duplicate source files to this directory after exact normalized-byte dedupe"),
+  Flag.optional
+);
+const cropBordersDryRunFlag = Flag.boolean("dry-run").pipe(
+  Flag.withDescription("Print detected border crops without rewriting files")
+);
+const overwriteFlag = Flag.boolean("overwrite").pipe(
+  Flag.withDescription("Overwrite existing normalized outputs, duplicate move targets, and manifest")
+);
+const archiveOverwriteFlag = Flag.boolean("overwrite").pipe(
+  Flag.withDescription("Overwrite existing archived files, sidecars, and manifest")
+);
+const createCaptionsOverwriteFlag = Flag.boolean("overwrite").pipe(
+  Flag.withDescription("Overwrite existing caption sidecar files")
+);
+const withDimensionsFlag = Flag.boolean("with-dimensions").pipe(
+  Flag.withDescription("Include probed image or video dimensions in generated media filenames")
+);
+const candidateProfileFlag = Flag.choiceWithValue("profile", [["character-lora", "character-lora"]]).pipe(
+  Flag.withDefault("character-lora"),
+  Flag.withDescription("Candidate assessment profile")
+);
+const targetResolutionFlag = Flag.integer("target-resolution").pipe(
+  Flag.withDefault(1024),
+  Flag.withDescription("Square training target resolution used to estimate required upscaling")
+);
+const minShortEdgeFlag = Flag.integer("min-short-edge").pipe(
+  Flag.withDefault(512),
+  Flag.withDescription("Archive images whose shorter edge is below this pixel count")
+);
+const maxAspectFlag = Flag.float("max-aspect").pipe(
+  Flag.withDefault(3),
+  Flag.withDescription("Archive images whose long-edge to short-edge ratio exceeds this value")
+);
+const maxUpscaleFlag = Flag.float("max-upscale").pipe(
+  Flag.withDefault(1.5),
+  Flag.withDescription("Archive images that would need more than this scale factor to reach the target area")
+);
+const sidecarsFlag = Flag.string("sidecars").pipe(
+  Flag.withDefault("txt"),
+  Flag.withDescription("Same-stem sidecars to move with archived images: none or a comma-separated extension list")
+);
+const jsonFlag = Flag.boolean("json").pipe(Flag.withDescription("Emit a machine-readable JSON border report"));
+const borderToleranceFlag = Flag.float("tolerance").pipe(
+  Flag.withDefault(12),
+  Flag.withDescription("Maximum RGB channel distance for near-solid border pixels")
+);
+const minSolidPctFlag = Flag.float("min-solid-pct").pipe(
+  Flag.withDefault(98.5),
+  Flag.withDescription("Minimum percent of pixels in a border row or column that must match the edge color")
+);
+const minWidthPctFlag = Flag.float("min-width-pct").pipe(
+  Flag.withDefault(1),
+  Flag.withDescription("Minimum border width as a percent of the scanned image dimension")
+);
+const maxScanPctFlag = Flag.float("max-scan-pct").pipe(
+  Flag.withDefault(45),
+  Flag.withDescription("Maximum percent of each image dimension to scan inward from an edge")
+);
+
+const filesCreateCaptionsCommand = Command.make(
+  "create-captions",
+  {
+    caption: captionTextFlag,
+    dir: createCaptionsDirFlag,
+    dryRun: createCaptionsDryRunFlag,
+    overwrite: createCaptionsOverwriteFlag,
+  },
+  Effect.fn(function* ({ caption, dir, dryRun, overwrite }) {
+    yield* runFilesProgram(
+      createCaptionFiles(
+        new CreateCaptionFilesOptions({
+          caption,
+          dir,
+          dryRun,
+          overwrite,
+        })
+      )
+    );
+  })
+).pipe(
+  Command.withDescription("Create missing same-stem .txt caption sidecars for direct image files"),
+  Command.provide(FilesCommandServiceLive)
+);
+
+const filesArchivePoorCandidatesCommand = Command.make(
+  "archive-poor-candidates",
+  {
+    archiveDir: archiveDirFlag,
+    dir: archiveCandidatesDirFlag,
+    dryRun: archiveDryRunFlag,
+    manifest: archiveManifestFlag,
+    maxAspect: maxAspectFlag,
+    maxUpscale: maxUpscaleFlag,
+    minShortEdge: minShortEdgeFlag,
+    overwrite: archiveOverwriteFlag,
+    profile: candidateProfileFlag,
+    sidecars: sidecarsFlag,
+    targetResolution: targetResolutionFlag,
+  },
+  Effect.fn(function* ({
+    archiveDir,
+    dir,
+    dryRun,
+    manifest,
+    maxAspect,
+    maxUpscale,
+    minShortEdge,
+    overwrite,
+    profile,
+    sidecars,
+    targetResolution,
+  }) {
+    yield* runFilesProgram(
+      archivePoorCandidates(
+        new ArchivePoorCandidatesOptions({
+          archiveDir,
+          dir,
+          dryRun,
+          manifest,
+          maxAspect,
+          maxUpscale,
+          minShortEdge,
+          overwrite,
+          profile,
+          sidecars,
+          targetResolution,
+        })
+      )
+    );
+  })
+).pipe(
+  Command.withDescription("Archive obvious poor image candidates and same-stem sidecars"),
+  Command.provide(FilesCommandServiceLive)
+);
+
+const filesDetectBordersCommand = Command.make(
+  "detect-borders",
+  {
+    dir: detectBordersDirFlag,
+    json: jsonFlag,
+    maxScanPct: maxScanPctFlag,
+    minSolidPct: minSolidPctFlag,
+    minWidthPct: minWidthPctFlag,
+    tolerance: borderToleranceFlag,
+  },
+  Effect.fn(function* ({ dir, json, maxScanPct, minSolidPct, minWidthPct, tolerance }) {
+    yield* runFilesProgram(
+      detectBordersFiles(
+        new DetectBordersOptions({
+          dir,
+          json,
+          maxScanPct,
+          minSolidPct,
+          minWidthPct,
+          tolerance,
+        })
+      )
+    );
+  })
+).pipe(
+  Command.withDescription("Detect solid or near-solid canvas borders in direct image files"),
+  Command.provide(FilesCommandServiceLive)
+);
+
+const filesCropBordersCommand = Command.make(
+  "crop-borders",
+  {
+    dir: cropBordersDirFlag,
+    dryRun: cropBordersDryRunFlag,
+    maxScanPct: maxScanPctFlag,
+    minSolidPct: minSolidPctFlag,
+    minWidthPct: minWidthPctFlag,
+    tolerance: borderToleranceFlag,
+  },
+  Effect.fn(function* ({ dir, dryRun, maxScanPct, minSolidPct, minWidthPct, tolerance }) {
+    yield* runFilesProgram(
+      cropBordersFiles(
+        new CropBordersOptions({
+          dir,
+          dryRun,
+          maxScanPct,
+          minSolidPct,
+          minWidthPct,
+          tolerance,
+        })
+      )
+    );
+  })
+).pipe(
+  Command.withDescription("Crop solid or near-solid canvas borders from direct image files"),
+  Command.provide(FilesCommandServiceLive)
+);
+
+const filesNormalizeCommand = Command.make(
+  "normalize",
+  {
+    dedupe: normalizeDedupeFlag,
+    dir: normalizeDirFlag,
+    dryRun: normalizeDryRunFlag,
+    format: normalizeFormatFlag,
+    manifest: manifestFlag,
+    maxLongEdge: maxLongEdgeFlag,
+    moveDuplicatesTo: normalizeMoveDuplicatesToFlag,
+    outDir: normalizeOutDirFlag,
+    overwrite: overwriteFlag,
+  },
+  Effect.fn(function* ({ dedupe, dir, dryRun, format, manifest, maxLongEdge, moveDuplicatesTo, outDir, overwrite }) {
+    const effectiveDedupe = dedupe || O.isSome(moveDuplicatesTo);
+
+    yield* runFilesProgram(
+      normalizeFiles(
+        new NormalizeFilesOptions({
+          dedupe: effectiveDedupe,
+          dir,
+          dryRun,
+          format,
+          manifest,
+          maxLongEdge,
+          moveDuplicatesTo,
+          outDir,
+          overwrite,
+        })
+      )
+    );
+  })
+).pipe(
+  Command.withDescription("Normalize direct image files into an output directory and write a manifest"),
+  Command.provide(FilesCommandServiceLive)
+);
+
+const filesSortAndRenameCommand = Command.make(
+  "sort-and-rename",
+  {
+    dir: sortDirFlag,
+    dryRun: sortDryRunFlag,
+    prefix: prefixFlag,
+    withDimensions: withDimensionsFlag,
+  },
+  Effect.fn(function* ({ dir, dryRun, prefix, withDimensions }) {
+    yield* runFilesProgram(sortAndRenameFiles(dir, prefix, dryRun, withDimensions));
+  })
+).pipe(
+  Command.withDescription("Sort direct files by size and rename them with a generated prefix"),
+  Command.provide(FilesCommandServiceLive)
+);
+
+const filesStripMetadataCommand = Command.make(
+  "strip-metadata",
+  {
+    dir: stripDirFlag,
+    dryRun: stripDryRunFlag,
+  },
+  Effect.fn(function* ({ dir, dryRun }) {
+    yield* runFilesProgram(stripMetadataFiles(dir, dryRun));
+  })
+).pipe(
+  Command.withDescription("Strip metadata from direct image and video files"),
+  Command.provide(FilesCommandServiceLive)
+);
+
+/**
+ * File curation command group.
+ *
+ * @category UseCase
+ * @since 0.0.0
+ */
+export const filesCommand = Command.make("files", {}, printFilesIndex).pipe(
+  Command.withDescription("Dataset file curation commands"),
+  Command.withSubcommands([
+    filesArchivePoorCandidatesCommand,
+    filesCreateCaptionsCommand,
+    filesCropBordersCommand,
+    filesDetectBordersCommand,
+    filesNormalizeCommand,
+    filesSortAndRenameCommand,
+    filesStripMetadataCommand,
+  ])
+);

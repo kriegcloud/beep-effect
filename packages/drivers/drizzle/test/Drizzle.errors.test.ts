@@ -1,0 +1,361 @@
+import { Drizzle, type DrizzleClient, DrizzleError, DrizzleErrorContext, DrizzleRows } from "@beep/drizzle";
+import { describe, expect, it } from "@effect/vitest";
+import * as assert from "@effect/vitest/utils";
+import { Effect, pipe } from "effect";
+import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const makeClient = (execute: DrizzleClient["execute"]): DrizzleClient => {
+  let client: DrizzleClient;
+  client = {
+    execute,
+    withTransaction: (use) => use(client),
+  };
+  return client;
+};
+
+describe("DrizzleError", () => {
+  it("constructs the single public tagged driver error", () => {
+    const error = new DrizzleError({
+      operation: "execute",
+      cause: O.none(),
+      query: O.none(),
+      params: O.none(),
+    });
+
+    expect(error).toBeInstanceOf(DrizzleError);
+    expect(error._tag).toBe("DrizzleError");
+    expect(error.operation).toBe("execute");
+    expect(O.isNone(error.cause)).toBe(true);
+    expect(O.isNone(error.query)).toBe(true);
+    expect(O.isNone(error.params)).toBe(true);
+  });
+
+  it("normalizes unknown causes into the optional cause field", () => {
+    const cause = new Error("driver failed");
+    const error = DrizzleError.fromUnknown("withTransaction", cause);
+
+    expect(error.operation).toBe("withTransaction");
+    expect(O.isSome(error.cause)).toBe(true);
+    expect(O.getOrThrow(error.cause)).toBe(cause);
+  });
+
+  it("captures explicit query context", () => {
+    const error = DrizzleError.fromUnknown(
+      "execute",
+      new Error("driver failed"),
+      new DrizzleErrorContext({
+        query: "select * from users where id = $1",
+        params: [1],
+      })
+    );
+
+    expect(O.getOrThrow(error.query)).toBe("select * from users where id = $1");
+    expect(O.getOrThrow(error.params)).toEqual([1]);
+  });
+
+  it("returns existing DrizzleError values unchanged", () => {
+    const cause = new Error("driver failed");
+    const existing = new DrizzleError({
+      operation: "execute",
+      cause: O.some(cause),
+      query: O.some("select * from accounts where slug = $1"),
+      params: O.some(["alpha"]),
+    });
+    const error = DrizzleError.fromUnknown("withTransaction", existing, {
+      query: "select ignored",
+      params: ["ignored"],
+    });
+
+    expect(error).toBe(existing);
+    expect(error.operation).toBe("execute");
+    expect(O.getOrThrow(error.cause)).toBe(cause);
+    expect(O.getOrThrow(error.query)).toBe("select * from accounts where slug = $1");
+    expect(O.getOrThrow(error.params)).toEqual(["alpha"]);
+    expect(error.message).toBe(existing.message);
+  });
+
+  it("retains safe native Drizzle query object causes while extracting context", () => {
+    const cause = {
+      _tag: "EffectDrizzleQueryError",
+      query: "select 1",
+      params: [],
+      cause: new Error("driver failed"),
+    };
+    const error = DrizzleError.fromUnknown("execute", cause);
+
+    expect(O.getOrThrow(error.query)).toBe("select 1");
+    expect(O.getOrThrow(error.params)).toEqual([]);
+    expect(O.getOrThrow(error.cause)).toBe(cause);
+
+    const plainCause = { message: "plain driver failure" };
+    const plainError = DrizzleError.fromUnknown("execute", plainCause);
+
+    expect(O.getOrThrow(plainError.cause)).toBe(plainCause);
+  });
+
+  it("does not throw when native query context getters throw", () => {
+    const cause = {
+      _tag: "EffectDrizzleQueryError",
+      get query(): string {
+        throw new Error("query getter failed");
+      },
+      params: ["alpha"],
+      cause: new Error("driver failed"),
+    };
+    const error = DrizzleError.fromUnknown("execute", cause);
+
+    expect(O.isNone(error.query)).toBe(true);
+    expect(O.getOrThrow(error.params)).toEqual(["alpha"]);
+    expect(O.getOrThrow(error.cause)).toBe(cause);
+  });
+
+  it("uses referential cycle checks for hostile nested cause objects", () => {
+    const nestedCause = new Proxy(
+      {},
+      {
+        ownKeys() {
+          throw new Error("ownKeys failed");
+        },
+      }
+    );
+    const cause = { cause: nestedCause };
+    const error = DrizzleError.fromUnknown("execute", cause);
+
+    expect(error).toBeInstanceOf(DrizzleError);
+    expect(error.operation).toBe("execute");
+    expect(O.getOrThrow(error.cause)).toBe(cause);
+    expect(O.isNone(error.query)).toBe(true);
+    expect(O.isNone(error.params)).toBe(true);
+  });
+
+  it("does not throw when proxied Cause values hide their reasons", () => {
+    const nativeCause = {
+      _tag: "EffectDrizzleQueryError",
+      query: "select * from accounts",
+      params: [],
+    };
+    const cause = new Proxy(Cause.fail(nativeCause), {
+      get(target, property, receiver) {
+        if (property === "reasons") {
+          throw new Error("reasons failed");
+        }
+        return Reflect.get(target, property, receiver);
+      },
+    });
+    const error = DrizzleError.fromUnknown("execute", cause);
+
+    expect(error).toBeInstanceOf(DrizzleError);
+    expect(error.operation).toBe("execute");
+    expect(O.getOrThrow(error.cause)).toBe(cause);
+    expect(O.isNone(error.query)).toBe(true);
+    expect(O.isNone(error.params)).toBe(true);
+  });
+
+  it("does not retain uninspectable raw proxy causes", () => {
+    const cause = new Proxy(
+      {},
+      {
+        get() {
+          throw new Error("hostile get");
+        },
+        getOwnPropertyDescriptor() {
+          throw new Error("hostile descriptor");
+        },
+        getPrototypeOf() {
+          throw new Error("hostile prototype");
+        },
+        ownKeys() {
+          throw new Error("hostile keys");
+        },
+      }
+    );
+    const error = DrizzleError.fromUnknown("execute", cause);
+
+    expect(error).toBeInstanceOf(DrizzleError);
+    expect(error.operation).toBe("execute");
+    expect(O.isNone(error.cause)).toBe(true);
+    expect(O.isNone(error.query)).toBe(true);
+    expect(O.isNone(error.params)).toBe(true);
+  });
+
+  it("does not throw when Cause reasons hide their payload", () => {
+    const nativeCause = {
+      _tag: "EffectDrizzleQueryError",
+      query: "select * from accounts",
+      params: [],
+    };
+    const reason = O.getOrThrow(A.head(Cause.fail(nativeCause).reasons));
+    const hostileReason = new Proxy(reason, {
+      get(target, property, receiver) {
+        if (property === "defect" || property === "error") {
+          throw new Error("reason payload failed");
+        }
+        return Reflect.get(target, property, receiver);
+      },
+    });
+    const cause = new Proxy(Cause.fail(nativeCause), {
+      get(target, property, receiver) {
+        if (property === "reasons") {
+          return [hostileReason];
+        }
+        return Reflect.get(target, property, receiver);
+      },
+    });
+    const error = DrizzleError.fromUnknown("execute", cause);
+
+    expect(error).toBeInstanceOf(DrizzleError);
+    expect(error.operation).toBe("execute");
+    expect(O.isNone(error.query)).toBe(true);
+    expect(O.isNone(error.params)).toBe(true);
+  });
+
+  it("unwraps Cause failures to capture native Drizzle query context", () => {
+    const nativeCause = {
+      _tag: "EffectDrizzleQueryError",
+      query: "select * from accounts where slug = $1",
+      params: ["alpha, beta"],
+      cause: new Error("driver failed"),
+    };
+    const error = DrizzleError.fromUnknown("execute", Cause.fail(nativeCause));
+
+    expect(O.getOrThrow(error.query)).toBe("select * from accounts where slug = $1");
+    expect(O.getOrThrow(error.params)).toEqual(["alpha, beta"]);
+  });
+
+  it("returns Cause.fail DrizzleError values unchanged", () => {
+    const cause = new Error("driver failed");
+    const existing = new DrizzleError({
+      operation: "execute",
+      cause: O.some(cause),
+      query: O.some("select * from accounts where slug = $1"),
+      params: O.some(["alpha"]),
+    });
+    const error = DrizzleError.fromUnknown("withTransaction", Cause.fail(existing), {
+      query: "select ignored",
+      params: ["ignored"],
+    });
+
+    expect(error).toBe(existing);
+    expect(error.operation).toBe("execute");
+    expect(O.getOrThrow(error.cause)).toBe(cause);
+    expect(O.getOrThrow(error.query)).toBe("select * from accounts where slug = $1");
+    expect(O.getOrThrow(error.params)).toEqual(["alpha"]);
+    expect(error.message).toBe(existing.message);
+  });
+
+  it("keeps fallback failed-query params as one opaque diagnostic value", () => {
+    const cause = new Error("Failed query: select 1 where payload = $1\nparams: alpha, beta, gamma");
+    const error = DrizzleError.fromUnknown("execute", cause);
+
+    expect(O.getOrThrow(error.query)).toBe("select 1 where payload = $1");
+    expect(O.getOrThrow(error.params)).toEqual(["alpha, beta, gamma"]);
+  });
+
+  it("decodes an omitted cause as none", () => {
+    const error = S.decodeUnknownSync(DrizzleError)({
+      _tag: "DrizzleError",
+      operation: "execute",
+    });
+
+    expect(error.operation).toBe("execute");
+    expect(O.isNone(error.cause)).toBe(true);
+    expect(O.isNone(error.query)).toBe(true);
+    expect(O.isNone(error.params)).toBe(true);
+  });
+
+  it("decodes product-neutral row arrays from the schema value", () => {
+    const rows = S.decodeUnknownSync(DrizzleRows)([{ id: 1 }]);
+
+    expect(rows).toEqual([{ id: 1 }]);
+  });
+});
+
+describe("Drizzle", () => {
+  it.effect(
+    "exposes adapter execute failures as DrizzleError",
+    Effect.fnUntraced(function* () {
+      const cause = new Error("execute failed");
+      const client = makeClient(() => Effect.fail(DrizzleError.fromUnknown("execute", cause)));
+      const program = Effect.gen(function* () {
+        const drizzle = yield* Drizzle;
+        return yield* drizzle.execute("select 1", []);
+      });
+      const error = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)), Effect.flip);
+
+      assert.assertInstanceOf(error, DrizzleError);
+      assert.strictEqual(error.operation, "execute");
+      assert.strictEqual(O.getOrThrow(error.cause), cause);
+    })
+  );
+
+  it.effect(
+    "provides execute and transaction through Drizzle.makeLayer",
+    Effect.fnUntraced(function* () {
+      const transactionClient = makeClient((statement, parameters) => Effect.succeed([statement, parameters]));
+      const client: DrizzleClient = {
+        execute: (statement, parameters) => Effect.succeed([statement, parameters]),
+        withTransaction: (use) => use(transactionClient),
+      };
+      const program = Effect.gen(function* () {
+        const drizzle = yield* Drizzle;
+        const executed = yield* drizzle.execute("select 1", ["root"]);
+        const transacted = yield* drizzle.withTransaction((transaction) => transaction.execute("select 2", ["tx"]));
+        return { executed, transacted };
+      });
+      const result = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)));
+
+      assert.deepStrictEqual(result.executed, ["select 1", ["root"]]);
+      assert.deepStrictEqual(result.transacted, ["select 2", ["tx"]]);
+    })
+  );
+
+  it.effect(
+    "preserves callback failures inside transactions",
+    Effect.fnUntraced(function* () {
+      const expected = DrizzleError.fromUnknown("withTransaction", new Error("callback failed"));
+      const client = makeClient((statement) => Effect.succeed([statement]));
+      const program = Effect.gen(function* () {
+        const drizzle = yield* Drizzle;
+        return yield* drizzle.withTransaction(() => Effect.fail(expected));
+      });
+      const error = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)), Effect.flip);
+
+      assert.strictEqual(error, expected);
+    })
+  );
+
+  it.effect(
+    "preserves adapter failures from transactions",
+    Effect.fnUntraced(function* () {
+      const expected = DrizzleError.fromUnknown("withTransaction", new Error("adapter failed"));
+      const client: DrizzleClient = {
+        execute: (statement) => Effect.succeed([statement]),
+        withTransaction: () => Effect.fail(expected),
+      };
+      const program = Effect.gen(function* () {
+        const drizzle = yield* Drizzle;
+        return yield* drizzle.withTransaction((transaction) => transaction.execute("select 1", []));
+      });
+      const error = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)), Effect.flip);
+
+      assert.strictEqual(error, expected);
+    })
+  );
+
+  it.effect(
+    "uses explicit Effect-native transaction callbacks",
+    Effect.fnUntraced(function* () {
+      const client = makeClient((statement) => Effect.succeed([statement]));
+      const program = Effect.gen(function* () {
+        const drizzle = yield* Drizzle;
+        return yield* drizzle.withTransaction((transaction) => transaction.execute("select 1", []));
+      });
+      const rows = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)));
+
+      assert.deepStrictEqual(rows, ["select 1"]);
+    })
+  );
+});

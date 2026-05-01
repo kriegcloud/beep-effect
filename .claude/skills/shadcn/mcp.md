@@ -19,7 +19,7 @@ Editor config files:
 | Cursor | `.cursor/mcp.json` |
 | VS Code | `.vscode/mcp.json` |
 | OpenCode | `opencode.json` |
-| Codex | `~/.codex/config.toml` (manual) |
+| Codex | user-level Codex config (manual) |
 
 ---
 

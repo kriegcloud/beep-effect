@@ -1,8 +1,0 @@
-{
-  "extends": ["//"],
-  "tasks": {
-    "dev:desktop": {
-      "with": ["@beep/runtime-server#dev:desktop"]
-    }
-  }
-}

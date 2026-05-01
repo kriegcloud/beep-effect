@@ -12,14 +12,14 @@ invariants, or transitions span multiple child entities or values.
 ## Artifact Family
 
 The top-level architecture class for a non-slice artifact. The canonical
-non-slice families are `foundation`, `drivers`, `tooling`, and `agents`.
+non-slice families are `foundation`, `drivers`, and `tooling`.
 
 ## Artifact Kind
 
 The canonical role inside an artifact family. Every non-slice artifact belongs
 to exactly one family. Kinds remain required for families that intentionally
-declare a kind segment, such as `foundation`, `tooling`, and `agents`;
-`drivers` is the flat-family exception.
+declare a kind segment, such as `foundation` and `tooling`; `drivers` is the
+flat-family exception.
 
 ## Adapter
 
@@ -34,10 +34,25 @@ denied, conflict, stale version, not found, invalid transition, and idempotency
 violation are actionable. Driver connection failures are usually internal
 until translated.
 
+## Action Error
+
+A public use-case failure exported from a use-case package's `/public` subpath.
+Protocol handlers, clients, and UI code may branch on action errors. Port,
+driver, and domain failures must be translated before they become action
+errors.
+
 ## Anemic Domain Model
 
 A domain model that only describes data shape and maybe validation. An anemic
 model does not own meaningful behavior.
+
+## App Layer Helper
+
+An app-local Layer composition module, usually
+`apps/<app>/src/runtime/Layer.ts`, that composes public slice/package Layers for
+one application. It is not a monorepo package family and must not own product
+policy, handlers, repositories, schedules, workflows, or cross-slice
+orchestration.
 
 ## Client Package
 
@@ -91,13 +106,19 @@ The slice package that owns typed config contracts for a slice:
 `@beep/<slice>-config`. It may define public config, server config, redacted
 secret config, config services, config vocabulary, and server/runtime-only
 config resolution helpers that read from the ambient `ConfigProvider`. Config
-packages publish those boundaries through required subpaths such as `/public`,
+packages publish those boundaries through canonical subpath names such as `/public`,
 `/server`, `/secrets`, `/layer`, and `/test`. `/public` is the only
-browser-safe config surface. Required subpaths are required names when that
+browser-safe config surface. Canonical subpath names are required names when that
 role exists, not a placeholder-export requirement. Package roots and `./*`
 exports may remain during migration, but they are transitional rather than the
-canonical boundary contract. A config package is canonical but optional, and it
+canonical boundary contract. A config package is optional canonical-shape, and it
 is not a broad constants package.
+
+## Cleanup-On-Touch
+
+A migration bucket for legacy or transitional shapes that do not require an
+immediate sweep, but must be corrected when their boundary is edited. The
+cleanup scope is the touched boundary, not the whole package family.
 
 ## Domain-Kind Folder
 
@@ -139,11 +160,35 @@ An identity-bearing concept. Use `entities/` for identity-bearing concepts that
 are not aggregate roots, or simple concepts whose consistency boundary is only
 themselves.
 
+## Enforcement Lane
+
+The way an architecture rule becomes real. Canonical lanes are `Doctrine`,
+`Generated Default`, `Review Gate`, and `Hard Check`.
+
+## Foundation Capability
+
+A `foundation/capability` package: repo-owned, domain-agnostic technical
+substrate that does not carry product semantics, does not wrap an external
+engine or browser platform API, is not tooling, and is not UI-system ergonomics.
+It needs multiple real consumers or explicit platform-capability rationale.
+
 ## God Layer
 
 A central runtime Layer that merges many unrelated slices and drivers into one
 global dependency graph. God Layers hide ownership, create cross-slice coupling,
 and make experiments expensive to remove.
+
+## Generated Default
+
+An enforcement lane for architecture rules that future generators or scaffolds
+should make the default. A generated default is still downstream from the
+architecture standard; it does not make the standard a generator design.
+
+## Hard Check
+
+An enforcement lane for rules that should be mechanically enforced by lint,
+package metadata, import-boundary checks, fixture checks, repo-cli commands, or
+similar automation.
 
 ## Hexagonal Vertical Slice
 
@@ -170,13 +215,29 @@ without taking product-domain dependencies.
 A product-language capability required by use-cases. Ports live in
 `use-cases` by default and are implemented by adapters, usually in `server`.
 
+## Port Error
+
+A server-only failure declared by a use-case port and exported from the use-case
+package's `/server` subpath. Adapters translate driver/internal failures into
+port errors; use-case services translate port errors into public action errors.
+
+## Private (in app-layer composition)
+
+Anything not exported through a canonical subpath (`/public`, `/server`, `/secrets`, `/layer`, `/test`) of a package's public root. App-level composition (e.g., `apps/<app>/src/runtime/Layer.ts`) may import only from canonical subpaths; reaching past them into a package's internal module structure is the boundary violation. The same rule applies to any consumer outside the owning package: only canonical subpaths are public.
+
 ## Product Port Implementation
 
 A server-side implementation of a use-case port. Example:
 `server/src/entities/Membership/Membership.repo.ts` implements
 `MembershipRepository` using tables and drivers.
 
-## Required Subpath
+## Promotion Record
+
+A package README entry that proves a high-bar shared export earned its home. It
+records shared product semantics, consumers or cross-slice rationale, exported
+surface, rejected homes, runtime/driver/Layer limits, and review evidence.
+
+## Canonical Subpath Name
 
 A canonical export name for a boundary-sensitive package role. Required means
 use this subpath name when the role exists; it does not require placeholder
@@ -185,8 +246,7 @@ exports from packages that do not need that role.
 ## Policy Pack
 
 A declarative policy/configuration bundle. In `tooling`, policy packs publish
-shared governance data or config presets. In `agents`, policy packs publish
-bounded steering packets and activation rules. Policy packs are not executable
+shared governance data or config presets. Policy packs are not executable
 applications.
 
 ## Public Config
@@ -219,17 +279,10 @@ A domain model that owns shape, validation, and pure behavior. Rich behavior may
 be instance methods, exported pure functions, `*.behavior.ts`, or pure
 `*.policy.ts` modules.
 
-## Portable Agent Bundle
+## Review Gate
 
-A repo-local bundle under `agents/<kind>/<name>` with required `beep.json`
-metadata. Portable bundles are runtime-neutral content artifacts; they are not
-workspace packages.
-
-## Runtime Adapter
-
-An `agents` kind that declaratively assembles `skill-pack` and `policy-pack`
-bundles for a concrete runtime such as Codex or Claude. Runtime adapters may
-contain config, templates, and mappings, but not executable logic.
+An enforcement lane for contextual or exception-based rules that need explicit
+review evidence instead of purely mechanical checking.
 
 ## Schema-First Model
 
@@ -237,12 +290,6 @@ A pure data model whose `Schema` value is the source of truth. TypeScript types,
 constructors, decoders, encoders, guards, equivalence, defaults, validation
 messages, and documentation metadata derive from that schema instead of living
 beside it as parallel definitions.
-
-## Skill Pack
-
-An `agents` kind for portable task guidance. Skill packs are anchored by
-`SKILL.md`, declare metadata in `beep.json`, and may include sidecars such as
-`references/`, `assets/`, or `_shared/`.
 
 ## Role Suffix
 
@@ -264,25 +311,35 @@ bundles.
 
 ## Shared Kernel
 
-The DDD meaning of `packages/shared`: deliberately shared cross-cutting
-language, value objects, schemas, config contracts, and a small number of
+The DDD meaning of the `shared` package family: deliberately shared
+cross-cutting language, value objects, schemas, config contracts, and a small number of
 high-bar cross-slice adapters. `shared/domain` and `shared/config` are the
 normal homes. `shared/use-cases`, `shared/client`, `shared/server`,
 `shared/tables`, and `shared/ui` are exceptional. `shared/use-cases` is
 contract-only: it may hold cross-slice commands, queries, driver-neutral DTOs,
 driver-neutral boundary contracts, client-safe application errors, facade
-interfaces, and product ports, but not workflows, process managers,
-schedulers, handlers, concrete adapters, driver imports, or live Layers.
+interfaces, and ultra-high-bar product ports, but not workflows, process
+managers, schedulers, handlers, concrete adapters, driver imports, or live
+Layers.
 Shared packages consume shared-kernel language from shared and may consume
 appropriate `foundation` packages beside it; they do not own drivers. Shared
 is not a synonym for `common` or `foundation`, and it is not a place for
 miscellaneous leftovers from product slices.
+
+**Terminology caveat:** strict DDD uses "shared kernel" for code shared across team boundaries with explicit cross-team coordination. In this monorepo the term is used for *deliberate cross-slice product language within a single team's codebase* — closer to a "published language for an internal context." The connotations of high coordination cost still apply (every promotion record is a small coordination act), but the cross-team framing does not. The term is kept because it does the work of distinguishing "deliberate cross-slice" from "junk drawer."
 
 ## Slice
 
 A bounded product/domain package family such as `iam`. A slice owns its domain,
 use-cases, config contracts when present, server adapters, client adapters,
 tables, and UI. Drivers stay repo-level instead of being slice package kinds.
+
+## Scratchpad Lane
+
+A temporary experiment home under `scratchpad/` or explicitly temporary
+`packages/_internal/*` packages. Scratchpad code may prove an idea, but product
+slices and public package exports must not import it. Promotion re-enters
+through the smallest legal slice shape.
 
 ## Tables Package
 
@@ -301,7 +358,7 @@ operations; product/runtime code does not depend on them.
 The slice package that owns application intent: commands, queries,
 driver-neutral boundary/protocol contracts, authorization, ports,
 service/facade contracts, slice-local workflow/process/scheduler contracts, and
-actionable application errors. Canonical export surfaces are `/public`,
+public action errors. Canonical export surfaces are `/public`,
 `/server`, and `/test`.
 `/public` is client-safe application contract surface. `/server` is server-only
 application contract surface. Package roots and `./*` exports may remain during

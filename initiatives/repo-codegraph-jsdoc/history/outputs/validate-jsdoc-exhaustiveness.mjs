@@ -1,19 +1,19 @@
 #!/usr/bin/env bun
 import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  CLOSURE_TAGS,
   JSDOC3_TAGS,
   TSDOC_STANDARD_TAGS,
+  TYPEDOC_TAGS,
   TYPESCRIPT_JSDOC_TAGS,
-  CLOSURE_TAGS,
-  TYPEDOC_TAGS
 } from "./canonical-tag-lists.ts";
-import { JSDOC_TAG_DATABASE } from "./jsdoc-tags-database.ts";
-import { HAS_JSDOC_TO_APPLICABLE_TO_MAP, APPLICABLE_TO_VALUES } from "./hasjsdoc-to-applicableto-map.ts";
-import { SYNTAXKIND_JSDOC_TAG_MAP } from "./syntaxkind-jsdoc-tag-map.ts";
 import { buildSourceTagSnapshot, SNAPSHOT_SCHEMA_VERSION } from "./extract-source-tags.mjs";
+import { APPLICABLE_TO_VALUES, HAS_JSDOC_TO_APPLICABLE_TO_MAP } from "./hasjsdoc-to-applicableto-map.ts";
+import { JSDOC_TAG_DATABASE } from "./jsdoc-tags-database.ts";
+import { SYNTAXKIND_JSDOC_TAG_MAP } from "./syntaxkind-jsdoc-tag-map.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -59,7 +59,7 @@ const canonicalLists = {
   tsdoc: [...TSDOC_STANDARD_TAGS],
   typescript: [...TYPESCRIPT_JSDOC_TAGS],
   closure: [...CLOSURE_TAGS],
-  typedoc: [...TYPEDOC_TAGS]
+  typedoc: [...TYPEDOC_TAGS],
 };
 
 const expectedCounts = {
@@ -67,30 +67,30 @@ const expectedCounts = {
   tsdoc: 25,
   typescript: 25,
   closure: 39,
-  typedoc: 51
+  typedoc: 51,
 };
 
 const requiredSpecsByCanonicalSource = {
   jsdoc3: {
     label: "jsdoc3",
-    predicate: (specifications) => specifications.includes("jsdoc3")
+    predicate: (specifications) => specifications.includes("jsdoc3"),
   },
   tsdoc: {
     label: "tsdoc-*",
-    predicate: (specifications) => specifications.some((spec) => spec.startsWith("tsdoc-"))
+    predicate: (specifications) => specifications.some((spec) => spec.startsWith("tsdoc-")),
   },
   typescript: {
     label: "typescript",
-    predicate: (specifications) => specifications.includes("typescript")
+    predicate: (specifications) => specifications.includes("typescript"),
   },
   closure: {
     label: "closure",
-    predicate: (specifications) => specifications.includes("closure")
+    predicate: (specifications) => specifications.includes("closure"),
   },
   typedoc: {
     label: "typedoc",
-    predicate: (specifications) => specifications.includes("typedoc")
-  }
+    predicate: (specifications) => specifications.includes("typedoc"),
+  },
 };
 
 const parseSnapshot = (snapshotPath, failures) => {
@@ -123,7 +123,15 @@ const validateSnapshotStructure = (snapshot, failures) => {
       failures.push(`Snapshot missing source entry '${sourceName}'.`);
       continue;
     }
-    for (const field of ["url", "retrievedAt", "contentSha256", "rawTags", "normalizedTags", "normalizationRulesVersion", "extractionStrategy"]) {
+    for (const field of [
+      "url",
+      "retrievedAt",
+      "contentSha256",
+      "rawTags",
+      "normalizedTags",
+      "normalizationRulesVersion",
+      "extractionStrategy",
+    ]) {
       if (!(field in source)) {
         failures.push(`Snapshot source '${sourceName}' missing field '${field}'.`);
       }
@@ -163,16 +171,20 @@ const checkSnapshotCanonicalParity = (snapshot, failures) => {
 
     const expected = expectedCounts[sourceName];
     if (canonicalTags.length !== expected) {
-      failures.push(`Canonical list '${sourceName}' count mismatch: found=${canonicalTags.length}, expected=${expected}.`);
+      failures.push(
+        `Canonical list '${sourceName}' count mismatch: found=${canonicalTags.length}, expected=${expected}.`
+      );
     }
     if (snapshotLower.length !== expected) {
-      failures.push(`Snapshot list '${sourceName}' count mismatch: found=${snapshotLower.length}, expected=${expected}.`);
+      failures.push(
+        `Snapshot list '${sourceName}' count mismatch: found=${snapshotLower.length}, expected=${expected}.`
+      );
     }
 
     coverage[sourceName] = {
       total: expected,
       missing: canonicalMinusSnapshot.length,
-      extra: snapshotMinusCanonical.length
+      extra: snapshotMinusCanonical.length,
     };
   }
 
@@ -211,13 +223,17 @@ const checkLiveDrift = (snapshot, liveSnapshot, failures) => {
       const snapshotAddenda = Array.isArray(snapshotSource.addendaSources) ? snapshotSource.addendaSources : [];
       const liveAddenda = Array.isArray(liveSource.addendaSources) ? liveSource.addendaSources : [];
       if (snapshotAddenda.length !== liveAddenda.length) {
-        failures.push(`TypeScript addenda source count drift: snapshot=${snapshotAddenda.length}, live=${liveAddenda.length}.`);
+        failures.push(
+          `TypeScript addenda source count drift: snapshot=${snapshotAddenda.length}, live=${liveAddenda.length}.`
+        );
       } else {
         for (let index = 0; index < snapshotAddenda.length; index += 1) {
           const left = snapshotAddenda[index];
           const right = liveAddenda[index];
           if (left.url !== right.url) {
-            failures.push(`TypeScript addenda URL drift at index ${index}: snapshot='${left.url}', live='${right.url}'.`);
+            failures.push(
+              `TypeScript addenda URL drift at index ${index}: snapshot='${left.url}', live='${right.url}'.`
+            );
           }
           const leftTags = stableSortedUnique((left.normalizedTags ?? []).map((tag) => lower(String(tag))));
           const rightTags = stableSortedUnique((right.normalizedTags ?? []).map((tag) => lower(String(tag))));
@@ -238,7 +254,7 @@ const checkLiveDrift = (snapshot, liveSnapshot, failures) => {
     coverage[sourceName] = {
       total: snapshotTags.length,
       missing: snapshotMinusLive.length,
-      extra: liveMinusSnapshot.length
+      extra: liveMinusSnapshot.length,
     };
   }
 
@@ -332,7 +348,9 @@ const main = async () => {
   const hasJSDocUnique = [...new Set(hasJSDocMembers)];
 
   if (HAS_JSDOC_TO_APPLICABLE_TO_MAP.length !== hasJSDocUnique.length) {
-    failures.push(`HasJSDoc mapping length mismatch: map=${HAS_JSDOC_TO_APPLICABLE_TO_MAP.length}, expected=${hasJSDocUnique.length}.`);
+    failures.push(
+      `HasJSDoc mapping length mismatch: map=${HAS_JSDOC_TO_APPLICABLE_TO_MAP.length}, expected=${hasJSDocUnique.length}.`
+    );
   }
 
   const mappedMembers = new Set();
@@ -410,7 +428,7 @@ const main = async () => {
     "typescript",
     "closure",
     "api-extractor",
-    "typedoc"
+    "typedoc",
   ];
 
   for (const spec of specs) {
@@ -421,7 +439,18 @@ const main = async () => {
   }
 
   const expectDerivability = {
-    none: ["name", "deprecated", "see", "internal", "virtual", "link", "fires", "listens", "hideconstructor", "variation"],
+    none: [
+      "name",
+      "deprecated",
+      "see",
+      "internal",
+      "virtual",
+      "link",
+      "fires",
+      "listens",
+      "hideconstructor",
+      "variation",
+    ],
     partial: [
       "throws",
       "param",
@@ -451,8 +480,8 @@ const main = async () => {
       "inner",
       "instance",
       "kind",
-      "overload"
-    ]
+      "overload",
+    ],
   };
 
   for (const tagName of expectDerivability.none) {
@@ -501,11 +530,21 @@ const main = async () => {
   console.log(`- Coverage TypeScript: ${tsCoverage.total - tsCoverage.missing}/${tsCoverage.total}`);
   console.log(`- Coverage Closure: ${closureCoverage.total - closureCoverage.missing}/${closureCoverage.total}`);
   console.log(`- Coverage TypeDoc: ${typedocCoverage.total - typedocCoverage.missing}/${typedocCoverage.total}`);
-  console.log(`- Specification Attribution JSDoc3(jsdoc3): ${jsdocSpecCoverage.total - jsdocSpecCoverage.missing}/${jsdocSpecCoverage.total}`);
-  console.log(`- Specification Attribution TSDoc(tsdoc-*): ${tsdocSpecCoverage.total - tsdocSpecCoverage.missing}/${tsdocSpecCoverage.total}`);
-  console.log(`- Specification Attribution TypeScript(typescript): ${tsSpecCoverage.total - tsSpecCoverage.missing}/${tsSpecCoverage.total}`);
-  console.log(`- Specification Attribution Closure(closure): ${closureSpecCoverage.total - closureSpecCoverage.missing}/${closureSpecCoverage.total}`);
-  console.log(`- Specification Attribution TypeDoc(typedoc): ${typedocSpecCoverage.total - typedocSpecCoverage.missing}/${typedocSpecCoverage.total}`);
+  console.log(
+    `- Specification Attribution JSDoc3(jsdoc3): ${jsdocSpecCoverage.total - jsdocSpecCoverage.missing}/${jsdocSpecCoverage.total}`
+  );
+  console.log(
+    `- Specification Attribution TSDoc(tsdoc-*): ${tsdocSpecCoverage.total - tsdocSpecCoverage.missing}/${tsdocSpecCoverage.total}`
+  );
+  console.log(
+    `- Specification Attribution TypeScript(typescript): ${tsSpecCoverage.total - tsSpecCoverage.missing}/${tsSpecCoverage.total}`
+  );
+  console.log(
+    `- Specification Attribution Closure(closure): ${closureSpecCoverage.total - closureSpecCoverage.missing}/${closureSpecCoverage.total}`
+  );
+  console.log(
+    `- Specification Attribution TypeDoc(typedoc): ${typedocSpecCoverage.total - typedocSpecCoverage.missing}/${typedocSpecCoverage.total}`
+  );
   console.log(
     `- Snapshot Parity JSDoc3: ${(snapshotParityCoverage.jsdoc3?.total ?? 0) - (snapshotParityCoverage.jsdoc3?.missing ?? 0)}/${snapshotParityCoverage.jsdoc3?.total ?? 0}`
   );
@@ -540,7 +579,9 @@ const main = async () => {
     );
   }
 
-  console.log(`- astDerivable counts: full=${derivabilityCounts.full}, partial=${derivabilityCounts.partial}, none=${derivabilityCounts.none}`);
+  console.log(
+    `- astDerivable counts: full=${derivabilityCounts.full}, partial=${derivabilityCounts.partial}, none=${derivabilityCounts.none}`
+  );
 
   if (warnings.length > 0) {
     console.log("\nWarnings:");

@@ -1,0 +1,65 @@
+/**
+ * Native Drizzle and Effect Postgres interop helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import type { EffectDrizzleQueryError, MigratorInitError } from "drizzle-orm/effect-core/errors";
+import type { SqlError } from "effect/unstable/sql/SqlError";
+
+/**
+ * Error union emitted by native Drizzle Effect Postgres migrations.
+ *
+ * @example
+ * ```ts
+ * import type { NativeMigrationError } from "@beep/postgres/interop"
+ *
+ * const describeMigrationError = (_error: NativeMigrationError) => "migration failed"
+ * void describeMigrationError
+ * ```
+ *
+ * @since 0.0.0
+ * @category errors
+ */
+export type NativeMigrationError = EffectDrizzleQueryError | MigratorInitError | SqlError;
+
+/**
+ * Native Effect Postgres client namespace.
+ *
+ * @example
+ * ```ts
+ * import { NativePgClient } from "@beep/postgres/interop"
+ *
+ * const pgClientTag = NativePgClient.PgClient
+ * void pgClientTag
+ * ```
+ *
+ * @since 0.0.0
+ * @category exports
+ */
+export * as NativePgClient from "@effect/sql-pg/PgClient";
+
+/**
+ * Native Drizzle Effect Postgres database types.
+ *
+ * @example
+ * ```ts
+ * import type { EffectDrizzlePgConfig, EffectLogger, EffectPgDatabase } from "@beep/postgres/interop"
+ *
+ * const config: EffectDrizzlePgConfig = {}
+ * const useDatabase = (_database: EffectPgDatabase) => config
+ * const useLogger = (_logger: EffectLogger) => config
+ * void useDatabase
+ * void useLogger
+ * ```
+ *
+ * @since 0.0.0
+ * @category exports
+ */
+export type {
+  EffectDrizzlePgConfig,
+  EffectDrizzlePgConfig as EffectDrizzleConfig,
+  EffectLogger,
+  EffectPgDatabase,
+} from "drizzle-orm/effect-postgres";

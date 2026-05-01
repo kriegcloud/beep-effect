@@ -1,0 +1,134 @@
+{
+  "srcDir": "src",
+  "outDir": "docs",
+  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/wealth-management/domain/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/wealth-management-domain": [
+        "../../../packages/wealth-management/domain/src/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities": [
+        "../../../packages/wealth-management/domain/src/entities/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities/Account": [
+        "../../../packages/wealth-management/domain/src/entities/Account/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities/Household": [
+        "../../../packages/wealth-management/domain/src/entities/Household/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities/Party": [
+        "../../../packages/wealth-management/domain/src/entities/Party/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities/WealthClient": [
+        "../../../packages/wealth-management/domain/src/entities/WealthClient/index.ts"
+      ],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/foundation/modeling/schema/src/*.ts"
+      ],
+      "@beep/shared-domain": ["../../../packages/shared/domain/src/index.ts"],
+      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"],
+      "@beep/shared-domain/aggregates": [
+        "../../../packages/shared/domain/src/aggregates.ts"
+      ],
+      "@beep/shared-domain/entities": [
+        "../../../packages/shared/domain/src/entities.ts"
+      ],
+      "@beep/shared-domain/entities/Organization": [
+        "../../../packages/shared/domain/src/entities/Organization/index.ts"
+      ],
+      "@beep/shared-domain/entity": [
+        "../../../packages/shared/domain/src/entity.ts"
+      ],
+      "@beep/shared-domain/entity/BaseEntity": [
+        "../../../packages/shared/domain/src/entity/BaseEntity.ts"
+      ],
+      "@beep/shared-domain/entity/EntityId": [
+        "../../../packages/shared/domain/src/entity/EntityId.ts"
+      ],
+      "@beep/shared-domain/entity/EntityRef": [
+        "../../../packages/shared/domain/src/entity/EntityRef.ts"
+      ],
+      "@beep/shared-domain/entity/Principal": [
+        "../../../packages/shared/domain/src/entity/Principal.ts"
+      ],
+      "@beep/shared-domain/entity/SourceKind": [
+        "../../../packages/shared/domain/src/entity/SourceKind.ts"
+      ],
+      "@beep/shared-domain/entity/primitives": [
+        "../../../packages/shared/domain/src/entity/primitives.ts"
+      ],
+      "@beep/shared-domain/identity": [
+        "../../../packages/shared/domain/src/identity.ts"
+      ],
+      "@beep/shared-domain/identity/AgentCapability": [
+        "../../../packages/shared/domain/src/identity/AgentCapability.ts"
+      ],
+      "@beep/shared-domain/identity/Epistemic": [
+        "../../../packages/shared/domain/src/identity/Epistemic.ts"
+      ],
+      "@beep/shared-domain/identity/FixtureLabSpecimen": [
+        "../../../packages/shared/domain/src/identity/FixtureLabSpecimen.ts"
+      ],
+      "@beep/shared-domain/identity/LawPractice": [
+        "../../../packages/shared/domain/src/identity/LawPractice.ts"
+      ],
+      "@beep/shared-domain/identity/Shared": [
+        "../../../packages/shared/domain/src/identity/Shared.ts"
+      ],
+      "@beep/shared-domain/identity/Tenancy": [
+        "../../../packages/shared/domain/src/identity/Tenancy.ts"
+      ],
+      "@beep/shared-domain/identity/WealthManagement": [
+        "../../../packages/shared/domain/src/identity/WealthManagement.ts"
+      ],
+      "@beep/shared-domain/identity/Workspace": [
+        "../../../packages/shared/domain/src/identity/Workspace.ts"
+      ],
+      "@beep/shared-domain/values": [
+        "../../../packages/shared/domain/src/values.ts"
+      ],
+      "@beep/shared-domain/values/LocalDate": [
+        "../../../packages/shared/domain/src/values/LocalDate/index.ts"
+      ]
+    }
+  }
+}

@@ -54,7 +54,7 @@ const nextConfig: NextConfig = {
   },
   typedRoutes: true,
   typescript: {
-    tsconfigPath: "tsconfig.json",
+    tsconfigPath: "tsconfig.next.json",
   },
   experimental: {
     cssChunking: true,

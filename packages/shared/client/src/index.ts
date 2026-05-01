@@ -1,22 +1,21 @@
 /**
- * \@beep/shared-client
+ * Shared client role package.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Current package version.
+ * Shared client package version.
  *
  * @example
  * ```ts
  * import { VERSION } from "@beep/shared-client"
  *
- * const version = VERSION
- * void version
+ * console.log(VERSION)
  * ```
  *
- * @category utilities
  * @since 0.0.0
+ * @category configuration
  */
 export const VERSION = "0.0.0" as const;

@@ -1,47 +1,59 @@
 {
   "name": "@beep/shared-domain",
   "version": "0.0.0",
-  "description": "The shared kernel for cross cutting domain dependencies",
-  "license": "Apache-2.0",
+  "description": "Shared-kernel domain language for cross-slice product concepts, values, schemas, and pure behavior.",
+  "license": "MIT",
   "private": true,
   "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/domain",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/shared/domain"
+  },
   "scripts": {
-    "codegen": "echo 'no codegen needed'",
-    "build": "bun run beep:build",
+    "audit": "bun run --if-present beep:audit",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-    "check": "bun run beep:check",
-    "test": "bun run beep:test",
-    "coverage": "bunx --bun vitest run --coverage",
-    "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
-    "lint": "bun run beep:lint",
-    "lint:fix": "bun run beep:lint:fix",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
     "beep:build": "tsc -b tsconfig.json && bun run babel",
     "beep:check": "tsgo -b tsconfig.json",
-    "beep:test": "bunx --bun vitest run",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
-    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
-    "audit": "bun run --if-present beep:audit"
-  },
-  "dependencies": {
-    "@beep/colors": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "effect": "catalog:",
-    "pg-protocol": "catalog:",
-    "sql-formatter": "catalog:"
-  },
-  "devDependencies": {
-    "@beep/types": "workspace:^",
-    "@effect/vitest": "catalog:",
-    "@types/node": "catalog:"
+    "beep:test": "bunx --bun vitest run",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "coverage": "bunx --bun vitest run --coverage",
+    "docgen": "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test"
   },
   "exports": {
-    "./package.json": "./package.json",
     ".": "./src/index.ts",
+    "./aggregates": "./src/aggregates.ts",
+    "./entities": "./src/entities.ts",
+    "./entities/Organization": "./src/entities/Organization/index.ts",
+    "./entity": "./src/entity.ts",
+    "./entity/BaseEntity": "./src/entity/BaseEntity.ts",
+    "./entity/EntityId": "./src/entity/EntityId.ts",
+    "./entity/EntityRef": "./src/entity/EntityRef.ts",
+    "./entity/Principal": "./src/entity/Principal.ts",
+    "./entity/SourceKind": "./src/entity/SourceKind.ts",
+    "./entity/primitives": "./src/entity/primitives.ts",
+    "./identity": "./src/identity.ts",
+    "./identity/AgentCapability": "./src/identity/AgentCapability.ts",
+    "./identity/Epistemic": "./src/identity/Epistemic.ts",
+    "./identity/FixtureLabSpecimen": "./src/identity/FixtureLabSpecimen.ts",
+    "./identity/LawPractice": "./src/identity/LawPractice.ts",
+    "./identity/Shared": "./src/identity/Shared.ts",
+    "./identity/Tenancy": "./src/identity/Tenancy.ts",
+    "./identity/WealthManagement": "./src/identity/WealthManagement.ts",
+    "./identity/Workspace": "./src/identity/Workspace.ts",
+    "./values": "./src/values.ts",
+    "./values/LocalDate": "./src/values/LocalDate/index.ts",
     "./*": "./src/*.ts",
-    "./internal/*": null
+    "./internal/*": null,
+    "./package.json": "./package.json"
   },
   "files": [
     "src/**/*.ts",
@@ -50,21 +62,47 @@
     "dist/**/*.d.ts",
     "dist/**/*.d.ts.map"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/shared/domain"
-  },
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/domain",
   "sideEffects": [],
   "publishConfig": {
     "access": "public",
     "provenance": true,
     "exports": {
-      "./package.json": "./package.json",
-      ".": "./dist/index.ts",
+      ".": "./dist/index.js",
+      "./aggregates": "./dist/aggregates.js",
+      "./entities": "./dist/entities.js",
+      "./entities/Organization": "./dist/entities/Organization/index.js",
+      "./entity": "./dist/entity.js",
+      "./entity/BaseEntity": "./dist/entity/BaseEntity.js",
+      "./entity/EntityId": "./dist/entity/EntityId.js",
+      "./entity/EntityRef": "./dist/entity/EntityRef.js",
+      "./entity/Principal": "./dist/entity/Principal.js",
+      "./entity/SourceKind": "./dist/entity/SourceKind.js",
+      "./entity/primitives": "./dist/entity/primitives.js",
+      "./identity": "./dist/identity.js",
+      "./identity/AgentCapability": "./dist/identity/AgentCapability.js",
+      "./identity/Epistemic": "./dist/identity/Epistemic.js",
+      "./identity/FixtureLabSpecimen": "./dist/identity/FixtureLabSpecimen.js",
+      "./identity/LawPractice": "./dist/identity/LawPractice.js",
+      "./identity/Shared": "./dist/identity/Shared.js",
+      "./identity/Tenancy": "./dist/identity/Tenancy.js",
+      "./identity/WealthManagement": "./dist/identity/WealthManagement.js",
+      "./identity/Workspace": "./dist/identity/Workspace.js",
+      "./values": "./dist/values.js",
+      "./values/LocalDate": "./dist/values/LocalDate/index.js",
       "./*": "./dist/*.js",
-      "./internal/*": null
+      "./internal/*": null,
+      "./package.json": "./package.json"
     }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/types": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
   }
 }

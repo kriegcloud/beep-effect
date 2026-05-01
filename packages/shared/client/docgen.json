@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../tooling/docgen/schema.json",
+  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/client/src/",
   "examplesCompilerOptions": {
@@ -30,13 +30,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/shared-client": ["../../../packages/shared/client/src/index.ts"],
-      "@beep/shared-client/*": ["../../../packages/shared/client/src/*.ts"],
-      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
-      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
-      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"]
+      "@beep/shared-client/*": ["../../../packages/shared/client/src/*.ts"]
     }
   }
 }

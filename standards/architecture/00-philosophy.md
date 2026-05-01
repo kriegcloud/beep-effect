@@ -4,7 +4,7 @@ beep-effect wants a repo where experimentation is cheap and quality is not.
 
 The architecture is built for a workflow where new domains, slices, and product
 ideas appear quickly. That only works if the repo has strong defaults. Without
-defaults, every experiment invents its own package boundaries, every agent
+defaults, every experiment invents its own package boundaries, every contributor
 chooses a slightly different file shape, and every successful prototype becomes
 harder to promote into real product code.
 
@@ -24,15 +24,21 @@ portable. A `Membership` concept should feel the same across domain, use-cases,
 config when meaningful config contracts exist, server, client, tables, and UI.
 Once you know the slice grammar, you can move quickly without hunting.
 
-## Why This Matters More With Agents
+## Why Topology Carries So Much Weight
 
-Agents do not just read code. They infer intent from nearby files. If topology
-is vague, agents improvise. If topology is explicit, agents follow the map.
+Humans read code the same way they read a map: nearby files set expectations
+for what any given file is allowed to mean. When the topology is vague, every
+reader has to reconstruct intent from the contents; when it is explicit,
+the path itself tells you what is and is not in scope before you open the
+file. This shortens code review, lowers onboarding cost, and prevents the
+slow drift where similar concepts grow incompatible shapes across slices.
 
 This is why role suffixes matter. `Membership.events.ts` and
 `Membership.event-handlers.ts` are slightly more verbose than one generic
-`events.ts`, but they prevent the most expensive class of mistake: writing the
-right idea in the wrong layer.
+`events.ts`, but they prevent the most expensive class of mistake: writing
+the right idea in the wrong layer. The role suffix is a precondition check
+that runs at file-name time, not test time, and it runs in the reader's head
+before any tooling is involved.
 
 ## What The Architecture Is Protecting
 

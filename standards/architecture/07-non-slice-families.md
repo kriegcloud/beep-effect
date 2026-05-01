@@ -3,8 +3,8 @@
 Not every important artifact in the repo is a product slice.
 
 Some packages exist to provide domain-agnostic substrate. Some exist to support
-development and operations. Some exist to steer coding agents. Some exist to
-wrap external engines and SDKs. If those artifacts are all described as
+development and operations. Some exist to wrap external engines and SDKs. If
+those artifacts are all described as
 `common`, `shared`, or `core`, the repo loses the same compressed context that
 slice topology gives product code.
 
@@ -16,19 +16,77 @@ applicable.
 Those names are attractive because they feel flexible. The problem is that they
 compress nothing.
 
-If a package is called `common`, an agent still has to open files to discover
+If a package is called `common`, a reader still has to open files to discover
 whether it is:
 
 - a schema/identity substrate
 - a shared UI primitive library
 - a repo CLI
 - a config preset bundle
-- a prompt/policy asset directory
 
 That is exactly the ambiguity the architecture is trying to remove.
 
 When translating legacy `common`, default to `foundation`. Route to `shared/*`
 or the owning slice instead when the code carries durable product semantics.
+
+## Specific Homes Before Capability
+
+`foundation/capability` is the last generic destination, not the default home
+for reusable technical code.
+
+Route in this order:
+
+1. Product semantics go to the owning slice or `shared/*`.
+2. External engines, SDKs, services, frameworks, and browser platform wrappers
+   go to `drivers`.
+3. Repo operations, generators, policy packs, and automation go to `tooling`.
+4. Product-agnostic UI primitives, themes, tokens, hooks, and composition
+   helpers go to `foundation/ui-system`.
+5. Only remaining repo-owned, domain-agnostic technical services may go to
+   `foundation/capability`.
+
+`foundation/capability` must pass a negative gate plus proof:
+
+- no product semantics
+- no external-engine, third-party SDK, service, framework, or browser platform
+  wrapping
+- no repo-operational/tooling purpose
+- no UI primitive, design-system role, or React ergonomics layer
+- **≥2 named consumers currently importing the package**, listed by name in the
+  package's README
+
+One importer is not promotion-ready. The README must name each importer with a
+one-line note on what it uses the capability for; this list is checked at PR
+review.
+
+Reusable shape alone is not proof. A `Context.Service` or Layer can belong in
+the owning slice, `drivers`, `tooling`, or `foundation/ui-system` depending on
+what it wraps and who owns the meaning.
+
+### Worked rejection example: "schema validator wrapper"
+
+A proposed `foundation/capability/schema-validator` package wraps
+`S.decodeUnknownEffect` with a custom error formatter and is imported by the
+iam slice's HTTP handlers.
+
+Looks like a capability: domain-agnostic, reusable, no product semantics,
+would-be importable from anywhere.
+
+Fails the gate because:
+
+- Only one current consumer (iam HTTP handlers); the gate requires ≥2.
+- The functionality is a thin formatter over a v4 `Schema` API; "reusable shape
+  alone is not proof."
+- The owning home is correct: it's an HTTP-layer concern. It belongs in iam's
+  server package as an internal helper, or — if a second slice's HTTP handlers
+  later want the same formatter — in `tooling/library/http-formatters` (a
+  tooling library), not in foundation.
+
+The shape of the rejection: a capability candidate is rejected by **(a)** a
+consumer count below 2, **(b)** the existence of a more specific home
+(`drivers`, `tooling`, slice-local), or **(c)** the candidate being an
+ergonomic wrapper around an existing capability rather than a capability
+itself.
 
 ## The Family And Kind Grammar
 
@@ -37,7 +95,6 @@ The canonical non-slice families are:
 - `foundation`: domain-agnostic reusable substrate
 - `drivers`: flat repo-level external boundary wrappers
 - `tooling`: developer-operational code packages
-- `agents`: repo-local AI steering bundles
 
 Every non-slice artifact declares one canonical family. Kind remains required
 only for families that intentionally declare a kind segment.
@@ -46,11 +103,7 @@ only for families that intentionally declare a kind segment.
 packages/foundation/<kind>/<name>
 packages/drivers/<name>
 packages/tooling/<kind>/<name>
-agents/<kind>/<name>
 ```
-
-`agents/` is intentionally a top-level repo directory rather than a
-`packages/` subfolder.
 
 The path is the first layer of context compression. The manifest metadata is the
 second. Humans should infer role from the path. Tooling should enforce the same
@@ -114,6 +167,20 @@ This keeps the mental model clean:
 `foundation/primitive` and `foundation/modeling`, but it does not depend on
 `foundation/capability` by default.
 
+Browser/runtime helpers follow platform-first routing:
+
+- low-level browser platform wrappers belong in `drivers` and expose their
+  browser-safe surface through `@beep/<driver>/browser`
+- thin product-agnostic React hooks or components belong in
+  `foundation/ui-system`
+- product-specific browser state and behavior belong in slice `client` or `ui`
+- rare runtime-neutral technical services may belong in
+  `foundation/capability` only after the capability gate
+
+Driver package roots are not browser-safe by default. Foundation package roots
+must be runtime-neutral or browser-safe by contract; environment-specific
+foundation surfaces need explicit environment entrypoints.
+
 ## Why Tooling Uses A Small Kind Catalog
 
 Tooling has many jobs, but it does not need many architectural kinds.
@@ -126,23 +193,6 @@ Tooling has many jobs, but it does not need many architectural kinds.
 This keeps the family legible while still making dependency rules visible.
 Repo-wide orchestration is behavior inside `tool`, not a separate one-off
 package kind.
-
-## Why Agents Are Portable Bundles Plus Runtime Adapters
-
-Agent content has two very different concerns:
-
-- portable guidance and steering content
-- runtime-specific assembly for Claude, Codex, or future runtimes
-
-The architecture keeps those concerns separate.
-
-- `skill-pack` owns portable task guidance
-- `policy-pack` owns declarative steering packets
-- `runtime-adapter` owns declarative runtime-specific composition
-
-The adapter is where composition happens. It references skill/policy packs by
-id and adds runtime-local config or templates. It does not own executable logic.
-Executable hooks, CLIs, generators, and sync flows live in `tooling/tool`.
 
 ## Worked Examples
 
@@ -161,12 +211,6 @@ packages/tooling/tool/cli
 
 packages/tooling/policy-pack/repo-configs
   -> shared governance/config packets
-
-agents/skill-pack/schema-first-development
-  -> portable schema-first guidance bundle
-
-agents/runtime-adapter/codex
-  -> declarative Codex wiring over shared skill/policy packs
 ```
 
 The pattern is the point: a reader should know the job of the artifact before

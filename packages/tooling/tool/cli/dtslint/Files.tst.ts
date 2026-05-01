@@ -1,0 +1,180 @@
+import {
+  type ArchivePoorCandidatesEntry,
+  type ArchivePoorCandidatesManifest,
+  ArchivePoorCandidatesOptions,
+  type ArchivePoorCandidatesSkippedEntry,
+  type ArchivePoorCandidatesSummary,
+  archivePoorCandidates,
+  type CandidateAssessmentDecision,
+  type CandidateAssessmentProfile,
+  type CandidateAssessmentReason,
+  CreateCaptionFilesOptions,
+  type CreateCaptionFilesPlanEntry,
+  type CreateCaptionFilesSkippedEntry,
+  type CreateCaptionFilesSummary,
+  CropBordersOptions,
+  type CropBordersSummary,
+  createCaptionFiles,
+  cropBordersFiles,
+  DetectBordersOptions,
+  type DetectBordersReport,
+  type DetectBordersSkippedEntry,
+  type DetectBordersSummary,
+  detectBordersFiles,
+  type FileSha256Hash,
+  type FilesCommandError,
+  type FilesCommandService,
+  NormalizeFilesOptions,
+  type NormalizeImageFormat,
+  type NormalizeManifest,
+  type NormalizePlanEntry,
+  type NormalizeSkippedEntry,
+  type NormalizeSummary,
+  normalizeFiles,
+} from "@beep/repo-cli/commands/Files/index";
+import type { Effect } from "effect";
+import * as O from "effect/Option";
+import { describe, expect, it } from "tstyche";
+
+describe("Files command", () => {
+  it("returns the create-captions summary through the files service", () => {
+    const options = new CreateCaptionFilesOptions({
+      caption: "trigger token",
+      dir: "./dataset/images",
+      dryRun: true,
+      overwrite: false,
+    });
+
+    expect(createCaptionFiles(options)).type.toBe<
+      Effect.Effect<CreateCaptionFilesSummary, FilesCommandError, FilesCommandService>
+    >();
+  });
+
+  it("keeps create-captions entries JSON-safe", () => {
+    expect<CreateCaptionFilesPlanEntry["captionRelativePath"]>().type.toBe<string>();
+    expect<CreateCaptionFilesPlanEntry["overwritesExisting"]>().type.toBe<boolean>();
+    expect<CreateCaptionFilesSkippedEntry["captionName"]>().type.toBe<string | undefined>();
+    expect<CreateCaptionFilesSkippedEntry["reason"]>().type.toBe<
+      | "caption-exists"
+      | "caption-target-collision"
+      | "caption-target-not-file"
+      | "directory"
+      | "extensionless"
+      | "non-media"
+      | "symlink"
+      | "video"
+    >();
+  });
+
+  it("returns the archive-poor-candidates summary through the files service", () => {
+    const options = new ArchivePoorCandidatesOptions({
+      archiveDir: "./rejected",
+      dir: "./raw",
+      dryRun: true,
+      manifest: O.none(),
+      maxAspect: 3,
+      maxUpscale: 1.5,
+      minShortEdge: 512,
+      overwrite: false,
+      profile: "character-lora",
+      sidecars: "txt",
+      targetResolution: 1024,
+    });
+
+    expect(archivePoorCandidates(options)).type.toBe<
+      Effect.Effect<ArchivePoorCandidatesSummary, FilesCommandError, FilesCommandService>
+    >();
+  });
+
+  it("keeps archive-poor-candidates manifest entries JSON-safe", () => {
+    expect<CandidateAssessmentProfile>().type.toBe<"character-lora">();
+    expect<CandidateAssessmentDecision>().type.toBe<"archive" | "keep">();
+    expect<CandidateAssessmentReason>().type.toBe<
+      "extreme-aspect-ratio" | "short-edge-too-small" | "upscale-too-large"
+    >();
+    expect<ArchivePoorCandidatesManifest["schemaVersion"]>().type.toBe<"beep.files.archive-poor-candidates.v1">();
+    expect<ArchivePoorCandidatesManifest["summary"]["movedSidecarCount"]>().type.toBe<number>();
+    expect<ArchivePoorCandidatesEntry["sourceSizeBytes"]>().type.toBe<string>();
+    expect<ArchivePoorCandidatesEntry["archivePath"]>().type.toBe<string | undefined>();
+    expect<ArchivePoorCandidatesSkippedEntry["reason"]>().type.toBe<
+      "directory" | "extensionless" | "non-media" | "symlink" | "unsupported-image" | "unreadable-image" | "video"
+    >();
+  });
+
+  it("returns the crop-borders summary through the files service", () => {
+    const options = new CropBordersOptions({
+      dir: "./raw",
+      dryRun: true,
+      maxScanPct: 45,
+      minSolidPct: 98.5,
+      minWidthPct: 1,
+      tolerance: 12,
+    });
+
+    expect(cropBordersFiles(options)).type.toBe<
+      Effect.Effect<CropBordersSummary, FilesCommandError, FilesCommandService>
+    >();
+  });
+
+  it("returns the detect-borders report through the files service", () => {
+    const options = new DetectBordersOptions({
+      dir: "./raw",
+      json: true,
+      maxScanPct: 45,
+      minSolidPct: 98.5,
+      minWidthPct: 1,
+      tolerance: 12,
+    });
+
+    expect(detectBordersFiles(options)).type.toBe<
+      Effect.Effect<DetectBordersReport, FilesCommandError, FilesCommandService>
+    >();
+  });
+
+  it("keeps detect-borders report entries JSON-safe", () => {
+    expect<DetectBordersReport["schemaVersion"]>().type.toBe<"beep.files.detect-borders.v1">();
+    expect<DetectBordersSummary["borderedCount"]>().type.toBe<number>();
+    expect<DetectBordersSkippedEntry["reason"]>().type.toBe<
+      "directory" | "extensionless" | "non-media" | "symlink" | "unsupported-image" | "unreadable-image" | "video"
+    >();
+  });
+
+  it("exposes the canonical normalize image formats", () => {
+    expect<NormalizeImageFormat>().type.toBe<"png" | "jpg" | "webp">();
+  });
+
+  it("returns the normalize summary through the files service", () => {
+    const options = new NormalizeFilesOptions({
+      dedupe: true,
+      dir: "./raw",
+      dryRun: true,
+      format: "png",
+      manifest: O.none(),
+      maxLongEdge: O.some(1024),
+      moveDuplicatesTo: O.some("./duplicates"),
+      outDir: "./dataset/images",
+      overwrite: false,
+    });
+
+    expect(normalizeFiles(options)).type.toBe<
+      Effect.Effect<NormalizeSummary, FilesCommandError, FilesCommandService>
+    >();
+  });
+
+  it("keeps normalize manifest entries JSON-safe", () => {
+    expect<NormalizeManifest["schemaVersion"]>().type.toBe<"beep.files.normalize.v1">();
+    expect<NormalizeManifest["summary"]["duplicateCount"]>().type.toBe<number>();
+    expect<NormalizeManifest["summary"]["movedDuplicateCount"]>().type.toBe<number>();
+    expect<NormalizeManifest["options"]["moveDuplicatesTo"]>().type.toBe<string | undefined>();
+    expect<NormalizePlanEntry["outputHash"]>().type.toBe<FileSha256Hash | undefined>();
+    expect<NormalizePlanEntry["sourceSizeBytes"]>().type.toBe<string>();
+    expect<NormalizePlanEntry["outputSizeBytes"]>().type.toBe<string | undefined>();
+    expect<NormalizeSkippedEntry["duplicateOfOutputRelativePath"]>().type.toBe<string | undefined>();
+    expect<NormalizeSkippedEntry["duplicateMovedPath"]>().type.toBe<string | undefined>();
+    expect<NormalizeSkippedEntry["duplicateMovedRelativePath"]>().type.toBe<string | undefined>();
+    expect<NormalizeSkippedEntry["outputHash"]>().type.toBe<FileSha256Hash | undefined>();
+    expect<NormalizeSkippedEntry["reason"]>().type.toBe<
+      "directory" | "duplicate" | "extensionless" | "non-media" | "symlink" | "unsupported-image" | "video"
+    >();
+  });
+});

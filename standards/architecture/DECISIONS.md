@@ -5,6 +5,8 @@ standard. Amend this file when the standard changes.
 
 ## 2026-04-21: Adopt Hexagonal Vertical Slice Architecture
 
+- **Status:** Active
+
 Decision:
 
 beep-effect uses slice package families with domain, use-cases, optional config,
@@ -19,9 +21,12 @@ leaking inward.
 
 ## 2026-04-21: Treat `shared` As A DDD Shared Kernel
 
+- **Status:** Active
+
 Decision:
 
-`packages/shared` is cross-cutting shared kernel language, not a dumping ground.
+The `shared` package family is cross-cutting shared-kernel language, not a
+dumping ground.
 
 Rationale:
 
@@ -29,6 +34,8 @@ Shared code is expensive because every slice can depend on it. It must stay
 small, deliberate, and driver-neutral where possible.
 
 ## 2026-04-21: Add `use-cases` As A Canonical Slice Package
+
+- **Status:** Active
 
 Decision:
 
@@ -41,6 +48,8 @@ product language it implements. Use-cases are the correct application boundary.
 
 ## 2026-04-21: Keep `tables` Canonical
 
+- **Status:** Active
+
 Decision:
 
 `tables` remains a canonical package for product-specific persistence schema and
@@ -52,6 +61,8 @@ Drivers own generic Drizzle/Postgres safety wrappers. Tables own slice-specific
 persistence shape.
 
 ## 2026-04-21: Drivers Own Technical Capability Only
+
+- **Status:** Active
 
 Decision:
 
@@ -66,6 +77,8 @@ names into product topology.
 
 ## 2026-04-21: Use Domain-Kind Folders
 
+- **Status:** Active
+
 Decision:
 
 Domain concepts are grouped by `aggregates/`, `entities/`, and `values/`.
@@ -78,6 +91,8 @@ without flattening everything into one root.
 
 ## 2026-04-21: Use Concept-Qualified Role Suffixes
 
+- **Status:** Active
+
 Decision:
 
 The canonical grammar is:
@@ -88,10 +103,12 @@ The canonical grammar is:
 
 Rationale:
 
-The path tells humans the concept. The role suffix tells agents and reviewers
-what the file may do.
+The path tells readers the concept. The role suffix tells reviewers what the
+file may do.
 
 ## 2026-04-21: Split Access From Policy
+
+- **Status:** Active
 
 Decision:
 
@@ -103,6 +120,8 @@ Rationale:
 domain permits to be true.
 
 ## 2026-04-21: Prefer Hybrid Rich Domain Models
+
+- **Status:** Active
 
 Decision:
 
@@ -116,6 +135,8 @@ handlers, client state, and UI.
 
 ## 2026-04-21: Reduce Runtime God Layers
 
+- **Status:** Active
+
 Decision:
 
 Favor slice-local Layer composition over central runtime packages that merge all
@@ -128,6 +149,8 @@ preserve ownership and reduce cross-slice coupling.
 
 ## 2026-04-21: Keep Codegen And Linting Downstream
 
+- **Status:** Active
+
 Decision:
 
 This standard defines architecture. Repo-cli, codegen, codemods, package
@@ -138,6 +161,9 @@ Rationale:
 The architecture needs to be clear before enforcement is designed.
 
 ## 2026-04-21: Restrict Client-Safe Use-Case Imports
+
+- **Status:** Superseded
+- **Superseded-by:** [2026-04-23: Make Boundary-Sensitive Export Subpaths Canonical](#2026-04-23-make-boundary-sensitive-export-subpaths-canonical)
 
 Decision:
 
@@ -157,6 +183,8 @@ server-only orchestration or infrastructure contracts.
 
 ## 2026-04-21: Put Protocol Declarations In `use-cases`
 
+- **Status:** Active
+
 Decision:
 
 Use-case `.http.ts`, `.rpc.ts`, `.tools.ts`, and `.cluster.ts` files define
@@ -168,12 +196,14 @@ Rationale:
 The application boundary should own command/query and protocol language without
 owning the runtime side effects that execute that language.
 
-## 2026-04-22: Add `config` As A Canonical Optional Slice Package
+## 2026-04-22: Add `config` As An Optional Canonical-Shape Slice Package
+
+- **Status:** Active
 
 Decision:
 
-`config` is the canonical optional package kind for typed slice configuration.
-Package names use `@beep/<slice>-config` and `@beep/shared-config`.
+`config` is the optional canonical-shape package kind for typed slice configuration.
+Package names use `@beep/<slice>-config` and `@beep/<kernel>-config`.
 
 Rationale:
 
@@ -184,11 +214,13 @@ leaking runtime reads into domain code.
 
 ## 2026-04-22: Treat `env` Package Naming As Legacy
 
+- **Status:** Active
+
 Decision:
 
 `env` is source vocabulary, not architecture topology. Existing package names
-such as `@beep/shared-env` and paths such as `packages/shared/env` should migrate
-to `@beep/shared-config` and `packages/shared/config`.
+such as `@beep/<kernel>-env` and paths such as `packages/<kernel>/config` should migrate
+to `@beep/<kernel>-config` and `packages/<kernel>/config`.
 
 Rationale:
 
@@ -197,6 +229,8 @@ packages after config preserves the Effect `Config` abstraction and allows other
 `ConfigProvider` sources.
 
 ## 2026-04-22: Keep Driver Config Driver-Local
+
+- **Status:** Active
 
 Decision:
 
@@ -213,6 +247,8 @@ technical config driver-local preserves the driver boundary.
 
 ## 2026-04-23: Recast Provider Packages As Repo-Level Drivers
 
+- **Status:** Active
+
 Decision:
 
 Third-party dev-safe wrappers live in flat repo-level drivers under
@@ -227,10 +263,12 @@ and keep `shared` focused on cross-slice product semantics.
 
 ## 2026-04-23: Driver Packages Use Short Capability Names
 
+- **Status:** Active
+
 Decision:
 
 Driver packages use short public names such as `@beep/drizzle`,
-`@beep/postgres`, and `@beep/firecrawl`.
+`@beep/postgres`, and `@beep/<driver>`.
 
 Rationale:
 
@@ -239,6 +277,9 @@ The driver role is already visible from the canonical root
 without adding clarity.
 
 ## 2026-04-23: Add Explicit Non-Slice Artifact Families
+
+- **Status:** Superseded
+- **Superseded by:** [2026-05-01: Retire Assistant Bundles From Architecture](#2026-05-01-retire-assistant-bundles-from-architecture)
 
 Decision:
 
@@ -259,6 +300,9 @@ still need topology that compresses context for humans and agents. Naming
 families explicitly prevents generic buckets from becoming junk drawers.
 
 ## 2026-04-23: Give Every Non-Slice Artifact A Family And, When Applicable, A Kind
+
+- **Status:** Superseded
+- **Superseded by:** [2026-05-01: Retire Assistant Bundles From Architecture](#2026-05-01-retire-assistant-bundles-from-architecture)
 
 Decision:
 
@@ -293,6 +337,8 @@ expectations visible from the path and machine-readable in metadata, while
 
 ## 2026-04-23: Allow `shared/use-cases` As A High-Bar Shared-Kernel Exception
 
+- **Status:** Active
+
 Decision:
 
 `shared/use-cases` is canonical only as a high-bar shared-kernel exception. It
@@ -313,6 +359,9 @@ shared must stay small and must not become a runtime/orchestration bucket.
 
 ## 2026-04-23: Make Boundary-Sensitive Export Subpaths Canonical
 
+- **Status:** Active
+- **Supersedes:** [2026-04-21: Restrict Client-Safe Use-Case Imports](#2026-04-21-restrict-client-safe-use-case-imports)
+
 Decision:
 
 Boundary-sensitive packages publish explicit canonical subpaths:
@@ -326,7 +375,7 @@ For `use-cases`, `/public` is the client-safe application contract surface and
 `shared/use-cases` exception uses the same names but remains narrower than slice
 `use-cases`.
 
-Required subpaths are required names when that role exists, not a requirement
+Canonical subpath names are required names when that role exists, not a requirement
 to publish placeholder exports. Package roots and `./*` wildcard exports may
 remain during migration, but they are transitional only.
 
@@ -336,6 +385,8 @@ Explicit subpaths make browser/server safety visible in imports and let the
 target doctrine coexist with migration-era root exports.
 
 ## 2026-04-23: Keep Live Application Layer Composition Out Of `use-cases`
+
+- **Status:** Active
 
 Decision:
 
@@ -356,21 +407,25 @@ with top-level application entrypoints composing those boundaries.
 
 ## 2026-04-23: Use Semantic Foundation Names And Repo-Scoped Tooling Names
 
+- **Status:** Active
+
 Decision:
 
 Foundation packages use semantic public names such as `@beep/schema`,
 `@beep/identity`, and `@beep/ui`. Driver packages use short capability names
 such as `@beep/drizzle` and `@beep/postgres`. Tooling packages use repo-scoped
-public names such as `@beep/repo-cli` and `@beep/repo-configs`. Agent bundles
-are path-identified repo-local artifacts, not workspace packages.
+public names such as `@beep/repo-cli` and `@beep/repo-configs`.
 
 Rationale:
 
 Foundation packages are reusable substrate and should read cleanly in imports.
 Tooling packages are repo-operational by design and should advertise that role
-in their names. Agent bundles are content artifacts rather than libraries.
+in their names.
 
 ## 2026-04-23: Keep Agent Content Portable And Runtime Wiring Declarative
+
+- **Status:** Superseded
+- **Superseded by:** [2026-05-01: Retire Assistant Bundles From Architecture](#2026-05-01-retire-assistant-bundles-from-architecture)
 
 Decision:
 
@@ -392,6 +447,8 @@ the content itself.
 
 ## 2026-04-23: Ban Script-Only Pseudo-Packages As A Canonical Pattern
 
+- **Status:** Active
+
 Decision:
 
 Script-only pseudo-packages are not a canonical architecture style. Repo-wide
@@ -401,5 +458,245 @@ with explicit topology and entrypoints.
 Rationale:
 
 If a package matters enough to be named in the architecture, it should have a
-real role contract that humans and agents can infer from structure instead of a
+real role contract that readers can infer from structure instead of a
 single `package.json` full of scripts.
+
+## 2026-04-27: Split Postgres And Drizzle Drivers From Product Repositories
+
+- **Status:** Active
+
+Decision:
+
+Production database capability is composed from specific driver packages, not a
+generic shared-server database bucket:
+
+- `packages/drivers/postgres` publishes `@beep/postgres` with
+  `PostgresClient.makeLayer`, `PostgresError`, SQLSTATE diagnostics, SQL
+  formatting, Drizzle Effect Postgres composition, and migrations;
+- `packages/drivers/drizzle` publishes `@beep/drizzle` with
+  `Drizzle.makeLayer` and `DrizzleError`.
+- The old placeholder `@beep/pglite` driver package is deleted. PGLite remains
+  only as a test-harness implementation in `@beep/test-utils`, not as a
+  first-class production driver package.
+
+`@beep/drizzle` exposes its root driver API directly, for example
+`import { Drizzle, DrizzleError } from "@beep/drizzle"`. `DrizzleError` is the
+only public Drizzle driver error. It is technical and operation-scoped, carrying
+`operation`, optional `cause`, and optional query context when native Drizzle
+errors expose it. The drifted `DrizzleProviderError`, `ProviderError`,
+`ORMError`, and `QueryError` surfaces are rejected.
+
+`PostgresError` follows the same technical, operation-scoped rule and may
+include SQLSTATE, constraint, source-location, and formatted-query diagnostics
+when known. Those diagnostics support logging and translation; they are not
+product application errors.
+
+`Drizzle.makeLayer(client)` accepts a narrow product-neutral Drizzle adapter.
+Runtime composition decides whether that adapter is backed by Postgres or some
+other database runtime. Transaction APIs use explicit Effect-native
+`withTransaction` callbacks and do not use ambient transaction context.
+
+Server-side product repositories translate driver errors into product-named
+repository or application errors. Use-case ports never expose Drizzle or
+Postgres driver errors directly.
+
+The following legacy/shared abstractions are rejected for this architecture
+slice:
+
+- `Db.make`
+- `DbClient.make`
+- shared-domain `DatabaseError`
+- shared-server `DbRepo.make`
+- `@beep/pglite` as a production driver package
+- `DrizzleProviderError`
+- `ProviderError`
+- `ORMError`
+- `QueryError`
+
+`DbRepo.make` is not ported. A successor is deferred until at least two real
+repositories prove repeated boilerplate. Prefer a tooling generator or template
+over a runtime factory unless live code proves that a runtime helper is simpler.
+
+PGLite-specific tooling may stay in the test utility harness while it remains
+useful for integration tests. That test harness does not imply a production
+`@beep/pglite` package or a second database-driver doctrine.
+
+Rationale:
+
+The architecture already treats drivers as repo-level technical capability and
+server packages as product adapter owners. A generic `Db` facade would blur that
+boundary and make shared/server look like an infrastructure runtime. Specific
+driver names keep imports honest, make error translation explicit, and let the
+first real repositories drive any helper extraction with evidence.
+
+## 2026-04-27: Keep Shared Entity Metadata In The Shared Kernel
+
+- **Status:** Active
+
+Decision:
+
+The product-facing shared entity vocabulary (`BaseEntity`, `EntityId`,
+`EntityRef`, `Principal`, and source-kind vocabulary) remains in
+`@beep/shared-domain` while it encodes shared product semantics: tenant
+organization scoping, actor provenance, source facets, schema versioning, and
+row versioning.
+
+The generic persistence kernel belongs in `@beep/schema/EntitySchema`.
+Persisted entities are schema classes whose decoded side is domain language and
+whose encoded side is the persistence row shape. Entity-specific `.model.ts`
+files inline rich `fields` and storage-neutral `persisted` descriptors together
+so the domain shape, encoded shape, and persistence metadata drift at compile
+time instead of through parallel mapping files.
+
+`BaseEntity.Class` is the approved shared product class factory for invariant
+entity fields. It composes shared product invariants into concrete entity
+schemas, but it does not own the generic SQL projection.
+
+`@beep/drizzle/EntityTable.pgTableFrom` is the approved generic table
+projection for schema-first entity classes. Shared table packages may use it to
+publish metadata-only Drizzle table definitions for shared product tables, but
+they do not own live database execution, transactions, repository helpers,
+migrations, seeders, or driver runtime capability.
+
+The old `EntityMixin` and `@beep/shared-tables/table/Table.make` APIs are
+retired and should be deleted/replaced instead of migrated forward.
+
+Rationale:
+
+The Organization proof needs one deliberately shared entity concept whose
+`orgId` tenant field, actor fields, entity-id metadata, schema metadata, and
+table metadata stay consistent across shared-domain, shared-tables, and shared
+UI. Splitting the generic kernel into foundation modeling and the Drizzle
+projection into the driver package keeps product language pure while avoiding a
+parallel domain-to-table mapping layer.
+
+## 2026-05-01: Add Enforcement Lanes And Rough-Edge Refinements
+
+- **Status:** Active
+
+Decision:
+
+The architecture standard now classifies high-risk rules with four enforcement
+lanes:
+
+- `Doctrine`
+- `Generated Default`
+- `Review Gate`
+- `Hard Check`
+
+This is a docs-only refinement. It does not implement generators, lint rules,
+import-boundary checks, package metadata checks, or code migrations.
+
+The refinement also locks the following doctrine:
+
+- `foundation/capability` remains canonical but must pass specific-home-first
+  routing plus a negative gate and proof.
+- Meaningful high-bar `shared/*` exports require promotion records in the
+  affected package README.
+- `shared/use-cases` remains strict contract-only and does not own workflows,
+  process managers, schedulers, handlers, concrete adapters, driver imports, or
+  live Layers.
+- New slices grow by incremental spine. New packages require a concrete role
+  plus meaningful exported behavior, contract, adapter, config surface, or test
+  fixture.
+- App-level Layer composition may use app-local helpers such as
+  `apps/<app>/src/runtime/Layer.ts`, but only for composition over public
+  slice/package boundaries.
+- The God Layer rejection test is Boundary + Ownership: app/runtime composition
+  must not reach into private slice internals or own cross-slice policy,
+  handlers, repositories, schedules, workflows, or orchestration.
+- Migration language uses five buckets: `Target Doctrine`, `Transitional
+  Compatibility`, `Cleanup-On-Touch`, `Forbidden In New Work`, and `Pending
+  Automation/Generator Support`.
+- Browser capability routing is platform-first: browser platform wrappers go to
+  drivers with explicit `/browser` entrypoints, product-agnostic React
+  ergonomics go to `foundation/ui-system`, and product-specific behavior stays
+  in slice `client` or `ui`.
+
+Rationale:
+
+The architecture had strong direction but several social constraints were too
+soft: "high bar", "avoid God Layers", target-first migration, and
+`foundation/capability` all needed operational tests. The refinement preserves
+the target doctrine while naming what belongs in future generators, future hard
+checks, and present-day review gates.
+
+## 2026-05-01: Lock Strict Action Errors And Fixture-First Proof
+
+- **Status:** Active
+
+Decision:
+
+The architecture now treats public use-case errors as action-level failures
+only. Driver/internal failures die in adapters, port failures die in use-case
+orchestration, and public action failures die in protocol handlers. Port errors
+may be declared in use-case packages, but they are server-only and do not cross
+the public use-case API.
+
+The executable proof target is `packages/fixture-lab/specimen`. It must remain
+the first place we prove boundary subpaths, package shape, and port-to-action
+error translation before broad repo automation or generator work expands the
+pattern.
+
+The refinement also locks:
+
+- `shared/use-cases` product ports are ultra-high-bar exceptions, even inside
+  the high-bar shared-use-cases exception.
+- Scratchpad and explicitly temporary `_internal` package experiments are valid
+  learning lanes, but product packages must not import them and promotion must
+  re-enter through the smallest legal slice shape.
+- Protocol spans may be request trace roots; use-case spans are architectural
+  roots inside them. Observability attributes must stay bounded and avoid PII,
+  secrets, raw input, and large payloads.
+
+Rationale:
+
+The previous doctrine had the right direction, but "application errors" and
+"port errors" were too easy to blur. A strict action-error boundary makes
+client, handler, and use-case signatures easier to reason about and gives tests
+one precise thing to prove. Keeping the proof fixture-first avoids turning
+architecture prose into a wish list.
+
+## 2026-05-01: Retire Assistant Bundles From Architecture
+
+- **Status:** Active
+- **Supersedes:**
+  - [2026-04-23: Add Explicit Non-Slice Artifact Families](#2026-04-23-add-explicit-non-slice-artifact-families)
+  - [2026-04-23: Give Every Non-Slice Artifact A Family And, When Applicable, A Kind](#2026-04-23-give-every-non-slice-artifact-a-family-and-when-applicable-a-kind)
+  - [2026-04-23: Keep Agent Content Portable And Runtime Wiring Declarative](#2026-04-23-keep-agent-content-portable-and-runtime-wiring-declarative)
+
+Decision:
+
+Assistant runtime configuration is no longer an architecture family, package
+family, or topology taxonomy in this repo. The canonical non-slice families are
+now only:
+
+- `foundation` for domain-agnostic reusable substrate
+- `drivers` for flat repo-level external boundary wrappers
+- `tooling` for developer-operational code packages
+
+Runtime-specific assistant files may exist only as normal harness-native
+configuration, such as Claude project settings or skills. They are not
+workspace packages, do not carry `beep` family/kind metadata, and are not part
+of the package dependency model.
+
+Rationale:
+
+Claude, Codex, and similar harnesses are changing faster than this repo should
+architect around. Treating their project configuration as first-class repo
+architecture created extra maintenance without improving product boundaries.
+The architecture should describe durable code ownership; harness configuration
+should stay minimal, runtime-native, and easy to delete.
+
+## Known Unknowns
+
+Areas the doctrine does not yet cover and which the authors expect to revise as the architecture is load-tested:
+
+- **Testing strategy.** Doc `08-testing.md` codifies slice-isolation testing, port stubs via `Layer.mock`, fixture ownership, and contract tests between use-cases and server adapters. The doctrine has not yet been load-tested against a real refactor; first contact with a non-trivial slice may surface gaps in the fixture-ownership and contract-test rules.
+- **Cross-slice coordination.** Doc `10-cross-slice-coordination.md` codifies workflow / saga / process-manager governance, event contracts in `shared/use-cases`, and the God Process Manager anti-pattern. The open question is how the rules hold up the first time a real workflow needs to span three or more slices with partial-failure semantics.
+- **Evolution and deprecation.** Doc `11-evolution-and-deprecation.md` codifies slice retirement, `shared/use-cases` versioning, port deprecation, and feature-flag lifetime. The deprecation-window durations and the five-step retirement procedure are unproven; the first real slice retirement will tell us whether the windows are realistic and whether the DECISIONS-entry requirement creates useful pressure or just paperwork.
+- **Observability conventions.** Doc `12-observability.md` codifies span naming, attribute conventions, the logging-vs-tracing-vs-Console split, and slice boundaries as span boundaries. The open question is whether the span/attribute namespacing survives contact with a real distributed trace across three or more slices, and whether the conventions need adjustment once a tracer backend is wired up end-to-end.
+- **Error translation across boundaries.** Doc `09-errors-across-boundaries.md` codifies who translates, where translation lives, and the canonical translator function shape. The fixture proves port-to-action translation; the doctrine has not yet been exercised against a real driver-to-port adapter path. The first non-trivial adapter will tell us whether the translator placement rules are precise enough or need a worked example per boundary kind.
+- **Promotion record enforcement.** Records are required by doctrine; lint enforcement (`lint:promotion-records`) is planned but not yet implemented.
+
+Pull requests revising these areas should append entries here documenting the decision and removing the corresponding "planned" line.

@@ -1,37 +1,63 @@
 /**
- * Organization domain model.
+ * Shared-kernel Organization entity model.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
-import { $SharedDomainId } from "@beep/identity";
-import { DomainModel } from "@beep/schema/DomainModel";
-import * as M from "@beep/schema/Model";
-import { Shared } from "../../entity-ids/index.ts";
+import { $SharedDomainId } from "@beep/identity/packages";
+import { Slug } from "@beep/schema";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
+import * as S from "effect/Schema";
+import * as Shared from "../../identity/Shared.js";
+import { LicenseTier, Settings } from "./Organization.values.js";
 
 const $I = $SharedDomainId.create("entities/Organization/Organization.model");
 
 /**
- * Persisted organization model.
+ * Shared-kernel Organization entity schema.
  *
  * @example
  * ```ts
- * import { Model } from "@beep/shared-domain/entities/Organization/Organization.model"
+ * import { Organization } from "@beep/shared-domain/entities"
  *
- * const schema = Model
- *
- * void schema
+ * console.log(Organization.Model.definition.entityId.tableName)
  * ```
  *
+ * @category models
  * @since 0.0.0
- * @category domain model
  */
-export class Model extends DomainModel.extend<Model, typeof DomainModel>($I`OrganizationModel`)(
+export class Model extends BaseEntity.Class<Model>($I`Model`)(
+  Shared.OrganizationId,
   {
-    id: M.Generated(Shared.OrganizationId),
+    fields: {
+      legalName: S.NonEmptyString,
+      licenseTier: LicenseTier,
+      name: S.NonEmptyString,
+      parentOrgId: EntitySchema.entityId(Shared.OrganizationId).pipe(S.OptionFromNullOr),
+      settings: Settings,
+      slug: Slug,
+    },
+    persisted: {
+      legalName: EntitySchema.persist.text({
+        columnName: "legal_name",
+      }),
+      licenseTier: EntitySchema.persist.literal({
+        columnName: "license_tier",
+        indexHints: [EntitySchema.IndexHint.lookup],
+      }),
+      name: EntitySchema.persist.text(),
+      parentOrgId: EntitySchema.persist.entityId({
+        columnName: "parent_org_id",
+      }),
+      settings: EntitySchema.persist.jsonb(),
+      slug: EntitySchema.persist.text({
+        indexHints: [EntitySchema.IndexHint.unique],
+      }),
+    },
   },
-  $I.annote("OrganizationModel", {
-    description: "The Organization model",
+  $I.annote("Model", {
+    description: "Shared-kernel organization entity used as the tenant root concept.",
   })
 ) {}

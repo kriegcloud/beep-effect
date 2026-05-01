@@ -6,7 +6,7 @@
     "callbackFinding": "AST + typechecker: function-typed callback arg for Effect.flatMap/Effect.andThen not wrapped by Effect.fn/Effect.fnUntraced (or local wrapped identifier)"
   },
   "totals": {
-    "workspacePackages": 42,
+    "workspacePackages": 19,
     "findings": 0,
     "packagesWithFindings": 0,
     "byKind": {
@@ -16,42 +16,6 @@
     }
   },
   "packages": [
-    {
-      "package": ".claude",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": ".codex",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "apps/desktop",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "apps/editor-app",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
     {
       "package": "infra",
       "findings": [],
@@ -71,7 +35,7 @@
       }
     },
     {
-      "package": "packages/common/chalk",
+      "package": "packages/foundation/capability/chalk",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -80,7 +44,7 @@
       }
     },
     {
-      "package": "packages/common/colors",
+      "package": "packages/foundation/capability/colors",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -89,7 +53,7 @@
       }
     },
     {
-      "package": "packages/common/data",
+      "package": "packages/foundation/primitive/data",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -98,7 +62,7 @@
       }
     },
     {
-      "package": "packages/common/identity",
+      "package": "packages/foundation/modeling/identity",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -107,7 +71,7 @@
       }
     },
     {
-      "package": "packages/common/messages",
+      "package": "packages/foundation/modeling/messages",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -116,7 +80,7 @@
       }
     },
     {
-      "package": "packages/common/nlp",
+      "package": "packages/foundation/capability/nlp",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -125,7 +89,7 @@
       }
     },
     {
-      "package": "packages/common/observability",
+      "package": "packages/foundation/capability/observability",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -134,7 +98,7 @@
       }
     },
     {
-      "package": "packages/common/schema",
+      "package": "packages/foundation/modeling/schema",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -143,7 +107,7 @@
       }
     },
     {
-      "package": "packages/common/semantic-web",
+      "package": "packages/foundation/capability/semantic-web",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -152,7 +116,7 @@
       }
     },
     {
-      "package": "packages/common/types",
+      "package": "packages/foundation/primitive/types",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -161,7 +125,7 @@
       }
     },
     {
-      "package": "packages/common/ui",
+      "package": "packages/foundation/ui-system/ui",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -170,7 +134,7 @@
       }
     },
     {
-      "package": "packages/common/utils",
+      "package": "packages/foundation/modeling/utils",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -179,7 +143,7 @@
       }
     },
     {
-      "package": "packages/editor/client",
+      "package": "packages/tooling/tool/cli",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -188,7 +152,7 @@
       }
     },
     {
-      "package": "packages/editor/domain",
+      "package": "packages/tooling/policy-pack/repo-configs",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -197,7 +161,7 @@
       }
     },
     {
-      "package": "packages/editor/lexical",
+      "package": "packages/tooling/tool/docgen",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -206,7 +170,7 @@
       }
     },
     {
-      "package": "packages/editor/protocol",
+      "package": "packages/tooling/library/repo-utils",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -215,178 +179,7 @@
       }
     },
     {
-      "package": "packages/editor/runtime",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/repo-memory/client",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/repo-memory/model",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/repo-memory/runtime",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/repo-memory/sqlite",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/repo-memory/store",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/runtime/protocol",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/runtime/server",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/shared/client",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/shared/config",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/shared/domain",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/shared/providers/firecrawl",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/shared/server",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/shared/tables",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "packages/shared/ui",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "tooling/cli",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "tooling/configs",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "tooling/docgen",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "tooling/repo-utils",
-      "findings": [],
-      "counts": {
-        "effectFnOpportunity": 0,
-        "flatMapCallback": 0,
-        "andThenCallback": 0
-      }
-    },
-    {
-      "package": "tooling/test-utils",
+      "package": "packages/tooling/test-kit/test-utils",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,

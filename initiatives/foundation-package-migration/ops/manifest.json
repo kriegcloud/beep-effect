@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "initiative": "foundation-package-migration",
+  "sourceRoot": "packages/common",
+  "targetRoot": "packages/foundation",
+  "preservePublicPackageNames": true,
+  "moves": [
+    {
+      "package": "@beep/types",
+      "from": "packages/common/types",
+      "to": "packages/foundation/primitive/types",
+      "kind": "primitive"
+    },
+    {
+      "package": "@beep/data",
+      "from": "packages/common/data",
+      "to": "packages/foundation/primitive/data",
+      "kind": "primitive"
+    },
+    {
+      "package": "@beep/messages",
+      "from": "packages/common/messages",
+      "to": "packages/foundation/modeling/messages",
+      "kind": "modeling"
+    },
+    {
+      "package": "@beep/identity",
+      "from": "packages/common/identity",
+      "to": "packages/foundation/modeling/identity",
+      "kind": "modeling"
+    },
+    {
+      "package": "@beep/utils",
+      "from": "packages/common/utils",
+      "to": "packages/foundation/modeling/utils",
+      "kind": "modeling"
+    },
+    {
+      "package": "@beep/schema",
+      "from": "packages/common/schema",
+      "to": "packages/foundation/modeling/schema",
+      "kind": "modeling"
+    },
+    {
+      "package": "@beep/colors",
+      "from": "packages/common/colors",
+      "to": "packages/foundation/capability/colors",
+      "kind": "capability"
+    },
+    {
+      "package": "@beep/chalk",
+      "from": "packages/common/chalk",
+      "to": "packages/foundation/capability/chalk",
+      "kind": "capability"
+    },
+    {
+      "package": "@beep/md",
+      "from": "packages/common/md",
+      "to": "packages/foundation/capability/md",
+      "kind": "capability"
+    },
+    {
+      "package": "@beep/semantic-web",
+      "from": "packages/common/semantic-web",
+      "to": "packages/foundation/capability/semantic-web",
+      "kind": "capability"
+    },
+    {
+      "package": "@beep/nlp",
+      "from": "packages/common/nlp",
+      "to": "packages/foundation/capability/nlp",
+      "kind": "capability"
+    },
+    {
+      "package": "@beep/observability",
+      "from": "packages/common/observability",
+      "to": "packages/foundation/capability/observability",
+      "kind": "capability"
+    },
+    {
+      "package": "@beep/ui",
+      "from": "packages/common/ui",
+      "to": "packages/foundation/ui-system/ui",
+      "kind": "ui-system"
+    }
+  ]
+}

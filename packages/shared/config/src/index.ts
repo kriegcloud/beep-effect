@@ -1,23 +1,21 @@
 /**
- * \@beep/shared-config
+ * Shared config role package.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Current package version.
+ * Shared config package version.
  *
  * @example
  * ```ts
  * import { VERSION } from "@beep/shared-config"
  *
- * const version = VERSION
- * void version
+ * console.log(VERSION)
  * ```
  *
- * @category utilities
  * @since 0.0.0
+ * @category configuration
  */
 export const VERSION = "0.0.0" as const;
-// bench

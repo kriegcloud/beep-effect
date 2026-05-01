@@ -1,0 +1,66 @@
+{
+  "name": "@beep/drizzle",
+  "version": "0.0.0",
+  "description": "Driver-level Drizzle capability wrapper for product-neutral database execution.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/drizzle",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/drivers/drizzle"
+  },
+  "beep": {
+    "family": "drivers"
+  },
+  "scripts": {
+    "audit": "bun run --if-present beep:audit",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+    "beep:build": "tsc -b tsconfig.json && bun run babel",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "beep:test": "TESTCONTAINERS_RYUK_DISABLED=true bunx --bun vitest run --passWithNoTests",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "coverage": "bunx --bun vitest run --coverage --passWithNoTests --exclude=test/integration/**",
+    "docgen": "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
+    }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/test-utils": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

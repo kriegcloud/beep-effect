@@ -1,6 +1,6 @@
 # Documentation Rule Capability Audit
 
-Generated: 2026-04-05T03:14:49.850Z
+Generated: 2026-04-27T06:50:15.813Z
 
 | Rule | Classification | Current support surface | Evidence |
 | --- | --- | --- | --- |

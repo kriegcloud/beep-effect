@@ -1,0 +1,139 @@
+/**
+ * Local JSON-LD streaming serialize adapter backing.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ * @packageDocumentation
+ */
+
+import { NonNegativeInt } from "@beep/schema";
+import { Effect, Layer, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { JsonLdDocument } from "../jsonld.ts";
+import { type JsonLdDocumentError, JsonLdDocumentService, JsonLdFromRdfRequest } from "../services/jsonld-document.ts";
+import {
+  JsonLdStreamSerializeError,
+  JsonLdStreamSerializeResult,
+  JsonLdStreamSerializeService,
+  type JsonLdStreamSerializeServiceShape,
+} from "../services/jsonld-stream-serialize.ts";
+
+const encodeJsonLdDocumentToJson = S.encodeEffect(S.fromJsonString(JsonLdDocument));
+
+const decodeNonNegativeInt = (value: number): Effect.Effect<typeof NonNegativeInt.Type, JsonLdStreamSerializeError> =>
+  S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
+    Effect.mapError(
+      (cause) =>
+        new JsonLdStreamSerializeError({
+          reason: "serializeFailure",
+          message: `Failed to decode JSON-LD stream chunk count: ${String(cause)}`,
+        })
+    )
+  );
+
+const chunkText = (value: string, maxChunkCharacters: O.Option<number>): ReadonlyArray<string> => {
+  if (O.isNone(maxChunkCharacters)) {
+    return [value];
+  }
+
+  if (maxChunkCharacters.value <= 0) {
+    return [];
+  }
+
+  const chunks: Array<string> = [];
+  let offset = 0;
+  while (offset < value.length) {
+    chunks.push(value.slice(offset, offset + maxChunkCharacters.value));
+    offset += maxChunkCharacters.value;
+  }
+
+  return chunks;
+};
+
+const mapDocumentErrorToSerializeError = (error: JsonLdDocumentError): JsonLdStreamSerializeError =>
+  new JsonLdStreamSerializeError({
+    reason: "serializeFailure",
+    message: error.message,
+  });
+
+/**
+ * JSON-LD streaming serialize service live layer.
+ *
+ * @example
+ * ```ts
+ * import { JsonLdStreamSerializeServiceLive } from "@beep/semantic-web/adapters/jsonld-stream-serialize"
+ *
+ * void JsonLdStreamSerializeServiceLive
+ * ```
+ *
+ * @since 0.0.0
+ * @category layers
+ */
+export const JsonLdStreamSerializeServiceLive = Layer.effect(
+  JsonLdStreamSerializeService,
+  Effect.gen(function* () {
+    const documentService = yield* JsonLdDocumentService;
+
+    return JsonLdStreamSerializeService.of({
+      serialize: Effect.fn(function* (request) {
+        const maxChunkCharacters = request.maxChunkCharacters;
+        if (O.isSome(maxChunkCharacters) && maxChunkCharacters.value <= 0) {
+          return yield* new JsonLdStreamSerializeError({
+            reason: "invalidChunkSize",
+            message: "maxChunkCharacters must be greater than zero when provided.",
+          });
+        }
+
+        const document = yield* pipe(
+          documentService.fromRdf(
+            JsonLdFromRdfRequest.make({
+              dataset: request.dataset,
+              context: request.context,
+            })
+          ),
+          Effect.mapError(mapDocumentErrorToSerializeError)
+        );
+
+        const documentText = yield* encodeJsonLdDocumentToJson(document.document).pipe(
+          Effect.mapError(
+            (cause) =>
+              new JsonLdStreamSerializeError({
+                reason: "serializeFailure",
+                message: `Unable to encode bounded JSON-LD document output: ${String(cause)}`,
+              })
+          )
+        );
+        const chunks = pipe(chunkText(documentText, maxChunkCharacters), A.fromIterable);
+        const nonEmptyChunks = pipe(
+          chunks,
+          A.filter((chunk) => chunk.length > 0)
+        );
+
+        return yield* pipe(
+          nonEmptyChunks,
+          A.match({
+            onEmpty: () =>
+              Effect.fail(
+                new JsonLdStreamSerializeError({
+                  reason: "serializeFailure",
+                  message: "Unable to produce JSON-LD output chunks from the bounded dataset.",
+                })
+              ),
+            onNonEmpty: Effect.fn("JsonLdStreamSerializeService.serialize.nonEmptyChunks")(function* ([
+              firstChunk,
+              ...restChunks
+            ]) {
+              return JsonLdStreamSerializeResult.make({
+                chunks: [firstChunk, ...restChunks],
+                mode: "buffered-fallback",
+                chunkCount: yield* decodeNonNegativeInt(nonEmptyChunks.length),
+              });
+            }),
+          })
+        );
+      }),
+    } satisfies JsonLdStreamSerializeServiceShape);
+  })
+);

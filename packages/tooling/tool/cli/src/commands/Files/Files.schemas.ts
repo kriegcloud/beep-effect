@@ -1,0 +1,1781 @@
+/**
+ * Schema models for dataset file curation commands.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import { Effect } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+
+const $I = $RepoCliId.create("commands/Files/Files.schemas");
+
+/**
+ * Positive media dimension schema.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const PositiveMediaDimension = S.Int.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThan(0, {
+        identifier: $I`PositiveMediaDimensionGreaterThanZeroCheck`,
+        title: "Positive Media Dimension",
+        description: "A media width or height must be greater than zero.",
+        message: "Expected a positive media dimension",
+      }),
+    ],
+    {
+      identifier: $I`PositiveMediaDimensionChecks`,
+      title: "Positive Media Dimension",
+      description: "Checks for positive integer media dimensions.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("PositiveMediaDimension", {
+    description: "A positive integer width or height reported by a media probe.",
+  })
+);
+
+/**
+ * Positive media dimension value.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PositiveMediaDimension = typeof PositiveMediaDimension.Type;
+
+/**
+ * SHA-256 hash recorded for normalized file bytes.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const FileSha256Hash = S.String.check(
+  S.isPattern(/^sha256:[a-f0-9]{64}$/, {
+    identifier: $I`FileSha256HashPatternCheck`,
+    title: "File SHA-256 Hash",
+    description: "A file content hash must use the sha256:<64 lowercase hex digits> format.",
+    message: "Expected a SHA-256 file hash",
+  })
+).pipe(
+  $I.annoteSchema("FileSha256Hash", {
+    description: "A SHA-256 digest for exact file-byte duplicate detection.",
+  })
+);
+
+/**
+ * SHA-256 hash recorded for normalized file bytes.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type FileSha256Hash = typeof FileSha256Hash.Type;
+
+/**
+ * Non-negative pixel offset schema.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const NonNegativePixelOffset = S.Int.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`NonNegativePixelOffsetGreaterThanOrEqualToZeroCheck`,
+        title: "Non-negative Pixel Offset",
+        description: "A crop offset must be greater than or equal to zero.",
+        message: "Expected a non-negative pixel offset",
+      }),
+    ],
+    {
+      identifier: $I`NonNegativePixelOffsetChecks`,
+      title: "Non-negative Pixel Offset",
+      description: "Checks for non-negative integer pixel offsets.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("NonNegativePixelOffset", {
+    description: "A non-negative integer crop offset.",
+  })
+);
+
+/**
+ * Non-negative pixel offset value.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type NonNegativePixelOffset = typeof NonNegativePixelOffset.Type;
+
+/**
+ * Media kind schema for selected dataset files.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const MediaKind = LiteralKit(["image", "video"] as const).pipe(
+  $I.annoteSchema("MediaKind", {
+    description: "The media probing strategy used for a selected file.",
+  })
+);
+
+/**
+ * Media kind for selected dataset files.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type MediaKind = typeof MediaKind.Type;
+
+/**
+ * Image extension schema supported by metadata stripping.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SupportedMetadataImageExtension = LiteralKit([
+  "avif",
+  "jpeg",
+  "jpg",
+  "png",
+  "tif",
+  "tiff",
+  "webp",
+] as const).pipe(
+  $I.annoteSchema("SupportedMetadataImageExtension", {
+    description: "Image file extensions that the metadata-strip command normalizes through sharp.",
+  })
+);
+
+/**
+ * Image extension supported by metadata stripping.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SupportedMetadataImageExtension = typeof SupportedMetadataImageExtension.Type;
+
+/**
+ * CLI image format accepted by `files normalize`.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const NormalizeImageFormatInput = LiteralKit(["png", "jpg", "jpeg", "webp"] as const).pipe(
+  $I.annoteSchema("NormalizeImageFormatInput", {
+    description: "Image output format accepted by the normalize command.",
+  })
+);
+
+/**
+ * CLI image format accepted by `files normalize`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type NormalizeImageFormatInput = typeof NormalizeImageFormatInput.Type;
+
+/**
+ * Canonical image output format emitted by `files normalize`.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const NormalizeImageFormat = LiteralKit(["png", "jpg", "webp"] as const).pipe(
+  $I.annoteSchema("NormalizeImageFormat", {
+    description: "Canonical image output format emitted by the normalize command.",
+  })
+);
+
+/**
+ * Canonical image output format emitted by `files normalize`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type NormalizeImageFormat = typeof NormalizeImageFormat.Type;
+
+/**
+ * Reason a direct directory entry was skipped by `files normalize`.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const NormalizeSkippedReason = LiteralKit([
+  "duplicate",
+  "directory",
+  "extensionless",
+  "non-media",
+  "symlink",
+  "unsupported-image",
+  "video",
+] as const).pipe(
+  $I.annoteSchema("NormalizeSkippedReason", {
+    description: "Reason a source entry was not selected for image normalization.",
+  })
+);
+
+/**
+ * Reason a direct directory entry was skipped by `files normalize`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type NormalizeSkippedReason = typeof NormalizeSkippedReason.Type;
+
+/**
+ * Reason a direct directory entry was skipped by `files create-captions`.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const CreateCaptionFilesSkippedReason = LiteralKit([
+  "caption-exists",
+  "caption-target-collision",
+  "caption-target-not-file",
+  "directory",
+  "extensionless",
+  "non-media",
+  "symlink",
+  "video",
+] as const).pipe(
+  $I.annoteSchema("CreateCaptionFilesSkippedReason", {
+    description: "Reason a source entry was not selected for caption sidecar creation.",
+  })
+);
+
+/**
+ * Reason a direct directory entry was skipped by `files create-captions`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CreateCaptionFilesSkippedReason = typeof CreateCaptionFilesSkippedReason.Type;
+
+/**
+ * Side of an image edge scanned for a solid border.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const BorderSide = LiteralKit(["top", "right", "bottom", "left"] as const).pipe(
+  $I.annoteSchema("BorderSide", {
+    description: "Image side scanned by the border detection operation.",
+  })
+);
+
+/**
+ * Side of an image edge scanned for a solid border.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BorderSide = typeof BorderSide.Type;
+
+/**
+ * Classified border layout for an analyzed image.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const BorderDetectionKind = LiteralKit([
+  "none",
+  "canvas-edge",
+  "pillarbox",
+  "letterbox",
+  "frame",
+  "mixed",
+] as const).pipe(
+  $I.annoteSchema("BorderDetectionKind", {
+    description: "Detected solid-border layout for a dataset image.",
+  })
+);
+
+/**
+ * Classified border layout for an analyzed image.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BorderDetectionKind = typeof BorderDetectionKind.Type;
+
+/**
+ * Reason a direct directory entry was skipped by `files detect-borders`.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const DetectBordersSkippedReason = LiteralKit([
+  "directory",
+  "extensionless",
+  "non-media",
+  "symlink",
+  "unsupported-image",
+  "unreadable-image",
+  "video",
+] as const).pipe(
+  $I.annoteSchema("DetectBordersSkippedReason", {
+    description: "Reason a source entry was not analyzed for solid borders.",
+  })
+);
+
+/**
+ * Reason a direct directory entry was skipped by `files detect-borders`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type DetectBordersSkippedReason = typeof DetectBordersSkippedReason.Type;
+
+/**
+ * Dataset profile used by candidate-quality triage.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const CandidateAssessmentProfile = LiteralKit(["character-lora"] as const).pipe(
+  $I.annoteSchema("CandidateAssessmentProfile", {
+    description: "Dataset-quality assessment profile for files archive-poor-candidates.",
+  })
+);
+
+/**
+ * Dataset profile used by candidate-quality triage.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CandidateAssessmentProfile = typeof CandidateAssessmentProfile.Type;
+
+/**
+ * Candidate-quality decision produced by `files archive-poor-candidates`.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const CandidateAssessmentDecision = LiteralKit(["archive", "keep"] as const).pipe(
+  $I.annoteSchema("CandidateAssessmentDecision", {
+    description: "Whether an assessed image should be kept in place or archived as a poor candidate.",
+  })
+);
+
+/**
+ * Candidate-quality decision produced by `files archive-poor-candidates`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CandidateAssessmentDecision = typeof CandidateAssessmentDecision.Type;
+
+/**
+ * Hard-threshold reason that can cause an image to be archived.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const CandidateAssessmentReason = LiteralKit([
+  "extreme-aspect-ratio",
+  "short-edge-too-small",
+  "upscale-too-large",
+] as const).pipe(
+  $I.annoteSchema("CandidateAssessmentReason", {
+    description: "Machine-readable hard-threshold reason for archiving a poor image candidate.",
+  })
+);
+
+/**
+ * Hard-threshold reason that can cause an image to be archived.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CandidateAssessmentReason = typeof CandidateAssessmentReason.Type;
+
+/**
+ * Reason a direct directory entry was skipped by `files archive-poor-candidates`.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ArchivePoorCandidatesSkippedReason = LiteralKit([
+  "directory",
+  "extensionless",
+  "non-media",
+  "symlink",
+  "unsupported-image",
+  "unreadable-image",
+  "video",
+] as const).pipe(
+  $I.annoteSchema("ArchivePoorCandidatesSkippedReason", {
+    description: "Reason a source entry was not assessed for candidate-quality archival.",
+  })
+);
+
+/**
+ * Reason a direct directory entry was skipped by `files archive-poor-candidates`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ArchivePoorCandidatesSkippedReason = typeof ArchivePoorCandidatesSkippedReason.Type;
+
+/**
+ * Numeric threshold ratio used by candidate-quality triage.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const CandidateRatioThreshold = S.Number.check(
+  S.isGreaterThanOrEqualTo(1, {
+    identifier: $I`CandidateRatioThresholdGreaterThanOrEqualToOneCheck`,
+    title: "Candidate Ratio Threshold",
+    description: "Candidate assessment ratio thresholds must be at least one.",
+    message: "Expected a ratio threshold greater than or equal to one",
+  })
+).pipe(
+  $I.annoteSchema("CandidateRatioThreshold", {
+    description: "A ratio threshold greater than or equal to one.",
+  })
+);
+
+/**
+ * Numeric threshold ratio used by candidate-quality triage.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CandidateRatioThreshold = typeof CandidateRatioThreshold.Type;
+
+/**
+ * Percentage threshold used by border detection options.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const BorderDetectionPercentage = S.Number.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThan(0, {
+        identifier: $I`BorderDetectionPercentageGreaterThanZeroCheck`,
+        title: "Border Detection Percentage Greater Than Zero",
+        description: "Border detection percentages must be greater than zero.",
+        message: "Expected a percentage greater than zero",
+      }),
+      S.isLessThanOrEqualTo(100, {
+        identifier: $I`BorderDetectionPercentageLessThanOrEqualToOneHundredCheck`,
+        title: "Border Detection Percentage Maximum",
+        description: "Border detection percentages must not exceed 100.",
+        message: "Expected a percentage no greater than 100",
+      }),
+    ],
+    {
+      identifier: $I`BorderDetectionPercentageChecks`,
+      title: "Border Detection Percentage",
+      description: "Checks for percentage thresholds accepted by border detection.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("BorderDetectionPercentage", {
+    description: "Percentage threshold between greater than zero and 100.",
+  })
+);
+
+/**
+ * Percentage threshold used by border detection options.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BorderDetectionPercentage = typeof BorderDetectionPercentage.Type;
+
+/**
+ * Maximum scan percentage accepted by border detection.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const BorderDetectionMaxScanPercentage = S.Number.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThan(0, {
+        identifier: $I`BorderDetectionMaxScanPercentageGreaterThanZeroCheck`,
+        title: "Border Detection Max Scan Percentage Greater Than Zero",
+        description: "The maximum scan percentage must be greater than zero.",
+        message: "Expected a max scan percentage greater than zero",
+      }),
+      S.isLessThanOrEqualTo(50, {
+        identifier: $I`BorderDetectionMaxScanPercentageLessThanOrEqualToFiftyCheck`,
+        title: "Border Detection Max Scan Percentage Maximum",
+        description: "The maximum scan percentage is capped at half of an image dimension.",
+        message: "Expected a max scan percentage no greater than 50",
+      }),
+    ],
+    {
+      identifier: $I`BorderDetectionMaxScanPercentageChecks`,
+      title: "Border Detection Max Scan Percentage",
+      description: "Checks for maximum inward border scan percentage.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("BorderDetectionMaxScanPercentage", {
+    description: "Maximum percentage of each image dimension to scan inward from an edge.",
+  })
+);
+
+/**
+ * Maximum scan percentage accepted by border detection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BorderDetectionMaxScanPercentage = typeof BorderDetectionMaxScanPercentage.Type;
+
+/**
+ * RGB channel tolerance accepted by border detection.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const BorderDetectionTolerance = S.Number.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`BorderDetectionToleranceGreaterThanOrEqualToZeroCheck`,
+        title: "Border Detection Tolerance Minimum",
+        description: "RGB tolerance must be zero or greater.",
+        message: "Expected an RGB tolerance no less than zero",
+      }),
+      S.isLessThanOrEqualTo(255, {
+        identifier: $I`BorderDetectionToleranceLessThanOrEqualToTwoHundredFiftyFiveCheck`,
+        title: "Border Detection Tolerance Maximum",
+        description: "RGB tolerance must fit inside one 8-bit color channel.",
+        message: "Expected an RGB tolerance no greater than 255",
+      }),
+    ],
+    {
+      identifier: $I`BorderDetectionToleranceChecks`,
+      title: "Border Detection Tolerance",
+      description: "Checks for RGB channel tolerance accepted by border detection.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("BorderDetectionTolerance", {
+    description: "Maximum per-channel RGB distance accepted for near-solid border pixels.",
+  })
+);
+
+/**
+ * RGB channel tolerance accepted by border detection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BorderDetectionTolerance = typeof BorderDetectionTolerance.Type;
+
+/**
+ * Integer RGB channel value.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const RgbChannel = S.Int.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`RgbChannelGreaterThanOrEqualToZeroCheck`,
+        title: "RGB Channel Minimum",
+        description: "RGB channel values must be zero or greater.",
+        message: "Expected an RGB channel value no less than zero",
+      }),
+      S.isLessThanOrEqualTo(255, {
+        identifier: $I`RgbChannelLessThanOrEqualToTwoHundredFiftyFiveCheck`,
+        title: "RGB Channel Maximum",
+        description: "RGB channel values must not exceed 255.",
+        message: "Expected an RGB channel value no greater than 255",
+      }),
+    ],
+    {
+      identifier: $I`RgbChannelChecks`,
+      title: "RGB Channel",
+      description: "Checks for one 8-bit RGB channel.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("RgbChannel", {
+    description: "One integer 8-bit RGB channel value.",
+  })
+);
+
+/**
+ * Integer RGB channel value.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type RgbChannel = typeof RgbChannel.Type;
+
+/**
+ * Dimension metadata returned by `image-size`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ImageSizeMetadata extends S.Class<ImageSizeMetadata>($I`ImageSizeMetadata`)(
+  {
+    height: PositiveMediaDimension,
+    orientation: S.optionalKey(S.Int),
+    width: PositiveMediaDimension,
+  },
+  $I.annote("ImageSizeMetadata", {
+    description: "Dimension metadata returned by the image-size package.",
+  })
+) {}
+
+/**
+ * Side-data entry returned by `ffprobe`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FfprobeSideData extends S.Class<FfprobeSideData>($I`FfprobeSideData`)(
+  {
+    rotation: S.optionalKey(S.Union([S.Number, S.NumberFromString])),
+  },
+  $I.annote("FfprobeSideData", {
+    description: "Side-data entry returned by ffprobe for a video stream.",
+  })
+) {}
+
+/**
+ * Video stream metadata returned by `ffprobe`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
+  {
+    height: PositiveMediaDimension,
+    side_data_list: S.Array(FfprobeSideData).pipe(S.optionalKey),
+    tags: S.optionalKey(S.Record(S.String, S.Unknown)),
+    width: PositiveMediaDimension,
+  },
+  $I.annote("FfprobeStream", {
+    description: "Video stream metadata returned by ffprobe.",
+  })
+) {}
+
+/**
+ * JSON document emitted by `ffprobe`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FfprobeOutput extends S.Class<FfprobeOutput>($I`FfprobeOutput`)(
+  {
+    streams: S.Array(FfprobeStream),
+  },
+  $I.annote("FfprobeOutput", {
+    description: "JSON document emitted by ffprobe stream probing.",
+  })
+) {}
+
+/**
+ * Safe generated filename prefix schema.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SafeFilePrefix = S.NonEmptyString.check(
+  S.makeFilterGroup(
+    [
+      S.makeFilter(P.not(Str.includes(".")), {
+        identifier: $I`SafeFilePrefixNoDotCheck`,
+        title: "Safe File Prefix Without Dot",
+        description: "A file prefix that does not contain a dot.",
+        message: "File prefix must not contain .",
+      }),
+      S.makeFilter(P.not(Str.includes("/")), {
+        identifier: $I`SafeFilePrefixNoPosixSeparatorCheck`,
+        title: "Safe File Prefix Without Posix Separator",
+        description: "A file prefix that does not contain the POSIX path separator.",
+        message: "File prefix must not contain /",
+      }),
+      S.makeFilter(P.not(Str.includes("\\")), {
+        identifier: $I`SafeFilePrefixNoWindowsSeparatorCheck`,
+        title: "Safe File Prefix Without Windows Separator",
+        description: "A file prefix that does not contain the Windows path separator.",
+        message: "File prefix must not contain \\",
+      }),
+      S.makeFilter(P.not(Str.includes("\0")), {
+        identifier: $I`SafeFilePrefixNoNullByteCheck`,
+        title: "Safe File Prefix Without Null Byte",
+        description: "A file prefix that does not contain an embedded NUL byte.",
+        message: "File prefix must not contain embedded NUL bytes",
+      }),
+    ],
+    {
+      identifier: $I`SafeFilePrefixChecks`,
+      title: "Safe File Prefix",
+      description: "Checks for a safe file-name stem used as a generated dataset prefix.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("SafeFilePrefix", {
+    description: "A non-empty generated file prefix without dots, separators, or embedded NUL bytes.",
+  })
+);
+
+/**
+ * Safe prefix accepted by `files sort-and-rename`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SafeFilePrefix = typeof SafeFilePrefix.Type;
+
+/**
+ * File discovered for deterministic rename planning.
+ *
+ * @example
+ * ```ts
+ * import { SortableFile } from "@beep/repo-cli/commands/Files/index"
+ *
+ * const file = new SortableFile({
+ *   canonicalPath: "/tmp/images/a.png",
+ *   extension: ".png",
+ *   name: "a.png",
+ *   size: 10n,
+ *   sourcePath: "/tmp/images/a.png"
+ * })
+ * void file.name
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class SortableFile extends S.Class<SortableFile>($I`SortableFile`)(
+  {
+    canonicalPath: S.String,
+    extension: S.String,
+    mediaKind: S.Option(MediaKind).pipe(S.withConstructorDefault(Effect.succeed(O.none<MediaKind>()))),
+    name: S.String,
+    size: S.BigInt,
+    sourcePath: S.String,
+  },
+  $I.annote("SortableFile", {
+    description: "A direct regular file selected for size-based rename planning.",
+  })
+) {}
+
+/**
+ * Planned rename from an existing file path to a generated target path.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RenamePlanEntry extends S.Class<RenamePlanEntry>($I`RenamePlanEntry`)(
+  {
+    canonicalSourcePath: S.String,
+    dimensions: S.Option(S.suspend(() => MediaDimensions)).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<MediaDimensions>()))
+    ),
+    extension: S.String,
+    index: S.Number,
+    size: S.BigInt,
+    sourceName: S.String,
+    sourcePath: S.String,
+    targetName: S.String,
+    targetPath: S.String,
+  },
+  $I.annote("RenamePlanEntry", {
+    description: "A single source-to-target file rename planned by a files operation.",
+  })
+) {}
+
+/**
+ * Summary returned by `sortAndRenameFiles`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SortAndRenameSummary extends S.Class<SortAndRenameSummary>($I`SortAndRenameSummary`)(
+  {
+    directory: S.String,
+    dryRun: S.Boolean,
+    plannedCount: S.Number,
+    renamedCount: S.Number,
+    skippedCount: S.Number,
+    withDimensions: S.Boolean,
+  },
+  $I.annote("SortAndRenameSummary", {
+    description: "Summary counts for a sort-and-rename file curation run.",
+  })
+) {}
+
+/**
+ * Planned metadata strip for a selected image or video file.
+ *
+ * @example
+ * ```ts
+ * import { StripMetadataPlanEntry } from "@beep/repo-cli/commands/Files/index"
+ *
+ * const entry = new StripMetadataPlanEntry({
+ *   extension: ".jpg",
+ *   mediaKind: "image",
+ *   size: 10n,
+ *   sourceName: "photo.jpg",
+ *   sourcePath: "/tmp/dataset/photo.jpg"
+ * })
+ * void entry.mediaKind
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class StripMetadataPlanEntry extends S.Class<StripMetadataPlanEntry>($I`StripMetadataPlanEntry`)(
+  {
+    extension: S.String,
+    mediaKind: MediaKind,
+    size: S.BigInt,
+    sourceName: S.String,
+    sourcePath: S.String,
+  },
+  $I.annote("StripMetadataPlanEntry", {
+    description: "A direct media file selected for metadata stripping.",
+  })
+) {}
+
+/**
+ * Summary returned by `stripMetadataFiles`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StripMetadataSummary extends S.Class<StripMetadataSummary>($I`StripMetadataSummary`)(
+  {
+    directory: S.String,
+    dryRun: S.Boolean,
+    imageCount: S.Number,
+    plannedCount: S.Number,
+    skippedCount: S.Number,
+    strippedCount: S.Number,
+    videoCount: S.Number,
+  },
+  $I.annote("StripMetadataSummary", {
+    description: "Summary counts for an image and video metadata stripping run.",
+  })
+) {}
+
+/**
+ * Width and height discovered for an image or video file.
+ *
+ * @example
+ * ```ts
+ * import { MediaDimensions } from "@beep/repo-cli/commands/Files/index"
+ *
+ * const dimensions = new MediaDimensions({ height: 1024, width: 1536 })
+ * void dimensions.width
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class MediaDimensions extends S.Class<MediaDimensions>($I`MediaDimensions`)(
+  {
+    height: PositiveMediaDimension,
+    width: PositiveMediaDimension,
+  },
+  $I.annote("MediaDimensions", {
+    description: "Pixel dimensions discovered from an image or video file.",
+  })
+) {}
+
+/**
+ * Options used by caption sidecar creation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CreateCaptionFilesOptions extends S.Class<CreateCaptionFilesOptions>($I`CreateCaptionFilesOptions`)(
+  {
+    caption: S.String.pipe(S.withConstructorDefault(Effect.succeed(""))),
+    dir: S.String,
+    dryRun: S.Boolean,
+    overwrite: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+  },
+  $I.annote("CreateCaptionFilesOptions", {
+    description: "Validated options used by files create-captions.",
+  })
+) {}
+
+/**
+ * Planned caption sidecar file creation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CreateCaptionFilesPlanEntry extends S.Class<CreateCaptionFilesPlanEntry>($I`CreateCaptionFilesPlanEntry`)(
+  {
+    captionName: S.String,
+    captionPath: S.String,
+    captionRelativePath: S.String,
+    extension: S.String,
+    overwritesExisting: S.Boolean,
+    sourceName: S.String,
+    sourcePath: S.String,
+    sourceRelativePath: S.String,
+  },
+  $I.annote("CreateCaptionFilesPlanEntry", {
+    description: "A same-stem caption sidecar planned for an image file.",
+  })
+) {}
+
+/**
+ * Source entry skipped by caption sidecar creation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CreateCaptionFilesSkippedEntry extends S.Class<CreateCaptionFilesSkippedEntry>(
+  $I`CreateCaptionFilesSkippedEntry`
+)(
+  {
+    captionName: S.optionalKey(S.String),
+    extension: S.optionalKey(S.String),
+    message: S.String,
+    reason: CreateCaptionFilesSkippedReason,
+    sourceName: S.String,
+    sourcePath: S.String,
+  },
+  $I.annote("CreateCaptionFilesSkippedEntry", {
+    description: "A direct source entry skipped by files create-captions with a machine-readable reason.",
+  })
+) {}
+
+/**
+ * Planned caption sidecar creation run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CreateCaptionFilesPlan extends S.Class<CreateCaptionFilesPlan>($I`CreateCaptionFilesPlan`)(
+  {
+    caption: S.String,
+    directory: S.String,
+    entries: S.Array(CreateCaptionFilesPlanEntry),
+    overwrite: S.Boolean,
+    skipped: S.Array(CreateCaptionFilesSkippedEntry),
+  },
+  $I.annote("CreateCaptionFilesPlan", {
+    description: "Planned caption sidecar entries plus skipped source entries.",
+  })
+) {}
+
+/**
+ * Summary returned by `createCaptionFiles`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CreateCaptionFilesSummary extends S.Class<CreateCaptionFilesSummary>($I`CreateCaptionFilesSummary`)(
+  {
+    createdCount: S.Number,
+    directory: S.String,
+    dryRun: S.Boolean,
+    overwrittenCount: S.Number,
+    plannedCount: S.Number,
+    skippedCount: S.Number,
+  },
+  $I.annote("CreateCaptionFilesSummary", {
+    description: "Summary counts returned by files create-captions.",
+  })
+) {}
+
+/**
+ * Options used by the image normalization operation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NormalizeFilesOptions extends S.Class<NormalizeFilesOptions>($I`NormalizeFilesOptions`)(
+  {
+    dedupe: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    dir: S.String,
+    dryRun: S.Boolean,
+    format: NormalizeImageFormat,
+    manifest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    maxLongEdge: S.Option(PositiveMediaDimension).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<PositiveMediaDimension>()))
+    ),
+    moveDuplicatesTo: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    outDir: S.String,
+    overwrite: S.Boolean,
+  },
+  $I.annote("NormalizeFilesOptions", {
+    description: "Validated options used by the image normalization operation.",
+  })
+) {}
+
+/**
+ * Manifest options recorded for an image normalization run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NormalizeManifestOptions extends S.Class<NormalizeManifestOptions>($I`NormalizeManifestOptions`)(
+  {
+    dedupe: S.Boolean,
+    format: NormalizeImageFormat,
+    maxLongEdge: S.optionalKey(PositiveMediaDimension),
+    moveDuplicatesTo: S.optionalKey(S.String),
+    overwrite: S.Boolean,
+  },
+  $I.annote("NormalizeManifestOptions", {
+    description: "JSON-safe options recorded in the normalize manifest.",
+  })
+) {}
+
+/**
+ * Planned source-to-output image transform.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NormalizePlanEntry extends S.Class<NormalizePlanEntry>($I`NormalizePlanEntry`)(
+  {
+    format: NormalizeImageFormat,
+    inputDimensions: MediaDimensions,
+    outputDimensions: MediaDimensions,
+    outputName: S.String,
+    outputHash: S.optionalKey(FileSha256Hash),
+    outputPath: S.String,
+    outputRelativePath: S.String,
+    outputSizeBytes: S.optionalKey(S.String),
+    resized: S.Boolean,
+    sourceExtension: S.String,
+    sourceName: S.String,
+    sourcePath: S.String,
+    sourceRelativePath: S.String,
+    sourceSizeBytes: S.String,
+  },
+  $I.annote("NormalizePlanEntry", {
+    description: "A source-to-output image transform planned by files normalize.",
+  })
+) {}
+
+/**
+ * Source entry skipped by image normalization.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NormalizeSkippedEntry extends S.Class<NormalizeSkippedEntry>($I`NormalizeSkippedEntry`)(
+  {
+    duplicateOfOutputRelativePath: S.optionalKey(S.String),
+    duplicateOfSourceRelativePath: S.optionalKey(S.String),
+    duplicateMovedPath: S.optionalKey(S.String),
+    duplicateMovedRelativePath: S.optionalKey(S.String),
+    extension: S.optionalKey(S.String),
+    message: S.String,
+    outputHash: S.optionalKey(FileSha256Hash),
+    reason: NormalizeSkippedReason,
+    sourceName: S.String,
+    sourcePath: S.String,
+  },
+  $I.annote("NormalizeSkippedEntry", {
+    description: "A direct source entry skipped by files normalize with a machine-readable reason.",
+  })
+) {}
+
+/**
+ * Planned image normalization run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NormalizePlan extends S.Class<NormalizePlan>($I`NormalizePlan`)(
+  {
+    duplicateDirectory: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    entries: S.Array(NormalizePlanEntry),
+    manifestPath: S.String,
+    options: NormalizeManifestOptions,
+    outputDirectory: S.String,
+    skipped: S.Array(NormalizeSkippedEntry),
+    sourceDirectory: S.String,
+  },
+  $I.annote("NormalizePlan", {
+    description: "Planned image normalization entries plus skipped source entries.",
+  })
+) {}
+
+/**
+ * Summary counts for an image normalization run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NormalizeSummary extends S.Class<NormalizeSummary>($I`NormalizeSummary`)(
+  {
+    directory: S.String,
+    duplicateCount: S.Number,
+    dryRun: S.Boolean,
+    format: NormalizeImageFormat,
+    manifestPath: S.String,
+    manifestWritten: S.Boolean,
+    maxLongEdge: S.Option(PositiveMediaDimension).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<PositiveMediaDimension>()))
+    ),
+    movedDuplicateCount: S.Number,
+    normalizedCount: S.Number,
+    outputDirectory: S.String,
+    plannedCount: S.Number,
+    resizedCount: S.Number,
+    skippedCount: S.Number,
+  },
+  $I.annote("NormalizeSummary", {
+    description: "Summary counts returned by files normalize.",
+  })
+) {}
+
+/**
+ * JSON-safe summary recorded in an image normalization manifest.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NormalizeManifestSummary extends S.Class<NormalizeManifestSummary>($I`NormalizeManifestSummary`)(
+  {
+    duplicateCount: S.Number,
+    movedDuplicateCount: S.Number,
+    normalizedCount: S.Number,
+    plannedCount: S.Number,
+    resizedCount: S.Number,
+    skippedCount: S.Number,
+  },
+  $I.annote("NormalizeManifestSummary", {
+    description: "JSON-safe summary counts recorded by files normalize.",
+  })
+) {}
+
+/**
+ * Manifest written by a successful image normalization run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NormalizeManifest extends S.Class<NormalizeManifest>($I`NormalizeManifest`)(
+  {
+    entries: S.Array(NormalizePlanEntry),
+    manifestPath: S.String,
+    options: NormalizeManifestOptions,
+    outputDirectory: S.String,
+    schemaVersion: S.Literal("beep.files.normalize.v1"),
+    skipped: S.Array(NormalizeSkippedEntry),
+    sourceDirectory: S.String,
+    summary: NormalizeManifestSummary,
+  },
+  $I.annote("NormalizeManifest", {
+    description: "JSON manifest of source-to-output transforms produced by files normalize.",
+  })
+) {}
+
+/**
+ * Options used by poor-candidate archival.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivePoorCandidatesOptions extends S.Class<ArchivePoorCandidatesOptions>(
+  $I`ArchivePoorCandidatesOptions`
+)(
+  {
+    archiveDir: S.String,
+    dir: S.String,
+    dryRun: S.Boolean,
+    manifest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    maxAspect: CandidateRatioThreshold,
+    maxUpscale: CandidateRatioThreshold,
+    minShortEdge: PositiveMediaDimension,
+    overwrite: S.Boolean,
+    profile: CandidateAssessmentProfile,
+    sidecars: S.String.pipe(S.withConstructorDefault(Effect.succeed("txt"))),
+    targetResolution: PositiveMediaDimension,
+  },
+  $I.annote("ArchivePoorCandidatesOptions", {
+    description: "Validated options used by files archive-poor-candidates.",
+  })
+) {}
+
+/**
+ * JSON-safe options recorded in a poor-candidate archive manifest.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivePoorCandidatesManifestOptions extends S.Class<ArchivePoorCandidatesManifestOptions>(
+  $I`ArchivePoorCandidatesManifestOptions`
+)(
+  {
+    maxAspect: CandidateRatioThreshold,
+    maxUpscale: CandidateRatioThreshold,
+    minShortEdge: PositiveMediaDimension,
+    overwrite: S.Boolean,
+    profile: CandidateAssessmentProfile,
+    sidecars: S.Array(S.String),
+    targetResolution: PositiveMediaDimension,
+  },
+  $I.annote("ArchivePoorCandidatesManifestOptions", {
+    description: "JSON-safe options recorded by files archive-poor-candidates.",
+  })
+) {}
+
+/**
+ * Derived image metrics used for candidate-quality triage.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CandidateAssessmentMetrics extends S.Class<CandidateAssessmentMetrics>($I`CandidateAssessmentMetrics`)(
+  {
+    aspectRatio: S.Number,
+    pixelArea: S.Int,
+    shortEdge: PositiveMediaDimension,
+    upscaleToTarget: S.Number,
+  },
+  $I.annote("CandidateAssessmentMetrics", {
+    description: "Resolution-derived metrics used to classify image training-data candidates.",
+  })
+) {}
+
+/**
+ * Caption or metadata sidecar moved with an archived image.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivedSidecarEntry extends S.Class<ArchivedSidecarEntry>($I`ArchivedSidecarEntry`)(
+  {
+    archivePath: S.String,
+    archiveRelativePath: S.String,
+    extension: S.String,
+    sourcePath: S.String,
+    sourceRelativePath: S.String,
+  },
+  $I.annote("ArchivedSidecarEntry", {
+    description: "A same-stem sidecar file moved with an archived poor image candidate.",
+  })
+) {}
+
+/**
+ * Assessed image candidate with an archive or keep decision.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivePoorCandidatesEntry extends S.Class<ArchivePoorCandidatesEntry>($I`ArchivePoorCandidatesEntry`)(
+  {
+    archiveName: S.optionalKey(S.String),
+    archivePath: S.optionalKey(S.String),
+    archiveRelativePath: S.optionalKey(S.String),
+    decision: CandidateAssessmentDecision,
+    dimensions: MediaDimensions,
+    extension: S.String,
+    metrics: CandidateAssessmentMetrics,
+    reasons: S.Array(CandidateAssessmentReason),
+    sidecars: S.Array(ArchivedSidecarEntry),
+    sourceName: S.String,
+    sourcePath: S.String,
+    sourceRelativePath: S.String,
+    sourceSizeBytes: S.String,
+  },
+  $I.annote("ArchivePoorCandidatesEntry", {
+    description: "Image candidate assessed by files archive-poor-candidates.",
+  })
+) {}
+
+/**
+ * Source entry skipped by poor-candidate archival.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivePoorCandidatesSkippedEntry extends S.Class<ArchivePoorCandidatesSkippedEntry>(
+  $I`ArchivePoorCandidatesSkippedEntry`
+)(
+  {
+    extension: S.optionalKey(S.String),
+    message: S.String,
+    reason: ArchivePoorCandidatesSkippedReason,
+    sourceName: S.String,
+    sourcePath: S.String,
+  },
+  $I.annote("ArchivePoorCandidatesSkippedEntry", {
+    description: "A direct source entry skipped by files archive-poor-candidates with a machine-readable reason.",
+  })
+) {}
+
+/**
+ * Planned poor-candidate archive run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivePoorCandidatesPlan extends S.Class<ArchivePoorCandidatesPlan>($I`ArchivePoorCandidatesPlan`)(
+  {
+    archiveDirectory: S.String,
+    entries: S.Array(ArchivePoorCandidatesEntry),
+    manifestPath: S.String,
+    options: ArchivePoorCandidatesManifestOptions,
+    skipped: S.Array(ArchivePoorCandidatesSkippedEntry),
+    sourceDirectory: S.String,
+  },
+  $I.annote("ArchivePoorCandidatesPlan", {
+    description: "Planned image candidate archival entries plus skipped source entries.",
+  })
+) {}
+
+/**
+ * Summary counts returned by poor-candidate archival.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivePoorCandidatesSummary extends S.Class<ArchivePoorCandidatesSummary>(
+  $I`ArchivePoorCandidatesSummary`
+)(
+  {
+    archivedCount: S.Number,
+    archiveDirectory: S.String,
+    assessedCount: S.Number,
+    directory: S.String,
+    dryRun: S.Boolean,
+    keptCount: S.Number,
+    manifestPath: S.String,
+    manifestWritten: S.Boolean,
+    movedSidecarCount: S.Number,
+    skippedCount: S.Number,
+  },
+  $I.annote("ArchivePoorCandidatesSummary", {
+    description: "Summary counts returned by files archive-poor-candidates.",
+  })
+) {}
+
+/**
+ * JSON-safe summary recorded by poor-candidate archival.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivePoorCandidatesManifestSummary extends S.Class<ArchivePoorCandidatesManifestSummary>(
+  $I`ArchivePoorCandidatesManifestSummary`
+)(
+  {
+    archivedCount: S.Number,
+    assessedCount: S.Number,
+    keptCount: S.Number,
+    movedSidecarCount: S.Number,
+    skippedCount: S.Number,
+  },
+  $I.annote("ArchivePoorCandidatesManifestSummary", {
+    description: "JSON-safe summary counts recorded by files archive-poor-candidates.",
+  })
+) {}
+
+/**
+ * Manifest written by a successful poor-candidate archive run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivePoorCandidatesManifest extends S.Class<ArchivePoorCandidatesManifest>(
+  $I`ArchivePoorCandidatesManifest`
+)(
+  {
+    archiveDirectory: S.String,
+    entries: S.Array(ArchivePoorCandidatesEntry),
+    manifestPath: S.String,
+    options: ArchivePoorCandidatesManifestOptions,
+    schemaVersion: S.Literal("beep.files.archive-poor-candidates.v1"),
+    skipped: S.Array(ArchivePoorCandidatesSkippedEntry),
+    sourceDirectory: S.String,
+    summary: ArchivePoorCandidatesManifestSummary,
+  },
+  $I.annote("ArchivePoorCandidatesManifest", {
+    description: "JSON manifest of image candidates archived by files archive-poor-candidates.",
+  })
+) {}
+
+/**
+ * Options used by the image border detection operation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DetectBordersOptions extends S.Class<DetectBordersOptions>($I`DetectBordersOptions`)(
+  {
+    dir: S.String,
+    json: S.Boolean,
+    maxScanPct: BorderDetectionMaxScanPercentage,
+    minSolidPct: BorderDetectionPercentage,
+    minWidthPct: BorderDetectionPercentage,
+    tolerance: BorderDetectionTolerance,
+  },
+  $I.annote("DetectBordersOptions", {
+    description: "Validated options used by the solid-border detection operation.",
+  })
+) {}
+
+/**
+ * Options used by the image border cropping operation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CropBordersOptions extends S.Class<CropBordersOptions>($I`CropBordersOptions`)(
+  {
+    dir: S.String,
+    dryRun: S.Boolean,
+    maxScanPct: BorderDetectionMaxScanPercentage,
+    minSolidPct: BorderDetectionPercentage,
+    minWidthPct: BorderDetectionPercentage,
+    tolerance: BorderDetectionTolerance,
+  },
+  $I.annote("CropBordersOptions", {
+    description: "Validated options used by the solid-border crop operation.",
+  })
+) {}
+
+/**
+ * RGB color sampled from a detected image border.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RgbColor extends S.Class<RgbColor>($I`RgbColor`)(
+  {
+    b: RgbChannel,
+    g: RgbChannel,
+    r: RgbChannel,
+  },
+  $I.annote("RgbColor", {
+    description: "RGB color sampled from an image border.",
+  })
+) {}
+
+/**
+ * Measurement for one scanned image side.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DetectBorderSideMeasurement extends S.Class<DetectBorderSideMeasurement>($I`DetectBorderSideMeasurement`)(
+  {
+    color: RgbColor,
+    colorHex: S.String,
+    matched: S.Boolean,
+    score: S.Number,
+    side: BorderSide,
+    widthPct: S.Number,
+    widthPx: S.Int,
+  },
+  $I.annote("DetectBorderSideMeasurement", {
+    description: "Measured near-solid border width and sampled edge color for one image side.",
+  })
+) {}
+
+/**
+ * Image entry analyzed by `files detect-borders`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DetectBordersEntry extends S.Class<DetectBordersEntry>($I`DetectBordersEntry`)(
+  {
+    borderCount: S.Int,
+    classification: BorderDetectionKind,
+    extension: S.String,
+    hasBorder: S.Boolean,
+    height: PositiveMediaDimension,
+    sides: S.Array(DetectBorderSideMeasurement),
+    sourceName: S.String,
+    sourcePath: S.String,
+    width: PositiveMediaDimension,
+  },
+  $I.annote("DetectBordersEntry", {
+    description: "Image file analyzed for solid or near-solid canvas borders.",
+  })
+) {}
+
+/**
+ * Source entry skipped by image border detection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DetectBordersSkippedEntry extends S.Class<DetectBordersSkippedEntry>($I`DetectBordersSkippedEntry`)(
+  {
+    extension: S.optionalKey(S.String),
+    message: S.String,
+    reason: DetectBordersSkippedReason,
+    sourceName: S.String,
+    sourcePath: S.String,
+  },
+  $I.annote("DetectBordersSkippedEntry", {
+    description: "A direct source entry skipped by files detect-borders with a machine-readable reason.",
+  })
+) {}
+
+/**
+ * Summary counts for an image border detection run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DetectBordersSummary extends S.Class<DetectBordersSummary>($I`DetectBordersSummary`)(
+  {
+    analyzedCount: S.Number,
+    borderedCount: S.Number,
+    directory: S.String,
+    skippedCount: S.Number,
+    totalCount: S.Number,
+  },
+  $I.annote("DetectBordersSummary", {
+    description: "Summary counts returned by files detect-borders.",
+  })
+) {}
+
+/**
+ * JSON report emitted by an image border detection run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DetectBordersReport extends S.Class<DetectBordersReport>($I`DetectBordersReport`)(
+  {
+    directory: S.String,
+    entries: S.Array(DetectBordersEntry),
+    options: DetectBordersOptions,
+    schemaVersion: S.Literal("beep.files.detect-borders.v1"),
+    skipped: S.Array(DetectBordersSkippedEntry),
+    summary: DetectBordersSummary,
+  },
+  $I.annote("DetectBordersReport", {
+    description: "JSON-safe report of solid-border detection results.",
+  })
+) {}
+
+/**
+ * Planned crop for an image with detected solid borders.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CropBordersPlanEntry extends S.Class<CropBordersPlanEntry>($I`CropBordersPlanEntry`)(
+  {
+    borderCount: S.Int,
+    classification: BorderDetectionKind,
+    cropHeight: PositiveMediaDimension,
+    cropLeft: NonNegativePixelOffset,
+    cropTop: NonNegativePixelOffset,
+    cropWidth: PositiveMediaDimension,
+    extension: S.String,
+    originalHeight: PositiveMediaDimension,
+    originalWidth: PositiveMediaDimension,
+    sides: S.Array(DetectBorderSideMeasurement),
+    sourceName: S.String,
+    sourcePath: S.String,
+  },
+  $I.annote("CropBordersPlanEntry", {
+    description: "Image crop planned from detected near-solid border measurements.",
+  })
+) {}
+
+/**
+ * Planned border crop entries plus skipped file counts.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CropBordersPlan extends S.Class<CropBordersPlan>($I`CropBordersPlan`)(
+  {
+    analyzedCount: S.Number,
+    borderedCount: S.Number,
+    directory: S.String,
+    entries: S.Array(CropBordersPlanEntry),
+    skippedCount: S.Number,
+  },
+  $I.annote("CropBordersPlan", {
+    description: "Planned in-place crops for image files with detected near-solid borders.",
+  })
+) {}
+
+/**
+ * Summary returned by `cropBordersFiles`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CropBordersSummary extends S.Class<CropBordersSummary>($I`CropBordersSummary`)(
+  {
+    analyzedCount: S.Number,
+    borderedCount: S.Number,
+    croppedCount: S.Number,
+    directory: S.String,
+    dryRun: S.Boolean,
+    plannedCount: S.Number,
+    skippedCount: S.Number,
+  },
+  $I.annote("CropBordersSummary", {
+    description: "Summary counts returned by files crop-borders.",
+  })
+) {}
+
+/**
+ * Files selected for rename planning plus skipped file counts.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SortableFileCollection extends S.Class<SortableFileCollection>($I`SortableFileCollection`)(
+  {
+    files: S.Array(SortableFile),
+    skippedCount: S.Number,
+  },
+  $I.annote("SortableFileCollection", {
+    description: "Files selected for rename planning plus direct regular files skipped by media filtering.",
+  })
+) {}
+
+/**
+ * Planned rename entries plus skipped file counts.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RenamePlan extends S.Class<RenamePlan>($I`RenamePlan`)(
+  {
+    entries: S.Array(RenamePlanEntry),
+    skippedCount: S.Number,
+  },
+  $I.annote("RenamePlan", {
+    description: "Planned rename entries plus direct regular files skipped before planning.",
+  })
+) {}
+
+/**
+ * Planned metadata stripping entries plus skipped file counts.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StripMetadataPlan extends S.Class<StripMetadataPlan>($I`StripMetadataPlan`)(
+  {
+    entries: S.Array(StripMetadataPlanEntry),
+    imageCount: S.Number,
+    skippedCount: S.Number,
+    videoCount: S.Number,
+  },
+  $I.annote("StripMetadataPlan", {
+    description: "Planned metadata stripping entries plus direct media files skipped before processing.",
+  })
+) {}
+
+/**
+ * Decode unknown image-size metadata.
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeImageSizeMetadata = S.decodeUnknownEffect(ImageSizeMetadata);
+
+/**
+ * Decode an ffprobe JSON document.
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeFfprobeOutputJson = S.decodeUnknownEffect(S.fromJsonString(FfprobeOutput));
+
+/**
+ * Decode an unknown rotation value into an optional number.
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeRotationNumber = S.decodeUnknownOption(S.Union([S.Number, S.NumberFromString]));
+
+/**
+ * Decode an unknown safe filename prefix.
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeSafeFilePrefix = S.decodeUnknownEffect(SafeFilePrefix);
+
+/**
+ * Decode an unknown maximum long-edge value.
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeNormalizeMaxLongEdge = S.decodeUnknownEffect(PositiveMediaDimension);
+
+/**
+ * Decode unknown poor-candidate archive options.
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeArchivePoorCandidatesOptions = S.decodeUnknownEffect(ArchivePoorCandidatesOptions);
+
+/**
+ * Decode unknown caption sidecar creation options.
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeCreateCaptionFilesOptions = S.decodeUnknownEffect(CreateCaptionFilesOptions);
+
+/**
+ * Decode unknown border detection options.
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeDetectBordersOptions = S.decodeUnknownEffect(DetectBordersOptions);
+
+/**
+ * Decode unknown border cropping options.
+ *
+ * @category decoding
+ * @since 0.0.0
+ */
+export const decodeCropBordersOptions = S.decodeUnknownEffect(CropBordersOptions);
+
+/**
+ * Encode a normalize manifest into its JSON-safe shape.
+ *
+ * @category encoding
+ * @since 0.0.0
+ */
+export const encodeNormalizeManifest = S.encodeUnknownEffect(NormalizeManifest);
+
+/**
+ * Encode a poor-candidate archive manifest into its JSON-safe shape.
+ *
+ * @category encoding
+ * @since 0.0.0
+ */
+export const encodeArchivePoorCandidatesManifest = S.encodeUnknownEffect(ArchivePoorCandidatesManifest);
+
+/**
+ * Encode a detect-borders report into its JSON-safe shape.
+ *
+ * @category encoding
+ * @since 0.0.0
+ */
+export const encodeDetectBordersReport = S.encodeUnknownEffect(DetectBordersReport);

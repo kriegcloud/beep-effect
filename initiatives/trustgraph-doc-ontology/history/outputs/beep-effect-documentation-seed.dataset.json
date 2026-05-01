@@ -559,7 +559,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "Repo symbol index"
+        "value": "Repo utils symbol model"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -603,7 +603,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "packages/repo-memory/model/src/internal/domain.ts"
+        "value": "tooling/repo-utils/src/TSMorph/TSMorph.model.ts"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -625,7 +625,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "Primary source for deterministic repo symbol kinds used by grounded retrieval and symbol memory."
+        "value": "Primary source for deterministic TypeScript symbol kinds used by repo indexing and documentation grounding."
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5583,7 +5583,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:function"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:FunctionDeclaration"
       }
     },
     {
@@ -5597,7 +5597,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "function"
+        "value": "FunctionDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5605,7 +5605,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:function"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:FunctionDeclaration"
       }
     },
     {
@@ -5619,7 +5619,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "repo-symbol-kind:function"
+        "value": "repo-symbol-kind:FunctionDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5627,7 +5627,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:function"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:FunctionDeclaration"
       }
     },
     {
@@ -5645,7 +5645,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:function"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:FunctionDeclaration"
       }
     },
     {
@@ -5663,7 +5663,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:function"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:FunctionDeclaration"
       }
     },
     {
@@ -5681,7 +5681,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:class"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:ClassDeclaration"
       }
     },
     {
@@ -5695,7 +5695,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "class"
+        "value": "ClassDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5703,7 +5703,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:class"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:ClassDeclaration"
       }
     },
     {
@@ -5717,7 +5717,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "repo-symbol-kind:class"
+        "value": "repo-symbol-kind:ClassDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5725,7 +5725,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:class"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:ClassDeclaration"
       }
     },
     {
@@ -5743,7 +5743,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:class"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:ClassDeclaration"
       }
     },
     {
@@ -5761,7 +5761,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:class"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:ClassDeclaration"
       }
     },
     {
@@ -5779,7 +5779,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:interface"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:MethodDeclaration"
       }
     },
     {
@@ -5793,7 +5793,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "interface"
+        "value": "MethodDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5801,7 +5801,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:interface"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:MethodDeclaration"
       }
     },
     {
@@ -5815,7 +5815,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "repo-symbol-kind:interface"
+        "value": "repo-symbol-kind:MethodDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5823,7 +5823,399 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:interface"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:MethodDeclaration"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:symbol-kind:method"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#repo-normalizes-to-symbol-kind"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:MethodDeclaration"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:source-authority:repo-symbol-index"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#derived-from-source"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:MethodDeclaration"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#repo-symbol-kind"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:Constructor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "termType": "Literal",
+        "value": "Constructor"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://www.w3.org/2000/01/rdf-schema#label"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:Constructor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "termType": "Literal",
+        "value": "repo-symbol-kind:Constructor"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#stable-provenance-id"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:Constructor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:symbol-kind:constructor"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#repo-normalizes-to-symbol-kind"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:Constructor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:source-authority:repo-symbol-index"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#derived-from-source"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:Constructor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#repo-symbol-kind"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:GetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "termType": "Literal",
+        "value": "GetAccessor"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://www.w3.org/2000/01/rdf-schema#label"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:GetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "termType": "Literal",
+        "value": "repo-symbol-kind:GetAccessor"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#stable-provenance-id"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:GetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:symbol-kind:accessor"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#repo-normalizes-to-symbol-kind"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:GetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:source-authority:repo-symbol-index"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#derived-from-source"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:GetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#repo-symbol-kind"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:SetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "termType": "Literal",
+        "value": "SetAccessor"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://www.w3.org/2000/01/rdf-schema#label"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:SetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "termType": "Literal",
+        "value": "repo-symbol-kind:SetAccessor"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#stable-provenance-id"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:SetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:symbol-kind:accessor"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#repo-normalizes-to-symbol-kind"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:SetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:source-authority:repo-symbol-index"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#derived-from-source"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:SetAccessor"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#repo-symbol-kind"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:InterfaceDeclaration"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "termType": "Literal",
+        "value": "InterfaceDeclaration"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "http://www.w3.org/2000/01/rdf-schema#label"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:InterfaceDeclaration"
+      }
+    },
+    {
+      "graph": {
+        "termType": "DefaultGraph",
+        "value": ""
+      },
+      "object": {
+        "datatype": {
+          "termType": "NamedNode",
+          "value": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        "termType": "Literal",
+        "value": "repo-symbol-kind:InterfaceDeclaration"
+      },
+      "predicate": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-ontology#stable-provenance-id"
+      },
+      "subject": {
+        "termType": "NamedNode",
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:InterfaceDeclaration"
       }
     },
     {
@@ -5841,7 +6233,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:interface"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:InterfaceDeclaration"
       }
     },
     {
@@ -5859,7 +6251,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:interface"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:InterfaceDeclaration"
       }
     },
     {
@@ -5877,7 +6269,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:typeAlias"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:TypeAliasDeclaration"
       }
     },
     {
@@ -5891,7 +6283,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "typeAlias"
+        "value": "TypeAliasDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5899,7 +6291,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:typeAlias"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:TypeAliasDeclaration"
       }
     },
     {
@@ -5913,7 +6305,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "repo-symbol-kind:typeAlias"
+        "value": "repo-symbol-kind:TypeAliasDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5921,7 +6313,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:typeAlias"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:TypeAliasDeclaration"
       }
     },
     {
@@ -5939,7 +6331,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:typeAlias"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:TypeAliasDeclaration"
       }
     },
     {
@@ -5957,7 +6349,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:typeAlias"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:TypeAliasDeclaration"
       }
     },
     {
@@ -5975,7 +6367,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:const"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:EnumDeclaration"
       }
     },
     {
@@ -5989,7 +6381,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "const"
+        "value": "EnumDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -5997,7 +6389,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:const"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:EnumDeclaration"
       }
     },
     {
@@ -6011,7 +6403,7 @@
           "value": "http://www.w3.org/2001/XMLSchema#string"
         },
         "termType": "Literal",
-        "value": "repo-symbol-kind:const"
+        "value": "repo-symbol-kind:EnumDeclaration"
       },
       "predicate": {
         "termType": "NamedNode",
@@ -6019,105 +6411,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:const"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:symbol-kind:value"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-ontology#repo-normalizes-to-symbol-kind"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:const"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:source-authority:repo-symbol-index"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-ontology#derived-from-source"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:const"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-ontology#repo-symbol-kind"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:enum"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "datatype": {
-          "termType": "NamedNode",
-          "value": "http://www.w3.org/2001/XMLSchema#string"
-        },
-        "termType": "Literal",
-        "value": "enum"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "http://www.w3.org/2000/01/rdf-schema#label"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:enum"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "datatype": {
-          "termType": "NamedNode",
-          "value": "http://www.w3.org/2001/XMLSchema#string"
-        },
-        "termType": "Literal",
-        "value": "repo-symbol-kind:enum"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-ontology#stable-provenance-id"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:enum"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:EnumDeclaration"
       }
     },
     {
@@ -6135,7 +6429,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:enum"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:EnumDeclaration"
       }
     },
     {
@@ -6153,105 +6447,7 @@
       },
       "subject": {
         "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:enum"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-ontology#repo-symbol-kind"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:namespace"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "datatype": {
-          "termType": "NamedNode",
-          "value": "http://www.w3.org/2001/XMLSchema#string"
-        },
-        "termType": "Literal",
-        "value": "namespace"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "http://www.w3.org/2000/01/rdf-schema#label"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:namespace"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "datatype": {
-          "termType": "NamedNode",
-          "value": "http://www.w3.org/2001/XMLSchema#string"
-        },
-        "termType": "Literal",
-        "value": "repo-symbol-kind:namespace"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-ontology#stable-provenance-id"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:namespace"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:symbol-kind:namespace"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-ontology#repo-normalizes-to-symbol-kind"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:namespace"
-      }
-    },
-    {
-      "graph": {
-        "termType": "DefaultGraph",
-        "value": ""
-      },
-      "object": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:source-authority:repo-symbol-index"
-      },
-      "predicate": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-ontology#derived-from-source"
-      },
-      "subject": {
-        "termType": "NamedNode",
-        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:namespace"
+        "value": "urn:beep-effect:doc-seed:repo-symbol-kind:EnumDeclaration"
       }
     },
     {

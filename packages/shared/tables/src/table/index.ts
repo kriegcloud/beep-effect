@@ -1,15 +1,14 @@
 /**
- * Re-export the shared table factory helpers.
+ * Shared-kernel table constructor module.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @category exports
  */
-export * from "./Table.js";
 
 /**
- * Re-export the supporting shared table types.
+ * Shared-kernel Drizzle table constructor.
  *
  * @since 0.0.0
- * @category exports
+ * @category constructors
  */
-export * from "./types.js";
+export * as Table from "./Table.ts";

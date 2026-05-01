@@ -1,0 +1,54 @@
+/**
+ * Candidate draft entity model.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { $WorkspaceDomainId } from "@beep/identity/packages";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
+import * as Workspace from "@beep/shared-domain/identity/Workspace";
+import { CandidateLifecycle } from "@beep/workspace-domain/values";
+import * as S from "effect/Schema";
+
+const $I = $WorkspaceDomainId.create("entities/CandidateDraft/CandidateDraft.model");
+
+const UnknownRecord = S.Record(S.String, S.Unknown);
+
+/**
+ * Candidate draft artifact proposed by an agent.
+ *
+ * @example
+ * ```ts
+ * import { CandidateDraft } from "@beep/workspace-domain"
+ *
+ * console.log(CandidateDraft.definition.entityId.resource)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CandidateDraft extends BaseEntity.Class<CandidateDraft>($I`CandidateDraft`)(
+  Workspace.CandidateDraftId,
+  {
+    fields: {
+      fixtureKey: S.String,
+      lifecycle: CandidateLifecycle,
+      snapshot: UnknownRecord,
+    },
+    persisted: {
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+      }),
+      lifecycle: EntitySchema.persist.literal({
+        columnName: "lifecycle",
+      }),
+      snapshot: EntitySchema.persist.jsonb({
+        columnName: "snapshot",
+      }),
+    },
+  },
+  $I.annote("CandidateDraft", {
+    description: "Candidate draft artifact proposed by an agent.",
+  })
+) {}

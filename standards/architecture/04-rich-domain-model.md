@@ -36,8 +36,8 @@ Rich annotated schemas pay back that ceremony because the same definition can:
 - provide constructors, defaults, normalization, JSON codecs, and boundary
   decoders
 - derive guards and equivalence instead of hand-written predicate helpers
-- feed generated docs, validation messages, and agent context with the same
-  domain descriptions humans read
+- feed generated docs and validation messages with the same domain descriptions
+  humans read
 - keep runtime guarantees attached to the domain language instead of scattered
   through handlers and adapters
 
@@ -82,116 +82,192 @@ architectural sense.
 Domain may define driver-neutral schemas and value objects that config
 packages reuse when resolving typed settings. Domain behavior must still receive
 explicit values from callers rather than reading `Config`, `ConfigProvider`,
-`@beep/shared-config`, environment variables, secrets, files, or process state.
+`@beep/<kernel>-config`, environment variables, secrets, files, or process state.
+
+### Forbidden Effect dependencies in domain
+
+Pure does not mean Effect-free. It does mean none of these dependencies appear
+in the requirements (`R`) channel of any Effect returned from a domain function:
+
+- `Sql` (any database client)
+- `HttpClient`
+- `FileSystem` (from `effect`)
+- `Path` (from `effect`)
+- `Terminal` (from `effect`)
+- `ChildProcessSpawner` (from `effect/unstable/process`)
+- `Config` and `ConfigProvider`
+- Anything exported from a `packages/drivers/*` package
+- Anything exported from a slice's `server`, `tables`, `client`, or `ui` packages
+
+A domain Effect's signature is allowed to use `Effect.Effect<A, E>` (no `R`) or
+`Effect.Effect<A, E, R>` only when `R` resolves to other domain services or to
+`never`. If `R` resolves to any of the above, the function does not belong in
+domain — move it to a use-case service or to the appropriate adapter.
+
+Schema is the one borderline case: domain may construct and apply schemas, and
+may yield decoded values, because schemas are pure values themselves. Domain may
+not, however, depend on `S.Layer`-style live encoder/decoder services that read
+configuration.
 
 ## Example Shape
 
 `Membership.model.ts` can own simple behavior:
 
-```ts
-import { $IamDomainId } from "@beep/identity/packages"
+````ts
+import { $IamDomainId } from "@beep/identity"
 import { LiteralKit } from "@beep/schema"
 import * as Model from "@beep/schema/Model"
 import { Effect } from "effect"
 import * as S from "effect/Schema"
-import { AccountId } from "@beep/iam-domain/entities/Account"
+import { ActorId } from "@beep/iam-domain/entities/Actor"
 import { OrganizationId } from "@beep/iam-domain/entities/Organization"
 import { MembershipAlreadyRevoked } from "./Membership.errors.js"
 
 const $I = $IamDomainId.create("entities/Membership/Membership.model")
 
+/**
+ * Branded identifier for an organization membership.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export const MembershipId = S.String.pipe(
   S.brand("MembershipId"),
   $I.annoteSchema("MembershipId", {
     description: "Unique identifier for an organization membership.",
-  }),
+  })
 )
 export type MembershipId = typeof MembershipId.Type
 
+/**
+ * Role granted by an organization membership.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export const MembershipRole = LiteralKit(["owner", "admin", "member"]).pipe(
   $I.annoteSchema("MembershipRole", {
     description: "Role granted by an organization membership.",
-  }),
+  })
 )
 export type MembershipRole = typeof MembershipRole.Type
 
-export const MembershipStatus = LiteralKit([
-  "active",
-  "invited",
-  "revoked",
-]).pipe(
+/**
+ * Lifecycle status of an organization membership.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const MembershipStatus = LiteralKit(["active", "invited", "revoked"]).pipe(
   $I.annoteSchema("MembershipStatus", {
     description: "Lifecycle status of an organization membership.",
-  }),
+  })
 )
 export type MembershipStatus = typeof MembershipStatus.Type
 
+/**
+ * Actor participation in an organization.
+ *
+ * @category schemas
+ * @remarks
+ * Owns the lifecycle predicate `canRevoke` and the pure transition `revoke`,
+ * which fails with {@link MembershipAlreadyRevoked} when the membership is
+ * already in the `revoked` status.
+ * @invariant `status` only transitions toward `"revoked"` via `revoke`.
+ * @since 0.0.0
+ */
 export class Membership extends Model.Class<Membership>($I`Membership`)(
   {
     id: MembershipId,
     organizationId: OrganizationId,
-    accountId: AccountId,
+    actorId: ActorId,
     role: MembershipRole,
     status: MembershipStatus,
   },
   $I.annote("Membership", {
-    description: "Account participation in an organization.",
-  }),
+    description: "Actor participation in an organization.",
+  })
 ) {
+  /**
+   * Whether this membership can transition to `revoked`.
+   *
+   * @category predicates
+   * @since 0.0.0
+   */
   readonly canRevoke = (): boolean => !MembershipStatus.is.revoked(this.status)
 
-  readonly revoke = Effect.fn("Membership.revoke")(() =>
-    this.canRevoke()
-      ? Effect.succeed(
-          Membership.make({
-            id: this.id,
-            organizationId: this.organizationId,
-            accountId: this.accountId,
-            role: this.role,
-            status: MembershipStatus.Enum.revoked,
-          }),
-        )
-      : Effect.fail(new MembershipAlreadyRevoked()),
+  /**
+   * Pure transition that revokes the membership when allowed.
+   *
+   * @category combinators
+   * @since 0.0.0
+   */
+  readonly revoke: () => Effect.Effect<Membership, MembershipAlreadyRevoked> = Effect.fn("Membership.revoke")(
+    function* (this: Membership) {
+      if (!this.canRevoke()) {
+        return yield* Effect.fail(new MembershipAlreadyRevoked())
+      }
+      return Membership.make({
+        id: this.id,
+        organizationId: this.organizationId,
+        actorId: this.actorId,
+        role: this.role,
+        status: MembershipStatus.Enum.revoked,
+      })
+    }
   )
 }
-```
+````
 
 `Membership.policy.ts` can own larger pure decisions:
 
-```ts
-import {
-  type Membership,
-  MembershipRole,
-  MembershipStatus,
-} from "./Membership.model.js"
+````ts
+import { type Membership, MembershipRole, MembershipStatus } from "./Membership.model.js"
 
-export const canPromoteToOwner = (model: Membership) =>
+/**
+ * Pure decision rule: whether a membership may be promoted to `owner`.
+ *
+ * @category predicates
+ * @remarks
+ * Only memberships whose status is `active` and whose role is not already
+ * `owner` may be promoted.
+ * @since 0.0.0
+ */
+export const canPromoteToOwner = (model: Membership): boolean =>
   MembershipStatus.is.active(model.status) && !MembershipRole.is.owner(model.role)
-```
+````
 
 `Membership.behavior.ts` can own pure transitions:
 
-```ts
+````ts
 import { Effect } from "effect"
 import { MembershipRoleChangeRejected } from "./Membership.errors.js"
-import { canPromoteToOwner } from "./Membership.policy.js"
 import { Membership, MembershipRole } from "./Membership.model.js"
+import { canPromoteToOwner } from "./Membership.policy.js"
 
-export const promoteToOwner = Effect.fn("Membership.promoteToOwner")(
-  (model: Membership) =>
-    canPromoteToOwner(model)
-      ? Effect.succeed(
-          Membership.make({
-            id: model.id,
-            organizationId: model.organizationId,
-            accountId: model.accountId,
-            role: MembershipRole.Enum.owner,
-            status: model.status,
-          }),
-        )
-      : Effect.fail(new MembershipRoleChangeRejected()),
-)
-```
+/**
+ * Pure transition that promotes a membership to the `owner` role when allowed.
+ *
+ * @category combinators
+ * @remarks
+ * Delegates the decision to {@link canPromoteToOwner}; on rejection fails with
+ * {@link MembershipRoleChangeRejected} instead of mutating the model.
+ * @since 0.0.0
+ */
+export const promoteToOwner: (model: Membership) => Effect.Effect<Membership, MembershipRoleChangeRejected> =
+  Effect.fn("Membership.promoteToOwner")(function* (model: Membership) {
+    if (!canPromoteToOwner(model)) {
+      return yield* Effect.fail(new MembershipRoleChangeRejected())
+    }
+    return Membership.make({
+      id: model.id,
+      organizationId: model.organizationId,
+      actorId: model.actorId,
+      role: MembershipRole.Enum.owner,
+      status: model.status,
+    })
+  })
+````
 
 The use-case service then orchestrates loading, authorization, persistence, and
 event publication around these pure domain rules.

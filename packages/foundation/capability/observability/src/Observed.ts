@@ -1,0 +1,293 @@
+/**
+ * Transport-safe schemas for serializing Effect errors, defects, causes, and exits.
+ *
+ * These schemas annotate the core `S.Error`, `S.Defect`, `S.Cause`, and `S.Exit`
+ * schemas with identity metadata for the observability package.
+ *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObservedError, ObservedCause } from "@beep/observability"
+ *
+ * void ObservedError
+ * void ObservedCause
+ * ```
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { $ObservabilityId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $ObservabilityId.create("Observed");
+
+/**
+ * A transport-safe schema for expected errors (message only, no stack).
+ *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObservedError } from "@beep/observability"
+ *
+ * const decode = S.decodeUnknownSync(ObservedError)
+ * const err = decode({ message: "boom" })
+ * console.log(err.message) // "boom"
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const ObservedError = S.Error.pipe(
+  S.annotate(
+    $I.annote("ObservedError", {
+      description: "A transport-safe schema for expected errors.",
+    })
+  )
+);
+
+/**
+ * Runtime type for {@link ObservedError}.
+ *
+ * @example
+ * ```typescript
+ * import type { ObservedError } from "@beep/observability"
+ *
+ * const readMessage = (error: ObservedError) => error.message
+ * void readMessage
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ObservedError = typeof ObservedError.Type;
+
+/**
+ * A transport-safe schema for expected errors that preserves stacks.
+ *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObservedErrorWithStack } from "@beep/observability"
+ *
+ * const decode = S.decodeUnknownSync(ObservedErrorWithStack)
+ * const err = decode(new Error("boom"))
+ * console.log(err.message) // "boom"
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const ObservedErrorWithStack = S.ErrorWithStack.pipe(
+  S.annotate(
+    $I.annote("ObservedErrorWithStack", {
+      description: "A transport-safe schema for expected errors that preserves stacks.",
+    })
+  )
+);
+
+/**
+ * Runtime type for {@link ObservedErrorWithStack}.
+ *
+ * @example
+ * ```typescript
+ * import type { ObservedErrorWithStack } from "@beep/observability"
+ *
+ * const readStack = (error: ObservedErrorWithStack) => error.stack
+ * void readStack
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ObservedErrorWithStack = typeof ObservedErrorWithStack.Type;
+
+/**
+ * A transport-safe schema for defects.
+ *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObservedDefect } from "@beep/observability"
+ *
+ * const decode = S.decodeUnknownSync(ObservedDefect)
+ * const defect = decode("unexpected crash")
+ * void defect
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const ObservedDefect = S.Defect.pipe(
+  S.annotate(
+    $I.annote("ObservedDefect", {
+      description: "A transport-safe schema for defects.",
+    })
+  )
+);
+
+/**
+ * Runtime type for {@link ObservedDefect}.
+ *
+ * @example
+ * ```typescript
+ * import type { ObservedDefect } from "@beep/observability"
+ *
+ * const keepDefect = (defect: ObservedDefect) => defect
+ * void keepDefect
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ObservedDefect = typeof ObservedDefect.Type;
+
+/**
+ * A transport-safe schema for defects that preserves stacks when possible.
+ *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObservedDefectWithStack } from "@beep/observability"
+ *
+ * const decode = S.decodeUnknownSync(ObservedDefectWithStack)
+ * const defect = decode(new Error("unexpected crash"))
+ * void defect
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const ObservedDefectWithStack = S.DefectWithStack.pipe(
+  S.annotate(
+    $I.annote("ObservedDefectWithStack", {
+      description: "A transport-safe schema for defects that preserves stacks when possible.",
+    })
+  )
+);
+
+/**
+ * Runtime type for {@link ObservedDefectWithStack}.
+ *
+ * @example
+ * ```typescript
+ * import type { ObservedDefectWithStack } from "@beep/observability"
+ *
+ * const keepDefect = (defect: ObservedDefectWithStack) => defect
+ * void keepDefect
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ObservedDefectWithStack = typeof ObservedDefectWithStack.Type;
+
+/**
+ * One serialized failure reason from a Cause.
+ *
+ * @example
+ * ```typescript
+ * import { ObservedCauseReason } from "@beep/observability"
+ *
+ * void ObservedCauseReason
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const ObservedCauseReason = S.CauseReason(ObservedErrorWithStack, ObservedDefectWithStack).pipe(
+  S.annotate(
+    $I.annote("ObservedCauseReason", {
+      description: "One serialized failure reason from a Cause.",
+    })
+  )
+);
+
+/**
+ * Runtime type for {@link ObservedCauseReason}.
+ *
+ * @example
+ * ```typescript
+ * import type { ObservedCauseReason } from "@beep/observability"
+ *
+ * const keepReason = (reason: ObservedCauseReason) => reason
+ * void keepReason
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ObservedCauseReason = typeof ObservedCauseReason.Type;
+
+/**
+ * A transport-safe schema for full Effect causes.
+ *
+ * @example
+ * ```typescript
+ * import { ObservedCause } from "@beep/observability"
+ *
+ * void ObservedCause
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const ObservedCause = S.Cause(ObservedErrorWithStack, ObservedDefectWithStack).pipe(
+  S.annotate(
+    $I.annote("ObservedCause", {
+      description: "A transport-safe schema for full Effect causes.",
+    })
+  )
+);
+
+/**
+ * Runtime type for {@link ObservedCause}.
+ *
+ * @example
+ * ```typescript
+ * import type { ObservedCause } from "@beep/observability"
+ *
+ * const keepCause = (cause: ObservedCause) => cause
+ * void keepCause
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ObservedCause = typeof ObservedCause.Type;
+
+/**
+ * A transport-safe schema for exits carrying unknown success values.
+ *
+ * @example
+ * ```typescript
+ * import { ObservedExit } from "@beep/observability"
+ *
+ * void ObservedExit
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const ObservedExit = S.Exit(S.Unknown, ObservedErrorWithStack, ObservedDefectWithStack).pipe(
+  S.annotate(
+    $I.annote("ObservedExit", {
+      description: "A transport-safe schema for exits carrying unknown success values.",
+    })
+  )
+);
+
+/**
+ * Runtime type for {@link ObservedExit}.
+ *
+ * @example
+ * ```typescript
+ * import type { ObservedExit } from "@beep/observability"
+ *
+ * const keepExit = (exit: ObservedExit) => exit
+ * void keepExit
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ObservedExit = typeof ObservedExit.Type;

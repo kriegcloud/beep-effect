@@ -1,0 +1,189 @@
+/**
+ * Storage-neutral polymorphic entity reference.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $SharedDomainId } from "@beep/identity/packages";
+import { Result } from "effect";
+import { dual, pipe } from "effect/Function";
+import * as S from "effect/Schema";
+import type * as SchemaIssue from "effect/SchemaIssue";
+import * as EntityId from "./EntityId.js";
+
+const $I = $SharedDomainId.create("entity/EntityRef");
+
+/**
+ * Entity type grammar used by polymorphic references.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { EntityType } from "@beep/shared-domain/entity/EntityRef"
+ *
+ * const program = Effect.gen(function* () {
+ *   const entityType = yield* S.decodeUnknownEffect(EntityType)("SharedOrganization")
+ *   return entityType
+ * })
+ * void program
+ * ```
+ *
+ * @since 0.0.0
+ * @category schemas
+ */
+export const EntityType = S.NonEmptyString.pipe(
+  S.brand("EntityType"),
+  $I.annoteSchema("EntityType", {
+    description: "PascalCase entity type token used by polymorphic entity references.",
+  })
+);
+
+/**
+ * Runtime type for {@link EntityType}.
+ *
+ * @example
+ * ```ts
+ * import type { EntityType } from "@beep/shared-domain/entity/EntityRef"
+ *
+ * const printEntityType = (entityType: EntityType) => console.log(entityType)
+ * void printEntityType
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EntityType = typeof EntityType.Type;
+
+/**
+ * Persisted polymorphic reference encoded as entity type plus numeric id.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { EntityIdValue } from "@beep/shared-domain/entity/EntityId"
+ * import { EntityRef, EntityType } from "@beep/shared-domain/entity/EntityRef"
+ *
+ * const program = Effect.gen(function* () {
+ *   const ref = new EntityRef({
+ *     entityType: yield* S.decodeUnknownEffect(EntityType)("SharedOrganization"),
+ *     id: yield* S.decodeUnknownEffect(EntityIdValue)(1),
+ *   })
+ *   return ref.entityType
+ * })
+ * void program
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class EntityRef extends S.Class<EntityRef>($I`EntityRef`)(
+  {
+    entityType: EntityType,
+    id: EntityId.EntityIdValue,
+  },
+  $I.annote("EntityRef", {
+    description: "Storage-neutral polymorphic entity reference.",
+  })
+) {}
+
+/**
+ * Entity reference narrowed to a known entity-id schema.
+ *
+ * @example
+ * ```ts
+ * import type { EntityRefFor } from "@beep/shared-domain/entity/EntityRef"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ *
+ * type OrganizationRef = EntityRefFor<typeof OrganizationId>
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EntityRefFor<Entity extends EntityId.Any> = Omit<EntityRef, "entityType" | "id"> & {
+  readonly entityType: Entity["entityType"] & EntityType;
+  readonly id: Entity["Type"];
+};
+
+const decodeEntityTypeResult = S.decodeUnknownResult(EntityType);
+
+/**
+ * Build a polymorphic reference result for a known entity id schema.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as Result from "effect/Result"
+ * import * as S from "effect/Schema"
+ * import { makeResult } from "@beep/shared-domain/entity/EntityRef"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ *
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(OrganizationId)(1)
+ *   const ref = makeResult(OrganizationId, id)
+ *   return Result.isSuccess(ref)
+ * })
+ * void program
+ * ```
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const makeResult: {
+  <const Entity extends EntityId.Any>(
+    entityId: Entity,
+    id: Entity["Type"]
+  ): Result.Result<EntityRefFor<Entity>, SchemaIssue.Issue>;
+  <const Entity extends EntityId.Any>(
+    id: Entity["Type"]
+  ): (entityId: Entity) => Result.Result<EntityRefFor<Entity>, SchemaIssue.Issue>;
+} = dual(
+  2,
+  <const Entity extends EntityId.Any>(
+    entityId: Entity,
+    id: Entity["Type"]
+  ): Result.Result<EntityRefFor<Entity>, SchemaIssue.Issue> =>
+    pipe(
+      decodeEntityTypeResult(entityId.entityType),
+      Result.map(
+        (entityType) =>
+          new EntityRef({
+            entityType,
+            id,
+          }) as EntityRefFor<Entity>
+      )
+    )
+);
+
+/**
+ * Build a polymorphic reference for a known entity id schema.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { make } from "@beep/shared-domain/entity/EntityRef"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ *
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(OrganizationId)(1)
+ *   const ref = make(OrganizationId, id)
+ *   return ref.entityType
+ * })
+ * void program
+ * ```
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const make: {
+  <const Entity extends EntityId.Any>(entityId: Entity, id: Entity["Type"]): EntityRefFor<Entity>;
+  <const Entity extends EntityId.Any>(id: Entity["Type"]): (entityId: Entity) => EntityRefFor<Entity>;
+} = dual(
+  2,
+  <const Entity extends EntityId.Any>(entityId: Entity, id: Entity["Type"]): EntityRefFor<Entity> =>
+    Result.getOrThrow(makeResult(entityId, id))
+);

@@ -101,7 +101,7 @@ const items = [
   { label: "Select a fruit", value: null },
   { label: "Apple", value: "apple" },
   { label: "Banana", value: "banana" },
-];
+]
 
 <Select items={items}>
   <SelectTrigger>
@@ -138,17 +138,11 @@ const items = [
 **Content positioning.** Base uses `alignItemWithTrigger`. Radix uses `position`.
 
 ```tsx
-<>
-  {/* base. */}
-  <SelectContent alignItemWithTrigger={false} side="bottom">
-    <SelectItem value="apple">Apple</SelectItem>
-  </SelectContent>
+// base.
+<SelectContent alignItemWithTrigger={false} side="bottom">
 
-  {/* radix. */}
-  <SelectContent position="popper">
-    <SelectItem value="apple">Apple</SelectItem>
-  </SelectContent>
-</>
+// radix.
+<SelectContent position="popper">
 ```
 
 ---
@@ -166,7 +160,7 @@ Base supports `multiple`, render-function children on `SelectValue`, and object 
       {(value: string[]) => value.length === 0 ? "Select fruits" : `${value.length} selected`}
     </SelectValue>
   </SelectTrigger>
-  <SelectContent />
+  ...
 </Select>
 ```
 
@@ -177,7 +171,7 @@ Base supports `multiple`, render-function children on `SelectValue`, and object 
   <SelectTrigger>
     <SelectValue>{(value) => value.name}</SelectValue>
   </SelectTrigger>
-  <SelectContent />
+  ...
 </Select>
 ```
 
@@ -198,53 +192,45 @@ Base uses a `multiple` boolean prop. Radix uses `type="single"` or `type="multip
 **Correct (base):**
 
 ```tsx
-<>
-  {/* Single (no prop needed), defaultValue is always an array. */}
-  <ToggleGroup defaultValue={["daily"]} spacing={2}>
-    <ToggleGroupItem value="daily">Daily</ToggleGroupItem>
-    <ToggleGroupItem value="weekly">Weekly</ToggleGroupItem>
-  </ToggleGroup>
+// Single (no prop needed), defaultValue is always an array.
+<ToggleGroup defaultValue={["daily"]} spacing={2}>
+  <ToggleGroupItem value="daily">Daily</ToggleGroupItem>
+  <ToggleGroupItem value="weekly">Weekly</ToggleGroupItem>
+</ToggleGroup>
 
-  {/* Multi-selection. */}
-  <ToggleGroup multiple>
-    <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
-    <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
-  </ToggleGroup>
-</>
+// Multi-selection.
+<ToggleGroup multiple>
+  <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
+  <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
+</ToggleGroup>
 ```
 
 **Correct (radix):**
 
 ```tsx
-<>
-  {/* Single, defaultValue is a string. */}
-  <ToggleGroup type="single" defaultValue="daily" spacing={2}>
-    <ToggleGroupItem value="daily">Daily</ToggleGroupItem>
-    <ToggleGroupItem value="weekly">Weekly</ToggleGroupItem>
-  </ToggleGroup>
+// Single, defaultValue is a string.
+<ToggleGroup type="single" defaultValue="daily" spacing={2}>
+  <ToggleGroupItem value="daily">Daily</ToggleGroupItem>
+  <ToggleGroupItem value="weekly">Weekly</ToggleGroupItem>
+</ToggleGroup>
 
-  {/* Multi-selection. */}
-  <ToggleGroup type="multiple">
-    <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
-    <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
-  </ToggleGroup>
-</>
+// Multi-selection.
+<ToggleGroup type="multiple">
+  <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
+  <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
+</ToggleGroup>
 ```
 
 **Controlled single value:**
 
 ```tsx
 // base — wrap/unwrap arrays.
-const [baseValue, setBaseValue] = React.useState("normal");
-<ToggleGroup value={[baseValue]} onValueChange={(v) => setBaseValue(v[0])}>
-  <ToggleGroupItem value="normal">Normal</ToggleGroupItem>
-</ToggleGroup>
+const [value, setValue] = React.useState("normal")
+<ToggleGroup value={[value]} onValueChange={(v) => setValue(v[0])}>
 
 // radix — plain string.
-const [radixValue, setRadixValue] = React.useState("normal");
-<ToggleGroup type="single" value={radixValue} onValueChange={setRadixValue}>
-  <ToggleGroupItem value="normal">Normal</ToggleGroupItem>
-</ToggleGroup>
+const [value, setValue] = React.useState("normal")
+<ToggleGroup type="single" value={value} onValueChange={setValue}>
 ```
 
 ---
@@ -275,12 +261,12 @@ Both use arrays for range sliders. Controlled `onValueChange` in base may need a
 
 ```tsx
 // base.
-const [baseValue, setBaseValue] = React.useState([0.3, 0.7]);
-<Slider value={baseValue} onValueChange={(v) => setBaseValue(v as number[])} />
+const [value, setValue] = React.useState([0.3, 0.7])
+<Slider value={value} onValueChange={(v) => setValue(v as number[])} />
 
 // radix.
-const [radixValue, setRadixValue] = React.useState([0.3, 0.7]);
-<Slider value={radixValue} onValueChange={setRadixValue} />
+const [value, setValue] = React.useState([0.3, 0.7])
+<Slider value={value} onValueChange={setValue} />
 ```
 
 ---
@@ -300,17 +286,15 @@ Radix requires `type="single"` or `type="multiple"` and supports `collapsible`. 
 **Correct (base):**
 
 ```tsx
-<>
-  <Accordion defaultValue={["item-1"]}>
-    <AccordionItem value="item-1">...</AccordionItem>
-  </Accordion>
+<Accordion defaultValue={["item-1"]}>
+  <AccordionItem value="item-1">...</AccordionItem>
+</Accordion>
 
-  {/* Multi-select. */}
-  <Accordion multiple defaultValue={["item-1", "item-2"]}>
-    <AccordionItem value="item-1">...</AccordionItem>
-    <AccordionItem value="item-2">...</AccordionItem>
-  </Accordion>
-</>
+// Multi-select.
+<Accordion multiple defaultValue={["item-1", "item-2"]}>
+  <AccordionItem value="item-1">...</AccordionItem>
+  <AccordionItem value="item-2">...</AccordionItem>
+</Accordion>
 ```
 
 **Correct (radix):**

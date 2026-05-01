@@ -1,6 +1,6 @@
 # Configuration Boundaries
 
-`config` is a canonical optional slice package kind.
+`config` is an optional canonical-shape slice package kind.
 
 The name is deliberate. `config` names the typed runtime contract the slice
 understands. `env` names only one possible source for those values. Effect
@@ -25,7 +25,7 @@ The public package convention is:
 
 ```txt
 @beep/<slice>-config
-@beep/shared-config
+@beep/<kernel>-config
 ```
 
 `packages/<slice>/config` is canonical but not mandatory. Create it when the
@@ -39,8 +39,14 @@ Effect `Config` and `ConfigProvider`, not by direct `process.env` access inside
 slice code.
 
 Existing `env` package naming is legacy vocabulary. Migrate package names such
-as `@beep/shared-env` and paths such as `packages/shared/env` to
-`@beep/shared-config` and `packages/shared/config`.
+as `@beep/<kernel>-env` and paths such as `packages/<kernel>/config` to
+`@beep/<kernel>-config` and `packages/<kernel>/config`.
+
+Do not introduce new `env` packages or direct environment reads in
+architecture-sensitive slice work. Existing env-shaped code is transitional
+compatibility; when a config boundary is touched, clean that boundary toward
+typed config contracts, explicit subpaths, and server/runtime-only `/layer`
+resolution.
 
 ## Public, Server, And Secret Boundaries
 
@@ -66,14 +72,14 @@ Config packages publish an explicit export contract:
 @beep/<slice>-config/test
 ```
 
-`@beep/shared-config` uses the same subpath contract.
+`@beep/<kernel>-config` uses the same subpath contract.
 
 - Browser/client code imports only `/public`.
 - `/server`, `/secrets`, and `/test` are server/test-only.
 - `/layer` remains canonical, but it is server/runtime-only config resolution
   surface rather than a client-safe API.
 
-Required subpaths are required names when that role exists, not a requirement
+Canonical subpath names are required names when that role exists, not a requirement
 to publish placeholder exports. Package-root and `./*` exports may remain during
 migration, but they are compatibility leftovers rather than the canonical
 boundary contract.
@@ -103,7 +109,7 @@ brands, value objects, and validation. Foundation packages may provide generic
 schema, identity, or capability helpers beside that shared language. That
 dependency is one-way. Domain may import shared-kernel language plus allowed
 `foundation/primitive` and `foundation/modeling` packages, but it must never
-import slice config, `@beep/shared-config`, `Config`, `ConfigProvider`, secret
+import slice config, `@beep/<kernel>-config`, `Config`, `ConfigProvider`, secret
 helpers, or test config utilities.
 
 Use-cases may import config contracts or services for application tunables.
@@ -117,9 +123,13 @@ Config must not import drivers. Drivers keep technical driver config in driver
 influence driver wiring, but it should not own Drizzle, Postgres, EventLog,
 queue, or workflow-engine internals.
 
+For a worked example showing how a feature flag splits across the boundary
+(driver owns the values, slice owns the flag selecting them), see
+[`03-driver-boundaries.md`](./03-driver-boundaries.md#worked-example-a-tunable-that-spans-both).
+
 ## Shared Config
 
-`@beep/shared-config` is part of the shared kernel. It may hold cross-slice
+`@beep/<kernel>-config` is part of the shared kernel. It may hold cross-slice
 config primitives, shared config contracts, redacted-secret helpers, and test
 `ConfigProvider` utilities that multiple slices deliberately agree on.
 

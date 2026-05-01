@@ -20,4 +20,4 @@ Use this skill for TypeScript symbol indexing/search and lsmcp startup diagnosis
 - Use launch args: `bunx -y @mizchi/lsmcp -p typescript`.
 - Remove `--bun` from MCP config.
 - Prefer lightweight calls first, then narrow query scope.
-- Use a scoped `root` (for example `tooling/configs` or a package directory) for symbol queries.
+- Use a scoped `root` (for example `packages/tooling/policy-pack/repo-configs` or a package directory) for symbol queries.

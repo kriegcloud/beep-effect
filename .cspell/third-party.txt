@@ -19,10 +19,13 @@ Kuzu
 kysely
 lefthook
 markdownlint
+mariozechner
 ONNX
 oxlint
+Pglite
 pgvector
 phosphor
+pglite
 playwright
 postcss
 publint

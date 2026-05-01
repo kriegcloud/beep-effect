@@ -20,17 +20,15 @@ Add `data-icon="inline-start"` (prefix) or `data-icon="inline-end"` (suffix) to 
 **Correct:**
 
 ```tsx
-<>
-  <Button>
-    <SearchIcon data-icon="inline-start" />
-    Search
-  </Button>
+<Button>
+  <SearchIcon data-icon="inline-start"/>
+  Search
+</Button>
 
-  <Button>
-    Next
-    <ArrowRightIcon data-icon="inline-end" />
-  </Button>
-</>
+<Button>
+  Next
+  <ArrowRightIcon data-icon="inline-end"/>
+</Button>
 ```
 
 ---
@@ -42,33 +40,29 @@ Components handle icon sizing via CSS. Don't add `size-4`, `w-4 h-4`, or other s
 **Incorrect:**
 
 ```tsx
-<>
-  <Button>
-    <SearchIcon className="size-4" data-icon="inline-start" />
-    Search
-  </Button>
+<Button>
+  <SearchIcon className="size-4" data-icon="inline-start" />
+  Search
+</Button>
 
-  <DropdownMenuItem>
-    <SettingsIcon className="mr-2 size-4" />
-    Settings
-  </DropdownMenuItem>
-</>
+<DropdownMenuItem>
+  <SettingsIcon className="mr-2 size-4" />
+  Settings
+</DropdownMenuItem>
 ```
 
 **Correct:**
 
 ```tsx
-<>
-  <Button>
-    <SearchIcon data-icon="inline-start" />
-    Search
-  </Button>
+<Button>
+  <SearchIcon data-icon="inline-start" />
+  Search
+</Button>
 
-  <DropdownMenuItem>
-    <SettingsIcon />
-    Settings
-  </DropdownMenuItem>
-</>
+<DropdownMenuItem>
+  <SettingsIcon />
+  Settings
+</DropdownMenuItem>
 ```
 
 ---

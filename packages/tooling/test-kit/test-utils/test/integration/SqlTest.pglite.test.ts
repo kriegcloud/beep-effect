@@ -1,0 +1,397 @@
+import {
+  makePgliteSqlTestLayer,
+  makePgliteTestcontainerResource,
+  makeSqlTestLayer,
+  PgExternalTestDriver,
+  PgliteTestcontainersTestDriver,
+  SqlTestHarnessError,
+  type SqlTestHooks,
+  TestDatabaseInfo,
+} from "@beep/test-utils";
+import { beforeAll, describe, expect, it } from "@effect/vitest";
+import { Cause, Context, Effect, Exit, Layer, pipe, Scope } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as SqlClient from "effect/unstable/sql/SqlClient";
+
+const sharedConnectionUri = process.env.BEEP_TEST_DATABASE_URL;
+const hasSharedConnectionUri = sharedConnectionUri !== undefined && sharedConnectionUri !== "";
+let pgliteTestcontainersAvailable = false;
+const isSqlTestHarnessError = S.is(SqlTestHarnessError);
+
+beforeAll(
+  () =>
+    import("testcontainers")
+      .then(({ getContainerRuntimeClient }) => getContainerRuntimeClient())
+      .then(
+        () => {
+          pgliteTestcontainersAvailable = true;
+        },
+        () => {
+          pgliteTestcontainersAvailable = false;
+        }
+      ),
+  30_000
+);
+
+const skipWhenNoSharedDatabase = (ctx: { readonly skip: (message?: string) => void }) =>
+  hasSharedConnectionUri
+    ? Effect.void
+    : Effect.sync(() => ctx.skip("BEEP_TEST_DATABASE_URL is required for shared external PostgreSQL tests."));
+
+const skipTestcontainersWhenUnavailable = (ctx: { readonly skip: (message?: string) => void }) =>
+  pgliteTestcontainersAvailable
+    ? Effect.void
+    : Effect.sync(() => ctx.skip("Docker/Testcontainers is unavailable for PGLite integration tests."));
+
+const makeSharedLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
+  hooks === undefined
+    ? makePgliteSqlTestLayer({
+        external: { connectionUri: sharedConnectionUri ?? "" },
+        mode: "external",
+      })
+    : makePgliteSqlTestLayer({
+        external: { connectionUri: sharedConnectionUri ?? "" },
+        hooks,
+        mode: "external",
+      });
+
+const makeContainerLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
+  makeSqlTestLayer(
+    hooks === undefined
+      ? {
+          config: undefined,
+          driver: PgliteTestcontainersTestDriver,
+        }
+      : {
+          config: undefined,
+          driver: PgliteTestcontainersTestDriver,
+          hooks,
+        }
+  );
+
+const makeExternalNoIsolationLayer = (connectionUri: string) =>
+  makeSqlTestLayer({
+    config: {
+      connectionUri,
+      isolation: "none",
+    },
+    driver: PgExternalTestDriver,
+  });
+
+const countIsolatedNotes = Effect.fn("SqlTestIntegration.countIsolatedNotes")(function* () {
+  const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+  const rows = yield* sql<{ readonly count: number }>`
+    SELECT COUNT(*)::integer AS count
+    FROM isolated_notes
+  `;
+
+  return pipe(
+    rows,
+    A.head,
+    O.map((row) => row.count),
+    O.getOrElse(() => 0)
+  );
+});
+
+const schemaExists = Effect.fn("SqlTestIntegration.schemaExists")(function* (schemaName: string) {
+  const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+  const rows = yield* sql<{ readonly schema_name: string }>`
+    SELECT schema_name
+    FROM information_schema.schemata
+    WHERE schema_name = ${schemaName}
+  `;
+  return A.isReadonlyArrayNonEmpty(rows);
+});
+
+const isContainerInspectable = Effect.fn("SqlTestIntegration.isContainerInspectable")(function* (containerId: string) {
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const { getContainerRuntimeClient } = await import("testcontainers");
+      const runtime = await getContainerRuntimeClient();
+      await runtime.container.inspect(runtime.container.getById(containerId));
+      return true;
+    },
+    catch: () => false,
+  }).pipe(Effect.catch(Effect.succeed));
+});
+
+describe.sequential("PGLite shared external SQL test driver", () => {
+  it.effect(
+    "runs select 1 through the shared external driver",
+    (ctx) =>
+      Effect.gen(function* () {
+        yield* skipWhenNoSharedDatabase(ctx);
+
+        const result = yield* Effect.gen(function* () {
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          const info = yield* TestDatabaseInfo;
+          const rows = yield* sql<{ readonly one: number }>`SELECT 1 AS one`;
+
+          return {
+            driver: info.driver,
+            one: pipe(
+              rows,
+              A.head,
+              O.map((row) => row.one),
+              O.getOrElse(() => 0)
+            ),
+            schema: O.isSome(info.schema),
+          };
+        }).pipe(Effect.provide(makeSharedLayer(), { local: true }));
+
+        expect(result.driver).toBe("pg-external");
+        expect(result.one).toBe(1);
+        expect(result.schema).toBe(true);
+      }),
+    120_000
+  );
+
+  it.effect(
+    "creates, inserts, and queries PostgreSQL tables inside the generated schema",
+    (ctx) =>
+      Effect.gen(function* () {
+        yield* skipWhenNoSharedDatabase(ctx);
+
+        const values = yield* Effect.gen(function* () {
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          yield* sql`
+            CREATE TABLE notes (
+              id SERIAL PRIMARY KEY,
+              body TEXT NOT NULL
+            )
+          `;
+          yield* sql`
+            INSERT INTO notes (body)
+            VALUES ('alpha'), ('beta')
+          `;
+          const rows = yield* sql<{ readonly body: string }>`
+            SELECT body
+            FROM notes
+            ORDER BY id ASC
+          `;
+
+          return pipe(
+            rows,
+            A.map((row) => row.body)
+          );
+        }).pipe(Effect.provide(makeSharedLayer(), { local: true }));
+
+        expect(values).toEqual(["alpha", "beta"]);
+      }),
+    120_000
+  );
+
+  it.effect(
+    "isolates schemas between scoped external layers",
+    (ctx) =>
+      Effect.gen(function* () {
+        yield* skipWhenNoSharedDatabase(ctx);
+
+        const createTableAndCountRows = Effect.gen(function* () {
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          yield* sql`
+            CREATE TABLE isolated_notes (
+              id SERIAL PRIMARY KEY,
+              body TEXT NOT NULL
+            )
+          `;
+          yield* sql`
+            INSERT INTO isolated_notes (body)
+            VALUES ('first')
+          `;
+
+          return yield* countIsolatedNotes();
+        }).pipe(Effect.provide(makeSharedLayer(), { local: true }));
+
+        const countAfterCreate = yield* createTableAndCountRows;
+        const countAfterFreshProvision = yield* Effect.gen(function* () {
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          yield* sql`
+            CREATE TABLE isolated_notes (
+              id SERIAL PRIMARY KEY,
+              body TEXT NOT NULL
+            )
+          `;
+          return yield* countIsolatedNotes();
+        }).pipe(Effect.provide(makeSharedLayer(), { local: true }));
+
+        expect(countAfterCreate).toBe(1);
+        expect(countAfterFreshProvision).toBe(0);
+      }),
+    120_000
+  );
+
+  it.effect(
+    "runs migrate and seed hooks inside the generated schema",
+    (ctx) =>
+      Effect.gen(function* () {
+        yield* skipWhenNoSharedDatabase(ctx);
+
+        const result = yield* Effect.gen(function* () {
+          const info = yield* TestDatabaseInfo;
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          const rows = yield* sql<{ readonly value: string }>`
+            SELECT value
+            FROM seeded_values
+            ORDER BY value ASC
+          `;
+
+          return {
+            driver: info.driver,
+            values: pipe(
+              rows,
+              A.map((row) => row.value)
+            ),
+          };
+        }).pipe(
+          Effect.provide(
+            makeSharedLayer({
+              migrate: Effect.gen(function* () {
+                const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+                yield* sql`
+                  CREATE TABLE seeded_values (
+                    value TEXT NOT NULL
+                  )
+                `;
+              }),
+              seed: Effect.gen(function* () {
+                const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+                yield* sql`
+                  INSERT INTO seeded_values (value)
+                  VALUES ('alpha'), ('beta')
+                `;
+              }),
+            }),
+            { local: true }
+          )
+        );
+
+        expect(result.driver).toBe("pg-external");
+        expect(result.values).toEqual(["alpha", "beta"]);
+      }),
+    120_000
+  );
+
+  it.effect(
+    "wraps hook failures with the external driver id",
+    (ctx) =>
+      Effect.gen(function* () {
+        yield* skipWhenNoSharedDatabase(ctx);
+
+        const exit = yield* Effect.exit(
+          Effect.void.pipe(
+            Effect.provide(
+              makeSharedLayer({
+                migrate: Effect.fail("boom"),
+              }),
+              { local: true }
+            )
+          )
+        );
+
+        expect(Exit.isFailure(exit)).toBe(true);
+        if (Exit.isFailure(exit)) {
+          const failure = Cause.squash(exit.cause);
+
+          expect(failure).toBeInstanceOf(SqlTestHarnessError);
+          if (isSqlTestHarnessError(failure)) {
+            expect(failure.phase).toBe("migrate");
+            expect(failure.driver).toBe("pg-external");
+          }
+        }
+      }),
+    120_000
+  );
+
+  it.effect(
+    "drops generated schemas when the layer scope closes",
+    (ctx) =>
+      Effect.gen(function* () {
+        yield* skipWhenNoSharedDatabase(ctx);
+
+        const scope = yield* Scope.make();
+        const services = yield* Layer.buildWithScope(makeSharedLayer(), scope);
+        const info = Context.get(services, TestDatabaseInfo);
+        const schemaName = yield* Effect.fromOption(info.schema).pipe(Effect.orDie);
+        const connectionUri = yield* Effect.fromOption(info.connectionUri).pipe(Effect.orDie);
+
+        expect(
+          yield* schemaExists(schemaName).pipe(
+            Effect.provideService(SqlClient.SqlClient, Context.get(services, SqlClient.SqlClient))
+          )
+        ).toBe(true);
+        yield* Scope.close(scope, Exit.void);
+        const existsAfterClose = yield* schemaExists(schemaName).pipe(
+          Effect.provide(makeExternalNoIsolationLayer(connectionUri), { local: true })
+        );
+
+        expect(existsAfterClose).toBe(false);
+      }),
+    120_000
+  );
+});
+
+describe.sequential("PGLite Testcontainers SQL test driver", () => {
+  it.effect(
+    "starts a PGLite Testcontainers database and runs select 1 through SqlClient",
+    (ctx) =>
+      Effect.gen(function* () {
+        yield* skipTestcontainersWhenUnavailable(ctx);
+
+        const result = yield* Effect.gen(function* () {
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          const info = yield* TestDatabaseInfo;
+          const rows = yield* sql<{ readonly one: number }>`SELECT 1 AS one`;
+
+          return {
+            connectionUri: O.isSome(info.connectionUri),
+            containerId: O.isSome(info.containerId),
+            database: O.isSome(info.database),
+            driver: info.driver,
+            host: O.isSome(info.host),
+            one: pipe(
+              rows,
+              A.head,
+              O.map((row) => row.one),
+              O.getOrElse(() => 0)
+            ),
+            port: O.isSome(info.port),
+            username: O.isSome(info.username),
+          };
+        }).pipe(Effect.provide(makeContainerLayer(), { local: true }));
+
+        expect(result.driver).toBe("pglite-testcontainers");
+        expect(result.one).toBe(1);
+        expect(result.connectionUri).toBe(true);
+        expect(result.containerId).toBe(true);
+        expect(result.database).toBe(true);
+        expect(result.host).toBe(true);
+        expect(result.port).toBe(true);
+        expect(result.username).toBe(true);
+      }),
+    120_000
+  );
+
+  it.effect(
+    "stops and removes the PGLite container when the layer scope closes",
+    (ctx) =>
+      Effect.gen(function* () {
+        yield* skipTestcontainersWhenUnavailable(ctx);
+
+        const containerId = yield* Effect.scoped(
+          Effect.gen(function* () {
+            const resource = yield* makePgliteTestcontainerResource();
+            const id = resource.container.getId();
+
+            expect(yield* isContainerInspectable(id)).toBe(true);
+            return id;
+          })
+        );
+
+        expect(yield* isContainerInspectable(containerId)).toBe(false);
+      }),
+    120_000
+  );
+});

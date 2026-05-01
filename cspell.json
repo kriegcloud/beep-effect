@@ -81,9 +81,11 @@
     "tmp/**",
     "specs",
     "**/AGENTS.md",
-    "packages/common/schema/src/Timezone.ts",
+    "packages/foundation/modeling/schema/src/Timezone.ts",
     "**/internal/data/**",
     "**/dtslint/**",
-    "**/test/**"
+    "**/test/**",
+    "standards/jsdoc-documentation.inventory.jsonc",
+    "standards/jsdoc-documentation.inventory.md"
   ]
 }

@@ -1,29 +1,21 @@
 /**
- * \@beep/shared-server
+ * Shared server role package.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Current package version.
+ * Shared server package version.
  *
  * @example
  * ```ts
  * import { VERSION } from "@beep/shared-server"
  *
- * const version = VERSION
- *
- * void version
+ * console.log(VERSION)
  * ```
  *
  * @since 0.0.0
  * @category configuration
  */
 export const VERSION = "0.0.0" as const;
-
-/**
- * @since 0.0.0
- * @category exports
- */
-export * as Factories from "./factories.js";

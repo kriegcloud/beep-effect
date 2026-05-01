@@ -2,7 +2,7 @@
  * Root layout and static metadata for the codedank web app.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import type { Metadata } from "next";
