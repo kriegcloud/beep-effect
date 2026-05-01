@@ -6,6 +6,15 @@
  */
 
 /**
+ * Shared entity-id registry namespace.
+ *
+ * @example
+ * ```ts
+ * import { Shared } from "@beep/shared-domain/identity/index"
+ *
+ * console.log(Shared.OrganizationId.tableName)
+ * ```
+ *
  * @since 0.0.0
  * @category entity ids
  */

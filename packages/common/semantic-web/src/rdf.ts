@@ -7,7 +7,7 @@
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
-import { Order, Result, pipe } from "effect";
+import { Order, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";

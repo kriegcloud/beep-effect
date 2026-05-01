@@ -22,9 +22,7 @@ import {
 
 const encodeJsonLdDocumentToJson = S.encodeEffect(S.fromJsonString(JsonLdDocument));
 
-const decodeNonNegativeInt = (
-  value: number
-): Effect.Effect<typeof NonNegativeInt.Type, JsonLdStreamSerializeError> =>
+const decodeNonNegativeInt = (value: number): Effect.Effect<typeof NonNegativeInt.Type, JsonLdStreamSerializeError> =>
   S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
     Effect.mapError(
       (cause) =>
@@ -123,14 +121,16 @@ export const JsonLdStreamSerializeServiceLive = Layer.effect(
                   message: "Unable to produce JSON-LD output chunks from the bounded dataset.",
                 })
               ),
-            onNonEmpty: ([firstChunk, ...restChunks]) =>
-              Effect.gen(function* () {
-                return JsonLdStreamSerializeResult.make({
-                  chunks: [firstChunk, ...restChunks],
-                  mode: "buffered-fallback",
-                  chunkCount: yield* decodeNonNegativeInt(nonEmptyChunks.length),
-                });
-              }),
+            onNonEmpty: Effect.fn("JsonLdStreamSerializeService.serialize.nonEmptyChunks")(function* ([
+              firstChunk,
+              ...restChunks
+            ]) {
+              return JsonLdStreamSerializeResult.make({
+                chunks: [firstChunk, ...restChunks],
+                mode: "buffered-fallback",
+                chunkCount: yield* decodeNonNegativeInt(nonEmptyChunks.length),
+              });
+            }),
           })
         );
       }),

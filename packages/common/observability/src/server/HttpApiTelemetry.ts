@@ -6,7 +6,7 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
-import { Cause, Clock, Duration, Effect, Exit, Layer, Metric, SchemaAST } from "effect";
+import { Cause, Clock, Duration, Effect, Exit, Layer, Metric, Result, SchemaAST } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
@@ -18,7 +18,9 @@ import { type HttpApiEndpoint, type HttpApiGroup, HttpApiMiddleware, HttpApiSche
 import { observeHttpRequest, statusClass } from "../Metric.ts";
 
 const $I = $ObservabilityId.create("server/HttpApiTelemetry");
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const decodeNonNegativeInt = (input: unknown) =>
+  Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 const resolveHttpApiStatus = SchemaAST.resolveAt<number>("httpApiStatus");
 
 class HttpApiStatusField extends S.Class<HttpApiStatusField>($I`HttpApiStatusField`)(

@@ -234,9 +234,9 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
   return yield* decodeGraphitiProxyConfig(raw).pipe(
     Effect.mapError(
       (cause) =>
-      new GraphitiProxyConfigLoadError({
-        message: "Failed to decode graphiti proxy config.",
-        cause,
+        new GraphitiProxyConfigLoadError({
+          message: "Failed to decode graphiti proxy config.",
+          cause,
         })
     )
   );

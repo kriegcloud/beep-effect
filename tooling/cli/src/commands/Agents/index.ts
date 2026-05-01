@@ -179,7 +179,7 @@ const agentsCheckCommand = Command.make(
     const parsedManifest = yield* decodeJsonString(manifestText).pipe(
       Effect.mapError(
         (cause) =>
-        new AgentsManifestDecodeError({
+          new AgentsManifestDecodeError({
             message: `[agents-check] failed to parse manifest: ${Inspectable.toStringUnknown(cause, 0)}`,
           })
       )

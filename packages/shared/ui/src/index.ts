@@ -23,6 +23,13 @@ export const VERSION = "0.0.0" as const;
 /**
  * Shared-kernel browser-safe entity contracts.
  *
+ * @example
+ * ```ts
+ * import { Entities } from "@beep/shared-ui"
+ *
+ * console.log(Entities.Organization.primaryLabel({ name: "Acme" }))
+ * ```
+ *
  * @since 0.0.0
  * @category entities
  */

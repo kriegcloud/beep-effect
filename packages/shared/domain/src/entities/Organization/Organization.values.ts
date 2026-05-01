@@ -44,7 +44,7 @@ export const LicenseTier = LiteralKit(["free", "team", "enterprise"]).annotate(
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-domain/entities"
+ * import { Organization } from "@beep/shared-domain/entities/index"
  *
  * const printTier = (tier: Organization.LicenseTier) => console.log(tier)
  * void printTier
@@ -62,7 +62,7 @@ export type LicenseTier = typeof LicenseTier.Type;
  * ```ts
  * import { Effect } from "effect"
  * import { Organization } from
- * "@beep/shared-domain/entities"
+ * "@beep/shared-domain/entities/index"
  * import * as S from "effect/Schema"
  *
  * const program = Effect.gen(function* () {

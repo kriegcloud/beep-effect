@@ -1,6 +1,13 @@
 /**
  * Shared Organization display and form contracts.
  *
+ * @example
+ * ```ts
+ * import { primaryLabel } from "@beep/shared-ui/entities/Organization/index"
+ *
+ * console.log(primaryLabel({ name: "Acme" }))
+ * ```
+ *
  * @since 0.0.0
  * @category ui contracts
  */

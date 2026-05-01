@@ -23,7 +23,7 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Cause, Exit, flow, Match, Number as N, pipe, Struct } from "effect";
+import { Cause, Exit, flow, Match, Number as N, pipe, Result, Struct } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -31,7 +31,9 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $ObservabilityId.create("CauseDiagnostics");
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const decodeNonNegativeInt = (input: unknown) =>
+  Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 
 /**
  * High-level classification for a full Effect cause.

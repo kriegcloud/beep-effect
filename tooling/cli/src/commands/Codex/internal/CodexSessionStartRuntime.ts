@@ -67,8 +67,8 @@ const parseHookInput = (text: string): Effect.Effect<Record<string, unknown>, Co
     Effect.map((input) => ({ ...input }) as Record<string, unknown>),
     Effect.mapError(
       (cause) =>
-      new CodexSessionStartHookRuntimeError({
-        message: `Failed to decode Codex SessionStart hook input: ${messageFromUnknown(cause)}`,
+        new CodexSessionStartHookRuntimeError({
+          message: `Failed to decode Codex SessionStart hook input: ${messageFromUnknown(cause)}`,
         })
     )
   );

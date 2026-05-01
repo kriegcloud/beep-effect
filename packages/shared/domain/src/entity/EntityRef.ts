@@ -6,8 +6,8 @@
  */
 
 import { $SharedDomainId } from "@beep/identity/packages";
+import { Result } from "effect";
 import { dual, pipe } from "effect/Function";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type * as SchemaIssue from "effect/SchemaIssue";
 import * as EntityId from "./EntityId.js";
@@ -47,8 +47,8 @@ export const EntityType = S.NonEmptyString.pipe(
  * ```ts
  * import type { EntityType } from "@beep/shared-domain/entity/EntityRef"
  *
- * const entityType: EntityType = "SharedOrganization" as EntityType
- * console.log(entityType)
+ * const printEntityType = (entityType: EntityType) => console.log(entityType)
+ * void printEntityType
  * ```
  *
  * @since 0.0.0

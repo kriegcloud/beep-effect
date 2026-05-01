@@ -87,7 +87,9 @@ Keep `Schema` as the source of truth for pure data models.
   `S.encodeEffect` by default. Reach for `S.decodeUnknownResult`,
   `S.decodeResult`, or `S.decodeUnknownOption` only for deliberate
   non-throwing synchronous helpers; do not teach or add `S.decodeSync`,
-  `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync`.
+  `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync`. If a
+  legacy synchronous wrapper must still throw, convert Result failures with
+  `Result.getOrThrowWith(...)` so raw schema issues do not escape the boundary.
 
 ## Escalation
 

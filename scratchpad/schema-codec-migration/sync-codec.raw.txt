@@ -2,101 +2,69 @@
 ./initiatives/knowledge-workspace/04-lexical-integration.md:118: *   const data = S.decodeUnknownSync(SerializedWikiLink)(json)
 ./initiatives/knowledge-workspace/04-lexical-integration.md:483: *     return S.decodeUnknownSync(
 ./initiatives/knowledge-workspace/PLAN.md:296: * const validated = S.decodeUnknownSync(SerializedWikiLink)(rawJson)
-./scratchpad/reviews/shared-kernel-slice/ui-inventory.md:31:| UI-03 | Medium | `packages/shared/ui/src/entities/Organization/Organization.display.ts:29`, `:36`, `:38`, `:79`, `:81`, `:119`, `:126`, `:128` | Public JSDoc examples manufacture branded values with `as Shared.OrganizationId`, `as PosInt`, and `as Slug`. The repo JSDoc standard forbids type assertions in examples, and these examples teach callers to bypass the schema contracts that the UI package is meant to expose. | Rewrite examples to decode raw browser-safe payloads through `S.decodeUnknownSync(Display)` / `S.decodeUnknownSync(Form)` or another canonical schema constructor, with no branded casts. | `bun run docgen` from `packages/shared/ui` compiles examples without warnings; `rg -n ' as (Shared\\.OrganizationId|Slug|PosInt)' packages/shared/ui/src` returns no hits. |
-./scratchpad/reviews/shared-kernel-slice/ui-inventory.md:33:| UI-05 | Low | `packages/shared/ui/test/OrganizationDisplay.test.ts:18` | Runtime coverage is happy-path only. It proves decode of missing/present `parentOrgId` and `primaryLabel`, but it does not lock encode semantics for `OptionFromOptionalKey` or rejection behavior for invalid `slug`, `licenseTier`, empty names, or bad nested settings. | Add focused runtime tests for `S.encodeSync(Display/Form)` with `None` and `Some`, plus invalid decode assertions for the schema fields that define the browser contract. | `bun run test` from `packages/shared/ui`; targeted tests fail if optional parent encoding or schema rejection regresses. |
 ./initiatives/knowledge-workspace/01-data-model.md:171: * S.decodeUnknownSync(Slug)("design-decisions")
 ./initiatives/knowledge-workspace/01-data-model.md:707: * // S.decodeUnknownSync(GraphEvent)({ _tag: "NodeCreated", ... })
+./scratchpad/reviews/shared-kernel-slice/ui-inventory.md:31:| UI-03 | Medium | `packages/shared/ui/src/entities/Organization/Organization.display.ts:29`, `:36`, `:38`, `:79`, `:81`, `:119`, `:126`, `:128` | Public JSDoc examples manufacture branded values with `as Shared.OrganizationId`, `as PosInt`, and `as Slug`. The repo JSDoc standard forbids type assertions in examples, and these examples teach callers to bypass the schema contracts that the UI package is meant to expose. | Rewrite examples to decode raw browser-safe payloads through `S.decodeUnknownSync(Display)` / `S.decodeUnknownSync(Form)` or another canonical schema constructor, with no branded casts. | `bun run docgen` from `packages/shared/ui` compiles examples without warnings; `rg -n ' as (Shared\\.OrganizationId|Slug|PosInt)' packages/shared/ui/src` returns no hits. |
+./scratchpad/reviews/shared-kernel-slice/ui-inventory.md:33:| UI-05 | Low | `packages/shared/ui/test/OrganizationDisplay.test.ts:18` | Runtime coverage is happy-path only. It proves decode of missing/present `parentOrgId` and `primaryLabel`, but it does not lock encode semantics for `OptionFromOptionalKey` or rejection behavior for invalid `slug`, `licenseTier`, empty names, or bad nested settings. | Add focused runtime tests for `S.encodeSync(Display/Form)` with `None` and `Some`, plus invalid decode assertions for the schema fields that define the browser contract. | `bun run test` from `packages/shared/ui`; targeted tests fail if optional parent encoding or schema rejection regresses. |
 ./scratchpad/architecture.ts:150:          repoPackageMetadata: S.decodeUnknownSync(CanonicalSlicePkgDefinition)(
-./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:109:  const dataset = S.decodeUnknownSync(Dataset)(rawDataset);
-./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:110:  const provenance = S.decodeUnknownSync(ProvBundle)(rawProvenance);
-./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:111:  const evidence = S.decodeUnknownSync(BoundedEvidenceProjection)(rawEvidence);
-./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:112:  const shapes = S.decodeUnknownSync(S.Array(ShaclNodeShape))(rawShapes);
-./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:118:        S.decodeUnknownSync(ShaclValidationRequest)({
+./.cspell/effect-terms.txt:4:decodeUnknownSync
 ./scratchpad/SchemaClassRebuild.ts:87:  const decodedFromIdentity = S.decodeUnknownSync(IdentityRebuild)({ name: "Ada", age: 36 });
 ./scratchpad/SchemaClassRebuild.ts:92:    encodedValue: S.encodeSync(IdentityRebuild)(decodedFromIdentity),
 ./scratchpad/SchemaClassRebuild.ts:111:    () => S.decodeUnknownSync(AdultPersonViaHelper)({ name: "Kid", age: 8 })
 ./scratchpad/SchemaClassRebuild.ts:116:    () => S.decodeUnknownSync(AdultPersonViaRebuild)({ name: "Kid", age: 8 })
 ./scratchpad/SchemaClassRebuild.ts:121:    () => S.decodeUnknownSync(AdultPersonViaRebuild)({ name: "Ada", age: 36 })
-./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1414:  const decodedShapes = S.decodeUnknownSync(S.Array(ShaclNodeShape))(shapes);
-./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1415:  const decodedProvenance = S.decodeUnknownSync(ProvBundle)(provenance);
-./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1416:  const decodedEvidence = S.decodeUnknownSync(BoundedEvidenceProjection)(evidence);
-./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1417:  const encodedDataset = S.encodeSync(Dataset)(seedDataset);
-./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1418:  const encodedShapes = S.encodeSync(S.Array(ShaclNodeShape))(decodedShapes);
-./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1419:  const encodedProvenance = S.encodeSync(ProvBundle)(decodedProvenance);
-./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1420:  const encodedEvidence = S.encodeSync(BoundedEvidenceProjection)(decodedEvidence);
-./tooling/docgen/src/CLI.ts:21:const decodeCompilerOptions = S.decodeUnknownSync(S.fromJsonString(S.toEncoded(TSConfigCompilerOptions)));
-./tooling/docgen/src/Configuration.ts:39:const encodeCompilerOptions = S.encodeSync(TSConfigCompilerOptions);
-./tooling/docgen/test/Configuration.test.ts:10:const encodeJson = S.encodeSync(S.UnknownFromJsonString);
-./standards/effect-first-development.md:96:- Prefer `S.decodeUnknownEffect` for effectful paths and `S.decodeUnknownSync` only where sync failure handling is explicit.
+./.aiassistant/patterns/code-smells/avoid-direct-json.md:31:good json = Schema.decodeSync (Schema.parseJson userSchema) json
+./.aiassistant/patterns/code-smells/avoid-direct-json.md:40:decode = Schema.decodeSync (Schema.parseJson UserSchema)
+./.aiassistant/patterns/code-smells/avoid-direct-json.md:43:encode = Schema.encodeSync (Schema.parseJson UserSchema)
+./initiatives/repo-codegraph-jsdoc/history/outputs/JSDOC_FIBRATION_ARCHITECTURE.md:53:  const def = S.decodeSync(JSDocTagDefinition)({ _tag, ...meta });
+./initiatives/repo-codegraph-jsdoc/history/outputs/JSDOC_FIBRATION_ARCHITECTURE.md:63:1. `S.decodeSync(JSDocTagDefinition)({ _tag, ...meta })` — validates the full metadata payload
+./.aiassistant/skills/domain-modeling/SKILL.md:16:3. **S.decodeSync** - Type-safe constructors with validation
+./.aiassistant/skills/domain-modeling/SKILL.md:138:### 2. Constructors Using S.decodeSync
+./.aiassistant/skills/domain-modeling/SKILL.md:173:export const makePending = S.decodeSync(Pending)
+./.aiassistant/skills/domain-modeling/SKILL.md:181:export const makeActive = S.decodeSync(Active)
+./.aiassistant/skills/domain-modeling/SKILL.md:189:export const makeCompleted = S.decodeSync(Completed)
+./.aiassistant/skills/domain-modeling/SKILL.md:192:**Why decodeSync?**
+./.aiassistant/skills/domain-modeling/SKILL.md:194:- `decodeSync` creates a validated constructor
+./.aiassistant/skills/domain-modeling/SKILL.md:196:- Throws on invalid input (use `decodeUnknownSync` for unknown data)
+./.aiassistant/skills/domain-modeling/SKILL.md:615:export const make = S.decodeSync(Category)
+./.aiassistant/skills/domain-modeling/SKILL.md:663: * const decoded = S.decodeSync(EmailSchema)("user@example.com")
+./.aiassistant/skills/domain-modeling/SKILL.md:828:export const makePending = S.decodeSync(Pending)
+./.aiassistant/skills/domain-modeling/SKILL.md:838:- [ ] Constructor functions using `S.decodeSync`
+./.aiassistant/skills/domain-modeling/SKILL.md:947:export const makeAdmin = S.decodeSync(Admin)
+./.aiassistant/skills/domain-modeling/SKILL.md:955:export const makeCustomer = S.decodeSync(Customer)
+./.aiassistant/skills/domain-modeling/SKILL.md:1112:3. **S.decodeSync** - Create type-safe constructors
+./.agents/skills/schema-first-development/references/pattern-catalog.md:122:- sync throwing schema codecs (`S.decodeSync`, `S.decodeUnknownSync`,
+./.agents/skills/schema-first-development/references/pattern-catalog.md:123:  `S.encodeSync`, `S.encodeUnknownSync`) as the default constructor pattern
+./.agents/skills/schema-first-development/references/repo-laws.md:148:Do not use `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or
+./.agents/skills/schema-first-development/references/repo-laws.md:149:`S.encodeUnknownSync` by default. If schema errors cross a local module,
+./.agents/skills/schema-first-development/SKILL.md:89:  non-throwing synchronous helpers; do not teach or add `S.decodeSync`,
+./.agents/skills/schema-first-development/SKILL.md:90:  `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync`. If a
 ./initiatives/repo-codegraph-jsdoc/ops/prompts/bootstrap.md:70:   const def = S.decodeSync(JSDocTagDefinition)({ _tag, ...meta });                                                                                                                                                │
 ./initiatives/repo-codegraph-jsdoc/ops/prompts/bootstrap.md:147: - S.decodeSync(JSDocTagDefinition) — input validation stays in make()                                                                                                                                             │
-./tooling/configs/src/internal/eslint/EffectLawsAllowlistSchemas.ts:107:export const decodeAllowlistSnapshot = S.decodeUnknownSync(EffectLawsAllowlistSnapshot);
-./tooling/configs/src/internal/eslint/EffectLawsAllowlistSchemas.ts:108:export const encodeAllowlistSnapshot = S.encodeUnknownSync(EffectLawsAllowlistSnapshot);
-./packages/common/chalk/src/Chalk.ts:159: * const decode = S.decodeUnknownSync(BackgroundColorName)
-./packages/common/chalk/src/Chalk.ts:194: * const decode = S.decodeUnknownSync(ChalkConstructorOptions)
-./packages/common/chalk/src/Chalk.ts:233: * const decode = S.decodeUnknownSync(ChalkOptions)
-./packages/common/chalk/src/Chalk.ts:304: * const decode = S.decodeUnknownSync(ColorName)
-./packages/common/chalk/src/Chalk.ts:340: * const decode = S.decodeUnknownSync(ColorSupport)
-./packages/common/chalk/src/Chalk.ts:379: * const decode = S.decodeUnknownSync(ColorSupportLevel)
-./packages/common/chalk/src/Chalk.ts:414: * const decode = S.decodeUnknownSync(ColorSupportLevelInput)
-./packages/common/chalk/src/Chalk.ts:449: * const decode = S.decodeUnknownSync(ForegroundColorName)
-./packages/common/chalk/src/Chalk.ts:484: * const decode = S.decodeUnknownSync(ModifierName)
-./tooling/configs/test/EffectTsgoEffectFnPolicy.test.ts:17:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-./packages/common/chalk/src/index.ts:21: * console.log(S.decodeUnknownSync(ColorSupportLevel)(2))
+./standards/effect-first-development.md:98:- Use `S.decodeUnknownResult` / `S.decodeResult` or `S.decodeUnknownOption` only for deliberately synchronous, non-throwing local paths. Do not use `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync` by default.
 ./packages/common/colors/src/internal/ColorsSchema.ts:22: * const decode = S.decodeUnknownSync(FormatterInput)
-./packages/common/chalk/src/internal/ChalkSchema.ts:150: * const decode = S.decodeUnknownSync(ColorSupportLevel)
-./packages/common/chalk/src/internal/ChalkSchema.ts:214: * const decode = S.decodeUnknownSync(ColorInfo)
-./packages/common/chalk/src/internal/ChalkSchema.ts:274: * const decode = S.decodeUnknownSync(ModifierName)
-./packages/common/chalk/src/internal/ChalkSchema.ts:311: * const decode = S.decodeUnknownSync(ForegroundColorName)
-./packages/common/chalk/src/internal/ChalkSchema.ts:348: * const decode = S.decodeUnknownSync(BackgroundColorName)
-./packages/common/chalk/src/internal/ChalkSchema.ts:385: * const decode = S.decodeUnknownSync(ColorName)
-./packages/common/chalk/src/internal/ChalkRuntime.ts:56:const decodeColorSupportLevel = S.decodeUnknownSync(ColorSupportLevel);
-./packages/common/chalk/src/internal/ChalkRuntime.ts:57:const decodeColorSupportLevelInput = S.decodeUnknownSync(ColorSupportLevelInput);
-./packages/common/chalk/src/internal/PublicSurface.ts:46: * const decode = S.decodeUnknownSync(ColorSupportLevelInput)
-./packages/common/chalk/src/internal/PublicSurface.ts:146: * const decode = S.decodeUnknownSync(ChalkConstructorOptions)
-./packages/common/chalk/test/index.test.ts:154:    const decodeConstructorOptions = S.decodeUnknownSync(ChalkConstructorOptions);
-./packages/common/chalk/test/index.test.ts:155:    const decodeStrictOptions = S.decodeUnknownSync(ChalkOptions);
-./packages/common/semantic-web/src/semantic-schema-metadata.ts:288:const decodeSemanticSchemaMetadata = S.decodeUnknownSync(SemanticSchemaMetadata);
 ./packages/common/semantic-web/src/uri.ts:196: * const decoded = S.decodeUnknownSync(URIReference)("https://example.com/path")
 ./packages/common/semantic-web/src/uri.ts:237: * const decoded = S.decodeUnknownSync(RelativeURIReference)("/path/to/resource")
 ./packages/common/semantic-web/src/uri.ts:278: * const decoded = S.decodeUnknownSync(AbsoluteURI)("https://example.com")
 ./packages/common/semantic-web/src/uri.ts:319: * const decoded = S.decodeUnknownSync(URI)("https://example.com/page#anchor")
-./initiatives/repo-codegraph-jsdoc/history/outputs/JSDOC_FIBRATION_ARCHITECTURE.md:53:  const def = S.decodeSync(JSDocTagDefinition)({ _tag, ...meta });
-./initiatives/repo-codegraph-jsdoc/history/outputs/JSDOC_FIBRATION_ARCHITECTURE.md:63:1. `S.decodeSync(JSDocTagDefinition)({ _tag, ...meta })` — validates the full metadata payload
 ./packages/common/semantic-web/src/prov.ts:68: * const ref = S.decodeUnknownSync(ObjectRef)("prov:entity1")
 ./packages/common/semantic-web/src/prov.ts:250: * const entity = S.decodeUnknownSync(Entity)({
 ./packages/common/semantic-web/src/prov.ts:297: * const activity = S.decodeUnknownSync(Activity)({
 ./packages/common/semantic-web/src/prov.ts:339: * const agent = S.decodeUnknownSync(Agent)({
 ./packages/common/semantic-web/src/prov.ts:824: * const decoded = S.decodeUnknownSync(ProvRecord)({ provType: "Agent", name: "bob" })
 ./packages/common/semantic-web/src/prov.ts:893: * const bundle = S.decodeUnknownSync(ProvBundle)({ records: [] })
-./packages/common/ui/src/hooks/useSpinner.ts:30:const decodeSpinnerSchedule = S.decodeUnknownSync(SpinnerSchedule);
-./tooling/cli/src/commands/Docgen/index.ts:74:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-./packages/common/semantic-web/src/services/provenance.ts:38:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./tooling/cli/src/commands/Docgen/internal/Operations.ts:69:const parseJsonText = S.decodeUnknownSync(S.UnknownFromJsonString);
-./tooling/cli/src/commands/Docgen/internal/Operations.ts:328:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-./packages/common/semantic-web/src/adapters/canonicalization.ts:44:const decodeSha256Hex = S.decodeUnknownSync(Sha256Hex);
-./tooling/repo-utils/src/schemas/PackageJsonTools.ts:43:const decodeBrowser = S.decodeUnknownSync(Browser);
-./tooling/repo-utils/src/schemas/PackageJsonTools.ts:44:const decodePackageExports = S.decodeUnknownSync(PackageExports);
-./tooling/repo-utils/src/schemas/PackageJsonTools.ts:45:const decodePackageImports = S.decodeUnknownSync(PackageImports);
-./tooling/repo-utils/src/schemas/PackageJsonTools.ts:46:const decodePeerDependenciesMeta = S.decodeUnknownSync(PeerDependenciesMeta);
-./tooling/repo-utils/src/schemas/PackageJsonTools.ts:47:const decodePublishConfig = S.decodeUnknownSync(PublishConfig);
-./tooling/repo-utils/src/schemas/PackageJsonTools.ts:48:const decodeTypesVersions = S.decodeUnknownSync(TypesVersions);
-./packages/common/semantic-web/src/adapters/jsonld-stream-parse.ts:29:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./tooling/cli/src/commands/SyncDataToTs/targets/Iso4217.ts:108:const encodeUnknownJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-./packages/common/semantic-web/src/adapters/jsonld-stream-serialize.ts:23:const encodeJsonLdDocumentToJson = S.encodeSync(S.fromJsonString(JsonLdDocument));
-./packages/common/semantic-web/src/adapters/jsonld-stream-serialize.ts:24:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./tooling/repo-utils/src/schemas/TSConfig.ts:1654:const decodeTSConfigSemanticUnknownSync = S.decodeUnknownSync(TSConfigSemantic);
-./packages/common/semantic-web/src/adapters/jsonld-context.ts:27:const decodeIriReference = S.decodeUnknownSync(IRIReference);
-./packages/common/semantic-web/src/adapters/jsonld-context.ts:28:const decodeNonEmptyString = S.decodeUnknownSync(S.NonEmptyString);
-./tooling/repo-utils/src/schemas/PackageJson.ts:1316:const decodePackageJsonUnknownSync = S.decodeUnknownSync(PackageJson);
-./packages/common/semantic-web/src/adapters/jsonld-document.ts:51:const decodeIriReference = S.decodeUnknownSync(IRIReference);
-./packages/common/semantic-web/src/adapters/jsonld-document.ts:52:const decodeJsonLdNodeIdentifier = S.decodeUnknownSync(JsonLdNodeIdentifier);
-./packages/common/semantic-web/src/rdf.ts:21:const decodeBlankNode = S.decodeUnknownSync(S.NonEmptyString);
+./.agents/skills/effect-first-development/SKILL.md:102:23. Do not use `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync` by default. Prefer Effect codecs, and map schema errors with `Effect.mapError(...)` before returning them across module, service, CLI, HTTP, or test-helper boundaries. If a legacy sync API must remain throwing, use Result codecs plus `Result.getOrThrowWith(...)` to preserve an `Error` or typed boundary error.
 ./packages/common/semantic-web/src/rdf.ts:208: * const decoded = S.decodeUnknownSync(PrefixLabel)("schema")
-./packages/common/semantic-web/src/rdf.ts:751:const decodeNamedNode = S.decodeUnknownSync(NamedNode);
-./packages/common/semantic-web/src/rdf.ts:752:const decodeLiteral = S.decodeUnknownSync(Literal);
 ./packages/common/semantic-web/src/jsonld.ts:93: * const term = S.decodeUnknownSync(JsonLdTermDefinition)({
 ./packages/common/semantic-web/src/jsonld.ts:390: * const doc = S.decodeUnknownSync(JsonLdDocument)({ "@graph": [] })
+./packages/common/semantic-web/src/evidence.ts:62: * const selector = S.decodeUnknownSync(TextQuoteSelector)({
+./packages/common/semantic-web/src/evidence.ts:103: * const selector = S.decodeUnknownSync(TextPositionSelector)({
+./packages/common/semantic-web/src/evidence.ts:144: * const selector = S.decodeUnknownSync(FragmentSelector)({
+./packages/common/semantic-web/src/evidence.ts:182: * const decoded = S.decodeUnknownSync(EvidenceSelector)({
+./packages/common/semantic-web/src/iri.ts:853: * const decoded = S.decodeUnknownSync(IRIReference)("https://example.org/resource")
+./packages/common/semantic-web/src/iri.ts:893: * const decoded = S.decodeUnknownSync(RelativeIRIReference)("/path/to/resource")
+./packages/common/semantic-web/src/iri.ts:933: * const decoded = S.decodeUnknownSync(AbsoluteIRI)("https://example.org")
+./packages/common/semantic-web/src/iri.ts:973: * const decoded = S.decodeUnknownSync(IRI)("https://example.org/page#section")
 ./packages/common/semantic-web/test/Provenance.test.ts:15:const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 ./packages/common/semantic-web/test/Provenance.test.ts:53:    const decoded = decodeUnknownSync(ProvO)(rawBundle);
 ./packages/common/semantic-web/test/Provenance.test.ts:68:            decodeUnknownSync(ProjectProvenanceRequest)({
@@ -105,30 +73,11 @@
 ./packages/common/semantic-web/test/Provenance.test.ts:123:            decodeUnknownSync(ExportProvenanceRequest)({
 ./packages/common/semantic-web/test/Provenance.test.ts:148:            decodeUnknownSync(ExportProvenanceRequest)({
 ./packages/common/semantic-web/test/Provenance.test.ts:168:    const anchor = decodeUnknownSync(EvidenceAnchor)(rawAnchor);
-./packages/common/semantic-web/src/evidence.ts:62: * const selector = S.decodeUnknownSync(TextQuoteSelector)({
-./packages/common/semantic-web/src/evidence.ts:103: * const selector = S.decodeUnknownSync(TextPositionSelector)({
-./packages/common/semantic-web/src/evidence.ts:144: * const selector = S.decodeUnknownSync(FragmentSelector)({
-./packages/common/semantic-web/src/evidence.ts:182: * const decoded = S.decodeUnknownSync(EvidenceSelector)({
 ./packages/common/semantic-web/test/InteropAndMetadata.test.ts:15:const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 ./packages/common/semantic-web/test/InteropAndMetadata.test.ts:67:    const anchor = decodeUnknownSync(EvidenceAnchor)({
-./tooling/repo-utils/src/Reuse/Reuse.service.ts:151:const decodeJsonString = S.decodeUnknownSync(S.UnknownFromJsonString);
-./tooling/repo-utils/src/Reuse/Reuse.service.ts:152:const decodeWorkspacePackageManifest = S.decodeUnknownSync(WorkspacePackageManifest);
-./tooling/repo-utils/src/Reuse/Reuse.service.ts:153:const decodeFileOutlineRequest = S.decodeUnknownSync(TsMorphFileOutlineRequest);
-./tooling/repo-utils/src/Reuse/Reuse.service.ts:154:const decodeProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
-./tooling/repo-utils/src/Reuse/Reuse.service.ts:155:const decodeSymbolLookupRequest = S.decodeUnknownSync(TsMorphSymbolLookupRequest);
-./tooling/repo-utils/src/Reuse/Reuse.service.ts:156:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./tooling/repo-utils/src/Reuse/Reuse.service.ts:232:    regex: /S\.encodeUnknownSync\(S\.UnknownFromJsonString\)/u,
-./tooling/repo-utils/src/Reuse/Reuse.service.ts:255:    regex: /S\.decodeUnknownSync\(S\.UnknownFromJsonString\)/u,
-./tooling/cli/src/commands/Graphiti/internal/ProxyServices.ts:207:const decodeUrlSearchParams = S.decodeUnknownSync(urlSearchParamsSchema);
-./packages/common/semantic-web/src/iri.ts:853: * const decoded = S.decodeUnknownSync(IRIReference)("https://example.org/resource")
-./packages/common/semantic-web/src/iri.ts:893: * const decoded = S.decodeUnknownSync(RelativeIRIReference)("/path/to/resource")
-./packages/common/semantic-web/src/iri.ts:933: * const decoded = S.decodeUnknownSync(AbsoluteIRI)("https://example.org")
-./packages/common/semantic-web/src/iri.ts:973: * const decoded = S.decodeUnknownSync(IRI)("https://example.org/page#section")
-./tooling/cli/src/commands/Shared/BiomeJson.ts:20:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 ./packages/common/semantic-web/test/CanonicalizationSecurity.test.ts:22:const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 ./packages/common/semantic-web/test/CanonicalizationSecurity.test.ts:46:          decodeUnknownSync(CanonicalizeDatasetRequest)({
 ./packages/common/semantic-web/test/CanonicalizationSecurity.test.ts:72:          decodeUnknownSync(CanonicalizeDatasetRequest)({
-./tooling/cli/src/commands/Graphiti/internal/ProxyConfig.ts:191:const decodeGraphitiProxyConfig = S.decodeUnknownSync(GraphitiProxyConfig);
 ./packages/common/semantic-web/test/JsonLd.test.ts:34:const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 ./packages/common/semantic-web/test/JsonLd.test.ts:138:        return yield* service.normalize(decodeUnknownSync(NormalizeJsonLdContextRequest)({ context: rawContext }));
 ./packages/common/semantic-web/test/JsonLd.test.ts:148:          decodeUnknownSync(ExpandJsonLdTermRequest)({ context: rawContext, term: "name" })
@@ -155,7 +104,6 @@
 ./packages/common/semantic-web/test/IRI.test.ts:8:const decodeAbsoluteIri = S.decodeUnknownSync(AbsoluteIRI);
 ./packages/common/semantic-web/test/IRI.test.ts:9:const decodeIriReference = S.decodeUnknownSync(IRIReference);
 ./packages/common/semantic-web/test/IRI.test.ts:10:const decodeRelativeIriReference = S.decodeUnknownSync(RelativeIRIReference);
-./tooling/cli/src/commands/CreatePackage/ConfigUpdater.ts:154:const decodeTstychePattern = S.decodeUnknownSync(PackagePathToTstychePattern);
 ./packages/common/semantic-web/test/ServicesAndSurface.test.ts:23:const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 ./packages/common/semantic-web/test/ServicesAndSurface.test.ts:59:          decodeUnknownSync(CanonicalizeDatasetRequest)({
 ./packages/common/semantic-web/test/ServicesAndSurface.test.ts:73:          decodeUnknownSync(FingerprintDatasetRequest)({
@@ -164,69 +112,181 @@
 ./packages/common/semantic-web/test/ServicesAndSurface.test.ts:135:          decodeUnknownSync(ShaclValidationRequest)({
 ./packages/common/semantic-web/test/ServicesAndSurface.test.ts:169:            decodeUnknownSync(SparqlQueryRequest)({
 ./packages/common/semantic-web/test/ServicesAndSurface.test.ts:179:    const annotation = decodeUnknownSync(WebAnnotation)({
-./tooling/cli/src/commands/CreatePackage/TemplateService.ts:105:const decodeTemplateHelperString = S.decodeUnknownSync(UnknownToTemplateHelperString);
 ./packages/common/semantic-web/test/Rdf.test.ts:19:const decodePrefixMap = S.decodeUnknownSync(PrefixMap);
-./tooling/cli/src/commands/Codegen.ts:53:const decodeTypeScriptSourceFileName = S.decodeUnknownSync(TypeScriptSourceFileName);
-./tooling/cli/src/commands/Codegen.ts:110:const decodeJSImportPath = S.decodeUnknownSync(TypeScriptSourceToJSImportPath);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:87:const decodeByteLength = S.decodeUnknownSync(ByteLength);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:88:const decodeByteOffset = S.decodeUnknownSync(ByteOffset);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:89:const decodeColumnNumber = S.decodeUnknownSync(ColumnNumber);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:91:const decodeLineNumber = S.decodeUnknownSync(LineNumber);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:92:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:93:const decodeProjectScopeIdParts = S.decodeUnknownSync(ProjectScopeIdParts);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:94:const decodeRepoRootPath = S.decodeUnknownSync(RepoRootPath);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:95:const decodeSourceText = S.decodeUnknownSync(SourceText);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:96:const decodeSymbolFilePath = S.decodeUnknownSync(SymbolFilePath);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:97:const decodeSymbolNameSegment = S.decodeUnknownSync(SymbolNameSegment);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:98:const decodeSymbolQualifiedName = S.decodeUnknownSync(SymbolQualifiedName);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:99:const decodeTsMorphDiagnostic = S.decodeUnknownSync(TsMorphDiagnostic);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:100:const decodeTsConfigFilePath = S.decodeUnknownSync(TsConfigFilePath);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:101:const decodeTypeScriptFilePath = S.decodeUnknownSync(TypeScriptFilePath);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:102:const decodeTypeScriptImplementationFilePath = S.decodeUnknownSync(TypeScriptImplementationFilePath);
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:103:const decodeTypeScriptImplementationToSymbolFilePath = S.decodeUnknownSync(
-./tooling/repo-utils/src/TSMorph/TSMorph.service.ts:106:const decodeWorkspaceDirectoryPath = S.decodeUnknownSync(WorkspaceDirectoryPath);
-./tooling/cli/src/commands/CreatePackage/Handler.ts:114:const decodePackageType = S.decodeUnknownSync(PackageType);
 ./packages/common/semantic-web/test/URI.test.ts:13:const decodeUri = S.decodeUnknownSync(URI);
 ./packages/common/semantic-web/test/URI.test.ts:14:const decodeAbsoluteUri = S.decodeUnknownSync(AbsoluteURI);
 ./packages/common/semantic-web/test/URI.test.ts:15:const decodeUriReference = S.decodeUnknownSync(URIReference);
 ./packages/common/semantic-web/test/URI.test.ts:16:const decodeRelativeUriReference = S.decodeUnknownSync(RelativeURIReference);
 ./packages/common/semantic-web/README.md:57:const decodeIri = S.decodeUnknownSync(IRI);
-./tooling/repo-utils/src/TSMorph/TSMorph.model.ts:1037:const decodeSymbolId = S.decodeUnknownSync(SymbolId);
-./tooling/repo-utils/src/TSMorph/TSMorph.model.ts:1038:const decodeProjectScopeId = S.decodeUnknownSync(ProjectScopeId);
-./tooling/repo-utils/src/TSMorph/TSMorph.model.ts:1039:const decodeContentHash = S.decodeUnknownSync(ContentHash);
-./tooling/repo-utils/src/TSMorph/TSMorph.model.ts:1326:const decodeProjectCacheKey = S.decodeUnknownSync(ProjectCacheKey);
-./tooling/cli/src/commands/TsconfigSync.ts:756:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+./.claude/skills/domain-modeling/SKILL.md:200:- Do not add `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or
+./.claude/skills/domain-modeling/SKILL.md:201:  `S.encodeUnknownSync`; if a legacy sync wrapper must throw, use Result
+./.codex/agents/effect-v4-schema-worker.toml:42:- use S.decodeSync, S.decodeUnknownSync, S.encodeSync, or S.encodeUnknownSync as the default schema-codec pattern
+./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:109:  const dataset = S.decodeUnknownSync(Dataset)(rawDataset);
+./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:110:  const provenance = S.decodeUnknownSync(ProvBundle)(rawProvenance);
+./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:111:  const evidence = S.decodeUnknownSync(BoundedEvidenceProjection)(rawEvidence);
+./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:112:  const shapes = S.decodeUnknownSync(S.Array(ShaclNodeShape))(rawShapes);
+./initiatives/trustgraph-doc-ontology/scripts/verify-artifacts.ts:118:        S.decodeUnknownSync(ShaclValidationRequest)({
+./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1414:  const decodedShapes = S.decodeUnknownSync(S.Array(ShaclNodeShape))(shapes);
+./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1415:  const decodedProvenance = S.decodeUnknownSync(ProvBundle)(provenance);
+./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1416:  const decodedEvidence = S.decodeUnknownSync(BoundedEvidenceProjection)(evidence);
+./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1417:  const encodedDataset = S.encodeSync(Dataset)(seedDataset);
+./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1418:  const encodedShapes = S.encodeSync(S.Array(ShaclNodeShape))(decodedShapes);
+./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1419:  const encodedProvenance = S.encodeSync(ProvBundle)(decodedProvenance);
+./initiatives/trustgraph-doc-ontology/scripts/build-artifacts.ts:1420:  const encodedEvidence = S.encodeSync(BoundedEvidenceProjection)(decodedEvidence);
+./packages/common/utils/src/Event.ts:38: * const decoded = S.decodeUnknownSync(Progress)({
+./packages/common/schema/dtslint/Duration.tst.ts:36:    const duration = S.decodeSync(DurationFromInput)(input);
+./packages/common/md/src/Md.model.ts:428: * const decode = S.decodeUnknownSync(Inline)
+./packages/common/md/src/Md.model.ts:1076: * const decode = S.decodeUnknownSync(Block)
+./packages/common/schema/dtslint/Graph.tst.ts:48:    const decode = S.decodeUnknownSync(schema);
+./packages/common/schema/dtslint/Graph.tst.ts:73:    const decode = S.decodeUnknownSync(schema);
+./packages/common/md/src/Md.render.ts:698: * const markdown = S.decodeUnknownSync(DocumentToMarkdown)(Md.make([Md.h1("Hello")]))
+./packages/common/md/src/Md.render.ts:740: * const html = S.decodeUnknownSync(DocumentToHtmlFragment)(Md.make([Md.p("Hello")]))
+./packages/common/schema/dtslint/MutableHashMap.tst.ts:24:    const decode = S.decodeUnknownSync(schema);
+./packages/common/schema/dtslint/MutableHashSet.tst.ts:17:    const decode = S.decodeUnknownSync(schema);
+./packages/common/schema/dtslint/DateTimeUtcFromValid.tst.ts:65:    const utc = S.decodeUnknownSync(DateTimeUtcFromValid)("2024-01-01T00:00:00.000Z");
+./packages/common/schema/dtslint/Sha256.tst.ts:40:    const digest = S.decodeSync(Sha256Hex)(knownDigest);
+./packages/common/md/test/Md.test.ts:84:    expect(S.decodeUnknownSync(Inline)(text)).toEqual(text);
+./packages/common/md/test/Md.test.ts:85:    expect(S.decodeUnknownSync(Block)(pre)).toEqual(pre);
+./packages/common/md/test/Md.test.ts:86:    expect(S.decodeUnknownSync(Document)(doc)).toEqual(doc);
+./packages/common/md/test/Md.test.ts:87:    expect(S.decodeUnknownSync(Pre)(Pre.make({ value: "x", language: O.some("ts") }))).toEqual(
+./packages/common/md/test/Md.test.ts:90:    expect(S.decodeUnknownSync(Text)(Text.make({ value: "Hello" }))).toEqual(text);
+./packages/common/schema/dtslint/FileName.tst.ts:13:    const decode = S.decodeSync(FileName);
+./packages/common/schema/dtslint/FileName.tst.ts:32:    const decode = S.decodeUnknownSync(Payload);
+./packages/common/schema/dtslint/Glob.tst.ts:14:    const decode = S.decodeSync(Glob);
+./packages/common/schema/dtslint/Glob.tst.ts:33:    const decode = S.decodeUnknownSync(Payload);
+./tooling/configs/test/EffectTsgoEffectFnPolicy.test.ts:17:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+./packages/common/schema/dtslint/FilePath.tst.ts:29:    const decode = S.decodeSync(FilePath);
+./packages/common/schema/dtslint/FilePath.tst.ts:48:    const decode = S.decodeUnknownSync(Payload);
+./packages/common/schema/dtslint/FilePath.tst.ts:74:    const decode = S.decodeSync(WindowsDrivePath);
+./packages/common/schema/src/Primitive.ts:20: * S.decodeUnknownSync(Primitive)("hello")
+./packages/common/schema/src/Primitive.ts:21: * S.decodeUnknownSync(Primitive)(42)
+./packages/common/schema/src/Primitive.ts:22: * S.decodeUnknownSync(Primitive)(null)
+./packages/common/schema/src/KebabStr.ts:21: * const value = S.decodeUnknownSync(KebabCaseStr)("my-role-2")
+./packages/common/schema/src/RegExp.ts:51: * const pattern = S.decodeUnknownSync(RegExpStr)("^[a-z]+$")
+./packages/common/schema/src/AbortSignal.ts:39: * const signal = S.decodeUnknownSync(AbortSig)(controller.signal)
+./packages/common/schema/src/PromiseSchema.ts:83: * const decoded = S.decodeUnknownSync(PromiseSchema)(task)
+./packages/common/schema/src/Float64Array.ts:33: * const decodeFloat64Array = S.decodeUnknownSync(Float64Arr);
+./packages/common/schema/src/Float64Array.ts:70: * const decodeFloat64Array = S.decodeUnknownSync(Float64ArrayFromArray);
+./packages/common/schema/src/Float64Array.ts:71: * const encodeFloat64Array = S.encodeSync(Float64ArrayFromArray);
+./packages/common/schema/src/MimeType.ts:67: * const mimeType = S.decodeUnknownSync(MimeType)("application/json")
+./packages/common/schema/src/MimeType.ts:125: * const mt = S.decodeUnknownSync(ApplicationMimeType)("application/pdf")
+./packages/common/schema/src/MimeType.ts:157: * const mt = S.decodeUnknownSync(VideoMimeType)("video/mp4")
+./packages/common/schema/src/MimeType.ts:189: * const mt = S.decodeUnknownSync(TextMimeType)("text/plain")
+./packages/common/schema/src/MimeType.ts:221: * const mt = S.decodeUnknownSync(ImageMimeType)("image/png")
+./packages/common/schema/src/MimeType.ts:253: * const mt = S.decodeUnknownSync(AudioMimeType)("audio/mpeg")
+./packages/common/schema/src/String.ts:21: * const value = S.decodeUnknownSync(NonEmptyTrimmedStr)("  hello  ")
+./packages/common/schema/src/String.ts:59: * const id = S.decodeUnknownSync(UUID)("550e8400-e29b-41d4-a716-446655440000")
+./packages/common/schema/src/String.ts:97: * S.decodeUnknownSync(NullableStr)("hello")
+./packages/common/schema/src/String.ts:98: * S.decodeUnknownSync(NullableStr)(null)
+./packages/common/schema/src/String.ts:134: * const result = S.decodeUnknownSync(OptionFromNullableStr)(null)
+./packages/common/schema/src/Slug.ts:10: * const slug = S.decodeUnknownSync(Slug)("my-post-2");
+./packages/common/schema/src/Slug.ts:72: * const decode = S.decodeUnknownSync(Slug)
+./packages/common/schema/src/SchemaUtils/pluck.ts:42: * const decodeColumn1 = S.decodeUnknownSync(Column1);
+./packages/common/schema/src/SchemaUtils/pluck.ts:43: * const encodeColumn1 = S.encodeSync(Column1);
+./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:38: * console.log(S.decodeUnknownSync(Settings)({}).status) // "draft"
+./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:101: * const settings = S.decodeUnknownSync(Settings)({})
+./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:144: * console.log(S.decodeUnknownSync(Settings)({}).enabled) // true
+./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:166: * console.log(S.decodeUnknownSync(Settings)({}).visible) // false
+./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:205: * console.log(S.decodeUnknownSync(Settings)({}).enabled) // true
+./packages/common/nlp/test/PatternCore.test.ts:132:    expect(() => Schema.decodeUnknownSync(POSPatternOption)([""])).toThrow();
+./packages/common/nlp/test/PatternCore.test.ts:133:    expect(() => Schema.decodeUnknownSync(EntityPatternOption)([""])).toThrow();
+./packages/common/nlp/test/PatternCore.test.ts:134:    expect(() => Schema.decodeUnknownSync(LiteralPatternOption)([""])).toThrow();
+./packages/common/nlp/test/PatternCore.test.ts:139:    expect(() => Schema.decodeUnknownSync(BracketStringToLiteralPatternElement)("[DATE]")).toThrow();
+./packages/common/schema/src/SchemaUtils/withEncodeDefault.ts:29: * console.log(S.decodeUnknownSync(Settings)({}).status) // "draft"
+./packages/common/schema/src/SchemaUtils/withEncodeDefault.ts:75: * console.log(S.decodeUnknownSync(Settings)({}).enabled) // true
+./packages/common/schema/src/SchemaUtils/withEncodeDefault.ts:95: * console.log(S.decodeUnknownSync(Settings)({}).visible) // false
+./packages/common/schema/src/SchemaUtils/withEncodeDefault.ts:133: * console.log(S.decodeUnknownSync(Settings)({}).enabled) // true
+./packages/common/nlp/test/ToolValidation.test.ts:15:    expect(() => Schema.decodeUnknownSync(ExtractKeywords.parametersSchema)({ text: "hello", topN: 2.5 })).toThrow();
+./packages/common/nlp/test/ToolValidation.test.ts:20:      Schema.decodeUnknownSync(ChunkBySentences.parametersSchema)({ maxChunkChars: 0, text: "One. Two." })
+./packages/common/nlp/test/ToolValidation.test.ts:26:      Schema.decodeUnknownSync(CreateCorpus.parametersSchema)({
+./packages/common/nlp/test/ToolValidation.test.ts:37:    expect(Schema.decodeUnknownSync(TverskySimilarity.parametersSchema)({ text1: "alpha", text2: "beta" })).toEqual({
+./packages/common/nlp/test/ToolValidation.test.ts:47:      Schema.decodeUnknownSync(BowCosineSimilarity.successSchema)({
+./packages/common/nlp/test/ToolValidation.test.ts:53:      Schema.decodeUnknownSync(TextSimilarity.successSchema)({
+./packages/common/nlp/test/ToolValidation.test.ts:59:      Schema.decodeUnknownSync(TverskySimilarity.successSchema)({
+./packages/common/schema/src/SchemaUtils/split.ts:36: * const decodeCsvCells = S.decodeSync(CsvCells);
+./packages/common/schema/src/SchemaUtils/split.ts:37: * const encodeCsvCells = S.encodeSync(CsvCells);
+./packages/common/schema/src/SeverityLevel.ts:23: * const level = S.decodeUnknownSync(SeverityLevel)("high")
+./packages/common/schema/src/DateTimeUtcFromValid.ts:26: * const decode = S.decodeUnknownSync(DateTimeInputKind)
+./packages/common/schema/src/DateTimeUtcFromValid.ts:150: * const decode = S.decodeUnknownSync(DateTimeInputString)
+./packages/common/schema/src/DateTimeUtcFromValid.ts:193: * const decode = S.decodeUnknownSync(DateTimeInputNumber)
+./packages/common/schema/src/DateTimeUtcFromValid.ts:235: * const decode = S.decodeUnknownSync(DateTimeInputDate)
+./packages/common/schema/src/DateTimeUtcFromValid.ts:278: * const decode = S.decodeUnknownSync(DateTimeInputDateTime)
+./packages/common/schema/src/DateTimeUtcFromValid.ts:410: * const decode = S.decodeUnknownSync(DateTimeInput)
+./packages/common/schema/src/DateTimeUtcFromValid.ts:499: * const decode = S.decodeUnknownSync(DateTimeUtcFromValid)
+./packages/common/schema/src/DateTimeUtcFromValid.ts:500: * const encode = S.encodeSync(DateTimeUtcFromValid)
+./packages/common/schema/src/Options.ts:44: * const decode = S.decodeUnknownSync(Payload)
+./packages/common/schema/src/Options.ts:63: * const encode = S.encodeSync(Payload)
+./packages/common/schema/src/Json.ts:20: * const decoded = S.decodeUnknownSync(JsonObject)({ name: "Alice", age: 30 })
+./packages/common/schema/src/Json.ts:49: * const decoded = S.decodeUnknownSync(JsonArray)([1, "two", true, null])
+./tooling/docgen/test/Configuration.test.ts:10:const encodeJson = S.encodeSync(S.UnknownFromJsonString);
 ./tooling/cli/test/files-command.test.ts:23:const decodeArchivePoorCandidatesManifest = S.decodeUnknownSync(S.fromJsonString(ArchivePoorCandidatesManifest));
 ./tooling/cli/test/files-command.test.ts:24:const decodeDetectBordersReport = S.decodeUnknownSync(S.fromJsonString(DetectBordersReport));
 ./tooling/cli/test/files-command.test.ts:25:const decodeNormalizeManifest = S.decodeUnknownSync(S.fromJsonString(NormalizeManifest));
+./packages/common/schema/src/Timezone.ts:21: * const tz = S.decodeUnknownSync(Timezone)("America/New_York")
+./packages/common/schema/src/CurrencyCode.ts:24: * const code = S.decodeUnknownSync(CurrencyCode)("USD")
+./packages/common/observability/src/Observed.ts:32: * const decode = S.decodeUnknownSync(ObservedError)
+./packages/common/observability/src/Observed.ts:72: * const decode = S.decodeUnknownSync(ObservedErrorWithStack)
+./packages/common/observability/src/Observed.ts:112: * const decode = S.decodeUnknownSync(ObservedDefect)
+./packages/common/observability/src/Observed.ts:152: * const decode = S.decodeUnknownSync(ObservedDefectWithStack)
 ./tooling/cli/test/docgen.test.ts:34:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-./tooling/repo-utils/src/JSDoc/models/TSCategory.model.ts:279:  const definition = S.decodeSync(TSCategoryDefinition)({ _tag, ...meta });
-./tooling/repo-utils/src/JSDoc/models/TSCategory.model.ts:1043:    return A.append(categories, S.encodeSync(TSCategoryDefinition)(metadata));
-./tooling/cli/src/commands/VersionSync/internal/updaters/YamlFileUpdater.ts:34:const decodeYamlNodeValueAsString = S.decodeUnknownSync(YamlNodeValueAsString);
-./tooling/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts:185:    const def = S.decodeSync(JSDocTagDefinition)({ _tag, ...meta });
-./tooling/cli/src/commands/VersionSync/internal/resolvers/NodeResolver.ts:120:const decodeNodeVersionString = S.decodeUnknownSync(UnknownNodeVersionValueToString);
-./tooling/cli/src/commands/VersionSync/internal/resolvers/BiomeResolver.ts:113:const decodeExactVersion = S.decodeUnknownSync(VersionSpecifierToExactVersion);
-./packages/common/utils/src/Event.ts:38: * const decoded = S.decodeUnknownSync(Progress)({
-./tooling/cli/src/commands/VersionSync/internal/resolvers/DockerResolver.ts:183:const decodeDockerImageValueToString = S.decodeUnknownSync(UnknownDockerImageValueToString);
-./tooling/repo-utils/src/JSDoc/models/tag-values/index.ts:512: * Provides `.Enum`, `.is`, `.$match`, `S.decodeSync(TagName)`, and
+./packages/common/schema/src/Float16Array.ts:67: * const decodeFloat16Array = S.decodeUnknownSync(Float16Arr);
+./packages/common/schema/src/Float16Array.ts:102: * const decodeFloat16Array = S.decodeUnknownSync(Float16ArrayFromArray);
+./packages/common/schema/src/Float16Array.ts:103: * const encodeFloat16Array = S.encodeSync(Float16ArrayFromArray);
+./packages/common/schema/src/SemanticVersion.ts:9: * const version = S.decodeUnknownSync(SemanticVersion)("1.24.0");
+./packages/common/schema/src/SemanticVersion.ts:39: * S.decodeUnknownSync(SemanticVersion)("0.1.2");
+./packages/common/schema/src/SemanticVersion.ts:40: * S.decodeUnknownSync(SemanticVersion)("12.34.56");
+./packages/common/schema/src/FileExtension.ts:13: * const png = S.decodeUnknownSync(FileExtension)("png");
+./packages/common/schema/src/FileExtension.ts:14: * const jpeg = S.decodeUnknownSync(ImageFileExtension)("jpeg");
+./packages/common/schema/src/FileExtension.ts:92: * const ext = S.decodeUnknownSync(ApplicationFileExtension)("pdf")
+./packages/common/schema/src/FileExtension.ts:131: * const ext = S.decodeUnknownSync(VideoFileExtension)("mp4")
+./packages/common/schema/src/FileExtension.ts:170: * const ext = S.decodeUnknownSync(TextFileExtension)("txt")
+./packages/common/schema/src/FileExtension.ts:209: * const ext = S.decodeUnknownSync(ImageFileExtension)("png")
+./packages/common/schema/src/FileExtension.ts:248: * const ext = S.decodeUnknownSync(AudioFileExtension)("mp3")
+./packages/common/schema/src/FileExtension.ts:287: * const decode = S.decodeUnknownSync(MiscFileExtension)
+./packages/common/schema/src/FileExtension.ts:325: * const ext = S.decodeUnknownSync(FileExtension)("json")
 ./tooling/cli/test/sync-data-to-ts.test.ts:18:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+./packages/common/observability/src/PhaseProfiler.ts:93: * const durationMs = S.decodeUnknownSync(NonNegativeInt)(42)
+./packages/common/schema/src/BinaryFileExtension.ts:14: * const extension = S.decodeUnknownSync(BinaryFileExtension)(".png");
+./packages/common/schema/src/BinaryFileExtension.ts:170: * const extension = S.decodeUnknownSync(BinaryFileExtension)(".pdf");
+./packages/common/schema/src/Sha256.ts:48: * const digest = S.decodeUnknownSync(Sha256Hex)(
 ./tooling/cli/test/codex-session-start-runtime.test.ts:16:const decodeSessionStartHookOutput = S.decodeUnknownSync(
+./packages/common/schema/src/Timestamp.ts:45: * const decode = S.decodeUnknownSync(ISOStr)
+./packages/common/schema/src/Timestamp.ts:77: * const decode = S.decodeUnknownSync(EpochMillis)
+./packages/common/schema/src/Timestamp.ts:110: * const decode = S.decodeUnknownSync(ToIsoStr)
 ./tooling/cli/test/reuse-command.test.ts:31:const decodeCodexSmokeResultJson = S.decodeUnknownSync(S.fromJsonString(CodexSmokeResult));
-./tooling/repo-utils/test/TSMorph.service.test.ts:43:const decodeDiagnosticsRequest = S.decodeUnknownSync(TsMorphDiagnosticsRequest);
-./tooling/repo-utils/test/TSMorph.service.test.ts:44:const decodeFileOutlineRequest = S.decodeUnknownSync(TsMorphFileOutlineRequest);
-./tooling/repo-utils/test/TSMorph.service.test.ts:45:const decodeProjectInspectionRequest = S.decodeUnknownSync(TsMorphProjectInspectionRequest);
-./tooling/repo-utils/test/TSMorph.service.test.ts:46:const decodeProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
-./tooling/repo-utils/test/TSMorph.service.test.ts:47:const decodeSourceTextRequest = S.decodeUnknownSync(TsMorphSourceTextRequest);
-./tooling/repo-utils/test/TSMorph.service.test.ts:48:const decodeSymbolQualifiedName = S.decodeUnknownSync(SymbolQualifiedName);
-./tooling/repo-utils/test/TSMorph.service.test.ts:49:const decodeSymbolLookupRequest = S.decodeUnknownSync(TsMorphSymbolLookupRequest);
-./tooling/repo-utils/test/TSMorph.service.test.ts:50:const decodeSymbolSearchRequest = S.decodeUnknownSync(TsMorphSymbolSearchRequest);
-./tooling/repo-utils/test/TSMorph.service.test.ts:51:const decodeSymbolSourceRequest = S.decodeUnknownSync(TsMorphSymbolSourceRequest);
+./packages/common/schema/src/MutableHashSet.ts:117: * const decoded = S.decodeUnknownSync(SetSchema)(set)
+./packages/common/schema/src/MutableHashSet.ts:210: * const decoded = S.decodeUnknownSync(StringSet)(["a", "b", "a"])
+./packages/common/schema/src/MutableHashSet.ts:211: * const encoded = S.encodeSync(StringSet)(decoded)
 ./tooling/cli/test/tsconfig-sync.test.ts:18:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 ./tooling/cli/test/tsconfig-sync.test.ts:19:const decodeUnknownJson = S.decodeUnknownSync(S.fromJsonString(S.Unknown));
 ./tooling/cli/test/tsconfig-sync.test.ts:38:const decodeTsconfigReferences = S.decodeUnknownSync(TsconfigReferences);
 ./tooling/cli/test/tsconfig-sync.test.ts:39:const decodeTsconfigPaths = S.decodeUnknownSync(TsconfigPaths);
 ./tooling/cli/test/tsconfig-sync.test.ts:40:const decodeTstycheConfig = S.decodeUnknownSync(TstycheConfig);
+./packages/common/schema/src/Markdown.ts:111: * const document = S.decodeUnknownSync(Markdown)("# Hello")
 ./tooling/cli/test/version-sync-effect.test.ts:17:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+./packages/common/schema/src/BufferEncoding.ts:20: * const encoding = S.decodeUnknownSync(BuffEncoding)("utf8")
+./packages/common/schema/src/PascalStr.ts:21: * const value = S.decodeUnknownSync(PascalCaseStr)("WorkflowStatus")
+./packages/common/observability/src/server/HttpApiTelemetry.ts:44: * const successStatus = S.decodeUnknownSync(NonNegativeInt)(201)
+./tooling/cli/test/image-command.test.ts:17:const decodeManifest = S.decodeUnknownSync(S.fromJsonString(ExtractFramesManifest));
+./tooling/cli/test/lint-command.test.ts:11:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+./packages/common/schema/src/Number.ts:22: * const value = S.decodeUnknownSync(PosNum)(5)
+./packages/common/schema/src/Number.ts:40: * const id = S.decodeUnknownSync(Serial)(1)
+./packages/common/schema/src/Number.ts:84: * S.decodeUnknownSync(NonNeg)(0)
+./packages/common/schema/src/Number.ts:85: * S.decodeUnknownSync(NonNeg)(42)
+./packages/common/schema/src/Number.ts:102: * const value = S.decodeUnknownSync(NegNum)(-1)
+./packages/common/schema/src/Number.ts:120: * S.decodeUnknownSync(NonPos)(0)
+./packages/common/schema/src/Number.ts:121: * S.decodeUnknownSync(NonPos)(-10)
+./packages/common/schema/src/Number.ts:137: * const value = S.decodeUnknownSync(NonNegativeInt)(10)
+./tooling/cli/test/dual-arity.test.ts:184:            "export const encodeName = S.encodeUnknownSync(S.String);",
+./packages/common/schema/src/CommonTextSchemas.ts:30: * const value = S.decodeUnknownSync(TrimmedNonEmptyText)("  hello  ")
+./packages/common/schema/src/CommonTextSchemas.ts:75: * const items = S.decodeUnknownSync(CommaSeparatedList)("foo, bar, baz")
+./packages/common/schema/src/CommonTextSchemas.ts:120: * console.log(S.decodeUnknownSync(NormalizedBooleanString)("yes")) // true
+./packages/common/schema/src/CommonTextSchemas.ts:121: * console.log(S.decodeUnknownSync(NormalizedBooleanString)("0")) // false
+./tooling/cli/test/quality-tasks.test.ts:25:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+./packages/common/schema/src/MappedLiteralKit.ts:269: * S.decodeSync(SqlState)("SUCCESSFUL_COMPLETION"); // "00000"
+./packages/common/schema/src/MappedLiteralKit.ts:270: * S.encodeSync(SqlState)("00000"); // "SUCCESSFUL_COMPLETION"
+./packages/common/schema/src/MappedLiteralKit.ts:322: * S.decodeSync(HttpStatus)("OK")       // "200"
+./packages/common/schema/src/MappedLiteralKit.ts:323: * S.encodeSync(HttpStatus)("200")      // "OK"
 ./tooling/cli/test/create-package.test.ts:18:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 ./tooling/cli/test/create-package.test.ts:19:const decodeUnknownJson = S.decodeUnknownSync(S.fromJsonString(S.Unknown));
 ./tooling/cli/test/create-package.test.ts:46:const decodeRootPackage = S.decodeUnknownSync(RootPackage);
@@ -234,9 +294,286 @@
 ./tooling/cli/test/create-package.test.ts:48:const decodeTsconfigPaths = S.decodeUnknownSync(TsconfigPaths);
 ./tooling/cli/test/create-package.test.ts:49:const decodeTstycheConfig = S.decodeUnknownSync(TstycheConfig);
 ./tooling/cli/test/create-package.test.ts:50:const decodePackageScripts = S.decodeUnknownSync(PackageScripts);
-./tooling/cli/test/image-command.test.ts:17:const decodeManifest = S.decodeUnknownSync(S.fromJsonString(ExtractFramesManifest));
+./packages/common/schema/src/Percentage.ts:25: * const value = S.decodeUnknownSync(Percentage)(75.5)
 ./tooling/cli/test/schema-first.test.ts:14:    const decoded = S.decodeUnknownSync(FileGenerationPlanInput)({
-./tooling/cli/test/lint-command.test.ts:11:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+./packages/common/observability/test/Observed.test.ts:14:    const encoded = S.encodeSync(S.toCodecJson(ObservedCause))(cause);
+./packages/common/observability/test/Observed.test.ts:15:    const encodedReasons = S.decodeUnknownSync(
+./packages/common/observability/test/Observed.test.ts:26:    const decoded = S.decodeSync(S.toCodecJson(ObservedCause))(encoded);
+./packages/common/observability/test/Observed.test.ts:35:    const encoded = S.encodeSync(S.toCodecJson(ObservedExit))(exit);
+./packages/common/observability/test/Observed.test.ts:36:    const encodedTag = S.decodeUnknownSync(
+./packages/common/observability/test/Observed.test.ts:44:    const decoded = S.decodeSync(S.toCodecJson(ObservedExit))(encoded);
+./packages/common/schema/src/Thunk.ts:75: * const thunk = S.decodeUnknownSync(ThunkUnknown)(() => "hello")
+./packages/common/schema/src/Jsonc.ts:25: * const diag = S.decodeUnknownSync(JsoncParseDiagnostic)({
+./packages/common/schema/src/Int.ts:22: * const value = S.decodeUnknownSync(Int)(42)
+./packages/common/schema/src/Int.ts:65: * const value = S.decodeUnknownSync(PosInt)(5)
+./packages/common/schema/src/Int.ts:108: * const id = S.decodeUnknownSync(PostgresSerialInt)(1)
+./packages/common/schema/src/Int.ts:147: * const value = S.decodeUnknownSync(NegInt)(-3)
+./packages/common/schema/src/Int.ts:190: * S.decodeUnknownSync(NonPositiveInt)(0)
+./packages/common/schema/src/Int.ts:191: * S.decodeUnknownSync(NonPositiveInt)(-5)
+./packages/common/schema/src/Int.ts:233: * S.decodeUnknownSync(NonNegativeInt)(0)
+./packages/common/schema/src/Int.ts:234: * S.decodeUnknownSync(NonNegativeInt)(100)
+./packages/common/schema/src/SnakeStr.ts:21: * const value = S.decodeUnknownSync(SnakeCaseStr)("workflow_status_2")
+./packages/common/schema/src/PosixPath.ts:24: * const p = S.decodeUnknownSync(PosixPath)("/usr/local/bin")
+./packages/common/schema/src/PosixPath.ts:63: * const p = S.decodeUnknownSync(NativePathToPosixPath)("C:\\Users\\docs")
+./packages/common/schema/src/ArrayOf.ts:21: * const decoded = S.decodeUnknownSync(ArrayOfStrings)(["a", "b", "c"])
+./packages/common/schema/src/ArrayOf.ts:50: * const decoded = S.decodeUnknownSync(NonEmptyArrayOfStrings)(["hello"])
+./packages/common/schema/src/ArrayOf.ts:79: * const decoded = S.decodeUnknownSync(ArrayOfNonEmptyStrings)(["hello", "world"])
+./packages/common/schema/src/ArrayOf.ts:108: * const decoded = S.decodeUnknownSync(NonEmptyArrayOfNonEmptyStrings)(["hello"])
+./packages/common/schema/src/ArrayOf.ts:137: * const decoded = S.decodeUnknownSync(ArrayOfNumbers)([1, 2, 3])
+./packages/common/schema/src/ArrayOf.ts:166: * const decoded = S.decodeUnknownSync(NonEmptyArrayOfNumbers)([42])
+./packages/common/schema/src/ArrayOf.ts:195: * const decoded = S.decodeUnknownSync(ArrayOfInts)([1, 2, 3])
+./packages/common/schema/src/ArrayOf.ts:224: * const decoded = S.decodeUnknownSync(NonEmptyArrayOfInts)([1])
+./packages/common/schema/src/Glob.ts:13: * const pattern = S.decodeUnknownSync(Glob)("src/*.ts");
+./packages/common/schema/src/Glob.ts:99: * const pattern = S.decodeUnknownSync(Glob)("src/*.ts")
+./packages/common/schema/src/Graph.ts:257: * const decode = S.decodeUnknownSync(NodeIndex)
+./packages/common/schema/src/Graph.ts:289: * const decode = S.decodeUnknownSync(NodeIndexFromString)
+./packages/common/schema/src/LocalDate.ts:488: * const decodeLocalDate = S.decodeUnknownSync(LocalDateFromString);
+./packages/common/schema/src/LocalDate.ts:489: * const encodeLocalDate = S.encodeSync(LocalDateFromString);
+./packages/common/schema/src/http/headers/CrossOriginOpenerPolicy.ts:31: * const decoded = S.decodeUnknownSync(CoopValue)("same-origin")
+./packages/common/schema/src/http/headers/CrossOriginOpenerPolicy.ts:63: * const decoded = S.decodeUnknownSync(CrossOriginOpenerPolicyOption)(false)
+./tooling/cli/src/commands/Laws/DualArity.ts:448:  /^(?:S|Schema)\.(?:decodeUnknownEffect|decodeUnknownOption|decodeUnknownSync|encodeEffect|encodeOption|encodeSync|encodeUnknownEffect|encodeUnknownOption|encodeUnknownSync|toEquivalence)$/u;
+./packages/common/schema/src/Duration.ts:56: * const decode = S.decodeUnknownSync(DurationUnit)
+./packages/common/schema/src/Duration.ts:117: * const decode = S.decodeUnknownSync(DurationObject)
+./packages/common/schema/src/Duration.ts:157: * const decode = S.decodeUnknownSync(DurationInput)
+./packages/common/schema/src/http/headers/NoSniff.ts:32: * const decoded = S.decodeUnknownSync(NoSniffValue)("nosniff")
+./packages/common/schema/src/http/headers/NoSniff.ts:64: * const decoded = S.decodeUnknownSync(NoSniffOption)(false)
+./packages/common/schema/test/BinaryFileExtension.test.ts:11:  const decode = S.decodeUnknownSync(BinaryFileExtension);
+./packages/common/schema/test/Model.test.ts:12:    expect(S.decodeUnknownSync(Struct)({}).value).toEqual(O.none());
+./packages/common/schema/test/Model.test.ts:13:    expect(S.decodeUnknownSync(Struct)({ value: null }).value).toEqual(O.none());
+./packages/common/schema/test/Model.test.ts:14:    expect(S.decodeUnknownSync(Struct)({ value: "kept" }).value).toEqual(O.some("kept"));
+./packages/common/schema/test/Model.test.ts:16:    expect(S.encodeSync(Struct)({ value: O.none() })).toEqual({});
+./packages/common/schema/test/Model.test.ts:17:    expect(S.encodeSync(Struct)({ value: O.some("encoded") })).toEqual({ value: "encoded" });
+./packages/common/schema/test/ParserOptions.test.ts:57:    const options = S.decodeUnknownSync(ParserOptions)({
+./packages/common/schema/src/MutableHashMap.ts:152: * const decoded = S.decodeUnknownSync(MapSchema)(map)
+./packages/common/schema/src/MutableHashMap.ts:251: * const decoded = S.decodeUnknownSync(StringNumberMap)([["a", "1"]])
+./packages/common/schema/src/MutableHashMap.ts:252: * const encoded = S.encodeSync(StringNumberMap)(decoded)
+./packages/common/schema/test/FileName.test.ts:6:  const decode = S.decodeUnknownSync(FileName);
+./packages/common/schema/test/FileName.test.ts:50:    expect(() => S.decodeUnknownSync(Payload)({ fileName: "bad/name.txt" })).toThrow(`at ["fileName"]`);
+./packages/common/schema/test/FileName.test.ts:59:    expect(S.decodeUnknownSync(Payload)(input)).toEqual(input);
+./packages/common/schema/src/Float32Array.ts:33: * const decodeFloat32Array = S.decodeUnknownSync(Float32Arr);
+./packages/common/schema/src/Float32Array.ts:70: * const decodeFloat32Array = S.decodeUnknownSync(Float32ArrayFromArray);
+./packages/common/schema/src/Float32Array.ts:71: * const encodeFloat32Array = S.encodeSync(Float32ArrayFromArray);
+./packages/common/schema/test/PromiseSchema.test.ts:10:    expect(S.decodeUnknownSync(PromiseSchema)(value)).toBe(value);
+./packages/common/schema/test/PromiseSchema.test.ts:19:    expect(S.decodeUnknownSync(PromiseSchema)(value)).toBe(value);
+./packages/common/schema/test/PromiseSchema.test.ts:31:    expect(() => S.decodeUnknownSync(PromiseSchema)(thenable)).toThrow(/Expected Promise/);
+./packages/common/schema/test/PromiseSchema.test.ts:36:    expect(() => S.decodeUnknownSync(PromiseSchema)("nope")).toThrow(/Expected Promise/);
+./packages/common/schema/test/RegExp.test.ts:6:  const decode = S.decodeUnknownSync(RegExpStr);
+./packages/common/schema/test/RegExp.test.ts:21:  const decode = S.decodeUnknownSync(RegExpFromStr);
+./packages/common/schema/test/RegExp.test.ts:22:  const encode = S.encodeSync(RegExpFromStr);
+./packages/common/schema/src/Fn.ts:407: * const fn = S.decodeUnknownSync(AnyFn)(() => "hello")
+./packages/common/schema/src/Email.ts:21: * const decode = S.decodeUnknownSync(Email)
+./packages/common/schema/src/Email.ts:39: * const decode = S.decodeUnknownSync(Email)
+./packages/common/schema/test/FilePath.test.ts:28:    const decodeFamily = S.decodeUnknownSync(SupportedPathFamily);
+./packages/common/schema/test/FilePath.test.ts:29:    const decodeDot = S.decodeUnknownSync(WindowsDotSegment);
+./packages/common/schema/test/FilePath.test.ts:42:    const decode = S.decodeUnknownSync(SupportedWindowsNamespace);
+./packages/common/schema/test/FilePath.test.ts:62:    const decodeDriveRoot = S.decodeUnknownSync(WindowsDriveRoot);
+./packages/common/schema/test/FilePath.test.ts:63:    const decodeUncRoot = S.decodeUnknownSync(WindowsUncRoot);
+./packages/common/schema/test/FilePath.test.ts:75:    const decodePlainSegment = S.decodeUnknownSync(ValidWindowsPlainPathSegment);
+./packages/common/schema/test/FilePath.test.ts:76:    const decodeRootSegment = S.decodeUnknownSync(ValidWindowsRootSegment);
+./packages/common/schema/test/FilePath.test.ts:77:    const decodePathSegment = S.decodeUnknownSync(ValidWindowsPathSegment);
+./packages/common/schema/test/FilePath.test.ts:95:    const decodeSegments = S.decodeUnknownSync(WindowsSegments);
+./packages/common/schema/test/FilePath.test.ts:96:    const decodeUncRest = S.decodeUnknownSync(ValidWindowsUncRest);
+./packages/common/schema/test/FilePath.test.ts:97:    const decodeUncSegments = S.decodeUnknownSync(ValidWindowsUncSegments);
+./packages/common/schema/test/FilePath.test.ts:111:    const decode = S.decodeUnknownSync(HasLeafSegment);
+./packages/common/schema/test/FilePath.test.ts:123:    const decode = S.decodeUnknownSync(WindowsDrivePath);
+./packages/common/schema/test/FilePath.test.ts:135:    const decode = S.decodeUnknownSync(WindowsUncPath);
+./packages/common/schema/test/FilePath.test.ts:145:    const decode = S.decodeUnknownSync(WindowsRelativePath);
+./packages/common/schema/test/FilePath.test.ts:158:  const decode = S.decodeUnknownSync(FilePath);
+./packages/common/schema/test/FilePath.test.ts:247:    expect(() => S.decodeUnknownSync(Payload)({ filePath: "foo/" })).toThrow(`at ["filePath"]`);
+./packages/common/schema/test/FilePath.test.ts:256:    expect(S.decodeUnknownSync(Payload)(input)).toEqual(input);
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:19:const decodeInput = S.decodeUnknownSync(DateTimeInput);
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:20:const decodeUtc = S.decodeUnknownSync(DateTimeUtcFromValid);
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:21:const encodeUtc = S.encodeSync(DateTimeUtcFromValid);
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:29:    expect(S.decodeUnknownSync(DateTimeInputKind)("Instant")).toBe("Instant");
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:48:    expect(S.decodeUnknownSync(DateTimeInputString.Tagged)(stringInput)).toEqual(stringInput);
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:49:    expect(S.decodeUnknownSync(DateTimeInputNumber.Tagged)(numberInput)).toEqual(numberInput);
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:50:    expect(S.decodeUnknownSync(DateTimeInputDate.Tagged)(dateInput)).toEqual(dateInput);
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:54:    expect(() => S.decodeUnknownSync(DateTimeInputString)("not-a-date")).toThrow(
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:57:    expect(() => S.decodeUnknownSync(DateTimeInputNumber)(Number.POSITIVE_INFINITY)).toThrow();
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:58:    expect(() => S.decodeUnknownSync(DateTimeInputDate)(new Date("not-a-date"))).toThrow();
+./packages/common/schema/test/DateTimeUtcFromValid.test.ts:84:      S.decodeUnknownSync(DateTimeInputInstantWithZone)({
+./packages/common/schema/src/FilePath.ts:830: * const decode = S.decodeUnknownSync(FilePath)
+./packages/common/schema/test/PosixPath.test.ts:11:    expect(S.decodeUnknownSync(PosixPath)("packages/common/schema")).toBe("packages/common/schema");
+./packages/common/schema/test/PosixPath.test.ts:15:    expect(() => S.decodeUnknownSync(PosixPath)("packages\\common\\schema")).toThrow("Expected a string matching");
+./packages/common/schema/src/EffectSchema.ts:68: * const decoded = S.decodeUnknownSync(EffectSchema)(program)
+./packages/common/schema/test/LiteralKit.test.ts:163:      S.decodeSync(Event)({
+./packages/common/schema/src/Logs.ts:21: * const level = S.decodeUnknownSync(LogLevel)("Info")
+./packages/common/schema/src/Logs.ts:53: * const severity = S.decodeUnknownSync(LogSeverity)("Error")
+./packages/common/schema/test/Slug.test.ts:6:  const decode = S.decodeUnknownSync(Slug);
+./packages/common/schema/test/Slug.test.ts:49:    expect(() => S.decodeUnknownSync(Payload)({ slug: "my_post" })).toThrow(`at ["slug"]`);
+./packages/common/schema/src/URL.ts:53: * const url = S.decodeUnknownSync(URLStr)("https://example.com")
+./packages/common/schema/test/Duration.test.ts:8:  const decode = S.decodeUnknownSync(DurationInput);
+./packages/common/schema/test/Duration.test.ts:26:  const decode = S.decodeUnknownSync(DurationFromInput);
+./packages/common/schema/test/Duration.test.ts:27:  const encode = S.encodeSync(DurationFromInput);
+./packages/common/schema/test/Glob.test.ts:6:  const decode = S.decodeUnknownSync(Glob);
+./packages/common/schema/test/Glob.test.ts:43:    expect(() => S.decodeUnknownSync(Payload)({ glob: "src\\**\\*.ts" })).toThrow(`at ["glob"]`);
+./packages/common/schema/test/EffectSchema.test.ts:11:    expect(S.decodeUnknownSync(EffectSchema)(value)).toBe(value);
+./packages/common/schema/test/EffectSchema.test.ts:21:    expect(S.decodeUnknownSync(EffectSchema)(value)).toBe(value);
+./packages/common/schema/test/EffectSchema.test.ts:27:    expect(() => S.decodeUnknownSync(EffectSchema)("nope")).toThrow(/Expected Effect/);
+./packages/common/schema/src/internal/email.ts:65: * const decode = S.decodeUnknownSync(Email)
+./packages/common/schema/src/internal/email.ts:86: * const decode = S.decodeUnknownSync(Email)
+./packages/common/schema/test/Address.test.ts:35:  const decode = S.decodeUnknownSync(CryptoWalletAddress);
+./packages/common/schema/test/Address.test.ts:104:    expect(() => S.decodeUnknownSync(Payload)({ address: "invalid" })).toThrow(`at ["address"]`);
+./packages/common/schema/src/BigDecimal.ts:28: * const decode = S.decodeUnknownSync(BigDecimalFromNumber)
+./packages/common/schema/test/MappedLiteralKit.test.ts:13:    expect(S.decodeSync(SqlState)("SUCCESSFUL_COMPLETION")).toBe("00000");
+./packages/common/schema/test/MappedLiteralKit.test.ts:14:    expect(S.decodeSync(SqlState)("WARNING")).toBe("01000");
+./packages/common/schema/test/MappedLiteralKit.test.ts:18:    expect(S.encodeSync(SqlState)("00000")).toBe("SUCCESSFUL_COMPLETION");
+./packages/common/schema/test/MappedLiteralKit.test.ts:19:    expect(S.encodeSync(SqlState)("01000")).toBe("WARNING");
+./packages/common/schema/test/MappedLiteralKit.test.ts:50:    expect(S.decodeSync(annotated)("WARNING")).toBe("01000");
+./packages/common/schema/test/MappedLiteralKit.test.ts:54:    expect(S.encodeSync(reannotated)("00000")).toBe("SUCCESSFUL_COMPLETION");
+./packages/common/schema/test/MappedLiteralKit.test.ts:92:    expect(S.decodeSync(SqlState.To)("00000")).toBe("SUCCESSFUL_COMPLETION");
+./packages/common/schema/test/MappedLiteralKit.test.ts:93:    expect(S.encodeSync(SqlState.To)("SUCCESSFUL_COMPLETION")).toBe("00000");
+./packages/common/schema/src/FileName.ts:13: * const decodeFileName = S.decodeUnknownSync(FileName);
+./packages/common/schema/src/FileName.ts:79: * const decodeFileName = S.decodeUnknownSync(FileName);
+./packages/common/schema/test/BlockchainRedacted.test.ts:17:    const walletAddress = S.decodeUnknownSync(CryptoWalletAddressRedacted)(bitcoinAddress);
+./packages/common/schema/test/BlockchainRedacted.test.ts:18:    const decodedEvmAddress = S.decodeUnknownSync(EvmAddressRedacted)(evmAddress);
+./packages/common/schema/test/BlockchainRedacted.test.ts:19:    const decodedValidatorPublicKey = S.decodeUnknownSync(EthereumValidatorPublicKeyRedacted)(validatorPublicKey);
+./packages/common/schema/test/BlockchainRedacted.test.ts:20:    const decodedTransactionHash = S.decodeUnknownSync(CryptoTxnHashRedacted)(transactionHash);
+./packages/drivers/ffmpeg/src/FFmpeg.models.ts:23: * const fps = S.decodeUnknownSync(PositiveFrameRate)(1)
+./packages/drivers/ffmpeg/src/FFmpeg.models.ts:82: * const timeout = S.decodeUnknownSync(PositiveMilliseconds)(2000)
+./packages/drivers/ffmpeg/src/FFmpeg.models.ts:141: * const prefix = S.decodeUnknownSync(SafeFramePrefix)("clip_frame")
+./packages/common/chalk/src/Chalk.ts:159: * const decode = S.decodeUnknownSync(BackgroundColorName)
+./packages/common/chalk/src/Chalk.ts:194: * const decode = S.decodeUnknownSync(ChalkConstructorOptions)
+./packages/common/chalk/src/Chalk.ts:233: * const decode = S.decodeUnknownSync(ChalkOptions)
+./packages/common/chalk/src/Chalk.ts:304: * const decode = S.decodeUnknownSync(ColorName)
+./packages/common/chalk/src/Chalk.ts:340: * const decode = S.decodeUnknownSync(ColorSupport)
+./packages/common/chalk/src/Chalk.ts:379: * const decode = S.decodeUnknownSync(ColorSupportLevel)
+./packages/common/chalk/src/Chalk.ts:414: * const decode = S.decodeUnknownSync(ColorSupportLevelInput)
+./packages/common/chalk/src/Chalk.ts:449: * const decode = S.decodeUnknownSync(ForegroundColorName)
+./packages/common/chalk/src/Chalk.ts:484: * const decode = S.decodeUnknownSync(ModifierName)
+./packages/common/chalk/src/index.ts:21: * console.log(S.decodeUnknownSync(ColorSupportLevel)(2))
+./packages/common/chalk/src/internal/ChalkSchema.ts:150: * const decode = S.decodeUnknownSync(ColorSupportLevel)
+./packages/common/chalk/src/internal/ChalkSchema.ts:214: * const decode = S.decodeUnknownSync(ColorInfo)
+./packages/common/chalk/src/internal/ChalkSchema.ts:274: * const decode = S.decodeUnknownSync(ModifierName)
+./packages/common/chalk/src/internal/ChalkSchema.ts:311: * const decode = S.decodeUnknownSync(ForegroundColorName)
+./packages/common/chalk/src/internal/ChalkSchema.ts:348: * const decode = S.decodeUnknownSync(BackgroundColorName)
+./packages/common/chalk/src/internal/ChalkSchema.ts:385: * const decode = S.decodeUnknownSync(ColorName)
+./packages/common/chalk/src/internal/PublicSurface.ts:46: * const decode = S.decodeUnknownSync(ColorSupportLevelInput)
+./packages/common/chalk/src/internal/PublicSurface.ts:146: * const decode = S.decodeUnknownSync(ChalkConstructorOptions)
+./packages/common/chalk/test/index.test.ts:154:    const decodeConstructorOptions = S.decodeUnknownSync(ChalkConstructorOptions);
+./packages/common/chalk/test/index.test.ts:155:    const decodeStrictOptions = S.decodeUnknownSync(ChalkOptions);
+./packages/drivers/ffmpeg/test/FFmpeg.service.test.ts:21:const decodeManifest = S.decodeUnknownSync(S.fromJsonString(ExtractFramesManifest));
+./tooling/repo-utils/src/JSDoc/models/tag-values/index.ts:512: * Provides `.Enum`, `.is`, `.$match`, `S.decodeSync(TagName)`, and
+./packages/common/schema/test/CaseStr.test.ts:6:  const decode = S.decodeUnknownSync(KebabCaseStr);
+./packages/common/schema/test/CaseStr.test.ts:22:  const decode = S.decodeUnknownSync(PascalCaseStr);
+./packages/common/schema/test/CaseStr.test.ts:38:  const decode = S.decodeUnknownSync(SnakeCaseStr);
+./packages/drivers/drizzle/dtslint/Drizzle.tst.ts:41:    expect(S.decodeUnknownSync(DrizzleRows)([])).type.toBe<DrizzleRowsType>();
+./packages/common/schema/test/Color.test.ts:7:    expect(S.decodeUnknownSync(Color.NormalizeHexColor)("#abc")).toBe("#aabbcc");
+./packages/common/schema/test/Color.test.ts:8:    expect(S.decodeUnknownSync(Color.NormalizeHexColor)("#AABBCC")).toBe("#aabbcc");
+./packages/common/schema/test/Color.test.ts:12:    const black = S.decodeUnknownSync(Color.HexToRgb)("#000");
+./packages/common/schema/test/Color.test.ts:13:    const white = S.decodeUnknownSync(Color.HexToRgb)("#fff");
+./packages/common/schema/test/Color.test.ts:17:    expect(S.decodeUnknownSync(Color.RgbToHex)({ r: -1, g: 0.5, b: 2 })).toBe("#0080ff");
+./packages/common/schema/test/Color.test.ts:19:    const blueOklch = S.decodeUnknownSync(Color.RgbToOklch)({ r: 0, g: 0, b: 1 });
+./packages/common/schema/test/Color.test.ts:20:    const redOklch = S.decodeUnknownSync(Color.RgbToOklch)({ r: 1, g: 0, b: 0 });
+./packages/common/schema/test/Color.test.ts:24:    expect(S.decodeUnknownSync(Color.OklchToHex)(blueOklch)).toBe("#0000ff");
+./packages/common/schema/test/Color.test.ts:25:    expect(S.decodeUnknownSync(Color.OklchToRgb)({ l: 0.001, c: 0, h: 0 }).r).toBeGreaterThanOrEqual(0);
+./packages/common/schema/test/Color.test.ts:29:    const darkScale = S.decodeUnknownSync(Color.GenerateScale)({ seed: "#3b82f6", isDark: true });
+./packages/common/schema/test/Color.test.ts:30:    const lightScale = S.decodeUnknownSync(Color.GenerateScale)({ seed: "#3b82f6", isDark: false });
+./packages/common/schema/test/Color.test.ts:31:    const darkNeutral = S.decodeUnknownSync(Color.GenerateNeutralScale)({ seed: "#3b82f6", isDark: true });
+./packages/common/schema/test/Color.test.ts:32:    const lightNeutral = S.decodeUnknownSync(Color.GenerateNeutralScale)({ seed: "#3b82f6", isDark: false });
+./packages/common/schema/test/Color.test.ts:33:    const darkAlpha = S.decodeUnknownSync(Color.GenerateAlphaScale)({ scale: darkScale, isDark: true });
+./packages/common/schema/test/Color.test.ts:34:    const lightAlpha = S.decodeUnknownSync(Color.GenerateAlphaScale)({ scale: lightScale, isDark: false });
+./packages/common/schema/test/Color.test.ts:42:    expect(S.decodeUnknownSync(Color.MixColors)({ color1: "#000", color2: "#fff", amount: 0.5 })).toMatch(
+./packages/common/schema/test/Color.test.ts:45:    expect(S.decodeUnknownSync(Color.Lighten)({ color: "#000", amount: 1 })).toBe("#ffffff");
+./packages/common/schema/test/Color.test.ts:46:    expect(S.decodeUnknownSync(Color.Darken)({ color: "#fff", amount: 1 })).toBe("#000000");
+./packages/common/schema/test/Color.test.ts:47:    expect(S.decodeUnknownSync(Color.WithAlpha)({ color: "#336699", alpha: 0.25 })).toBe("rgba(51, 102, 153, 0.25)");
+./packages/common/schema/test/MutableHashMap.test.ts:12:    const decoded = S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", "1"], ["b", "2"]));
+./packages/common/schema/test/MutableHashMap.test.ts:31:    expect(() => S.decodeUnknownSync(schema)(null)).toThrow("Expected MutableHashMapFromSelf, got null");
+./packages/common/schema/test/MutableHashMap.test.ts:40:    expect(() => S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", null]))).toThrow(`Expected string, got null
+./packages/common/schema/test/MutableHashMap.test.ts:70:    const decoded = S.decodeUnknownSync(schema)([
+./packages/common/schema/test/MutableHashMap.test.ts:92:    expect(S.encodeSync(schema)(MutableHashMap_.make(["a", 1], ["b", 2]))).toEqual([
+./packages/common/schema/test/MutableHashMap.test.ts:104:    expect(() => S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", null]))).toThrow(
+./packages/common/schema/test/Graph.test.ts:31:    expect(S.decodeUnknownSync(NodeIndex)(0)).toBe(0);
+./packages/common/schema/test/Graph.test.ts:32:    expect(S.decodeUnknownSync(NodeIndexFromString)("2")).toBe(2);
+./packages/common/schema/test/Graph.test.ts:33:    expect(S.decodeUnknownSync(EdgeIndex)(1)).toBe(1);
+./packages/common/schema/test/Graph.test.ts:34:    expect(S.decodeUnknownSync(EdgeIndexFromString)("3")).toBe(3);
+./packages/common/schema/test/Graph.test.ts:38:    expect(() => S.decodeUnknownSync(NodeIndex)(-1)).toThrow("Expected a value greater than or equal to 0, got -1");
+./packages/common/schema/test/Graph.test.ts:39:    expect(() => S.decodeUnknownSync(EdgeIndexFromString)("-1")).toThrow(
+./packages/common/schema/test/Graph.test.ts:45:    expect(S.decodeUnknownSync(GraphKind)("directed")).toBe("directed");
+./packages/common/schema/test/Graph.test.ts:46:    expect(S.decodeUnknownSync(GraphKind)("undirected")).toBe("undirected");
+./packages/common/schema/test/Graph.test.ts:60:    const decoded = S.decodeUnknownSync(schema)({ source: 0, target: 1, data: "1" });
+./packages/common/schema/test/Graph.test.ts:67:    expect(S.encodeSync(schema)(decoded)).toEqual({ source: 0, target: 1, data: "1" });
+./packages/common/schema/test/Graph.test.ts:72:    const decoded = S.decodeUnknownSync(schema)({ source: 0, target: 1, data: "1" });
+./packages/common/schema/test/Graph.test.ts:80:    const decoded = S.decodeUnknownSync(schema)(new Graph_.Edge({ source: 0, target: 1, data: "1" }));
+./packages/common/schema/test/Graph.test.ts:84:    expect(() => S.decodeUnknownSync(schema)(new Graph_.Edge({ source: 0, target: 1, data: null }))).toThrow(
+./packages/common/schema/test/Graph.test.ts:94:    expect(() => S.decodeUnknownSync(schema)({ source: 0, target: 1, data: "x" })).toThrow();
+./packages/common/schema/test/Graph.test.ts:119:    const decoded = S.decodeUnknownSync(schema)({
+./packages/common/schema/test/Graph.test.ts:152:    expect(S.encodeSync(schema)(graph)).toEqual({
+./packages/common/schema/test/Graph.test.ts:170:      S.decodeUnknownSync(schema)({
+./packages/common/schema/test/Graph.test.ts:179:      S.decodeUnknownSync(schema)({
+./packages/common/schema/test/Graph.test.ts:188:      S.decodeUnknownSync(schema)({
+./packages/common/schema/test/Graph.test.ts:197:      S.decodeUnknownSync(schema)({
+./packages/common/schema/test/Graph.test.ts:216:    const decoded = S.decodeUnknownSync(schema)({
+./packages/common/schema/test/Graph.test.ts:242:    const decoded = S.decodeUnknownSync(schema)(graph);
+./packages/common/schema/test/Graph.test.ts:264:    const decoded = S.decodeUnknownSync(schema)(graph);
+./packages/common/schema/test/Graph.test.ts:285:    expect(() => S.decodeUnknownSync(schema)(graph)).toThrow(`Expected string, got null
+./packages/common/schema/test/Graph.test.ts:302:    expect(() => S.decodeUnknownSync(schema)(graph)).toThrow("Expected GraphFromSelf, got Graph(directed, 2, 1)");
+./packages/common/schema/test/Graph.test.ts:315:    const decoded = S.decodeUnknownSync(schema)(graph);
+./packages/common/schema/test/Graph.test.ts:343:    const generic = S.decodeUnknownSync(genericSchema)(graph);
+./packages/common/schema/test/Graph.test.ts:344:    const undirected = S.decodeUnknownSync(undirectedSchema)(graph);
+./packages/common/schema/test/Graph.test.ts:350:    expect(() => S.decodeUnknownSync(directedSchema)(graph)).toThrow();
+./packages/common/schema/test/Graph.test.ts:360:    const decoded = S.decodeUnknownSync(schema)({
+./packages/common/schema/test/Graph.test.ts:372:    expect(S.encodeSync(schema)(decoded)).toEqual({
+./packages/common/schema/test/Graph.test.ts:390:    const decoded = S.decodeUnknownSync(schema)({
+./packages/common/schema/test/Graph.test.ts:402:    expect(S.encodeSync(schema)(decoded)).toEqual({
+./packages/common/schema/test/ProvO.test.ts:29:const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+./packages/common/schema/test/ProvO.test.ts:31:const decodeActivity = decodeUnknownSync(Activity);
+./packages/common/schema/test/ProvO.test.ts:32:const decodeAssociation = decodeUnknownSync(Association);
+./packages/common/schema/test/ProvO.test.ts:33:const decodeAttribution = decodeUnknownSync(Attribution);
+./packages/common/schema/test/ProvO.test.ts:34:const decodeCollection = decodeUnknownSync(Collection);
+./packages/common/schema/test/ProvO.test.ts:35:const decodeDelegation = decodeUnknownSync(Delegation);
+./packages/common/schema/test/ProvO.test.ts:36:const decodeDerivation = decodeUnknownSync(Derivation);
+./packages/common/schema/test/ProvO.test.ts:37:const decodeEnd = decodeUnknownSync(End);
+./packages/common/schema/test/ProvO.test.ts:38:const decodeEntity = decodeUnknownSync(Entity);
+./packages/common/schema/test/ProvO.test.ts:39:const decodeGeneration = decodeUnknownSync(Generation);
+./packages/common/schema/test/ProvO.test.ts:40:const decodeObjectRef = decodeUnknownSync(ObjectRef);
+./packages/common/schema/test/ProvO.test.ts:41:const decodeOrganization = decodeUnknownSync(Organization);
+./packages/common/schema/test/ProvO.test.ts:42:const decodePerson = decodeUnknownSync(Person);
+./packages/common/schema/test/ProvO.test.ts:43:const decodePlan = decodeUnknownSync(Plan);
+./packages/common/schema/test/ProvO.test.ts:44:const decodePrimarySource = decodeUnknownSync(PrimarySource);
+./packages/common/schema/test/ProvO.test.ts:45:const decodeProvBundle = decodeUnknownSync(ProvBundle);
+./packages/common/schema/test/ProvO.test.ts:46:const decodeProvDateTime = decodeUnknownSync(ProvDateTime);
+./packages/common/schema/test/ProvO.test.ts:47:const decodeProvO = decodeUnknownSync(ProvO);
+./packages/common/schema/test/ProvO.test.ts:48:const decodeQuotation = decodeUnknownSync(Quotation);
+./packages/common/schema/test/ProvO.test.ts:49:const decodeRevision = decodeUnknownSync(Revision);
+./packages/common/schema/test/ProvO.test.ts:50:const decodeSoftwareAgent = decodeUnknownSync(SoftwareAgent);
+./packages/common/schema/test/ProvO.test.ts:51:const decodeStart = decodeUnknownSync(Start);
+./packages/common/schema/test/ProvO.test.ts:52:const decodeUsage = decodeUnknownSync(Usage);
+./packages/drivers/drizzle/src/Drizzle.service.ts:23: * const rows = S.decodeUnknownSync(DrizzleRows)([])
+./packages/common/schema/test/TypedArrays.test.ts:11:    expect(S.decodeUnknownSync(Float16Arr)(value)).toBe(value);
+./packages/common/schema/test/TypedArrays.test.ts:15:    const value = S.decodeUnknownSync(Float16ArrayFromArray)([1, 2, 3]);
+./packages/common/schema/test/TypedArrays.test.ts:16:    const encoded = S.encodeSync(Float16ArrayFromArray)(value);
+./packages/common/schema/test/TypedArrays.test.ts:28:    expect(S.decodeUnknownSync(Float32Arr)(value)).toBe(value);
+./packages/common/schema/test/TypedArrays.test.ts:32:    const value = S.decodeUnknownSync(Float32ArrayFromArray)([1, 2, 3]);
+./packages/common/schema/test/TypedArrays.test.ts:33:    const encoded = S.encodeSync(Float32ArrayFromArray)(value);
+./packages/common/schema/test/TypedArrays.test.ts:45:    expect(S.decodeUnknownSync(Float64Arr)(value)).toBe(value);
+./packages/common/schema/test/TypedArrays.test.ts:49:    const value = S.decodeUnknownSync(Float64ArrayFromArray)([1, 2, 3]);
+./packages/common/schema/test/TypedArrays.test.ts:50:    const encoded = S.encodeSync(Float64ArrayFromArray)(value);
+./packages/common/schema/test/TxnHash.test.ts:10:  const decode = S.decodeUnknownSync(CryptoTxnHash);
+./packages/common/schema/test/TxnHash.test.ts:56:    expect(() => S.decodeUnknownSync(Payload)({ txnHash: "invalid" })).toThrow(`at ["txnHash"]`);
+./packages/common/schema/test/CauseTaggedError.test.ts:110:      S.decodeUnknownSync(OperationError)({
+./packages/common/schema/test/SchemaUtils.test.ts:17:    expect(S.decodeUnknownSync(schema)({ column1: "1" })).toBe(1);
+./packages/common/schema/test/SchemaUtils.test.ts:26:    expect(S.encodeSync(schema)(2)).toEqual({ column1: "2" });
+./packages/common/schema/test/SchemaUtils.test.ts:34:    expect(S.decodeSync(schema)("red,green,blue")).toEqual(["red", "green", "blue"]);
+./packages/common/schema/test/SchemaUtils.test.ts:40:    expect(S.encodeSync(schema)(["red", "green", "blue"])).toBe("red,green,blue");
+./packages/common/schema/test/SchemaUtils.test.ts:46:    expect(S.decodeSync(schema)("red,,blue")).toEqual(["red", "", "blue"]);
+./packages/common/schema/test/SchemaUtils.test.ts:47:    expect(S.encodeSync(schema)(["red", "", "blue"])).toBe("red,,blue");
+./packages/common/schema/test/SchemaUtils.test.ts:89:    expect(A.isReadonlyArrayEmpty(S.decodeUnknownSync(Settings)({}).tags)).toBe(true);
+./packages/common/schema/test/SchemaUtils.test.ts:96:    expect(A.isReadonlyArrayEmpty(S.decodeUnknownSync(Settings)({ tags: undefined }).tags)).toBe(true);
+./packages/common/schema/test/EthereumValidatorPublicKey.test.ts:9:  const decode = S.decodeUnknownSync(EthereumValidatorPublicKey);
+./packages/drivers/drizzle/test/Drizzle.errors.test.ts:258:    const error = S.decodeUnknownSync(DrizzleError)({
+./packages/drivers/drizzle/test/Drizzle.errors.test.ts:270:    const rows = S.decodeUnknownSync(DrizzleRows)([{ id: 1 }]);
+./packages/common/schema/test/Sha256.test.ts:10:  const decode = S.decodeUnknownSync(Sha256Hex);
+./packages/common/schema/test/Sha256.test.ts:48:    const digest = S.decodeUnknownSync(Sha256Hex)(knownDigest);
+./packages/common/schema/test/Sha256.test.ts:69:    const digest = S.decodeUnknownSync(Sha256Hex)(knownDigest);
+./packages/drivers/postgres/src/Postgres.sqlstate.ts:1453: * const decode = S.decodeUnknownSync(PgErrorCode)
+./packages/drivers/postgres/src/Postgres.sqlstate.ts:1475: * const decode = S.decodeUnknownSync(PgErrorName)
+./packages/common/schema/test/MutableHashSet.test.ts:9:    const decoded = S.decodeUnknownSync(schema)(MutableHashSet_.make("1", "2", "1"));
+./packages/common/schema/test/MutableHashSet.test.ts:20:    expect(() => S.decodeUnknownSync(schema)(null)).toThrow("Expected MutableHashSetFromSelf, got null");
+./packages/common/schema/test/MutableHashSet.test.ts:26:    expect(() => S.decodeUnknownSync(schema)(MutableHashSet_.make("1", null))).toThrow(`Expected string, got null
+./packages/common/schema/test/MutableHashSet.test.ts:43:    const decoded = S.decodeUnknownSync(schema)(["1", "2", "1"]);
+./packages/common/schema/test/MutableHashSet.test.ts:54:    expect(S.encodeSync(schema)(MutableHashSet_.make(1, 2, 3))).toEqual(["1", "2", "3"]);
+./packages/common/schema/test/MutableHashSet.test.ts:60:    expect(() => S.decodeUnknownSync(schema)(MutableHashSet_.make("1", null))).toThrow(
 ./tooling/repo-utils/test/TSMorph.model.test.ts:59:const decodeRepoRootPath = S.decodeUnknownSync(RepoRootPath);
 ./tooling/repo-utils/test/TSMorph.model.test.ts:60:const decodeWorkspaceDirectoryPath = S.decodeUnknownSync(WorkspaceDirectoryPath);
 ./tooling/repo-utils/test/TSMorph.model.test.ts:61:const decodeTsConfigFilePath = S.decodeUnknownSync(TsConfigFilePath);
@@ -279,291 +616,32 @@
 ./tooling/repo-utils/test/TSMorph.model.test.ts:164:      expect(S.decodeUnknownSync(FilePathToTypeScriptFilePath)("src/types.d.ts")).toBe("src/types.d.ts");
 ./tooling/repo-utils/test/TSMorph.model.test.ts:165:      expect(S.decodeUnknownSync(TypeScriptImplementationFilePathToSymbolFilePath)("src/main.ts")).toBe("src/main.ts");
 ./tooling/repo-utils/test/TSMorph.model.test.ts:172:      expect(S.decodeUnknownSync(SymbolKindToCategory)("MethodDeclaration")).toBe("member");
-./tooling/cli/test/quality-tasks.test.ts:25:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-./tooling/cli/test/dual-arity.test.ts:184:            "export const encodeName = S.encodeUnknownSync(S.String);",
-./tooling/cli/src/commands/Lint/PackageTestImports.ts:39:const decodePackageNameDocument = S.decodeUnknownSync(S.fromJsonString(PackageNameDocument));
-./packages/common/md/src/Md.model.ts:428: * const decode = S.decodeUnknownSync(Inline)
-./packages/common/md/src/Md.model.ts:1076: * const decode = S.decodeUnknownSync(Block)
-./tooling/cli/src/commands/Lint/SchemaFirst.ts:146:const decodeInventoryDocument = S.decodeUnknownSync(SchemaFirstInventoryDocument);
-./tooling/cli/src/commands/Lint/SchemaFirst.ts:147:const encodeInventoryDocument = S.encodeUnknownSync(SchemaFirstInventoryDocument);
-./packages/common/md/src/Md.render.ts:698: * const markdown = S.decodeUnknownSync(DocumentToMarkdown)(Md.make([Md.h1("Hello")]))
-./packages/common/md/src/Md.render.ts:740: * const html = S.decodeUnknownSync(DocumentToHtmlFragment)(Md.make([Md.p("Hello")]))
-./tooling/cli/src/commands/Agents/index.ts:122:const decodeJsonString = S.decodeUnknownSync(S.UnknownFromJsonString);
-./tooling/cli/src/commands/Agents/index.ts:123:const decodeManagedFilesManifest = S.decodeUnknownSync(ManagedFilesManifest);
-./tooling/cli/src/commands/Codex/internal/CodexSessionStartRuntime.ts:52:const decodeSessionStartCommandInput = S.decodeUnknownSync(S.fromJsonString(SessionStartCommandInput));
-./tooling/cli/src/commands/Codex/internal/CodexSessionStartRuntime.ts:53:const encodeSessionStartHookOutput = S.encodeSync(S.fromJsonString(SessionStartHookOutput));
-./tooling/cli/src/commands/Laws/DualArity.ts:246:const decodeInventoryDocument = S.decodeUnknownSync(DualArityInventoryDocument);
-./tooling/cli/src/commands/Laws/DualArity.ts:247:const encodeInventoryDocument = S.encodeUnknownSync(DualArityInventoryDocument);
-./tooling/cli/src/commands/Laws/DualArity.ts:248:const decodeProjectInspectionRequest = S.decodeUnknownSync(TsMorphProjectInspectionRequest);
-./tooling/cli/src/commands/Laws/DualArity.ts:449:  /^(?:S|Schema)\.(?:decodeUnknownEffect|decodeUnknownOption|decodeUnknownSync|encodeEffect|encodeOption|encodeSync|encodeUnknownEffect|encodeUnknownOption|encodeUnknownSync|toEquivalence)$/u;
-./packages/common/md/test/Md.test.ts:84:    expect(S.decodeUnknownSync(Inline)(text)).toEqual(text);
-./packages/common/md/test/Md.test.ts:85:    expect(S.decodeUnknownSync(Block)(pre)).toEqual(pre);
-./packages/common/md/test/Md.test.ts:86:    expect(S.decodeUnknownSync(Document)(doc)).toEqual(doc);
-./packages/common/md/test/Md.test.ts:87:    expect(S.decodeUnknownSync(Pre)(Pre.make({ value: "x", language: O.some("ts") }))).toEqual(
-./packages/common/md/test/Md.test.ts:90:    expect(S.decodeUnknownSync(Text)(Text.make({ value: "Hello" }))).toEqual(text);
-./packages/common/identity/src/Id.ts:46:const decodeBeepNamespace = S.decodeUnknownSync(BeepNamespace);
-./packages/common/identity/src/Id.ts:47:const decodeBeepBase = S.decodeUnknownSync(BeepBase);
-./packages/common/identity/src/Id.ts:48:const decodeIdentityVersion = S.decodeUnknownSync(IdentityVersion);
-./packages/common/identity/src/Id.ts:863:const decodeString = S.decodeUnknownSync(S.String);
-./packages/common/identity/src/Id.ts:864:const decodeSegment = S.decodeUnknownSync(SegmentSchema);
-./packages/common/identity/src/Id.ts:865:const decodeModuleSegment = S.decodeUnknownSync(ModuleSegmentSchema);
-./packages/common/identity/src/Id.ts:866:const decodeBaseSegment = S.decodeUnknownSync(BaseSegmentSchema);
-./packages/drivers/ffmpeg/src/FFmpeg.models.ts:23: * const fps = S.decodeUnknownSync(PositiveFrameRate)(1)
-./packages/drivers/ffmpeg/src/FFmpeg.models.ts:82: * const timeout = S.decodeUnknownSync(PositiveMilliseconds)(2000)
-./packages/drivers/ffmpeg/src/FFmpeg.models.ts:141: * const prefix = S.decodeUnknownSync(SafeFramePrefix)("clip_frame")
-./packages/common/schema/dtslint/Duration.tst.ts:36:    const duration = S.decodeSync(DurationFromInput)(input);
-./packages/drivers/ffmpeg/src/FFmpeg.service.ts:39:const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-./packages/common/schema/dtslint/Graph.tst.ts:48:    const decode = S.decodeUnknownSync(schema);
-./packages/common/schema/dtslint/Graph.tst.ts:73:    const decode = S.decodeUnknownSync(schema);
-./packages/common/schema/dtslint/MutableHashMap.tst.ts:24:    const decode = S.decodeUnknownSync(schema);
-./packages/common/schema/dtslint/MutableHashSet.tst.ts:17:    const decode = S.decodeUnknownSync(schema);
-./packages/drivers/postgres/src/Postgres.sqlstate.ts:1453: * const decode = S.decodeUnknownSync(PgErrorCode)
-./packages/drivers/postgres/src/Postgres.sqlstate.ts:1475: * const decode = S.decodeUnknownSync(PgErrorName)
-./packages/common/schema/dtslint/DateTimeUtcFromValid.tst.ts:65:    const utc = S.decodeUnknownSync(DateTimeUtcFromValid)("2024-01-01T00:00:00.000Z");
-./packages/common/schema/dtslint/Sha256.tst.ts:40:    const digest = S.decodeSync(Sha256Hex)(knownDigest);
-./packages/drivers/ffmpeg/test/FFmpeg.service.test.ts:21:const decodeManifest = S.decodeUnknownSync(S.fromJsonString(ExtractFramesManifest));
-./packages/common/schema/dtslint/FileName.tst.ts:13:    const decode = S.decodeSync(FileName);
-./packages/common/schema/dtslint/FileName.tst.ts:32:    const decode = S.decodeUnknownSync(Payload);
-./packages/drivers/drizzle/test/Drizzle.errors.test.ts:254:    const error = S.decodeUnknownSync(DrizzleError)({
-./packages/common/schema/dtslint/Glob.tst.ts:14:    const decode = S.decodeSync(Glob);
-./packages/common/schema/dtslint/Glob.tst.ts:33:    const decode = S.decodeUnknownSync(Payload);
-./packages/common/schema/dtslint/FilePath.tst.ts:29:    const decode = S.decodeSync(FilePath);
-./packages/common/schema/dtslint/FilePath.tst.ts:48:    const decode = S.decodeUnknownSync(Payload);
-./packages/common/schema/dtslint/FilePath.tst.ts:74:    const decode = S.decodeSync(WindowsDrivePath);
-./packages/common/schema/test/Sha256.test.ts:10:  const decode = S.decodeUnknownSync(Sha256Hex);
-./packages/common/schema/test/Sha256.test.ts:48:    const digest = S.decodeUnknownSync(Sha256Hex)(knownDigest);
-./packages/common/schema/test/Sha256.test.ts:69:    const digest = S.decodeUnknownSync(Sha256Hex)(knownDigest);
-./packages/common/schema/src/Primitive.ts:20: * S.decodeUnknownSync(Primitive)("hello")
-./packages/common/schema/src/Primitive.ts:21: * S.decodeUnknownSync(Primitive)(42)
-./packages/common/schema/src/Primitive.ts:22: * S.decodeUnknownSync(Primitive)(null)
-./packages/common/schema/test/Color.test.ts:7:    expect(S.decodeUnknownSync(Color.NormalizeHexColor)("#abc")).toBe("#aabbcc");
-./packages/common/schema/test/Color.test.ts:8:    expect(S.decodeUnknownSync(Color.NormalizeHexColor)("#AABBCC")).toBe("#aabbcc");
-./packages/common/schema/test/Color.test.ts:12:    const black = S.decodeUnknownSync(Color.HexToRgb)("#000");
-./packages/common/schema/test/Color.test.ts:13:    const white = S.decodeUnknownSync(Color.HexToRgb)("#fff");
-./packages/common/schema/test/Color.test.ts:17:    expect(S.decodeUnknownSync(Color.RgbToHex)({ r: -1, g: 0.5, b: 2 })).toBe("#0080ff");
-./packages/common/schema/test/Color.test.ts:19:    const blueOklch = S.decodeUnknownSync(Color.RgbToOklch)({ r: 0, g: 0, b: 1 });
-./packages/common/schema/test/Color.test.ts:20:    const redOklch = S.decodeUnknownSync(Color.RgbToOklch)({ r: 1, g: 0, b: 0 });
-./packages/common/schema/test/Color.test.ts:24:    expect(S.decodeUnknownSync(Color.OklchToHex)(blueOklch)).toBe("#0000ff");
-./packages/common/schema/test/Color.test.ts:25:    expect(S.decodeUnknownSync(Color.OklchToRgb)({ l: 0.001, c: 0, h: 0 }).r).toBeGreaterThanOrEqual(0);
-./packages/common/schema/test/Color.test.ts:29:    const darkScale = S.decodeUnknownSync(Color.GenerateScale)({ seed: "#3b82f6", isDark: true });
-./packages/common/schema/test/Color.test.ts:30:    const lightScale = S.decodeUnknownSync(Color.GenerateScale)({ seed: "#3b82f6", isDark: false });
-./packages/common/schema/test/Color.test.ts:31:    const darkNeutral = S.decodeUnknownSync(Color.GenerateNeutralScale)({ seed: "#3b82f6", isDark: true });
-./packages/common/schema/test/Color.test.ts:32:    const lightNeutral = S.decodeUnknownSync(Color.GenerateNeutralScale)({ seed: "#3b82f6", isDark: false });
-./packages/common/schema/test/Color.test.ts:33:    const darkAlpha = S.decodeUnknownSync(Color.GenerateAlphaScale)({ scale: darkScale, isDark: true });
-./packages/common/schema/test/Color.test.ts:34:    const lightAlpha = S.decodeUnknownSync(Color.GenerateAlphaScale)({ scale: lightScale, isDark: false });
-./packages/common/schema/test/Color.test.ts:42:    expect(S.decodeUnknownSync(Color.MixColors)({ color1: "#000", color2: "#fff", amount: 0.5 })).toMatch(
-./packages/common/schema/test/Color.test.ts:45:    expect(S.decodeUnknownSync(Color.Lighten)({ color: "#000", amount: 1 })).toBe("#ffffff");
-./packages/common/schema/test/Color.test.ts:46:    expect(S.decodeUnknownSync(Color.Darken)({ color: "#fff", amount: 1 })).toBe("#000000");
-./packages/common/schema/test/Color.test.ts:47:    expect(S.decodeUnknownSync(Color.WithAlpha)({ color: "#336699", alpha: 0.25 })).toBe("rgba(51, 102, 153, 0.25)");
-./packages/common/schema/src/KebabStr.ts:21: * const value = S.decodeUnknownSync(KebabCaseStr)("my-role-2")
-./packages/common/schema/src/RegExp.ts:51: * const pattern = S.decodeUnknownSync(RegExpStr)("^[a-z]+$")
-./packages/common/observability/src/Observed.ts:32: * const decode = S.decodeUnknownSync(ObservedError)
-./packages/common/observability/src/Observed.ts:72: * const decode = S.decodeUnknownSync(ObservedErrorWithStack)
-./packages/common/observability/src/Observed.ts:112: * const decode = S.decodeUnknownSync(ObservedDefect)
-./packages/common/observability/src/Observed.ts:152: * const decode = S.decodeUnknownSync(ObservedDefectWithStack)
-./packages/common/schema/src/AbortSignal.ts:39: * const signal = S.decodeUnknownSync(AbortSig)(controller.signal)
-./packages/common/schema/test/ProvO.test.ts:29:const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
-./packages/common/schema/test/ProvO.test.ts:31:const decodeActivity = decodeUnknownSync(Activity);
-./packages/common/schema/test/ProvO.test.ts:32:const decodeAssociation = decodeUnknownSync(Association);
-./packages/common/schema/test/ProvO.test.ts:33:const decodeAttribution = decodeUnknownSync(Attribution);
-./packages/common/schema/test/ProvO.test.ts:34:const decodeCollection = decodeUnknownSync(Collection);
-./packages/common/schema/test/ProvO.test.ts:35:const decodeDelegation = decodeUnknownSync(Delegation);
-./packages/common/schema/test/ProvO.test.ts:36:const decodeDerivation = decodeUnknownSync(Derivation);
-./packages/common/schema/test/ProvO.test.ts:37:const decodeEnd = decodeUnknownSync(End);
-./packages/common/schema/test/ProvO.test.ts:38:const decodeEntity = decodeUnknownSync(Entity);
-./packages/common/schema/test/ProvO.test.ts:39:const decodeGeneration = decodeUnknownSync(Generation);
-./packages/common/schema/test/ProvO.test.ts:40:const decodeObjectRef = decodeUnknownSync(ObjectRef);
-./packages/common/schema/test/ProvO.test.ts:41:const decodeOrganization = decodeUnknownSync(Organization);
-./packages/common/schema/test/ProvO.test.ts:42:const decodePerson = decodeUnknownSync(Person);
-./packages/common/schema/test/ProvO.test.ts:43:const decodePlan = decodeUnknownSync(Plan);
-./packages/common/schema/test/ProvO.test.ts:44:const decodePrimarySource = decodeUnknownSync(PrimarySource);
-./packages/common/schema/test/ProvO.test.ts:45:const decodeProvBundle = decodeUnknownSync(ProvBundle);
-./packages/common/schema/test/ProvO.test.ts:46:const decodeProvDateTime = decodeUnknownSync(ProvDateTime);
-./packages/common/schema/test/ProvO.test.ts:47:const decodeProvO = decodeUnknownSync(ProvO);
-./packages/common/schema/test/ProvO.test.ts:48:const decodeQuotation = decodeUnknownSync(Quotation);
-./packages/common/schema/test/ProvO.test.ts:49:const decodeRevision = decodeUnknownSync(Revision);
-./packages/common/schema/test/ProvO.test.ts:50:const decodeSoftwareAgent = decodeUnknownSync(SoftwareAgent);
-./packages/common/schema/test/ProvO.test.ts:51:const decodeStart = decodeUnknownSync(Start);
-./packages/common/schema/test/ProvO.test.ts:52:const decodeUsage = decodeUnknownSync(Usage);
-./packages/common/schema/src/PromiseSchema.ts:83: * const decoded = S.decodeUnknownSync(PromiseSchema)(task)
-./packages/common/schema/test/MutableHashSet.test.ts:9:    const decoded = S.decodeUnknownSync(schema)(MutableHashSet_.make("1", "2", "1"));
-./packages/common/schema/test/MutableHashSet.test.ts:20:    expect(() => S.decodeUnknownSync(schema)(null)).toThrow("Expected MutableHashSetFromSelf, got null");
-./packages/common/schema/test/MutableHashSet.test.ts:26:    expect(() => S.decodeUnknownSync(schema)(MutableHashSet_.make("1", null))).toThrow(`Expected string, got null
-./packages/common/schema/test/MutableHashSet.test.ts:43:    const decoded = S.decodeUnknownSync(schema)(["1", "2", "1"]);
-./packages/common/schema/test/MutableHashSet.test.ts:54:    expect(S.encodeSync(schema)(MutableHashSet_.make(1, 2, 3))).toEqual(["1", "2", "3"]);
-./packages/common/schema/test/MutableHashSet.test.ts:60:    expect(() => S.decodeUnknownSync(schema)(MutableHashSet_.make("1", null))).toThrow(
-./packages/common/schema/src/Float64Array.ts:33: * const decodeFloat64Array = S.decodeUnknownSync(Float64Arr);
-./packages/common/schema/src/Float64Array.ts:70: * const decodeFloat64Array = S.decodeUnknownSync(Float64ArrayFromArray);
-./packages/common/schema/src/Float64Array.ts:71: * const encodeFloat64Array = S.encodeSync(Float64ArrayFromArray);
-./packages/common/schema/test/BinaryFileExtension.test.ts:11:  const decode = S.decodeUnknownSync(BinaryFileExtension);
-./packages/common/schema/test/CauseTaggedError.test.ts:110:      S.decodeUnknownSync(OperationError)({
-./packages/common/observability/src/experimental/server/DevToolsRelay.ts:19:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./packages/common/schema/test/Model.test.ts:12:    expect(S.decodeUnknownSync(Struct)({}).value).toEqual(O.none());
-./packages/common/schema/test/Model.test.ts:13:    expect(S.decodeUnknownSync(Struct)({ value: null }).value).toEqual(O.none());
-./packages/common/schema/test/Model.test.ts:14:    expect(S.decodeUnknownSync(Struct)({ value: "kept" }).value).toEqual(O.some("kept"));
-./packages/common/schema/test/Model.test.ts:16:    expect(S.encodeSync(Struct)({ value: O.none() })).toEqual({});
-./packages/common/schema/test/Model.test.ts:17:    expect(S.encodeSync(Struct)({ value: O.some("encoded") })).toEqual({ value: "encoded" });
-./packages/common/schema/test/CaseStr.test.ts:6:  const decode = S.decodeUnknownSync(KebabCaseStr);
-./packages/common/schema/test/CaseStr.test.ts:22:  const decode = S.decodeUnknownSync(PascalCaseStr);
-./packages/common/schema/test/CaseStr.test.ts:38:  const decode = S.decodeUnknownSync(SnakeCaseStr);
-./packages/common/schema/src/MimeType.ts:67: * const mimeType = S.decodeUnknownSync(MimeType)("application/json")
-./packages/common/schema/src/MimeType.ts:125: * const mt = S.decodeUnknownSync(ApplicationMimeType)("application/pdf")
-./packages/common/schema/src/MimeType.ts:157: * const mt = S.decodeUnknownSync(VideoMimeType)("video/mp4")
-./packages/common/schema/src/MimeType.ts:189: * const mt = S.decodeUnknownSync(TextMimeType)("text/plain")
-./packages/common/schema/src/MimeType.ts:221: * const mt = S.decodeUnknownSync(ImageMimeType)("image/png")
-./packages/common/schema/src/MimeType.ts:253: * const mt = S.decodeUnknownSync(AudioMimeType)("audio/mpeg")
-./packages/common/schema/test/ParserOptions.test.ts:57:    const options = S.decodeUnknownSync(ParserOptions)({
-./packages/common/observability/src/experimental/server/OtlpPacketLab.ts:17:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./packages/common/schema/src/String.ts:21: * const value = S.decodeUnknownSync(NonEmptyTrimmedStr)("  hello  ")
-./packages/common/schema/src/String.ts:59: * const id = S.decodeUnknownSync(UUID)("550e8400-e29b-41d4-a716-446655440000")
-./packages/common/schema/src/String.ts:97: * S.decodeUnknownSync(NullableStr)("hello")
-./packages/common/schema/src/String.ts:98: * S.decodeUnknownSync(NullableStr)(null)
-./packages/common/schema/src/String.ts:134: * const result = S.decodeUnknownSync(OptionFromNullableStr)(null)
-./packages/common/schema/test/FileName.test.ts:6:  const decode = S.decodeUnknownSync(FileName);
-./packages/common/schema/test/FileName.test.ts:50:    expect(() => S.decodeUnknownSync(Payload)({ fileName: "bad/name.txt" })).toThrow(`at ["fileName"]`);
-./packages/common/schema/test/FileName.test.ts:59:    expect(S.decodeUnknownSync(Payload)(input)).toEqual(input);
-./packages/common/observability/src/CauseDiagnostics.ts:34:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./packages/common/schema/test/Graph.test.ts:31:    expect(S.decodeUnknownSync(NodeIndex)(0)).toBe(0);
-./packages/common/schema/test/Graph.test.ts:32:    expect(S.decodeUnknownSync(NodeIndexFromString)("2")).toBe(2);
-./packages/common/schema/test/Graph.test.ts:33:    expect(S.decodeUnknownSync(EdgeIndex)(1)).toBe(1);
-./packages/common/schema/test/Graph.test.ts:34:    expect(S.decodeUnknownSync(EdgeIndexFromString)("3")).toBe(3);
-./packages/common/schema/test/Graph.test.ts:38:    expect(() => S.decodeUnknownSync(NodeIndex)(-1)).toThrow("Expected a value greater than or equal to 0, got -1");
-./packages/common/schema/test/Graph.test.ts:39:    expect(() => S.decodeUnknownSync(EdgeIndexFromString)("-1")).toThrow(
-./packages/common/schema/test/Graph.test.ts:45:    expect(S.decodeUnknownSync(GraphKind)("directed")).toBe("directed");
-./packages/common/schema/test/Graph.test.ts:46:    expect(S.decodeUnknownSync(GraphKind)("undirected")).toBe("undirected");
-./packages/common/schema/test/Graph.test.ts:60:    const decoded = S.decodeUnknownSync(schema)({ source: 0, target: 1, data: "1" });
-./packages/common/schema/test/Graph.test.ts:67:    expect(S.encodeSync(schema)(decoded)).toEqual({ source: 0, target: 1, data: "1" });
-./packages/common/schema/test/Graph.test.ts:72:    const decoded = S.decodeUnknownSync(schema)({ source: 0, target: 1, data: "1" });
-./packages/common/schema/test/Graph.test.ts:80:    const decoded = S.decodeUnknownSync(schema)(new Graph_.Edge({ source: 0, target: 1, data: "1" }));
-./packages/common/schema/test/Graph.test.ts:84:    expect(() => S.decodeUnknownSync(schema)(new Graph_.Edge({ source: 0, target: 1, data: null }))).toThrow(
-./packages/common/schema/test/Graph.test.ts:94:    expect(() => S.decodeUnknownSync(schema)({ source: 0, target: 1, data: "x" })).toThrow();
-./packages/common/schema/test/Graph.test.ts:119:    const decoded = S.decodeUnknownSync(schema)({
-./packages/common/schema/test/Graph.test.ts:152:    expect(S.encodeSync(schema)(graph)).toEqual({
-./packages/common/schema/test/Graph.test.ts:170:      S.decodeUnknownSync(schema)({
-./packages/common/schema/test/Graph.test.ts:179:      S.decodeUnknownSync(schema)({
-./packages/common/schema/test/Graph.test.ts:188:      S.decodeUnknownSync(schema)({
-./packages/common/schema/test/Graph.test.ts:197:      S.decodeUnknownSync(schema)({
-./packages/common/schema/test/Graph.test.ts:216:    const decoded = S.decodeUnknownSync(schema)({
-./packages/common/schema/test/Graph.test.ts:242:    const decoded = S.decodeUnknownSync(schema)(graph);
-./packages/common/schema/test/Graph.test.ts:264:    const decoded = S.decodeUnknownSync(schema)(graph);
-./packages/common/schema/test/Graph.test.ts:285:    expect(() => S.decodeUnknownSync(schema)(graph)).toThrow(`Expected string, got null
-./packages/common/schema/test/Graph.test.ts:302:    expect(() => S.decodeUnknownSync(schema)(graph)).toThrow("Expected GraphFromSelf, got Graph(directed, 2, 1)");
-./packages/common/schema/test/Graph.test.ts:315:    const decoded = S.decodeUnknownSync(schema)(graph);
-./packages/common/schema/test/Graph.test.ts:343:    const generic = S.decodeUnknownSync(genericSchema)(graph);
-./packages/common/schema/test/Graph.test.ts:344:    const undirected = S.decodeUnknownSync(undirectedSchema)(graph);
-./packages/common/schema/test/Graph.test.ts:350:    expect(() => S.decodeUnknownSync(directedSchema)(graph)).toThrow();
-./packages/common/schema/test/Graph.test.ts:360:    const decoded = S.decodeUnknownSync(schema)({
-./packages/common/schema/test/Graph.test.ts:372:    expect(S.encodeSync(schema)(decoded)).toEqual({
-./packages/common/schema/test/Graph.test.ts:390:    const decoded = S.decodeUnknownSync(schema)({
-./packages/common/schema/test/Graph.test.ts:402:    expect(S.encodeSync(schema)(decoded)).toEqual({
-./packages/common/schema/src/Slug.ts:10: * const slug = S.decodeUnknownSync(Slug)("my-post-2");
-./packages/common/schema/src/Slug.ts:72: * const decode = S.decodeUnknownSync(Slug)
-./packages/common/schema/test/PromiseSchema.test.ts:10:    expect(S.decodeUnknownSync(PromiseSchema)(value)).toBe(value);
-./packages/common/schema/test/PromiseSchema.test.ts:19:    expect(S.decodeUnknownSync(PromiseSchema)(value)).toBe(value);
-./packages/common/schema/test/PromiseSchema.test.ts:31:    expect(() => S.decodeUnknownSync(PromiseSchema)(thenable)).toThrow(/Expected Promise/);
-./packages/common/schema/test/PromiseSchema.test.ts:36:    expect(() => S.decodeUnknownSync(PromiseSchema)("nope")).toThrow(/Expected Promise/);
-./packages/common/schema/test/TypedArrays.test.ts:11:    expect(S.decodeUnknownSync(Float16Arr)(value)).toBe(value);
-./packages/common/schema/test/TypedArrays.test.ts:15:    const value = S.decodeUnknownSync(Float16ArrayFromArray)([1, 2, 3]);
-./packages/common/schema/test/TypedArrays.test.ts:16:    const encoded = S.encodeSync(Float16ArrayFromArray)(value);
-./packages/common/schema/test/TypedArrays.test.ts:28:    expect(S.decodeUnknownSync(Float32Arr)(value)).toBe(value);
-./packages/common/schema/test/TypedArrays.test.ts:32:    const value = S.decodeUnknownSync(Float32ArrayFromArray)([1, 2, 3]);
-./packages/common/schema/test/TypedArrays.test.ts:33:    const encoded = S.encodeSync(Float32ArrayFromArray)(value);
-./packages/common/schema/test/TypedArrays.test.ts:45:    expect(S.decodeUnknownSync(Float64Arr)(value)).toBe(value);
-./packages/common/schema/test/TypedArrays.test.ts:49:    const value = S.decodeUnknownSync(Float64ArrayFromArray)([1, 2, 3]);
-./packages/common/schema/test/TypedArrays.test.ts:50:    const encoded = S.encodeSync(Float64ArrayFromArray)(value);
-./packages/common/observability/src/PhaseProfiler.ts:33:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./packages/common/observability/src/PhaseProfiler.ts:91: * const durationMs = S.decodeUnknownSync(NonNegativeInt)(42)
-./packages/common/schema/test/RegExp.test.ts:6:  const decode = S.decodeUnknownSync(RegExpStr);
-./packages/common/schema/test/RegExp.test.ts:21:  const decode = S.decodeUnknownSync(RegExpFromStr);
-./packages/common/schema/test/RegExp.test.ts:22:  const encode = S.encodeSync(RegExpFromStr);
-./packages/common/schema/test/TxnHash.test.ts:10:  const decode = S.decodeUnknownSync(CryptoTxnHash);
-./packages/common/schema/test/TxnHash.test.ts:56:    expect(() => S.decodeUnknownSync(Payload)({ txnHash: "invalid" })).toThrow(`at ["txnHash"]`);
-./packages/common/nlp/src/Core/Pattern.ts:479:      decode: S.decodeUnknownSync(POSPatternElement),
-./packages/common/nlp/src/Core/Pattern.ts:480:      encode: S.encodeSync(POSPatternElement),
-./packages/common/nlp/src/Core/Pattern.ts:491:      decode: S.decodeUnknownSync(EntityPatternElement),
-./packages/common/nlp/src/Core/Pattern.ts:492:      encode: S.encodeSync(EntityPatternElement),
-./packages/common/nlp/src/Core/Pattern.ts:503:      decode: S.decodeUnknownSync(LiteralPatternElement),
-./packages/common/nlp/src/Core/Pattern.ts:504:      encode: S.encodeSync(LiteralPatternElement),
-./packages/common/nlp/src/Core/Pattern.ts:519:  >((args) => args.length >= 1, S.encodeSync(Pattern));
-./packages/common/nlp/src/Core/Pattern.ts:530:  >((args) => args.length >= 1, S.decodeUnknownSync(Pattern));
-./packages/common/schema/test/EthereumValidatorPublicKey.test.ts:9:  const decode = S.decodeUnknownSync(EthereumValidatorPublicKey);
-./packages/common/schema/test/FilePath.test.ts:28:    const decodeFamily = S.decodeUnknownSync(SupportedPathFamily);
-./packages/common/schema/test/FilePath.test.ts:29:    const decodeDot = S.decodeUnknownSync(WindowsDotSegment);
-./packages/common/schema/test/FilePath.test.ts:42:    const decode = S.decodeUnknownSync(SupportedWindowsNamespace);
-./packages/common/schema/test/FilePath.test.ts:62:    const decodeDriveRoot = S.decodeUnknownSync(WindowsDriveRoot);
-./packages/common/schema/test/FilePath.test.ts:63:    const decodeUncRoot = S.decodeUnknownSync(WindowsUncRoot);
-./packages/common/schema/test/FilePath.test.ts:75:    const decodePlainSegment = S.decodeUnknownSync(ValidWindowsPlainPathSegment);
-./packages/common/schema/test/FilePath.test.ts:76:    const decodeRootSegment = S.decodeUnknownSync(ValidWindowsRootSegment);
-./packages/common/schema/test/FilePath.test.ts:77:    const decodePathSegment = S.decodeUnknownSync(ValidWindowsPathSegment);
-./packages/common/schema/test/FilePath.test.ts:95:    const decodeSegments = S.decodeUnknownSync(WindowsSegments);
-./packages/common/schema/test/FilePath.test.ts:96:    const decodeUncRest = S.decodeUnknownSync(ValidWindowsUncRest);
-./packages/common/schema/test/FilePath.test.ts:97:    const decodeUncSegments = S.decodeUnknownSync(ValidWindowsUncSegments);
-./packages/common/schema/test/FilePath.test.ts:111:    const decode = S.decodeUnknownSync(HasLeafSegment);
-./packages/common/schema/test/FilePath.test.ts:123:    const decode = S.decodeUnknownSync(WindowsDrivePath);
-./packages/common/schema/test/FilePath.test.ts:135:    const decode = S.decodeUnknownSync(WindowsUncPath);
-./packages/common/schema/test/FilePath.test.ts:145:    const decode = S.decodeUnknownSync(WindowsRelativePath);
-./packages/common/schema/test/FilePath.test.ts:158:  const decode = S.decodeUnknownSync(FilePath);
-./packages/common/schema/test/FilePath.test.ts:247:    expect(() => S.decodeUnknownSync(Payload)({ filePath: "foo/" })).toThrow(`at ["filePath"]`);
-./packages/common/schema/test/FilePath.test.ts:256:    expect(S.decodeUnknownSync(Payload)(input)).toEqual(input);
-./packages/common/schema/test/MutableHashMap.test.ts:12:    const decoded = S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", "1"], ["b", "2"]));
-./packages/common/schema/test/MutableHashMap.test.ts:31:    expect(() => S.decodeUnknownSync(schema)(null)).toThrow("Expected MutableHashMapFromSelf, got null");
-./packages/common/schema/test/MutableHashMap.test.ts:40:    expect(() => S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", null]))).toThrow(`Expected string, got null
-./packages/common/schema/test/MutableHashMap.test.ts:70:    const decoded = S.decodeUnknownSync(schema)([
-./packages/common/schema/test/MutableHashMap.test.ts:92:    expect(S.encodeSync(schema)(MutableHashMap_.make(["a", 1], ["b", 2]))).toEqual([
-./packages/common/schema/test/MutableHashMap.test.ts:104:    expect(() => S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", null]))).toThrow(
+./packages/common/schema/test/Fn.test.ts:32:    expect(S.decodeUnknownSync(schema)(handler)).toBe(handler);
+./packages/common/schema/test/Fn.test.ts:33:    expect(S.encodeSync(schema)(handler)).toBe(handler);
+./packages/common/schema/test/Fn.test.ts:39:    expect(() => S.decodeUnknownSync(schema)(null)).toThrow("Expected Fn, got null");
+./packages/common/schema/test/Fn.test.ts:226:    expect(S.decodeUnknownSync(AnyFn)(handler)).toBe(handler);
 ./packages/common/schema/test/Transformations.test.ts:9:    expect(S.decodeSync(schema)("beep")).toBe(4);
 ./packages/common/schema/test/Transformations.test.ts:15:    expect(() => S.decodeUnknownSync(schema)(1)).toThrow("Expected string, got 1");
 ./packages/common/schema/test/Transformations.test.ts:23:    expect(() => S.decodeSync(schema)("beep")).toThrow("Error applying transformation");
 ./packages/common/schema/test/Transformations.test.ts:29:    expect(S.encodeSync(schema)(4)).toBe(4);
 ./packages/common/schema/test/Transformations.test.ts:37:    const decoded = S.decodeUnknownSync(schema)({ size: "beep" });
 ./packages/common/schema/test/Transformations.test.ts:38:    const encoded = S.encodeSync(schema)({ size: 4 });
-./packages/common/schema/src/SchemaUtils/pluck.ts:42: * const decodeColumn1 = S.decodeUnknownSync(Column1);
-./packages/common/schema/src/SchemaUtils/pluck.ts:43: * const encodeColumn1 = S.encodeSync(Column1);
 ./packages/common/schema/test/EvmAddress.test.ts:9:  const decode = S.decodeUnknownSync(EvmAddress);
-./packages/common/nlp/src/Core/PatternParsers.ts:243:export const PatternFromString = S.decodeUnknownSync(S.NonEmptyArray(BracketStringToPatternElement));
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:19:const decodeInput = S.decodeUnknownSync(DateTimeInput);
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:20:const decodeUtc = S.decodeUnknownSync(DateTimeUtcFromValid);
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:21:const encodeUtc = S.encodeSync(DateTimeUtcFromValid);
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:29:    expect(S.decodeUnknownSync(DateTimeInputKind)("Instant")).toBe("Instant");
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:48:    expect(S.decodeUnknownSync(DateTimeInputString.Tagged)(stringInput)).toEqual(stringInput);
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:49:    expect(S.decodeUnknownSync(DateTimeInputNumber.Tagged)(numberInput)).toEqual(numberInput);
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:50:    expect(S.decodeUnknownSync(DateTimeInputDate.Tagged)(dateInput)).toEqual(dateInput);
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:54:    expect(() => S.decodeUnknownSync(DateTimeInputString)("not-a-date")).toThrow(
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:57:    expect(() => S.decodeUnknownSync(DateTimeInputNumber)(Number.POSITIVE_INFINITY)).toThrow();
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:58:    expect(() => S.decodeUnknownSync(DateTimeInputDate)(new Date("not-a-date"))).toThrow();
-./packages/common/schema/test/DateTimeUtcFromValid.test.ts:84:      S.decodeUnknownSync(DateTimeInputInstantWithZone)({
 ./packages/common/schema/test/EthAmount.test.ts:7:  const decode = S.decodeUnknownSync(EthAmount);
 ./packages/common/schema/test/EthAmount.test.ts:8:  const encode = S.encodeSync(EthAmount);
-./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:38: * console.log(S.decodeUnknownSync(Settings)({}).status) // "draft"
-./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:101: * const settings = S.decodeUnknownSync(Settings)({})
-./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:144: * console.log(S.decodeUnknownSync(Settings)({}).enabled) // true
-./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:166: * console.log(S.decodeUnknownSync(Settings)({}).visible) // false
-./packages/common/schema/src/SchemaUtils/withKeyDefaults.ts:205: * console.log(S.decodeUnknownSync(Settings)({}).enabled) // true
-./packages/common/schema/test/PosixPath.test.ts:11:    expect(S.decodeUnknownSync(PosixPath)("packages/common/schema")).toBe("packages/common/schema");
-./packages/common/schema/test/PosixPath.test.ts:15:    expect(() => S.decodeUnknownSync(PosixPath)("packages\\common\\schema")).toThrow("Expected a string matching");
 ./packages/common/schema/test/Options.test.ts:12:    const decode = S.decodeUnknownSync(Payload);
 ./packages/common/schema/test/Options.test.ts:24:    const decode = S.decodeUnknownSync(Payload);
 ./packages/common/schema/test/Options.test.ts:34:    const encode = S.encodeSync(Payload);
 ./packages/common/schema/test/Options.test.ts:44:    const encode = S.encodeSync(Payload);
-./packages/common/observability/src/server/HttpApiTelemetry.ts:21:const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-./packages/common/observability/src/server/HttpApiTelemetry.ts:42: * const successStatus = S.decodeUnknownSync(NonNegativeInt)(201)
-./packages/common/schema/test/LiteralKit.test.ts:163:      S.decodeSync(Event)({
-./packages/common/schema/test/Fn.test.ts:32:    expect(S.decodeUnknownSync(schema)(handler)).toBe(handler);
-./packages/common/schema/test/Fn.test.ts:33:    expect(S.encodeSync(schema)(handler)).toBe(handler);
-./packages/common/schema/test/Fn.test.ts:39:    expect(() => S.decodeUnknownSync(schema)(null)).toThrow("Expected Fn, got null");
-./packages/common/schema/test/Fn.test.ts:226:    expect(S.decodeUnknownSync(AnyFn)(handler)).toBe(handler);
-./packages/common/schema/src/SchemaUtils/withEncodeDefault.ts:29: * console.log(S.decodeUnknownSync(Settings)({}).status) // "draft"
-./packages/common/schema/src/SchemaUtils/withEncodeDefault.ts:75: * console.log(S.decodeUnknownSync(Settings)({}).enabled) // true
-./packages/common/schema/src/SchemaUtils/withEncodeDefault.ts:95: * console.log(S.decodeUnknownSync(Settings)({}).visible) // false
-./packages/common/schema/src/SchemaUtils/withEncodeDefault.ts:133: * console.log(S.decodeUnknownSync(Settings)({}).enabled) // true
-./packages/common/schema/test/Slug.test.ts:6:  const decode = S.decodeUnknownSync(Slug);
-./packages/common/schema/test/Slug.test.ts:49:    expect(() => S.decodeUnknownSync(Payload)({ slug: "my_post" })).toThrow(`at ["slug"]`);
-./packages/common/schema/src/SchemaUtils/split.ts:36: * const decodeCsvCells = S.decodeSync(CsvCells);
-./packages/common/schema/src/SchemaUtils/split.ts:37: * const encodeCsvCells = S.encodeSync(CsvCells);
-./packages/common/schema/src/SeverityLevel.ts:23: * const level = S.decodeUnknownSync(SeverityLevel)("high")
-./packages/common/schema/test/Duration.test.ts:8:  const decode = S.decodeUnknownSync(DurationInput);
-./packages/common/schema/test/Duration.test.ts:26:  const decode = S.decodeUnknownSync(DurationFromInput);
-./packages/common/schema/test/Duration.test.ts:27:  const encode = S.encodeSync(DurationFromInput);
+./tooling/repo-utils/test/TSMorph.service.test.ts:43:const decodeDiagnosticsRequest = S.decodeUnknownSync(TsMorphDiagnosticsRequest);
+./tooling/repo-utils/test/TSMorph.service.test.ts:44:const decodeFileOutlineRequest = S.decodeUnknownSync(TsMorphFileOutlineRequest);
+./tooling/repo-utils/test/TSMorph.service.test.ts:45:const decodeProjectInspectionRequest = S.decodeUnknownSync(TsMorphProjectInspectionRequest);
+./tooling/repo-utils/test/TSMorph.service.test.ts:46:const decodeProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
+./tooling/repo-utils/test/TSMorph.service.test.ts:47:const decodeSourceTextRequest = S.decodeUnknownSync(TsMorphSourceTextRequest);
+./tooling/repo-utils/test/TSMorph.service.test.ts:48:const decodeSymbolQualifiedName = S.decodeUnknownSync(SymbolQualifiedName);
+./tooling/repo-utils/test/TSMorph.service.test.ts:49:const decodeSymbolLookupRequest = S.decodeUnknownSync(TsMorphSymbolLookupRequest);
+./tooling/repo-utils/test/TSMorph.service.test.ts:50:const decodeSymbolSearchRequest = S.decodeUnknownSync(TsMorphSymbolSearchRequest);
+./tooling/repo-utils/test/TSMorph.service.test.ts:51:const decodeSymbolSourceRequest = S.decodeUnknownSync(TsMorphSymbolSourceRequest);
 ./packages/common/schema/test/HttpHeaders.test.ts:68:    decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader)(input),
 ./packages/common/schema/test/HttpHeaders.test.ts:69:    decodeValid: () => S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader)("require-corp"),
 ./packages/common/schema/test/HttpHeaders.test.ts:78:    decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginOpenerPolicyHeader)(input),
@@ -607,233 +685,3 @@
 ./packages/common/schema/test/HttpHeaders.test.ts:350:      S.decodeUnknownSync(ContentSecurityPolicyHeader)(option),
 ./packages/common/schema/test/HttpHeaders.test.ts:409:    expectHeader(S.decodeUnknownSync(ContentSecurityPolicyHeader)(undefined), "Content-Security-Policy", undefined);
 ./packages/common/schema/test/HttpHeaders.test.ts:410:    expectHeader(S.decodeUnknownSync(ContentSecurityPolicyHeader)(false), "Content-Security-Policy", undefined);
-./packages/common/schema/test/Glob.test.ts:6:  const decode = S.decodeUnknownSync(Glob);
-./packages/common/schema/test/Glob.test.ts:43:    expect(() => S.decodeUnknownSync(Payload)({ glob: "src\\**\\*.ts" })).toThrow(`at ["glob"]`);
-./packages/common/schema/src/DateTimeUtcFromValid.ts:26: * const decode = S.decodeUnknownSync(DateTimeInputKind)
-./packages/common/schema/src/DateTimeUtcFromValid.ts:150: * const decode = S.decodeUnknownSync(DateTimeInputString)
-./packages/common/schema/src/DateTimeUtcFromValid.ts:193: * const decode = S.decodeUnknownSync(DateTimeInputNumber)
-./packages/common/schema/src/DateTimeUtcFromValid.ts:235: * const decode = S.decodeUnknownSync(DateTimeInputDate)
-./packages/common/schema/src/DateTimeUtcFromValid.ts:278: * const decode = S.decodeUnknownSync(DateTimeInputDateTime)
-./packages/common/schema/src/DateTimeUtcFromValid.ts:410: * const decode = S.decodeUnknownSync(DateTimeInput)
-./packages/common/schema/src/DateTimeUtcFromValid.ts:499: * const decode = S.decodeUnknownSync(DateTimeUtcFromValid)
-./packages/common/schema/src/DateTimeUtcFromValid.ts:500: * const encode = S.encodeSync(DateTimeUtcFromValid)
-./packages/common/schema/test/SchemaUtils.test.ts:17:    expect(S.decodeUnknownSync(schema)({ column1: "1" })).toBe(1);
-./packages/common/schema/test/SchemaUtils.test.ts:26:    expect(S.encodeSync(schema)(2)).toEqual({ column1: "2" });
-./packages/common/schema/test/SchemaUtils.test.ts:34:    expect(S.decodeSync(schema)("red,green,blue")).toEqual(["red", "green", "blue"]);
-./packages/common/schema/test/SchemaUtils.test.ts:40:    expect(S.encodeSync(schema)(["red", "green", "blue"])).toBe("red,green,blue");
-./packages/common/schema/test/SchemaUtils.test.ts:46:    expect(S.decodeSync(schema)("red,,blue")).toEqual(["red", "", "blue"]);
-./packages/common/schema/test/SchemaUtils.test.ts:47:    expect(S.encodeSync(schema)(["red", "", "blue"])).toBe("red,,blue");
-./packages/common/schema/test/SchemaUtils.test.ts:89:    expect(A.isReadonlyArrayEmpty(S.decodeUnknownSync(Settings)({}).tags)).toBe(true);
-./packages/common/schema/test/SchemaUtils.test.ts:96:    expect(A.isReadonlyArrayEmpty(S.decodeUnknownSync(Settings)({ tags: undefined }).tags)).toBe(true);
-./packages/common/schema/test/EffectSchema.test.ts:11:    expect(S.decodeUnknownSync(EffectSchema)(value)).toBe(value);
-./packages/common/schema/test/EffectSchema.test.ts:21:    expect(S.decodeUnknownSync(EffectSchema)(value)).toBe(value);
-./packages/common/schema/test/EffectSchema.test.ts:27:    expect(() => S.decodeUnknownSync(EffectSchema)("nope")).toThrow(/Expected Effect/);
-./packages/common/schema/src/Options.ts:44: * const decode = S.decodeUnknownSync(Payload)
-./packages/common/schema/src/Options.ts:63: * const encode = S.encodeSync(Payload)
-./packages/common/schema/test/Address.test.ts:35:  const decode = S.decodeUnknownSync(CryptoWalletAddress);
-./packages/common/schema/test/Address.test.ts:104:    expect(() => S.decodeUnknownSync(Payload)({ address: "invalid" })).toThrow(`at ["address"]`);
-./packages/common/schema/src/Int.ts:22: * const value = S.decodeUnknownSync(Int)(42)
-./packages/common/schema/src/Int.ts:65: * const value = S.decodeUnknownSync(PosInt)(5)
-./packages/common/schema/src/Int.ts:108: * const id = S.decodeUnknownSync(PostgresSerialInt)(1)
-./packages/common/schema/src/Int.ts:147: * const value = S.decodeUnknownSync(NegInt)(-3)
-./packages/common/schema/src/Int.ts:190: * S.decodeUnknownSync(NonPositiveInt)(0)
-./packages/common/schema/src/Int.ts:191: * S.decodeUnknownSync(NonPositiveInt)(-5)
-./packages/common/schema/src/Int.ts:233: * S.decodeUnknownSync(NonNegativeInt)(0)
-./packages/common/schema/src/Int.ts:234: * S.decodeUnknownSync(NonNegativeInt)(100)
-./packages/common/nlp/src/Tools/ToolExport.ts:160:  SchemaParser.decodeUnknownSync(S.make<S.Decoder<Tool.Parameters<T>>>(tool.parametersSchema.ast))(
-./packages/common/schema/src/Json.ts:20: * const decoded = S.decodeUnknownSync(JsonObject)({ name: "Alice", age: 30 })
-./packages/common/schema/src/Json.ts:49: * const decoded = S.decodeUnknownSync(JsonArray)([1, "two", true, null])
-./packages/common/schema/test/MappedLiteralKit.test.ts:13:    expect(S.decodeSync(SqlState)("SUCCESSFUL_COMPLETION")).toBe("00000");
-./packages/common/schema/test/MappedLiteralKit.test.ts:14:    expect(S.decodeSync(SqlState)("WARNING")).toBe("01000");
-./packages/common/schema/test/MappedLiteralKit.test.ts:18:    expect(S.encodeSync(SqlState)("00000")).toBe("SUCCESSFUL_COMPLETION");
-./packages/common/schema/test/MappedLiteralKit.test.ts:19:    expect(S.encodeSync(SqlState)("01000")).toBe("WARNING");
-./packages/common/schema/test/MappedLiteralKit.test.ts:50:    expect(S.decodeSync(annotated)("WARNING")).toBe("01000");
-./packages/common/schema/test/MappedLiteralKit.test.ts:54:    expect(S.encodeSync(reannotated)("00000")).toBe("SUCCESSFUL_COMPLETION");
-./packages/common/schema/test/MappedLiteralKit.test.ts:92:    expect(S.decodeSync(SqlState.To)("00000")).toBe("SUCCESSFUL_COMPLETION");
-./packages/common/schema/test/MappedLiteralKit.test.ts:93:    expect(S.encodeSync(SqlState.To)("SUCCESSFUL_COMPLETION")).toBe("00000");
-./packages/common/schema/test/BlockchainRedacted.test.ts:17:    const walletAddress = S.decodeUnknownSync(CryptoWalletAddressRedacted)(bitcoinAddress);
-./packages/common/schema/test/BlockchainRedacted.test.ts:18:    const decodedEvmAddress = S.decodeUnknownSync(EvmAddressRedacted)(evmAddress);
-./packages/common/schema/test/BlockchainRedacted.test.ts:19:    const decodedValidatorPublicKey = S.decodeUnknownSync(EthereumValidatorPublicKeyRedacted)(validatorPublicKey);
-./packages/common/schema/test/BlockchainRedacted.test.ts:20:    const decodedTransactionHash = S.decodeUnknownSync(CryptoTxnHashRedacted)(transactionHash);
-./packages/shared/ui/src/entities/Organization/Organization.display.ts:24: * const decodeDisplay = S.decodeUnknownSync(S.make<S.Decoder<Display>>(Display.ast))
-./packages/shared/ui/src/entities/Organization/Organization.display.ts:67: * const decodeForm = S.decodeUnknownSync(S.make<S.Decoder<Form>>(Form.ast))
-./packages/shared/ui/src/entities/Organization/Organization.display.ts:111: * const decodeDisplay = S.decodeUnknownSync(S.make<S.Decoder<Display>>(Display.ast))
-./packages/common/schema/src/color/Color.ts:178:  S.decodeUnknownSync(HexColor)(`#${toHexChannel(r)}${toHexChannel(g)}${toHexChannel(b)}`);
-./packages/common/schema/src/color/Color.ts:273:  return S.decodeUnknownSync(HexColorScale12)(
-./packages/common/schema/src/color/Color.ts:292:  return S.decodeUnknownSync(HexColorScale12)(
-./packages/common/schema/src/color/Color.ts:313:  return S.decodeUnknownSync(HexColorScale12)(
-./packages/common/schema/src/color/Color.ts:360:  return S.decodeUnknownSync(RgbaColorString)(
-./packages/common/schema/src/Timezone.ts:21: * const tz = S.decodeUnknownSync(Timezone)("America/New_York")
-./packages/common/observability/test/Observed.test.ts:14:    const encoded = S.encodeSync(S.toCodecJson(ObservedCause))(cause);
-./packages/common/observability/test/Observed.test.ts:15:    const encodedReasons = S.decodeUnknownSync(
-./packages/common/observability/test/Observed.test.ts:26:    const decoded = S.decodeSync(S.toCodecJson(ObservedCause))(encoded);
-./packages/common/observability/test/Observed.test.ts:35:    const encoded = S.encodeSync(S.toCodecJson(ObservedExit))(exit);
-./packages/common/observability/test/Observed.test.ts:36:    const encodedTag = S.decodeUnknownSync(
-./packages/common/observability/test/Observed.test.ts:44:    const decoded = S.decodeSync(S.toCodecJson(ObservedExit))(encoded);
-./packages/common/schema/src/PosixPath.ts:24: * const p = S.decodeUnknownSync(PosixPath)("/usr/local/bin")
-./packages/common/schema/src/PosixPath.ts:63: * const p = S.decodeUnknownSync(NativePathToPosixPath)("C:\\Users\\docs")
-./packages/common/schema/src/PosixPath.ts:85:const decodePosixPath = S.decodeUnknownSync(NativePathToPosixPath);
-./packages/common/schema/src/CurrencyCode.ts:24: * const code = S.decodeUnknownSync(CurrencyCode)("USD")
-./packages/shared/ui/test/OrganizationDisplay.test.ts:31:    const display = S.decodeUnknownSync(Organization.Display)(displayInput);
-./packages/shared/ui/test/OrganizationDisplay.test.ts:40:    const form = S.decodeUnknownSync(Organization.Form)({
-./packages/shared/ui/test/OrganizationDisplay.test.ts:50:    const display = S.decodeUnknownSync(Organization.Display)({
-./packages/shared/ui/test/OrganizationDisplay.test.ts:54:    const form = S.decodeUnknownSync(Organization.Form)({
-./packages/shared/ui/test/OrganizationDisplay.test.ts:64:    const display = S.decodeUnknownSync(Organization.Display)(displayInput);
-./packages/shared/ui/test/OrganizationDisplay.test.ts:70:    const withoutParent = S.decodeUnknownSync(Organization.Display)(displayInput);
-./packages/shared/ui/test/OrganizationDisplay.test.ts:71:    const withParent = S.decodeUnknownSync(Organization.Display)({
-./packages/shared/ui/test/OrganizationDisplay.test.ts:75:    const formWithoutParent = S.decodeUnknownSync(Organization.Form)(formInput);
-./packages/shared/ui/test/OrganizationDisplay.test.ts:77:    expect(S.encodeSync(Organization.Display)(withoutParent).parentOrgId).toBeNull();
-./packages/shared/ui/test/OrganizationDisplay.test.ts:78:    expect(S.encodeSync(Organization.Display)(withParent).parentOrgId).toBe(1);
-./packages/shared/ui/test/OrganizationDisplay.test.ts:79:    expect(S.encodeSync(Organization.Form)(formWithoutParent).parentOrgId).toBeNull();
-./packages/shared/ui/test/OrganizationDisplay.test.ts:84:      S.decodeUnknownSync(Organization.Display)({
-./packages/shared/ui/test/OrganizationDisplay.test.ts:90:      S.decodeUnknownSync(Organization.Display)({
-./packages/shared/ui/test/OrganizationDisplay.test.ts:96:      S.decodeUnknownSync(Organization.Display)({
-./packages/shared/ui/test/OrganizationDisplay.test.ts:105:      S.decodeUnknownSync(Organization.Display)({
-./packages/common/schema/src/Float16Array.ts:67: * const decodeFloat16Array = S.decodeUnknownSync(Float16Arr);
-./packages/common/schema/src/Float16Array.ts:102: * const decodeFloat16Array = S.decodeUnknownSync(Float16ArrayFromArray);
-./packages/common/schema/src/Float16Array.ts:103: * const encodeFloat16Array = S.encodeSync(Float16ArrayFromArray);
-./packages/common/schema/src/SemanticVersion.ts:9: * const version = S.decodeUnknownSync(SemanticVersion)("1.24.0");
-./packages/common/schema/src/SemanticVersion.ts:39: * S.decodeUnknownSync(SemanticVersion)("0.1.2");
-./packages/common/schema/src/SemanticVersion.ts:40: * S.decodeUnknownSync(SemanticVersion)("12.34.56");
-./packages/common/schema/src/FileExtension.ts:13: * const png = S.decodeUnknownSync(FileExtension)("png");
-./packages/common/schema/src/FileExtension.ts:14: * const jpeg = S.decodeUnknownSync(ImageFileExtension)("jpeg");
-./packages/common/schema/src/FileExtension.ts:92: * const ext = S.decodeUnknownSync(ApplicationFileExtension)("pdf")
-./packages/common/schema/src/FileExtension.ts:131: * const ext = S.decodeUnknownSync(VideoFileExtension)("mp4")
-./packages/common/schema/src/FileExtension.ts:170: * const ext = S.decodeUnknownSync(TextFileExtension)("txt")
-./packages/common/schema/src/FileExtension.ts:209: * const ext = S.decodeUnknownSync(ImageFileExtension)("png")
-./packages/common/schema/src/FileExtension.ts:248: * const ext = S.decodeUnknownSync(AudioFileExtension)("mp3")
-./packages/common/schema/src/FileExtension.ts:287: * const decode = S.decodeUnknownSync(MiscFileExtension)
-./packages/common/schema/src/FileExtension.ts:325: * const ext = S.decodeUnknownSync(FileExtension)("json")
-./packages/common/schema/src/BinaryFileExtension.ts:14: * const extension = S.decodeUnknownSync(BinaryFileExtension)(".png");
-./packages/common/schema/src/BinaryFileExtension.ts:170: * const extension = S.decodeUnknownSync(BinaryFileExtension)(".pdf");
-./packages/common/schema/src/Glob.ts:13: * const pattern = S.decodeUnknownSync(Glob)("src/*.ts");
-./packages/common/schema/src/Glob.ts:99: * const pattern = S.decodeUnknownSync(Glob)("src/*.ts")
-./packages/common/nlp/test/PatternCore.test.ts:132:    expect(() => Schema.decodeUnknownSync(POSPatternOption)([""])).toThrow();
-./packages/common/nlp/test/PatternCore.test.ts:133:    expect(() => Schema.decodeUnknownSync(EntityPatternOption)([""])).toThrow();
-./packages/common/nlp/test/PatternCore.test.ts:134:    expect(() => Schema.decodeUnknownSync(LiteralPatternOption)([""])).toThrow();
-./packages/common/nlp/test/PatternCore.test.ts:139:    expect(() => Schema.decodeUnknownSync(BracketStringToLiteralPatternElement)("[DATE]")).toThrow();
-./packages/common/schema/src/Sha256.ts:48: * const digest = S.decodeUnknownSync(Sha256Hex)(
-./packages/common/nlp/test/ToolValidation.test.ts:15:    expect(() => Schema.decodeUnknownSync(ExtractKeywords.parametersSchema)({ text: "hello", topN: 2.5 })).toThrow();
-./packages/common/nlp/test/ToolValidation.test.ts:20:      Schema.decodeUnknownSync(ChunkBySentences.parametersSchema)({ maxChunkChars: 0, text: "One. Two." })
-./packages/common/nlp/test/ToolValidation.test.ts:26:      Schema.decodeUnknownSync(CreateCorpus.parametersSchema)({
-./packages/common/nlp/test/ToolValidation.test.ts:37:    expect(Schema.decodeUnknownSync(TverskySimilarity.parametersSchema)({ text1: "alpha", text2: "beta" })).toEqual({
-./packages/common/nlp/test/ToolValidation.test.ts:47:      Schema.decodeUnknownSync(BowCosineSimilarity.successSchema)({
-./packages/common/nlp/test/ToolValidation.test.ts:53:      Schema.decodeUnknownSync(TextSimilarity.successSchema)({
-./packages/common/nlp/test/ToolValidation.test.ts:59:      Schema.decodeUnknownSync(TverskySimilarity.successSchema)({
-./packages/common/schema/src/Timestamp.ts:45: * const decode = S.decodeUnknownSync(ISOStr)
-./packages/common/schema/src/Timestamp.ts:77: * const decode = S.decodeUnknownSync(EpochMillis)
-./packages/common/schema/src/Timestamp.ts:110: * const decode = S.decodeUnknownSync(ToIsoStr)
-./packages/common/schema/src/Graph.ts:257: * const decode = S.decodeUnknownSync(NodeIndex)
-./packages/common/schema/src/Graph.ts:289: * const decode = S.decodeUnknownSync(NodeIndexFromString)
-./packages/common/schema/src/MutableHashSet.ts:117: * const decoded = S.decodeUnknownSync(SetSchema)(set)
-./packages/common/schema/src/MutableHashSet.ts:210: * const decoded = S.decodeUnknownSync(StringSet)(["a", "b", "a"])
-./packages/common/schema/src/MutableHashSet.ts:211: * const encoded = S.encodeSync(StringSet)(decoded)
-./packages/common/schema/src/http/headers/CrossOriginOpenerPolicy.ts:31: * const decoded = S.decodeUnknownSync(CoopValue)("same-origin")
-./packages/common/schema/src/http/headers/CrossOriginOpenerPolicy.ts:63: * const decoded = S.decodeUnknownSync(CrossOriginOpenerPolicyOption)(false)
-./packages/common/schema/src/CauseTaggedError.ts:269:const decodeCauseTaggedErrorMessage = S.decodeUnknownSync(S.String);
-./packages/common/schema/src/LocalDate.ts:488: * const decodeLocalDate = S.decodeUnknownSync(LocalDateFromString);
-./packages/common/schema/src/LocalDate.ts:489: * const encodeLocalDate = S.encodeSync(LocalDateFromString);
-./packages/common/schema/src/Markdown.ts:111: * const document = S.decodeUnknownSync(Markdown)("# Hello")
-./packages/common/schema/src/BufferEncoding.ts:20: * const encoding = S.decodeUnknownSync(BuffEncoding)("utf8")
-./packages/common/schema/src/Duration.ts:56: * const decode = S.decodeUnknownSync(DurationUnit)
-./packages/common/schema/src/Duration.ts:117: * const decode = S.decodeUnknownSync(DurationObject)
-./packages/common/schema/src/Duration.ts:157: * const decode = S.decodeUnknownSync(DurationInput)
-./packages/common/schema/src/http/headers/NoSniff.ts:32: * const decoded = S.decodeUnknownSync(NoSniffValue)("nosniff")
-./packages/common/schema/src/http/headers/NoSniff.ts:64: * const decoded = S.decodeUnknownSync(NoSniffOption)(false)
-./packages/common/schema/src/PascalStr.ts:21: * const value = S.decodeUnknownSync(PascalCaseStr)("WorkflowStatus")
-./packages/common/schema/src/SnakeStr.ts:21: * const value = S.decodeUnknownSync(SnakeCaseStr)("workflow_status_2")
-./packages/common/schema/src/BigDecimal.ts:28: * const decode = S.decodeUnknownSync(BigDecimalFromNumber)
-./packages/common/schema/src/FileName.ts:13: * const decodeFileName = S.decodeUnknownSync(FileName);
-./packages/common/schema/src/FileName.ts:79: * const decodeFileName = S.decodeUnknownSync(FileName);
-./packages/shared/domain/src/entities/Organization/Organization.behavior.ts:25: * const decodeOrganizationId = S.decodeUnknownSync(Shared.OrganizationId)
-./packages/shared/domain/src/entities/Organization/Organization.behavior.ts:69: * const decodeOrganizationId = S.decodeUnknownSync(Shared.OrganizationId)
-./packages/common/schema/src/internal/email.ts:65: * const decode = S.decodeUnknownSync(Email)
-./packages/common/schema/src/internal/email.ts:86: * const decode = S.decodeUnknownSync(Email)
-./packages/common/schema/src/Number.ts:22: * const value = S.decodeUnknownSync(PosNum)(5)
-./packages/common/schema/src/Number.ts:40: * const id = S.decodeUnknownSync(Serial)(1)
-./packages/common/schema/src/Number.ts:84: * S.decodeUnknownSync(NonNeg)(0)
-./packages/common/schema/src/Number.ts:85: * S.decodeUnknownSync(NonNeg)(42)
-./packages/common/schema/src/Number.ts:102: * const value = S.decodeUnknownSync(NegNum)(-1)
-./packages/common/schema/src/Number.ts:120: * S.decodeUnknownSync(NonPos)(0)
-./packages/common/schema/src/Number.ts:121: * S.decodeUnknownSync(NonPos)(-10)
-./packages/common/schema/src/Number.ts:137: * const value = S.decodeUnknownSync(NonNegativeInt)(10)
-./packages/shared/domain/src/entities/Organization/Organization.values.ts:25: * const decodeLicenseTier = S.decodeUnknownSync(Organization.LicenseTier)
-./packages/shared/domain/src/entities/Organization/Organization.values.ts:47: * const tier: Organization.LicenseTier = S.decodeUnknownSync(Organization.LicenseTier)("team");
-./packages/shared/domain/src/entities/Organization/Organization.values.ts:65: * const settings = S.decodeUnknownSync(Organization.Settings)({
-./packages/common/schema/src/MutableHashMap.ts:152: * const decoded = S.decodeUnknownSync(MapSchema)(map)
-./packages/common/schema/src/MutableHashMap.ts:251: * const decoded = S.decodeUnknownSync(StringNumberMap)([["a", "1"]])
-./packages/common/schema/src/MutableHashMap.ts:252: * const encoded = S.encodeSync(StringNumberMap)(decoded)
-./packages/common/schema/src/csv/parse/ParserOptions.ts:37:const decodeRegExpSync = S.decodeSync(RegExpFromStr);
-./packages/common/schema/src/csv/parse/ParserOptions.ts:220:const decodeParserOptionsUnknownSync = S.decodeUnknownSync(ParserOptions);
-./packages/common/schema/src/CommonTextSchemas.ts:30: * const value = S.decodeUnknownSync(TrimmedNonEmptyText)("  hello  ")
-./packages/common/schema/src/CommonTextSchemas.ts:75: * const items = S.decodeUnknownSync(CommaSeparatedList)("foo, bar, baz")
-./packages/common/schema/src/CommonTextSchemas.ts:120: * console.log(S.decodeUnknownSync(NormalizedBooleanString)("yes")) // true
-./packages/common/schema/src/CommonTextSchemas.ts:121: * console.log(S.decodeUnknownSync(NormalizedBooleanString)("0")) // false
-./packages/common/schema/src/http/headers/_internal/helpers.ts:74:const decodeStrictURI = S.decodeUnknownSync(EncodedStrictURIFromStrOrURL);
-./packages/common/schema/src/Float32Array.ts:33: * const decodeFloat32Array = S.decodeUnknownSync(Float32Arr);
-./packages/common/schema/src/Float32Array.ts:70: * const decodeFloat32Array = S.decodeUnknownSync(Float32ArrayFromArray);
-./packages/common/schema/src/Float32Array.ts:71: * const encodeFloat32Array = S.encodeSync(Float32ArrayFromArray);
-./packages/common/schema/src/MappedLiteralKit.ts:269: * S.decodeSync(SqlState)("SUCCESSFUL_COMPLETION"); // "00000"
-./packages/common/schema/src/MappedLiteralKit.ts:270: * S.encodeSync(SqlState)("00000"); // "SUCCESSFUL_COMPLETION"
-./packages/common/schema/src/MappedLiteralKit.ts:322: * S.decodeSync(HttpStatus)("OK")       // "200"
-./packages/common/schema/src/MappedLiteralKit.ts:323: * S.encodeSync(HttpStatus)("200")      // "OK"
-./packages/common/schema/src/Fn.ts:42:  SchemaParser.decodeUnknownSync(S.make<S.Decoder<Input["Type"]>>(inputSchema.ast))(input);
-./packages/common/schema/src/Fn.ts:45:  return SchemaParser.decodeUnknownSync(S.make<S.Decoder<Output["Type"]>>(S.toType(outputSchema).ast))(output);
-./packages/common/schema/src/Fn.ts:400: * const fn = S.decodeUnknownSync(AnyFn)(() => "hello")
-./packages/common/schema/src/Percentage.ts:25: * const value = S.decodeUnknownSync(Percentage)(75.5)
-./packages/shared/domain/src/entity/EntityId.ts:26: * const id = S.decodeUnknownSync(EntityIdValue)(1)
-./packages/shared/domain/src/entity/EntityRef.ts:46: *   entityType: S.decodeUnknownSync(EntityType)("SharedOrganization"),
-./packages/shared/domain/src/entity/EntityRef.ts:47: *   id: S.decodeUnknownSync(EntityIdValue)(1),
-./packages/shared/domain/src/entity/EntityRef.ts:93: * const decodeOrganizationId = S.decodeUnknownSync(S.make<S.Decoder<typeof OrganizationId.Type>>(OrganizationId.ast))
-./packages/shared/domain/src/entity/EntityRef.ts:108:      entityType: S.decodeUnknownSync(EntityType)(entityId.entityType),
-./packages/common/schema/src/ArrayOf.ts:21: * const decoded = S.decodeUnknownSync(ArrayOfStrings)(["a", "b", "c"])
-./packages/common/schema/src/ArrayOf.ts:50: * const decoded = S.decodeUnknownSync(NonEmptyArrayOfStrings)(["hello"])
-./packages/common/schema/src/ArrayOf.ts:79: * const decoded = S.decodeUnknownSync(ArrayOfNonEmptyStrings)(["hello", "world"])
-./packages/common/schema/src/ArrayOf.ts:108: * const decoded = S.decodeUnknownSync(NonEmptyArrayOfNonEmptyStrings)(["hello"])
-./packages/common/schema/src/ArrayOf.ts:137: * const decoded = S.decodeUnknownSync(ArrayOfNumbers)([1, 2, 3])
-./packages/common/schema/src/ArrayOf.ts:166: * const decoded = S.decodeUnknownSync(NonEmptyArrayOfNumbers)([42])
-./packages/common/schema/src/ArrayOf.ts:195: * const decoded = S.decodeUnknownSync(ArrayOfInts)([1, 2, 3])
-./packages/common/schema/src/ArrayOf.ts:224: * const decoded = S.decodeUnknownSync(NonEmptyArrayOfInts)([1])
-./packages/shared/domain/src/entity/primitives.ts:24: * const hash = S.decodeUnknownSync(Sha256)("a".repeat(64))
-./packages/common/schema/src/Thunk.ts:75: * const thunk = S.decodeUnknownSync(ThunkUnknown)(() => "hello")
-./packages/common/schema/src/Logs.ts:21: * const level = S.decodeUnknownSync(LogLevel)("Info")
-./packages/common/schema/src/Logs.ts:53: * const severity = S.decodeUnknownSync(LogSeverity)("Error")
-./packages/common/schema/src/Email.ts:21: * const decode = S.decodeUnknownSync(Email)
-./packages/common/schema/src/Email.ts:39: * const decode = S.decodeUnknownSync(Email)
-./packages/common/schema/src/Jsonc.ts:25: * const diag = S.decodeUnknownSync(JsoncParseDiagnostic)({
-./packages/shared/domain/src/entity/EntityMixin.ts:882:  return S.decodeUnknownSync(FieldDescriptor)(Struct.assign(descriptor, { key })) as FieldDescriptorFromInput<
-./packages/common/schema/src/URL.ts:53: * const url = S.decodeUnknownSync(URLStr)("https://example.com")
-./packages/common/schema/src/EffectSchema.ts:68: * const decoded = S.decodeUnknownSync(EffectSchema)(program)
-./packages/shared/domain/src/values/LocalDate/LocalDate.behavior.ts:678: * const decodeLocalDate = S.decodeUnknownSync(LocalDateFromString)
-./packages/shared/domain/src/values/LocalDate/LocalDate.behavior.ts:679: * const encodeLocalDate = S.encodeSync(LocalDateFromString)
-./packages/shared/domain/src/identity/Shared.ts:32: * const decodeOrganizationId = S.decodeUnknownSync(
-./packages/shared/domain/src/identity/Shared.ts:62: * const decodeUserId = S.decodeUnknownSync(S.make<S.Decoder<typeof UserId.Type>>(UserId.ast))
-./packages/shared/domain/src/identity/Shared.ts:90: * const decodeTeamId = S.decodeUnknownSync(S.make<S.Decoder<typeof TeamId.Type>>(TeamId.ast))
-./packages/shared/domain/src/identity/Shared.ts:118: * const decodeServiceAccountId = S.decodeUnknownSync(
-./packages/shared/domain/src/identity/Shared.ts:148: * const decodeAgentId = S.decodeUnknownSync(S.make<S.Decoder<typeof AgentId.Type>>(AgentId.ast))
-./packages/shared/domain/src/identity/Shared.ts:176: * const decodeAgentVersionId = S.decodeUnknownSync(
-./packages/shared/domain/src/identity/Shared.ts:206: * const decodeConnectorAccountId = S.decodeUnknownSync(
-./packages/shared/domain/src/identity/Shared.ts:236: * const decodeActivityId = S.decodeUnknownSync(S.make<S.Decoder<typeof ActivityId.Type>>(ActivityId.ast))
-./packages/shared/domain/src/identity/Shared.ts:264: * const decodeLocalMachineId = S.decodeUnknownSync(
-./packages/common/schema/src/FilePath.ts:830: * const decode = S.decodeUnknownSync(FilePath)
-./packages/shared/domain/test/Organization.test.ts:7:const decodeOrganization = S.decodeUnknownSync(Organization.Model);
-./packages/shared/domain/test/Organization.test.ts:8:const decodeOrganizationId = S.decodeUnknownSync(Shared.OrganizationId);
-./packages/shared/domain/test/Organization.test.ts:47:    const decodeSettings = S.decodeUnknownSync(Organization.Settings);
-./packages/shared/domain/test/EntityKernel.test.ts:33:const decodeSync = <A>(schema: S.Top & { readonly Type: A }) => S.decodeUnknownSync(S.make<S.Decoder<A>>(schema.ast));
-./packages/shared/domain/test/EntityKernel.test.ts:94:    const decode = S.decodeUnknownSync(EntityId.EntityIdValue);
-./packages/shared/domain/test/EntityKernel.test.ts:112:    expect(decodeSync(DocumentId)(1)).toBe(1);
-./packages/shared/domain/test/EntityKernel.test.ts:134:    const descriptor = S.decodeUnknownSync(EntityMixin.FieldDescriptor)({
-./packages/shared/domain/test/EntityKernel.test.ts:142:    const descriptorInput = S.decodeUnknownSync(EntityMixin.FieldDescriptorInput)({
-./packages/shared/domain/test/EntityKernel.test.ts:340:    const id = S.decodeUnknownSync(EntityId.EntityIdValue)(1);
-./packages/shared/domain/test/EntityKernel.test.ts:346:    expect(S.decodeUnknownSync(EntityRef.EntityType)("SharedDocument")).toBe("SharedDocument");
-./packages/shared/domain/test/EntityKernel.test.ts:347:    expect(S.decodeUnknownSync(primitives.Sha256)("a".repeat(64))).toBe("a".repeat(64));
-./packages/shared/domain/test/EntityKernel.test.ts:348:    expect(S.decodeUnknownSync(primitives.Ed25519Signature)("signature")).toBe("signature");
-./packages/shared/domain/test/EntityKernel.test.ts:349:    expect(S.decodeUnknownSync(primitives.EncryptionKeyId)("key")).toBe("key");
-./packages/shared/domain/test/EntityKernel.test.ts:350:    expect(S.decodeUnknownSync(primitives.HybridLogicalClock)("clock")).toBe("clock");
-./packages/shared/domain/test/EntityKernel.test.ts:351:    expect(S.decodeUnknownSync(primitives.VectorClock)({ replica: 1 })).toEqual({ replica: 1 });
-./packages/shared/domain/test/EntityKernel.test.ts:355:    const user = decodeSync(Principal.UserPrincipal)({
-./packages/shared/domain/test/EntityKernel.test.ts:359:    const serviceAccount = decodeSync(Principal.ServiceAccountPrincipal)({
-./packages/shared/domain/test/EntityKernel.test.ts:363:    const agent = decodeSync(Principal.AgentPrincipal)({
-./packages/shared/domain/test/EntityKernel.test.ts:369:    const connector = decodeSync(Principal.ConnectorAccountPrincipal)({
-./packages/shared/domain/test/EntityKernel.test.ts:373:    const system = decodeSync(Principal.SystemPrincipal)({
-./packages/shared/domain/test/EntityKernel.test.ts:377:    const principal = decodeSync(Principal.Principal)({

@@ -7,7 +7,7 @@
 
 import { $SchemaId } from "@beep/identity";
 import { cast } from "@beep/utils/Function";
-import { Effect, identity, Option, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, identity, Option, Result, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -71,12 +71,14 @@ export const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
  */
 export type EncodedStrictURIFromStrOrURL = typeof EncodedStrictURIFromStrOrURL.Type;
 
-const decodeStrictURI = S.decodeUnknownSync(EncodedStrictURIFromStrOrURL);
+const decodeStrictURI = S.decodeUnknownResult(EncodedStrictURIFromStrOrURL);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 /**
  * @since 0.0.0
  */
-export const encodeStrictURI = (value: StringOrUrl): EncodedStrictURIFromStrOrURL => decodeStrictURI(value);
+export const encodeStrictURI = (value: StringOrUrl): EncodedStrictURIFromStrOrURL =>
+  Result.getOrThrowWith(decodeStrictURI(value), schemaIssueToError);
 
 /**
  * @since 0.0.0

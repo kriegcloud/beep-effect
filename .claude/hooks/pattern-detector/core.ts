@@ -28,7 +28,12 @@ const readCurrentWorkingDirectory = Effect.sync(() => process.cwd());
 
 export const getMatchableContent = (input: Record<string, unknown>): string => {
   const getField = (field: keyof typeof input) => input[field];
-  const stringifyInput = () => S.encodeSync(S.fromJsonString(S.Record(S.String, S.Unknown)))(input);
+  const stringifyInput = () =>
+    pipe(
+      input,
+      S.encodeOption(S.fromJsonString(S.Record(S.String, S.Unknown))),
+      O.getOrElse(() => "")
+    );
   return pipe(
     contentFields,
     A.findFirst(flow(getField, P.isString)),

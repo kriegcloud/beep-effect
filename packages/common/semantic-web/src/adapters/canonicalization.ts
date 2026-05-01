@@ -57,13 +57,13 @@ const hashCanonicalText = (canonicalText: string): Effect.Effect<typeof Sha256He
   Effect.gen(function* () {
     const hex = yield* Effect.tryPromise({
       try: async () => {
-      const bytes = new TextEncoder().encode(canonicalText);
-      const digest = await crypto.subtle.digest("SHA-256", bytes);
-      return pipe(
-        A.fromIterable(new Uint8Array(digest)),
-        A.map((value) => Str.padStart(2, "0")(value.toString(16))),
-        A.join("")
-      );
+        const bytes = new TextEncoder().encode(canonicalText);
+        const digest = await crypto.subtle.digest("SHA-256", bytes);
+        return pipe(
+          A.fromIterable(new Uint8Array(digest)),
+          A.map((value) => Str.padStart(2, "0")(value.toString(16))),
+          A.join("")
+        );
       },
       catch: () =>
         new CanonicalizationError({

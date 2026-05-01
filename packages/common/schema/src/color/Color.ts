@@ -7,13 +7,14 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { thunk0, thunk1 } from "@beep/utils";
-import { flow, identity, Number as Num, pipe, SchemaGetter, SchemaTransformation } from "effect";
+import { flow, identity, Number as Num, pipe, Result, SchemaGetter, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $SchemaId.create("color/Color");
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 type RgbEncoded = {
   readonly r: number;
@@ -175,7 +176,10 @@ const toHexChannel = (value: number): string =>
   );
 
 const rgbToHexValue = ({ r, g, b }: RgbEncoded): HexColor =>
-  S.decodeUnknownSync(HexColor)(`#${toHexChannel(r)}${toHexChannel(g)}${toHexChannel(b)}`);
+  Result.getOrThrowWith(
+    S.decodeUnknownResult(HexColor)(`#${toHexChannel(r)}${toHexChannel(g)}${toHexChannel(b)}`),
+    schemaIssueToError
+  );
 
 const linearToSrgb = (value: number): number => {
   if (value <= 0.0031308) {
@@ -270,14 +274,17 @@ const generateScaleValues = ({ seed, isDark }: GenerateScaleInput): HexColorScal
     onFalse: lightScaleChromaMultipliers,
   });
 
-  return S.decodeUnknownSync(HexColorScale12)(
-    A.zipWith(lightSteps, chromaMultipliers, (lightness, multiplier) =>
-      oklchToHexValue({
-        l: lightness,
-        c: base.c * multiplier,
-        h: base.h,
-      })
-    )
+  return Result.getOrThrowWith(
+    S.decodeUnknownResult(HexColorScale12)(
+      A.zipWith(lightSteps, chromaMultipliers, (lightness, multiplier) =>
+        oklchToHexValue({
+          l: lightness,
+          c: base.c * multiplier,
+          h: base.h,
+        })
+      )
+    ),
+    schemaIssueToError
   );
 };
 
@@ -289,14 +296,17 @@ const generateNeutralScaleValues = ({ seed, isDark }: GenerateNeutralScaleInput)
     onFalse: lightNeutralScaleLightSteps,
   });
 
-  return S.decodeUnknownSync(HexColorScale12)(
-    A.map(lightSteps, (lightness) =>
-      oklchToHexValue({
-        l: lightness,
-        c: neutralChroma,
-        h: base.h,
-      })
-    )
+  return Result.getOrThrowWith(
+    S.decodeUnknownResult(HexColorScale12)(
+      A.map(lightSteps, (lightness) =>
+        oklchToHexValue({
+          l: lightness,
+          c: neutralChroma,
+          h: base.h,
+        })
+      )
+    ),
+    schemaIssueToError
   );
 };
 
@@ -310,16 +320,19 @@ const generateAlphaScaleValues = ({ scale, isDark }: GenerateAlphaScaleInput): H
     onFalse: thunk1,
   });
 
-  return S.decodeUnknownSync(HexColorScale12)(
-    A.zipWith(scale, alphas, (hex, alpha) => {
-      const { r, g, b } = hexToRgbValue(hex);
+  return Result.getOrThrowWith(
+    S.decodeUnknownResult(HexColorScale12)(
+      A.zipWith(scale, alphas, (hex, alpha) => {
+        const { r, g, b } = hexToRgbValue(hex);
 
-      return rgbToHexValue({
-        r: r * alpha + background * (1 - alpha),
-        g: g * alpha + background * (1 - alpha),
-        b: b * alpha + background * (1 - alpha),
-      });
-    })
+        return rgbToHexValue({
+          r: r * alpha + background * (1 - alpha),
+          g: g * alpha + background * (1 - alpha),
+          b: b * alpha + background * (1 - alpha),
+        });
+      })
+    ),
+    schemaIssueToError
   );
 };
 
@@ -357,8 +370,11 @@ const darkenValue = ({ color, amount }: DarkenInput): HexColor => {
 const withAlphaValue = ({ color, alpha }: WithAlphaInput): RgbaColorString => {
   const { r, g, b } = hexToRgbValue(color);
 
-  return S.decodeUnknownSync(RgbaColorString)(
-    `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`
+  return Result.getOrThrowWith(
+    S.decodeUnknownResult(RgbaColorString)(
+      `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`
+    ),
+    schemaIssueToError
   );
 };
 

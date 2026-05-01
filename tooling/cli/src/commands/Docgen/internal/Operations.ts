@@ -349,9 +349,9 @@ const readUnknownJsonFile = Effect.fn("DocgenOperations.readUnknownJsonFile")(fu
   const parsed = yield* parseJsonText(content).pipe(
     Effect.mapError(
       (cause) =>
-      new DomainError({
-        message: `Invalid JSON in "${filePath}"`,
-        cause,
+        new DomainError({
+          message: `Invalid JSON in "${filePath}"`,
+          cause,
         })
     )
   );

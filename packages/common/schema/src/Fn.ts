@@ -11,7 +11,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { Cause, Effect, SchemaIssue, SchemaParser } from "effect";
+import { Cause, Effect, Result, SchemaIssue, SchemaParser } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -25,6 +25,7 @@ const isUndefinedKeyword = P.isTagged("Undefined");
 const isVoidKeyword = P.isTagged("Void");
 
 const isFunctionValue = <A>(value: unknown): value is A => P.isFunction(value);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 const withNeverEquivalence = <Schema extends S.Top>(schema: Schema): Schema =>
   isNeverKeyword(schema.ast) ? (schema.pipe(S.overrideToEquivalence(() => () => true)) as Schema) : schema;
 
@@ -39,10 +40,16 @@ const validateErrorEffect = <Error extends S.Top>(
 ): Effect.Effect<Error["Type"], SchemaIssue.Issue> => SchemaParser.decodeUnknownEffect(S.toType(errorSchema))(error);
 
 const decodeInputSync = <Input extends S.Top>(inputSchema: Input, input: unknown): Input["Type"] =>
-  SchemaParser.decodeUnknownSync(S.make<S.Decoder<Input["Type"]>>(inputSchema.ast))(input);
+  Result.getOrThrowWith(
+    SchemaParser.decodeUnknownResult(S.make<S.Decoder<Input["Type"]>>(inputSchema.ast))(input),
+    schemaIssueToError
+  );
 
 const validateOutputSync = <Output extends S.Top>(outputSchema: Output, output: Output["Type"]): Output["Type"] => {
-  return SchemaParser.decodeUnknownSync(S.make<S.Decoder<Output["Type"]>>(S.toType(outputSchema).ast))(output);
+  return Result.getOrThrowWith(
+    SchemaParser.decodeUnknownResult(S.make<S.Decoder<Output["Type"]>>(S.toType(outputSchema).ast))(output),
+    schemaIssueToError
+  );
 };
 
 const validateFailReasonEffect = <Error extends S.Top>(

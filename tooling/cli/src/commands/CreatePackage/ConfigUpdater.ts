@@ -154,7 +154,10 @@ const PackagePathToTstychePattern = PackagePath.pipe(
 const decodeTstychePattern = S.decodeUnknownOption(PackagePathToTstychePattern);
 const fallbackTstychePattern = (packagePath: string): string => `${packagePath}/dtslint/**/*.tst.*`;
 const toTstychePattern = (packagePath: string): string =>
-  pipe(decodeTstychePattern(packagePath), O.getOrElse(() => fallbackTstychePattern(packagePath)));
+  pipe(
+    decodeTstychePattern(packagePath),
+    O.getOrElse(() => fallbackTstychePattern(packagePath))
+  );
 const isPackagePath = S.is(PackagePath);
 const stringEquivalence = S.toEquivalence(S.String);
 const stringArrayEquivalence = S.toEquivalence(S.Array(S.String));

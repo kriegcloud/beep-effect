@@ -9,7 +9,6 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { TSMorphService, TsMorphProjectInspectionRequest } from "@beep/repo-utils/TSMorph/index";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
-import { thunkUndefined } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, HashMap, MutableHashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -1059,39 +1058,36 @@ const scanDualArityInventory = Effect.fn("DualArity.scanDualArityInventory")(fun
   }
 
   const request = yield* decodeProjectInspectionRequest({
-      entrypoint: {
-        _tag: "tsconfig",
-        tsConfigPath: "tsconfig.json",
-      },
-      repoRootPath: null,
-      mode: "semantic",
-      referencePolicy: "workspaceOnly",
-      filePaths: A.empty(),
-      sourceFileGlobs: A.fromIterable(INCLUDED_GLOBS),
-    });
-  const entries = yield* service.inspectProject(
-    request,
-    ({ scope, sourceFiles }) => {
-      let liveEntries = A.empty<DualArityInventoryEntry>();
+    entrypoint: {
+      _tag: "tsconfig",
+      tsConfigPath: "tsconfig.json",
+    },
+    repoRootPath: null,
+    mode: "semantic",
+    referencePolicy: "workspaceOnly",
+    filePaths: A.empty(),
+    sourceFileGlobs: A.fromIterable(INCLUDED_GLOBS),
+  });
+  const entries = yield* service.inspectProject(request, ({ scope, sourceFiles }) => {
+    let liveEntries = A.empty<DualArityInventoryEntry>();
 
-      for (const sourceFile of sourceFiles) {
-        const filePath = toPosixPath(path.relative(scope.repoRootPath, sourceFile.getFilePath()));
-        if (isExcludedFile(excludePaths, filePath)) {
-          continue;
-        }
-
-        const owner = ownerResolver(sourceFile.getFilePath());
-        for (const candidate of collectCandidatesForSourceFile(sourceFile, filePath, owner)) {
-          const entry = makeInventoryEntry(candidate, collectCandidateDiagnostics(candidate));
-          if (O.isSome(entry)) {
-            liveEntries = A.append(liveEntries, entry.value);
-          }
-        }
+    for (const sourceFile of sourceFiles) {
+      const filePath = toPosixPath(path.relative(scope.repoRootPath, sourceFile.getFilePath()));
+      if (isExcludedFile(excludePaths, filePath)) {
+        continue;
       }
 
-      return sortEntries(A.dedupeWith(liveEntries, (left, right) => makeEntryKey(left) === makeEntryKey(right)));
+      const owner = ownerResolver(sourceFile.getFilePath());
+      for (const candidate of collectCandidatesForSourceFile(sourceFile, filePath, owner)) {
+        const entry = makeInventoryEntry(candidate, collectCandidateDiagnostics(candidate));
+        if (O.isSome(entry)) {
+          liveEntries = A.append(liveEntries, entry.value);
+        }
+      }
     }
-  );
+
+    return sortEntries(A.dedupeWith(liveEntries, (left, right) => makeEntryKey(left) === makeEntryKey(right)));
+  });
 
   return new DualArityInventoryDocument({
     version: 1,

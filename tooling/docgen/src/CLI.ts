@@ -86,7 +86,7 @@ const decodeCompilerOptionsText = (value: string) =>
   decodeCompilerOptions(value).pipe(
     Effect.mapError(
       (cause) =>
-      new Domain.DocgenError({
+        new Domain.DocgenError({
           message: `[CLI.decodeCompilerOptionsText] Invalid compiler options JSON\n${cause.message}`,
         })
     )

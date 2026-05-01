@@ -41,38 +41,38 @@ describe("Organization UI contracts", () => {
     Effect.gen(function* () {
       const display = yield* decodeDisplay(displayInput);
 
-    expect(display.id).toBe(1);
-    expect(display.licenseTier).toBe("team");
-    expect(display.settings.defaultRetentionDays).toBe(90);
-    expect(O.isNone(display.parentOrgId)).toBe(true);
+      expect(display.id).toBe(1);
+      expect(display.licenseTier).toBe("team");
+      expect(display.settings.defaultRetentionDays).toBe(90);
+      expect(O.isNone(display.parentOrgId)).toBe(true);
     })
   );
 
   it.effect("decodes browser-safe form payloads with parent organizations", () =>
     Effect.gen(function* () {
       const form = yield* decodeForm({
-      ...formInput,
-      parentOrgId: 1,
-    });
+        ...formInput,
+        parentOrgId: 1,
+      });
 
-    expect(form.slug).toBe("acme");
-    expect(O.getOrThrow(form.parentOrgId)).toBe(1);
+      expect(form.slug).toBe("acme");
+      expect(O.getOrThrow(form.parentOrgId)).toBe(1);
     })
   );
 
   it.effect("decodes null parent organization ids as None", () =>
     Effect.gen(function* () {
       const display = yield* decodeDisplay({
-      ...displayInput,
-      parentOrgId: null,
-    });
+        ...displayInput,
+        parentOrgId: null,
+      });
       const form = yield* decodeForm({
-      ...formInput,
-      parentOrgId: null,
-    });
+        ...formInput,
+        parentOrgId: null,
+      });
 
-    expect(display.parentOrgId).toEqual(O.none());
-    expect(form.parentOrgId).toEqual(O.none());
+      expect(display.parentOrgId).toEqual(O.none());
+      expect(form.parentOrgId).toEqual(O.none());
     })
   );
 
@@ -80,7 +80,7 @@ describe("Organization UI contracts", () => {
     Effect.gen(function* () {
       const display = yield* decodeDisplay(displayInput);
 
-    expect(Organization.primaryLabel(display)).toBe("Acme");
+      expect(Organization.primaryLabel(display)).toBe("Acme");
     })
   );
 
@@ -88,9 +88,9 @@ describe("Organization UI contracts", () => {
     Effect.gen(function* () {
       const withoutParent = yield* decodeDisplay(displayInput);
       const withParent = yield* decodeDisplay({
-      ...displayInput,
-      parentOrgId: 1,
-    });
+        ...displayInput,
+        parentOrgId: 1,
+      });
       const formWithoutParent = yield* decodeForm(formInput);
 
       expect((yield* encodeDisplay(withoutParent)).parentOrgId).toBeNull();
@@ -103,30 +103,30 @@ describe("Organization UI contracts", () => {
     Effect.gen(function* () {
       yield* expectFailure(
         decodeDisplay({
-        ...displayInput,
-        licenseTier: "custom",
-      })
+          ...displayInput,
+          licenseTier: "custom",
+        })
       );
       yield* expectFailure(
         decodeDisplay({
-        ...displayInput,
-        name: "",
-      })
+          ...displayInput,
+          name: "",
+        })
       );
       yield* expectFailure(
         decodeDisplay({
-        ...displayInput,
-        settings: {
-          ...displayInput.settings,
-          defaultRetentionDays: 0,
-        },
-      })
+          ...displayInput,
+          settings: {
+            ...displayInput.settings,
+            defaultRetentionDays: 0,
+          },
+        })
       );
       yield* expectFailure(
         decodeDisplay({
-        ...displayInput,
-        slug: "Invalid Slug",
-      })
+          ...displayInput,
+          slug: "Invalid Slug",
+        })
       );
     })
   );

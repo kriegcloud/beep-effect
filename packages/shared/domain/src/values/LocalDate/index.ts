@@ -6,16 +6,30 @@
  */
 
 /**
- * @since 0.0.0
- */
-
-/**
+ * LocalDate behavior helpers and constructors.
+ *
+ * @example
+ * ```ts
+ * import { today } from "@beep/shared-domain/values/LocalDate/index"
+ *
+ * console.log(today().toISOString())
+ * ```
+ *
  * @since 0.0.0
  * @category utilities
  */
 export * from "./LocalDate.behavior.ts";
 
 /**
+ * LocalDate model schema.
+ *
+ * @example
+ * ```ts
+ * import { Model } from "@beep/shared-domain/values/LocalDate/index"
+ *
+ * console.log(Model)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */

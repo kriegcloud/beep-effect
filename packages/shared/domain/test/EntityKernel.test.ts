@@ -110,14 +110,14 @@ describe("EntityId", () => {
 
   it.effect("derives default metadata and schema statics", () =>
     Effect.gen(function* () {
-    expect(DocumentId.slice).toBe("shared");
-    expect(DocumentId.tableName).toBe("shared_document");
-    expect(DocumentId.resource).toBe("shared.document");
-    expect(DocumentId.entityType).toBe("SharedDocument");
-    expect(DocumentId.brand).toBe("SharedDocumentId");
-    expect(DocumentId.definition.description).toBe("SharedDocument entity identifier.");
-    expect(DocumentId.equivalence(cast(1), cast(1))).toBe(true);
-    expect(DocumentId.equivalence(cast(1), cast(2))).toBe(false);
+      expect(DocumentId.slice).toBe("shared");
+      expect(DocumentId.tableName).toBe("shared_document");
+      expect(DocumentId.resource).toBe("shared.document");
+      expect(DocumentId.entityType).toBe("SharedDocument");
+      expect(DocumentId.brand).toBe("SharedDocumentId");
+      expect(DocumentId.definition.description).toBe("SharedDocument entity identifier.");
+      expect(DocumentId.equivalence(cast(1), cast(1))).toBe(true);
+      expect(DocumentId.equivalence(cast(1), cast(2))).toBe(false);
       expect(yield* decodeEffect(DocumentId)(1)).toBe(1);
     })
   );
@@ -143,27 +143,27 @@ describe("EntityMixin", () => {
   it.effect("exports literal vocabularies and descriptor statics", () =>
     Effect.gen(function* () {
       const descriptor = yield* S.decodeUnknownEffect(EntityMixin.FieldDescriptor)({
-      columnName: "document_id",
-      description: "Document id.",
-      key: "documentId",
-      nullable: false,
-      storageKind: "entityId",
-      valueStrategy: "provided",
-    });
+        columnName: "document_id",
+        description: "Document id.",
+        key: "documentId",
+        nullable: false,
+        storageKind: "entityId",
+        valueStrategy: "provided",
+      });
       const descriptorInput = yield* S.decodeUnknownEffect(EntityMixin.FieldDescriptorInput)({
-      columnName: "document_id",
-      description: "Document id.",
-      nullable: false,
-      storageKind: "entityId",
-      valueStrategy: "provided",
-    });
+        columnName: "document_id",
+        description: "Document id.",
+        nullable: false,
+        storageKind: "entityId",
+        valueStrategy: "provided",
+      });
 
-    expect(EntityMixin.StorageKind.is.entityId("entityId")).toBe(true);
-    expect(EntityMixin.ValueStrategy.is.provided("provided")).toBe(true);
-    expect(EntityMixin.IndexHintKind.is.lookup("lookup")).toBe(true);
-    expect(EntityMixin.FieldDescriptor.guards.entityId(descriptor)).toBe(true);
-    expect(EntityMixin.FieldDescriptorInput.guards.entityId(descriptorInput)).toBe(true);
-    expect(EntityMixin.FieldDescriptor.isAnyOf(["entityId"])(descriptor)).toBe(true);
+      expect(EntityMixin.StorageKind.is.entityId("entityId")).toBe(true);
+      expect(EntityMixin.ValueStrategy.is.provided("provided")).toBe(true);
+      expect(EntityMixin.IndexHintKind.is.lookup("lookup")).toBe(true);
+      expect(EntityMixin.FieldDescriptor.guards.entityId(descriptor)).toBe(true);
+      expect(EntityMixin.FieldDescriptorInput.guards.entityId(descriptorInput)).toBe(true);
+      expect(EntityMixin.FieldDescriptor.isAnyOf(["entityId"])(descriptor)).toBe(true);
     })
   );
 
@@ -372,11 +372,11 @@ describe("EntityRef and shared entity primitives", () => {
     Effect.gen(function* () {
       const id = yield* S.decodeUnknownEffect(DocumentId)(1);
       const ref = EntityRef.make(DocumentId, id);
-    const dataLastRef = EntityRef.make(id)(DocumentId);
+      const dataLastRef = EntityRef.make(id)(DocumentId);
       const resultRef = EntityRef.makeResult(DocumentId, id);
 
-    expect(ref.entityType).toBe("SharedDocument");
-    expect(dataLastRef.id).toBe(1);
+      expect(ref.entityType).toBe("SharedDocument");
+      expect(dataLastRef.id).toBe(1);
       expect(Result.isSuccess(resultRef)).toBe(true);
       if (Result.isSuccess(resultRef)) {
         expect(resultRef.success.id).toBe(1);
@@ -393,46 +393,46 @@ describe("EntityRef and shared entity primitives", () => {
   it.effect("decodes principals, source kinds, and barrel exports", () =>
     Effect.gen(function* () {
       const user = yield* decodeEffect(Principal.UserPrincipal)({
-      kind: "User",
-      userId: 1,
-    });
+        kind: "User",
+        userId: 1,
+      });
       const serviceAccount = yield* decodeEffect(Principal.ServiceAccountPrincipal)({
-      kind: "ServiceAccount",
-      serviceAccountId: 1,
-    });
+        kind: "ServiceAccount",
+        serviceAccountId: 1,
+      });
       const agent = yield* decodeEffect(Principal.AgentPrincipal)({
-      agentId: 1,
-      agentVersionId: 1,
-      kind: "Agent",
-      onBehalfOfUserId: 1,
-    });
+        agentId: 1,
+        agentVersionId: 1,
+        kind: "Agent",
+        onBehalfOfUserId: 1,
+      });
       const connector = yield* decodeEffect(Principal.ConnectorAccountPrincipal)({
-      connectorAccountId: 1,
-      kind: "ConnectorAccount",
-    });
+        connectorAccountId: 1,
+        kind: "ConnectorAccount",
+      });
       const system = yield* decodeEffect(Principal.SystemPrincipal)({
-      component: "Runtime",
-      kind: "System",
-    });
+        component: "Runtime",
+        kind: "System",
+      });
       const principal = yield* decodeEffect(Principal.Principal)({
-      component: "Runtime",
-      kind: "System",
-    });
+        component: "Runtime",
+        kind: "System",
+      });
 
-    expect(user.kind).toBe("User");
-    expect(O.isNone(serviceAccount.onBehalfOfUserId)).toBe(true);
-    expect(O.isNone(agent.onBehalfOfTeamId)).toBe(true);
-    expect(O.isNone(connector.onBehalfOfUserId)).toBe(true);
-    expect(system.component).toBe("Runtime");
-    expect(S.is(Principal.SystemPrincipal)(principal)).toBe(true);
-    expect(SourceKind.SourceKind.is.Agent("Agent")).toBe(true);
-    expect(EntityBarrel.BaseEntity.BaseEntity).toBe(BaseEntity.BaseEntity);
-    expect(EntityBarrel.EntityId.EntityIdValue).toBe(EntityId.EntityIdValue);
-    expect(EntityBarrel.EntityMixin.TypeId).toBe(EntityMixin.TypeId);
-    expect(EntityBarrel.EntityRef.EntityRef).toBe(EntityRef.EntityRef);
-    expect(EntityBarrel.Principal.Principal).toBe(Principal.Principal);
-    expect(EntityBarrel.primitives.VectorClock).toBe(primitives.VectorClock);
-    expect(EntityBarrel.SourceKind.SourceKind).toBe(SourceKind.SourceKind);
+      expect(user.kind).toBe("User");
+      expect(O.isNone(serviceAccount.onBehalfOfUserId)).toBe(true);
+      expect(O.isNone(agent.onBehalfOfTeamId)).toBe(true);
+      expect(O.isNone(connector.onBehalfOfUserId)).toBe(true);
+      expect(system.component).toBe("Runtime");
+      expect(S.is(Principal.SystemPrincipal)(principal)).toBe(true);
+      expect(SourceKind.SourceKind.is.Agent("Agent")).toBe(true);
+      expect(EntityBarrel.BaseEntity.BaseEntity).toBe(BaseEntity.BaseEntity);
+      expect(EntityBarrel.EntityId.EntityIdValue).toBe(EntityId.EntityIdValue);
+      expect(EntityBarrel.EntityMixin.TypeId).toBe(EntityMixin.TypeId);
+      expect(EntityBarrel.EntityRef.EntityRef).toBe(EntityRef.EntityRef);
+      expect(EntityBarrel.Principal.Principal).toBe(Principal.Principal);
+      expect(EntityBarrel.primitives.VectorClock).toBe(primitives.VectorClock);
+      expect(EntityBarrel.SourceKind.SourceKind).toBe(SourceKind.SourceKind);
     })
   );
 });

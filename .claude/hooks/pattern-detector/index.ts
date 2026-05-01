@@ -9,7 +9,7 @@ import { type PatternDefinition, PatternLevelOrder } from "../../patterns/schema
 import { findMatches, HookInput, loadPatterns } from "./core.ts";
 
 const decodeHookInput = S.decodeUnknownEffect(S.fromJsonString(HookInput));
-const encodeJson = S.encodeSync(S.UnknownFromJsonString);
+const encodeJson = S.encodeEffect(S.UnknownFromJsonString);
 
 const program = Effect.gen(function* () {
   const terminal = yield* Terminal.Terminal;
@@ -37,14 +37,13 @@ const program = Effect.gen(function* () {
         return `<${tag}>\n${p.body}\n</${tag}>`;
       })
     );
-    yield* Console.log(
-      encodeJson({
-        hookSpecificOutput: {
-          hookEventName: "PostToolUse",
-          additionalContext: A.join(blocks, "\n\n"),
-        },
-      })
-    );
+    const encoded = yield* encodeJson({
+      hookSpecificOutput: {
+        hookEventName: "PostToolUse",
+        additionalContext: A.join(blocks, "\n\n"),
+      },
+    });
+    yield* Console.log(encoded);
   }
 
   if (input.hook_event_name === "PreToolUse" && A.length(permission) > 0) {
@@ -52,15 +51,14 @@ const program = Effect.gen(function* () {
     const primary = pipe(sorted, A.head);
 
     if (O.isSome(primary)) {
-      yield* Console.log(
-        encodeJson({
-          hookSpecificOutput: {
-            hookEventName: "PreToolUse",
-            permissionDecision: primary.value.action,
-            permissionDecisionReason: primary.value.body,
-          },
-        })
-      );
+      const encoded = yield* encodeJson({
+        hookSpecificOutput: {
+          hookEventName: "PreToolUse",
+          permissionDecision: primary.value.action,
+          permissionDecisionReason: primary.value.body,
+        },
+      });
+      yield* Console.log(encoded);
     }
   }
 });

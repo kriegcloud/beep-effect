@@ -24,13 +24,15 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Clock, Duration, Effect, Exit, Match, Metric } from "effect";
+import { Clock, Duration, Effect, Exit, Match, Metric, Result } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("PhaseProfiler");
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const decodeNonNegativeInt = (input: unknown) =>
+  Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 
 interface ProfilePhaseOptions {
   readonly attributes?: Record<string, string> | undefined;

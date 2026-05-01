@@ -7,7 +7,7 @@
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { thunk0 } from "@beep/utils";
-import { Clock, Context, Effect, HashMap, Layer, MutableRef, Queue } from "effect";
+import { Clock, Context, Effect, HashMap, Layer, MutableRef, Queue, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -16,7 +16,9 @@ import * as DevToolsServer from "effect/unstable/devtools/DevToolsServer";
 import * as SocketServer from "effect/unstable/socket/SocketServer";
 
 const $I = $ObservabilityId.create("experimental/server/DevToolsRelay");
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const decodeNonNegativeInt = (input: unknown) =>
+  Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 const maxSpanEvents = 200;
 
 /**

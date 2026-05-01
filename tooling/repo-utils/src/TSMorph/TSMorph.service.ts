@@ -380,8 +380,7 @@ const decodeOrFail = <A, E extends TSMorphServiceError>(
   decode: (value: unknown) => Effect.Effect<A, S.SchemaError>,
   value: unknown,
   makeError: (message: string) => E
-): Effect.Effect<A, E> =>
-  decode(value).pipe(Effect.mapError(flow(schemaMessage, makeError)));
+): Effect.Effect<A, E> => decode(value).pipe(Effect.mapError(flow(schemaMessage, makeError)));
 
 const resolveAbsolutePath = (pathApi: Path.Path, repoRootPath: RepoRootPath, inputPath: string): string =>
   pathApi.normalize(pathApi.isAbsolute(inputPath) ? inputPath : pathApi.resolve(repoRootPath, inputPath));
@@ -1198,49 +1197,50 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       }),
       Effect.forEach(
         Effect.fnUntraced(function* (diagnostic) {
-        const start = diagnostic.getStart() ?? 0;
-        const length = diagnostic.getLength() ?? 0;
-        const end = start + length;
-        const startPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(start);
-        const endPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(end);
-        const source = diagnostic.getSource();
-        const filePathOption = S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath);
-        const decodeDiagnosticField = <A>(
-          decode: (value: unknown) => Effect.Effect<A, S.SchemaError>,
-          value: unknown,
-          label: string
-        ) =>
-          decodeOrFail(
-            decode,
-            value,
+          const start = diagnostic.getStart() ?? 0;
+          const length = diagnostic.getLength() ?? 0;
+          const end = start + length;
+          const startPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(start);
+          const endPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(end);
+          const source = diagnostic.getSource();
+          const filePathOption = S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath);
+          const decodeDiagnosticField = <A>(
+            decode: (value: unknown) => Effect.Effect<A, S.SchemaError>,
+            value: unknown,
+            label: string
+          ) =>
+            decodeOrFail(
+              decode,
+              value,
+              (message) =>
+                new TsMorphSourceFileError({
+                  scopeId: O.some(scope.scopeId),
+                  filePath: filePathOption,
+                  message: `Failed to normalize diagnostic ${label} for "${loadedSourceFile.filePath}": ${message}`,
+                })
+            );
+
+          return yield* decodeOrFail(
+            decodeTsMorphDiagnostic,
+            {
+              category: normalizeDiagnosticCategory(diagnostic.getCategory()),
+              code: yield* decodeDiagnosticField(decodeNonNegativeInt, diagnostic.getCode(), "code"),
+              message: flattenDiagnosticMessageText(diagnostic.getMessageText()),
+              source: source ?? null,
+              startLine: yield* decodeDiagnosticField(decodeLineNumber, startPosition.line, "start line"),
+              startColumn: yield* decodeDiagnosticField(decodeColumnNumber, startPosition.column, "start column"),
+              endLine: yield* decodeDiagnosticField(decodeLineNumber, endPosition.line, "end line"),
+              endColumn: yield* decodeDiagnosticField(decodeColumnNumber, endPosition.column, "end column"),
+            },
             (message) =>
               new TsMorphSourceFileError({
                 scopeId: O.some(scope.scopeId),
                 filePath: filePathOption,
-                message: `Failed to normalize diagnostic ${label} for "${loadedSourceFile.filePath}": ${message}`,
+                message: `Failed to normalize diagnostic for "${loadedSourceFile.filePath}": ${message}`,
               })
           );
-
-        return yield* decodeOrFail(
-          decodeTsMorphDiagnostic,
-          {
-            category: normalizeDiagnosticCategory(diagnostic.getCategory()),
-            code: yield* decodeDiagnosticField(decodeNonNegativeInt, diagnostic.getCode(), "code"),
-            message: flattenDiagnosticMessageText(diagnostic.getMessageText()),
-            source: source ?? null,
-            startLine: yield* decodeDiagnosticField(decodeLineNumber, startPosition.line, "start line"),
-            startColumn: yield* decodeDiagnosticField(decodeColumnNumber, startPosition.column, "start column"),
-            endLine: yield* decodeDiagnosticField(decodeLineNumber, endPosition.line, "end line"),
-            endColumn: yield* decodeDiagnosticField(decodeColumnNumber, endPosition.column, "end column"),
-          },
-          (message) =>
-            new TsMorphSourceFileError({
-              scopeId: O.some(scope.scopeId),
-              filePath: filePathOption,
-              message: `Failed to normalize diagnostic for "${loadedSourceFile.filePath}": ${message}`,
-            })
-        );
-      }),
+        })
+      ),
       Effect.map(A.sort(byNormalizedDiagnosticAscending))
     );
 

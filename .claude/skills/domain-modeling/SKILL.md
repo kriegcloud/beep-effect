@@ -197,6 +197,9 @@ export const makeCompleted = S.decodeEffect(Completed)
 - Use `Effect.mapError(...)` when schema errors cross a local boundary
 - Use `S.decodeResult` / `S.decodeUnknownResult` or `S.decodeUnknownOption`
   only for deliberate non-throwing synchronous helpers
+- Do not add `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or
+  `S.encodeUnknownSync`; if a legacy sync wrapper must throw, use Result
+  codecs with `Result.getOrThrowWith(...)` to map schema issues explicitly
 
 ### 3. Guards and Type Predicates
 

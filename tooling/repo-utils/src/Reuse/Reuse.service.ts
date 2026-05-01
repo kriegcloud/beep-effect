@@ -226,46 +226,47 @@ const CURATED_EFFECT_V4_ENTRIES = [
 
 const PATTERN_DEFINITIONS = [
   {
-    id: "schema-json-encode-sync",
+    id: "schema-json-encode-effect",
     kind: "extract-function",
-    title: "Shared schema JSON encoder helper",
-    regex: /S\.encodeUnknownSync\(S\.UnknownFromJsonString\)/u,
+    title: "Shared Effect schema JSON encoder helper",
+    regex: /S\.encode(?:Unknown)?Effect\(S\.(?:UnknownFromJsonString|fromJsonString\()/u,
     specialistLabel: "JSON codec specialist",
     rationale:
-      "Multiple files create the same schema JSON encoder inline, which is a high-confidence extraction candidate.",
+      "Multiple files create similar Effect schema JSON encoders inline, which is a high-confidence extraction candidate.",
     recommendedAction:
-      "Extract a shared schema JSON encoder helper and replace repeated inline initializers with the shared function.",
+      "Extract a shared Effect schema JSON encoder helper and replace repeated inline initializers with the shared function.",
     proposedDestinationPackage: "@beep/schema",
     proposedDestinationModule: "packages/common/schema/src/json/SchemaJsonCodec.ts",
     blockingConcerns: [
-      "Confirm the shared helper preserves existing formatting and caller expectations before replacing all call sites.",
+      "Confirm the shared helper preserves caller-specific schema error mapping before replacing all call sites.",
     ],
     implementationSteps: [
-      "Create a schema JSON codec helper in the proposed destination module.",
+      "Create an Effect-returning schema JSON encoder helper in the proposed destination module.",
       "Replace repeated inline encoder initializers with the shared helper.",
-      "Re-run tooling command tests that rely on JSON rendering or manifest generation.",
+      "Map schema errors into each caller's local typed error before returning across command or service boundaries.",
     ],
     verificationCommands: ["bun run check --filter=@beep/repo-cli", "bun run test --filter=@beep/repo-cli"],
     catalogKeywords: ["schema", "json", "encode"],
   },
   {
-    id: "schema-json-decode-sync",
+    id: "schema-json-decode-effect",
     kind: "extract-function",
-    title: "Shared schema JSON decoder helper",
-    regex: /S\.decodeUnknownSync\(S\.UnknownFromJsonString\)/u,
+    title: "Shared Effect schema JSON decoder helper",
+    regex: /S\.decode(?:Unknown)?Effect\(S\.(?:UnknownFromJsonString|fromJsonString\()/u,
     specialistLabel: "JSON codec specialist",
     rationale:
-      "Multiple files decode JSON strings through the same Schema helper shape, which is a good candidate for a shared boundary utility.",
-    recommendedAction: "Extract a shared schema JSON decoder helper and route repeated inline decoders through it.",
+      "Multiple files decode JSON strings through similar Effect schema helpers, which is a good candidate for a shared boundary utility.",
+    recommendedAction:
+      "Extract a shared Effect schema JSON decoder helper and route repeated inline decoders through it.",
     proposedDestinationPackage: "@beep/schema",
     proposedDestinationModule: "packages/common/schema/src/json/SchemaJsonCodec.ts",
     blockingConcerns: [
-      "Confirm callers agree on sync decoding semantics and failure presentation before centralizing the helper.",
+      "Confirm callers agree on the Effect error shape and map schema issues into local typed boundary errors.",
     ],
     implementationSteps: [
-      "Create a shared decoder helper adjacent to the encoder helper or an existing JSON boundary module.",
+      "Create an Effect-returning decoder helper adjacent to the encoder helper or an existing JSON boundary module.",
       "Replace repeated inline decoder initializers with the shared helper.",
-      "Verify callers still render decode failures with the same user-facing text.",
+      "Verify callers still render decode failures with the same user-facing text after Effect.mapError mapping.",
     ],
     verificationCommands: ["bun run check --filter=@beep/repo-cli", "bun run test --filter=@beep/repo-cli"],
     catalogKeywords: ["schema", "json", "decode"],
@@ -580,11 +581,7 @@ const resolveScopeRequest = (
     mode: "syntax",
     referencePolicy: "workspaceOnly",
     repoRootPath: repoRoot,
-  }).pipe(
-    Effect.mapError(
-      mapAnalysisError(operation, `Failed to build ts-morph scope request for ${packagePath}`)
-    )
-  );
+  }).pipe(Effect.mapError(mapAnalysisError(operation, `Failed to build ts-morph scope request for ${packagePath}`)));
 
 const scanPatternsInFile = (
   filePath: string,
@@ -834,9 +831,7 @@ const collectCatalogEntriesForScope = (analysisContext: ReuseAnalysisContextShap
             mapAnalysisError("collectCatalogEntriesForScope", `Failed to build file outline request for ${filePath}`)
           )
         );
-        const outlineOption = yield* runtime.tsmorph
-          .getFileOutline(fileOutlineRequest)
-          .pipe(Effect.option);
+        const outlineOption = yield* runtime.tsmorph.getFileOutline(fileOutlineRequest).pipe(Effect.option);
 
         if (O.isNone(outlineOption)) {
           continue;
@@ -892,9 +887,7 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
             )
           )
         );
-        const outlineOption = yield* runtime.tsmorph
-          .getFileOutline(fileOutlineRequest)
-          .pipe(Effect.option);
+        const outlineOption = yield* runtime.tsmorph.getFileOutline(fileOutlineRequest).pipe(Effect.option);
 
         if (O.isNone(sourceTextOption)) {
           continue;
@@ -1224,9 +1217,7 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
         scoutUnits,
         specialistUnits,
         catalogEntryCount: yield* decodeNonNegativeInt(catalogEntries.length).pipe(
-          Effect.mapError(
-            mapAnalysisError("buildPartitions", "Failed to normalize reuse catalog entry count")
-          )
+          Effect.mapError(mapAnalysisError("buildPartitions", "Failed to normalize reuse catalog entry count"))
         ),
       });
     });

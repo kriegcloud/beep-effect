@@ -43,6 +43,7 @@ type IssuePathSegment = NonNullable<StandardSchemaV1.Issue["path"]>[number];
 const decodeBrowserResult = S.decodeUnknownResult(Browser);
 const decodePackageExportsResult = S.decodeUnknownResult(PackageExports);
 const decodePackageImportsResult = S.decodeUnknownResult(PackageImports);
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 const decodePeerDependenciesMetaResult = S.decodeUnknownResult(PeerDependenciesMeta);
 const decodePublishConfigResult = S.decodeUnknownResult(PublishConfig);
 const decodeTypesVersionsResult = S.decodeUnknownResult(TypesVersions);
@@ -125,7 +126,7 @@ const canonicalizePublishConfig = (
     out = R.set(out, key, canonicalizeUnknownValue(entryValue));
   }
 
-  return Result.getOrThrow(decodePublishConfigResult(out));
+  return Result.getOrThrowWith(decodePublishConfigResult(out), schemaIssueToError);
 };
 
 const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJson.Encoded => {
@@ -153,16 +154,26 @@ const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJs
     ...(encoded.typings === undefined ? {} : { typings: encoded.typings }),
     ...(encoded.exports === undefined
       ? {}
-      : { exports: Result.getOrThrow(decodePackageExportsResult(canonicalizeUnknownValue(encoded.exports))) }),
+      : {
+          exports: Result.getOrThrowWith(
+            decodePackageExportsResult(canonicalizeUnknownValue(encoded.exports)),
+            schemaIssueToError
+          ),
+        }),
     ...(encoded.imports === undefined
       ? {}
-      : { imports: Result.getOrThrow(decodePackageImportsResult(canonicalizeUnknownValue(encoded.imports))) }),
+      : {
+          imports: Result.getOrThrowWith(
+            decodePackageImportsResult(canonicalizeUnknownValue(encoded.imports)),
+            schemaIssueToError
+          ),
+        }),
     ...(encoded.browser === undefined
       ? {}
       : {
           browser: P.isString(encoded.browser)
             ? encoded.browser
-            : Result.getOrThrow(decodeBrowserResult(canonicalizeUnknownValue(encoded.browser))),
+            : Result.getOrThrowWith(decodeBrowserResult(canonicalizeUnknownValue(encoded.browser)), schemaIssueToError),
         }),
     ...(encoded.bin === undefined ? {} : { bin: encoded.bin }),
     ...(encoded.man === undefined ? {} : { man: encoded.man }),
@@ -206,7 +217,12 @@ const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJs
     ...(encoded.readme === undefined ? {} : { readme: encoded.readme }),
     ...(encoded.typesVersions === undefined
       ? {}
-      : { typesVersions: Result.getOrThrow(decodeTypesVersionsResult(canonicalizeUnknownValue(encoded.typesVersions))) }),
+      : {
+          typesVersions: Result.getOrThrowWith(
+            decodeTypesVersionsResult(canonicalizeUnknownValue(encoded.typesVersions)),
+            schemaIssueToError
+          ),
+        }),
   };
 };
 

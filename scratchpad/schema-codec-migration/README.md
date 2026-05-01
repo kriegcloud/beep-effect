@@ -5,8 +5,8 @@ Generated during the Phase 1 inventory pass for replacing sync schema codecs wit
 ## Raw Inventory
 
 - Raw exact hit list: `scratchpad/schema-codec-migration/sync-codec.raw.txt`
-- Raw rows captured: 839
-- Exact `S.*Sync` / `Schema.*Sync` / `SchemaParser.*Sync` rows in the raw inventory: 769
+- Raw rows captured after the implementation pass: 687
+- Active source rows after excluding comments, tests, docs, dtslint, generated docs, and guidance text: 0
 
 ## Classification
 
@@ -29,4 +29,4 @@ When migrating to `S.decodeUnknownEffect`, `S.decodeEffect`, `S.encodeUnknownEff
 
 - Highest-volume test/JSDoc clusters: `packages/common/schema/test/HttpHeaders.test.ts`, `tooling/repo-utils/test/TSMorph.model.test.ts`, `packages/common/schema/test/Graph.test.ts`, `packages/common/schema/test/ProvO.test.ts`, `packages/common/semantic-web/test/JsonLd.test.ts`.
 - Highest-risk runtime clusters: `tooling/repo-utils/src/TSMorph`, `packages/common/semantic-web/src/adapters`, `tooling/cli/src/commands`, `tooling/docgen/src`, and shared entity constructors.
-- Guidance risks: `.claude/skills/domain-modeling/SKILL.md`, `.claude/patterns/code-smells/avoid-direct-json.md`, and dual-arity policy fixtures that still bless schema sync factories.
+- Guidance pass: repo-local Effect/schema skills now steer agents toward Effect codecs, explicit `Effect.mapError(...)` at boundaries, and `Result.getOrThrowWith(...)` only when preserving a legacy throwing sync wrapper.
