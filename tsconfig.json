@@ -88,8 +88,12 @@
       ],
       "@beep/nlp": ["./packages/foundation/capability/nlp/src/index.ts"],
       "@beep/nlp/*": ["./packages/foundation/capability/nlp/src/*"],
-      "@beep/observability": ["./packages/common/observability/src/index.ts"],
-      "@beep/observability/*": ["./packages/common/observability/src/*"],
+      "@beep/observability": [
+        "./packages/foundation/capability/observability/src/index.ts"
+      ],
+      "@beep/observability/*": [
+        "./packages/foundation/capability/observability/src/*"
+      ],
       "@beep/colors": ["./packages/foundation/capability/colors/src/index.ts"],
       "@beep/colors/*": ["./packages/foundation/capability/colors/src/*"],
       "@beep/chalk": ["./packages/foundation/capability/chalk/src/index.ts"],
@@ -225,13 +229,13 @@
         "./packages/foundation/capability/nlp/src/Wink/index.ts"
       ],
       "@beep/observability/experimental/server": [
-        "./packages/common/observability/src/experimental/server/index.ts"
+        "./packages/foundation/capability/observability/src/experimental/server/index.ts"
       ],
       "@beep/observability/server": [
-        "./packages/common/observability/src/server/index.ts"
+        "./packages/foundation/capability/observability/src/server/index.ts"
       ],
       "@beep/observability/web": [
-        "./packages/common/observability/src/web/index.ts"
+        "./packages/foundation/capability/observability/src/web/index.ts"
       ],
       "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
       "@beep/shared-domain/*": ["./packages/shared/domain/src/*"],

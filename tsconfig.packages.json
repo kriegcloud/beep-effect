@@ -22,9 +22,6 @@
       "path": "packages/_internal/db-admin"
     },
     {
-      "path": "packages/common/observability"
-    },
-    {
       "path": "packages/common/ui"
     },
     {
@@ -68,6 +65,9 @@
     },
     {
       "path": "packages/foundation/capability/nlp"
+    },
+    {
+      "path": "packages/foundation/capability/observability"
     },
     {
       "path": "packages/foundation/capability/semantic-web"

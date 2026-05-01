@@ -1,6 +1,6 @@
 {
-  "extends": "../../../../../tsconfig.base.json",
-  "include": ["./browser-safe.ts", "../../src/**/*.ts"],
+  "extends": "../../../../../../tsconfig.base.json",
+  "include": ["./server-safe.ts", "../../src/**/*.ts"],
   "compilerOptions": {
     "composite": false,
     "declaration": false,
@@ -9,6 +9,6 @@
     "noEmit": true,
     "rootDir": "../..",
     "sourceMap": false,
-    "types": []
+    "types": ["node"]
   }
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
-  "extends": "../../../tsconfig.base.json",
-  "include": ["examples/**/*.ts", "src/**/*.ts"],
+  "extends": "../../../../../../tsconfig.base.json",
+  "include": ["experimental-server-safe.ts", "../../src/**/*.ts"],
   "compilerOptions": {
     "composite": false,
     "declaration": false,
@@ -10,7 +10,8 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "rootDir": ".",
-    "sourceMap": false
+    "rootDir": "../..",
+    "sourceMap": false,
+    "types": ["node"]
   }
 }

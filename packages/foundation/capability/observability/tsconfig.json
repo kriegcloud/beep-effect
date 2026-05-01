@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [
+    {
+      "path": "../colors/tsconfig.json"
+    },
+    {
+      "path": "../../modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../modeling/schema/tsconfig.json"
+    }
+  ]
+}

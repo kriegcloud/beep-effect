@@ -1,14 +1,16 @@
 {
+  "$schema": "http://json.schemastore.org/tsconfig",
   "extends": "../../../../../tsconfig.base.json",
-  "include": ["./server-safe.ts", "../../src/**/*.ts"],
+  "include": ["./**/*.ts", "../src/**/*.ts"],
   "compilerOptions": {
     "composite": false,
     "declaration": false,
     "declarationMap": false,
     "incremental": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmit": true,
-    "rootDir": "../..",
-    "sourceMap": false,
-    "types": ["node"]
+    "rootDir": "..",
+    "sourceMap": false
   }
 }

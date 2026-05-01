@@ -1,7 +1,7 @@
 {
-  "$schema": "../../../tooling/docgen/schema.json",
+  "$schema": "../../../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts", "src/models/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/observability/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/capability/observability/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -30,40 +30,40 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/observability": [
-        "../../../packages/common/observability/src/index.ts"
+        "../../../../packages/foundation/capability/observability/src/index.ts"
       ],
       "@beep/observability/*": [
-        "../../../packages/common/observability/src/*.ts"
+        "../../../../packages/foundation/capability/observability/src/*.ts"
       ],
       "@beep/observability/experimental/server": [
-        "../../../packages/common/observability/src/experimental/server/index.ts"
+        "../../../../packages/foundation/capability/observability/src/experimental/server/index.ts"
       ],
       "@beep/observability/server": [
-        "../../../packages/common/observability/src/server/index.ts"
+        "../../../../packages/foundation/capability/observability/src/server/index.ts"
       ],
       "@beep/observability/web": [
-        "../../../packages/common/observability/src/web/index.ts"
+        "../../../../packages/foundation/capability/observability/src/web/index.ts"
       ],
       "@beep/colors": [
-        "../../../packages/foundation/capability/colors/src/index.ts"
+        "../../../../packages/foundation/capability/colors/src/index.ts"
       ],
       "@beep/colors/*": [
-        "../../../packages/foundation/capability/colors/src/*.ts"
+        "../../../../packages/foundation/capability/colors/src/*.ts"
       ],
       "@beep/identity": [
-        "../../../packages/foundation/modeling/identity/src/index.ts"
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
       ],
       "@beep/identity/*": [
-        "../../../packages/foundation/modeling/identity/src/*.ts"
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
       ],
       "@beep/identity/packages": [
-        "../../../packages/foundation/modeling/identity/src/packages.ts"
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/schema": [
-        "../../../packages/foundation/modeling/schema/src/index.ts"
+        "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],
       "@beep/schema/*": [
-        "../../../packages/foundation/modeling/schema/src/*.ts"
+        "../../../../packages/foundation/modeling/schema/src/*.ts"
       ]
     }
   }

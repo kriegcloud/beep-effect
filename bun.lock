@@ -164,29 +164,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/common/observability": {
-      "name": "@beep/observability",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/colors": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@effect/opentelemetry": "catalog:",
-        "@opentelemetry/exporter-logs-otlp-http": "0.215.0",
-        "@opentelemetry/exporter-metrics-otlp-http": "0.215.0",
-        "@opentelemetry/exporter-trace-otlp-http": "0.215.0",
-        "@opentelemetry/resources": "^2.6.1",
-        "@opentelemetry/sdk-logs": "^0.211.0",
-        "@opentelemetry/sdk-metrics": "^2.5.0",
-        "@opentelemetry/sdk-trace-base": "^2.5.0",
-        "@opentelemetry/sdk-trace-node": "^2.2.0",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/common/ui": {
       "name": "@beep/ui",
       "version": "0.0.0",
@@ -446,6 +423,29 @@
         "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/observability": {
+      "name": "@beep/observability",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/colors": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@effect/opentelemetry": "catalog:",
+        "@opentelemetry/exporter-logs-otlp-http": "0.215.0",
+        "@opentelemetry/exporter-metrics-otlp-http": "0.215.0",
+        "@opentelemetry/exporter-trace-otlp-http": "0.215.0",
+        "@opentelemetry/resources": "^2.6.1",
+        "@opentelemetry/sdk-logs": "^0.211.0",
+        "@opentelemetry/sdk-metrics": "^2.5.0",
+        "@opentelemetry/sdk-trace-base": "^2.5.0",
+        "@opentelemetry/sdk-trace-node": "^2.2.0",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
     },
@@ -1312,7 +1312,7 @@
 
     "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/capability/nlp"],
 
-    "@beep/observability": ["@beep/observability@workspace:packages/common/observability"],
+    "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
 
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
 
