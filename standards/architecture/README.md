@@ -26,16 +26,16 @@ Use the routing table below to translate current repo names while migrating; do
 not treat legacy roots, package-root exports, or `./*` wildcard exports as the
 normative target shape.
 
-| Current label | Route to target |
-|---|---|
-| `providers` | `drivers` |
-| `env` | `config` |
-| `protocol` | `use-cases/public` when client-safe; otherwise `use-cases/server` |
-| `runtime` | `server` or `client`; use `drivers` only when wrapping an external engine; treat top-level app assembly as an entrypoint concern, not a canonical package family |
-| `common` | `foundation` by default; use `shared/*` or a concrete slice when the code carries product semantics |
-| `core` | `foundation` for runtime-neutral substrate; otherwise `shared/*` or a concrete slice when the code carries product semantics |
-| `utils` | `foundation` for domain-agnostic helpers; otherwise route to `shared/*` or the owning slice |
-| `lib` | `foundation` by default; route to `shared/*`, `drivers`, or a concrete slice when the code has a clearer boundary |
+| Current label | Route to target                                                                                                                                                  |
+|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `providers`   | `drivers`                                                                                                                                                        |
+| `env`         | `config`                                                                                                                                                         |
+| `protocol`    | `use-cases/public` when client-safe; otherwise `use-cases/server`                                                                                                |
+| `runtime`     | `server` or `client`; use `drivers` only when wrapping an external engine; treat top-level app assembly as an entrypoint concern, not a canonical package family |
+| `common`      | `foundation` by default; use `shared/*` or a concrete slice when the code carries product semantics                                                              |
+| `core`        | `foundation` for runtime-neutral substrate; otherwise `shared/*` or a concrete slice when the code carries product semantics                                     |
+| `utils`       | `foundation` for domain-agnostic helpers; otherwise route to `shared/*` or the owning slice                                                                      |
+| `lib`         | `foundation` by default; route to `shared/*`, `drivers`, or a concrete slice when the code has a clearer boundary                                                |
 
 Boundary-sensitive packages use explicit subpaths as the canonical contract.
 Package roots and `./*` exports may still exist during migration, but they are
@@ -53,26 +53,26 @@ package families.
 
 ## Document Index
 
-| Document | Purpose |
-|---|---|
-| [`GLOSSARY.md`](GLOSSARY.md) | Canonical taxonomy for architecture terms. |
-| [`DECISIONS.md`](DECISIONS.md) | Dated decision log and amendment trail. |
-| [`00-philosophy.md`](00-philosophy.md) | North star and grounding principles. |
-| [`01-hexagonal-vertical-slices.md`](01-hexagonal-vertical-slices.md) | Why slices combine hexagonal ports with vertical package topology. |
-| [`02-shared-kernel.md`](02-shared-kernel.md) | Why `shared` is a DDD shared kernel, not a dump. |
-| [`03-driver-boundaries.md`](03-driver-boundaries.md) | Why drivers expose technical capability while server implements product ports. |
-| [`04-rich-domain-model.md`](04-rich-domain-model.md) | Why the repo prefers hybrid rich domain models over anemic data bags. |
-| [`05-layer-composition.md`](05-layer-composition.md) | Why slice-local Layer composition replaces runtime God Layers. |
-| [`06-configuration-boundaries.md`](06-configuration-boundaries.md) | Why config is a typed contract package, not env access or a constants dump. |
-| [`07-non-slice-families.md`](07-non-slice-families.md) | Why foundation, drivers, tooling, and agents need explicit topology grammar. |
+| Document                                                             | Purpose                                                                        |
+|----------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`GLOSSARY.md`](GLOSSARY.md)                                         | Canonical taxonomy for architecture terms.                                     |
+| [`DECISIONS.md`](DECISIONS.md)                                       | Dated decision log and amendment trail.                                        |
+| [`00-philosophy.md`](00-philosophy.md)                               | North star and grounding principles.                                           |
+| [`01-hexagonal-vertical-slices.md`](01-hexagonal-vertical-slices.md) | Why slices combine hexagonal ports with vertical package topology.             |
+| [`02-shared-kernel.md`](02-shared-kernel.md)                         | Why `shared` is a DDD shared kernel, not a dump.                               |
+| [`03-driver-boundaries.md`](03-driver-boundaries.md)                 | Why drivers expose technical capability while server implements product ports. |
+| [`04-rich-domain-model.md`](04-rich-domain-model.md)                 | Why the repo prefers hybrid rich domain models over anemic data bags.          |
+| [`05-layer-composition.md`](05-layer-composition.md)                 | Why slice-local Layer composition replaces runtime God Layers.                 |
+| [`06-configuration-boundaries.md`](06-configuration-boundaries.md)   | Why config is a typed contract package, not env access or a constants dump.    |
+| [`07-non-slice-families.md`](07-non-slice-families.md)               | Why foundation, drivers, tooling, and agents need explicit topology grammar.   |
 
 ## Relationship To Standards
 
-| Standard | Relationship |
-|---|---|
-| [`../ARCHITECTURE.md`](../ARCHITECTURE.md) | Binding architecture constitution. |
-| [`../effect-first-development.md`](../effect-first-development.md) | Effect implementation style used inside the architecture. |
-| [`../effect-laws-v1.md`](../effect-laws-v1.md) | Repo-wide Effect law checks that implementation must satisfy. |
+| Standard                                                               | Relationship                                                   |
+|------------------------------------------------------------------------|----------------------------------------------------------------|
+| [`../ARCHITECTURE.md`](../ARCHITECTURE.md)                             | Binding architecture constitution.                             |
+| [`../effect-first-development.md`](../effect-first-development.md)     | Effect implementation style used inside the architecture.      |
+| [`../effect-laws-v1.md`](../effect-laws-v1.md)                         | Repo-wide Effect law checks that implementation must satisfy.  |
 | [`../memory-architecture/README.md`](../memory-architecture/README.md) | Precedent for standards that close architectural search space. |
 
 ## Anti-Goals
