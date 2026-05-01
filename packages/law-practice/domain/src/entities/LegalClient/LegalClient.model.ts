@@ -7,7 +7,9 @@
 import { $LawPracticeDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
-import { LegalClientProfilePack } from "./LegalClient.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { LegalClientStatus } from "./LegalClient.values.js";
 
 const $I = $LawPracticeDomainId.create("entities/LegalClient/LegalClient.model");
 
@@ -24,10 +26,26 @@ const $I = $LawPracticeDomainId.create("entities/LegalClient/LegalClient.model")
  * @category models
  * @since 0.0.0
  */
-export class LegalClient extends BaseEntity.extend<LegalClient>($I`LegalClient`)(
+export class LegalClient extends BaseEntity.Class<LegalClient>($I`LegalClient`)(
   LawPractice.LegalClientId,
-  LegalClientProfilePack,
-  {},
+  {
+    fields: {
+      displayName: S.String,
+      fixtureKey: S.String,
+      status: LegalClientStatus,
+    },
+    persisted: {
+      displayName: EntitySchema.persist.text({
+        columnName: "display_name",
+      }),
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+      }),
+      status: EntitySchema.persist.literal({
+        columnName: "status",
+      }),
+    },
+  },
   $I.annote("LegalClient", {
     description: "Legal client context.",
   })

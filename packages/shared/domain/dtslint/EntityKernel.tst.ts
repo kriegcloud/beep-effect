@@ -1,12 +1,12 @@
 import { $SharedDomainId } from "@beep/identity/packages";
-import * as Model from "@beep/schema/Model";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as DomainBarrel from "@beep/shared-domain";
 import * as EntityBarrel from "@beep/shared-domain/entity";
 import * as BaseEntity from "@beep/shared-domain/entity/BaseEntity";
 import * as EntityId from "@beep/shared-domain/entity/EntityId";
-import * as EntityMixin from "@beep/shared-domain/entity/EntityMixin";
 import * as EntityRef from "@beep/shared-domain/entity/EntityRef";
 import type * as Shared from "@beep/shared-domain/identity/Shared";
+import type * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
@@ -20,54 +20,31 @@ const CustomDocumentId = makeSharedId("document", {
   tableName: "custom_document",
 });
 
-const NoteMixin = EntityMixin.make($I`NoteMixin`)(
+class Document extends BaseEntity.BaseEntity.Class<Document>($I`Document`)(
+  DocumentId,
   {
-    note: S.String,
-  },
-  {
-    description: "Adds note text.",
     fields: {
-      note: {
+      note: S.String,
+      optionalNote: S.String.pipe(S.OptionFromNullOr),
+      payload: S.Record(S.String, S.Unknown),
+    },
+    persisted: {
+      note: EntitySchema.persist.text({
         columnName: "note",
-        description: "Note text.",
-        nullable: false,
-        storageKind: "text",
-        valueStrategy: "provided",
-      },
+      }),
+      optionalNote: EntitySchema.persist.text({
+        columnName: "optional_note",
+        indexHints: [EntitySchema.IndexHint.lookup],
+      }),
+      payload: EntitySchema.persist.jsonb(),
     },
-  }
-);
-
-const OverrideMixin = EntityMixin.make($I`OverrideMixin`)(
-  {
-    note: EntityMixin.Override(S.Number, "Numeric note score."),
   },
-  {
-    description: "Overrides note text.",
-    fields: {
-      note: {
-        columnName: "note_score",
-        description: "Note score.",
-        nullable: false,
-        storageKind: "int",
-        valueStrategy: "computedByService",
-      },
-    },
-  }
-);
+  $I.annote("Document", {
+    description: "Document entity.",
+  })
+) {}
 
-const NotePack = EntityMixin.pack(NoteMixin);
-const OverridePack = EntityMixin.pack(NoteMixin, OverrideMixin);
-const documentFields = {};
-const directDocumentFields = {
-  title: Model.GeneratedByApp(S.String),
-};
 declare const documentIdValue: typeof DocumentId.Type;
-
-class Document extends BaseEntity.BaseEntity.extend<Document>($I`Document`)(DocumentId, NotePack, documentFields) {}
-
-// @ts-expect-error!
-BaseEntity.BaseEntity.extend($I`DirectDocument`)(DocumentId, NotePack, directDocumentFields);
 
 describe("shared entity kernel types", () => {
   it("preserves EntityId literals and statics", () => {
@@ -86,34 +63,37 @@ describe("shared entity kernel types", () => {
     expect<typeof DocumentId.Type>().type.toBe<EntityId.EntityIdValueFor<"SharedDocumentId">>();
   });
 
-  it("preserves EntityRef and BaseEntity field map types", () => {
+  it("preserves EntityRef and BaseEntity definition types", () => {
     const ref = EntityRef.make(DocumentId, documentIdValue);
-    const fieldMap = BaseEntity.fieldMapFor(DocumentId, NotePack);
 
     expect(ref).type.toBeAssignableTo<EntityRef.EntityRef>();
-    expect<typeof fieldMap.id.storageKind>().type.toBe<"entityId">();
-    expect<typeof fieldMap.entityType.storageKind>().type.toBe<"literal">();
-    expect<typeof fieldMap.note.columnName>().type.toBe<"note">();
-    expect<typeof fieldMap.note.nullable>().type.toBe<false>();
+    expect<typeof BaseEntity.BaseEntity.definition.persisted.createdAt.storageKind>().type.toBe<"timestampMillis">();
+    expect<typeof BaseEntity.BaseEntity.definition.persisted.orgId.storageKind>().type.toBe<"entityId">();
     expect<typeof Document.definition.entityId.tableName>().type.toBe<"shared_document">();
-    expect<typeof Document.definition.fieldMap.note.storageKind>().type.toBe<"text">();
-    expect<(typeof Document.definition.mixins.fieldKeys)[number]>().type.toBe<"note">();
+    expect<typeof Document.definition.persisted.id.storageKind>().type.toBe<"entityId">();
+    expect<typeof Document.definition.persisted.id.valueStrategy>().type.toBe<"generatedOnInsert">();
+    expect<typeof Document.definition.persisted.note.columnName>().type.toBe<"note">();
+    expect<typeof Document.definition.persisted.note.storageKind>().type.toBe<"text">();
+    expect<typeof Document.definition.persisted.optionalNote.columnName>().type.toBe<"optional_note">();
+    expect<(typeof Document.definition.persisted.optionalNote.indexHints)[0]["kind"]>().type.toBe<"lookup">();
     expect<EntityRef.EntityRefFor<typeof DocumentId>["id"]>().type.toBe<typeof DocumentId.Type>();
   });
 
-  it("preserves mixin field maps and override typing", () => {
-    expect<typeof NotePack.fields.note>().type.toBe<typeof S.String>();
-    expect<typeof NotePack.fieldMap.note.columnName>().type.toBe<"note">();
-    expect<typeof OverridePack.fields.note>().type.toBe<typeof S.Number>();
-    expect<typeof OverridePack.fieldMap.note.columnName>().type.toBe<"note_score">();
-    expect<typeof OverridePack.fieldMap.note.storageKind>().type.toBe<"int">();
+  it("preserves decoded field types and generated variants", () => {
+    expect<Document["id"]>().type.toBe<typeof DocumentId.Type>();
+    expect<Document["orgId"]>().type.toBe<Shared.OrganizationId>();
+    expect<Document["optionalNote"]>().type.toBe<O.Option<string>>();
+    expect<typeof Document.fields.optionalNote.Type>().type.toBe<O.Option<string>>();
+    expect<"id">().type.not.toBeAssignableTo<keyof S.Schema.Type<typeof Document.insert>>();
+    expect<"entityType">().type.toBeAssignableTo<keyof S.Schema.Type<typeof Document.insert>>();
+    expect<"note">().type.toBeAssignableTo<keyof S.Schema.Type<typeof Document.insert>>();
   });
 
   it("keeps public barrel exports type-equivalent to module exports", () => {
     expect(EntityBarrel.BaseEntity.BaseEntity).type.toBe<typeof BaseEntity.BaseEntity>();
     expect(EntityBarrel.EntityId.EntityIdValue).type.toBe<typeof EntityId.EntityIdValue>();
-    expect(EntityBarrel.EntityMixin.TypeId).type.toBe<typeof EntityMixin.TypeId>();
     expect(EntityBarrel.EntityRef.EntityRef).type.toBe<typeof EntityRef.EntityRef>();
     expect(DomainBarrel.Identity.Shared.OrganizationId).type.toBe<typeof Shared.OrganizationId>();
+    expect(DomainBarrel.BaseEntity.BaseEntity).type.toBe<typeof BaseEntity.BaseEntity>();
   });
 });

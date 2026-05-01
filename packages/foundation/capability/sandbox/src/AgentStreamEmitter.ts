@@ -2,7 +2,6 @@
  *
  */
 import { $SandboxId } from "@beep/identity";
-import { PosInt } from "@beep/schema";
 import { Context, Effect, Layer, Result } from "effect";
 import * as S from "effect/Schema";
 
@@ -19,15 +18,15 @@ const $I = $SandboxId.create("AgentStreamEmitter");
  * @since 0.0.0
  */
 export const AgentStreamEvent = S.TaggedUnion({
-  text: {
+  Text: {
     message: S.String,
-    iteration: PosInt,
+    iteration: S.Number,
     timestamp: S.DateTimeUtcFromDate,
   },
-  toolCall: {
+  ToolCall: {
     name: S.String,
     formattedArgs: S.String,
-    iteration: PosInt,
+    iteration: S.Number,
     timestamp: S.DateTimeUtcFromDate,
   },
 }).pipe(
@@ -39,20 +38,56 @@ export const AgentStreamEvent = S.TaggedUnion({
   })
 );
 
+/**
+ * Runtime type for {@link AgentStreamEvent}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type AgentStreamEvent = typeof AgentStreamEvent.Type;
 
+/**
+ * Encoded agent stream event helpers.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export declare namespace AgentStreamEvent {
+  /**
+   * Encoded representation of {@link AgentStreamEvent}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
   export type Encoded = typeof AgentStreamEvent.Encoded;
 }
 
+/**
+ * Agent stream emitter service shape.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export interface AgentStreamEmitterShape {
   readonly emit: (event: AgentStreamEvent) => Effect.Effect<void>;
 }
 
+/**
+ * Agent stream emitter service.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export class AgentStreamEmitter extends Context.Service<AgentStreamEmitter, AgentStreamEmitterShape>()(
   $I`AgentStreamEmitter`
 ) {}
 
+/**
+ * Agent stream emitter layer that discards events.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
 export const noopAgentStreamEmitterLayer: Layer.Layer<AgentStreamEmitter> = Layer.succeed(AgentStreamEmitter, {
   emit: Effect.fnUntraced(function* () {
     return yield* Effect.void;
@@ -64,6 +99,9 @@ export const noopAgentStreamEmitterLayer: Layer.Layer<AgentStreamEmitter> = Laye
  * The callback is invoked synchronously inside an `Effect.sync`; any error
  * thrown by the callback is caught and discarded so observability failures
  * cannot kill the run.
+ *
+ * @category layers
+ * @since 0.0.0
  */
 export const callbackAgentStreamEmitterLayer = (
   onEvent: (event: AgentStreamEvent) => void

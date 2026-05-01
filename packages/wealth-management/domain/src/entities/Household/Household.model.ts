@@ -8,7 +8,9 @@
 import { $WealthManagementDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as WealthManagement from "@beep/shared-domain/identity/WealthManagement";
-import { HouseholdProfilePack } from "./Household.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { HouseholdStatus } from "./Household.values.js";
 
 const $I = $WealthManagementDomainId.create("entities/Household/Household.model");
 
@@ -25,10 +27,28 @@ const $I = $WealthManagementDomainId.create("entities/Household/Household.model"
  * @category models
  * @since 0.0.0
  */
-export class Household extends BaseEntity.extend<Household>($I`Household`)(
+export class Household extends BaseEntity.Class<Household>($I`Household`)(
   WealthManagement.HouseholdId,
-  HouseholdProfilePack,
-  {},
+  {
+    fields: {
+      displayName: S.String,
+      fixtureKey: S.String,
+      status: HouseholdStatus,
+    },
+    persisted: {
+      displayName: EntitySchema.persist.text({
+        columnName: "display_name",
+      }),
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+        indexHints: [EntitySchema.IndexHint.unique],
+      }),
+      status: EntitySchema.persist.literal({
+        columnName: "status",
+        indexHints: [EntitySchema.IndexHint.lookup],
+      }),
+    },
+  },
   $I.annote("Household", {
     description: "Durable wealth-management household context.",
   })

@@ -15,7 +15,7 @@ const $I = $SandboxId.create("Sandbox.errors");
 /**
  * ExecError - Command execution failed in the sandbox.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class ExecError extends CauseTaggedError<ExecError>($I`ExecError`)(
@@ -31,7 +31,7 @@ export class ExecError extends CauseTaggedError<ExecError>($I`ExecError`)(
 /**
  * ExecHostError - Command execution failed on the host.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class ExecHostError extends CauseTaggedError<ExecHostError>($I`ExecHostError`)(
@@ -47,7 +47,7 @@ export class ExecHostError extends CauseTaggedError<ExecHostError>($I`ExecHostEr
 /**
  * CopyError - File copy between host and sandbox failed
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class CopyError extends CauseTaggedError<CopyError>($I`CopyError`)(
@@ -61,7 +61,7 @@ export class CopyError extends CauseTaggedError<CopyError>($I`CopyError`)(
 /**
  * DockerError - Docker infrastructure operation failed
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class DockerError extends CauseTaggedError<DockerError>($I`DockerError`)(
@@ -75,7 +75,7 @@ export class DockerError extends CauseTaggedError<DockerError>($I`DockerError`)(
 /**
  * PodmanError - Podman infrastructure operation failed
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class PodmanError extends CauseTaggedError<PodmanError>($I`PodmanError`)(
@@ -89,7 +89,7 @@ export class PodmanError extends CauseTaggedError<PodmanError>($I`PodmanError`)(
 /**
  * SyncError - Git sync-in or sync-out operation failed
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class SyncError extends CauseTaggedError<SyncError>($I`SyncError`)(
@@ -103,7 +103,7 @@ export class SyncError extends CauseTaggedError<SyncError>($I`SyncError`)(
 /**
  * WorktreeError - Git worktree operation failed
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class WorktreeError extends CauseTaggedError<WorktreeError>($I`WorktreeError`)(
@@ -117,7 +117,7 @@ export class WorktreeError extends CauseTaggedError<WorktreeError>($I`WorktreeEr
 /**
  * PromptError - Prompt resolution or preprocessing failed
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class PromptError extends CauseTaggedError<PromptError>($I`PromptError`)(
@@ -131,7 +131,7 @@ export class PromptError extends CauseTaggedError<PromptError>($I`PromptError`)(
 /**
  * AgentError - Agent invocation failed.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class AgentError extends CauseTaggedError<AgentError>($I`AgentError`)(
@@ -147,7 +147,7 @@ export class AgentError extends CauseTaggedError<AgentError>($I`AgentError`)(
 /**
  * ConfigDirError - .sandcastle/ config directory missing.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class ConfigDirError extends CauseTaggedError<ConfigDirError>($I`ConfigDirError`)(
@@ -161,7 +161,7 @@ export class ConfigDirError extends CauseTaggedError<ConfigDirError>($I`ConfigDi
 /**
  * InitError - Initialization or setup operation failed.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class InitError extends CauseTaggedError<InitError>($I`InitError`)(
@@ -175,7 +175,7 @@ export class InitError extends CauseTaggedError<InitError>($I`InitError`)(
 /**
  * AgentIdleTimeoutError - Run exceeded the configured agent idle timeout.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class AgentIdleTimeoutError extends CauseTaggedError<AgentIdleTimeoutError>($I`AgentIdleTimeoutError`)(
@@ -192,7 +192,7 @@ export class AgentIdleTimeoutError extends CauseTaggedError<AgentIdleTimeoutErro
 /**
  * WorktreeTimeoutError - Git worktree create or prune timed out.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class WorktreeTimeoutError extends CauseTaggedError<WorktreeTimeoutError>($I`WorktreeTimeoutError`)(
@@ -210,7 +210,7 @@ export class WorktreeTimeoutError extends CauseTaggedError<WorktreeTimeoutError>
 /**
  * ContainerStartTimeoutError - Sandbox container start timed out.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class ContainerStartTimeoutError extends CauseTaggedError<ContainerStartTimeoutError>(
@@ -228,7 +228,7 @@ export class ContainerStartTimeoutError extends CauseTaggedError<ContainerStartT
 /**
  * CopyToWorktreeTimeoutError - Copying files to worktree timed out.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class CopyToWorktreeTimeoutError extends CauseTaggedError<CopyToWorktreeTimeoutError>(
@@ -247,7 +247,7 @@ export class CopyToWorktreeTimeoutError extends CauseTaggedError<CopyToWorktreeT
 /**
  * CopyToWorktreeError - Fallback cp -R to worktree failed.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class CopyToWorktreeError extends CauseTaggedError<CopyToWorktreeError>($I`CopyToWorktreeError`)(
@@ -265,7 +265,7 @@ export class CopyToWorktreeError extends CauseTaggedError<CopyToWorktreeError>($
 /**
  * SyncInTimeoutError - Git sync-in for isolated providers timed out.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class SyncInTimeoutError extends CauseTaggedError<SyncInTimeoutError>($I`SyncInTimeoutError`)(
@@ -281,7 +281,7 @@ export class SyncInTimeoutError extends CauseTaggedError<SyncInTimeoutError>($I`
 /**
  * HookTimeoutError - onSandboxReady hook command timed out.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class HookTimeoutError extends CauseTaggedError<HookTimeoutError>($I`HookTimeoutError`)(
@@ -298,7 +298,7 @@ export class HookTimeoutError extends CauseTaggedError<HookTimeoutError>($I`Hook
 /**
  * GitSetupTimeoutError - Git config setup command timed out.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class GitSetupTimeoutError extends CauseTaggedError<GitSetupTimeoutError>($I`GitSetupTimeoutError`)(
@@ -315,7 +315,7 @@ export class GitSetupTimeoutError extends CauseTaggedError<GitSetupTimeoutError>
 /**
  * PromptExpansionTimeoutError - Prompt shell expression expansion timed out.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class PromptExpansionTimeoutError extends CauseTaggedError<PromptExpansionTimeoutError>(
@@ -334,7 +334,7 @@ export class PromptExpansionTimeoutError extends CauseTaggedError<PromptExpansio
 /**
  * CommitCollectionTimeoutError - Commit collection timed out.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class CommitCollectionTimeoutError extends CauseTaggedError<CommitCollectionTimeoutError>(
@@ -352,7 +352,7 @@ export class CommitCollectionTimeoutError extends CauseTaggedError<CommitCollect
 /**
  * MergeToHostTimeoutError - Merge-to-host branch timed out.
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class MergeToHostTimeoutError extends CauseTaggedError<MergeToHostTimeoutError>($I`MergeToHostTimeoutError`)(
@@ -370,7 +370,7 @@ export class MergeToHostTimeoutError extends CauseTaggedError<MergeToHostTimeout
 /**
  * SessionCaptureError - Session capture (read, rewrite, or write) failed
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class SessionCaptureError extends CauseTaggedError<SessionCaptureError>($I`SessionCaptureError`)(
@@ -386,7 +386,7 @@ export class SessionCaptureError extends CauseTaggedError<SessionCaptureError>($
 /**
  * CwdError - The provided `cwd` path does not exist or is not a directory
  *
- * @category Errors
+ * @category errors
  * @since 0.0.0
  */
 export class CwdError extends CauseTaggedError<CwdError>($I`CwdError`)(
@@ -399,6 +399,12 @@ export class CwdError extends CauseTaggedError<CwdError>($I`CwdError`)(
   })
 ) {}
 
+/**
+ * Union of all sandbox capability errors.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export const SandboxError = S.Union([
   ExecError,
   ExecHostError,
@@ -428,6 +434,7 @@ export const SandboxError = S.Union([
   $I.annoteSchema("SandboxError", {
     description: "Errors related to the sandbox capability.",
   }),
+  S.toTaggedUnion("_tag"),
   SchemaUtils.withStatics(() => {
     const withTimeout: {
       <E, A, E2, R>(
@@ -455,12 +462,29 @@ export const SandboxError = S.Union([
     return {
       withTimeout,
     };
-  }),
-  S.toTaggedUnion("_tag")
+  })
 );
 
+/**
+ * Runtime type for {@link SandboxError}.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export type SandboxError = typeof SandboxError.Type;
 
+/**
+ * Encoded sandbox error helpers.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export declare namespace SandboxError {
+  /**
+   * Encoded representation of {@link SandboxError}.
+   *
+   * @category errors
+   * @since 0.0.0
+   */
   export type Encoded = typeof SandboxError.Encoded;
 }

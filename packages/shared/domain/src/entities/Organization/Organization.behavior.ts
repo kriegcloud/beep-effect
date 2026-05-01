@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
+import {Shared} from "@beep/shared-domain/identity";
 import * as O from "effect/Option";
-import * as Shared from "../../identity/Shared.js";
 import type { Model } from "./Organization.model.js";
 
 /**

@@ -18,4 +18,4 @@
  * @category exports
  * @since 0.0.0
  */
-export * from "./CandidateLifecycle.values.js";
+export * from "./CandidateLifecycle.model.js";

@@ -1,9 +1,8 @@
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import { A } from "@beep/utils";
+import { A, Struct, Text } from "@beep/utils";
 import * as clack from "@clack/prompts";
-import { Clock, Context, DateTime, Effect, Exit, FileSystem, Layer, Path, pipe, Ref, Tuple } from "effect";
-import * as R from "effect/Record";
+import { Clock, Context, DateTime, Effect, Exit, FileSystem, Layer, Path, pipe, Ref } from "effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -11,6 +10,9 @@ const $I = $SandboxId.create("Display");
 
 /**
  * Severity - The severity of the display message.
+ *
+ * @category schemas
+ * @since 0.0.0
  */
 export const Severity = LiteralKit(["Info", "Success", "Warn", "Error"]).pipe(
   $I.annoteSchema("Severity", {
@@ -18,35 +20,37 @@ export const Severity = LiteralKit(["Info", "Success", "Warn", "Error"]).pipe(
   })
 );
 
+/**
+ * Runtime type for {@link Severity}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type Severity = typeof Severity.Type;
 
-export const DisplayEntryStatusBody = Severity.mapMembers((members) => {
-  const make = <T extends Severity>(severityLiteral: S.Literal<T>) =>
-    S.Struct({
-      severity: S.tag(severityLiteral.literal),
-      message: S.String,
-    });
-
-  return pipe(members, Tuple.evolve([make, make, make, make]));
-}).pipe(
-  $I.annoteSchema("DisplayEntryStatusBody", {
-    description: "DisplayEntryStatusBody - Represents the body of a display entry status message.",
-  }),
-  S.toTaggedUnion("severity")
-);
-
-export type DisplayEntryStatusBody = typeof DisplayEntryStatusBody.Type;
-
+/**
+ * Status entry captured by a display implementation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class DisplayEntryStatus extends S.TaggedClass<DisplayEntryStatus>($I`DisplayEntryStatus`)(
   "Status",
   {
-    body: DisplayEntryStatusBody,
+    message: S.String,
+    severity: Severity,
   },
   $I.annote("DisplayEntryStatus", {
-    description: "DisplayEntryStatus - Represents an introduction entry for display messages.",
+    description: "DisplayEntryStatus - Represents a status entry for display messages.",
   })
 ) {}
 
+/**
+ * Intro entry captured by a display implementation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class DisplayEntryIntro extends S.TaggedClass<DisplayEntryIntro>($I`DisplayEntryIntro`)(
   "Intro",
   {
@@ -57,6 +61,12 @@ export class DisplayEntryIntro extends S.TaggedClass<DisplayEntryIntro>($I`Displ
   })
 ) {}
 
+/**
+ * Spinner entry captured by a display implementation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class DisplayEntrySpinner extends S.TaggedClass<DisplayEntrySpinner>($I`DisplayEntrySpinner`)(
   "Spinner",
   {
@@ -67,6 +77,12 @@ export class DisplayEntrySpinner extends S.TaggedClass<DisplayEntrySpinner>($I`D
   })
 ) {}
 
+/**
+ * Summary entry captured by a display implementation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class DisplayEntrySummary extends S.TaggedClass<DisplayEntrySummary>($I`DisplayEntrySummary`)(
   "Summary",
   {
@@ -78,6 +94,12 @@ export class DisplayEntrySummary extends S.TaggedClass<DisplayEntrySummary>($I`D
   })
 ) {}
 
+/**
+ * Task log entry captured by a display implementation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class DisplayEntryTaskLog extends S.TaggedClass<DisplayEntryTaskLog>($I`DisplayEntryTaskLog`)(
   "TaskLog",
   {
@@ -89,6 +111,12 @@ export class DisplayEntryTaskLog extends S.TaggedClass<DisplayEntryTaskLog>($I`D
   })
 ) {}
 
+/**
+ * Text entry captured by a display implementation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class DisplayEntryText extends S.TaggedClass<DisplayEntryText>($I`DisplayEntryText`)(
   "Text",
   {
@@ -99,6 +127,12 @@ export class DisplayEntryText extends S.TaggedClass<DisplayEntryText>($I`Display
   })
 ) {}
 
+/**
+ * Tool-call entry captured by a display implementation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class DisplayEntryToolCall extends S.TaggedClass<DisplayEntryToolCall>($I`DisplayEntryToolCall`)(
   "ToolCall",
   {
@@ -110,6 +144,12 @@ export class DisplayEntryToolCall extends S.TaggedClass<DisplayEntryToolCall>($I
   })
 ) {}
 
+/**
+ * Display entry union.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const DisplayEntry = S.Union([
   DisplayEntryStatus,
   DisplayEntryIntro,
@@ -125,8 +165,20 @@ export const DisplayEntry = S.Union([
   })
 );
 
+/**
+ * Runtime type for {@link DisplayEntry}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type DisplayEntry = typeof DisplayEntry.Type;
 
+/**
+ * Display service shape.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export interface DisplayServiceShape {
   readonly intro: (title: string) => Effect.Effect<void>;
 
@@ -146,8 +198,20 @@ export interface DisplayServiceShape {
   readonly toolCall: (name: string, formattedArgs: string) => Effect.Effect<void>;
 }
 
+/**
+ * Display service.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export class Display extends Context.Service<Display, DisplayServiceShape>()($I`Display`) {}
 
+/**
+ * Display implementation that records entries in a `Ref`.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
 export const SilentDisplay = {
   layer: (ref: Ref.Ref<ReadonlyArray<DisplayEntry>>): Layer.Layer<Display> =>
     Layer.succeed(Display, {
@@ -166,9 +230,8 @@ export const SilentDisplay = {
           ref,
           A.append(
             new DisplayEntryStatus({
-              body: DisplayEntryStatusBody.cases[severity].make({
-                message,
-              }),
+              message,
+              severity,
             })
           )
         );
@@ -254,9 +317,9 @@ const stripStatusPrefix = Str.replace(/^\[[^\]]+\] /, "");
 const renderSummaryRows = (rows: Record<string, string>): string =>
   pipe(
     rows,
-    R.toEntries,
+    Struct.entries,
     A.map(([key, value]) => `  ${key}: ${value}`),
-    A.join("\n")
+    Text.joinLines
   );
 
 const formatElapsedSeconds = (startMillis: number, endMillis: number): string =>
@@ -265,7 +328,7 @@ const formatElapsedSeconds = (startMillis: number, endMillis: number): string =>
 /**
  * File-backed display implementation that appends display output to a log file.
  *
- * @category Layers
+ * @category layers
  * @since 0.0.0
  */
 export const FileDisplay = {
@@ -366,7 +429,7 @@ const severityToClack: Record<Severity, (message: string) => void> = {
 /**
  * Terminal text styles used by {@link ClackDisplay}.
  *
- * @category Rendering
+ * @category rendering
  * @since 0.0.0
  */
 export const terminalStyle = {
@@ -379,7 +442,7 @@ export const terminalStyle = {
 /**
  * Interactive terminal display implementation backed by `@clack/prompts`.
  *
- * @category Layers
+ * @category layers
  * @since 0.0.0
  */
 export const ClackDisplay = {
@@ -418,9 +481,9 @@ export const ClackDisplay = {
         yield* Effect.sync(() => {
           const lines = pipe(
             rows,
-            R.toEntries,
+            Struct.entries,
             A.map(([key, value]) => terminalStyle.summaryRow(key, value)),
-            A.join("\n")
+            Text.joinLines
           );
 
           clack.note(lines, terminalStyle.summaryTitle(title));

@@ -1,0 +1,128 @@
+/**
+ * Environment file resolution and provider environment merging.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $SandboxId } from "@beep/identity";
+import { A, Struct } from "@beep/utils";
+import { Effect, FileSystem, Path, pipe } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { InitError } from "./Sandbox.errors.ts";
+
+const $I = $SandboxId.create("Env");
+const emptyEnv: Record<string, string> = {};
+
+/**
+ * Provider environment merge options.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class MergeProviderEnvOptions extends S.Class<MergeProviderEnvOptions>($I`MergeProviderEnvOptions`)(
+  {
+    agentProviderEnv: S.Record(S.String, S.String),
+    resolvedEnv: S.Record(S.String, S.String),
+    sandboxProviderEnv: S.Record(S.String, S.String),
+  },
+  $I.annote("MergeProviderEnvOptions", {
+    description: "Provider environment merge options.",
+  })
+) {}
+
+const parseEnvLine = (line: string): O.Option<readonly [string, string]> => {
+  const trimmed = Str.trim(line);
+  if (trimmed.length === 0 || Str.startsWith("#")(trimmed)) {
+    return O.none();
+  }
+
+  const separatorIndex = trimmed.indexOf("=");
+  if (separatorIndex < 0) {
+    return O.none();
+  }
+
+  const key = Str.trim(trimmed.slice(0, separatorIndex));
+  const rawValue = Str.trim(trimmed.slice(separatorIndex + 1));
+  const value =
+    rawValue.length >= 2 &&
+    ((Str.startsWith('"')(rawValue) && Str.endsWith('"')(rawValue)) ||
+      (Str.startsWith("'")(rawValue) && Str.endsWith("'")(rawValue)))
+      ? rawValue.slice(1, -1)
+      : rawValue;
+
+  return key.length === 0 ? O.none() : O.some([key, value] as const);
+};
+
+const parseEnvFile = (content: string): Record<string, string> => {
+  const entries: Array<readonly [string, string]> = [];
+
+  for (const line of Str.split("\n")(content)) {
+    const parsed = parseEnvLine(line);
+    if (O.isSome(parsed)) {
+      entries.push(parsed.value);
+    }
+  }
+
+  return Struct.fromEntries(entries);
+};
+
+/**
+ * Resolve declared sandbox environment variables from `.sandcastle/.env`.
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const resolveEnv = Effect.fn("Env.resolveEnv")(function* (
+  repoDir: string,
+  runtimeEnv: NodeJS.ProcessEnv = process.env
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const envPath = path.join(repoDir, ".sandcastle", ".env");
+  const declared = yield* fs.readFileString(envPath).pipe(
+    Effect.map(parseEnvFile),
+    Effect.catch(() => Effect.succeed(emptyEnv))
+  );
+  const resolved: Record<string, string> = {};
+
+  for (const [key, value] of Struct.entries(declared)) {
+    const fallback = runtimeEnv[key];
+    if (value.length > 0) {
+      resolved[key] = value;
+    } else if (fallback !== undefined && fallback.length > 0) {
+      resolved[key] = fallback;
+    }
+  }
+
+  return resolved;
+});
+
+/**
+ * Merge resolved environment variables with agent and sandbox provider env.
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const mergeProviderEnv = Effect.fn("Env.mergeProviderEnv")(function* (options: MergeProviderEnvOptions) {
+  const sandboxKeys = new Set(Struct.keys(options.sandboxProviderEnv));
+  const overlapping = pipe(
+    Struct.keys(options.agentProviderEnv),
+    A.filter((key) => sandboxKeys.has(key))
+  );
+
+  if (overlapping.length > 0) {
+    return yield* InitError.new(
+      "provider environment conflict",
+      `Overlapping env keys between agent provider and sandbox provider: ${overlapping.join(", ")}`
+    );
+  }
+
+  return {
+    ...options.resolvedEnv,
+    ...options.sandboxProviderEnv,
+    ...options.agentProviderEnv,
+  };
+});

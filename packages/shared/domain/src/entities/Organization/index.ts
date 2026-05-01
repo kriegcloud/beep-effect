@@ -30,13 +30,13 @@ export * from "./Organization.behavior.js";
 export * from "./Organization.model.js";
 
 /**
- * Organization value schemas and mixin pack.
+ * Organization value schemas.
  *
  * @example
  * ```ts
- * import { ProfilePack } from "@beep/shared-domain/entities/Organization"
+ * import { LicenseTier } from "@beep/shared-domain/entities/Organization"
  *
- * console.log(ProfilePack.fieldMap.slug.columnName)
+ * console.log(LicenseTier.is.team("team"))
  * ```
  *
  * @since 0.0.0

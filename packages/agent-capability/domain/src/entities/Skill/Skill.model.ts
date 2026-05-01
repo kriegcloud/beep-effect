@@ -7,7 +7,8 @@
 import { $AgentCapabilityDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as AgentCapability from "@beep/shared-domain/identity/AgentCapability";
-import { SkillProfilePack } from "./Skill.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
 
 const $I = $AgentCapabilityDomainId.create("entities/Skill/Skill.model");
 
@@ -24,10 +25,22 @@ const $I = $AgentCapabilityDomainId.create("entities/Skill/Skill.model");
  * @category models
  * @since 0.0.0
  */
-export class Skill extends BaseEntity.extend<Skill>($I`Skill`)(
+export class Skill extends BaseEntity.Class<Skill>($I`Skill`)(
   AgentCapability.SkillId,
-  SkillProfilePack,
-  {},
+  {
+    fields: {
+      fixtureKey: S.String,
+      name: S.String,
+    },
+    persisted: {
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+      }),
+      name: EntitySchema.persist.text({
+        columnName: "name",
+      }),
+    },
+  },
   $I.annote("Skill", {
     description: "Skill definition used by an agent.",
   })

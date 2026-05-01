@@ -2,7 +2,6 @@ import * as Domain from "@beep/shared-domain";
 import type * as Organization from "@beep/shared-domain/entities/Organization";
 import type * as BaseEntity from "@beep/shared-domain/entity/BaseEntity";
 import type * as EntityId from "@beep/shared-domain/entity/EntityId";
-import type * as EntityMixin from "@beep/shared-domain/entity/EntityMixin";
 import type * as EntityRef from "@beep/shared-domain/entity/EntityRef";
 import type * as Principal from "@beep/shared-domain/entity/Principal";
 import type * as SourceKind from "@beep/shared-domain/entity/SourceKind";
@@ -16,7 +15,6 @@ describe("@beep/shared-domain root barrel", () => {
     expect(Domain.Values.LocalDate.Model).type.toBe<typeof LocalDate.Model>();
     expect(Domain.BaseEntity.BaseEntity).type.toBe<typeof BaseEntity.BaseEntity>();
     expect(Domain.EntityId.EntityIdValue).type.toBe<typeof EntityId.EntityIdValue>();
-    expect(Domain.EntityMixin.TypeId).type.toBe<typeof EntityMixin.TypeId>();
     expect(Domain.EntityRef.EntityRef).type.toBe<typeof EntityRef.EntityRef>();
     expect(Domain.Principal.Principal).type.toBe<typeof Principal.Principal>();
     expect(Domain.SourceKind.SourceKind).type.toBe<typeof SourceKind.SourceKind>();

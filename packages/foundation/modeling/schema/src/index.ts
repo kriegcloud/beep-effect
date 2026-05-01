@@ -225,6 +225,11 @@ export * from "./dom/index.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * as EntitySchema from "./EntitySchema.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Fn.ts";
 /**
  * @since 0.0.0

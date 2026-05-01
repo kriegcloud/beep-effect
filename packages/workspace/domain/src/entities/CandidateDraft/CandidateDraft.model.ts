@@ -7,9 +7,13 @@
 import { $WorkspaceDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Workspace from "@beep/shared-domain/identity/Workspace";
-import { CandidateDraftProfilePack } from "./CandidateDraft.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { CandidateLifecycle } from "@beep/workspace-domain/values";
 
 const $I = $WorkspaceDomainId.create("entities/CandidateDraft/CandidateDraft.model");
+
+const UnknownRecord = S.Record(S.String, S.Unknown);
 
 /**
  * Candidate draft artifact proposed by an agent.
@@ -24,10 +28,26 @@ const $I = $WorkspaceDomainId.create("entities/CandidateDraft/CandidateDraft.mod
  * @category models
  * @since 0.0.0
  */
-export class CandidateDraft extends BaseEntity.extend<CandidateDraft>($I`CandidateDraft`)(
+export class CandidateDraft extends BaseEntity.Class<CandidateDraft>($I`CandidateDraft`)(
   Workspace.CandidateDraftId,
-  CandidateDraftProfilePack,
-  {},
+  {
+    fields: {
+      fixtureKey: S.String,
+      lifecycle: CandidateLifecycle,
+      snapshot: UnknownRecord,
+    },
+    persisted: {
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+      }),
+      lifecycle: EntitySchema.persist.literal({
+        columnName: "lifecycle",
+      }),
+      snapshot: EntitySchema.persist.jsonb({
+        columnName: "snapshot",
+      }),
+    },
+  },
   $I.annote("CandidateDraft", {
     description: "Candidate draft artifact proposed by an agent.",
   })

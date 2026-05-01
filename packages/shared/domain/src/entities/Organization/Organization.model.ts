@@ -6,9 +6,12 @@
  */
 
 import { $SharedDomainId } from "@beep/identity/packages";
+import { Slug } from "@beep/schema";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
+import * as S from "effect/Schema";
 import * as Shared from "../../identity/Shared.js";
-import { ProfilePack } from "./Organization.values.js";
+import { LicenseTier, Settings } from "./Organization.values.js";
 
 const $I = $SharedDomainId.create("entities/Organization/Organization.model");
 
@@ -25,10 +28,35 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.model");
  * @category models
  * @since 0.0.0
  */
-export class Model extends BaseEntity.extend<Model>($I`Model`)(
+export class Model extends BaseEntity.Class<Model>($I`Model`)(
   Shared.OrganizationId,
-  ProfilePack,
-  {},
+  {
+    fields: {
+      legalName: S.NonEmptyString,
+      licenseTier: LicenseTier,
+      name: S.NonEmptyString,
+      parentOrgId: EntitySchema.entityId(Shared.OrganizationId).pipe(S.OptionFromNullOr),
+      settings: Settings,
+      slug: Slug,
+    },
+    persisted: {
+      legalName: EntitySchema.persist.text({
+        columnName: "legal_name",
+      }),
+      licenseTier: EntitySchema.persist.literal({
+        columnName: "license_tier",
+        indexHints: [EntitySchema.IndexHint.lookup],
+      }),
+      name: EntitySchema.persist.text(),
+      parentOrgId: EntitySchema.persist.entityId({
+        columnName: "parent_org_id",
+      }),
+      settings: EntitySchema.persist.jsonb(),
+      slug: EntitySchema.persist.text({
+        indexHints: [EntitySchema.IndexHint.unique],
+      }),
+    },
+  },
   $I.annote("Model", {
     description: "Shared-kernel organization entity used as the tenant root concept.",
   })

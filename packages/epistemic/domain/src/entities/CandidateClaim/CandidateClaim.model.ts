@@ -7,9 +7,13 @@
 import { $EpistemicDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
-import { CandidateClaimProfilePack } from "./CandidateClaim.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { ClaimLifecycle } from "@beep/epistemic-domain/values";
 
 const $I = $EpistemicDomainId.create("entities/CandidateClaim/CandidateClaim.model");
+
+const UnknownRecord = S.Record(S.String, S.Unknown);
 
 /**
  * Candidate claim proposed by an agent with source evidence.
@@ -24,10 +28,26 @@ const $I = $EpistemicDomainId.create("entities/CandidateClaim/CandidateClaim.mod
  * @category models
  * @since 0.0.0
  */
-export class CandidateClaim extends BaseEntity.extend<CandidateClaim>($I`CandidateClaim`)(
+export class CandidateClaim extends BaseEntity.Class<CandidateClaim>($I`CandidateClaim`)(
   Epistemic.CandidateClaimId,
-  CandidateClaimProfilePack,
-  {},
+  {
+    fields: {
+      fixtureKey: S.String,
+      lifecycle: ClaimLifecycle,
+      snapshot: UnknownRecord,
+    },
+    persisted: {
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+      }),
+      lifecycle: EntitySchema.persist.literal({
+        columnName: "lifecycle",
+      }),
+      snapshot: EntitySchema.persist.jsonb({
+        columnName: "snapshot",
+      }),
+    },
+  },
   $I.annote("CandidateClaim", {
     description: "Candidate claim proposed by an agent with source evidence.",
   })

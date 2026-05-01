@@ -7,7 +7,9 @@
 import { $LawPracticeDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
-import { MatterProfilePack } from "./Matter.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { MatterType } from "./Matter.values.js";
 
 const $I = $LawPracticeDomainId.create("entities/Matter/Matter.model");
 
@@ -24,10 +26,30 @@ const $I = $LawPracticeDomainId.create("entities/Matter/Matter.model");
  * @category models
  * @since 0.0.0
  */
-export class Matter extends BaseEntity.extend<Matter>($I`Matter`)(
+export class Matter extends BaseEntity.Class<Matter>($I`Matter`)(
   LawPractice.MatterId,
-  MatterProfilePack,
-  {},
+  {
+    fields: {
+      displayName: S.String,
+      fixtureKey: S.String,
+      legalClientFixtureKey: S.String,
+      matterType: MatterType,
+    },
+    persisted: {
+      displayName: EntitySchema.persist.text({
+        columnName: "display_name",
+      }),
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+      }),
+      legalClientFixtureKey: EntitySchema.persist.text({
+        columnName: "legal_client_fixture_key",
+      }),
+      matterType: EntitySchema.persist.literal({
+        columnName: "matter_type",
+      }),
+    },
+  },
   $I.annote("Matter", {
     description: "Legal matter context.",
   })

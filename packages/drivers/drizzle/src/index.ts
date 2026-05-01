@@ -20,3 +20,11 @@ export * from "./Drizzle.errors.ts";
  * @category exports
  */
 export * from "./Drizzle.service.ts";
+
+/**
+ * Public schema-first Drizzle table projection exports.
+ *
+ * @since 0.0.0
+ * @category exports
+ */
+export * as EntityTable from "./EntityTable.ts";

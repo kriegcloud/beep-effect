@@ -7,7 +7,9 @@
 import { $LawPracticeDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
-import { PatentAssetProfilePack } from "./PatentAsset.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { PatentAssetStatus } from "./PatentAsset.values.js";
 
 const $I = $LawPracticeDomainId.create("entities/PatentAsset/PatentAsset.model");
 
@@ -24,10 +26,30 @@ const $I = $LawPracticeDomainId.create("entities/PatentAsset/PatentAsset.model")
  * @category models
  * @since 0.0.0
  */
-export class PatentAsset extends BaseEntity.extend<PatentAsset>($I`PatentAsset`)(
+export class PatentAsset extends BaseEntity.Class<PatentAsset>($I`PatentAsset`)(
   LawPractice.PatentAssetId,
-  PatentAssetProfilePack,
-  {},
+  {
+    fields: {
+      fixtureKey: S.String,
+      matterFixtureKey: S.String,
+      status: PatentAssetStatus,
+      title: S.String,
+    },
+    persisted: {
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+      }),
+      matterFixtureKey: EntitySchema.persist.text({
+        columnName: "matter_fixture_key",
+      }),
+      status: EntitySchema.persist.literal({
+        columnName: "status",
+      }),
+      title: EntitySchema.persist.text({
+        columnName: "title",
+      }),
+    },
+  },
   $I.annote("PatentAsset", {
     description: "Patent asset context.",
   })

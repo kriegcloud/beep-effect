@@ -36,21 +36,6 @@ export * as BaseEntity from "./BaseEntity.ts";
 export * as EntityId from "./EntityId.ts";
 
 /**
- * Entity mixin constructor namespace.
- *
- * @example
- * ```ts
- * import { EntityMixin } from "@beep/shared-domain/entity"
- *
- * console.log(EntityMixin.TypeId)
- * ```
- *
- * @since 0.0.0
- * @category entity constructors
- */
-export * as EntityMixin from "./EntityMixin.ts";
-
-/**
  * Polymorphic entity reference namespace.
  *
  * @example

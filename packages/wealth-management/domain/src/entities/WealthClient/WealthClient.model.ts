@@ -8,7 +8,9 @@
 import { $WealthManagementDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as WealthManagement from "@beep/shared-domain/identity/WealthManagement";
-import { WealthClientProfilePack } from "./WealthClient.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { WealthClientStatus } from "./WealthClient.values.js";
 
 const $I = $WealthManagementDomainId.create("entities/WealthClient/WealthClient.model");
 
@@ -25,10 +27,38 @@ const $I = $WealthManagementDomainId.create("entities/WealthClient/WealthClient.
  * @category models
  * @since 0.0.0
  */
-export class WealthClient extends BaseEntity.extend<WealthClient>($I`WealthClient`)(
+export class WealthClient extends BaseEntity.Class<WealthClient>($I`WealthClient`)(
   WealthManagement.WealthClientId,
-  WealthClientProfilePack,
-  {},
+  {
+    fields: {
+      displayName: S.String,
+      fixtureKey: S.String,
+      householdFixtureKey: S.String,
+      partyFixtureKey: S.String,
+      status: WealthClientStatus,
+    },
+    persisted: {
+      displayName: EntitySchema.persist.text({
+        columnName: "display_name",
+      }),
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+        indexHints: [EntitySchema.IndexHint.unique],
+      }),
+      householdFixtureKey: EntitySchema.persist.text({
+        columnName: "household_fixture_key",
+        indexHints: [EntitySchema.IndexHint.lookup],
+      }),
+      partyFixtureKey: EntitySchema.persist.text({
+        columnName: "party_fixture_key",
+        indexHints: [EntitySchema.IndexHint.lookup],
+      }),
+      status: EntitySchema.persist.literal({
+        columnName: "status",
+        indexHints: [EntitySchema.IndexHint.lookup],
+      }),
+    },
+  },
   $I.annote("WealthClient", {
     description: "Durable wealth-management client context.",
   })

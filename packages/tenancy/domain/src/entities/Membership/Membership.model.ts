@@ -7,7 +7,9 @@
 import { $TenancyDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Tenancy from "@beep/shared-domain/identity/Tenancy";
-import { MembershipProfilePack } from "./Membership.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { MembershipRole, MembershipStatus } from "./Membership.values.js";
 
 const $I = $TenancyDomainId.create("entities/Membership/Membership.model");
 
@@ -24,10 +26,34 @@ const $I = $TenancyDomainId.create("entities/Membership/Membership.model");
  * @category models
  * @since 0.0.0
  */
-export class Membership extends BaseEntity.extend<Membership>($I`Membership`)(
+export class Membership extends BaseEntity.Class<Membership>($I`Membership`)(
   Tenancy.MembershipId,
-  MembershipProfilePack,
-  {},
+  {
+    fields: {
+      fixtureKey: S.String,
+      organizationFixtureKey: S.String,
+      role: MembershipRole,
+      status: MembershipStatus,
+      userFixtureKey: S.String,
+    },
+    persisted: {
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+      }),
+      organizationFixtureKey: EntitySchema.persist.text({
+        columnName: "organization_fixture_key",
+      }),
+      role: EntitySchema.persist.literal({
+        columnName: "role",
+      }),
+      status: EntitySchema.persist.literal({
+        columnName: "status",
+      }),
+      userFixtureKey: EntitySchema.persist.text({
+        columnName: "user_fixture_key",
+      }),
+    },
+  },
   $I.annote("Membership", {
     description: "Relationship between a tenant user and organization.",
   })

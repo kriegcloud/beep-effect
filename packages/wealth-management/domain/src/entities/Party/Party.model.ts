@@ -8,7 +8,9 @@
 import { $WealthManagementDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as WealthManagement from "@beep/shared-domain/identity/WealthManagement";
-import { PartyProfilePack } from "./Party.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { PartyType } from "./Party.values.js";
 
 const $I = $WealthManagementDomainId.create("entities/Party/Party.model");
 
@@ -25,10 +27,28 @@ const $I = $WealthManagementDomainId.create("entities/Party/Party.model");
  * @category models
  * @since 0.0.0
  */
-export class Party extends BaseEntity.extend<Party>($I`Party`)(
+export class Party extends BaseEntity.Class<Party>($I`Party`)(
   WealthManagement.PartyId,
-  PartyProfilePack,
-  {},
+  {
+    fields: {
+      displayName: S.String,
+      fixtureKey: S.String,
+      partyType: PartyType,
+    },
+    persisted: {
+      displayName: EntitySchema.persist.text({
+        columnName: "display_name",
+      }),
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+        indexHints: [EntitySchema.IndexHint.unique],
+      }),
+      partyType: EntitySchema.persist.literal({
+        columnName: "party_type",
+        indexHints: [EntitySchema.IndexHint.lookup],
+      }),
+    },
+  },
   $I.annote("Party", {
     description: "Durable wealth-management party context.",
   })

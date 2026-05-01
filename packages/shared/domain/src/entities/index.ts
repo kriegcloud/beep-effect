@@ -5,7 +5,7 @@
  * ```ts
  * import { Organization } from "@beep/shared-domain/entities"
  *
- * console.log(Organization.ProfilePack.fieldMap.name.columnName)
+ * console.log(Organization.Model.definition.tableName)
  * ```
  *
  * @since 0.0.0

@@ -7,7 +7,9 @@
 import { $LawPracticeDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
-import { LegalContactProfilePack } from "./LegalContact.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
+import { LegalContactRole } from "./LegalContact.values.js";
 
 const $I = $LawPracticeDomainId.create("entities/LegalContact/LegalContact.model");
 
@@ -24,10 +26,30 @@ const $I = $LawPracticeDomainId.create("entities/LegalContact/LegalContact.model
  * @category models
  * @since 0.0.0
  */
-export class LegalContact extends BaseEntity.extend<LegalContact>($I`LegalContact`)(
+export class LegalContact extends BaseEntity.Class<LegalContact>($I`LegalContact`)(
   LawPractice.LegalContactId,
-  LegalContactProfilePack,
-  {},
+  {
+    fields: {
+      displayName: S.String,
+      fixtureKey: S.String,
+      legalClientFixtureKey: S.String,
+      role: LegalContactRole,
+    },
+    persisted: {
+      displayName: EntitySchema.persist.text({
+        columnName: "display_name",
+      }),
+      fixtureKey: EntitySchema.persist.text({
+        columnName: "fixture_key",
+      }),
+      legalClientFixtureKey: EntitySchema.persist.text({
+        columnName: "legal_client_fixture_key",
+      }),
+      role: EntitySchema.persist.literal({
+        columnName: "role",
+      }),
+    },
+  },
   $I.annote("LegalContact", {
     description: "Legal contact context.",
   })

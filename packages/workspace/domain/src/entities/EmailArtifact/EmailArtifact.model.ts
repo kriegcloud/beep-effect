@@ -7,9 +7,12 @@
 import { $WorkspaceDomainId } from "@beep/identity/packages";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Workspace from "@beep/shared-domain/identity/Workspace";
-import { EmailArtifactProfilePack } from "./EmailArtifact.values.js";
+import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as S from "effect/Schema";
 
 const $I = $WorkspaceDomainId.create("entities/EmailArtifact/EmailArtifact.model");
+
+const UnknownRecord = S.Record(S.String, S.Unknown);
 
 /**
  * Normalized email artifact imported into a workspace thread.
@@ -24,10 +27,46 @@ const $I = $WorkspaceDomainId.create("entities/EmailArtifact/EmailArtifact.model
  * @category models
  * @since 0.0.0
  */
-export class EmailArtifact extends BaseEntity.extend<EmailArtifact>($I`EmailArtifact`)(
+export class EmailArtifact extends BaseEntity.Class<EmailArtifact>($I`EmailArtifact`)(
   Workspace.EmailArtifactId,
-  EmailArtifactProfilePack,
-  {},
+  {
+    fields: {
+      artifactFixtureKey: S.String,
+      body: S.String,
+      from: UnknownRecord,
+      receivedAt: S.String,
+      sourceSpans: S.Array(S.String),
+      subject: S.String,
+      threadFixtureKey: S.String,
+      to: S.Array(UnknownRecord),
+    },
+    persisted: {
+      artifactFixtureKey: EntitySchema.persist.text({
+        columnName: "artifact_fixture_key",
+      }),
+      body: EntitySchema.persist.text({
+        columnName: "body",
+      }),
+      from: EntitySchema.persist.jsonb({
+        columnName: "from_contact",
+      }),
+      receivedAt: EntitySchema.persist.text({
+        columnName: "received_at",
+      }),
+      sourceSpans: EntitySchema.persist.jsonb({
+        columnName: "source_spans",
+      }),
+      subject: EntitySchema.persist.text({
+        columnName: "subject",
+      }),
+      threadFixtureKey: EntitySchema.persist.text({
+        columnName: "thread_fixture_key",
+      }),
+      to: EntitySchema.persist.jsonb({
+        columnName: "to_contacts",
+      }),
+    },
+  },
   $I.annote("EmailArtifact", {
     description: "Normalized email artifact imported into a workspace thread.",
   })

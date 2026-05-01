@@ -5,9 +5,8 @@
  * @since 0.0.0
  */
 
-import { ProfilePack } from "@beep/shared-domain/entities/Organization/Organization.values";
-import * as Shared from "@beep/shared-domain/identity/Shared";
-import * as TableFactory from "../../table/Table.js";
+import { EntityTable } from "@beep/drizzle";
+import { Model } from "@beep/shared-domain/entities/Organization/Organization.model";
 
 /**
  * PGLite/Postgres Drizzle table for the shared Organization entity.
@@ -22,4 +21,4 @@ import * as TableFactory from "../../table/Table.js";
  * @category tables
  * @since 0.0.0
  */
-export const Table = TableFactory.make(Shared.OrganizationId, ProfilePack);
+export const Table = EntityTable.pgTableFrom(Model);

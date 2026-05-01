@@ -56,6 +56,10 @@ name = "grill-me"
 enabled = true
 
 [[skills.config]]
+name = "grill-with-docs"
+enabled = true
+
+[[skills.config]]
 name = "jsdoc-annotation-specialist"
 enabled = true
 

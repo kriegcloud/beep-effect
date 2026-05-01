@@ -1,5 +1,6 @@
 import * as Organization from "@beep/shared-domain/entities/Organization";
 import * as Shared from "@beep/shared-domain/identity/Shared";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import { assert, describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";
 import * as O from "effect/Option";
@@ -26,6 +27,7 @@ const organizationInput = {
   licenseTier: "enterprise",
   name: "Acme",
   orgId: 1,
+  parentOrgId: null,
   rowVersion: 1,
   schemaVersion: "0.0.0",
   settings: {
@@ -77,32 +79,42 @@ describe("Organization", () => {
     })
   );
 
-  it("materializes profile mixin descriptors for the entity and table layers", () => {
-    expect(Organization.ProfileMixin.fieldKeys).toEqual([
+  it("materializes schema-first descriptors for the entity and table layers", () => {
+    const definition = Organization.Model.definition;
+
+    expect(Object.keys(definition.fields).filter((key) => key in definition.persisted)).toEqual([
+      "createdAt",
+      "createdByPrincipal",
+      "orgId",
+      "rowVersion",
+      "schemaVersion",
+      "source",
+      "updatedAt",
+      "updatedByPrincipal",
       "legalName",
       "licenseTier",
       "name",
       "parentOrgId",
       "settings",
       "slug",
+      "entityType",
+      "id",
     ]);
-    expect(Organization.ProfilePack.fieldMap.slug.columnName).toBe("slug");
-    expect(Organization.ProfilePack.fieldMap.slug.indexHints?.[0]?.kind).toBe("unique");
-    expect(Organization.ProfilePack.fieldMap.licenseTier.storageKind).toBe("literal");
-    expect(Organization.ProfilePack.fieldMap.licenseTier.indexHints?.[0]?.kind).toBe("lookup");
-    expect(Organization.ProfilePack.fieldMap.parentOrgId.nullable).toBe(true);
-    expect(Organization.ProfilePack.fieldMap.settings.storageKind).toBe("json");
+    expect(definition.persisted.slug.indexHints?.[0]?.kind).toBe("unique");
+    expect(definition.persisted.licenseTier.storageKind).toBe("literal");
+    expect(definition.persisted.licenseTier.indexHints?.[0]?.kind).toBe("lookup");
+    expect(definition.persisted.settings.storageKind).toBe("jsonb");
+    expect(EntitySchema.selectedRowFieldShape("parentOrgId", definition.fields.parentOrgId).allowsNull).toBe(true);
   });
 
-  it.effect("extends BaseEntity through the Organization profile pack", () =>
+  it.effect("extends BaseEntity through the Organization schema definition", () =>
     Effect.gen(function* () {
       const organization = yield* decodeOrganization(organizationInput);
 
       expect(Organization.Model.definition.entityId).toBe(Shared.OrganizationId);
-      expect(Organization.Model.definition.mixins).toBe(Organization.ProfilePack);
-      expect(Organization.Model.definition.fieldMap.id.columnName).toBe("id");
-      expect(Organization.Model.definition.fieldMap.orgId.columnName).toBe("org_id");
-      expect(Organization.Model.definition.fieldMap.slug.columnName).toBe("slug");
+      expect(Organization.Model.definition.persisted.id.valueStrategy).toBe("generatedOnInsert");
+      expect(Organization.Model.definition.persisted.orgId.storageKind).toBe("entityId");
+      expect(EntitySchema.columnNameFor("slug", Organization.Model.definition.persisted.slug)).toBe("slug");
       expect(Organization.Model.fields.slug).toBeDefined();
       expect(organization.name).toBe("Acme");
       expect(O.isNone(organization.parentOrgId)).toBe(true);

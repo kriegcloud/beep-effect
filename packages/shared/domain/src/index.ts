@@ -42,7 +42,7 @@ export * as Aggregates from "./aggregates/index.ts";
  * ```ts
  * import { Entities } from "@beep/shared-domain"
  *
- * console.log(Entities.Organization.ProfilePack.fieldKeys.length)
+ * console.log(Entities.Organization.Model.definition.tableName)
  * ```
  *
  * @since 0.0.0
@@ -77,20 +77,6 @@ export * as BaseEntity from "./entity/BaseEntity.ts";
  * @category entity constructors
  */
 export * as EntityId from "./entity/EntityId.ts";
-/**
- * Entity mixin constructor namespace.
- *
- * @example
- * ```ts
- * import { EntityMixin } from "@beep/shared-domain"
- *
- * console.log(EntityMixin.TypeId)
- * ```
- *
- * @since 0.0.0
- * @category entity constructors
- */
-export * as EntityMixin from "./entity/EntityMixin.ts";
 /**
  * Polymorphic entity reference namespace.
  *

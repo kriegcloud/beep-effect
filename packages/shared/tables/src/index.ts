@@ -12,10 +12,3 @@
  * @category tables
  */
 export * as Entities from "./entities/index.ts";
-/**
- * Shared-kernel table constructor namespace.
- *
- * @since 0.0.0
- * @category constructors
- */
-export * as Table from "./table/Table.ts";

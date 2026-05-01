@@ -7,8 +7,6 @@
 
 import { $TenancyDomainId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import * as EntityMixin from "@beep/shared-domain/entity/EntityMixin";
-import * as S from "effect/Schema";
 
 const $I = $TenancyDomainId.create("entities/Organization/Organization.values");
 
@@ -81,73 +79,3 @@ export const OrganizationLicenseTier = LiteralKit(["solo", "team"] as const).ann
  * @since 0.0.0
  */
 export type OrganizationLicenseTier = typeof OrganizationLicenseTier.Type;
-
-/**
- * Entity-specific fields contributed to the tenancy Organization entity.
- *
- * @example
- * ```ts
- * import { OrganizationProfileMixin } from "@beep/tenancy-domain"
- *
- * console.log(OrganizationProfileMixin)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export const OrganizationProfileMixin = EntityMixin.make($I`OrganizationProfileMixin`)(
-  {
-    fixtureKey: S.String,
-    kind: OrganizationKind,
-    licenseTier: OrganizationLicenseTier,
-    name: S.String,
-  },
-  {
-    description: "Runtime proof fields owned by the tenancy Organization entity.",
-    fields: {
-      fixtureKey: {
-        columnName: "fixture_key",
-        description: "Stable fixture identifier used by deterministic runtime scenarios.",
-        nullable: false,
-        storageKind: "text",
-        valueStrategy: "provided",
-      },
-      kind: {
-        columnName: "kind",
-        description: "Professional organization kind.",
-        nullable: false,
-        storageKind: "literal",
-        valueStrategy: "provided",
-      },
-      licenseTier: {
-        columnName: "license_tier",
-        description: "Commercial tier for the organization.",
-        nullable: false,
-        storageKind: "literal",
-        valueStrategy: "provided",
-      },
-      name: {
-        columnName: "name",
-        description: "Display name for the organization.",
-        nullable: false,
-        storageKind: "text",
-        valueStrategy: "provided",
-      },
-    },
-  }
-);
-
-/**
- * Packed Organization profile mixin.
- *
- * @example
- * ```ts
- * import { OrganizationProfilePack } from "@beep/tenancy-domain"
- *
- * console.log(OrganizationProfilePack)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export const OrganizationProfilePack = EntityMixin.pack(OrganizationProfileMixin);
