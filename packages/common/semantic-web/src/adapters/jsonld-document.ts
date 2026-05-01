@@ -25,13 +25,13 @@ import {
   JsonLdReferenceValue,
 } from "../jsonld.ts";
 import {
-  makeBlankNode,
+  BlankNode,
+  DefaultGraph,
+  Literal,
   makeDataset,
-  makeLiteral,
-  makeNamedNode,
-  makeQuad,
+  NamedNode,
+  Quad,
   type ObjectTerm,
-  type Quad,
   type Subject,
 } from "../rdf.ts";
 import {

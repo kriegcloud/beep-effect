@@ -32,7 +32,7 @@ const CustomDocumentId = makeSharedId("document", {
   tableName: "custom_document",
 });
 
-const decodeEffect = <A>(schema: S.Top & { readonly Type: A }) => S.decodeUnknownEffect(S.make<S.Decoder<A>>(schema.ast));
+const decodeEffect = <Schema extends S.Top>(schema: Schema) => S.decodeUnknownEffect(schema);
 const expectFailure = Effect.fn("expectFailure")(function* <A, E>(effect: Effect.Effect<A, E, never>) {
   const exit = yield* Effect.exit(effect);
   assert.strictEqual(Exit.isFailure(exit), true);

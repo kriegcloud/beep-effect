@@ -8,6 +8,13 @@
 /**
  * Product-facing persisted entity base constructor.
  *
+ * @example
+ * ```ts
+ * import { BaseEntity } from "@beep/shared-domain/entity/index"
+ *
+ * console.log(BaseEntity.BaseEntity.definition.fieldMap.id.columnName)
+ * ```
+ *
  * @since 0.0.0
  * @category entity constructors
  */
@@ -15,6 +22,13 @@ export * as BaseEntity from "./BaseEntity.ts";
 
 /**
  * Entity identifier constructor namespace.
+ *
+ * @example
+ * ```ts
+ * import { EntityId } from "@beep/shared-domain/entity/index"
+ *
+ * console.log(EntityId.EntityIdValue)
+ * ```
  *
  * @since 0.0.0
  * @category entity constructors
@@ -24,6 +38,13 @@ export * as EntityId from "./EntityId.ts";
 /**
  * Entity mixin constructor namespace.
  *
+ * @example
+ * ```ts
+ * import { EntityMixin } from "@beep/shared-domain/entity/index"
+ *
+ * console.log(EntityMixin.TypeId)
+ * ```
+ *
  * @since 0.0.0
  * @category entity constructors
  */
@@ -31,6 +52,13 @@ export * as EntityMixin from "./EntityMixin.ts";
 
 /**
  * Polymorphic entity reference namespace.
+ *
+ * @example
+ * ```ts
+ * import { EntityRef } from "@beep/shared-domain/entity/index"
+ *
+ * console.log(EntityRef.EntityRef)
+ * ```
  *
  * @since 0.0.0
  * @category entity references
@@ -40,6 +68,13 @@ export * as EntityRef from "./EntityRef.ts";
 /**
  * Canonical actor principal namespace.
  *
+ * @example
+ * ```ts
+ * import { Principal } from "@beep/shared-domain/entity/index"
+ *
+ * console.log(Principal.Principal)
+ * ```
+ *
  * @since 0.0.0
  * @category actor references
  */
@@ -48,6 +83,13 @@ export * as Principal from "./Principal.ts";
 /**
  * Shared entity primitives namespace.
  *
+ * @example
+ * ```ts
+ * import { primitives } from "@beep/shared-domain/entity/index"
+ *
+ * console.log(primitives.VectorClock)
+ * ```
+ *
  * @since 0.0.0
  * @category primitives
  */
@@ -55,6 +97,13 @@ export * as primitives from "./primitives.ts";
 
 /**
  * Canonical source-kind namespace.
+ *
+ * @example
+ * ```ts
+ * import { SourceKind } from "@beep/shared-domain/entity/index"
+ *
+ * console.log(SourceKind.SourceKind)
+ * ```
  *
  * @since 0.0.0
  * @category entity fields
