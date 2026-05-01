@@ -208,7 +208,7 @@ describe("JSON-LD", () => {
         const service = yield* JsonLdDocumentService;
         return yield* service.frame(
           FrameJsonLdDocumentRequest.make({
-            document: decodeUnknownSync(JsonLdDocument)(S.encodeSync(JsonLdDocument)(compacted.document)),
+            document: decodeUnknownSync(JsonLdDocument)(yield* S.encodeEffect(JsonLdDocument)(compacted.document)),
             frame: decodeUnknownSync(JsonLdFrame)({
               "@type": "Person",
               includeProperties: ["name"],
@@ -374,7 +374,7 @@ describe("JSON-LD", () => {
         const service = yield* JsonLdDocumentService;
         return yield* service.expand(
           decodeUnknownSync(ExpandJsonLdDocumentRequest)({
-            document: S.encodeSync(JsonLdDocument)(compacted.document),
+            document: yield* S.encodeEffect(JsonLdDocument)(compacted.document),
             loaderPolicy: {
               allowRemoteDocuments: false,
             },
@@ -394,7 +394,7 @@ describe("JSON-LD", () => {
         const service = yield* JsonLdDocumentService;
         return yield* service.normalize(
           decodeUnknownSync(NormalizeJsonLdDocumentRequest)({
-            document: S.encodeSync(JsonLdDocument)(compacted.document),
+            document: yield* S.encodeEffect(JsonLdDocument)(compacted.document),
             profile: "bounded-v1",
             safeMode: true,
             loaderPolicy: {
@@ -438,7 +438,7 @@ describe("JSON-LD", () => {
         const service = yield* JsonLdStreamSerializeService;
         return yield* service.serialize(
           decodeUnknownSync(JsonLdStreamSerializeRequest)({
-            dataset: S.encodeSync(Dataset)(bridged.dataset),
+            dataset: yield* S.encodeEffect(Dataset)(bridged.dataset),
             context: rawContext,
             maxChunkCharacters: 32,
           })

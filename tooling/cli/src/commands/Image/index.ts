@@ -110,10 +110,8 @@ const imageExtractFramesCommand = Command.make(
  * @example
  * ```ts
  * import { imageCommand } from "@beep/repo-cli"
- *
  * void imageCommand
  * ```
- *
  * @category UseCase
  * @since 0.0.0
  */

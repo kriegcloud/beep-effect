@@ -68,7 +68,7 @@ import * as S from "effect/Schema";
  * void [encodedNone, encodedSome]
  * ```
  *
- * @category Option
+ * @category schemas
  * @template Schema - The schema used when the key is present with a non-nullish value.
  * @param schema - The schema for present values.
  * @param options - Controls how `None` is represented during encoding.

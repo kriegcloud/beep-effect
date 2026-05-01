@@ -23,6 +23,7 @@ const PlatformLayer = Layer.mergeAll(
   TestConsole.layer
 );
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const isQualityTaskFailed = S.is(QualityTaskFailed);
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -250,7 +251,7 @@ describe("quality task adapter", () => {
           if (Exit.isFailure(exit)) {
             const failure = Cause.squash(exit.cause);
             expect(failure).toBeInstanceOf(QualityTaskFailed);
-            if (failure instanceof QualityTaskFailed) {
+            if (isQualityTaskFailed(failure)) {
               expect(failure.exitCode).toBe(7);
             }
           }

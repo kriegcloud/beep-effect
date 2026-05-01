@@ -3,15 +3,11 @@ import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, Layer, Path } from "effect";
+import { Context, Effect, Layer, Path } from "effect";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
-const pathApi = Effect.runSync(
-  Effect.gen(function* () {
-    return yield* Path.Path;
-  }).pipe(Effect.provide(NodePath.layer))
-);
+const pathApi = Effect.runSync(Effect.scoped(Layer.build(NodePath.layer).pipe(Effect.map(Context.get(Path.Path)))));
 
 const MOCK_ROOT = pathApi.resolve(__dirname, "fixtures/mock-monorepo");
 

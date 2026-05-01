@@ -441,6 +441,12 @@ export interface PgliteTestcontainerResource {
   readonly port: number;
 }
 
+interface StartedPgliteContainer {
+  readonly container: StartedTestContainer;
+  readonly host: string;
+  readonly port: number;
+}
+
 const releasePgliteContainer = Effect.fn("SqlTest.releasePgliteContainer")(function* (container: StartedTestContainer) {
   yield* Effect.tryPromise({
     try: () => container.stop({ remove: true, removeVolumes: true }),
@@ -604,37 +610,77 @@ const startPgliteContainer = Effect.fn("SqlTest.startPgliteContainer")(function*
     catch: (cause) =>
       toHarnessError("pglite-testcontainers", "provision", "Failed to build the PGLite Testcontainers image.", cause),
   });
-  const image = new Testcontainers.GenericContainer(PgliteImageName);
+
+  const makeContainer = () =>
+    new Testcontainers.GenericContainer(PgliteImageName)
+      .withEnvironment({
+        PGDATABASE: config.database,
+        PGPASSWORD: config.password,
+        PGPORT: `${config.internalPort}`,
+        PGUSER: config.username,
+      })
+      .withHealthCheck({
+        test: ["CMD-SHELL", PgliteHealthCheckCommand],
+        interval: 250,
+        timeout: 1_000,
+        retries: 1_000,
+      })
+      .withStartupTimeout(config.startupTimeoutMs)
+      .withWaitStrategy(Testcontainers.Wait.forHealthCheck());
+
+  const startBridgeContainer = Effect.tryPromise({
+    try: async (): Promise<StartedPgliteContainer> => {
+      const container = await makeContainer().withExposedPorts(config.internalPort).start();
+      return {
+        container,
+        host: container.getHost(),
+        port: container.getMappedPort(config.internalPort),
+      };
+    },
+    catch: (cause) =>
+      toHarnessError(
+        "pglite-testcontainers",
+        "provision",
+        "Failed to start the PGLite Testcontainers SQL test driver.",
+        cause
+      ),
+  });
+
+  const startHostNetworkContainer = Effect.tryPromise({
+    try: async (): Promise<StartedPgliteContainer> => {
+      const container = await makeContainer().withNetworkMode("host").start();
+      return {
+        container,
+        host: "127.0.0.1",
+        port: config.internalPort,
+      };
+    },
+    catch: (cause) =>
+      toHarnessError(
+        "pglite-testcontainers",
+        "provision",
+        "Failed to start the PGLite Testcontainers SQL test driver.",
+        cause
+      ),
+  });
+
+  const shouldRetryWithHostNetwork = (error: SqlTestHarnessError): boolean =>
+    pipe(
+      error.cause,
+      O.exists((cause) => {
+        const message = String(cause);
+        return (
+          Str.includes("failed to set up container networking")(message) &&
+          Str.includes("operation not supported")(message)
+        );
+      })
+    );
 
   return yield* Effect.acquireRelease(
-    Effect.tryPromise({
-      try: () =>
-        image
-          .withEnvironment({
-            PGDATABASE: config.database,
-            PGPASSWORD: config.password,
-            PGPORT: `${config.internalPort}`,
-            PGUSER: config.username,
-          })
-          .withExposedPorts(config.internalPort)
-          .withHealthCheck({
-            test: ["CMD-SHELL", PgliteHealthCheckCommand],
-            interval: 250,
-            timeout: 1_000,
-            retries: 1_000,
-          })
-          .withStartupTimeout(config.startupTimeoutMs)
-          .withWaitStrategy(Testcontainers.Wait.forHealthCheck())
-          .start(),
-      catch: (cause) =>
-        toHarnessError(
-          "pglite-testcontainers",
-          "provision",
-          "Failed to start the PGLite Testcontainers SQL test driver.",
-          cause
-        ),
-    }),
-    releasePgliteContainer
+    startBridgeContainer.pipe(
+      Effect.catch((error) => (shouldRetryWithHostNetwork(error) ? startHostNetworkContainer : Effect.fail(error)))
+    ),
+    (started) => releasePgliteContainer(started.container)
   );
 });
 
@@ -658,9 +704,10 @@ export const makePgliteTestcontainerResource = Effect.fn("SqlTest.makePgliteTest
 ) {
   const config = yield* makePgliteConfig(configInput);
   const dockerContext = yield* resolvePgliteDockerContext();
-  const container = yield* startPgliteContainer(dockerContext, config);
-  const host = container.getHost();
-  const port = container.getMappedPort(config.internalPort);
+  const started = yield* startPgliteContainer(dockerContext, config);
+  const container = started.container;
+  const host = started.host;
+  const port = started.port;
   const connectionUri = makePgliteConnectionUri(host, port, config);
 
   return {

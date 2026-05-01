@@ -57,7 +57,7 @@ describe("Services and Surface", () => {
         const service = yield* CanonicalizationService;
         return yield* service.canonicalize(
           decodeUnknownSync(CanonicalizeDatasetRequest)({
-            dataset: S.encodeSync(Dataset)(dataset),
+            dataset: yield* S.encodeEffect(Dataset)(dataset),
             algorithm: "rdfc-1.0",
           })
         );
@@ -71,7 +71,7 @@ describe("Services and Surface", () => {
         const service = yield* CanonicalizationService;
         return yield* service.fingerprint(
           decodeUnknownSync(FingerprintDatasetRequest)({
-            dataset: S.encodeSync(Dataset)(dataset),
+            dataset: yield* S.encodeEffect(Dataset)(dataset),
             algorithm: "rdfc-1.0",
           })
         );
@@ -104,7 +104,7 @@ describe("Services and Surface", () => {
           const service = yield* CanonicalizationService;
           return yield* service.fingerprint(
             decodeUnknownSync(FingerprintDatasetRequest)({
-              dataset: S.encodeSync(Dataset)(left),
+              dataset: yield* S.encodeEffect(Dataset)(left),
               algorithm: "rdfc-1.0",
             })
           );
@@ -115,7 +115,7 @@ describe("Services and Surface", () => {
           const service = yield* CanonicalizationService;
           return yield* service.fingerprint(
             decodeUnknownSync(FingerprintDatasetRequest)({
-              dataset: S.encodeSync(Dataset)(right),
+              dataset: yield* S.encodeEffect(Dataset)(right),
               algorithm: "rdfc-1.0",
             })
           );
@@ -133,7 +133,7 @@ describe("Services and Surface", () => {
         const service = yield* ShaclValidationService;
         return yield* service.validate(
           decodeUnknownSync(ShaclValidationRequest)({
-            dataset: S.encodeSync(Dataset)(dataset),
+            dataset: yield* S.encodeEffect(Dataset)(dataset),
             shapes: [
               {
                 targetClass: makeNamedNode("https://schema.org/Person"),
@@ -169,7 +169,7 @@ describe("Services and Surface", () => {
             decodeUnknownSync(SparqlQueryRequest)({
               query: "SELECT * WHERE { ?s ?p ?o }",
               profile: "select",
-              dataset: S.encodeSync(Dataset)(dataset),
+              dataset: yield* S.encodeEffect(Dataset)(dataset),
             })
           );
         })

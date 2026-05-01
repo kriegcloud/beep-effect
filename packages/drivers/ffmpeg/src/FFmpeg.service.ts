@@ -10,6 +10,7 @@ import { Context, Effect, FileSystem, Layer, Number as N, Order, Path, pipe, Ref
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import type * as PlatformError from "effect/PlatformError";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
@@ -36,15 +37,15 @@ import {
 
 const $I = $FfmpegId.create("FFmpeg.service");
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-const Numberish = S.Union([S.Number, S.String]);
+const NumberOrString = S.Union([S.Number, S.String]);
 
 class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
   {
-    avg_frame_rate: S.optionalKey(Numberish),
-    duration: S.optionalKey(Numberish),
+    avg_frame_rate: S.optionalKey(NumberOrString),
+    duration: S.optionalKey(NumberOrString),
     height: S.optionalKey(S.Number),
-    nb_frames: S.optionalKey(Numberish),
-    r_frame_rate: S.optionalKey(Numberish),
+    nb_frames: S.optionalKey(NumberOrString),
+    r_frame_rate: S.optionalKey(NumberOrString),
     width: S.optionalKey(S.Number),
   },
   $I.annote("FfprobeStream", {
@@ -54,7 +55,7 @@ class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
 
 class FfprobeFormat extends S.Class<FfprobeFormat>($I`FfprobeFormat`)(
   {
-    duration: S.optionalKey(Numberish),
+    duration: S.optionalKey(NumberOrString),
   },
   $I.annote("FfprobeFormat", {
     description: "Internal ffprobe format payload.",
@@ -170,10 +171,10 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<str
   );
 
 const parseNumber = (value: unknown): O.Option<number> => {
-  if (typeof value === "number") {
+  if (P.isNumber(value)) {
     return Number.isFinite(value) ? O.some(value) : O.none();
   }
-  if (typeof value === "string") {
+  if (P.isString(value)) {
     return pipe(
       N.parse(value),
       O.filter((number) => Number.isFinite(number))
@@ -183,7 +184,7 @@ const parseNumber = (value: unknown): O.Option<number> => {
 };
 
 const rationalToNumber = (value: unknown): O.Option<number> => {
-  if (typeof value !== "string" || !Str.includes("/")(value)) {
+  if (!P.isString(value) || !Str.includes("/")(value)) {
     return parseNumber(value);
   }
 
@@ -259,15 +260,18 @@ const formatFps = (fps: number): string => `${fps}`;
  * ```ts
  * import { formatFrameFileName } from "@beep/ffmpeg"
  *
- * const name = formatFrameFileName("clip_frame", 0, 5)
+ * const name = formatFrameFileName({ index: 0, padding: 5, prefix: "clip_frame" })
  * console.log(name)
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const formatFrameFileName = (prefix: string, index: number, padding: number): string =>
-  `${prefix}_${pipe(`${index}`, Str.padStart(padding, "0"))}.png`;
+export const formatFrameFileName = (options: {
+  readonly index: number;
+  readonly padding: number;
+  readonly prefix: string;
+}): string => `${options.prefix}_${pipe(`${options.index}`, Str.padStart(options.padding, "0"))}.png`;
 
 /**
  * Build ffprobe arguments for the video-probe operation.
@@ -304,25 +308,29 @@ export const buildFfprobeArgs = (request: ProbeVideoRequest): ReadonlyArray<stri
  * ```ts
  * import { buildExtractFramesArgs } from "@beep/ffmpeg"
  *
- * const args = buildExtractFramesArgs("./clip.mp4", "1", "./frames/frame_%05d.png")
+ * const args = buildExtractFramesArgs({
+ *   fps: "1",
+ *   outputPattern: "./frames/frame_%05d.png",
+ *   videoPath: "./clip.mp4",
+ * })
  * void args
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const buildExtractFramesArgs = (
-  videoPath: string,
-  fps: string,
-  outputPattern: string
-): ReadonlyArray<string> => [
+export const buildExtractFramesArgs = (options: {
+  readonly fps: string;
+  readonly outputPattern: string;
+  readonly videoPath: string;
+}): ReadonlyArray<string> => [
   "-hide_banner",
   "-nostdin",
   "-y",
   "-i",
-  videoPath,
+  options.videoPath,
   "-vf",
-  `fps=${fps}`,
+  `fps=${options.fps}`,
   "-start_number",
   "0",
   "-progress",
@@ -330,7 +338,7 @@ export const buildExtractFramesArgs = (
   "-nostats",
   "-f",
   "image2",
-  outputPattern,
+  options.outputPattern,
 ];
 
 const runProcess = (
@@ -348,7 +356,7 @@ const runProcess = (
       );
       return { exitCode, stderr, stdout };
     })
-  ).pipe(Effect.mapError((cause) => FFmpegError.fromUnknown(operation, message, cause)));
+  ).pipe(Effect.mapError((cause) => FFmpegError.fromUnknown(operation, message, { cause })));
 
 const parseProgressEvent = (
   block: Readonly<Record<string, string>>,
@@ -484,7 +492,9 @@ const runExtractProcess = (
     })
   ).pipe(
     Effect.mapError((cause) =>
-      FFmpegError.fromUnknown("extractFrames", "Failed to run ffmpeg. Install ffmpeg or configure ffmpegPath.", cause)
+      FFmpegError.fromUnknown("extractFrames", "Failed to run ffmpeg. Install ffmpeg or configure ffmpegPath.", {
+        cause,
+      })
     )
   );
 
@@ -494,7 +504,7 @@ const ensureFile = (fs: FileSystem.FileSystem, filePath: string, label: string):
       .stat(filePath)
       .pipe(
         Effect.mapError((cause) =>
-          FFmpegError.fromUnknown("extractFrames", `Failed to stat ${label}: "${filePath}"`, cause)
+          FFmpegError.fromUnknown("extractFrames", `Failed to stat ${label}: "${filePath}"`, { cause })
         )
       );
     if (stat.type !== "File") {
@@ -511,7 +521,7 @@ const ensureDirectory = (fs: FileSystem.FileSystem, dirPath: string, label: stri
       .exists(dirPath)
       .pipe(
         Effect.mapError((cause) =>
-          FFmpegError.fromUnknown("extractFrames", `Failed to inspect ${label}: "${dirPath}"`, cause)
+          FFmpegError.fromUnknown("extractFrames", `Failed to inspect ${label}: "${dirPath}"`, { cause })
         )
       );
     if (!exists) {
@@ -519,7 +529,7 @@ const ensureDirectory = (fs: FileSystem.FileSystem, dirPath: string, label: stri
         .makeDirectory(dirPath, { recursive: true })
         .pipe(
           Effect.mapError((cause) =>
-            FFmpegError.fromUnknown("extractFrames", `Failed to create ${label}: "${dirPath}"`, cause)
+            FFmpegError.fromUnknown("extractFrames", `Failed to create ${label}: "${dirPath}"`, { cause })
           )
         );
       return;
@@ -529,7 +539,7 @@ const ensureDirectory = (fs: FileSystem.FileSystem, dirPath: string, label: stri
       .stat(dirPath)
       .pipe(
         Effect.mapError((cause) =>
-          FFmpegError.fromUnknown("extractFrames", `Failed to stat ${label}: "${dirPath}"`, cause)
+          FFmpegError.fromUnknown("extractFrames", `Failed to stat ${label}: "${dirPath}"`, { cause })
         )
       );
     if (stat.type !== "Directory") {
@@ -551,7 +561,7 @@ const preflightWritable = (
       .exists(filePath)
       .pipe(
         Effect.mapError((cause) =>
-          FFmpegError.fromUnknown("extractFrames", `Failed to inspect ${label}: "${filePath}"`, cause)
+          FFmpegError.fromUnknown("extractFrames", `Failed to inspect ${label}: "${filePath}"`, { cause })
         )
       );
     if (exists && !overwrite) {
@@ -609,7 +619,7 @@ const readTempFrames = Effect.fn("FFmpeg.readTempFrames")(function* (
     .readDirectory(tempDir)
     .pipe(
       Effect.mapError((cause) =>
-        FFmpegError.fromUnknown("extractFrames", `Failed to read temporary frame directory: "${tempDir}"`, cause)
+        FFmpegError.fromUnknown("extractFrames", `Failed to read temporary frame directory: "${tempDir}"`, { cause })
       )
     );
   const tempPrefix = `${prefix}_`;
@@ -673,14 +683,16 @@ const renderManifest = Effect.fn("FFmpeg.renderManifest")(function* (
 ) {
   const encoded = yield* encodeExtractFramesManifest(manifest).pipe(
     Effect.mapError((cause) =>
-      FFmpegError.fromUnknown("extractFrames", `Failed to encode extract-frames manifest: "${manifestPath}"`, cause)
+      FFmpegError.fromUnknown("extractFrames", `Failed to encode extract-frames manifest: "${manifestPath}"`, { cause })
     )
   );
 
   return yield* Effect.try({
     try: () => `${encodeJson(encoded)}\n`,
     catch: (cause) =>
-      FFmpegError.fromUnknown("extractFrames", `Failed to render extract-frames manifest: "${manifestPath}"`, cause),
+      FFmpegError.fromUnknown("extractFrames", `Failed to render extract-frames manifest: "${manifestPath}"`, {
+        cause,
+      }),
   });
 });
 
@@ -697,7 +709,7 @@ const commitFrames = Effect.fn("FFmpeg.commitFrames")(function* (
 
   for (const tempFrame of tempFrames) {
     const position = A.length(planned);
-    const fileName = formatFrameFileName(context.prefix, position, finalPadding);
+    const fileName = formatFrameFileName({ index: position, padding: finalPadding, prefix: context.prefix });
     const targetPath = path.join(context.outDir, fileName);
     planned = A.append(planned, {
       fileName,
@@ -720,7 +732,7 @@ const commitFrames = Effect.fn("FFmpeg.commitFrames")(function* (
       .rename(frame.sourcePath, frame.targetPath)
       .pipe(
         Effect.mapError((cause) =>
-          FFmpegError.fromUnknown("extractFrames", `Failed to commit frame output: "${frame.targetPath}"`, cause)
+          FFmpegError.fromUnknown("extractFrames", `Failed to commit frame output: "${frame.targetPath}"`, { cause })
         )
       );
     committed = A.append(
@@ -741,7 +753,7 @@ const commitFrames = Effect.fn("FFmpeg.commitFrames")(function* (
     .writeFileString(tempManifestPath, manifestContent)
     .pipe(
       Effect.mapError((cause) =>
-        FFmpegError.fromUnknown("extractFrames", `Failed to write temporary manifest: "${tempManifestPath}"`, cause)
+        FFmpegError.fromUnknown("extractFrames", `Failed to write temporary manifest: "${tempManifestPath}"`, { cause })
       )
     );
   if (context.request.overwrite) {
@@ -751,7 +763,7 @@ const commitFrames = Effect.fn("FFmpeg.commitFrames")(function* (
     .rename(tempManifestPath, context.manifestPath)
     .pipe(
       Effect.mapError((cause) =>
-        FFmpegError.fromUnknown("extractFrames", `Failed to commit manifest: "${context.manifestPath}"`, cause)
+        FFmpegError.fromUnknown("extractFrames", `Failed to commit manifest: "${context.manifestPath}"`, { cause })
       )
     );
 
@@ -766,7 +778,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
 
   const probeVideo = Effect.fn("FFmpeg.probeVideo")(function* (rawRequest: ProbeVideoRequest) {
     const request = yield* decodeProbeVideoRequest(rawRequest).pipe(
-      Effect.mapError((cause) => FFmpegError.fromUnknown("probeVideo", "Invalid probe video request.", cause))
+      Effect.mapError((cause) => FFmpegError.fromUnknown("probeVideo", "Invalid probe video request.", { cause }))
     );
     const videoPath = path.resolve(request.videoPath);
     yield* ensureFile(fs, videoPath, "video input");
@@ -797,7 +809,8 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
 
     const output = yield* decodeFfprobeOutput(result.stdout).pipe(
       Effect.mapError((cause) =>
-        FFmpegError.fromUnknown("probeVideo", `Failed to decode ffprobe JSON for "${videoPath}".`, cause, {
+        FFmpegError.fromUnknown("probeVideo", `Failed to decode ffprobe JSON for "${videoPath}".`, {
+          cause,
           command: config.ffprobePath,
           stdout: result.stdout,
         })
@@ -811,7 +824,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     onEvent?: FFmpegEventSink | undefined
   ) {
     const request = yield* decodeExtractFramesRequest(rawRequest).pipe(
-      Effect.mapError((cause) => FFmpegError.fromUnknown("extractFrames", "Invalid extract-frames request.", cause))
+      Effect.mapError((cause) => FFmpegError.fromUnknown("extractFrames", "Invalid extract-frames request.", { cause }))
     );
     const videoPath = path.resolve(request.videoPath);
     const outDir = path.resolve(request.outDir);
@@ -838,14 +851,18 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
             FFmpegError.fromUnknown(
               "extractFrames",
               `Failed to create temporary frame directory in "${context.outDir}".`,
-              cause
+              { cause }
             )
           )
         ),
       (tempDir) =>
         Effect.gen(function* () {
           const tempPattern = path.join(tempDir, `${context.prefix}_%0${context.padding}d.png`);
-          const args = buildExtractFramesArgs(context.videoPath, context.fpsText, tempPattern);
+          const args = buildExtractFramesArgs({
+            fps: context.fpsText,
+            outputPattern: tempPattern,
+            videoPath: context.videoPath,
+          });
           const command = ChildProcess.make(config.ffmpegPath, args, {
             forceKillAfter: `${config.forceKillAfterMillis} millis`,
             stdin: "ignore",

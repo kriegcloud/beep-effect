@@ -4,6 +4,7 @@ import { ISO4217_SOURCE_URL } from "@beep/repo-cli/commands/SyncDataToTs/targets
 import { syncDataTargets } from "@beep/repo-cli/commands/SyncDataToTs/targets/index";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
+import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { HttpClient, HttpClientError, HttpClientResponse } from "effect/unstable/http";
@@ -14,6 +15,7 @@ const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 const generatedOutputPath = "packages/common/data/src/generated/iso4217.ts" as const;
 const csvGeneratedOutputPath = "packages/common/data/src/generated/test-csv.ts" as const;
 const csvFixtureSourceUrl = "https://example.com/test.csv" as const;
+const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 const iso4217XmlFixture = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ISO_4217 Pblshd="2026-01-01">
@@ -143,20 +145,18 @@ const withRegisteredTarget = <A, E, R>(target: SyncDataTarget, use: Effect.Effec
       })
   );
 
-const readOutputFile = (outputPath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const absolutePath = path.join(process.cwd(), outputPath);
-    return yield* fs.readFileString(absolutePath);
-  });
+const readOutputFile = Effect.fn("SyncDataToTsTest.readOutputFile")(function* (outputPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const absolutePath = path.join(process.cwd(), outputPath);
+  return yield* fs.readFileString(absolutePath);
+});
 
-const outputFileExists = (outputPath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    return yield* fs.exists(path.join(process.cwd(), outputPath));
-  });
+const outputFileExists = Effect.fn("SyncDataToTsTest.outputFileExists")(function* (outputPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  return yield* fs.exists(path.join(process.cwd(), outputPath));
+});
 
 const writeOutputFile = Effect.fn("SyncDataToTsTest.writeOutputFile")(function* (outputPath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -182,7 +182,7 @@ const csvTarget: SyncDataTarget = {
     };
 
     return new SyncDataTargetProjection({
-      content: JSON.stringify({
+      content: encodeJson({
         columns: rows.columns ?? [],
         rows,
       }),

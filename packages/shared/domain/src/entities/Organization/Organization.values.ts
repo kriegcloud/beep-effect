@@ -41,14 +41,11 @@ export const LicenseTier = LiteralKit(["free", "team", "enterprise"]).annotate(
  *
  * @example
  * ```ts
- * import type { Organization } from
- * "@beep/shared-domain/entities/index"
- * import { Organization as OrganizationSchemas } from
- * "@beep/shared-domain/entities/index"
- * import * as S from "effect/Schema"
+ * import { Organization } from "@beep/shared-domain/entities";
+ * import * as S from "effect/Schema";
  *
- * const tier: Organization.LicenseTier = S.decodeUnknownSync(OrganizationSchemas.LicenseTier)("team")
- * console.log(tier)
+ * const tier: Organization.LicenseTier = S.decodeUnknownSync(Organization.LicenseTier)("team");
+ * console.log(tier);
  * ```
  *
  * @category models
@@ -62,7 +59,7 @@ export type LicenseTier = typeof LicenseTier.Type;
  * @example
  * ```ts
  * import { Organization } from
- * "@beep/shared-domain/entities/index"
+ * "@beep/shared-domain/entities"
  * import * as S from "effect/Schema"
  *
  * const settings = S.decodeUnknownSync(Organization.Settings)({

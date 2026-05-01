@@ -36,7 +36,7 @@
     "beep:build": "tsc -b tsconfig.json && bun run babel",
     "beep:check": "tsgo -b tsconfig.json",
     "beep:test": "bunx --bun vitest run --exclude=test/integration/**",
-    "beep:test:integration": "bunx --bun vitest run test/integration",
+    "beep:test:integration": "TESTCONTAINERS_RYUK_DISABLED=true bunx --bun vitest run test/integration",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",

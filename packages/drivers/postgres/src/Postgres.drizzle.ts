@@ -17,6 +17,12 @@ import { PostgresError } from "./Postgres.errors.ts";
 
 const $I = $PostgresId.create("Postgres.drizzle");
 
+declare const PostgresDrizzleSchema: unique symbol;
+
+type PostgresDrizzleSchemaPhantom<TSchema> = {
+  readonly [PostgresDrizzleSchema]?: TSchema;
+};
+
 /**
  * Native Drizzle Effect Postgres database value.
  *
@@ -34,9 +40,10 @@ const $I = $PostgresId.create("Postgres.drizzle");
 export type PostgresDrizzleDatabase<
   TSchema extends Record<string, unknown> = Record<string, never>,
   TRelations extends AnyRelations = EmptyRelations,
-> = PgDrizzle.EffectPgDatabase<TSchema, NonNullable<TRelations>> & {
-  readonly $client: Pg.PgClient;
-};
+> = PgDrizzle.EffectPgDatabase<NonNullable<TRelations>> &
+  PostgresDrizzleSchemaPhantom<TSchema> & {
+    readonly $client: Pg.PgClient;
+  };
 
 /**
  * Configuration accepted by {@link makeDrizzle}.
@@ -55,7 +62,7 @@ export type PostgresDrizzleDatabase<
 export type PostgresDrizzleConfig<
   TSchema extends Record<string, unknown> = Record<string, never>,
   TRelations extends AnyRelations = EmptyRelations,
-> = PgDrizzle.EffectDrizzleConfig<TSchema, NonNullable<TRelations>>;
+> = PgDrizzle.EffectDrizzlePgConfig<NonNullable<TRelations>> & PostgresDrizzleSchemaPhantom<TSchema>;
 
 /**
  * Service key for a default-typed Postgres-backed Drizzle database.
@@ -95,7 +102,7 @@ export const makeDrizzle = <
 ): Effect.Effect<PostgresDrizzleDatabase<TSchema, TRelations>, PostgresError, Pg.PgClient> =>
   loadNativePgDrizzle.pipe(
     Effect.flatMap((pgDrizzle) =>
-      pgDrizzle.makeWithDefaults<TSchema, NonNullable<TRelations>>(config).pipe(
+      pgDrizzle.makeWithDefaults<NonNullable<TRelations>>(config).pipe(
         Effect.map((database) => database as PostgresDrizzleDatabase<TSchema, TRelations>),
         Effect.mapError((cause) => PostgresError.fromUnknown("makeDrizzle", cause))
       )

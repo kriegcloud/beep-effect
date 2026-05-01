@@ -83,14 +83,14 @@ describe("toEquivalence", () => {
 describe("withEmptyArrayDefaults", () => {
   it("defaults missing array fields to an empty readonly array", () => {
     const Settings = S.Struct({
-      tags: S.Array(S.String).pipe(SchemaUtils.withEmptyArrayDefaults<string>()),
+      tags: S.String.pipe(S.Array, SchemaUtils.withEmptyArrayDefaults<string>()),
     });
 
     expect(A.isReadonlyArrayEmpty(S.decodeUnknownSync(Settings)({}).tags)).toBe(true);
   });
 
   it("supports the data-first call style", () => {
-    const Tags = SchemaUtils.withEmptyArrayDefaults<string>(S.Array(S.String));
+    const Tags = SchemaUtils.withEmptyArrayDefaults<string>(S.String.pipe(S.Array));
     const Settings = S.Struct({ tags: Tags });
 
     expect(A.isReadonlyArrayEmpty(S.decodeUnknownSync(Settings)({ tags: undefined }).tags)).toBe(true);

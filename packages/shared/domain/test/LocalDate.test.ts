@@ -36,11 +36,10 @@ import { TestClock } from "effect/testing";
 
 const juneFifteenth = () => make({ year: 2024, month: 6, day: 15 });
 
-const expectFailure = <A, E>(effect: Effect.Effect<A, E, never>) =>
-  Effect.gen(function* () {
-    const exit = yield* Effect.exit(effect);
-    assert.strictEqual(Exit.isFailure(exit), true);
-  });
+const expectFailure = Effect.fn("expectFailure")(function* <A, E>(effect: Effect.Effect<A, E, never>) {
+  const exit = yield* Effect.exit(effect);
+  assert.strictEqual(Exit.isFailure(exit), true);
+});
 
 describe("LocalDate.Model", () => {
   it("constructs, formats, stringifies, hashes, and compares values", () => {
@@ -118,7 +117,7 @@ describe("constructors", () => {
   it("constructs from Date and DateTime using UTC calendar fields", () => {
     const dateTime = DateTime.makeUnsafe("2024-06-15T23:59:59.000Z");
 
-    expect(fromDate(DateTime.toDateUtc(dateTime)).toISOString()).toBe("2024-06-15");
+    expect(fromDate(dateTime.pipe(DateTime.toDateUtc)).toISOString()).toBe("2024-06-15");
     expect(fromDateTime(dateTime).toISOString()).toBe("2024-06-15");
     expect(isLocalDate(today())).toBe(true);
   });

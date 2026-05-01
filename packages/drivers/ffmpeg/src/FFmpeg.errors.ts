@@ -7,6 +7,7 @@
 
 import { $FfmpegId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -44,6 +45,20 @@ const existingFfmpegError = (cause: unknown): O.Option<FFmpegError> =>
   S.is(FFmpegError)(cause) ? O.some(cause) : O.none();
 
 /**
+ * Options used when normalizing unknown FFmpeg boundary failures.
+ *
+ * @since 0.0.0
+ * @category errors
+ */
+export interface FFmpegErrorFromUnknownOptions {
+  readonly cause?: unknown;
+  readonly command?: string;
+  readonly exitCode?: number;
+  readonly stderr?: string;
+  readonly stdout?: string;
+}
+
+/**
  * Technical failure raised by the `@beep/ffmpeg` driver boundary.
  *
  * @example
@@ -79,20 +94,19 @@ export class FFmpegError extends TaggedErrorClass<FFmpegError>($I`FFmpegError`)(
    * ```ts
    * import { FFmpegError } from "@beep/ffmpeg"
    *
-   * const error = FFmpegError.fromUnknown("probeVideo", "ffprobe failed", new Error("boom"))
+   * const error = FFmpegError.fromUnknown("probeVideo", "ffprobe failed", { cause: new Error("boom") })
    * void error
    * ```
    *
    * @category errors
    * @since 0.0.0
    */
-  static readonly fromUnknown = (
-    operation: string,
-    message: string,
-    cause?: unknown,
-    context: FFmpegErrorContext = {}
-  ): FFmpegError =>
-    O.getOrElse(existingFfmpegError(cause), () => {
+  static readonly fromUnknown: {
+    (operation: string, message: string, options: FFmpegErrorFromUnknownOptions): FFmpegError;
+    (message: string, options: FFmpegErrorFromUnknownOptions): (operation: string) => FFmpegError;
+  } = dual(3, (operation: string, message: string, options: FFmpegErrorFromUnknownOptions): FFmpegError => {
+    const { cause, ...context } = options;
+    return O.getOrElse(existingFfmpegError(cause), () => {
       return new FFmpegError({
         ...context,
         cause: causeFromUnknown(cause),
@@ -100,4 +114,5 @@ export class FFmpegError extends TaggedErrorClass<FFmpegError>($I`FFmpegError`)(
         operation,
       });
     });
+  });
 }

@@ -6,7 +6,7 @@
  */
 
 import { $SharedDomainId } from "@beep/identity/packages";
-import * as BaseEntity from "../../entity/BaseEntity.js";
+import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Shared from "../../identity/Shared.js";
 import { ProfilePack } from "./Organization.values.js";
 
@@ -26,7 +26,7 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.model");
  * @category models
  * @since 0.0.0
  */
-export class Model extends BaseEntity.BaseEntity.extend<Model>($I`Model`)(
+export class Model extends BaseEntity.extend<Model>($I`Model`)(
   Shared.OrganizationId,
   ProfilePack,
   {},

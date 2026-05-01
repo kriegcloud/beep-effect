@@ -116,9 +116,9 @@ export * as NativePgClient from "@effect/sql-pg/PgClient";
  *
  * @example
  * ```ts
- * import type { EffectDrizzleConfig, EffectLogger, EffectPgDatabase } from "@beep/postgres/interop"
+ * import type { EffectDrizzlePgConfig, EffectLogger, EffectPgDatabase } from "@beep/postgres/interop"
  *
- * const config: EffectDrizzleConfig = {}
+ * const config: EffectDrizzlePgConfig = {}
  * const useDatabase = (_database: EffectPgDatabase) => config
  * const useLogger = (_logger: EffectLogger) => config
  * void useDatabase
@@ -128,4 +128,9 @@ export * as NativePgClient from "@effect/sql-pg/PgClient";
  * @since 0.0.0
  * @category exports
  */
-export type { EffectDrizzleConfig, EffectLogger, EffectPgDatabase } from "drizzle-orm/effect-postgres";
+export type {
+  EffectDrizzlePgConfig,
+  EffectDrizzlePgConfig as EffectDrizzleConfig,
+  EffectLogger,
+  EffectPgDatabase,
+} from "drizzle-orm/effect-postgres";

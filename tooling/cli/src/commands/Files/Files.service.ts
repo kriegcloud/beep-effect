@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
-import { Console, Context, Effect, FileSystem, HashMap, HashSet, Layer, Order, Path, pipe, Result } from "effect";
+import { Console, Context, Effect, FileSystem, flow, HashMap, HashSet, Layer, Order, Path, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
@@ -250,25 +250,23 @@ const validateDirectory = Effect.fn("Files.validateDirectory")(function* (
   return { canonicalDir, directory };
 });
 
-const validateNormalizeMaxLongEdge = (
+const validateNormalizeMaxLongEdge: (
   maxLongEdge: O.Option<number>
-): Effect.Effect<O.Option<PositiveMediaDimension>, FilesCommandError> =>
-  pipe(
-    maxLongEdge,
-    O.match({
-      onNone: () => Effect.succeed(O.none<PositiveMediaDimension>()),
-      onSome: (value) =>
-        decodeNormalizeMaxLongEdge(value).pipe(
-          Effect.map(O.some),
-          Effect.mapError(
-            () =>
-              new FilesCommandError({
-                message: `Expected --max-long-edge to be a positive integer: ${value}`,
-              })
-          )
-        ),
-    })
-  );
+) => Effect.Effect<O.Option<PositiveMediaDimension>, FilesCommandError> = flow(
+  O.match({
+    onNone: () => Effect.succeed(O.none<PositiveMediaDimension>()),
+    onSome: (value) =>
+      decodeNormalizeMaxLongEdge(value).pipe(
+        Effect.map(O.some),
+        Effect.mapError(
+          () =>
+            new FilesCommandError({
+              message: `Expected --max-long-edge to be a positive integer: ${value}`,
+            })
+        )
+      ),
+  })
+);
 
 const validateCreateCaptionFilesOptions = (
   options: CreateCaptionFilesOptions

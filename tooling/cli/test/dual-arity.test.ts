@@ -5,11 +5,11 @@ import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
 
-const testLayer = Layer.mergeAll(
-  FsUtilsLive,
-  TSMorphServiceLive,
+const PlatformLayer = Layer.mergeAll(
+  NodeServices.layer,
   NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer))
-).pipe(Layer.provideMerge(NodeServices.layer));
+);
+const testLayer = Layer.mergeAll(FsUtilsLive, TSMorphServiceLive).pipe(Layer.provideMerge(PlatformLayer));
 
 const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(

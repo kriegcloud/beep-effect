@@ -12,11 +12,13 @@ import { beforeAll, describe, expect, it } from "@effect/vitest";
 import { Cause, Context, Effect, Exit, Layer, pipe, Scope } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 
 const sharedConnectionUri = process.env.BEEP_TEST_DATABASE_URL;
 const hasSharedConnectionUri = sharedConnectionUri !== undefined && sharedConnectionUri !== "";
 let pgliteTestcontainersAvailable = false;
+const isSqlTestHarnessError = S.is(SqlTestHarnessError);
 
 beforeAll(
   () =>
@@ -294,7 +296,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
           const failure = Cause.squash(exit.cause);
 
           expect(failure).toBeInstanceOf(SqlTestHarnessError);
-          if (failure instanceof SqlTestHarnessError) {
+          if (isSqlTestHarnessError(failure)) {
             expect(failure.phase).toBe("migrate");
             expect(failure.driver).toBe("pg-external");
           }

@@ -2,11 +2,13 @@ import { lintCommand } from "@beep/repo-cli";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
+import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
 
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
+const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 const testLayer = Layer.mergeAll(
   NodeServices.layer,
@@ -43,7 +45,7 @@ const writePackage = Effect.fn(function* (packageDir: string, packageName: strin
   yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
   yield* fs.writeFileString(
     path.join(packageDir, "package.json"),
-    `${JSON.stringify({
+    `${encodeJson({
       name: packageName,
       version: "0.0.0",
       type: "module",

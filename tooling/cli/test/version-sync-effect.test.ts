@@ -116,7 +116,7 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
           versionSpecifier: "^4.0.0-beta.28",
         });
         const updated = yield* fs.readFileString(packageJsonPath);
-        const decodedUpdated = S.decodeUnknownSync(S.UnknownFromJsonString)(updated) as {
+        const decodedUpdated = (yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(updated)) as {
           readonly catalog: Record<string, string>;
         };
 

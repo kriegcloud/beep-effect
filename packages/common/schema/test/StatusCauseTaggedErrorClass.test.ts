@@ -1,7 +1,11 @@
 import { StatusCauseTaggedErrorClass } from "@beep/schema/StatusCauseTaggedErrorClass";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Option as O, pipe } from "effect";
+import { Data, Effect, Option as O, pipe } from "effect";
 import * as S from "effect/Schema";
+
+class RawFailure extends Data.TaggedError("RawFailure")<{ readonly message: string }> {}
+
+const rawFailure = () => new RawFailure({ message: "raw failure" });
 
 class HttpError extends StatusCauseTaggedErrorClass<HttpError>("HttpError")("HttpError") {}
 
@@ -94,7 +98,7 @@ describe("StatusCauseTaggedErrorClass", () => {
 
   it.effect("maps errors in data-first form", () =>
     Effect.gen(function* () {
-      const error = yield* Effect.flip(HttpError.mapError(Effect.fail(new Error("raw failure")), "boom", 500));
+      const error = yield* Effect.flip(HttpError.mapError(Effect.fail(rawFailure()), "boom", 500));
 
       expect(error).toBeInstanceOf(HttpError);
       expect(error.message).toBe("boom");
@@ -105,7 +109,7 @@ describe("StatusCauseTaggedErrorClass", () => {
 
   it.effect("maps errors in pipe-friendly form", () =>
     Effect.gen(function* () {
-      const error = yield* pipe(Effect.fail(new Error("raw failure")), HttpError.mapError("boom", 500), Effect.flip);
+      const error = yield* pipe(Effect.fail(rawFailure()), HttpError.mapError("boom", 500), Effect.flip);
 
       expect(error).toBeInstanceOf(HttpError);
       expect(error.message).toBe("boom");
@@ -117,7 +121,7 @@ describe("StatusCauseTaggedErrorClass", () => {
   it.effect("maps extra-field errors in pipe-friendly form", () =>
     Effect.gen(function* () {
       const error = yield* pipe(
-        Effect.fail(new Error("raw failure")),
+        Effect.fail(rawFailure()),
         ProviderError.mapError("boom", 502, { provider: "local" }),
         Effect.flip
       );
@@ -133,7 +137,7 @@ describe("StatusCauseTaggedErrorClass", () => {
   it.effect("maps extra-field errors in data-first form", () =>
     Effect.gen(function* () {
       const error = yield* Effect.flip(
-        ProviderError.mapError(Effect.fail(new Error("raw failure")), "boom", 502, { provider: "local" })
+        ProviderError.mapError(Effect.fail(rawFailure()), "boom", 502, { provider: "local" })
       );
 
       expect(error).toBeInstanceOf(ProviderError);

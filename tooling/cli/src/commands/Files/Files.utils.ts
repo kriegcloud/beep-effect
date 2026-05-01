@@ -6,7 +6,7 @@
  */
 
 import { ImageFileExtension, VideoFileExtension } from "@beep/schema";
-import { Effect, HashSet, Order, type Path, pipe, Stream } from "effect";
+import { Effect, flow, HashSet, Order, type Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -273,8 +273,7 @@ export const byNameAscending: Order.Order<SortableFile> = Order.mapInput(
  * @category utilities
  * @since 0.0.0
  */
-export const normalizeBareExtension = (extension: string): string =>
-  pipe(extension, Str.replace(/^\./, ""), Str.toLowerCase);
+export const normalizeBareExtension: (extension: string) => string = flow(Str.replace(/^\./, ""), Str.toLowerCase);
 
 /**
  * Resolve a media kind from a file extension.

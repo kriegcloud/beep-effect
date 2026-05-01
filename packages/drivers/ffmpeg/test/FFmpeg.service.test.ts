@@ -103,9 +103,15 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
 
 describe("@beep/ffmpeg", () => {
   it("formats frame names and command arguments", () => {
-    expect(formatFrameFileName("clip_frame", 7, 5)).toBe("clip_frame_00007.png");
+    expect(formatFrameFileName({ index: 7, padding: 5, prefix: "clip_frame" })).toBe("clip_frame_00007.png");
     expect(buildFfprobeArgs(new ProbeVideoRequest({ videoPath: "./clip.mp4" }))).toContain("./clip.mp4");
-    expect(buildExtractFramesArgs("./clip.mp4", "1", "./frames/frame_%05d.png")).toEqual([
+    expect(
+      buildExtractFramesArgs({
+        fps: "1",
+        outputPattern: "./frames/frame_%05d.png",
+        videoPath: "./clip.mp4",
+      })
+    ).toEqual([
       "-hide_banner",
       "-nostdin",
       "-y",

@@ -19,7 +19,7 @@ declare const sink: FFmpegEventSink;
 describe("@beep/ffmpeg", () => {
   it("exports typed errors and the service layer", () => {
     expect(new FFmpegError({ message: "boom", operation: "extractFrames" })).type.toBe<FFmpegError>();
-    expect(FFmpegError.fromUnknown("probeVideo", "boom", new Error("nope"))).type.toBe<FFmpegError>();
+    expect(FFmpegError.fromUnknown("probeVideo", "boom", { cause: new Error("nope") })).type.toBe<FFmpegError>();
     expect(FFmpeg.makeLayer()).type.toBe<
       Layer.Layer<
         FFmpeg,

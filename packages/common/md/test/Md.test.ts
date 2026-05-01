@@ -280,8 +280,10 @@ ${Md.h3("Inside")}
       }
       expect(() => renderEffectWithUnsafe(throwingEffectAdapter, doc)).toThrow("sync effect boom");
 
-      expect(S.decodeUnknownSync(DocumentToMarkdown)(doc)).toBe(Markdown.make("# Hello\n\nWorld"));
-      expect(S.decodeUnknownSync(DocumentToHtmlFragment)(doc)).toBe(HtmlFragment.make("<h1>Hello</h1>\n<p>World</p>"));
+      expect(yield* S.decodeUnknownEffect(DocumentToMarkdown)(doc)).toBe(Markdown.make("# Hello\n\nWorld"));
+      expect(yield* S.decodeUnknownEffect(DocumentToHtmlFragment)(doc)).toBe(
+        HtmlFragment.make("<h1>Hello</h1>\n<p>World</p>")
+      );
 
       const markdownEncode = yield* Effect.exit(S.encodeEffect(DocumentToMarkdown)(Markdown.make("# Hello")));
       const htmlEncode = yield* Effect.exit(

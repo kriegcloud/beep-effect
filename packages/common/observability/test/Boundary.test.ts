@@ -10,7 +10,7 @@ const readText = (relativePath: string) => readFileSync(resolve(packageRoot, rel
 const runTypecheck = (tscPath: string, tsconfigPath: string) =>
   new Promise<void>((resolvePromise, rejectPromise) => {
     execFile(tscPath, ["--noEmit", "-p", tsconfigPath], { cwd: repoRoot, maxBuffer: 10 * 1024 * 1024 }, (error) => {
-      if (error) {
+      if (error !== null) {
         rejectPromise(error);
         return;
       }

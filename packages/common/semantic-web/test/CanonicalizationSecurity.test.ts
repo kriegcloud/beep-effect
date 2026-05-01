@@ -44,7 +44,7 @@ const expectSemanticBudgetFailure = (error: Error) => {
         const service = yield* CanonicalizationService;
         return yield* service.canonicalize(
           decodeUnknownSync(CanonicalizeDatasetRequest)({
-            dataset: S.encodeSync(Dataset)(dataset),
+            dataset: yield* S.encodeEffect(Dataset)(dataset),
             algorithm: "rdfc-1.0",
           })
         );
@@ -70,7 +70,7 @@ describe("Canonicalization security hardening", () => {
         const service = yield* CanonicalizationService;
         return yield* service.canonicalize(
           decodeUnknownSync(CanonicalizeDatasetRequest)({
-            dataset: S.encodeSync(Dataset)(dataset),
+            dataset: yield* S.encodeEffect(Dataset)(dataset),
             algorithm: "rdfc-1.0",
           })
         );
@@ -81,7 +81,7 @@ describe("Canonicalization security hardening", () => {
     const call = canonizeMock.mock.calls[0];
     expect(call).toBeDefined();
 
-    if (!call) {
+    if (call === undefined) {
       return;
     }
 

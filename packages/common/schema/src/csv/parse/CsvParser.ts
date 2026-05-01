@@ -108,7 +108,7 @@ const parseQuotedField = (
   input: string,
   quoteStart: number,
   parserOptions: ParserOptions
-): Effect.Effect<ParsedField, CsvError> => {
+): Effect.Effect<ParsedField, CsvError, never> => {
   if (O.isNone(parserOptions.quote)) {
     return Effect.fail(csvError("Quoted field parsing requires a configured quote character.", quoteStart));
   }
@@ -216,7 +216,7 @@ const parseField = (
   input: string,
   cursor: number,
   parserOptions: ParserOptions
-): Effect.Effect<ParsedField, CsvError> => {
+): Effect.Effect<ParsedField, CsvError, never> => {
   const rowDelimiterLength = getRowDelimiterLength(input, cursor);
 
   if (rowDelimiterLength > 0 || input.at(cursor) === parserOptions.delimiter || cursor >= input.length) {
@@ -248,7 +248,11 @@ export class ParsedRow extends S.Class<ParsedRow>($I`ParsedRow`)(
   })
 ) {}
 
-const parseRowAt = (input: string, cursor: number, parserOptions: ParserOptions): Effect.Effect<ParsedRow, CsvError> =>
+const parseRowAt = (
+  input: string,
+  cursor: number,
+  parserOptions: ParserOptions
+): Effect.Effect<ParsedRow, CsvError, never> =>
   Effect.gen(function* () {
     let currentCursor = cursor;
     let row = A.empty<string>();
@@ -343,7 +347,7 @@ const isCommentStart = (input: string, cursor: number, parserOptions: ParserOpti
 const parseCsvRowsEffect = (
   input: string,
   parserOptions: ParserOptions
-): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError> =>
+): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError, never> =>
   Effect.gen(function* () {
     const source = removeBom(input);
     let cursor = 0;
@@ -373,6 +377,8 @@ const parseCsvRowsEffect = (
  * @since 0.0.0
  */
 export const parseCsvRows: {
-  (input: string, parserOptions: ParserOptions): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError>;
-  (parserOptions: ParserOptions): (input: string) => Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError>;
+  (input: string, parserOptions: ParserOptions): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError, never>;
+  (
+    parserOptions: ParserOptions
+  ): (input: string) => Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError, never>;
 } = dual(2, parseCsvRowsEffect);

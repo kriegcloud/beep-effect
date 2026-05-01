@@ -5,7 +5,7 @@ import {
   NormalizeManifest,
 } from "@beep/repo-cli/commands/Files/index";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
-import { Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
+import { Data, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -23,6 +23,10 @@ const runFilesCommand = Command.runWith(filesCommand, { version: "0.0.0" });
 const decodeArchivePoorCandidatesManifest = S.decodeUnknownSync(S.fromJsonString(ArchivePoorCandidatesManifest));
 const decodeDetectBordersReport = S.decodeUnknownSync(S.fromJsonString(DetectBordersReport));
 const decodeNormalizeManifest = S.decodeUnknownSync(S.fromJsonString(NormalizeManifest));
+
+class FilesTestError extends Data.TaggedError("FilesTestError")<{ readonly cause: unknown }> {}
+
+const filesTestError = (cause: unknown) => new FilesTestError({ cause });
 
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -95,7 +99,7 @@ const writeJpegWithExif = Effect.fn("FilesTest.writeJpegWithExif")(function* (
           },
         })
         .toFile(filePath),
-    catch: (cause) => cause,
+    catch: filesTestError,
   }).pipe(Effect.asVoid);
 });
 
@@ -123,14 +127,14 @@ const writeJpegWithOrientationExif = Effect.fn("FilesTest.writeJpegWithOrientati
           },
         })
         .toFile(filePath),
-    catch: (cause) => cause,
+    catch: filesTestError,
   }).pipe(Effect.asVoid);
 });
 
 const readImageMetadata = Effect.fn("FilesTest.readImageMetadata")(function* (filePath: string) {
   return yield* Effect.tryPromise({
     try: () => sharp(filePath).metadata(),
-    catch: (cause) => cause,
+    catch: filesTestError,
   });
 });
 
@@ -187,7 +191,7 @@ const writeInsetCanvasImage = Effect.fn("FilesTest.writeInsetCanvasImage")(funct
         ])
         .png()
         .toFile(filePath),
-    catch: (cause) => cause,
+    catch: filesTestError,
   }).pipe(Effect.asVoid);
 });
 
@@ -212,7 +216,7 @@ const writePatternImage = Effect.fn("FilesTest.writePatternImage")(function* (
       sharp(data, { raw: { channels: 3, height, width } })
         .png()
         .toFile(filePath),
-    catch: (cause) => cause,
+    catch: filesTestError,
   }).pipe(Effect.asVoid);
 });
 
@@ -245,7 +249,7 @@ const writeLeftCanvasPatternImage = Effect.fn("FilesTest.writeLeftCanvasPatternI
       sharp(data, { raw: { channels: 3, height, width } })
         .png()
         .toFile(filePath),
-    catch: (cause) => cause,
+    catch: filesTestError,
   }).pipe(Effect.asVoid);
 });
 
@@ -273,7 +277,7 @@ const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")
       sharp(data, { raw: { channels: 3, height, width } })
         .jpeg({ quality: 85 })
         .toFile(filePath),
-    catch: (cause) => cause,
+    catch: filesTestError,
   }).pipe(Effect.asVoid);
 });
 

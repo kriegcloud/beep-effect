@@ -12,10 +12,12 @@ import { describe, expect, it } from "@effect/vitest";
 import { Cause, Context, Effect, Exit, Layer, pipe, Scope } from "effect";
 import * as A from "effect/Array";
 import * as FileSystem from "effect/FileSystem";
+import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 
 const isBunRuntime = process.versions.bun !== undefined;
 const expectedDriver = isBunRuntime ? "bun-sqlite" : "node-sqlite";
+const isSqlTestHarnessError = S.is(SqlTestHarnessError);
 
 const makeLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
   isBunRuntime
@@ -154,7 +156,7 @@ describe("SqlTest", () => {
         const failure = Cause.squash(exit.cause);
 
         expect(failure).toBeInstanceOf(SqlTestHarnessError);
-        if (failure instanceof SqlTestHarnessError) {
+        if (isSqlTestHarnessError(failure)) {
           expect(failure.phase).toBe("migrate");
           expect(failure.driver).toBe(expectedDriver);
         }
@@ -195,7 +197,7 @@ describe("SqlTest", () => {
         const failure = Cause.squash(exit.cause);
 
         expect(failure).toBeInstanceOf(SqlTestHarnessError);
-        if (failure instanceof SqlTestHarnessError) {
+        if (isSqlTestHarnessError(failure)) {
           expect(failure.phase).toBe("provision");
           expect(failure.driver).toBe("pglite-testcontainers");
         }
@@ -222,7 +224,7 @@ describe("SqlTest", () => {
         const failure = Cause.squash(exit.cause);
 
         expect(failure).toBeInstanceOf(SqlTestHarnessError);
-        if (failure instanceof SqlTestHarnessError) {
+        if (isSqlTestHarnessError(failure)) {
           expect(failure.phase).toBe("provision");
           expect(failure.driver).toBe("pg-external");
         }
