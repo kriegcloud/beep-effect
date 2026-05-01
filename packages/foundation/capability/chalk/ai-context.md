@@ -1,5 +1,5 @@
 ---
-path: packages/common/chalk
+path: packages/foundation/capability/chalk
 summary: 🖍 Terminal string styling done right
 tags: [effect]
 ---

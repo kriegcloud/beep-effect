@@ -2,7 +2,6 @@
   "$schema": "https://tstyche.org/schemas/config.json",
   "testFileMatch": [
     "packages/_internal/*/dtslint/**/*.tst.*",
-    "packages/common/*/dtslint/**/*.tst.*",
     "packages/foundation/*/*/dtslint/**/*.tst.*",
     "packages/fixture-lab/specimen/*/dtslint/**/*.tst.*",
     "packages/shared/client/dtslint/**/*.tst.*",

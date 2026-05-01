@@ -81,7 +81,7 @@
     "tmp/**",
     "specs",
     "**/AGENTS.md",
-    "packages/common/schema/src/Timezone.ts",
+    "packages/foundation/modeling/schema/src/Timezone.ts",
     "**/internal/data/**",
     "**/dtslint/**",
     "**/test/**",

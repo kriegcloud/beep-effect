@@ -25,7 +25,7 @@ const emptyArray = (): [] => [];
  * @since 0.0.0
  */
 export const ReuseCatalogOrigin = S.Union([
-  S.Literal("repo-common"),
+  S.Literal("repo-foundation"),
   S.Literal("repo-tooling"),
   S.Literal("effect-v4-curated"),
 ]).pipe(
@@ -42,7 +42,7 @@ export const ReuseCatalogOrigin = S.Union([
  * @example
  * ```ts
  * import type { ReuseCatalogOrigin } from "@beep/repo-utils/Reuse/Reuse.model"
- * const origin: ReuseCatalogOrigin = "repo-common"
+ * const origin: ReuseCatalogOrigin = "repo-foundation"
  * void origin
  * ```
  * @category models

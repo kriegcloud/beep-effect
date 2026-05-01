@@ -8,7 +8,6 @@
     ".codex",
     "infra",
     "packages/_internal/*",
-    "packages/common/*",
     "packages/foundation/*/*",
     "packages/fixture-lab/specimen/*",
     "packages/shared/client",

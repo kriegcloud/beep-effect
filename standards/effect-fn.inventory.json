@@ -53,7 +53,7 @@
       }
     },
     {
-      "package": "packages/common/chalk",
+      "package": "packages/foundation/capability/chalk",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -62,7 +62,7 @@
       }
     },
     {
-      "package": "packages/common/colors",
+      "package": "packages/foundation/capability/colors",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -71,7 +71,7 @@
       }
     },
     {
-      "package": "packages/common/data",
+      "package": "packages/foundation/primitive/data",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -80,7 +80,7 @@
       }
     },
     {
-      "package": "packages/common/identity",
+      "package": "packages/foundation/modeling/identity",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -89,7 +89,7 @@
       }
     },
     {
-      "package": "packages/common/messages",
+      "package": "packages/foundation/modeling/messages",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -98,7 +98,7 @@
       }
     },
     {
-      "package": "packages/common/nlp",
+      "package": "packages/foundation/capability/nlp",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -107,7 +107,7 @@
       }
     },
     {
-      "package": "packages/common/observability",
+      "package": "packages/foundation/capability/observability",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -116,7 +116,7 @@
       }
     },
     {
-      "package": "packages/common/schema",
+      "package": "packages/foundation/modeling/schema",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -125,7 +125,7 @@
       }
     },
     {
-      "package": "packages/common/semantic-web",
+      "package": "packages/foundation/capability/semantic-web",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -134,7 +134,7 @@
       }
     },
     {
-      "package": "packages/common/types",
+      "package": "packages/foundation/primitive/types",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -143,7 +143,7 @@
       }
     },
     {
-      "package": "packages/common/ui",
+      "package": "packages/foundation/ui-system/ui",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -152,7 +152,7 @@
       }
     },
     {
-      "package": "packages/common/utils",
+      "package": "packages/foundation/modeling/utils",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,

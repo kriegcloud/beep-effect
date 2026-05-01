@@ -361,7 +361,7 @@ Decision: Cytoscape is the primary graph renderer. The existing D3 `knowledge-gr
 
 ### Existing style assets
 
-The 948-line stylesheet in `packages/common/ui/.../codegraph/styles/graph-styles.tsx` already defines:
+The 948-line stylesheet in `packages/foundation/ui-system/ui/.../codegraph/styles/graph-styles.tsx` already defines:
 
 - 17 node types: `function`, `class`, `interface`, `type-alias`, `enum`, `const`, `variable`, `method`, `property`, `constructor`, `getter`, `setter`, `namespace`, `module`, `file`, `directory`, `unknown`.
 - 9 edge types: `IMPORTS`, `EXPORTS`, `EXTENDS`, `IMPLEMENTS`, `CONTAINS`, `CALLS`, `REFERENCES`, `DEPENDS_ON`, `TYPE_OF`.

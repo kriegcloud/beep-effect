@@ -284,7 +284,7 @@ export const iso4217Target: SyncDataTarget = {
   id: "iso4217",
   description: "Sync official ISO 4217 currency codes from SIX List One (XML).",
   sourceUrl: ISO4217_SOURCE_URL,
-  outputPath: "packages/common/data/src/generated/iso4217.ts",
+  outputPath: "packages/foundation/primitive/data/src/generated/iso4217.ts",
   format: "xml",
   project: projectIso4217Document,
 };

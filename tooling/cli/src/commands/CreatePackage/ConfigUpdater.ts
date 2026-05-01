@@ -405,7 +405,7 @@ export const updateTsconfigPaths: {
  * glob, the file is left untouched.
  *
  * @param repoRoot - Absolute path to the repository root directory.
- * @param packagePath - Relative path from the repo root to the new package (e.g. `"packages/common/data"`).
+ * @param packagePath - Relative path from the repo root to the new package (e.g. `"packages/foundation/primitive/data"`).
  * @returns `true` when the file was modified, `false` when the entry already existed or was covered.
  * @depends FileSystem, Path
  * @category Utility

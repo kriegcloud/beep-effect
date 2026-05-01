@@ -115,7 +115,7 @@ describe.sequential("package test import lint command", () => {
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
-          const packageDir = path.join("packages", "common", "example");
+          const packageDir = path.join("packages", "foundation", "modeling", "example");
 
           yield* writePackage(packageDir, "@beep/example");
           yield* fs.makeDirectory(path.join(packageDir, "test"), { recursive: true });
@@ -131,7 +131,7 @@ describe.sequential("package test import lint command", () => {
             "[check-package-test-imports] relative imports from package test/dtslint files into workspace src are not allowed. Use @beep/* package aliases."
           );
           expect(errorLines).toContain(
-            "packages/common/example/test/Example.test.ts:1 ../src/index.ts -> @beep/example"
+            "packages/foundation/modeling/example/test/Example.test.ts:1 ../src/index.ts -> @beep/example"
           );
           expect(process.exitCode).toBe(1);
         })
@@ -145,8 +145,8 @@ describe.sequential("package test import lint command", () => {
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
-          const producerDir = path.join("packages", "common", "producer");
-          const consumerDir = path.join("packages", "common", "consumer");
+          const producerDir = path.join("packages", "foundation", "modeling", "producer");
+          const consumerDir = path.join("packages", "foundation", "modeling", "consumer");
 
           yield* writePackage(producerDir, "@beep/producer");
           yield* writePackage(consumerDir, "@beep/consumer");
@@ -160,7 +160,7 @@ describe.sequential("package test import lint command", () => {
 
           const errorLines = yield* TestConsole.errorLines;
           expect(errorLines).toContain(
-            "packages/common/consumer/dtslint/Consumer.tst.ts:1 ../../producer/src/Producer.ts -> @beep/producer/Producer"
+            "packages/foundation/modeling/consumer/dtslint/Consumer.tst.ts:1 ../../producer/src/Producer.ts -> @beep/producer/Producer"
           );
           expect(process.exitCode).toBe(1);
         })
@@ -174,7 +174,7 @@ describe.sequential("package test import lint command", () => {
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
-          const packageDir = path.join("packages", "common", "example");
+          const packageDir = path.join("packages", "foundation", "modeling", "example");
 
           yield* writePackage(packageDir, "@beep/example");
           yield* fs.makeDirectory(path.join(packageDir, "test", "fixtures"), { recursive: true });
@@ -206,7 +206,7 @@ describe.sequential("package test import lint command", () => {
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
-          const packageDir = path.join("packages", "common", "example");
+          const packageDir = path.join("packages", "foundation", "modeling", "example");
 
           yield* writePackage(packageDir, "@beep/example");
           yield* fs.makeDirectory(path.join(packageDir, "test"), { recursive: true });

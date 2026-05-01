@@ -131,7 +131,7 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
 
 | File | Owner | Purpose |
 |------|-------|---------|
-| `packages/common/ui/.../codegraph/CytoscapeCanvas.tsx` | Claude Code + Chrome | React wrapper with `CytoscapeService` as `Context.Service` |
+| `packages/foundation/ui-system/ui/.../codegraph/CytoscapeCanvas.tsx` | Claude Code + Chrome | React wrapper with `CytoscapeService` as `Context.Service` |
 | `apps/desktop/src/components/WorkspaceLayout.tsx` | Claude Code + Chrome | Three-zone layout shell (nav, canvas, detail) |
 | `apps/desktop/src/components/GraphCanvas.tsx` | Claude Code + Chrome | Cytoscape instance management, zoom, pan, selection |
 | `apps/desktop/src/components/DetailPanel.tsx` | Claude Code + Chrome | Right-zone inspector for selected node/edge |
@@ -411,7 +411,7 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
 
 3. **Cross-domain resolution**: When a wiki_link uses the `[[code:SymbolName]]` prefix, the link resolution service queries the `graph_nodes` table for nodes with `kind: "code-symbol"` and matching label. If found, the edge connects the document node to the code entity node.
 
-4. **Unified graph rendering**: The Cytoscape canvas renders both code nodes (from repo-memory) and document nodes (from vault) in a single layout. New Cytoscape styles for document nodes and wiki_link edges extend the existing style system at `packages/common/ui/.../codegraph/styles/graph-styles.tsx`.
+4. **Unified graph rendering**: The Cytoscape canvas renders both code nodes (from repo-memory) and document nodes (from vault) in a single layout. New Cytoscape styles for document nodes and wiki_link edges extend the existing style system at `packages/foundation/ui-system/ui/.../codegraph/styles/graph-styles.tsx`.
 
 ### Replay State Atoms
 
@@ -502,12 +502,12 @@ The event-sourced architecture makes this extension natural: new domains define 
 |-------|------|--------|
 | 0 | `.agents/skills/` (new) | Four specialist skills + rules wrapper |
 | 0 | `scratchpad/skill-validation/` | Type-checking validation files |
-| 1 | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | Extend with document node styles, certainty-based edge opacity, wiki_link edge type |
+| 1 | `packages/foundation/ui-system/ui/.../codegraph/styles/graph-styles.tsx` | Extend with document node styles, certainty-based edge opacity, wiki_link edge type |
 | 1 | `apps/desktop/src/RepoMemoryDesktop.tsx` | Decompose 1831-line monolith into `WorkspaceLayout`, `GraphCanvas`, `DetailPanel`, `QueryBar` |
 | 2 | `packages/editor/domain/src/Canonical.ts` | Basic `[[wiki_link]]` extraction via `extractBlockLinks` (no `[[code:...]]` prefix -- deferred to Phase 3) |
 | 2 | `packages/editor/lexical/src/EditorSurface.tsx` | Register `WikiLinkNode` at line 65, mount `WikiLinkTypeaheadPlugin` and `BacklinkDisplayPlugin` |
-| 2 | `packages/common/semantic-web/src/prov.ts` | Reuse `ProvBundle` for event provenance (no changes needed, reference only) |
-| 3 | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | Add temporal replay animation styles, cross-domain edge styles |
+| 2 | `packages/foundation/capability/semantic-web/src/prov.ts` | Reuse `ProvBundle` for event provenance (no changes needed, reference only) |
+| 3 | `packages/foundation/ui-system/ui/.../codegraph/styles/graph-styles.tsx` | Add temporal replay animation styles, cross-domain edge styles |
 
 ---
 

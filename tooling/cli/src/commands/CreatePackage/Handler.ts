@@ -242,7 +242,7 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
 ) {}
 
 /**
- * Validate an optional parent directory override like `packages/common`.
+ * Validate an optional parent directory override like `packages/foundation/modeling`.
  *
  * Must be repo-relative, normalized, and free of traversal segments.
  *
@@ -254,7 +254,7 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
  *
  * Examples:
  * - `tooling/cli` maps to `../../`
- * - `packages/common/types` maps to `../../../`
+ * - `packages/foundation/primitive/types` maps to `../../../../`
  *
  * @param packagePath - Repo-relative package path.
  * @returns Relative path from the package directory to repo root.

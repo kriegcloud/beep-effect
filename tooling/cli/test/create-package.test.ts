@@ -137,7 +137,10 @@ export default config;
 `
   );
 
-const bootstrapIdentityWorkspace = Effect.fn(function* (rootDir: string, relativeDir = "packages/common/identity") {
+const bootstrapIdentityWorkspace = Effect.fn(function* (
+  rootDir: string,
+  relativeDir = "packages/foundation/modeling/identity"
+) {
   const path = yield* Path.Path;
   const identityDir = path.join(rootDir, ...relativeDir.split("/"));
 
@@ -224,14 +227,17 @@ describe.sequential("create-package", () => {
             const rootDir = process.cwd();
 
             yield* bootstrapRootConfig(rootDir, {
-              workspaces: ["packages/common/*"],
-              references: ["packages/common/identity"],
+              workspaces: ["packages/foundation/*/*"],
+              references: ["packages/foundation/modeling/identity"],
               paths: {
-                "@beep/identity": ["./packages/common/identity/src/index.ts"],
-                "@beep/identity/*": ["./packages/common/identity/src/*"],
+                "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+                "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
               },
-              testFileMatch: ["packages/*/dtslint/**/*.tst.*", "packages/common/identity/dtslint/**/*.tst.*"],
-              syncpackSources: ["package.json", "packages/common/*/package.json"],
+              testFileMatch: [
+                "packages/*/dtslint/**/*.tst.*",
+                "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
+              ],
+              syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
             });
             yield* bootstrapIdentityWorkspace(rootDir);
 
@@ -244,7 +250,7 @@ describe.sequential("create-package", () => {
             ]);
 
             const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
-            expect(rootPackage.workspaces).toEqual(["packages/common/*", "packages/example-domain"]);
+            expect(rootPackage.workspaces).toEqual(["packages/foundation/*/*", "packages/example-domain"]);
 
             const generatedPackage = decodePackageScripts(
               yield* readJsonFile(path.join(rootDir, "packages", "example-domain", "package.json"))
@@ -256,8 +262,8 @@ describe.sequential("create-package", () => {
 
             const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
             expect(rootTsconfig.compilerOptions.paths).toMatchObject({
-              "@beep/identity": ["./packages/common/identity/src/index.ts"],
-              "@beep/identity/*": ["./packages/common/identity/src/*"],
+              "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+              "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
               "@beep/example-domain": ["./packages/example-domain/src/index.ts"],
               "@beep/example-domain/*": ["./packages/example-domain/src/*"],
             });
@@ -266,21 +272,21 @@ describe.sequential("create-package", () => {
               yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json"))
             );
             expect(A.map(packageRefs.references, (entry) => entry.path)).toEqual([
-              "packages/common/identity",
               "packages/example-domain",
+              "packages/foundation/modeling/identity",
             ]);
 
             const qualityRefs = decodeTsconfigReferences(
               yield* readJsoncFile(path.join(rootDir, "tsconfig.quality.packages.json"))
             );
             expect(A.map(qualityRefs.references, (entry) => entry.path)).toEqual([
-              "packages/common/identity",
               "packages/example-domain",
+              "packages/foundation/modeling/identity",
             ]);
 
             const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
             expect(tstycheConfig.testFileMatch).toEqual([
-              "packages/common/*/dtslint/**/*.tst.*",
+              "packages/foundation/*/*/dtslint/**/*.tst.*",
               "packages/example-domain/dtslint/**/*.tst.*",
             ]);
             expect(tstycheConfig.tsconfig).toBe("./tsconfig.dtslint.json");
@@ -292,7 +298,7 @@ describe.sequential("create-package", () => {
             expect(syncpackConfig).toContain(`"packages/example-domain/package.json"`);
 
             const identityPackages = yield* fs.readFileString(
-              path.join(rootDir, "packages", "common", "identity", "src", "packages.ts")
+              path.join(rootDir, "packages", "foundation", "modeling", "identity", "src", "packages.ts")
             );
             expect(identityPackages).toContain(`"example-domain"`);
             expect(identityPackages).toContain(`export const $ExampleDomainId`);
@@ -391,48 +397,53 @@ describe.sequential("create-package", () => {
             const rootDir = process.cwd();
 
             yield* bootstrapRootConfig(rootDir, {
-              workspaces: ["packages/common/identity"],
-              references: ["packages/common/identity"],
+              workspaces: ["packages/foundation/modeling/identity"],
+              references: ["packages/foundation/modeling/identity"],
               paths: {
-                "@beep/identity": ["./packages/common/identity/src/index.ts"],
-                "@beep/identity/*": ["./packages/common/identity/src/*"],
+                "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+                "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
               },
-              testFileMatch: ["packages/common/identity/dtslint/**/*.tst.*"],
-              syncpackSources: ["package.json", "packages/common/identity/package.json"],
+              testFileMatch: ["packages/foundation/modeling/identity/dtslint/**/*.tst.*"],
+              syncpackSources: ["package.json", "packages/foundation/modeling/identity/package.json"],
             });
             yield* bootstrapIdentityWorkspace(rootDir);
 
             yield* runCreatePackageCommand([
               "telemetry",
               "--parent-dir",
-              "packages/common",
+              "packages/foundation/modeling",
               "--description",
               "A telemetry package",
             ]);
 
             const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
-            expect(rootPackage.workspaces).toEqual(["packages/common/identity", "packages/common/telemetry"]);
+            expect(rootPackage.workspaces).toEqual([
+              "packages/foundation/modeling/identity",
+              "packages/foundation/modeling/telemetry",
+            ]);
 
             const packageRefs = decodeTsconfigReferences(
               yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json"))
             );
             expect(A.map(packageRefs.references, (entry) => entry.path)).toEqual([
-              "packages/common/identity",
-              "packages/common/telemetry",
+              "packages/foundation/modeling/identity",
+              "packages/foundation/modeling/telemetry",
             ]);
 
             const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
-            expect(tstycheConfig.testFileMatch).toContain("packages/common/telemetry/dtslint/**/*.tst.*");
+            expect(tstycheConfig.testFileMatch).toContain("packages/foundation/modeling/telemetry/dtslint/**/*.tst.*");
             expect(tstycheConfig.tsconfig).toBe("./tsconfig.dtslint.json");
             expect(
-              yield* fs.exists(path.join(rootDir, "packages", "common", "telemetry", "dtslint", "tsconfig.json"))
+              yield* fs.exists(
+                path.join(rootDir, "packages", "foundation", "modeling", "telemetry", "dtslint", "tsconfig.json")
+              )
             ).toBe(false);
 
             const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
-            expect(syncpackConfig).toContain(`"packages/common/telemetry/package.json"`);
+            expect(syncpackConfig).toContain(`"packages/foundation/modeling/telemetry/package.json"`);
 
             const identityPackages = yield* fs.readFileString(
-              path.join(rootDir, "packages", "common", "identity", "src", "packages.ts")
+              path.join(rootDir, "packages", "foundation", "modeling", "identity", "src", "packages.ts")
             );
             expect(identityPackages).toContain(`"telemetry"`);
             expect(identityPackages).toContain(`export const $TelemetryId`);
@@ -454,30 +465,37 @@ describe.sequential("create-package", () => {
             const rootDir = process.cwd();
 
             yield* bootstrapRootConfig(rootDir, {
-              workspaces: ["packages/common/*"],
-              references: ["packages/common/identity"],
+              workspaces: ["packages/foundation/*/*"],
+              references: ["packages/foundation/modeling/identity"],
               paths: {
-                "@beep/identity": ["./packages/common/identity/src/index.ts"],
-                "@beep/identity/*": ["./packages/common/identity/src/*"],
+                "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+                "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
               },
-              testFileMatch: ["packages/common/*/dtslint/**/*.tst.*", "packages/common/identity/dtslint/**/*.tst.*"],
-              syncpackSources: ["package.json", "packages/common/*/package.json"],
+              testFileMatch: [
+                "packages/foundation/*/*/dtslint/**/*.tst.*",
+                "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
+              ],
+              syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
             });
             yield* bootstrapIdentityWorkspace(rootDir);
 
             yield* runCreatePackageCommand([
               "audit-log",
               "--parent-dir",
-              "packages/common",
+              "packages/foundation/modeling",
               "--description",
               "An audit log package",
             ]);
 
             const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
-            expect(tstycheConfig.testFileMatch).toEqual(["packages/common/*/dtslint/**/*.tst.*"]);
-            expect(tstycheConfig.testFileMatch).not.toContain("packages/common/audit-log/dtslint/**/*.tst.*");
+            expect(tstycheConfig.testFileMatch).toEqual(["packages/foundation/*/*/dtslint/**/*.tst.*"]);
+            expect(tstycheConfig.testFileMatch).not.toContain(
+              "packages/foundation/modeling/audit-log/dtslint/**/*.tst.*"
+            );
             expect(
-              yield* fs.exists(path.join(rootDir, "packages", "common", "audit-log", "dtslint", "tsconfig.json"))
+              yield* fs.exists(
+                path.join(rootDir, "packages", "foundation", "modeling", "audit-log", "dtslint", "tsconfig.json")
+              )
             ).toBe(false);
           })
         )
@@ -497,20 +515,20 @@ describe.sequential("create-package", () => {
             const rootDir = process.cwd();
 
             yield* bootstrapRootConfig(rootDir, {
-              workspaces: ["packages/common/*", "tooling/cli"],
-              references: ["packages/common/identity", "tooling/cli"],
+              workspaces: ["packages/foundation/*/*", "tooling/cli"],
+              references: ["packages/foundation/modeling/identity", "tooling/cli"],
               paths: {
-                "@beep/identity": ["./packages/common/identity/src/index.ts"],
-                "@beep/identity/*": ["./packages/common/identity/src/*"],
+                "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+                "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
                 "@beep/repo-cli": ["./tooling/cli/src/index.ts"],
                 "@beep/repo-cli/*": ["./tooling/cli/src/*"],
               },
               testFileMatch: [
                 "packages/*/dtslint/**/*.tst.*",
-                "packages/common/identity/dtslint/**/*.tst.*",
+                "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
                 "tooling/cli/dtslint/**/*.tst.*",
               ],
-              syncpackSources: ["package.json", "packages/common/*/package.json", "tooling/cli/package.json"],
+              syncpackSources: ["package.json", "packages/foundation/*/*/package.json", "tooling/cli/package.json"],
             });
             yield* bootstrapIdentityWorkspace(rootDir);
             yield* writeJsonFile(path.join(rootDir, "tooling", "cli", "package.json"), {
@@ -533,14 +551,14 @@ describe.sequential("create-package", () => {
             yield* runCreatePackageCommand(["repo-utils", "--type", "tool", "--description", "Repo helpers"]);
 
             const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
-            expect(rootPackage.workspaces).toEqual(["packages/common/*", "tooling/cli", "tooling/repo-utils"]);
+            expect(rootPackage.workspaces).toEqual(["packages/foundation/*/*", "tooling/cli", "tooling/repo-utils"]);
             expect(rootPackage.workspaces).not.toContain("tooling/*");
 
             const packageRefs = decodeTsconfigReferences(
               yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json"))
             );
             expect(A.map(packageRefs.references, (entry) => entry.path)).toEqual([
-              "packages/common/identity",
+              "packages/foundation/modeling/identity",
               "tooling/cli",
               "tooling/repo-utils",
             ]);

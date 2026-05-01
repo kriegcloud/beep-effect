@@ -95,11 +95,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(packageDir, "package.json"),
@@ -111,7 +111,7 @@ describe("Docgen operations", () => {
           yield* fs.writeFileString(
             path.join(packageDir, "docgen.json"),
             encodeJson({
-              $schema: "../../../tooling/docgen/schema.json",
+              $schema: "../../../../tooling/docgen/schema.json",
               enforceDescriptions: true,
               enforceExamples: true,
               enforceVersion: true,
@@ -127,7 +127,7 @@ describe("Docgen operations", () => {
           expect(config.enforceExamples).toBe(true);
           expect(config.enforceVersion).toBe(true);
           expect(target?.status).toBe("configured-not-generated");
-          expect(target?.docsOutputPath).toBe("common/schema");
+          expect(target?.docsOutputPath).toBe("foundation/modeling/schema");
         })
       )
     );
@@ -145,11 +145,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/example/*"],
             })
           );
 
-          const schemaDir = path.join(tmpDir, "packages", "common", "schema");
+          const schemaDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           yield* fs.makeDirectory(path.join(schemaDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(schemaDir, "package.json"),
@@ -163,7 +163,7 @@ describe("Docgen operations", () => {
             })
           );
 
-          const identityDir = path.join(tmpDir, "packages", "common", "identity");
+          const identityDir = path.join(tmpDir, "packages", "foundation", "modeling", "identity");
           yield* fs.makeDirectory(path.join(identityDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(identityDir, "package.json"),
@@ -188,10 +188,10 @@ describe("Docgen operations", () => {
           const config = yield* createDocgenConfigDocument(target!, tmpDir);
           const paths = config.examplesCompilerOptions;
 
-          expect(config.$schema).toBe("../../../tooling/docgen/schema.json");
+          expect(config.$schema).toBe("../../../../tooling/docgen/schema.json");
           expect(config.exclude).toEqual(["src/internal/**/*.ts"]);
           expect(config.srcLink).toBe(
-            "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/"
+            "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/"
           );
           expect(paths).toEqual({
             noEmit: true,
@@ -220,10 +220,10 @@ describe("Docgen operations", () => {
             types: [],
             jsx: "react-jsx",
             paths: {
-              "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
-              "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
-              "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-              "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+              "@beep/identity": ["../../../../packages/foundation/modeling/identity/src/index.ts"],
+              "@beep/identity/*": ["../../../../packages/foundation/modeling/identity/src/*.ts"],
+              "@beep/schema": ["../../../../packages/foundation/modeling/schema/src/index.ts"],
+              "@beep/schema/*": ["../../../../packages/foundation/modeling/schema/src/*.ts"],
             },
           });
         })
@@ -243,11 +243,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/common/*", "packages/example/*"],
+              workspaces: ["packages/foundation/*/*", "packages/example/*"],
             })
           );
 
-          const schemaDir = path.join(tmpDir, "packages", "common", "schema");
+          const schemaDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           yield* fs.makeDirectory(path.join(schemaDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(schemaDir, "package.json"),
@@ -289,8 +289,8 @@ describe("Docgen operations", () => {
             paths: {
               "@beep/example-server": ["../../../packages/example/server/src/internal/index.ts"],
               "@beep/example-server/*": ["../../../packages/example/server/src/internal/*.ts"],
-              "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-              "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+              "@beep/schema": ["../../../packages/foundation/modeling/schema/src/index.ts"],
+              "@beep/schema/*": ["../../../packages/foundation/modeling/schema/src/*.ts"],
             },
           });
         })
@@ -310,11 +310,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const workspacePackageDir = path.join(tmpDir, "packages", "common", "schema");
+          const workspacePackageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           yield* fs.makeDirectory(path.join(workspacePackageDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(workspacePackageDir, "package.json"),
@@ -338,7 +338,7 @@ describe("Docgen operations", () => {
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
 
-          expect(packages.map((pkg) => pkg.relativePath)).toEqual(["packages/common/schema"]);
+          expect(packages.map((pkg) => pkg.relativePath)).toEqual(["packages/foundation/modeling/schema"]);
           expect(packages.map((pkg) => pkg.name)).toEqual(["@beep/schema"]);
         })
       )
@@ -357,11 +357,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           const docsModulesDir = path.join(packageDir, "docs", "modules");
           yield* fs.makeDirectory(docsModulesDir, { recursive: true });
           yield* fs.writeFileString(
@@ -378,15 +378,15 @@ describe("Docgen operations", () => {
           );
 
           const results = yield* aggregateGeneratedDocs();
-          const aggregatedPath = path.join(tmpDir, "docs", "common", "schema", "Schema.md");
-          const aggregatedIndexPath = path.join(tmpDir, "docs", "common", "schema", "index.md");
+          const aggregatedPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema", "Schema.md");
+          const aggregatedIndexPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema", "index.md");
           const aggregated = yield* fs.readFileString(aggregatedPath);
           const aggregatedIndex = yield* fs.readFileString(aggregatedIndexPath);
 
           expect(results).toHaveLength(1);
-          expect(results[0]?.docsOutputPath).toBe("common/schema");
+          expect(results[0]?.docsOutputPath).toBe("foundation/modeling/schema");
           expect(aggregated).toContain('parent: "@beep/schema"');
-          expect(aggregatedIndex).toContain("permalink: /docs/common/schema");
+          expect(aggregatedIndex).toContain("permalink: /docs/foundation/modeling/schema");
         })
       )
     );
@@ -404,11 +404,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           const docsModulesDir = path.join(packageDir, "docs", "modules");
           const outsideFilePath = path.join(tmpDir, "outside.md");
           yield* fs.makeDirectory(docsModulesDir, { recursive: true });
@@ -428,8 +428,8 @@ describe("Docgen operations", () => {
           yield* fs.symlink(outsideFilePath, path.join(docsModulesDir, "Leak.md"));
 
           const results = yield* aggregateGeneratedDocs();
-          const aggregatedPath = path.join(tmpDir, "docs", "common", "schema", "Schema.md");
-          const leakedPath = path.join(tmpDir, "docs", "common", "schema", "Leak.md");
+          const aggregatedPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema", "Schema.md");
+          const leakedPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema", "Leak.md");
           const aggregated = yield* fs.readFileString(aggregatedPath);
           const leakedExists = yield* fs.exists(leakedPath);
 
@@ -454,11 +454,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           const packageDocsDir = path.join(packageDir, "docs");
           const docsModulesDir = path.join(packageDocsDir, "modules");
           const externalDocsModulesDir = path.join(tmpDir, "external-docs", "modules");
@@ -479,7 +479,7 @@ describe("Docgen operations", () => {
           yield* fs.symlink(externalDocsModulesDir, docsModulesDir);
 
           const exit = yield* aggregateGeneratedDocs().pipe(Effect.exit);
-          const aggregatedPath = path.join(tmpDir, "docs", "common", "schema");
+          const aggregatedPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema");
           const aggregatedExists = yield* fs.exists(aggregatedPath);
 
           expect(Exit.isFailure(exit)).toBe(true);
@@ -501,11 +501,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/common/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(packageDir, "package.json"),
@@ -541,7 +541,7 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
@@ -579,7 +579,7 @@ describe("Docgen operations", () => {
   it("renders human-first report content without agent instructions", () => {
     const analysis = new DocgenPackageAnalysis({
       packageName: "@beep/schema",
-      packagePath: "packages/common/schema",
+      packagePath: "packages/foundation/modeling/schema",
       timestamp: "2026-03-08T00:00:00.000Z",
       exports: [
         new DocgenExportAnalysis({
@@ -608,7 +608,7 @@ describe("Docgen operations", () => {
     const report = generateAnalysisReport(analysis, true);
 
     expect(report).toContain("# JSDoc Analysis Report: @beep/schema");
-    expect(report).toContain("bun run beep docgen analyze -p packages/common/schema");
+    expect(report).toContain("bun run beep docgen analyze -p packages/foundation/modeling/schema");
     expect(report).toContain("## Fix Checklist");
     expect(report).not.toContain("Instructions for Agent");
     expect(report).not.toContain("You are tasked");
@@ -626,11 +626,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(packageDir, "package.json"),
@@ -666,11 +666,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(packageDir, "package.json"),
@@ -685,13 +685,13 @@ describe("Docgen operations", () => {
             `export const MissingMetadata = "nope";\n`
           );
 
-          yield* runDocgenCommand(["check", "-p", "packages/common/schema"]);
+          yield* runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]);
 
           const errorLines = yield* TestConsole.errorLines;
           const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
           const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
 
-          expect(errorLines.join("\n")).toContain("packages/common/schema has");
+          expect(errorLines.join("\n")).toContain("packages/foundation/modeling/schema has");
           expect(errorLines.join("\n")).toContain("<module fileoverview> missing @since");
           expect(errorLines.join("\n")).toContain("MissingMetadata missing @since");
           expect(wroteMarkdown).toBe(false);
@@ -716,11 +716,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(packageDir, "package.json"),
@@ -730,12 +730,12 @@ describe("Docgen operations", () => {
             })
           );
 
-          yield* runDocgenCommand(["generate", "-p", "packages/common/schema"]);
+          yield* runDocgenCommand(["generate", "-p", "packages/foundation/modeling/schema"]);
 
           const errorLines = yield* TestConsole.errorLines;
 
           expect(errorLines).toEqual([
-            'docgen: packages/common/schema is missing docgen.json. Run "bun run beep docgen init -p packages/common/schema" first.',
+            'docgen: packages/foundation/modeling/schema is missing docgen.json. Run "bun run beep docgen init -p packages/foundation/modeling/schema" first.',
           ]);
           expect(process.exitCode).toBe(1);
         })
@@ -757,11 +757,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
           yield* fs.writeFileString(
             path.join(packageDir, "package.json"),
@@ -771,12 +771,12 @@ describe("Docgen operations", () => {
             })
           );
 
-          yield* runDocgenCommand(["generate", "--filter", "packages/common/schema"]);
+          yield* runDocgenCommand(["generate", "--filter", "packages/foundation/modeling/schema"]);
 
           const errorLines = yield* TestConsole.errorLines;
 
           expect(errorLines).toEqual([
-            'docgen: packages/common/schema is missing docgen.json. Run "bun run beep docgen init -p packages/common/schema" first.',
+            'docgen: packages/foundation/modeling/schema is missing docgen.json. Run "bun run beep docgen init -p packages/foundation/modeling/schema" first.',
           ]);
           expect(process.exitCode).toBe(1);
         })
@@ -796,16 +796,22 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          yield* runDocgenCommand(["generate", "--package", "packages/common/schema", "--filter", "@beep/schema"]);
+          yield* runDocgenCommand([
+            "generate",
+            "--package",
+            "packages/foundation/modeling/schema",
+            "--filter",
+            "@beep/schema",
+          ]);
 
           const errorLines = yield* TestConsole.errorLines;
 
           expect(errorLines).toEqual([
-            "docgen: Received conflicting selectors --package=packages/common/schema and --filter=@beep/schema.",
+            "docgen: Received conflicting selectors --package=packages/foundation/modeling/schema and --filter=@beep/schema.",
           ]);
           expect(process.exitCode).toBe(1);
         })
@@ -826,11 +832,11 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/*/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
           const docgenPath = path.join(packageDir, "docgen.json");
           yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
           yield* fs.writeFileString(
@@ -845,14 +851,23 @@ describe("Docgen operations", () => {
             })
           );
 
-          yield* runDocgenCommand(["init", "-p", "packages/common/schema"]);
+          yield* runDocgenCommand(["init", "-p", "packages/foundation/modeling/schema"]);
 
           const docgenText = yield* fs.readFileString(docgenPath);
+          const docgenConfig = JSON.parse(docgenText) as {
+            readonly examplesCompilerOptions?: {
+              readonly paths?: Record<string, ReadonlyArray<string>>;
+            };
+          };
 
           expect(docgenText).toContain('"exclude": ["src/internal/**/*.ts"],');
           expect(docgenText).toContain('"lib": ["ESNext", "DOM", "DOM.Iterable"],');
-          expect(docgenText).toContain('"@beep/schema": ["../../../packages/common/schema/src/index.ts"],');
-          expect(docgenText).toContain('"@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]');
+          expect(docgenConfig.examplesCompilerOptions?.paths?.["@beep/schema"]).toEqual([
+            "../../../../packages/foundation/modeling/schema/src/index.ts",
+          ]);
+          expect(docgenConfig.examplesCompilerOptions?.paths?.["@beep/schema/*"]).toEqual([
+            "../../../../packages/foundation/modeling/schema/src/*.ts",
+          ]);
           expect(process.exitCode ?? 0).toBe(0);
         })
       )

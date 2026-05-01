@@ -224,7 +224,7 @@ describe("PackageJson schema", () => {
           url: "git@github.com:kriegcloud/beep-effect.git",
           directory: ".",
         },
-        workspaces: [".claude", "packages/common/*", "tooling/repo-utils"],
+        workspaces: [".claude", "packages/foundation/*/*", "tooling/repo-utils"],
         catalog: {
           effect: "^4.0.0-beta.27",
           typescript: "^5.9.3",

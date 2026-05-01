@@ -196,20 +196,20 @@ describe("tsconfig-sync", () => {
           const rootDir = process.cwd();
 
           yield* bootstrapRootConfig(rootDir, {
-            workspaces: ["packages/common/*", "packages/example-domain"],
-            references: ["packages/common/identity"],
+            workspaces: ["packages/foundation/*/*", "packages/example-domain"],
+            references: ["packages/foundation/modeling/identity"],
             paths: {
-              "@beep/identity": ["./packages/common/identity/src/index.ts"],
-              "@beep/identity/*": ["./packages/common/identity/src/*"],
+              "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+              "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
             },
             testFileMatch: [
-              "packages/common/identity/dtslint/**/*.tst.*",
+              "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
               "packages/example-domain/dtslint/**/*.tst.*",
             ],
-            syncpackSources: ["package.json", "packages/common/*/package.json"],
+            syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
           });
           yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/common/identity",
+            relativeDir: "packages/foundation/modeling/identity",
             packageName: "@beep/identity",
           });
           yield* bootstrapWorkspace(rootDir, {
@@ -233,29 +233,29 @@ describe("tsconfig-sync", () => {
 
           const refs = decodeTsconfigReferences(yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json")));
           expect(A.map(refs.references, (entry) => entry.path)).toEqual([
-            "packages/common/identity",
             "packages/example-domain",
+            "packages/foundation/modeling/identity",
           ]);
 
           const qualityRefs = decodeTsconfigReferences(
             yield* readJsoncFile(path.join(rootDir, "tsconfig.quality.packages.json"))
           );
           expect(A.map(qualityRefs.references, (entry) => entry.path)).toEqual([
-            "packages/common/identity",
             "packages/example-domain",
+            "packages/foundation/modeling/identity",
           ]);
 
           const paths = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
           expect(paths.compilerOptions.paths).toMatchObject({
-            "@beep/identity": ["./packages/common/identity/src/index.ts"],
-            "@beep/identity/*": ["./packages/common/identity/src/*"],
+            "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+            "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
             "@beep/example-domain": ["./packages/example-domain/src/index.ts"],
             "@beep/example-domain/*": ["./packages/example-domain/src/*"],
           });
 
           const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
           expect(tstycheConfig.testFileMatch).toEqual([
-            "packages/common/*/dtslint/**/*.tst.*",
+            "packages/foundation/*/*/dtslint/**/*.tst.*",
             "packages/example-domain/dtslint/**/*.tst.*",
           ]);
           expect(tstycheConfig.tsconfig).toBe("./tsconfig.dtslint.json");
@@ -275,21 +275,21 @@ describe("tsconfig-sync", () => {
           const rootDir = process.cwd();
 
           yield* bootstrapRootConfig(rootDir, {
-            workspaces: ["packages/common/*"],
-            references: ["packages/common/identity"],
+            workspaces: ["packages/foundation/*/*"],
+            references: ["packages/foundation/modeling/identity"],
             paths: {
-              "@beep/identity": ["./packages/common/identity/src/index.ts"],
-              "@beep/identity/*": ["./packages/common/identity/src/*"],
+              "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+              "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
             },
-            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
-            syncpackSources: ["package.json", "packages/common/*/package.json"],
+            testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*"],
+            syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
           });
           yield* writeJsonFile(path.join(rootDir, "tstyche.json"), {
-            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
+            testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*"],
             tsconfig: "./tsconfig.json",
           });
           yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/common/identity",
+            relativeDir: "packages/foundation/modeling/identity",
             packageName: "@beep/identity",
           });
 
@@ -303,7 +303,7 @@ describe("tsconfig-sync", () => {
 
           const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
           expect(tstycheConfig).toEqual({
-            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
+            testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*"],
             tsconfig: "./tsconfig.dtslint.json",
           });
         })
@@ -319,38 +319,38 @@ describe("tsconfig-sync", () => {
           const rootDir = process.cwd();
 
           yield* bootstrapRootConfig(rootDir, {
-            workspaces: ["packages/common/*"],
-            references: ["packages/common/identity", "packages/common/schema"],
+            workspaces: ["packages/foundation/*/*"],
+            references: ["packages/foundation/modeling/identity", "packages/foundation/modeling/schema"],
             paths: {
-              "@beep/identity": ["./packages/common/identity/src/index.ts"],
-              "@beep/identity/*": ["./packages/common/identity/src/*"],
-              "@beep/schema": ["./packages/common/schema/src/index.ts"],
-              "@beep/schema/*": ["./packages/common/schema/src/*"],
+              "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+              "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
+              "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
+              "@beep/schema/*": ["./packages/foundation/modeling/schema/src/*"],
             },
-            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
-            syncpackSources: ["package.json", "packages/common/*/package.json"],
+            testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*"],
+            syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
           });
 
           yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/common/schema",
+            relativeDir: "packages/foundation/modeling/schema",
             packageName: "@beep/schema",
             docgenConfig: {
-              $schema: "../../../tooling/docgen/schema.json",
-              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema/src/",
+              $schema: "../../../../tooling/docgen/schema.json",
+              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
             },
           });
           yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/common/identity",
+            relativeDir: "packages/foundation/modeling/identity",
             packageName: "@beep/identity",
             dependencies: {
               "@beep/schema": "workspace:*",
             },
             references: ["../schema/tsconfig.json"],
             docgenConfig: {
-              $schema: "../../../tooling/docgen/schema.json",
+              $schema: "../../../../tooling/docgen/schema.json",
               exclude: ["src/**/*.spec.ts"],
               enforceDescriptions: true,
-              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/",
+              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/",
               examplesCompilerOptions: {
                 noEmit: true,
                 strict: true,
@@ -362,7 +362,7 @@ describe("tsconfig-sync", () => {
                 rewriteRelativeImportExtensions: true,
                 allowImportingTsExtensions: true,
                 paths: {
-                  "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
+                  "@beep/identity": ["../../../../packages/foundation/modeling/identity/src/index.ts"],
                 },
               },
             },
@@ -378,7 +378,7 @@ describe("tsconfig-sync", () => {
           expect(result.changes[0]?.section).toBe("package-docgen");
 
           const syncedIdentityDocgen = yield* readJsonFile(
-            path.join(rootDir, "packages", "common", "identity", "docgen.json")
+            path.join(rootDir, "packages", "foundation", "modeling", "identity", "docgen.json")
           );
           expect(syncedIdentityDocgen).toMatchObject({
             exclude: ["src/**/*.spec.ts"],
@@ -401,10 +401,10 @@ describe("tsconfig-sync", () => {
               types: [],
               jsx: "react-jsx",
               paths: {
-                "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
-                "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
-                "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-                "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+                "@beep/identity": ["../../../../packages/foundation/modeling/identity/src/index.ts"],
+                "@beep/identity/*": ["../../../../packages/foundation/modeling/identity/src/*.ts"],
+                "@beep/schema": ["../../../../packages/foundation/modeling/schema/src/index.ts"],
+                "@beep/schema/*": ["../../../../packages/foundation/modeling/schema/src/*.ts"],
               },
             },
           });
@@ -421,25 +421,29 @@ describe("tsconfig-sync", () => {
           const rootDir = process.cwd();
 
           yield* bootstrapRootConfig(rootDir, {
-            workspaces: ["packages/common/*", "packages/example/*"],
-            references: ["packages/common/schema", "packages/example/protocol"],
+            workspaces: ["packages/foundation/*/*", "packages/example/*"],
+            references: ["packages/example/protocol", "packages/foundation/modeling/schema"],
             paths: {
-              "@beep/schema": ["./packages/common/schema/src/index.ts"],
-              "@beep/schema/*": ["./packages/common/schema/src/*"],
+              "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
+              "@beep/schema/*": ["./packages/foundation/modeling/schema/src/*"],
               "@beep/example-protocol": ["./packages/example/protocol/src/index.ts"],
               "@beep/example-protocol/*": ["./packages/example/protocol/src/*"],
             },
-            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*", "packages/example/*/dtslint/**/*.tst.*"],
-            syncpackSources: ["package.json", "packages/common/*/package.json", "packages/example/*/package.json"],
+            testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*", "packages/example/*/dtslint/**/*.tst.*"],
+            syncpackSources: [
+              "package.json",
+              "packages/foundation/*/*/package.json",
+              "packages/example/*/package.json",
+            ],
           });
 
           yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/common/schema",
+            relativeDir: "packages/foundation/modeling/schema",
             packageName: "@beep/schema",
             docgenConfig: {
-              $schema: "../../../tooling/docgen/schema.json",
+              $schema: "../../../../tooling/docgen/schema.json",
               exclude: ["src/internal/**/*.ts"],
-              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema/src/",
+              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
               examplesCompilerOptions: {
                 noEmit: true,
                 strict: true,
@@ -467,8 +471,8 @@ describe("tsconfig-sync", () => {
                 types: [],
                 jsx: "react-jsx",
                 paths: {
-                  "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-                  "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+                  "@beep/schema": ["../../../../packages/foundation/modeling/schema/src/index.ts"],
+                  "@beep/schema/*": ["../../../../packages/foundation/modeling/schema/src/*.ts"],
                 },
               },
             },
@@ -479,7 +483,7 @@ describe("tsconfig-sync", () => {
             dependencies: {
               "@beep/schema": "workspace:*",
             },
-            references: ["../../common/schema/tsconfig.json"],
+            references: ["../../foundation/modeling/schema/tsconfig.json"],
             docgenConfig: {
               $schema: "../../../tooling/docgen/schema.json",
               srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/example/protocol/src/",
@@ -537,8 +541,8 @@ describe("tsconfig-sync", () => {
               paths: {
                 "@beep/example-protocol": ["../../../packages/example/protocol/src/index.ts"],
                 "@beep/example-protocol/*": ["../../../packages/example/protocol/src/*.ts"],
-                "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-                "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+                "@beep/schema": ["../../../packages/foundation/modeling/schema/src/index.ts"],
+                "@beep/schema/*": ["../../../packages/foundation/modeling/schema/src/*.ts"],
               },
             },
           });
@@ -556,30 +560,30 @@ describe("tsconfig-sync", () => {
           const rootDir = process.cwd();
 
           yield* bootstrapRootConfig(rootDir, {
-            workspaces: ["packages/common/*"],
-            references: ["packages/common/messages"],
+            workspaces: ["packages/foundation/*/*"],
+            references: ["packages/foundation/modeling/messages"],
             paths: {
-              "@beep/messages": ["./packages/common/messages/src/index.ts"],
-              "@beep/messages/*": ["./packages/common/messages/src/*"],
+              "@beep/messages": ["./packages/foundation/modeling/messages/src/index.ts"],
+              "@beep/messages/*": ["./packages/foundation/modeling/messages/src/*"],
             },
-            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
-            syncpackSources: ["package.json", "packages/common/*/package.json"],
+            testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*"],
+            syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
           });
 
           yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/common/messages",
+            relativeDir: "packages/foundation/modeling/messages",
             packageName: "@beep/messages",
           });
 
-          const docgenPath = path.join(rootDir, "packages", "common", "messages", "docgen.json");
+          const docgenPath = path.join(rootDir, "packages", "foundation", "modeling", "messages", "docgen.json");
           yield* writeTextFile(
             docgenPath,
             `{
-  "$schema": "../../../tooling/docgen/schema.json",
+  "$schema": "../../../../tooling/docgen/schema.json",
   "exclude": [
     "src/internal/**/*.ts"
   ],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/messages/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/messages/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -612,10 +616,10 @@ describe("tsconfig-sync", () => {
     "jsx": "react-jsx",
     "paths": {
       "@beep/messages": [
-        "../../../packages/common/messages/src/index.ts"
+        "../../../../packages/foundation/modeling/messages/src/index.ts"
       ],
       "@beep/messages/*": [
-        "../../../packages/common/messages/src/*.ts"
+        "../../../../packages/foundation/modeling/messages/src/*.ts"
       ]
     }
   }
@@ -646,11 +650,20 @@ describe("tsconfig-sync", () => {
           expect(syncResult.changes[0]?.section).toBe("package-docgen");
 
           const syncedText = yield* fs.readFileString(docgenPath);
+          const syncedDocgen = JSON.parse(syncedText) as {
+            readonly examplesCompilerOptions?: {
+              readonly paths?: Record<string, ReadonlyArray<string>>;
+            };
+          };
 
           expect(syncedText).toContain('"exclude": ["src/internal/**/*.ts"],');
           expect(syncedText).toContain('"lib": ["ESNext", "DOM", "DOM.Iterable"],');
-          expect(syncedText).toContain('"@beep/messages": ["../../../packages/common/messages/src/index.ts"],');
-          expect(syncedText).toContain('"@beep/messages/*": ["../../../packages/common/messages/src/*.ts"]');
+          expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/messages"]).toEqual([
+            "../../../../packages/foundation/modeling/messages/src/index.ts",
+          ]);
+          expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/messages/*"]).toEqual([
+            "../../../../packages/foundation/modeling/messages/src/*.ts",
+          ]);
         })
       )
     );

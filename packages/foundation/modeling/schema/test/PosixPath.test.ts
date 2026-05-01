@@ -4,11 +4,13 @@ import * as S from "effect/Schema";
 
 describe("PosixPath", () => {
   it("normalizes native separators during decode", () => {
-    expect(normalizePath("packages\\common\\schema")).toBe("packages/common/schema");
+    expect(normalizePath("packages\\foundation\\modeling\\schema")).toBe("packages/foundation/modeling/schema");
   });
 
   it("accepts already normalized paths", () => {
-    expect(S.decodeUnknownSync(PosixPath)("packages/common/schema")).toBe("packages/common/schema");
+    expect(S.decodeUnknownSync(PosixPath)("packages/foundation/modeling/schema")).toBe(
+      "packages/foundation/modeling/schema"
+    );
   });
 
   it("rejects paths that still contain backslashes", () => {

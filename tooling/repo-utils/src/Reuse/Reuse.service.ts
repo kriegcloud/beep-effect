@@ -236,7 +236,7 @@ const PATTERN_DEFINITIONS = [
     recommendedAction:
       "Extract a shared schema JSON encoder helper and replace repeated inline initializers with the shared function.",
     proposedDestinationPackage: "@beep/schema",
-    proposedDestinationModule: "packages/common/schema/src/json/SchemaJsonCodec.ts",
+    proposedDestinationModule: "packages/foundation/modeling/schema/src/json/SchemaJsonCodec.ts",
     blockingConcerns: [
       "Confirm the shared helper preserves existing formatting and caller expectations before replacing all call sites.",
     ],
@@ -258,7 +258,7 @@ const PATTERN_DEFINITIONS = [
       "Multiple files decode JSON strings through the same Schema helper shape, which is a good candidate for a shared boundary utility.",
     recommendedAction: "Extract a shared schema JSON decoder helper and route repeated inline decoders through it.",
     proposedDestinationPackage: "@beep/schema",
-    proposedDestinationModule: "packages/common/schema/src/json/SchemaJsonCodec.ts",
+    proposedDestinationModule: "packages/foundation/modeling/schema/src/json/SchemaJsonCodec.ts",
     blockingConcerns: [
       "Confirm callers agree on sync decoding semantics and failure presentation before centralizing the helper.",
     ],
@@ -281,7 +281,7 @@ const PATTERN_DEFINITIONS = [
     recommendedAction:
       "Extract a shared pretty JSON renderer helper or align on an existing JSON stringifier wrapper to remove local duplication.",
     proposedDestinationPackage: "@beep/utils",
-    proposedDestinationModule: "packages/common/utils/src/json/renderPrettyJson.ts",
+    proposedDestinationModule: "packages/foundation/modeling/utils/src/json/renderPrettyJson.ts",
     blockingConcerns: [
       "Validate whether callers require jsonc-based formatting or can safely reuse an existing schema JSON stringifier.",
     ],
@@ -548,7 +548,7 @@ const scopeSelectorLabel = (scopeSelector: O.Option<string>, scopes: ReadonlyArr
 const buildCatalogEntry = (scope: WorkspaceScope, symbol: TsMorphSymbol): ReuseCatalogEntry =>
   new ReuseCatalogEntry({
     id: `repo:${symbol.id}`,
-    origin: scope.packagePath.startsWith("packages/common/") ? "repo-common" : "repo-tooling",
+    origin: scope.packagePath.startsWith("packages/foundation/") ? "repo-foundation" : "repo-tooling",
     packageName: scope.packageName,
     packagePath: scope.packagePath,
     modulePath: symbol.filePath,
@@ -688,7 +688,7 @@ const catalogScopeSelector = (scopeSelector: O.Option<string>): O.Option<string>
     return O.none();
   }
 
-  return optionFromSelectorTokens(uniqueSortedStrings(["packages/common", ...parseScopeSelector(scopeSelector)]));
+  return optionFromSelectorTokens(uniqueSortedStrings(["packages/foundation", ...parseScopeSelector(scopeSelector)]));
 };
 
 const getCachedOrCompute = <A, E, R>(

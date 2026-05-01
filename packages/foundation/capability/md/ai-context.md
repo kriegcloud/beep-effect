@@ -1,5 +1,5 @@
 ---
-path: packages/common/md
+path: packages/foundation/capability/md
 summary: An Effect native markdown library
 tags: [effect]
 ---

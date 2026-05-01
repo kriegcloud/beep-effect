@@ -25,7 +25,7 @@
   ],
   "retainedActiveSurfaces": [
     "apps/codedank-web",
-    "packages/common/*",
+    "packages/foundation/*/*",
     "packages/fixture-lab/specimen/*",
     "packages/_internal/*",
     "infra",

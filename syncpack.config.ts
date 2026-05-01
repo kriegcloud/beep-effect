@@ -7,7 +7,6 @@ const config = {
     ".codex/package.json",
     "infra/package.json",
     "packages/_internal/*/package.json",
-    "packages/common/*/package.json",
     "packages/foundation/*/*/package.json",
     "packages/fixture-lab/specimen/*/package.json",
     "packages/shared/client/package.json",
