@@ -1,10 +1,10 @@
-import { $ScratchId } from "@beep/identity";
+import { $SchemaId } from "@beep/identity";
 import { decodeTomlTextAs, TomlTextToUnknown } from "@beep/schema/Toml";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";
 
-const $I = $ScratchId.create("toml_test");
+const $I = $SchemaId.create("toml_test");
 
 class TomlDatabase extends S.Class<TomlDatabase>($I`TomlDatabase`)(
   {

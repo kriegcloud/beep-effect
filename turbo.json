@@ -324,6 +324,18 @@
         "$TURBO_ROOT$/tooling/cli/src/commands/Lint/index.ts"
       ]
     },
+    "@beep/repo-checks#lint:schema-first": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/infra/**/*.ts",
+        "$TURBO_ROOT$/standards/schema-first.inventory.jsonc",
+        "$TURBO_ROOT$/tooling/cli/src/commands/Lint/SchemaFirst.ts",
+        "$TURBO_ROOT$/tooling/cli/src/commands/Lint/index.ts"
+      ]
+    },
     "@beep/repo-checks#lint:effect-imports:fix": {
       "cache": false,
       "inputs": [

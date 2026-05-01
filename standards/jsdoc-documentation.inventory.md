@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-04-27T19:33:54.385Z
+Generated: 2026-05-01T03:54:43.401Z
 
 ## Scope
 
@@ -10,22 +10,22 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 41 |
+| packages | 42 |
 | cleanPackages | 13 |
 | packagesWithoutPublicSrcSurface | 4 |
-| packagesNeedingRemediation | 24 |
-| publicModules | 594 |
-| publicExports | 4080 |
+| packagesNeedingRemediation | 25 |
+| publicModules | 612 |
+| publicExports | 4311 |
 | openModules | 125 |
-| openExports | 2478 |
-| missingExportExamples | 1870 |
-| missingExportCategories | 733 |
+| openExports | 2637 |
+| missingExportExamples | 2035 |
+| missingExportCategories | 741 |
 | missingExportSince | 439 |
 | forbiddenTagFindings | 9 |
 | malformedConditionalTagFindings | 0 |
 | exampleImportFindings | 22 |
-| unsafeExampleFindings | 74 |
-| schemaAnnotationFindings | 107 |
+| unsafeExampleFindings | 66 |
+| schemaAnnotationFindings | 111 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -42,46 +42,47 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | Order | Package | Path | Status | Modules | Exports | Open Modules | Open Exports |
 |---:|---|---|---|---:|---:|---:|---:|
 | 1 | `@beep/types` | `packages/foundation/primitive/types` | needs-remediation | 5 | 10 | 0 | 3 |
-| 2 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 20 | 129 | 2 | 35 |
-| 3 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 70 | 0 | 10 |
+| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 57 | 0 | 10 |
+| 3 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 20 | 129 | 2 | 35 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | clean | 7 | 39 | 0 | 0 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | needs-remediation | 2 | 6 | 0 | 1 |
-| 6 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 130 | 1212 | 7 | 1117 |
+| 6 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 130 | 1213 | 7 | 1117 |
 | 7 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
 | 8 | `@beep/repo-utils` | `tooling/repo-utils` | needs-remediation | 58 | 613 | 4 | 191 |
-| 9 | `@beep/fixture-lab-specimen-domain` | `packages/fixture-lab/specimen/domain` | needs-remediation | 2 | 5 | 0 | 1 |
-| 10 | `@beep/docgen` | `tooling/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
-| 11 | `@beep/test-utils` | `tooling/test-utils` | needs-remediation | 2 | 21 | 0 | 7 |
-| 12 | `@beep/repo-configs` | `tooling/configs` | clean | 6 | 18 | 0 | 0 |
-| 13 | `@beep/fixture-lab-specimen-config` | `packages/fixture-lab/specimen/config` | needs-remediation | 6 | 15 | 0 | 9 |
-| 14 | `@beep/fixture-lab-specimen-use-cases` | `packages/fixture-lab/specimen/use-cases` | needs-remediation | 5 | 7 | 0 | 1 |
-| 15 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 20 | 171 | 0 | 98 |
-| 16 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 118 | 506 | 109 | 506 |
-| 17 | `@beep/repo-cli` | `tooling/cli` | needs-remediation | 60 | 285 | 0 | 201 |
-| 18 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
-| 19 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 20 | `@beep/fixture-lab-specimen-tables` | `packages/fixture-lab/specimen/tables` | clean | 2 | 6 | 0 | 0 |
-| 21 | `@beep/db-admin` | `packages/_internal/db-admin` | clean | 1 | 1 | 0 | 0 |
-| 22 | `@beep/pglite` | `packages/drivers/pglite` | needs-remediation | 1 | 1 | 0 | 1 |
-| 23 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
-| 24 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
-| 25 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
-| 26 | `@beep/fixture-lab-specimen-server` | `packages/fixture-lab/specimen/server` | clean | 3 | 5 | 0 | 0 |
-| 27 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 6 | 12 | 0 | 9 |
-| 28 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
-| 29 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
-| 30 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 3 | 7 | 0 | 2 |
-| 31 | `@beep/codex` | `.codex` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 32 | `@beep/fixture-lab-specimen-ui` | `packages/fixture-lab/specimen/ui` | needs-remediation | 1 | 2 | 0 | 1 |
-| 33 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 203 |
-| 34 | `@beep/infra` | `infra` | clean | 1 | 1 | 0 | 0 |
-| 35 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
-| 36 | `@beep/fixture-lab-specimen-client` | `packages/fixture-lab/specimen/client` | needs-remediation | 3 | 15 | 0 | 11 |
-| 37 | `@beep/repo-checks` | `tooling/repo-checks` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 38 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 131 | 3 | 33 |
+| 9 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
+| 10 | `@beep/fixture-lab-specimen-domain` | `packages/fixture-lab/specimen/domain` | needs-remediation | 2 | 5 | 0 | 1 |
+| 11 | `@beep/docgen` | `tooling/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
+| 12 | `@beep/test-utils` | `tooling/test-utils` | needs-remediation | 2 | 21 | 0 | 7 |
+| 13 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
+| 14 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 131 | 3 | 33 |
+| 15 | `@beep/repo-configs` | `tooling/configs` | clean | 6 | 18 | 0 | 0 |
+| 16 | `@beep/fixture-lab-specimen-config` | `packages/fixture-lab/specimen/config` | needs-remediation | 6 | 15 | 0 | 9 |
+| 17 | `@beep/fixture-lab-specimen-use-cases` | `packages/fixture-lab/specimen/use-cases` | needs-remediation | 5 | 7 | 0 | 1 |
+| 18 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 21 | 172 | 0 | 89 |
+| 19 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 118 | 506 | 109 | 506 |
+| 20 | `@beep/repo-cli` | `tooling/cli` | needs-remediation | 67 | 453 | 0 | 363 |
+| 21 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 22 | `@beep/fixture-lab-specimen-tables` | `packages/fixture-lab/specimen/tables` | clean | 2 | 6 | 0 | 0 |
+| 23 | `@beep/db-admin` | `packages/_internal/db-admin` | clean | 1 | 1 | 0 | 0 |
+| 24 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
+| 25 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
+| 26 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
+| 27 | `@beep/fixture-lab-specimen-server` | `packages/fixture-lab/specimen/server` | clean | 3 | 5 | 0 | 0 |
+| 28 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 6 | 12 | 0 | 5 |
+| 29 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
+| 30 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
+| 31 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 3 | 9 | 0 | 2 |
+| 32 | `@beep/codex` | `.codex` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 33 | `@beep/fixture-lab-specimen-ui` | `packages/fixture-lab/specimen/ui` | needs-remediation | 1 | 2 | 0 | 1 |
+| 34 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 203 |
+| 35 | `@beep/infra` | `infra` | clean | 1 | 1 | 0 | 0 |
+| 36 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
+| 37 | `@beep/fixture-lab-specimen-client` | `packages/fixture-lab/specimen/client` | needs-remediation | 3 | 15 | 0 | 11 |
+| 38 | `@beep/repo-checks` | `tooling/repo-checks` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 39 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
-| 40 | `@beep/claude` | `.claude` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 41 | `@beep/shared-ui` | `packages/shared/ui` | needs-remediation | 4 | 7 | 0 | 3 |
+| 40 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 35 | 0 | 5 |
+| 41 | `@beep/claude` | `.claude` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 42 | `@beep/shared-ui` | `packages/shared/ui` | needs-remediation | 4 | 7 | 0 | 3 |
 
 ## Open Findings
 
@@ -93,6 +94,22 @@ Export findings:
 - `src/TArray.types.ts:29` `Elem` (type) - forbidden @template; 1 unsafe example violation(s)
 - `src/TString.types.ts:31` `NonEmpty` (type) - 1 unsafe example violation(s)
 - `src/TString.types.ts:53` `Chars` (type) - 1 unsafe example violation(s)
+
+### @beep/identity
+
+Path: `packages/foundation/modeling/identity`
+
+Export findings:
+- `src/Id.ts:87` `IdentityInterpolationError` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Id.ts:118` `IdentitySegmentCountError` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Id.ts:349` `IdentityString` (type) - 1 unsafe example violation(s)
+- `src/Id.ts:366` `IdentitySymbol` (type) - 1 unsafe example violation(s)
+- `src/packages.ts:531` `RepoPkgs` (const) - missing @example
+- `src/packages.ts:537` `$MdId` (const) - missing summary; missing @example
+- `src/packages.ts:543` `$CodedankWebId` (const) - missing summary; missing @example
+- `src/packages.ts:549` `$DrizzleId` (const) - missing summary; missing @example
+- `src/packages.ts:555` `$FfmpegId` (const) - missing summary; missing @example
+- `src/packages.ts:561` `$PostgresId` (const) - missing summary; missing @example
 
 ### @beep/utils
 
@@ -138,22 +155,6 @@ Export findings:
 - `src/index.ts:103` `export * as Struct from "./Struct.ts";` (re-export) - missing @example
 - `src/index.ts:110` `export * as Text from "./Text.ts";` (re-export) - missing @example
 - `src/index.ts:117` `export * from "./thunk.ts";` (re-export) - missing @example
-
-### @beep/identity
-
-Path: `packages/foundation/modeling/identity`
-
-Export findings:
-- `src/Id.ts:87` `IdentityInterpolationError` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Id.ts:118` `IdentitySegmentCountError` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Id.ts:349` `IdentityString` (type) - 1 unsafe example violation(s)
-- `src/Id.ts:366` `IdentitySymbol` (type) - 1 unsafe example violation(s)
-- `src/packages.ts:732` `$FirecrawlId` (const) - missing @example
-- `src/packages.ts:756` `RepoPkgs` (const) - missing @example
-- `src/packages.ts:762` `$MdId` (const) - missing summary; missing @example
-- `src/packages.ts:768` `$CodedankWebId` (const) - missing summary; missing @example
-- `src/packages.ts:774` `$DrizzleId` (const) - missing summary; missing @example
-- `src/packages.ts:780` `$PgliteId` (const) - missing summary; missing @example
 
 ### @beep/messages
 
@@ -814,7 +815,7 @@ Export findings:
 - `src/csv/index.ts:298` `CsvText` (type) - missing @example
 - `src/csv/parse/CsvParser.ts:97` `ParsedField` (class) - missing summary; missing @example, @category
 - `src/csv/parse/CsvParser.ts:241` `ParsedRow` (class) - missing summary; missing @example, @category
-- `src/csv/parse/CsvParser.ts:375` `parseCsvRows` (const) - missing @example
+- `src/csv/parse/CsvParser.ts:379` `parseCsvRows` (const) - missing @example
 - `src/csv/parse/ParserOptions.ts:60` `HeaderValueInput` (const) - missing @example
 - `src/csv/parse/ParserOptions.ts:72` `HeaderValueInput` (type) - missing @example
 - `src/csv/parse/ParserOptions.ts:80` `ParserOptionsError` (class) - missing @example
@@ -1357,95 +1358,95 @@ Export findings:
 - `src/Reuse/index.ts:7` `export * from "./Reuse.model.js";` (re-export) - missing @example
 - `src/Reuse/index.ts:14` `export * from "./Reuse.service.js";` (re-export) - missing @example
 - `src/Root.ts:47` `findRepoRoot` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:110` `RepoRootPath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:128` `RepoRootPath` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:141` `WorkspaceDirectoryPath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:160` `WorkspaceDirectoryPath` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:173` `TsConfigFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:189` `TsConfigFilePath` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:202` `TypeScriptImplementationFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:222` `TypeScriptImplementationFilePath` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:235` `TypeScriptDeclarationFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:255` `TypeScriptDeclarationFilePath` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:268` `TypeScriptFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:286` `TypeScriptFilePath` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:299` `SymbolFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:316` `SymbolFilePath` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:329` `SymbolNameSegment` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:349` `SymbolNameSegment` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:362` `SymbolQualifiedName` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:382` `SymbolQualifiedName` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:395` `SymbolKind` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:408` `SymbolKind` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:421` `SymbolCategory` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:439` `SymbolCategory` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:452` `symbolCategoryFromKind` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:475` `SymbolKindToCategory` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:493` `SymbolKindToCategory` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:506` `SourceText` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:524` `SourceText` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:537` `LineNumber` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:553` `LineNumber` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:566` `ColumnNumber` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:582` `ColumnNumber` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:595` `ByteOffset` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:613` `ByteOffset` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:626` `ByteLength` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:644` `ByteLength` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:657` `ContentHash` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:675` `ContentHash` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:688` `TsMorphScopeMode` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:704` `TsMorphScopeMode` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:717` `TsMorphReferencePolicy` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:733` `TsMorphReferencePolicy` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:754` `ProjectScopeId` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:770` `ProjectScopeId` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:783` `ProjectScopeIdParts` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:804` `ProjectCacheKey` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:820` `ProjectCacheKey` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:833` `SymbolId` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:854` `SymbolId` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:867` `SymbolIdParts` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:888` `FilePathToTsConfigFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:908` `FilePathToTypeScriptImplementationFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:928` `FilePathToTypeScriptDeclarationFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:948` `FilePathToTypeScriptFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:968` `TypeScriptImplementationFilePathToSymbolFilePath` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:993` `ContentHashFromBytes` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1020` `ContentHashFromSourceText` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1043` `InternalTsMorphProject` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1059` `InternalTsMorphSourceFile` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1075` `InternalTsMorphNode` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1091` `Symbol` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1159` `Symbol` (namespace) - resolved
-- `src/TSMorph/TSMorph.model.ts:1197` `SymbolInit` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:1217` `makeSymbolId` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1236` `makeProjectScopeId` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1257` `makeProjectCacheKey` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1276` `makeSymbol` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1319` `TsMorphScopeEntrypoint` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1353` `TsMorphScopeEntrypoint` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:1366` `TsMorphProjectScopeRequest` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1391` `TsMorphProjectInspectionRequest` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1418` `TsMorphProjectScope` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1444` `TsMorphFileOutlineRequest` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1467` `TsMorphFileOutline` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1489` `TsMorphSourceTextRequest` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1511` `TsMorphSourceTextResult` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1533` `TsMorphSymbolLookupRequest` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1556` `TsMorphSymbolLookupResult` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1579` `TsMorphSearchLimit` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1598` `TsMorphSearchLimit` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:1611` `TsMorphSymbolSearchRequest` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1637` `TsMorphSymbolSearchResult` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1663` `TsMorphSymbolSourceRequest` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1686` `TsMorphSymbolSourceResult` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1711` `TsMorphDiagnosticCategory` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:1729` `TsMorphDiagnosticCategory` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:1802` `TsMorphDiagnostic` (const) - resolved
-- `src/TSMorph/TSMorph.model.ts:1825` `TsMorphDiagnostic` (type) - resolved
-- `src/TSMorph/TSMorph.model.ts:1838` `TsMorphDiagnosticsRequest` (class) - resolved
-- `src/TSMorph/TSMorph.model.ts:1861` `TsMorphDiagnosticsResult` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:121` `RepoRootPath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:141` `RepoRootPath` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:154` `WorkspaceDirectoryPath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:174` `WorkspaceDirectoryPath` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:187` `TsConfigFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:207` `TsConfigFilePath` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:220` `TypeScriptImplementationFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:240` `TypeScriptImplementationFilePath` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:253` `TypeScriptDeclarationFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:273` `TypeScriptDeclarationFilePath` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:286` `TypeScriptFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:305` `TypeScriptFilePath` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:318` `SymbolFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:338` `SymbolFilePath` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:351` `SymbolNameSegment` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:371` `SymbolNameSegment` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:384` `SymbolQualifiedName` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:404` `SymbolQualifiedName` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:417` `SymbolKind` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:430` `SymbolKind` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:443` `SymbolCategory` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:456` `SymbolCategory` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:469` `symbolCategoryFromKind` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:492` `SymbolKindToCategory` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:517` `SymbolKindToCategory` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:530` `SourceText` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:550` `SourceText` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:563` `LineNumber` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:583` `LineNumber` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:596` `ColumnNumber` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:616` `ColumnNumber` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:629` `ByteOffset` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:649` `ByteOffset` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:662` `ByteLength` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:682` `ByteLength` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:695` `ContentHash` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:715` `ContentHash` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:728` `TsMorphScopeMode` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:741` `TsMorphScopeMode` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:754` `TsMorphReferencePolicy` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:767` `TsMorphReferencePolicy` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:788` `ProjectScopeId` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:808` `ProjectScopeId` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:821` `ProjectScopeIdParts` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:844` `ProjectCacheKey` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:864` `ProjectCacheKey` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:877` `SymbolId` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:897` `SymbolId` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:910` `SymbolIdParts` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:933` `FilePathToTsConfigFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:956` `FilePathToTypeScriptImplementationFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:979` `FilePathToTypeScriptDeclarationFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1002` `FilePathToTypeScriptFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1025` `TypeScriptImplementationFilePathToSymbolFilePath` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1053` `ContentHashFromBytes` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1086` `ContentHashFromSourceText` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1114` `InternalTsMorphProject` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1133` `InternalTsMorphSourceFile` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1154` `InternalTsMorphNode` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1175` `Symbol` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1245` `Symbol` (namespace) - resolved
+- `src/TSMorph/TSMorph.model.ts:1283` `SymbolInit` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:1301` `makeSymbolId` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1320` `makeProjectScopeId` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1341` `makeProjectCacheKey` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1360` `makeSymbol` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1406` `TsMorphScopeEntrypoint` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1440` `TsMorphScopeEntrypoint` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:1453` `TsMorphProjectScopeRequest` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1476` `TsMorphProjectInspectionRequest` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1504` `TsMorphProjectScope` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1530` `TsMorphFileOutlineRequest` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1551` `TsMorphFileOutline` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1573` `TsMorphSourceTextRequest` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1593` `TsMorphSourceTextResult` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1615` `TsMorphSymbolLookupRequest` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1636` `TsMorphSymbolLookupResult` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1657` `TsMorphSearchLimit` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1677` `TsMorphSearchLimit` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:1690` `TsMorphSymbolSearchRequest` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1714` `TsMorphSymbolSearchResult` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1738` `TsMorphSymbolSourceRequest` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1759` `TsMorphSymbolSourceResult` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1782` `TsMorphDiagnosticCategory` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:1795` `TsMorphDiagnosticCategory` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:1866` `TsMorphDiagnostic` (const) - resolved
+- `src/TSMorph/TSMorph.model.ts:1892` `TsMorphDiagnostic` (type) - resolved
+- `src/TSMorph/TSMorph.model.ts:1905` `TsMorphDiagnosticsRequest` (class) - resolved
+- `src/TSMorph/TSMorph.model.ts:1926` `TsMorphDiagnosticsResult` (class) - resolved
 - `src/TSMorph/TSMorph.service.ts:122` `TsMorphServiceUnavailableError` (class) - resolved
 - `src/TSMorph/TSMorph.service.ts:147` `TsMorphScopeResolutionError` (class) - resolved
 - `src/TSMorph/TSMorph.service.ts:172` `TsMorphProjectLoadError` (class) - resolved
@@ -1755,13 +1756,69 @@ Export findings:
 Path: `tooling/test-utils`
 
 Export findings:
-- `src/SqlTest.ts:185` `PgliteTestcontainersTestDriverConfigInput` (type) - missing @example
-- `src/SqlTest.ts:238` `PgExternalTestDriverConfigInput` (type) - missing @example
-- `src/SqlTest.ts:246` `PgliteSqlTestLayerMode` (type) - missing @example
-- `src/SqlTest.ts:254` `PgliteSqlTestLayerOptions` (interface) - missing @example
-- `src/SqlTest.ts:435` `PgliteTestcontainerResource` (interface) - 1 unsafe example violation(s)
+- `src/SqlTest.ts:186` `PgliteTestcontainersTestDriverConfigInput` (type) - missing @example
+- `src/SqlTest.ts:239` `PgExternalTestDriverConfigInput` (type) - missing @example
+- `src/SqlTest.ts:247` `PgliteSqlTestLayerMode` (type) - missing @example
+- `src/SqlTest.ts:255` `PgliteSqlTestLayerOptions` (interface) - missing @example
+- `src/SqlTest.ts:436` `PgliteTestcontainerResource` (interface) - 1 unsafe example violation(s)
 - `src/index.ts:8` `export * from "./SqlTest.js";` (re-export) - missing @example, @category
 - `src/index.ts:22` `VERSION` (const) - resolved
+
+### @beep/ffmpeg
+
+Path: `packages/drivers/ffmpeg`
+
+Export findings:
+- `src/FFmpeg.models.ts:72` `PositiveFrameRate` (type) - 1 unsafe example violation(s)
+- `src/FFmpeg.models.ts:131` `PositiveMilliseconds` (type) - 1 unsafe example violation(s)
+- `src/FFmpeg.models.ts:190` `SafeFramePrefix` (type) - 1 unsafe example violation(s)
+- `src/index.ts:14` `export * from "./FFmpeg.errors.ts";` (re-export) - missing @example
+- `src/index.ts:22` `export * from "./FFmpeg.models.ts";` (re-export) - missing @example
+- `src/index.ts:30` `export * from "./FFmpeg.service.ts";` (re-export) - missing @example
+
+### @beep/observability
+
+Path: `packages/foundation/capability/observability`
+
+Module findings:
+- `src/experimental/server/index.ts:1` (jsdoc) - missing summary
+- `src/server/index.ts:1` (jsdoc) - missing summary
+- `src/web/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/Metric.ts:191` `trackDuration` (const) - missing @example
+- `src/Metric.ts:314` `observeWorkflow` (const) - missing @example
+- `src/Metric.ts:445` `observeHttpRequest` (const) - missing @example
+- `src/PhaseProfiler.ts:259` `profilePhase` (const) - missing @example
+- `src/experimental/server/index.ts:4` `export * from "./DevToolsRelay.ts";` (re-export) - missing @example, @category
+- `src/experimental/server/index.ts:8` `export * from "./OtlpPacketLab.ts";` (re-export) - missing @example, @category
+- `src/index.ts:47` `export * from "./CauseDiagnostics.ts";` (re-export) - missing @example
+- `src/index.ts:55` `export * from "./CoreConfig.ts";` (re-export) - missing @example
+- `src/index.ts:63` `export * from "./HttpError.ts";` (re-export) - missing @example
+- `src/index.ts:71` `export * from "./Logging.ts";` (re-export) - missing @example
+- `src/index.ts:79` `export * from "./Metric.ts";` (re-export) - missing @example
+- `src/index.ts:87` `export * from "./Observed.ts";` (re-export) - missing @example
+- `src/index.ts:95` `export * from "./PhaseProfiler.ts";` (re-export) - missing @example
+- `src/server/Config.ts:69` `toOtlpResource` (const) - 1 unsafe example violation(s)
+- `src/server/HttpApiTelemetry.ts:256` `makeHttpApiTelemetryDescriptor` (const) - 1 unsafe example violation(s)
+- `src/server/HttpApiTelemetry.ts:295` `httpApiFailureStatus` (const) - 1 unsafe example violation(s)
+- `src/server/HttpApiTelemetry.ts:415` `observeHttpApiEffect` (const) - missing @example
+- `src/server/HttpApiTelemetry.ts:574` `observeHttpApiHandler` (const) - missing @example
+- `src/server/Layer.ts:29` `layerLocalLgtmServer` (const) - 1 unsafe example violation(s)
+- `src/server/NodeSdk.ts:52` `toNodeSdkResource` (const) - 1 unsafe example violation(s)
+- `src/server/NodeSdk.ts:69` `makeNodeSdkServerConfig` (const) - 1 unsafe example violation(s)
+- `src/server/NodeSdk.ts:139` `layerNodeSdkServer` (const) - 1 unsafe example violation(s)
+- `src/server/TraceContext.ts:93` `withIncomingTraceContext` (const) - missing @example
+- `src/server/index.ts:4` `export * from "./Config.ts";` (re-export) - missing @example, @category
+- `src/server/index.ts:8` `export * from "./DevTools.ts";` (re-export) - missing @example, @category
+- `src/server/index.ts:12` `export * from "./ErrorReporting.ts";` (re-export) - missing @example, @category
+- `src/server/index.ts:16` `export * from "./HttpApiTelemetry.ts";` (re-export) - missing @example, @category
+- `src/server/index.ts:20` `export * from "./Layer.ts";` (re-export) - missing @example, @category
+- `src/server/index.ts:24` `export * from "./NodeSdk.ts";` (re-export) - missing @example, @category
+- `src/server/index.ts:28` `export * from "./Prometheus.ts";` (re-export) - missing @example, @category
+- `src/server/index.ts:32` `export * from "./TraceContext.ts";` (re-export) - missing @example, @category
+- `src/web/index.ts:4` `export * from "./Config.ts";` (re-export) - missing @example, @category
+- `src/web/index.ts:8` `export * from "./Layer.ts";` (re-export) - missing @example, @category
 
 ### @beep/fixture-lab-specimen-config
 
@@ -1790,7 +1847,7 @@ Export findings:
 Path: `packages/shared/domain`
 
 Export findings:
-- `src/entities/Organization/Organization.values.ts:52` `LicenseTier` (type) - 1 unsafe example violation(s)
+- `src/entities.ts:11` `export * from "./entities/index.ts";` (re-export) - missing @example, @category
 - `src/entities/Organization/index.ts:7` `export * from "./Organization.behavior.js";` (re-export) - missing @example
 - `src/entities/Organization/index.ts:15` `export * from "./Organization.model.js";` (re-export) - missing @example
 - `src/entities/Organization/index.ts:23` `export * from "./Organization.values.js";` (re-export) - missing @example
@@ -1857,23 +1914,14 @@ Export findings:
 - `src/entity/primitives.ts:110` `VectorClock` (const) - missing @example
 - `src/entity/primitives.ts:123` `VectorClock` (type) - missing @example
 - `src/identity/Shared.ts:20` `OrganizationId` (const) - missing @example
-- `src/identity/Shared.ts:38` `OrganizationId` (type) - 1 unsafe example violation(s)
-- `src/identity/Shared.ts:46` `UserId` (const) - missing @example
-- `src/identity/Shared.ts:64` `UserId` (type) - 1 unsafe example violation(s)
-- `src/identity/Shared.ts:72` `TeamId` (const) - missing @example
-- `src/identity/Shared.ts:90` `TeamId` (type) - 1 unsafe example violation(s)
-- `src/identity/Shared.ts:98` `ServiceAccountId` (const) - missing @example
-- `src/identity/Shared.ts:116` `ServiceAccountId` (type) - 1 unsafe example violation(s)
-- `src/identity/Shared.ts:124` `AgentId` (const) - missing @example
-- `src/identity/Shared.ts:142` `AgentId` (type) - 1 unsafe example violation(s)
-- `src/identity/Shared.ts:150` `AgentVersionId` (const) - missing @example
-- `src/identity/Shared.ts:168` `AgentVersionId` (type) - 1 unsafe example violation(s)
-- `src/identity/Shared.ts:176` `ConnectorAccountId` (const) - missing @example
-- `src/identity/Shared.ts:194` `ConnectorAccountId` (type) - 1 unsafe example violation(s)
-- `src/identity/Shared.ts:202` `ActivityId` (const) - missing @example
-- `src/identity/Shared.ts:220` `ActivityId` (type) - 1 unsafe example violation(s)
-- `src/identity/Shared.ts:228` `LocalMachineId` (const) - missing @example
-- `src/identity/Shared.ts:246` `LocalMachineId` (type) - 1 unsafe example violation(s)
+- `src/identity/Shared.ts:50` `UserId` (const) - missing @example
+- `src/identity/Shared.ts:78` `TeamId` (const) - missing @example
+- `src/identity/Shared.ts:106` `ServiceAccountId` (const) - missing @example
+- `src/identity/Shared.ts:136` `AgentId` (const) - missing @example
+- `src/identity/Shared.ts:164` `AgentVersionId` (const) - missing @example
+- `src/identity/Shared.ts:194` `ConnectorAccountId` (const) - missing @example
+- `src/identity/Shared.ts:224` `ActivityId` (const) - missing @example
+- `src/identity/Shared.ts:252` `LocalMachineId` (const) - missing @example
 - `src/identity/index.ts:12` `export * as Shared from "./Shared.ts";` (re-export) - missing @example
 - `src/index.ts:29` `export * as Aggregates from "./aggregates/index.ts";` (re-export) - missing @example
 - `src/index.ts:37` `export * as Entities from "./entities/index.ts";` (re-export) - missing @example
@@ -2544,9 +2592,9 @@ Export findings:
 - `src/commands/CreatePackage/FileGenerationPlanService.ts:255` `FileGenerationPlanServiceShape` (type) - missing @example
 - `src/commands/CreatePackage/FileGenerationPlanService.ts:269` `FileGenerationPlanService` (class) - missing @example
 - `src/commands/CreatePackage/FileGenerationPlanService.ts:468` `createFileGenerationPlanService` (const) - missing @example
-- `src/commands/CreatePackage/Handler.ts:76` `resolveCreatePackageTemplateDir` (const) - missing @example
-- `src/commands/CreatePackage/Handler.ts:200` `TemplateContext` (class) - missing @example
-- `src/commands/CreatePackage/Handler.ts:458` `createPackageCommand` (const) - missing @example
+- `src/commands/CreatePackage/Handler.ts:77` `resolveCreatePackageTemplateDir` (const) - missing @example
+- `src/commands/CreatePackage/Handler.ts:223` `TemplateContext` (class) - missing @example
+- `src/commands/CreatePackage/Handler.ts:500` `createPackageCommand` (const) - missing @example
 - `src/commands/CreatePackage/TemplateService.ts:24` `TemplateSpec` (class) - missing @example
 - `src/commands/CreatePackage/TemplateService.ts:40` `RenderedTemplate` (class) - missing @example
 - `src/commands/CreatePackage/TemplateService.ts:56` `TemplateRenderRequest` (class) - missing @example
@@ -2564,44 +2612,204 @@ Export findings:
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:234` `TsMorphIntegrationService` (class) - missing @example
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:258` `createTsMorphIntegrationService` (const) - missing @example
 - `src/commands/CreatePackage/index.ts:16` `createPackageCommand` (const) - missing @example
-- `src/commands/Docgen/index.ts:598` `docgenCommand` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:75` `DocgenPackageStatus` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:90` `DocgenPackageStatus` (type) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:104` `DocgenConfigDocument` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:133` `DocgenWorkspacePackage` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:154` `DocgenIssuePriority` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:165` `DocgenIssuePriority` (type) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:173` `DocgenExportKind` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:194` `DocgenExportKind` (type) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:202` `DocgenExportAnalysis` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:226` `DocgenAnalysisSummary` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:246` `DocgenPackageAnalysis` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:265` `DocgenGenerationResult` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:285` `DocgenAggregateResult` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:912` `normalizeDocsOutputPath` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:923` `loadDocgenConfigDocument` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:951` `createDocgenConfigDocument` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:994` `discoverDocgenWorkspacePackages` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1037` `resolveDocgenWorkspacePackage` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1089` `analyzePackageDocumentation` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1133` `generateAnalysisReport` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1247` `generateAnalysisJson` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1257` `aggregateGeneratedDocs` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1405` `runDocgenForPackage` (const) - missing @example
+- `src/commands/Docgen/index.ts:603` `docgenCommand` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:92` `DocgenPackageStatus` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:107` `DocgenPackageStatus` (type) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:121` `DocgenConfigDocument` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:150` `DocgenWorkspacePackage` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:171` `DocgenIssuePriority` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:182` `DocgenIssuePriority` (type) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:190` `DocgenExportKind` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:211` `DocgenExportKind` (type) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:219` `DocgenExportAnalysis` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:243` `DocgenAnalysisSummary` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:263` `DocgenPackageAnalysis` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:282` `DocgenGenerationResult` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:302` `DocgenAggregateResult` (class) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1019` `normalizeDocsOutputPath` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1030` `loadDocgenConfigDocument` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1058` `createDocgenConfigDocument` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1101` `discoverDocgenWorkspacePackages` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1144` `resolveDocgenWorkspacePackage` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1196` `analyzePackageDocumentation` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1240` `generateAnalysisReport` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1354` `generateAnalysisJson` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1364` `aggregateGeneratedDocs` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1514` `runDocgenForPackage` (const) - missing @example
+- `src/commands/Files/Files.command.ts:386` `filesCommand` (const) - missing @example
+- `src/commands/Files/Files.errors.ts:54` `formatPlatformError` (const) - missing @example
+- `src/commands/Files/Files.errors.ts:74` `failOnExtensionlessFile` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:24` `PositiveMediaDimension` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:52` `PositiveMediaDimension` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:60` `FileSha256Hash` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:79` `FileSha256Hash` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:87` `NonNegativePixelOffset` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:115` `NonNegativePixelOffset` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:123` `MediaKind` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:135` `MediaKind` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:143` `SupportedMetadataImageExtension` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:163` `SupportedMetadataImageExtension` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:171` `NormalizeImageFormatInput` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:183` `NormalizeImageFormatInput` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:191` `NormalizeImageFormat` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:203` `NormalizeImageFormat` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:211` `NormalizeSkippedReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:231` `NormalizeSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:239` `CreateCaptionFilesSkippedReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:260` `CreateCaptionFilesSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:268` `BorderSide` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:280` `BorderSide` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:288` `BorderDetectionKind` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:307` `BorderDetectionKind` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:315` `DetectBordersSkippedReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:335` `DetectBordersSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:343` `CandidateAssessmentProfile` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:355` `CandidateAssessmentProfile` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:363` `CandidateAssessmentDecision` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:375` `CandidateAssessmentDecision` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:383` `CandidateAssessmentReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:399` `CandidateAssessmentReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:407` `ArchivePoorCandidatesSkippedReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:427` `ArchivePoorCandidatesSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:435` `CandidateRatioThreshold` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:454` `CandidateRatioThreshold` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:462` `BorderDetectionPercentage` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:496` `BorderDetectionPercentage` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:504` `BorderDetectionMaxScanPercentage` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:538` `BorderDetectionMaxScanPercentage` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:546` `BorderDetectionTolerance` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:580` `BorderDetectionTolerance` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:588` `RgbChannel` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:622` `RgbChannel` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:630` `ImageSizeMetadata` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:647` `FfprobeSideData` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:662` `FfprobeStream` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:680` `FfprobeOutput` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:695` `SafeFilePrefix` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:741` `SafeFilePrefix` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:782` `RenamePlanEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:807` `SortAndRenameSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:859` `StripMetadataSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:903` `CreateCaptionFilesOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:921` `CreateCaptionFilesPlanEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:943` `CreateCaptionFilesSkippedEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:965` `CreateCaptionFilesPlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:984` `CreateCaptionFilesSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1004` `NormalizeFilesOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1029` `NormalizeManifestOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1048` `NormalizePlanEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1076` `NormalizeSkippedEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1100` `NormalizePlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1121` `NormalizeSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1150` `NormalizeManifestSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1170` `NormalizeManifest` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1192` `ArchivePoorCandidatesOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1219` `ArchivePoorCandidatesManifestOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1242` `CandidateAssessmentMetrics` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1260` `ArchivedSidecarEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1279` `ArchivePoorCandidatesEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1306` `ArchivePoorCandidatesSkippedEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1327` `ArchivePoorCandidatesPlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1347` `ArchivePoorCandidatesSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1373` `ArchivePoorCandidatesManifestSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1394` `ArchivePoorCandidatesManifest` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1418` `DetectBordersOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1438` `CropBordersOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1458` `RgbColor` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1475` `DetectBorderSideMeasurement` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1496` `DetectBordersEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1519` `DetectBordersSkippedEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1538` `DetectBordersSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1557` `DetectBordersReport` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1577` `CropBordersPlanEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1603` `CropBordersPlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1622` `CropBordersSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1643` `SortableFileCollection` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1659` `RenamePlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1675` `StripMetadataPlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1693` `decodeImageSizeMetadata` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1701` `decodeFfprobeOutputJson` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1709` `decodeRotationNumber` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/commands/Files/Files.schemas.ts:1717` `decodeSafeFilePrefix` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1725` `decodeNormalizeMaxLongEdge` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1733` `decodeArchivePoorCandidatesOptions` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1741` `decodeCreateCaptionFilesOptions` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1749` `decodeDetectBordersOptions` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1757` `decodeCropBordersOptions` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1765` `encodeNormalizeManifest` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1773` `encodeArchivePoorCandidatesManifest` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1781` `encodeDetectBordersReport` (const) - missing @example
+- `src/commands/Files/Files.service.ts:146` `FilesCommandServiceShape` (interface) - missing @example
+- `src/commands/Files/Files.service.ts:212` `FilesCommandService` (class) - missing @example
+- `src/commands/Files/Files.service.ts:2998` `printFilesIndex` (const) - missing @example
+- `src/commands/Files/Files.service.ts:3607` `FilesCommandServiceLive` (const) - missing @example
+- `src/commands/Files/Files.service.ts:3618` `archivePoorCandidates` (const) - missing @example
+- `src/commands/Files/Files.service.ts:3633` `createCaptionFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:3648` `cropBordersFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:3663` `detectBordersFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:3678` `normalizeFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:3696` `sortAndRenameFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:3723` `stripMetadataFiles` (const) - resolved
+- `src/commands/Files/Files.utils.ts:220` `stringEquivalence` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/commands/Files/Files.utils.ts:228` `isImageFileExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:236` `isVideoFileExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:244` `isSupportedMetadataImageExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:252` `bySizeDescendingThenNameAscending` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:263` `byNameAscending` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:276` `normalizeBareExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:286` `mediaKindFromExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:309` `formatIndex` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:322` `collectText` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:340` `isExifOrientationRotated` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:350` `isQuarterTurnRotation` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:364` `maybeSwapDimensions` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:386` `rotationFromStream` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:407` `targetNameForEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:431` `hasSkippedFiles` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:441` `selectedCanonicalPathSet` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:457` `renderPlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:467` `renderStripMetadataPlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:478` `renderCreateCaptionFilesPlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:489` `renderCreateCaptionFilesSkippedEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:500` `renderNormalizePlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:511` `renderNormalizeSkippedEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:522` `normalizeOutputExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:532` `sharpFormatForNormalize` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:544` `normalizeOutputDimensions` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:573` `mediaDimensionsChanged` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:589` `roundCandidateMetric` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:600` `assessImageCandidate` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:644` `renderArchivePoorCandidatesEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:661` `renderArchivePoorCandidatesSkippedEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:672` `rgbToHex` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:683` `classifyBorderSides` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:729` `analyzeSolidBorders` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:746` `renderDetectBordersEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:765` `renderDetectBordersSkippedEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:785` `cropBordersPlanEntryFromDetection` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:823` `renderCropBordersPlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:836` `makeStripMetadataTempEntries` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:861` `isSupportedMetadataImageFile` (const) - missing @example
+- `src/commands/Files/index.ts:13` `export * from "./Files.command.js";` (re-export) - missing @example, @category
+- `src/commands/Files/index.ts:19` `export * from "./Files.errors.js";` (re-export) - missing @example, @category
+- `src/commands/Files/index.ts:25` `export * from "./Files.schemas.js";` (re-export) - missing @example, @category
+- `src/commands/Files/index.ts:31` `export * from "./Files.service.js";` (re-export) - missing @example, @category
+- `src/commands/Files/index.ts:37` `export * from "./Files.utils.js";` (re-export) - missing @example, @category
 - `src/commands/Graphiti/internal/ProxyServices.ts:56` `ContainerHealthState` (const) - 1 schema annotation/type-alias gap(s)
 - `src/commands/Graphiti/internal/ProxyServices.ts:72` `DependencyHealthState` (const) - 1 schema annotation/type-alias gap(s)
+- `src/commands/Image/index.ts:118` `imageCommand` (const) - resolved
 - `src/commands/Quality/Tasks.ts:46` `QualityTaskName` (const) - resolved
 - `src/commands/Quality/Tasks.ts:63` `QualityTaskName` (type) - resolved
 - `src/commands/Quality/Tasks.ts:80` `PackageTaskProfile` (class) - resolved
 - `src/commands/Quality/Tasks.ts:107` `QualityTaskStep` (class) - resolved
 - `src/commands/Quality/Tasks.ts:136` `QualityTaskInvocation` (class) - resolved
-- `src/commands/Quality/Tasks.ts:636` `sqlIntegrationStepForTesting` (const) - missing @example
-- `src/commands/Quality/Tasks.ts:649` `runSqlIntegrationTestLaneForTesting` (const) - missing @example
-- `src/commands/Quality/Tasks.ts:770` `rootQualityStepsForTesting` (const) - missing @example
-- `src/commands/Quality/Tasks.ts:898` `parseQualityTaskInvocation` (const) - resolved
-- `src/commands/Quality/Tasks.ts:942` `runQualityTask` (const) - resolved
-- `src/commands/Quality/Tasks.ts:976` `runQualityTaskIfRequested` (const) - resolved
-- `src/commands/Quality/Tasks.ts:1008` `collectStepOutput` (const) - resolved
+- `src/commands/Quality/Tasks.ts:640` `sqlIntegrationStepForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:654` `runSqlIntegrationTestLaneForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:776` `rootQualityStepsForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:904` `parseQualityTaskInvocation` (const) - resolved
+- `src/commands/Quality/Tasks.ts:948` `runQualityTask` (const) - resolved
+- `src/commands/Quality/Tasks.ts:982` `runQualityTaskIfRequested` (const) - resolved
+- `src/commands/Quality/Tasks.ts:1014` `collectStepOutput` (const) - resolved
 - `src/commands/Reuse/index.ts:355` `reuseCommand` (const) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:23` `CodexRunnerStage` (const) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:37` `CodexRunnerStage` (type) - missing @example
@@ -2774,13 +2982,29 @@ Export findings:
 } from "./commands/Docs.js";` (re-export) - missing @example, @category
 - `src/index.ts:110` `export {
   /**
+   * Dataset file curation command group.
+   *
+   * @since 0.0.0
+   */
+  filesCommand,
+} from "./commands/Files/index.js";` (re-export) - missing @example, @category
+- `src/index.ts:123` `export {
+  /**
    * Graphiti operational command group.
    *
    * @since 0.0.0
    */
   graphitiCommand,
 } from "./commands/Graphiti/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:123` `export {
+- `src/index.ts:136` `export {
+  /**
+   * Image and video curation command group.
+   *
+   * @since 0.0.0
+   */
+  imageCommand,
+} from "./commands/Image/index.js";` (re-export) - missing @example, @category
+- `src/index.ts:149` `export {
   /**
    * Effect laws command group.
    *
@@ -2788,7 +3012,7 @@ Export findings:
    */
   lawsCommand,
 } from "./commands/Laws/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:136` `export {
+- `src/index.ts:162` `export {
   /**
    * Lint policy command group.
    *
@@ -2796,7 +3020,7 @@ Export findings:
    */
   lintCommand,
 } from "./commands/Lint/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:149` `export {
+- `src/index.ts:175` `export {
   /**
    * Purge command for removing root/workspace build artifacts.
    *
@@ -2804,7 +3028,7 @@ Export findings:
    */
   purgeCommand,
 } from "./commands/Purge.js";` (re-export) - missing @example, @category
-- `src/index.ts:162` `export {
+- `src/index.ts:188` `export {
   /**
    * Reuse-discovery command group.
    *
@@ -2812,7 +3036,7 @@ Export findings:
    */
   reuseCommand,
 } from "./commands/Reuse/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:175` `export {
+- `src/index.ts:201` `export {
   /**
    * Root CLI command that composes subcommands.
    *
@@ -2820,7 +3044,7 @@ Export findings:
    */
   rootCommand,
 } from "./commands/Root.js";` (re-export) - missing @example, @category
-- `src/index.ts:188` `export {
+- `src/index.ts:214` `export {
   /**
    * Official data sync command for checked-in generated TypeScript modules.
    *
@@ -2828,7 +3052,7 @@ Export findings:
    */
   syncDataToTsCommand,
 } from "./commands/SyncDataToTs/index.js";` (re-export) - missing @example, @category
-- `src/index.ts:201` `export {
+- `src/index.ts:227` `export {
   /**
    * Dependency topological sort command.
    *
@@ -2836,7 +3060,7 @@ Export findings:
    */
   topoSortCommand,
 } from "./commands/TopoSort.js";` (re-export) - missing @example, @category
-- `src/index.ts:214` `export {
+- `src/index.ts:240` `export {
   /**
    * Tsconfig sync command for workspace tsconfig references and root aliases.
    *
@@ -2844,7 +3068,7 @@ Export findings:
    */
   tsconfigSyncCommand,
 } from "./commands/TsconfigSync.js";` (re-export) - missing @example, @category
-- `src/index.ts:227` `export {
+- `src/index.ts:253` `export {
   /**
    * Version sync command for detecting and fixing version drift.
    *
@@ -2852,13 +3076,6 @@ Export findings:
    */
   versionSyncCommand,
 } from "./commands/VersionSync/index.js";` (re-export) - missing @example, @category
-
-### @beep/pglite
-
-Path: `packages/drivers/pglite`
-
-Export findings:
-- `src/index.ts:12` `VERSION` (const) - missing summary; missing @example
 
 ### @beep/shared-tables
 
@@ -2869,10 +3086,6 @@ Export findings:
 - `src/entities/index.ts:7` `export * as Organization from "./Organization/index.js";` (re-export) - missing @example
 - `src/index.ts:14` `export * as Entities from "./entities/index.ts";` (re-export) - missing @example
 - `src/index.ts:21` `export * as Table from "./table/Table.ts";` (re-export) - missing @example
-- `src/table/Table.ts:88` `ColumnBuilderFor` (type) - missing @example
-- `src/table/Table.ts:98` `ColumnBuilderMapFor` (type) - missing @example
-- `src/table/Table.ts:110` `TableFor` (type) - missing @example
-- `src/table/Table.ts:158` `WithDefinition` (type) - 1 unsafe example violation(s)
 - `src/table/index.ts:14` `export * as Table from "./Table.ts";` (re-export) - missing @example
 
 ### @beep/semantic-web
@@ -3142,49 +3355,16 @@ Export findings:
 - `src/entities/Specimen/Specimen.service.ts:37` `SpecimenClientRequest` (type) - missing @example
 - `src/entities/Specimen/Specimen.service.ts:70` `SpecimenClient` (interface) - missing @example
 
-### @beep/observability
+### @beep/postgres
 
-Path: `packages/foundation/capability/observability`
-
-Module findings:
-- `src/experimental/server/index.ts:1` (jsdoc) - missing summary
-- `src/server/index.ts:1` (jsdoc) - missing summary
-- `src/web/index.ts:1` (jsdoc) - missing summary
+Path: `packages/drivers/postgres`
 
 Export findings:
-- `src/Metric.ts:191` `trackDuration` (const) - missing @example
-- `src/Metric.ts:314` `observeWorkflow` (const) - missing @example
-- `src/Metric.ts:445` `observeHttpRequest` (const) - missing @example
-- `src/PhaseProfiler.ts:259` `profilePhase` (const) - missing @example
-- `src/experimental/server/index.ts:4` `export * from "./DevToolsRelay.ts";` (re-export) - missing @example, @category
-- `src/experimental/server/index.ts:8` `export * from "./OtlpPacketLab.ts";` (re-export) - missing @example, @category
-- `src/index.ts:47` `export * from "./CauseDiagnostics.ts";` (re-export) - missing @example
-- `src/index.ts:55` `export * from "./CoreConfig.ts";` (re-export) - missing @example
-- `src/index.ts:63` `export * from "./HttpError.ts";` (re-export) - missing @example
-- `src/index.ts:71` `export * from "./Logging.ts";` (re-export) - missing @example
-- `src/index.ts:79` `export * from "./Metric.ts";` (re-export) - missing @example
-- `src/index.ts:87` `export * from "./Observed.ts";` (re-export) - missing @example
-- `src/index.ts:95` `export * from "./PhaseProfiler.ts";` (re-export) - missing @example
-- `src/server/Config.ts:69` `toOtlpResource` (const) - 1 unsafe example violation(s)
-- `src/server/HttpApiTelemetry.ts:256` `makeHttpApiTelemetryDescriptor` (const) - 1 unsafe example violation(s)
-- `src/server/HttpApiTelemetry.ts:295` `httpApiFailureStatus` (const) - 1 unsafe example violation(s)
-- `src/server/HttpApiTelemetry.ts:415` `observeHttpApiEffect` (const) - missing @example
-- `src/server/HttpApiTelemetry.ts:574` `observeHttpApiHandler` (const) - missing @example
-- `src/server/Layer.ts:29` `layerLocalLgtmServer` (const) - 1 unsafe example violation(s)
-- `src/server/NodeSdk.ts:52` `toNodeSdkResource` (const) - 1 unsafe example violation(s)
-- `src/server/NodeSdk.ts:69` `makeNodeSdkServerConfig` (const) - 1 unsafe example violation(s)
-- `src/server/NodeSdk.ts:139` `layerNodeSdkServer` (const) - 1 unsafe example violation(s)
-- `src/server/TraceContext.ts:93` `withIncomingTraceContext` (const) - missing @example
-- `src/server/index.ts:4` `export * from "./Config.ts";` (re-export) - missing @example, @category
-- `src/server/index.ts:8` `export * from "./DevTools.ts";` (re-export) - missing @example, @category
-- `src/server/index.ts:12` `export * from "./ErrorReporting.ts";` (re-export) - missing @example, @category
-- `src/server/index.ts:16` `export * from "./HttpApiTelemetry.ts";` (re-export) - missing @example, @category
-- `src/server/index.ts:20` `export * from "./Layer.ts";` (re-export) - missing @example, @category
-- `src/server/index.ts:24` `export * from "./NodeSdk.ts";` (re-export) - missing @example, @category
-- `src/server/index.ts:28` `export * from "./Prometheus.ts";` (re-export) - missing @example, @category
-- `src/server/index.ts:32` `export * from "./TraceContext.ts";` (re-export) - missing @example, @category
-- `src/web/index.ts:4` `export * from "./Config.ts";` (re-export) - missing @example, @category
-- `src/web/index.ts:8` `export * from "./Layer.ts";` (re-export) - missing @example, @category
+- `src/index.ts:14` `export * from "./Postgres.client.ts";` (re-export) - missing @example
+- `src/index.ts:22` `export * from "./Postgres.drizzle.ts";` (re-export) - missing @example
+- `src/index.ts:30` `export * from "./Postgres.errors.ts";` (re-export) - missing @example
+- `src/index.ts:38` `export * from "./Postgres.format.ts";` (re-export) - missing @example
+- `src/index.ts:46` `export * from "./Postgres.sqlstate.ts";` (re-export) - missing @example
 
 ### @beep/shared-ui
 

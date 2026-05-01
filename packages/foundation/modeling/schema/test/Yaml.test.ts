@@ -1,4 +1,4 @@
-import { $ScratchId } from "@beep/identity";
+import { $SchemaId } from "@beep/identity";
 import { makeParseYaml, makeParseYamlForSchema } from "@beep/schema/internal/yaml";
 import { decodeYamlTextAs, parseYaml, YamlTextToUnknown } from "@beep/schema/Yaml";
 import { describe, expect, it } from "@effect/vitest";
@@ -6,7 +6,7 @@ import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";
 import * as yaml from "yaml";
 
-const $I = $ScratchId.create("yaml_test");
+const $I = $SchemaId.create("yaml_test");
 
 class YamlPerson extends S.Class<YamlPerson>($I`YamlPerson`)(
   {

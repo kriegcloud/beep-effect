@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { normalizePath } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, Order, Path, pipe } from "effect";
@@ -32,9 +33,17 @@ type PackageTestImportViolation = {
   readonly specifier: string;
 };
 
-const PackageNameDocument = S.Struct({
-  name: S.String,
-});
+const $I = $RepoCliId.create("commands/Lint/PackageTestImports");
+
+class PackageNameDocument extends S.Class<PackageNameDocument>($I`PackageNameDocument`)(
+  {
+    name: S.String,
+  },
+  $I.annote("PackageNameDocument", {
+    title: "Package Name Document",
+    description: "Minimal package.json shape used to discover the owning package name for test import policy.",
+  })
+) {}
 
 const decodePackageNameDocument = S.decodeUnknownEffect(S.fromJsonString(PackageNameDocument));
 const moduleExtensionPattern = /\.(?:[cm]?[tj]sx?)$/;

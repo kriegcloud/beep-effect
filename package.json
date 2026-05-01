@@ -55,7 +55,6 @@
     "version-sync": "bun run beep version-sync",
     "purge": "bun run beep purge",
     "dev": "bunx turbo run dev",
-    "dev:desktop": "bunx turbo run dev:desktop --filter=@beep/desktop",
     "build": "beep-cli build",
     "check": "beep-cli check",
     "test": "beep-cli test",

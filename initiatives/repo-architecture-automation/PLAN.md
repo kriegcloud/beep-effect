@@ -12,8 +12,8 @@ economics and fixture proof before generator code.
 
 ## B. Retire The Old Active Topology
 
-- Delete the legacy app, package, shared, runtime, repo-memory, and editor
-  surfaces named in the spec.
+- Delete the legacy app, runtime, repo-memory, and editor surfaces named in the
+  spec while keeping the shared-kernel packages that remain active.
 - Delete the superseded memory and convergence initiative packets after
   extracting the digest.
 - Update root workspace, syncpack, TypeScript, Turbo, scratchpad, docgen,
@@ -43,6 +43,7 @@ economics and fixture proof before generator code.
 Run these as the branch becomes coherent:
 
 - `bun run config-sync:check`
+- `bun run beep lint schema-first`
 - targeted CLI fixture test
 - deleted-surface search audits
 - package graph check
