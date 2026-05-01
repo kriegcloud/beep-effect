@@ -3,10 +3,30 @@ import { GetSpecimen, ObserveSpecimen, SpecimenNotFound } from "@beep/fixture-la
 import { makeSpecimenUseCases, SpecimenRepositoryNotFound } from "@beep/fixture-lab-specimen-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
+import * as S from "effect/Schema";
+
+const systemPrincipal = { kind: "System", component: "Runtime" } as const;
+
+const makeSpecimen = (status: "draft" | "observed" | "retired" = "draft"): Specimen =>
+  S.decodeUnknownSync(Specimen)({
+    createdAt: 1,
+    createdByPrincipal: systemPrincipal,
+    entityType: Specimen.definition.entityId.entityType,
+    fixtureKey: "specimen-1",
+    id: 1,
+    label: "Fixture",
+    orgId: 1,
+    rowVersion: 1,
+    schemaVersion: "0.0.0",
+    source: "System",
+    status,
+    updatedAt: 1,
+    updatedByPrincipal: systemPrincipal,
+  });
 
 describe("Specimen use-case fixture", () => {
   it("observes a specimen through the command facade", async () => {
-    let current = new Specimen({ id: "specimen-1", label: "Fixture", status: "draft" });
+    let current = makeSpecimen();
     const useCases = makeSpecimenUseCases({
       get: () => Effect.succeed(current),
       save: (specimen) =>
@@ -16,7 +36,7 @@ describe("Specimen use-case fixture", () => {
         }),
     });
 
-    const observed = await Effect.runPromise(useCases.observeSpecimen(new ObserveSpecimen({ id: current.id })));
+    const observed = await Effect.runPromise(useCases.observeSpecimen(new ObserveSpecimen({ id: current.fixtureKey })));
 
     expect(observed.status).toBe("observed");
   });

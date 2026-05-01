@@ -258,6 +258,9 @@ describe("EntityMixin", () => {
     expect(() => EntityMixin.pack(NoteMixin, DuplicateNoteMixin)).toThrow(EntityMixin.EntityMixinFieldCollisionError);
     expect(makeBrokenMixin).toThrow(EntityMixin.EntityMixinDescriptorMissingError);
     expect(makeInvalidDescriptorMixin).toThrow(EntityMixin.EntityMixinDescriptorInvalidError);
+    expect(new EntityMixin.EntityMixinDescriptorInvalidError({ cause: "invalid", key: "invalid" }).message).toBe(
+      'EntityMixin descriptor metadata is invalid for field "invalid".'
+    );
   });
 });
 

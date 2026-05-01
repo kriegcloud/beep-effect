@@ -5,6 +5,8 @@
  * @since 0.0.0
  */
 
+/// <reference path="../../../madge.d.ts" />
+
 import { $RepoCliId } from "@beep/identity/packages";
 import { normalizePath, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";

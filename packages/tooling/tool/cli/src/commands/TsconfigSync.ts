@@ -47,6 +47,7 @@ import {
   buildCanonicalAliasTargets,
   resolveRootExportTarget,
   resolveSubpathExportTarget,
+  resolveWildcardExportTarget,
 } from "./Shared/TsconfigAliasTargets.js";
 
 export {
@@ -1015,6 +1016,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
       O.flatMap(resolveRootExportTarget),
       O.map((rootExportTarget) => buildCanonicalAliasTargets(relativeDir, rootExportTarget))
     );
+    const wildcardExportTarget = pipe(packageJson.exports, O.flatMap(resolveWildcardExportTarget));
     const subpathAliasTargets = buildPackageSubpathAliasTargets(
       packageName,
       relativeDir,
@@ -1025,7 +1027,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
       ...(P.isNotUndefined(rootAliasTargets)
         ? {
             rootAliasTarget: rootAliasTargets.rootAliasTarget,
-            wildcardAliasTarget: rootAliasTargets.wildcardAliasTarget,
+            ...(O.isSome(wildcardExportTarget) ? { wildcardAliasTarget: rootAliasTargets.wildcardAliasTarget } : {}),
           }
         : {}),
       ...(!R.isEmptyReadonlyRecord(subpathAliasTargets) ? { subpathAliasTargets } : {}),
@@ -1214,17 +1216,15 @@ const buildPackageSubpathAliasTargets = (
 const canonicalAliasEntriesForWorkspace = (
   workspace: WorkspaceDescriptor
 ): ReadonlyArray<readonly [string, ReadonlyArray<string>]> => {
-  if (
-    !isBeepScopedPackageName(workspace.packageName) ||
-    workspace.rootAliasTarget === undefined ||
-    workspace.wildcardAliasTarget === undefined
-  ) {
+  if (!isBeepScopedPackageName(workspace.packageName) || workspace.rootAliasTarget === undefined) {
     return A.empty();
   }
 
   return [
     [workspace.packageName, [workspace.rootAliasTarget]],
-    [`${workspace.packageName}/*`, [workspace.wildcardAliasTarget]],
+    ...(workspace.wildcardAliasTarget === undefined
+      ? A.empty<readonly [string, ReadonlyArray<string>]>()
+      : ([[`${workspace.packageName}/*`, [workspace.wildcardAliasTarget]]] as const)),
     ...pipe(
       O.getOrUndefined(O.fromUndefinedOr(workspace.subpathAliasTargets)) ?? R.empty(),
       R.toEntries,

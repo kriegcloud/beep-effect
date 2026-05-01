@@ -13,6 +13,14 @@ const $I = $FixtureLabSpecimenId.create("config/PublicConfig");
 /**
  * Public, non-secret configuration consumed by the specimen slice.
  *
+ * @example
+ * ```ts
+ * import { SpecimenPublicConfig } from "@beep/fixture-lab-specimen-config/public"
+ *
+ * const config = new SpecimenPublicConfig({ labelPrefix: "Fixture" })
+ * console.log(config.labelPrefix)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

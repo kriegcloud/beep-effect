@@ -6,6 +6,8 @@
  * @packageDocumentation
  */
 
+/// <reference path="../rdf-canonize.d.ts" />
+
 import { Sha256Hex } from "@beep/schema";
 import { Str } from "@beep/utils";
 import { Duration, Effect, flow, Layer, pipe } from "effect";

@@ -104,7 +104,7 @@ const oldFlatFiles = {
 const expectedExports = {
   client: [".", "./entities/Specimen"],
   config: [".", "./public", "./server", "./secrets", "./layer", "./test"],
-  domain: [".", "./entities/Specimen"],
+  domain: [".", "./entities", "./entities/Specimen"],
   server: [".", "./layer"],
   tables: [".", "./read-models", "./tables"],
   ui: [".", "./entities/Specimen"],
@@ -144,6 +144,9 @@ const readRegistry = (): Registry => readJson(registryPath);
 const readPackageJson = (packagePath: string): PackageJson => readJson(join(repoRoot, packagePath, "package.json"));
 
 const rootPackageJson = (): PackageJson => readJson(join(repoRoot, "package.json"));
+
+const exportDeclarationSources = (source: string): ReadonlyArray<string> =>
+  [...source.matchAll(/^\s*export\s+\*\s+from\s+["']([^"']+)["'];?\s*$/gm)].map((match) => match[1] ?? "");
 
 const matchesWorkspace = (packagePath: string, workspacePattern: string): boolean => {
   if (workspacePattern === packagePath) {
@@ -244,8 +247,8 @@ describe("repo architecture automation golden fixture", () => {
       "utf8"
     ).trim();
 
-    expect(useCasesIndex).toBe('export * from "./public.js";');
-    expect(configIndex).toBe('export * from "./PublicConfig.js";');
+    expect(exportDeclarationSources(useCasesIndex)).toEqual(["./public.js"]);
+    expect(exportDeclarationSources(configIndex)).toEqual(["./PublicConfig.js"]);
   });
 
   it("keeps repository errors server-only and use-case errors public", () => {

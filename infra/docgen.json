@@ -30,7 +30,6 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/infra": ["../infra/src/index.ts"],
-      "@beep/infra/*": ["../infra/src/*.ts"],
       "@beep/identity": [
         "../packages/foundation/modeling/identity/src/index.ts"
       ],

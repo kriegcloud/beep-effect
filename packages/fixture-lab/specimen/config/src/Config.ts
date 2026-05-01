@@ -15,6 +15,14 @@ const $I = $FixtureLabSpecimenId.create("config/Config");
 /**
  * Resolved configuration values consumed by runtime layers.
  *
+ * @example
+ * ```ts
+ * import type { SpecimenConfigShape } from "@beep/fixture-lab-specimen-config/layer"
+ *
+ * declare const config: SpecimenConfigShape
+ * console.log(config.public)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */

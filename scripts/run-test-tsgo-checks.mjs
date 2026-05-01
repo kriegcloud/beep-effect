@@ -23,8 +23,7 @@ const normalizePath = (filePath) => filePath.split(path.sep).join("/");
  * @param {string} normalizedPath
  * @returns {boolean}
  */
-const isIgnoredTestPath = (normalizedPath) =>
-  ignoredPathSegments.some((segment) => normalizedPath.includes(segment));
+const isIgnoredTestPath = (normalizedPath) => ignoredPathSegments.some((segment) => normalizedPath.includes(segment));
 
 /**
  * @param {string} dir

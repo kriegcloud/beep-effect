@@ -297,12 +297,12 @@ const decodeSemanticSchemaMetadataResult = S.decodeUnknownResult(SemanticSchemaM
  * import { makeSemanticSchemaMetadata } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const metadata = makeSemanticSchemaMetadata({
- *
- *
- *
- *
- *
- *
+ *   kind: "identifier",
+ *   canonicalName: "ExampleIdentifier",
+ *   overview: "Example semantic schema metadata.",
+ *   status: "stable",
+ *   specifications: [{ name: "Example Profile", disposition: "informative" }],
+ *   equivalenceBasis: "String equality.",
  * })
  * console.log(metadata.kind) // "identifier"
  * ```
@@ -326,12 +326,12 @@ export const makeSemanticSchemaMetadata = (
  * import { annotateSemanticSchema } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const MySchema = annotateSemanticSchema(S.String, {
- *
- *
- *
- *
- *
- *
+ *   kind: "identifier",
+ *   canonicalName: "ExampleIdentifier",
+ *   overview: "Example semantic schema metadata.",
+ *   status: "stable",
+ *   specifications: [{ name: "Example Profile", disposition: "informative" }],
+ *   equivalenceBasis: "String equality.",
  * })
  * void MySchema
  * ```

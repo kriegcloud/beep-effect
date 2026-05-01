@@ -57,9 +57,19 @@ const composers = $I.compose(
   "types",
   "ui",
   "utils",
-
+  "scratchpad",
   // Synthetic architecture automation fixture packages
   "fixture-lab-specimen",
+
+  // P3 Professional Runtime Proof Packages
+  "agent-capability-domain",
+  "agent-capability-use-cases",
+  "epistemic-domain",
+  "law-practice-domain",
+  "professional-runtime-proof",
+  "tenancy-domain",
+  "wealth-management-domain",
+  "workspace-domain",
 
   // Repository Tooling Packages
   "repo-cli",
@@ -94,7 +104,8 @@ const composers = $I.compose(
   // Billing Slice Packages
   "billing-domain",
   "billing-use-cases",
-  "billing-server"
+  "billing-server",
+  "sandbox"
 );
 
 // --- foundation ---
@@ -481,6 +492,133 @@ export const $SharedUseCasesId: Identity.IdentityComposer<"@beep/shared-use-case
 export const $FixtureLabSpecimenId: Identity.IdentityComposer<"@beep/fixture-lab-specimen"> =
   composers.$FixtureLabSpecimenId;
 
+// --- p3 professional runtime proof ---
+
+/**
+ * Identity composer for the `@beep/tenancy-domain` package.
+ *
+ * @example
+ * ```typescript
+ * import { $TenancyDomainId } from "@beep/identity"
+ *
+ * const id = $TenancyDomainId.make("Organization")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $TenancyDomainId: Identity.IdentityComposer<"@beep/tenancy-domain"> = composers.$TenancyDomainId;
+
+/**
+ * Identity composer for the `@beep/workspace-domain` package.
+ *
+ * @example
+ * ```typescript
+ * import { $WorkspaceDomainId } from "@beep/identity"
+ *
+ * const id = $WorkspaceDomainId.make("ContextPacket")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $WorkspaceDomainId: Identity.IdentityComposer<"@beep/workspace-domain"> = composers.$WorkspaceDomainId;
+
+/**
+ * Identity composer for the `@beep/epistemic-domain` package.
+ *
+ * @example
+ * ```typescript
+ * import { $EpistemicDomainId } from "@beep/identity"
+ *
+ * const id = $EpistemicDomainId.make("Evidence")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $EpistemicDomainId: Identity.IdentityComposer<"@beep/epistemic-domain"> = composers.$EpistemicDomainId;
+
+/**
+ * Identity composer for the `@beep/agent-capability-domain` package.
+ *
+ * @example
+ * ```typescript
+ * import { $AgentCapabilityDomainId } from "@beep/identity"
+ *
+ * const id = $AgentCapabilityDomainId.make("Agent")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $AgentCapabilityDomainId: Identity.IdentityComposer<"@beep/agent-capability-domain"> =
+  composers.$AgentCapabilityDomainId;
+
+/**
+ * Identity composer for the `@beep/agent-capability-use-cases` package.
+ *
+ * @example
+ * ```typescript
+ * import { $AgentCapabilityUseCasesId } from "@beep/identity"
+ *
+ * const id = $AgentCapabilityUseCasesId.make("RuntimeScope")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $AgentCapabilityUseCasesId: Identity.IdentityComposer<"@beep/agent-capability-use-cases"> =
+  composers.$AgentCapabilityUseCasesId;
+
+/**
+ * Identity composer for the `@beep/law-practice-domain` package.
+ *
+ * @example
+ * ```typescript
+ * import { $LawPracticeDomainId } from "@beep/identity"
+ *
+ * const id = $LawPracticeDomainId.make("Matter")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $LawPracticeDomainId: Identity.IdentityComposer<"@beep/law-practice-domain"> =
+  composers.$LawPracticeDomainId;
+
+/**
+ * Identity composer for the `@beep/wealth-management-domain` package.
+ *
+ * @example
+ * ```typescript
+ * import { $WealthManagementDomainId } from "@beep/identity"
+ *
+ * const id = $WealthManagementDomainId.make("Household")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $WealthManagementDomainId: Identity.IdentityComposer<"@beep/wealth-management-domain"> =
+  composers.$WealthManagementDomainId;
+
+/**
+ * Identity composer for the `@beep/professional-runtime-proof` package.
+ *
+ * @example
+ * ```typescript
+ * import { $ProfessionalRuntimeProofId } from "@beep/identity"
+ *
+ * const id = $ProfessionalRuntimeProofId.make("RuntimeHarness")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $ProfessionalRuntimeProofId: Identity.IdentityComposer<"@beep/professional-runtime-proof"> =
+  composers.$ProfessionalRuntimeProofId;
+
 /**
  * RepoPkgs - export object containing all package IdentityComposer's
  *
@@ -641,3 +779,27 @@ export const $IamTablesId: Identity.IdentityComposer<"@beep/iam-tables"> = compo
  * @category configuration
  */
 export const $IamUseCasesId: Identity.IdentityComposer<"@beep/iam-use-cases"> = composers.$IamUseCasesId;
+
+/**
+ * Identity composer for the `@beep/scratchpad` package.
+ *
+ * Pre-registered ahead of slice creation.
+ *
+ * @example
+ * ```typescript
+ * import { $ScratchpadId } from "@beep/identity"
+ *
+ * const id = $ScratchpadId.make("entity-schema")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $ScratchpadId: Identity.IdentityComposer<"@beep/scratchpad"> = composers.$ScratchpadId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/sandbox">}
+ */
+export const $SandboxId: Identity.IdentityComposer<"@beep/sandbox"> = composers.$SandboxId;

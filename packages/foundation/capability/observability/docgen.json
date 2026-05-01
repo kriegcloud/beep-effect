@@ -32,9 +32,6 @@
       "@beep/observability": [
         "../../../../packages/foundation/capability/observability/src/index.ts"
       ],
-      "@beep/observability/*": [
-        "../../../../packages/foundation/capability/observability/src/*.ts"
-      ],
       "@beep/observability/experimental/server": [
         "../../../../packages/foundation/capability/observability/src/experimental/server/index.ts"
       ],

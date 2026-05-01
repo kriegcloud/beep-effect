@@ -42,7 +42,14 @@ const decodeStatusField = S.decodeUnknownOption(HttpApiStatusField);
  * import { HttpApiTelemetryDescriptor } from "@beep/observability/server"
  *
  * const successStatus = S.decodeUnknownSync(NonNegativeInt)(201)
- * const descriptor = new HttpApiTelemetryDescriptor({})
+ * const descriptor = new HttpApiTelemetryDescriptor({
+ *   apiName: "TodoApi",
+ *   endpointName: "createTodo",
+ *   groupName: "todos",
+ *   method: "POST",
+ *   route: "/todos",
+ *   successStatus
+ * })
  * ```
  *
  * @since 0.0.0
@@ -482,8 +489,8 @@ export class HttpApiTelemetryMiddleware extends HttpApiMiddleware.Service<HttpAp
  *
  * const metrics = makeHttpApiMetrics("todox_api")
  * const TelemetryLive = layerHttpApiTelemetryMiddleware({
- *
- *
+ *   apiName: "TodoApi",
+ *   metrics,
  * })
  * ```
  *

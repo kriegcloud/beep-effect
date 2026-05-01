@@ -27,8 +27,8 @@ The app-level proof harness is:
   entity IDs and readable fixture keys.
 - `@beep/agent-capability-use-cases/public` exposes the SDK-facing context
   packet and candidate output-set contracts.
-- `@beep/agent-capability-use-cases/test` exposes the deterministic fixture
-  runner.
+- `@beep/agent-capability-use-cases/proof` exposes the deterministic fixture
+  runner used by the proof app; `/test` re-exports it for package tests.
 - Law and wealth packages remain context-only. They do not own runtime workflow
   orchestration yet.
 - The proof harness composes the slices at the app boundary and imports both

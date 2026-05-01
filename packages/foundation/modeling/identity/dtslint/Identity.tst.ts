@@ -7,7 +7,17 @@ import type {
   SegmentValue,
   TitleFromIdentifier,
 } from "@beep/identity";
-import { make } from "@beep/identity";
+import {
+  $AgentCapabilityDomainId,
+  $AgentCapabilityUseCasesId,
+  $EpistemicDomainId,
+  $LawPracticeDomainId,
+  $ProfessionalRuntimeProofId,
+  $TenancyDomainId,
+  $WealthManagementDomainId,
+  $WorkspaceDomainId,
+  make,
+} from "@beep/identity";
 import { Context } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
@@ -34,6 +44,20 @@ describe("Identity", () => {
     expect(serviceId).type.toBe<IdentityString<`@beep/schema/${string}`>>();
     expect($SchemaId.string()).type.toBe<IdentityString<"@beep/schema">>();
     expect($SchemaId.symbol()).type.toBe<IdentitySymbol<"@beep/schema">>();
+  });
+
+  it("preserves literal types for P3 package composers", () => {
+    expect($TenancyDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/tenancy-domain">>();
+    expect($WorkspaceDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/workspace-domain">>();
+    expect($EpistemicDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/epistemic-domain">>();
+    expect($AgentCapabilityDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/agent-capability-domain">>();
+    expect($AgentCapabilityUseCasesId).type.toBeAssignableTo<IdentityComposer<"@beep/agent-capability-use-cases">>();
+    expect($LawPracticeDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/law-practice-domain">>();
+    expect($WealthManagementDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/wealth-management-domain">>();
+    expect($ProfessionalRuntimeProofId).type.toBeAssignableTo<IdentityComposer<"@beep/professional-runtime-proof">>();
+    expect($ProfessionalRuntimeProofId`RuntimeHarness`).type.toBe<
+      IdentityString<`@beep/professional-runtime-proof/${string}`>
+    >();
   });
 
   it("preserves literal types for annote and derived titles", () => {

@@ -3,9 +3,10 @@ import * as Domain from "@beep/repo-docgen/Domain";
 import * as Parser from "@beep/repo-docgen/Parser";
 import * as Printer from "@beep/repo-docgen/Printer";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Layer, Path } from "effect";
+import { Effect, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import * as ast from "ts-morph";
 
 let testCounter = 0;
@@ -47,7 +48,8 @@ const makeSourcefile = (source: string | ast.SourceFile) => {
 
 const makeSource = (source: string | ast.SourceFile) => {
   const sourceFile = makeSourcefile(source);
-  return Parser.SourceShape.new([sourceFile.getBaseName()], sourceFile);
+  const path = pipe(sourceFile.getFilePath(), Str.split(/[\\/]+/), A.filter(Str.isNonEmpty));
+  return Parser.SourceShape.new(path, sourceFile);
 };
 
 const print = Effect.fn("print")(function* (printables: ReadonlyArray<Printer.Printable>) {
@@ -96,12 +98,12 @@ const expectMarkdown = async <E>(
     E,
     Parser.Source | Configuration.Configuration | Path.Path
   >,
-  sourceText: string,
+  source: string | ast.SourceFile,
   expected: string,
   config?: Partial<Configuration.ConfigurationShape>
 ) => {
   const actual = await runPromiseInLayer(
-    makeParserTestLayer(sourceText, config),
+    makeParserTestLayer(source, config),
     eff.pipe(
       Effect.flatMap(
         Effect.fnUntraced(function* (printableOr) {
@@ -118,6 +120,38 @@ const expectMarkdown = async <E>(
 
 describe("Parser", () => {
   describe("parseModule", () => {
+    it("preserves nested source paths in generated source links", async () => {
+      const sourceFile = project.createSourceFile(
+        "src/entities/Agent/Agent.model.ts",
+        `/**
+ * Agent model value.
+ *
+ * @category entity
+ * @since 0.0.0
+ */
+export const Agent = "agent"`,
+        { overwrite: true }
+      );
+
+      await expectMarkdown(
+        Parser.parseConstants,
+        sourceFile,
+        `## Agent
+
+Agent model value.
+
+**Signature**
+
+\`\`\`ts
+declare const Agent: "agent"
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/entities/Agent/Agent.model.ts#L7)
+
+Since v0.0.0`
+      );
+    });
+
     it("should not require an example for modules when `enforceExamples` is set to true", async () =>
       await expectMarkdown(
         Parser.parseModule,

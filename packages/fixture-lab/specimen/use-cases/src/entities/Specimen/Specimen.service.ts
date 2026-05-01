@@ -14,6 +14,14 @@ import type { GetSpecimen } from "./Specimen.queries.js";
 /**
  * Application-facing specimen command and query operations.
  *
+ * @example
+ * ```ts
+ * import type { SpecimenUseCases } from "@beep/fixture-lab-specimen-use-cases/public"
+ *
+ * declare const useCases: SpecimenUseCases
+ * console.log(useCases)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -37,7 +45,7 @@ const getSpecimenFromRepository = (
  * import { GetSpecimen, makeSpecimenUseCases } from "@beep/fixture-lab-specimen-use-cases/server"
  * import { Effect } from "effect"
  *
- * const specimen = new Specimen({ id: "specimen-1", label: "Fixture", status: "draft" })
+ * declare const specimen: Specimen
  * const useCases = makeSpecimenUseCases({
  *   get: () => Effect.succeed(specimen),
  *   save: Effect.succeed,

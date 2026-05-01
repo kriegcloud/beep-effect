@@ -32,6 +32,14 @@ export const SourceKind = LiteralKit(["User", "Agent", "Admin", "Application", "
 /**
  * Runtime type for {@link SourceKind}.
  *
+ * @example
+ * ```ts
+ * import type { SourceKind } from "@beep/shared-domain/entity/SourceKind"
+ *
+ * const source: SourceKind = "System"
+ * console.log(source)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */

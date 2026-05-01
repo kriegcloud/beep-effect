@@ -5,6 +5,8 @@
  * @since 0.0.0
  */
 
+/// <reference path="./markdown-toc.d.ts" />
+
 import chalk from "@beep/chalk";
 import { encodeTSConfigPrettyEffect, FsUtils } from "@beep/repo-utils";
 import { thunkEmptyStr, thunkFalse } from "@beep/utils";
@@ -123,11 +125,7 @@ const typeCheckAndRunExamples = Effect.fn("typeCheckAndRunExamples")(function* (
     yield* writeExamplesToOutDir(files);
     yield* createExamplesTsConfigJson;
     yield* Effect.logInfo("Typechecking examples...");
-    yield* runTscOnExamples.pipe(
-      Effect.catch((error) =>
-        Effect.logWarning(chalk.yellow(`Example typecheck failed (non-blocking):\n${error.message}`))
-      )
-    );
+    yield* runTscOnExamples;
     if (config.runExamples) {
       yield* Effect.logInfo("Running examples...");
       yield* runBunOnExamples;
@@ -214,6 +212,20 @@ const getExampleFiles = Effect.fn("getExampleFiles")(function* (modules: Readonl
   const config = yield* Configuration.Configuration;
   const path = yield* Path.Path;
   let warnings: Array<string> = [];
+  const usedExampleFileNames = new Set<string>();
+
+  const uniqueExamplePath = (fileName: string): string => {
+    let candidate = fileName;
+    let suffix = 1;
+
+    while (usedExampleFileNames.has(Str.toLowerCase(candidate))) {
+      candidate = fileName.replace(/\.ts$/, `-${suffix}.ts`);
+      suffix += 1;
+    }
+
+    usedExampleFileNames.add(Str.toLowerCase(candidate));
+    return path.join(config.outDir, "examples", candidate);
+  };
 
   const files = A.flatMap(modules, (module) => {
     const prefix = A.join("-")(module.path);
@@ -240,11 +252,7 @@ const getExampleFiles = Effect.fn("getExampleFiles")(function* (modules: Readonl
           A.appendAll(exampleTagExamples),
           A.map((example, index) =>
             Domain.File.new(
-              path.join(
-                config.outDir,
-                "examples",
-                `${prefix}-${exampleId}-${sanitizeExampleName(namedDoc.name)}-${index}.ts`
-              ),
+              uniqueExamplePath(`${prefix}-${exampleId}-${sanitizeExampleName(namedDoc.name)}-${index}.ts`),
               example,
               { isOverwritable: true }
             )

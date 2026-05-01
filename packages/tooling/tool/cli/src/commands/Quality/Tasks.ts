@@ -742,6 +742,7 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   repoCliStep(repoRoot, "lint:package-test-imports", ["lint", "package-test-imports"]),
   repoCliStep(repoRoot, "lint:schema-first", ["lint", "schema-first"]),
   bunxStep(repoRoot, "lint:jsdoc", ["eslint", "."]),
+  bunRunStep(repoRoot, "lint:jsdoc-module-tags", ["scripts/check-jsdoc-module-tags.mjs"]),
   repoCliStep(repoRoot, "lint:docgen", ["docgen", "check"]),
   bunxStep(repoRoot, "lint:spell", ["cspell", "."]),
   bunxStep(repoRoot, "lint:markdown", ["markdownlint-cli2"]),

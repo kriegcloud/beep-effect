@@ -1,6 +1,6 @@
 {
   "$schema": "../../../../packages/tooling/tool/docgen/schema.json",
-  "exclude": ["src/internal/**/*.ts", "src/**/index.ts"],
+  "exclude": ["src/internal/**/*.ts"],
   "examplesCompilerOptions": {
     "types": ["node"],
     "noEmit": true,
@@ -31,17 +31,11 @@
       "@beep/fixture-lab-specimen-server": [
         "../../../../packages/fixture-lab/specimen/server/src/index.ts"
       ],
-      "@beep/fixture-lab-specimen-server/*": [
-        "../../../../packages/fixture-lab/specimen/server/src/*.ts"
-      ],
       "@beep/fixture-lab-specimen-server/layer": [
         "../../../../packages/fixture-lab/specimen/server/src/Layer.ts"
       ],
       "@beep/fixture-lab-specimen-config": [
         "../../../../packages/fixture-lab/specimen/config/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-config/*": [
-        "../../../../packages/fixture-lab/specimen/config/src/*.ts"
       ],
       "@beep/fixture-lab-specimen-config/public": [
         "../../../../packages/fixture-lab/specimen/config/src/PublicConfig.ts"
@@ -61,17 +55,14 @@
       "@beep/fixture-lab-specimen-domain": [
         "../../../../packages/fixture-lab/specimen/domain/src/index.ts"
       ],
-      "@beep/fixture-lab-specimen-domain/*": [
-        "../../../../packages/fixture-lab/specimen/domain/src/*.ts"
+      "@beep/fixture-lab-specimen-domain/entities": [
+        "../../../../packages/fixture-lab/specimen/domain/src/entities/index.ts"
       ],
       "@beep/fixture-lab-specimen-domain/entities/Specimen": [
         "../../../../packages/fixture-lab/specimen/domain/src/entities/Specimen/index.ts"
       ],
       "@beep/fixture-lab-specimen-use-cases": [
         "../../../../packages/fixture-lab/specimen/use-cases/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-use-cases/*": [
-        "../../../../packages/fixture-lab/specimen/use-cases/src/*.ts"
       ],
       "@beep/fixture-lab-specimen-use-cases/public": [
         "../../../../packages/fixture-lab/specimen/use-cases/src/public.ts"

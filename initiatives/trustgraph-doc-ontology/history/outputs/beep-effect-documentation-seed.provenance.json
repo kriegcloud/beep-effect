@@ -49,9 +49,7 @@
         "urn:beep-effect:doc-seed:source:docgen-analysis",
         "urn:beep-effect:doc-seed:plan:trustgraph-doc-ontology"
       ],
-      "wasAssociatedWith": [
-        "urn:beep-effect:doc-seed:agent:codex-cli"
-      ]
+      "wasAssociatedWith": ["urn:beep-effect:doc-seed:agent:codex-cli"]
     },
     {
       "activity": "urn:beep-effect:doc-seed:activity:build-artifacts",

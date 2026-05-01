@@ -13,9 +13,8 @@ import { Specimen } from "./Specimen.model.js";
  * ```ts
  * import { observeSpecimen, Specimen } from "@beep/fixture-lab-specimen-domain"
  *
- * const observed = observeSpecimen(
- *   new Specimen({ id: "specimen-1", label: "Fixture", status: "draft" })
- * )
+ * declare const specimen: Specimen
+ * const observed = observeSpecimen(specimen)
  * console.log(observed.status)
  * ```
  *
@@ -24,8 +23,7 @@ import { Specimen } from "./Specimen.model.js";
  */
 export const observeSpecimen = (specimen: Specimen): Specimen =>
   new Specimen({
-    id: specimen.id,
-    label: specimen.label,
+    ...specimen,
     status: "observed",
   });
 
@@ -36,9 +34,8 @@ export const observeSpecimen = (specimen: Specimen): Specimen =>
  * ```ts
  * import { retireSpecimen, Specimen } from "@beep/fixture-lab-specimen-domain"
  *
- * const retired = retireSpecimen(
- *   new Specimen({ id: "specimen-1", label: "Fixture", status: "observed" })
- * )
+ * declare const specimen: Specimen
+ * const retired = retireSpecimen(specimen)
  * console.log(retired.status)
  * ```
  *
@@ -47,7 +44,6 @@ export const observeSpecimen = (specimen: Specimen): Specimen =>
  */
 export const retireSpecimen = (specimen: Specimen): Specimen =>
   new Specimen({
-    id: specimen.id,
-    label: specimen.label,
+    ...specimen,
     status: "retired",
   });

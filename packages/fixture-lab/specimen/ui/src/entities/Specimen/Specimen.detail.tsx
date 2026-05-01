@@ -9,6 +9,16 @@ import type { Specimen } from "@beep/fixture-lab-specimen-domain";
 /**
  * Props accepted by the specimen detail component.
  *
+ * @example
+ * ```tsx
+ * import type { Specimen } from "@beep/fixture-lab-specimen-domain"
+ * import type { SpecimenDetailProps } from "@beep/fixture-lab-specimen-ui"
+ *
+ * declare const specimen: Specimen
+ * const props: SpecimenDetailProps = { specimen }
+ * console.log(props)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -24,9 +34,8 @@ export interface SpecimenDetailProps {
  * import { Specimen } from "@beep/fixture-lab-specimen-domain"
  * import { SpecimenDetail } from "@beep/fixture-lab-specimen-ui"
  *
- * const element = <SpecimenDetail
- *   specimen={new Specimen({ id: "specimen-1", label: "Fixture", status: "observed" })}
- * />
+ * declare const specimen: Specimen
+ * const element = <SpecimenDetail specimen={specimen} />
  * void element
  * ```
  *

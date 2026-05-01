@@ -18,10 +18,10 @@
     "beep:check": "tsgo -b tsconfig.json",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
-    "beep:test": "bunx --bun vitest run --passWithNoTests",
+    "beep:test": "bunx --bun vitest run",
     "build": "bun run beep:build",
     "check": "bun run beep:check",
-    "coverage": "bunx --bun vitest run --coverage --passWithNoTests",
+    "coverage": "bunx --bun vitest run --coverage",
     "docgen": "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
@@ -29,6 +29,17 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./entities": "./src/entities/index.ts",
+    "./entities/ApprovalGate": "./src/entities/ApprovalGate/index.ts",
+    "./entities/CandidateDraft": "./src/entities/CandidateDraft/index.ts",
+    "./entities/CandidateProject": "./src/entities/CandidateProject/index.ts",
+    "./entities/CandidateTask": "./src/entities/CandidateTask/index.ts",
+    "./entities/ContextPacket": "./src/entities/ContextPacket/index.ts",
+    "./entities/EmailArtifact": "./src/entities/EmailArtifact/index.ts",
+    "./entities/Workspace": "./src/entities/Workspace/index.ts",
+    "./values": "./src/values/index.ts",
+    "./values/ApprovalDecision": "./src/values/ApprovalDecision/index.ts",
+    "./values/CandidateLifecycle": "./src/values/CandidateLifecycle/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -40,6 +51,7 @@
   ],
   "sideEffects": [],
   "dependencies": {
+    "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "effect": "catalog:"

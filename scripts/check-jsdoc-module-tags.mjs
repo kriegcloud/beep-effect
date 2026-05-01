@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -32,6 +32,10 @@ const violations = [];
 
 for (const filePath of gitResult.stdout.split(/\r?\n/).filter(Boolean).filter(isScannedPath)) {
   const absolutePath = path.join(rootDir, filePath);
+  if (!existsSync(absolutePath)) {
+    continue;
+  }
+
   const text = readFileSync(absolutePath, "utf8");
   const lines = text.split(/\r?\n/);
 

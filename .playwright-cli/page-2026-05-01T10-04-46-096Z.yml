@@ -1,0 +1,564 @@
+- generic [ref=e64]:
+  - banner [ref=e65]:
+    - generic [ref=e66]:
+      - generic [ref=e70]:
+        - link "OpenClaw" [ref=e71] [cursor=pointer]:
+          - /url: /overview
+        - generic [ref=e72]: ›
+        - generic [ref=e73]: Skills
+      - generic [ref=e74]:
+        - button "Open command palette" [ref=e75] [cursor=pointer]:
+          - generic [ref=e76]: Search
+          - generic [ref=e77]: ⌘K
+        - group "Color mode" [ref=e79]:
+          - 'button "Color mode: System" [pressed] [ref=e80] [cursor=pointer]':
+            - img [ref=e81]
+          - 'button "Color mode: Light" [ref=e83] [cursor=pointer]':
+            - img [ref=e84]
+          - 'button "Color mode: Dark" [ref=e90] [cursor=pointer]':
+            - img [ref=e91]
+  - complementary [ref=e94]:
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - generic [ref=e97]:
+          - img "OpenClaw" [ref=e98]
+          - generic [ref=e99]:
+            - generic [ref=e100]: Control
+            - generic [ref=e101]: OpenClaw
+        - button "Collapse sidebar" [ref=e102] [cursor=pointer]:
+          - img [ref=e104]
+      - navigation [ref=e108]:
+        - generic [ref=e109]:
+          - button "Chat" [expanded] [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]: Chat
+            - img [ref=e113]
+          - link "Chat" [ref=e116] [cursor=pointer]:
+            - /url: /chat
+            - img [ref=e118]
+            - generic [ref=e120]: Chat
+        - generic [ref=e121]:
+          - button "Control" [expanded] [ref=e122] [cursor=pointer]:
+            - generic [ref=e123]: Control
+            - img [ref=e125]
+          - generic [ref=e127]:
+            - link "Overview" [ref=e128] [cursor=pointer]:
+              - /url: /overview
+              - img [ref=e130]
+              - generic [ref=e131]: Overview
+            - link "Channels" [ref=e132] [cursor=pointer]:
+              - /url: /channels
+              - img [ref=e134]
+              - generic [ref=e137]: Channels
+            - link "Instances" [ref=e138] [cursor=pointer]:
+              - /url: /instances
+              - img [ref=e140]
+              - generic [ref=e143]: Instances
+            - link "Sessions" [ref=e144] [cursor=pointer]:
+              - /url: /sessions
+              - img [ref=e146]
+              - generic [ref=e149]: Sessions
+            - link "Usage" [ref=e150] [cursor=pointer]:
+              - /url: /usage
+              - img [ref=e152]
+              - generic [ref=e153]: Usage
+            - link "Cron Jobs" [ref=e154] [cursor=pointer]:
+              - /url: /cron
+              - img [ref=e156]
+              - generic [ref=e161]: Cron Jobs
+        - generic [ref=e162]:
+          - button "Agent" [expanded] [ref=e163] [cursor=pointer]:
+            - generic [ref=e164]: Agent
+            - img [ref=e166]
+          - generic [ref=e168]:
+            - link "Agents" [ref=e169] [cursor=pointer]:
+              - /url: /agents
+              - img [ref=e171]
+              - generic [ref=e173]: Agents
+            - link "Skills" [active] [ref=e174] [cursor=pointer]:
+              - /url: /skills
+              - img [ref=e176]
+              - generic [ref=e178]: Skills
+            - link "Nodes" [ref=e179] [cursor=pointer]:
+              - /url: /nodes
+              - img [ref=e181]
+              - generic [ref=e183]: Nodes
+            - link "Dreaming" [ref=e184] [cursor=pointer]:
+              - /url: /dreaming
+              - img [ref=e186]
+              - generic [ref=e188]: Dreaming
+        - generic [ref=e189]:
+          - button "Settings" [expanded] [ref=e190] [cursor=pointer]:
+            - generic [ref=e191]: Settings
+            - img [ref=e193]
+          - generic [ref=e195]:
+            - link "Config" [ref=e196] [cursor=pointer]:
+              - /url: /config
+              - img [ref=e198]
+              - generic [ref=e201]: Config
+            - link "Communications" [ref=e202] [cursor=pointer]:
+              - /url: /communications
+              - img [ref=e204]
+              - generic [ref=e207]: Communications
+            - link "Appearance" [ref=e208] [cursor=pointer]:
+              - /url: /appearance
+              - img [ref=e210]
+              - generic [ref=e212]: Appearance
+            - link "Automation" [ref=e213] [cursor=pointer]:
+              - /url: /automation
+              - img [ref=e215]
+              - generic [ref=e217]: Automation
+            - link "Infrastructure" [ref=e218] [cursor=pointer]:
+              - /url: /infrastructure
+              - img [ref=e220]
+              - generic [ref=e223]: Infrastructure
+            - link "AI & Agents" [ref=e224] [cursor=pointer]:
+              - /url: /ai-agents
+              - img [ref=e226]
+              - generic [ref=e236]: AI & Agents
+            - link "Debug" [ref=e237] [cursor=pointer]:
+              - /url: /debug
+              - img [ref=e239]
+              - generic [ref=e248]: Debug
+            - link "Logs" [ref=e249] [cursor=pointer]:
+              - /url: /logs
+              - img [ref=e251]
+              - generic [ref=e254]: Logs
+      - generic [ref=e256]:
+        - link "Docs" [ref=e257] [cursor=pointer]:
+          - /url: https://docs.openclaw.ai
+          - img [ref=e259]
+          - generic [ref=e261]: Docs
+          - img [ref=e263]
+        - generic "v2026.4.29" [ref=e266]:
+          - generic [ref=e267]: Version
+          - generic [ref=e268]: v2026.4.29
+          - 'img "Gateway status: Online" [ref=e269]'
+  - main [ref=e270]:
+    - generic [ref=e272]:
+      - generic [ref=e273]: Skills
+      - generic [ref=e274]: Skills and API keys.
+    - generic [ref=e1858]:
+      - generic [ref=e1859]:
+        - generic [ref=e1860]:
+          - generic [ref=e1861]: Skills
+          - generic [ref=e1862]: Installed skills and their status.
+        - button "Refresh" [ref=e1863] [cursor=pointer]
+      - generic [ref=e1864]:
+        - button "All57" [ref=e1865] [cursor=pointer]:
+          - text: All
+          - generic [ref=e1866]: "57"
+        - button "Ready19" [ref=e1867] [cursor=pointer]:
+          - text: Ready
+          - generic [ref=e1868]: "19"
+        - button "Needs Setup38" [ref=e1869] [cursor=pointer]:
+          - text: Needs Setup
+          - generic [ref=e1870]: "38"
+        - button "Disabled0" [ref=e1871] [cursor=pointer]:
+          - text: Disabled
+          - generic [ref=e1872]: "0"
+      - generic [ref=e1873]:
+        - textbox [ref=e1875]:
+          - /placeholder: Filter installed skills
+        - generic [ref=e1876]: 57 shown
+      - generic [ref=e1877]:
+        - generic [ref=e1878]:
+          - generic [ref=e1879]: ClawHub
+          - generic [ref=e1880]: Search and install skills from the registry
+        - textbox [ref=e1883]:
+          - /placeholder: Search ClawHub skills…
+      - generic [ref=e1884]:
+        - group [ref=e1885]:
+          - generic "Built-in Skills 52 ▸" [ref=e1886] [cursor=pointer]:
+            - generic [ref=e1887]: Built-in Skills
+            - generic [ref=e1888]: "52"
+            - text: ▸
+          - generic [ref=e1889]:
+            - generic [ref=e1890] [cursor=pointer]:
+              - generic [ref=e1891]:
+                - generic [ref=e1892]:
+                  - generic [ref=e1894]: 🔐
+                  - generic [ref=e1895]: 1password
+                - generic [ref=e1896]: Set up and use 1Password CLI for sign-in, desktop integration, and reading or injecting secrets.
+              - checkbox [checked] [ref=e1899]
+            - generic [ref=e1900] [cursor=pointer]:
+              - generic [ref=e1901]:
+                - generic [ref=e1902]:
+                  - generic [ref=e1904]: 📝
+                  - generic [ref=e1905]: apple-notes
+                - generic [ref=e1906]: Create, view, edit, delete, search, move, or export Apple Notes via the memo CLI on macOS.
+              - checkbox [checked] [ref=e1909]
+            - generic [ref=e1910] [cursor=pointer]:
+              - generic [ref=e1911]:
+                - generic [ref=e1912]:
+                  - generic [ref=e1914]: ⏰
+                  - generic [ref=e1915]: apple-reminders
+                - generic [ref=e1916]: List, add, edit, complete, or delete Apple Reminders and reminder lists via remindctl.
+              - checkbox [checked] [ref=e1919]
+            - generic [ref=e1920] [cursor=pointer]:
+              - generic [ref=e1921]:
+                - generic [ref=e1922]:
+                  - generic [ref=e1924]: 🐻
+                  - generic [ref=e1925]: bear-notes
+                - generic [ref=e1926]: Create, search, and manage Bear notes via grizzly CLI.
+              - checkbox [checked] [ref=e1929]
+            - generic [ref=e1930] [cursor=pointer]:
+              - generic [ref=e1931]:
+                - generic [ref=e1932]:
+                  - generic [ref=e1934]: 📰
+                  - generic [ref=e1935]: blogwatcher
+                - generic [ref=e1936]: Monitor blogs and RSS/Atom feeds for updates using the blogwatcher CLI.
+              - checkbox [checked] [ref=e1939]
+            - generic [ref=e1940] [cursor=pointer]:
+              - generic [ref=e1941]:
+                - generic [ref=e1942]:
+                  - generic [ref=e1944]: 🫐
+                  - generic [ref=e1945]: blucli
+                - generic [ref=e1946]: BluOS CLI (blu) for discovery, playback, grouping, and volume.
+              - checkbox [checked] [ref=e1949]
+            - generic [ref=e1950] [cursor=pointer]:
+              - generic [ref=e1951]:
+                - generic [ref=e1952]:
+                  - generic [ref=e1954]: 🫧
+                  - generic [ref=e1955]: bluebubbles
+                - generic [ref=e1956]: Send and manage iMessages via BlueBubbles, including attachments, tapbacks, edits, replies, and groups.
+              - checkbox [checked] [ref=e1959]
+            - generic [ref=e1960] [cursor=pointer]:
+              - generic [ref=e1961]:
+                - generic [ref=e1962]:
+                  - generic [ref=e1964]: 📸
+                  - generic [ref=e1965]: camsnap
+                - generic [ref=e1966]: Capture frames or clips from RTSP/ONVIF cameras.
+              - checkbox [checked] [ref=e1969]
+            - generic [ref=e1970] [cursor=pointer]:
+              - generic [ref=e1971]:
+                - generic [ref=e1974]: clawhub
+                - generic [ref=e1975]: Search, install, update, sync, or publish agent skills with the ClawHub CLI and registry.
+              - checkbox [checked] [ref=e1978]
+            - generic [ref=e1979] [cursor=pointer]:
+              - generic [ref=e1980]:
+                - generic [ref=e1981]:
+                  - generic [ref=e1983]: 🧩
+                  - generic [ref=e1984]: coding-agent
+                - generic [ref=e1985]: "Delegate coding tasks to Codex, Claude Code, OpenCode, or Pi agents via immediate background processes. Use when: (1) building or creating …"
+              - checkbox [checked] [ref=e1988]
+            - generic [ref=e1989] [cursor=pointer]:
+              - generic [ref=e1990]:
+                - generic [ref=e1991]:
+                  - generic [ref=e1993]: 🎮
+                  - generic [ref=e1994]: discord
+                - generic [ref=e1995]: Discord ops via the message tool (channel=discord).
+              - checkbox [checked] [ref=e1998]
+            - generic [ref=e1999] [cursor=pointer]:
+              - generic [ref=e2000]:
+                - generic [ref=e2001]:
+                  - generic [ref=e2003]: 🛌
+                  - generic [ref=e2004]: eightctl
+                - generic [ref=e2005]: Control Eight Sleep pods (status, temperature, alarms, schedules).
+              - checkbox [checked] [ref=e2008]
+            - generic [ref=e2009] [cursor=pointer]:
+              - generic [ref=e2010]:
+                - generic [ref=e2011]:
+                  - generic [ref=e2013]: ✨
+                  - generic [ref=e2014]: gemini
+                - generic [ref=e2015]: Gemini CLI for one-shot Q&A, summaries, and generation.
+              - checkbox [checked] [ref=e2018]
+            - generic [ref=e2019] [cursor=pointer]:
+              - generic [ref=e2020]:
+                - generic [ref=e2023]: gh-issues
+                - generic [ref=e2024]: Fetch GitHub issues, delegate fixes to subagents, open PRs, watch reviews, or run /gh-issues workflows.
+              - checkbox [checked] [ref=e2027]
+            - generic [ref=e2028] [cursor=pointer]:
+              - generic [ref=e2029]:
+                - generic [ref=e2030]:
+                  - generic [ref=e2032]: 🧲
+                  - generic [ref=e2033]: gifgrep
+                - generic [ref=e2034]: Search GIF providers with CLI/TUI, download results, and extract stills/sheets.
+              - checkbox [checked] [ref=e2037]
+            - generic [ref=e2038] [cursor=pointer]:
+              - generic [ref=e2039]:
+                - generic [ref=e2040]:
+                  - generic [ref=e2042]: 🐙
+                  - generic [ref=e2043]: github
+                - generic [ref=e2044]: Use gh for GitHub issues, PR status, CI/logs, comments, reviews, releases, and API queries.
+              - checkbox [checked] [ref=e2047]
+            - generic [ref=e2048] [cursor=pointer]:
+              - generic [ref=e2049]:
+                - generic [ref=e2050]:
+                  - generic [ref=e2052]: 🎮
+                  - generic [ref=e2053]: gog
+                - generic [ref=e2054]: Google Workspace CLI for Gmail, Calendar, Drive, Contacts, Sheets, and Docs.
+              - checkbox [checked] [ref=e2057]
+            - generic [ref=e2058] [cursor=pointer]:
+              - generic [ref=e2059]:
+                - generic [ref=e2060]:
+                  - generic [ref=e2062]: 📍
+                  - generic [ref=e2063]: goplaces
+                - generic [ref=e2064]: Query Google Places for text search, place details, resolve, reviews, or scriptable JSON via goplaces.
+              - checkbox [checked] [ref=e2067]
+            - generic [ref=e2068] [cursor=pointer]:
+              - generic [ref=e2069]:
+                - generic [ref=e2072]: healthcheck
+                - generic [ref=e2073]: Audit and harden hosts running OpenClaw for SSH, firewall, updates, exposure, cron checks, and risk posture.
+              - checkbox [checked] [ref=e2076]
+            - generic [ref=e2077] [cursor=pointer]:
+              - generic [ref=e2078]:
+                - generic [ref=e2079]:
+                  - generic [ref=e2081]: 📧
+                  - generic [ref=e2082]: himalaya
+                - generic [ref=e2083]: Use himalaya to list, read, search, compose, reply, forward, and organize IMAP/SMTP email.
+              - checkbox [checked] [ref=e2086]
+            - generic [ref=e2087] [cursor=pointer]:
+              - generic [ref=e2088]:
+                - generic [ref=e2089]:
+                  - generic [ref=e2091]: 📨
+                  - generic [ref=e2092]: imsg
+                - generic [ref=e2093]: iMessage/SMS CLI for listing chats, history, and sending messages via Messages.app.
+              - checkbox [checked] [ref=e2096]
+            - generic [ref=e2097] [cursor=pointer]:
+              - generic [ref=e2098]:
+                - generic [ref=e2099]:
+                  - generic [ref=e2101]: 📦
+                  - generic [ref=e2102]: mcporter
+                - generic [ref=e2103]: List, configure, authenticate, call, and inspect MCP servers/tools with mcporter over HTTP or stdio.
+              - checkbox [checked] [ref=e2106]
+            - generic [ref=e2107] [cursor=pointer]:
+              - generic [ref=e2108]:
+                - generic [ref=e2109]:
+                  - generic [ref=e2111]: 📊
+                  - generic [ref=e2112]: model-usage
+                - generic [ref=e2113]: Summarize CodexBar local cost logs by model for Codex or Claude, including current or full breakdowns.
+              - checkbox [checked] [ref=e2116]
+            - generic [ref=e2117] [cursor=pointer]:
+              - generic [ref=e2118]:
+                - generic [ref=e2119]:
+                  - generic [ref=e2121]: 📄
+                  - generic [ref=e2122]: nano-pdf
+                - generic [ref=e2123]: Edit PDFs with natural-language instructions using the nano-pdf CLI.
+              - checkbox [checked] [ref=e2126]
+            - generic [ref=e2127] [cursor=pointer]:
+              - generic [ref=e2128]:
+                - generic [ref=e2131]: node-connect
+                - generic [ref=e2132]: Diagnose OpenClaw Android, iOS, or macOS node pairing, QR/setup code, route, auth, and connection failures.
+              - checkbox [checked] [ref=e2135]
+            - generic [ref=e2136] [cursor=pointer]:
+              - generic [ref=e2137]:
+                - generic [ref=e2138]:
+                  - generic [ref=e2140]: 📝
+                  - generic [ref=e2141]: notion
+                - generic [ref=e2142]: Notion API for creating and managing pages, databases, and blocks.
+              - checkbox [checked] [ref=e2145]
+            - generic [ref=e2146] [cursor=pointer]:
+              - generic [ref=e2147]:
+                - generic [ref=e2148]:
+                  - generic [ref=e2150]: 💎
+                  - generic [ref=e2151]: obsidian
+                - generic [ref=e2152]: Work with Obsidian vaults (plain Markdown notes) and automate via obsidian-cli.
+              - checkbox [checked] [ref=e2155]
+            - generic [ref=e2156] [cursor=pointer]:
+              - generic [ref=e2157]:
+                - generic [ref=e2158]:
+                  - generic [ref=e2160]: 🎤
+                  - generic [ref=e2161]: openai-whisper
+                - generic [ref=e2162]: Local speech-to-text with the Whisper CLI (no API key).
+              - checkbox [checked] [ref=e2165]
+            - generic [ref=e2166] [cursor=pointer]:
+              - generic [ref=e2167]:
+                - generic [ref=e2168]:
+                  - generic [ref=e2170]: 🌐
+                  - generic [ref=e2171]: openai-whisper-api
+                - generic [ref=e2172]: Transcribe audio via OpenAI Audio Transcriptions API (Whisper).
+              - checkbox [checked] [ref=e2175]
+            - generic [ref=e2176] [cursor=pointer]:
+              - generic [ref=e2177]:
+                - generic [ref=e2178]:
+                  - generic [ref=e2180]: 💡
+                  - generic [ref=e2181]: openhue
+                - generic [ref=e2182]: Control Philips Hue lights and scenes via the OpenHue CLI.
+              - checkbox [checked] [ref=e2185]
+            - generic [ref=e2186] [cursor=pointer]:
+              - generic [ref=e2187]:
+                - generic [ref=e2188]:
+                  - generic [ref=e2190]: 🧿
+                  - generic [ref=e2191]: oracle
+                - generic [ref=e2192]: Use oracle CLI to bundle prompts and files for second-model debugging, refactor, design, or review checks.
+              - checkbox [checked] [ref=e2195]
+            - generic [ref=e2196] [cursor=pointer]:
+              - generic [ref=e2197]:
+                - generic [ref=e2198]:
+                  - generic [ref=e2200]: 🛵
+                  - generic [ref=e2201]: ordercli
+                - generic [ref=e2202]: Foodora-only CLI for checking past orders and active order status (Deliveroo WIP).
+              - checkbox [checked] [ref=e2205]
+            - generic [ref=e2206] [cursor=pointer]:
+              - generic [ref=e2207]:
+                - generic [ref=e2208]:
+                  - generic [ref=e2210]: 👀
+                  - generic [ref=e2211]: peekaboo
+                - generic [ref=e2212]: Capture and automate macOS UI with the Peekaboo CLI.
+              - checkbox [checked] [ref=e2215]
+            - generic [ref=e2216] [cursor=pointer]:
+              - generic [ref=e2217]:
+                - generic [ref=e2218]:
+                  - generic [ref=e2220]: 🔊
+                  - generic [ref=e2221]: sag
+                - generic [ref=e2222]: ElevenLabs text-to-speech with mac-style say UX.
+              - checkbox [checked] [ref=e2225]
+            - generic [ref=e2226] [cursor=pointer]:
+              - generic [ref=e2227]:
+                - generic [ref=e2228]:
+                  - generic [ref=e2230]: 📜
+                  - generic [ref=e2231]: session-logs
+                - generic [ref=e2232]: Search and analyze your own session logs (older/parent conversations) using jq.
+              - checkbox [checked] [ref=e2235]
+            - generic [ref=e2236] [cursor=pointer]:
+              - generic [ref=e2237]:
+                - generic [ref=e2238]:
+                  - generic [ref=e2240]: 🔉
+                  - generic [ref=e2241]: sherpa-onnx-tts
+                - generic [ref=e2242]: Local text-to-speech via sherpa-onnx (offline, no cloud)
+              - checkbox [checked] [ref=e2245]
+            - generic [ref=e2246] [cursor=pointer]:
+              - generic [ref=e2247]:
+                - generic [ref=e2250]: skill-creator
+                - generic [ref=e2251]: Create, edit, improve, tidy, review, audit, or restructure AgentSkills and SKILL.md files.
+              - checkbox [checked] [ref=e2254]
+            - generic [ref=e2255] [cursor=pointer]:
+              - generic [ref=e2256]:
+                - generic [ref=e2257]:
+                  - generic [ref=e2259]: 💬
+                  - generic [ref=e2260]: slack
+                - generic [ref=e2261]: Use the Slack tool to react, pin/unpin, send, edit, delete messages, or fetch Slack member info.
+              - checkbox [checked] [ref=e2264]
+            - generic [ref=e2265] [cursor=pointer]:
+              - generic [ref=e2266]:
+                - generic [ref=e2267]:
+                  - generic [ref=e2269]: 🌊
+                  - generic [ref=e2270]: songsee
+                - generic [ref=e2271]: Generate spectrograms and feature-panel visualizations from audio with the songsee CLI.
+              - checkbox [checked] [ref=e2274]
+            - generic [ref=e2275] [cursor=pointer]:
+              - generic [ref=e2276]:
+                - generic [ref=e2277]:
+                  - generic [ref=e2279]: 🔊
+                  - generic [ref=e2280]: sonoscli
+                - generic [ref=e2281]: Control Sonos speakers (discover/status/play/volume/group).
+              - checkbox [checked] [ref=e2284]
+            - generic [ref=e2285] [cursor=pointer]:
+              - generic [ref=e2286]:
+                - generic [ref=e2287]:
+                  - generic [ref=e2289]: 🎵
+                  - generic [ref=e2290]: spotify-player
+                - generic [ref=e2291]: Terminal Spotify playback/search via spogo (preferred) or spotify_player.
+              - checkbox [checked] [ref=e2294]
+            - generic [ref=e2295] [cursor=pointer]:
+              - generic [ref=e2296]:
+                - generic [ref=e2297]:
+                  - generic [ref=e2299]: 🧾
+                  - generic [ref=e2300]: summarize
+                - generic [ref=e2301]: Summarize or transcribe URLs, YouTube/videos, podcasts, articles, transcripts, PDFs, and local files.
+              - checkbox [checked] [ref=e2304]
+            - generic [ref=e2305] [cursor=pointer]:
+              - generic [ref=e2306]:
+                - generic [ref=e2307]:
+                  - generic [ref=e2309]: 🪝
+                  - generic [ref=e2310]: taskflow
+                - generic [ref=e2311]: Coordinate multi-step detached tasks as one durable TaskFlow job with owner context, state, waits, and child tasks.
+              - checkbox [checked] [ref=e2314]
+            - generic [ref=e2315] [cursor=pointer]:
+              - generic [ref=e2316]:
+                - generic [ref=e2317]:
+                  - generic [ref=e2319]: 📥
+                  - generic [ref=e2320]: taskflow-inbox-triage
+                - generic [ref=e2321]: Example TaskFlow pattern for inbox triage, intent routing, waiting on replies, and later summaries.
+              - checkbox [checked] [ref=e2324]
+            - generic [ref=e2325] [cursor=pointer]:
+              - generic [ref=e2326]:
+                - generic [ref=e2327]:
+                  - generic [ref=e2329]: ✅
+                  - generic [ref=e2330]: things-mac
+                - generic [ref=e2331]: Add, update, list, search, or inspect Things 3 todos, inbox, today, projects, areas, and tags on macOS.
+              - checkbox [checked] [ref=e2334]
+            - generic [ref=e2335] [cursor=pointer]:
+              - generic [ref=e2336]:
+                - generic [ref=e2337]:
+                  - generic [ref=e2339]: 🧵
+                  - generic [ref=e2340]: tmux
+                - generic [ref=e2341]: Remote-control tmux sessions for interactive CLIs by sending keystrokes and scraping pane output.
+              - checkbox [checked] [ref=e2344]
+            - generic [ref=e2345] [cursor=pointer]:
+              - generic [ref=e2346]:
+                - generic [ref=e2347]:
+                  - generic [ref=e2349]: 📋
+                  - generic [ref=e2350]: trello
+                - generic [ref=e2351]: Manage Trello boards, lists, and cards via the Trello REST API.
+              - checkbox [checked] [ref=e2354]
+            - generic [ref=e2355] [cursor=pointer]:
+              - generic [ref=e2356]:
+                - generic [ref=e2357]:
+                  - generic [ref=e2359]: 🎬
+                  - generic [ref=e2360]: video-frames
+                - generic [ref=e2361]: Extract frames or short clips from videos using ffmpeg.
+              - checkbox [checked] [ref=e2364]
+            - generic [ref=e2365] [cursor=pointer]:
+              - generic [ref=e2366]:
+                - generic [ref=e2367]:
+                  - generic [ref=e2369]: 📞
+                  - generic [ref=e2370]: voice-call
+                - generic [ref=e2371]: Start voice calls via the OpenClaw voice-call plugin.
+              - checkbox [checked] [ref=e2374]
+            - generic [ref=e2375] [cursor=pointer]:
+              - generic [ref=e2376]:
+                - generic [ref=e2377]:
+                  - generic [ref=e2379]: 📱
+                  - generic [ref=e2380]: wacli
+                - generic [ref=e2381]: Send third-party WhatsApp messages or sync/search WhatsApp history via wacli, not normal active chats.
+              - checkbox [checked] [ref=e2384]
+            - generic [ref=e2385] [cursor=pointer]:
+              - generic [ref=e2386]:
+                - generic [ref=e2387]:
+                  - generic [ref=e2389]: ☔
+                  - generic [ref=e2390]: weather
+                - generic [ref=e2391]: Get current weather, rain, temperature, and forecasts for locations or travel planning.
+              - checkbox [checked] [ref=e2394]
+            - generic [ref=e2395] [cursor=pointer]:
+              - generic [ref=e2396]:
+                - generic [ref=e2397]:
+                  - generic [ref=e2399]: 🐦
+                  - generic [ref=e2400]: xurl
+                - generic [ref=e2401]: Use xurl for authenticated X API posts, replies, search, DMs, media upload, followers, or raw v2 calls.
+              - checkbox [checked] [ref=e2404]
+        - group [ref=e2405]:
+          - generic "Extra Skills 5 ▸" [ref=e2406] [cursor=pointer]:
+            - generic [ref=e2407]: Extra Skills
+            - generic [ref=e2408]: "5"
+            - text: ▸
+          - generic [ref=e2409]:
+            - generic [ref=e2410] [cursor=pointer]:
+              - generic [ref=e2411]:
+                - generic [ref=e2414]: acp-router
+                - generic [ref=e2415]: Route plain-language requests for Pi, Claude Code, Cursor, Copilot, OpenClaw ACP, OpenCode, Gemini CLI, Qwen, Kiro, Kimi, iFlow, Factory Dr…
+              - checkbox [checked] [ref=e2418]
+            - generic [ref=e2419] [cursor=pointer]:
+              - generic [ref=e2420]:
+                - generic [ref=e2423]: browser-automation
+                - generic [ref=e2424]: Use when controlling web pages with the OpenClaw browser tool, especially multi-step flows, login checks, tab management, or recovery from …
+              - checkbox [checked] [ref=e2427]
+            - generic [ref=e2428] [cursor=pointer]:
+              - generic [ref=e2429]:
+                - generic [ref=e2432]: diffs
+                - generic [ref=e2433]: Use the diffs tool to produce real, shareable diffs (viewer URL, file artifact, or both) instead of manual edit summaries.
+              - checkbox [checked] [ref=e2436]
+            - generic [ref=e2437] [cursor=pointer]:
+              - generic [ref=e2438]:
+                - generic [ref=e2439]:
+                  - generic [ref=e2441]: 🪶
+                  - generic [ref=e2442]: prose
+                - generic [ref=e2443]: "OpenProse VM skill pack. Activate on any `prose` command, .prose files, or OpenProse mentions; orchestrates multi-agent workflows."
+              - checkbox [checked] [ref=e2446]
+            - generic [ref=e2447] [cursor=pointer]:
+              - generic [ref=e2448]:
+                - generic [ref=e2449]:
+                  - generic [ref=e2451]: 🔍
+                  - generic [ref=e2452]: tavily
+                - generic [ref=e2453]: Tavily web search, content extraction, and research tools.
+              - checkbox [checked] [ref=e2456]

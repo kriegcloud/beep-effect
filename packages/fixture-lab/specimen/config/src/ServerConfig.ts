@@ -13,6 +13,14 @@ const $I = $FixtureLabSpecimenId.create("config/ServerConfig");
 /**
  * Server-only settings used to initialize the in-memory specimen repository.
  *
+ * @example
+ * ```ts
+ * import { SpecimenServerConfig } from "@beep/fixture-lab-specimen-config/server"
+ *
+ * const config = new SpecimenServerConfig({ initialSpecimenId: "specimen-1" })
+ * console.log(config.initialSpecimenId)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

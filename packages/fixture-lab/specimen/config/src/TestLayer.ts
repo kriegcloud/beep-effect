@@ -13,6 +13,13 @@ import { SpecimenServerConfig } from "./ServerConfig.js";
 /**
  * Public config fixture used by specimen tests.
  *
+ * @example
+ * ```ts
+ * import { specimenTestPublicConfig } from "@beep/fixture-lab-specimen-config/test"
+ *
+ * console.log(specimenTestPublicConfig.labelPrefix)
+ * ```
+ *
  * @category fixtures
  * @since 0.0.0
  */
@@ -23,6 +30,13 @@ export const specimenTestPublicConfig = new SpecimenPublicConfig({
 /**
  * Server config fixture used by specimen tests.
  *
+ * @example
+ * ```ts
+ * import { specimenTestServerConfig } from "@beep/fixture-lab-specimen-config/test"
+ *
+ * console.log(specimenTestServerConfig.initialSpecimenId)
+ * ```
+ *
  * @category fixtures
  * @since 0.0.0
  */
@@ -32,6 +46,13 @@ export const specimenTestServerConfig = new SpecimenServerConfig({
 
 /**
  * Secret config fixture used by specimen tests.
+ *
+ * @example
+ * ```ts
+ * import { specimenTestSecretConfig } from "@beep/fixture-lab-specimen-config/test"
+ *
+ * console.log(specimenTestSecretConfig.signingSecret)
+ * ```
  *
  * @category fixtures
  * @since 0.0.0

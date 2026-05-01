@@ -12,8 +12,8 @@
  * const migrate = Effect.log("running migrations")
  *
  * const profiled = profilePhase(
- *
- *
+ *   migrate,
+ *   { phase: "migrations" }
  * )
  *
  * void Effect.runPromise(profiled)
@@ -92,10 +92,10 @@ export type PhaseOutcome = typeof PhaseOutcome.Type;
  *
  * const durationMs = S.decodeUnknownSync(NonNegativeInt)(42)
  * const profile = new PhaseProfile({
- *
- *
- *
- *
+ *   attributes: {},
+ *   durationMs,
+ *   outcome: "completed",
+ *   phase: "startup"
  * })
  *
  * console.log(profile.phase) // "startup"

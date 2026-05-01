@@ -286,7 +286,7 @@ describe("quality task adapter", () => {
   it("delegates affected root lint to the aggregate repo lint lane and repo-wide policy checks", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]));
 
-    expect(steps).toHaveLength(15);
+    expect(steps).toHaveLength(16);
     expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--affected", "--summarize"]));
     expect(steps.slice(1).map((step) => step.label)).toEqual([
       "lint:effect-imports",
@@ -297,6 +297,7 @@ describe("quality task adapter", () => {
       "lint:package-test-imports",
       "lint:schema-first",
       "lint:jsdoc",
+      "lint:jsdoc-module-tags",
       "lint:docgen",
       "lint:spell",
       "lint:markdown",

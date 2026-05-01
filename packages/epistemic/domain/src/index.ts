@@ -4,65 +4,33 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { LiteralKit } from "@beep/schema";
-import { EntityIdValue } from "@beep/shared-domain/entity/EntityId";
-import * as S from "effect/Schema";
-
-const UnknownRecord = S.Record(S.String, S.Unknown);
 
 /**
- * Candidate lifecycle vocabulary for claim outputs.
+ * Epistemic entity model exports.
  *
- * @category models
+ * @example
+ * ```ts
+ * import * as Module from "@beep/epistemic-domain"
+ *
+ * console.log(Module)
+ * ```
+
+ * @category entities
  * @since 0.0.0
  */
-export const ClaimLifecycle = LiteralKit(["candidate"] as const);
+export * from "./entities/index.js";
 
 /**
- * Candidate claim proposed by an agent with source evidence.
+ * Epistemic value model exports.
  *
- * @category models
- * @since 0.0.0
- */
-export class CandidateClaim extends S.Class<CandidateClaim>("@beep/epistemic-domain/CandidateClaim")({
-  fixtureKey: S.String,
-  id: EntityIdValue,
-  lifecycle: ClaimLifecycle,
-  snapshot: UnknownRecord,
-}) {}
+ * @example
+ * ```ts
+ * import * as Module from "@beep/epistemic-domain"
+ *
+ * console.log(Module)
+ * ```
 
-/**
- * Source span evidence reference.
- *
- * @category models
+ * @category values
  * @since 0.0.0
  */
-export class Evidence extends S.Class<Evidence>("@beep/epistemic-domain/Evidence")({
-  artifactFixtureKey: S.String,
-  id: EntityIdValue,
-  spanFixtureKey: S.String,
-}) {}
-
-/**
- * Provenance activity produced by the runtime proof.
- *
- * @category models
- * @since 0.0.0
- */
-export class Activity extends S.Class<Activity>("@beep/epistemic-domain/Activity")({
-  fixtureKey: S.String,
-  id: EntityIdValue,
-  snapshot: UnknownRecord,
-}) {}
-
-/**
- * Usage attribution record for a fixture agent run.
- *
- * @category models
- * @since 0.0.0
- */
-export class UsageRecord extends S.Class<UsageRecord>("@beep/epistemic-domain/UsageRecord")({
-  fixtureKey: S.String,
-  id: EntityIdValue,
-  snapshot: UnknownRecord,
-}) {}
+export * from "./values/index.js";

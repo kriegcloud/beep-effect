@@ -21,6 +21,17 @@ const SpecimenSigningSecret = S.Redacted(S.String, { label: "SpecimenSigningSecr
 /**
  * Secret configuration consumed by the specimen slice.
  *
+ * @example
+ * ```ts
+ * import { SpecimenSecretConfig } from "@beep/fixture-lab-specimen-config/secrets"
+ * import { Redacted } from "effect"
+ *
+ * const config = new SpecimenSecretConfig({
+ *   signingSecret: Redacted.make("fixture-secret", { label: "SpecimenSigningSecret" }),
+ * })
+ * console.log(config.signingSecret)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

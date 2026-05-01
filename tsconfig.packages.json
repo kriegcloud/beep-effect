@@ -73,6 +73,9 @@
       "path": "packages/foundation/capability/observability"
     },
     {
+      "path": "packages/foundation/capability/sandbox"
+    },
+    {
       "path": "packages/foundation/capability/semantic-web"
     },
     {

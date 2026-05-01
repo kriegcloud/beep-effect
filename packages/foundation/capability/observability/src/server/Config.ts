@@ -18,16 +18,16 @@ const $I = $ObservabilityId.create("server/Config");
  * import { ServerObservabilityConfig } from "@beep/observability/server"
  *
  * const config = new ServerObservabilityConfig({
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
+ *   devtoolsEnabled: false,
+ *   devtoolsUrl: "ws://localhost:34437",
+ *   environment: "test",
+ *   minLogLevel: "Info",
+ *   otlpBaseUrl: "http://localhost:4318",
+ *   otlpEnabled: false,
+ *   otlpResourceAttributes: {},
+ *   prometheusPrefix: "beep",
+ *   serviceName: "beep",
+ *   serviceVersion: "0.0.0"
  * })
  * ```
  *

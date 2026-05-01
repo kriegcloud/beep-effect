@@ -70,7 +70,6 @@
       "@beep/data": ["./packages/foundation/primitive/data/src/index.ts"],
       "@beep/data/*": ["./packages/foundation/primitive/data/src/*"],
       "@beep/ui": ["./packages/foundation/ui-system/ui/src/index.ts"],
-      "@beep/ui/*": ["./packages/foundation/ui-system/ui/src/*"],
       "@beep/repo-configs": [
         "./packages/tooling/policy-pack/repo-configs/src/index.ts"
       ],
@@ -90,12 +89,8 @@
         "./packages/foundation/capability/semantic-web/src/*"
       ],
       "@beep/nlp": ["./packages/foundation/capability/nlp/src/index.ts"],
-      "@beep/nlp/*": ["./packages/foundation/capability/nlp/src/*"],
       "@beep/observability": [
         "./packages/foundation/capability/observability/src/index.ts"
-      ],
-      "@beep/observability/*": [
-        "./packages/foundation/capability/observability/src/*"
       ],
       "@beep/colors": ["./packages/foundation/capability/colors/src/index.ts"],
       "@beep/colors/*": ["./packages/foundation/capability/colors/src/*"],
@@ -104,71 +99,43 @@
       "@beep/repo-docgen": ["./packages/tooling/tool/docgen/src/index.ts"],
       "@beep/repo-docgen/*": ["./packages/tooling/tool/docgen/src/*"],
       "@beep/infra": ["./infra/src/index.ts"],
-      "@beep/infra/*": ["./infra/src/*"],
       "@beep/md": ["./packages/foundation/capability/md/src/index.ts"],
-      "@beep/md/*": ["./packages/foundation/capability/md/src/*"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
-      "@beep/codedank-web/*": ["./apps/codedank-web/src/*"],
       "@beep/professional-runtime-proof": [
         "./apps/professional-runtime-proof/src/index.ts"
-      ],
-      "@beep/professional-runtime-proof/*": [
-        "./apps/professional-runtime-proof/src/*"
       ],
       "@beep/agent-capability-domain": [
         "./packages/agent-capability/domain/src/index.ts"
       ],
-      "@beep/agent-capability-domain/*": [
-        "./packages/agent-capability/domain/src/*"
-      ],
       "@beep/agent-capability-use-cases": [
         "./packages/agent-capability/use-cases/src/index.ts"
       ],
-      "@beep/agent-capability-use-cases/*": [
-        "./packages/agent-capability/use-cases/src/*"
-      ],
       "@beep/agent-capability-use-cases/public": [
         "./packages/agent-capability/use-cases/src/public.ts"
-      ],
-      "@beep/agent-capability-use-cases/server": [
-        "./packages/agent-capability/use-cases/src/server.ts"
       ],
       "@beep/agent-capability-use-cases/test": [
         "./packages/agent-capability/use-cases/src/test.ts"
       ],
       "@beep/epistemic-domain": ["./packages/epistemic/domain/src/index.ts"],
-      "@beep/epistemic-domain/*": ["./packages/epistemic/domain/src/*"],
       "@beep/law-practice-domain": [
         "./packages/law-practice/domain/src/index.ts"
       ],
-      "@beep/law-practice-domain/*": ["./packages/law-practice/domain/src/*"],
       "@beep/tenancy-domain": ["./packages/tenancy/domain/src/index.ts"],
-      "@beep/tenancy-domain/*": ["./packages/tenancy/domain/src/*"],
       "@beep/wealth-management-domain": [
         "./packages/wealth-management/domain/src/index.ts"
       ],
-      "@beep/wealth-management-domain/*": [
-        "./packages/wealth-management/domain/src/*"
-      ],
       "@beep/workspace-domain": ["./packages/workspace/domain/src/index.ts"],
-      "@beep/workspace-domain/*": ["./packages/workspace/domain/src/*"],
       "@beep/repo-docgen/schema.json": [
         "./packages/tooling/tool/docgen/schema.json"
       ],
       "@beep/fixture-lab-specimen-client": [
         "./packages/fixture-lab/specimen/client/src/index.ts"
       ],
-      "@beep/fixture-lab-specimen-client/*": [
-        "./packages/fixture-lab/specimen/client/src/*"
-      ],
       "@beep/fixture-lab-specimen-client/entities/Specimen": [
         "./packages/fixture-lab/specimen/client/src/entities/Specimen/index.ts"
       ],
       "@beep/fixture-lab-specimen-config": [
         "./packages/fixture-lab/specimen/config/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-config/*": [
-        "./packages/fixture-lab/specimen/config/src/*"
       ],
       "@beep/fixture-lab-specimen-config/layer": [
         "./packages/fixture-lab/specimen/config/src/Layer.ts"
@@ -188,26 +155,17 @@
       "@beep/fixture-lab-specimen-domain": [
         "./packages/fixture-lab/specimen/domain/src/index.ts"
       ],
-      "@beep/fixture-lab-specimen-domain/*": [
-        "./packages/fixture-lab/specimen/domain/src/*"
-      ],
       "@beep/fixture-lab-specimen-domain/entities/Specimen": [
         "./packages/fixture-lab/specimen/domain/src/entities/Specimen/index.ts"
       ],
       "@beep/fixture-lab-specimen-server": [
         "./packages/fixture-lab/specimen/server/src/index.ts"
       ],
-      "@beep/fixture-lab-specimen-server/*": [
-        "./packages/fixture-lab/specimen/server/src/*"
-      ],
       "@beep/fixture-lab-specimen-server/layer": [
         "./packages/fixture-lab/specimen/server/src/Layer.ts"
       ],
       "@beep/fixture-lab-specimen-tables": [
         "./packages/fixture-lab/specimen/tables/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-tables/*": [
-        "./packages/fixture-lab/specimen/tables/src/*"
       ],
       "@beep/fixture-lab-specimen-tables/read-models": [
         "./packages/fixture-lab/specimen/tables/src/ReadModels.ts"
@@ -218,17 +176,11 @@
       "@beep/fixture-lab-specimen-ui": [
         "./packages/fixture-lab/specimen/ui/src/index.tsx"
       ],
-      "@beep/fixture-lab-specimen-ui/*": [
-        "./packages/fixture-lab/specimen/ui/src/*"
-      ],
       "@beep/fixture-lab-specimen-ui/entities/Specimen": [
         "./packages/fixture-lab/specimen/ui/src/entities/Specimen/index.ts"
       ],
       "@beep/fixture-lab-specimen-use-cases": [
         "./packages/fixture-lab/specimen/use-cases/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-use-cases/*": [
-        "./packages/fixture-lab/specimen/use-cases/src/*"
       ],
       "@beep/fixture-lab-specimen-use-cases/public": [
         "./packages/fixture-lab/specimen/use-cases/src/public.ts"
@@ -318,7 +270,6 @@
         "./packages/foundation/ui-system/ui/src/themes/index.ts"
       ],
       "@beep/drizzle": ["./packages/drivers/drizzle/src/index.ts"],
-      "@beep/drizzle/*": ["./packages/drivers/drizzle/src/*"],
       "@beep/ffmpeg": ["./packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["./packages/drivers/ffmpeg/src/*"],
       "@beep/postgres": ["./packages/drivers/postgres/src/index.ts"],
@@ -351,6 +302,172 @@
       ],
       "@beep/shared-ui/entities/Organization": [
         "./packages/shared/ui/src/entities/Organization/index.ts"
+      ],
+      "@beep/agent-capability-domain/entities": [
+        "./packages/agent-capability/domain/src/entities/index.ts"
+      ],
+      "@beep/agent-capability-domain/entities/Agent": [
+        "./packages/agent-capability/domain/src/entities/Agent/index.ts"
+      ],
+      "@beep/agent-capability-domain/entities/Skill": [
+        "./packages/agent-capability/domain/src/entities/Skill/index.ts"
+      ],
+      "@beep/epistemic-domain/entities": [
+        "./packages/epistemic/domain/src/entities/index.ts"
+      ],
+      "@beep/epistemic-domain/entities/Activity": [
+        "./packages/epistemic/domain/src/entities/Activity/index.ts"
+      ],
+      "@beep/epistemic-domain/entities/CandidateClaim": [
+        "./packages/epistemic/domain/src/entities/CandidateClaim/index.ts"
+      ],
+      "@beep/epistemic-domain/entities/Evidence": [
+        "./packages/epistemic/domain/src/entities/Evidence/index.ts"
+      ],
+      "@beep/epistemic-domain/entities/UsageRecord": [
+        "./packages/epistemic/domain/src/entities/UsageRecord/index.ts"
+      ],
+      "@beep/epistemic-domain/values": [
+        "./packages/epistemic/domain/src/values/index.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimLifecycle": [
+        "./packages/epistemic/domain/src/values/ClaimLifecycle/index.ts"
+      ],
+      "@beep/law-practice-domain/entities": [
+        "./packages/law-practice/domain/src/entities/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/LegalClient": [
+        "./packages/law-practice/domain/src/entities/LegalClient/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/LegalContact": [
+        "./packages/law-practice/domain/src/entities/LegalContact/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Matter": [
+        "./packages/law-practice/domain/src/entities/Matter/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/PatentAsset": [
+        "./packages/law-practice/domain/src/entities/PatentAsset/index.ts"
+      ],
+      "@beep/tenancy-domain/entities": [
+        "./packages/tenancy/domain/src/entities/index.ts"
+      ],
+      "@beep/tenancy-domain/entities/Membership": [
+        "./packages/tenancy/domain/src/entities/Membership/index.ts"
+      ],
+      "@beep/tenancy-domain/entities/Organization": [
+        "./packages/tenancy/domain/src/entities/Organization/index.ts"
+      ],
+      "@beep/tenancy-domain/entities/Principal": [
+        "./packages/tenancy/domain/src/entities/Principal/index.ts"
+      ],
+      "@beep/tenancy-domain/entities/User": [
+        "./packages/tenancy/domain/src/entities/User/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities": [
+        "./packages/wealth-management/domain/src/entities/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities/Account": [
+        "./packages/wealth-management/domain/src/entities/Account/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities/Household": [
+        "./packages/wealth-management/domain/src/entities/Household/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities/Party": [
+        "./packages/wealth-management/domain/src/entities/Party/index.ts"
+      ],
+      "@beep/wealth-management-domain/entities/WealthClient": [
+        "./packages/wealth-management/domain/src/entities/WealthClient/index.ts"
+      ],
+      "@beep/workspace-domain/entities": [
+        "./packages/workspace/domain/src/entities/index.ts"
+      ],
+      "@beep/workspace-domain/entities/ApprovalGate": [
+        "./packages/workspace/domain/src/entities/ApprovalGate/index.ts"
+      ],
+      "@beep/workspace-domain/entities/CandidateDraft": [
+        "./packages/workspace/domain/src/entities/CandidateDraft/index.ts"
+      ],
+      "@beep/workspace-domain/entities/CandidateProject": [
+        "./packages/workspace/domain/src/entities/CandidateProject/index.ts"
+      ],
+      "@beep/workspace-domain/entities/CandidateTask": [
+        "./packages/workspace/domain/src/entities/CandidateTask/index.ts"
+      ],
+      "@beep/workspace-domain/entities/ContextPacket": [
+        "./packages/workspace/domain/src/entities/ContextPacket/index.ts"
+      ],
+      "@beep/workspace-domain/entities/EmailArtifact": [
+        "./packages/workspace/domain/src/entities/EmailArtifact/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Workspace": [
+        "./packages/workspace/domain/src/entities/Workspace/index.ts"
+      ],
+      "@beep/workspace-domain/values": [
+        "./packages/workspace/domain/src/values/index.ts"
+      ],
+      "@beep/workspace-domain/values/ApprovalDecision": [
+        "./packages/workspace/domain/src/values/ApprovalDecision/index.ts"
+      ],
+      "@beep/workspace-domain/values/CandidateLifecycle": [
+        "./packages/workspace/domain/src/values/CandidateLifecycle/index.ts"
+      ],
+      "@beep/shared-domain/entity/BaseEntity": [
+        "./packages/shared/domain/src/entity/BaseEntity.ts"
+      ],
+      "@beep/shared-domain/entity/EntityId": [
+        "./packages/shared/domain/src/entity/EntityId.ts"
+      ],
+      "@beep/shared-domain/entity/EntityMixin": [
+        "./packages/shared/domain/src/entity/EntityMixin.ts"
+      ],
+      "@beep/shared-domain/entity/EntityRef": [
+        "./packages/shared/domain/src/entity/EntityRef.ts"
+      ],
+      "@beep/shared-domain/entity/Principal": [
+        "./packages/shared/domain/src/entity/Principal.ts"
+      ],
+      "@beep/shared-domain/entity/SourceKind": [
+        "./packages/shared/domain/src/entity/SourceKind.ts"
+      ],
+      "@beep/shared-domain/entity/primitives": [
+        "./packages/shared/domain/src/entity/primitives.ts"
+      ],
+      "@beep/shared-domain/identity/AgentCapability": [
+        "./packages/shared/domain/src/identity/AgentCapability.ts"
+      ],
+      "@beep/shared-domain/identity/Epistemic": [
+        "./packages/shared/domain/src/identity/Epistemic.ts"
+      ],
+      "@beep/shared-domain/identity/FixtureLabSpecimen": [
+        "./packages/shared/domain/src/identity/FixtureLabSpecimen.ts"
+      ],
+      "@beep/shared-domain/identity/LawPractice": [
+        "./packages/shared/domain/src/identity/LawPractice.ts"
+      ],
+      "@beep/shared-domain/identity/Shared": [
+        "./packages/shared/domain/src/identity/Shared.ts"
+      ],
+      "@beep/shared-domain/identity/Tenancy": [
+        "./packages/shared/domain/src/identity/Tenancy.ts"
+      ],
+      "@beep/shared-domain/identity/WealthManagement": [
+        "./packages/shared/domain/src/identity/WealthManagement.ts"
+      ],
+      "@beep/shared-domain/identity/Workspace": [
+        "./packages/shared/domain/src/identity/Workspace.ts"
+      ],
+      "@beep/agent-capability-use-cases/proof": [
+        "./packages/agent-capability/use-cases/src/proof.ts"
+      ],
+      "@beep/fixture-lab-specimen-domain/entities": [
+        "./packages/fixture-lab/specimen/domain/src/entities/index.ts"
+      ],
+      "@beep/sandbox": [
+        "./packages/foundation/capability/sandbox/src/index.ts"
+      ],
+      "@beep/sandbox/*": ["./packages/foundation/capability/sandbox/src/*"],
+      "@beep/repo-utils/JSDoc/models/tag-values": [
+        "./packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ]
     }
   }

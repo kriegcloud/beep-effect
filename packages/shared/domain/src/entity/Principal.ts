@@ -15,6 +15,13 @@ const $I = $SharedDomainId.create("entity/Principal");
 /**
  * Shared system components that can author persisted rows.
  *
+ * @example
+ * ```ts
+ * import { SystemComponent } from "@beep/shared-domain/entity/Principal"
+ *
+ * console.log(SystemComponent.is.Runtime("Runtime"))
+ * ```
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -27,6 +34,14 @@ export const SystemComponent = LiteralKit(["Runtime", "Sync", "Migration", "Poli
 /**
  * Runtime type for {@link SystemComponent}.
  *
+ * @example
+ * ```ts
+ * import type { SystemComponent } from "@beep/shared-domain/entity/Principal"
+ *
+ * const component: SystemComponent = "Runtime"
+ * console.log(component)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -34,6 +49,14 @@ export type SystemComponent = typeof SystemComponent.Type;
 
 /**
  * Principal variant for a user actor.
+ *
+ * @example
+ * ```ts
+ * import type { UserPrincipal } from "@beep/shared-domain/entity/Principal"
+ *
+ * declare const principal: UserPrincipal
+ * console.log(principal.kind)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -51,6 +74,14 @@ export class UserPrincipal extends S.Class<UserPrincipal>($I`UserPrincipal`)(
 /**
  * Principal variant for a service account.
  *
+ * @example
+ * ```ts
+ * import type { ServiceAccountPrincipal } from "@beep/shared-domain/entity/Principal"
+ *
+ * declare const principal: ServiceAccountPrincipal
+ * console.log(principal.kind)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -67,6 +98,14 @@ export class ServiceAccountPrincipal extends S.Class<ServiceAccountPrincipal>($I
 
 /**
  * Principal variant for an AI agent acting in the system.
+ *
+ * @example
+ * ```ts
+ * import type { AgentPrincipal } from "@beep/shared-domain/entity/Principal"
+ *
+ * declare const principal: AgentPrincipal
+ * console.log(principal.kind)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -87,6 +126,14 @@ export class AgentPrincipal extends S.Class<AgentPrincipal>($I`AgentPrincipal`)(
 /**
  * Principal variant for a connector account.
  *
+ * @example
+ * ```ts
+ * import type { ConnectorAccountPrincipal } from "@beep/shared-domain/entity/Principal"
+ *
+ * declare const principal: ConnectorAccountPrincipal
+ * console.log(principal.kind)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -103,6 +150,17 @@ export class ConnectorAccountPrincipal extends S.Class<ConnectorAccountPrincipal
 
 /**
  * Principal variant for internal system work.
+ *
+ * @example
+ * ```ts
+ * import { SystemPrincipal } from "@beep/shared-domain/entity/Principal"
+ *
+ * const principal = new SystemPrincipal({
+ *   kind: "System",
+ *   component: "Runtime",
+ * })
+ * console.log(principal.component)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -146,6 +204,17 @@ export const Principal = S.Union([
 /**
  * Runtime type for {@link Principal}.
  *
+ * @example
+ * ```ts
+ * import type { Principal } from "@beep/shared-domain/entity/Principal"
+ *
+ * const principal: Principal = {
+ *   kind: "System",
+ *   component: "Runtime",
+ * }
+ * console.log(principal.kind)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -153,6 +222,17 @@ export type Principal = typeof Principal.Type;
 
 /**
  * Encoded boundary type for {@link Principal}.
+ *
+ * @example
+ * ```ts
+ * import type { Principal } from "@beep/shared-domain/entity/Principal"
+ *
+ * const encoded: Principal.Encoded = {
+ *   kind: "System",
+ *   component: "Runtime",
+ * }
+ * console.log(encoded.kind)
+ * ```
  *
  * @since 0.0.0
  * @category models

@@ -30,7 +30,6 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/drizzle": ["../../../packages/drivers/drizzle/src/index.ts"],
-      "@beep/drizzle/*": ["../../../packages/drivers/drizzle/src/*.ts"],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],

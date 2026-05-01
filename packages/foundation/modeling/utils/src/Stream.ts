@@ -29,8 +29,8 @@ import * as S from "effect/Schema";
  * import { streamFilterJson } from "@beep/utils/Stream"
  *
  * const program = Stream.make("1\n", "nope\n", "2\n").pipe(
- *
- *
+ *   streamFilterJson(S.Number),
+ *   Stream.runCollect
  * )
  *
  * void Effect.runPromise(program)

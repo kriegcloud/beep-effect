@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -941,9 +940,9 @@ export const makeQuad: {
  * import { makeNamedNode, makeLiteral, makeQuad, makeDataset } from "@beep/semantic-web/rdf"
  *
  * const quad = makeQuad(
- *
- *
- *
+ *   makeNamedNode("https://example.org/alice"),
+ *   makeNamedNode("https://schema.org/name"),
+ *   makeLiteral("Alice", "http://www.w3.org/2001/XMLSchema#string")
  * )
  * const dataset = makeDataset([quad])
  * console.log(dataset.quads.length) // 1
@@ -996,9 +995,9 @@ export const serializeTerm = (term: Term): string => {
  * import { makeNamedNode, makeLiteral, makeQuad, serializeQuad } from "@beep/semantic-web/rdf"
  *
  * const quad = makeQuad(
- *
- *
- *
+ *   makeNamedNode("https://example.org/alice"),
+ *   makeNamedNode("https://schema.org/name"),
+ *   makeLiteral("Alice", "http://www.w3.org/2001/XMLSchema#string")
  * )
  * console.log(typeof serializeQuad(quad)) // "string"
  * ```

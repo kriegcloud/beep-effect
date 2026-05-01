@@ -13,6 +13,14 @@ import { specimenServerConfig } from "./ServerConfig.js";
 /**
  * Resolved specimen config service shape.
  *
+ * @example
+ * ```ts
+ * import type { SpecimenConfigShape } from "@beep/fixture-lab-specimen-config/layer"
+ *
+ * declare const config: SpecimenConfigShape
+ * console.log(config.server)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -21,6 +29,13 @@ export type { SpecimenConfigShape } from "./Config.js";
 /**
  * Context service key for resolved specimen configuration.
  *
+ * @example
+ * ```ts
+ * import { SpecimenConfig } from "@beep/fixture-lab-specimen-config/layer"
+ *
+ * void SpecimenConfig
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -28,6 +43,13 @@ export { SpecimenConfig };
 
 /**
  * Effect that resolves the specimen configuration from the active ConfigProvider.
+ *
+ * @example
+ * ```ts
+ * import { loadSpecimenConfig } from "@beep/fixture-lab-specimen-config/layer"
+ *
+ * void loadSpecimenConfig
+ * ```
  *
  * @category configuration
  * @since 0.0.0

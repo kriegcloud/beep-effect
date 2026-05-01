@@ -1,0 +1,96 @@
+# Repository-local Codex configuration for beep-effect2.
+#
+# Claude remains the source of truth for the skill bodies in `.claude/skills`.
+# Codex discovers the mirrored repo skill root through `.agents/skills`, which is
+# linked to that Claude tree.
+
+[skills]
+include_instructions = true
+
+[[skills.config]]
+name = "atom-reactivity-specialist"
+enabled = true
+
+[[skills.config]]
+name = "effect-data"
+enabled = true
+
+[[skills.config]]
+name = "effect-error-handling"
+enabled = true
+
+[[skills.config]]
+name = "effect-first-development"
+enabled = true
+
+[[skills.config]]
+name = "effect-services"
+enabled = true
+
+[[skills.config]]
+name = "effect-v4"
+enabled = true
+
+[[skills.config]]
+name = "effect-v4-errors"
+enabled = true
+
+[[skills.config]]
+name = "effect-v4-http-ai"
+enabled = true
+
+[[skills.config]]
+name = "effect-v4-imports"
+enabled = true
+
+[[skills.config]]
+name = "effect-v4-services"
+enabled = true
+
+[[skills.config]]
+name = "eventlog-graph-specialist"
+enabled = true
+
+[[skills.config]]
+name = "grill-me"
+enabled = true
+
+[[skills.config]]
+name = "jsdoc-annotation-specialist"
+enabled = true
+
+[[skills.config]]
+name = "mcp-graphiti-memory"
+enabled = true
+
+[[skills.config]]
+name = "mcp-jetbrains"
+enabled = true
+
+[[skills.config]]
+name = "mcp-lsmcp"
+enabled = true
+
+[[skills.config]]
+name = "mcp-playwright"
+enabled = true
+
+[[skills.config]]
+name = "portless"
+enabled = true
+
+[[skills.config]]
+name = "schema-first-development"
+enabled = true
+
+[[skills.config]]
+name = "schema-model-specialist"
+enabled = true
+
+[[skills.config]]
+name = "shadcn"
+enabled = true
+
+[[skills.config]]
+name = "turborepo"
+enabled = true

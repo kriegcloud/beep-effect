@@ -1,0 +1,431 @@
+- generic [ref=e64]:
+  - banner [ref=e65]:
+    - generic [ref=e66]:
+      - generic [ref=e70]:
+        - link "OpenClaw" [ref=e71] [cursor=pointer]:
+          - /url: /overview
+        - generic [ref=e72]: ›
+        - generic [ref=e73]: Agents
+      - generic [ref=e74]:
+        - button "Open command palette" [ref=e75] [cursor=pointer]:
+          - generic [ref=e76]: Search
+          - generic [ref=e77]: ⌘K
+        - group "Color mode" [ref=e79]:
+          - 'button "Color mode: System" [pressed] [ref=e80] [cursor=pointer]':
+            - img [ref=e81]
+          - 'button "Color mode: Light" [ref=e83] [cursor=pointer]':
+            - img [ref=e84]
+          - 'button "Color mode: Dark" [ref=e90] [cursor=pointer]':
+            - img [ref=e91]
+  - complementary [ref=e94]:
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - generic [ref=e97]:
+          - img "OpenClaw" [ref=e98]
+          - generic [ref=e99]:
+            - generic [ref=e100]: Control
+            - generic [ref=e101]: OpenClaw
+        - button "Collapse sidebar" [ref=e102] [cursor=pointer]:
+          - img [ref=e104]
+      - navigation [ref=e108]:
+        - generic [ref=e109]:
+          - button "Chat" [expanded] [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]: Chat
+            - img [ref=e113]
+          - link "Chat" [ref=e116] [cursor=pointer]:
+            - /url: /chat
+            - img [ref=e118]
+            - generic [ref=e120]: Chat
+        - generic [ref=e121]:
+          - button "Control" [expanded] [ref=e122] [cursor=pointer]:
+            - generic [ref=e123]: Control
+            - img [ref=e125]
+          - generic [ref=e127]:
+            - link "Overview" [ref=e128] [cursor=pointer]:
+              - /url: /overview
+              - img [ref=e130]
+              - generic [ref=e131]: Overview
+            - link "Channels" [ref=e132] [cursor=pointer]:
+              - /url: /channels
+              - img [ref=e134]
+              - generic [ref=e137]: Channels
+            - link "Instances" [ref=e138] [cursor=pointer]:
+              - /url: /instances
+              - img [ref=e140]
+              - generic [ref=e143]: Instances
+            - link "Sessions" [ref=e144] [cursor=pointer]:
+              - /url: /sessions
+              - img [ref=e146]
+              - generic [ref=e149]: Sessions
+            - link "Usage" [ref=e150] [cursor=pointer]:
+              - /url: /usage
+              - img [ref=e152]
+              - generic [ref=e153]: Usage
+            - link "Cron Jobs" [ref=e154] [cursor=pointer]:
+              - /url: /cron
+              - img [ref=e156]
+              - generic [ref=e161]: Cron Jobs
+        - generic [ref=e162]:
+          - button "Agent" [expanded] [ref=e163] [cursor=pointer]:
+            - generic [ref=e164]: Agent
+            - img [ref=e166]
+          - generic [ref=e168]:
+            - link "Agents" [ref=e169] [cursor=pointer]:
+              - /url: /agents
+              - img [ref=e171]
+              - generic [ref=e173]: Agents
+            - link "Skills" [ref=e174] [cursor=pointer]:
+              - /url: /skills
+              - img [ref=e176]
+              - generic [ref=e178]: Skills
+            - link "Nodes" [ref=e179] [cursor=pointer]:
+              - /url: /nodes
+              - img [ref=e181]
+              - generic [ref=e183]: Nodes
+            - link "Dreaming" [ref=e184] [cursor=pointer]:
+              - /url: /dreaming
+              - img [ref=e186]
+              - generic [ref=e188]: Dreaming
+        - generic [ref=e189]:
+          - button "Settings" [expanded] [ref=e190] [cursor=pointer]:
+            - generic [ref=e191]: Settings
+            - img [ref=e193]
+          - generic [ref=e195]:
+            - link "Config" [ref=e196] [cursor=pointer]:
+              - /url: /config
+              - img [ref=e198]
+              - generic [ref=e201]: Config
+            - link "Communications" [ref=e202] [cursor=pointer]:
+              - /url: /communications
+              - img [ref=e204]
+              - generic [ref=e207]: Communications
+            - link "Appearance" [ref=e208] [cursor=pointer]:
+              - /url: /appearance
+              - img [ref=e210]
+              - generic [ref=e212]: Appearance
+            - link "Automation" [ref=e213] [cursor=pointer]:
+              - /url: /automation
+              - img [ref=e215]
+              - generic [ref=e217]: Automation
+            - link "Infrastructure" [ref=e218] [cursor=pointer]:
+              - /url: /infrastructure
+              - img [ref=e220]
+              - generic [ref=e223]: Infrastructure
+            - link "AI & Agents" [ref=e224] [cursor=pointer]:
+              - /url: /ai-agents
+              - img [ref=e226]
+              - generic [ref=e236]: AI & Agents
+            - link "Debug" [ref=e237] [cursor=pointer]:
+              - /url: /debug
+              - img [ref=e239]
+              - generic [ref=e248]: Debug
+            - link "Logs" [ref=e249] [cursor=pointer]:
+              - /url: /logs
+              - img [ref=e251]
+              - generic [ref=e254]: Logs
+      - generic [ref=e256]:
+        - link "Docs" [ref=e257] [cursor=pointer]:
+          - /url: https://docs.openclaw.ai
+          - img [ref=e259]
+          - generic [ref=e261]: Docs
+          - img [ref=e263]
+        - generic "v2026.4.29" [ref=e266]:
+          - generic [ref=e267]: Version
+          - generic [ref=e268]: v2026.4.29
+          - 'img "Gateway status: Online" [ref=e269]'
+  - main [ref=e270]:
+    - generic [ref=e272]:
+      - generic [ref=e273]: Agents
+      - generic [ref=e274]: Workspaces, tools, identities.
+    - generic [ref=e1558]:
+      - generic [ref=e1560]:
+        - combobox [ref=e1562] [cursor=pointer]:
+          - option "Codex Chat (default)" [selected]
+          - option "codex"
+          - option "Codex CLI"
+        - generic [ref=e1563]:
+          - button "Copy ID" [ref=e1564] [cursor=pointer]
+          - button "Default" [disabled] [ref=e1565]
+          - button "Refresh" [ref=e1566] [cursor=pointer]
+      - generic [ref=e1567]:
+        - generic [ref=e1568]:
+          - button "Overview" [ref=e1569] [cursor=pointer]
+          - button "Files7" [ref=e1570] [cursor=pointer]:
+            - text: Files
+            - generic [ref=e1571]: "7"
+          - button "Tools" [active] [ref=e1572] [cursor=pointer]
+          - button "Skills" [ref=e1573] [cursor=pointer]
+          - button "Channels2" [ref=e1574] [cursor=pointer]:
+            - text: Channels
+            - generic [ref=e1575]: "2"
+          - button "Cron Jobs" [ref=e1576] [cursor=pointer]
+        - generic [ref=e1631]:
+          - generic [ref=e1632]:
+            - generic [ref=e1633]:
+              - generic [ref=e1634]: Tool Access
+              - generic [ref=e1635]:
+                - text: Profile + per-tool overrides for this agent.
+                - generic [ref=e1636]: 25/47
+                - text: enabled.
+            - generic [ref=e1637]:
+              - button "Enable All" [ref=e1638] [cursor=pointer]
+              - button "Disable All" [ref=e1639] [cursor=pointer]
+              - button "Reload Config" [ref=e1640] [cursor=pointer]
+              - button "Save" [disabled] [ref=e1641]
+          - generic [ref=e1642]:
+            - generic [ref=e1643]:
+              - generic [ref=e1644]:
+                - generic [ref=e1645]: Available Right Now
+                - generic [ref=e1646]:
+                  - text: What this agent can use in the current chat session.
+                  - generic [ref=e1647]: agent:codex-chat:main
+                - generic [ref=e1648]: Loading available tools…
+              - generic [ref=e1649]:
+                - generic [ref=e1650]: Quick Presets
+                - generic [ref=e1651]:
+                  - button "Minimal" [ref=e1652] [cursor=pointer]
+                  - button "Coding" [ref=e1653] [cursor=pointer]
+                  - button "Messaging" [ref=e1654] [cursor=pointer]
+                  - button "Full" [ref=e1655] [cursor=pointer]
+                  - button "Inherit" [ref=e1656] [cursor=pointer]
+            - generic [ref=e1657]:
+              - generic [ref=e1658]:
+                - generic [ref=e1659]: Profile
+                - generic [ref=e1660]: coding
+              - generic [ref=e1661]:
+                - generic [ref=e1662]: Source
+                - generic [ref=e1663]: global default
+              - generic [ref=e1664]:
+                - generic [ref=e1665]: Enabled
+                - generic [ref=e1666]: 25/47
+              - generic [ref=e1667]:
+                - generic [ref=e1668]: Live
+                - generic [ref=e1669]: "0"
+              - generic [ref=e1670]:
+                - generic [ref=e1671]: Status
+                - generic [ref=e1672]: saved
+          - generic [ref=e1673]:
+            - group [ref=e1674]:
+              - generic "▸ Files Tool preview 4 Tools 4 Enabled Tools" [ref=e1675] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1676]:
+                  - generic [ref=e1677]: Files
+                  - generic "Tool preview" [ref=e1678]:
+                    - generic "apply_patch" [ref=e1679]
+                    - generic "edit" [ref=e1680]
+                    - generic "read" [ref=e1681]
+                    - generic "write" [ref=e1682]
+                - generic [ref=e1683]:
+                  - generic [ref=e1684]: 4 Tools
+                  - generic [ref=e1685]: 4 Enabled Tools
+              - text: ▸ ▸ ▸ ▸
+            - group [ref=e1686]:
+              - generic "▸ Runtime Tool preview 3 Tools 3 Enabled Tools" [ref=e1687] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1688]:
+                  - generic [ref=e1689]: Runtime
+                  - generic "Tool preview" [ref=e1690]:
+                    - generic "code_execution" [ref=e1691]
+                    - generic "exec" [ref=e1692]
+                    - generic "process" [ref=e1693]
+                - generic [ref=e1694]:
+                  - generic [ref=e1695]: 3 Tools
+                  - generic [ref=e1696]: 3 Enabled Tools
+              - text: ▸ ▸ ▸
+            - group [ref=e1697]:
+              - generic "▸ Web Tool preview 3 Tools 3 Enabled Tools" [ref=e1698] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1699]:
+                  - generic [ref=e1700]: Web
+                  - generic "Tool preview" [ref=e1701]:
+                    - generic "web_fetch" [ref=e1702]
+                    - generic "web_search" [ref=e1703]
+                    - generic "x_search" [ref=e1704]
+                - generic [ref=e1705]:
+                  - generic [ref=e1706]: 3 Tools
+                  - generic [ref=e1707]: 3 Enabled Tools
+              - text: ▸ ▸ ▸
+            - group [ref=e1708]:
+              - generic "▸ Memory Tool preview 2 Tools 2 Enabled Tools" [ref=e1709] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1710]:
+                  - generic [ref=e1711]: Memory
+                  - generic "Tool preview" [ref=e1712]:
+                    - generic "memory_get" [ref=e1713]
+                    - generic "memory_search" [ref=e1714]
+                - generic [ref=e1715]:
+                  - generic [ref=e1716]: 2 Tools
+                  - generic [ref=e1717]: 2 Enabled Tools
+              - text: ▸ ▸
+            - group [ref=e1718]:
+              - generic "▸ Sessions Tool preview 7 Tools 7 Enabled Tools" [ref=e1719] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1720]:
+                  - generic [ref=e1721]: Sessions
+                  - generic "Tool preview" [ref=e1722]:
+                    - generic "session_status" [ref=e1723]
+                    - generic "sessions_history" [ref=e1724]
+                    - generic "sessions_list" [ref=e1725]
+                    - generic "sessions_send" [ref=e1726]
+                    - generic [ref=e1727]: +3 more
+                - generic [ref=e1728]:
+                  - generic [ref=e1729]: 7 Tools
+                  - generic [ref=e1730]: 7 Enabled Tools
+              - text: ▸ ▸ ▸ ▸ ▸ ▸ ▸
+            - group [ref=e1731]:
+              - generic "▸ UI Tool preview 2 Tools 0 Enabled Tools" [ref=e1732] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1733]:
+                  - generic [ref=e1734]: UI
+                  - generic "Tool preview" [ref=e1735]:
+                    - generic "browser" [ref=e1736]
+                    - generic "canvas" [ref=e1737]
+                - generic [ref=e1738]:
+                  - generic [ref=e1739]: 2 Tools
+                  - generic [ref=e1740]: 0 Enabled Tools
+              - text: ▸ ▸
+            - group [ref=e1741]:
+              - generic "▸ Messaging Tool preview 1 Tool 0 Enabled Tools" [ref=e1742] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1743]:
+                  - generic [ref=e1744]: Messaging
+                  - generic "Tool preview" [ref=e1745]:
+                    - generic "message" [ref=e1746]
+                - generic [ref=e1747]:
+                  - generic [ref=e1748]: 1 Tool
+                  - generic [ref=e1749]: 0 Enabled Tools
+              - text: ▸
+            - group [ref=e1750]:
+              - generic "▸ Automation Tool preview 2 Tools 1 Enabled Tool" [ref=e1751] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1752]:
+                  - generic [ref=e1753]: Automation
+                  - generic "Tool preview" [ref=e1754]:
+                    - generic "cron" [ref=e1755]
+                    - generic "gateway" [ref=e1756]
+                - generic [ref=e1757]:
+                  - generic [ref=e1758]: 2 Tools
+                  - generic [ref=e1759]: 1 Enabled Tool
+              - text: ▸ ▸
+            - group [ref=e1760]:
+              - generic "▸ Nodes Tool preview 1 Tool 0 Enabled Tools" [ref=e1761] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1762]:
+                  - generic [ref=e1763]: Nodes
+                  - generic "Tool preview" [ref=e1764]:
+                    - generic "nodes" [ref=e1765]
+                - generic [ref=e1766]:
+                  - generic [ref=e1767]: 1 Tool
+                  - generic [ref=e1768]: 0 Enabled Tools
+              - text: ▸
+            - group [ref=e1769]:
+              - generic "▸ Agents Tool preview 2 Tools 1 Enabled Tool" [ref=e1770] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1771]:
+                  - generic [ref=e1772]: Agents
+                  - generic "Tool preview" [ref=e1773]:
+                    - generic "update_plan" [ref=e1774]
+                    - generic "agents_list" [ref=e1775]
+                - generic [ref=e1776]:
+                  - generic [ref=e1777]: 2 Tools
+                  - generic [ref=e1778]: 1 Enabled Tool
+              - text: ▸ ▸
+            - group [ref=e1779]:
+              - generic "▸ Media Tool preview 5 Tools 4 Enabled Tools" [ref=e1780] [cursor=pointer]:
+                - text: ▸
+                - generic [ref=e1781]:
+                  - generic [ref=e1782]: Media
+                  - generic "Tool preview" [ref=e1783]:
+                    - generic "image" [ref=e1784]
+                    - generic "image_generate" [ref=e1785]
+                    - generic "music_generate" [ref=e1786]
+                    - generic "video_generate" [ref=e1787]
+                    - generic [ref=e1788]: +1 more
+                - generic [ref=e1789]:
+                  - generic [ref=e1790]: 5 Tools
+                  - generic [ref=e1791]: 4 Enabled Tools
+              - text: ▸ ▸ ▸ ▸ ▸
+            - group [ref=e1792]:
+              - 'generic "▸ clawhole-ops Plugin: clawhole-ops Tool preview 8 Tools 0 Enabled Tools" [ref=e1793] [cursor=pointer]':
+                - text: ▸
+                - generic [ref=e1794]:
+                  - generic [ref=e1795]:
+                    - text: clawhole-ops
+                    - generic [ref=e1796]: "Plugin: clawhole-ops"
+                  - generic "Tool preview" [ref=e1797]:
+                    - generic "browser_debug" [ref=e1798]
+                    - generic "browser_open_authenticated" [ref=e1799]
+                    - generic "browser_profiles" [ref=e1800]
+                    - generic "browser_session_status" [ref=e1801]
+                    - generic [ref=e1802]: +4 more
+                - generic [ref=e1803]:
+                  - generic [ref=e1804]: 8 Tools
+                  - generic [ref=e1805]: 0 Enabled Tools
+              - text: ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸
+            - group [ref=e1806]:
+              - 'generic "▸ diffs Plugin: diffs Tool preview 1 Tool 0 Enabled Tools" [ref=e1807] [cursor=pointer]':
+                - text: ▸
+                - generic [ref=e1808]:
+                  - generic [ref=e1809]:
+                    - text: diffs
+                    - generic [ref=e1810]: "Plugin: diffs"
+                  - generic "Tool preview" [ref=e1811]:
+                    - generic "Diffs" [ref=e1812]
+                - generic [ref=e1813]:
+                  - generic [ref=e1814]: 1 Tool
+                  - generic [ref=e1815]: 0 Enabled Tools
+              - text: ▸
+            - group [ref=e1816]:
+              - 'generic "▸ firecrawl Plugin: firecrawl Tool preview 2 Tools 0 Enabled Tools" [ref=e1817] [cursor=pointer]':
+                - text: ▸
+                - generic [ref=e1818]:
+                  - generic [ref=e1819]:
+                    - text: firecrawl
+                    - generic [ref=e1820]: "Plugin: firecrawl"
+                  - generic "Tool preview" [ref=e1821]:
+                    - generic "Firecrawl Scrape" [ref=e1822]
+                    - generic "Firecrawl Search" [ref=e1823]
+                - generic [ref=e1824]:
+                  - generic [ref=e1825]: 2 Tools
+                  - generic [ref=e1826]: 0 Enabled Tools
+              - text: ▸ ▸
+            - group [ref=e1827]:
+              - 'generic "▸ llm-task Plugin: llm-task Tool preview 1 Tool 0 Enabled Tools" [ref=e1828] [cursor=pointer]':
+                - text: ▸
+                - generic [ref=e1829]:
+                  - generic [ref=e1830]:
+                    - text: llm-task
+                    - generic [ref=e1831]: "Plugin: llm-task"
+                  - generic "Tool preview" [ref=e1832]:
+                    - generic "LLM Task" [ref=e1833]
+                - generic [ref=e1834]:
+                  - generic [ref=e1835]: 1 Tool
+                  - generic [ref=e1836]: 0 Enabled Tools
+              - text: ▸
+            - group [ref=e1837]:
+              - 'generic "▸ lobster Plugin: lobster Tool preview 1 Tool 0 Enabled Tools" [ref=e1838] [cursor=pointer]':
+                - text: ▸
+                - generic [ref=e1839]:
+                  - generic [ref=e1840]:
+                    - text: lobster
+                    - generic [ref=e1841]: "Plugin: lobster"
+                  - generic "Tool preview" [ref=e1842]:
+                    - generic "Lobster Workflow" [ref=e1843]
+                - generic [ref=e1844]:
+                  - generic [ref=e1845]: 1 Tool
+                  - generic [ref=e1846]: 0 Enabled Tools
+              - text: ▸
+            - group [ref=e1847]:
+              - 'generic "▸ tavily Plugin: tavily Tool preview 2 Tools 0 Enabled Tools" [ref=e1848] [cursor=pointer]':
+                - text: ▸
+                - generic [ref=e1849]:
+                  - generic [ref=e1850]:
+                    - text: tavily
+                    - generic [ref=e1851]: "Plugin: tavily"
+                  - generic "Tool preview" [ref=e1852]:
+                    - generic "Tavily Extract" [ref=e1853]
+                    - generic "Tavily Search" [ref=e1854]
+                - generic [ref=e1855]:
+                  - generic [ref=e1856]: 2 Tools
+                  - generic [ref=e1857]: 0 Enabled Tools
+              - text: ▸ ▸

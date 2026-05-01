@@ -19,6 +19,7 @@
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",
+    "./JSDoc/models/tag-values": "./src/JSDoc/models/tag-values/index.ts",
     "./*": "./src/*.ts",
     "./internal/*": null
   },
@@ -35,6 +36,7 @@
     "exports": {
       "./package.json": "./package.json",
       ".": "./dist/index.js",
+      "./JSDoc/models/tag-values": "./dist/JSDoc/models/tag-values/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null
     }

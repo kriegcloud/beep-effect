@@ -6,6 +6,16 @@
  */
 
 /**
+ * Shared identity namespace exports.
+ *
+ * @example
+ * ```ts
+ * import * as Identity from "@beep/shared-domain/identity"
+ *
+ * console.log(Identity)
+ * ```
+ *
+ * @category exports
  * @since 0.0.0
  */
 export * from "./identity/index.ts";

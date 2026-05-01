@@ -11,7 +11,7 @@
  * import { NotFoundError, makeBadRequestError } from "@beep/observability"
  *
  * const failNotFound = Effect.fail(
- *
+ *   new NotFoundError({ cause: Option.none(), message: "missing", status: 404 })
  * )
  *
  * const failBadReq = Effect.fail(makeBadRequestError("missing field"))
@@ -79,9 +79,9 @@ const statusFields = <Status extends S.Top>(status: Status) =>
  * import { ClientHttpError } from "@beep/observability"
  *
  * const err = new ClientHttpError({
- *
- *
- *
+ *   cause: Option.none(),
+ *   message: "invalid input",
+ *   status: 400
  * })
  *
  * void Effect.fail(err)
@@ -113,7 +113,11 @@ export class ClientHttpError extends TaggedErrorClass<ClientHttpError>($I`Client
  * import { Effect, Option } from "effect"
  * import { ServerHttpError } from "@beep/observability"
  *
- * const err = new ServerHttpError({})
+ * const err = new ServerHttpError({
+ *   cause: Option.none(),
+ *   message: "server failed",
+ *   status: 500
+ * })
  *
  * void Effect.fail(err)
  * ```

@@ -1,4 +1,4 @@
-import { Specimen } from "@beep/fixture-lab-specimen-domain";
+import type { Specimen } from "@beep/fixture-lab-specimen-domain";
 import {
   GetSpecimen,
   ObserveSpecimen,
@@ -13,9 +13,10 @@ import {
 import { Effect } from "effect";
 import { describe, expect, it } from "tstyche";
 
+declare const specimen: Specimen;
+
 describe("@beep/fixture-lab-specimen-use-cases", () => {
   it("types the command facade and repository boundary", () => {
-    const specimen = new Specimen({ id: "specimen-1", label: "Fixture", status: "draft" });
     const repository: SpecimenRepository = {
       get: () => Effect.succeed(specimen),
       save: Effect.succeed,

@@ -31,7 +31,6 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/ui": ["../../../../packages/foundation/ui-system/ui/src/index.ts"],
-      "@beep/ui/*": ["../../../../packages/foundation/ui-system/ui/src/*.ts"],
       "@beep/ui/themes": [
         "../../../../packages/foundation/ui-system/ui/src/themes/index.ts"
       ],

@@ -10,7 +10,7 @@
   ],
   "entries": [
     {
-      "file": "packages/agent-capability/use-cases/src/RuntimeSdk.ts",
+      "file": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
       "symbol": "ProfessionalRuntimeSdk",
       "kind": "exported-interface",
       "status": "exception",

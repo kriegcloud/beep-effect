@@ -4,15 +4,18 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
+import { $AgentCapabilityUseCasesId } from "@beep/identity/packages";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
-import { CandidateOutputSet, RuntimeFixtureValidationError } from "./RuntimeSdk.js";
+import { CandidateOutputSet } from "./ProfessionalRuntime.contracts.js";
+import { ProfessionalRuntimeValidationError } from "./ProfessionalRuntime.errors.js";
 
 // cspell:words Priya Raman
 
-class RuntimeFixtureEmailInput extends S.Class<RuntimeFixtureEmailInput>(
-  "@beep/agent-capability-use-cases/RuntimeFixtureEmailInput"
-)({
+const $I = $AgentCapabilityUseCasesId.create("processes/ProfessionalRuntime/ProfessionalRuntime.fixtures");
+
+class RuntimeFixtureEmailInput extends S.Class<RuntimeFixtureEmailInput>($I`RuntimeFixtureEmailInput`)({
   artifactId: S.String,
   scenarioId: S.String,
   sourceSpans: S.Array(S.String),
@@ -21,20 +24,16 @@ class RuntimeFixtureEmailInput extends S.Class<RuntimeFixtureEmailInput>(
 }) {}
 
 class RuntimeFixtureOrganizationInput extends S.Class<RuntimeFixtureOrganizationInput>(
-  "@beep/agent-capability-use-cases/RuntimeFixtureOrganizationInput"
+  $I`RuntimeFixtureOrganizationInput`
 )({
   organizationId: S.String,
 }) {}
 
-class RuntimeFixtureWorkspaceInput extends S.Class<RuntimeFixtureWorkspaceInput>(
-  "@beep/agent-capability-use-cases/RuntimeFixtureWorkspaceInput"
-)({
+class RuntimeFixtureWorkspaceInput extends S.Class<RuntimeFixtureWorkspaceInput>($I`RuntimeFixtureWorkspaceInput`)({
   workspaceId: S.String,
 }) {}
 
-class RuntimeFixtureSeedInput extends S.Class<RuntimeFixtureSeedInput>(
-  "@beep/agent-capability-use-cases/RuntimeFixtureSeedInput"
-)({
+class RuntimeFixtureSeedInput extends S.Class<RuntimeFixtureSeedInput>($I`RuntimeFixtureSeedInput`)({
   organization: RuntimeFixtureOrganizationInput,
   scenarioId: S.String,
   workspace: RuntimeFixtureWorkspaceInput,
@@ -43,12 +42,17 @@ class RuntimeFixtureSeedInput extends S.Class<RuntimeFixtureSeedInput>(
 /**
  * Parsed fixture inputs for one runtime data-loop scenario.
  *
+ * @example
+ * ```ts
+ * import { RuntimeFixtureInput } from "@beep/agent-capability-use-cases/proof"
+ *
+ * console.log(RuntimeFixtureInput)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export class RuntimeFixtureInput extends S.Class<RuntimeFixtureInput>(
-  "@beep/agent-capability-use-cases/RuntimeFixtureInput"
-)({
+export class RuntimeFixtureInput extends S.Class<RuntimeFixtureInput>($I`RuntimeFixtureInput`)({
   body: S.String,
   email: RuntimeFixtureEmailInput,
   seed: RuntimeFixtureSeedInput,
@@ -57,7 +61,7 @@ export class RuntimeFixtureInput extends S.Class<RuntimeFixtureInput>(
 const decodeOutputSet = S.decodeUnknownSync(CandidateOutputSet);
 
 const failValidation = (message: string): never => {
-  throw new RuntimeFixtureValidationError({ message });
+  throw new ProfessionalRuntimeValidationError({ message });
 };
 
 const assertScenario = (input: RuntimeFixtureInput): void => {
@@ -642,6 +646,13 @@ const runWealthCashRequest = (input: RuntimeFixtureInput): CandidateOutputSet =>
 /**
  * Run one deterministic runtime data-loop fixture.
  *
+ * @example
+ * ```ts
+ * import { runRuntimeFixture } from "@beep/agent-capability-use-cases/proof"
+ *
+ * console.log(runRuntimeFixture)
+ * ```
+ *
  * @category testing
  * @since 0.0.0
  */
@@ -660,8 +671,8 @@ export const runRuntimeFixture = Effect.fn("RuntimeFixture.run")((input: Runtime
       }
     },
     catch: (error) =>
-      S.is(RuntimeFixtureValidationError)(error)
+      S.is(ProfessionalRuntimeValidationError)(error)
         ? error
-        : new RuntimeFixtureValidationError({ message: String(error) }),
+        : new ProfessionalRuntimeValidationError({ message: String(error) }),
   })
 );

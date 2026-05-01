@@ -17,7 +17,7 @@ import type { SpecimenRepositoryNotFound } from "./Specimen.errors.js";
  * import type { SpecimenRepository } from "@beep/fixture-lab-specimen-use-cases/server"
  * import { Effect } from "effect"
  *
- * const specimen = new Specimen({ id: "specimen-1", label: "Fixture", status: "draft" })
+ * declare const specimen: Specimen
  * const repository: SpecimenRepository = {
  *   get: () => Effect.succeed(specimen),
  *   save: Effect.succeed,

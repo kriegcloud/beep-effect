@@ -30,7 +30,6 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/codedank-web": ["../../apps/codedank-web/src/index.ts"],
-      "@beep/codedank-web/*": ["../../apps/codedank-web/src/*.ts"],
       "@beep/identity": [
         "../../packages/foundation/modeling/identity/src/index.ts"
       ],
@@ -46,12 +45,14 @@
       "@beep/repo-utils/*": [
         "../../packages/tooling/library/repo-utils/src/*.ts"
       ],
+      "@beep/repo-utils/JSDoc/models/tag-values": [
+        "../../packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
+      ],
       "@beep/schema": [
         "../../packages/foundation/modeling/schema/src/index.ts"
       ],
       "@beep/schema/*": ["../../packages/foundation/modeling/schema/src/*.ts"],
       "@beep/ui": ["../../packages/foundation/ui-system/ui/src/index.ts"],
-      "@beep/ui/*": ["../../packages/foundation/ui-system/ui/src/*.ts"],
       "@beep/ui/themes": [
         "../../packages/foundation/ui-system/ui/src/themes/index.ts"
       ],

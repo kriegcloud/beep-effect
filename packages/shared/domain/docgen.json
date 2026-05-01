@@ -43,8 +43,53 @@
       "@beep/shared-domain/entity": [
         "../../../packages/shared/domain/src/entity.ts"
       ],
+      "@beep/shared-domain/entity/BaseEntity": [
+        "../../../packages/shared/domain/src/entity/BaseEntity.ts"
+      ],
+      "@beep/shared-domain/entity/EntityId": [
+        "../../../packages/shared/domain/src/entity/EntityId.ts"
+      ],
+      "@beep/shared-domain/entity/EntityMixin": [
+        "../../../packages/shared/domain/src/entity/EntityMixin.ts"
+      ],
+      "@beep/shared-domain/entity/EntityRef": [
+        "../../../packages/shared/domain/src/entity/EntityRef.ts"
+      ],
+      "@beep/shared-domain/entity/Principal": [
+        "../../../packages/shared/domain/src/entity/Principal.ts"
+      ],
+      "@beep/shared-domain/entity/SourceKind": [
+        "../../../packages/shared/domain/src/entity/SourceKind.ts"
+      ],
+      "@beep/shared-domain/entity/primitives": [
+        "../../../packages/shared/domain/src/entity/primitives.ts"
+      ],
       "@beep/shared-domain/identity": [
         "../../../packages/shared/domain/src/identity.ts"
+      ],
+      "@beep/shared-domain/identity/AgentCapability": [
+        "../../../packages/shared/domain/src/identity/AgentCapability.ts"
+      ],
+      "@beep/shared-domain/identity/Epistemic": [
+        "../../../packages/shared/domain/src/identity/Epistemic.ts"
+      ],
+      "@beep/shared-domain/identity/FixtureLabSpecimen": [
+        "../../../packages/shared/domain/src/identity/FixtureLabSpecimen.ts"
+      ],
+      "@beep/shared-domain/identity/LawPractice": [
+        "../../../packages/shared/domain/src/identity/LawPractice.ts"
+      ],
+      "@beep/shared-domain/identity/Shared": [
+        "../../../packages/shared/domain/src/identity/Shared.ts"
+      ],
+      "@beep/shared-domain/identity/Tenancy": [
+        "../../../packages/shared/domain/src/identity/Tenancy.ts"
+      ],
+      "@beep/shared-domain/identity/WealthManagement": [
+        "../../../packages/shared/domain/src/identity/WealthManagement.ts"
+      ],
+      "@beep/shared-domain/identity/Workspace": [
+        "../../../packages/shared/domain/src/identity/Workspace.ts"
       ],
       "@beep/shared-domain/values": [
         "../../../packages/shared/domain/src/values.ts"

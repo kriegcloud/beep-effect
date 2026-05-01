@@ -32,9 +32,6 @@
       "@beep/nlp": [
         "../../../../packages/foundation/capability/nlp/src/index.ts"
       ],
-      "@beep/nlp/*": [
-        "../../../../packages/foundation/capability/nlp/src/*.ts"
-      ],
       "@beep/nlp/Core": [
         "../../../../packages/foundation/capability/nlp/src/Core/index.ts"
       ],

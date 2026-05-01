@@ -12,7 +12,7 @@
  *
  * const timer = Metric.timer("my_op_duration")
  *
- * const program = trackDuration()
+ * const program = trackDuration(Effect.succeed("ok"), timer)
  *
  * void Effect.runPromise(program)
  * ```
@@ -110,11 +110,9 @@ export const statusClass = (status: number): string => {
  * import { measureElapsedMillis } from "@beep/observability"
  *
  * const program = measureElapsedMillis(
- *
+ *   Effect.succeed("ok")
  * ).pipe(
- *
- *
- *
+ *   Effect.map(([value, elapsedMs]) => ({ value, elapsedMs }))
  * )
  *
  * void Effect.runPromise(program)

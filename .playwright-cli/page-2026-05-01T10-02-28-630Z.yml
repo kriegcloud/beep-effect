@@ -1,0 +1,48 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img "OpenClaw" [ref=e6]
+    - generic [ref=e7]: OpenClaw
+    - generic [ref=e8]: Gateway Dashboard
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]: WebSocket URL
+      - textbox "WebSocket URL" [ref=e12]:
+        - /placeholder: ws://127.0.0.1:18789
+        - text: wss://dankserver.tailc7c348.ts.net
+    - generic [ref=e13]:
+      - generic [ref=e14]: Gateway Token
+      - generic [ref=e15]:
+        - textbox "Gateway Token Toggle token visibility" [ref=e16]:
+          - /placeholder: OPENCLAW_GATEWAY_TOKEN (optional)
+        - button "Toggle token visibility" [ref=e17] [cursor=pointer]:
+          - img [ref=e18]
+    - generic [ref=e23]:
+      - generic [ref=e24]: Password (not stored)
+      - generic [ref=e25]:
+        - textbox "Password (not stored) Toggle password visibility" [ref=e26]:
+          - /placeholder: optional
+        - button "Toggle password visibility" [ref=e27] [cursor=pointer]:
+          - img [ref=e28]
+    - button "Connect" [ref=e33] [cursor=pointer]
+  - generic [ref=e34]:
+    - generic [ref=e35]: How to connect
+    - list [ref=e36]:
+      - listitem [ref=e37]:
+        - text: "Start the gateway on your host machine:"
+        - 'button "Copy command: openclaw gateway run" [ref=e38]':
+          - code [ref=e39]: openclaw gateway run
+          - button "Copy command" [ref=e40] [cursor=pointer]:
+            - generic [ref=e41]:
+              - img [ref=e43]
+              - img [ref=e47]
+      - listitem [ref=e49]:
+        - text: "Get a tokenized dashboard URL:"
+        - 'button "Copy command: openclaw dashboard" [ref=e50]':
+          - code [ref=e51]: openclaw dashboard
+          - button "Copy command" [ref=e52] [cursor=pointer]:
+            - generic [ref=e53]:
+              - img [ref=e55]
+              - img [ref=e59]
+      - listitem [ref=e61]: Paste the WebSocket URL and token above, or open the tokenized URL directly.
+    - link "Read the docs →" [ref=e63] [cursor=pointer]:
+      - /url: https://docs.openclaw.ai/web/dashboard

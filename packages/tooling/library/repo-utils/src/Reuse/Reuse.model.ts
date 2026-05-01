@@ -230,9 +230,13 @@ export class ReuseWorkUnit extends S.Class<ReuseWorkUnit>($I`ReuseWorkUnit`)(
  *
  * @example
  * ```ts
+ * import { NonNegativeInt } from "@beep/schema"
  * import { ReusePartitionPlan } from "@beep/repo-utils/Reuse/Reuse.model"
+ * import * as S from "effect/Schema"
+ *
+ * const zero = S.decodeUnknownSync(NonNegativeInt)(0)
  * const plan = new ReusePartitionPlan({
- *   catalogEntryCount: 0,
+ *   catalogEntryCount: zero,
  *   scopeSelector: "packages/tooling/library/repo-utils"
  * })
  * void plan.scopeSelector
@@ -312,10 +316,14 @@ export class ReuseCandidate extends S.Class<ReuseCandidate>($I`ReuseCandidate`)(
  *
  * @example
  * ```ts
+ * import { NonNegativeInt } from "@beep/schema"
  * import { ReuseInventory } from "@beep/repo-utils/Reuse/Reuse.model"
+ * import * as S from "effect/Schema"
+ *
+ * const zero = S.decodeUnknownSync(NonNegativeInt)(0)
  * const inventory = new ReuseInventory({
- *   candidateCount: 0,
- *   catalogEntryCount: 0,
+ *   candidateCount: zero,
+ *   catalogEntryCount: zero,
  *   generatedAt: "2026-04-21T00:00:00.000Z",
  *   scopeSelector: "packages/tooling/library/repo-utils"
  * })

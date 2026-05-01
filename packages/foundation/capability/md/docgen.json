@@ -32,7 +32,6 @@
       "@beep/md": [
         "../../../../packages/foundation/capability/md/src/index.ts"
       ],
-      "@beep/md/*": ["../../../../packages/foundation/capability/md/src/*.ts"],
       "@beep/md/Md": [
         "../../../../packages/foundation/capability/md/src/Md.ts"
       ],

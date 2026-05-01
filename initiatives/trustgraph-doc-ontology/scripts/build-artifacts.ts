@@ -910,9 +910,15 @@ const fileUrl = (relativePath: string) => new URL(relativePath, repoRootUrl).hre
 const run = async () => {
   await mkdir(fileURLToPath(outputsUrl), { recursive: true });
 
-  const applicableToModel = await readText("packages/tooling/library/repo-utils/src/JSDoc/models/ApplicableTo.model.ts");
-  const astDerivabilityModel = await readText("packages/tooling/library/repo-utils/src/JSDoc/models/ASTDerivability.model.ts");
-  const specificationModel = await readText("packages/tooling/library/repo-utils/src/JSDoc/models/Specification.model.ts");
+  const applicableToModel = await readText(
+    "packages/tooling/library/repo-utils/src/JSDoc/models/ApplicableTo.model.ts"
+  );
+  const astDerivabilityModel = await readText(
+    "packages/tooling/library/repo-utils/src/JSDoc/models/ASTDerivability.model.ts"
+  );
+  const specificationModel = await readText(
+    "packages/tooling/library/repo-utils/src/JSDoc/models/Specification.model.ts"
+  );
   const tagKindModel = await readText("packages/tooling/library/repo-utils/src/JSDoc/models/TagKind.model.ts");
   const jsDocDatabase = await readText("packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts");
   const docgenOperations = await readText("packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts");

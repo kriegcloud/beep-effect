@@ -1,2 +1,22 @@
-export { type RuntimeFixtureInput, runRuntimeFixture } from "./RuntimeFixtureRunner.js";
-export * from "./server.js";
+/**
+ * Deterministic runtime fixture test helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+/**
+ * Test-facing re-export of deterministic proof helpers.
+ *
+ * @example
+ * ```ts
+ * import { makeInMemoryProfessionalRuntimeSdk } from "@beep/agent-capability-use-cases/test"
+ *
+ * const sdk = makeInMemoryProfessionalRuntimeSdk([])
+ * console.log(sdk)
+ * ```
+ *
+ * @category exports
+ * @since 0.0.0
+ */
+export * from "./proof.js";

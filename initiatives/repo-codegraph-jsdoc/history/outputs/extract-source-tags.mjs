@@ -12,20 +12,23 @@ export const NORMALIZATION_RULES_VERSION = "2026-03-01-v1";
 export const SOURCE_URLS = {
   jsdoc3: "https://jsdoc.app/index.html",
   tsdoc: "https://tsdoc.org/pages/tags/alpha/",
-  typescript: "https://raw.githubusercontent.com/microsoft/TypeScript-Website/v2/packages/documentation/copy/en/javascript/JSDoc%20Reference.md",
-  closure: "https://raw.githubusercontent.com/wiki/google/closure-compiler/Annotating-JavaScript-for-the-Closure-Compiler.md",
-  typedoc: "https://typedoc.org/documents/Tags.html"
+  typescript:
+    "https://raw.githubusercontent.com/microsoft/TypeScript-Website/v2/packages/documentation/copy/en/javascript/JSDoc%20Reference.md",
+  closure:
+    "https://raw.githubusercontent.com/wiki/google/closure-compiler/Annotating-JavaScript-for-the-Closure-Compiler.md",
+  typedoc: "https://typedoc.org/documents/Tags.html",
 };
 
 export const TYPESCRIPT_ADDENDA_SOURCES = [
   {
     url: "https://raw.githubusercontent.com/microsoft/TypeScript-Website/v2/packages/documentation/copy/en/release-notes/TypeScript%205.0.md",
     tags: ["overload"],
-    rationale: "TypeScript 5.0 introduced @overload for JSDoc overload docs in .js files."
-  }
+    rationale: "TypeScript 5.0 introduced @overload for JSDoc overload docs in .js files.",
+  },
 ];
 
-const stableSortedUnique = (values) => [...new Set(values.map((value) => String(value)))].sort((a, b) => a.localeCompare(b));
+const stableSortedUnique = (values) =>
+  [...new Set(values.map((value) => String(value)))].sort((a, b) => a.localeCompare(b));
 const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
 
 const fetchText = async (url) => {
@@ -53,7 +56,8 @@ const extractJSDocTags = (html) => {
   return {
     rawTags: stableSortedUnique(rawTags),
     normalizedTags: stableSortedUnique(normalizedTags),
-    extractionStrategy: "Parse /tags-* links from jsdoc index and normalize inline pages (inline-link->link, inline-tutorial->tutorial)."
+    extractionStrategy:
+      "Parse /tags-* links from jsdoc index and normalize inline pages (inline-link->link, inline-tutorial->tutorial).",
   };
 };
 
@@ -64,7 +68,7 @@ const extractTSDocTags = (html) => {
     inheritdoc: "inheritDoc",
     packagedocumentation: "packageDocumentation",
     privateremarks: "privateRemarks",
-    typeparam: "typeParam"
+    typeparam: "typeParam",
   };
   const rawTags = [];
   for (const match of html.matchAll(/href="\/pages\/tags\/([a-z0-9]+)\//g)) {
@@ -74,7 +78,7 @@ const extractTSDocTags = (html) => {
   return {
     rawTags: stableSortedUnique(rawTags),
     normalizedTags: stableSortedUnique(normalizedTags),
-    extractionStrategy: "Parse /pages/tags/* sidebar links from TSDoc alpha page and normalize known slug casing."
+    extractionStrategy: "Parse /pages/tags/* sidebar links from TSDoc alpha page and normalize known slug casing.",
   };
 };
 
@@ -99,7 +103,7 @@ const extractTypeScriptPrimaryListTags = (markdown) => {
   const aliasToCanonical = {
     arg: "param",
     argument: "param",
-    return: "returns"
+    return: "returns",
   };
   const normalizedTags = rawTags.map((tag) =>
     Object.prototype.hasOwnProperty.call(aliasToCanonical, tag) ? aliasToCanonical[tag] : tag
@@ -109,7 +113,7 @@ const extractTypeScriptPrimaryListTags = (markdown) => {
     rawTags,
     normalizedTags,
     extractionStrategy:
-      "Parse list-item tags from the TypeScript JSDoc Reference Types/Classes/Documentation/Other sections; normalize aliases arg|argument->param and return->returns."
+      "Parse list-item tags from the TypeScript JSDoc Reference Types/Classes/Documentation/Other sections; normalize aliases arg|argument->param and return->returns.",
   };
 };
 
@@ -127,19 +131,19 @@ const extractClosureTags = (markdown) => {
   return {
     rawTags: stableSortedUnique(rawTags),
     normalizedTags: stableSortedUnique(rawTags),
-    extractionStrategy: "Parse first tag token from each Closure heading formatted as ### `@tag`..."
+    extractionStrategy: "Parse first tag token from each Closure heading formatted as ### `@tag`...",
   };
 };
 
 const extractTypeDocTags = (html) => {
   const rawTags = [];
-  for (const match of html.matchAll(/href=\"Tags\._([A-Za-z][A-Za-z0-9_]*)\.html(?:#[^\"]*)?\"/g)) {
+  for (const match of html.matchAll(/href="Tags\._([A-Za-z][A-Za-z0-9_]*)\.html(?:#[^"]*)?"/g)) {
     rawTags.push(match[1]);
   }
   return {
     rawTags: stableSortedUnique(rawTags),
     normalizedTags: stableSortedUnique(rawTags),
-    extractionStrategy: "Parse canonical TypeDoc _tag pages from Tags._*.html links in Tags.html."
+    extractionStrategy: "Parse canonical TypeDoc _tag pages from Tags._*.html links in Tags.html.",
   };
 };
 
@@ -173,7 +177,7 @@ export const buildSourceTagSnapshot = async () => {
       contentSha256: contentSha,
       rawTags: stableSortedUnique(addendum.tags),
       normalizedTags: stableSortedUnique(addendum.tags),
-      rationale: addendum.rationale
+      rationale: addendum.rationale,
     });
     addendaRawTags.push(...addendum.tags);
     addendaNormalizedTags.push(...addendum.tags);
@@ -194,7 +198,7 @@ export const buildSourceTagSnapshot = async () => {
         rawTags: jsdoc.rawTags,
         normalizedTags: jsdoc.normalizedTags,
         normalizationRulesVersion: NORMALIZATION_RULES_VERSION,
-        extractionStrategy: jsdoc.extractionStrategy
+        extractionStrategy: jsdoc.extractionStrategy,
       },
       tsdoc: {
         url: SOURCE_URLS.tsdoc,
@@ -203,7 +207,7 @@ export const buildSourceTagSnapshot = async () => {
         rawTags: tsdoc.rawTags,
         normalizedTags: tsdoc.normalizedTags,
         normalizationRulesVersion: NORMALIZATION_RULES_VERSION,
-        extractionStrategy: tsdoc.extractionStrategy
+        extractionStrategy: tsdoc.extractionStrategy,
       },
       typescript: {
         url: SOURCE_URLS.typescript,
@@ -213,7 +217,7 @@ export const buildSourceTagSnapshot = async () => {
         normalizedTags: typeScriptNormalized,
         normalizationRulesVersion: NORMALIZATION_RULES_VERSION,
         extractionStrategy: `${typeScriptPrimary.extractionStrategy} + explicit addenda tags from release notes.`,
-        addendaSources
+        addendaSources,
       },
       closure: {
         url: SOURCE_URLS.closure,
@@ -222,7 +226,7 @@ export const buildSourceTagSnapshot = async () => {
         rawTags: closure.rawTags,
         normalizedTags: closure.normalizedTags,
         normalizationRulesVersion: NORMALIZATION_RULES_VERSION,
-        extractionStrategy: closure.extractionStrategy
+        extractionStrategy: closure.extractionStrategy,
       },
       typedoc: {
         url: SOURCE_URLS.typedoc,
@@ -231,9 +235,9 @@ export const buildSourceTagSnapshot = async () => {
         rawTags: typeDoc.rawTags,
         normalizedTags: typeDoc.normalizedTags,
         normalizationRulesVersion: NORMALIZATION_RULES_VERSION,
-        extractionStrategy: typeDoc.extractionStrategy
-      }
-    }
+        extractionStrategy: typeDoc.extractionStrategy,
+      },
+    },
   };
 };
 

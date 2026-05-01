@@ -9,18 +9,32 @@ import { SpecimenConfig, type SpecimenConfigShape } from "@beep/fixture-lab-spec
 import { Specimen } from "@beep/fixture-lab-specimen-domain";
 import { type SpecimenRepository, SpecimenRepositoryNotFound } from "@beep/fixture-lab-specimen-use-cases/server";
 import { Effect, Ref } from "effect";
+import * as S from "effect/Schema";
+
+const systemPrincipal = { kind: "System", component: "Runtime" } as const;
+const decodeSpecimen: (input: unknown) => Specimen = Reflect.apply(S.decodeUnknownSync, undefined, [Specimen]);
 
 const makeInitialSpecimen = (config: SpecimenConfigShape): Specimen =>
-  new Specimen({
-    id: config.server.initialSpecimenId,
+  decodeSpecimen({
+    createdAt: 1,
+    createdByPrincipal: systemPrincipal,
+    entityType: Specimen.definition.entityId.entityType,
+    fixtureKey: config.server.initialSpecimenId,
+    id: 1,
     label: config.public.labelPrefix,
+    orgId: 1,
+    rowVersion: 1,
+    schemaVersion: "0.0.0",
+    source: "System",
     status: "draft",
+    updatedAt: 1,
+    updatedByPrincipal: systemPrincipal,
   });
 
 const getStoredSpecimen = (store: Ref.Ref<Specimen>, id: string): Effect.Effect<Specimen, SpecimenRepositoryNotFound> =>
   Ref.get(store).pipe(
     Effect.flatMap((specimen) =>
-      specimen.id === id ? Effect.succeed(specimen) : Effect.fail(new SpecimenRepositoryNotFound({ id }))
+      specimen.fixtureKey === id ? Effect.succeed(specimen) : Effect.fail(new SpecimenRepositoryNotFound({ id }))
     )
   );
 

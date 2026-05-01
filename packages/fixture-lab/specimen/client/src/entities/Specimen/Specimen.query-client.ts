@@ -11,6 +11,14 @@ import { Effect } from "effect";
 /**
  * Remote query operation names supported by the specimen client.
  *
+ * @example
+ * ```ts
+ * import type { SpecimenQueryOperation } from "@beep/fixture-lab-specimen-client"
+ *
+ * const operation: SpecimenQueryOperation = "getSpecimen"
+ * console.log(operation)
+ * ```
+ *
  * @category clients
  * @since 0.0.0
  */
@@ -19,6 +27,15 @@ export type SpecimenQueryOperation = "getSpecimen";
 /**
  * Query request envelopes accepted by the specimen query client.
  *
+ * @example
+ * ```ts
+ * import type { SpecimenQueryRequest } from "@beep/fixture-lab-specimen-client"
+ * import { GetSpecimen } from "@beep/fixture-lab-specimen-use-cases/public"
+ *
+ * const request: SpecimenQueryRequest = new GetSpecimen({ id: "specimen-1" })
+ * console.log(request.id)
+ * ```
+ *
  * @category clients
  * @since 0.0.0
  */
@@ -26,6 +43,14 @@ export type SpecimenQueryRequest = GetSpecimen;
 
 /**
  * Transport boundary used by the specimen query client.
+ *
+ * @example
+ * ```ts
+ * import type { SpecimenQueryTransport } from "@beep/fixture-lab-specimen-client"
+ *
+ * declare const transport: SpecimenQueryTransport
+ * console.log(transport)
+ * ```
  *
  * @category clients
  * @since 0.0.0
@@ -39,6 +64,14 @@ export interface SpecimenQueryTransport {
 
 /**
  * Query methods exposed by the specimen client facade.
+ *
+ * @example
+ * ```ts
+ * import type { SpecimenQueryClient } from "@beep/fixture-lab-specimen-client"
+ *
+ * declare const client: SpecimenQueryClient
+ * console.log(client)
+ * ```
  *
  * @category clients
  * @since 0.0.0
@@ -56,8 +89,9 @@ export interface SpecimenQueryClient {
  * import { Specimen } from "@beep/fixture-lab-specimen-domain"
  * import { Effect } from "effect"
  *
+ * declare const specimen: Specimen
  * const client = makeSpecimenQueryClient({
- *   request: () => Effect.succeed(new Specimen({ id: "specimen-1", label: "Fixture", status: "draft" })),
+ *   request: () => Effect.succeed(specimen),
  * })
  * const program = client.getSpecimen("specimen-1")
  * void program

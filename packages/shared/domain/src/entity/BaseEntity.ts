@@ -69,6 +69,15 @@ type MergedModelFields<
 /**
  * Descriptor map contributed by the entity id constructor itself.
  *
+ * @example
+ * ```ts
+ * import type { EntityFieldMap } from "@beep/shared-domain/entity/BaseEntity"
+ * import type { Any } from "@beep/shared-domain/entity/EntityId"
+ *
+ * declare const fields: EntityFieldMap<Any>
+ * console.log(fields.id.columnName)
+ * ```
+ *
  * @since 0.0.0
  * @category fields
  */
@@ -96,6 +105,13 @@ export type EntityFieldMap<Entity extends EntityId.Any> = {
  * BaseEntity fields shared by every persisted product entity except the
  * entity-specific `id` and `entityType` fields.
  *
+ * @example
+ * ```ts
+ * import { fields } from "@beep/shared-domain/entity/BaseEntity"
+ *
+ * console.log(fields.createdAt)
+ * ```
+ *
  * @since 0.0.0
  * @category fields
  */
@@ -112,6 +128,13 @@ export const fields = {
 
 /**
  * Storage-neutral descriptors for the BaseEntity invariant fields.
+ *
+ * @example
+ * ```ts
+ * import { fieldMap } from "@beep/shared-domain/entity/BaseEntity"
+ *
+ * console.log(fieldMap.createdAt.columnName)
+ * ```
  *
  * @since 0.0.0
  * @category fields
@@ -188,6 +211,15 @@ export const fieldMap = {
 /**
  * Complete literal-preserving descriptor map for an entity and its mixins.
  *
+ * @example
+ * ```ts
+ * import type { FieldMapFor } from "@beep/shared-domain/entity/BaseEntity"
+ * import type { Any } from "@beep/shared-domain/entity/EntityId"
+ *
+ * declare const fieldMap: FieldMapFor<Any>
+ * console.log(fieldMap.entityType.columnName)
+ * ```
+ *
  * @since 0.0.0
  * @category fields
  */
@@ -198,6 +230,14 @@ export type FieldMapFor<
 
 /**
  * Metadata attached to every class returned by {@link BaseEntity.extend}.
+ *
+ * @example
+ * ```ts
+ * import type { Definition } from "@beep/shared-domain/entity/BaseEntity"
+ *
+ * declare const definition: Definition
+ * console.log(definition.entityId.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -213,6 +253,14 @@ export type Definition<
 
 /**
  * Inner overloaded builder returned by {@link BaseEntity.extend}.
+ *
+ * @example
+ * ```ts
+ * import type { ExtendBuilder } from "@beep/shared-domain/entity/BaseEntity"
+ *
+ * declare const builder: ExtendBuilder<never>
+ * console.log(builder)
+ * ```
  *
  * @since 0.0.0
  * @category constructors
@@ -540,6 +588,14 @@ export const BaseEntity = constructorFromRuntime(BaseEntityWithDefinition);
 
 /**
  * Runtime type for {@link BaseEntity}.
+ *
+ * @example
+ * ```ts
+ * import type { BaseEntity } from "@beep/shared-domain/entity/BaseEntity"
+ *
+ * declare const entity: BaseEntity
+ * console.log(entity.schemaVersion)
+ * ```
  *
  * @since 0.0.0
  * @category models

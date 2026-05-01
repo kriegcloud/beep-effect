@@ -1,0 +1,1920 @@
+- generic [ref=e64]:
+  - banner [ref=e65]:
+    - generic [ref=e66]:
+      - generic [ref=e70]:
+        - link "OpenClaw" [ref=e71] [cursor=pointer]:
+          - /url: /overview
+        - generic [ref=e72]: ›
+        - generic [ref=e73]: AI & Agents
+      - generic [ref=e74]:
+        - button "Open command palette" [ref=e75] [cursor=pointer]:
+          - generic [ref=e76]: Search
+          - generic [ref=e77]: ⌘K
+        - group "Color mode" [ref=e79]:
+          - 'button "Color mode: System" [pressed] [ref=e80] [cursor=pointer]':
+            - img [ref=e81]
+          - 'button "Color mode: Light" [ref=e83] [cursor=pointer]':
+            - img [ref=e84]
+          - 'button "Color mode: Dark" [ref=e90] [cursor=pointer]':
+            - img [ref=e91]
+  - complementary [ref=e94]:
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - generic [ref=e97]:
+          - img "OpenClaw" [ref=e98]
+          - generic [ref=e99]:
+            - generic [ref=e100]: Control
+            - generic [ref=e101]: OpenClaw
+        - button "Collapse sidebar" [ref=e102] [cursor=pointer]:
+          - img [ref=e104]
+      - navigation [ref=e108]:
+        - generic [ref=e109]:
+          - button "Chat" [expanded] [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]: Chat
+            - img [ref=e113]
+          - link "Chat" [ref=e116] [cursor=pointer]:
+            - /url: /chat
+            - img [ref=e118]
+            - generic [ref=e120]: Chat
+        - generic [ref=e121]:
+          - button "Control" [expanded] [ref=e122] [cursor=pointer]:
+            - generic [ref=e123]: Control
+            - img [ref=e125]
+          - generic [ref=e127]:
+            - link "Overview" [ref=e128] [cursor=pointer]:
+              - /url: /overview
+              - img [ref=e130]
+              - generic [ref=e131]: Overview
+            - link "Channels" [ref=e132] [cursor=pointer]:
+              - /url: /channels
+              - img [ref=e134]
+              - generic [ref=e137]: Channels
+            - link "Instances" [ref=e138] [cursor=pointer]:
+              - /url: /instances
+              - img [ref=e140]
+              - generic [ref=e143]: Instances
+            - link "Sessions" [ref=e144] [cursor=pointer]:
+              - /url: /sessions
+              - img [ref=e146]
+              - generic [ref=e149]: Sessions
+            - link "Usage" [ref=e150] [cursor=pointer]:
+              - /url: /usage
+              - img [ref=e152]
+              - generic [ref=e153]: Usage
+            - link "Cron Jobs" [ref=e154] [cursor=pointer]:
+              - /url: /cron
+              - img [ref=e156]
+              - generic [ref=e161]: Cron Jobs
+        - generic [ref=e162]:
+          - button "Agent" [expanded] [ref=e163] [cursor=pointer]:
+            - generic [ref=e164]: Agent
+            - img [ref=e166]
+          - generic [ref=e168]:
+            - link "Agents" [ref=e169] [cursor=pointer]:
+              - /url: /agents
+              - img [ref=e171]
+              - generic [ref=e173]: Agents
+            - link "Skills" [ref=e174] [cursor=pointer]:
+              - /url: /skills
+              - img [ref=e176]
+              - generic [ref=e178]: Skills
+            - link "Nodes" [ref=e179] [cursor=pointer]:
+              - /url: /nodes
+              - img [ref=e181]
+              - generic [ref=e183]: Nodes
+            - link "Dreaming" [ref=e184] [cursor=pointer]:
+              - /url: /dreaming
+              - img [ref=e186]
+              - generic [ref=e188]: Dreaming
+        - generic [ref=e189]:
+          - button "Settings" [expanded] [ref=e190] [cursor=pointer]:
+            - generic [ref=e191]: Settings
+            - img [ref=e193]
+          - generic [ref=e195]:
+            - link "Config" [ref=e196] [cursor=pointer]:
+              - /url: /config
+              - img [ref=e198]
+              - generic [ref=e201]: Config
+            - link "Communications" [ref=e202] [cursor=pointer]:
+              - /url: /communications
+              - img [ref=e204]
+              - generic [ref=e207]: Communications
+            - link "Appearance" [ref=e208] [cursor=pointer]:
+              - /url: /appearance
+              - img [ref=e210]
+              - generic [ref=e212]: Appearance
+            - link "Automation" [ref=e213] [cursor=pointer]:
+              - /url: /automation
+              - img [ref=e215]
+              - generic [ref=e217]: Automation
+            - link "Infrastructure" [ref=e218] [cursor=pointer]:
+              - /url: /infrastructure
+              - img [ref=e220]
+              - generic [ref=e223]: Infrastructure
+            - link "AI & Agents" [active] [ref=e224] [cursor=pointer]:
+              - /url: /ai-agents
+              - img [ref=e226]
+              - generic [ref=e236]: AI & Agents
+            - link "Debug" [ref=e237] [cursor=pointer]:
+              - /url: /debug
+              - img [ref=e239]
+              - generic [ref=e248]: Debug
+            - link "Logs" [ref=e249] [cursor=pointer]:
+              - /url: /logs
+              - img [ref=e251]
+              - generic [ref=e254]: Logs
+      - generic [ref=e256]:
+        - link "Docs" [ref=e257] [cursor=pointer]:
+          - /url: https://docs.openclaw.ai
+          - img [ref=e259]
+          - generic [ref=e261]: Docs
+          - img [ref=e263]
+        - generic "v2026.4.29" [ref=e266]:
+          - generic [ref=e267]: Version
+          - generic [ref=e268]: v2026.4.29
+          - 'img "Gateway status: Online" [ref=e269]'
+  - main [ref=e270]:
+    - generic [ref=e272]:
+      - generic [ref=e273]: AI & Agents
+      - generic [ref=e274]: Agents, models, skills, tools, memory, session.
+    - main [ref=e3905]:
+      - generic [ref=e3906]:
+        - generic [ref=e3908]: No changes
+        - generic [ref=e3909]:
+          - generic [ref=e3910]: Raw mode disabled (snapshot cannot safely round-trip raw text).
+          - generic [ref=e3911]:
+            - button "Open" [ref=e3912] [cursor=pointer]:
+              - img [ref=e3913]
+              - text: Open
+            - button "Reload" [ref=e3916] [cursor=pointer]
+            - button "Clear" [disabled] [ref=e3917]
+            - button "Save" [disabled] [ref=e3918]
+            - button "Apply" [disabled] [ref=e3919]
+            - button "Update" [ref=e3920] [cursor=pointer]
+      - generic [ref=e3921]:
+        - generic [ref=e3923]:
+          - img
+          - textbox "Search settings" [ref=e3924]:
+            - /placeholder: Search settings...
+        - tablist "Settings sections" [ref=e3925]:
+          - tab "AI & Agents" [selected] [ref=e3926] [cursor=pointer]
+          - tab "Agents" [ref=e3927] [cursor=pointer]
+          - tab "Models" [ref=e3928] [cursor=pointer]
+          - tab "Skills" [ref=e3929] [cursor=pointer]
+          - tab "Tools" [ref=e3930] [cursor=pointer]
+          - tab "Memory" [ref=e3931] [cursor=pointer]
+          - tab "Session" [ref=e3932] [cursor=pointer]
+      - generic [ref=e3934]:
+        - generic [ref=e3935]:
+          - generic [ref=e3936]:
+            - img [ref=e3938]
+            - generic [ref=e3942]:
+              - heading "Agents" [level=3] [ref=e3943]
+              - paragraph [ref=e3944]: Agent configurations, models, and identities
+          - generic [ref=e3946]:
+            - group [ref=e3947]:
+              - generic "Agent Defaults advanced" [ref=e3948] [cursor=pointer]:
+                - generic [ref=e3949]:
+                  - generic [ref=e3950]: Agent Defaults
+                  - generic [ref=e3952]: advanced
+                - img [ref=e3954]
+              - generic [ref=e3956]: Shared default settings inherited by agents unless overridden per entry in agents.list. Use defaults to enforce consistent baseline behavior and reduce duplicated per-agent configuration.
+              - generic [ref=e3957]:
+                - group [ref=e3958]:
+                  - generic "Default Agent Runtime Settings advanced" [ref=e3959] [cursor=pointer]:
+                    - generic [ref=e3960]:
+                      - generic [ref=e3961]: Default Agent Runtime Settings
+                      - generic [ref=e3963]: advanced
+                    - img [ref=e3965]
+                - generic [ref=e3967]:
+                  - generic [ref=e3968]: Block Streaming Break
+                  - generic [ref=e3969]:
+                    - button "text_end" [ref=e3970] [cursor=pointer]
+                    - button "message_end" [ref=e3971] [cursor=pointer]
+                - group [ref=e3972]:
+                  - generic "Block Streaming Chunk" [ref=e3973] [cursor=pointer]:
+                    - generic [ref=e3975]: Block Streaming Chunk
+                    - img [ref=e3977]
+                - group [ref=e3979]:
+                  - generic "Block Streaming Coalesce" [ref=e3980] [cursor=pointer]:
+                    - generic [ref=e3982]: Block Streaming Coalesce
+                    - img [ref=e3984]
+                - generic [ref=e3986]:
+                  - generic [ref=e3987]: Block Streaming Default
+                  - generic [ref=e3988]:
+                    - button "off" [ref=e3989] [cursor=pointer]
+                    - button "on" [ref=e3990] [cursor=pointer]
+                - generic [ref=e3991]:
+                  - generic [ref=e3992]: Bootstrap Max Chars
+                  - generic [ref=e3993]: "Max characters of each workspace bootstrap file injected into the system prompt before truncation (default: 12000)."
+                  - generic [ref=e3995]: performance
+                  - generic [ref=e3996]:
+                    - button "−" [ref=e3997] [cursor=pointer]
+                    - spinbutton [ref=e3998]
+                    - button "+" [ref=e3999] [cursor=pointer]
+                - generic [ref=e4000]:
+                  - generic [ref=e4001]: Bootstrap Prompt Truncation Warning
+                  - generic [ref=e4002]: "Inject agent-visible warning text when bootstrap files are truncated: \"off\", \"once\" (default), or \"always\"."
+                  - generic [ref=e4004]: advanced
+                  - generic [ref=e4005]:
+                    - button "off" [ref=e4006] [cursor=pointer]
+                    - button "once" [ref=e4007] [cursor=pointer]
+                    - button "always" [ref=e4008] [cursor=pointer]
+                - generic [ref=e4009]:
+                  - generic [ref=e4010]: Bootstrap Total Max Chars
+                  - generic [ref=e4011]: "Max total characters across all injected workspace bootstrap files (default: 60000)."
+                  - generic [ref=e4013]: performance
+                  - generic [ref=e4014]:
+                    - button "−" [ref=e4015] [cursor=pointer]
+                    - spinbutton [ref=e4016]
+                    - button "+" [ref=e4017] [cursor=pointer]
+                - group [ref=e4018]:
+                  - generic "CLI Backends advanced" [ref=e4019] [cursor=pointer]:
+                    - generic [ref=e4020]:
+                      - generic [ref=e4021]: CLI Backends
+                      - generic [ref=e4023]: advanced
+                    - img [ref=e4025]
+                - group [ref=e4027]:
+                  - generic "Compaction advanced" [ref=e4028] [cursor=pointer]:
+                    - generic [ref=e4029]:
+                      - generic [ref=e4030]: Compaction
+                      - generic [ref=e4032]: advanced
+                    - img [ref=e4034]
+                - generic [ref=e4036]:
+                  - generic [ref=e4037]: Context Injection
+                  - generic [ref=e4038]: "Controls when workspace bootstrap files are injected into the system prompt: \"always\" (default) or \"continuation-skip\" for safe continuation turns after a completed assistant response."
+                  - generic [ref=e4040]: advanced
+                  - generic [ref=e4041]:
+                    - button "always" [ref=e4042] [cursor=pointer]
+                    - button "continuation-skip" [ref=e4043] [cursor=pointer]
+                    - button "never" [ref=e4044] [cursor=pointer]
+                - group [ref=e4045]:
+                  - generic "Default Context Limits performance" [ref=e4046] [cursor=pointer]:
+                    - generic [ref=e4047]:
+                      - generic [ref=e4048]: Default Context Limits
+                      - generic [ref=e4050]: performance
+                    - img [ref=e4052]
+                - group [ref=e4054]:
+                  - generic "Context Pruning" [ref=e4055] [cursor=pointer]:
+                    - generic [ref=e4057]: Context Pruning
+                    - img [ref=e4059]
+                - generic [ref=e4061]:
+                  - generic [ref=e4062]: Context Tokens
+                  - generic [ref=e4063]:
+                    - button "−" [ref=e4064] [cursor=pointer]
+                    - spinbutton [ref=e4065]
+                    - button "+" [ref=e4066] [cursor=pointer]
+                - generic [ref=e4067]:
+                  - generic [ref=e4068]: Elevated Default
+                  - generic [ref=e4069]:
+                    - button "off" [ref=e4070] [cursor=pointer]
+                    - button "on" [ref=e4071] [cursor=pointer]
+                    - button "ask" [ref=e4072] [cursor=pointer]
+                    - button "full" [ref=e4073] [cursor=pointer]
+                - group [ref=e4074]:
+                  - generic "Default Legacy Embedded Harness Settings advanced" [ref=e4075] [cursor=pointer]:
+                    - generic [ref=e4076]:
+                      - generic [ref=e4077]: Default Legacy Embedded Harness Settings
+                      - generic [ref=e4079]: advanced
+                    - img [ref=e4081]
+                - group [ref=e4083]:
+                  - generic "Embedded Pi advanced" [ref=e4084] [cursor=pointer]:
+                    - generic [ref=e4085]:
+                      - generic [ref=e4086]: Embedded Pi
+                      - generic [ref=e4088]: advanced
+                    - img [ref=e4090]
+                - generic [ref=e4092]:
+                  - generic [ref=e4093]: Envelope Elapsed
+                  - generic [ref=e4094]: Include elapsed time in message envelopes ("on" or "off").
+                  - generic [ref=e4096]: advanced
+                  - generic [ref=e4097]:
+                    - button "on" [ref=e4098] [cursor=pointer]
+                    - button "off" [ref=e4099] [cursor=pointer]
+                - generic [ref=e4100]:
+                  - generic [ref=e4101]: Envelope Timestamp
+                  - generic [ref=e4102]: Include absolute timestamps in message envelopes ("on" or "off").
+                  - generic [ref=e4104]: advanced
+                  - generic [ref=e4105]:
+                    - button "on" [ref=e4106] [cursor=pointer]
+                    - button "off" [ref=e4107] [cursor=pointer]
+                - generic [ref=e4108]:
+                  - generic [ref=e4109]: Envelope Timezone
+                  - generic [ref=e4110]: Timezone for message envelopes ("utc", "local", "user", or an IANA timezone string).
+                  - generic [ref=e4112]: advanced
+                  - textbox [ref=e4114]
+                - group [ref=e4115]:
+                  - generic "Experimental Agent Flags security advanced" [ref=e4116] [cursor=pointer]:
+                    - generic [ref=e4117]:
+                      - generic [ref=e4118]: Experimental Agent Flags
+                      - generic [ref=e4119]:
+                        - generic [ref=e4120]: security
+                        - generic [ref=e4121]: advanced
+                    - img [ref=e4123]
+                - group [ref=e4125]:
+                  - generic "Heartbeat" [ref=e4126] [cursor=pointer]:
+                    - generic [ref=e4128]: Heartbeat
+                    - img [ref=e4130]
+                - group [ref=e4132]:
+                  - generic "Human Delay" [ref=e4133] [cursor=pointer]:
+                    - generic [ref=e4135]: Human Delay
+                    - img [ref=e4137]
+                - generic [ref=e4139]:
+                  - generic [ref=e4140]: Image Generation Model
+                  - textbox "JSON value" [ref=e4142]
+                - generic [ref=e4143]:
+                  - generic [ref=e4144]: Image Max Dimension (px)
+                  - generic [ref=e4145]: "Max image side length in pixels when sanitizing transcript/tool-result image payloads (default: 1200)."
+                  - generic [ref=e4146]:
+                    - generic [ref=e4147]: performance
+                    - generic [ref=e4148]: media
+                  - generic [ref=e4149]:
+                    - button "−" [ref=e4150] [cursor=pointer]
+                    - spinbutton [ref=e4151]
+                    - button "+" [ref=e4152] [cursor=pointer]
+                - generic [ref=e4153]:
+                  - generic [ref=e4154]: Image Model
+                  - textbox "JSON value" [ref=e4156]
+                - generic [ref=e4157]:
+                  - generic [ref=e4158]: Max Concurrent
+                  - generic [ref=e4159]:
+                    - button "−" [ref=e4160] [cursor=pointer]
+                    - spinbutton [ref=e4161]: "4"
+                    - button "+" [ref=e4162] [cursor=pointer]
+                - generic [ref=e4163] [cursor=pointer]:
+                  - generic [ref=e4164]:
+                    - generic [ref=e4165]: Media Generation Auto Provider Fallback
+                    - generic [ref=e4166]: When true (default), shared image, music, and video generation automatically appends other auth-backed provider defaults after explicit primary/fallback refs. Set false to disable implicit cross-provider fallback while keeping explicit fallbacks.
+                    - generic [ref=e4168]: reliability
+                  - generic [ref=e4169]:
+                    - checkbox "Media Generation Auto Provider Fallback When true (default), shared image, music, and video generation automatically appends other auth-backed provider defaults after explicit primary/fallback refs. Set false to disable implicit cross-provider fallback while keeping explicit fallbacks. reliability"
+                - generic [ref=e4171]:
+                  - generic [ref=e4172]: Media Max Mb
+                  - generic [ref=e4173]:
+                    - button "−" [ref=e4174] [cursor=pointer]
+                    - spinbutton [ref=e4175]
+                    - button "+" [ref=e4176] [cursor=pointer]
+                - group [ref=e4177]:
+                  - generic "Memory Search advanced" [ref=e4178] [cursor=pointer]:
+                    - generic [ref=e4179]:
+                      - generic [ref=e4180]: Memory Search
+                      - generic [ref=e4182]: advanced
+                    - img [ref=e4184]
+                - generic [ref=e4186]:
+                  - generic [ref=e4187]: Model
+                  - textbox "JSON value" [ref=e4189]: "{ \"primary\": \"xai/grok-4.20-beta-latest-reasoning\", \"fallbacks\": [ \"venice/kimi-k2-5\", \"openai-codex/gpt-5.4\", \"anthropic/claude-sonnet-4-6\" ] }"
+                - group [ref=e4190]:
+                  - generic "Models models" [ref=e4191] [cursor=pointer]:
+                    - generic [ref=e4192]:
+                      - generic [ref=e4193]: Models
+                      - generic [ref=e4195]: models
+                    - img [ref=e4197]
+                - generic [ref=e4199]:
+                  - generic [ref=e4200]: Music Generation Model
+                  - textbox "JSON value" [ref=e4202]
+                - group [ref=e4203]:
+                  - generic "Params" [ref=e4204] [cursor=pointer]:
+                    - generic [ref=e4206]: Params
+                    - img [ref=e4208]
+                - generic [ref=e4210]:
+                  - generic [ref=e4211]: PDF Max Size (MB)
+                  - generic [ref=e4212]: "Maximum PDF file size in megabytes for the PDF tool (default: 10)."
+                  - generic [ref=e4214]: performance
+                  - generic [ref=e4215]:
+                    - button "−" [ref=e4216] [cursor=pointer]
+                    - spinbutton [ref=e4217]
+                    - button "+" [ref=e4218] [cursor=pointer]
+                - generic [ref=e4219]:
+                  - generic [ref=e4220]: PDF Max Pages
+                  - generic [ref=e4221]: "Maximum number of PDF pages to process for the PDF tool (default: 20)."
+                  - generic [ref=e4223]: performance
+                  - generic [ref=e4224]:
+                    - button "−" [ref=e4225] [cursor=pointer]
+                    - spinbutton [ref=e4226]
+                    - button "+" [ref=e4227] [cursor=pointer]
+                - generic [ref=e4228]:
+                  - generic [ref=e4229]: Pdf Model
+                  - textbox "JSON value" [ref=e4231]: "{ \"primary\": \"anthropic/claude-sonnet-4-6\", \"fallbacks\": [ \"openai-codex/gpt-5.4\" ] }"
+                - group [ref=e4232]:
+                  - generic "Prompt Overlays advanced" [ref=e4233] [cursor=pointer]:
+                    - generic [ref=e4234]:
+                      - generic [ref=e4235]: Prompt Overlays
+                      - generic [ref=e4237]: advanced
+                    - img [ref=e4239]
+                - generic [ref=e4241]:
+                  - generic [ref=e4242]: Reasoning Default
+                  - generic [ref=e4243]:
+                    - button "off" [ref=e4244] [cursor=pointer]
+                    - button "on" [ref=e4245] [cursor=pointer]
+                    - button "stream" [ref=e4246] [cursor=pointer]
+                - generic [ref=e4247]:
+                  - generic [ref=e4248]: Repo Root
+                  - generic [ref=e4249]: Optional repository root shown in the system prompt runtime line (overrides auto-detect).
+                  - generic [ref=e4251]: advanced
+                  - textbox [ref=e4253]
+                - group [ref=e4254]:
+                  - generic "Sandbox" [ref=e4255] [cursor=pointer]:
+                    - generic [ref=e4257]: Sandbox
+                    - img [ref=e4259]
+                - group [ref=e4261]:
+                  - generic "Silent Reply" [ref=e4262] [cursor=pointer]:
+                    - generic [ref=e4264]: Silent Reply
+                    - img [ref=e4266]
+                - group [ref=e4268]:
+                  - generic "Silent Reply Rewrite" [ref=e4269] [cursor=pointer]:
+                    - generic [ref=e4271]: Silent Reply Rewrite
+                    - img [ref=e4273]
+                - generic [ref=e4275]:
+                  - generic [ref=e4276]:
+                    - generic [ref=e4277]:
+                      - generic [ref=e4278]: Skills
+                      - generic [ref=e4280]: advanced
+                    - generic [ref=e4281]: 0 items
+                    - button "Add" [ref=e4282] [cursor=pointer]:
+                      - img [ref=e4284]
+                      - text: Add
+                  - generic [ref=e4285]: Optional default skill allowlist inherited by agents that omit agents.list[].skills. Omit for unrestricted skills, set [] to give inheriting agents no skills, and remember explicit agents.list[].skills replaces this default instead of merging with it.
+                  - generic [ref=e4286]: No items yet. Click "Add" to create one.
+                - generic [ref=e4287] [cursor=pointer]:
+                  - generic [ref=e4289]: Skip Bootstrap
+                  - generic [ref=e4290]:
+                    - checkbox "Skip Bootstrap"
+                - group [ref=e4292]:
+                  - generic "Startup Context advanced" [ref=e4293] [cursor=pointer]:
+                    - generic [ref=e4294]:
+                      - generic [ref=e4295]: Startup Context
+                      - generic [ref=e4297]: advanced
+                    - img [ref=e4299]
+                - group [ref=e4301]:
+                  - generic "Subagents" [ref=e4302] [cursor=pointer]:
+                    - generic [ref=e4304]: Subagents
+                    - img [ref=e4306]
+                - generic [ref=e4308]:
+                  - generic [ref=e4309]: System Prompt Override
+                  - textbox [ref=e4311]
+                - generic [ref=e4312]:
+                  - generic [ref=e4313]: Thinking Default
+                  - combobox [ref=e4314] [cursor=pointer]:
+                    - option "Select..." [selected]
+                    - option "off"
+                    - option "minimal"
+                    - option "low"
+                    - option "medium"
+                    - option "high"
+                    - option "xhigh"
+                    - option "adaptive"
+                    - option "max"
+                - generic [ref=e4315]:
+                  - generic [ref=e4316]: Time Format
+                  - generic [ref=e4317]:
+                    - button "auto" [ref=e4318] [cursor=pointer]
+                    - button "12" [ref=e4319] [cursor=pointer]
+                    - button "24" [ref=e4320] [cursor=pointer]
+                - generic [ref=e4321]:
+                  - generic [ref=e4322]: Timeout Seconds
+                  - generic [ref=e4323]:
+                    - button "−" [ref=e4324] [cursor=pointer]
+                    - spinbutton [ref=e4325]
+                    - button "+" [ref=e4326] [cursor=pointer]
+                - generic [ref=e4327]:
+                  - generic [ref=e4328]: Typing Interval Seconds
+                  - generic [ref=e4329]:
+                    - button "−" [ref=e4330] [cursor=pointer]
+                    - spinbutton [ref=e4331]
+                    - button "+" [ref=e4332] [cursor=pointer]
+                - generic [ref=e4333]:
+                  - generic [ref=e4334]: Typing Mode
+                  - generic [ref=e4335]:
+                    - button "never" [ref=e4336] [cursor=pointer]
+                    - button "instant" [ref=e4337] [cursor=pointer]
+                    - button "thinking" [ref=e4338] [cursor=pointer]
+                    - button "message" [ref=e4339] [cursor=pointer]
+                - generic [ref=e4340]:
+                  - generic [ref=e4341]: User Timezone
+                  - textbox [ref=e4343]
+                - generic [ref=e4344]:
+                  - generic [ref=e4345]: Verbose Default
+                  - generic [ref=e4346]:
+                    - button "off" [ref=e4347] [cursor=pointer]
+                    - button "on" [ref=e4348] [cursor=pointer]
+                    - button "full" [ref=e4349] [cursor=pointer]
+                - generic [ref=e4350]:
+                  - generic [ref=e4351]: Video Generation Model
+                  - textbox "JSON value" [ref=e4353]
+                - generic [ref=e4354]:
+                  - generic [ref=e4355]: Workspace
+                  - generic [ref=e4356]: Default workspace path exposed to agent runtime tools for filesystem context and repo-aware behavior. Set this explicitly when running from wrappers so path resolution stays deterministic.
+                  - generic [ref=e4358]: advanced
+                  - textbox [ref=e4360]: /home/elpresidank/.openclaw/workspace
+            - generic [ref=e4361]:
+              - generic [ref=e4362]: Agent List
+              - generic [ref=e4363]: Unsupported schema node. Use Raw mode.
+        - generic [ref=e4364]:
+          - generic [ref=e4365]:
+            - img [ref=e4367]
+            - generic [ref=e4370]:
+              - heading "Memory" [level=3] [ref=e4371]
+              - paragraph [ref=e4372]: Memory backend configuration (global).
+          - generic [ref=e4374]:
+            - generic [ref=e4375]:
+              - generic [ref=e4376]: Memory Backend
+              - generic [ref=e4377]: "Selects the global memory engine: \"builtin\" uses OpenClaw memory internals, while \"qmd\" uses the QMD sidecar pipeline. Keep \"builtin\" unless you intentionally operate QMD."
+              - generic [ref=e4379]: storage
+              - generic [ref=e4380]:
+                - button "builtin" [ref=e4381] [cursor=pointer]
+                - button "qmd" [ref=e4382] [cursor=pointer]
+            - generic [ref=e4383]:
+              - generic [ref=e4384]: Memory Citations Mode
+              - generic [ref=e4385]: "Controls citation visibility in replies: \"auto\" shows citations when useful, \"on\" always shows them, and \"off\" hides them. Keep \"auto\" for a balanced signal-to-noise default."
+              - generic [ref=e4387]: storage
+              - generic [ref=e4388]:
+                - button "auto" [ref=e4389] [cursor=pointer]
+                - button "on" [ref=e4390] [cursor=pointer]
+                - button "off" [ref=e4391] [cursor=pointer]
+            - group [ref=e4392]:
+              - generic "Qmd" [ref=e4393] [cursor=pointer]:
+                - generic [ref=e4395]: Qmd
+                - img [ref=e4397]
+              - generic [ref=e4399]:
+                - generic [ref=e4400]:
+                  - generic [ref=e4401]: QMD Binary
+                  - generic [ref=e4402]: "Sets the executable path for the `qmd` binary used by the QMD backend (default: resolved from PATH). Use an explicit absolute path when multiple qmd installs exist or PATH differs across environments."
+                  - generic [ref=e4404]: storage
+                  - textbox [ref=e4406]
+                - generic [ref=e4407] [cursor=pointer]:
+                  - generic [ref=e4408]:
+                    - generic [ref=e4409]: QMD Include Default Memory
+                    - generic [ref=e4410]: Automatically indexes default memory files (MEMORY.md and memory/**/*.md) into QMD collections. Keep enabled unless you want indexing controlled only through explicit custom paths.
+                    - generic [ref=e4412]: storage
+                  - generic [ref=e4413]:
+                    - checkbox "QMD Include Default Memory Automatically indexes default memory files (MEMORY.md and memory/**/*.md) into QMD collections. Keep enabled unless you want indexing controlled only through explicit custom paths. storage"
+                - group [ref=e4415]:
+                  - generic "Limits" [ref=e4416] [cursor=pointer]:
+                    - generic [ref=e4418]: Limits
+                    - img [ref=e4420]
+                - group [ref=e4422]:
+                  - generic "QMD MCPorter storage" [ref=e4423] [cursor=pointer]:
+                    - generic [ref=e4424]:
+                      - generic [ref=e4425]: QMD MCPorter
+                      - generic [ref=e4427]: storage
+                    - img [ref=e4429]
+                - generic [ref=e4431]:
+                  - generic [ref=e4432]:
+                    - generic [ref=e4433]:
+                      - generic [ref=e4434]: QMD Extra Paths
+                      - generic [ref=e4436]: storage
+                    - generic [ref=e4437]: 0 items
+                    - button "Add" [ref=e4438] [cursor=pointer]:
+                      - img [ref=e4440]
+                      - text: Add
+                  - generic [ref=e4441]: Adds custom directories or files to include in QMD indexing, each with an optional name and glob pattern. Use this for project-specific knowledge locations that are outside default memory paths.
+                  - generic [ref=e4442]: No items yet. Click "Add" to create one.
+                - group [ref=e4443]:
+                  - generic "QMD Surface Scope storage" [ref=e4444] [cursor=pointer]:
+                    - generic [ref=e4445]:
+                      - generic [ref=e4446]: QMD Surface Scope
+                      - generic [ref=e4448]: storage
+                    - img [ref=e4450]
+                - generic [ref=e4452]:
+                  - generic [ref=e4453]: QMD Search Mode
+                  - generic [ref=e4454]: "Selects the QMD retrieval path: \"query\" uses standard query flow, \"search\" uses search-oriented retrieval, and \"vsearch\" emphasizes vector retrieval. Keep default unless tuning relevance quality."
+                  - generic [ref=e4456]: storage
+                  - generic [ref=e4457]:
+                    - button "query" [ref=e4458] [cursor=pointer]
+                    - button "search" [ref=e4459] [cursor=pointer]
+                    - button "vsearch" [ref=e4460] [cursor=pointer]
+                - generic [ref=e4461]:
+                  - generic [ref=e4462]: QMD Search Tool Override
+                  - generic [ref=e4463]: "Overrides the exact mcporter tool name used for QMD searches while preserving `searchMode` as the semantic retrieval mode. Use this only when your QMD MCP server exposes a custom tool such as `hybrid_search` and keep it unset for the normal built-in tool mapping."
+                  - generic [ref=e4465]: storage
+                  - textbox [ref=e4467]
+                - group [ref=e4468]:
+                  - generic "Sessions" [ref=e4469] [cursor=pointer]:
+                    - generic [ref=e4471]: Sessions
+                    - img [ref=e4473]
+                - group [ref=e4475]:
+                  - generic "Update" [ref=e4476] [cursor=pointer]:
+                    - generic [ref=e4478]: Update
+                    - img [ref=e4480]
+        - generic [ref=e4482]:
+          - generic [ref=e4483]:
+            - img [ref=e4485]
+            - generic [ref=e4487]:
+              - heading "Tools" [level=3] [ref=e4488]
+              - paragraph [ref=e4489]: Tool configurations (browser, search, etc.)
+          - generic [ref=e4491]:
+            - group [ref=e4492]:
+              - generic "Agent-to-Agent Tool Access tools" [ref=e4493] [cursor=pointer]:
+                - generic [ref=e4494]:
+                  - generic [ref=e4495]: Agent-to-Agent Tool Access
+                  - generic [ref=e4497]: tools
+                - img [ref=e4499]
+              - generic [ref=e4501]: Policy for allowing agent-to-agent tool calls and constraining which target agents can be reached. Keep disabled or tightly scoped unless cross-agent orchestration is intentionally enabled.
+              - generic [ref=e4502]:
+                - generic [ref=e4503]:
+                  - generic [ref=e4504]:
+                    - generic [ref=e4505]:
+                      - generic [ref=e4506]: Agent-to-Agent Target Allowlist
+                      - generic [ref=e4507]:
+                        - generic [ref=e4508]: access
+                        - generic [ref=e4509]: tools
+                    - generic [ref=e4510]: 0 items
+                    - button "Add" [ref=e4511] [cursor=pointer]:
+                      - img [ref=e4513]
+                      - text: Add
+                  - generic [ref=e4514]: Allowlist of target agent IDs permitted for agent_to_agent calls when orchestration is enabled. Use explicit allowlists to avoid uncontrolled cross-agent call graphs.
+                  - generic [ref=e4515]: No items yet. Click "Add" to create one.
+                - generic [ref=e4516] [cursor=pointer]:
+                  - generic [ref=e4517]:
+                    - generic [ref=e4518]: Enable Agent-to-Agent Tool
+                    - generic [ref=e4519]: Enables the agent_to_agent tool surface so one agent can invoke another agent at runtime. Keep off in simple deployments and enable only when orchestration value outweighs complexity.
+                    - generic [ref=e4521]: tools
+                  - generic [ref=e4522]:
+                    - checkbox "Enable Agent-to-Agent Tool Enables the agent_to_agent tool surface so one agent can invoke another agent at runtime. Keep off in simple deployments and enable only when orchestration value outweighs complexity. tools"
+            - generic [ref=e4524]:
+              - generic [ref=e4525]:
+                - generic [ref=e4526]:
+                  - generic [ref=e4527]: Tool Allowlist
+                  - generic [ref=e4528]:
+                    - generic [ref=e4529]: access
+                    - generic [ref=e4530]: tools
+                - generic [ref=e4531]: 0 items
+                - button "Add" [ref=e4532] [cursor=pointer]:
+                  - img [ref=e4534]
+                  - text: Add
+              - generic [ref=e4535]: Absolute tool allowlist that replaces profile-derived defaults for strict environments. Use this only when you intentionally run a tightly curated subset of tool capabilities.
+              - generic [ref=e4536]: No items yet. Click "Add" to create one.
+            - generic [ref=e4537]:
+              - generic [ref=e4538]:
+                - generic [ref=e4539]:
+                  - generic [ref=e4540]: Tool Allowlist Additions
+                  - generic [ref=e4541]:
+                    - generic [ref=e4542]: access
+                    - generic [ref=e4543]: tools
+                - generic [ref=e4544]: 11 items
+                - button "Add" [ref=e4545] [cursor=pointer]:
+                  - img [ref=e4547]
+                  - text: Add
+              - generic [ref=e4548]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+              - generic [ref=e4549]:
+                - generic [ref=e4550]:
+                  - generic [ref=e4551]:
+                    - generic [ref=e4552]: "#1"
+                    - button "Remove item" [ref=e4553] [cursor=pointer]:
+                      - img [ref=e4554]
+                  - generic [ref=e4557]:
+                    - generic [ref=e4558]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4559]:
+                      - generic [ref=e4560]: access
+                      - generic [ref=e4561]: tools
+                    - textbox [ref=e4563]: group:web
+                - generic [ref=e4564]:
+                  - generic [ref=e4565]:
+                    - generic [ref=e4566]: "#2"
+                    - button "Remove item" [ref=e4567] [cursor=pointer]:
+                      - img [ref=e4568]
+                  - generic [ref=e4571]:
+                    - generic [ref=e4572]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4573]:
+                      - generic [ref=e4574]: access
+                      - generic [ref=e4575]: tools
+                    - textbox [ref=e4577]: group:ui
+                - generic [ref=e4578]:
+                  - generic [ref=e4579]:
+                    - generic [ref=e4580]: "#3"
+                    - button "Remove item" [ref=e4581] [cursor=pointer]:
+                      - img [ref=e4582]
+                  - generic [ref=e4585]:
+                    - generic [ref=e4586]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4587]:
+                      - generic [ref=e4588]: access
+                      - generic [ref=e4589]: tools
+                    - textbox [ref=e4591]: diffs
+                - generic [ref=e4592]:
+                  - generic [ref=e4593]:
+                    - generic [ref=e4594]: "#4"
+                    - button "Remove item" [ref=e4595] [cursor=pointer]:
+                      - img [ref=e4596]
+                  - generic [ref=e4599]:
+                    - generic [ref=e4600]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4601]:
+                      - generic [ref=e4602]: access
+                      - generic [ref=e4603]: tools
+                    - textbox [ref=e4605]: llm-task
+                - generic [ref=e4606]:
+                  - generic [ref=e4607]:
+                    - generic [ref=e4608]: "#5"
+                    - button "Remove item" [ref=e4609] [cursor=pointer]:
+                      - img [ref=e4610]
+                  - generic [ref=e4613]:
+                    - generic [ref=e4614]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4615]:
+                      - generic [ref=e4616]: access
+                      - generic [ref=e4617]: tools
+                    - textbox [ref=e4619]: lobster
+                - generic [ref=e4620]:
+                  - generic [ref=e4621]:
+                    - generic [ref=e4622]: "#6"
+                    - button "Remove item" [ref=e4623] [cursor=pointer]:
+                      - img [ref=e4624]
+                  - generic [ref=e4627]:
+                    - generic [ref=e4628]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4629]:
+                      - generic [ref=e4630]: access
+                      - generic [ref=e4631]: tools
+                    - textbox [ref=e4633]: tavily_search
+                - generic [ref=e4634]:
+                  - generic [ref=e4635]:
+                    - generic [ref=e4636]: "#7"
+                    - button "Remove item" [ref=e4637] [cursor=pointer]:
+                      - img [ref=e4638]
+                  - generic [ref=e4641]:
+                    - generic [ref=e4642]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4643]:
+                      - generic [ref=e4644]: access
+                      - generic [ref=e4645]: tools
+                    - textbox [ref=e4647]: tavily_extract
+                - generic [ref=e4648]:
+                  - generic [ref=e4649]:
+                    - generic [ref=e4650]: "#8"
+                    - button "Remove item" [ref=e4651] [cursor=pointer]:
+                      - img [ref=e4652]
+                  - generic [ref=e4655]:
+                    - generic [ref=e4656]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4657]:
+                      - generic [ref=e4658]: access
+                      - generic [ref=e4659]: tools
+                    - textbox [ref=e4661]: firecrawl_search
+                - generic [ref=e4662]:
+                  - generic [ref=e4663]:
+                    - generic [ref=e4664]: "#9"
+                    - button "Remove item" [ref=e4665] [cursor=pointer]:
+                      - img [ref=e4666]
+                  - generic [ref=e4669]:
+                    - generic [ref=e4670]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4671]:
+                      - generic [ref=e4672]: access
+                      - generic [ref=e4673]: tools
+                    - textbox [ref=e4675]: firecrawl_scrape
+                - generic [ref=e4676]:
+                  - generic [ref=e4677]:
+                    - generic [ref=e4678]: "#10"
+                    - button "Remove item" [ref=e4679] [cursor=pointer]:
+                      - img [ref=e4680]
+                  - generic [ref=e4683]:
+                    - generic [ref=e4684]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4685]:
+                      - generic [ref=e4686]: access
+                      - generic [ref=e4687]: tools
+                    - textbox [ref=e4689]: pdf
+                - generic [ref=e4690]:
+                  - generic [ref=e4691]:
+                    - generic [ref=e4692]: "#11"
+                    - button "Remove item" [ref=e4693] [cursor=pointer]:
+                      - img [ref=e4694]
+                  - generic [ref=e4697]:
+                    - generic [ref=e4698]: Extra tool allowlist entries merged on top of the selected tool profile and default policy. Keep this list small and explicit so audits can quickly identify intentional policy exceptions.
+                    - generic [ref=e4699]:
+                      - generic [ref=e4700]: access
+                      - generic [ref=e4701]: tools
+                    - textbox [ref=e4703]: clawhole-ops
+            - group [ref=e4704]:
+              - generic "Tool Policy by Provider tools" [ref=e4705] [cursor=pointer]:
+                - generic [ref=e4706]:
+                  - generic [ref=e4707]: Tool Policy by Provider
+                  - generic [ref=e4709]: tools
+                - img [ref=e4711]
+              - generic [ref=e4713]: Per-provider tool allow/deny overrides keyed by channel/provider ID to tailor capabilities by surface. Use this when one provider needs stricter controls than global tool policy.
+              - generic [ref=e4715]:
+                - generic [ref=e4716]:
+                  - generic [ref=e4717]: Custom entries
+                  - button "Add Entry" [ref=e4718] [cursor=pointer]:
+                    - img [ref=e4720]
+                    - text: Add Entry
+                - generic [ref=e4721]: No custom entries.
+            - generic [ref=e4722]:
+              - generic [ref=e4723]:
+                - generic [ref=e4724]:
+                  - generic [ref=e4725]: Tool Denylist
+                  - generic [ref=e4726]:
+                    - generic [ref=e4727]: access
+                    - generic [ref=e4728]: tools
+                - generic [ref=e4729]: 0 items
+                - button "Add" [ref=e4730] [cursor=pointer]:
+                  - img [ref=e4732]
+                  - text: Add
+              - generic [ref=e4733]: Global tool denylist that blocks listed tools even when profile or provider rules would allow them. Use deny rules for emergency lockouts and long-term defense-in-depth.
+              - generic [ref=e4734]: No items yet. Click "Add" to create one.
+            - group [ref=e4735]:
+              - generic "Elevated Tool Access tools" [ref=e4736] [cursor=pointer]:
+                - generic [ref=e4737]:
+                  - generic [ref=e4738]: Elevated Tool Access
+                  - generic [ref=e4740]: tools
+                - img [ref=e4742]
+              - generic [ref=e4744]: Elevated tool access controls for privileged command surfaces that should only be reachable from trusted senders. Keep disabled unless operator workflows explicitly require elevated actions.
+              - generic [ref=e4745]:
+                - group [ref=e4746]:
+                  - generic "Elevated Tool Allow Rules access tools" [ref=e4747] [cursor=pointer]:
+                    - generic [ref=e4748]:
+                      - generic [ref=e4749]: Elevated Tool Allow Rules
+                      - generic [ref=e4750]:
+                        - generic [ref=e4751]: access
+                        - generic [ref=e4752]: tools
+                    - img [ref=e4754]
+                - generic [ref=e4756] [cursor=pointer]:
+                  - generic [ref=e4757]:
+                    - generic [ref=e4758]: Enable Elevated Tool Access
+                    - generic [ref=e4759]: Enables elevated tool execution path when sender and policy checks pass. Keep disabled in public/shared channels and enable only for trusted owner-operated contexts.
+                    - generic [ref=e4761]: tools
+                  - generic [ref=e4762]:
+                    - checkbox "Enable Elevated Tool Access Enables elevated tool execution path when sender and policy checks pass. Keep disabled in public/shared channels and enable only for trusted owner-operated contexts. tools"
+            - group [ref=e4764]:
+              - generic "Exec Tool tools" [ref=e4765] [cursor=pointer]:
+                - generic [ref=e4766]:
+                  - generic [ref=e4767]: Exec Tool
+                  - generic [ref=e4769]: tools
+                - img [ref=e4771]
+              - generic [ref=e4773]: Exec-tool policy grouping for shell execution host, security mode, approval behavior, and runtime bindings. Keep conservative defaults in production and tighten elevated execution paths.
+              - generic [ref=e4774]:
+                - group [ref=e4775]:
+                  - generic "Apply Patch" [ref=e4776] [cursor=pointer]:
+                    - generic [ref=e4778]: Apply Patch
+                    - img [ref=e4780]
+                - generic [ref=e4782]:
+                  - generic [ref=e4783]: Exec Ask
+                  - generic [ref=e4784]: Approval strategy for when exec commands require human confirmation before running. Use stricter ask behavior in shared channels and lower-friction settings in private operator contexts.
+                  - generic [ref=e4786]: tools
+                  - generic [ref=e4787]:
+                    - button "off" [ref=e4788] [cursor=pointer]
+                    - button "on-miss" [ref=e4789] [cursor=pointer]
+                    - button "always" [ref=e4790] [cursor=pointer]
+                - generic [ref=e4791]:
+                  - generic [ref=e4792]: Background Ms
+                  - generic [ref=e4793]:
+                    - button "−" [ref=e4794] [cursor=pointer]
+                    - spinbutton [ref=e4795]
+                    - button "+" [ref=e4796] [cursor=pointer]
+                - generic [ref=e4797]:
+                  - generic [ref=e4798]: Cleanup Ms
+                  - generic [ref=e4799]:
+                    - button "−" [ref=e4800] [cursor=pointer]
+                    - spinbutton [ref=e4801]
+                    - button "+" [ref=e4802] [cursor=pointer]
+                - generic [ref=e4803]:
+                  - generic [ref=e4804]: Exec Target
+                  - generic [ref=e4805]: Selects execution target strategy for shell commands. Use "auto" for runtime-aware behavior (sandbox when available, otherwise gateway), or pin sandbox/gateway/node explicitly when you need a fixed surface.
+                  - generic [ref=e4807]: tools
+                  - generic [ref=e4808]:
+                    - button "auto" [ref=e4809] [cursor=pointer]
+                    - button "sandbox" [ref=e4810] [cursor=pointer]
+                    - button "gateway" [ref=e4811] [cursor=pointer]
+                    - button "node" [ref=e4812] [cursor=pointer]
+                - generic [ref=e4813]:
+                  - generic [ref=e4814]: Exec Node Binding
+                  - generic [ref=e4815]: Node binding configuration for exec tooling when command execution is delegated through connected nodes. Use explicit node binding only when multi-node routing is required.
+                  - generic [ref=e4817]: tools
+                  - textbox [ref=e4819]
+                - generic [ref=e4820] [cursor=pointer]:
+                  - generic [ref=e4821]:
+                    - generic [ref=e4822]: Exec Notify On Exit
+                    - generic [ref=e4823]: When true (default), backgrounded exec sessions on exit and node exec lifecycle events enqueue a system event and request a heartbeat.
+                    - generic [ref=e4825]: tools
+                  - generic [ref=e4826]:
+                    - checkbox "Exec Notify On Exit When true (default), backgrounded exec sessions on exit and node exec lifecycle events enqueue a system event and request a heartbeat. tools"
+                - generic [ref=e4828] [cursor=pointer]:
+                  - generic [ref=e4829]:
+                    - generic [ref=e4830]: Exec Notify On Empty Success
+                    - generic [ref=e4831]: "When true, successful backgrounded exec exits with empty output still enqueue a completion system event (default: false)."
+                    - generic [ref=e4833]: tools
+                  - generic [ref=e4834]:
+                    - 'checkbox "Exec Notify On Empty Success When true, successful backgrounded exec exits with empty output still enqueue a completion system event (default: false). tools"'
+                - generic [ref=e4836]:
+                  - generic [ref=e4837]:
+                    - generic [ref=e4838]:
+                      - generic [ref=e4839]: Exec PATH Prepend
+                      - generic [ref=e4840]:
+                        - generic [ref=e4841]: storage
+                        - generic [ref=e4842]: tools
+                    - generic [ref=e4843]: 0 items
+                    - button "Add" [ref=e4844] [cursor=pointer]:
+                      - img [ref=e4846]
+                      - text: Add
+                  - generic [ref=e4847]: Directories to prepend to PATH for exec runs (gateway/sandbox).
+                  - generic [ref=e4848]: No items yet. Click "Add" to create one.
+                - group [ref=e4849]:
+                  - generic "Exec Safe Bin Profiles storage tools" [ref=e4850] [cursor=pointer]:
+                    - generic [ref=e4851]:
+                      - generic [ref=e4852]: Exec Safe Bin Profiles
+                      - generic [ref=e4853]:
+                        - generic [ref=e4854]: storage
+                        - generic [ref=e4855]: tools
+                    - img [ref=e4857]
+                - generic [ref=e4859]:
+                  - generic [ref=e4860]:
+                    - generic [ref=e4861]:
+                      - generic [ref=e4862]: Exec Safe Bins
+                      - generic [ref=e4864]: tools
+                    - generic [ref=e4865]: 0 items
+                    - button "Add" [ref=e4866] [cursor=pointer]:
+                      - img [ref=e4868]
+                      - text: Add
+                  - generic [ref=e4869]: Allow stdin-only safe binaries to run without explicit allowlist entries.
+                  - generic [ref=e4870]: No items yet. Click "Add" to create one.
+                - generic [ref=e4871]:
+                  - generic [ref=e4872]:
+                    - generic [ref=e4873]:
+                      - generic [ref=e4874]: Exec Safe Bin Trusted Dirs
+                      - generic [ref=e4875]:
+                        - generic [ref=e4876]: storage
+                        - generic [ref=e4877]: tools
+                    - generic [ref=e4878]: 0 items
+                    - button "Add" [ref=e4879] [cursor=pointer]:
+                      - img [ref=e4881]
+                      - text: Add
+                  - generic [ref=e4882]: Additional explicit directories trusted for safe-bin path checks (PATH entries are never auto-trusted).
+                  - generic [ref=e4883]: No items yet. Click "Add" to create one.
+                - generic [ref=e4884]:
+                  - generic [ref=e4885]: Exec Security
+                  - generic [ref=e4886]: Execution security posture selector controlling sandbox/approval expectations for command execution. Keep strict security mode for untrusted prompts and relax only for trusted operator workflows.
+                  - generic [ref=e4888]: tools
+                  - generic [ref=e4889]:
+                    - button "deny" [ref=e4890] [cursor=pointer]
+                    - button "allowlist" [ref=e4891] [cursor=pointer]
+                    - button "full" [ref=e4892] [cursor=pointer]
+                - generic [ref=e4893] [cursor=pointer]:
+                  - generic [ref=e4894]:
+                    - generic [ref=e4895]: Require Inline-Eval Approval
+                    - generic [ref=e4896]: "Require explicit approval for interpreter inline-eval forms such as `python -c`, `node -e`, `ruby -e`, or `osascript -e`. Prevents silent allowlist reuse and downgrades allow-always to ask-each-time for those forms."
+                    - generic [ref=e4898]: tools
+                  - generic [ref=e4899]:
+                    - 'checkbox "Require Inline-Eval Approval Require explicit approval for interpreter inline-eval forms such as `python -c`, `node -e`, `ruby -e`, or `osascript -e`. Prevents silent allowlist reuse and downgrades allow-always to ask-each-time for those forms. tools"'
+                - generic [ref=e4901]:
+                  - generic [ref=e4902]: Timeout Sec
+                  - generic [ref=e4903]:
+                    - button "−" [ref=e4904] [cursor=pointer]
+                    - spinbutton [ref=e4905]
+                    - button "+" [ref=e4906] [cursor=pointer]
+            - group [ref=e4907]:
+              - generic "Experimental Tools security tools advanced" [ref=e4908] [cursor=pointer]:
+                - generic [ref=e4909]:
+                  - generic [ref=e4910]: Experimental Tools
+                  - generic [ref=e4911]:
+                    - generic [ref=e4912]: security
+                    - generic [ref=e4913]: tools
+                    - generic [ref=e4914]: advanced
+                - img [ref=e4916]
+              - generic [ref=e4918]: Experimental built-in tool flags. Keep these off by default and enable only when you are intentionally testing a preview surface.
+              - generic [ref=e4920] [cursor=pointer]:
+                - generic [ref=e4921]:
+                  - generic [ref=e4922]: Enable Structured Plan Tool
+                  - generic [ref=e4923]: "Enable the experimental structured `update_plan` tool for non-trivial multi-step work tracking. Leave this off unless you explicitly want the tool outside strict-agentic embedded Pi runs."
+                  - generic [ref=e4924]:
+                    - generic [ref=e4925]: security
+                    - generic [ref=e4926]: tools
+                    - generic [ref=e4927]: advanced
+                - generic [ref=e4928]:
+                  - 'checkbox "Enable Structured Plan Tool Enable the experimental structured `update_plan` tool for non-trivial multi-step work tracking. Leave this off unless you explicitly want the tool outside strict-agentic embedded Pi runs. security tools advanced"'
+            - group [ref=e4930]:
+              - generic "Fs" [ref=e4931] [cursor=pointer]:
+                - generic [ref=e4933]: Fs
+                - img [ref=e4935]
+              - generic [ref=e4938] [cursor=pointer]:
+                - generic [ref=e4939]:
+                  - generic [ref=e4940]: Workspace-only FS tools
+                  - generic [ref=e4941]: "Restrict filesystem tools (read/write/edit/apply_patch) to the workspace directory (default: false)."
+                  - generic [ref=e4943]: tools
+                - generic [ref=e4944]:
+                  - 'checkbox "Workspace-only FS tools Restrict filesystem tools (read/write/edit/apply_patch) to the workspace directory (default: false). tools" [checked]'
+            - group [ref=e4946]:
+              - generic "Links" [ref=e4947] [cursor=pointer]:
+                - generic [ref=e4949]: Links
+                - img [ref=e4951]
+              - generic [ref=e4953]:
+                - generic [ref=e4954] [cursor=pointer]:
+                  - generic [ref=e4955]:
+                    - generic [ref=e4956]: Enable Link Understanding
+                    - generic [ref=e4957]: Enable automatic link understanding pre-processing so URLs can be summarized before agent reasoning. Keep enabled for richer context, and disable when strict minimal processing is required.
+                    - generic [ref=e4959]: tools
+                  - generic [ref=e4960]:
+                    - checkbox "Enable Link Understanding Enable automatic link understanding pre-processing so URLs can be summarized before agent reasoning. Keep enabled for richer context, and disable when strict minimal processing is required. tools"
+                - generic [ref=e4962]:
+                  - generic [ref=e4963]: Link Understanding Max Links
+                  - generic [ref=e4964]: Maximum number of links expanded per turn during link understanding. Use lower values to control latency/cost in chatty threads and higher values when multi-link context is critical.
+                  - generic [ref=e4965]:
+                    - generic [ref=e4966]: performance
+                    - generic [ref=e4967]: tools
+                  - generic [ref=e4968]:
+                    - button "−" [ref=e4969] [cursor=pointer]
+                    - spinbutton [ref=e4970]
+                    - button "+" [ref=e4971] [cursor=pointer]
+                - generic [ref=e4972]:
+                  - generic [ref=e4973]:
+                    - generic [ref=e4974]:
+                      - generic [ref=e4975]: Link Understanding Models
+                      - generic [ref=e4976]:
+                        - generic [ref=e4977]: models
+                        - generic [ref=e4978]: tools
+                    - generic [ref=e4979]: 0 items
+                    - button "Add" [ref=e4980] [cursor=pointer]:
+                      - img [ref=e4982]
+                      - text: Add
+                  - generic [ref=e4983]: Preferred model list for link understanding tasks, evaluated in order as fallbacks when supported. Use lightweight models first for routine summarization and heavier models only when needed.
+                  - generic [ref=e4984]: No items yet. Click "Add" to create one.
+                - group [ref=e4985]:
+                  - generic "Link Understanding Scope tools" [ref=e4986] [cursor=pointer]:
+                    - generic [ref=e4987]:
+                      - generic [ref=e4988]: Link Understanding Scope
+                      - generic [ref=e4990]: tools
+                    - img [ref=e4992]
+                - generic [ref=e4994]:
+                  - generic [ref=e4995]: Link Understanding Timeout (sec)
+                  - generic [ref=e4996]: Per-link understanding timeout budget in seconds before unresolved links are skipped. Keep this bounded to avoid long stalls when external sites are slow or unreachable.
+                  - generic [ref=e4997]:
+                    - generic [ref=e4998]: performance
+                    - generic [ref=e4999]: tools
+                  - generic [ref=e5000]:
+                    - button "−" [ref=e5001] [cursor=pointer]
+                    - spinbutton [ref=e5002]
+                    - button "+" [ref=e5003] [cursor=pointer]
+            - group [ref=e5004]:
+              - generic "Loop Detection" [ref=e5005] [cursor=pointer]:
+                - generic [ref=e5007]: Loop Detection
+                - img [ref=e5009]
+              - generic [ref=e5011]:
+                - generic [ref=e5012]:
+                  - generic [ref=e5013]: Tool-loop Critical Threshold
+                  - generic [ref=e5014]: "Critical threshold for repetitive patterns when detector is enabled (default: 20)."
+                  - generic [ref=e5016]: tools
+                  - generic [ref=e5017]:
+                    - button "−" [ref=e5018] [cursor=pointer]
+                    - spinbutton [ref=e5019]
+                    - button "+" [ref=e5020] [cursor=pointer]
+                - group [ref=e5021]:
+                  - generic "Detectors" [ref=e5022] [cursor=pointer]:
+                    - generic [ref=e5024]: Detectors
+                    - img [ref=e5026]
+                - generic [ref=e5028] [cursor=pointer]:
+                  - generic [ref=e5029]:
+                    - generic [ref=e5030]: Tool-loop Detection
+                    - generic [ref=e5031]: "Enable repetitive tool-call loop detection and backoff safety checks (default: false)."
+                    - generic [ref=e5033]: tools
+                  - generic [ref=e5034]:
+                    - 'checkbox "Tool-loop Detection Enable repetitive tool-call loop detection and backoff safety checks (default: false). tools"'
+                - generic [ref=e5036]:
+                  - generic [ref=e5037]: Tool-loop Global Circuit Breaker Threshold
+                  - generic [ref=e5038]: "Global no-progress breaker threshold (default: 30)."
+                  - generic [ref=e5039]:
+                    - generic [ref=e5040]: reliability
+                    - generic [ref=e5041]: tools
+                  - generic [ref=e5042]:
+                    - button "−" [ref=e5043] [cursor=pointer]
+                    - spinbutton [ref=e5044]
+                    - button "+" [ref=e5045] [cursor=pointer]
+                - generic [ref=e5046]:
+                  - generic [ref=e5047]: Tool-loop History Size
+                  - generic [ref=e5048]: "Tool history window size for loop detection (default: 30)."
+                  - generic [ref=e5050]: tools
+                  - generic [ref=e5051]:
+                    - button "−" [ref=e5052] [cursor=pointer]
+                    - spinbutton [ref=e5053]
+                    - button "+" [ref=e5054] [cursor=pointer]
+                - generic [ref=e5055]:
+                  - generic [ref=e5056]: Unknown-tool Loop Threshold
+                  - generic [ref=e5057]: "Block repeated calls to the same unavailable tool after this many misses (default: 10)."
+                  - generic [ref=e5059]: tools
+                  - generic [ref=e5060]:
+                    - button "−" [ref=e5061] [cursor=pointer]
+                    - spinbutton [ref=e5062]
+                    - button "+" [ref=e5063] [cursor=pointer]
+                - generic [ref=e5064]:
+                  - generic [ref=e5065]: Tool-loop Warning Threshold
+                  - generic [ref=e5066]: "Warning threshold for repetitive patterns when detector is enabled (default: 10)."
+                  - generic [ref=e5068]: tools
+                  - generic [ref=e5069]:
+                    - button "−" [ref=e5070] [cursor=pointer]
+                    - spinbutton [ref=e5071]
+                    - button "+" [ref=e5072] [cursor=pointer]
+            - group [ref=e5073]:
+              - generic "Media" [ref=e5074] [cursor=pointer]:
+                - generic [ref=e5076]: Media
+                - img [ref=e5078]
+              - generic [ref=e5080]:
+                - group [ref=e5081]:
+                  - generic "Async Completion" [ref=e5082] [cursor=pointer]:
+                    - generic [ref=e5084]: Async Completion
+                    - img [ref=e5086]
+                - group [ref=e5088]:
+                  - generic "Audio" [ref=e5089] [cursor=pointer]:
+                    - generic [ref=e5091]: Audio
+                    - img [ref=e5093]
+                - generic [ref=e5095]:
+                  - generic [ref=e5096]: Media Understanding Concurrency
+                  - generic [ref=e5097]: Maximum number of concurrent media understanding operations per turn across image, audio, and video tasks. Lower this in resource-constrained deployments to prevent CPU/network saturation.
+                  - generic [ref=e5098]:
+                    - generic [ref=e5099]: performance
+                    - generic [ref=e5100]: media
+                    - generic [ref=e5101]: tools
+                  - generic [ref=e5102]:
+                    - button "−" [ref=e5103] [cursor=pointer]
+                    - spinbutton [ref=e5104]
+                    - button "+" [ref=e5105] [cursor=pointer]
+                - group [ref=e5106]:
+                  - generic "Image" [ref=e5107] [cursor=pointer]:
+                    - generic [ref=e5109]: Image
+                    - img [ref=e5111]
+                - generic [ref=e5113]:
+                  - generic [ref=e5114]:
+                    - generic [ref=e5115]:
+                      - generic [ref=e5116]: Media Understanding Shared Models
+                      - generic [ref=e5117]:
+                        - generic [ref=e5118]: models
+                        - generic [ref=e5119]: media
+                        - generic [ref=e5120]: tools
+                    - generic [ref=e5121]: 0 items
+                    - button "Add" [ref=e5122] [cursor=pointer]:
+                      - img [ref=e5124]
+                      - text: Add
+                  - generic [ref=e5125]: Shared fallback model list used by media understanding tools when modality-specific model lists are not set. Keep this aligned with available multimodal providers to avoid runtime fallback churn.
+                  - generic [ref=e5126]: No items yet. Click "Add" to create one.
+                - group [ref=e5127]:
+                  - generic "Video" [ref=e5128] [cursor=pointer]:
+                    - generic [ref=e5130]: Video
+                    - img [ref=e5132]
+            - group [ref=e5134]:
+              - generic "Message" [ref=e5135] [cursor=pointer]:
+                - generic [ref=e5137]: Message
+                - img [ref=e5139]
+              - generic [ref=e5141]:
+                - generic [ref=e5142] [cursor=pointer]:
+                  - generic [ref=e5143]:
+                    - generic [ref=e5144]: Allow Cross-Context Messaging
+                    - generic [ref=e5145]: "Legacy override: allow cross-context sends across all providers."
+                    - generic [ref=e5146]:
+                      - generic [ref=e5147]: access
+                      - generic [ref=e5148]: tools
+                  - generic [ref=e5149]:
+                    - 'checkbox "Allow Cross-Context Messaging Legacy override: allow cross-context sends across all providers. access tools"'
+                - group [ref=e5151]:
+                  - generic "Broadcast" [ref=e5152] [cursor=pointer]:
+                    - generic [ref=e5154]: Broadcast
+                    - img [ref=e5156]
+                - group [ref=e5158]:
+                  - generic "Cross Context" [ref=e5159] [cursor=pointer]:
+                    - generic [ref=e5161]: Cross Context
+                    - img [ref=e5163]
+            - generic [ref=e5165]:
+              - generic [ref=e5166]: Tool Profile
+              - generic [ref=e5167]: Global tool profile name used to select a predefined tool policy baseline before applying allow/deny overrides. Use this for consistent environment posture across agents and keep profile names stable.
+              - generic [ref=e5168]:
+                - generic [ref=e5169]: storage
+                - generic [ref=e5170]: tools
+              - generic [ref=e5171]:
+                - button "minimal" [ref=e5172] [cursor=pointer]
+                - button "coding" [ref=e5173] [cursor=pointer]
+                - button "messaging" [ref=e5174] [cursor=pointer]
+                - button "full" [ref=e5175] [cursor=pointer]
+            - group [ref=e5176]:
+              - generic "Sandbox Tool Policy storage tools" [ref=e5177] [cursor=pointer]:
+                - generic [ref=e5178]:
+                  - generic [ref=e5179]: Sandbox Tool Policy
+                  - generic [ref=e5180]:
+                    - generic [ref=e5181]: storage
+                    - generic [ref=e5182]: tools
+                - img [ref=e5184]
+              - generic [ref=e5186]: Tool policy wrapper for sandboxed agent executions so sandbox runs can have distinct capability boundaries. Use this to enforce stronger safety in sandbox contexts.
+              - group [ref=e5188]:
+                - generic "Sandbox Tool Allow/Deny Policy storage tools" [ref=e5189] [cursor=pointer]:
+                  - generic [ref=e5190]:
+                    - generic [ref=e5191]: Sandbox Tool Allow/Deny Policy
+                    - generic [ref=e5192]:
+                      - generic [ref=e5193]: storage
+                      - generic [ref=e5194]: tools
+                  - img [ref=e5196]
+            - group [ref=e5198]:
+              - generic "Sessions" [ref=e5199] [cursor=pointer]:
+                - generic [ref=e5201]: Sessions
+                - img [ref=e5203]
+              - generic [ref=e5206]:
+                - generic [ref=e5207]: Session Tools Visibility
+                - generic [ref=e5208]: Controls which sessions can be targeted by sessions_list/sessions_history/sessions_send. ("tree" default = current session + spawned subagent sessions; "self" = only current; "agent" = any session in the current agent id; "all" = any session; cross-agent still requires tools.agentToAgent).
+                - generic [ref=e5209]:
+                  - generic [ref=e5210]: storage
+                  - generic [ref=e5211]: tools
+                - generic [ref=e5212]:
+                  - button "self" [ref=e5213] [cursor=pointer]
+                  - button "tree" [ref=e5214] [cursor=pointer]
+                  - button "agent" [ref=e5215] [cursor=pointer]
+                  - button "all" [ref=e5216] [cursor=pointer]
+            - group [ref=e5217]:
+              - generic "Sessions spawn" [ref=e5218] [cursor=pointer]:
+                - generic [ref=e5220]: Sessions spawn
+                - img [ref=e5222]
+              - group [ref=e5225]:
+                - generic "Attachments" [ref=e5226] [cursor=pointer]:
+                  - generic [ref=e5228]: Attachments
+                  - img [ref=e5230]
+            - group [ref=e5232]:
+              - generic "Subagent Tool Policy tools" [ref=e5233] [cursor=pointer]:
+                - generic [ref=e5234]:
+                  - generic [ref=e5235]: Subagent Tool Policy
+                  - generic [ref=e5237]: tools
+                - img [ref=e5239]
+              - generic [ref=e5241]: Tool policy wrapper for spawned subagents to restrict or expand tool availability compared to parent defaults. Use this to keep delegated agent capabilities scoped to task intent.
+              - group [ref=e5243]:
+                - generic "Subagent Tool Allow/Deny Policy tools" [ref=e5244] [cursor=pointer]:
+                  - generic [ref=e5245]:
+                    - generic [ref=e5246]: Subagent Tool Allow/Deny Policy
+                    - generic [ref=e5248]: tools
+                  - img [ref=e5250]
+            - group [ref=e5252]:
+              - generic "Web Tools tools" [ref=e5253] [cursor=pointer]:
+                - generic [ref=e5254]:
+                  - generic [ref=e5255]: Web Tools
+                  - generic [ref=e5257]: tools
+                - img [ref=e5259]
+              - generic [ref=e5261]: Web-tool policy grouping for search/fetch providers, limits, and fallback behavior tuning. Keep enabled settings aligned with API key availability and outbound networking policy.
+              - generic [ref=e5262]:
+                - group [ref=e5263]:
+                  - generic "Fetch" [ref=e5264] [cursor=pointer]:
+                    - generic [ref=e5266]: Fetch
+                    - img [ref=e5268]
+                - group [ref=e5270]:
+                  - generic "Search" [ref=e5271] [cursor=pointer]:
+                    - generic [ref=e5273]: Search
+                    - img [ref=e5275]
+                - group [ref=e5277]:
+                  - generic "X search" [ref=e5278] [cursor=pointer]:
+                    - generic [ref=e5280]: X search
+                    - img [ref=e5282]
+        - generic [ref=e5284]:
+          - generic [ref=e5285]:
+            - img [ref=e5287]
+            - generic [ref=e5290]:
+              - heading "Models" [level=3] [ref=e5291]
+              - paragraph [ref=e5292]: AI model configurations and providers
+          - generic [ref=e5294]:
+            - generic [ref=e5295]:
+              - generic [ref=e5296]: Model Catalog Mode
+              - generic [ref=e5297]: "Controls provider catalog behavior: \"merge\" keeps built-ins and overlays your custom providers, while \"replace\" uses only your configured providers. In \"merge\", matching provider IDs preserve non-empty agent models.json baseUrl values, while apiKey values are preserved only when the provider is not SecretRef-managed in current config/auth-profile context; SecretRef-managed providers refresh apiKey from current source markers, and matching model contextWindow/maxTokens use the higher value between explicit and implicit entries."
+              - generic [ref=e5299]: models
+              - generic [ref=e5300]:
+                - button "merge" [ref=e5301] [cursor=pointer]
+                - button "replace" [ref=e5302] [cursor=pointer]
+            - group [ref=e5303]:
+              - generic "Model Pricing models" [ref=e5304] [cursor=pointer]:
+                - generic [ref=e5305]:
+                  - generic [ref=e5306]: Model Pricing
+                  - generic [ref=e5308]: models
+                - img [ref=e5310]
+              - generic [ref=e5312]: Controls the optional background model-pricing bootstrap that fetches remote per-token cost catalogs.
+              - generic [ref=e5314] [cursor=pointer]:
+                - generic [ref=e5315]:
+                  - generic [ref=e5316]: Model Pricing Enabled
+                  - generic [ref=e5317]: Enable the background model-pricing bootstrap. Set to false to skip OpenRouter and LiteLLM catalog fetches during Gateway startup; changing this value requires a Gateway restart.
+                  - generic [ref=e5319]: models
+                - generic [ref=e5320]:
+                  - checkbox "Model Pricing Enabled Enable the background model-pricing bootstrap. Set to false to skip OpenRouter and LiteLLM catalog fetches during Gateway startup; changing this value requires a Gateway restart. models"
+            - group [ref=e5322]:
+              - generic "Model Providers models" [ref=e5323] [cursor=pointer]:
+                - generic [ref=e5324]:
+                  - generic [ref=e5325]: Model Providers
+                  - generic [ref=e5327]: models
+                - img [ref=e5329]
+              - generic [ref=e5331]: Provider map keyed by provider ID containing connection/auth settings and concrete model definitions. Use stable provider keys so references from agents and tooling remain portable across environments.
+              - generic [ref=e5333]:
+                - generic [ref=e5334]:
+                  - generic [ref=e5335]: Custom entries
+                  - button "Add Entry" [ref=e5336] [cursor=pointer]:
+                    - img [ref=e5338]
+                    - text: Add Entry
+                - generic [ref=e5340]:
+                  - generic [ref=e5341]:
+                    - textbox "Key" [ref=e5343]: venice
+                    - button "Remove entry" [ref=e5344] [cursor=pointer]:
+                      - img [ref=e5345]
+                  - generic [ref=e5348]:
+                    - generic [ref=e5349]:
+                      - generic [ref=e5350]: Model Provider API Adapter
+                      - generic [ref=e5351]: Provider API adapter selection controlling request/response compatibility handling for model calls. Use the adapter that matches your upstream provider protocol to avoid feature mismatch.
+                      - generic [ref=e5353]: models
+                      - combobox [ref=e5354] [cursor=pointer]:
+                        - option "Select..."
+                        - option "openai-completions" [selected]
+                        - option "openai-responses"
+                        - option "openai-codex-responses"
+                        - option "anthropic-messages"
+                        - option "google-generative-ai"
+                        - option "github-copilot"
+                        - option "bedrock-converse-stream"
+                        - option "ollama"
+                        - option "azure-openai-responses"
+                    - generic [ref=e5355]:
+                      - generic [ref=e5356]: Model Provider API Key
+                      - generic [ref=e5357]: Provider credential used for API-key based authentication when the provider requires direct key auth. Use secret/env substitution and avoid storing real keys in committed config files.
+                      - generic [ref=e5358]:
+                        - generic [ref=e5359]: security
+                        - generic [ref=e5360]: auth
+                        - generic [ref=e5361]: models
+                      - generic [ref=e5362]:
+                        - textbox "[redacted - click reveal to view]" [ref=e5363] [cursor=pointer]
+                        - button "Reveal value" [ref=e5364] [cursor=pointer]:
+                          - img [ref=e5365]
+                    - generic [ref=e5370]:
+                      - generic [ref=e5371]: Model Provider Auth Mode
+                      - generic [ref=e5372]: "Selects provider auth style: \"api-key\" for API key auth, \"token\" for bearer token auth, \"oauth\" for OAuth credentials, and \"aws-sdk\" for AWS credential resolution. Match this to your provider requirements."
+                      - generic [ref=e5374]: models
+                      - generic [ref=e5375]:
+                        - button "api-key" [ref=e5376] [cursor=pointer]
+                        - button "aws-sdk" [ref=e5377] [cursor=pointer]
+                        - button "oauth" [ref=e5378] [cursor=pointer]
+                        - button "token" [ref=e5379] [cursor=pointer]
+                    - generic [ref=e5380] [cursor=pointer]:
+                      - generic [ref=e5381]:
+                        - generic [ref=e5382]: Model Provider Authorization Header
+                        - generic [ref=e5383]: When true, credentials are sent via the HTTP Authorization header even if alternate auth is possible. Use this only when your provider or proxy explicitly requires Authorization forwarding.
+                        - generic [ref=e5385]: models
+                      - generic [ref=e5386]:
+                        - checkbox "Model Provider Authorization Header When true, credentials are sent via the HTTP Authorization header even if alternate auth is possible. Use this only when your provider or proxy explicitly requires Authorization forwarding. models"
+                    - generic [ref=e5388]:
+                      - generic [ref=e5389]: Model Provider Base URL
+                      - generic [ref=e5390]: Base URL for the provider endpoint used to serve model requests for that provider entry. Use HTTPS endpoints and keep URLs environment-specific through config templating where needed.
+                      - generic [ref=e5391]:
+                        - generic [ref=e5392]: models
+                        - generic [ref=e5393]: url-secret
+                      - textbox [ref=e5395]: https://api.venice.ai/api/v1
+                    - generic [ref=e5396]:
+                      - generic [ref=e5397]: Model Provider Context Tokens
+                      - generic [ref=e5398]: Default effective runtime context cap applied to models under this provider when a model entry does not set contextTokens. Use this when runtime should budget below the native contextWindow.
+                      - generic [ref=e5399]:
+                        - generic [ref=e5400]: security
+                        - generic [ref=e5401]: auth
+                        - generic [ref=e5402]: models
+                      - generic [ref=e5403]:
+                        - button "−" [ref=e5404] [cursor=pointer]
+                        - spinbutton [ref=e5405]
+                        - button "+" [ref=e5406] [cursor=pointer]
+                    - generic [ref=e5407]:
+                      - generic [ref=e5408]: Model Provider Context Window
+                      - generic [ref=e5409]: Default native context window applied to models under this provider when a model entry does not set contextWindow. Use model-level contextWindow for per-model overrides.
+                      - generic [ref=e5411]: models
+                      - generic [ref=e5412]:
+                        - button "−" [ref=e5413] [cursor=pointer]
+                        - spinbutton [ref=e5414]
+                        - button "+" [ref=e5415] [cursor=pointer]
+                    - group [ref=e5416]:
+                      - generic "Model Provider Headers models" [ref=e5417] [cursor=pointer]:
+                        - generic [ref=e5418]:
+                          - generic [ref=e5419]: Model Provider Headers
+                          - generic [ref=e5421]: models
+                        - img [ref=e5423]
+                    - generic [ref=e5425] [cursor=pointer]:
+                      - generic [ref=e5426]:
+                        - generic [ref=e5427]: Model Provider Inject num_ctx (OpenAI Compat)
+                        - generic [ref=e5428]: "Controls whether OpenClaw injects `options.num_ctx` for Ollama providers configured with the OpenAI-compatible adapter (`openai-completions`). Default is true. Set false only if your proxy/upstream rejects unknown `options` payload fields."
+                        - generic [ref=e5430]: models
+                      - generic [ref=e5431]:
+                        - 'checkbox "Model Provider Inject num_ctx (OpenAI Compat) Controls whether OpenClaw injects `options.num_ctx` for Ollama providers configured with the OpenAI-compatible adapter (`openai-completions`). Default is true. Set false only if your proxy/upstream rejects unknown `options` payload fields. models"'
+                    - generic [ref=e5433]:
+                      - generic [ref=e5434]: Model Provider Max Tokens
+                      - generic [ref=e5435]: Default maximum output token budget applied to models under this provider when a model entry does not set maxTokens.
+                      - generic [ref=e5436]:
+                        - generic [ref=e5437]: security
+                        - generic [ref=e5438]: auth
+                        - generic [ref=e5439]: performance
+                        - generic [ref=e5440]: models
+                      - generic [ref=e5441]:
+                        - button "−" [ref=e5442] [cursor=pointer]
+                        - spinbutton [ref=e5443]
+                        - button "+" [ref=e5444] [cursor=pointer]
+                    - generic [ref=e5445]:
+                      - generic [ref=e5446]:
+                        - generic [ref=e5447]:
+                          - generic [ref=e5448]: Model Provider Model List
+                          - generic [ref=e5450]: models
+                        - generic [ref=e5451]: 1 item
+                        - button "Add" [ref=e5452] [cursor=pointer]:
+                          - img [ref=e5454]
+                          - text: Add
+                      - generic [ref=e5455]: Declared model list for a provider including identifiers, metadata, provider-specific params, and optional compatibility/cost hints. Keep IDs exact to provider catalog values so selection and fallback resolve correctly.
+                      - generic [ref=e5457]:
+                        - generic [ref=e5458]:
+                          - generic [ref=e5459]: "#1"
+                          - button "Remove item" [ref=e5460] [cursor=pointer]:
+                            - img [ref=e5461]
+                        - generic [ref=e5464]:
+                          - generic [ref=e5465]:
+                            - generic [ref=e5466]: Api
+                            - combobox [ref=e5467] [cursor=pointer]:
+                              - option "Select..."
+                              - option "openai-completions" [selected]
+                              - option "openai-responses"
+                              - option "openai-codex-responses"
+                              - option "anthropic-messages"
+                              - option "google-generative-ai"
+                              - option "github-copilot"
+                              - option "bedrock-converse-stream"
+                              - option "ollama"
+                              - option "azure-openai-responses"
+                          - generic [ref=e5468]:
+                            - generic [ref=e5469]: Base Url
+                            - textbox [ref=e5471]
+                          - group [ref=e5472]:
+                            - generic "Compat" [ref=e5473] [cursor=pointer]:
+                              - generic [ref=e5475]: Compat
+                              - img [ref=e5477]
+                          - generic [ref=e5479]:
+                            - generic [ref=e5480]: Context Tokens
+                            - generic [ref=e5481]:
+                              - button "−" [ref=e5482] [cursor=pointer]
+                              - spinbutton [ref=e5483]
+                              - button "+" [ref=e5484] [cursor=pointer]
+                          - generic [ref=e5485]:
+                            - generic [ref=e5486]: Context Window
+                            - generic [ref=e5487]:
+                              - button "−" [ref=e5488] [cursor=pointer]
+                              - spinbutton [ref=e5489]: "200000"
+                              - button "+" [ref=e5490] [cursor=pointer]
+                          - group [ref=e5491]:
+                            - generic "Cost" [ref=e5492] [cursor=pointer]:
+                              - generic [ref=e5494]: Cost
+                              - img [ref=e5496]
+                          - group [ref=e5498]:
+                            - generic "Headers" [ref=e5499] [cursor=pointer]:
+                              - generic [ref=e5501]: Headers
+                              - img [ref=e5503]
+                          - generic [ref=e5505]:
+                            - generic [ref=e5506]: Id
+                            - textbox [ref=e5508]: kimi-k2-5
+                          - generic [ref=e5509]:
+                            - generic [ref=e5510]:
+                              - generic [ref=e5512]: Input
+                              - generic [ref=e5513]: 1 item
+                              - button "Add" [ref=e5514] [cursor=pointer]:
+                                - img [ref=e5516]
+                                - text: Add
+                            - generic [ref=e5518]:
+                              - generic [ref=e5519]:
+                                - generic [ref=e5520]: "#1"
+                                - button "Remove item" [ref=e5521] [cursor=pointer]:
+                                  - img [ref=e5522]
+                              - generic [ref=e5526]:
+                                - button "text" [ref=e5527] [cursor=pointer]
+                                - button "image" [ref=e5528] [cursor=pointer]
+                                - button "video" [ref=e5529] [cursor=pointer]
+                                - button "audio" [ref=e5530] [cursor=pointer]
+                          - generic [ref=e5531]:
+                            - generic [ref=e5532]: Max Tokens
+                            - generic [ref=e5533]:
+                              - button "−" [ref=e5534] [cursor=pointer]
+                              - spinbutton [ref=e5535]: "8192"
+                              - button "+" [ref=e5536] [cursor=pointer]
+                          - generic [ref=e5537]:
+                            - generic [ref=e5538]: Metadata Source
+                            - textbox [ref=e5540]
+                          - generic [ref=e5541]:
+                            - generic [ref=e5542]: Name
+                            - textbox [ref=e5544]: kimi-k2-5
+                          - group [ref=e5545]:
+                            - generic "Params" [ref=e5546] [cursor=pointer]:
+                              - generic [ref=e5548]: Params
+                              - img [ref=e5550]
+                          - generic [ref=e5552] [cursor=pointer]:
+                            - generic [ref=e5554]: Reasoning
+                            - generic [ref=e5555]:
+                              - checkbox "Reasoning"
+                    - group [ref=e5557]:
+                      - generic "Model Provider Request Overrides models" [ref=e5558] [cursor=pointer]:
+                        - generic [ref=e5559]:
+                          - generic [ref=e5560]: Model Provider Request Overrides
+                          - generic [ref=e5562]: models
+                        - img [ref=e5564]
+                    - generic [ref=e5566]:
+                      - generic [ref=e5567]: Model Provider Request Timeout
+                      - generic [ref=e5568]: Optional per-provider model request timeout in seconds. Applies to provider HTTP fetches, including connect, headers, body, and total request abort handling. Use this for slow local or self-hosted model servers instead of changing global agent timeouts.
+                      - generic [ref=e5569]:
+                        - generic [ref=e5570]: performance
+                        - generic [ref=e5571]: models
+                      - generic [ref=e5572]:
+                        - button "−" [ref=e5573] [cursor=pointer]
+                        - spinbutton [ref=e5574]
+                        - button "+" [ref=e5575] [cursor=pointer]
+        - generic [ref=e5576]:
+          - generic [ref=e5577]:
+            - img [ref=e5579]
+            - generic [ref=e5584]:
+              - heading "Session" [level=3] [ref=e5585]
+              - paragraph [ref=e5586]: Session management and persistence
+          - generic [ref=e5588]:
+            - group [ref=e5589]:
+              - generic "Session Agent-to-Agent storage" [ref=e5590] [cursor=pointer]:
+                - generic [ref=e5591]:
+                  - generic [ref=e5592]: Session Agent-to-Agent
+                  - generic [ref=e5594]: storage
+                - img [ref=e5596]
+              - generic [ref=e5598]: Groups controls for inter-agent session exchanges, including loop prevention limits on reply chaining. Keep defaults unless you run advanced agent-to-agent automation with strict turn caps.
+              - generic [ref=e5600]:
+                - generic [ref=e5601]: Agent-to-Agent Ping-Pong Turns
+                - generic [ref=e5602]: Max reply-back turns between requester and target agents during agent-to-agent exchanges (0-5). Use lower values to hard-limit chatter loops and preserve predictable run completion.
+                - generic [ref=e5603]:
+                  - generic [ref=e5604]: performance
+                  - generic [ref=e5605]: storage
+                - generic [ref=e5606]:
+                  - button "−" [ref=e5607] [cursor=pointer]
+                  - spinbutton [ref=e5608]
+                  - button "+" [ref=e5609] [cursor=pointer]
+            - generic [ref=e5610]:
+              - generic [ref=e5611]: DM Session Scope
+              - generic [ref=e5612]: "DM session scoping: \"main\" keeps continuity, while \"per-peer\", \"per-channel-peer\", and \"per-account-channel-peer\" increase isolation. Use isolated modes for shared inboxes or multi-account deployments."
+              - generic [ref=e5614]: storage
+              - generic [ref=e5615]:
+                - button "main" [ref=e5616] [cursor=pointer]
+                - button "per-peer" [ref=e5617] [cursor=pointer]
+                - button "per-channel-peer" [ref=e5618] [cursor=pointer]
+                - button "per-account-channel-peer" [ref=e5619] [cursor=pointer]
+            - group [ref=e5620]:
+              - generic "Session Identity Links storage" [ref=e5621] [cursor=pointer]:
+                - generic [ref=e5622]:
+                  - generic [ref=e5623]: Session Identity Links
+                  - generic [ref=e5625]: storage
+                - img [ref=e5627]
+              - generic [ref=e5629]: "Maps canonical identities to provider-prefixed peer IDs so equivalent users resolve to one DM thread (example: telegram:123456). Use this when the same human appears across multiple channels or accounts."
+              - generic [ref=e5631]:
+                - generic [ref=e5632]:
+                  - generic [ref=e5633]: Custom entries
+                  - button "Add Entry" [ref=e5634] [cursor=pointer]:
+                    - img [ref=e5636]
+                    - text: Add Entry
+                - generic [ref=e5637]: No custom entries.
+            - generic [ref=e5638]:
+              - generic [ref=e5639]: Session Idle Minutes
+              - generic [ref=e5640]: Applies a legacy idle reset window in minutes for session reuse behavior across inactivity gaps. Use this only for compatibility and prefer structured reset policies under session.reset/session.resetByType.
+              - generic [ref=e5642]: storage
+              - generic [ref=e5643]:
+                - button "−" [ref=e5644] [cursor=pointer]
+                - spinbutton [ref=e5645]
+                - button "+" [ref=e5646] [cursor=pointer]
+            - generic [ref=e5647]:
+              - generic [ref=e5648]: Session Main Key
+              - generic [ref=e5649]: Overrides the canonical main session key used for continuity when dmScope or routing logic points to "main". Use a stable value only if you intentionally need custom session anchoring.
+              - generic [ref=e5651]: storage
+              - textbox [ref=e5653]
+            - group [ref=e5654]:
+              - generic "Session Maintenance storage" [ref=e5655] [cursor=pointer]:
+                - generic [ref=e5656]:
+                  - generic [ref=e5657]: Session Maintenance
+                  - generic [ref=e5659]: storage
+                - img [ref=e5661]
+              - generic [ref=e5663]: Automatic session-store maintenance controls for pruning age, entry caps, reset archive retention, and disk budget cleanup. Start in warn mode to observe impact, then enforce once thresholds are tuned.
+              - generic [ref=e5664]:
+                - generic [ref=e5665]:
+                  - generic [ref=e5666]: Session Disk High-water Target
+                  - generic [ref=e5667]: Target size after disk-budget cleanup (high-water mark). Defaults to 80% of maxDiskBytes; set explicitly for tighter reclaim behavior on constrained disks.
+                  - generic [ref=e5669]: storage
+                  - textbox [ref=e5671]
+                - generic [ref=e5672]:
+                  - generic [ref=e5673]: Session Max Disk Budget
+                  - generic [ref=e5674]: "Optional per-agent sessions-directory disk budget (for example `500mb`). Use this to cap session storage per agent; when exceeded, warn mode reports pressure and enforce mode performs oldest-first cleanup."
+                  - generic [ref=e5675]:
+                    - generic [ref=e5676]: performance
+                    - generic [ref=e5677]: storage
+                  - textbox [ref=e5679]
+                - generic [ref=e5680]:
+                  - generic [ref=e5681]: Session Max Entries
+                  - generic [ref=e5682]: Caps total session entry count retained in the store to prevent unbounded growth over time. Use lower limits for constrained environments, or higher limits when longer history is required.
+                  - generic [ref=e5683]:
+                    - generic [ref=e5684]: performance
+                    - generic [ref=e5685]: storage
+                  - generic [ref=e5686]:
+                    - button "−" [ref=e5687] [cursor=pointer]
+                    - spinbutton [ref=e5688]
+                    - button "+" [ref=e5689] [cursor=pointer]
+                - generic [ref=e5690]:
+                  - generic [ref=e5691]: Session Maintenance Mode
+                  - generic [ref=e5692]: Determines whether maintenance policies are only reported ("warn") or actively applied ("enforce"). Keep "warn" during rollout and switch to "enforce" after validating safe thresholds.
+                  - generic [ref=e5694]: storage
+                  - generic [ref=e5695]:
+                    - button "enforce" [ref=e5696] [cursor=pointer]
+                    - button "warn" [ref=e5697] [cursor=pointer]
+                - generic [ref=e5698]:
+                  - generic [ref=e5699]: Session Prune After
+                  - generic [ref=e5700]: "Removes entries older than this duration (for example `30d` or `12h`) during maintenance passes. Use this as the primary age-retention control and align it with data retention policy."
+                  - generic [ref=e5702]: storage
+                  - textbox [ref=e5704]
+                - generic [ref=e5705]:
+                  - generic [ref=e5706]: Session Prune Days (Deprecated)
+                  - generic [ref=e5707]: Deprecated age-retention field kept for compatibility with legacy configs using day counts. Use session.maintenance.pruneAfter instead so duration syntax and behavior are consistent.
+                  - generic [ref=e5709]: storage
+                  - generic [ref=e5710]:
+                    - button "−" [ref=e5711] [cursor=pointer]
+                    - spinbutton [ref=e5712]
+                    - button "+" [ref=e5713] [cursor=pointer]
+                - generic [ref=e5714]:
+                  - generic [ref=e5715]: Session Reset Archive Retention
+                  - generic [ref=e5716]: Unsupported schema node. Use Raw mode.
+                - generic [ref=e5717]:
+                  - generic [ref=e5718]: Deprecated Session Rotate Size
+                  - generic [ref=e5719]: "Deprecated and ignored. Do not use for `sessions.json` growth control; OpenClaw no longer creates automatic rotation backups, and \"openclaw doctor --fix\" removes this key."
+                  - generic [ref=e5721]: storage
+                  - textbox [ref=e5723]
+            - generic [ref=e5724]:
+              - generic [ref=e5725]: Session Parent Fork Max Tokens
+              - generic [ref=e5726]: Maximum parent-session token count allowed for thread/session inheritance forking. If the parent exceeds this, OpenClaw starts a fresh thread session instead of forking; set 0 to disable this protection.
+              - generic [ref=e5727]:
+                - generic [ref=e5728]: security
+                - generic [ref=e5729]: auth
+                - generic [ref=e5730]: performance
+                - generic [ref=e5731]: storage
+              - generic [ref=e5732]:
+                - button "−" [ref=e5733] [cursor=pointer]
+                - spinbutton [ref=e5734]
+                - button "+" [ref=e5735] [cursor=pointer]
+            - group [ref=e5736]:
+              - generic "Session Reset Policy storage" [ref=e5737] [cursor=pointer]:
+                - generic [ref=e5738]:
+                  - generic [ref=e5739]: Session Reset Policy
+                  - generic [ref=e5741]: storage
+                - img [ref=e5743]
+              - generic [ref=e5745]: Defines the default reset policy object used when no type-specific or channel-specific override applies. Set this first, then layer resetByType or resetByChannel only where behavior must differ.
+              - generic [ref=e5746]:
+                - generic [ref=e5747]:
+                  - generic [ref=e5748]: Session Daily Reset Hour
+                  - generic [ref=e5749]: Sets local-hour boundary (0-23) for daily reset mode so sessions roll over at predictable times. Use with mode=daily and align to operator timezone expectations for human-readable behavior.
+                  - generic [ref=e5751]: storage
+                  - generic [ref=e5752]:
+                    - button "−" [ref=e5753] [cursor=pointer]
+                    - spinbutton [ref=e5754]
+                    - button "+" [ref=e5755] [cursor=pointer]
+                - generic [ref=e5756]:
+                  - generic [ref=e5757]: Session Reset Idle Minutes
+                  - generic [ref=e5758]: Sets inactivity window before reset for idle mode and can also act as secondary guard with daily mode. Use larger values to preserve continuity or smaller values for fresher short-lived threads.
+                  - generic [ref=e5760]: storage
+                  - generic [ref=e5761]:
+                    - button "−" [ref=e5762] [cursor=pointer]
+                    - spinbutton [ref=e5763]
+                    - button "+" [ref=e5764] [cursor=pointer]
+                - generic [ref=e5765]:
+                  - generic [ref=e5766]: Session Reset Mode
+                  - generic [ref=e5767]: "Selects reset strategy: \"daily\" resets at a configured hour and \"idle\" resets after inactivity windows. Keep one clear mode per policy to avoid surprising context turnover patterns."
+                  - generic [ref=e5769]: storage
+                  - generic [ref=e5770]:
+                    - button "daily" [ref=e5771] [cursor=pointer]
+                    - button "idle" [ref=e5772] [cursor=pointer]
+            - group [ref=e5773]:
+              - generic "Session Reset by Channel storage" [ref=e5774] [cursor=pointer]:
+                - generic [ref=e5775]:
+                  - generic [ref=e5776]: Session Reset by Channel
+                  - generic [ref=e5778]: storage
+                - img [ref=e5780]
+              - generic [ref=e5782]: Provides channel-specific reset overrides keyed by provider/channel id for fine-grained behavior control. Use this only when one channel needs exceptional reset behavior beyond type-level policies.
+              - generic [ref=e5784]:
+                - generic [ref=e5785]:
+                  - generic [ref=e5786]: Custom entries
+                  - button "Add Entry" [ref=e5787] [cursor=pointer]:
+                    - img [ref=e5789]
+                    - text: Add Entry
+                - generic [ref=e5790]: No custom entries.
+            - group [ref=e5791]:
+              - generic "Session Reset by Chat Type storage" [ref=e5792] [cursor=pointer]:
+                - generic [ref=e5793]:
+                  - generic [ref=e5794]: Session Reset by Chat Type
+                  - generic [ref=e5796]: storage
+                - img [ref=e5798]
+              - generic [ref=e5800]: Overrides reset behavior by chat type (direct, group, thread) when defaults are not sufficient. Use this when group/thread traffic needs different reset cadence than direct messages.
+              - generic [ref=e5801]:
+                - group [ref=e5802]:
+                  - generic "Session Reset (Direct) storage" [ref=e5803] [cursor=pointer]:
+                    - generic [ref=e5804]:
+                      - generic [ref=e5805]: Session Reset (Direct)
+                      - generic [ref=e5807]: storage
+                    - img [ref=e5809]
+                - group [ref=e5811]:
+                  - generic "Session Reset (DM Deprecated Alias) storage" [ref=e5812] [cursor=pointer]:
+                    - generic [ref=e5813]:
+                      - generic [ref=e5814]: Session Reset (DM Deprecated Alias)
+                      - generic [ref=e5816]: storage
+                    - img [ref=e5818]
+                - group [ref=e5820]:
+                  - generic "Session Reset (Group) storage" [ref=e5821] [cursor=pointer]:
+                    - generic [ref=e5822]:
+                      - generic [ref=e5823]: Session Reset (Group)
+                      - generic [ref=e5825]: storage
+                    - img [ref=e5827]
+                - group [ref=e5829]:
+                  - generic "Session Reset (Thread) storage" [ref=e5830] [cursor=pointer]:
+                    - generic [ref=e5831]:
+                      - generic [ref=e5832]: Session Reset (Thread)
+                      - generic [ref=e5834]: storage
+                    - img [ref=e5836]
+            - generic [ref=e5838]:
+              - generic [ref=e5839]:
+                - generic [ref=e5840]:
+                  - generic [ref=e5841]: Session Reset Triggers
+                  - generic [ref=e5843]: storage
+                - generic [ref=e5844]: 0 items
+                - button "Add" [ref=e5845] [cursor=pointer]:
+                  - img [ref=e5847]
+                  - text: Add
+              - generic [ref=e5848]: Lists message triggers that force a session reset when matched in inbound content. Use sparingly for explicit reset phrases so context is not dropped unexpectedly during normal conversation.
+              - generic [ref=e5849]: No items yet. Click "Add" to create one.
+            - generic [ref=e5850]:
+              - generic [ref=e5851]: Session Scope
+              - generic [ref=e5852]: "Sets base session grouping strategy: \"per-sender\" isolates by sender and \"global\" shares one session per channel context. Keep \"per-sender\" for safer multi-user behavior unless deliberate shared context is required."
+              - generic [ref=e5854]: storage
+              - generic [ref=e5855]:
+                - button "per-sender" [ref=e5856] [cursor=pointer]
+                - button "global" [ref=e5857] [cursor=pointer]
+            - group [ref=e5858]:
+              - generic "Session Send Policy access storage" [ref=e5859] [cursor=pointer]:
+                - generic [ref=e5860]:
+                  - generic [ref=e5861]: Session Send Policy
+                  - generic [ref=e5862]:
+                    - generic [ref=e5863]: access
+                    - generic [ref=e5864]: storage
+                - img [ref=e5866]
+              - generic [ref=e5868]: Controls cross-session send permissions using allow/deny rules evaluated against channel, chatType, and key prefixes. Use this to fence where session tools can deliver messages in complex environments.
+              - generic [ref=e5869]:
+                - generic [ref=e5870]:
+                  - generic [ref=e5871]: Session Send Policy Default Action
+                  - generic [ref=e5872]: "Sets fallback action when no sendPolicy rule matches: \"allow\" or \"deny\". Keep \"allow\" for simpler setups, or choose \"deny\" when you require explicit allow rules for every destination."
+                  - generic [ref=e5873]:
+                    - generic [ref=e5874]: access
+                    - generic [ref=e5875]: storage
+                  - generic [ref=e5876]:
+                    - button "allow" [ref=e5877] [cursor=pointer]
+                    - button "deny" [ref=e5878] [cursor=pointer]
+                - generic [ref=e5879]:
+                  - generic [ref=e5880]:
+                    - generic [ref=e5881]:
+                      - generic [ref=e5882]: Session Send Policy Rules
+                      - generic [ref=e5883]:
+                        - generic [ref=e5884]: access
+                        - generic [ref=e5885]: storage
+                    - generic [ref=e5886]: 0 items
+                    - button "Add" [ref=e5887] [cursor=pointer]:
+                      - img [ref=e5889]
+                      - text: Add
+                  - generic [ref=e5890]: "Ordered allow/deny rules evaluated before the default action, for example `{ action: \"deny\", match: { channel: \"discord\" } }`. Put most specific rules first so broad rules do not shadow exceptions."
+                  - generic [ref=e5891]: No items yet. Click "Add" to create one.
+            - generic [ref=e5892]:
+              - generic [ref=e5893]: Session Store Path
+              - generic [ref=e5894]: Sets the session storage file path used to persist session records across restarts. Use an explicit path only when you need custom disk layout, backup routing, or mounted-volume storage.
+              - generic [ref=e5896]: storage
+              - textbox [ref=e5898]
+            - group [ref=e5899]:
+              - generic "Session Thread Bindings storage" [ref=e5900] [cursor=pointer]:
+                - generic [ref=e5901]:
+                  - generic [ref=e5902]: Session Thread Bindings
+                  - generic [ref=e5904]: storage
+                - img [ref=e5906]
+              - generic [ref=e5908]: Shared defaults for thread-bound session routing behavior across providers that support thread focus workflows. Configure global defaults here and override per channel only when behavior differs.
+              - generic [ref=e5909]:
+                - generic [ref=e5910] [cursor=pointer]:
+                  - generic [ref=e5911]:
+                    - generic [ref=e5912]: Thread Binding Enabled
+                    - generic [ref=e5913]: Global master switch for thread-bound session routing features and focused thread delivery behavior. Keep enabled for modern thread workflows unless you need to disable thread binding globally.
+                    - generic [ref=e5915]: storage
+                  - generic [ref=e5916]:
+                    - checkbox "Thread Binding Enabled Global master switch for thread-bound session routing features and focused thread delivery behavior. Keep enabled for modern thread workflows unless you need to disable thread binding globally. storage"
+                - generic [ref=e5918]:
+                  - generic [ref=e5919]: Thread Binding Idle Timeout (hours)
+                  - generic [ref=e5920]: "Default inactivity window in hours for thread-bound sessions across providers/channels (0 disables idle auto-unfocus). Default: 24."
+                  - generic [ref=e5922]: storage
+                  - generic [ref=e5923]:
+                    - button "−" [ref=e5924] [cursor=pointer]
+                    - spinbutton [ref=e5925]
+                    - button "+" [ref=e5926] [cursor=pointer]
+                - generic [ref=e5927]:
+                  - generic [ref=e5928]: Thread Binding Max Age (hours)
+                  - generic [ref=e5929]: "Optional hard max age in hours for thread-bound sessions across providers/channels (0 disables hard cap). Default: 0."
+                  - generic [ref=e5930]:
+                    - generic [ref=e5931]: performance
+                    - generic [ref=e5932]: storage
+                  - generic [ref=e5933]:
+                    - button "−" [ref=e5934] [cursor=pointer]
+                    - spinbutton [ref=e5935]
+                    - button "+" [ref=e5936] [cursor=pointer]
+            - generic [ref=e5937]:
+              - generic [ref=e5938]: Session Typing Interval (seconds)
+              - generic [ref=e5939]: Controls interval for repeated typing indicators while replies are being prepared in typing-capable channels. Increase to reduce chatty updates or decrease for more active typing feedback.
+              - generic [ref=e5940]:
+                - generic [ref=e5941]: performance
+                - generic [ref=e5942]: storage
+              - generic [ref=e5943]:
+                - button "−" [ref=e5944] [cursor=pointer]
+                - spinbutton [ref=e5945]
+                - button "+" [ref=e5946] [cursor=pointer]
+            - generic [ref=e5947]:
+              - generic [ref=e5948]: Session Typing Mode
+              - generic [ref=e5949]: "Controls typing behavior timing: \"never\", \"instant\", \"thinking\", or \"message\" based emission points. Keep conservative modes in high-volume channels to avoid unnecessary typing noise."
+              - generic [ref=e5951]: storage
+              - generic [ref=e5952]:
+                - button "never" [ref=e5953] [cursor=pointer]
+                - button "instant" [ref=e5954] [cursor=pointer]
+                - button "thinking" [ref=e5955] [cursor=pointer]
+                - button "message" [ref=e5956] [cursor=pointer]
+        - generic [ref=e5957]:
+          - generic [ref=e5958]:
+            - img [ref=e5960]
+            - generic [ref=e5962]:
+              - heading "Skills" [level=3] [ref=e5963]
+              - paragraph [ref=e5964]: Skill packs and capabilities
+          - generic [ref=e5966]:
+            - generic [ref=e5967]:
+              - generic [ref=e5968]:
+                - generic [ref=e5970]: Allow Bundled
+                - generic [ref=e5971]: 0 items
+                - button "Add" [ref=e5972] [cursor=pointer]:
+                  - img [ref=e5974]
+                  - text: Add
+              - generic [ref=e5975]: No items yet. Click "Add" to create one.
+            - group [ref=e5976]:
+              - generic "Entries" [ref=e5977] [cursor=pointer]:
+                - generic [ref=e5979]: Entries
+                - img [ref=e5981]
+              - generic [ref=e5984]:
+                - generic [ref=e5985]:
+                  - generic [ref=e5986]: Custom entries
+                  - button "Add Entry" [ref=e5987] [cursor=pointer]:
+                    - img [ref=e5989]
+                    - text: Add Entry
+                - generic [ref=e5990]: No custom entries.
+            - group [ref=e5991]:
+              - generic "Install" [ref=e5992] [cursor=pointer]:
+                - generic [ref=e5994]: Install
+                - img [ref=e5996]
+              - generic [ref=e5998]:
+                - generic [ref=e5999]:
+                  - generic [ref=e6000]: Node Manager
+                  - generic [ref=e6001]:
+                    - button "npm" [ref=e6002] [cursor=pointer]
+                    - button "pnpm" [ref=e6003] [cursor=pointer]
+                    - button "yarn" [ref=e6004] [cursor=pointer]
+                    - button "bun" [ref=e6005] [cursor=pointer]
+                - generic [ref=e6006] [cursor=pointer]:
+                  - generic [ref=e6008]: Prefer Brew
+                  - generic [ref=e6009]:
+                    - checkbox "Prefer Brew"
+            - group [ref=e6011]:
+              - generic "Limits" [ref=e6012] [cursor=pointer]:
+                - generic [ref=e6014]: Limits
+                - img [ref=e6016]
+              - generic [ref=e6018]:
+                - generic [ref=e6019]:
+                  - generic [ref=e6020]: Max Candidates Per Root
+                  - generic [ref=e6021]:
+                    - button "−" [ref=e6022] [cursor=pointer]
+                    - spinbutton [ref=e6023]
+                    - button "+" [ref=e6024] [cursor=pointer]
+                - generic [ref=e6025]:
+                  - generic [ref=e6026]: Max Skill File Bytes
+                  - generic [ref=e6027]:
+                    - button "−" [ref=e6028] [cursor=pointer]
+                    - spinbutton [ref=e6029]
+                    - button "+" [ref=e6030] [cursor=pointer]
+                - generic [ref=e6031]:
+                  - generic [ref=e6032]: Max Skills In Prompt
+                  - generic [ref=e6033]:
+                    - button "−" [ref=e6034] [cursor=pointer]
+                    - spinbutton [ref=e6035]
+                    - button "+" [ref=e6036] [cursor=pointer]
+                - generic [ref=e6037]:
+                  - generic [ref=e6038]: Max Skills Loaded Per Source
+                  - generic [ref=e6039]:
+                    - button "−" [ref=e6040] [cursor=pointer]
+                    - spinbutton [ref=e6041]
+                    - button "+" [ref=e6042] [cursor=pointer]
+                - generic [ref=e6043]:
+                  - generic [ref=e6044]: Max Skills Prompt Chars
+                  - generic [ref=e6045]:
+                    - button "−" [ref=e6046] [cursor=pointer]
+                    - spinbutton [ref=e6047]
+                    - button "+" [ref=e6048] [cursor=pointer]
+            - group [ref=e6049]:
+              - generic "Load" [ref=e6050] [cursor=pointer]:
+                - generic [ref=e6052]: Load
+                - img [ref=e6054]
+              - generic [ref=e6056]:
+                - generic [ref=e6057]:
+                  - generic [ref=e6058]:
+                    - generic [ref=e6060]: Extra Dirs
+                    - generic [ref=e6061]: 0 items
+                    - button "Add" [ref=e6062] [cursor=pointer]:
+                      - img [ref=e6064]
+                      - text: Add
+                  - generic [ref=e6065]: No items yet. Click "Add" to create one.
+                - generic [ref=e6066] [cursor=pointer]:
+                  - generic [ref=e6067]:
+                    - generic [ref=e6068]: Watch Skills
+                    - generic [ref=e6069]: Enable filesystem watching for skill-definition changes so updates can be applied without full process restart. Keep enabled in development workflows and disable in immutable production images.
+                    - generic [ref=e6071]: advanced
+                  - generic [ref=e6072]:
+                    - checkbox "Watch Skills Enable filesystem watching for skill-definition changes so updates can be applied without full process restart. Keep enabled in development workflows and disable in immutable production images. advanced"
+                - generic [ref=e6074]:
+                  - generic [ref=e6075]: Skills Watch Debounce (ms)
+                  - generic [ref=e6076]: Debounce window in milliseconds for coalescing rapid skill file changes before reload logic runs. Increase to reduce reload churn on frequent writes, or lower for faster edit feedback.
+                  - generic [ref=e6077]:
+                    - generic [ref=e6078]: performance
+                    - generic [ref=e6079]: automation
+                  - generic [ref=e6080]:
+                    - button "−" [ref=e6081] [cursor=pointer]
+                    - spinbutton [ref=e6082]
+                    - button "+" [ref=e6083] [cursor=pointer]

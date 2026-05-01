@@ -32,6 +32,7 @@ actually lives here.
 - `law-kg-prd`
 - `repo-codegraph-jsdoc`
 - `repo-architecture-automation`
+- `schema-to-drizzle-projection`
 - `trustgraph-doc-ontology`
 - `turborepo-audit`
 

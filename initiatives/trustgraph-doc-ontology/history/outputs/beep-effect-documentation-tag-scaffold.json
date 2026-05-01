@@ -211,11 +211,7 @@
       "mixin",
       "any"
     ],
-    "astDerivabilityLevels": [
-      "full",
-      "partial",
-      "none"
-    ],
+    "astDerivabilityLevels": ["full", "partial", "none"],
     "docgenKinds": [
       "function",
       "const",
@@ -372,15 +368,8 @@
       "TypeAliasDeclaration",
       "EnumDeclaration"
     ],
-    "requiredPublicExportTags": [
-      "example",
-      "since"
-    ],
-    "tagKinds": [
-      "block",
-      "inline",
-      "modifier"
-    ]
+    "requiredPublicExportTags": ["example", "since"],
+    "tagKinds": ["block", "inline", "modifier"]
   },
   "ontologyNamespace": "urn:beep-effect:doc-ontology#",
   "probeOntologyKey": "beep-effect-doc-ontology-probe-2026-04-04",

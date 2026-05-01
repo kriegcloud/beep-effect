@@ -15,7 +15,7 @@
       "kind": "domain",
       "packageName": "@beep/fixture-lab-specimen-domain",
       "path": "packages/fixture-lab/specimen/domain",
-      "exports": [".", "./entities/Specimen"]
+      "exports": [".", "./entities", "./entities/Specimen"]
     },
     {
       "kind": "use-cases",

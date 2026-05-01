@@ -3,7 +3,7 @@ import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Effect, FileSystem, Layer, Path } from "effect";
+import { Effect, FileSystem, Layer, Order, Path } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
@@ -151,6 +151,7 @@ const bootstrapWorkspace = Effect.fn(function* (
     readonly dependencies?: Record<string, string>;
     readonly references?: ReadonlyArray<string>;
     readonly docgenConfig?: unknown;
+    readonly exports?: unknown;
   }
 ) {
   const path = yield* Path.Path;
@@ -160,7 +161,7 @@ const bootstrapWorkspace = Effect.fn(function* (
     name: options.packageName,
     version: "0.0.0",
     ...(options.dependencies === undefined ? {} : { dependencies: options.dependencies }),
-    exports: {
+    exports: options.exports ?? {
       ".": "./src/index.ts",
       "./*": "./src/*.ts",
     },
@@ -262,6 +263,81 @@ describe("tsconfig-sync", () => {
 
           const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
           expect(syncpackConfig).toContain(`"packages/example-domain/package.json"`);
+        })
+      )
+    );
+  });
+
+  it("does not synthesize wildcard aliases for packages without wildcard exports", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const rootDir = process.cwd();
+
+          yield* bootstrapRootConfig(rootDir, {
+            workspaces: ["packages/example-use-cases"],
+            references: ["packages/example-use-cases"],
+            paths: {
+              "@beep/example-use-cases": ["./packages/example-use-cases/src/index.ts"],
+              "@beep/example-use-cases/*": ["./packages/example-use-cases/src/*"],
+            },
+            testFileMatch: ["packages/example-use-cases/dtslint/**/*.tst.*"],
+            syncpackSources: ["package.json", "packages/example-use-cases/package.json"],
+          });
+          yield* bootstrapWorkspace(rootDir, {
+            relativeDir: "packages/example-use-cases",
+            packageName: "@beep/example-use-cases",
+            exports: {
+              ".": "./src/index.ts",
+              "./public": "./src/public.ts",
+              "./server": "./src/server.ts",
+              "./test": "./src/test.ts",
+              "./package.json": "./package.json",
+            },
+            docgenConfig: {
+              $schema: "../../../packages/tooling/tool/docgen/schema.json",
+              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/example-use-cases/src/",
+            },
+          });
+
+          const result = yield* syncTsconfigAtRoot(rootDir, {
+            mode: "sync",
+            filter: "@beep/example-use-cases",
+            verbose: false,
+          });
+
+          expect(
+            A.sort(
+              A.map(result.changes, (change) => change.section),
+              Order.String
+            )
+          ).toEqual(["package-docgen", "root-aliases"]);
+
+          const paths = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
+          expect(paths.compilerOptions.paths).toMatchObject({
+            "@beep/example-use-cases": ["./packages/example-use-cases/src/index.ts"],
+            "@beep/example-use-cases/public": ["./packages/example-use-cases/src/public.ts"],
+            "@beep/example-use-cases/server": ["./packages/example-use-cases/src/server.ts"],
+            "@beep/example-use-cases/test": ["./packages/example-use-cases/src/test.ts"],
+          });
+          expect(paths.compilerOptions.paths).not.toHaveProperty("@beep/example-use-cases/*");
+
+          const syncedDocgen = yield* readJsonFile(path.join(rootDir, "packages", "example-use-cases", "docgen.json"));
+          expect(syncedDocgen).toMatchObject({
+            examplesCompilerOptions: {
+              paths: {
+                "@beep/example-use-cases": ["../../packages/example-use-cases/src/index.ts"],
+                "@beep/example-use-cases/public": ["../../packages/example-use-cases/src/public.ts"],
+                "@beep/example-use-cases/server": ["../../packages/example-use-cases/src/server.ts"],
+                "@beep/example-use-cases/test": ["../../packages/example-use-cases/src/test.ts"],
+              },
+            },
+          });
+          expect(
+            (syncedDocgen as { readonly examplesCompilerOptions?: { readonly paths?: Record<string, unknown> } })
+              .examplesCompilerOptions?.paths
+          ).not.toHaveProperty("@beep/example-use-cases/*");
         })
       )
     );

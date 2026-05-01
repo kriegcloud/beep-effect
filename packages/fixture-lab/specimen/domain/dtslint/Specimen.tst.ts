@@ -1,10 +1,12 @@
 import {
   observeSpecimen,
-  Specimen,
+  type Specimen,
   type SpecimenStatus,
   type SpecimenStatus as SpecimenStatusType,
 } from "@beep/fixture-lab-specimen-domain";
 import { describe, expect, it } from "tstyche";
+
+declare const specimen: Specimen;
 
 describe("@beep/fixture-lab-specimen-domain", () => {
   it("exposes schema-backed lifecycle types", () => {
@@ -13,8 +15,6 @@ describe("@beep/fixture-lab-specimen-domain", () => {
   });
 
   it("preserves lifecycle helper input and output types", () => {
-    const specimen = new Specimen({ id: "specimen-1", label: "Fixture", status: "draft" });
-
     expect(specimen).type.toBe<Specimen>();
     expect(observeSpecimen(specimen)).type.toBe<Specimen>();
   });

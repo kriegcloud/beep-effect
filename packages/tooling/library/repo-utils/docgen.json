@@ -35,6 +35,9 @@
       "@beep/repo-utils/*": [
         "../../../../packages/tooling/library/repo-utils/src/*.ts"
       ],
+      "@beep/repo-utils/JSDoc/models/tag-values": [
+        "../../../../packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
+      ],
       "@beep/identity": [
         "../../../../packages/foundation/modeling/identity/src/index.ts"
       ],

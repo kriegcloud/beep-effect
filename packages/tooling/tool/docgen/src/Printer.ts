@@ -7,7 +7,7 @@
 
 import { Effect, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, flow } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
@@ -130,6 +130,52 @@ const printSeesArray = (sees?: ReadonlyArray<string>): string => {
   )}`;
 };
 
+const pathSegments = (segments: ReadonlyArray<string>): ReadonlyArray<string> =>
+  A.flatMap(segments, flow(Str.split(/[\\/]+/), A.filter(Str.isNonEmpty)));
+
+const startsWithSegments = (segments: ReadonlyArray<string>, prefix: ReadonlyArray<string>): boolean =>
+  prefix.length > 0 && prefix.every((segment, index) => segments[index] === segment);
+
+const findSubsequenceIndex = (segments: ReadonlyArray<string>, subsequence: ReadonlyArray<string>): number => {
+  if (subsequence.length === 0 || subsequence.length > segments.length) {
+    return -1;
+  }
+
+  for (let index = 0; index <= segments.length - subsequence.length; index++) {
+    if (subsequence.every((segment, offset) => segments[index + offset] === segment)) {
+      return index;
+    }
+  }
+
+  return -1;
+};
+
+const stripSourceDirSegments = (
+  segments: ReadonlyArray<string>,
+  sourceDirSegments: ReadonlyArray<string>
+): ReadonlyArray<string> => {
+  if (sourceDirSegments.length === 0) {
+    return segments;
+  }
+
+  if (startsWithSegments(segments, sourceDirSegments)) {
+    return A.drop(segments, sourceDirSegments.length);
+  }
+
+  const sourceDirIndex = findSubsequenceIndex(segments, sourceDirSegments);
+  return sourceDirIndex === -1 ? segments : A.drop(segments, sourceDirIndex + sourceDirSegments.length);
+};
+
+const getSourceLinkPath = (source: Parser.SourceShape, config: Configuration.ConfigurationShape): string => {
+  const sourceSegments = pathSegments(source.path);
+  const sourceDirSegments = pathSegments([config.srcDir]);
+  const relativeSegments = stripSourceDirSegments(sourceSegments, sourceDirSegments);
+  return relativeSegments.length === 0 ? source.sourceFile.getBaseName() : A.join("/")(relativeSegments);
+};
+
+const appendUrlPath = (baseUrl: string, relativePath: string): string =>
+  `${baseUrl}${Str.endsWith("/")(baseUrl) ? "" : "/"}${relativePath}`;
+
 const printOptionalSourceLink = Effect.fn("printOptionalSourceLink")(function* (position?: Domain.Position) {
   if (P.isUndefined(position)) {
     return "";
@@ -137,8 +183,8 @@ const printOptionalSourceLink = Effect.fn("printOptionalSourceLink")(function* (
 
   const config = yield* Configuration.Configuration;
   const source = yield* Parser.Source;
-  const name = source.sourceFile.getBaseName();
-  return `\n\n[Source](${config.srcLink}${name}#L${position.line})`;
+  const sourcePath = getSourceLinkPath(source, config);
+  return `\n\n[Source](${appendUrlPath(config.srcLink, sourcePath)}#L${position.line})`;
 });
 
 const printModel = Effect.fn("printModel")(function* (

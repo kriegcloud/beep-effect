@@ -149,8 +149,8 @@ export type BannerMode = typeof BannerMode.Type;
  * import { PrettyLoggerConfig } from "@beep/observability"
  *
  * const config = new PrettyLoggerConfig({
- *
- *
+ *   theme: "forest",
+ *   bannerMode: "off",
  * })
  *
  * void config.theme // "forest"
@@ -177,8 +177,8 @@ export class PrettyLoggerConfig extends S.Class<PrettyLoggerConfig>($I`PrettyLog
  * import { LoggingConfig } from "@beep/observability"
  *
  * const config = new LoggingConfig({
- *
- *
+ *   format: "structured",
+ *   minLogLevel: "Info",
  * })
  *
  * void config.format // "structured"

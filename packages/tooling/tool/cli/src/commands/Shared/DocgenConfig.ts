@@ -299,6 +299,7 @@ export const buildDocgenAliasSource: {
     O.getOrElse(() => "./src/index.ts")
   );
   const wildcardExportTarget = pipe(exportsField, resolveWildcardExportTarget, O.getOrUndefined);
+  const hasWildcardExport = pipe(exportsField, resolveWildcardExportTarget, O.isSome);
   const aliasTargets = buildDocgenAliasTargets(packageRelativePath, {
     rootExportTarget,
     wildcardExportTarget,
@@ -308,7 +309,7 @@ export const buildDocgenAliasSource: {
   return new DocgenAliasSource({
     packageName,
     rootAliasTarget: aliasTargets.rootAliasTarget,
-    wildcardAliasTarget: aliasTargets.wildcardAliasTarget,
+    wildcardAliasTarget: hasWildcardExport ? aliasTargets.wildcardAliasTarget : "",
     subpathAliasTargets,
   });
 });
@@ -354,15 +355,23 @@ const buildDocgenAliasIndex = (sources: ReadonlyArray<DocgenAliasSource>): HashM
 const docgenAliasPathEntries = (
   rootRelativePrefix: string,
   aliasSource: DocgenAliasSource
-): ReadonlyArray<readonly [string, ReadonlyArray<string>]> => [
-  [aliasSource.packageName, [withRootRelativePrefix(rootRelativePrefix, aliasSource.rootAliasTarget)]],
-  [`${aliasSource.packageName}/*`, [withRootRelativePrefix(rootRelativePrefix, aliasSource.wildcardAliasTarget)]],
-  ...pipe(
-    aliasSource.subpathAliasTargets ?? EMPTY_STRING_RECORD,
-    R.toEntries,
-    A.map(([alias, target]) => [alias, [withRootRelativePrefix(rootRelativePrefix, target)]] as const)
-  ),
-];
+): ReadonlyArray<readonly [string, ReadonlyArray<string>]> => {
+  const wildcardEntries = Str.isNonEmpty(aliasSource.wildcardAliasTarget)
+    ? ([
+        [`${aliasSource.packageName}/*`, [withRootRelativePrefix(rootRelativePrefix, aliasSource.wildcardAliasTarget)]],
+      ] as const)
+    : A.empty<readonly [string, ReadonlyArray<string>]>();
+
+  return [
+    [aliasSource.packageName, [withRootRelativePrefix(rootRelativePrefix, aliasSource.rootAliasTarget)]],
+    ...wildcardEntries,
+    ...pipe(
+      aliasSource.subpathAliasTargets ?? EMPTY_STRING_RECORD,
+      R.toEntries,
+      A.map(([alias, target]) => [alias, [withRootRelativePrefix(rootRelativePrefix, target)]] as const)
+    ),
+  ];
+};
 
 const buildDocgenExamplesPaths = (
   packageName: string,

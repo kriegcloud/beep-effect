@@ -17,7 +17,13 @@ const $I = $ObservabilityId.create("web/Config");
  * ```typescript
  * import { WebObservabilityConfig } from "@beep/observability/web"
  *
- * const config = new WebObservabilityConfig({})
+ * const config = new WebObservabilityConfig({
+ *   serviceName: "todox-web",
+ *   serviceVersion: "0.0.0",
+ *   environment: "development",
+ *   minLogLevel: "Info",
+ *   resourceAttributes: {},
+ * })
  *
  * console.log(config.serviceName) // "todox-web"
  * ```
@@ -45,7 +51,13 @@ export class WebObservabilityConfig extends S.Class<WebObservabilityConfig>($I`W
  * ```typescript
  * import { WebObservabilityConfig, toWebResource } from "@beep/observability/web"
  *
- * const config = new WebObservabilityConfig({})
+ * const config = new WebObservabilityConfig({
+ *   serviceName: "todox-web",
+ *   serviceVersion: "0.0.0",
+ *   environment: "development",
+ *   minLogLevel: "Info",
+ *   resourceAttributes: {},
+ * })
  *
  * const resource = toWebResource(config)
  * console.log(resource.serviceName) // "todox-web"

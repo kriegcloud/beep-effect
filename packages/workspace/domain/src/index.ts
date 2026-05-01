@@ -4,122 +4,63 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { LiteralKit } from "@beep/schema";
-import { EntityIdValue } from "@beep/shared-domain/entity/EntityId";
-import * as S from "effect/Schema";
-
-const UnknownRecord = S.Record(S.String, S.Unknown);
 
 /**
- * Candidate lifecycle vocabulary for proof outputs.
+ * Workspace domain entity namespaces.
  *
- * @category models
+ * @example
+ * ```ts
+ * import * as Module from "@beep/workspace-domain"
+ *
+ * console.log(Module)
+ * ```
+
+ * @category entities
  * @since 0.0.0
  */
-export const CandidateLifecycle = LiteralKit(["candidate"] as const);
+export * as Entities from "./entities/index.js";
 
 /**
- * Review decision vocabulary for approval gates.
+ * Root workspace domain entity exports.
  *
- * @category models
+ * @example
+ * ```ts
+ * import * as Module from "@beep/workspace-domain"
+ *
+ * console.log(Module)
+ * ```
+
+ * @category entities
  * @since 0.0.0
  */
-export const ApprovalDecision = LiteralKit(["pending"] as const);
+export * from "./entities/index.js";
 
 /**
- * User or team work area.
+ * Workspace domain value namespaces.
  *
- * @category models
+ * @example
+ * ```ts
+ * import * as Module from "@beep/workspace-domain"
+ *
+ * console.log(Module)
+ * ```
+
+ * @category values
  * @since 0.0.0
  */
-export class Workspace extends S.Class<Workspace>("@beep/workspace-domain/Workspace")({
-  fixtureKey: S.String,
-  id: EntityIdValue,
-  name: S.String,
-  organizationFixtureKey: S.String,
-  ownerPrincipalFixtureKey: S.String,
-}) {}
+export * as Values from "./values/index.js";
 
 /**
- * Normalized email artifact imported into a workspace thread.
+ * Root workspace domain value exports.
  *
- * @category models
- * @since 0.0.0
- */
-export class EmailArtifact extends S.Class<EmailArtifact>("@beep/workspace-domain/EmailArtifact")({
-  artifactFixtureKey: S.String,
-  body: S.String,
-  from: UnknownRecord,
-  id: EntityIdValue,
-  receivedAt: S.String,
-  sourceSpans: S.Array(S.String),
-  subject: S.String,
-  threadFixtureKey: S.String,
-  to: S.Array(UnknownRecord),
-}) {}
+ * @example
+ * ```ts
+ * import * as Module from "@beep/workspace-domain"
+ *
+ * console.log(Module)
+ * ```
 
-/**
- * Candidate project proposed by an agent.
- *
- * @category models
+ * @category values
  * @since 0.0.0
  */
-export class CandidateProject extends S.Class<CandidateProject>("@beep/workspace-domain/CandidateProject")({
-  fixtureKey: S.String,
-  id: EntityIdValue,
-  lifecycle: CandidateLifecycle,
-  snapshot: UnknownRecord,
-}) {}
-
-/**
- * Candidate task proposed by an agent.
- *
- * @category models
- * @since 0.0.0
- */
-export class CandidateTask extends S.Class<CandidateTask>("@beep/workspace-domain/CandidateTask")({
-  fixtureKey: S.String,
-  id: EntityIdValue,
-  lifecycle: CandidateLifecycle,
-  snapshot: UnknownRecord,
-}) {}
-
-/**
- * Candidate draft artifact proposed by an agent.
- *
- * @category models
- * @since 0.0.0
- */
-export class CandidateDraft extends S.Class<CandidateDraft>("@beep/workspace-domain/CandidateDraft")({
-  fixtureKey: S.String,
-  id: EntityIdValue,
-  lifecycle: CandidateLifecycle,
-  snapshot: UnknownRecord,
-}) {}
-
-/**
- * Human approval gate for candidate work.
- *
- * @category models
- * @since 0.0.0
- */
-export class ApprovalGate extends S.Class<ApprovalGate>("@beep/workspace-domain/ApprovalGate")({
-  decision: ApprovalDecision,
-  fixtureKey: S.String,
-  id: EntityIdValue,
-  lifecycle: CandidateLifecycle,
-  snapshot: UnknownRecord,
-}) {}
-
-/**
- * Bounded context packet returned through the SDK facade.
- *
- * @category models
- * @since 0.0.0
- */
-export class ContextPacket extends S.Class<ContextPacket>("@beep/workspace-domain/ContextPacket")({
-  fixtureKey: S.String,
-  id: EntityIdValue,
-  scenarioFixtureKey: S.String,
-  snapshot: UnknownRecord,
-}) {}
+export * from "./values/index.js";

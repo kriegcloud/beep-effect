@@ -23,6 +23,14 @@ import {
 /**
  * Remote operation names supported by the combined specimen client.
  *
+ * @example
+ * ```ts
+ * import type { SpecimenClientOperation } from "@beep/fixture-lab-specimen-client"
+ *
+ * const operation: SpecimenClientOperation = "getSpecimen"
+ * console.log(operation)
+ * ```
+ *
  * @category clients
  * @since 0.0.0
  */
@@ -30,6 +38,15 @@ export type SpecimenClientOperation = SpecimenCommandOperation | SpecimenQueryOp
 
 /**
  * Request envelopes accepted by the combined specimen client.
+ *
+ * @example
+ * ```ts
+ * import type { SpecimenClientRequest } from "@beep/fixture-lab-specimen-client"
+ * import { GetSpecimen } from "@beep/fixture-lab-specimen-use-cases/public"
+ *
+ * const request: SpecimenClientRequest = new GetSpecimen({ id: "specimen-1" })
+ * console.log(request.id)
+ * ```
  *
  * @category clients
  * @since 0.0.0
@@ -45,8 +62,9 @@ export type SpecimenClientRequest = SpecimenCommandRequest | SpecimenQueryReques
  * import type { SpecimenClientTransport } from "@beep/fixture-lab-specimen-client"
  * import { Effect } from "effect"
  *
+ * declare const specimen: Specimen
  * const transport: SpecimenClientTransport = {
- *   request: () => Effect.succeed(new Specimen({ id: "specimen-1", label: "Fixture", status: "draft" })),
+ *   request: () => Effect.succeed(specimen),
  * }
  * void transport
  * ```
@@ -64,6 +82,14 @@ export interface SpecimenClientTransport {
 /**
  * Combined client facade methods exposed to UI and application callers.
  *
+ * @example
+ * ```ts
+ * import type { SpecimenClient } from "@beep/fixture-lab-specimen-client"
+ *
+ * declare const client: SpecimenClient
+ * console.log(client)
+ * ```
+ *
  * @category clients
  * @since 0.0.0
  */
@@ -78,8 +104,9 @@ export interface SpecimenClient extends SpecimenCommandClient, SpecimenQueryClie
  * import { Specimen } from "@beep/fixture-lab-specimen-domain"
  * import { Effect } from "effect"
  *
+ * declare const specimen: Specimen
  * const client = makeSpecimenClient({
- *   request: () => Effect.succeed(new Specimen({ id: "specimen-1", label: "Fixture", status: "draft" })),
+ *   request: () => Effect.succeed(specimen),
  * })
  * const program = client.getSpecimen("specimen-1")
  * void program

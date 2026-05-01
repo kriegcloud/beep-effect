@@ -21,8 +21,8 @@ const make = EntityId.factory("shared", $I);
  * console.log(OrganizationId.tableName)
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export const OrganizationId = make("organization", {
   description: "Identifier for a shared-kernel organization entity.",
@@ -44,8 +44,8 @@ export const OrganizationId = make("organization", {
  * void program
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export type OrganizationId = typeof OrganizationId.Type;
 
@@ -59,8 +59,8 @@ export type OrganizationId = typeof OrganizationId.Type;
  * console.log(UserId.tableName)
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export const UserId = make("user", {
   description: "Identifier for a shared-kernel user entity.",
@@ -82,8 +82,8 @@ export const UserId = make("user", {
  * void program
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export type UserId = typeof UserId.Type;
 
@@ -97,8 +97,8 @@ export type UserId = typeof UserId.Type;
  * console.log(TeamId.tableName)
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export const TeamId = make("team", {
   description: "Identifier for a shared-kernel team entity.",
@@ -120,8 +120,8 @@ export const TeamId = make("team", {
  * void program
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export type TeamId = typeof TeamId.Type;
 
@@ -135,8 +135,8 @@ export type TeamId = typeof TeamId.Type;
  * console.log(ServiceAccountId.tableName)
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export const ServiceAccountId = make("service_account", {
   description: "Identifier for a shared-kernel service account entity.",
@@ -158,8 +158,8 @@ export const ServiceAccountId = make("service_account", {
  * void program
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export type ServiceAccountId = typeof ServiceAccountId.Type;
 
@@ -173,8 +173,8 @@ export type ServiceAccountId = typeof ServiceAccountId.Type;
  * console.log(AgentId.tableName)
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export const AgentId = make("agent", {
   description: "Identifier for a shared-kernel agent entity.",
@@ -196,8 +196,8 @@ export const AgentId = make("agent", {
  * void program
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export type AgentId = typeof AgentId.Type;
 
@@ -211,8 +211,8 @@ export type AgentId = typeof AgentId.Type;
  * console.log(AgentVersionId.tableName)
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export const AgentVersionId = make("agent_version", {
   description: "Identifier for a shared-kernel agent version entity.",
@@ -234,8 +234,8 @@ export const AgentVersionId = make("agent_version", {
  * void program
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export type AgentVersionId = typeof AgentVersionId.Type;
 
@@ -249,8 +249,8 @@ export type AgentVersionId = typeof AgentVersionId.Type;
  * console.log(ConnectorAccountId.tableName)
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export const ConnectorAccountId = make("connector_account", {
   description: "Identifier for a shared-kernel connector account entity.",
@@ -272,8 +272,8 @@ export const ConnectorAccountId = make("connector_account", {
  * void program
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export type ConnectorAccountId = typeof ConnectorAccountId.Type;
 
@@ -287,8 +287,8 @@ export type ConnectorAccountId = typeof ConnectorAccountId.Type;
  * console.log(ActivityId.tableName)
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export const ActivityId = make("activity", {
   description: "Identifier for a shared-kernel provenance activity entity.",
@@ -310,8 +310,8 @@ export const ActivityId = make("activity", {
  * void program
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export type ActivityId = typeof ActivityId.Type;
 
@@ -325,8 +325,8 @@ export type ActivityId = typeof ActivityId.Type;
  * console.log(LocalMachineId.tableName)
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export const LocalMachineId = make("local_machine", {
   description: "Identifier for a local machine participating in sync.",
@@ -348,7 +348,7 @@ export const LocalMachineId = make("local_machine", {
  * void program
  * ```
  *
- * @since 0.0.0
  * @category entity ids
+ * @since 0.0.0
  */
 export type LocalMachineId = typeof LocalMachineId.Type;

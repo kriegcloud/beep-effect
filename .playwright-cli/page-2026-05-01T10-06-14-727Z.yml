@@ -1,0 +1,399 @@
+- generic [ref=e64]:
+  - banner [ref=e65]:
+    - generic [ref=e66]:
+      - generic [ref=e70]:
+        - link "OpenClaw" [ref=e71] [cursor=pointer]:
+          - /url: /overview
+        - generic [ref=e72]: ›
+        - generic [ref=e73]: Nodes
+      - generic [ref=e74]:
+        - button "Open command palette" [ref=e75] [cursor=pointer]:
+          - generic [ref=e76]: Search
+          - generic [ref=e77]: ⌘K
+        - group "Color mode" [ref=e79]:
+          - 'button "Color mode: System" [pressed] [ref=e80] [cursor=pointer]':
+            - img [ref=e81]
+          - 'button "Color mode: Light" [ref=e83] [cursor=pointer]':
+            - img [ref=e84]
+          - 'button "Color mode: Dark" [ref=e90] [cursor=pointer]':
+            - img [ref=e91]
+  - complementary [ref=e94]:
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - generic [ref=e97]:
+          - img "OpenClaw" [ref=e98]
+          - generic [ref=e99]:
+            - generic [ref=e100]: Control
+            - generic [ref=e101]: OpenClaw
+        - button "Collapse sidebar" [ref=e102] [cursor=pointer]:
+          - img [ref=e104]
+      - navigation [ref=e108]:
+        - generic [ref=e109]:
+          - button "Chat" [expanded] [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]: Chat
+            - img [ref=e113]
+          - link "Chat" [ref=e116] [cursor=pointer]:
+            - /url: /chat
+            - img [ref=e118]
+            - generic [ref=e120]: Chat
+        - generic [ref=e121]:
+          - button "Control" [expanded] [ref=e122] [cursor=pointer]:
+            - generic [ref=e123]: Control
+            - img [ref=e125]
+          - generic [ref=e127]:
+            - link "Overview" [ref=e128] [cursor=pointer]:
+              - /url: /overview
+              - img [ref=e130]
+              - generic [ref=e131]: Overview
+            - link "Channels" [ref=e132] [cursor=pointer]:
+              - /url: /channels
+              - img [ref=e134]
+              - generic [ref=e137]: Channels
+            - link "Instances" [ref=e138] [cursor=pointer]:
+              - /url: /instances
+              - img [ref=e140]
+              - generic [ref=e143]: Instances
+            - link "Sessions" [ref=e144] [cursor=pointer]:
+              - /url: /sessions
+              - img [ref=e146]
+              - generic [ref=e149]: Sessions
+            - link "Usage" [ref=e150] [cursor=pointer]:
+              - /url: /usage
+              - img [ref=e152]
+              - generic [ref=e153]: Usage
+            - link "Cron Jobs" [ref=e154] [cursor=pointer]:
+              - /url: /cron
+              - img [ref=e156]
+              - generic [ref=e161]: Cron Jobs
+        - generic [ref=e162]:
+          - button "Agent" [expanded] [ref=e163] [cursor=pointer]:
+            - generic [ref=e164]: Agent
+            - img [ref=e166]
+          - generic [ref=e168]:
+            - link "Agents" [ref=e169] [cursor=pointer]:
+              - /url: /agents
+              - img [ref=e171]
+              - generic [ref=e173]: Agents
+            - link "Skills" [ref=e174] [cursor=pointer]:
+              - /url: /skills
+              - img [ref=e176]
+              - generic [ref=e178]: Skills
+            - link "Nodes" [active] [ref=e179] [cursor=pointer]:
+              - /url: /nodes
+              - img [ref=e181]
+              - generic [ref=e183]: Nodes
+            - link "Dreaming" [ref=e184] [cursor=pointer]:
+              - /url: /dreaming
+              - img [ref=e186]
+              - generic [ref=e188]: Dreaming
+        - generic [ref=e189]:
+          - button "Settings" [expanded] [ref=e190] [cursor=pointer]:
+            - generic [ref=e191]: Settings
+            - img [ref=e193]
+          - generic [ref=e195]:
+            - link "Config" [ref=e196] [cursor=pointer]:
+              - /url: /config
+              - img [ref=e198]
+              - generic [ref=e201]: Config
+            - link "Communications" [ref=e202] [cursor=pointer]:
+              - /url: /communications
+              - img [ref=e204]
+              - generic [ref=e207]: Communications
+            - link "Appearance" [ref=e208] [cursor=pointer]:
+              - /url: /appearance
+              - img [ref=e210]
+              - generic [ref=e212]: Appearance
+            - link "Automation" [ref=e213] [cursor=pointer]:
+              - /url: /automation
+              - img [ref=e215]
+              - generic [ref=e217]: Automation
+            - link "Infrastructure" [ref=e218] [cursor=pointer]:
+              - /url: /infrastructure
+              - img [ref=e220]
+              - generic [ref=e223]: Infrastructure
+            - link "AI & Agents" [ref=e224] [cursor=pointer]:
+              - /url: /ai-agents
+              - img [ref=e226]
+              - generic [ref=e236]: AI & Agents
+            - link "Debug" [ref=e237] [cursor=pointer]:
+              - /url: /debug
+              - img [ref=e239]
+              - generic [ref=e248]: Debug
+            - link "Logs" [ref=e249] [cursor=pointer]:
+              - /url: /logs
+              - img [ref=e251]
+              - generic [ref=e254]: Logs
+      - generic [ref=e256]:
+        - link "Docs" [ref=e257] [cursor=pointer]:
+          - /url: https://docs.openclaw.ai
+          - img [ref=e259]
+          - generic [ref=e261]: Docs
+          - img [ref=e263]
+        - generic "v2026.4.29" [ref=e266]:
+          - generic [ref=e267]: Version
+          - generic [ref=e268]: v2026.4.29
+          - 'img "Gateway status: Online" [ref=e269]'
+  - main [ref=e270]:
+    - generic [ref=e272]:
+      - generic [ref=e273]: Nodes
+      - generic [ref=e274]: Paired devices and commands.
+    - generic [ref=e6130]:
+      - generic [ref=e6131]:
+        - generic [ref=e6132]:
+          - generic [ref=e6133]: Exec approvals
+          - generic [ref=e6134]: Allowlist and approval policy for exec host=gateway/node.
+        - button "Save" [disabled] [ref=e6135]
+      - generic [ref=e6137]:
+        - generic [ref=e6138]:
+          - generic [ref=e6139]: Target
+          - generic [ref=e6140]: Gateway edits local approvals; node edits the selected node.
+        - generic [ref=e6142]:
+          - generic [ref=e6143]: Host
+          - combobox "Host" [ref=e6144] [cursor=pointer]:
+            - option "Gateway" [selected]
+            - option "Node"
+      - generic [ref=e6145]:
+        - generic [ref=e6146]: Scope
+        - generic [ref=e6147]:
+          - button "Defaults" [ref=e6148] [cursor=pointer]
+          - button "Codex Chat (codex-chat)" [ref=e6149] [cursor=pointer]
+          - button "codex" [ref=e6150] [cursor=pointer]
+          - button "Codex CLI (codex-cli)" [ref=e6151] [cursor=pointer]
+      - generic [ref=e6152]:
+        - generic [ref=e6153]:
+          - generic [ref=e6154]:
+            - generic [ref=e6155]: Security
+            - generic [ref=e6156]: Default security mode.
+          - generic [ref=e6158]:
+            - generic [ref=e6159]: Mode
+            - combobox "Mode" [ref=e6160] [cursor=pointer]:
+              - option "Deny" [selected]
+              - option "Allowlist"
+              - option "Full"
+        - generic [ref=e6161]:
+          - generic [ref=e6162]:
+            - generic [ref=e6163]: Ask
+            - generic [ref=e6164]: Default prompt policy.
+          - generic [ref=e6166]:
+            - generic [ref=e6167]: Mode
+            - combobox "Mode" [ref=e6168] [cursor=pointer]:
+              - option "Off"
+              - option "On miss" [selected]
+              - option "Always"
+        - generic [ref=e6169]:
+          - generic [ref=e6170]:
+            - generic [ref=e6171]: Ask fallback
+            - generic [ref=e6172]: Applied when the UI prompt is unavailable.
+          - generic [ref=e6174]:
+            - generic [ref=e6175]: Fallback
+            - combobox "Fallback" [ref=e6176] [cursor=pointer]:
+              - option "Deny" [selected]
+              - option "Allowlist"
+              - option "Full"
+        - generic [ref=e6177]:
+          - generic [ref=e6178]:
+            - generic [ref=e6179]: Auto-allow skill CLIs
+            - generic [ref=e6180]: Allow skill executables listed by the Gateway.
+          - generic [ref=e6182]:
+            - generic [ref=e6183]: Enabled
+            - checkbox "Enabled" [ref=e6184]
+    - generic [ref=e6185]:
+      - generic [ref=e6186]:
+        - generic [ref=e6187]:
+          - generic [ref=e6188]: Exec node binding
+          - generic [ref=e6189]: Pin agents to a specific node when using exec host=node.
+        - button "Save" [disabled] [ref=e6190]
+      - generic [ref=e6191]:
+        - generic [ref=e6192]:
+          - generic [ref=e6193]:
+            - generic [ref=e6194]: Default binding
+            - generic [ref=e6195]: Used when agents do not override a node binding.
+          - generic [ref=e6196]:
+            - generic [ref=e6197]:
+              - generic [ref=e6198]: Node
+              - combobox "Node" [disabled] [ref=e6199] [cursor=pointer]:
+                - option "Any node" [selected]
+            - generic [ref=e6200]: No nodes with system.run available.
+        - generic [ref=e6201]:
+          - generic [ref=e6202]:
+            - generic [ref=e6203]: codex
+            - generic [ref=e6204]: agent · uses default (any)
+          - generic [ref=e6206]:
+            - generic [ref=e6207]: Binding
+            - combobox "Binding" [disabled] [ref=e6208] [cursor=pointer]:
+              - option "Use default" [selected]
+        - generic [ref=e6209]:
+          - generic [ref=e6210]:
+            - generic [ref=e6211]: Codex CLI (codex-cli)
+            - generic [ref=e6212]: agent · uses default (any)
+          - generic [ref=e6214]:
+            - generic [ref=e6215]: Binding
+            - combobox "Binding" [disabled] [ref=e6216] [cursor=pointer]:
+              - option "Use default" [selected]
+        - generic [ref=e6217]:
+          - generic [ref=e6218]:
+            - generic [ref=e6219]: Codex Chat (codex-chat)
+            - generic [ref=e6220]: default agent · uses default (any)
+          - generic [ref=e6222]:
+            - generic [ref=e6223]: Binding
+            - combobox "Binding" [disabled] [ref=e6224] [cursor=pointer]:
+              - option "Use default" [selected]
+    - generic [ref=e6225]:
+      - generic [ref=e6226]:
+        - generic [ref=e6227]:
+          - generic [ref=e6228]: Devices
+          - generic [ref=e6229]: Pairing requests + role tokens.
+        - button "Refresh" [ref=e6230] [cursor=pointer]
+      - generic [ref=e6231]:
+        - generic [ref=e6232]: Paired
+        - generic [ref=e6234]:
+          - generic [ref=e6235]: 6f630e4346829913b17835ca66d1572a0f2322fd1650692666f3597232d6887e
+          - generic [ref=e6236]: 6f630e4346829913b17835ca66d1572a0f2322fd1650692666f3597232d6887e · 100.117.213.114
+          - generic [ref=e6237]: "roles: operator · scopes: operator.admin, operator.read, operator.write, operator.approvals, operator.pairing"
+          - generic [ref=e6238]: Tokens
+          - generic [ref=e6240]:
+            - generic [ref=e6241]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 23d ago"
+            - generic [ref=e6242]:
+              - button "Rotate" [ref=e6243] [cursor=pointer]
+              - button "Revoke" [ref=e6244] [cursor=pointer]
+        - generic [ref=e6246]:
+          - generic [ref=e6247]: 6c809bce7b751f41e118ec3fef4751a2687cd84ea3ae0f1cc5ebfe62d0b466d1
+          - generic [ref=e6248]: 6c809bce7b751f41e118ec3fef4751a2687cd84ea3ae0f1cc5ebfe62d0b466d1 · 100.117.213.114
+          - generic [ref=e6249]: "roles: operator · scopes: operator.admin, operator.read, operator.write, operator.approvals, operator.pairing"
+          - generic [ref=e6250]: Tokens
+          - generic [ref=e6252]:
+            - generic [ref=e6253]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 27d ago"
+            - generic [ref=e6254]:
+              - button "Rotate" [ref=e6255] [cursor=pointer]
+              - button "Revoke" [ref=e6256] [cursor=pointer]
+        - generic [ref=e6258]:
+          - generic [ref=e6259]: Benjamin's S24 Ultra
+          - generic [ref=e6260]: e33f92381b3c2c0f22f5551a693fff4ce91e3feb049106b7b1f8ab2513f171e2 · 100.117.206.4
+          - generic [ref=e6261]: "roles: operator, node · scopes: operator.read, operator.write, operator.talk.secrets"
+          - generic [ref=e6262]: Tokens
+          - generic [ref=e6263]:
+            - generic [ref=e6264]:
+              - generic [ref=e6265]: "node · active · scopes: operator.read, operator.talk.secrets, operator.write · 27d ago"
+              - generic [ref=e6266]:
+                - button "Rotate" [ref=e6267] [cursor=pointer]
+                - button "Revoke" [ref=e6268] [cursor=pointer]
+            - generic [ref=e6269]:
+              - generic [ref=e6270]: "operator · active · scopes: operator.read, operator.talk.secrets, operator.write · 27d ago"
+              - generic [ref=e6271]:
+                - button "Rotate" [ref=e6272] [cursor=pointer]
+                - button "Revoke" [ref=e6273] [cursor=pointer]
+        - generic [ref=e6275]:
+          - generic [ref=e6276]: Benjamin's S24 Ultra
+          - generic [ref=e6277]: 6c7a97338b1df18719ec9628245c9468419f1aa92cd72713baf4608e53d4da15 · 100.117.206.4
+          - generic [ref=e6278]: "roles: node, operator · scopes: operator.read, operator.write, operator.talk.secrets"
+          - generic [ref=e6279]: Tokens
+          - generic [ref=e6280]:
+            - generic [ref=e6281]:
+              - generic [ref=e6282]: "node · active · scopes: operator.read, operator.talk.secrets, operator.write · 27d ago"
+              - generic [ref=e6283]:
+                - button "Rotate" [ref=e6284] [cursor=pointer]
+                - button "Revoke" [ref=e6285] [cursor=pointer]
+            - generic [ref=e6286]:
+              - generic [ref=e6287]: "operator · active · scopes: operator.read, operator.talk.secrets, operator.write · 27d ago"
+              - generic [ref=e6288]:
+                - button "Rotate" [ref=e6289] [cursor=pointer]
+                - button "Revoke" [ref=e6290] [cursor=pointer]
+        - generic [ref=e6292]:
+          - generic [ref=e6293]: cae117a5f0a2db0c8e12e9e26a45d1efda908a8f399405ba74610951912dde33
+          - generic [ref=e6294]: cae117a5f0a2db0c8e12e9e26a45d1efda908a8f399405ba74610951912dde33 · 100.117.213.114
+          - generic [ref=e6295]: "roles: operator · scopes: operator.admin, operator.read, operator.write, operator.approvals, operator.pairing"
+          - generic [ref=e6296]: Tokens
+          - generic [ref=e6298]:
+            - generic [ref=e6299]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 27d ago"
+            - generic [ref=e6300]:
+              - button "Rotate" [ref=e6301] [cursor=pointer]
+              - button "Revoke" [ref=e6302] [cursor=pointer]
+        - generic [ref=e6304]:
+          - generic [ref=e6305]: 6ddac83606d87fd01bd6d371a5a42f779fbe8123440552dab3373b4830f7bb3b
+          - generic [ref=e6306]: 6ddac83606d87fd01bd6d371a5a42f779fbe8123440552dab3373b4830f7bb3b · 100.117.213.114
+          - generic [ref=e6307]: "roles: operator · scopes: operator.admin, operator.read, operator.write, operator.approvals, operator.pairing"
+          - generic [ref=e6308]: Tokens
+          - generic [ref=e6310]:
+            - generic [ref=e6311]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 30d ago"
+            - generic [ref=e6312]:
+              - button "Rotate" [ref=e6313] [cursor=pointer]
+              - button "Revoke" [ref=e6314] [cursor=pointer]
+        - generic [ref=e6316]:
+          - generic [ref=e6317]: fe45186b9847179c812cf8baa23302b826fc058a0cd8ddf075f900a6178fbbda
+          - generic [ref=e6318]: fe45186b9847179c812cf8baa23302b826fc058a0cd8ddf075f900a6178fbbda · 100.117.213.114
+          - generic [ref=e6319]: "roles: operator · scopes: operator.admin, operator.read, operator.write, operator.approvals, operator.pairing"
+          - generic [ref=e6320]: Tokens
+          - generic [ref=e6322]:
+            - generic [ref=e6323]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 33d ago"
+            - generic [ref=e6324]:
+              - button "Rotate" [ref=e6325] [cursor=pointer]
+              - button "Revoke" [ref=e6326] [cursor=pointer]
+        - generic [ref=e6328]:
+          - generic [ref=e6329]: 86510c999e924eb1e9d4e324e3fac5cde237df15d76224212a11a861539cdc7a
+          - generic [ref=e6330]: 86510c999e924eb1e9d4e324e3fac5cde237df15d76224212a11a861539cdc7a · 100.117.206.4
+          - generic [ref=e6331]: "roles: operator · scopes: operator.admin, operator.read, operator.write, operator.approvals, operator.pairing"
+          - generic [ref=e6332]: Tokens
+          - generic [ref=e6334]:
+            - generic [ref=e6335]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 33d ago"
+            - generic [ref=e6336]:
+              - button "Rotate" [ref=e6337] [cursor=pointer]
+              - button "Revoke" [ref=e6338] [cursor=pointer]
+        - generic [ref=e6340]:
+          - generic [ref=e6341]: 6e91a8ccf45a26265264a50b479515cb6e26d24e2be3f6183f36a4fe8e1abe0d
+          - generic [ref=e6342]: 6e91a8ccf45a26265264a50b479515cb6e26d24e2be3f6183f36a4fe8e1abe0d · 100.117.213.114
+          - generic [ref=e6343]: "roles: operator · scopes: operator.admin, operator.read, operator.write, operator.approvals, operator.pairing"
+          - generic [ref=e6344]: Tokens
+          - generic [ref=e6346]:
+            - generic [ref=e6347]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 34d ago"
+            - generic [ref=e6348]:
+              - button "Rotate" [ref=e6349] [cursor=pointer]
+              - button "Revoke" [ref=e6350] [cursor=pointer]
+        - generic [ref=e6352]:
+          - generic [ref=e6353]: bd10787f48300827a881d703f7a1f82f6642fafa3fd0a7c51f8a7c4a74b57298
+          - generic [ref=e6354]: bd10787f48300827a881d703f7a1f82f6642fafa3fd0a7c51f8a7c4a74b57298 · 100.117.213.114
+          - generic [ref=e6355]: "roles: operator · scopes: operator.admin, operator.read, operator.write, operator.approvals, operator.pairing"
+          - generic [ref=e6356]: Tokens
+          - generic [ref=e6358]:
+            - generic [ref=e6359]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 34d ago"
+            - generic [ref=e6360]:
+              - button "Rotate" [ref=e6361] [cursor=pointer]
+              - button "Revoke" [ref=e6362] [cursor=pointer]
+        - generic [ref=e6364]:
+          - generic [ref=e6365]: d8d5577a89b324748ca88e2c300f900f42842c25cbcace94165d20fe98928f0e
+          - generic [ref=e6366]: d8d5577a89b324748ca88e2c300f900f42842c25cbcace94165d20fe98928f0e · 100.117.213.114
+          - generic [ref=e6367]: "roles: operator · scopes: operator.admin, operator.read, operator.write, operator.approvals, operator.pairing"
+          - generic [ref=e6368]: Tokens
+          - generic [ref=e6370]:
+            - generic [ref=e6371]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 34d ago"
+            - generic [ref=e6372]:
+              - button "Rotate" [ref=e6373] [cursor=pointer]
+              - button "Revoke" [ref=e6374] [cursor=pointer]
+        - generic [ref=e6376]:
+          - generic [ref=e6377]: gateway:health
+          - generic [ref=e6378]: 249052d064384271d500b8affbd57f4ee37114af3b00f30b281973d9db5b2ba7
+          - generic [ref=e6379]: "roles: operator · scopes: operator.read, operator.admin, operator.write, operator.approvals, operator.pairing, operator.talk.secrets"
+          - generic [ref=e6380]: Tokens
+          - generic [ref=e6382]:
+            - generic [ref=e6383]: "operator · active · scopes: operator.admin, operator.approvals, operator.pairing, operator.read, operator.write · 34d ago"
+            - generic [ref=e6384]:
+              - button "Rotate" [ref=e6385] [cursor=pointer]
+              - button "Revoke" [ref=e6386] [cursor=pointer]
+    - generic [ref=e6387]:
+      - generic [ref=e6388]:
+        - generic [ref=e6389]:
+          - generic [ref=e6390]: Nodes
+          - generic [ref=e6391]: Paired devices and live links.
+        - button "Refresh" [ref=e6392] [cursor=pointer]
+      - generic [ref=e6393]:
+        - generic [ref=e6395]:
+          - generic [ref=e6396]: Benjamin's S24 Ultra
+          - generic [ref=e6397]: 6c7a97338b1df18719ec9628245c9468419f1aa92cd72713baf4608e53d4da15 · 100.117.206.4
+          - generic [ref=e6398]:
+            - generic [ref=e6399]: paired
+            - generic [ref=e6400]: offline
+        - generic [ref=e6402]:
+          - generic [ref=e6403]: Benjamin's S24 Ultra
+          - generic [ref=e6404]: e33f92381b3c2c0f22f5551a693fff4ce91e3feb049106b7b1f8ab2513f171e2 · 100.117.206.4
+          - generic [ref=e6405]:
+            - generic [ref=e6406]: paired
+            - generic [ref=e6407]: offline

@@ -1,0 +1,308 @@
+- generic [ref=e64]:
+  - banner [ref=e65]:
+    - generic [ref=e66]:
+      - generic [ref=e70]:
+        - link "OpenClaw" [ref=e71] [cursor=pointer]:
+          - /url: /overview
+        - generic [ref=e72]: ›
+        - generic [ref=e73]: Usage
+      - generic [ref=e74]:
+        - button "Open command palette" [ref=e75] [cursor=pointer]:
+          - generic [ref=e76]: Search
+          - generic [ref=e77]: ⌘K
+        - group "Color mode" [ref=e79]:
+          - 'button "Color mode: System" [pressed] [ref=e80] [cursor=pointer]':
+            - img [ref=e81]
+          - 'button "Color mode: Light" [ref=e83] [cursor=pointer]':
+            - img [ref=e84]
+          - 'button "Color mode: Dark" [ref=e90] [cursor=pointer]':
+            - img [ref=e91]
+  - complementary [ref=e94]:
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - generic [ref=e97]:
+          - img "OpenClaw" [ref=e98]
+          - generic [ref=e99]:
+            - generic [ref=e100]: Control
+            - generic [ref=e101]: OpenClaw
+        - button "Collapse sidebar" [ref=e102] [cursor=pointer]:
+          - img [ref=e104]
+      - navigation [ref=e108]:
+        - generic [ref=e109]:
+          - button "Chat" [expanded] [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]: Chat
+            - img [ref=e113]
+          - link "Chat" [ref=e116] [cursor=pointer]:
+            - /url: /chat
+            - img [ref=e118]
+            - generic [ref=e120]: Chat
+        - generic [ref=e121]:
+          - button "Control" [expanded] [ref=e122] [cursor=pointer]:
+            - generic [ref=e123]: Control
+            - img [ref=e125]
+          - generic [ref=e127]:
+            - link "Overview" [ref=e128] [cursor=pointer]:
+              - /url: /overview
+              - img [ref=e130]
+              - generic [ref=e131]: Overview
+            - link "Channels" [ref=e132] [cursor=pointer]:
+              - /url: /channels
+              - img [ref=e134]
+              - generic [ref=e137]: Channels
+            - link "Instances" [ref=e138] [cursor=pointer]:
+              - /url: /instances
+              - img [ref=e140]
+              - generic [ref=e143]: Instances
+            - link "Sessions" [ref=e144] [cursor=pointer]:
+              - /url: /sessions
+              - img [ref=e146]
+              - generic [ref=e149]: Sessions
+            - link "Usage" [active] [ref=e150] [cursor=pointer]:
+              - /url: /usage
+              - img [ref=e152]
+              - generic [ref=e153]: Usage
+            - link "Cron Jobs" [ref=e154] [cursor=pointer]:
+              - /url: /cron
+              - img [ref=e156]
+              - generic [ref=e161]: Cron Jobs
+        - generic [ref=e162]:
+          - button "Agent" [expanded] [ref=e163] [cursor=pointer]:
+            - generic [ref=e164]: Agent
+            - img [ref=e166]
+          - generic [ref=e168]:
+            - link "Agents" [ref=e169] [cursor=pointer]:
+              - /url: /agents
+              - img [ref=e171]
+              - generic [ref=e173]: Agents
+            - link "Skills" [ref=e174] [cursor=pointer]:
+              - /url: /skills
+              - img [ref=e176]
+              - generic [ref=e178]: Skills
+            - link "Nodes" [ref=e179] [cursor=pointer]:
+              - /url: /nodes
+              - img [ref=e181]
+              - generic [ref=e183]: Nodes
+            - link "Dreaming" [ref=e184] [cursor=pointer]:
+              - /url: /dreaming
+              - img [ref=e186]
+              - generic [ref=e188]: Dreaming
+        - generic [ref=e189]:
+          - button "Settings" [expanded] [ref=e190] [cursor=pointer]:
+            - generic [ref=e191]: Settings
+            - img [ref=e193]
+          - generic [ref=e195]:
+            - link "Config" [ref=e196] [cursor=pointer]:
+              - /url: /config
+              - img [ref=e198]
+              - generic [ref=e201]: Config
+            - link "Communications" [ref=e202] [cursor=pointer]:
+              - /url: /communications
+              - img [ref=e204]
+              - generic [ref=e207]: Communications
+            - link "Appearance" [ref=e208] [cursor=pointer]:
+              - /url: /appearance
+              - img [ref=e210]
+              - generic [ref=e212]: Appearance
+            - link "Automation" [ref=e213] [cursor=pointer]:
+              - /url: /automation
+              - img [ref=e215]
+              - generic [ref=e217]: Automation
+            - link "Infrastructure" [ref=e218] [cursor=pointer]:
+              - /url: /infrastructure
+              - img [ref=e220]
+              - generic [ref=e223]: Infrastructure
+            - link "AI & Agents" [ref=e224] [cursor=pointer]:
+              - /url: /ai-agents
+              - img [ref=e226]
+              - generic [ref=e236]: AI & Agents
+            - link "Debug" [ref=e237] [cursor=pointer]:
+              - /url: /debug
+              - img [ref=e239]
+              - generic [ref=e248]: Debug
+            - link "Logs" [ref=e249] [cursor=pointer]:
+              - /url: /logs
+              - img [ref=e251]
+              - generic [ref=e254]: Logs
+      - generic [ref=e256]:
+        - link "Docs" [ref=e257] [cursor=pointer]:
+          - /url: https://docs.openclaw.ai
+          - img [ref=e259]
+          - generic [ref=e261]: Docs
+          - img [ref=e263]
+        - generic "v2026.4.29" [ref=e266]:
+          - generic [ref=e267]: Version
+          - generic [ref=e268]: v2026.4.29
+          - 'img "Gateway status: Online" [ref=e269]'
+  - main [ref=e270]:
+    - generic [ref=e272]:
+      - generic [ref=e273]: Usage
+      - generic [ref=e274]: API usage and costs.
+    - generic [ref=e427]:
+      - generic [ref=e428]:
+        - generic [ref=e429]: Usage
+        - generic [ref=e430]: See where tokens go, when sessions spike, and what drives cost.
+      - generic [ref=e431]:
+        - generic [ref=e432]:
+          - generic [ref=e434]: Filters
+          - generic [ref=e435]:
+            - generic [ref=e436]:
+              - strong [ref=e437]: "0"
+              - text: Tokens
+            - generic [ref=e438]:
+              - strong [ref=e439]: $0.00
+              - text: Cost
+            - generic [ref=e440]:
+              - strong [ref=e441]: "0"
+              - text: sessions
+            - button "Pin" [ref=e442] [cursor=pointer]
+            - group [ref=e443]:
+              - generic "Export ▾" [ref=e444] [cursor=pointer]
+        - generic [ref=e446]:
+          - generic [ref=e447]:
+            - button "Today" [ref=e448] [cursor=pointer]
+            - button "7d" [ref=e449] [cursor=pointer]
+            - button "30d" [ref=e450] [cursor=pointer]
+          - generic [ref=e451]:
+            - textbox "Start date" [ref=e452]: 2026-05-01
+            - generic [ref=e453]: to
+            - textbox "End date" [ref=e454]: 2026-05-01
+          - combobox "Time zone" [ref=e455]:
+            - option "Local" [selected]
+            - option "UTC"
+          - generic [ref=e456]:
+            - button "Tokens" [ref=e457] [cursor=pointer]
+            - button "Cost" [ref=e458] [cursor=pointer]
+          - button "Refresh" [ref=e459] [cursor=pointer]
+        - generic [ref=e460]:
+          - generic [ref=e461]:
+            - textbox "Filter sessions (e.g. key:agent:main:cron* model:gpt-4o has:errors minTokens:2000)" [ref=e462]
+            - generic [ref=e463]:
+              - button "Filter (client-side)" [disabled] [ref=e464]
+              - generic [ref=e465]: 0 sessions in range
+          - generic [ref=e467]: "Tip: use filters or click bars to refine days."
+      - generic [ref=e468]:
+        - generic [ref=e469]: Usage Overview
+        - generic [ref=e470]:
+          - generic [ref=e471]:
+            - generic [ref=e472]:
+              - generic [ref=e473]:
+                - text: Messages
+                - generic "Total user and assistant messages in range." [ref=e474]: "?"
+              - generic [ref=e475]: "0"
+              - generic [ref=e476]: 0 user · 0 assistant
+            - generic [ref=e477]:
+              - generic [ref=e478]:
+                - text: Throughput
+                - generic "Throughput shows tokens per minute over active time. Higher is better." [ref=e479]: "?"
+              - generic [ref=e480]: —
+              - generic [ref=e481]: —
+            - generic [ref=e482]:
+              - generic [ref=e483]:
+                - text: Tool Calls
+                - generic "Total tool call count across sessions." [ref=e484]: "?"
+              - generic [ref=e485]: "0"
+              - generic [ref=e486]: 0 tools used
+            - generic [ref=e487]:
+              - generic [ref=e488]:
+                - text: Avg Tokens / Msg
+                - generic "Average tokens per message in this range." [ref=e489]: "?"
+              - generic [ref=e490]: "0"
+              - generic [ref=e491]: Across 0 messages
+            - generic [ref=e492]:
+              - generic [ref=e493]:
+                - text: Cache Hit Rate
+                - generic "Cache hit rate = cache read / (input + cache read + cache write). Higher is better." [ref=e494]: "?"
+              - generic [ref=e495]: —
+              - generic [ref=e496]: 0 cached · 0 prompt
+            - generic [ref=e497]:
+              - generic [ref=e498]:
+                - text: Error Rate
+                - generic "Error rate = errors / total messages. Lower is better." [ref=e499]: "?"
+              - generic [ref=e500]: 0.00%
+              - generic [ref=e501]: 0 errors · — avg session
+            - generic [ref=e502]:
+              - generic [ref=e503]:
+                - text: Avg Cost / Msg
+                - generic "Average cost per message when providers report costs." [ref=e504]: "?"
+              - generic [ref=e505]: $0.0000
+              - generic [ref=e506]: $0.00 total
+            - generic [ref=e507]:
+              - generic [ref=e508]:
+                - text: Sessions
+                - generic "Distinct sessions in the range." [ref=e509]: "?"
+              - generic [ref=e510]: "0"
+              - generic [ref=e511]: of 0 in range
+            - generic [ref=e512]:
+              - generic [ref=e513]:
+                - text: Errors
+                - generic "Total message and tool errors in range." [ref=e514]: "?"
+              - generic [ref=e515]: "0"
+              - generic [ref=e516]: 0 tool results
+          - generic [ref=e517]:
+            - generic [ref=e518]:
+              - generic [ref=e519]: Top Models
+              - generic [ref=e520]: No model data
+            - generic [ref=e521]:
+              - generic [ref=e522]: Top Providers
+              - generic [ref=e523]: No provider data
+            - generic [ref=e524]:
+              - generic [ref=e525]: Top Tools
+              - generic [ref=e526]: No tool calls
+            - generic [ref=e527]:
+              - generic [ref=e528]: Top Agents
+              - generic [ref=e529]: No agent data
+            - generic [ref=e530]:
+              - generic [ref=e531]: Top Channels
+              - generic [ref=e532]: No channel data
+            - generic [ref=e533]:
+              - generic [ref=e534]: Peak Error Days
+              - generic [ref=e535]: No error data
+            - generic [ref=e536]:
+              - generic [ref=e537]: Peak Error Hours
+              - generic [ref=e538]: No error data
+      - generic [ref=e539]:
+        - generic [ref=e540]:
+          - generic [ref=e541]:
+            - generic [ref=e542]: Activity by Time
+            - generic [ref=e543]: Estimates require session timestamps.
+          - generic [ref=e544]: 0 tokens
+        - generic [ref=e545]: No timeline data yet.
+      - generic [ref=e547]:
+        - generic [ref=e548]:
+          - generic [ref=e549]:
+            - generic [ref=e550]: Daily Usage
+            - generic [ref=e551]: No data
+          - generic [ref=e552]:
+            - generic [ref=e553]: Tokens by Type
+            - generic [ref=e554]:
+              - 'generic "Output: 0"'
+              - 'generic "Input: 0"'
+              - 'generic "Cache Write: 0"'
+              - 'generic "Cache Read: 0"'
+            - generic [ref=e555]:
+              - generic [ref=e556]: Output 0
+              - generic [ref=e558]: Input 0
+              - generic [ref=e560]: Cache Write 0
+              - generic [ref=e562]: Cache Read 0
+            - generic [ref=e564]: "Total: 0"
+        - generic [ref=e565]:
+          - generic [ref=e566]:
+            - generic [ref=e567]: Sessions
+            - generic [ref=e568]: 0 shown
+          - generic [ref=e569]:
+            - generic [ref=e570]:
+              - generic [ref=e571]: 0 avg
+              - generic [ref=e572]: 0 errors
+            - generic [ref=e573]:
+              - button "All" [ref=e574] [cursor=pointer]
+              - button "Recently viewed" [ref=e575] [cursor=pointer]
+            - generic [ref=e576]:
+              - generic [ref=e577]: Sort
+              - combobox "Sort" [ref=e578]:
+                - option "Cost"
+                - option "Errors"
+                - option "Messages"
+                - option "Recent" [selected]
+                - option "Tokens"
+            - button "↓" [ref=e579] [cursor=pointer]
+          - generic [ref=e580]: No sessions in range

@@ -55,6 +55,14 @@ export const EntityIdValue = PosInt.check(
 /**
  * Runtime type for {@link EntityIdValue}.
  *
+ * @example
+ * ```ts
+ * import type { EntityIdValue } from "@beep/shared-domain/entity/EntityId"
+ *
+ * declare const id: EntityIdValue
+ * console.log(id)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -62,6 +70,14 @@ export type EntityIdValue = typeof EntityIdValue.Type;
 
 /**
  * Entity id value branded with the concrete entity-id brand.
+ *
+ * @example
+ * ```ts
+ * import type { EntityIdValueFor } from "@beep/shared-domain/entity/EntityId"
+ *
+ * declare const id: EntityIdValueFor<"SharedOrganizationId">
+ * console.log(id)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -165,6 +181,14 @@ export type Brand<Slice extends string, Name extends string> = `${EntityType<Sli
 /**
  * Constructor input for {@link Options}.
  *
+ * @example
+ * ```ts
+ * import type { OptionsInput } from "@beep/shared-domain/entity/EntityId"
+ *
+ * const input: OptionsInput = { tableName: "shared_organization" }
+ * console.log(input.tableName)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -201,6 +225,14 @@ type ResolvedBrand<Slice extends string, Name extends string, Overrides> = Overr
 
 /**
  * Materialized entity-id definition metadata.
+ *
+ * @example
+ * ```ts
+ * import { Definition } from "@beep/shared-domain/entity/EntityId"
+ *
+ * declare const definition: Definition
+ * console.log(definition.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -256,6 +288,14 @@ export type DefinitionFor<
 /**
  * Branded schema with deterministic entity metadata statics.
  *
+ * @example
+ * ```ts
+ * import type { EntityId } from "@beep/shared-domain/entity/EntityId"
+ *
+ * declare const entityId: EntityId<"shared", "organization">
+ * console.log(entityId.tableName)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -293,6 +333,14 @@ type EntityIdEquivalence<TBrand extends string> = {
 
 /**
  * Any entity id schema produced by {@link factory}.
+ *
+ * @example
+ * ```ts
+ * import type { Any } from "@beep/shared-domain/entity/EntityId"
+ *
+ * declare const entityId: Any
+ * console.log(entityId.resource)
+ * ```
  *
  * @since 0.0.0
  * @category models
