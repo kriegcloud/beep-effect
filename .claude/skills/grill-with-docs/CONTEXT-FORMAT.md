@@ -1,77 +1,118 @@
-# CONTEXT.md Format
+# Architecture Glossary And Context Format
 
-## Structure
+In this repo, canonical architecture language lives in
+`standards/architecture/GLOSSARY.md`, with binding rule text in
+`standards/ARCHITECTURE.md` and the numbered rationale docs. Do not create
+generic `CONTEXT.md` or `CONTEXT-MAP.md` files for architecture grilling.
 
-```md
-# {Context Name}
+Use this file as the formatting guide for glossary and context updates produced
+by the `grill-with-docs` skill.
 
-{One or two sentence description of what this context is and why it exists.}
+## Glossary entries
 
-## Language
-
-**Order**:
-{A concise description of the term}
-_Avoid_: Purchase, transaction
-
-**Invoice**:
-A request for payment sent to a customer after delivery.
-_Avoid_: Bill, payment request
-
-**Customer**:
-A person or organization that places orders.
-_Avoid_: Client, buyer, account
-
-## Relationships
-
-- An **Order** produces one or more **Invoices**
-- An **Invoice** belongs to exactly one **Customer**
-
-## Example dialogue
-
-> **Dev:** "When a **Customer** places an **Order**, do we create the **Invoice** immediately?"
-> **Domain expert:** "No — an **Invoice** is only generated once a **Fulfillment** is confirmed."
-
-## Flagged ambiguities
-
-- "account" was used to mean both **Customer** and **User** — resolved: these are distinct concepts.
-```
-
-## Rules
-
-- **Be opinionated.** When multiple words exist for the same concept, pick the best one and list the others as aliases to avoid.
-- **Flag conflicts explicitly.** If a term is used ambiguously, call it out in "Flagged ambiguities" with a clear resolution.
-- **Keep definitions tight.** One sentence max. Define what it IS, not what it does.
-- **Show relationships.** Use bold term names and express cardinality where obvious.
-- **Only include terms specific to this project's context.** General programming concepts (timeouts, error types, utility patterns) don't belong even if the project uses them extensively. Before adding a term, ask: is this a concept unique to this context, or a general programming concept? Only the former belongs.
-- **Group terms under subheadings** when natural clusters emerge. If all terms belong to a single cohesive area, a flat list is fine.
-- **Write an example dialogue.** A conversation between a dev and a domain expert that demonstrates how the terms interact naturally and clarifies boundaries between related concepts.
-
-## Single vs multi-context repos
-
-**Single context (most repos):** One `CONTEXT.md` at the repo root.
-
-**Multiple contexts:** A `CONTEXT-MAP.md` at the repo root lists the contexts, where they live, and how they relate to each other:
+Add or update a glossary entry when a term becomes canonical architecture
+vocabulary. Keep entries short and operational:
 
 ```md
-# Context Map
+## Term Name
 
-## Contexts
-
-- [Ordering](./src/ordering/CONTEXT.md) — receives and tracks customer orders
-- [Billing](./src/billing/CONTEXT.md) — generates invoices and processes payments
-- [Fulfillment](./src/fulfillment/CONTEXT.md) — manages warehouse picking and shipping
-
-## Relationships
-
-- **Ordering → Fulfillment**: Ordering emits `OrderPlaced` events; Fulfillment consumes them to start picking
-- **Fulfillment → Billing**: Fulfillment emits `ShipmentDispatched` events; Billing consumes them to generate invoices
-- **Ordering ↔ Billing**: Shared types for `CustomerId` and `Money`
+A one-paragraph definition that states what the term means in this repo and
+where it belongs. Include the boundary it protects when that is the point.
 ```
 
-The skill infers which structure applies:
+Good glossary candidates:
 
-- If `CONTEXT-MAP.md` exists, read it to find contexts
-- If only a root `CONTEXT.md` exists, single context
-- If neither exists, create a root `CONTEXT.md` lazily when the first term is resolved
+- topology words: `Slice`, `Shared Kernel`, `Driver`, `Foundation Family`
+- boundary words: `Port`, `Adapter`, `Action Error`, `Port Error`
+- routing words: `Promotion Record`, `Canonical Subpath Name`,
+  `Cleanup-On-Touch`
+- role words: `Domain-Kind Folder`, `Role Suffix`, `Config Contract`
 
-When multiple contexts exist, infer which one the current topic relates to. If unclear, ask.
+Poor glossary candidates:
+
+- one package's private helper name
+- a product concept that belongs only in a slice README
+- generic TypeScript, Effect, React, or database terminology
+- temporary migration task names
+- implementation details that do not affect architecture language
+
+## Definition rules
+
+- Be precise about ownership: name the package family, slice layer, or doc
+  surface that owns the concept.
+- Keep definitions architecture-level, not implementation trivia.
+- Prefer repo vocabulary over ecosystem synonyms.
+- Include caveats when a common ecosystem term has a repo-specific meaning.
+- If a term conflicts with existing glossary language, either reconcile it or
+  ask the user to choose the canonical meaning before editing.
+
+Useful caveat pattern:
+
+```md
+**Terminology caveat:** In strict DDD this term often means X. In this repo it
+means Y because <repo-specific reason>.
+```
+
+## Package-local context
+
+When the resolved language is package-local rather than architecture-wide, do
+not add it to `GLOSSARY.md`. Put it near the package that owns it:
+
+- package purpose, consumers, and routing policy -> package `README.md`
+- high-bar `shared/*` export rationale -> package README promotion record
+- assistant guidance for future agents -> `AGENTS.md` / `CLAUDE.md` only when
+  the repo already uses that surface for the package
+- implementation examples -> tests, fixture package, or local docs beside the
+  package
+
+## Architecture context checks
+
+Before adding or changing a term, check:
+
+- Does `standards/ARCHITECTURE.md` already define the rule?
+- Does `GLOSSARY.md` already define the term or a better synonym?
+- Does `DECISIONS.md` already record the doctrine?
+- Is this a package-local promotion record rather than a glossary term?
+- Is current code disagreeing with target doctrine, or is the doctrine missing?
+
+If the docs already answer the question, quote the repo term and continue the
+grill. If the docs are silent and the term materially affects boundaries, ask a
+single branch-closing question before updating.
+
+## Relationship notes
+
+Use relationship notes when a term is commonly confused with another term. Keep
+them short and boundary-focused:
+
+```md
+## Shared Kernel
+
+The DDD meaning of the `shared` package family: deliberately shared
+cross-slice product language. It is not a synonym for `foundation`, `common`,
+`core`, or reusable technical substrate.
+```
+
+Common relationships to preserve:
+
+- `shared` is deliberate cross-slice product language; `foundation` is
+  domain-agnostic reusable substrate.
+- `drivers` wrap external technical engines; `server` implements product ports.
+- `config` names typed runtime/application contracts; `env` is only one source.
+- `use-cases` own application intent and ports; `server` owns live adapters and
+  Layer composition.
+- public action errors cross the use-case public boundary; port and driver
+  errors must be translated before then.
+
+## Example review note
+
+When challenging fuzzy language, be concrete:
+
+```txt
+You are calling this shared because two files could import it. The architecture
+uses shared for deliberate cross-slice product semantics, not reusable shape.
+My recommendation is to keep it in the owning slice unless we can name at least
+two consumers and write the promotion record.
+```
+
+This keeps the grill tied to the repo's vocabulary instead of generic DDD
+language.

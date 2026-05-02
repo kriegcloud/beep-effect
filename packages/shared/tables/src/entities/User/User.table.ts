@@ -6,19 +6,19 @@
  */
 
 import { EntityTable } from "@beep/drizzle";
-import { Organization } from "@beep/shared-domain/entities";
+import { User } from "@beep/shared-domain/entities";
 
 /**
  * PGLite/Postgres Drizzle table for the shared Organization entity.
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-tables/entities"
+ * import { User } from "@beep/shared-tables/entities"
  *
- * console.log(Organization.Table.definition.tableName)
+ * console.log(User.Table.definition.tableName)
  * ```
  *
  * @category tables
  * @since 0.0.0
  */
-export const Table = EntityTable.pgTableFrom(Organization.Model);
+export const Table = EntityTable.pgTableFrom(User.Model);

@@ -23,7 +23,7 @@ const $I = $SharedDomainId.create("entities/Membership/Membership.model");
  * ```ts
  * import { Model } from "@beep/shared-domain/entities/Membership"
  *
- * console.log(Model.definition.entityId.tableName)
+ * console.log(Model.definition.entityId.tableName) // "membership"
  * ```
  *
  * @category models

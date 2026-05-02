@@ -1,47 +1,119 @@
-# ADR Format
+# Architecture Decision Format
 
-ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
+In this repo, architecture-wide decisions live in
+`standards/architecture/DECISIONS.md`. Do not create a generic `docs/adr/`
+directory for beep-effect2 architecture work.
 
-Create the `docs/adr/` directory lazily — only when the first ADR is needed.
+Use `DECISIONS.md` only for decisions that amend, supersede, retire, or clarify
+architecture-wide doctrine. Package-local decisions belong in the affected
+package README or agent guidance. High-bar `shared/*` exports require promotion
+records, not decision-log entries.
 
-## Template
+## Entry shape
+
+Append a dated section:
 
 ```md
-# {Short title of the decision}
+## YYYY-MM-DD: Short Decision Title
 
-{1-3 sentences: what's the context, what did we decide, and why.}
+- **Status:** Active
+
+Decision:
+
+{One or two short paragraphs stating the new doctrine. Name the affected
+boundaries, package families, export surfaces, or migration buckets.}
+
+Rationale:
+
+{One or two short paragraphs explaining the tradeoff, rejected direction, and
+why the chosen rule preserves modularity, optionality, or boundary clarity.}
 ```
 
-That's it. An ADR can be a single paragraph. The value is in recording *that* a decision was made and *why* — not in filling out sections.
+When revising older doctrine, update the old entry too:
 
-## Optional sections
+```md
+- **Status:** Superseded
+- **Superseded-by:** [YYYY-MM-DD: New Decision Title](#yyyy-mm-dd-new-decision-title)
+```
 
-Only include these when they add genuine value. Most ADRs won't need them.
+For retirements, follow `11-evolution-and-deprecation.md`: mark the original
+entry superseded when applicable and append the new retirement decision.
 
-- **Status** frontmatter (`proposed | accepted | deprecated | superseded by ADR-NNNN`) — useful when decisions are revisited
-- **Considered Options** — only when the rejected alternatives are worth remembering
-- **Consequences** — only when non-obvious downstream effects need to be called out
+## When to add a DECISIONS entry
 
-## Numbering
+All of these should be true:
 
-Scan `docs/adr/` for the highest existing number and increment by one.
+1. The decision changes repo-wide architecture doctrine or closes a known
+   doctrine gap.
+2. The decision is hard enough to reverse that future maintainers need the
+   rationale trail.
+3. The decision resolves a real tradeoff, rejected alternative, or current
+   ambiguity in the architecture packet.
 
-## When to offer an ADR
+Good fits:
 
-All three of these must be true:
+- changing slice topology, canonical package kinds, or dependency direction
+- changing public subpath contracts such as `/public`, `/server`, `/layer`, or
+  `/browser`
+- accepting or retiring a non-slice family/kind rule
+- changing shared-kernel promotion rules
+- changing driver/server/use-case ownership boundaries
+- changing error taxonomy, testing isolation, observability, or deprecation
+  doctrine
+- retiring a slice or superseding a prior architecture rule
 
-1. **Hard to reverse** — the cost of changing your mind later is meaningful
-2. **Surprising without context** — a future reader will look at the code and wonder "why on earth did they do it this way?"
-3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
+Poor fits:
 
-If a decision is easy to reverse, skip it — you'll just reverse it. If it's not surprising, nobody will wonder why. If there was no real alternative, there's nothing to record beyond "we did the obvious thing."
+- one package's implementation detail
+- a temporary migration note with no doctrine impact
+- a reusable helper that only needs package README ownership notes
+- a high-bar `shared/*` export promotion; use the package README promotion
+  record instead
+- enforcement implementation details that do not change the architecture rule
 
-### What qualifies
+## Promotion records are different
 
-- **Architectural shape.** "We're using a monorepo." "The write model is event-sourced, the read model is projected into Postgres."
-- **Integration patterns between contexts.** "Ordering and Billing communicate via domain events, not synchronous HTTP."
-- **Technology choices that carry lock-in.** Database, message bus, auth provider, deployment target. Not every library — just the ones that would take a quarter to swap out.
-- **Boundary and scope decisions.** "Customer data is owned by the Customer context; other contexts reference it by ID only." The explicit no-s are as valuable as the yes-s.
-- **Deliberate deviations from the obvious path.** "We're using manual SQL instead of an ORM because X." Anything where a reasonable reader would assume the opposite. These stop the next engineer from "fixing" something that was deliberate.
-- **Constraints not visible in the code.** "We can't use AWS because of compliance requirements." "Response times must be under 200ms because of the partner API contract."
-- **Rejected alternatives when the rejection is non-obvious.** If you considered GraphQL and picked REST for subtle reasons, record it — otherwise someone will suggest GraphQL again in six months.
+For meaningful exports in high-bar `shared/*` packages, use the promotion record
+schema from `standards/architecture/02-shared-kernel.md` in the affected
+package README:
+
+```md
+### Promotion record: <export name>
+
+- **Date promoted:** YYYY-MM-DD
+- **Shared product semantics:** <one sentence on the cross-slice meaning>
+- **Current consumers:** <list at least two packages or explicit cross-slice rationale>
+- **Rejected homes:**
+  - Owning slice - <why it cannot stay local>
+  - Foundation - <why it is not domain-agnostic substrate>
+- **Surface:** <symbols and canonical subpaths>
+- **Runtime limits:** <contract-only, no live Layers, or the approved limit>
+- **Coupling acceptors:** <review sign-off or PR link>
+- **Removal trigger:** <condition for retirement>
+```
+
+Records are kept with the package because they document coupling accepted by
+that package. `DECISIONS.md` records architecture policy; it does not replace
+promotion evidence.
+
+## Updating doctrine docs
+
+If a decision changes rule text, examples, or routing guidance, update the
+relevant numbered architecture doc in the same pass:
+
+- `01` for slice topology and direct-import rules
+- `02` for shared kernel and promotion records
+- `03` for driver/server/table boundaries
+- `04` for rich schema-first domain modeling
+- `05` for Layer ownership
+- `06` for config boundaries
+- `07` for non-slice family/kind routing
+- `08` for testing isolation and contract tests
+- `09` for error translation boundaries
+- `10` for cross-slice events and processes
+- `11` for evolution, deprecation, and flags
+- `12` for observability
+- `13` for scratchpad, minimum viable slice, and onboarding
+
+Update `standards/ARCHITECTURE.md` when the binding constitution itself changes.
+Use the companion packet for rationale and examples.
