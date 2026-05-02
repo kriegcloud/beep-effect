@@ -24,7 +24,7 @@ describe("Organization types", () => {
     expect<typeof Organization.Model.definition.fields.slug.Type>().type.toBe<
       typeof Organization.Model.fields.slug.Type
     >();
-    expect<typeof Organization.Model.definition.fields.licenseTier.Type>().type.toBe<"free" | "team" | "enterprise">();
+    expect<typeof Organization.Model.definition.fields.licenseTier.Type>().type.toBe<"solo" | "team" | "enterprise">();
     expect<typeof Organization.Model.definition.fields.parentOrgId.Type>().type.toBe<O.Option<Shared.OrganizationId>>();
     expect<typeof Organization.Model.definition.fields.settings.Type>().type.toBe<Organization.Settings>();
   });

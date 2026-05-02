@@ -37,8 +37,14 @@
       "@beep/shared-domain/entities": [
         "../../../packages/shared/domain/src/entities.ts"
       ],
+      "@beep/shared-domain/entities/Membership": [
+        "../../../packages/shared/domain/src/entities/Membership/index.ts"
+      ],
       "@beep/shared-domain/entities/Organization": [
         "../../../packages/shared/domain/src/entities/Organization/index.ts"
+      ],
+      "@beep/shared-domain/entities/User": [
+        "../../../packages/shared/domain/src/entities/User/index.ts"
       ],
       "@beep/shared-domain/entity": [
         "../../../packages/shared/domain/src/entity.ts"
@@ -78,9 +84,6 @@
       ],
       "@beep/shared-domain/identity/Shared": [
         "../../../packages/shared/domain/src/identity/Shared.ts"
-      ],
-      "@beep/shared-domain/identity/Tenancy": [
-        "../../../packages/shared/domain/src/identity/Tenancy.ts"
       ],
       "@beep/shared-domain/identity/WealthManagement": [
         "../../../packages/shared/domain/src/identity/WealthManagement.ts"

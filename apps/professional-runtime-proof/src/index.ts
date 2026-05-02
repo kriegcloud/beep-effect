@@ -20,10 +20,10 @@ import { LegalContact } from "@beep/law-practice-domain/entities/LegalContact";
 import { Matter } from "@beep/law-practice-domain/entities/Matter";
 import { PatentAsset } from "@beep/law-practice-domain/entities/PatentAsset";
 import { UnknownRecord } from "@beep/schema";
-import { Membership } from "@beep/tenancy-domain/entities/Membership";
-import { Organization } from "@beep/tenancy-domain/entities/Organization";
-import { Principal } from "@beep/tenancy-domain/entities/Principal";
-import { User } from "@beep/tenancy-domain/entities/User";
+import { Model as Membership } from "@beep/shared-domain/entities/Membership";
+import { Model as Organization } from "@beep/shared-domain/entities/Organization";
+import { Model as User } from "@beep/shared-domain/entities/User";
+import { A, O, Str } from "@beep/utils";
 import { Account } from "@beep/wealth-management-domain/entities/Account";
 import { Household } from "@beep/wealth-management-domain/entities/Household";
 import { Party } from "@beep/wealth-management-domain/entities/Party";
@@ -35,7 +35,7 @@ import { CandidateTask } from "@beep/workspace-domain/entities/CandidateTask";
 import { ContextPacket } from "@beep/workspace-domain/entities/ContextPacket";
 import { EmailArtifact } from "@beep/workspace-domain/entities/EmailArtifact";
 import { Workspace } from "@beep/workspace-domain/entities/Workspace";
-import { Effect } from "effect";
+import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 
 /**
@@ -199,7 +199,6 @@ const decodeFixtureModel = <A>(schema: S.Top): ((input: unknown) => A) =>
 const decodeOrganization = decodeFixtureModel(Organization);
 const decodeUser = decodeFixtureModel(User);
 const decodeMembership = decodeFixtureModel(Membership);
-const decodePrincipal = decodeFixtureModel(Principal);
 const decodeWorkspace = decodeFixtureModel(Workspace);
 const decodeEmailArtifact = decodeFixtureModel(EmailArtifact);
 const decodeAgent = decodeFixtureModel(Agent);
@@ -235,6 +234,20 @@ const entityAuditFields = {
   updatedAt: 1,
   updatedByPrincipal: runtimeSystemPrincipal,
 } as const;
+const organizationSettings = {
+  allowAgentActions: true,
+  defaultRetentionDays: 90,
+} as const;
+
+const userEntityIdByFixtureKey = (users: ReadonlyArray<SeedUserFixture>, userId: string): number | undefined =>
+  pipe(
+    users,
+    A.findFirstIndex((user) => user.userId === userId),
+    O.map((index) => index + 2),
+    O.getOrUndefined
+  );
+
+const membershipRoleFrom = (role: string): "member" | "owner" => (role === "owner_attorney" ? "owner" : "member");
 
 const runtimeScopeFrom = (seed: SeedFixture, email: EmailFixture): RuntimeScope =>
   new RuntimeScope({
@@ -260,45 +273,32 @@ const decodeSeedModels = (seed: SeedFixture, email: EmailFixture, body: string):
   decodeOrganization({
     ...entityAuditFields,
     entityType: entityTypeOf(Organization),
-    fixtureKey: seed.organization.organizationId,
     id: 1,
-    kind: seed.organization.kind,
+    legalName: seed.organization.name,
     licenseTier: seed.organization.licenseTier,
     name: seed.organization.name,
+    parentOrgId: null,
+    settings: organizationSettings,
+    slug: Str.toSlug(seed.organization.name),
   });
   seed.users.forEach((user, index) =>
     decodeUser({
       ...entityAuditFields,
       displayName: user.displayName,
       entityType: entityTypeOf(User),
-      fixtureKey: user.userId,
       id: index + 2,
-      role: user.role,
     })
   );
   seed.memberships.forEach((membership, index) =>
     decodeMembership({
       ...entityAuditFields,
       entityType: entityTypeOf(Membership),
-      fixtureKey: membership.membershipId,
       id: index + 10,
-      organizationFixtureKey: membership.organizationId,
-      role: membership.role,
+      role: membershipRoleFrom(membership.role),
       status: membership.status,
-      userFixtureKey: membership.userId,
+      userId: userEntityIdByFixtureKey(seed.users, membership.userId),
     })
   );
-  seed.principals.forEach((principal, index) => {
-    decodePrincipal({
-      ...entityAuditFields,
-      agentFixtureKey: principal.agentId ?? null,
-      entityType: entityTypeOf(Principal),
-      fixtureKey: principal.principalId,
-      id: index + 20,
-      kind: principal.kind,
-      userFixtureKey: principal.userId ?? null,
-    });
-  });
   decodeWorkspace({
     ...entityAuditFields,
     entityType: entityTypeOf(Workspace),

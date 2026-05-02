@@ -88,6 +88,44 @@ export const UserId = make("user", {
 export type UserId = typeof UserId.Type;
 
 /**
+ * Membership entity identifier.
+ *
+ * @example
+ * ```ts
+ * import { MembershipId } from "@beep/shared-domain/identity/Shared"
+ *
+ * console.log(MembershipId.tableName)
+ * ```
+ *
+ * @category entity ids
+ * @since 0.0.0
+ */
+export const MembershipId = make("membership", {
+  description: "Identifier for a shared-kernel membership entity.",
+});
+
+/**
+ * Companion type for {@link MembershipId.Type}.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { MembershipId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(MembershipId)(1)
+ *   return id
+ * })
+ * void program
+ * ```
+ *
+ * @category entity ids
+ * @since 0.0.0
+ */
+export type MembershipId = typeof MembershipId.Type;
+
+/**
  * Team entity identifier.
  *
  * @example

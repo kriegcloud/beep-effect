@@ -76,20 +76,6 @@ export * as LawPractice from "./LawPractice.ts";
  */
 export * as Shared from "./Shared.ts";
 /**
- * Tenancy entity-id registry namespace.
- *
- * @example
- * ```ts
- * import * as Tenancy from "@beep/shared-domain/identity/Tenancy"
- *
- * console.log(Tenancy.OrganizationId.tableName)
- * ```
- *
- * @category entity ids
- * @since 0.0.0
- */
-export * as Tenancy from "./Tenancy.ts";
-/**
  * Wealth-management entity-id registry namespace.
  *
  * @example

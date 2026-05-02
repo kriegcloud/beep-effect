@@ -120,7 +120,6 @@
       "@beep/law-practice-domain": [
         "./packages/law-practice/domain/src/index.ts"
       ],
-      "@beep/tenancy-domain": ["./packages/tenancy/domain/src/index.ts"],
       "@beep/wealth-management-domain": [
         "./packages/wealth-management/domain/src/index.ts"
       ],
@@ -280,8 +279,14 @@
       "@beep/shared-domain/entities": [
         "./packages/shared/domain/src/entities.ts"
       ],
+      "@beep/shared-domain/entities/Membership": [
+        "./packages/shared/domain/src/entities/Membership/index.ts"
+      ],
       "@beep/shared-domain/entities/Organization": [
         "./packages/shared/domain/src/entities/Organization/index.ts"
+      ],
+      "@beep/shared-domain/entities/User": [
+        "./packages/shared/domain/src/entities/User/index.ts"
       ],
       "@beep/shared-domain/entity": ["./packages/shared/domain/src/entity.ts"],
       "@beep/shared-domain/identity": [
@@ -347,21 +352,6 @@
       ],
       "@beep/law-practice-domain/entities/PatentAsset": [
         "./packages/law-practice/domain/src/entities/PatentAsset/index.ts"
-      ],
-      "@beep/tenancy-domain/entities": [
-        "./packages/tenancy/domain/src/entities/index.ts"
-      ],
-      "@beep/tenancy-domain/entities/Membership": [
-        "./packages/tenancy/domain/src/entities/Membership/index.ts"
-      ],
-      "@beep/tenancy-domain/entities/Organization": [
-        "./packages/tenancy/domain/src/entities/Organization/index.ts"
-      ],
-      "@beep/tenancy-domain/entities/Principal": [
-        "./packages/tenancy/domain/src/entities/Principal/index.ts"
-      ],
-      "@beep/tenancy-domain/entities/User": [
-        "./packages/tenancy/domain/src/entities/User/index.ts"
       ],
       "@beep/wealth-management-domain/entities": [
         "./packages/wealth-management/domain/src/entities/index.ts"
@@ -443,9 +433,6 @@
       ],
       "@beep/shared-domain/identity/Shared": [
         "./packages/shared/domain/src/identity/Shared.ts"
-      ],
-      "@beep/shared-domain/identity/Tenancy": [
-        "./packages/shared/domain/src/identity/Tenancy.ts"
       ],
       "@beep/shared-domain/identity/WealthManagement": [
         "./packages/shared/domain/src/identity/WealthManagement.ts"

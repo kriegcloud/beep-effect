@@ -13,7 +13,6 @@ import {
   $EpistemicDomainId,
   $LawPracticeDomainId,
   $ProfessionalRuntimeProofId,
-  $TenancyDomainId,
   $WealthManagementDomainId,
   $WorkspaceDomainId,
   make,
@@ -47,7 +46,6 @@ describe("Identity", () => {
   });
 
   it("preserves literal types for P3 package composers", () => {
-    expect($TenancyDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/tenancy-domain">>();
     expect($WorkspaceDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/workspace-domain">>();
     expect($EpistemicDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/epistemic-domain">>();
     expect($AgentCapabilityDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/agent-capability-domain">>();

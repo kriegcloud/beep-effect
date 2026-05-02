@@ -49,19 +49,21 @@
       "@beep/law-practice-domain/entities/PatentAsset": [
         "../../packages/law-practice/domain/src/entities/PatentAsset/index.ts"
       ],
-      "@beep/tenancy-domain": ["../../packages/tenancy/domain/src/index.ts"],
-      "@beep/tenancy-domain/entities/Membership": [
-        "../../packages/tenancy/domain/src/entities/Membership/index.ts"
+      "@beep/shared-domain": ["../../packages/shared/domain/src/index.ts"],
+      "@beep/shared-domain/entities": [
+        "../../packages/shared/domain/src/entities.ts"
       ],
-      "@beep/tenancy-domain/entities/Organization": [
-        "../../packages/tenancy/domain/src/entities/Organization/index.ts"
+      "@beep/shared-domain/entities/Membership": [
+        "../../packages/shared/domain/src/entities/Membership/index.ts"
       ],
-      "@beep/tenancy-domain/entities/Principal": [
-        "../../packages/tenancy/domain/src/entities/Principal/index.ts"
+      "@beep/shared-domain/entities/Organization": [
+        "../../packages/shared/domain/src/entities/Organization/index.ts"
       ],
-      "@beep/tenancy-domain/entities/User": [
-        "../../packages/tenancy/domain/src/entities/User/index.ts"
+      "@beep/shared-domain/entities/User": [
+        "../../packages/shared/domain/src/entities/User/index.ts"
       ],
+      "@beep/utils": ["../../packages/foundation/modeling/utils/src/index.ts"],
+      "@beep/utils/*": ["../../packages/foundation/modeling/utils/src/*"],
       "@beep/wealth-management-domain": [
         "../../packages/wealth-management/domain/src/index.ts"
       ],
@@ -114,10 +116,13 @@
       "path": "../../packages/epistemic/domain/tsconfig.json"
     },
     {
+      "path": "../../packages/foundation/modeling/utils/tsconfig.json"
+    },
+    {
       "path": "../../packages/law-practice/domain/tsconfig.json"
     },
     {
-      "path": "../../packages/tenancy/domain/tsconfig.json"
+      "path": "../../packages/shared/domain/tsconfig.json"
     },
     {
       "path": "../../packages/wealth-management/domain/tsconfig.json"

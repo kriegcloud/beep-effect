@@ -62,7 +62,7 @@ describe("Organization", () => {
     Effect.fnUntraced(function* () {
       const decodeSettings = S.decodeUnknownEffect(Organization.Settings);
 
-      expect(Organization.LicenseTier.is.free("free")).toBe(true);
+      expect(Organization.LicenseTier.is.solo("solo")).toBe(true);
       expect(Organization.LicenseTier.is.team("team")).toBe(true);
       expect(Organization.LicenseTier.is.enterprise("enterprise")).toBe(true);
       expect((yield* decodeSettings({ allowAgentActions: false, defaultRetentionDays: 30 })).defaultRetentionDays).toBe(

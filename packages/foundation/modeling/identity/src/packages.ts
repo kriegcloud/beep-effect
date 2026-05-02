@@ -67,7 +67,6 @@ const composers = $I.compose(
   "epistemic-domain",
   "law-practice-domain",
   "professional-runtime-proof",
-  "tenancy-domain",
   "wealth-management-domain",
   "workspace-domain",
 
@@ -493,21 +492,6 @@ export const $FixtureLabSpecimenId: Identity.IdentityComposer<"@beep/fixture-lab
   composers.$FixtureLabSpecimenId;
 
 // --- p3 professional runtime proof ---
-
-/**
- * Identity composer for the `@beep/tenancy-domain` package.
- *
- * @example
- * ```typescript
- * import { $TenancyDomainId } from "@beep/identity"
- *
- * const id = $TenancyDomainId.make("Organization")
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $TenancyDomainId: Identity.IdentityComposer<"@beep/tenancy-domain"> = composers.$TenancyDomainId;
 
 /**
  * Identity composer for the `@beep/workspace-domain` package.

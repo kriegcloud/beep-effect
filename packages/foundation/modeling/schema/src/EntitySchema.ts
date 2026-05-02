@@ -768,15 +768,15 @@ export const assignEntityParts = <
   const BasePersisted extends PersistedFor<BaseFields>,
   const ExtensionFields extends EntityFieldInputs,
   const ExtensionPersisted extends PersistedMap,
->(
-  baseFields: BaseFields,
-  basePersisted: BasePersisted,
-  extensionFields: ExtensionFields,
-  extensionPersisted: ExtensionPersisted
-): AssignedEntityParts<BaseFields, BasePersisted, ExtensionFields, ExtensionPersisted> =>
+>(input: {
+  readonly baseFields: BaseFields;
+  readonly basePersisted: BasePersisted;
+  readonly extensionFields: ExtensionFields;
+  readonly extensionPersisted: ExtensionPersisted;
+}): AssignedEntityParts<BaseFields, BasePersisted, ExtensionFields, ExtensionPersisted> =>
   ({
-    fields: Struct.assign(baseFields, extensionFields),
-    persisted: Struct.assign(basePersisted, extensionPersisted),
+    fields: Struct.assign(input.baseFields, input.extensionFields),
+    persisted: Struct.assign(input.basePersisted, input.extensionPersisted),
   }) as AssignedEntityParts<BaseFields, BasePersisted, ExtensionFields, ExtensionPersisted>;
 
 /**
@@ -1510,12 +1510,12 @@ const withClassFactory = <
       input: ClassInput<ChildFields, ChildPersisted, ChildTableName, ChildEntityId>,
       annotations?: SchemaAnnotations
     ) => {
-      const childParts = assignEntityParts(
-        baseClass.definition.inputFields,
-        baseClass.definition.persisted,
-        input.fields,
-        input.persisted
-      );
+      const childParts = assignEntityParts({
+        baseFields: baseClass.definition.inputFields,
+        basePersisted: baseClass.definition.persisted,
+        extensionFields: input.fields,
+        extensionPersisted: input.persisted,
+      });
       const childInput = defineClassInput({
         ...(P.isUndefined(input.entityId) ? {} : { entityId: input.entityId }),
         fields: childParts.fields,

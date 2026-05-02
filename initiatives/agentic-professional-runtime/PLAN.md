@@ -39,7 +39,7 @@ node initiatives/agentic-professional-runtime/fixtures/runtime-data-loop/validat
 ## P3 Outputs
 
 - [docs/p3-slice-implementation.md](./docs/p3-slice-implementation.md)
-- `packages/tenancy/domain`
+- `packages/shared/domain`
 - `packages/workspace/domain`
 - `packages/epistemic/domain`
 - `packages/agent-capability/domain`

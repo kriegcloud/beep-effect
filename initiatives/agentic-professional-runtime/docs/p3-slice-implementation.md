@@ -9,7 +9,7 @@ topology without adding persistence, UI, real connectors, or real LLM calls.
 
 The first real slice packages are:
 
-- `@beep/tenancy-domain`
+- `@beep/shared-domain`
 - `@beep/workspace-domain`
 - `@beep/epistemic-domain`
 - `@beep/agent-capability-domain`
@@ -23,8 +23,10 @@ The app-level proof harness is:
 
 ## Boundary Shape
 
-- Domain packages define schema-first models with repo-native positive integer
-  entity IDs and readable fixture keys.
+- Shared-domain owns the canonical organization, user, and membership language.
+  Slice domain packages define schema-first models with repo-native positive
+  integer entity IDs.
+- Readable fixture keys remain in the proof harness mapping layer.
 - `@beep/agent-capability-use-cases/public` exposes the SDK-facing context
   packet and candidate output-set contracts.
 - `@beep/agent-capability-use-cases/proof` exposes the deterministic fixture
@@ -58,4 +60,4 @@ The test proves:
 - real email connector execution
 - real LLM extraction
 - native review UI
-- shared-kernel promotion beyond existing references
+- tenancy lifecycle use-cases, repositories, and adapters

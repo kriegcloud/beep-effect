@@ -25,7 +25,6 @@ const config = {
     "packages/agent-capability/use-cases/package.json",
     "packages/epistemic/domain/package.json",
     "packages/law-practice/domain/package.json",
-    "packages/tenancy/domain/package.json",
     "packages/wealth-management/domain/package.json",
     "packages/workspace/domain/package.json",
     "packages/shared/use-cases/package.json",

@@ -39,15 +39,13 @@ describe("P3 identity namespace types", () => {
     expect<typeof Identity.LawPractice.PatentAssetId.tableName>().type.toBe<"law_practice_patent_asset">();
   });
 
-  it("preserves Tenancy companion aliases and literals", () => {
-    expect<Identity.Tenancy.OrganizationId>().type.toBe<EntityId.EntityIdValueFor<"TenancyOrganizationId">>();
-    expect<Identity.Tenancy.UserId>().type.toBe<EntityId.EntityIdValueFor<"TenancyUserId">>();
-    expect<Identity.Tenancy.MembershipId>().type.toBe<EntityId.EntityIdValueFor<"TenancyMembershipId">>();
-    expect<Identity.Tenancy.PrincipalId>().type.toBe<EntityId.EntityIdValueFor<"TenancyPrincipalId">>();
-    expect<typeof Identity.Tenancy.OrganizationId.tableName>().type.toBe<"tenancy_organization">();
-    expect<typeof Identity.Tenancy.UserId.tableName>().type.toBe<"tenancy_user">();
-    expect<typeof Identity.Tenancy.MembershipId.tableName>().type.toBe<"tenancy_membership">();
-    expect<typeof Identity.Tenancy.PrincipalId.tableName>().type.toBe<"tenancy_principal">();
+  it("preserves Shared companion aliases and literals", () => {
+    expect<Identity.Shared.OrganizationId>().type.toBe<EntityId.EntityIdValueFor<"SharedOrganizationId">>();
+    expect<Identity.Shared.UserId>().type.toBe<EntityId.EntityIdValueFor<"SharedUserId">>();
+    expect<Identity.Shared.MembershipId>().type.toBe<EntityId.EntityIdValueFor<"SharedMembershipId">>();
+    expect<typeof Identity.Shared.OrganizationId.tableName>().type.toBe<"shared_organization">();
+    expect<typeof Identity.Shared.UserId.tableName>().type.toBe<"shared_user">();
+    expect<typeof Identity.Shared.MembershipId.tableName>().type.toBe<"shared_membership">();
   });
 
   it("preserves WealthManagement companion aliases and literals", () => {

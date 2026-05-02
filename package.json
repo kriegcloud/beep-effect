@@ -26,7 +26,6 @@
     "packages/agent-capability/use-cases",
     "packages/epistemic/domain",
     "packages/law-practice/domain",
-    "packages/tenancy/domain",
     "packages/wealth-management/domain",
     "packages/workspace/domain",
     "packages/shared/use-cases",

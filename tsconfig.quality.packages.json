@@ -121,9 +121,6 @@
       "path": "packages/shared/use-cases"
     },
     {
-      "path": "packages/tenancy/domain"
-    },
-    {
       "path": "packages/tooling/library/repo-utils"
     },
     {

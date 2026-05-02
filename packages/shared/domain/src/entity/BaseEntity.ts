@@ -149,7 +149,13 @@ const entityPartsFor = <
 ): {
   readonly fields: EntityFieldsFor<Entity, ChildFields>;
   readonly persisted: EntityPersistedFor<Entity, ChildFields, ChildPersisted>;
-} => EntitySchema.assignEntityParts(input.fields, input.persisted, identityFields(entityId), identityPersisted);
+} =>
+  EntitySchema.assignEntityParts({
+    baseFields: input.fields,
+    basePersisted: input.persisted,
+    extensionFields: identityFields(entityId),
+    extensionPersisted: identityPersisted,
+  });
 
 const Class =
   <Child = never>(identifier: string) =>

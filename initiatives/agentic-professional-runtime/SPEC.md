@@ -122,7 +122,7 @@ account reference. Entity resolution from arbitrary email is deferred.
 
 The first executable package proof lives in:
 
-- `packages/tenancy/domain`
+- `packages/shared/domain`
 - `packages/workspace/domain`
 - `packages/epistemic/domain`
 - `packages/agent-capability/domain`
@@ -131,10 +131,11 @@ The first executable package proof lives in:
 - `packages/wealth-management/domain`
 - `apps/professional-runtime-proof`
 
-The proof keeps slice domains schema-first, maps readable fixture keys to
-repo-native entity IDs, exposes SDK candidate output and context-packet
-contracts from `@beep/agent-capability-use-cases/public`, and runs the paired
-fixtures through `@beep/agent-capability-use-cases/test`.
+The proof keeps shared-kernel and slice domains schema-first, maps readable
+fixture keys to repo-native entity IDs at the proof boundary, exposes SDK
+candidate output and context-packet contracts from
+`@beep/agent-capability-use-cases/public`, and runs the paired fixtures through
+`@beep/agent-capability-use-cases/test`.
 
 The app-level proof harness is the only place that composes both verticals in
 P3. Slice packages still do not import from other product slices directly.
@@ -145,18 +146,19 @@ The initial named slice map is:
 
 | Slice | Owns |
 |---|---|
-| `tenancy` | organizations, users, teams, memberships, roles, policy scope |
+| `tenancy` | future lifecycle authority for organization onboarding, user invitation, membership changes, roles, and policy scope |
 | `workspace` | workspaces, threads, messages, artifacts, projects, tasks, approvals |
 | `agent-capability` | agents, skills, commands, connectors, model/provider bindings |
 | `epistemic` | claims, evidence, subjects, provenance activities, lifecycle, usage records |
 | `law-practice` | law-specific clients, matters, IP assets, filings, contracts, docket overlays |
 | `wealth-management` | wealth-specific parties, households, accounts, holdings, goals, meetings |
 
-Each real slice must follow `standards/ARCHITECTURE.md`: domain, use-cases,
-config, server, client, tables, and UI appear only when each role is needed.
-Direct slice-to-slice imports are forbidden. Shared contracts are promoted
-through `shared/*` only when both product proofs intentionally accept the
-coupling.
+`shared/domain` owns the canonical organization, user, membership, and actor
+provenance language needed across the product proofs. Each real slice must
+follow `standards/ARCHITECTURE.md`: domain, use-cases, config, server, client,
+tables, and UI appear only when each role is needed. Direct slice-to-slice
+imports are forbidden. Shared contracts are promoted through `shared/*` only
+when both product proofs intentionally accept the coupling.
 
 ## Runtime Boundaries
 

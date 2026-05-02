@@ -41,7 +41,8 @@
     "@beep/agent-capability-use-cases": "workspace:^",
     "@beep/epistemic-domain": "workspace:^",
     "@beep/law-practice-domain": "workspace:^",
-    "@beep/tenancy-domain": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@beep/wealth-management-domain": "workspace:^",
     "@beep/workspace-domain": "workspace:^",
     "effect": "catalog:"

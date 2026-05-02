@@ -157,7 +157,7 @@
       "status": "completed",
       "outputs": [
         "docs/p3-slice-implementation.md",
-        "packages/tenancy/domain",
+        "packages/shared/domain",
         "packages/workspace/domain",
         "packages/epistemic/domain",
         "packages/agent-capability/domain",

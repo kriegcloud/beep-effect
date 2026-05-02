@@ -31,7 +31,7 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.values");
  * @category schemas
  * @since 0.0.0
  */
-export const LicenseTier = LiteralKit(["free", "team", "enterprise"]).annotate(
+export const LicenseTier = LiteralKit(["solo", "team", "enterprise"]).annotate(
   $I.annote("LicenseTier", {
     description: "Commercial license tier assigned to a shared-kernel organization.",
   })
