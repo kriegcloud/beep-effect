@@ -32,6 +32,9 @@ const config = {
     "packages/drivers/drizzle/package.json",
     "packages/drivers/ffmpeg/package.json",
     "packages/drivers/postgres/package.json",
+    "packages/drivers/openai/package.json",
+    "packages/drivers/venice-ai/package.json",
+    "packages/drivers/xai/package.json",
   ],
   customTypes: {
     catalog: {

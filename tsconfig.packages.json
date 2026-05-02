@@ -31,7 +31,16 @@
       "path": "packages/drivers/ffmpeg"
     },
     {
+      "path": "packages/drivers/openai"
+    },
+    {
       "path": "packages/drivers/postgres"
+    },
+    {
+      "path": "packages/drivers/venice-ai"
+    },
+    {
+      "path": "packages/drivers/xai"
     },
     {
       "path": "packages/epistemic/domain"

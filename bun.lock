@@ -201,6 +201,17 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/openai": {
+      "name": "@beep/openai",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/postgres": {
       "name": "@beep/postgres",
       "version": "0.0.0",
@@ -215,6 +226,32 @@
       },
       "devDependencies": {
         "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/venice-ai": {
+      "name": "@beep/venice-ai",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@effect/ai-openai-compat": "catalog:",
+        "@effect/platform-bun": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/xai": {
+      "name": "@beep/xai",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -1391,6 +1428,8 @@
 
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
 
+    "@beep/openai": ["@beep/openai@workspace:packages/drivers/openai"],
+
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
 
     "@beep/professional-runtime-proof": ["@beep/professional-runtime-proof@workspace:apps/professional-runtime-proof"],
@@ -1431,9 +1470,13 @@
 
     "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
 
+    "@beep/venice-ai": ["@beep/venice-ai@workspace:packages/drivers/venice-ai"],
+
     "@beep/wealth-management-domain": ["@beep/wealth-management-domain@workspace:packages/wealth-management/domain"],
 
     "@beep/workspace-domain": ["@beep/workspace-domain@workspace:packages/workspace/domain"],
+
+    "@beep/xai": ["@beep/xai@workspace:packages/drivers/xai"],
 
     "@bergos/jsonparse": ["@bergos/jsonparse@1.4.2", "", { "dependencies": { "buffer": "^6.0.3" } }, "sha512-qUt0QNJjvg4s1zk+AuLM6s/zcsQ8MvGn7+1f0vPuxvpCYa08YtTryuDInngbEyW5fNGGYe2znKt61RMGd5HnXg=="],
 

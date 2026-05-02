@@ -32,7 +32,10 @@
     "packages/shared/config",
     "packages/drivers/drizzle",
     "packages/drivers/ffmpeg",
-    "packages/drivers/postgres"
+    "packages/drivers/postgres",
+    "packages/drivers/openai",
+    "packages/drivers/venice-ai",
+    "packages/drivers/xai"
   ],
   "repository": {
     "type": "git",
