@@ -1,22 +1,29 @@
 /**
- * Venice AI chat service backed by Effect's OpenAI-compatible AI adapter.
+ * Product-neutral Venice AI API driver.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
  */
 
 import { $VeniceAiId } from "@beep/identity";
-import { TaggedErrorClass } from "@beep/schema";
-import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai-compat";
-import { Config, Context, Effect, Layer, Ref } from "effect";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { Config, Context, Effect, Layer, pipe, Redacted, Stream } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { AiError, Chat, LanguageModel, Prompt } from "effect/unstable/ai";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
-import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import * as HttpClientError from "effect/unstable/http/HttpClientError";
+import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 
 const $I = $VeniceAiId.create("VeniceAI.service");
 
 /**
- * OpenAI-compatible Venice API base URL.
+ * Venice API base URL used by the live layer.
  *
  * @example
  * ```ts
@@ -25,13 +32,13 @@ const $I = $VeniceAiId.create("VeniceAI.service");
  * console.log(VENICE_API_URL)
  * ```
  *
- * @category configuration
+ * @category utilities
  * @since 0.0.0
  */
-export const VENICE_API_URL = "https://api.venice.ai/api/v1" as const;
+export const VENICE_API_URL = "https://api.venice.ai/api/v1";
 
 /**
- * Default Venice text model used by the demo chat service.
+ * Default Venice text model used by the compatibility chat service.
  *
  * @example
  * ```ts
@@ -40,82 +47,1748 @@ export const VENICE_API_URL = "https://api.venice.ai/api/v1" as const;
  * console.log(VENICE_CHAT_MODEL)
  * ```
  *
- * @category configuration
+ * @category utilities
  * @since 0.0.0
  */
-export const VENICE_CHAT_MODEL = "venice-uncensored-1-2" as const;
+export const VENICE_CHAT_MODEL = "venice-uncensored-1-2";
 
 /**
- * Prompt used by the runnable Venice demo.
+ * Supported HTTP methods in the checked-in Venice OpenAPI document.
  *
  * @example
  * ```ts
- * import { VENICE_FAVORITE_JOKE_PROMPT } from "@beep/venice-ai"
+ * import type { VeniceAIHttpMethod } from "@beep/venice-ai"
  *
- * console.log(VENICE_FAVORITE_JOKE_PROMPT)
+ * const method: VeniceAIHttpMethod = "GET"
+ * void method
  * ```
  *
- * @category configuration
+ * @category models
  * @since 0.0.0
  */
-export const VENICE_FAVORITE_JOKE_PROMPT = "What is your favorite joke?" as const;
-
-const isVeniceJsonChatResponse = (response: HttpClientResponse.HttpClientResponse) =>
-  Str.endsWith("/chat/completions")(response.request.url) &&
-  Str.includes("application/json")(response.headers["content-type"] ?? "");
-
-const normalizeVeniceServiceTier = (body: unknown): unknown =>
-  P.isObject(body) && P.isNull(body.service_tier) ? { ...body, service_tier: undefined } : body;
-
-const normalizeVeniceChatResponse = (response: HttpClientResponse.HttpClientResponse) =>
-  isVeniceJsonChatResponse(response)
-    ? response.json.pipe(
-        Effect.map(normalizeVeniceServiceTier),
-        Effect.map((body) =>
-          HttpClientResponse.fromWeb(response.request, Response.json(body, { status: response.status }))
-        )
-      )
-    : Effect.succeed(response);
-
-const VeniceOpenAiClientLayer = OpenAiClient.layerConfig({
-  apiKey: Config.redacted("AI_VENICE_API_KEY"),
-  apiUrl: Config.succeed(VENICE_API_URL),
-  transformClient: HttpClient.transformResponse(Effect.flatMap(normalizeVeniceChatResponse)),
-}).pipe(Layer.provide(FetchHttpClient.layer));
-
-const VeniceLanguageModelLayer = OpenAiLanguageModel.model(VENICE_CHAT_MODEL).pipe(
-  Layer.provide(VeniceOpenAiClientLayer)
+export const VeniceAIHttpMethod = LiteralKit(["DELETE", "GET", "PATCH", "POST"] as const).pipe(
+  $I.annoteSchema("VeniceAIHttpMethod", {
+    description: "Supported HTTP methods in the Venice AI OpenAPI document.",
+  })
 );
 
 /**
- * Typed error returned when the Venice chat service cannot generate text.
+ * Type for {@link VeniceAIHttpMethod}.
  *
  * @example
  * ```ts
- * import type { VeniceAiChatError } from "@beep/venice-ai"
+ * import type { VeniceAIHttpMethod } from "@beep/venice-ai"
  *
- * const tag = (error: VeniceAiChatError) => error._tag
+ * const method: VeniceAIHttpMethod = "POST"
+ * void method
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type VeniceAIHttpMethod = typeof VeniceAIHttpMethod.Type;
+
+/**
+ * Public operation identifiers from `packages/drivers/venice-ai/swagger.yaml`.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIOperationId } from "@beep/venice-ai"
+ *
+ * const operation: VeniceAIOperationId = "listModels"
+ * void operation
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const VeniceAIOperationId = LiteralKit([
+  "backgroundRemoveImage",
+  "completeAudio",
+  "completeVideo",
+  "createApiKey",
+  "createChatCompletion",
+  "createClonedVoice",
+  "createEmbedding",
+  "createResponse",
+  "createSpeech",
+  "createTextParser",
+  "createTranscription",
+  "createVideoTranscription",
+  "cryptoRpcProxy",
+  "deleteApiKey",
+  "editImage",
+  "generateImage",
+  "getApiKeyById",
+  "getApiKeyGenerateWeb3Key",
+  "getApiKeyRateLimitLogs",
+  "getApiKeyRateLimits",
+  "getApiKeys",
+  "getBillingBalance",
+  "getBillingUsage",
+  "getBillingUsageAnalytics",
+  "getCharacterBySlug",
+  "getCharacterReviews",
+  "getX402Balance",
+  "getX402Transactions",
+  "listCharacters",
+  "listCryptoRpcNetworks",
+  "listImageStyles",
+  "listModelCompatibilityMapping",
+  "listModelTraits",
+  "listModels",
+  "multiEditImage",
+  "postApiKeyGenerateWeb3Key",
+  "queueAudio",
+  "queueVideo",
+  "quoteAudio",
+  "quoteVideo",
+  "retrieveAudio",
+  "retrieveVideo",
+  "simpleGenerateImage",
+  "topUpX402Balance",
+  "upscaleImage",
+  "updateApiKey",
+  "webScrape",
+  "webSearch",
+] as const).pipe(
+  $I.annoteSchema("VeniceAIOperationId", {
+    description: "Operation identifiers exposed by the Venice AI driver.",
+  })
+);
+
+/**
+ * Type for {@link VeniceAIOperationId}.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIOperationId } from "@beep/venice-ai"
+ *
+ * const operation: VeniceAIOperationId = "createChatCompletion"
+ * void operation
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type VeniceAIOperationId = typeof VeniceAIOperationId.Type;
+
+/**
+ * Technical error reasons emitted by the Venice AI driver.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIErrorReason } from "@beep/venice-ai"
+ *
+ * const reason: VeniceAIErrorReason = "response status"
+ * void reason
  * ```
  *
  * @category errors
  * @since 0.0.0
  */
-export class VeniceAiChatError extends TaggedErrorClass<VeniceAiChatError>($I`VeniceAiChatError`)(
-  "VeniceAiChatError",
+export const VeniceAIErrorReason = LiteralKit([
+  "config",
+  "multipart encoding",
+  "request encoding",
+  "response decoding",
+  "response status",
+  "sse decoding",
+  "transport",
+] as const).pipe(
+  $I.annoteSchema("VeniceAIErrorReason", {
+    description: "Redacted technical error reasons emitted by the Venice AI driver.",
+  })
+);
+
+/**
+ * Type for {@link VeniceAIErrorReason}.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIErrorReason } from "@beep/venice-ai"
+ *
+ * const reason: VeniceAIErrorReason = "transport"
+ * void reason
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export type VeniceAIErrorReason = typeof VeniceAIErrorReason.Type;
+
+/**
+ * Query parameter value accepted by Venice request options.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIQueryValue } from "@beep/venice-ai"
+ *
+ * const value: VeniceAIQueryValue = ["image", "text"]
+ * void value
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const VeniceAIQueryValue = S.Union([
+  S.Array(S.Union([S.Boolean, S.Number, S.String])),
+  S.Boolean,
+  S.Number,
+  S.String,
+]).pipe(
+  $I.annoteSchema("VeniceAIQueryValue", {
+    description: "URL query value accepted by the Venice AI driver.",
+  })
+);
+
+/**
+ * Type for {@link VeniceAIQueryValue}.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIQueryValue } from "@beep/venice-ai"
+ *
+ * const query: VeniceAIQueryValue = 10
+ * void query
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type VeniceAIQueryValue = typeof VeniceAIQueryValue.Type;
+
+/**
+ * Request options accepted by each Venice API operation method.
+ *
+ * `path` fills OpenAPI path parameters, `query` fills URL parameters, `body`
+ * sends JSON, and `formData` sends multipart/form-data.
+ *
+ * @example
+ * ```ts
+ * import { VeniceAIRequestOptions } from "@beep/venice-ai"
+ *
+ * const request = new VeniceAIRequestOptions({
+ *   body: { model: "venice-uncensored-1-2" },
+ *   query: { limit: 10 }
+ * })
+ *
+ * void request
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VeniceAIRequestOptions extends S.Class<VeniceAIRequestOptions>($I`VeniceAIRequestOptions`)(
   {
-    reason: AiError.AiErrorReason,
+    accept: S.optionalKey(S.String),
+    body: S.optionalKey(S.Unknown),
+    formData: S.optionalKey(S.instanceOf(FormData)),
+    headers: S.optionalKey(S.Record(S.String, S.String)),
+    path: S.optionalKey(S.Record(S.String, S.String)),
+    query: S.optionalKey(S.Record(S.String, VeniceAIQueryValue)),
   },
-  $I.annote("VeniceAiChatError", {
-    description: "A typed Venice chat generation failure.",
+  $I.annote("VeniceAIRequestOptions", {
+    description: "Request options accepted by every Venice API operation method.",
+  })
+) {}
+
+/**
+ * Runtime configuration accepted by {@link VeniceAI.makeLayer}.
+ *
+ * @example
+ * ```ts
+ * import { VeniceAIConfigInput } from "@beep/venice-ai"
+ *
+ * const config = new VeniceAIConfigInput({
+ *   apiKey: "test-key",
+ *   baseUrl: "https://api.venice.ai/api/v1"
+ * })
+ *
+ * void config
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VeniceAIConfigInput extends S.Class<VeniceAIConfigInput>($I`VeniceAIConfigInput`)(
+  {
+    apiKey: S.optionalKey(S.String),
+    baseUrl: S.optionalKey(S.String),
+    headers: S.optionalKey(S.Record(S.String, S.String)),
+  },
+  $I.annote("VeniceAIConfigInput", {
+    description: "Runtime configuration accepted by the Venice AI driver layer.",
+  })
+) {}
+
+/**
+ * OpenAPI operation descriptor used by the service and coverage tests.
+ *
+ * @example
+ * ```ts
+ * import { VENICE_AI_OPERATION_DESCRIPTORS } from "@beep/venice-ai"
+ *
+ * console.log(VENICE_AI_OPERATION_DESCRIPTORS.length)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VeniceAIOperationDescriptor extends S.Class<VeniceAIOperationDescriptor>($I`VeniceAIOperationDescriptor`)(
+  {
+    authenticated: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
+    method: VeniceAIHttpMethod,
+    operationId: VeniceAIOperationId,
+    path: S.String,
+    requestContentTypes: S.Array(S.String),
+    responseContentTypes: S.Array(S.String),
+    tag: S.String,
+  },
+  $I.annote("VeniceAIOperationDescriptor", {
+    description: "OpenAPI operation descriptor used by the Venice AI service.",
+  })
+) {}
+
+/**
+ * JSON response returned by the Venice AI driver.
+ *
+ * @example
+ * ```ts
+ * import { VeniceAIJsonResponse } from "@beep/venice-ai"
+ *
+ * const response = new VeniceAIJsonResponse({
+ *   body: { ok: true },
+ *   headers: {},
+ *   status: 200
+ * })
+ *
+ * void response
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VeniceAIJsonResponse extends S.TaggedClass<VeniceAIJsonResponse>($I`VeniceAIJsonResponse`)(
+  "Json",
+  {
+    body: S.Unknown,
+    contentType: S.optionalKey(S.String),
+    headers: S.Record(S.String, S.String),
+    status: S.Number,
+  },
+  $I.annote("VeniceAIJsonResponse", {
+    description: "JSON response returned by the Venice AI driver.",
+  })
+) {}
+
+/**
+ * Text response returned by the Venice AI driver.
+ *
+ * @example
+ * ```ts
+ * import { VeniceAITextResponse } from "@beep/venice-ai"
+ *
+ * const response = new VeniceAITextResponse({
+ *   contentType: "text/plain",
+ *   headers: {},
+ *   status: 200,
+ *   text: "ok"
+ * })
+ *
+ * void response
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VeniceAITextResponse extends S.TaggedClass<VeniceAITextResponse>($I`VeniceAITextResponse`)(
+  "Text",
+  {
+    contentType: S.optionalKey(S.String),
+    headers: S.Record(S.String, S.String),
+    status: S.Number,
+    text: S.String,
+  },
+  $I.annote("VeniceAITextResponse", {
+    description: "Text response returned by the Venice AI driver.",
+  })
+) {}
+
+/**
+ * Binary response returned by the Venice AI driver.
+ *
+ * @example
+ * ```ts
+ * import { VeniceAIBinaryResponse } from "@beep/venice-ai"
+ *
+ * const response = new VeniceAIBinaryResponse({
+ *   bytes: new Uint8Array([1, 2, 3]),
+ *   contentType: "image/png",
+ *   headers: {},
+ *   status: 200
+ * })
+ *
+ * void response
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VeniceAIBinaryResponse extends S.TaggedClass<VeniceAIBinaryResponse>($I`VeniceAIBinaryResponse`)(
+  "Binary",
+  {
+    bytes: S.Uint8Array,
+    contentType: S.optionalKey(S.String),
+    headers: S.Record(S.String, S.String),
+    status: S.Number,
+  },
+  $I.annote("VeniceAIBinaryResponse", {
+    description: "Binary response returned by the Venice AI driver.",
+  })
+) {}
+
+/**
+ * Response union returned by non-streaming Venice API operation methods.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIResponse } from "@beep/venice-ai"
+ *
+ * const tag = (response: VeniceAIResponse) => response._tag
+ * void tag
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const VeniceAIResponse = S.Union([VeniceAIBinaryResponse, VeniceAIJsonResponse, VeniceAITextResponse]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("VeniceAIResponse", {
+    description: "Response union returned by non-streaming Venice AI operation methods.",
+  })
+);
+
+/**
+ * Type for {@link VeniceAIResponse}.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIResponse } from "@beep/venice-ai"
+ *
+ * const getStatus = (response: VeniceAIResponse) => response.status
+ * void getStatus
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type VeniceAIResponse = typeof VeniceAIResponse.Type;
+
+/**
+ * Parsed server-sent event emitted by Venice streaming endpoints.
+ *
+ * @example
+ * ```ts
+ * import { VeniceAIServerSentEvent } from "@beep/venice-ai"
+ *
+ * const event = new VeniceAIServerSentEvent({
+ *   data: { delta: "hello" },
+ *   done: false,
+ *   index: 0
+ * })
+ *
+ * void event
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VeniceAIServerSentEvent extends S.Class<VeniceAIServerSentEvent>($I`VeniceAIServerSentEvent`)(
+  {
+    data: S.optionalKey(S.Unknown),
+    done: S.Boolean,
+    index: S.Number,
+  },
+  $I.annote("VeniceAIServerSentEvent", {
+    description: "Parsed server-sent event emitted by Venice streaming endpoints.",
+  })
+) {}
+
+/**
+ * Technical failure raised by the Venice AI driver boundary.
+ *
+ * @example
+ * ```ts
+ * import { VeniceAIError } from "@beep/venice-ai"
+ *
+ * const error = new VeniceAIError({
+ *   method: "GET",
+ *   operation: "listModels",
+ *   path: "/models",
+ *   reason: "response status",
+ *   status: 500
+ * })
+ *
+ * void error
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class VeniceAIError extends TaggedErrorClass<VeniceAIError>($I`VeniceAIError`)(
+  "VeniceAIError",
+  {
+    cause: S.optionalKey(S.String),
+    method: S.optionalKey(VeniceAIHttpMethod),
+    operation: S.optionalKey(VeniceAIOperationId),
+    path: S.optionalKey(S.String),
+    reason: VeniceAIErrorReason,
+    status: S.optionalKey(S.Number),
+  },
+  $I.annote("VeniceAIError", {
+    description: "Redacted technical failure raised by the Venice AI driver boundary.",
   })
 ) {
-  static fromAiError(error: AiError.AiError) {
-    return new VeniceAiChatError({ reason: error.reason });
-  }
+  /**
+   * Create a driver error scoped to an OpenAPI operation.
+   *
+   * @example
+   * ```ts
+   * import { VeniceAIError, VENICE_AI_OPERATION_DESCRIPTORS } from "@beep/venice-ai"
+   *
+   * const error = VeniceAIError.fromDescriptor(VENICE_AI_OPERATION_DESCRIPTORS[0], "transport")
+   * void error
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
+  static readonly fromDescriptor = (
+    descriptor: VeniceAIOperationDescriptor,
+    reason: VeniceAIErrorReason,
+    options: VeniceAIErrorOptions = {}
+  ): VeniceAIError =>
+    new VeniceAIError({
+      method: descriptor.method,
+      operation: descriptor.operationId,
+      path: descriptor.path,
+      reason,
+      ...R.getSomes({
+        cause: causeFromUnknown(options.cause),
+      }),
+      ...R.getSomes({
+        status: O.fromUndefinedOr(options.status),
+      }),
+    });
+
+  /**
+   * Create a configuration error before a specific operation exists.
+   *
+   * @example
+   * ```ts
+   * import { VeniceAIError } from "@beep/venice-ai"
+   *
+   * const error = VeniceAIError.config()
+   * void error.reason
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
+  static readonly config = (cause?: unknown): VeniceAIError =>
+    new VeniceAIError({
+      reason: "config",
+      ...R.getSomes({
+        cause: causeFromUnknown(cause),
+      }),
+    });
 }
 
 /**
- * Stateful Venice chat service.
+ * Compatibility alias for older chat-wrapper consumers.
+ *
+ * @example
+ * ```ts
+ * import { VeniceAiChatError } from "@beep/venice-ai"
+ *
+ * const error = VeniceAiChatError.config()
+ * void error
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const VeniceAiChatError = VeniceAIError;
+
+/**
+ * Type alias for the centralized Venice AI driver error.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAiChatError } from "@beep/venice-ai"
+ *
+ * const reason = (error: VeniceAiChatError) => error.reason
+ * void reason
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export type VeniceAiChatError = VeniceAIError;
+
+type VeniceAIErrorOptions = {
+  readonly cause?: unknown;
+  readonly status?: number;
+};
+
+const stringProperty = (value: unknown, key: string): O.Option<string> =>
+  P.isObject(value) && P.hasProperty(value, key) && P.isString(value[key]) ? O.some(value[key]) : O.none();
+
+const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
+  HttpClientError.isHttpClientError(cause) ? O.some(`HttpClientError:${cause.reason._tag}`) : O.none();
+
+const causeFromUnknown = (cause: unknown): O.Option<string> =>
+  P.isUndefined(cause)
+    ? O.none()
+    : O.firstSomeOf([
+        httpClientCauseLabel(cause),
+        stringProperty(cause, "_tag"),
+        stringProperty(cause, "name"),
+        P.isString(cause) ? O.some("String") : O.none(),
+      ]);
+
+class ChatCompletionMessageResponse extends S.Class<ChatCompletionMessageResponse>($I`ChatCompletionMessageResponse`)(
+  {
+    content: S.NullOr(S.String),
+  },
+  $I.annote("ChatCompletionMessageResponse", {
+    description: "Minimal assistant message shape decoded by the compatibility chat service.",
+  })
+) {}
+
+class ChatCompletionChoiceResponse extends S.Class<ChatCompletionChoiceResponse>($I`ChatCompletionChoiceResponse`)(
+  {
+    message: ChatCompletionMessageResponse,
+  },
+  $I.annote("ChatCompletionChoiceResponse", {
+    description: "Minimal chat completion choice shape decoded by the compatibility chat service.",
+  })
+) {}
+
+class ChatCompletionTextResponse extends S.Class<ChatCompletionTextResponse>($I`ChatCompletionTextResponse`)(
+  {
+    choices: S.Array(ChatCompletionChoiceResponse),
+  },
+  $I.annote("ChatCompletionTextResponse", {
+    description: "Minimal chat completion response shape decoded by the compatibility chat service.",
+  })
+) {}
+
+const decodeChatCompletionTextResponse = S.decodeUnknownEffect(ChatCompletionTextResponse);
+const decodeSseJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
+
+const createChatCompletionOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "createChatCompletion",
+  path: "/chat/completions",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Chat",
+});
+
+const createResponseOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "createResponse",
+  path: "/responses",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Responses (Alpha)",
+});
+
+const generateImageOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "generateImage",
+  path: "/image/generate",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json", "image/jpeg", "image/png", "image/webp"],
+  tag: "Image",
+});
+
+const simpleGenerateImageOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "simpleGenerateImage",
+  path: "/images/generations",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Image",
+});
+
+const listImageStylesOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "listImageStyles",
+  path: "/image/styles",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Image",
+});
+
+const upscaleImageOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "upscaleImage",
+  path: "/image/upscale",
+  requestContentTypes: ["application/json", "multipart/form-data"],
+  responseContentTypes: ["image/png", "application/json"],
+  tag: "Image",
+});
+
+const editImageOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "editImage",
+  path: "/image/edit",
+  requestContentTypes: ["application/json", "multipart/form-data"],
+  responseContentTypes: ["image/png", "application/json"],
+  tag: "Image",
+});
+
+const multiEditImageOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "multiEditImage",
+  path: "/image/multi-edit",
+  requestContentTypes: ["application/json", "multipart/form-data"],
+  responseContentTypes: ["image/png", "application/json"],
+  tag: "Image",
+});
+
+const backgroundRemoveImageOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "backgroundRemoveImage",
+  path: "/image/background-remove",
+  requestContentTypes: ["application/json", "multipart/form-data"],
+  responseContentTypes: ["image/png", "application/json"],
+  tag: "Image",
+});
+
+const listModelsOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "listModels",
+  path: "/models",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Models",
+});
+
+const listModelTraitsOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "listModelTraits",
+  path: "/models/traits",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Models",
+});
+
+const listModelCompatibilityMappingOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "listModelCompatibilityMapping",
+  path: "/models/compatibility_mapping",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Models",
+});
+
+const getApiKeysOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getApiKeys",
+  path: "/api_keys",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "API Keys",
+});
+
+const deleteApiKeyOperation = new VeniceAIOperationDescriptor({
+  method: "DELETE",
+  operationId: "deleteApiKey",
+  path: "/api_keys",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "API Keys",
+});
+
+const createApiKeyOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "createApiKey",
+  path: "/api_keys",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "API Keys",
+});
+
+const updateApiKeyOperation = new VeniceAIOperationDescriptor({
+  method: "PATCH",
+  operationId: "updateApiKey",
+  path: "/api_keys",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "API Keys",
+});
+
+const getApiKeyByIdOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getApiKeyById",
+  path: "/api_keys/{id}",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "API Keys",
+});
+
+const getApiKeyRateLimitsOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getApiKeyRateLimits",
+  path: "/api_keys/rate_limits",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "API Keys",
+});
+
+const getApiKeyRateLimitLogsOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getApiKeyRateLimitLogs",
+  path: "/api_keys/rate_limits/log",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "API Keys",
+});
+
+const getApiKeyGenerateWeb3KeyOperation = new VeniceAIOperationDescriptor({
+  authenticated: false,
+  method: "GET",
+  operationId: "getApiKeyGenerateWeb3Key",
+  path: "/api_keys/generate_web3_key",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "API Keys",
+});
+
+const postApiKeyGenerateWeb3KeyOperation = new VeniceAIOperationDescriptor({
+  authenticated: false,
+  method: "POST",
+  operationId: "postApiKeyGenerateWeb3Key",
+  path: "/api_keys/generate_web3_key",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "API Keys",
+});
+
+const listCharactersOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "listCharacters",
+  path: "/characters",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Characters",
+});
+
+const getCharacterBySlugOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getCharacterBySlug",
+  path: "/characters/{slug}",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Characters",
+});
+
+const getCharacterReviewsOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getCharacterReviews",
+  path: "/characters/{slug}/reviews",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Characters",
+});
+
+const createEmbeddingOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "createEmbedding",
+  path: "/embeddings",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Embeddings",
+});
+
+const createSpeechOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "createSpeech",
+  path: "/audio/speech",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: [
+    "audio/aac",
+    "audio/flac",
+    "audio/mpeg",
+    "audio/opus",
+    "audio/pcm",
+    "audio/wav",
+    "application/json",
+  ],
+  tag: "Audio",
+});
+
+const createTranscriptionOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "createTranscription",
+  path: "/audio/transcriptions",
+  requestContentTypes: ["multipart/form-data"],
+  responseContentTypes: ["application/json", "text/plain"],
+  tag: "Audio",
+});
+
+const createClonedVoiceOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "createClonedVoice",
+  path: "/audio/voices",
+  requestContentTypes: ["multipart/form-data"],
+  responseContentTypes: ["application/json"],
+  tag: "Audio",
+});
+
+const completeVideoOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "completeVideo",
+  path: "/video/complete",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Video",
+});
+
+const queueVideoOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "queueVideo",
+  path: "/video/queue",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Video",
+});
+
+const quoteVideoOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "quoteVideo",
+  path: "/video/quote",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Video",
+});
+
+const retrieveVideoOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "retrieveVideo",
+  path: "/video/retrieve",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json", "video/mp4"],
+  tag: "Video",
+});
+
+const createVideoTranscriptionOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "createVideoTranscription",
+  path: "/video/transcriptions",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json", "text/plain"],
+  tag: "Video",
+});
+
+const createTextParserOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "createTextParser",
+  path: "/augment/text-parser",
+  requestContentTypes: ["multipart/form-data"],
+  responseContentTypes: ["application/json", "text/plain"],
+  tag: "Augment",
+});
+
+const completeAudioOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "completeAudio",
+  path: "/audio/complete",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Audio",
+});
+
+const queueAudioOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "queueAudio",
+  path: "/audio/queue",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Audio",
+});
+
+const quoteAudioOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "quoteAudio",
+  path: "/audio/quote",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Audio",
+});
+
+const retrieveAudioOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "retrieveAudio",
+  path: "/audio/retrieve",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json", "audio/mpeg", "audio/wav", "audio/flac"],
+  tag: "Audio",
+});
+
+const getBillingBalanceOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getBillingBalance",
+  path: "/billing/balance",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Billing",
+});
+
+const getBillingUsageOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getBillingUsage",
+  path: "/billing/usage",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json", "text/csv"],
+  tag: "Billing",
+});
+
+const getBillingUsageAnalyticsOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getBillingUsageAnalytics",
+  path: "/billing/usage-analytics",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Billing",
+});
+
+const listCryptoRpcNetworksOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "listCryptoRpcNetworks",
+  path: "/crypto/rpc/networks",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "Crypto RPC",
+});
+
+const cryptoRpcProxyOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "cryptoRpcProxy",
+  path: "/crypto/rpc/{network}",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Crypto RPC",
+});
+
+const getX402BalanceOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getX402Balance",
+  path: "/x402/balance/{walletAddress}",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "x402",
+});
+
+const topUpX402BalanceOperation = new VeniceAIOperationDescriptor({
+  authenticated: false,
+  method: "POST",
+  operationId: "topUpX402Balance",
+  path: "/x402/top-up",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "x402",
+});
+
+const getX402TransactionsOperation = new VeniceAIOperationDescriptor({
+  method: "GET",
+  operationId: "getX402Transactions",
+  path: "/x402/transactions/{walletAddress}",
+  requestContentTypes: [],
+  responseContentTypes: ["application/json"],
+  tag: "x402",
+});
+
+const webScrapeOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "webScrape",
+  path: "/augment/scrape",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Augment",
+});
+
+const webSearchOperation = new VeniceAIOperationDescriptor({
+  method: "POST",
+  operationId: "webSearch",
+  path: "/augment/search",
+  requestContentTypes: ["application/json"],
+  responseContentTypes: ["application/json"],
+  tag: "Augment",
+});
+
+/**
+ * Operation registry derived from `swagger.yaml`.
+ *
+ * @example
+ * ```ts
+ * import { VENICE_AI_OPERATION_DESCRIPTORS } from "@beep/venice-ai"
+ * import { pipe } from "effect"
+ * import * as A from "effect/Array"
+ *
+ * const operationIds = pipe(
+ *   VENICE_AI_OPERATION_DESCRIPTORS,
+ *   A.map((operation) => operation.operationId)
+ * )
+ * void operationIds
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const VENICE_AI_OPERATION_DESCRIPTORS: ReadonlyArray<VeniceAIOperationDescriptor> = [
+  createChatCompletionOperation,
+  createResponseOperation,
+  generateImageOperation,
+  simpleGenerateImageOperation,
+  listImageStylesOperation,
+  upscaleImageOperation,
+  editImageOperation,
+  multiEditImageOperation,
+  backgroundRemoveImageOperation,
+  listModelsOperation,
+  listModelTraitsOperation,
+  listModelCompatibilityMappingOperation,
+  getApiKeysOperation,
+  deleteApiKeyOperation,
+  createApiKeyOperation,
+  updateApiKeyOperation,
+  getApiKeyByIdOperation,
+  getApiKeyRateLimitsOperation,
+  getApiKeyRateLimitLogsOperation,
+  getApiKeyGenerateWeb3KeyOperation,
+  postApiKeyGenerateWeb3KeyOperation,
+  listCharactersOperation,
+  getCharacterBySlugOperation,
+  getCharacterReviewsOperation,
+  createEmbeddingOperation,
+  createSpeechOperation,
+  createTranscriptionOperation,
+  createClonedVoiceOperation,
+  completeVideoOperation,
+  queueVideoOperation,
+  quoteVideoOperation,
+  retrieveVideoOperation,
+  createVideoTranscriptionOperation,
+  createTextParserOperation,
+  completeAudioOperation,
+  queueAudioOperation,
+  quoteAudioOperation,
+  retrieveAudioOperation,
+  getBillingBalanceOperation,
+  getBillingUsageOperation,
+  getBillingUsageAnalyticsOperation,
+  listCryptoRpcNetworksOperation,
+  cryptoRpcProxyOperation,
+  getX402BalanceOperation,
+  topUpX402BalanceOperation,
+  getX402TransactionsOperation,
+  webScrapeOperation,
+  webSearchOperation,
+];
+
+/**
+ * Non-streaming Venice API operation method.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIMethod } from "@beep/venice-ai"
+ *
+ * const operation = (method: VeniceAIMethod) => method
+ * void operation
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export type VeniceAIMethod = (request?: VeniceAIRequestOptions) => Effect.Effect<VeniceAIResponse, VeniceAIError>;
+
+/**
+ * Streaming Venice API operation method.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIStreamMethod } from "@beep/venice-ai"
+ *
+ * const operation = (stream: VeniceAIStreamMethod) => stream
+ * void operation
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export type VeniceAIStreamMethod = (
+  request?: VeniceAIRequestOptions
+) => Stream.Stream<VeniceAIServerSentEvent, VeniceAIError>;
+
+type VeniceAINonStreamingShape = {
+  readonly [MethodName in VeniceAIOperationId]: VeniceAIMethod;
+};
+
+/**
+ * Runtime shape exposed by the {@link VeniceAI} service.
+ *
+ * @example
+ * ```ts
+ * import type { VeniceAIShape } from "@beep/venice-ai"
+ *
+ * const operation = (venice: VeniceAIShape) => venice.listModels()
+ * void operation
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export type VeniceAIShape = VeniceAINonStreamingShape & {
+  readonly streamChatCompletion: VeniceAIStreamMethod;
+  readonly streamResponse: VeniceAIStreamMethod;
+};
+
+type ResolvedVeniceAIConfig = {
+  readonly apiKey: O.Option<Redacted.Redacted<string>>;
+  readonly baseUrl: string;
+  readonly headers: Readonly<Record<string, string>>;
+};
+
+type VeniceAIEncodedQuery = Readonly<Record<string, VeniceAIQueryValue>>;
+
+const normalizeBaseUrl = Str.replace(/\/+$/, "");
+
+const resolveConfig = (
+  config: VeniceAIConfigInput,
+  redactedApiKey?: Redacted.Redacted<string>
+): ResolvedVeniceAIConfig => ({
+  apiKey: pipe(
+    O.fromUndefinedOr(redactedApiKey),
+    O.orElse(() => pipe(O.fromUndefinedOr(config.apiKey), O.map(Redacted.make)))
+  ),
+  baseUrl: normalizeBaseUrl(config.baseUrl ?? VENICE_API_URL),
+  headers: config.headers ?? {},
+});
+
+const isJsonContentType = (contentType: string): boolean => Str.includes("application/json")(contentType);
+
+const isTextContentType = (contentType: string): boolean =>
+  Str.startsWith("text/")(contentType) || Str.includes("text/event-stream")(contentType);
+
+const hasRequestContentType = (descriptor: VeniceAIOperationDescriptor, contentType: string): boolean =>
+  pipe(descriptor.requestContentTypes, A.contains(contentType));
+
+const responseContentType = (response: HttpClientResponse.HttpClientResponse): O.Option<string> =>
+  O.fromNullishOr(response.headers["content-type"]);
+
+const defaultAcceptHeader = (descriptor: VeniceAIOperationDescriptor): string =>
+  pipe(
+    descriptor.responseContentTypes,
+    A.get(0),
+    O.getOrElse(() => "application/json")
+  );
+
+const applyPathParams = (path: string, params: Readonly<Record<string, string>> = {}): string =>
+  pipe(
+    params,
+    R.reduce(path, (currentPath, value, key) => Str.replace(`{${key}}`, encodeURIComponent(value))(currentPath))
+  );
+
+const failMissingPathParam = (
+  descriptor: VeniceAIOperationDescriptor,
+  path: string
+): Effect.Effect<void, VeniceAIError> =>
+  Str.includes("{")(path) ? Effect.fail(VeniceAIError.fromDescriptor(descriptor, "request encoding")) : Effect.void;
+
+const requestEncodingError = <A>(descriptor: VeniceAIOperationDescriptor): Effect.Effect<A, VeniceAIError> =>
+  Effect.fail(VeniceAIError.fromDescriptor(descriptor, "request encoding"));
+
+const isEncodedQueryValue = S.is(VeniceAIQueryValue);
+
+const normalizeQuery = (
+  descriptor: VeniceAIOperationDescriptor,
+  query: VeniceAIRequestOptions["query"]
+): Effect.Effect<VeniceAIEncodedQuery | undefined, VeniceAIError> => {
+  if (P.isUndefined(query)) {
+    return Effect.sync((): VeniceAIEncodedQuery | undefined => undefined);
+  }
+
+  return pipe(
+    R.toEntries(query),
+    Effect.forEach(([key, value]): Effect.Effect<readonly [string, VeniceAIQueryValue], VeniceAIError> => {
+      if (!isEncodedQueryValue(value)) {
+        return requestEncodingError(descriptor);
+      }
+
+      const entry: readonly [string, VeniceAIQueryValue] = [key, value];
+      return Effect.succeed(entry);
+    }),
+    Effect.map(R.fromEntries)
+  );
+};
+
+const addRequestHeaders = (
+  request: HttpClientRequest.HttpClientRequest,
+  config: ResolvedVeniceAIConfig,
+  descriptor: VeniceAIOperationDescriptor,
+  options: VeniceAIRequestOptions
+): HttpClientRequest.HttpClientRequest => {
+  const withBaseHeaders = pipe(
+    request,
+    HttpClientRequest.accept(options.accept ?? defaultAcceptHeader(descriptor)),
+    HttpClientRequest.setHeaders(config.headers),
+    HttpClientRequest.setHeaders(options.headers ?? {})
+  );
+
+  return descriptor.authenticated
+    ? pipe(
+        config.apiKey,
+        O.match({
+          onNone: () => withBaseHeaders,
+          onSome: (apiKey) => HttpClientRequest.bearerToken(withBaseHeaders, apiKey),
+        })
+      )
+    : withBaseHeaders;
+};
+
+const addRequestBody = (
+  request: HttpClientRequest.HttpClientRequest,
+  descriptor: VeniceAIOperationDescriptor,
+  options: VeniceAIRequestOptions
+): Effect.Effect<HttpClientRequest.HttpClientRequest, VeniceAIError> => {
+  if (P.isNotUndefined(options.formData)) {
+    return hasRequestContentType(descriptor, "multipart/form-data")
+      ? Effect.succeed(HttpClientRequest.bodyFormData(request, options.formData))
+      : requestEncodingError(descriptor);
+  }
+
+  if (
+    hasRequestContentType(descriptor, "multipart/form-data") &&
+    !hasRequestContentType(descriptor, "application/json")
+  ) {
+    return Effect.fail(VeniceAIError.fromDescriptor(descriptor, "multipart encoding"));
+  }
+
+  if (P.isUndefined(options.body)) {
+    return Effect.succeed(request);
+  }
+
+  if (!hasRequestContentType(descriptor, "application/json")) {
+    return requestEncodingError(descriptor);
+  }
+
+  return pipe(
+    HttpClientRequest.bodyJson(request, options.body),
+    Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "request encoding", { cause }))
+  );
+};
+
+const buildRequest = Effect.fn("VeniceAI.buildRequest")(function* (
+  config: ResolvedVeniceAIConfig,
+  descriptor: VeniceAIOperationDescriptor,
+  options: VeniceAIRequestOptions
+) {
+  const path = applyPathParams(descriptor.path, options.path);
+  yield* failMissingPathParam(descriptor, path);
+  const query = yield* normalizeQuery(descriptor, options.query);
+
+  const request = pipe(
+    HttpClientRequest.make(descriptor.method)(`${config.baseUrl}${path}`, { urlParams: query }),
+    (baseRequest) => addRequestHeaders(baseRequest, config, descriptor, options)
+  );
+
+  return yield* addRequestBody(request, descriptor, options);
+});
+
+const executeRaw = Effect.fn("VeniceAI.executeRaw")(function* (
+  client: HttpClient.HttpClient,
+  config: ResolvedVeniceAIConfig,
+  descriptor: VeniceAIOperationDescriptor,
+  options: VeniceAIRequestOptions
+) {
+  const request = yield* buildRequest(config, descriptor, options);
+
+  return yield* client
+    .execute(request)
+    .pipe(Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "transport", { cause })));
+});
+
+const responseContext = (response: HttpClientResponse.HttpClientResponse) => ({
+  headers: response.headers,
+  status: response.status,
+  ...R.getSomes({
+    contentType: responseContentType(response),
+  }),
+});
+
+const ensureSuccessStatus = (
+  descriptor: VeniceAIOperationDescriptor,
+  response: HttpClientResponse.HttpClientResponse
+): Effect.Effect<HttpClientResponse.HttpClientResponse, VeniceAIError> =>
+  response.status >= 200 && response.status < 300
+    ? Effect.succeed(response)
+    : Effect.fail(VeniceAIError.fromDescriptor(descriptor, "response status", { status: response.status }));
+
+const isSseContentType = (contentType: string): boolean => Str.includes("text/event-stream")(contentType);
+
+const ensureSseResponse = (
+  descriptor: VeniceAIOperationDescriptor,
+  response: HttpClientResponse.HttpClientResponse
+): Effect.Effect<void, VeniceAIError> =>
+  pipe(
+    responseContentType(response),
+    O.filter(isSseContentType),
+    O.match({
+      onNone: () => Effect.fail(VeniceAIError.fromDescriptor(descriptor, "sse decoding", { status: response.status })),
+      onSome: () => Effect.void,
+    })
+  );
+
+const decodeResponse = Effect.fn("VeniceAI.decodeResponse")(function* (
+  descriptor: VeniceAIOperationDescriptor,
+  response: HttpClientResponse.HttpClientResponse
+) {
+  const successfulResponse = yield* ensureSuccessStatus(descriptor, response);
+  const contentType = O.getOrElse(responseContentType(successfulResponse), () => "");
+
+  if (isJsonContentType(contentType)) {
+    const body = yield* successfulResponse.json.pipe(
+      Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "response decoding", { cause }))
+    );
+
+    return new VeniceAIJsonResponse({
+      body,
+      ...responseContext(successfulResponse),
+    });
+  }
+
+  if (isTextContentType(contentType)) {
+    const text = yield* successfulResponse.text.pipe(
+      Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "response decoding", { cause }))
+    );
+
+    return new VeniceAITextResponse({
+      text,
+      ...responseContext(successfulResponse),
+    });
+  }
+
+  const buffer = yield* successfulResponse.arrayBuffer.pipe(
+    Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "response decoding", { cause }))
+  );
+
+  return new VeniceAIBinaryResponse({
+    bytes: new Uint8Array(buffer),
+    ...responseContext(successfulResponse),
+  });
+});
+
+const executeOperation = (
+  client: HttpClient.HttpClient,
+  config: ResolvedVeniceAIConfig,
+  descriptor: VeniceAIOperationDescriptor
+): VeniceAIMethod =>
+  Effect.fn(`VeniceAI.${descriptor.operationId}`)(function* (request = new VeniceAIRequestOptions({})) {
+    const response = yield* executeRaw(client, config, descriptor, request);
+    return yield* decodeResponse(descriptor, response);
+  });
+
+const addStreamFlag = (body: unknown): unknown => (P.isObject(body) ? { ...body, stream: true } : { stream: true });
+
+const makeStreamingRequest = (request = new VeniceAIRequestOptions({})): VeniceAIRequestOptions =>
+  new VeniceAIRequestOptions({
+    ...request,
+    accept: "text/event-stream",
+    body: addStreamFlag(request.body),
+  });
+
+const dataLine = (line: string): O.Option<string> =>
+  Str.startsWith("data:")(line) ? O.some(Str.trim(Str.slice(5)(line))) : O.none();
+
+const sseBlockData = (block: string): O.Option<string> => {
+  const data = pipe(A.fromIterable(Str.linesIterator(block)), A.map(dataLine), A.getSomes, A.join("\n"), Str.trim);
+  if (!Str.isEmpty(data)) {
+    return O.some(data);
+  }
+
+  return Str.isEmpty(Str.trim(block)) ? O.none() : O.some("");
+};
+
+type SseDataEvent = {
+  readonly data: string;
+  readonly index: number;
+};
+
+type SseDecodeState = {
+  readonly buffer: string;
+  readonly decoder: TextDecoder;
+  readonly index: number;
+};
+
+const makeSseDecodeState = (): SseDecodeState => ({
+  buffer: "",
+  decoder: new TextDecoder(),
+  index: 0,
+});
+
+const endsWithSseBoundary = (text: string): boolean => Str.endsWith("\n\n")(text) || Str.endsWith("\r\n\r\n")(text);
+
+const splitSseText = (
+  text: string
+): {
+  readonly blocks: ReadonlyArray<string>;
+  readonly remainder: string;
+} => {
+  const parts = Str.split(text, /\r?\n\r?\n/);
+
+  return endsWithSseBoundary(text)
+    ? { blocks: parts, remainder: "" }
+    : {
+        blocks: A.dropRight(parts, 1),
+        remainder: pipe(
+          parts,
+          A.last,
+          O.getOrElse(() => "")
+        ),
+      };
+};
+
+const indexedSseBlocks = (startIndex: number, blocks: ReadonlyArray<string>): ReadonlyArray<SseDataEvent> =>
+  pipe(
+    blocks,
+    A.map(sseBlockData),
+    A.getSomes,
+    A.map((data, offset) => ({
+      data,
+      index: startIndex + offset,
+    }))
+  );
+
+const decodeSseChunk = (
+  state: SseDecodeState,
+  chunk: Uint8Array
+): readonly [SseDecodeState, ReadonlyArray<SseDataEvent>] => {
+  const decoded = state.decoder.decode(chunk, { stream: true });
+  const { blocks, remainder } = splitSseText(`${state.buffer}${decoded}`);
+  const values = indexedSseBlocks(state.index, blocks);
+
+  return [
+    {
+      ...state,
+      buffer: remainder,
+      index: state.index + values.length,
+    },
+    values,
+  ];
+};
+
+const flushSseState = (state: SseDecodeState): ReadonlyArray<SseDataEvent> => {
+  const text = `${state.buffer}${state.decoder.decode()}`;
+  return Str.isEmpty(text) ? [] : indexedSseBlocks(state.index, [text]);
+};
+
+const parseSseData = (
+  descriptor: VeniceAIOperationDescriptor,
+  data: string,
+  index: number
+): Effect.Effect<VeniceAIServerSentEvent, VeniceAIError> =>
+  data === "[DONE]"
+    ? Effect.succeed(new VeniceAIServerSentEvent({ done: true, index }))
+    : pipe(
+        decodeSseJson(data),
+        Effect.map((decoded) => new VeniceAIServerSentEvent({ data: decoded, done: false, index })),
+        Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "sse decoding", { cause }))
+      );
+
+const streamOperation =
+  (
+    client: HttpClient.HttpClient,
+    config: ResolvedVeniceAIConfig,
+    descriptor: VeniceAIOperationDescriptor
+  ): VeniceAIStreamMethod =>
+  (request) =>
+    Stream.unwrap(
+      Effect.gen(function* () {
+        const response = yield* executeRaw(client, config, descriptor, makeStreamingRequest(request));
+        const successfulResponse = yield* ensureSuccessStatus(descriptor, response);
+        yield* ensureSseResponse(descriptor, successfulResponse);
+        return successfulResponse.stream.pipe(
+          Stream.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "sse decoding", { cause })),
+          Stream.mapAccum(makeSseDecodeState, decodeSseChunk, { onHalt: flushSseState }),
+          Stream.mapEffect(({ data, index }) => parseSseData(descriptor, data, index))
+        );
+      })
+    );
+
+const extractChatText = Effect.fn("VeniceAI.extractChatText")(function* (response: VeniceAIResponse) {
+  if (response._tag !== "Json") {
+    return yield* VeniceAIError.fromDescriptor(createChatCompletionOperation, "response decoding");
+  }
+
+  const decoded = yield* decodeChatCompletionTextResponse(response.body).pipe(
+    Effect.mapError((cause) =>
+      VeniceAIError.fromDescriptor(createChatCompletionOperation, "response decoding", { cause })
+    )
+  );
+
+  const firstChoice = yield* pipe(
+    decoded.choices,
+    A.get(0),
+    O.match({
+      onNone: () => Effect.fail(VeniceAIError.fromDescriptor(createChatCompletionOperation, "response decoding")),
+      onSome: Effect.succeed,
+    })
+  );
+
+  return yield* pipe(
+    O.fromNullishOr(firstChoice.message.content),
+    O.match({
+      onNone: () => Effect.fail(VeniceAIError.fromDescriptor(createChatCompletionOperation, "response decoding")),
+      onSome: Effect.succeed,
+    })
+  );
+});
+
+const makeService = (client: HttpClient.HttpClient, config: ResolvedVeniceAIConfig): VeniceAIShape => {
+  const call = (descriptor: VeniceAIOperationDescriptor): VeniceAIMethod =>
+    executeOperation(client, config, descriptor);
+  const stream = (descriptor: VeniceAIOperationDescriptor): VeniceAIStreamMethod =>
+    streamOperation(client, config, descriptor);
+
+  return {
+    backgroundRemoveImage: call(backgroundRemoveImageOperation),
+    completeAudio: call(completeAudioOperation),
+    completeVideo: call(completeVideoOperation),
+    createApiKey: call(createApiKeyOperation),
+    createChatCompletion: call(createChatCompletionOperation),
+    createClonedVoice: call(createClonedVoiceOperation),
+    createEmbedding: call(createEmbeddingOperation),
+    createResponse: call(createResponseOperation),
+    createSpeech: call(createSpeechOperation),
+    createTextParser: call(createTextParserOperation),
+    createTranscription: call(createTranscriptionOperation),
+    createVideoTranscription: call(createVideoTranscriptionOperation),
+    cryptoRpcProxy: call(cryptoRpcProxyOperation),
+    deleteApiKey: call(deleteApiKeyOperation),
+    editImage: call(editImageOperation),
+    generateImage: call(generateImageOperation),
+    getApiKeyById: call(getApiKeyByIdOperation),
+    getApiKeyGenerateWeb3Key: call(getApiKeyGenerateWeb3KeyOperation),
+    getApiKeyRateLimitLogs: call(getApiKeyRateLimitLogsOperation),
+    getApiKeyRateLimits: call(getApiKeyRateLimitsOperation),
+    getApiKeys: call(getApiKeysOperation),
+    getBillingBalance: call(getBillingBalanceOperation),
+    getBillingUsage: call(getBillingUsageOperation),
+    getBillingUsageAnalytics: call(getBillingUsageAnalyticsOperation),
+    getCharacterBySlug: call(getCharacterBySlugOperation),
+    getCharacterReviews: call(getCharacterReviewsOperation),
+    getX402Balance: call(getX402BalanceOperation),
+    getX402Transactions: call(getX402TransactionsOperation),
+    listCharacters: call(listCharactersOperation),
+    listCryptoRpcNetworks: call(listCryptoRpcNetworksOperation),
+    listImageStyles: call(listImageStylesOperation),
+    listModelCompatibilityMapping: call(listModelCompatibilityMappingOperation),
+    listModelTraits: call(listModelTraitsOperation),
+    listModels: call(listModelsOperation),
+    multiEditImage: call(multiEditImageOperation),
+    postApiKeyGenerateWeb3Key: call(postApiKeyGenerateWeb3KeyOperation),
+    queueAudio: call(queueAudioOperation),
+    queueVideo: call(queueVideoOperation),
+    quoteAudio: call(quoteAudioOperation),
+    quoteVideo: call(quoteVideoOperation),
+    retrieveAudio: call(retrieveAudioOperation),
+    retrieveVideo: call(retrieveVideoOperation),
+    simpleGenerateImage: call(simpleGenerateImageOperation),
+    streamChatCompletion: stream(createChatCompletionOperation),
+    streamResponse: stream(createResponseOperation),
+    topUpX402Balance: call(topUpX402BalanceOperation),
+    upscaleImage: call(upscaleImageOperation),
+    updateApiKey: call(updateApiKeyOperation),
+    webScrape: call(webScrapeOperation),
+    webSearch: call(webSearchOperation),
+  };
+};
+
+/**
+ * Effect service for Venice AI API operations.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { VeniceAI } from "@beep/venice-ai"
+ *
+ * const program = Effect.gen(function* () {
+ *   const venice = yield* VeniceAI
+ *   return yield* venice.listModels()
+ * })
+ * void program
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class VeniceAI extends Context.Service<VeniceAI, VeniceAIShape>()($I`VeniceAI`) {
+  /**
+   * Build a Venice AI layer from explicit runtime configuration.
+   *
+   * @example
+   * ```ts
+   * import { VeniceAI, VeniceAIConfigInput } from "@beep/venice-ai"
+   *
+   * const layer = VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: "test-key" }))
+   * void layer
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayer = (
+    config = new VeniceAIConfigInput({})
+  ): Layer.Layer<VeniceAI, never, HttpClient.HttpClient> =>
+    Layer.effect(
+      VeniceAI,
+      Effect.gen(function* () {
+        const client = yield* HttpClient.HttpClient;
+        return VeniceAI.of(makeService(client, resolveConfig(config)));
+      })
+    );
+
+  /**
+   * Live Venice AI layer backed by `AI_VENICE_API_KEY`.
+   *
+   * @example
+   * ```ts
+   * import { VeniceAI } from "@beep/venice-ai"
+   *
+   * const layer = VeniceAI.layer
+   * void layer
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly layer: Layer.Layer<VeniceAI, VeniceAIError> = Layer.effect(
+    VeniceAI,
+    Effect.gen(function* () {
+      const apiKey = yield* Config.redacted("AI_VENICE_API_KEY");
+      const client = yield* HttpClient.HttpClient;
+      return VeniceAI.of(makeService(client, resolveConfig(new VeniceAIConfigInput({}), apiKey)));
+    }).pipe(Effect.mapError(VeniceAIError.config))
+  ).pipe(Layer.provide(FetchHttpClient.layer));
+}
+
+/**
+ * Compatibility chat convenience backed by {@link VeniceAI.createChatCompletion}.
  *
  * @example
  * ```ts
@@ -126,6 +1799,7 @@ export class VeniceAiChatError extends TaggedErrorClass<VeniceAiChatError>($I`Ve
  *   const venice = yield* VeniceAiChat
  *   return yield* venice.chat("What is your favorite joke?")
  * })
+ * void program
  * ```
  *
  * @category services
@@ -134,47 +1808,66 @@ export class VeniceAiChatError extends TaggedErrorClass<VeniceAiChatError>($I`Ve
 export class VeniceAiChat extends Context.Service<
   VeniceAiChat,
   {
-    readonly chat: (message: string) => Effect.Effect<string, VeniceAiChatError>;
+    readonly chat: (message: string) => Effect.Effect<string, VeniceAIError>;
   }
 >()($I`VeniceAiChat`) {
   /**
-   * Live Venice chat service layer.
+   * Build the compatibility chat layer from an already provided {@link VeniceAI} service.
    *
    * @example
    * ```ts
-   * import { Effect } from "effect"
-   * import { VeniceAiChat } from "@beep/venice-ai"
+   * import { Layer } from "effect"
+   * import { VeniceAI, VeniceAiChat } from "@beep/venice-ai"
    *
-   * const program = Effect.gen(function* () {
-   *   const venice = yield* VeniceAiChat
-   *   return yield* venice.chat("What is your favorite joke?")
-   * }).pipe(Effect.provide(VeniceAiChat.layer))
+   * const layer = VeniceAiChat.makeLayer.pipe(Layer.provide(VeniceAI.layer))
+   * void layer
    * ```
    *
    * @category layers
    * @since 0.0.0
    */
-  static readonly layer = Layer.effect(
+  static readonly makeLayer: Layer.Layer<VeniceAiChat, never, VeniceAI> = Layer.effect(
     VeniceAiChat,
     Effect.gen(function* () {
-      const languageModel = yield* LanguageModel.LanguageModel;
-      const session = yield* Chat.fromPrompt(
-        Prompt.empty.pipe(Prompt.setSystem("You are Venice AI. Answer directly and keep jokes concise."))
-      );
-
-      const chat = Effect.fn("VeniceAiChat.chat")(function* (message: string) {
-        const response = yield* session
-          .generateText({ prompt: message })
-          .pipe(Effect.provideService(LanguageModel.LanguageModel, languageModel));
-        const history = yield* Ref.get(session.history);
-        yield* Effect.logInfo(`Venice chat history has ${history.content.length} messages`);
-
-        return response.text;
-      }, Effect.mapError(VeniceAiChatError.fromAiError));
+      const venice = yield* VeniceAI;
 
       return VeniceAiChat.of({
-        chat,
+        chat: Effect.fn("VeniceAiChat.chat")(function* (message: string) {
+          const response = yield* venice.createChatCompletion(
+            new VeniceAIRequestOptions({
+              body: {
+                messages: [
+                  {
+                    content: message,
+                    role: "user",
+                  },
+                ],
+                model: VENICE_CHAT_MODEL,
+              },
+            })
+          );
+
+          return yield* extractChatText(response);
+        }),
       });
     })
-  ).pipe(Layer.provide(VeniceLanguageModelLayer));
+  );
+
+  /**
+   * Live compatibility chat layer.
+   *
+   * @example
+   * ```ts
+   * import { VeniceAiChat } from "@beep/venice-ai"
+   *
+   * const layer = VeniceAiChat.layer
+   * void layer
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly layer: Layer.Layer<VeniceAiChat, VeniceAIError> = VeniceAiChat.makeLayer.pipe(
+    Layer.provide(VeniceAI.layer)
+  );
 }

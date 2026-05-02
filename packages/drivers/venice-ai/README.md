@@ -1,6 +1,6 @@
 # @beep/venice-ai
 
-Venice AI driver package
+Product-neutral Effect driver for the Venice AI API.
 
 ## Installation
 
@@ -11,8 +11,24 @@ bun add @beep/venice-ai
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/venice-ai"
+import { Effect } from "effect"
+import { VeniceAI, VeniceAIRequestOptions } from "@beep/venice-ai"
+
+const program = Effect.gen(function* () {
+  const venice = yield* VeniceAI
+  return yield* venice.createChatCompletion(
+    new VeniceAIRequestOptions({
+      body: {
+        messages: [{ role: "user", content: "Hello" }],
+        model: "venice-uncensored-1-2"
+      }
+    })
+  )
+})
 ```
+
+The service exposes one method per operation in `swagger.yaml`, plus
+`streamChatCompletion` and `streamResponse` for SSE streaming.
 
 ## Development
 

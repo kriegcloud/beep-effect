@@ -251,6 +251,8 @@
     "use-stick-to-bottom": "^1.1.4",
     "@tauri-apps/cli": "^2.11.0",
     "effect": "4.0.0-beta.59",
+    "@types/ws": "^8.18.1",
+    "ws": "^8.20.0",
     "wink-eng-lite-web-model": "^1.8.1",
     "wink-nlp": "^2.4.0",
     "wink-nlp-utils": "^2.1.0",

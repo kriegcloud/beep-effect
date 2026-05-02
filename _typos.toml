@@ -58,4 +58,5 @@ extend-exclude = [
   "outputs/agent-reliability/**",
   "initiatives/**",
   "**/internal/data/**",
+  "packages/drivers/venice-ai/swagger.yaml",
 ]

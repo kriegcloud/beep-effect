@@ -4,6 +4,9 @@
 # Codex discovers the mirrored repo skill root through `.agents/skills`, which is
 # linked to that Claude tree.
 
+[mcp_servers.xai-docs]
+url = "https://docs.x.ai/api/mcp"
+
 [skills]
 include_instructions = true
 

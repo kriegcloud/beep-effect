@@ -1,0 +1,39 @@
+import { VENICE_API_URL, VeniceAI, VeniceAIConfigInput } from "@beep/venice-ai";
+import { describe, expect, it, layer } from "@effect/vitest";
+import { Effect, Layer, pipe } from "effect";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+import { FetchHttpClient } from "effect/unstable/http";
+
+const apiKey = pipe(process.env.AI_VENICE_API_KEY, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
+
+const makeLiveLayer = (key: string) =>
+  VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: key, baseUrl: VENICE_API_URL })).pipe(
+    Layer.provide(FetchHttpClient.layer)
+  );
+
+pipe(
+  apiKey,
+  O.match({
+    onNone: () =>
+      describe("VeniceAI live integration (AI_VENICE_API_KEY)", () => {
+        it("skips live API calls when AI_VENICE_API_KEY is absent", () => {
+          expect(O.isNone(apiKey)).toBe(true);
+        });
+      }),
+    onSome: (key) =>
+      describe.sequential("VeniceAI live integration", () => {
+        layer(makeLiveLayer(key), { timeout: "30 seconds" })((it) => {
+          it.effect("lists models through the live Venice API", () =>
+            Effect.gen(function* () {
+              const venice = yield* VeniceAI;
+              const response = yield* venice.listModels();
+
+              expect(response._tag).toBe("Json");
+              expect(response.status).toBe(200);
+            })
+          );
+        });
+      }),
+  })
+);

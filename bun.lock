@@ -236,8 +236,6 @@
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
-        "@effect/ai-openai-compat": "catalog:",
-        "@effect/platform-bun": "catalog:",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -249,11 +247,15 @@
       "name": "@beep/xai",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
         "effect": "catalog:",
+        "ws": "catalog:",
       },
       "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+        "@types/ws": "catalog:",
       },
     },
     "packages/epistemic/domain": {
@@ -1012,6 +1014,7 @@
     "@types/picomatch": "^4.0.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/parser": "^8.59.1",
     "@typescript/native-preview": "^7.0.0-dev.20260501.1",
     "@vitejs/plugin-react": "^6.0.1",
@@ -1089,6 +1092,7 @@
     "wink-eng-lite-web-model": "^1.8.1",
     "wink-nlp": "^2.4.0",
     "wink-nlp-utils": "^2.1.0",
+    "ws": "^8.20.0",
     "yaml": "^2.8.3",
   },
   "packages": {

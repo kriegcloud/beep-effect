@@ -6,7 +6,10 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION | package entry point |
+| entry module | `XAi`, `XAiConfigInput`, `XAI_ENDPOINTS`, `XAiRequestOptions`, `VERSION` | package entry point |
+| service | `XAi` | Effect `Context.Service` with one method per documented xAI endpoint plus SSE helpers for chat, responses, legacy completions, and Anthropic messages |
+| manifest | `XAI_ENDPOINTS`, `XAI_ENDPOINT_COUNT`, `XAI_ENDPOINT_METHOD_NAMES` | checked-in endpoint coverage source |
+| models/errors | `XAiRequestOptions`, `XAiResponse`, `XAiWebSocketSession`, `XAiError` | schema-first boundary models and typed driver errors |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -17,7 +20,20 @@
 
 ## Quick Recipes
 ```ts
-import { VERSION } from "@beep/xai"
+import { Effect } from "effect"
+import { XAi, XAiRequestOptions } from "@beep/xai"
+
+const program = Effect.gen(function* () {
+  const xai = yield* XAi
+  return yield* xai.createChatCompletion(
+    new XAiRequestOptions({
+      body: {
+        model: "grok-4",
+        messages: [{ role: "user", content: "hello" }]
+      }
+    })
+  )
+})
 ```
 
 ## Verifications

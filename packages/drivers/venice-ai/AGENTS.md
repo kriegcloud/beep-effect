@@ -1,12 +1,14 @@
 # @beep/venice-ai Agent Guide
 
 ## Purpose & Fit
-- Venice AI driver package
+- Product-neutral Effect driver for the Venice AI API.
 
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION | package entry point |
+| entry module | `VeniceAI`, `VeniceAiChat`, `VeniceAIRequestOptions`, `VeniceAIError`, `VENICE_AI_OPERATION_DESCRIPTORS`, `VERSION` | package entry point |
+| service | `VeniceAI` | one method per `swagger.yaml` operation plus SSE helpers |
+| compatibility | `VeniceAiChat` | delegates chat text convenience to `VeniceAI.createChatCompletion` |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -17,7 +19,7 @@
 
 ## Quick Recipes
 ```ts
-import { VERSION } from "@beep/venice-ai"
+import { VeniceAI } from "@beep/venice-ai"
 ```
 
 ## Verifications
@@ -25,6 +27,7 @@ import { VERSION } from "@beep/venice-ai"
 - `bunx turbo run test:integration --filter=@beep/venice-ai`
 - `bunx turbo run lint --filter=@beep/venice-ai`
 - `bunx turbo run check --filter=@beep/venice-ai`
+- `bunx turbo run type-test --filter=@beep/venice-ai`
 
 ## Contributor Checklist
 - [ ] New exports include jsdoc metadata

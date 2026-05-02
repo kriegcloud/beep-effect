@@ -6,3 +6,9 @@ description = "Vendored openclaw subtree contains upstream docs and test fixture
 paths = [
   '''^\.repos/openclaw/.*$''',
 ]
+
+[[allowlists]]
+description = "Venice OpenAPI operation id is not a secret"
+regexes = [
+  '''getApiKeyGenerateWeb3Key''',
+]

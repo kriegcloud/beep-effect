@@ -1,0 +1,964 @@
+/**
+ * Effect service for xAI REST and WebSocket API endpoints.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $XaiId } from "@beep/identity";
+import { Config, Context, Effect, Layer, Match, pipe, Queue, Redacted, Stream } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { FetchHttpClient } from "effect/unstable/http";
+import * as HttpClient from "effect/unstable/http/HttpClient";
+import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import WebSocket from "ws";
+import { XAI_API_URL, XAI_MANAGEMENT_API_URL, XAI_WEBSOCKET_URL, XAiConfigInput } from "./XAi.config.ts";
+import {
+  XAI_ENDPOINTS,
+  type XAiEndpointBase,
+  type XAiEndpointDescriptor,
+  type XAiEndpointMethodName,
+} from "./XAi.endpoints.ts";
+import { XAiError } from "./XAi.errors.ts";
+import {
+  XAiBinaryResponse,
+  XAiJsonResponse,
+  XAiNoBodyResponse,
+  type XAiQueryValue,
+  XAiRequestOptions,
+  type XAiResponse,
+  XAiServerSentEvent,
+  XAiTextResponse,
+  XAiWebSocketEvent,
+} from "./XAi.models.ts";
+
+const $I = $XaiId.create("XAi.service");
+
+/**
+ * Endpoint method names backed by normal HTTP requests.
+ *
+ * @example
+ * ```ts
+ * import type { XAiHttpEndpointMethodName } from "@beep/xai"
+ *
+ * const methodName: XAiHttpEndpointMethodName = "listModels"
+ * void methodName
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type XAiHttpEndpointMethodName = Exclude<
+  XAiEndpointMethodName,
+  "connectRealtimeVoice" | "connectStreamingStt" | "connectStreamingTts"
+>;
+
+/**
+ * Endpoint method names backed by WebSocket sessions.
+ *
+ * @example
+ * ```ts
+ * import type { XAiWebSocketEndpointMethodName } from "@beep/xai"
+ *
+ * const methodName: XAiWebSocketEndpointMethodName = "connectRealtimeVoice"
+ * void methodName
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type XAiWebSocketEndpointMethodName = Extract<
+  XAiEndpointMethodName,
+  "connectRealtimeVoice" | "connectStreamingStt" | "connectStreamingTts"
+>;
+
+/**
+ * Function shape used by every non-streaming xAI HTTP endpoint method.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import type { XAiEndpointMethod } from "@beep/xai"
+ * import { XAiNoBodyResponse } from "@beep/xai"
+ *
+ * const method: XAiEndpointMethod = () =>
+ *   Effect.succeed(new XAiNoBodyResponse({ headers: {}, status: 204 }))
+ *
+ * void method
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type XAiEndpointMethod = (request?: XAiRequestOptions) => Effect.Effect<XAiResponse, XAiError, never>;
+
+/**
+ * Function shape used by streaming xAI server-sent event helpers.
+ *
+ * @example
+ * ```ts
+ * import { Stream } from "effect"
+ * import type { XAiStreamMethod } from "@beep/xai"
+ *
+ * const stream: XAiStreamMethod = () => Stream.empty
+ *
+ * void stream
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type XAiStreamMethod = (request?: XAiRequestOptions) => Stream.Stream<XAiServerSentEvent, XAiError>;
+
+/**
+ * Active xAI WebSocket session handle.
+ *
+ * @example
+ * ```ts
+ * import type { XAiWebSocketSession } from "@beep/xai"
+ *
+ * const sendDone = (session: XAiWebSocketSession) => session.sendJson({ type: "audio.done" })
+ * void sendDone
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export interface XAiWebSocketSession {
+  readonly close: (code?: number, reason?: string) => Effect.Effect<void, never>;
+  readonly events: Stream.Stream<XAiWebSocketEvent>;
+  readonly sendBytes: (bytes: Uint8Array) => Effect.Effect<void, XAiError>;
+  readonly sendJson: (body: unknown) => Effect.Effect<void, XAiError>;
+  readonly sendText: (text: string) => Effect.Effect<void, XAiError>;
+}
+
+/**
+ * Function shape used by xAI WebSocket endpoint methods.
+ *
+ * @example
+ * ```ts
+ * import { Effect, Stream } from "effect"
+ * import type { XAiWebSocketMethod } from "@beep/xai"
+ *
+ * const connect: XAiWebSocketMethod = () =>
+ *   Effect.succeed({
+ *     close: () => Effect.void,
+ *     events: Stream.empty,
+ *     sendBytes: () => Effect.void,
+ *     sendJson: () => Effect.void,
+ *     sendText: () => Effect.void
+ *   })
+ *
+ * void connect
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type XAiWebSocketMethod = (request?: XAiRequestOptions) => Effect.Effect<XAiWebSocketSession, XAiError>;
+
+/**
+ * Public service shape for every documented xAI endpoint plus SSE helpers.
+ *
+ * @example
+ * ```ts
+ * import type { XAiShape } from "@beep/xai"
+ *
+ * type XAiServiceKey = keyof XAiShape
+ *
+ * const key: XAiServiceKey = "listModels"
+ * void key
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export type XAiShape = {
+  readonly [MethodName in XAiHttpEndpointMethodName]: XAiEndpointMethod;
+} & {
+  readonly [MethodName in XAiWebSocketEndpointMethodName]: XAiWebSocketMethod;
+} & {
+  readonly streamAnthropicMessage: XAiStreamMethod;
+  readonly streamChatCompletion: XAiStreamMethod;
+  readonly streamLegacyCompletion: XAiStreamMethod;
+  readonly streamResponse: XAiStreamMethod;
+};
+
+type ResolvedXAiConfig = {
+  readonly apiKey: O.Option<Redacted.Redacted<string>>;
+  readonly apiUrl: string;
+  readonly headers: Readonly<Record<string, string>>;
+  readonly managementApiKey: O.Option<Redacted.Redacted<string>>;
+  readonly managementApiUrl: string;
+  readonly websocketUrl: string;
+};
+
+const normalizeBaseUrl = Str.replace(/\/+$/, "");
+
+const resolveConfig = (config: XAiConfigInput): ResolvedXAiConfig => ({
+  apiKey: pipe(O.fromUndefinedOr(config.apiKey), O.map(Redacted.make)),
+  apiUrl: normalizeBaseUrl(config.apiUrl ?? XAI_API_URL),
+  headers: config.headers ?? {},
+  managementApiKey: pipe(O.fromUndefinedOr(config.managementApiKey), O.map(Redacted.make)),
+  managementApiUrl: normalizeBaseUrl(config.managementApiUrl ?? XAI_MANAGEMENT_API_URL),
+  websocketUrl: normalizeBaseUrl(config.websocketUrl ?? XAI_WEBSOCKET_URL),
+});
+
+const isJsonContentType = (contentType: string): boolean => Str.includes("application/json")(contentType);
+
+const isTextContentType = (contentType: string): boolean =>
+  Str.startsWith("text/")(contentType) || Str.includes("text/event-stream")(contentType);
+
+const responseContentType = (response: HttpClientResponse.HttpClientResponse): O.Option<string> =>
+  O.fromNullishOr(response.headers["content-type"]);
+
+const defaultAcceptHeader = (descriptor: XAiEndpointDescriptor): string => {
+  if (descriptor.response === "binary") {
+    return "application/octet-stream";
+  }
+  if (descriptor.response === "sse") {
+    return "text/event-stream";
+  }
+  return "application/json";
+};
+
+const endpointBaseToUrl = (config: ResolvedXAiConfig) =>
+  Match.type<XAiEndpointBase>().pipe(
+    Match.when("api", () => config.apiUrl),
+    Match.when("management", () => config.managementApiUrl),
+    Match.when("websocket", () => config.websocketUrl),
+    Match.exhaustive
+  );
+
+const baseUrlFor = (config: ResolvedXAiConfig, descriptor: XAiEndpointDescriptor): string =>
+  endpointBaseToUrl(config)(descriptor.base);
+
+const selectToken = (
+  config: ResolvedXAiConfig,
+  descriptor: XAiEndpointDescriptor
+): Effect.Effect<Redacted.Redacted<string>, XAiError> =>
+  pipe(
+    descriptor.auth === "management-key" ? config.managementApiKey : config.apiKey,
+    O.match({
+      onNone: () => Effect.fail(XAiError.fromDescriptor(descriptor, "config")),
+      onSome: Effect.succeed,
+    })
+  );
+
+const applyPathParams = (path: string, params: Readonly<Record<string, string>> = {}): string =>
+  pipe(
+    params,
+    R.reduce(path, (currentPath, value, key) => Str.replace(`{${key}}`, encodeURIComponent(value))(currentPath))
+  );
+
+const failMissingPathParam = (descriptor: XAiEndpointDescriptor, path: string): Effect.Effect<void, XAiError> =>
+  Str.includes("{")(path) ? Effect.fail(XAiError.fromDescriptor(descriptor, "request encoding")) : Effect.void;
+
+const addRequestHeaders = (
+  request: HttpClientRequest.HttpClientRequest,
+  config: ResolvedXAiConfig,
+  descriptor: XAiEndpointDescriptor,
+  options: XAiRequestOptions,
+  token: Redacted.Redacted<string>
+): HttpClientRequest.HttpClientRequest =>
+  pipe(
+    request,
+    HttpClientRequest.accept(options.accept ?? defaultAcceptHeader(descriptor)),
+    HttpClientRequest.setHeaders(config.headers),
+    HttpClientRequest.setHeaders(options.headers ?? {}),
+    HttpClientRequest.bearerToken(token)
+  );
+
+const hasRequestPayload = (options: XAiRequestOptions): boolean =>
+  P.isNotUndefined(options.body) || P.isNotUndefined(options.bytes) || P.isNotUndefined(options.formData);
+
+const failUnexpectedRequestPayload = (
+  descriptor: XAiEndpointDescriptor,
+  options: XAiRequestOptions
+): Effect.Effect<void, XAiError> =>
+  hasRequestPayload(options) ? Effect.fail(XAiError.fromDescriptor(descriptor, "request encoding")) : Effect.void;
+
+const hasUnexpectedMultipartPayload = (options: XAiRequestOptions): boolean =>
+  P.isNotUndefined(options.body) || P.isNotUndefined(options.bytes);
+
+const hasUnexpectedBinaryPayload = (options: XAiRequestOptions): boolean =>
+  P.isNotUndefined(options.body) || P.isNotUndefined(options.formData);
+
+const hasUnexpectedJsonPayload = (options: XAiRequestOptions): boolean =>
+  P.isNotUndefined(options.bytes) || P.isNotUndefined(options.formData);
+
+const addRequestBody = (
+  request: HttpClientRequest.HttpClientRequest,
+  descriptor: XAiEndpointDescriptor,
+  options: XAiRequestOptions
+): Effect.Effect<HttpClientRequest.HttpClientRequest, XAiError> => {
+  if (descriptor.body === "none" || descriptor.body === "websocket") {
+    return pipe(failUnexpectedRequestPayload(descriptor, options), Effect.as(request));
+  }
+
+  if (descriptor.body === "multipart") {
+    if (hasUnexpectedMultipartPayload(options)) {
+      return Effect.fail(XAiError.fromDescriptor(descriptor, "request encoding"));
+    }
+
+    return P.isNotUndefined(options.formData)
+      ? Effect.succeed(HttpClientRequest.bodyFormData(request, options.formData))
+      : Effect.fail(XAiError.fromDescriptor(descriptor, "multipart encoding"));
+  }
+
+  if (descriptor.body === "binary") {
+    if (hasUnexpectedBinaryPayload(options)) {
+      return Effect.fail(XAiError.fromDescriptor(descriptor, "request encoding"));
+    }
+
+    return P.isNotUndefined(options.bytes)
+      ? Effect.succeed(HttpClientRequest.bodyUint8Array(request, options.bytes, options.contentType))
+      : Effect.fail(XAiError.fromDescriptor(descriptor, "request encoding"));
+  }
+
+  if (hasUnexpectedJsonPayload(options)) {
+    return Effect.fail(XAiError.fromDescriptor(descriptor, "request encoding"));
+  }
+
+  if (P.isUndefined(options.body)) {
+    return Effect.succeed(request);
+  }
+
+  return pipe(
+    HttpClientRequest.bodyJson(request, options.body),
+    Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "request encoding", { cause }))
+  );
+};
+
+const buildRequest = Effect.fn("XAi.buildRequest")(function* (
+  config: ResolvedXAiConfig,
+  descriptor: XAiEndpointDescriptor,
+  options: XAiRequestOptions
+) {
+  const path = applyPathParams(descriptor.path, options.path);
+  yield* failMissingPathParam(descriptor, path);
+  const token = yield* selectToken(config, descriptor);
+
+  const request = pipe(
+    HttpClientRequest.make(descriptor.method)(`${baseUrlFor(config, descriptor)}${path}`, {
+      urlParams: options.query,
+    }),
+    (baseRequest) => addRequestHeaders(baseRequest, config, descriptor, options, token)
+  );
+
+  return yield* addRequestBody(request, descriptor, options);
+});
+
+const executeRaw = Effect.fn("XAi.executeRaw")(function* (
+  client: HttpClient.HttpClient,
+  config: ResolvedXAiConfig,
+  descriptor: XAiEndpointDescriptor,
+  options: XAiRequestOptions
+) {
+  const request = yield* buildRequest(config, descriptor, options);
+
+  return yield* client
+    .execute(request)
+    .pipe(Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "transport", { cause })));
+});
+
+const responseContext = (response: HttpClientResponse.HttpClientResponse) => ({
+  headers: response.headers,
+  status: response.status,
+  ...R.getSomes({
+    contentType: responseContentType(response),
+  }),
+});
+
+const ensureSuccessStatus = (
+  descriptor: XAiEndpointDescriptor,
+  response: HttpClientResponse.HttpClientResponse
+): Effect.Effect<HttpClientResponse.HttpClientResponse, XAiError> =>
+  response.status >= 200 && response.status < 300
+    ? Effect.succeed(response)
+    : Effect.fail(XAiError.fromDescriptor(descriptor, "response status", { status: response.status }));
+
+const contentMediaType = (contentType: string): string =>
+  pipe(
+    contentType,
+    Str.split(";"),
+    A.get(0),
+    O.getOrElse(() => ""),
+    Str.trim,
+    Str.toLowerCase
+  );
+
+const isSseContentType = (contentType: string): boolean => contentMediaType(contentType) === "text/event-stream";
+
+const ensureSseContentType = (
+  descriptor: XAiEndpointDescriptor,
+  response: HttpClientResponse.HttpClientResponse
+): Effect.Effect<HttpClientResponse.HttpClientResponse, XAiError> =>
+  pipe(
+    responseContentType(response),
+    O.filter(isSseContentType),
+    O.match({
+      onNone: () => Effect.fail(XAiError.fromDescriptor(descriptor, "sse decoding")),
+      onSome: () => Effect.succeed(response),
+    })
+  );
+
+const decodeResponse = Effect.fn("XAi.decodeResponse")(function* (
+  descriptor: XAiEndpointDescriptor,
+  response: HttpClientResponse.HttpClientResponse
+) {
+  const successfulResponse = yield* ensureSuccessStatus(descriptor, response);
+  const contentType = O.getOrElse(responseContentType(successfulResponse), () => "");
+
+  if (descriptor.response === "none") {
+    return new XAiNoBodyResponse({
+      ...responseContext(successfulResponse),
+    });
+  }
+
+  if (descriptor.response === "binary") {
+    const buffer = yield* successfulResponse.arrayBuffer.pipe(
+      Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "response decoding", { cause }))
+    );
+
+    return new XAiBinaryResponse({
+      bytes: new Uint8Array(buffer),
+      ...responseContext(successfulResponse),
+    });
+  }
+
+  if (isTextContentType(contentType)) {
+    const text = yield* successfulResponse.text.pipe(
+      Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "response decoding", { cause }))
+    );
+
+    return new XAiTextResponse({
+      text,
+      ...responseContext(successfulResponse),
+    });
+  }
+
+  if (descriptor.response === "json" || isJsonContentType(contentType)) {
+    const body = yield* successfulResponse.json.pipe(
+      Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "response decoding", { cause }))
+    );
+
+    return new XAiJsonResponse({
+      body,
+      ...responseContext(successfulResponse),
+    });
+  }
+
+  const buffer = yield* successfulResponse.arrayBuffer.pipe(
+    Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "response decoding", { cause }))
+  );
+
+  return new XAiBinaryResponse({
+    bytes: new Uint8Array(buffer),
+    ...responseContext(successfulResponse),
+  });
+});
+
+const executeOperation = (
+  client: HttpClient.HttpClient,
+  config: ResolvedXAiConfig,
+  descriptor: XAiEndpointDescriptor
+): XAiEndpointMethod =>
+  Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = new XAiRequestOptions({})) {
+    const response = yield* executeRaw(client, config, descriptor, request);
+    return yield* decodeResponse(descriptor, response);
+  });
+
+const addStreamFlag = (body: unknown): unknown => (P.isObject(body) ? { ...body, stream: true } : { stream: true });
+
+const makeStreamingRequest = (request = new XAiRequestOptions({})): XAiRequestOptions =>
+  new XAiRequestOptions({
+    ...request,
+    accept: "text/event-stream",
+    body: addStreamFlag(request.body),
+  });
+
+const decodeSseJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
+const decodeJsonOption = S.decodeUnknownOption(S.UnknownFromJsonString);
+const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
+
+const dataLine = (line: string): O.Option<string> =>
+  Str.startsWith("data:")(line) ? O.some(Str.trim(Str.slice(5)(line))) : O.none();
+
+const sseBlockData = (block: string): O.Option<string> => {
+  const data = pipe(A.fromIterable(Str.linesIterator(block)), A.map(dataLine), A.getSomes, A.join("\n"), Str.trim);
+  return Str.isEmpty(data) ? O.none() : O.some(data);
+};
+
+const parseSseData = (
+  descriptor: XAiEndpointDescriptor,
+  data: string,
+  index: number
+): Effect.Effect<XAiServerSentEvent, XAiError> =>
+  data === "[DONE]"
+    ? Effect.succeed(new XAiServerSentEvent({ done: true, index }))
+    : pipe(
+        decodeSseJson(data),
+        Effect.map((decoded) => new XAiServerSentEvent({ data: decoded, done: false, index })),
+        Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "sse decoding", { cause }))
+      );
+
+type SseDataChunk = {
+  readonly data: string;
+  readonly index: number;
+};
+
+type SseLineState = {
+  readonly index: number;
+  readonly lines: ReadonlyArray<string>;
+};
+
+const emptySseLineState = (index = 0): SseLineState => ({
+  index,
+  lines: A.empty(),
+});
+
+const makeSseLineResult = (
+  state: SseLineState,
+  chunks: ReadonlyArray<SseDataChunk>
+): readonly [SseLineState, ReadonlyArray<SseDataChunk>] => [state, chunks];
+
+const collectSseBlock = (state: SseLineState): readonly [SseLineState, ReadonlyArray<SseDataChunk>] =>
+  pipe(
+    state.lines,
+    A.join("\n"),
+    sseBlockData,
+    O.match({
+      onNone: () => makeSseLineResult(emptySseLineState(state.index), A.empty<SseDataChunk>()),
+      onSome: (data) => makeSseLineResult(emptySseLineState(state.index + 1), A.make({ data, index: state.index })),
+    })
+  );
+
+const collectSseLine = (state: SseLineState, line: string): readonly [SseLineState, ReadonlyArray<SseDataChunk>] =>
+  Str.isEmpty(Str.trim(line))
+    ? collectSseBlock(state)
+    : makeSseLineResult({ ...state, lines: A.append(state.lines, line) }, A.empty<SseDataChunk>());
+
+const streamSseData = (
+  descriptor: XAiEndpointDescriptor,
+  response: HttpClientResponse.HttpClientResponse
+): Stream.Stream<XAiServerSentEvent, XAiError> =>
+  response.stream.pipe(
+    Stream.mapError((cause) => XAiError.fromDescriptor(descriptor, "sse decoding", { cause })),
+    Stream.decodeText(),
+    Stream.splitLines,
+    Stream.mapAccum(emptySseLineState, collectSseLine, { onHalt: (state) => collectSseBlock(state)[1] }),
+    Stream.mapEffect(({ data, index }) => parseSseData(descriptor, data, index), { concurrency: 1 })
+  );
+
+const streamOperation =
+  (client: HttpClient.HttpClient, config: ResolvedXAiConfig, descriptor: XAiEndpointDescriptor): XAiStreamMethod =>
+  (request) =>
+    Stream.unwrap(
+      Effect.gen(function* () {
+        const response = yield* executeRaw(client, config, descriptor, makeStreamingRequest(request));
+        const successfulResponse = yield* ensureSuccessStatus(descriptor, response);
+        const sseResponse = yield* ensureSseContentType(descriptor, successfulResponse);
+        return streamSseData(descriptor, sseResponse);
+      })
+    );
+
+const rawDataToBytes = (data: WebSocket.RawData): Uint8Array => {
+  if (P.isString(data)) {
+    return new TextEncoder().encode(data);
+  }
+  if (A.isArray(data)) {
+    return new Uint8Array(Buffer.concat(data));
+  }
+  return new Uint8Array(data);
+};
+
+const rawDataToText = (data: WebSocket.RawData): string => new TextDecoder().decode(rawDataToBytes(data));
+
+type XAiQueryScalar = boolean | null | number | string;
+
+const queryScalarToString = (value: XAiQueryScalar): string =>
+  Match.type<XAiQueryScalar>().pipe(
+    Match.when(P.isString, (text) => text),
+    Match.when(P.isNumber, (number) => `${number}`),
+    Match.when(P.isBoolean, (boolean) => (boolean ? "true" : "false")),
+    Match.when(null, () => "null"),
+    Match.exhaustive
+  )(value);
+
+const decodeQueryScalarOption = S.decodeUnknownOption(S.Union([S.Boolean, S.Null, S.Number, S.String]));
+
+const queryValueToStrings = (value: XAiQueryValue): ReadonlyArray<string> => {
+  if (A.isArray(value)) {
+    return pipe(
+      value,
+      A.map((entry) => decodeQueryScalarOption(entry)),
+      A.getSomes,
+      A.map(queryScalarToString)
+    );
+  }
+
+  return pipe(
+    decodeQueryScalarOption(value),
+    O.map((scalar) => A.make(queryScalarToString(scalar))),
+    O.getOrElse(A.empty<string>)
+  );
+};
+
+const parseWebSocketMessage = (data: WebSocket.RawData, isBinary: boolean): XAiWebSocketEvent => {
+  if (isBinary) {
+    return new XAiWebSocketEvent({
+      bytes: rawDataToBytes(data),
+      isBinary,
+      kind: "message",
+    });
+  }
+
+  const text = rawDataToText(data);
+  return new XAiWebSocketEvent({
+    data: O.getOrElse(decodeJsonOption(text), () => text),
+    isBinary,
+    kind: "message",
+    text,
+  });
+};
+
+const websocketUrl = Effect.fn("XAi.websocketUrl")(function* (
+  config: ResolvedXAiConfig,
+  descriptor: XAiEndpointDescriptor,
+  options: XAiRequestOptions
+) {
+  const path = applyPathParams(descriptor.path, options.path);
+  yield* failMissingPathParam(descriptor, path);
+  const url = yield* Effect.try({
+    try: () => new URL(`${baseUrlFor(config, descriptor)}${path}`),
+    catch: (cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause }),
+  });
+
+  pipe(
+    options.query ?? {},
+    R.reduce(url, (currentUrl, value, key) => {
+      for (const entry of queryValueToStrings(value)) {
+        currentUrl.searchParams.append(key, entry);
+      }
+
+      return currentUrl;
+    })
+  );
+
+  return url.toString();
+});
+
+const connectSocket = Effect.fn("XAi.connectSocket")(function* (
+  config: ResolvedXAiConfig,
+  descriptor: XAiEndpointDescriptor,
+  options: XAiRequestOptions
+) {
+  const url = yield* websocketUrl(config, descriptor, options);
+  const token = yield* selectToken(config, descriptor);
+  const headers = {
+    ...config.headers,
+    ...options.headers,
+    authorization: `Bearer ${Redacted.value(token)}`,
+  };
+
+  return yield* Effect.tryPromise({
+    try: () =>
+      new Promise<WebSocket>((resolve, reject) => {
+        const socket = new WebSocket(url, { headers });
+        socket.once("open", () => resolve(socket));
+        socket.once("error", reject);
+      }),
+    catch: (cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause }),
+  });
+});
+
+const makeWebSocketEvents = (socket: WebSocket): Stream.Stream<XAiWebSocketEvent> =>
+  Stream.callback<XAiWebSocketEvent>((queue) =>
+    Effect.acquireRelease(
+      Effect.sync(() => {
+        const onMessage = (data: WebSocket.RawData, isBinary: boolean) =>
+          Queue.offerUnsafe(queue, parseWebSocketMessage(data, isBinary));
+        const onClose = (code: number, reason: Buffer) => {
+          Queue.offerUnsafe(queue, new XAiWebSocketEvent({ code, kind: "close", reason: reason.toString("utf8") }));
+          Queue.endUnsafe(queue);
+        };
+        const onError = (error: Error) =>
+          Queue.offerUnsafe(queue, new XAiWebSocketEvent({ data: error, kind: "error", reason: error.message }));
+
+        socket.on("message", onMessage);
+        socket.on("close", onClose);
+        socket.on("error", onError);
+
+        return { onClose, onError, onMessage };
+      }),
+      ({ onClose, onError, onMessage }) =>
+        Effect.sync(() => {
+          socket.off("message", onMessage);
+          socket.off("close", onClose);
+          socket.off("error", onError);
+          if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+            socket.close();
+          }
+        })
+    )
+  );
+
+const sendSocketText = (
+  descriptor: XAiEndpointDescriptor,
+  socket: WebSocket,
+  text: string
+): Effect.Effect<void, XAiError> =>
+  Effect.tryPromise({
+    try: () =>
+      new Promise<void>((resolve, reject) =>
+        socket.send(text, (error) => (P.isUndefined(error) ? resolve() : reject(error)))
+      ),
+    catch: (cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause }),
+  });
+
+const sendSocketBytes = (
+  descriptor: XAiEndpointDescriptor,
+  socket: WebSocket,
+  bytes: Uint8Array
+): Effect.Effect<void, XAiError> =>
+  Effect.tryPromise({
+    try: () =>
+      new Promise<void>((resolve, reject) =>
+        socket.send(bytes, { binary: true }, (error) => (P.isUndefined(error) ? resolve() : reject(error)))
+      ),
+    catch: (cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause }),
+  });
+
+const encodeSocketJson = (descriptor: XAiEndpointDescriptor, body: unknown): Effect.Effect<string, XAiError> =>
+  encodeJson(body).pipe(Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause })));
+
+const websocketOperation = (config: ResolvedXAiConfig, descriptor: XAiEndpointDescriptor): XAiWebSocketMethod =>
+  Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = new XAiRequestOptions({})) {
+    yield* failUnexpectedRequestPayload(descriptor, request);
+    const socket = yield* connectSocket(config, descriptor, request);
+
+    return {
+      close: (code?: number, reason?: string) => Effect.sync(() => socket.close(code, reason)),
+      events: makeWebSocketEvents(socket),
+      sendBytes: (bytes) => sendSocketBytes(descriptor, socket, bytes),
+      sendJson: (body) =>
+        pipe(
+          encodeSocketJson(descriptor, body),
+          Effect.flatMap((text) => sendSocketText(descriptor, socket, text))
+        ),
+      sendText: (text) => sendSocketText(descriptor, socket, text),
+    };
+  });
+
+const endpointByMethodName = Effect.fn("XAi.endpointByMethodName")(function* (methodName: XAiEndpointMethodName) {
+  return yield* pipe(
+    XAI_ENDPOINTS,
+    A.findFirst((descriptor) => descriptor.methodName === methodName),
+    O.match({
+      onNone: () => Effect.fail(new XAiError({ methodName, reason: "config" })),
+      onSome: Effect.succeed,
+    })
+  );
+});
+
+const makeService = (client: HttpClient.HttpClient, config: ResolvedXAiConfig): XAiShape => {
+  const httpByMethodName = (methodName: XAiHttpEndpointMethodName): XAiEndpointMethod =>
+    Effect.fn(`XAi.${methodName}`)(function* (request = new XAiRequestOptions({})) {
+      const descriptor = yield* endpointByMethodName(methodName);
+      return yield* executeOperation(client, config, descriptor)(request);
+    });
+  const websocketByMethodName = (methodName: XAiWebSocketEndpointMethodName): XAiWebSocketMethod =>
+    Effect.fn(`XAi.${methodName}`)(function* (request = new XAiRequestOptions({})) {
+      const descriptor = yield* endpointByMethodName(methodName);
+      return yield* websocketOperation(config, descriptor)(request);
+    });
+  const streamByMethodName =
+    (methodName: XAiEndpointMethodName): XAiStreamMethod =>
+    (request) =>
+      Stream.unwrap(
+        endpointByMethodName(methodName).pipe(
+          Effect.map((descriptor) => streamOperation(client, config, descriptor)(request))
+        )
+      );
+
+  return {
+    addBatchRequests: httpByMethodName("addBatchRequests"),
+    addCollectionDocument: httpByMethodName("addCollectionDocument"),
+    batchGetCollectionDocuments: httpByMethodName("batchGetCollectionDocuments"),
+    cancelBatch: httpByMethodName("cancelBatch"),
+    connectRealtimeVoice: websocketByMethodName("connectRealtimeVoice"),
+    connectStreamingStt: websocketByMethodName("connectStreamingStt"),
+    connectStreamingTts: websocketByMethodName("connectStreamingTts"),
+    createAnthropicCompletion: httpByMethodName("createAnthropicCompletion"),
+    createAnthropicMessage: httpByMethodName("createAnthropicMessage"),
+    createApiKey: httpByMethodName("createApiKey"),
+    createBatch: httpByMethodName("createBatch"),
+    createChatCompletion: httpByMethodName("createChatCompletion"),
+    createCollection: httpByMethodName("createCollection"),
+    createCustomVoice: httpByMethodName("createCustomVoice"),
+    createLegacyCompletion: httpByMethodName("createLegacyCompletion"),
+    createRealtimeClientSecret: httpByMethodName("createRealtimeClientSecret"),
+    createResponse: httpByMethodName("createResponse"),
+    deleteApiKey: httpByMethodName("deleteApiKey"),
+    deleteCollection: httpByMethodName("deleteCollection"),
+    deleteCollectionDocument: httpByMethodName("deleteCollectionDocument"),
+    deleteCustomVoice: httpByMethodName("deleteCustomVoice"),
+    deleteFile: httpByMethodName("deleteFile"),
+    deleteResponse: httpByMethodName("deleteResponse"),
+    downloadCustomVoiceAudio: httpByMethodName("downloadCustomVoiceAudio"),
+    downloadFileContent: httpByMethodName("downloadFileContent"),
+    editImage: httpByMethodName("editImage"),
+    editVideo: httpByMethodName("editVideo"),
+    extendVideo: httpByMethodName("extendVideo"),
+    generateImage: httpByMethodName("generateImage"),
+    generateVideo: httpByMethodName("generateVideo"),
+    getApiKey: httpByMethodName("getApiKey"),
+    getApiKeyPropagation: httpByMethodName("getApiKeyPropagation"),
+    getBatch: httpByMethodName("getBatch"),
+    getBillingInfo: httpByMethodName("getBillingInfo"),
+    getCollection: httpByMethodName("getCollection"),
+    getCollectionDocument: httpByMethodName("getCollectionDocument"),
+    getCustomVoice: httpByMethodName("getCustomVoice"),
+    getDeferredChatCompletion: httpByMethodName("getDeferredChatCompletion"),
+    getFile: httpByMethodName("getFile"),
+    getImageGenerationModel: httpByMethodName("getImageGenerationModel"),
+    getLanguageModel: httpByMethodName("getLanguageModel"),
+    getModel: httpByMethodName("getModel"),
+    getPostpaidSpendingLimits: httpByMethodName("getPostpaidSpendingLimits"),
+    getPrepaidBalance: httpByMethodName("getPrepaidBalance"),
+    getResponse: httpByMethodName("getResponse"),
+    getTtsVoice: httpByMethodName("getTtsVoice"),
+    getVideo: httpByMethodName("getVideo"),
+    getVideoGenerationModel: httpByMethodName("getVideoGenerationModel"),
+    initializeFileUpload: httpByMethodName("initializeFileUpload"),
+    listApiKeys: httpByMethodName("listApiKeys"),
+    listAuditEvents: httpByMethodName("listAuditEvents"),
+    listBatchRequests: httpByMethodName("listBatchRequests"),
+    listBatchResults: httpByMethodName("listBatchResults"),
+    listBatches: httpByMethodName("listBatches"),
+    listCollectionDocuments: httpByMethodName("listCollectionDocuments"),
+    listCollections: httpByMethodName("listCollections"),
+    listCustomVoices: httpByMethodName("listCustomVoices"),
+    listEndpointAcls: httpByMethodName("listEndpointAcls"),
+    listFiles: httpByMethodName("listFiles"),
+    listImageGenerationModels: httpByMethodName("listImageGenerationModels"),
+    listInvoices: httpByMethodName("listInvoices"),
+    listLanguageModels: httpByMethodName("listLanguageModels"),
+    listModels: httpByMethodName("listModels"),
+    listPaymentMethods: httpByMethodName("listPaymentMethods"),
+    listTeamModels: httpByMethodName("listTeamModels"),
+    listTtsVoices: httpByMethodName("listTtsVoices"),
+    listVideoGenerationModels: httpByMethodName("listVideoGenerationModels"),
+    previewPostpaidInvoice: httpByMethodName("previewPostpaidInvoice"),
+    queryUsage: httpByMethodName("queryUsage"),
+    regenerateCollectionDocument: httpByMethodName("regenerateCollectionDocument"),
+    rotateApiKey: httpByMethodName("rotateApiKey"),
+    searchDocuments: httpByMethodName("searchDocuments"),
+    setBillingInfo: httpByMethodName("setBillingInfo"),
+    setDefaultPaymentMethod: httpByMethodName("setDefaultPaymentMethod"),
+    setPostpaidSpendingLimits: httpByMethodName("setPostpaidSpendingLimits"),
+    streamAnthropicMessage: streamByMethodName("createAnthropicMessage"),
+    streamChatCompletion: streamByMethodName("createChatCompletion"),
+    streamLegacyCompletion: streamByMethodName("createLegacyCompletion"),
+    streamResponse: streamByMethodName("createResponse"),
+    synthesizeSpeech: httpByMethodName("synthesizeSpeech"),
+    tokenizeText: httpByMethodName("tokenizeText"),
+    topUpPrepaidBalance: httpByMethodName("topUpPrepaidBalance"),
+    transcribeSpeech: httpByMethodName("transcribeSpeech"),
+    updateApiKey: httpByMethodName("updateApiKey"),
+    updateCollection: httpByMethodName("updateCollection"),
+    updateCustomVoice: httpByMethodName("updateCustomVoice"),
+    updateFile: httpByMethodName("updateFile"),
+    uploadFile: httpByMethodName("uploadFile"),
+    uploadFileChunks: httpByMethodName("uploadFileChunks"),
+    validateManagementKey: httpByMethodName("validateManagementKey"),
+  } satisfies XAiShape;
+};
+
+/**
+ * Effect service for all documented xAI API endpoints.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { XAi } from "@beep/xai"
+ *
+ * const program = Effect.gen(function* () {
+ *   const xai = yield* XAi
+ *   return yield* xai.listModels()
+ * })
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class XAi extends Context.Service<XAi, XAiShape>()($I`XAi`) {
+  /**
+   * Build an xAI layer from explicit runtime configuration.
+   *
+   * @example
+   * ```ts
+   * import { XAi, XAiConfigInput } from "@beep/xai"
+   *
+   * const layer = XAi.makeLayer(new XAiConfigInput({ apiKey: "test-key" }))
+   * void layer
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayer = (config = new XAiConfigInput({})): Layer.Layer<XAi, never, HttpClient.HttpClient> =>
+    Layer.effect(
+      XAi,
+      Effect.gen(function* () {
+        const client = yield* HttpClient.HttpClient;
+        return XAi.of(makeService(client, resolveConfig(config)));
+      })
+    );
+
+  /**
+   * Live xAI layer backed by optional API and management credentials.
+   *
+   * @example
+   * ```ts
+   * import { XAi } from "@beep/xai"
+   *
+   * const layer = XAi.layer
+   * void layer
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly layer: Layer.Layer<XAi, XAiError> = Layer.effect(
+    XAi,
+    Effect.gen(function* () {
+      const apiKey = yield* Config.redacted("XAI_API_KEY").pipe(Config.option);
+      const managementApiKey = yield* Config.redacted("XAI_MANAGEMENT_API_KEY").pipe(Config.option);
+      const apiUrl = yield* Config.string("XAI_API_URL").pipe(Config.withDefault(XAI_API_URL));
+      const managementApiUrl = yield* Config.string("XAI_MANAGEMENT_API_URL").pipe(
+        Config.withDefault(XAI_MANAGEMENT_API_URL)
+      );
+      const websocketUrlValue = yield* Config.string("XAI_WEBSOCKET_URL").pipe(Config.withDefault(XAI_WEBSOCKET_URL));
+      const client = yield* HttpClient.HttpClient;
+
+      return XAi.of(
+        makeService(client, {
+          apiKey,
+          apiUrl: normalizeBaseUrl(apiUrl),
+          headers: {},
+          managementApiKey,
+          managementApiUrl: normalizeBaseUrl(managementApiUrl),
+          websocketUrl: normalizeBaseUrl(websocketUrlValue),
+        })
+      );
+    }).pipe(Effect.mapError(XAiError.config))
+  ).pipe(Layer.provide(FetchHttpClient.layer));
+}

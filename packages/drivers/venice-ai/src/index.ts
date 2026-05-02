@@ -1,16 +1,25 @@
 /**
  * @beep/venice-ai
  *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
-export {
-  VENICE_API_URL,
-  VENICE_CHAT_MODEL,
-  VENICE_FAVORITE_JOKE_PROMPT,
-  VeniceAiChat,
-  VeniceAiChatError,
-} from "./VeniceAI.service.ts";
+/**
+ * Public Venice AI driver exports.
+ *
+ * @example
+ * ```ts
+ * import { VeniceAI } from "@beep/venice-ai"
+ *
+ * const service = VeniceAI
+ * void service
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./VeniceAI.service.ts";
 
 /**
  * Current version of the `@beep/venice-ai` package.
@@ -22,7 +31,7 @@ export {
  * console.log(VERSION)
  * ```
  *
+ * @category utilities
  * @since 0.0.0
- * @category configuration
  */
-export const VERSION = "0.0.0" as const;
+export const VERSION = "0.0.0";

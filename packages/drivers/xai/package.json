@@ -11,6 +11,9 @@
     "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "packages/drivers/xai"
   },
+  "beep": {
+    "family": "drivers"
+  },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -55,10 +58,14 @@
     }
   },
   "dependencies": {
-    "effect": "catalog:"
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "effect": "catalog:",
+    "ws": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "@types/ws": "catalog:"
   }
 }

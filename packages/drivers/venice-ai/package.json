@@ -1,7 +1,7 @@
 {
   "name": "@beep/venice-ai",
   "version": "0.0.0",
-  "description": "Venice AI driver package",
+  "description": "Product-neutral Effect driver for the Venice AI API.",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -11,16 +11,21 @@
     "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "packages/drivers/venice-ai"
   },
+  "beep": {
+    "family": "drivers"
+  },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
-    "beep:build": "tsc -b tsconfig.json && bun run babel",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:check:tests && bun run beep:test && bun run beep:test:integration && bun run type-test && bun run beep:lint",
+    "beep:build": "rm -rf dist && tsc -b tsconfig.json && bun run babel",
     "beep:check": "tsgo -b tsconfig.json",
+    "beep:check:tests": "tsgo -p tsconfig.test.json --noEmit",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
     "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
     "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
+    "dtslint": "bunx tstyche --config ../../../tstyche.json --root ../../.. packages/drivers/venice-ai/dtslint/VeniceAI.tst.ts",
     "build": "bun run beep:build",
     "check": "bun run beep:check",
     "coverage": "bunx --bun vitest run --coverage --passWithNoTests --exclude=test/integration/**",
@@ -28,16 +33,18 @@
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
     "test": "bun run beep:test",
-    "test:integration": "bun run beep:test:integration"
+    "test:integration": "bun run beep:test:integration",
+    "type-test": "bun run dtslint"
   },
   "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*.ts",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./internal/*": null,
     "./package.json": "./package.json"
   },
   "files": [
-    "src/**/*.ts",
     "dist/**/*.js",
     "dist/**/*.js.map",
     "dist/**/*.d.ts",
@@ -48,8 +55,10 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
       "./internal/*": null,
       "./package.json": "./package.json"
     }
@@ -57,8 +66,6 @@
   "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
-    "@effect/ai-openai-compat": "catalog:",
-    "@effect/platform-bun": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {

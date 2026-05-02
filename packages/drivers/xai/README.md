@@ -1,6 +1,7 @@
 # @beep/xai
 
-XAI driver package
+Effect-first xAI driver package with a schema-backed endpoint manifest and an
+`XAi` service method for every documented xAI API endpoint.
 
 ## Installation
 
@@ -11,8 +12,32 @@ bun add @beep/xai
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/xai"
+import { Effect } from "effect"
+import { XAi, XAiRequestOptions } from "@beep/xai"
+
+const program = Effect.gen(function* () {
+  const xai = yield* XAi
+
+  return yield* xai.createChatCompletion(
+    new XAiRequestOptions({
+      body: {
+        model: "grok-4",
+        messages: [{ role: "user", content: "hello" }]
+      }
+    })
+  )
+})
 ```
+
+The live layer reads optional `XAI_API_KEY` and `XAI_MANAGEMENT_API_KEY`
+credentials, then selects the right token for each endpoint. It also supports
+URL overrides: `XAI_API_URL`, `XAI_MANAGEMENT_API_URL`, and `XAI_WEBSOCKET_URL`.
+
+Streaming helpers are available for the documented SSE-compatible inference
+calls: `streamChatCompletion`, `streamResponse`, `streamLegacyCompletion`, and
+`streamAnthropicMessage`.
+
+For explicit tests or app wiring, use `XAi.makeLayer(new XAiConfigInput(...))`.
 
 ## Development
 
