@@ -28,8 +28,8 @@ bun run image <subcommand> [flags]
 `image` is the image and video curation command group. It currently exposes one
 subcommand:
 
-| Subcommand | Purpose |
-| --- | --- |
+| Subcommand       | Purpose                                               |
+|------------------|-------------------------------------------------------|
 | `extract-frames` | Extract PNG frames from a video with native `ffmpeg`. |
 
 There are no positional arguments on the `image` group itself. Choose a
@@ -39,12 +39,12 @@ subcommand and pass that subcommand's flags.
 
 These flags are accepted by the `image` command group and its subcommands:
 
-| Flag | Argument | What it does |
-| --- | --- | --- |
-| `--help`, `-h` | none | Shows help information for the current command. |
-| `--version` | none | Prints the CLI version. |
-| `--completions` | `bash`, `zsh`, `fish`, or `sh` | Prints a shell completion script for the selected shell. |
-| `--log-level` | `all`, `trace`, `debug`, `info`, `warn`, `warning`, `error`, `fatal`, or `none` | Sets the minimum log level. |
+| Flag            | Argument                                                                        | What it does                                             |
+|-----------------|---------------------------------------------------------------------------------|----------------------------------------------------------|
+| `--help`, `-h`  | none                                                                            | Shows help information for the current command.          |
+| `--version`     | none                                                                            | Prints the CLI version.                                  |
+| `--completions` | `bash`, `zsh`, `fish`, or `sh`                                                  | Prints a shell completion script for the selected shell. |
+| `--log-level`   | `all`, `trace`, `debug`, `info`, `warn`, `warning`, `error`, `fatal`, or `none` | Sets the minimum log level.                              |
 
 ## `image extract-frames`
 
@@ -67,19 +67,19 @@ bun run image extract-frames --video ./input/clip.mp4 --out-dir ./frames --fps 1
 
 ### Required Flags
 
-| Flag | Argument | What it does |
-| --- | --- | --- |
-| `--video` | file | Input video file to sample. The file must already exist. |
+| Flag        | Argument  | What it does                                                                                      |
+|-------------|-----------|---------------------------------------------------------------------------------------------------|
+| `--video`   | file      | Input video file to sample. The file must already exist.                                          |
 | `--out-dir` | directory | Output directory for extracted PNG frames. Missing directories are created by the FFmpeg service. |
-| `--fps` | number | Positive frame extraction rate in frames per second. |
+| `--fps`     | number    | Positive frame extraction rate in frames per second.                                              |
 
 ### Optional Flags
 
-| Flag | Argument | Default | What it does |
-| --- | --- | --- | --- |
-| `--prefix` | string | `<video-stem>_frame` | Prefix for generated frame names. For `clip.mp4`, the default prefix is `clip_frame`. |
-| `--manifest` | path | `--out-dir/extract-frames-manifest.json` | Manifest output path. The manifest directory is created when needed. |
-| `--overwrite` | none | `false` | Allows existing frame outputs and the manifest to be replaced. Without it, the command refuses to overwrite existing outputs. |
+| Flag          | Argument | Default                                  | What it does                                                                                                                  |
+|---------------|----------|------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| `--prefix`    | string   | `<video-stem>_frame`                     | Prefix for generated frame names. For `clip.mp4`, the default prefix is `clip_frame`.                                         |
+| `--manifest`  | path     | `--out-dir/extract-frames-manifest.json` | Manifest output path. The manifest directory is created when needed.                                                          |
+| `--overwrite` | none     | `false`                                  | Allows existing frame outputs and the manifest to be replaced. Without it, the command refuses to overwrite existing outputs. |
 
 ### Outputs
 

@@ -1259,7 +1259,7 @@ export type VeniceAIShape = VeniceAINonStreamingShape & {
 };
 
 type ResolvedVeniceAIConfig = {
-  readonly apiKey: O.Option<Redacted.Redacted<string>>;
+  readonly apiKey: O.Option<Redacted.Redacted>;
   readonly baseUrl: string;
   readonly headers: Readonly<Record<string, string>>;
 };

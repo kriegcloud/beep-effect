@@ -6,6 +6,7 @@
  */
 
 import { $XaiId } from "@beep/identity";
+import {thunkEmptyStr} from "@beep/utils";
 import { Config, Context, Effect, Layer, Match, pipe, Queue, Redacted, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -389,7 +390,7 @@ const contentMediaType = (contentType: string): string =>
     contentType,
     Str.split(";"),
     A.get(0),
-    O.getOrElse(() => ""),
+    O.getOrElse(thunkEmptyStr),
     Str.trim,
     Str.toLowerCase
   );
@@ -414,7 +415,7 @@ const decodeResponse = Effect.fn("XAi.decodeResponse")(function* (
   response: HttpClientResponse.HttpClientResponse
 ) {
   const successfulResponse = yield* ensureSuccessStatus(descriptor, response);
-  const contentType = O.getOrElse(responseContentType(successfulResponse), () => "");
+  const contentType = O.getOrElse(responseContentType(successfulResponse), thunkEmptyStr);
 
   if (descriptor.response === "none") {
     return new XAiNoBodyResponse({
