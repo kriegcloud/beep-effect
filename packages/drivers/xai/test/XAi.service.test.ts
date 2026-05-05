@@ -43,7 +43,9 @@ type XAiTestHttpShape = {
   readonly respondWith: (respond: XAiTestRespond) => Effect.Effect<void>;
 };
 
-class XAiTestHttp extends Context.Service<XAiTestHttp, XAiTestHttpShape>()("@beep/xai/test/XAiTestHttp") {}
+class XAiTestHttp extends Context.Service<XAiTestHttp, XAiTestHttpShape>()(
+  "@beep/xai/test/XAi.service.test/XAiTestHttp"
+) {}
 
 const sortStrings = A.sort(Order.String);
 
@@ -99,7 +101,9 @@ const XAiTestHttpLayer = Layer.effect(
         return yield* respond(request);
       }),
       reset: Effect.all([Ref.set(capturesRef, []), Ref.set(respondRef, defaultRespond)], { discard: true }),
-      respondWith: (respond) => Ref.set(respondRef, respond),
+      respondWith: Effect.fn("XAiTestHttp.respondWith")(function* (respond) {
+        yield* Ref.set(respondRef, respond);
+      }),
     });
   })
 );

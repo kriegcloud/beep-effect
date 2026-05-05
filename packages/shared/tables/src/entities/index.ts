@@ -1,5 +1,5 @@
 /**
- * Shared Memberhsip table namespace.
+ * Shared Membership table namespace.
  *
  * @since 0.0.0
  * @category tables

@@ -81,6 +81,7 @@
     "tmp/**",
     "specs",
     "**/AGENTS.md",
+    "packages/drivers/venice-ai/swagger.yaml",
     "packages/foundation/modeling/schema/src/Timezone.ts",
     "**/internal/data/**",
     "**/dtslint/**",

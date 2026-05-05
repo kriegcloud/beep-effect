@@ -6,8 +6,8 @@
  */
 
 import { $XaiId } from "@beep/identity";
-import {thunkEmptyStr} from "@beep/utils";
-import { Config, Context, Effect, Layer, Match, pipe, Queue, Redacted, Stream } from "effect";
+import { thunkEmptyStr } from "@beep/utils";
+import { Config, Context, Effect, flow, Layer, Match, pipe, Queue, Redacted, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -385,15 +385,13 @@ const ensureSuccessStatus = (
     ? Effect.succeed(response)
     : Effect.fail(XAiError.fromDescriptor(descriptor, "response status", { status: response.status }));
 
-const contentMediaType = (contentType: string): string =>
-  pipe(
-    contentType,
-    Str.split(";"),
-    A.get(0),
-    O.getOrElse(thunkEmptyStr),
-    Str.trim,
-    Str.toLowerCase
-  );
+const contentMediaType: (contentType: string) => string = flow(
+  Str.split(";"),
+  A.get(0),
+  O.getOrElse(thunkEmptyStr),
+  Str.trim,
+  Str.toLowerCase
+);
 
 const isSseContentType = (contentType: string): boolean => contentMediaType(contentType) === "text/event-stream";
 

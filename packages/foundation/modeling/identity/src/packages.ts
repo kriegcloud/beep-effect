@@ -804,20 +804,17 @@ export const $SandboxId: Identity.IdentityComposer<"@beep/sandbox"> = composers.
 /**
  * @since 0.0.0
  * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/openai">}
  */
 export const $OpenaiId: Identity.IdentityComposer<"@beep/openai"> = composers.$OpenaiId;
 
 /**
  * @since 0.0.0
  * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/venice-ai">}
  */
 export const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai"> = composers.$VeniceAiId;
 
 /**
  * @since 0.0.0
  * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/xai">}
  */
 export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;

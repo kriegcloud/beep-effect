@@ -22,17 +22,21 @@ const isSqlTestHarnessError = S.is(SqlTestHarnessError);
 
 beforeAll(
   () =>
-    import("testcontainers")
-      .then(({ getContainerRuntimeClient }) => getContainerRuntimeClient())
-      .then(
-        () => {
-          pgliteTestcontainersAvailable = true;
-        },
-        () => {
-          pgliteTestcontainersAvailable = false;
-        }
-      ),
-  30_000
+    Effect.runPromise(
+      Effect.scoped(
+        makePgliteTestcontainerResource({
+          startupTimeoutMs: 30_000,
+        })
+      )
+    ).then(
+      () => {
+        pgliteTestcontainersAvailable = true;
+      },
+      () => {
+        pgliteTestcontainersAvailable = false;
+      }
+    ),
+  120_000
 );
 
 const skipWhenNoSharedDatabase = (ctx: { readonly skip: (message?: string) => void }) =>

@@ -1,7 +1,7 @@
 import { $VeniceAiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { parseYaml } from "@beep/schema/Yaml";
-import {thunkEmptyStr, thunkTrue} from "@beep/utils";
+import { thunkEmptyStr, thunkTrue } from "@beep/utils";
 import {
   VENICE_AI_OPERATION_DESCRIPTORS,
   VENICE_API_URL,
@@ -188,20 +188,12 @@ const swaggerDescriptors = Effect.gen(function* () {
             decoded.responses,
             R.toEntries,
             A.flatMap(([, response]) =>
-              pipe(
-                O.fromUndefinedOr(response.content),
-                O.map(R.keys),
-                O.getOrElse(A.empty<string>)
-              )
+              pipe(O.fromUndefinedOr(response.content), O.map(R.keys), O.getOrElse(A.empty<string>))
             ),
             A.dedupe,
             sortStrings
           ),
-          tag: pipe(
-            O.fromUndefinedOr(decoded.tags),
-            O.flatMap(A.get(0)),
-            O.getOrElse(thunkEmptyStr)
-          ),
+          tag: pipe(O.fromUndefinedOr(decoded.tags), O.flatMap(A.get(0)), O.getOrElse(thunkEmptyStr)),
         };
       }),
     { concurrency: 1 }

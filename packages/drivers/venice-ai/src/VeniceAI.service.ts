@@ -9,6 +9,7 @@ import { $VeniceAiId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { Config, Context, Effect, Layer, pipe, Redacted, Stream } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -515,6 +516,8 @@ export class VeniceAIServerSentEvent extends S.Class<VeniceAIServerSentEvent>($I
   })
 ) {}
 
+const isVeniceAIOperationDescriptor = S.is(VeniceAIOperationDescriptor);
+
 /**
  * Technical failure raised by the Venice AI driver boundary.
  *
@@ -564,23 +567,36 @@ export class VeniceAIError extends TaggedErrorClass<VeniceAIError>($I`VeniceAIEr
    * @category errors
    * @since 0.0.0
    */
-  static readonly fromDescriptor = (
-    descriptor: VeniceAIOperationDescriptor,
-    reason: VeniceAIErrorReason,
-    options: VeniceAIErrorOptions = {}
-  ): VeniceAIError =>
-    new VeniceAIError({
-      method: descriptor.method,
-      operation: descriptor.operationId,
-      path: descriptor.path,
-      reason,
-      ...R.getSomes({
-        cause: causeFromUnknown(options.cause),
-      }),
-      ...R.getSomes({
-        status: O.fromUndefinedOr(options.status),
-      }),
-    });
+  static readonly fromDescriptor: {
+    (
+      descriptor: VeniceAIOperationDescriptor,
+      reason: VeniceAIErrorReason,
+      options?: VeniceAIErrorOptions
+    ): VeniceAIError;
+    (
+      reason: VeniceAIErrorReason,
+      options?: VeniceAIErrorOptions
+    ): (descriptor: VeniceAIOperationDescriptor) => VeniceAIError;
+  } = dual(
+    (args) => args.length >= 2 && isVeniceAIOperationDescriptor(args[0]),
+    (
+      descriptor: VeniceAIOperationDescriptor,
+      reason: VeniceAIErrorReason,
+      options: VeniceAIErrorOptions = {}
+    ): VeniceAIError =>
+      new VeniceAIError({
+        method: descriptor.method,
+        operation: descriptor.operationId,
+        path: descriptor.path,
+        reason,
+        ...R.getSomes({
+          cause: causeFromUnknown(options.cause),
+        }),
+        ...R.getSomes({
+          status: O.fromUndefinedOr(options.status),
+        }),
+      })
+  );
 
   /**
    * Create a configuration error before a specific operation exists.

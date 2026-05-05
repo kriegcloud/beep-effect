@@ -435,6 +435,20 @@ const turboRunArgs = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>)
 const isUnresolvedSecretReference = (value: string | undefined): boolean =>
   value !== undefined && Str.startsWith("op://")(value);
 
+const usableSqlConnectionUri = (value: string | undefined): O.Option<string> =>
+  pipe(
+    O.fromUndefinedOr(value),
+    O.filter(Str.isNonEmpty),
+    O.filter((uri) => !isUnresolvedSecretReference(uri))
+  );
+
+const sqlIntegrationConnectionUriFromEnv = (env: Record<string, string | undefined>): O.Option<string> =>
+  pipe(
+    usableSqlConnectionUri(env.BEEP_TEST_DATABASE_URL),
+    O.orElse(() => usableSqlConnectionUri(env.DATABASE_URL)),
+    O.orElse(() => usableSqlConnectionUri(env.DATABASE_URL_UNPOOLED))
+  );
+
 const turboEnvOverrides = (command: string, args: ReadonlyArray<string>): Record<string, string | undefined> => {
   if (
     command !== "bunx" ||
@@ -627,12 +641,27 @@ const sqlIntegrationStep = (
     env: sqlIntegrationEnv(resource.connectionUri),
   });
 
-const acquireDefaultSqlIntegrationResource = withRyukDisabledDuringAcquire(makePgliteTestcontainerResource()).pipe(
+const acquireTestcontainersSqlIntegrationResource = withRyukDisabledDuringAcquire(
+  makePgliteTestcontainerResource()
+).pipe(
   Effect.mapError(
     (error) =>
       new QualityTaskConfigurationError({
         message: `Failed to start shared PGLite SQL integration database: ${error.message}`,
       })
+  )
+);
+
+const acquireExternalSqlIntegrationResource = (connectionUri: string): Effect.Effect<SqlIntegrationLaneResource> =>
+  Effect.succeed({ connectionUri });
+
+const acquireDefaultSqlIntegrationResource = Effect.suspend(() =>
+  pipe(
+    sqlIntegrationConnectionUriFromEnv(process.env),
+    O.match({
+      onNone: () => acquireTestcontainersSqlIntegrationResource,
+      onSome: acquireExternalSqlIntegrationResource,
+    })
   )
 );
 
@@ -676,6 +705,15 @@ export const sqlIntegrationStepForTesting: {
  * @since 0.0.0
  */
 export const runSqlIntegrationTestLaneForTesting = runSqlIntegrationTestLane;
+
+/**
+ * Resolve the SQL integration database connection URI from environment variables.
+ * Exposed for focused unit tests.
+ *
+ * @category Utility
+ * @since 0.0.0
+ */
+export const sqlIntegrationConnectionUriFromEnvForTesting = sqlIntegrationConnectionUriFromEnv;
 
 const optionalQualityTaskStep = ({ enabled, step }: OptionalQualityTaskStep): ReadonlyArray<QualityTaskStep> =>
   enabled ? A.of(step()) : A.empty();

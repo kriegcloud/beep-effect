@@ -1,5 +1,5 @@
 /**
- * @beep/venice-ai
+ * Venice AI driver package exports.
  *
  * @packageDocumentation
  * @since 0.0.0

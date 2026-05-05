@@ -7,10 +7,17 @@
 
 import { $XaiId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { type XAiEndpointDescriptor, XAiEndpointId, XAiEndpointMethodName, XAiHttpMethod } from "./XAi.endpoints.ts";
+import {
+  XAiEndpoint,
+  type XAiEndpointDescriptor,
+  XAiEndpointId,
+  XAiEndpointMethodName,
+  XAiHttpMethod,
+} from "./XAi.endpoints.ts";
 
 const $I = $XaiId.create("XAi.errors");
 
@@ -59,6 +66,8 @@ export const XAiErrorReason = LiteralKit([
  */
 export type XAiErrorReason = typeof XAiErrorReason.Type;
 
+const isXAiEndpointDescriptor = S.is(XAiEndpoint);
+
 /**
  * Technical failure raised by the xAI driver boundary.
  *
@@ -102,22 +111,24 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
    * @category errors
    * @since 0.0.0
    */
-  static readonly fromDescriptor = (
-    descriptor: XAiEndpointDescriptor,
-    reason: XAiErrorReason,
-    options: XAiErrorOptions = {}
-  ): XAiError =>
-    new XAiError({
-      endpoint: descriptor.id,
-      method: descriptor.method,
-      methodName: descriptor.methodName,
-      path: descriptor.path,
-      reason,
-      ...R.getSomes({
-        cause: O.fromUndefinedOr(options.cause),
-        status: O.fromUndefinedOr(options.status),
-      }),
-    });
+  static readonly fromDescriptor: {
+    (descriptor: XAiEndpointDescriptor, reason: XAiErrorReason, options?: XAiErrorOptions): XAiError;
+    (reason: XAiErrorReason, options?: XAiErrorOptions): (descriptor: XAiEndpointDescriptor) => XAiError;
+  } = dual(
+    (args) => args.length >= 2 && isXAiEndpointDescriptor(args[0]),
+    (descriptor: XAiEndpointDescriptor, reason: XAiErrorReason, options: XAiErrorOptions = {}): XAiError =>
+      new XAiError({
+        endpoint: descriptor.id,
+        method: descriptor.method,
+        methodName: descriptor.methodName,
+        path: descriptor.path,
+        reason,
+        ...R.getSomes({
+          cause: O.fromUndefinedOr(options.cause),
+          status: O.fromUndefinedOr(options.status),
+        }),
+      })
+  );
 
   /**
    * Create a configuration error before a specific endpoint exists.

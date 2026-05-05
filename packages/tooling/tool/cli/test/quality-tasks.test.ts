@@ -5,6 +5,7 @@ import {
   rootQualityStepsForTesting,
   runQualityTask,
   runSqlIntegrationTestLaneForTesting,
+  sqlIntegrationConnectionUriFromEnvForTesting,
   sqlIntegrationStepForTesting,
 } from "@beep/repo-cli/commands/Quality/Tasks";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
@@ -212,6 +213,27 @@ describe("quality task adapter", () => {
         BEEP_TEST_DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:5432/postgres",
       },
     });
+  });
+
+  it("prefers resolved external SQL URLs over Testcontainers-only defaults", () => {
+    expect(
+      sqlIntegrationConnectionUriFromEnvForTesting({
+        BEEP_TEST_DATABASE_URL: "postgres://test:secret@127.0.0.1:5432/test",
+        DATABASE_URL: "postgres://other:secret@127.0.0.1:5432/other",
+      })
+    ).toEqual(O.some("postgres://test:secret@127.0.0.1:5432/test"));
+
+    expect(
+      sqlIntegrationConnectionUriFromEnvForTesting({
+        DATABASE_URL: "postgres://test:secret@127.0.0.1:5432/test",
+      })
+    ).toEqual(O.some("postgres://test:secret@127.0.0.1:5432/test"));
+
+    expect(
+      sqlIntegrationConnectionUriFromEnvForTesting({
+        DATABASE_URL: "op://beep-dev-secrets/DATABASE_URL",
+      })
+    ).toEqual(O.none());
   });
 
   it("forwards shared SQL env vars to the integration child process", async () => {
