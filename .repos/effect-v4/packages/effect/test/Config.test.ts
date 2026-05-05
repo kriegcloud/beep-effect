@@ -131,6 +131,28 @@ describe("Config", () => {
       )
     })
 
+    it("literals", async () => {
+      const provider = ConfigProvider.fromUnknown({ a: "production", b: "staging" })
+      await assertSuccess(Config.literals(["development", "production"], "a"), provider, "production")
+      await assertFailure(
+        Config.literals(["development", "production"], "b"),
+        provider,
+        `Expected "development" | "production", got "staging"
+  at ["b"]`
+      )
+    })
+
+    it("literals (numbers)", async () => {
+      const provider = ConfigProvider.fromUnknown({ a: "1", b: "3" })
+      await assertSuccess(Config.literals([1, 2], "a"), provider, 1)
+      await assertFailure(
+        Config.literals([1, 2], "b"),
+        provider,
+        `Expected "1" | "2", got "3"
+  at ["b"]`
+      )
+    })
+
     it("date", async () => {
       const provider = ConfigProvider.fromUnknown({ a: "2021-01-01", b: "invalid" })
       await assertSuccess(Config.date("a"), provider, new Date("2021-01-01"))
@@ -558,15 +580,19 @@ describe("Config", () => {
       const provider = ConfigProvider.fromUnknown({
         a: "1000 millis",
         b: "1 second",
+        c: "Infinity",
+        d: "-Infinity",
         failure: "value"
       })
 
       await assertSuccess(Config.duration("a"), provider, Duration.millis(1000))
       await assertSuccess(Config.duration("b"), provider, Duration.seconds(1))
+      await assertSuccess(Config.duration("c"), provider, Duration.infinity)
+      await assertSuccess(Config.duration("d"), provider, Duration.negativeInfinity)
       await assertFailure(
         Config.duration("failure"),
         provider,
-        `Invalid data "value"
+        `Invalid Duration string: value
   at ["failure"]`
       )
     })
