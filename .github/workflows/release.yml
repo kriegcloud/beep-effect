@@ -24,7 +24,7 @@ jobs:
   release-pr:
     name: Release PR
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
     steps:
       - name: Checkout repository
@@ -51,7 +51,7 @@ jobs:
     name: Publish (Manual Approval Required)
     if: github.event_name == 'workflow_dispatch' && inputs.confirm_publish ==
       'PUBLISH'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
     environment:
       # Configure this environment with required reviewers to enforce approval.
