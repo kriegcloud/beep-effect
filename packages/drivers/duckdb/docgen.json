@@ -1,6 +1,11 @@
 {
-  "$schema": "../../../../packages/tooling/tool/docgen/schema.json",
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/library/ai-metrics/src/",
+  "name": "@beep/duckdb",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs",
+  "excludeInternal": true,
+  "includeVersion": true,
+  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/duckdb/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -28,27 +33,21 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/repo-ai-metrics": [
-        "../../../../packages/tooling/library/ai-metrics/src/index.ts"
-      ],
-      "@beep/repo-ai-metrics/*": [
-        "../../../../packages/tooling/library/ai-metrics/src/*.ts"
-      ],
-      "@beep/duckdb": ["../../../../packages/drivers/duckdb/src/index.ts"],
+      "@beep/duckdb": ["../../../packages/drivers/duckdb/src/index.ts"],
       "@beep/identity": [
-        "../../../../packages/foundation/modeling/identity/src/index.ts"
+        "../../../packages/foundation/modeling/identity/src/index.ts"
       ],
       "@beep/identity/*": [
-        "../../../../packages/foundation/modeling/identity/src/*.ts"
+        "../../../packages/foundation/modeling/identity/src/*.ts"
       ],
       "@beep/identity/packages": [
-        "../../../../packages/foundation/modeling/identity/src/packages.ts"
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/schema": [
-        "../../../../packages/foundation/modeling/schema/src/index.ts"
+        "../../../packages/foundation/modeling/schema/src/index.ts"
       ],
       "@beep/schema/*": [
-        "../../../../packages/foundation/modeling/schema/src/*.ts"
+        "../../../packages/foundation/modeling/schema/src/*.ts"
       ]
     }
   },

@@ -92,6 +92,7 @@ const composers = $I.compose(
 
   "codedank-web",
   "drizzle",
+  "duckdb",
   "ffmpeg",
   "postgres",
 
@@ -648,6 +649,12 @@ export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = c
  * @category configuration
  */
 export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.$DrizzleId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $DuckdbId: Identity.IdentityComposer<"@beep/duckdb"> = composers.$DuckdbId;
 
 /**
  * @since 0.0.0

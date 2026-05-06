@@ -5,11 +5,11 @@
     "title": "AI Metrics Stack",
     "status": "active",
     "created": "2026-05-05",
-    "updated": "2026-05-05",
+    "updated": "2026-05-06",
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P2",
+  "currentTargetPhase": "P3",
   "completionEvidence": "dankserver deployment plus one seven-day real-data config-impact scorecard",
   "targets": {
     "production": "dankserver",
@@ -26,6 +26,7 @@
   },
   "owningSurfaces": {
     "developerAiAnalytics": "packages/tooling/library/ai-metrics",
+    "duckdbDriver": "packages/drivers/duckdb",
     "runtimeObservability": "packages/foundation/capability/observability",
     "operatorCli": "packages/tooling/tool/cli",
     "deployment": "infra"
@@ -46,7 +47,7 @@
     {
       "id": "P2",
       "name": "Durable Ingest And Derived Storage",
-      "status": "pending",
+      "status": "completed",
       "output": "history/outputs/p2-durable-ingest-and-derived-storage.md"
     },
     {
@@ -84,6 +85,10 @@
       "command": "bun run config-sync"
     },
     {
+      "id": "duckdb-driver-package",
+      "command": "bun run --filter @beep/duckdb check && bun run --filter @beep/duckdb test"
+    },
+    {
       "id": "ai-metrics-package",
       "command": "cd packages/tooling/library/ai-metrics && bun run check && bun run test && bun run lint && bun run docgen"
     },
@@ -105,12 +110,11 @@
     }
   ],
   "knownGaps": [
-    "source discovery is runtime-only and does not yet persist a durable source registry",
-    "forwarder command prints a contract but does not yet copy or export data",
-    "raw archive encryption and redacted derived payloads are not implemented",
     "Phoenix and optional LiteLLM deployment are not yet applied on dankserver",
     "CLI label review and weekly report generation are not implemented",
-    "EventLog projection proof is not implemented"
+    "OTLP export and backend adapter contracts are not implemented",
+    "xAI, Venice, LiteLLM, and gateway enrichment remain deferred beyond P2",
+    "raw archive decrypt tooling is intentionally not exposed in P2"
   ],
-  "nextAction": "Implement P2 durable ingest, encrypted raw archive, and derived storage contracts."
+  "nextAction": "Implement P3 OTLP export and backend stack contracts."
 }

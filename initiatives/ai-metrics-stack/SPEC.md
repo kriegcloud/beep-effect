@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-05
-- **Updated:** 2026-05-05
+- **Updated:** 2026-05-06
 
 ## Purpose
 
@@ -62,6 +62,10 @@ semantics into it.
 `@beep/infra` owns Pulumi deployment orchestration, including real dankserver
 remote apply.
 
+`@beep/duckdb` owns the technical DuckDB boundary: native client execution,
+transactions, JSON row reads, and Parquet copy mechanics. AI metrics semantics
+remain in `@beep/repo-ai-metrics`.
+
 `@beep/repo-cli` owns operator workflows and user-facing command output.
 Diagnostic logging remains Effect logging; command results remain `Console`
 output.
@@ -106,6 +110,12 @@ OTLP payloads, and dashboard events must use redacted text, hashed identifiers,
 bounded low-cardinality attributes, and explicit allowlists.
 
 The default privacy mode is `encrypted_raw_redacted_ui`.
+
+Raw archive encryption uses a separate key contract from private identifier
+hashing. Install and IaC plans refer to `rawArchiveKeySecretRef`; P2 runtime
+commands consume the actual 32-byte base64 key from
+`BEEP_AI_METRICS_RAW_ARCHIVE_KEY` or `--raw-archive-key` and do not resolve
+secret-manager references themselves.
 
 ## Deployment Contract
 

@@ -65,6 +65,22 @@ const requireHashSaltSecretRef = Effect.fn("AiMetrics.requireHashSaltSecretRef")
   });
 });
 
+const requireRawArchiveKeySecretRef = Effect.fn("AiMetrics.requireRawArchiveKeySecretRef")(function* (
+  target: AiMetricsDeployTarget,
+  rawArchiveKeySecretRef: string | undefined
+) {
+  const ref = nonEmptyString(rawArchiveKeySecretRef);
+  if (target === AiMetricsDeployTarget.Enum.local || O.isSome(ref)) {
+    return ref;
+  }
+
+  return yield* new AiMetricsInstallConfigurationError({
+    cause: { target },
+    message:
+      "AI metrics non-local installs require rawArchiveKeySecretRef so encrypted raw transcripts never depend on inline operator input.",
+  });
+});
+
 /**
  * Error raised when an AI metrics install spec would be unsafe for the requested target.
  *
@@ -122,6 +138,7 @@ export class AiMetricsInstallInput extends S.Class<AiMetricsInstallInput>($I`AiM
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui))
     ),
     publicBaseUrl: S.optionalKey(S.String),
+    rawArchiveKeySecretRef: S.optionalKey(S.String),
     target: AiMetricsDeployTarget.pipe(
       S.withConstructorDefault(Effect.succeed(AiMetricsDeployTarget.Enum.local)),
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsDeployTarget.Enum.local))
@@ -203,6 +220,7 @@ export class AiMetricsInstallSpec extends S.Class<AiMetricsInstallSpec>($I`AiMet
     litellmGatewayEnabled: S.Boolean,
     plannedCommands: S.Array(S.String),
     privacyMode: AiMetricsPrivacyMode,
+    rawArchiveKeySecretRef: S.optionalKey(S.String),
     services: S.Array(AiMetricsServiceSpec),
     stackName: S.String,
     storage: AiMetricsStorageLayout,
@@ -247,17 +265,24 @@ const withHashSaltSecret =
 const plannedCommands = (
   target: AiMetricsDeployTarget,
   storage: AiMetricsStorageLayout,
-  hashSaltSecretRef: O.Option<string>
+  hashSaltSecretRef: O.Option<string>,
+  rawArchiveKeySecretRef: O.Option<string>
 ): ReadonlyArray<string> => [
   `mkdir -p ${storage.rawArchiveDir} ${storage.parquetDir}`,
   withHashSaltSecret(hashSaltSecretRef)(`beep-cli ai-metrics sources discover --target ${target}`),
   "beep-cli ai-metrics config snapshot",
   withHashSaltSecret(hashSaltSecretRef)("beep-cli ai-metrics privacy check --source codex --input ~/.codex/sessions"),
   pipe(
-    hashSaltSecretRef,
+    rawArchiveKeySecretRef,
     O.match({
-      onNone: () => `beep-cli ai-metrics forwarder run --target ${target}`,
-      onSome: (ref) => `beep-cli ai-metrics forwarder run --target ${target} --hash-salt-secret-ref ${ref}`,
+      onNone: () =>
+        withHashSaltSecret(hashSaltSecretRef)(
+          `BEEP_AI_METRICS_RAW_ARCHIVE_KEY=<base64-32-byte-key> beep-cli ai-metrics forwarder run --target ${target}`
+        ),
+      onSome: (rawRef) =>
+        withHashSaltSecret(hashSaltSecretRef)(
+          `BEEP_AI_METRICS_RAW_ARCHIVE_KEY=<secret:${rawRef}> beep-cli ai-metrics forwarder run --target ${target} --raw-archive-key-secret-ref ${rawRef}`
+        ),
     })
   ),
 ];
@@ -285,6 +310,7 @@ export const makeAiMetricsInstallSpec: (
   const dataRoot = input.dataRoot ?? defaultDataRoot(input.target);
   const publicBaseUrl = input.publicBaseUrl ?? defaultPublicBaseUrl(input.target);
   const hashSaltSecretRef = yield* requireHashSaltSecretRef(input.target, input.hashSaltSecretRef);
+  const rawArchiveKeySecretRef = yield* requireRawArchiveKeySecretRef(input.target, input.rawArchiveKeySecretRef);
   const storage = makeStorageLayout(dataRoot);
   const services = A.map(input.candidateTools, makeServiceSpec(input.defaultTool, publicBaseUrl));
 
@@ -294,8 +320,9 @@ export const makeAiMetricsInstallSpec: (
     defaultTool: input.defaultTool,
     ...(O.isSome(hashSaltSecretRef) ? { hashSaltSecretRef: hashSaltSecretRef.value } : {}),
     litellmGatewayEnabled: input.litellmGatewayEnabled,
-    plannedCommands: plannedCommands(input.target, storage, hashSaltSecretRef),
+    plannedCommands: plannedCommands(input.target, storage, hashSaltSecretRef, rawArchiveKeySecretRef),
     privacyMode: input.privacyMode,
+    ...(O.isSome(rawArchiveKeySecretRef) ? { rawArchiveKeySecretRef: rawArchiveKeySecretRef.value } : {}),
     services,
     stackName: `beep-ai-metrics-${input.target}`,
     storage,
