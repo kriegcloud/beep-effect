@@ -10,14 +10,19 @@ const boundaryTypecheckTimeout = 300_000;
 const readText = (relativePath: string) => readFileSync(resolve(packageRoot, relativePath), "utf8");
 const runTypecheck = (tscPath: string, tsconfigPath: string) =>
   new Promise<void>((resolvePromise, rejectPromise) => {
-    execFile(tscPath, ["--noEmit", "-p", tsconfigPath], { cwd: repoRoot, maxBuffer: 10 * 1024 * 1024 }, (error) => {
-      if (error !== null) {
-        rejectPromise(error);
-        return;
-      }
+    execFile(
+      tscPath,
+      ["--pretty", "false", "--noEmit", "-p", tsconfigPath],
+      { cwd: repoRoot, maxBuffer: 10 * 1024 * 1024 },
+      (error) => {
+        if (error !== null) {
+          rejectPromise(error);
+          return;
+        }
 
-      resolvePromise();
-    });
+        resolvePromise();
+      }
+    );
   });
 
 describe("Boundary", () => {
@@ -54,12 +59,14 @@ describe("Boundary", () => {
     timeout: boundaryTypecheckTimeout,
   }, async () => {
     const tscPath = resolve(repoRoot, "node_modules/.bin/tsc");
-    const browserTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.browser.json");
-    const experimentalServerTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.experimental-server.json");
-    const serverTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.server.json");
+    const fixtureTsconfigs = [
+      resolve(packageRoot, "test/fixtures/tsconfig.browser.json"),
+      resolve(packageRoot, "test/fixtures/tsconfig.server.json"),
+      resolve(packageRoot, "test/fixtures/tsconfig.experimental-server.json"),
+    ];
 
-    await runTypecheck(tscPath, browserTsconfig);
-    await runTypecheck(tscPath, serverTsconfig);
-    await runTypecheck(tscPath, experimentalServerTsconfig);
+    for (const tsconfigPath of fixtureTsconfigs) {
+      await runTypecheck(tscPath, tsconfigPath);
+    }
   });
 });

@@ -38,6 +38,7 @@ stats.html
 .turbo
 .vercel
 **/.next/
+**/next-env.d.ts
 docs/
 **/docs
 !initiatives/**/docs/

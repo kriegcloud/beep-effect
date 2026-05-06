@@ -91,6 +91,7 @@ const composers = $I.compose(
   "shared-config",
 
   "codedank-web",
+  "op-ip-web",
   "drizzle",
   "duckdb",
   "ffmpeg",
@@ -254,6 +255,21 @@ export const $RepoAiMetricsId = composers.$RepoAiMetricsId;
  * @category configuration
  */
 export const $RepoCliId = composers.$RepoCliId;
+
+/**
+ * Identity composer for the `@beep/repo-configs` package.
+ *
+ * @example
+ * ```typescript
+ * import { $RepoConfigsId } from "@beep/identity"
+ *
+ * const id = $RepoConfigsId.make("Command")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $RepoConfigsId = composers.$RepoConfigsId;
 
 /**
  * Identity composer for the `@beep/repo-utils` package.
@@ -644,6 +660,12 @@ export const $MdId: Identity.IdentityComposer<"@beep/md"> = composers.$MdId;
  * @category configuration
  */
 export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = composers.$CodedankWebId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $OpIpWebId: Identity.IdentityComposer<"@beep/op-ip-web"> = composers.$OpIpWebId;
 
 /**
  * @since 0.0.0

@@ -39,6 +39,15 @@
       "@beep/identity/packages": [
         "../../packages/foundation/modeling/identity/src/packages.ts"
       ],
+      "@beep/repo-configs": [
+        "../../packages/tooling/policy-pack/repo-configs/src/index.ts"
+      ],
+      "@beep/repo-configs/*": [
+        "../../packages/tooling/policy-pack/repo-configs/src/*.ts"
+      ],
+      "@beep/repo-configs/next": [
+        "../../packages/tooling/policy-pack/repo-configs/src/next/index.ts"
+      ],
       "@beep/repo-utils": [
         "../../packages/tooling/library/repo-utils/src/index.ts"
       ],

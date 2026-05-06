@@ -75,6 +75,9 @@
       "@beep/repo-configs/*": [
         "../../../../packages/tooling/policy-pack/repo-configs/src/*.ts"
       ],
+      "@beep/repo-configs/next": [
+        "../../../../packages/tooling/policy-pack/repo-configs/src/next/index.ts"
+      ],
       "@beep/repo-docgen": [
         "../../../../packages/tooling/tool/docgen/src/index.ts"
       ],
