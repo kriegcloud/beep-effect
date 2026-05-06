@@ -33,6 +33,7 @@
     "packages/drivers/openai/dtslint/**/*.tst.*",
     "packages/drivers/venice-ai/dtslint/**/*.tst.*",
     "packages/drivers/xai/dtslint/**/*.tst.*",
+    "packages/drivers/acp/dtslint/**/*.tst.*",
     "packages/drivers/openai-compat/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"

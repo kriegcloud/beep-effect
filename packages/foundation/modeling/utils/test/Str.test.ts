@@ -171,3 +171,17 @@ describe("@beep/utils Str.repeat", () => {
     expect(Str.repeat("ab", 0)).toBe("");
   });
 });
+
+describe("@beep/utils Str.truncate", () => {
+  it("data-first: trims text before returning untruncated text", () => {
+    expect(Str.truncate("  hello  ", 10)).toBe("hello");
+  });
+
+  it("data-first: truncates text and appends an ellipsis suffix", () => {
+    expect(Str.truncate("  hello world  ", 5)).toBe("hello...");
+  });
+
+  it("data-last: truncates text and appends an ellipsis suffix", () => {
+    expect(pipe("  beep effect  ", Str.truncate(4))).toBe("beep...");
+  });
+});

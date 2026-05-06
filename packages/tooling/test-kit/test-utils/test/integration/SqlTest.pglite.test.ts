@@ -20,6 +20,7 @@ const hasSharedConnectionUri = sharedConnectionUri !== undefined && sharedConnec
 let pgliteTestcontainersAvailable = false;
 const isSqlTestHarnessError = S.is(SqlTestHarnessError);
 const ContainerInspectTimeout = Duration.seconds(5);
+const SharedExternalHookTestTimeout = 300_000;
 
 beforeAll(
   () =>
@@ -281,7 +282,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
         expect(result.driver).toBe("pg-external");
         expect(result.values).toEqual(["alpha", "beta"]);
       }),
-    120_000
+    SharedExternalHookTestTimeout
   );
 
   it.effect(

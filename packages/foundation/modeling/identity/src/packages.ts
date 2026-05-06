@@ -110,6 +110,7 @@ const composers = $I.compose(
   "openai",
   "venice-ai",
   "xai",
+  "acp",
   "openai-compat"
 );
 
@@ -842,6 +843,22 @@ export const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai"> = compose
  * @category configuration
  */
 export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;
+
+/**
+ * Identity composer for `@beep/acp`.
+ *
+ * @example
+ * ```typescript
+ * import { $AcpId } from "@beep/identity"
+ *
+ * const id = $AcpId.make("AcpClient")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $AcpId: Identity.IdentityComposer<"@beep/acp"> = composers.$AcpId;
 
 /**
  * Identity composer for `@beep/openai-compat`.
