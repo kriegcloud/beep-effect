@@ -9,14 +9,19 @@ const repoRoot = resolve(packageRoot, "../../../..");
 const readText = (relativePath: string) => readFileSync(resolve(packageRoot, relativePath), "utf8");
 const runTypecheck = (tscPath: string, tsconfigPath: string) =>
   new Promise<void>((resolvePromise, rejectPromise) => {
-    execFile(tscPath, ["--noEmit", "-p", tsconfigPath], { cwd: repoRoot, maxBuffer: 10 * 1024 * 1024 }, (error) => {
-      if (error !== null) {
-        rejectPromise(error);
-        return;
-      }
+    execFile(
+      tscPath,
+      ["--pretty", "false", "--noEmit", "-p", tsconfigPath],
+      { cwd: repoRoot, maxBuffer: 10 * 1024 * 1024 },
+      (error) => {
+        if (error !== null) {
+          rejectPromise(error);
+          return;
+        }
 
-      resolvePromise();
-    });
+        resolvePromise();
+      }
+    );
   });
 
 describe("Boundary", () => {
@@ -49,16 +54,16 @@ describe("Boundary", () => {
     expect(webLayerSource).not.toContain("node:");
   });
 
-  it("typechecks browser-safe, server-safe, and experimental-server fixtures", { timeout: 180_000 }, async () => {
+  it("typechecks browser-safe, server-safe, and experimental-server fixtures", { timeout: 300_000 }, async () => {
     const tscPath = resolve(repoRoot, "node_modules/.bin/tsc");
-    const browserTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.browser.json");
-    const experimentalServerTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.experimental-server.json");
-    const serverTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.server.json");
+    const fixtureTsconfigs = [
+      resolve(packageRoot, "test/fixtures/tsconfig.browser.json"),
+      resolve(packageRoot, "test/fixtures/tsconfig.server.json"),
+      resolve(packageRoot, "test/fixtures/tsconfig.experimental-server.json"),
+    ];
 
-    await Promise.all([
-      runTypecheck(tscPath, browserTsconfig),
-      runTypecheck(tscPath, serverTsconfig),
-      runTypecheck(tscPath, experimentalServerTsconfig),
-    ]);
+    for (const tsconfigPath of fixtureTsconfigs) {
+      await runTypecheck(tscPath, tsconfigPath);
+    }
   });
 });
