@@ -6,12 +6,17 @@
  */
 
 import { $OpenaiCompatId } from "@beep/identity";
-import { Context, Effect, Layer, pipe, Stream } from "effect";
+import { Context, Effect, flow, Layer, pipe, Stream } from "effect";
+import * as A from "effect/Array";
 import { identity } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as AiError from "effect/unstable/ai/AiError";
 import * as Sse from "effect/unstable/encoding/Sse";
 import { FetchHttpClient } from "effect/unstable/http";
+import * as Headers from "effect/unstable/http/Headers";
+import type * as HttpBody from "effect/unstable/http/HttpBody";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
@@ -19,7 +24,7 @@ import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import {
   decodeChatCompletionChunk,
   type OpenAiCompatChatCompletionChunk,
-  type OpenAiCompatChatCompletionRequest,
+  OpenAiCompatChatCompletionRequest,
   OpenAiCompatChatCompletionResponse,
 } from "./OpenAiCompat.models.ts";
 
@@ -32,10 +37,11 @@ const decodeSseJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
  *
  * @example
  * ```ts
+ * import { Redacted } from "effect"
  * import { OpenAiCompatClientOptions } from "@beep/openai-compat"
  *
  * const options = new OpenAiCompatClientOptions({
- *   apiKey: "test-key",
+ *   apiKey: Redacted.make("test-key"),
  *   apiUrl: "https://provider.example/v1"
  * })
  *
@@ -47,7 +53,7 @@ const decodeSseJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
  */
 export class OpenAiCompatClientOptions extends S.Class<OpenAiCompatClientOptions>($I`OpenAiCompatClientOptions`)(
   {
-    apiKey: S.optionalKey(S.String),
+    apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
     apiUrl: S.optionalKey(S.String),
     headers: S.optionalKey(S.Record(S.String, S.String)),
   },
@@ -61,9 +67,17 @@ export class OpenAiCompatClientOptions extends S.Class<OpenAiCompatClientOptions
  *
  * @example
  * ```ts
- * import type { OpenAiCompatClientShape } from "@beep/openai-compat"
+ * import { Effect, Stream } from "effect"
+ * import {
+ *   OpenAiCompatChatCompletionResponse,
+ *   type OpenAiCompatClientShape
+ * } from "@beep/openai-compat"
  *
- * declare const client: OpenAiCompatClientShape
+ * const client: OpenAiCompatClientShape = {
+ *   createChatCompletion: () =>
+ *     Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
+ *   streamChatCompletion: () => Stream.empty
+ * }
  *
  * void client.createChatCompletion
  * ```
@@ -83,10 +97,22 @@ export interface OpenAiCompatClientShape {
 const makeAiError = (method: string, reason: AiError.AiErrorReason): AiError.AiError =>
   AiError.make({ method, module: "OpenAiCompatClient", reason });
 
+const thunkEmptyString = () => "";
+
 const mapSchemaError =
   (method: string) =>
   (cause: S.SchemaError): AiError.AiError =>
     makeAiError(method, AiError.InvalidOutputError.fromSchemaError(cause));
+
+const mapBodyEncodingError =
+  (method: string) =>
+  (cause: HttpBody.HttpBodyError): AiError.AiError =>
+    makeAiError(
+      method,
+      new AiError.InvalidRequestError({
+        description: `Unable to encode OpenAI-compatible chat completion request body (${cause.reason._tag}).`,
+      })
+    );
 
 const mapStatusError = (
   method: string,
@@ -133,6 +159,67 @@ const makeHttpClient = (client: HttpClient.HttpClient, options: OpenAiCompatClie
     )
   );
 
+const encodeChatCompletionRequest = HttpClientRequest.schemaBodyJson(OpenAiCompatChatCompletionRequest);
+
+const postChatCompletionRequest = (
+  method: string,
+  request: OpenAiCompatChatCompletionRequest
+): Effect.Effect<HttpClientRequest.HttpClientRequest, AiError.AiError> =>
+  pipe(
+    HttpClientRequest.post("/chat/completions"),
+    encodeChatCompletionRequest(request),
+    Effect.mapError(mapBodyEncodingError(method))
+  );
+
+const makeStreamingRequest = (request: OpenAiCompatChatCompletionRequest): OpenAiCompatChatCompletionRequest =>
+  new OpenAiCompatChatCompletionRequest({
+    ...request,
+    stream: true,
+    stream_options: {
+      include_usage: true,
+    },
+  });
+
+const contentMediaType: (contentType: string) => string = flow(
+  Str.split(";"),
+  A.get(0),
+  O.getOrElse(thunkEmptyString),
+  Str.trim,
+  Str.toLowerCase
+);
+
+const isSseContentType = (contentType: string): boolean => contentMediaType(contentType) === "text/event-stream";
+
+const ensureSseContentType =
+  (method: string) =>
+  (
+    response: HttpClientResponse.HttpClientResponse
+  ): Effect.Effect<HttpClientResponse.HttpClientResponse, AiError.AiError> =>
+    pipe(
+      Headers.get(response.headers, "content-type"),
+      O.filter(isSseContentType),
+      O.match({
+        onNone: () =>
+          Effect.fail(
+            makeAiError(
+              method,
+              new AiError.InvalidOutputError({
+                description: "OpenAI-compatible stream response did not use text/event-stream.",
+              })
+            )
+          ),
+        onSome: () => Effect.succeed(response),
+      })
+    );
+
+const mapSseRetry = (method: string): AiError.AiError =>
+  makeAiError(
+    method,
+    new AiError.InvalidOutputError({
+      description: "OpenAI-compatible stream response included an unsupported SSE retry directive.",
+    })
+  );
+
 const parseSseData = (data: string): Effect.Effect<OpenAiCompatChatCompletionChunk, AiError.AiError> =>
   pipe(
     decodeSseJson(data),
@@ -145,9 +232,8 @@ const makeService = (client: HttpClient.HttpClient, options: OpenAiCompatClientO
   const decodeResponse = HttpClientResponse.schemaBodyJson(OpenAiCompatChatCompletionResponse);
   const createChatCompletion: OpenAiCompatClientShape["createChatCompletion"] = (request) =>
     pipe(
-      HttpClientRequest.post("/chat/completions"),
-      HttpClientRequest.bodyJsonUnsafe(request),
-      HttpClient.filterStatusOk(httpClient).execute,
+      postChatCompletionRequest("createChatCompletion", request),
+      Effect.flatMap(HttpClient.filterStatusOk(httpClient).execute),
       Effect.flatMap(decodeResponse),
       Effect.catchTags({
         HttpClientError: (error) => mapHttpClientError("createChatCompletion", error),
@@ -158,15 +244,9 @@ const makeService = (client: HttpClient.HttpClient, options: OpenAiCompatClientO
   const streamChatCompletion: OpenAiCompatClientShape["streamChatCompletion"] = (request) =>
     Stream.unwrap(
       pipe(
-        HttpClientRequest.post("/chat/completions"),
-        HttpClientRequest.bodyJsonUnsafe({
-          ...request,
-          stream: true,
-          stream_options: {
-            include_usage: true,
-          },
-        }),
-        HttpClient.filterStatusOk(httpClient).execute,
+        postChatCompletionRequest("streamChatCompletion", makeStreamingRequest(request)),
+        Effect.flatMap(HttpClient.filterStatusOk(httpClient).execute),
+        Effect.flatMap(ensureSseContentType("streamChatCompletion")),
         Effect.map((response) =>
           response.stream.pipe(
             Stream.decodeText(),
@@ -176,7 +256,7 @@ const makeService = (client: HttpClient.HttpClient, options: OpenAiCompatClientO
             ),
             Stream.catchTags({
               HttpClientError: (error) => Stream.fromEffect(mapHttpClientError("streamChatCompletion", error)),
-              Retry: (error) => Stream.die(error),
+              Retry: () => Stream.fail(mapSseRetry("streamChatCompletion")),
             })
           )
         ),
@@ -217,10 +297,11 @@ export class OpenAiCompatClient extends Context.Service<OpenAiCompatClient, Open
    *
    * @example
    * ```ts
+   * import { Redacted } from "effect"
    * import { OpenAiCompatClient, OpenAiCompatClientOptions } from "@beep/openai-compat"
    *
    * const layer = OpenAiCompatClient.makeLayer(
-   *   new OpenAiCompatClientOptions({ apiKey: "test-key" })
+   *   new OpenAiCompatClientOptions({ apiKey: Redacted.make("test-key") })
    * )
    *
    * void layer

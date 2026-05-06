@@ -9,8 +9,10 @@ import { $XaiId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import {
   XAiEndpoint,
   type XAiEndpointDescriptor,
@@ -85,7 +87,7 @@ const isXAiEndpointDescriptor = S.is(XAiEndpoint);
 export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
   "XAiError",
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.String),
     endpoint: S.optionalKey(XAiEndpointId),
     method: S.optionalKey(XAiHttpMethod),
     methodName: S.optionalKey(XAiEndpointMethodName),
@@ -124,7 +126,9 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
         path: descriptor.path,
         reason,
         ...R.getSomes({
-          cause: O.fromUndefinedOr(options.cause),
+          cause: causeFromUnknown(options.cause),
+        }),
+        ...R.getSomes({
           status: O.fromUndefinedOr(options.status),
         }),
       })
@@ -148,10 +152,26 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
     new XAiError({
       reason: "config",
       ...R.getSomes({
-        cause: O.fromUndefinedOr(cause),
+        cause: causeFromUnknown(cause),
       }),
     });
 }
+
+const stringProperty = (value: unknown, key: string): O.Option<string> =>
+  P.isObject(value) && P.hasProperty(value, key) && P.isString(value[key]) ? O.some(value[key]) : O.none();
+
+const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
+  HttpClientError.isHttpClientError(cause) ? O.some(`HttpClientError:${cause.reason._tag}`) : O.none();
+
+const causeFromUnknown = (cause: unknown): O.Option<string> =>
+  P.isUndefined(cause)
+    ? O.none()
+    : O.firstSomeOf([
+        httpClientCauseLabel(cause),
+        stringProperty(cause, "_tag"),
+        stringProperty(cause, "name"),
+        P.isString(cause) ? O.some("String") : O.none(),
+      ]);
 
 /**
  * Options used when constructing xAI driver errors.
@@ -169,10 +189,10 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
  */
 export class XAiErrorOptions extends S.Class<XAiErrorOptions>($I`XAiErrorOptions`)(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Unknown),
     status: S.optionalKey(S.Number),
   },
   $I.annote("XAiErrorOptions", {
-    description: "Options for configuring XAiError instances, including optional cause and status fields.",
+    description: "Options for configuring XAiError instances, including optional redacted cause and status fields.",
   })
 ) {}

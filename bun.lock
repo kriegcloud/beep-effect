@@ -16,7 +16,6 @@
         "@commitlint/config-conventional": "catalog:",
         "@effect/ai-anthropic": "catalog:",
         "@effect/ai-openai": "catalog:",
-        "@effect/ai-openai-compat": "catalog:",
         "@effect/ai-openrouter": "catalog:",
         "@effect/atom-react": "catalog:",
         "@effect/opentelemetry": "catalog:",
@@ -946,7 +945,6 @@
     "@commitlint/config-conventional": "^20.5.3",
     "@effect/ai-anthropic": "4.0.0-beta.60",
     "@effect/ai-openai": "4.0.0-beta.60",
-    "@effect/ai-openai-compat": "4.0.0-beta.60",
     "@effect/ai-openrouter": "4.0.0-beta.60",
     "@effect/atom-react": "4.0.0-beta.60",
     "@effect/markdown-toc": "0.1.0",
@@ -2248,8 +2246,6 @@
     "@effect/ai-anthropic": ["@effect/ai-anthropic@4.0.0-beta.60", "", { "peerDependencies": { "effect": "^4.0.0-beta.60" } }, "sha512-4gwCvqK3JOPoDaya8zar8QIZ9A8+t7yxne4vfoIELLXPZ8YNPhS4LUoYmRNrhBzATmwUNK0dd28hDAYSyqLTKQ=="],
 
     "@effect/ai-openai": ["@effect/ai-openai@4.0.0-beta.60", "", { "peerDependencies": { "effect": "^4.0.0-beta.60" } }, "sha512-P5Vjieq/6fLPCymE6toFtsgrR3siJQifFU1WtWy3kKM5noGNIz00vlSgn+sDq1DTlB11N8XZXiokvawTKPlS5Q=="],
-
-    "@effect/ai-openai-compat": ["@effect/ai-openai-compat@4.0.0-beta.60", "", { "peerDependencies": { "effect": "^4.0.0-beta.60" } }, "sha512-B/62t4Ucyh7veYyz7Xq3xsjKKdq7xZ84uh5XGG3cgvjk9rpJf/hwZenInPcwBstD0m7lQKTnlofZwWVgIs6DjQ=="],
 
     "@effect/ai-openrouter": ["@effect/ai-openrouter@4.0.0-beta.60", "", { "peerDependencies": { "effect": "^4.0.0-beta.60" } }, "sha512-vmxFMQYoZb44bRHPYbtDjmPZ+Zpd68/f/QTmXsammOhaCU4uohwIgDOs/XENBMyN6bd5H0TRDHgdfM4mpQSCOA=="],
 

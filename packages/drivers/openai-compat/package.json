@@ -11,6 +11,9 @@
     "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "packages/drivers/openai-compat"
   },
+  "beep": {
+    "family": "drivers"
+  },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -50,8 +53,10 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
       "./internal/*": null,
       "./package.json": "./package.json"
     }

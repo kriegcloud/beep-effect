@@ -7,7 +7,7 @@
 
 import { $VeniceAiId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Config, Context, Effect, Layer, pipe, Redacted, Stream } from "effect";
+import { Config, Context, Effect, flow, Layer, pipe, Redacted, Stream } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -1455,7 +1455,15 @@ const ensureSuccessStatus = (
     ? Effect.succeed(response)
     : Effect.fail(VeniceAIError.fromDescriptor(descriptor, "response status", { status: response.status }));
 
-const isSseContentType = (contentType: string): boolean => Str.includes("text/event-stream")(contentType);
+const contentMediaType: (contentType: string) => string = flow(
+  Str.split(";"),
+  A.get(0),
+  O.getOrElse(() => ""),
+  Str.trim,
+  Str.toLowerCase
+);
+
+const isSseContentType = (contentType: string): boolean => contentMediaType(contentType) === "text/event-stream";
 
 const ensureSseResponse = (
   descriptor: VeniceAIOperationDescriptor,

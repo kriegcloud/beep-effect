@@ -628,6 +628,10 @@ const parseWebSocketMessage = (data: WebSocket.RawData, isBinary: boolean): XAiW
   };
 };
 
+const websocketErrorData = (error: Error): { readonly name: string } => ({
+  name: Str.isNonEmpty(error.name) ? error.name : "Error",
+});
+
 const websocketUrl = Effect.fn("XAi.websocketUrl")(function* (
   config: ResolvedXAiConfig,
   descriptor: XAiEndpointDescriptor,
@@ -689,7 +693,7 @@ const makeWebSocketEvents = (socket: WebSocket): Stream.Stream<XAiWebSocketEvent
           Queue.endUnsafe(queue);
         };
         const onError = (error: Error) =>
-          Queue.offerUnsafe(queue, { data: error, kind: "error", reason: error.message });
+          Queue.offerUnsafe(queue, { data: websocketErrorData(error), kind: "error", reason: "websocket error" });
 
         socket.on("message", onMessage);
         socket.on("close", onClose);

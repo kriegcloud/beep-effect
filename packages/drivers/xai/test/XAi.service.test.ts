@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import {
   XAI_API_URL,
   XAI_ENDPOINT_COUNT,
@@ -20,7 +21,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as HttpClient from "effect/unstable/http/HttpClient";
-import type * as HttpClientError from "effect/unstable/http/HttpClientError";
+import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 
@@ -48,6 +49,7 @@ class XAiTestHttp extends Context.Service<XAiTestHttp, XAiTestHttpShape>()(
 ) {}
 
 const sortStrings = A.sort(Order.String);
+const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 
 const endpointIds = () => sortStrings(A.map(XAI_ENDPOINTS, (descriptor) => descriptor.id));
 
@@ -59,6 +61,16 @@ const httpDescriptors = (): ReadonlyArray<XAiEndpointDescriptor> =>
   pipe(
     XAI_ENDPOINTS,
     A.filter((descriptor) => descriptor.response !== "websocket")
+  );
+
+const realtimeVoiceDescriptor = (): Effect.Effect<XAiEndpointDescriptor, XAiError> =>
+  pipe(
+    XAI_ENDPOINTS,
+    A.findFirst((descriptor) => descriptor.methodName === "connectRealtimeVoice"),
+    O.match({
+      onNone: () => Effect.fail(new XAiError({ reason: "request encoding" })),
+      onSome: Effect.succeed,
+    })
   );
 
 const makeJsonResponse = (body: unknown, status = 200) =>
@@ -316,6 +328,47 @@ describe("@beep/xai", () => {
         expect(sseError.reason).toBe("sse decoding");
         expect(nonSseError.reason).toBe("sse decoding");
         expect(spoofedContentTypeError.reason).toBe("sse decoding");
+      })
+    )
+  );
+
+  layer(makeXAiUnitLayer())((it) =>
+    it.effect("redacts xAI transport and WebSocket failure causes before rendering", () =>
+      Effect.gen(function* () {
+        const testHttp = yield* XAiTestHttp;
+        const xai = yield* XAi;
+
+        yield* testHttp.reset;
+        yield* testHttp.respondWith((request) =>
+          Effect.fail(
+            new HttpClientError.HttpClientError({
+              reason: new HttpClientError.TransportError({
+                request,
+              }),
+            })
+          )
+        );
+        const transportError = yield* xai.listModels().pipe(Effect.flip);
+        const websocketDescriptor = yield* realtimeVoiceDescriptor();
+        const websocketError = XAiError.fromDescriptor(websocketDescriptor, "websocket", {
+          cause: new Error("Bearer websocket-secret"),
+        });
+        const transportJson = yield* encodeJson(transportError);
+        const websocketJson = yield* encodeJson(websocketError);
+        const rendered = [
+          transportJson,
+          inspect(transportError, { depth: 8 }),
+          websocketJson,
+          inspect(websocketError, { depth: 8 }),
+        ].join("\n");
+
+        expect(transportError.reason).toBe("transport");
+        expect(transportError.cause).toBe("HttpClientError:TransportError");
+        expect(websocketError.reason).toBe("websocket");
+        expect(websocketError.cause).toBe("Error");
+        expect(rendered).not.toContain("Bearer");
+        expect(rendered).not.toContain("api-test-key");
+        expect(rendered).not.toContain("websocket-secret");
       })
     )
   );

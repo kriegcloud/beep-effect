@@ -215,14 +215,51 @@ export class OpenAiCompatFunctionTool extends S.Class<OpenAiCompatFunctionTool>(
   })
 ) {}
 
+const OpenAiCompatChatContent = S.Union([S.String, S.Array(S.Record(S.String, S.Unknown))]).pipe(
+  $I.annoteSchema("OpenAiCompatChatContent", {
+    description: "Text or multimodal chat message content accepted by OpenAI-compatible endpoints.",
+  })
+);
+
 /**
- * Chat message accepted by OpenAI-compatible chat completion endpoints.
+ * System chat message accepted by OpenAI-compatible chat completion endpoints.
  *
  * @example
  * ```ts
- * import { OpenAiCompatChatMessage } from "@beep/openai-compat"
+ * import { OpenAiCompatSystemChatMessage } from "@beep/openai-compat"
  *
- * const message = new OpenAiCompatChatMessage({
+ * const message = new OpenAiCompatSystemChatMessage({
+ *   content: "You are concise.",
+ *   role: "system"
+ * })
+ *
+ * void message
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatSystemChatMessage extends S.Class<OpenAiCompatSystemChatMessage>(
+  $I`OpenAiCompatSystemChatMessage`
+)(
+  {
+    content: OpenAiCompatChatContent.pipe(S.NullOr, S.optionalKey),
+    name: S.optionalKey(S.String),
+    role: S.tag("system"),
+  },
+  $I.annote("OpenAiCompatSystemChatMessage", {
+    description: "System chat message accepted by OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * User chat message accepted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatUserChatMessage } from "@beep/openai-compat"
+ *
+ * const message = new OpenAiCompatUserChatMessage({
  *   content: "Hello",
  *   role: "user"
  * })
@@ -233,18 +270,131 @@ export class OpenAiCompatFunctionTool extends S.Class<OpenAiCompatFunctionTool>(
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatChatMessage extends S.Class<OpenAiCompatChatMessage>($I`OpenAiCompatChatMessage`)(
+export class OpenAiCompatUserChatMessage extends S.Class<OpenAiCompatUserChatMessage>($I`OpenAiCompatUserChatMessage`)(
   {
-    content: S.Union([S.String, S.Array(S.Record(S.String, S.Unknown))]).pipe(S.NullOr, S.optionalKey),
+    content: OpenAiCompatChatContent.pipe(S.NullOr, S.optionalKey),
     name: S.optionalKey(S.String),
-    role: OpenAiCompatChatRole,
-    tool_call_id: S.optionalKey(S.String),
-    tool_calls: OpenAiCompatToolCall.pipe(S.Array, S.optionalKey),
+    role: S.tag("user"),
   },
-  $I.annote("OpenAiCompatChatMessage", {
-    description: "Chat message accepted by OpenAI-compatible chat completion endpoints.",
+  $I.annote("OpenAiCompatUserChatMessage", {
+    description: "User chat message accepted by OpenAI-compatible chat completion endpoints.",
   })
 ) {}
+
+/**
+ * Assistant chat message accepted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatAssistantChatMessage } from "@beep/openai-compat"
+ *
+ * const message = new OpenAiCompatAssistantChatMessage({
+ *   content: "Hi there",
+ *   role: "assistant"
+ * })
+ *
+ * void message
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatAssistantChatMessage extends S.Class<OpenAiCompatAssistantChatMessage>(
+  $I`OpenAiCompatAssistantChatMessage`
+)(
+  {
+    content: OpenAiCompatChatContent.pipe(S.NullOr, S.optionalKey),
+    name: S.optionalKey(S.String),
+    role: S.tag("assistant"),
+    tool_calls: OpenAiCompatToolCall.pipe(S.Array, S.optionalKey),
+  },
+  $I.annote("OpenAiCompatAssistantChatMessage", {
+    description: "Assistant chat message accepted by OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * Tool chat message accepted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatToolChatMessage } from "@beep/openai-compat"
+ *
+ * const message = new OpenAiCompatToolChatMessage({
+ *   content: "{}",
+ *   role: "tool",
+ *   tool_call_id: "call_1"
+ * })
+ *
+ * void message
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatToolChatMessage extends S.Class<OpenAiCompatToolChatMessage>($I`OpenAiCompatToolChatMessage`)(
+  {
+    content: OpenAiCompatChatContent.pipe(S.NullOr, S.optionalKey),
+    name: S.optionalKey(S.String),
+    role: S.tag("tool"),
+    tool_call_id: S.optionalKey(S.String),
+  },
+  $I.annote("OpenAiCompatToolChatMessage", {
+    description: "Tool chat message accepted by OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * Chat message accepted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import type { OpenAiCompatChatMessage } from "@beep/openai-compat"
+ *
+ * const message: OpenAiCompatChatMessage = {
+ *   content: "Hello",
+ *   role: "user"
+ * }
+ *
+ * void message
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const OpenAiCompatChatMessage = OpenAiCompatChatRole.mapMembers(
+  Tuple.evolve([
+    () => OpenAiCompatSystemChatMessage,
+    () => OpenAiCompatUserChatMessage,
+    () => OpenAiCompatAssistantChatMessage,
+    () => OpenAiCompatToolChatMessage,
+  ])
+).pipe(
+  $I.annoteSchema("OpenAiCompatChatMessage", {
+    description: "Role-discriminated chat message accepted by OpenAI-compatible chat completion endpoints.",
+  }),
+  S.toTaggedUnion("role")
+);
+
+/**
+ * Chat message accepted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import type { OpenAiCompatChatMessage } from "@beep/openai-compat"
+ *
+ * const message: OpenAiCompatChatMessage = {
+ *   content: "Hello",
+ *   role: "user"
+ * }
+ *
+ * void message
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OpenAiCompatChatMessage = typeof OpenAiCompatChatMessage.Type;
 
 /**
  * JSON schema response-format details for chat completion requests.

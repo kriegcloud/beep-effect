@@ -6,10 +6,11 @@
  */
 
 import { $OpenaiCompatId } from "@beep/identity";
-import { Effect, Layer, pipe, Stream } from "effect";
+import { Effect, Layer, pipe, Stream, Tuple } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AiError from "effect/unstable/ai/AiError";
 import * as LanguageModel from "effect/unstable/ai/LanguageModel";
@@ -20,13 +21,19 @@ import * as Response from "effect/unstable/ai/Response";
 import * as Tool from "effect/unstable/ai/Tool";
 import { OpenAiCompatClient, type OpenAiCompatClientShape } from "./OpenAiCompat.client.ts";
 import {
+  OpenAiCompatAssistantChatMessage,
   type OpenAiCompatChatCompletionChunk,
-  type OpenAiCompatChatCompletionRequest,
+  OpenAiCompatChatCompletionRequest,
   type OpenAiCompatChatCompletionResponse,
+  type OpenAiCompatChatMessage,
   OpenAiCompatFunctionTool,
   OpenAiCompatJsonSchemaResponseFormat,
+  type OpenAiCompatResponseFormat,
+  OpenAiCompatSystemChatMessage,
   OpenAiCompatToolCall,
   OpenAiCompatToolCallFunction,
+  OpenAiCompatToolChatMessage,
+  OpenAiCompatUserChatMessage,
 } from "./OpenAiCompat.models.ts";
 
 const $I = $OpenaiCompatId.create("OpenAiCompat.language-model");
@@ -96,9 +103,13 @@ export type OpenAiCompatProvider = OpenAiCompatClientShape;
  *
  * @example
  * ```ts
+ * import { Effect, Stream } from "effect"
  * import type { OpenAiCompatLanguageModelOptions } from "@beep/openai-compat"
  *
- * declare const provider: OpenAiCompatLanguageModelOptions["provider"]
+ * const provider: OpenAiCompatLanguageModelOptions["provider"] = {
+ *   createChatCompletion: () => Effect.succeed({ choices: [] }),
+ *   streamChatCompletion: () => Stream.empty
+ * }
  *
  * const options: OpenAiCompatLanguageModelOptions = {
  *   model: "gpt-compatible",
@@ -322,7 +333,7 @@ const toolResultMessage = (
   moduleName: string,
   toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
   part: Prompt.ToolMessagePart
-): Effect.Effect<OpenAiCompatChatCompletionRequest["messages"][number], AiError.AiError> => {
+): Effect.Effect<OpenAiCompatChatMessage, AiError.AiError> => {
   if (part.type !== "tool-result") {
     return Effect.fail(
       makeInvalidUserInput(
@@ -334,12 +345,15 @@ const toolResultMessage = (
   }
   return pipe(
     encodeToolParams(moduleName, "prepareMessages", part.result),
-    Effect.map((content) => ({
-      content,
-      name: toolNameMapper.getProviderName(part.name),
-      role: "tool" as const,
-      tool_call_id: part.id,
-    }))
+    Effect.map(
+      (content) =>
+        new OpenAiCompatToolChatMessage({
+          content,
+          name: toolNameMapper.getProviderName(part.name),
+          role: "tool",
+          tool_call_id: part.id,
+        })
+    )
   );
 };
 
@@ -347,26 +361,28 @@ const prepareMessage = (
   moduleName: string,
   toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
   message: Prompt.Message
-): Effect.Effect<ReadonlyArray<OpenAiCompatChatCompletionRequest["messages"][number]>, AiError.AiError> => {
+): Effect.Effect<ReadonlyArray<OpenAiCompatChatMessage>, AiError.AiError> => {
   if (message.role === "system") {
-    return Effect.succeed([{ content: message.content, role: "system" }]);
+    return Effect.succeed([new OpenAiCompatSystemChatMessage({ content: message.content, role: "system" })]);
   }
   if (message.role === "user") {
     return pipe(
       message.content,
       Effect.forEach((part) => userContentPart(moduleName, part)),
-      Effect.map((content) => [{ content, role: "user" as const }])
+      Effect.map((content) => [new OpenAiCompatUserChatMessage({ content, role: "user" })])
     );
   }
   if (message.role === "assistant") {
     return pipe(
       assistantToolCalls(moduleName, toolNameMapper, message.content),
       Effect.map((toolCalls) => [
-        {
+        new OpenAiCompatAssistantChatMessage({
           content: assistantTextContent(message.content),
-          role: "assistant" as const,
-          ...(toolCalls.length > 0 ? { tool_calls: toolCalls } : undefined),
-        },
+          role: "assistant",
+          ...R.getSomes({
+            tool_calls: A.isReadonlyArrayNonEmpty(toolCalls) ? O.some(toolCalls) : O.none(),
+          }),
+        }),
       ])
     );
   }
@@ -385,7 +401,9 @@ const prepareMessages = (
     prompt.content,
     Effect.forEach((message) => prepareMessage(moduleName, toolNameMapper, message)),
     Effect.map(A.flatten),
-    Effect.map((messages) => (messages.length > 0 ? messages : [{ content: "", role: "user" as const }]))
+    Effect.map((messages) =>
+      A.isReadonlyArrayNonEmpty(messages) ? messages : [new OpenAiCompatUserChatMessage({ content: "", role: "user" })]
+    )
   );
 
 const prepareTool = (
@@ -414,46 +432,47 @@ const prepareTools = (
   moduleName: string,
   config: OpenAiCompatLanguageModelConfig,
   options: LanguageModel.ProviderOptions
-): Effect.Effect<ReadonlyArray<OpenAiCompatFunctionTool> | undefined, AiError.AiError> =>
-  options.tools.length === 0
-    ? Effect.succeed(undefined as ReadonlyArray<OpenAiCompatFunctionTool> | undefined)
-    : pipe(
+): Effect.Effect<O.Option<ReadonlyArray<OpenAiCompatFunctionTool>>, AiError.AiError> =>
+  A.isReadonlyArrayNonEmpty(options.tools)
+    ? pipe(
         options.tools,
-        Effect.forEach((tool) => prepareTool(moduleName, config, tool))
-      );
+        Effect.forEach((tool) => prepareTool(moduleName, config, tool)),
+        Effect.map(O.some)
+      )
+    : Effect.succeed(O.none());
 
 const prepareToolChoice = (
   toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
   toolChoice: LanguageModel.ProviderOptions["toolChoice"]
-): unknown | undefined => {
+): O.Option<unknown> => {
   if (toolChoice === "auto" || toolChoice === "none" || toolChoice === "required") {
-    return toolChoice;
+    return O.some(toolChoice);
   }
   if (P.isUndefined(toolChoice)) {
-    return undefined;
+    return O.none();
   }
   if ("tool" in toolChoice) {
-    return {
+    return O.some({
       function: { name: toolNameMapper.getProviderName(toolChoice.tool) },
       type: "function",
-    };
+    });
   }
   if (toolChoice.oneOf.length === 1 && toolChoice.mode === "required") {
-    return {
+    return O.some({
       function: { name: toolNameMapper.getProviderName(toolChoice.oneOf[0] ?? "") },
       type: "function",
-    };
+    });
   }
-  return toolChoice.mode === "required" ? "required" : "auto";
+  return O.some(toolChoice.mode === "required" ? "required" : "auto");
 };
 
 const prepareResponseFormat = (
   moduleName: string,
   config: OpenAiCompatLanguageModelConfig,
   responseFormat: LanguageModel.ProviderOptions["responseFormat"]
-): Effect.Effect<OpenAiCompatChatCompletionRequest["response_format"], AiError.AiError> => {
+): Effect.Effect<O.Option<OpenAiCompatResponseFormat>, AiError.AiError> => {
   if (responseFormat.type === "text") {
-    return Effect.succeed(undefined as OpenAiCompatChatCompletionRequest["response_format"]);
+    return Effect.succeed(O.none());
   }
   return Effect.try({
     catch: () =>
@@ -463,16 +482,18 @@ const prepareResponseFormat = (
         "Unable to convert structured response schema to JSON Schema."
       ),
     try: () =>
-      new OpenAiCompatJsonSchemaResponseFormat({
-        json_schema: {
-          name: responseFormat.objectName,
-          schema: jsonObjectOrEmpty(
-            Tool.getJsonSchemaFromSchema(responseFormat.schema, { transformer: toCodecOpenAI })
-          ),
-          strict: config.strictJsonSchema ?? true,
-        },
-        type: "json_schema",
-      }),
+      O.some(
+        new OpenAiCompatJsonSchemaResponseFormat({
+          json_schema: {
+            name: responseFormat.objectName,
+            schema: jsonObjectOrEmpty(
+              Tool.getJsonSchemaFromSchema(responseFormat.schema, { transformer: toCodecOpenAI })
+            ),
+            strict: config.strictJsonSchema ?? true,
+          },
+          type: "json_schema",
+        })
+      ),
   });
 };
 
@@ -488,38 +509,41 @@ const makeRequest = (
     const messages = yield* prepareMessages(moduleName, toolNameMapper, options.prompt);
     const tools = yield* prepareTools(moduleName, config, options);
     const responseFormat = yield* prepareResponseFormat(moduleName, config, options.responseFormat);
-    return {
-      max_completion_tokens: config.maxCompletionTokens,
-      max_tokens: config.maxTokens,
+    return new OpenAiCompatChatCompletionRequest({
       messages,
       model,
-      parallel_tool_calls: config.parallelToolCalls,
-      response_format: responseFormat,
-      seed: config.seed,
-      stream,
-      stream_options: stream ? { include_usage: true } : undefined,
-      temperature: config.temperature,
-      tool_choice: prepareToolChoice(toolNameMapper, options.toolChoice),
-      tools,
-      top_p: config.topP,
-      user: config.user,
-    } as OpenAiCompatChatCompletionRequest;
+      ...R.getSomes({
+        max_completion_tokens: O.fromUndefinedOr(config.maxCompletionTokens),
+        max_tokens: O.fromUndefinedOr(config.maxTokens),
+        parallel_tool_calls: O.fromUndefinedOr(config.parallelToolCalls),
+        response_format: responseFormat,
+        seed: O.fromUndefinedOr(config.seed),
+        stream: stream ? O.some(true) : O.none(),
+        stream_options: stream ? O.some({ include_usage: true }) : O.none(),
+        temperature: O.fromUndefinedOr(config.temperature),
+        tool_choice: prepareToolChoice(toolNameMapper, options.toolChoice),
+        tools,
+        top_p: O.fromUndefinedOr(config.topP),
+        user: O.fromUndefinedOr(config.user),
+      }),
+    });
   });
 
 const makeToolCallPart = (
   moduleName: string,
   toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
   toolCall: OpenAiCompatToolCall
-): Effect.Effect<Response.PartEncoded, AiError.AiError> =>
+): Effect.Effect<Response.ToolCallPartEncoded, AiError.AiError> =>
   pipe(
     decodeToolParams(moduleName, "makeResponse", toolCall.function.arguments),
-    Effect.map((params) =>
-      Response.makePart("tool-call", {
-        id: toolCall.id,
-        name: toolNameMapper.getCustomName(toolCall.function.name),
-        params,
-        providerExecuted: false,
-      })
+    Effect.map(
+      (params): Response.ToolCallPartEncoded =>
+        Response.makePart("tool-call", {
+          id: toolCall.id,
+          name: toolNameMapper.getCustomName(toolCall.function.name),
+          params,
+          providerExecuted: false,
+        })
     )
   );
 
@@ -581,22 +605,38 @@ const makeStreamChoiceParts = (
             Effect.forEach((toolCall) => makeToolCallPart(moduleName, toolNameMapper, toolCall))
           );
           const hasFinish = !P.isNullish(choice.finish_reason);
-          return [
+          const parts: ReadonlyArray<Response.StreamPartEncoded> = [
             ...textParts,
             ...toolParts,
             ...(hasFinish && (state.textStarted || textParts.length > 0)
               ? [Response.makePart("text-end", { id: "0" })]
               : []),
             ...(hasFinish ? [makeFinishPart(chunk.usage, choice.finish_reason)] : []),
-          ] as ReadonlyArray<Response.StreamPartEncoded>;
+          ];
+          return parts;
         })
       )
     );
     const parts: Array<Response.StreamPartEncoded> = pipe(choiceParts, A.flatten);
-    const textStarted = state.textStarted || parts.some((part) => part.type === "text-start");
-    const textEnded = state.textEnded || parts.some((part) => part.type === "text-end");
-    const finished = state.finished || parts.some((part) => part.type === "finish");
-    return [{ finished, textEnded, textStarted }, parts] as const;
+    const textStarted =
+      state.textStarted ||
+      pipe(
+        parts,
+        A.some((part) => part.type === "text-start")
+      );
+    const textEnded =
+      state.textEnded ||
+      pipe(
+        parts,
+        A.some((part) => part.type === "text-end")
+      );
+    const finished =
+      state.finished ||
+      pipe(
+        parts,
+        A.some((part) => part.type === "finish")
+      );
+    return Tuple.make({ finished, textEnded, textStarted }, parts);
   });
 
 const makeStreamResponse = (
@@ -635,28 +675,29 @@ const makeStreamResponse = (
  * @category constructors
  * @since 0.0.0
  */
-export const makeFromProvider = ({
-  config = {},
-  model,
-  moduleName,
-  provider,
-}: OpenAiCompatLanguageModelOptions): Effect.Effect<LanguageModel.Service> =>
-  LanguageModel.make({
-    codecTransformer: toCodecOpenAI,
-    generateText: Effect.fnUntraced(function* (options) {
-      const toolNameMapper = new Tool.NameMapper(options.tools);
-      const request = yield* makeRequest(moduleName, model, config, options, toolNameMapper, false);
-      const response = yield* provider.createChatCompletion(request);
-      return yield* makeChoiceParts(moduleName, toolNameMapper, response);
-    }),
-    streamText: (options) => {
-      const toolNameMapper = new Tool.NameMapper(options.tools);
-      return pipe(
-        makeRequest(moduleName, model, config, options, toolNameMapper, true),
-        Effect.map((request) => makeStreamResponse(moduleName, toolNameMapper, provider.streamChatCompletion(request))),
-        Stream.unwrap
-      );
-    },
+export const makeFromProvider: (options: OpenAiCompatLanguageModelOptions) => Effect.Effect<LanguageModel.Service> =
+  Effect.fn("OpenAiCompatLanguageModel.makeFromProvider")(function* (options) {
+    const { config = new OpenAiCompatLanguageModelConfig({}), model, moduleName, provider } = options;
+
+    return yield* LanguageModel.make({
+      codecTransformer: toCodecOpenAI,
+      generateText: Effect.fnUntraced(function* (options) {
+        const toolNameMapper = new Tool.NameMapper(options.tools);
+        const request = yield* makeRequest(moduleName, model, config, options, toolNameMapper, false);
+        const response = yield* provider.createChatCompletion(request);
+        return yield* makeChoiceParts(moduleName, toolNameMapper, response);
+      }),
+      streamText: (options) => {
+        const toolNameMapper = new Tool.NameMapper(options.tools);
+        return pipe(
+          makeRequest(moduleName, model, config, options, toolNameMapper, true),
+          Effect.map((request) =>
+            makeStreamResponse(moduleName, toolNameMapper, provider.streamChatCompletion(request))
+          ),
+          Stream.unwrap
+        );
+      },
+    });
   });
 
 /**
@@ -701,10 +742,10 @@ export const layerFromProvider = (
  * @category constructors
  * @since 0.0.0
  */
-export const make = (
+export const make: (
   options: OpenAiCompatLanguageModelClientOptions
-): Effect.Effect<LanguageModel.Service, never, OpenAiCompatClient> =>
-  Effect.gen(function* () {
+) => Effect.Effect<LanguageModel.Service, never, OpenAiCompatClient> = Effect.fn("OpenAiCompatLanguageModel.make")(
+  function* (options) {
     const client = yield* OpenAiCompatClient;
     return yield* makeFromProvider({
       ...(options.config === undefined ? {} : { config: options.config }),
@@ -715,7 +756,8 @@ export const make = (
         streamChatCompletion: client.streamChatCompletion,
       },
     });
-  });
+  }
+);
 
 /**
  * Builds a language-model layer backed by {@link OpenAiCompatClient}.

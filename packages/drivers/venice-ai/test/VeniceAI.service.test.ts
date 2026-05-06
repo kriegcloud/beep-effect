@@ -638,6 +638,18 @@ describe("@beep/venice-ai", () => {
 
         yield* testHttp.reset;
         yield* testHttp.respondWith(() =>
+          Effect.succeed(
+            new Response('data: {"delta":"hello"}\n\n', {
+              headers: { "content-type": "application/json; note=text/event-stream" },
+            })
+          )
+        );
+        const spoofedContentTypeError = yield* venice
+          .streamChatCompletion(requestFor(VENICE_AI_OPERATION_DESCRIPTORS[0]))
+          .pipe(Stream.runCollect, Effect.flip);
+
+        yield* testHttp.reset;
+        yield* testHttp.respondWith(() =>
           Effect.succeed(new Response("not-json", { headers: { "content-type": "application/json" } }))
         );
         const jsonError = yield* venice.listModels().pipe(Effect.flip);
@@ -657,6 +669,8 @@ describe("@beep/venice-ai", () => {
         expect(sseError.cause).toBeDefined();
         expect(nonSseError.reason).toBe("sse decoding");
         expect(nonSseError.status).toBe(200);
+        expect(spoofedContentTypeError.reason).toBe("sse decoding");
+        expect(spoofedContentTypeError.status).toBe(200);
         expect(jsonError.reason).toBe("response decoding");
         expect(jsonError.cause).toBe("HttpClientError:DecodeError");
       })
