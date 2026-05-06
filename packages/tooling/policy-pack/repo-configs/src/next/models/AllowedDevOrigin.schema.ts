@@ -19,7 +19,7 @@ const allowedDevOriginPattern =
  * ```ts
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
- * import { AllowedDevOrigin } from "@beep/repo-configs/next/models/AllowedDevOrigin.schema"
+ * import { AllowedDevOrigin } from "@beep/repo-configs/next"
  * const program = S.decodeUnknownEffect(AllowedDevOrigin)("*.local-origin.dev")
  * void Effect.runPromise(program)
  * ```
@@ -47,7 +47,7 @@ export const AllowedDevOrigin = S.Trim.check(
  *
  * @example
  * ```ts
- * import type { AllowedDevOrigin } from "@beep/repo-configs/next/models/AllowedDevOrigin.schema"
+ * import type { AllowedDevOrigin } from "@beep/repo-configs/next"
  * const origin = "local-origin.dev" as AllowedDevOrigin
  * void origin
  * ```

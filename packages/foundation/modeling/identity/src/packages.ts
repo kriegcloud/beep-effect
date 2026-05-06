@@ -667,7 +667,7 @@ export const $OpIpWebId: Identity.IdentityComposer<"@beep/op-ip-web"> = composer
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.$DrizzleId;
 

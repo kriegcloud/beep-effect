@@ -6,34 +6,21 @@
  */
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import { SchemaAST } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { NextConfig as NextConfigFromNext } from "next";
-import { isFunctionValue } from "../internal.ts";
 
 const $I = $RepoConfigsId.create("next/models/Compiler.schema");
 
 const StringArray = S.String.pipe(S.Array, S.mutable);
 const StringTuple = S.mutable(S.Tuple([S.String, S.String]));
 const UnknownRecord = S.Record(S.String, S.Unknown);
+type RunAfterProductionCompileHook = NonNullable<
+  NonNullable<NextConfigFromNext["compiler"]>["runAfterProductionCompile"]
+>;
+const isRunAfterProductionCompileHook = (value: unknown): value is RunAfterProductionCompileHook => P.isFunction(value);
 
-const makeStructFromFields = <const Fields extends S.Struct.Fields>(fields: Fields): S.Struct<Fields> =>
-  S.make<S.Struct<Fields>>(
-    new SchemaAST.Objects(
-      Reflect.ownKeys(fields).map((key) => new SchemaAST.PropertySignature(key, fields[key].ast)),
-      []
-    ),
-    {
-      fields,
-      mapFields<To extends S.Struct.Fields>(f: (fields: Fields) => To) {
-        return makeStructFromFields(f(fields));
-      },
-    }
-  );
-
-const RunAfterProductionCompile = S.declare<
-  NonNullable<NonNullable<NextConfigFromNext["compiler"]>["runAfterProductionCompile"]>
->(isFunctionValue, {
+const RunAfterProductionCompile = S.declare<RunAfterProductionCompileHook>(isRunAfterProductionCompileHook, {
   expected: "Function",
   description: "Next.js compiler hook function.",
 }).pipe(
@@ -205,7 +192,7 @@ export class CompilerConfig extends S.Class<CompilerConfig>($I`CompilerConfig`)(
   })
 ) {}
 
-const SassOptionsStruct = makeStructFromFields({
+const SassOptionsStruct = S.Struct({
   implementation: S.optionalKey(S.String),
 });
 
