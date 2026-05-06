@@ -1,7 +1,7 @@
 {
   "$schema": "../../../packages/tooling/tool/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/venice-ai/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/acp/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -29,9 +29,14 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/venice-ai": [
-        "../../../packages/drivers/venice-ai/dist/index.d.ts"
-      ],
+      "@beep/acp": ["../../../packages/drivers/acp/src/index.ts"],
+      "@beep/acp/agent": ["../../../packages/drivers/acp/src/agent.ts"],
+      "@beep/acp/client": ["../../../packages/drivers/acp/src/client.ts"],
+      "@beep/acp/errors": ["../../../packages/drivers/acp/src/errors.ts"],
+      "@beep/acp/protocol": ["../../../packages/drivers/acp/src/protocol.ts"],
+      "@beep/acp/rpc": ["../../../packages/drivers/acp/src/rpc.ts"],
+      "@beep/acp/schema": ["../../../packages/drivers/acp/src/schema.ts"],
+      "@beep/acp/terminal": ["../../../packages/drivers/acp/src/terminal.ts"],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],

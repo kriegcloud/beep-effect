@@ -89,6 +89,11 @@
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"],
       "outputs": ["coverage/**"]
     },
+    "codegen": {
+      "cache": false,
+      "dependsOn": ["^codegen"],
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+    },
     "audit": {
       "cache": false,
       "dependsOn": ["^audit"],

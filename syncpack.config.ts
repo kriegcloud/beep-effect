@@ -35,6 +35,7 @@ const config = {
     "packages/drivers/openai/package.json",
     "packages/drivers/venice-ai/package.json",
     "packages/drivers/xai/package.json",
+    "packages/drivers/acp/package.json",
   ],
   customTypes: {
     catalog: {

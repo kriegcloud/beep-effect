@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-02",
+  "generatedOn": "2026-05-06",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -15,6 +15,70 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/agent-capability-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/acp/src/agent.ts",
+      "symbol": "AcpAgentOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/acp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/acp/src/agent.ts",
+      "symbol": "AcpAgentShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/acp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/acp/src/client.ts",
+      "symbol": "AcpClientOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/acp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/acp/src/client.ts",
+      "symbol": "AcpClientShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/acp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/acp/src/protocol.ts",
+      "symbol": "AcpPatchedProtocol",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/acp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/acp/src/protocol.ts",
+      "symbol": "AcpPatchedProtocolOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/acp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/acp/src/terminal.ts",
+      "symbol": "AcpTerminal",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/acp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/acp/src/terminal.ts",
+      "symbol": "MakeTerminalOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/acp",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {

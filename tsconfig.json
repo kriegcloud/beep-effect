@@ -453,24 +453,19 @@
       "@beep/repo-utils/JSDoc/models/tag-values": [
         "./packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
-      "@beep/openai": [
-        "./packages/drivers/openai/src/index.ts"
-      ],
-      "@beep/openai/*": [
-        "./packages/drivers/openai/src/*"
-      ],
-      "@beep/venice-ai": [
-        "./packages/drivers/venice-ai/src/index.ts"
-      ],
-      "@beep/venice-ai/*": [
-        "./packages/drivers/venice-ai/src/*"
-      ],
-      "@beep/xai": [
-        "./packages/drivers/xai/src/index.ts"
-      ],
-      "@beep/xai/*": [
-        "./packages/drivers/xai/src/*"
-      ]
+      "@beep/openai": ["./packages/drivers/openai/src/index.ts"],
+      "@beep/openai/*": ["./packages/drivers/openai/src/*"],
+      "@beep/venice-ai": ["./packages/drivers/venice-ai/dist/index.d.ts"],
+      "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
+      "@beep/xai/*": ["./packages/drivers/xai/src/*"],
+      "@beep/acp": ["./packages/drivers/acp/src/index.ts"],
+      "@beep/acp/agent": ["./packages/drivers/acp/src/agent.ts"],
+      "@beep/acp/client": ["./packages/drivers/acp/src/client.ts"],
+      "@beep/acp/errors": ["./packages/drivers/acp/src/errors.ts"],
+      "@beep/acp/protocol": ["./packages/drivers/acp/src/protocol.ts"],
+      "@beep/acp/rpc": ["./packages/drivers/acp/src/rpc.ts"],
+      "@beep/acp/schema": ["./packages/drivers/acp/src/schema.ts"],
+      "@beep/acp/terminal": ["./packages/drivers/acp/src/terminal.ts"]
     }
   }
 }

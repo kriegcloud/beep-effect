@@ -35,7 +35,8 @@
     "packages/drivers/postgres",
     "packages/drivers/openai",
     "packages/drivers/venice-ai",
-    "packages/drivers/xai"
+    "packages/drivers/xai",
+    "packages/drivers/acp"
   ],
   "repository": {
     "type": "git",
@@ -198,6 +199,7 @@
     "@effect/ai-openai-compat": "4.0.0-beta.60",
     "@effect/ai-openrouter": "4.0.0-beta.60",
     "@effect/atom-react": "4.0.0-beta.60",
+    "@effect/openapi-generator": "4.0.0-beta.60",
     "@effect/opentelemetry": "4.0.0-beta.60",
     "@effect/platform-browser": "4.0.0-beta.60",
     "@effect/platform-bun": "4.0.0-beta.60",

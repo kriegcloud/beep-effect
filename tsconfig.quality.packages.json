@@ -22,6 +22,9 @@
       "path": "packages/agent-capability/use-cases"
     },
     {
+      "path": "packages/drivers/acp"
+    },
+    {
       "path": "packages/drivers/drizzle"
     },
     {
