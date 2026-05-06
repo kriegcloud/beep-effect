@@ -392,7 +392,7 @@ export class NextConfig extends S.Class<NextConfig>($I`NextConfig`)(
 ) {}
 
 const decodeNextConfigResult = S.decodeUnknownResult(NextConfig);
-const encodeNextConfigResult = S.encodeUnknownResult(NextConfig);
+const encodeNextConfigResult = S.encodeResult(NextConfig);
 
 /**
  * Decode unknown input into a public Next.js configuration value.
@@ -429,7 +429,7 @@ export const defineNextConfig = (config: unknown): NextConfigFromNext =>
   Result.getOrThrowWith(
     encodeNextConfigResult(Result.getOrThrowWith(decodeNextConfigResult(config), schemaIssueToError)),
     schemaIssueToError
-  ) as NextConfigFromNext;
+  );
 
 /**
  * Backwards-compatible alias for the public experimental Next.js schema.
