@@ -10,6 +10,10 @@ import type React from "react";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type AgentState = null | "thinking" | "listening" | "talking";
 
 type OrbProps = {
@@ -28,6 +32,10 @@ type OrbProps = {
   readonly className?: undefined | string;
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function Orb({
   colors = ["#CADCFC", "#A0B9D1"],
   colorsRef,

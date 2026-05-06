@@ -11,7 +11,7 @@ type Props = {
  * Shared Lexical content-editable surface with package theme defaults.
  *
  * @since 0.0.0
- * @category Presentation
+ * @category components
  */
 export function ContentEditable({ placeholder, className, placeholderClassName }: Props): JSX.Element {
   return (

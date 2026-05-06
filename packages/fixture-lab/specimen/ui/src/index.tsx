@@ -15,7 +15,7 @@
  * console.log(SpecimenUi)
  * ```
  *
- * @category exports
+ * @category fixtures
  * @since 0.0.0
  */
 export * from "./entities/Specimen/index.js";

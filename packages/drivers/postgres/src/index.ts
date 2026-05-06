@@ -9,7 +9,7 @@
  * Public Postgres client service exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category clients
  */
 export * from "./Postgres.client.ts";
 
@@ -17,7 +17,7 @@ export * from "./Postgres.client.ts";
  * Public Postgres Drizzle composition exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export * from "./Postgres.drizzle.ts";
 
@@ -25,7 +25,7 @@ export * from "./Postgres.drizzle.ts";
  * Public Postgres error exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category errors
  */
 export * from "./Postgres.errors.ts";
 
@@ -33,7 +33,7 @@ export * from "./Postgres.errors.ts";
  * Public Postgres formatting exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category formatting
  */
 export * from "./Postgres.format.ts";
 
@@ -41,7 +41,7 @@ export * from "./Postgres.format.ts";
  * Public PostgreSQL SQLSTATE exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export * from "./Postgres.sqlstate.ts";
 

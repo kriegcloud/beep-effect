@@ -1,6 +1,7 @@
 /**
  * URL sanitization helpers for UI navigation.
  *
+ * @category utilities
  * @since 0.0.0
  * @packageDocumentation
  */
@@ -71,7 +72,7 @@ const normalizeHrefProtocolCandidate = (value: string): string =>
  * The original href is preserved for safe schemes and relative navigation.
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const sanitizeAnchorHref = (href: string): string => {
   const decodedHtml = decodeHtmlCharacterReferences(href);

@@ -61,7 +61,7 @@ export const JsonLdContextErrorReason = LiteralKit([
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export class JsonLdContextError extends TaggedErrorClass<JsonLdContextError>($I`JsonLdContextError`)(
   "JsonLdContextError",

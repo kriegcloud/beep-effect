@@ -4,6 +4,10 @@ import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Progress({ className, children, value, ...props }: ProgressPrimitive.Root.Props) {
   return (
     <ProgressPrimitive.Root
@@ -20,6 +24,10 @@ function Progress({ className, children, value, ...props }: ProgressPrimitive.Ro
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
   return (
     <ProgressPrimitive.Track
@@ -30,6 +38,10 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ProgressIndicator({ className, ...props }: ProgressPrimitive.Indicator.Props) {
   return (
     <ProgressPrimitive.Indicator
@@ -40,12 +52,20 @@ function ProgressIndicator({ className, ...props }: ProgressPrimitive.Indicator.
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
   return (
     <ProgressPrimitive.Label className={cn("text-sm font-medium", className)} data-slot="progress-label" {...props} />
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
   return (
     <ProgressPrimitive.Value
@@ -56,4 +76,8 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Progress, ProgressIndicator, ProgressLabel, ProgressTrack, ProgressValue };

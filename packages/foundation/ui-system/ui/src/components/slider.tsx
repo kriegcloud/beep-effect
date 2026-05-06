@@ -6,6 +6,10 @@ import * as A from "effect/Array";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...props }: SliderPrimitive.Root.Props) {
   const _values = React.useMemo(
     thunk(A.isArray(value) ? value : A.isArray(defaultValue) ? defaultValue : A.make(min, max)),
@@ -51,4 +55,8 @@ function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...pr
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Slider };

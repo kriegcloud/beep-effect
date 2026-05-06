@@ -7,6 +7,10 @@ import { Command as CommandPrimitive } from "cmdk";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
     <CommandPrimitive
@@ -20,6 +24,10 @@ function Command({ className, ...props }: React.ComponentProps<typeof CommandPri
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CommandDialog({
   title = "Command Palette",
   description = "Search for a command to run...",
@@ -47,6 +55,10 @@ function CommandDialog({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
     <div data-slot="command-input-wrapper" className="p-1 pb-0">
@@ -64,6 +76,10 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CommandList({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.List>) {
   return (
     <CommandPrimitive.List
@@ -74,6 +90,10 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CommandEmpty({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
   return (
     <CommandPrimitive.Empty
@@ -84,6 +104,10 @@ function CommandEmpty({ className, ...props }: React.ComponentProps<typeof Comma
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CommandGroup({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Group>) {
   return (
     <CommandPrimitive.Group
@@ -97,6 +121,10 @@ function CommandGroup({ className, ...props }: React.ComponentProps<typeof Comma
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CommandSeparator({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Separator>) {
   return (
     <CommandPrimitive.Separator
@@ -107,6 +135,10 @@ function CommandSeparator({ className, ...props }: React.ComponentProps<typeof C
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CommandItem({ className, children, ...props }: React.ComponentProps<typeof CommandPrimitive.Item>) {
   return (
     <CommandPrimitive.Item
@@ -123,6 +155,10 @@ function CommandItem({ className, children, ...props }: React.ComponentProps<typ
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -136,6 +172,10 @@ function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) 
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Command,
   CommandDialog,

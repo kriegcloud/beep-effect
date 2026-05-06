@@ -7,6 +7,10 @@ interface AvatarProps extends React.ComponentPropsWithoutRef<"span"> {
   readonly children?: undefined | React.ReactNode;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Avatar({ className, children, ...props }: AvatarProps) {
   return (
     <span
@@ -24,6 +28,10 @@ interface AvatarImageProps extends Omit<React.ComponentPropsWithoutRef<"img">, "
   readonly src?: string | undefined;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AvatarImage({ className, src, alt, onLoadingStatusChange, ...props }: AvatarImageProps) {
   const [status, setStatus] = React.useState<"idle" | "loading" | "loaded" | "error">("idle");
   const callbackRef = React.useRef(onLoadingStatusChange);
@@ -71,6 +79,10 @@ function AvatarImage({ className, src, alt, onLoadingStatusChange, ...props }: A
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AvatarFallback({ className, children, ...props }: React.ComponentPropsWithoutRef<"span">) {
   return (
     <span
@@ -83,4 +95,8 @@ function AvatarFallback({ className, children, ...props }: React.ComponentPropsW
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Avatar, AvatarFallback, AvatarImage };

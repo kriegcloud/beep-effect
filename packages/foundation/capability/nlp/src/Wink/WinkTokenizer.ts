@@ -40,7 +40,7 @@ const makeTokenizationError =
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class SentenceSpanFailure extends S.TaggedClass<SentenceSpanFailure>($I`SentenceSpanFailure`)(
   "SentenceSpanFailure",
@@ -334,7 +334,7 @@ const makeWinkTokenization = Effect.gen(function* () {
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkTokenization = Layer.effect(Tokenization, makeWinkTokenization);
 
@@ -349,6 +349,6 @@ export const WinkTokenization = Layer.effect(Tokenization, makeWinkTokenization)
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkTokenizationLive = WinkTokenization.pipe(Layer.provide(WinkEngineLive));

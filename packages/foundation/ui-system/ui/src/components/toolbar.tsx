@@ -13,10 +13,18 @@ import type { ComponentProps, ElementType, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function Toolbar({ className, ...props }: ToolbarPrimitive.Root.Props) {
   return <ToolbarPrimitive.Root className={cn("relative flex select-none items-center", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function ToolbarToggleGroup({
   className,
   type,
@@ -50,10 +58,18 @@ export function ToolbarToggleGroup({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function ToolbarLink({ className, ...props }: ToolbarPrimitive.Link.Props) {
   return <ToolbarPrimitive.Link className={cn("font-medium underline underline-offset-4", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function ToolbarSeparator({ className, ...props }: ToolbarPrimitive.Separator.Props) {
   return <ToolbarPrimitive.Separator className={cn("mx-2 my-1 w-px shrink-0 bg-border", className)} {...props} />;
 }
@@ -120,6 +136,10 @@ type ToolbarActionButtonProps = ToolbarButtonBaseProps &
 
 type ToolbarButtonProps = ToolbarToggleButtonProps | ToolbarActionButtonProps;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const ToolbarButton = withTooltip(function ToolbarButton(props: ToolbarButtonProps) {
   if (props.pressed !== undefined) {
     const { children, className, isDropdown, pressed, size = "sm", variant, ...toggleProps } = props;
@@ -171,12 +191,20 @@ export const ToolbarButton = withTooltip(function ToolbarButton(props: ToolbarBu
   );
 });
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function ToolbarSplitButton({ className, ...props }: ComponentProps<typeof ToolbarButton>) {
   return <ToolbarButton className={cn("group flex gap-0 px-0 hover:bg-transparent", className)} {...props} />;
 }
 
 type ToolbarSplitButtonPrimaryProps = ComponentProps<"span"> & VariantProps<typeof toolbarButtonVariants>;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function ToolbarSplitButtonPrimary({
   children,
   className,
@@ -202,6 +230,10 @@ export function ToolbarSplitButtonPrimary({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function ToolbarSplitButtonSecondary({
   className,
   size,
@@ -227,6 +259,10 @@ export function ToolbarSplitButtonSecondary({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function ToolbarToggleItem({
   className,
   size = "sm",
@@ -236,6 +272,10 @@ export function ToolbarToggleItem({
   return <Toggle className={cn(toolbarButtonVariants({ size, variant }), className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function ToolbarGroup({ children, className }: ComponentProps<"div">) {
   return (
     <div className={cn("group/toolbar-group", "relative hidden has-[button]:flex", className)}>
@@ -284,6 +324,10 @@ function withTooltip<T extends ElementType>(Component: T) {
   };
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function ToolbarMenuGroup({
   children,
   className,

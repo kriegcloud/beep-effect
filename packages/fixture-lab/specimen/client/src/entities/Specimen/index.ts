@@ -15,7 +15,7 @@
  * console.log(SpecimenClientEntity)
  * ```
  *
- * @category exports
+ * @category clients
  * @since 0.0.0
  */
 export * from "./Specimen.command-client.js";
@@ -29,7 +29,7 @@ export * from "./Specimen.command-client.js";
  * console.log(SpecimenClientEntity)
  * ```
  *
- * @category exports
+ * @category clients
  * @since 0.0.0
  */
 export * from "./Specimen.query-client.js";
@@ -43,7 +43,7 @@ export * from "./Specimen.query-client.js";
  * console.log(SpecimenClientEntity)
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export * from "./Specimen.service.js";

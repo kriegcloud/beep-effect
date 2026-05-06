@@ -26,7 +26,7 @@ const $I = $SchemaId.create("Logs");
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const LogLevel = LiteralKit(["All", "Fatal", "Error", "Warn", "Info", "Debug", "Trace", "None"]).annotate(
   $I.annote("LogLevel", {
@@ -38,7 +38,7 @@ export const LogLevel = LiteralKit(["All", "Fatal", "Error", "Warn", "Info", "De
  * Runtime type for `LogLevel`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type LogLevel = typeof LogLevel.Type;
 
@@ -57,7 +57,7 @@ export type LogLevel = typeof LogLevel.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const LogSeverity = LiteralKit(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"]).annotate(
   $I.annote("LogSeverity", {
@@ -69,6 +69,6 @@ export const LogSeverity = LiteralKit(["Fatal", "Error", "Warn", "Info", "Debug"
  * Runtime type for `LogSeverity`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type LogSeverity = typeof LogSeverity.Type;

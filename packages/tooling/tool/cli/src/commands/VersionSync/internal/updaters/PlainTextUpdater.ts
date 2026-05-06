@@ -15,7 +15,7 @@ import { VersionSyncError } from "../Models.js";
  *
  * Returns `true` when the file was modified, `false` when already correct.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const updatePlainTextFile: {

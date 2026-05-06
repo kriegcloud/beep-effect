@@ -4,6 +4,10 @@ import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
 import { CheckIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   return (
     <CheckboxPrimitive.Root
@@ -24,4 +28,8 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Checkbox };

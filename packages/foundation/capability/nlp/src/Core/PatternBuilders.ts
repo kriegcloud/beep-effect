@@ -95,7 +95,7 @@ const isMakeDataFirstArgs = (
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export function pos(first: WinkPOSTag | "", ...rest: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
 export function pos(tags: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
@@ -120,7 +120,7 @@ export function pos(
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export function entity(first: WinkEntityType | "", ...rest: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
 export function entity(types: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
@@ -145,7 +145,7 @@ export function entity(
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export function literal(first: string, ...rest: ReadonlyArray<string>): LiteralPatternElement;
 export function literal(values: ReadonlyArray<string>): LiteralPatternElement;
@@ -167,7 +167,7 @@ export function literal(firstOrValues: string | ReadonlyArray<string>, ...rest: 
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export function optionalPos(first: WinkPOSTag, ...rest: ReadonlyArray<WinkPOSTag>): POSPatternElement;
 export function optionalPos(tags: ReadonlyArray<WinkPOSTag>): POSPatternElement;
@@ -192,7 +192,7 @@ export function optionalPos(
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export function optionalEntity(first: WinkEntityType, ...rest: ReadonlyArray<WinkEntityType>): EntityPatternElement;
 export function optionalEntity(types: ReadonlyArray<WinkEntityType>): EntityPatternElement;
@@ -217,7 +217,7 @@ export function optionalEntity(
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export function optionalLiteral(first: string, ...rest: ReadonlyArray<string>): LiteralPatternElement;
 export function optionalLiteral(values: ReadonlyArray<string>): LiteralPatternElement;
@@ -245,7 +245,7 @@ export function optionalLiteral(
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const make: {
   (id: string, elements: ReadonlyArray<PatternElement>): Pattern;
@@ -267,7 +267,7 @@ export const make: {
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const withMark: PatternDual<MarkRange> = dual(
   2,
@@ -285,7 +285,7 @@ export const withMark: PatternDual<MarkRange> = dual(
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const withoutMark: {
   (): (pattern: Pattern) => Pattern;
@@ -306,7 +306,7 @@ export const withoutMark: {
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const addElements: PatternDual<ReadonlyArray<PatternElement>> = dual(
   2,
@@ -327,7 +327,7 @@ export const addElements: PatternDual<ReadonlyArray<PatternElement>> = dual(
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const prependElements: PatternDual<ReadonlyArray<PatternElement>> = dual(
   2,
@@ -348,7 +348,7 @@ export const prependElements: PatternDual<ReadonlyArray<PatternElement>> = dual(
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const withId: PatternDual<string> = dual(
   2,
@@ -366,7 +366,7 @@ export const withId: PatternDual<string> = dual(
  * ```
  *
  * @since 0.0.0
- * @category Predicates
+ * @category predicates
  */
 export const hasMark = (pattern: Pattern): boolean => O.isSome(pattern.mark);
 
@@ -381,7 +381,7 @@ export const hasMark = (pattern: Pattern): boolean => O.isSome(pattern.mark);
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const getMark = (pattern: Pattern): MarkRange | undefined =>
   O.isSome(pattern.mark) ? pattern.mark.value : undefined;
@@ -397,7 +397,7 @@ export const getMark = (pattern: Pattern): MarkRange | undefined =>
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const length = (pattern: Pattern): number => Chunk.size(pattern.elements);
 
@@ -412,7 +412,7 @@ export const length = (pattern: Pattern): number => Chunk.size(pattern.elements)
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const elements = (pattern: Pattern): ReadonlyArray<PatternElement> => toElements(pattern);
 
@@ -427,7 +427,7 @@ export const elements = (pattern: Pattern): ReadonlyArray<PatternElement> => toE
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const elementAt: {
   (pattern: Pattern, index: number): PatternElement | undefined;
@@ -451,7 +451,7 @@ export const elementAt: {
  * ```
  *
  * @since 0.0.0
- * @category Predicates
+ * @category predicates
  */
 export const isEmpty = (pattern: Pattern): boolean => Chunk.isEmpty(pattern.elements);
 
@@ -466,7 +466,7 @@ export const isEmpty = (pattern: Pattern): boolean => Chunk.isEmpty(pattern.elem
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const head = (pattern: Pattern): PatternElement | undefined => elementAt(pattern, 0);
 
@@ -481,7 +481,7 @@ export const head = (pattern: Pattern): PatternElement | undefined => elementAt(
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const last = (pattern: Pattern): PatternElement | undefined => elementAt(pattern, length(pattern) - 1);
 
@@ -496,7 +496,7 @@ export const last = (pattern: Pattern): PatternElement | undefined => elementAt(
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const mapElements: PatternDual<(element: PatternElement, index: number) => PatternElement> = dual(
   2,
@@ -517,7 +517,7 @@ export const mapElements: PatternDual<(element: PatternElement, index: number) =
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const filterElements: PatternDual<(element: PatternElement, index: number) => boolean> = dual(
   2,
@@ -538,7 +538,7 @@ export const filterElements: PatternDual<(element: PatternElement, index: number
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const take: PatternDual<number> = dual(
   2,
@@ -559,7 +559,7 @@ export const take: PatternDual<number> = dual(
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const drop: PatternDual<number> = dual(
   2,
@@ -580,7 +580,7 @@ export const drop: PatternDual<number> = dual(
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const combine: {
   (left: Pattern, right: Pattern, options: { readonly id: string }): Pattern;
@@ -602,7 +602,7 @@ export const combine: {
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PatternPatch = (pattern: Pattern) => Pattern;
 
@@ -617,7 +617,7 @@ export type PatternPatch = (pattern: Pattern) => Pattern;
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const applyPatch: PatternDual<PatternPatch> = dual(
   2,
@@ -635,7 +635,7 @@ export const applyPatch: PatternDual<PatternPatch> = dual(
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const composePatches = (...patches: ReadonlyArray<PatternPatch>): PatternPatch =>
   A.reduce(patches, identity satisfies PatternPatch, (acc, patch) => (pattern) => patch(acc(pattern)));
@@ -651,7 +651,7 @@ export const composePatches = (...patches: ReadonlyArray<PatternPatch>): Pattern
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const patchReplaceLiteralAt: {
   (index: number, replacer: (values: ReadonlyArray<string>) => PatternElement): PatternPatch;
@@ -677,7 +677,7 @@ export const patchReplaceLiteralAt: {
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const patchReplaceAllLiterals =
   (replacer: LiteralReplacer): PatternPatch =>
@@ -700,7 +700,7 @@ const toLiteralReplacer = (replacement: PatternElement | LiteralReplacer): Liter
  * ```
  *
  * @since 0.0.0
- * @category Combinators
+ * @category combinators
  */
 export const generalizeLiterals: {
   (to: PatternElement): (pattern: Pattern) => Pattern;

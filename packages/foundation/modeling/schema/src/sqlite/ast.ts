@@ -16,7 +16,7 @@ const $I = $SchemaId.create("sqlite/ast");
 /**
  * Represents the permitted SQLite column type tags.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const ColumnTypeTag = LiteralKit(["text", "null", "real", "integer", "blob"]).pipe(
@@ -28,7 +28,7 @@ export const ColumnTypeTag = LiteralKit(["text", "null", "real", "integer", "blo
 /**
  * Type-level representation of a SQLite column type tag.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ColumnTypeTag = typeof ColumnTypeTag.Type;
@@ -36,7 +36,7 @@ export type ColumnTypeTag = typeof ColumnTypeTag.Type;
 /**
  * Represents the SQLite `TEXT` column type.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class ColumnTypeText extends S.TaggedClass<ColumnTypeText>($I`ColumnTypeText`)(
@@ -50,7 +50,7 @@ export class ColumnTypeText extends S.TaggedClass<ColumnTypeText>($I`ColumnTypeT
 /**
  * Represents the SQLite `NULL` column type.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class ColumnTypeNull extends S.TaggedClass<ColumnTypeNull>($I`ColumnTypeNull`)(
@@ -64,7 +64,7 @@ export class ColumnTypeNull extends S.TaggedClass<ColumnTypeNull>($I`ColumnTypeN
 /**
  * Represents the SQLite `REAL` column type.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class ColumnTypeReal extends S.TaggedClass<ColumnTypeReal>($I`ColumnTypeReal`)(
@@ -78,7 +78,7 @@ export class ColumnTypeReal extends S.TaggedClass<ColumnTypeReal>($I`ColumnTypeR
 /**
  * Represents a column type definition for SQL integer values in a database schema.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class ColumnTypeInteger extends S.TaggedClass<ColumnTypeInteger>($I`ColumnTypeInteger`)(
@@ -92,7 +92,7 @@ export class ColumnTypeInteger extends S.TaggedClass<ColumnTypeInteger>($I`Colum
 /**
  * Represents the SQLite `BLOB` column type.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class ColumnTypeBlob extends S.TaggedClass<ColumnTypeBlob>($I`ColumnTypeBlob`)(
@@ -106,7 +106,7 @@ export class ColumnTypeBlob extends S.TaggedClass<ColumnTypeBlob>($I`ColumnTypeB
 /**
  * Represents the possible SQLite column types.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ColumnType = S.Union([
@@ -125,7 +125,7 @@ export const ColumnType = S.Union([
 /**
  * Type-level representation of the SQLite column type union.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ColumnType = typeof ColumnType.Type;
@@ -133,7 +133,7 @@ export type ColumnType = typeof ColumnType.Type;
 /**
  * Represents a column in a SQLite database schema.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class Column extends S.TaggedClass<Column>($I`Column`)(
@@ -156,7 +156,7 @@ export class Column extends S.TaggedClass<Column>($I`Column`)(
 /**
  * Represents an index in a SQLite database schema.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class Index extends S.TaggedClass<Index>($I`Index`)(
@@ -206,7 +206,7 @@ export class Index extends S.TaggedClass<Index>($I`Index`)(
  * })
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since*/
 class ForeignKeyReference extends S.TaggedClass<ForeignKeyReference>($I`ForeignKeyReference`)(
   "foreignKeyReference",
@@ -235,7 +235,7 @@ class ForeignKeyColumn extends S.TaggedClass<ForeignKeyColumn>($I`ForeignKeyColu
 /**
  * Represents a foreign key in a SQLite database schema.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class ForeignKey extends S.TaggedClass<ForeignKey>($I`ForeignKey`)(
@@ -253,7 +253,7 @@ export class ForeignKey extends S.TaggedClass<ForeignKey>($I`ForeignKey`)(
 /**
  * Represents a SQL table definition in SQLite.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class Table extends S.TaggedClass<Table>($I`Table`)(
@@ -271,7 +271,7 @@ export class Table extends S.TaggedClass<Table>($I`Table`)(
 /**
  * Represents a SQLite database schema.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class DbSchema extends S.TaggedClass<DbSchema>($I`DbSchema`)(

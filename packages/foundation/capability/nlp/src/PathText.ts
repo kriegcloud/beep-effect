@@ -72,7 +72,7 @@ export const isPathLike = (input: string): boolean => /^[A-Za-z0-9_./@-]+$/.test
  * ```
  *
  * @since 0.0.0
- * @category variants
+ * @category normalization
  */
 export const filePathVariants = pathFragmentVariants;
 
@@ -89,6 +89,6 @@ export const filePathVariants = pathFragmentVariants;
  * ```
  *
  * @since 0.0.0
- * @category variants
+ * @category normalization
  */
 export const moduleSpecifierVariants = pathFragmentVariants;

@@ -20,7 +20,7 @@ import { WinkEngineLive as WinkEngineLiveService, WinkEngine as WinkEngineServic
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const NLPBaseLive = WinkEngineLiveService;
 
@@ -35,7 +35,7 @@ export const NLPBaseLive = WinkEngineLiveService;
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const TokenizationModuleLive = WinkTokenization.pipe(Layer.provideMerge(WinkEngineLiveService));
 
@@ -50,7 +50,7 @@ export const TokenizationModuleLive = WinkTokenization.pipe(Layer.provideMerge(W
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const NLPAppLive = TokenizationModuleLive;
 
@@ -63,7 +63,7 @@ export const NLPAppLive = TokenizationModuleLive;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export const WinkEngine = WinkEngineService;
 /**
@@ -75,6 +75,6 @@ export const WinkEngine = WinkEngineService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkEngineLive = WinkEngineLiveService;

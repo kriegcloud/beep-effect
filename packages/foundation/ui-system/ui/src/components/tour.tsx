@@ -24,6 +24,10 @@ const TourContext = React.createContext<{
   readonly close: () => void;
 } | null>(null);
 
+/**
+ * @category hooks
+ * @since 0.0.0
+ */
 function useTour() {
   const context = React.useContext(TourContext);
   if (!context) {
@@ -32,6 +36,10 @@ function useTour() {
   return context;
 }
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 interface Step {
   readonly align?: undefined | React.ComponentProps<typeof PopoverContent>["align"];
   readonly alignOffset?: undefined | React.ComponentProps<typeof PopoverContent>["alignOffset"];
@@ -47,11 +55,19 @@ interface Step {
   readonly title: React.ReactNode;
 }
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 interface Tour {
   readonly id: string;
   readonly steps: Step[];
 }
 
+/**
+ * @category providers
+ * @since 0.0.0
+ */
 function TourProvider({ tours, children }: { readonly tours: Tour[]; readonly children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [activeTourId, setActiveTourId] = React.useState<string | null>(null);
@@ -348,4 +364,8 @@ function TourOverlay({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { type Step, type Tour, TourProvider, useTour };

@@ -36,7 +36,7 @@ type ResolverEnvironment = FileSystem.FileSystem | Path.Path | HttpClient.HttpCl
 /**
  * Service contract for resolving version drift state.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ResolverServiceShape = {
@@ -49,7 +49,7 @@ export type ResolverServiceShape = {
 /**
  * Service tag for resolver orchestration.
  *
- * @category PortContract
+ * @category ports
  * @since 0.0.0
  */
 export class ResolverService extends Context.Service<ResolverService, ResolverServiceShape>()($I`ResolverService`) {}
@@ -147,7 +147,7 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
 /**
  * Live layer for resolver orchestration.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const ResolverServiceLive = Layer.succeed(

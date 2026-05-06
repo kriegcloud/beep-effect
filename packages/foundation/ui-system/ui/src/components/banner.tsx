@@ -3,6 +3,10 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const bannerVariants = cva("relative flex items-center gap-3 rounded-lg border px-4 py-3 text-sm", {
   variants: {
     variant: {
@@ -86,4 +90,8 @@ Banner.Title = BannerTitle;
 Banner.Description = BannerDescription;
 Banner.Dismiss = BannerDismiss;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { bannerVariants };

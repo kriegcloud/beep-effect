@@ -96,7 +96,7 @@ const formatCsvHeaderRowEffect = (
 /**
  * Format a CSV header row.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const formatCsvHeaderRow: {
@@ -107,7 +107,7 @@ export const formatCsvHeaderRow: {
 /**
  * Format a CSV data row.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const formatCsvDataRowEffect = (
@@ -133,7 +133,7 @@ export const formatCsvDataRow: {
 /**
  * Format a whole CSV document.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const formatCsvDocumentEffect = (

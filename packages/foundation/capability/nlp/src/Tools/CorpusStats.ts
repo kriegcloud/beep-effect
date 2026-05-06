@@ -44,7 +44,7 @@ class CorpusStatsParameters extends S.Class<CorpusStatsParameters>($I`CorpusStat
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const CorpusStats = Tool.make("CorpusStats", {
   description: "Inspect corpus internals such as vocabulary, IDF values, and optional document-term matrix.",

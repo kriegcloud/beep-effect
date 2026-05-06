@@ -5,6 +5,10 @@ import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const buttonGroupVariants = cva(
   "flex w-fit items-stretch has-[>[data-slot=button-group]]:gap-2 [&>*]:focus-visible:relative [&>*]:focus-visible:z-10 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
   {
@@ -22,6 +26,10 @@ const buttonGroupVariants = cva(
   }
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ButtonGroup({
   className,
   orientation,
@@ -38,6 +46,10 @@ function ButtonGroup({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ButtonGroupText({ className, render, ...props }: useRender.ComponentProps<"div">) {
   return useRender({
     defaultTagName: "div",
@@ -57,6 +69,10 @@ function ButtonGroupText({ className, render, ...props }: useRender.ComponentPro
   });
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ButtonGroupSeparator({
   className,
   orientation = "vertical",
@@ -72,4 +88,8 @@ function ButtonGroupSeparator({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { ButtonGroup, ButtonGroupSeparator, ButtonGroupText, buttonGroupVariants };

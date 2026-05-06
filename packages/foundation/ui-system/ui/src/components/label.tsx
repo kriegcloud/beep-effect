@@ -3,6 +3,10 @@
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Label({ className, ...props }: React.ComponentProps<"label">) {
   return (
     // biome-ignore lint/a11y/noLabelWithoutControl: generic component
@@ -17,4 +21,8 @@ function Label({ className, ...props }: React.ComponentProps<"label">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Label };

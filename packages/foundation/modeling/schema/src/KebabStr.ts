@@ -23,7 +23,7 @@ const $I = $SchemaId.create("KebabStr");
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const KebabCaseStr = NonEmptyTrimmedStr.pipe(
   S.check(
@@ -49,6 +49,6 @@ export const KebabCaseStr = NonEmptyTrimmedStr.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type KebabCaseStr = typeof KebabCaseStr.Type;

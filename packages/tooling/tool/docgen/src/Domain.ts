@@ -73,7 +73,7 @@ type ModuleNewOptions = {
  * const position = Position.new(1, 1)
  * void position
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class Position extends S.Class<Position>($I`Position`)({
@@ -110,7 +110,7 @@ export class Position extends S.Class<Position>($I`Position`)({
  * })
  * void doc
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class Doc extends S.Class<Doc>($I`Doc`)({
@@ -186,7 +186,7 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
  * })
  * void entry
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
@@ -235,7 +235,7 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
  * })
  * void model
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class Class extends S.Class<Class>($I`Class`)({
@@ -293,7 +293,7 @@ export class Class extends S.Class<Class>($I`Class`)({
  * })
  * void model
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class Interface extends S.Class<Interface>($I`Interface`)({
@@ -340,7 +340,7 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
  * })
  * void model
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class Function extends S.Class<Function>($I`Function`)({
@@ -387,7 +387,7 @@ export class Function extends S.Class<Function>($I`Function`)({
  * })
  * void model
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
@@ -434,7 +434,7 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
  * })
  * void model
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class Constant extends S.Class<Constant>($I`Constant`)({
@@ -490,7 +490,7 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
  * })
  * void model
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class Export extends S.Class<Export>($I`Export`)({
@@ -546,7 +546,7 @@ export class Export extends S.Class<Export>($I`Export`)({
  * })
  * void model
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class Namespace extends S.Class<Namespace>($I`Namespace`)({
@@ -591,7 +591,7 @@ export class Namespace extends S.Class<Namespace>($I`Namespace`)({
  * import { Module } from "@beep/repo-docgen/Domain"
  * void Module
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class Module extends S.Class<Module>($I`Module`)({
@@ -650,7 +650,7 @@ type FileNewOptions = {
  * import { ByPath } from "@beep/repo-docgen/Domain"
  * void ByPath
  * ```
- * @category sorting
+ * @category utilities
  * @since 0.0.0
  */
 export const ByPath: Order.Order<Module> = Order.mapInput(Str.Order, (module: Module) =>
@@ -666,7 +666,7 @@ export const ByPath: Order.Order<Module> = Order.mapInput(Str.Order, (module: Mo
  * const file = File.new("docs/index.md", "# Docs", { isOverwritable: true })
  * void file
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class File extends S.Class<File>($I`File`)({
@@ -699,7 +699,7 @@ export class File extends S.Class<File>($I`File`)({
  * import { DocgenErrorTypeId } from "@beep/repo-docgen/Domain"
  * void DocgenErrorTypeId
  * ```
- * @category symbol
+ * @category symbols
  * @since 0.0.0
  */
 export const DocgenErrorTypeId = Symbol.for("@beep/repo-docgen/DocgenError");
@@ -712,7 +712,7 @@ export const DocgenErrorTypeId = Symbol.for("@beep/repo-docgen/DocgenError");
  * import type { DocgenErrorTypeId } from "@beep/repo-docgen/Domain"
  * type ExampleDocgenErrorTypeId = DocgenErrorTypeId
  * ```
- * @category symbol
+ * @category symbols
  * @since 0.0.0
  */
 export type DocgenErrorTypeId = typeof DocgenErrorTypeId;
@@ -726,7 +726,7 @@ export type DocgenErrorTypeId = typeof DocgenErrorTypeId;
  * const error = new DocgenError({ message: "Unable to generate docs." })
  * void error
  * ```
- * @category model
+ * @category models
  * @since 0.0.0
  */
 export class DocgenError extends TaggedErrorClass<DocgenError>($I`DocgenError`)("DocgenError", { message: S.String }) {}
@@ -739,7 +739,7 @@ export class DocgenError extends TaggedErrorClass<DocgenError>($I`DocgenError`)(
  * import { Process } from "@beep/repo-docgen/Domain"
  * void Process
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 type ProcessShape = {
@@ -762,7 +762,7 @@ const defaultProcess: ProcessShape = {
  * import { Process } from "@beep/repo-docgen/Domain"
  * void Process
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 export class Process extends Context.Service<Process, ProcessShape>()($I`Process`, {

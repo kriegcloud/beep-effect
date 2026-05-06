@@ -11,7 +11,7 @@ const $I = $SchemaId.create("person/CardinalDirection");
  * CardinalDirection - The cardinal directions
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const CardinalDirection = LiteralKit(["north", "south", "east", "west"]).pipe(
   $I.annoteSchema("CardinalDirection", {
@@ -21,7 +21,7 @@ export const CardinalDirection = LiteralKit(["north", "south", "east", "west"]).
 /**
  * {@inheritDoc CardinalDirection}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type CardinalDirection = typeof CardinalDirection.Type;
@@ -29,7 +29,7 @@ export type CardinalDirection = typeof CardinalDirection.Type;
 /**
  * CardinalDirectionAbbrev - The abbreviated version of the {@link CardinalDirection}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const CardinalDirectionAbbrev = LiteralKit(["N", "S", "E", "W"]).pipe(
@@ -41,7 +41,7 @@ export const CardinalDirectionAbbrev = LiteralKit(["N", "S", "E", "W"]).pipe(
 /**
  * {@inheritDoc CardinalDirectionAbbrev}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type CardinalDirectionAbbrev = typeof CardinalDirectionAbbrev.Type;

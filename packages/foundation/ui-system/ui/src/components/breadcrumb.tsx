@@ -4,10 +4,18 @@ import { CaretRight, DotsThree } from "@phosphor-icons/react";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Breadcrumb({ ...props }: React.ComponentPropsWithoutRef<"nav">) {
   return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function BreadcrumbList({ className, ...props }: React.ComponentPropsWithoutRef<"ol">) {
   return (
     <ol
@@ -21,16 +29,28 @@ function BreadcrumbList({ className, ...props }: React.ComponentPropsWithoutRef<
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function BreadcrumbItem({ className, ...props }: React.ComponentPropsWithoutRef<"li">) {
   return <li data-slot="breadcrumb-item" className={cn("inline-flex items-center gap-1.5", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function BreadcrumbLink({ className, ...props }: React.ComponentPropsWithoutRef<"a">) {
   return (
     <a data-slot="breadcrumb-link" className={cn("hover:text-foreground transition-colors", className)} {...props} />
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function BreadcrumbPage({ className, ...props }: React.ComponentPropsWithoutRef<"span">) {
   return (
     <span
@@ -44,6 +64,10 @@ function BreadcrumbPage({ className, ...props }: React.ComponentPropsWithoutRef<
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function BreadcrumbSeparator({ children, className, ...props }: React.ComponentPropsWithoutRef<"li">) {
   return (
     <li
@@ -58,6 +82,10 @@ function BreadcrumbSeparator({ children, className, ...props }: React.ComponentP
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function BreadcrumbEllipsis({ className, ...props }: React.ComponentPropsWithoutRef<"span">) {
   return (
     <span
@@ -73,6 +101,10 @@ function BreadcrumbEllipsis({ className, ...props }: React.ComponentPropsWithout
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Breadcrumb,
   BreadcrumbEllipsis,

@@ -14,7 +14,7 @@ import * as Str from "effect/String";
  * Replaces `&`, `<`, `>`, `"`, and `'` with their corresponding HTML
  * entities.
  *
- * @category utility
+ * @category utilities
  * @since 0.0.0
  * @example
  * ```typescript
@@ -38,7 +38,7 @@ export const escapeHtml = flow(
  * Useful when rendering plain multi-line text into HTML while preserving line
  * breaks.
  *
- * @category utility
+ * @category utilities
  * @since 0.0.0
  * @example
  * ```typescript

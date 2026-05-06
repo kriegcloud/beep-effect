@@ -47,7 +47,7 @@ type UpdateYamlValueOptions = {
  * Uses eemeli/yaml `parseDocument()` + `doc.setIn()` + `doc.toString()`.
  * Returns `true` when the file was modified, `false` when already correct.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const updateYamlValue: {
@@ -110,7 +110,7 @@ export const updateYamlValue: {
  * Uses eemeli/yaml Document API for comment-preserving edits.
  * Returns `true` when the file was modified, `false` when no changes needed.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const replaceNodeVersionWithFile: {

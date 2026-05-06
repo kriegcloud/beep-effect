@@ -115,7 +115,7 @@ const symbolKindOptions = TSSyntaxKind.pickOptions([
  * import { RepoRootPath } from "@beep/repo-utils"
  * const value = RepoRootPath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const RepoRootPath = FilePath.pipe(
@@ -135,7 +135,7 @@ export const RepoRootPath = FilePath.pipe(
  * import type { RepoRootPath } from "@beep/repo-utils"
  * type Example = RepoRootPath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type RepoRootPath = typeof RepoRootPath.Type;
@@ -148,7 +148,7 @@ export type RepoRootPath = typeof RepoRootPath.Type;
  * import { WorkspaceDirectoryPath } from "@beep/repo-utils"
  * const value = WorkspaceDirectoryPath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const WorkspaceDirectoryPath = FilePath.pipe(
@@ -168,7 +168,7 @@ export const WorkspaceDirectoryPath = FilePath.pipe(
  * import type { WorkspaceDirectoryPath } from "@beep/repo-utils"
  * type Example = WorkspaceDirectoryPath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type WorkspaceDirectoryPath = typeof WorkspaceDirectoryPath.Type;
@@ -181,7 +181,7 @@ export type WorkspaceDirectoryPath = typeof WorkspaceDirectoryPath.Type;
  * import { TsConfigFilePath } from "@beep/repo-utils"
  * const value = TsConfigFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TsConfigFilePath = FilePath.check(tsConfigFilePathChecks).pipe(
@@ -201,7 +201,7 @@ export const TsConfigFilePath = FilePath.check(tsConfigFilePathChecks).pipe(
  * import type { TsConfigFilePath } from "@beep/repo-utils"
  * type Example = TsConfigFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsConfigFilePath = typeof TsConfigFilePath.Type;
@@ -214,7 +214,7 @@ export type TsConfigFilePath = typeof TsConfigFilePath.Type;
  * import { TypeScriptImplementationFilePath } from "@beep/repo-utils"
  * const value = TypeScriptImplementationFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TypeScriptImplementationFilePath = FilePath.check(typeScriptImplementationFilePathChecks).pipe(
@@ -234,7 +234,7 @@ export const TypeScriptImplementationFilePath = FilePath.check(typeScriptImpleme
  * import type { TypeScriptImplementationFilePath } from "@beep/repo-utils"
  * type Example = TypeScriptImplementationFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TypeScriptImplementationFilePath = typeof TypeScriptImplementationFilePath.Type;
@@ -247,7 +247,7 @@ export type TypeScriptImplementationFilePath = typeof TypeScriptImplementationFi
  * import { TypeScriptDeclarationFilePath } from "@beep/repo-utils"
  * const value = TypeScriptDeclarationFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TypeScriptDeclarationFilePath = FilePath.check(typeScriptDeclarationFilePathChecks).pipe(
@@ -267,7 +267,7 @@ export const TypeScriptDeclarationFilePath = FilePath.check(typeScriptDeclaratio
  * import type { TypeScriptDeclarationFilePath } from "@beep/repo-utils"
  * type Example = TypeScriptDeclarationFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TypeScriptDeclarationFilePath = typeof TypeScriptDeclarationFilePath.Type;
@@ -280,7 +280,7 @@ export type TypeScriptDeclarationFilePath = typeof TypeScriptDeclarationFilePath
  * import { TypeScriptFilePath } from "@beep/repo-utils"
  * const value = TypeScriptFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TypeScriptFilePath = S.Union([TypeScriptImplementationFilePath, TypeScriptDeclarationFilePath]).pipe(
@@ -299,7 +299,7 @@ export const TypeScriptFilePath = S.Union([TypeScriptImplementationFilePath, Typ
  * import type { TypeScriptFilePath } from "@beep/repo-utils"
  * type Example = TypeScriptFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TypeScriptFilePath = typeof TypeScriptFilePath.Type;
@@ -312,7 +312,7 @@ export type TypeScriptFilePath = typeof TypeScriptFilePath.Type;
  * import { SymbolFilePath } from "@beep/repo-utils"
  * const value = SymbolFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SymbolFilePath = TypeScriptImplementationFilePath.check(symbolIdSafePathChecks).pipe(
@@ -332,7 +332,7 @@ export const SymbolFilePath = TypeScriptImplementationFilePath.check(symbolIdSaf
  * import type { SymbolFilePath } from "@beep/repo-utils"
  * type Example = SymbolFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SymbolFilePath = typeof SymbolFilePath.Type;
@@ -345,7 +345,7 @@ export type SymbolFilePath = typeof SymbolFilePath.Type;
  * import { SymbolNameSegment } from "@beep/repo-utils"
  * const value = SymbolNameSegment
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SymbolNameSegment = S.String.check(S.isPattern(SYMBOL_NAME_SEGMENT_PATTERN)).pipe(
@@ -365,7 +365,7 @@ export const SymbolNameSegment = S.String.check(S.isPattern(SYMBOL_NAME_SEGMENT_
  * import type { SymbolNameSegment } from "@beep/repo-utils"
  * type Example = SymbolNameSegment
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SymbolNameSegment = typeof SymbolNameSegment.Type;
@@ -378,7 +378,7 @@ export type SymbolNameSegment = typeof SymbolNameSegment.Type;
  * import { SymbolQualifiedName } from "@beep/repo-utils"
  * const value = SymbolQualifiedName
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SymbolQualifiedName = S.String.check(S.isPattern(SYMBOL_QUALIFIED_NAME_PATTERN)).pipe(
@@ -398,7 +398,7 @@ export const SymbolQualifiedName = S.String.check(S.isPattern(SYMBOL_QUALIFIED_N
  * import type { SymbolQualifiedName } from "@beep/repo-utils"
  * type Example = SymbolQualifiedName
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SymbolQualifiedName = typeof SymbolQualifiedName.Type;
@@ -411,7 +411,7 @@ export type SymbolQualifiedName = typeof SymbolQualifiedName.Type;
  * import { SymbolKind } from "@beep/repo-utils"
  * const value = SymbolKind
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SymbolKind = LiteralKit(symbolKindOptions);
@@ -424,7 +424,7 @@ export const SymbolKind = LiteralKit(symbolKindOptions);
  * import type { SymbolKind } from "@beep/repo-utils"
  * type Example = SymbolKind
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SymbolKind = typeof SymbolKind.Type;
@@ -437,7 +437,7 @@ export type SymbolKind = typeof SymbolKind.Type;
  * import { SymbolCategory } from "@beep/repo-utils"
  * const value = SymbolCategory
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SymbolCategory = LiteralKit(["function", "class", "member", "type"] as const);
@@ -450,7 +450,7 @@ export const SymbolCategory = LiteralKit(["function", "class", "member", "type"]
  * import type { SymbolCategory } from "@beep/repo-utils"
  * type Example = SymbolCategory
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SymbolCategory = typeof SymbolCategory.Type;
@@ -463,7 +463,7 @@ export type SymbolCategory = typeof SymbolCategory.Type;
  * import { symbolCategoryFromKind } from "@beep/repo-utils"
  * const value = symbolCategoryFromKind
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const symbolCategoryFromKind = SymbolKind.$match({
@@ -486,7 +486,7 @@ export const symbolCategoryFromKind = SymbolKind.$match({
  * import { SymbolKindToCategory } from "@beep/repo-utils"
  * const value = SymbolKindToCategory
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SymbolKindToCategory = SymbolKind.pipe(
@@ -511,7 +511,7 @@ export const SymbolKindToCategory = SymbolKind.pipe(
  * import type { SymbolKindToCategory } from "@beep/repo-utils"
  * type Example = SymbolKindToCategory
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SymbolKindToCategory = typeof SymbolKindToCategory.Type;
@@ -524,7 +524,7 @@ export type SymbolKindToCategory = typeof SymbolKindToCategory.Type;
  * import { SourceText } from "@beep/repo-utils"
  * const value = SourceText
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SourceText = S.NonEmptyString.pipe(
@@ -544,7 +544,7 @@ export const SourceText = S.NonEmptyString.pipe(
  * import type { SourceText } from "@beep/repo-utils"
  * type Example = SourceText
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SourceText = typeof SourceText.Type;
@@ -557,7 +557,7 @@ export type SourceText = typeof SourceText.Type;
  * import { LineNumber } from "@beep/repo-utils"
  * const value = LineNumber
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const LineNumber = S.Int.check(S.isGreaterThan(0)).pipe(
@@ -577,7 +577,7 @@ export const LineNumber = S.Int.check(S.isGreaterThan(0)).pipe(
  * import type { LineNumber } from "@beep/repo-utils"
  * type Example = LineNumber
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type LineNumber = typeof LineNumber.Type;
@@ -590,7 +590,7 @@ export type LineNumber = typeof LineNumber.Type;
  * import { ColumnNumber } from "@beep/repo-utils"
  * const value = ColumnNumber
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ColumnNumber = S.Int.check(S.isGreaterThan(0)).pipe(
@@ -610,7 +610,7 @@ export const ColumnNumber = S.Int.check(S.isGreaterThan(0)).pipe(
  * import type { ColumnNumber } from "@beep/repo-utils"
  * type Example = ColumnNumber
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ColumnNumber = typeof ColumnNumber.Type;
@@ -623,7 +623,7 @@ export type ColumnNumber = typeof ColumnNumber.Type;
  * import { ByteOffset } from "@beep/repo-utils"
  * const value = ByteOffset
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ByteOffset = NonNegativeInt.pipe(
@@ -643,7 +643,7 @@ export const ByteOffset = NonNegativeInt.pipe(
  * import type { ByteOffset } from "@beep/repo-utils"
  * type Example = ByteOffset
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ByteOffset = typeof ByteOffset.Type;
@@ -656,7 +656,7 @@ export type ByteOffset = typeof ByteOffset.Type;
  * import { ByteLength } from "@beep/repo-utils"
  * const value = ByteLength
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ByteLength = NonNegativeInt.pipe(
@@ -676,7 +676,7 @@ export const ByteLength = NonNegativeInt.pipe(
  * import type { ByteLength } from "@beep/repo-utils"
  * type Example = ByteLength
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ByteLength = typeof ByteLength.Type;
@@ -689,7 +689,7 @@ export type ByteLength = typeof ByteLength.Type;
  * import { ContentHash } from "@beep/repo-utils"
  * const value = ContentHash
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ContentHash = Sha256Hex.pipe(
@@ -709,7 +709,7 @@ export const ContentHash = Sha256Hex.pipe(
  * import type { ContentHash } from "@beep/repo-utils"
  * type Example = ContentHash
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ContentHash = typeof ContentHash.Type;
@@ -722,7 +722,7 @@ export type ContentHash = typeof ContentHash.Type;
  * import { TsMorphScopeMode } from "@beep/repo-utils"
  * const value = TsMorphScopeMode
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TsMorphScopeMode = LiteralKit(["syntax", "semantic"] as const);
@@ -735,7 +735,7 @@ export const TsMorphScopeMode = LiteralKit(["syntax", "semantic"] as const);
  * import type { TsMorphScopeMode } from "@beep/repo-utils"
  * type Example = TsMorphScopeMode
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphScopeMode = typeof TsMorphScopeMode.Type;
@@ -748,7 +748,7 @@ export type TsMorphScopeMode = typeof TsMorphScopeMode.Type;
  * import { TsMorphReferencePolicy } from "@beep/repo-utils"
  * const value = TsMorphReferencePolicy
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TsMorphReferencePolicy = LiteralKit(["workspaceOnly", "followReferences"] as const);
@@ -761,7 +761,7 @@ export const TsMorphReferencePolicy = LiteralKit(["workspaceOnly", "followRefere
  * import type { TsMorphReferencePolicy } from "@beep/repo-utils"
  * type Example = TsMorphReferencePolicy
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphReferencePolicy = typeof TsMorphReferencePolicy.Type;
@@ -782,7 +782,7 @@ const resolvedProjectIdentity = S.TemplateLiteral([
  * import { ProjectScopeId } from "@beep/repo-utils"
  * const value = ProjectScopeId
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ProjectScopeId = resolvedProjectIdentity.pipe(
@@ -802,7 +802,7 @@ export const ProjectScopeId = resolvedProjectIdentity.pipe(
  * import type { ProjectScopeId } from "@beep/repo-utils"
  * type Example = ProjectScopeId
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ProjectScopeId = typeof ProjectScopeId.Type;
@@ -815,7 +815,7 @@ export type ProjectScopeId = typeof ProjectScopeId.Type;
  * import { ProjectScopeIdParts } from "@beep/repo-utils"
  * const value = ProjectScopeIdParts
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ProjectScopeIdParts = S.TemplateLiteralParser([
@@ -838,7 +838,7 @@ export const ProjectScopeIdParts = S.TemplateLiteralParser([
  * import { ProjectCacheKey } from "@beep/repo-utils"
  * const value = ProjectCacheKey
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ProjectCacheKey = resolvedProjectIdentity.pipe(
@@ -858,7 +858,7 @@ export const ProjectCacheKey = resolvedProjectIdentity.pipe(
  * import type { ProjectCacheKey } from "@beep/repo-utils"
  * type Example = ProjectCacheKey
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ProjectCacheKey = typeof ProjectCacheKey.Type;
@@ -871,7 +871,7 @@ export type ProjectCacheKey = typeof ProjectCacheKey.Type;
  * import { SymbolId } from "@beep/repo-utils"
  * const value = SymbolId
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SymbolId = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualifiedName, "#", SymbolKind]).pipe(
@@ -891,7 +891,7 @@ export const SymbolId = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualified
  * import type { SymbolId } from "@beep/repo-utils"
  * type Example = SymbolId
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SymbolId = typeof SymbolId.Type;
@@ -904,7 +904,7 @@ export type SymbolId = typeof SymbolId.Type;
  * import { SymbolIdParts } from "@beep/repo-utils"
  * const value = SymbolIdParts
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SymbolIdParts = S.TemplateLiteralParser([
@@ -927,7 +927,7 @@ export const SymbolIdParts = S.TemplateLiteralParser([
  * import { FilePathToTsConfigFilePath } from "@beep/repo-utils"
  * const value = FilePathToTsConfigFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const FilePathToTsConfigFilePath = FilePath.pipe(
@@ -950,7 +950,7 @@ export const FilePathToTsConfigFilePath = FilePath.pipe(
  * import { FilePathToTypeScriptImplementationFilePath } from "@beep/repo-utils"
  * const value = FilePathToTypeScriptImplementationFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
@@ -973,7 +973,7 @@ export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
  * import { FilePathToTypeScriptDeclarationFilePath } from "@beep/repo-utils"
  * const value = FilePathToTypeScriptDeclarationFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
@@ -996,7 +996,7 @@ export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
  * import { FilePathToTypeScriptFilePath } from "@beep/repo-utils"
  * const value = FilePathToTypeScriptFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const FilePathToTypeScriptFilePath = FilePath.pipe(
@@ -1019,7 +1019,7 @@ export const FilePathToTypeScriptFilePath = FilePath.pipe(
  * import { TypeScriptImplementationFilePathToSymbolFilePath } from "@beep/repo-utils"
  * const value = TypeScriptImplementationFilePathToSymbolFilePath
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TypeScriptImplementationFilePathToSymbolFilePath = TypeScriptImplementationFilePath.pipe(
@@ -1047,7 +1047,7 @@ const decodeSha256HexFromBytesEffect = S.decodeUnknownEffect(Sha256HexFromBytes)
  * import { ContentHashFromBytes } from "@beep/repo-utils"
  * const value = ContentHashFromBytes
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ContentHashFromBytes = S.Uint8Array.pipe(
@@ -1080,7 +1080,7 @@ const decodeContentHashFromBytesEffect = S.decodeUnknownEffect(ContentHashFromBy
  * import { ContentHashFromSourceText } from "@beep/repo-utils"
  * const value = ContentHashFromSourceText
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ContentHashFromSourceText = SourceText.pipe(
@@ -1108,7 +1108,7 @@ export const ContentHashFromSourceText = SourceText.pipe(
  * import { InternalTsMorphProject } from "@beep/repo-utils"
  * const value = InternalTsMorphProject
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const InternalTsMorphProject = S.instanceOf(Project).pipe(
@@ -1127,7 +1127,7 @@ export const InternalTsMorphProject = S.instanceOf(Project).pipe(
  * import { InternalTsMorphSourceFile } from "@beep/repo-utils"
  * const value = InternalTsMorphSourceFile
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const InternalTsMorphSourceFile = S.declare<SourceFile>(
@@ -1148,7 +1148,7 @@ export const InternalTsMorphSourceFile = S.declare<SourceFile>(
  * import { InternalTsMorphNode } from "@beep/repo-utils"
  * const value = InternalTsMorphNode
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const InternalTsMorphNode = S.declare<TsMorphNode>(
@@ -1169,7 +1169,7 @@ export const InternalTsMorphNode = S.declare<TsMorphNode>(
  * import { Symbol as TsMorphSymbol } from "@beep/repo-utils"
  * const schema = TsMorphSymbol
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class Symbol extends S.Class<Symbol>($I`Symbol`)(
@@ -1239,7 +1239,7 @@ export class Symbol extends S.Class<Symbol>($I`Symbol`)(
  * import { Symbol as TsMorphSymbol } from "@beep/repo-utils"
  * const schema = TsMorphSymbol
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export declare namespace Symbol {
@@ -1251,7 +1251,7 @@ export declare namespace Symbol {
    * import type { Symbol as TsMorphSymbol } from "@beep/repo-utils"
    * type Example = TsMorphSymbol.Type
    * ```
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    */
   export type Type = typeof Symbol.Type;
@@ -1263,7 +1263,7 @@ export declare namespace Symbol {
    * import type { Symbol as TsMorphSymbol } from "@beep/repo-utils"
    * type Example = TsMorphSymbol.Encoded
    * ```
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    */
   export type Encoded = typeof Symbol.Encoded;
@@ -1277,7 +1277,7 @@ export declare namespace Symbol {
  * import type { SymbolInit } from "@beep/repo-utils"
  * type Example = SymbolInit
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SymbolInit = Omit<Symbol.Type, "id" | "category"> & {
@@ -1295,7 +1295,7 @@ export type SymbolInit = Omit<Symbol.Type, "id" | "category"> & {
  * import { makeSymbolId } from "@beep/repo-utils"
  * const value = makeSymbolId
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const makeSymbolId = (parts: {
@@ -1314,7 +1314,7 @@ export const makeSymbolId = (parts: {
  * import { makeProjectScopeId } from "@beep/repo-utils"
  * const value = makeProjectScopeId
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const makeProjectScopeId = (parts: {
@@ -1336,7 +1336,7 @@ const decodeProjectCacheKeyResult = S.decodeUnknownResult(ProjectCacheKey);
  * import { makeProjectCacheKey } from "@beep/repo-utils"
  * const value = makeProjectCacheKey
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const makeProjectCacheKey = (parts: {
@@ -1356,7 +1356,7 @@ export const makeProjectCacheKey = (parts: {
  * import { makeSymbol } from "@beep/repo-utils"
  * const value = makeSymbol
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const makeSymbol = (input: SymbolInit): Symbol =>
@@ -1402,7 +1402,7 @@ class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`
  * import { TsMorphScopeEntrypoint } from "@beep/repo-utils"
  * const value = TsMorphScopeEntrypoint
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TsMorphScopeEntrypoint = S.Union([TsMorphScopeEntrypointTsConfig, TsMorphScopeEntrypointFile])
@@ -1436,7 +1436,7 @@ export const TsMorphScopeEntrypoint = S.Union([TsMorphScopeEntrypointTsConfig, T
  * import type { TsMorphScopeEntrypoint } from "@beep/repo-utils"
  * type Example = TsMorphScopeEntrypoint
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphScopeEntrypoint = typeof TsMorphScopeEntrypoint.Type;
@@ -1449,7 +1449,7 @@ export type TsMorphScopeEntrypoint = typeof TsMorphScopeEntrypoint.Type;
  * import { TsMorphProjectScopeRequest } from "@beep/repo-utils"
  * const value = TsMorphProjectScopeRequest
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeRequest>($I`TsMorphProjectScopeRequest`)(
@@ -1472,7 +1472,7 @@ export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeReque
  * import { TsMorphProjectInspectionRequest } from "@beep/repo-utils"
  * const value = TsMorphProjectInspectionRequest
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphProjectInspectionRequest extends S.Class<TsMorphProjectInspectionRequest>(
@@ -1500,7 +1500,7 @@ export class TsMorphProjectInspectionRequest extends S.Class<TsMorphProjectInspe
  * import { TsMorphProjectScope } from "@beep/repo-utils"
  * const value = TsMorphProjectScope
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorphProjectScope`)(
@@ -1526,7 +1526,7 @@ export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorph
  * import { TsMorphFileOutlineRequest } from "@beep/repo-utils"
  * const value = TsMorphFileOutlineRequest
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest>($I`TsMorphFileOutlineRequest`)(
@@ -1547,7 +1547,7 @@ export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest
  * import { TsMorphFileOutline } from "@beep/repo-utils"
  * const value = TsMorphFileOutline
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFileOutline`)(
@@ -1569,7 +1569,7 @@ export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFi
  * import { TsMorphSourceTextRequest } from "@beep/repo-utils"
  * const value = TsMorphSourceTextRequest
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>($I`TsMorphSourceTextRequest`)(
@@ -1589,7 +1589,7 @@ export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>(
  * import { TsMorphSourceTextResult } from "@beep/repo-utils"
  * const value = TsMorphSourceTextResult
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I`TsMorphSourceTextResult`)(
@@ -1611,7 +1611,7 @@ export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I
  * import { TsMorphSymbolLookupRequest } from "@beep/repo-utils"
  * const value = TsMorphSymbolLookupRequest
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupRequest>($I`TsMorphSymbolLookupRequest`)(
@@ -1632,7 +1632,7 @@ export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupReque
  * import { TsMorphSymbolLookupResult } from "@beep/repo-utils"
  * const value = TsMorphSymbolLookupResult
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult>($I`TsMorphSymbolLookupResult`)(
@@ -1653,7 +1653,7 @@ export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult
  * import { TsMorphSearchLimit } from "@beep/repo-utils"
  * const value = TsMorphSearchLimit
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TsMorphSearchLimit = S.Int.check(S.isGreaterThan(0)).pipe(
@@ -1673,7 +1673,7 @@ export const TsMorphSearchLimit = S.Int.check(S.isGreaterThan(0)).pipe(
  * import type { TsMorphSearchLimit } from "@beep/repo-utils"
  * type Example = TsMorphSearchLimit
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphSearchLimit = typeof TsMorphSearchLimit.Type;
@@ -1686,7 +1686,7 @@ export type TsMorphSearchLimit = typeof TsMorphSearchLimit.Type;
  * import { TsMorphSymbolSearchRequest } from "@beep/repo-utils"
  * const value = TsMorphSymbolSearchRequest
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchRequest>($I`TsMorphSymbolSearchRequest`)(
@@ -1710,7 +1710,7 @@ export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchReque
  * import { TsMorphSymbolSearchResult } from "@beep/repo-utils"
  * const value = TsMorphSymbolSearchResult
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult>($I`TsMorphSymbolSearchResult`)(
@@ -1734,7 +1734,7 @@ export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult
  * import { TsMorphSymbolSourceRequest } from "@beep/repo-utils"
  * const value = TsMorphSymbolSourceRequest
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceRequest>($I`TsMorphSymbolSourceRequest`)(
@@ -1755,7 +1755,7 @@ export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceReque
  * import { TsMorphSymbolSourceResult } from "@beep/repo-utils"
  * const value = TsMorphSymbolSourceResult
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult>($I`TsMorphSymbolSourceResult`)(
@@ -1778,7 +1778,7 @@ export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult
  * import { TsMorphDiagnosticCategory } from "@beep/repo-utils"
  * const value = TsMorphDiagnosticCategory
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TsMorphDiagnosticCategory = LiteralKit(["error", "warning", "suggestion", "message"] as const);
@@ -1791,7 +1791,7 @@ export const TsMorphDiagnosticCategory = LiteralKit(["error", "warning", "sugges
  * import type { TsMorphDiagnosticCategory } from "@beep/repo-utils"
  * type Example = TsMorphDiagnosticCategory
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphDiagnosticCategory = typeof TsMorphDiagnosticCategory.Type;
@@ -1862,7 +1862,7 @@ class TsMorphDiagnosticMessage extends TsMorphDiagnosticBase.extend<TsMorphDiagn
  * import { TsMorphDiagnostic } from "@beep/repo-utils"
  * const value = TsMorphDiagnostic
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TsMorphDiagnostic = TsMorphDiagnosticCategory.mapMembers(
@@ -1888,7 +1888,7 @@ export const TsMorphDiagnostic = TsMorphDiagnosticCategory.mapMembers(
  * import type { TsMorphDiagnostic } from "@beep/repo-utils"
  * type Example = TsMorphDiagnostic
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphDiagnostic = typeof TsMorphDiagnostic.Type;
@@ -1901,7 +1901,7 @@ export type TsMorphDiagnostic = typeof TsMorphDiagnostic.Type;
  * import { TsMorphDiagnosticsRequest } from "@beep/repo-utils"
  * const value = TsMorphDiagnosticsRequest
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest>($I`TsMorphDiagnosticsRequest`)(
@@ -1922,7 +1922,7 @@ export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest
  * import { TsMorphDiagnosticsResult } from "@beep/repo-utils"
  * const value = TsMorphDiagnosticsResult
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphDiagnosticsResult extends S.Class<TsMorphDiagnosticsResult>($I`TsMorphDiagnosticsResult`)(

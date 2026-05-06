@@ -30,6 +30,7 @@ const ReferrerPolicyValueBase = LiteralKit([
 ]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ReferrerPolicyValue = ReferrerPolicyValueBase.pipe(
@@ -40,11 +41,13 @@ export const ReferrerPolicyValue = ReferrerPolicyValueBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ReferrerPolicyValue = typeof ReferrerPolicyValue.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ReferrerPolicyValueList = S.Array(ReferrerPolicyValue).pipe(
@@ -54,11 +57,13 @@ export const ReferrerPolicyValueList = S.Array(ReferrerPolicyValue).pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ReferrerPolicyValueList = typeof ReferrerPolicyValueList.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ReferrerPolicyOption = S.Union([S.Literal(false), ReferrerPolicyValue, ReferrerPolicyValueList]).pipe(
@@ -68,11 +73,13 @@ export const ReferrerPolicyOption = S.Union([S.Literal(false), ReferrerPolicyVal
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ReferrerPolicyOption = typeof ReferrerPolicyOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ReferrerPolicyResponseHeader extends S.Class<ReferrerPolicyResponseHeader>(
@@ -113,6 +120,7 @@ const formatReferrerPolicyValue = (
   });
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ReferrerPolicyHeader = S.Union([ReferrerPolicyOption, S.Undefined]).pipe(
@@ -176,6 +184,7 @@ export const ReferrerPolicyHeader = S.Union([ReferrerPolicyOption, S.Undefined])
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ReferrerPolicyHeader = typeof ReferrerPolicyHeader.Type;

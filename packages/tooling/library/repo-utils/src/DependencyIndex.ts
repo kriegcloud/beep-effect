@@ -21,7 +21,7 @@ import { resolveWorkspaceDirs } from "./Workspaces.js";
 /**
  * The root package identifier used in the returned HashMap.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const ROOT_KEY = "@beep/root";
@@ -49,7 +49,7 @@ const ROOT_KEY = "@beep/root";
  * })
  * void program
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const buildRepoDependencyIndex: (

@@ -15,7 +15,7 @@
  * console.log(SpecimenUseCases)
  * ```
  *
- * @category exports
+ * @category commands
  * @since 0.0.0
  */
 export { ObserveSpecimen, RetireSpecimen } from "./entities/Specimen/Specimen.commands.js";
@@ -29,7 +29,7 @@ export { ObserveSpecimen, RetireSpecimen } from "./entities/Specimen/Specimen.co
  * console.log(SpecimenUseCases)
  * ```
  *
- * @category exports
+ * @category errors
  * @since 0.0.0
  */
 export { SpecimenNotFound } from "./entities/Specimen/Specimen.errors.js";
@@ -43,7 +43,7 @@ export { SpecimenNotFound } from "./entities/Specimen/Specimen.errors.js";
  * console.log(SpecimenUseCases)
  * ```
  *
- * @category exports
+ * @category queries
  * @since 0.0.0
  */
 export { GetSpecimen } from "./entities/Specimen/Specimen.queries.js";
@@ -58,7 +58,7 @@ export { GetSpecimen } from "./entities/Specimen/Specimen.queries.js";
  * console.log(useCases)
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export type { SpecimenUseCases } from "./entities/Specimen/Specimen.service.js";

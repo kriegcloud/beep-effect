@@ -14,7 +14,7 @@ import { VersionSyncError } from "../Models.js";
 /**
  * Formatting options matching the project standard.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
@@ -32,7 +32,7 @@ type UpdateCatalogEntryOptions = {
  * Comment-preserving: uses `modify()` + `applyEdits()` pattern.
  * Returns `true` when the file was modified, `false` when already correct.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const updatePackageManagerField: {
@@ -88,7 +88,7 @@ export const updatePackageManagerField: {
  *
  * Returns `true` when the file was modified, `false` when already correct.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const updateCatalogEntry: {

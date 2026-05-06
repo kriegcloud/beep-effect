@@ -94,7 +94,7 @@ type DirectionalKit<
  * void MappedLiteralDuplicateError
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class MappedLiteralDuplicateError extends MappedLiteralDuplicateErrorBase {}
@@ -274,7 +274,7 @@ const makeDirectionalKit = <
  * SqlState.Enum.WARNING; // "01000"
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 type ForwardDirectionalKit<M extends MappedPairs> = DirectionalKit<FromLiterals<M>, ToLiterals<M>, ForwardEnumMap<M>>;
@@ -285,7 +285,7 @@ type ReverseDirectionalKit<M extends MappedPairs> = DirectionalKit<ToLiterals<M>
  * constructor. Contains `From` and `To` directional helpers and the original
  * `Pairs`.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 type MappedLiteralKitBase<M extends MappedPairs> = ForwardDirectionalKit<M> & {
@@ -325,7 +325,7 @@ export interface MappedLiteralKit<M extends MappedPairs> extends MappedLiteralKi
  * HttpStatus.To.Enum["200"]            // "OK"
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export function MappedLiteralKit<const M extends MappedPairs>(mappings: M): MappedLiteralKit<M> {

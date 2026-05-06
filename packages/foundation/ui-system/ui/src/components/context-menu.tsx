@@ -5,14 +5,26 @@ import { CaretRight, CheckIcon } from "@phosphor-icons/react";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenu({ ...props }: ContextMenuPrimitive.Root.Props) {
   return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuPortal({ ...props }: ContextMenuPrimitive.Portal.Props) {
   return <ContextMenuPrimitive.Portal data-slot="context-menu-portal" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuTrigger({ className, ...props }: ContextMenuPrimitive.Trigger.Props) {
   return (
     <ContextMenuPrimitive.Trigger
@@ -23,6 +35,10 @@ function ContextMenuTrigger({ className, ...props }: ContextMenuPrimitive.Trigge
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuContent({
   className,
   align = "start",
@@ -54,10 +70,18 @@ function ContextMenuContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuGroup({ ...props }: ContextMenuPrimitive.Group.Props) {
   return <ContextMenuPrimitive.Group data-slot="context-menu-group" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuLabel({
   className,
   inset,
@@ -75,6 +99,10 @@ function ContextMenuLabel({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuItem({
   className,
   inset,
@@ -98,10 +126,18 @@ function ContextMenuItem({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuSub({ ...props }: ContextMenuPrimitive.SubmenuRoot.Props) {
   return <ContextMenuPrimitive.SubmenuRoot data-slot="context-menu-sub" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuSubTrigger({
   className,
   inset,
@@ -126,10 +162,18 @@ function ContextMenuSubTrigger({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuSubContent({ ...props }: React.ComponentProps<typeof ContextMenuContent>) {
   return <ContextMenuContent data-slot="context-menu-sub-content" className="shadow-lg" side="right" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuCheckboxItem({ className, children, checked, ...props }: ContextMenuPrimitive.CheckboxItem.Props) {
   return (
     <ContextMenuPrimitive.CheckboxItem
@@ -151,10 +195,18 @@ function ContextMenuCheckboxItem({ className, children, checked, ...props }: Con
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuRadioGroup({ ...props }: ContextMenuPrimitive.RadioGroup.Props) {
   return <ContextMenuPrimitive.RadioGroup data-slot="context-menu-radio-group" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuRadioItem({ className, children, ...props }: ContextMenuPrimitive.RadioItem.Props) {
   return (
     <ContextMenuPrimitive.RadioItem
@@ -175,6 +227,10 @@ function ContextMenuRadioItem({ className, children, ...props }: ContextMenuPrim
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuSeparator({ className, ...props }: ContextMenuPrimitive.Separator.Props) {
   return (
     <ContextMenuPrimitive.Separator
@@ -185,6 +241,10 @@ function ContextMenuSeparator({ className, ...props }: ContextMenuPrimitive.Sepa
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ContextMenuShortcut({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -198,6 +258,10 @@ function ContextMenuShortcut({ className, ...props }: React.ComponentProps<"span
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   ContextMenu,
   ContextMenuCheckboxItem,

@@ -7,12 +7,24 @@ import { CaretDownIcon, CheckIcon, XIcon } from "@phosphor-icons/react";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const Combobox = ComboboxPrimitive.Root;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props) {
   return <ComboboxPrimitive.Value data-slot="combobox-value" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxTrigger({ className, children, ...props }: ComboboxPrimitive.Trigger.Props) {
   return (
     <ComboboxPrimitive.Trigger
@@ -39,6 +51,10 @@ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxInput({
   className,
   children,
@@ -71,6 +87,10 @@ function ComboboxInput({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxContent({
   className,
   side = "bottom",
@@ -107,6 +127,10 @@ function ComboboxContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
   return (
     <ComboboxPrimitive.List
@@ -120,6 +144,10 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxItem({ className, children, ...props }: ComboboxPrimitive.Item.Props) {
   return (
     <ComboboxPrimitive.Item
@@ -140,10 +168,18 @@ function ComboboxItem({ className, children, ...props }: ComboboxPrimitive.Item.
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
   return <ComboboxPrimitive.Group data-slot="combobox-group" className={cn(className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxLabel({ className, ...props }: ComboboxPrimitive.GroupLabel.Props) {
   return (
     <ComboboxPrimitive.GroupLabel
@@ -154,10 +190,18 @@ function ComboboxLabel({ className, ...props }: ComboboxPrimitive.GroupLabel.Pro
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxCollection({ ...props }: ComboboxPrimitive.Collection.Props) {
   return <ComboboxPrimitive.Collection data-slot="combobox-collection" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
   return (
     <ComboboxPrimitive.Empty
@@ -171,6 +215,10 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxSeparator({ className, ...props }: ComboboxPrimitive.Separator.Props) {
   return (
     <ComboboxPrimitive.Separator
@@ -181,6 +229,10 @@ function ComboboxSeparator({ className, ...props }: ComboboxPrimitive.Separator.
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxChips({
   className,
   ...props
@@ -197,6 +249,10 @@ function ComboboxChips({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxChip({
   className,
   children,
@@ -228,6 +284,10 @@ function ComboboxChip({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ComboboxChipsInput({ className, ...props }: ComboboxPrimitive.Input.Props) {
   return (
     <ComboboxPrimitive.Input
@@ -238,10 +298,18 @@ function ComboboxChipsInput({ className, ...props }: ComboboxPrimitive.Input.Pro
   );
 }
 
+/**
+ * @category hooks
+ * @since 0.0.0
+ */
 function useComboboxAnchor() {
   return React.useRef<HTMLDivElement | null>(null);
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Combobox,
   ComboboxChip,

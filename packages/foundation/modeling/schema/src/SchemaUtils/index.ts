@@ -7,17 +7,17 @@
 
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export * from "./optionalKeyWithDefaults.ts";
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export * from "./pluck.ts";
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export * from "./split.ts";
 /**
@@ -27,21 +27,21 @@ export * from "./split.ts";
 export * from "./toEquivalence.ts";
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export * from "./withEncodeDefault.ts";
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export * from "./withKeyDefaults.ts";
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export * from "./withLiteralKitStatics.ts";
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export * from "./withStatics.ts";

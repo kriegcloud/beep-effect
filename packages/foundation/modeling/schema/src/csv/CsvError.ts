@@ -28,7 +28,7 @@ const CsvErrorBase: TaggedErrorClassFromFields<CsvError, "CsvError", typeof CsvE
 /**
  * Raised when CSV parsing, header validation, or formatting fails.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export class CsvError extends CsvErrorBase {}
@@ -36,7 +36,7 @@ export class CsvError extends CsvErrorBase {}
 /**
  * Construct a {@link CsvError}.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const csvError: {

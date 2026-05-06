@@ -15,7 +15,7 @@
  * console.log(SpecimenUiEntity)
  * ```
  *
- * @category exports
+ * @category components
  * @since 0.0.0
  */
 export * from "./Specimen.detail.js";

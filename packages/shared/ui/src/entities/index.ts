@@ -9,6 +9,6 @@
  * ```
  *
  * @since 0.0.0
- * @category ui contracts
+ * @category models
  */
 export * as Organization from "./Organization/index.js";

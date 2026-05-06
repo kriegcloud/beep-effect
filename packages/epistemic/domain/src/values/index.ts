@@ -15,7 +15,7 @@
  * console.log(Module)
  * ```
 
- * @category values
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./ClaimLifecycle/index.js";

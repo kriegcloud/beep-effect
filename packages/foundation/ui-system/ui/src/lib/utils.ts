@@ -1,6 +1,7 @@
 /**
  * Utility functions for the UI component library.
  *
+ * @category utilities
  * @since 0.0.0
  * @packageDocumentation
  */
@@ -14,7 +15,7 @@ import { twMerge } from "tailwind-merge";
  * for intelligent Tailwind class deduplication.
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

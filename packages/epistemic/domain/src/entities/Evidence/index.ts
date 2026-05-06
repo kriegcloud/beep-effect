@@ -15,7 +15,7 @@
  * console.log(Module)
  * ```
  *
- * @category exports
+ * @category models
  * @since 0.0.0
  */
 export * from "./Evidence.model.js";

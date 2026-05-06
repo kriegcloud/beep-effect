@@ -78,7 +78,7 @@ class LearnCustomEntitiesSuccess extends S.Class<LearnCustomEntitiesSuccess>($I`
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const LearnCustomEntities = Tool.make("LearnCustomEntities", {
   description: "Learn custom entity patterns using bracket-string elements such as [PROPN], [CARDINAL], or [$].",

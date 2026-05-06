@@ -70,7 +70,7 @@ class QueryCorpusSuccess extends S.Class<QueryCorpusSuccess>($I`QueryCorpusSucce
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const QueryCorpus = Tool.make("QueryCorpus", {
   description: "Query a learned corpus session and return vector-ranked results without relearning.",

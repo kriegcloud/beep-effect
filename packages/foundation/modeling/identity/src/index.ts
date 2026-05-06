@@ -25,7 +25,7 @@
  * console.log($MyPkgId.make("Service"))
  * ```
  *
- * @category exports
+ * @category identifiers
  * @since 0.0.0
  */
 export * from "./Id.ts";
@@ -40,7 +40,7 @@ export * from "./Id.ts";
  * console.log($DataId.make("CurrencyCodes"))
  * ```
  *
- * @category exports
+ * @category configuration
  * @since 0.0.0
  */
 export * from "./packages.ts";

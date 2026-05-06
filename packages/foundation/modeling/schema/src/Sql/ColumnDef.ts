@@ -13,7 +13,7 @@ const $I = $SchemaId.create("Sql/ColumnDef");
 const LiteralBoolean = LiteralKit([true, false]);
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PrimaryKey = LiteralBoolean.annotate(
   $I.annote(`PrimaryKey`, {
@@ -23,13 +23,13 @@ export const PrimaryKey = LiteralBoolean.annotate(
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PrimaryKey = typeof PrimaryKey.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Unique = LiteralBoolean.annotate(
   $I.annote(`Unique`, {
@@ -39,13 +39,13 @@ export const Unique = LiteralBoolean.annotate(
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Unique = typeof Unique.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const IsNull = LiteralBoolean.annotate(
   $I.annote(`IsNull`, {
@@ -55,7 +55,7 @@ export const IsNull = LiteralBoolean.annotate(
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const AutoIncrement = LiteralBoolean.annotate(
   $I.annote(`AutoIncrement`, {
@@ -65,13 +65,13 @@ export const AutoIncrement = LiteralBoolean.annotate(
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type AutoIncrement = typeof AutoIncrement.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UniqueName = S.NonEmptyString.pipe(S.brand("UniqueName")).annotate(
   $I.annote(`UniqueName`, {
@@ -81,6 +81,6 @@ export const UniqueName = S.NonEmptyString.pipe(S.brand("UniqueName")).annotate(
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type UniqueName = typeof UniqueName.Type;

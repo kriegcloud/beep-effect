@@ -66,7 +66,7 @@ class TverskySimilaritySuccess extends S.Class<TverskySimilaritySuccess>($I`Tver
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const TverskySimilarity = Tool.make("TverskySimilarity", {
   description:

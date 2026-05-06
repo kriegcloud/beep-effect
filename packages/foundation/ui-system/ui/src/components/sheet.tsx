@@ -6,14 +6,26 @@ import { XIcon } from "@phosphor-icons/react";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SheetTrigger({ ...props }: SheetPrimitive.Trigger.Props) {
   return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SheetClose({ ...props }: SheetPrimitive.Close.Props) {
   return <SheetPrimitive.Close data-slot="sheet-close" {...props} />;
 }
@@ -35,6 +47,10 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SheetContent({
   className,
   children,
@@ -72,14 +88,26 @@ function SheetContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="sheet-header" className={cn("gap-0.5 p-4 flex flex-col", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="sheet-footer" className={cn("gap-2 p-4 mt-auto flex flex-col", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
   return (
     <SheetPrimitive.Title
@@ -90,6 +118,10 @@ function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SheetDescription({ className, ...props }: SheetPrimitive.Description.Props) {
   return (
     <SheetPrimitive.Description
@@ -100,4 +132,8 @@ function SheetDescription({ className, ...props }: SheetPrimitive.Description.Pr
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger };

@@ -22,7 +22,7 @@ const $I = $SchemaId.create("AbortSignal");
  *
  * @param u - The value to test.
  * @returns Whether the value is an `AbortSignal`.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const isAbortSignal = (u: unknown): u is AbortSignal => u instanceof AbortSignal;
@@ -40,7 +40,7 @@ export const isAbortSignal = (u: unknown): u is AbortSignal => u instanceof Abor
  * console.log(signal.aborted) // false
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const AbortSig = S.declare(isAbortSignal).pipe(
@@ -59,7 +59,7 @@ export const AbortSig = S.declare(isAbortSignal).pipe(
  * const handler = (signal: AbortSig) => signal.aborted
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type AbortSig = typeof AbortSig.Type;

@@ -32,7 +32,7 @@ const SingleCharacterText = S.String.check(
 /**
  * Schema-backed CSV text codec options.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export class CsvCodecOptions extends S.Class<CsvCodecOptions>($I`CsvCodecOptions`)(
@@ -99,7 +99,7 @@ export class CsvCodecOptions extends S.Class<CsvCodecOptions>($I`CsvCodecOptions
 /**
  * Encoded/raw constructor input for {@link CsvCodecOptions}.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export type CsvCodecOptionsArgs = typeof CsvCodecOptions.Encoded;
@@ -107,7 +107,7 @@ export type CsvCodecOptionsArgs = typeof CsvCodecOptions.Encoded;
 /**
  * Parse options used when normalizing raw CSV codec option input.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const CsvCodecOptionsParseOptions = csvCodecOptionsParseOptions;

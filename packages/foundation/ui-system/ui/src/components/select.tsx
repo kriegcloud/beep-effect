@@ -5,18 +5,34 @@ import { CaretDownIcon, CaretUpIcon, CheckIcon } from "@phosphor-icons/react";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const Select = SelectPrimitive.Root;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return <SelectPrimitive.Group data-slot="select-group" className={cn("scroll-my-1 p-1", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
   return (
     <SelectPrimitive.Value data-slot="select-value" className={cn("flex flex-1 text-left", className)} {...props} />
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SelectTrigger({
   className,
   size = "default",
@@ -41,6 +57,10 @@ function SelectTrigger({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SelectContent({
   className,
   children,
@@ -79,6 +99,10 @@ function SelectContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SelectLabel({ className, ...props }: SelectPrimitive.GroupLabel.Props) {
   return (
     <SelectPrimitive.GroupLabel
@@ -89,6 +113,10 @@ function SelectLabel({ className, ...props }: SelectPrimitive.GroupLabel.Props) 
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Props) {
   return (
     <SelectPrimitive.Item
@@ -111,6 +139,10 @@ function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Prop
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SelectSeparator({ className, ...props }: SelectPrimitive.Separator.Props) {
   return (
     <SelectPrimitive.Separator
@@ -121,6 +153,10 @@ function SelectSeparator({ className, ...props }: SelectPrimitive.Separator.Prop
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SelectScrollUpButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollUpArrow>) {
   return (
     <SelectPrimitive.ScrollUpArrow
@@ -136,6 +172,10 @@ function SelectScrollUpButton({ className, ...props }: React.ComponentProps<type
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function SelectScrollDownButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollDownArrow>) {
   return (
     <SelectPrimitive.ScrollDownArrow
@@ -151,6 +191,10 @@ function SelectScrollDownButton({ className, ...props }: React.ComponentProps<ty
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Select,
   SelectContent,

@@ -59,7 +59,7 @@ const isThunkUnknownValue = (u: unknown): u is () => unknown => P.isFunction(u);
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const nominal = Brand.make<ThunkUnknown>(isThunkUnknownValue);
 
@@ -77,7 +77,7 @@ export const nominal = Brand.make<ThunkUnknown>(isThunkUnknownValue);
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ThunkUnknown = S.declare<() => unknown>(isThunkUnknownValue).pipe(
   S.fromBrand(TypeId, nominal),
@@ -126,7 +126,7 @@ export const isThunkUnknown = S.is(ThunkUnknown);
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const make: {
   <TSchema extends S.Top>(

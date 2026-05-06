@@ -21,6 +21,10 @@ import { CheckIcon } from "@phosphor-icons/react";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Menubar({ className, ...props }: MenubarPrimitive.Props) {
   return (
     <MenubarPrimitive
@@ -31,18 +35,34 @@ function Menubar({ className, ...props }: MenubarPrimitive.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarMenu({ ...props }: React.ComponentProps<typeof DropdownMenu>) {
   return <DropdownMenu data-slot="menubar-menu" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarGroup({ ...props }: React.ComponentProps<typeof DropdownMenuGroup>) {
   return <DropdownMenuGroup data-slot="menubar-group" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarPortal({ ...props }: React.ComponentProps<typeof DropdownMenuPortal>) {
   return <DropdownMenuPortal data-slot="menubar-portal" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarTrigger({ className, ...props }: React.ComponentProps<typeof DropdownMenuTrigger>) {
   return (
     <DropdownMenuTrigger
@@ -56,6 +76,10 @@ function MenubarTrigger({ className, ...props }: React.ComponentProps<typeof Dro
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarContent({
   className,
   align = "start",
@@ -78,6 +102,10 @@ function MenubarContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarItem({
   className,
   inset,
@@ -98,6 +126,10 @@ function MenubarItem({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarCheckboxItem({ className, children, checked, ...props }: MenuPrimitive.CheckboxItem.Props) {
   return (
     <MenuPrimitive.CheckboxItem
@@ -119,10 +151,18 @@ function MenubarCheckboxItem({ className, children, checked, ...props }: MenuPri
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarRadioGroup({ ...props }: React.ComponentProps<typeof DropdownMenuRadioGroup>) {
   return <DropdownMenuRadioGroup data-slot="menubar-radio-group" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarRadioItem({ className, children, ...props }: MenuPrimitive.RadioItem.Props) {
   return (
     <MenuPrimitive.RadioItem
@@ -143,6 +183,10 @@ function MenubarRadioItem({ className, children, ...props }: MenuPrimitive.Radio
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarLabel({ className, inset, ...props }: React.ComponentProps<typeof DropdownMenuLabel>) {
   return (
     <DropdownMenuLabel
@@ -154,6 +198,10 @@ function MenubarLabel({ className, inset, ...props }: React.ComponentProps<typeo
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarSeparator({ className, ...props }: React.ComponentProps<typeof DropdownMenuSeparator>) {
   return (
     <DropdownMenuSeparator
@@ -164,6 +212,10 @@ function MenubarSeparator({ className, ...props }: React.ComponentProps<typeof D
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarShortcut({ className, ...props }: React.ComponentProps<typeof DropdownMenuShortcut>) {
   return (
     <DropdownMenuShortcut
@@ -177,10 +229,18 @@ function MenubarShortcut({ className, ...props }: React.ComponentProps<typeof Dr
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarSub({ ...props }: React.ComponentProps<typeof DropdownMenuSub>) {
   return <DropdownMenuSub data-slot="menubar-sub" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarSubTrigger({
   className,
   inset,
@@ -201,6 +261,10 @@ function MenubarSubTrigger({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function MenubarSubContent({ className, ...props }: React.ComponentProps<typeof DropdownMenuSubContent>) {
   return (
     <DropdownMenuSubContent
@@ -214,6 +278,10 @@ function MenubarSubContent({ className, ...props }: React.ComponentProps<typeof 
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Menubar,
   MenubarCheckboxItem,

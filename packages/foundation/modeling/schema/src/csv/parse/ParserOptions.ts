@@ -54,7 +54,7 @@ const ParserOptionsErrorBase: TaggedErrorClassFromFields<
 /**
  * A parser header configuration input.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const HeaderValueInput = S.Union([S.Boolean, HeaderArray, HeaderTransformFunction]).pipe(
@@ -66,7 +66,7 @@ export const HeaderValueInput = S.Union([S.Boolean, HeaderArray, HeaderTransform
 /**
  * {@inheritDoc HeaderValueInput}
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export type HeaderValueInput = typeof HeaderValueInput.Type;
@@ -74,7 +74,7 @@ export type HeaderValueInput = typeof HeaderValueInput.Type;
 /**
  * A parser options configuration error.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export class ParserOptionsError extends ParserOptionsErrorBase {}
@@ -101,7 +101,7 @@ const buildNextTokenRegExp = (escapedDelimiter: string): globalThis.RegExp =>
  * `NEXT_TOKEN_REGEXP` are exposed as getters so the schema stays focused on the
  * true input/configuration surface.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export class ParserOptions extends S.Class<ParserOptions>($I`ParserOptions`)(
@@ -220,7 +220,7 @@ const decodeParserOptionsUnknownResult = S.decodeUnknownResult(ParserOptions);
 /**
  * Encoded/raw constructor input for {@link ParserOptions}.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export type ParserOptionsArgs = typeof ParserOptions.Encoded;

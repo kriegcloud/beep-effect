@@ -338,7 +338,7 @@ When a page is saved, the editor emits graph events through the `KnowledgeGraph`
  * )
  * ```
  *
- * @category mutations
+ * @category commands
  * @since 0.0.0
  */
 ```

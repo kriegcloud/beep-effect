@@ -119,7 +119,7 @@ function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
  * void Example
  * ```
  *
- * @category React
+ * @category components
  * @param increment - Callback invoked for upward spinner movement.
  * @param decrement - Callback invoked for downward spinner movement.
  * @returns Spinner controls for starting and stopping repeated actions.
@@ -129,7 +129,7 @@ function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
  * Spinner button hook with press-and-hold repeat behavior.
  *
  * @since 0.0.0
- * @category React
+ * @category components
  */
 export function useSpinner<T>(increment: (params?: T) => void, decrement: (params?: T) => void) {
   const [isSpinning, setIsSpinning] = useState(false);

@@ -15,7 +15,7 @@
  * console.log(SpecimenReadModels)
  * ```
  *
- * @category exports
+ * @category read-models
  * @since 0.0.0
  */
 export * from "./entities/Specimen/Specimen.read-model-table.js";

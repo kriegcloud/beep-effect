@@ -74,7 +74,7 @@ const learnDocumentState = (
  * ```
  *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export interface ScopedVectorizer {
   readonly getDocumentTermFrequencies: (
@@ -111,7 +111,7 @@ const loadBM25Vectorizer = (): BM25VectorizerFactory => require("wink-nlp/utilit
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const BM25Norm = BM25NormKit.pipe(
   $I.annoteSchema("BM25Norm", {
@@ -186,7 +186,7 @@ const readNormalizedTokensFromWink = (
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class BM25Config extends S.Class<BM25Config>($I`BM25Config`)(
   {
@@ -215,7 +215,7 @@ export class BM25Config extends S.Class<BM25Config>($I`BM25Config`)(
  * ```
  *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const DefaultBM25Config = BM25Config.make({
   b: 0.75,
@@ -235,7 +235,7 @@ export const DefaultBM25Config = BM25Config.make({
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class DocumentVector extends S.Class<DocumentVector>($I`DocumentVector`)(
   {
@@ -263,7 +263,7 @@ export class DocumentVector extends S.Class<DocumentVector>($I`DocumentVector`)(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class BagOfWords extends S.Class<BagOfWords>($I`BagOfWords`)(
   {
@@ -290,7 +290,7 @@ export class BagOfWords extends S.Class<BagOfWords>($I`BagOfWords`)(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class TermFrequency extends S.Class<TermFrequency>($I`TermFrequency`)(
   {
@@ -317,7 +317,7 @@ export class TermFrequency extends S.Class<TermFrequency>($I`TermFrequency`)(
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`VectorizerError`)(
   "VectorizerError",
@@ -520,7 +520,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
  * ```
  *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class WinkVectorizer extends Context.Service<WinkVectorizer, WinkVectorizerShape>()($I`WinkVectorizer`) {}
 
@@ -535,6 +535,6 @@ export class WinkVectorizer extends Context.Service<WinkVectorizer, WinkVectoriz
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkVectorizerLive = Layer.effect(WinkVectorizer, makeWinkVectorizer);

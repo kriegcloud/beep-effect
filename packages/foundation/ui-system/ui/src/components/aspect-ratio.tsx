@@ -1,5 +1,9 @@
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AspectRatio({ ratio, className, ...props }: React.ComponentProps<"div"> & { readonly ratio: number }) {
   return (
     <div
@@ -15,4 +19,8 @@ function AspectRatio({ ratio, className, ...props }: React.ComponentProps<"div">
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { AspectRatio };

@@ -4,6 +4,10 @@ import { Separator as SeparatorPrimitive } from "@base-ui/react/separator";
 
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Separator({ className, orientation = "horizontal", ...props }: SeparatorPrimitive.Props) {
   return (
     <SeparatorPrimitive
@@ -18,4 +22,8 @@ function Separator({ className, orientation = "horizontal", ...props }: Separato
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Separator };

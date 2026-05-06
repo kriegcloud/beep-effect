@@ -45,7 +45,7 @@ const unsupportedFloat16ArrayRuntime = (): never => {
 /**
  * Float16Array type guard.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const isFloat16Array = (u: unknown): u is Float16Array<ArrayBufferLike> =>
@@ -57,7 +57,7 @@ export const isFloat16Array = (u: unknown): u is Float16Array<ArrayBufferLike> =
  * This is useful for internal boundaries that already operate on typed arrays
  * and only need runtime schema validation plus reusable schema metadata.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  * @example
  * ```ts
@@ -79,7 +79,7 @@ export const Float16Arr = S.declare(isFloat16Array).pipe(
 /**
  * Type for {@link Float16Arr}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type Float16Arr = typeof Float16Arr.Type;
@@ -92,7 +92,7 @@ export type Float16Arr = typeof Float16Arr.Type;
  * Encoding converts the typed array back into a standard array of numbers so it
  * can be transported through JSON-friendly boundaries.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  * @example
  * ```ts
@@ -130,7 +130,7 @@ export const Float16ArrayFromArray = S.Number.pipe(
 /**
  * Type for {@link Float16ArrayFromArray}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type Float16ArrayFromArray = typeof Float16ArrayFromArray.Type;
@@ -138,7 +138,7 @@ export type Float16ArrayFromArray = typeof Float16ArrayFromArray.Type;
 /**
  * Namespace members for {@link Float16ArrayFromArray}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export declare namespace Float16ArrayFromArray {
@@ -148,7 +148,7 @@ export declare namespace Float16ArrayFromArray {
    * This stays as a plain array of numbers so JSON payloads can represent
    * typed-array content without a custom wire format.
    *
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    * @example
    * ```ts
@@ -172,7 +172,7 @@ export declare namespace Float16ArrayFromArray {
  * define a `json` variant, allowing read-side JSON serialization to be chosen
  * explicitly by the surrounding model.
  *
- * @category fields
+ * @category schemas
  * @since 0.0.0
  */
 export const Float16ArrayField = Model.Field({

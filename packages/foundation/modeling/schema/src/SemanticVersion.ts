@@ -40,7 +40,7 @@ const SemanticVersionSegment = S.String.check(
  * S.decodeUnknownSync(SemanticVersion)("12.34.56");
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const SemanticVersion = S.TemplateLiteral([
@@ -69,7 +69,7 @@ export const SemanticVersion = S.TemplateLiteral([
  * console.log(currentVersion);
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type SemanticVersion = typeof SemanticVersion.Type;

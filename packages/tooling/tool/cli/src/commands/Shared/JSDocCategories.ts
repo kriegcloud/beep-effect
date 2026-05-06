@@ -13,6 +13,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
+// cspell:ignore dtos
 const $I = $RepoCliId.create("commands/Shared/JSDocCategories");
 
 /**

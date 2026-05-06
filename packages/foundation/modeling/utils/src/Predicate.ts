@@ -22,7 +22,7 @@ export * from "effect/Predicate";
  * Supports both data-last and data-first invocation styles.
  *
  * @since 0.0.0
- * @category utility
+ * @category utilities
  * @example
  * ```ts
  * import { hasProperties } from "@beep/utils/Predicate"

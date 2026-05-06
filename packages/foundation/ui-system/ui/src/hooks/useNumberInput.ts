@@ -207,7 +207,7 @@ const useIsFirstMount = () => {
 /**
  * Lowest safe integer supported by the hook defaults.
  *
- * @category Constant
+ * @category constants
  * @since 0.0.0
  */
 export const minSafeInteger = Number.MIN_SAFE_INTEGER ?? -9007199254740991;
@@ -215,7 +215,7 @@ export const minSafeInteger = Number.MIN_SAFE_INTEGER ?? -9007199254740991;
 /**
  * Highest safe integer supported by the hook defaults.
  *
- * @category Constant
+ * @category constants
  * @since 0.0.0
  */
 export const maxSafeInteger = Number.MAX_SAFE_INTEGER ?? 9007199254740991;
@@ -223,7 +223,7 @@ export const maxSafeInteger = Number.MAX_SAFE_INTEGER ?? 9007199254740991;
 /**
  * Schema describing optional numeric bounds and controlled values for number input hooks.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class BoundaryParams extends S.Class<BoundaryParams>($I`BoundaryParams`)(
@@ -241,7 +241,7 @@ export class BoundaryParams extends S.Class<BoundaryParams>($I`BoundaryParams`)(
 /**
  * Schema describing step and precision overrides for spinner changes.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class SpinParams extends S.Class<SpinParams>($I`SpinParams`)(
@@ -270,7 +270,7 @@ export class SpinParams extends S.Class<SpinParams>($I`SpinParams`)(
  * console.log(missing) // undefined
  * ```
  *
- * @category Utility
+ * @category utilities
  * @param value - Editable text from the input or parser.
  * @returns The parsed numeric value when available.
  * @since 0.0.0
@@ -301,7 +301,7 @@ export const toNumber = (value: string | undefined): number | undefined =>
  * console.log(empty) // ""
  * ```
  *
- * @category Utility
+ * @category utilities
  * @param value - Numeric value to render for the input.
  * @param precision - Number of fractional digits to keep.
  * @returns The formatted text representation for the current input value.
@@ -347,7 +347,7 @@ export const numberToString: {
  * console.log(factor) // 0.5
  * ```
  *
- * @category Utility
+ * @category utilities
  * @param event - Modifier-key state captured from the current gesture.
  * @param step - Base step configured for the number input.
  * @param options - Decimal precision enforced by the number input.
@@ -371,7 +371,7 @@ export const getStepFactor: {
 /**
  * Event types reported through the `onChange` metadata callback.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const NumberInputEventType = LiteralKit(["change", "blur"]).pipe(
@@ -383,7 +383,7 @@ export const NumberInputEventType = LiteralKit(["change", "blur"]).pipe(
 /**
  * Runtime type for {@link NumberInputEventType}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type NumberInputEventType = typeof NumberInputEventType.Type;
@@ -391,7 +391,7 @@ export type NumberInputEventType = typeof NumberInputEventType.Type;
 /**
  * Error states reported through the `onChange` metadata callback.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const NumberInputError = LiteralKit(["exceed-max", "below-min"]).pipe(
@@ -403,7 +403,7 @@ export const NumberInputError = LiteralKit(["exceed-max", "below-min"]).pipe(
 /**
  * Runtime type for {@link NumberInputError}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type NumberInputError = typeof NumberInputError.Type;
@@ -411,7 +411,7 @@ export type NumberInputError = typeof NumberInputError.Type;
 /**
  * Metadata passed to `UseNumberInputOptions.onChange`.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class NumberInputChangeMetadata extends S.Class<NumberInputChangeMetadata>($I`NumberInputChangeMetadata`)(
@@ -449,7 +449,7 @@ const getError = (value: number | undefined, min: number, max: number): NumberIn
 /**
  * Options accepted by {@link useNumberBoundary} and {@link useNumberInput}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type UseNumberInputOptions = BoundaryParams &
@@ -507,7 +507,7 @@ export type UseNumberInputOptions = BoundaryParams &
  * void Example
  * ```
  *
- * @category React
+ * @category components
  * @param options - Number-input boundary and formatting options.
  * @returns Managed numeric and interface state helpers.
  */
@@ -515,7 +515,7 @@ export type UseNumberInputOptions = BoundaryParams &
  * Low-level number-input state hook for parsing, formatting, and boundary management.
  *
  * @since 0.0.0
- * @category React
+ * @category components
  */
 export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
   const {
@@ -591,7 +591,7 @@ export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
  * Fully managed number-input hook with keyboard and spinner controls.
  *
  * @since 0.0.0
- * @category React
+ * @category components
  */
 export const useNumberInput = (options: UseNumberInputOptions = {}) => {
   const inputRef = useRef<HTMLInputElement | null>(null);

@@ -28,7 +28,7 @@ import { WinkVectorizerLive as WinkVectorizerLiveService } from "./WinkVectorize
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkLayerLive = WinkTokenizationService.pipe(Layer.provideMerge(WinkEngineLiveService));
 
@@ -51,7 +51,7 @@ const WinkLayerSharedLive = WinkEngineRefLiveService.pipe(Layer.provideMerge(Win
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkLayerAllLive = WinkCorpusManagerLiveService.pipe(Layer.provideMerge(WinkLayerSharedLive));
 
@@ -64,7 +64,7 @@ export const WinkLayerAllLive = WinkCorpusManagerLiveService.pipe(Layer.provideM
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkCorpusManagerLive = WinkCorpusManagerLiveService;
 /**
@@ -76,7 +76,7 @@ export const WinkCorpusManagerLive = WinkCorpusManagerLiveService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export const WinkEngine = WinkEngineService;
 /**
@@ -88,7 +88,7 @@ export const WinkEngine = WinkEngineService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkEngineLive = WinkEngineLiveService;
 /**
@@ -100,7 +100,7 @@ export const WinkEngineLive = WinkEngineLiveService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkEngineRefLive = WinkEngineRefLiveService;
 /**
@@ -112,7 +112,7 @@ export const WinkEngineRefLive = WinkEngineRefLiveService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkSimilarityLive = WinkSimilarityLiveService;
 /**
@@ -124,7 +124,7 @@ export const WinkSimilarityLive = WinkSimilarityLiveService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkTokenization = WinkTokenizationService;
 /**
@@ -136,7 +136,7 @@ export const WinkTokenization = WinkTokenizationService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkTokenizationLive = WinkTokenizationLiveService;
 /**
@@ -148,7 +148,7 @@ export const WinkTokenizationLive = WinkTokenizationLiveService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkUtilsLive = WinkUtilsLiveService;
 /**
@@ -160,6 +160,6 @@ export const WinkUtilsLive = WinkUtilsLiveService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkVectorizerLive = WinkVectorizerLiveService;

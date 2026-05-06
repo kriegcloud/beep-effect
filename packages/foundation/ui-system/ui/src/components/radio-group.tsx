@@ -5,10 +5,18 @@ import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 import { CircleIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
   return <RadioGroupPrimitive data-slot="radio-group" className={cn("grid gap-2 w-full", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
   return (
     <RadioPrimitive.Root
@@ -29,4 +37,8 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { RadioGroup, RadioGroupItem };

@@ -15,7 +15,7 @@
  * console.log(Module)
  * ```
  *
- * @category exports
+ * @category models
  * @since 0.0.0
  */
 export * from "./Agent.model.js";
@@ -29,7 +29,7 @@ export * from "./Agent.model.js";
  * console.log(Module)
  * ```
  *
- * @category exports
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./Agent.values.js";

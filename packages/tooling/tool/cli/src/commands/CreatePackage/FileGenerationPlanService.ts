@@ -78,7 +78,7 @@ const SymlinkTargetPath = RelativePlanPath.pipe(
 /**
  * A file write operation.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class PlannedFile extends S.Class<PlannedFile>($I`PlannedFile`)(
@@ -94,7 +94,7 @@ export class PlannedFile extends S.Class<PlannedFile>($I`PlannedFile`)(
 /**
  * A symlink operation.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class PlannedSymlink extends S.Class<PlannedSymlink>($I`PlannedSymlink`)(
@@ -110,7 +110,7 @@ export class PlannedSymlink extends S.Class<PlannedSymlink>($I`PlannedSymlink`)(
 /**
  * Input payload used to create a generation plan.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I`FileGenerationPlanInput`)(
@@ -128,7 +128,7 @@ export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I
 /**
  * Planned action kinds.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const GenerationActionKind = LiteralKit(["mkdir", "write-file", "symlink"]).annotate(
@@ -139,7 +139,7 @@ export const GenerationActionKind = LiteralKit(["mkdir", "write-file", "symlink"
 /**
  * Planned generation action.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type GenerationActionKind = typeof GenerationActionKind.Type;
@@ -180,7 +180,7 @@ class GenerationActionSymlink extends S.Class<GenerationActionSymlink>($I`Genera
  * Planned generation action schema.
  *
  * @returns Tagged union schema keyed by `kind`.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const GenerationAction = S.Union([GenerationActionMkdir, GenerationActionWriteFile, GenerationActionSymlink])
@@ -204,7 +204,7 @@ export const GenerationAction = S.Union([GenerationActionMkdir, GenerationAction
 /**
  * Planned generation action.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type GenerationAction = typeof GenerationAction.Type;
@@ -212,7 +212,7 @@ export type GenerationAction = typeof GenerationAction.Type;
 /**
  * Deterministic generation plan.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class FileGenerationPlan extends S.Class<FileGenerationPlan>($I`FileGenerationPlan`)(
@@ -228,7 +228,7 @@ export class FileGenerationPlan extends S.Class<FileGenerationPlan>($I`FileGener
 /**
  * Execution report for a plan run.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class FileGenerationExecutionResult extends S.Class<FileGenerationExecutionResult>(
@@ -249,7 +249,7 @@ export class FileGenerationExecutionResult extends S.Class<FileGenerationExecuti
 /**
  * Service contract for deterministic generation plan orchestration.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type FileGenerationPlanServiceShape = {
@@ -263,7 +263,7 @@ export type FileGenerationPlanServiceShape = {
 /**
  * Service tag for deterministic file-generation planning and execution.
  *
- * @category PortContract
+ * @category ports
  * @since 0.0.0
  */
 export class FileGenerationPlanService extends Context.Service<
@@ -462,7 +462,7 @@ const resolveContainedSymlinkDestinationPath: {
  * Construct the default generation plan service implementation.
  *
  * @returns Deterministic plan preview and execution helpers.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const createFileGenerationPlanService = (): FileGenerationPlanServiceShape => {

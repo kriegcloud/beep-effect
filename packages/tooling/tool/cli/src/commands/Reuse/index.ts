@@ -355,7 +355,7 @@ const printReuseIndex = Effect.fn(function* () {
 /**
  * Reuse-discovery command group.
  *
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const reuseCommand = Command.make("reuse", {}, printReuseIndex).pipe(

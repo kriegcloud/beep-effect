@@ -5,7 +5,7 @@
  * Contains the list of cycles found, where each cycle is an ordered
  * array of package names forming the loop.
  *
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -27,7 +27,7 @@ const $I = $RepoUtilsId.create("errors/CyclicDependencyError");
  * })
  * void error.cycles
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class CyclicDependencyError extends TaggedErrorClass<CyclicDependencyError>($I`CyclicDependencyError`)(

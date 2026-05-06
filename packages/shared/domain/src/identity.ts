@@ -15,7 +15,7 @@
  * console.log(Identity)
  * ```
  *
- * @category exports
+ * @category entity-ids
  * @since 0.0.0
  */
 export * from "./identity/index.ts";

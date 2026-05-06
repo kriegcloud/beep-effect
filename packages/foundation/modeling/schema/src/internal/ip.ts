@@ -19,7 +19,7 @@ export const ipv4RegExp: RegExp =
  * Supports all valid IPv6 formats including zero compression.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ipv6RegExp: RegExp =
   /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))$/;
@@ -33,7 +33,7 @@ export const ipv6RegExp: RegExp =
  * - No leading or trailing whitespace
  *
  * @internal
- * @category Validation
+ * @category validation
  */
 const IpV4Check = S.makeFilterGroup([
   S.isNonEmpty({
@@ -57,7 +57,7 @@ const IpV4Check = S.makeFilterGroup([
  * - No leading or trailing whitespace
  *
  * @internal
- * @category Validation
+ * @category validation
  */
 const IpV6Check = S.makeFilterGroup([
   S.isNonEmpty({
@@ -82,7 +82,7 @@ const trim = flow(S.decode<S.String>(SchemaTransformation.trim()));
  * Encoded schema for IPv4 addresses (trimmed non-empty string).
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const IpV4Encoded = S.NonEmptyString.pipe(trim);
 
@@ -90,7 +90,7 @@ export const IpV4Encoded = S.NonEmptyString.pipe(trim);
  * Decoded schema for validated IPv4 addresses with brand.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const IpV4Decoded = IpV4Encoded.check(IpV4Check).pipe(S.brand("IpV4"));
 
@@ -101,7 +101,7 @@ export const IpV4Decoded = IpV4Encoded.check(IpV4Check).pipe(S.brand("IpV4"));
  * or exposure of sensitive network information.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const IpV4 = S.RedactedFromValue(IpV4Decoded);
 
@@ -109,7 +109,7 @@ export const IpV4 = S.RedactedFromValue(IpV4Decoded);
  * Type for {@link IpV4}.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type IpV4 = typeof IpV4.Type;
 
@@ -117,7 +117,7 @@ export type IpV4 = typeof IpV4.Type;
  * Encoded schema for IPv6 addresses (trimmed non-empty string).
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const IpV6Encoded = S.NonEmptyString.pipe(trim);
 
@@ -125,7 +125,7 @@ export const IpV6Encoded = S.NonEmptyString.pipe(trim);
  * Decoded schema for validated IPv6 addresses with brand.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const IpV6Decoded = IpV6Encoded.check(IpV6Check).pipe(S.brand("IpV6"));
 
@@ -136,7 +136,7 @@ export const IpV6Decoded = IpV6Encoded.check(IpV6Check).pipe(S.brand("IpV6"));
  * or exposure of sensitive network information.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const IpV6 = S.RedactedFromValue(IpV6Decoded);
 
@@ -144,6 +144,6 @@ export const IpV6 = S.RedactedFromValue(IpV6Decoded);
  * Type for {@link IpV6}.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type IpV6 = typeof IpV6.Type;

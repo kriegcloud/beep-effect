@@ -3,6 +3,10 @@ import { CaretLeftIcon, CaretRightIcon, DotsThreeIcon } from "@phosphor-icons/re
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
@@ -14,10 +18,18 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PaginationContent({ className, ...props }: React.ComponentProps<"ul">) {
   return <ul data-slot="pagination-content" className={cn("gap-0.5 flex items-center", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PaginationItem({ ...props }: React.ComponentProps<"li">) {
   return <li data-slot="pagination-item" {...props} />;
 }
@@ -27,6 +39,10 @@ type PaginationLinkProps = {
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
   React.ComponentProps<"a">;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PaginationLink({ className, isActive, size = "icon", ...props }: PaginationLinkProps) {
   const active = isActive === true;
 
@@ -43,6 +59,10 @@ function PaginationLink({ className, isActive, size = "icon", ...props }: Pagina
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PaginationPrevious({ className, ...props }: React.ComponentProps<typeof PaginationLink>) {
   return (
     <PaginationLink aria-label="Go to previous page" size="default" className={cn("pl-1.5!", className)} {...props}>
@@ -52,6 +72,10 @@ function PaginationPrevious({ className, ...props }: React.ComponentProps<typeof
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PaginationNext({ className, ...props }: React.ComponentProps<typeof PaginationLink>) {
   return (
     <PaginationLink aria-label="Go to next page" size="default" className={cn("pr-1.5!", className)} {...props}>
@@ -61,6 +85,10 @@ function PaginationNext({ className, ...props }: React.ComponentProps<typeof Pag
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -78,6 +106,10 @@ function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span"
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Pagination,
   PaginationContent,

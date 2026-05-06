@@ -6,14 +6,26 @@ import * as S from "effect/Schema";
 
 const $I = $UiId.create("components/codegraph/styles/graph-layout");
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export const LayoutName = LiteralKit(["cose", "breadthFirst", "concentric", "circle"]).pipe(
   $I.annoteSchema("LayoutName", {
     description: "Available graph layout names for codegraph",
   })
 );
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export type LayoutName = typeof LayoutName.Type;
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export class LayoutBase extends S.Class<LayoutBase>($I`LayoutBase`)({
   animate: S.Boolean,
   fit: S.Boolean,
@@ -23,6 +35,10 @@ export class LayoutBase extends S.Class<LayoutBase>($I`LayoutBase`)({
 
 const LayoutNodeFunction = S.declare((i: unknown): i is (param: TUnsafe.Any) => number => P.isFunction(i));
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export class CircleLayout extends S.TaggedClass<CircleLayout>($I`CircleLayout`)(
   LayoutName.Enum.circle,
   {
@@ -33,6 +49,10 @@ export class CircleLayout extends S.TaggedClass<CircleLayout>($I`CircleLayout`)(
   })
 ) {}
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export class ConcentricLayout extends S.TaggedClass<ConcentricLayout>($I`ConcentricLayout`)(
   LayoutName.Enum.concentric,
   {
@@ -46,6 +66,10 @@ export class ConcentricLayout extends S.TaggedClass<ConcentricLayout>($I`Concent
   })
 ) {}
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export class BreadthFirstLayout extends S.TaggedClass<BreadthFirstLayout>($I`BreadthFirstLayout`)(
   LayoutName.Enum.breadthFirst,
   {
@@ -61,6 +85,10 @@ export class BreadthFirstLayout extends S.TaggedClass<BreadthFirstLayout>($I`Bre
   })
 ) {}
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export class CoseLayout extends S.TaggedClass<CoseLayout>($I`CoseLayout`)(
   LayoutName.Enum.cose,
   {
@@ -81,6 +109,10 @@ export class CoseLayout extends S.TaggedClass<CoseLayout>($I`CoseLayout`)(
   })
 ) {}
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export const GraphLayout = S.Union([BreadthFirstLayout, CircleLayout, ConcentricLayout, CoseLayout]).pipe(
   S.toTaggedUnion("_tag"),
   $I.annoteSchema("GraphLayout", {

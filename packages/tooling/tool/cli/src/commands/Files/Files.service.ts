@@ -2992,7 +2992,7 @@ const logCropBordersPlan = Effect.fn("Files.logCropBordersPlan")(function* (plan
 /**
  * Print the files command index.
  *
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const printFilesIndex = Effect.fn("Files.printFilesIndex")(function* () {
@@ -3612,7 +3612,7 @@ export const FilesCommandServiceLive: Layer.Layer<FilesCommandService, never, Fi
  *
  * @param options - Candidate archival options.
  * @returns Summary counts for the operation.
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const archivePoorCandidates = Effect.fn("Files.archivePoorCandidates")(function* (
@@ -3627,7 +3627,7 @@ export const archivePoorCandidates = Effect.fn("Files.archivePoorCandidates")(fu
  *
  * @param options - Caption sidecar creation options.
  * @returns Summary counts for the operation.
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const createCaptionFiles = Effect.fn("Files.createCaptionFiles")(function* (
@@ -3642,7 +3642,7 @@ export const createCaptionFiles = Effect.fn("Files.createCaptionFiles")(function
  *
  * @param options - Border crop options.
  * @returns Summary counts for the operation.
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const cropBordersFiles = Effect.fn("Files.cropBordersFiles")(function* (
@@ -3657,7 +3657,7 @@ export const cropBordersFiles = Effect.fn("Files.cropBordersFiles")(function* (
  *
  * @param options - Border detection options.
  * @returns JSON-safe detection report.
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const detectBordersFiles = Effect.fn("Files.detectBordersFiles")(function* (
@@ -3672,7 +3672,7 @@ export const detectBordersFiles = Effect.fn("Files.detectBordersFiles")(function
  *
  * @param options - Normalization options.
  * @returns Summary counts for the operation.
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const normalizeFiles = Effect.fn("Files.normalizeFiles")(function* (
@@ -3690,7 +3690,7 @@ export const normalizeFiles = Effect.fn("Files.normalizeFiles")(function* (
  * @param dryRun - Whether to print the plan without applying it.
  * @param withDimensions - Whether to include probed media dimensions in generated names.
  * @returns Summary counts for the operation.
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const sortAndRenameFiles = Effect.fn("Files.sortAndRenameFiles")(function* (
@@ -3717,7 +3717,7 @@ export const sortAndRenameFiles = Effect.fn("Files.sortAndRenameFiles")(function
  * const program = stripMetadataFiles("./tmp", true)
  * void program
  * ```
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const stripMetadataFiles = Effect.fn("Files.stripMetadataFiles")(function* (

@@ -15,7 +15,7 @@
  * console.log(SpecimenConfig)
  * ```
  *
- * @category exports
+ * @category configuration
  * @since 0.0.0
  */
 export * from "./PublicConfig.js";

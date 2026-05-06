@@ -92,6 +92,7 @@ const getQuotedFieldStart = (input: string, cursor: number, parserOptions: Parse
 };
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ParsedField extends S.Class<ParsedField>($I`ParsedField`)(
@@ -236,6 +237,7 @@ const parseField = (
 };
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ParsedRow extends S.Class<ParsedRow>($I`ParsedRow`)(
@@ -373,7 +375,7 @@ const parseCsvRowsEffect = (
 /**
  * Parse full CSV text into raw row arrays using low-level parser options.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const parseCsvRows: {

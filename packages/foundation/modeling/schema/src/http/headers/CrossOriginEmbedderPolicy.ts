@@ -23,6 +23,7 @@ const headerName = "Cross-Origin-Embedder-Policy" as const;
 const CoepValueBase = LiteralKit(["unsafe-none", "require-corp", "credentialless"]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const CoepValue = CoepValueBase.pipe(
@@ -33,6 +34,7 @@ export const CoepValue = CoepValueBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type CoepValue = typeof CoepValue.Type;
@@ -40,6 +42,7 @@ export type CoepValue = typeof CoepValue.Type;
 const CrossOriginEmbedderPolicyOptionBase = LiteralKit([false, ...CoepValueBase.Options]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const CrossOriginEmbedderPolicyOption = CrossOriginEmbedderPolicyOptionBase.pipe(
@@ -50,12 +53,14 @@ export const CrossOriginEmbedderPolicyOption = CrossOriginEmbedderPolicyOptionBa
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type CrossOriginEmbedderPolicyOption = typeof CrossOriginEmbedderPolicyOption.Type;
 
 /**
  * Schema for the Cross-Origin-Embedder-Policy response header output.
+ * @category models
  * @since 0.0.0
  */
 export class COEPResponseHeader extends S.Class<COEPResponseHeader>($I`COEPResponseHeader`)(
@@ -77,6 +82,7 @@ type COEPResponseHeaderEncoded = typeof COEPResponseHeader.Encoded;
  * - `false` → decodes to `{ name: "Cross-Origin-Embedder-Policy", value: undefined }`
  * - `undefined` → decodes to `{ name: "Cross-Origin-Embedder-Policy", value: undefined }` (no default)
  * - Valid COEP value → decodes to `{ name: "Cross-Origin-Embedder-Policy", value: <value> }`
+ * @category schemas
  * @since 0.0.0
  */
 export const CrossOriginEmbedderPolicyHeader = S.Union([CrossOriginEmbedderPolicyOption, S.Undefined]).pipe(
@@ -153,6 +159,7 @@ export const CrossOriginEmbedderPolicyHeader = S.Union([CrossOriginEmbedderPolic
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type CrossOriginEmbedderPolicyHeader = typeof CrossOriginEmbedderPolicyHeader.Type;

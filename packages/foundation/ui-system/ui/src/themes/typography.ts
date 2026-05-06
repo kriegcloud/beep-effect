@@ -84,7 +84,7 @@ const h4Styles = {
  * Typography scale for the shared theme.
  *
  * @since 0.0.0
- * @category theme
+ * @category themes
  */
 export const typography: ThemeOptions["typography"] = {
   fontFamily:
@@ -108,7 +108,7 @@ export const typography: ThemeOptions["typography"] = {
  * Typography component overrides for the shared theme.
  *
  * @since 0.0.0
- * @category theme
+ * @category themes
  */
 export const typographyTheme: ThemeOptions["components"] = {
   MuiTypography: {

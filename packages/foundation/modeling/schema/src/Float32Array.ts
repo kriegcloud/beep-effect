@@ -23,7 +23,7 @@ const $I = $SchemaId.create("Float32Array");
  * This is useful for internal boundaries that already operate on typed arrays
  * and only need runtime schema validation plus reusable schema metadata.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  * @example
  * ```ts
@@ -47,7 +47,7 @@ export const Float32Arr = S.instanceOf<globalThis.Float32ArrayConstructor, globa
 /**
  * Type for {@link Float32Arr}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type Float32Arr = typeof Float32Arr.Type;
@@ -60,7 +60,7 @@ export type Float32Arr = typeof Float32Arr.Type;
  * Encoding converts the typed array back into a standard array of numbers so it
  * can be transported through JSON-friendly boundaries.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  * @example
  * ```ts
@@ -95,7 +95,7 @@ export const Float32ArrayFromArray = S.Number.pipe(
 /**
  * Type for {@link Float32ArrayFromArray}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type Float32ArrayFromArray = typeof Float32ArrayFromArray.Type;
@@ -103,7 +103,7 @@ export type Float32ArrayFromArray = typeof Float32ArrayFromArray.Type;
 /**
  * Namespace members for {@link Float32ArrayFromArray}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export declare namespace Float32ArrayFromArray {
@@ -113,7 +113,7 @@ export declare namespace Float32ArrayFromArray {
    * This stays as a plain array of numbers, so JSON payloads can represent
    * typed-array content without a custom wire format.
    *
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    * @example
    * ```ts
@@ -137,7 +137,7 @@ export declare namespace Float32ArrayFromArray {
  * define a `json` variant, allowing read-side JSON serialization to be chosen
  * explicitly by the surrounding model.
  *
- * @category fields
+ * @category schemas
  * @since 0.0.0
  */
 export const Float32ArrayField = Model.Field({

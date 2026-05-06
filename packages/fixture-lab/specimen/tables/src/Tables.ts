@@ -15,7 +15,7 @@
  * console.log(SpecimenTables)
  * ```
  *
- * @category exports
+ * @category tables
  * @since 0.0.0
  */
 export * from "./entities/Specimen/Specimen.table.js";

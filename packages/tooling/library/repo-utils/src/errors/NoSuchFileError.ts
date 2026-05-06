@@ -5,7 +5,7 @@
  * or `bun.lock` and reaching the root without success, or when an expected
  * file path does not exist on disk.
  *
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -26,7 +26,7 @@ const $I = $RepoUtilsId.create("errors/NoSuchFileError");
  * })
  * void error.path
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class NoSuchFileError extends TaggedErrorClass<NoSuchFileError>($I`NoSuchFileError`)(

@@ -61,7 +61,7 @@ export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export class CanonicalizationError extends TaggedErrorClass<CanonicalizationError>($I`CanonicalizationError`)(
   "CanonicalizationError",

@@ -1,5 +1,5 @@
 /**
  * @since 0.0.0
- * @category exports
+ * @category type-level
  */
 export * from "./component";

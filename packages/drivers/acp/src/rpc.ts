@@ -20,7 +20,7 @@ import * as AcpSchema from "./_generated/schema.gen.ts";
  * const rpc = InitializeRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const InitializeRpc = Rpc.make(AGENT_METHODS.initialize, {
@@ -39,7 +39,7 @@ export const InitializeRpc = Rpc.make(AGENT_METHODS.initialize, {
  * const rpc = AuthenticateRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const AuthenticateRpc = Rpc.make(AGENT_METHODS.authenticate, {
@@ -58,7 +58,7 @@ export const AuthenticateRpc = Rpc.make(AGENT_METHODS.authenticate, {
  * const rpc = LogoutRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const LogoutRpc = Rpc.make(AGENT_METHODS.logout, {
@@ -77,7 +77,7 @@ export const LogoutRpc = Rpc.make(AGENT_METHODS.logout, {
  * const rpc = NewSessionRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const NewSessionRpc = Rpc.make(AGENT_METHODS.session_new, {
@@ -96,7 +96,7 @@ export const NewSessionRpc = Rpc.make(AGENT_METHODS.session_new, {
  * const rpc = LoadSessionRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const LoadSessionRpc = Rpc.make(AGENT_METHODS.session_load, {
@@ -115,7 +115,7 @@ export const LoadSessionRpc = Rpc.make(AGENT_METHODS.session_load, {
  * const rpc = ListSessionsRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const ListSessionsRpc = Rpc.make(AGENT_METHODS.session_list, {
@@ -134,7 +134,7 @@ export const ListSessionsRpc = Rpc.make(AGENT_METHODS.session_list, {
  * const rpc = ForkSessionRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const ForkSessionRpc = Rpc.make(AGENT_METHODS.session_fork, {
@@ -153,7 +153,7 @@ export const ForkSessionRpc = Rpc.make(AGENT_METHODS.session_fork, {
  * const rpc = ResumeSessionRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const ResumeSessionRpc = Rpc.make(AGENT_METHODS.session_resume, {
@@ -172,7 +172,7 @@ export const ResumeSessionRpc = Rpc.make(AGENT_METHODS.session_resume, {
  * const rpc = CloseSessionRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const CloseSessionRpc = Rpc.make(AGENT_METHODS.session_close, {
@@ -191,7 +191,7 @@ export const CloseSessionRpc = Rpc.make(AGENT_METHODS.session_close, {
  * const rpc = PromptRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const PromptRpc = Rpc.make(AGENT_METHODS.session_prompt, {
@@ -210,7 +210,7 @@ export const PromptRpc = Rpc.make(AGENT_METHODS.session_prompt, {
  * const rpc = SetSessionModelRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const SetSessionModelRpc = Rpc.make(AGENT_METHODS.session_set_model, {
@@ -229,7 +229,7 @@ export const SetSessionModelRpc = Rpc.make(AGENT_METHODS.session_set_model, {
  * const rpc = SetSessionConfigOptionRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const SetSessionConfigOptionRpc = Rpc.make(AGENT_METHODS.session_set_config_option, {
@@ -248,7 +248,7 @@ export const SetSessionConfigOptionRpc = Rpc.make(AGENT_METHODS.session_set_conf
  * const rpc = ReadTextFileRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const ReadTextFileRpc = Rpc.make(CLIENT_METHODS.fs_read_text_file, {
@@ -267,7 +267,7 @@ export const ReadTextFileRpc = Rpc.make(CLIENT_METHODS.fs_read_text_file, {
  * const rpc = WriteTextFileRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const WriteTextFileRpc = Rpc.make(CLIENT_METHODS.fs_write_text_file, {
@@ -286,7 +286,7 @@ export const WriteTextFileRpc = Rpc.make(CLIENT_METHODS.fs_write_text_file, {
  * const rpc = RequestPermissionRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const RequestPermissionRpc = Rpc.make(CLIENT_METHODS.session_request_permission, {
@@ -305,7 +305,7 @@ export const RequestPermissionRpc = Rpc.make(CLIENT_METHODS.session_request_perm
  * const rpc = ElicitationRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const ElicitationRpc = Rpc.make(CLIENT_METHODS.session_elicitation, {
@@ -324,7 +324,7 @@ export const ElicitationRpc = Rpc.make(CLIENT_METHODS.session_elicitation, {
  * const rpc = CreateTerminalRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const CreateTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_create, {
@@ -343,7 +343,7 @@ export const CreateTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_create, {
  * const rpc = TerminalOutputRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const TerminalOutputRpc = Rpc.make(CLIENT_METHODS.terminal_output, {
@@ -362,7 +362,7 @@ export const TerminalOutputRpc = Rpc.make(CLIENT_METHODS.terminal_output, {
  * const rpc = ReleaseTerminalRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const ReleaseTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_release, {
@@ -381,7 +381,7 @@ export const ReleaseTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_release, {
  * const rpc = WaitForTerminalExitRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const WaitForTerminalExitRpc = Rpc.make(CLIENT_METHODS.terminal_wait_for_exit, {
@@ -400,7 +400,7 @@ export const WaitForTerminalExitRpc = Rpc.make(CLIENT_METHODS.terminal_wait_for_
  * const rpc = KillTerminalRpc
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const KillTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_kill, {
@@ -419,7 +419,7 @@ export const KillTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_kill, {
  * const rpc = AgentRpcs
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const AgentRpcs = RpcGroup.make(
@@ -447,7 +447,7 @@ export const AgentRpcs = RpcGroup.make(
  * const rpc = ClientRpcs
  * ```
  *
- * @category rpcs
+ * @category protocols
  * @since 0.0.0
  */
 export const ClientRpcs = RpcGroup.make(

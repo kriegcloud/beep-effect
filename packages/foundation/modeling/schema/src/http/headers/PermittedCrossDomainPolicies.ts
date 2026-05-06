@@ -28,6 +28,7 @@ const PermittedCrossDomainPoliciesValueBase = LiteralKit([
 ]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermittedCrossDomainPoliciesValue = PermittedCrossDomainPoliciesValueBase.pipe(
@@ -38,6 +39,7 @@ export const PermittedCrossDomainPoliciesValue = PermittedCrossDomainPoliciesVal
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermittedCrossDomainPoliciesValue = typeof PermittedCrossDomainPoliciesValue.Type;
@@ -45,6 +47,7 @@ export type PermittedCrossDomainPoliciesValue = typeof PermittedCrossDomainPolic
 const PermittedCrossDomainPoliciesOptionBase = LiteralKit([false, ...PermittedCrossDomainPoliciesValueBase.Options]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermittedCrossDomainPoliciesOption = PermittedCrossDomainPoliciesOptionBase.pipe(
@@ -55,11 +58,13 @@ export const PermittedCrossDomainPoliciesOption = PermittedCrossDomainPoliciesOp
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermittedCrossDomainPoliciesOption = typeof PermittedCrossDomainPoliciesOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class PermittedCrossDomainPoliciesResponseHeader extends S.Class<PermittedCrossDomainPoliciesResponseHeader>(
@@ -77,6 +82,7 @@ export class PermittedCrossDomainPoliciesResponseHeader extends S.Class<Permitte
 type PermittedCrossDomainPoliciesResponseHeaderEncoded = typeof PermittedCrossDomainPoliciesResponseHeader.Encoded;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermittedCrossDomainPoliciesHeader = S.Union([PermittedCrossDomainPoliciesOption, S.Undefined]).pipe(
@@ -138,6 +144,7 @@ export const PermittedCrossDomainPoliciesHeader = S.Union([PermittedCrossDomainP
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermittedCrossDomainPoliciesHeader = typeof PermittedCrossDomainPoliciesHeader.Type;

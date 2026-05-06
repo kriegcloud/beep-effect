@@ -30,7 +30,7 @@ export * from "./PatentAsset.model.js";
  * console.log(Module)
  * ```
  *
- * @category exports
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./PatentAsset.values.js";

@@ -17,7 +17,7 @@ const $I = $RepoCliId.create("commands/CreatePackage/TsMorphIntegrationService")
 /**
  * Supported AST mutation categories required by create-package.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TsMorphMutationKind = LiteralKit([
@@ -33,7 +33,7 @@ export const TsMorphMutationKind = LiteralKit([
 /**
  * Supported AST mutation categories required by create-package.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphMutationKind = typeof TsMorphMutationKind.Type;
@@ -107,7 +107,7 @@ class TsMorphMutationWireDataAccess extends S.Class<TsMorphMutationWireDataAcces
  * Input descriptor for one AST mutation.
  *
  * @returns Tagged union schema keyed by `kind`.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TsMorphMutation = TsMorphMutationKind.mapMembers(
@@ -128,7 +128,7 @@ export const TsMorphMutation = TsMorphMutationKind.mapMembers(
 /**
  * Input descriptor for one AST mutation.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphMutation = typeof TsMorphMutation.Type;
@@ -165,7 +165,7 @@ class TsMorphMutationOutcomeSkipped extends S.Class<TsMorphMutationOutcomeSkippe
  * Outcome for one mutation.
  *
  * @returns Tagged union schema keyed by `status`.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 const TsMorphMutationOutcome = LiteralKit(["applied", "skipped"])
@@ -180,7 +180,7 @@ const TsMorphMutationOutcome = LiteralKit(["applied", "skipped"])
 /**
  * Outcome for one mutation.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphMutationOutcome = typeof TsMorphMutationOutcome.Type;
@@ -188,7 +188,7 @@ export type TsMorphMutationOutcome = typeof TsMorphMutationOutcome.Type;
 /**
  * Batch mutation result.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphIntegrationResult extends S.Class<TsMorphIntegrationResult>($I`TsMorphIntegrationResult`)(
@@ -205,7 +205,7 @@ export class TsMorphIntegrationResult extends S.Class<TsMorphIntegrationResult>(
 /**
  * Adapter boundary for concrete ts-morph-morph implementations.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphMutationAdapter = {
@@ -215,7 +215,7 @@ export type TsMorphMutationAdapter = {
 /**
  * Service contract expected by create-package orchestration.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TsMorphIntegrationServiceShape = {
@@ -228,7 +228,7 @@ export type TsMorphIntegrationServiceShape = {
 /**
  * Service tag for ts-morph integration orchestration.
  *
- * @category PortContract
+ * @category ports
  * @since 0.0.0
  */
 export class TsMorphIntegrationService extends Context.Service<
@@ -252,7 +252,7 @@ const UnsupportedTsMorphAdapter: TsMorphMutationAdapter = {
  *
  * @param adapter - Adapter used to apply ts-morph-morph mutations.
  * @returns Integration service for previewing and applying mutations.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const createTsMorphIntegrationService = (

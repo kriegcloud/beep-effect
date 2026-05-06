@@ -177,7 +177,7 @@ const CryptoWalletAddressChecks = S.makeFilterGroup(
  * Branded schema for canonical mainnet blockchain wallet addresses.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const CryptoWalletAddress = S.NonEmptyString.check(CryptoWalletAddressChecks).pipe(
   S.brand("CryptoWalletAddress"),
@@ -192,7 +192,7 @@ export const CryptoWalletAddress = S.NonEmptyString.check(CryptoWalletAddressChe
  * Type for {@link CryptoWalletAddress}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type CryptoWalletAddress = typeof CryptoWalletAddress.Type;
 
@@ -200,7 +200,7 @@ export type CryptoWalletAddress = typeof CryptoWalletAddress.Type;
  * Redacted Branded schema for canonical mainnet blockchain wallet addresses.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const CryptoWalletAddressRedacted = CryptoWalletAddress.pipe(
   S.RedactedFromValue,
@@ -219,6 +219,6 @@ export const CryptoWalletAddressRedacted = CryptoWalletAddress.pipe(
  * Type for {@link CryptoWalletAddressRedacted}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type CryptoWalletAddressRedacted = typeof CryptoWalletAddressRedacted.Type;

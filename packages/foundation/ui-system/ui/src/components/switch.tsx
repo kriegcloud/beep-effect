@@ -4,6 +4,10 @@ import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
 
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Switch({
   className,
   size = "default",
@@ -29,4 +33,8 @@ function Switch({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Switch };

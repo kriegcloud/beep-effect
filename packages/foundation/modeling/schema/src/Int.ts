@@ -24,7 +24,7 @@ const $I = $SchemaId.create("Int");
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Int = S.Int.pipe(S.brand("Int"))
   .check(
@@ -50,7 +50,7 @@ export const Int = S.Int.pipe(S.brand("Int"))
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Int = typeof Int.Type;
 
@@ -67,7 +67,7 @@ export type Int = typeof Int.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PosInt = Int.pipe(S.brand("PosInt"))
   .check(
@@ -93,7 +93,7 @@ export const PosInt = Int.pipe(S.brand("PosInt"))
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PosInt = typeof PosInt.Type;
 
@@ -149,7 +149,7 @@ export type PostgresSerialInt = typeof PostgresSerialInt.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NegInt = Int.pipe(S.brand("NegInt"))
   .check(
@@ -175,7 +175,7 @@ export const NegInt = Int.pipe(S.brand("NegInt"))
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NegInt = typeof NegInt.Type;
 
@@ -192,7 +192,7 @@ export type NegInt = typeof NegInt.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NonPositiveInt = Int.pipe(S.brand("NonPositiveInt"))
   .check(
@@ -218,7 +218,7 @@ export const NonPositiveInt = Int.pipe(S.brand("NonPositiveInt"))
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NonPositiveInt = typeof NonPositiveInt.Type;
 
@@ -235,6 +235,6 @@ export type NonPositiveInt = typeof NonPositiveInt.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export { NonNegativeInt } from "./Number.ts";

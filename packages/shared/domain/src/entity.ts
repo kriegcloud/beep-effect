@@ -15,7 +15,7 @@
  * console.log(Entity)
  * ```
  *
- * @category exports
+ * @category constructors
  * @since 0.0.0
  */
 export * from "./entity/index.ts";

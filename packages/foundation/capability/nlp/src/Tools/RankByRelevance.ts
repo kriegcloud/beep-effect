@@ -58,7 +58,7 @@ class RankByRelevanceSuccess extends S.Class<RankByRelevanceSuccess>($I`RankByRe
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const RankByRelevance = Tool.make("RankByRelevance", {
   description: "Rank an array of texts by relevance to a query using vectorized similarity.",

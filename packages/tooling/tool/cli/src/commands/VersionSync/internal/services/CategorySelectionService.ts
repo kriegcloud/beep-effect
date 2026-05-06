@@ -19,7 +19,7 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/services/CategorySel
 /**
  * Service contract for selecting categories to resolve and update.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type CategorySelectionServiceShape = {
@@ -30,7 +30,7 @@ export type CategorySelectionServiceShape = {
 /**
  * Service tag for category-selection logic.
  *
- * @category PortContract
+ * @category ports
  * @since 0.0.0
  */
 export class CategorySelectionService extends Context.Service<
@@ -60,7 +60,7 @@ const selectedCategories: CategorySelectionServiceShape["selectedCategories"] = 
 /**
  * Live layer for category-selection logic.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const CategorySelectionServiceLive = Layer.succeed(

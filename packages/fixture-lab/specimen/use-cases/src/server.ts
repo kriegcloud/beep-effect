@@ -15,7 +15,7 @@
  * console.log(SpecimenServerUseCases)
  * ```
  *
- * @category exports
+ * @category errors
  * @since 0.0.0
  */
 export { SpecimenRepositoryNotFound, toSpecimenActionError } from "./entities/Specimen/Specimen.errors.js";
@@ -29,7 +29,7 @@ export { SpecimenRepositoryNotFound, toSpecimenActionError } from "./entities/Sp
  * console.log(SpecimenServerUseCases)
  * ```
  *
- * @category exports
+ * @category ports
  * @since 0.0.0
  */
 export * from "./entities/Specimen/Specimen.ports.js";
@@ -43,7 +43,7 @@ export * from "./entities/Specimen/Specimen.ports.js";
  * console.log(SpecimenServerUseCases)
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export * from "./entities/Specimen/Specimen.service.js";
@@ -57,7 +57,7 @@ export * from "./entities/Specimen/Specimen.service.js";
  * console.log(SpecimenServerUseCases)
  * ```
  *
- * @category exports
+ * @category fixtures
  * @since 0.0.0
  */
 export * from "./public.js";

@@ -25,7 +25,7 @@ const $I = $NlpId.create("Core/Token");
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TokenIndex = Brand.Branded<NonNegativeInt, "TokenIndex">;
 
@@ -40,7 +40,7 @@ export type TokenIndex = Brand.Branded<NonNegativeInt, "TokenIndex">;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isTokenIndex = (u: unknown): u is TokenIndex => S.is(NonNegativeInt)(u);
 
@@ -55,7 +55,7 @@ export const isTokenIndex = (u: unknown): u is TokenIndex => S.is(NonNegativeInt
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const tokenIndex: Brand.Constructor<TokenIndex> = Brand.check<TokenIndex>(S.makeFilter(S.is(NonNegativeInt)));
 
@@ -70,7 +70,7 @@ export const tokenIndex: Brand.Constructor<TokenIndex> = Brand.check<TokenIndex>
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const TokenIndex = NonNegativeInt.pipe(S.fromBrand("TokenIndex", tokenIndex));
 
@@ -85,7 +85,7 @@ export const TokenIndex = NonNegativeInt.pipe(S.fromBrand("TokenIndex", tokenInd
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type CharPosition = Brand.Branded<NonNegativeInt, "CharPosition">;
 
@@ -100,7 +100,7 @@ export type CharPosition = Brand.Branded<NonNegativeInt, "CharPosition">;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isCharPosition = (u: unknown): u is CharPosition => S.is(NonNegativeInt)(u);
 
@@ -115,7 +115,7 @@ export const isCharPosition = (u: unknown): u is CharPosition => S.is(NonNegativ
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const charPosition: Brand.Constructor<CharPosition> = Brand.check<CharPosition>(
   S.makeFilter(S.is(NonNegativeInt))
@@ -132,7 +132,7 @@ export const charPosition: Brand.Constructor<CharPosition> = Brand.check<CharPos
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const CharPosition = NonNegativeInt.pipe(S.fromBrand("CharPosition", charPosition));
 
@@ -147,7 +147,7 @@ export const CharPosition = NonNegativeInt.pipe(S.fromBrand("CharPosition", char
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Token extends S.Class<Token>($I`Token`)(
   {

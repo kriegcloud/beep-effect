@@ -6,41 +6,41 @@
 
 /**
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export * from "./Document.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export * from "./Pattern.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category constructors
  */
 export * from "./PatternBuilders.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category utilities
  */
 export * from "./PatternOperations.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category parsing
  */
 export * from "./PatternParsers.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export * from "./Sentence.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export * from "./Token.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category parsing
  */
 export * from "./Tokenization.ts";

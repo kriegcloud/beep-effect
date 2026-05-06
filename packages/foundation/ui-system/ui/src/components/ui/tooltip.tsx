@@ -8,20 +8,32 @@ import { cn } from "@beep/ui/lib/utils";
  * Tooltip timing context shared across tooltip instances.
  *
  * @since 0.0.0
- * @category Presentation
+ * @category components
  */
 function TooltipProvider({ delay = 0, ...props }: TooltipPrimitive.Provider.Props) {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" delay={delay} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function TooltipContent({
   className,
   side = "top",
@@ -57,4 +69,8 @@ function TooltipContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger };

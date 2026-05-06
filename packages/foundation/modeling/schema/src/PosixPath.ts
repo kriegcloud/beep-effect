@@ -26,7 +26,7 @@ const POSIX_PATH_PATTERN = /^[^\\]*$/;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PosixPath = S.String.check(S.isPattern(POSIX_PATH_PATTERN)).pipe(
   S.brand("PosixPath"),
@@ -48,7 +48,7 @@ export const PosixPath = S.String.check(S.isPattern(POSIX_PATH_PATTERN)).pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PosixPath = typeof PosixPath.Type;
 
@@ -65,7 +65,7 @@ export type PosixPath = typeof PosixPath.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NativePathToPosixPath = S.String.pipe(
   S.decodeTo(
@@ -99,7 +99,7 @@ const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new
  * @param value - Input path string that may contain native separators.
  * @returns Path string normalized to POSIX separators.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const normalizePath = (value: string): PosixPath =>
   Result.getOrThrowWith(decodePosixPath(value), schemaIssueToError);

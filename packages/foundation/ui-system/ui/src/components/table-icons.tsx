@@ -2,6 +2,10 @@
 
 import type { IconProps } from "@phosphor-icons/react";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function BorderAllIcon(props: IconProps) {
   return (
     <svg
@@ -33,6 +37,10 @@ export function BorderAllIcon(props: IconProps) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function BorderBottomIcon(props: IconProps) {
   return (
     <svg
@@ -76,6 +84,10 @@ export function BorderBottomIcon(props: IconProps) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function BorderLeftIcon(props: IconProps) {
   return (
     <svg
@@ -119,6 +131,10 @@ export function BorderLeftIcon(props: IconProps) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function BorderNoneIcon(props: IconProps) {
   return (
     <svg
@@ -168,6 +184,10 @@ export function BorderNoneIcon(props: IconProps) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function BorderRightIcon(props: IconProps) {
   return (
     <svg
@@ -211,6 +231,10 @@ export function BorderRightIcon(props: IconProps) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function BorderTopIcon(props: IconProps) {
   return (
     <svg

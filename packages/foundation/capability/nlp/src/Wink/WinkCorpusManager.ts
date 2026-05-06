@@ -259,7 +259,7 @@ const removeCorpusSession = (
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class CorpusManagerError extends TaggedErrorClass<CorpusManagerError>($I`CorpusManagerError`)(
   "CorpusManagerError",
@@ -722,7 +722,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
  * ```
  *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class WinkCorpusManager extends Context.Service<WinkCorpusManager, WinkCorpusManagerShape>()(
   $I`WinkCorpusManager`
@@ -739,6 +739,6 @@ export class WinkCorpusManager extends Context.Service<WinkCorpusManager, WinkCo
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkCorpusManagerLive = Layer.effect(WinkCorpusManager, makeWinkCorpusManager);

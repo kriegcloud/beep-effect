@@ -398,7 +398,7 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
  *   })
  * ```
  *
- * @category replay
+ * @category projections
  * @since 0.0.0
  */
 ```

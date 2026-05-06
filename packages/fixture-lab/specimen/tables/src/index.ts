@@ -15,7 +15,7 @@
  * console.log(SpecimenTables)
  * ```
  *
- * @category exports
+ * @category models
  * @since 0.0.0
  */
 export * from "./ReadModels.js";
@@ -29,7 +29,7 @@ export * from "./ReadModels.js";
  * console.log(SpecimenTables)
  * ```
  *
- * @category exports
+ * @category tables
  * @since 0.0.0
  */
 export * from "./Tables.js";

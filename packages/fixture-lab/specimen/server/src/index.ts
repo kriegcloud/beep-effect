@@ -15,7 +15,7 @@
  * console.log(SpecimenServer)
  * ```
  *
- * @category exports
+ * @category fixtures
  * @since 0.0.0
  */
 export * from "./entities/Specimen/index.js";
@@ -29,7 +29,7 @@ export * from "./entities/Specimen/index.js";
  * console.log(SpecimenServer)
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export * from "./Layer.js";

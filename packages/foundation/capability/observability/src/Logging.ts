@@ -291,7 +291,7 @@ const renderBannerGlyph = (kind: "phase" | "startup"): string => (kind === "phas
  * ```
  *
  * @since 0.0.0
- * @category logging
+ * @category observability
  */
 export const renderLogBanner: {
   (
@@ -393,7 +393,7 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
  * ```
  *
  * @since 0.0.0
- * @category logging
+ * @category layers
  */
 export const layerConsoleLogger: {
   (config: LoggingConfig, pretty?: PrettyLoggerConfig): Layer.Layer<never>;

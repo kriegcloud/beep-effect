@@ -32,7 +32,7 @@ const normalizeBooleanString: (value: string) => boolean = flow(Str.trim, Str.to
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const TrimmedNonEmptyText = S.String.pipe(
   S.decodeTo(
@@ -60,7 +60,7 @@ export const TrimmedNonEmptyText = S.String.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TrimmedNonEmptyText = typeof TrimmedNonEmptyText.Type;
 
@@ -77,7 +77,7 @@ export type TrimmedNonEmptyText = typeof TrimmedNonEmptyText.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const CommaSeparatedList = S.String.pipe(
   S.decodeTo(
@@ -105,7 +105,7 @@ export const CommaSeparatedList = S.String.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type CommaSeparatedList = typeof CommaSeparatedList.Type;
 
@@ -122,7 +122,7 @@ export type CommaSeparatedList = typeof CommaSeparatedList.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NormalizedBooleanString = S.String.pipe(
   S.decodeTo(
@@ -150,6 +150,6 @@ export const NormalizedBooleanString = S.String.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NormalizedBooleanString = typeof NormalizedBooleanString.Type;

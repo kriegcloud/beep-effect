@@ -114,7 +114,7 @@ const preserveSchemaStatics = <Schema extends S.Top>(
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInterpolationError>(
   "@beep/identity/errors/IdentityInterpolationError"
@@ -145,7 +145,7 @@ export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInter
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmentCountError>(
   "@beep/identity/errors/IdentitySegmentCountError"

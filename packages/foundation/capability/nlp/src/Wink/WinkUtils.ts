@@ -113,7 +113,7 @@ const sanitizeNGramResult = (
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtilsError`)(
   "WinkUtilsError",
@@ -237,7 +237,7 @@ const makeWinkUtils = Effect.gen(function* () {
  * ```
  *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class WinkUtils extends Context.Service<WinkUtils, WinkUtilsShape>()($I`WinkUtils`) {}
 
@@ -252,6 +252,6 @@ export class WinkUtils extends Context.Service<WinkUtils, WinkUtilsShape>()($I`W
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkUtilsLive = Layer.effect(WinkUtils, makeWinkUtils);

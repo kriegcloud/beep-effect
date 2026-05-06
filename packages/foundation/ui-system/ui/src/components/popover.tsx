@@ -4,14 +4,26 @@ import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Popover({ ...props }: PopoverPrimitive.Root.Props) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PopoverTrigger({ ...props }: PopoverPrimitive.Trigger.Props) {
   return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PopoverContent({
   className,
   align = "center",
@@ -45,14 +57,26 @@ function PopoverContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="popover-header" className={cn("flex flex-col gap-0.5 text-sm", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
   return <PopoverPrimitive.Title data-slot="popover-title" className={cn("font-medium", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function PopoverDescription({ className, ...props }: PopoverPrimitive.Description.Props) {
   return (
     <PopoverPrimitive.Description
@@ -63,4 +87,8 @@ function PopoverDescription({ className, ...props }: PopoverPrimitive.Descriptio
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger };

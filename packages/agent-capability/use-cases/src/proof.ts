@@ -16,7 +16,7 @@
  * console.log(sdk)
  * ```
  *
- * @category exports
+ * @category fixtures
  * @since 0.0.0
  */
 export { makeInMemoryProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.js";
@@ -31,7 +31,7 @@ export { makeInMemoryProfessionalRuntimeSdk } from "./processes/ProfessionalRunt
  * console.log(runRuntimeFixture)
  * ```
  *
- * @category exports
+ * @category fixtures
  * @since 0.0.0
  */
 export {
@@ -48,7 +48,7 @@ export {
  * console.log(RuntimeScope)
  * ```
  *
- * @category exports
+ * @category use-cases
  * @since 0.0.0
  */
 export * from "./public.js";

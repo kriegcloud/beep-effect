@@ -40,7 +40,7 @@ const UnitIntervalChecks = S.makeFilterGroup(
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UnitInterval = S.Number.check(UnitIntervalChecks).annotate(
   $I.annote("UnitInterval", {
@@ -59,7 +59,7 @@ export const UnitInterval = S.Number.check(UnitIntervalChecks).annotate(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type UnitInterval = typeof UnitInterval.Type;
 
@@ -74,7 +74,7 @@ export type UnitInterval = typeof UnitInterval.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PositiveNumber = S.Number.check(
   isPositive.annotate({
@@ -98,6 +98,6 @@ export const PositiveNumber = S.Number.check(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PositiveNumber = typeof PositiveNumber.Type;

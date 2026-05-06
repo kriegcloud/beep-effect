@@ -15,7 +15,7 @@
  * console.log(SpecimenEntityUseCases)
  * ```
  *
- * @category exports
+ * @category commands
  * @since 0.0.0
  */
 export * from "./Specimen.commands.js";
@@ -29,7 +29,7 @@ export * from "./Specimen.commands.js";
  * console.log(SpecimenEntityUseCases)
  * ```
  *
- * @category exports
+ * @category errors
  * @since 0.0.0
  */
 export * from "./Specimen.errors.js";
@@ -43,7 +43,7 @@ export * from "./Specimen.errors.js";
  * console.log(SpecimenEntityUseCases)
  * ```
  *
- * @category exports
+ * @category ports
  * @since 0.0.0
  */
 export * from "./Specimen.ports.js";
@@ -57,7 +57,7 @@ export * from "./Specimen.ports.js";
  * console.log(SpecimenEntityUseCases)
  * ```
  *
- * @category exports
+ * @category queries
  * @since 0.0.0
  */
 export * from "./Specimen.queries.js";
@@ -71,7 +71,7 @@ export * from "./Specimen.queries.js";
  * console.log(SpecimenEntityUseCases)
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export * from "./Specimen.service.js";

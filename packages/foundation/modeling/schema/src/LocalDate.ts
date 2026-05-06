@@ -284,7 +284,7 @@ export const fromDateTime = (dateTime: DateTime.DateTime): LocalDate => {
  * Chronological `Order` for `LocalDate` values.
  *
  * @since 0.0.0
- * @category ordering
+ * @category utilities
  */
 export const Order: Order_.Order<LocalDate> = Order_.make((a, b) => {
   if (a.year !== b.year) {

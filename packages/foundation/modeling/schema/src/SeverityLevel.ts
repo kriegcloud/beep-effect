@@ -25,7 +25,7 @@ const SeverityLevelBase = LiteralKit(["low", "medium", "high", "critical"] as co
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SeverityLevel = SeverityLevelBase.annotate(
   $I.annote("SeverityLevel", {
@@ -44,6 +44,6 @@ export const SeverityLevel = SeverityLevelBase.annotate(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type SeverityLevel = typeof SeverityLevel.Type;

@@ -6,18 +6,34 @@ import type * as React from "react";
 import { cn } from "../lib/index.ts";
 import { Kbd } from "./kbd";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {
   return <MenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {
   return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuContent({
   align = "start",
   alignOffset = 0,
@@ -48,10 +64,18 @@ function DropdownMenuContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuGroup({ ...props }: MenuPrimitive.Group.Props) {
   return <MenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuLabel({
   className,
   inset,
@@ -69,6 +93,10 @@ function DropdownMenuLabel({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuItem({
   className,
   inset,
@@ -92,10 +120,18 @@ function DropdownMenuItem({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuSub({ ...props }: MenuPrimitive.SubmenuRoot.Props) {
   return <MenuPrimitive.SubmenuRoot data-slot="dropdown-menu-sub" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuSubTrigger({
   className,
   inset,
@@ -120,6 +156,10 @@ function DropdownMenuSubTrigger({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuSubContent({
   align = "start",
   alignOffset = -3,
@@ -144,6 +184,10 @@ function DropdownMenuSubContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuCheckboxItem({ className, children, checked, ...props }: MenuPrimitive.CheckboxItem.Props) {
   return (
     <MenuPrimitive.CheckboxItem
@@ -168,10 +212,18 @@ function DropdownMenuCheckboxItem({ className, children, checked, ...props }: Me
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuRadioGroup({ ...props }: MenuPrimitive.RadioGroup.Props) {
   return <MenuPrimitive.RadioGroup data-slot="dropdown-menu-radio-group" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuRadioItem({ className, children, ...props }: MenuPrimitive.RadioItem.Props) {
   return (
     <MenuPrimitive.RadioItem
@@ -195,6 +247,10 @@ function DropdownMenuRadioItem({ className, children, ...props }: MenuPrimitive.
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuSeparator({ className, ...props }: MenuPrimitive.Separator.Props) {
   return (
     <MenuPrimitive.Separator
@@ -205,6 +261,10 @@ function DropdownMenuSeparator({ className, ...props }: MenuPrimitive.Separator.
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DropdownMenuShortcut({ className, ...props }: React.ComponentProps<"kbd">) {
   return (
     <Kbd
@@ -233,6 +293,10 @@ DropdownMenu.Sub = DropdownMenuSub;
 DropdownMenu.SubTrigger = DropdownMenuSubTrigger;
 DropdownMenu.SubContent = DropdownMenuSubContent;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   DropdownMenu,
   DropdownMenuCheckboxItem,

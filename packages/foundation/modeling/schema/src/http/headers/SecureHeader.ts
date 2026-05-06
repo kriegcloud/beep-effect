@@ -27,6 +27,7 @@ const SecureHeaderBase = LiteralKit([
 ]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const SecureHeader = SecureHeaderBase.pipe(
@@ -37,6 +38,7 @@ export const SecureHeader = SecureHeaderBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type SecureHeader = typeof SecureHeader.Type;

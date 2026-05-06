@@ -12,6 +12,7 @@ import { dual } from "effect/Function";
 /**
  * Re-export of the Effect SSE encoder/decoder primitives.
  *
+ * @category codecs
  * @since 0.0.0
  */
 export * from "effect/unstable/encoding/Sse";

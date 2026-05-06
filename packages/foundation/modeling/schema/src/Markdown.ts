@@ -112,7 +112,7 @@ const decodeMarkdownText = Effect.fn("Markdown.decodeMarkdownText")(function* (c
  * void document
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const Markdown = S.String.pipe(
@@ -131,7 +131,7 @@ export const Markdown = S.String.pipe(
 /**
  * Branded Markdown document string type extracted from {@link Markdown}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type Markdown = typeof Markdown.Type;
@@ -159,7 +159,7 @@ export type Markdown = typeof Markdown.Type;
  *
  * @param options - Optional Bun Markdown parser options. When omitted, Bun defaults are preserved.
  * @returns Schema transformation from Markdown text to rendered HTML text.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
@@ -200,7 +200,7 @@ export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
  * @param schema - Target schema to decode rendered HTML output into.
  * @param options - Optional Bun Markdown parser options. When omitted, Bun defaults are preserved.
  * @returns Decoder function from Markdown text to the target schema type.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const decodeMarkdownTextAs = <Schema extends S.Top>(schema: Schema, options?: MarkdownRenderOptions) => {

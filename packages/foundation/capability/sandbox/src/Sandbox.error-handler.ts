@@ -12,7 +12,7 @@ import { redactSensitiveText } from "./Sandbox.observability.ts";
  * Formats a tagged SandboxError into a user-friendly message with
  * context-specific hints about what went wrong and how to recover.
  *
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 const formatErrorMessageUnsafe = Match.type<SandboxError>().pipe(
@@ -51,7 +51,7 @@ const formatErrorMessageUnsafe = Match.type<SandboxError>().pipe(
 /**
  * Format a sandbox error with secret-shaped text redacted.
  *
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export const formatErrorMessage: (error: SandboxError) => string = flow(formatErrorMessageUnsafe, redactSensitiveText);

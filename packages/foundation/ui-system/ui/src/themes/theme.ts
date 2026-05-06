@@ -28,7 +28,7 @@ import { typography, typographyTheme } from "./typography.ts";
  * The shared MUI theme used by `@beep/ui`.
  *
  * @since 0.0.0
- * @category Theme
+ * @category themes
  */
 export const theme = createTheme({
   cssVariables: {

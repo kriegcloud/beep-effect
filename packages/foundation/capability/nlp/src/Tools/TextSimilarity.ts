@@ -53,7 +53,7 @@ class TextSimilaritySuccess extends S.Class<TextSimilaritySuccess>($I`TextSimila
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const TextSimilarity = Tool.make("TextSimilarity", {
   description:

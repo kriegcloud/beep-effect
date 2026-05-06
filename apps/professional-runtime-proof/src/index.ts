@@ -187,7 +187,7 @@ const readBody = (scenarioId: string): Promise<string> =>
  * console.log(toPlain({ ok: true }))
  * ```
  *
- * @category helpers
+ * @category utilities
  * @since 0.0.0
  */
 export const toPlain = <A>(value: A): unknown => JSON.parse(JSON.stringify(value));

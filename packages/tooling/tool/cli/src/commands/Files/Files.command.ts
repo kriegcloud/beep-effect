@@ -380,7 +380,7 @@ const filesStripMetadataCommand = Command.make(
 /**
  * File curation command group.
  *
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const filesCommand = Command.make("files", {}, printFilesIndex).pipe(

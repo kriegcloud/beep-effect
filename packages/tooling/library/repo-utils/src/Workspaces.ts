@@ -27,7 +27,7 @@ import {
 /**
  * Directories to exclude when scanning workspace globs.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"];
@@ -86,7 +86,7 @@ const isContainedCanonicalPath: {
  * })
  * void program
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const resolveWorkspaceDirs: (
@@ -194,7 +194,7 @@ export const resolveWorkspaceDirs: (
  * })
  * void program
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const getWorkspaceDir: {

@@ -33,7 +33,7 @@ type TokenizationShape = {
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class TokenizationError extends TaggedErrorClass<TokenizationError>($I`TokenizationError`)(
   "TokenizationError",
@@ -57,7 +57,7 @@ export class TokenizationError extends TaggedErrorClass<TokenizationError>($I`To
  * ```
  *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class Tokenization extends Context.Service<Tokenization, TokenizationShape>()($I`Tokenization`) {}
 
@@ -72,7 +72,7 @@ export class Tokenization extends Context.Service<Tokenization, TokenizationShap
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const tokenize = Effect.fn("Nlp.Core.Tokenization.tokenize")(function* (text: string) {
   const tokenization = yield* Tokenization;
@@ -90,7 +90,7 @@ export const tokenize = Effect.fn("Nlp.Core.Tokenization.tokenize")(function* (t
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const sentences = Effect.fn("Nlp.Core.Tokenization.sentences")(function* (text: string) {
   const tokenization = yield* Tokenization;
@@ -108,7 +108,7 @@ export const sentences = Effect.fn("Nlp.Core.Tokenization.sentences")(function* 
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const tokenizeToDocument = Effect.fn("Nlp.Core.Tokenization.tokenizeToDocument")(function* (
   text: string,
@@ -129,7 +129,7 @@ export const tokenizeToDocument = Effect.fn("Nlp.Core.Tokenization.tokenizeToDoc
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const tokenCount = Effect.fn("Nlp.Core.Tokenization.tokenCount")(function* (text: string) {
   const tokenization = yield* Tokenization;

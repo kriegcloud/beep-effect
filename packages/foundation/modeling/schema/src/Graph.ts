@@ -306,7 +306,7 @@ export const NodeIndexFromString = S.NumberFromString.pipe(
  * Branded schema for graph edge indices.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EdgeIndex = S.Int.check(isNonNegative).pipe(
   S.brand("EdgeIndex"),
@@ -340,7 +340,7 @@ export const EdgeIndexFromString = S.NumberFromString.pipe(
  * Schema for graph kind discriminators.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const GraphKind = S.Literals(["directed", "undirected"]).pipe(
   $I.annoteSchema("GraphKind", {
@@ -408,7 +408,7 @@ type GraphIso<Node extends S.Top, Edge extends S.Top, Kind extends GraphKindValu
  * Schema type for encoded graph edges.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface EdgeEncodedSchema<Data extends S.Top>
   extends S.Codec<
@@ -425,7 +425,7 @@ export interface EdgeEncodedSchema<Data extends S.Top>
  * Schema type for encoded graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface GraphEncodedSchema<Node extends S.Top, Edge extends S.Top>
   extends S.Codec<
@@ -445,7 +445,7 @@ export interface GraphEncodedSchema<Node extends S.Top, Edge extends S.Top>
  * @param value - Unknown input to test.
  * @returns `true` when `value` is a `Graph.Edge`.
  * @since 0.0.0
- * @category Guards
+ * @category guards
  */
 export const isEdge = <Data>(value: unknown): value is Graph_.Edge<Data> => value instanceof Graph_.Edge;
 
@@ -455,7 +455,7 @@ export const isEdge = <Data>(value: unknown): value is Graph_.Edge<Data> => valu
  * @param value - Unknown input to test.
  * @returns `true` when `value` is an Effect graph.
  * @since 0.0.0
- * @category Guards
+ * @category guards
  */
 export const isGraph = <Node, Edge>(
   value: unknown
@@ -468,7 +468,7 @@ export const isGraph = <Node, Edge>(
  * @param data - Schema for edge payloads.
  * @returns Schema for the encoded edge representation.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EdgeEncoded = <Data extends S.Top>(data: Data): EdgeEncodedSchema<Data> => {
   const schema = S.Class<EdgeEncoded<Data["Type"]>>($I`EdgeEncoded`)({
@@ -488,7 +488,7 @@ export const EdgeEncoded = <Data extends S.Top>(data: Data): EdgeEncodedSchema<D
  * Schema for validating existing `Graph.Edge` instances.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface EdgeFromSelf<Data extends S.Top>
   extends S.declareConstructor<
@@ -505,7 +505,7 @@ export interface EdgeFromSelf<Data extends S.Top>
  * Schema for transforming encoded edge payloads into `Graph.Edge` instances.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface EdgeTransform<Data extends S.Top>
   extends S.decodeTo<EdgeFromSelf<S.toType<Data>>, EdgeEncodedSchema<Data>> {
@@ -517,7 +517,7 @@ export interface EdgeTransform<Data extends S.Top>
  * Schema for graph edges.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface Edge<Data extends S.Top> extends EdgeTransform<Data> {}
 
@@ -528,7 +528,7 @@ export interface Edge<Data extends S.Top> extends EdgeTransform<Data> {}
  * @param data - Schema for edge payloads.
  * @returns Schema that validates runtime `Graph.Edge` values.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EdgeFromSelf = <Data extends S.Top>(data: Data): EdgeFromSelf<Data> => {
   const schema = S.declareConstructor<Graph_.Edge<Data["Type"]>, Graph_.Edge<Data["Encoded"]>, EdgeIso<Data>>()(
@@ -591,7 +591,7 @@ export const EdgeFromSelf = <Data extends S.Top>(data: Data): EdgeFromSelf<Data>
  * @param data - Schema for edge payloads.
  * @returns Edge transform schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EdgeTransform = <Data extends S.Top>(data: Data): EdgeTransform<Data> => {
   const decodedEdge = EdgeEncoded(S.toType(data));
@@ -670,7 +670,7 @@ export const Edge = <Data extends S.Top>(data: Data): Edge<Data> =>
  * @param edge - Schema for edge payloads.
  * @returns Encoded graph schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const GraphEncoded: {
   <Node extends S.Top, Edge extends S.Top>(node: Node): (edge: Edge) => GraphEncodedSchema<Node, Edge>;
@@ -700,7 +700,7 @@ export const GraphEncoded: {
  * Schema for validating existing immutable Effect graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface GraphFromSelf<Node extends S.Top, Edge extends S.Top>
   extends S.declareConstructor<
@@ -718,7 +718,7 @@ export interface GraphFromSelf<Node extends S.Top, Edge extends S.Top>
  * Schema for validating existing immutable directed Effect graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface DirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
   extends S.declareConstructor<
@@ -736,7 +736,7 @@ export interface DirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
  * Schema for validating existing immutable undirected Effect graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface UndirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
   extends S.declareConstructor<
@@ -754,7 +754,7 @@ export interface UndirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
  * Schema for validating existing mutable Effect graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface MutableGraphFromSelf<Node extends S.Top, Edge extends S.Top>
   extends S.declareConstructor<
@@ -772,7 +772,7 @@ export interface MutableGraphFromSelf<Node extends S.Top, Edge extends S.Top>
  * Schema for validating existing mutable directed Effect graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface MutableDirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
   extends S.declareConstructor<
@@ -790,7 +790,7 @@ export interface MutableDirectedGraphFromSelf<Node extends S.Top, Edge extends S
  * Schema for validating existing mutable undirected Effect graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface MutableUndirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
   extends S.declareConstructor<
@@ -918,7 +918,7 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
  * @param options - Schemas for node and edge payloads.
  * @returns Immutable graph validator schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const GraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;
@@ -936,7 +936,7 @@ export const GraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
  * @param options - Schemas for node and edge payloads.
  * @returns Immutable directed graph validator schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const DirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;
@@ -957,7 +957,7 @@ export const DirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(op
  * @param options - Schemas for node and edge payloads.
  * @returns Immutable undirected graph validator schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UndirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;
@@ -978,7 +978,7 @@ export const UndirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable graph validator schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;
@@ -996,7 +996,7 @@ export const MutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(opt
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable directed graph validator schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MutableDirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;
@@ -1017,7 +1017,7 @@ export const MutableDirectedGraphFromSelf = <Node extends S.Top, Edge extends S.
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable undirected graph validator schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MutableUndirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;
@@ -1036,7 +1036,7 @@ export const MutableUndirectedGraphFromSelf = <Node extends S.Top, Edge extends 
  * Schema for decoding encoded graph payloads into immutable directed graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface DirectedGraph<Node extends S.Top, Edge extends S.Top>
   extends S.decodeTo<DirectedGraphFromSelf<S.toType<Node>, S.toType<Edge>>, GraphEncodedSchema<Node, Edge>> {
@@ -1049,7 +1049,7 @@ export interface DirectedGraph<Node extends S.Top, Edge extends S.Top>
  * Schema for decoding encoded graph payloads into immutable undirected graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface UndirectedGraph<Node extends S.Top, Edge extends S.Top>
   extends S.decodeTo<UndirectedGraphFromSelf<S.toType<Node>, S.toType<Edge>>, GraphEncodedSchema<Node, Edge>> {
@@ -1062,7 +1062,7 @@ export interface UndirectedGraph<Node extends S.Top, Edge extends S.Top>
  * Schema for decoding encoded graph payloads into mutable directed graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface MutableDirectedGraph<Node extends S.Top, Edge extends S.Top>
   extends S.decodeTo<MutableDirectedGraphFromSelf<S.toType<Node>, S.toType<Edge>>, GraphEncodedSchema<Node, Edge>> {
@@ -1075,7 +1075,7 @@ export interface MutableDirectedGraph<Node extends S.Top, Edge extends S.Top>
  * Schema for decoding encoded graph payloads into mutable undirected graphs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface MutableUndirectedGraph<Node extends S.Top, Edge extends S.Top>
   extends S.decodeTo<MutableUndirectedGraphFromSelf<S.toType<Node>, S.toType<Edge>>, GraphEncodedSchema<Node, Edge>> {
@@ -1193,7 +1193,7 @@ export const DirectedGraph = <Node extends S.Top, Edge extends S.Top>(options: {
  * @param options - Schemas for node and edge payloads.
  * @returns Undirected graph transform schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UndirectedGraph = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;
@@ -1217,7 +1217,7 @@ export const UndirectedGraph = <Node extends S.Top, Edge extends S.Top>(options:
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable directed graph transform schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MutableDirectedGraph = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;
@@ -1241,7 +1241,7 @@ export const MutableDirectedGraph = <Node extends S.Top, Edge extends S.Top>(opt
  * @param options - Schemas for node and edge payloads.
  * @returns Mutable undirected graph transform schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MutableUndirectedGraph = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;

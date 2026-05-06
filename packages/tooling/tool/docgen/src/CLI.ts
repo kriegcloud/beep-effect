@@ -129,7 +129,7 @@ const options = {
  * import { docgenCommand } from "@beep/repo-docgen/CLI"
  * void docgenCommand
  * ```
- * @category cli
+ * @category cli-commands
  * @since 0.0.0
  */
 export const docgenCommand = Command.make("docgen", options, (input) =>
@@ -187,7 +187,7 @@ export const docgenCommand = Command.make("docgen", options, (input) =>
  * import { cli } from "@beep/repo-docgen/CLI"
  * void cli
  * ```
- * @category cli
+ * @category cli-commands
  * @since 0.0.0
  */
 export const cli = Command.runWith(docgenCommand, {

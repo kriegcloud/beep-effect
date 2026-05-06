@@ -15,7 +15,7 @@
  * registry and an array of associated file extensions.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import { misc } from "@beep/data/mime-types/misc"

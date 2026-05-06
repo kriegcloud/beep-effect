@@ -36,7 +36,7 @@ export type NativeMigrationError = EffectDrizzleQueryError | MigratorInitError |
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category interop
  */
 export * as NativePgClient from "@effect/sql-pg/PgClient";
 
@@ -55,7 +55,7 @@ export * as NativePgClient from "@effect/sql-pg/PgClient";
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category interop
  */
 export type {
   EffectDrizzlePgConfig,

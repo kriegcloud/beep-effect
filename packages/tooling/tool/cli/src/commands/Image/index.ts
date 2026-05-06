@@ -112,7 +112,7 @@ const imageExtractFramesCommand = Command.make(
  * import { imageCommand } from "@beep/repo-cli"
  * void imageCommand
  * ```
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const imageCommand = Command.make("image", {}, printImageIndex).pipe(

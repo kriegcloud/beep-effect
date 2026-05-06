@@ -21,7 +21,7 @@ const $I = $SchemaId.create("BufferEncoding");
  * console.log(encoding) // "utf8"
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const BuffEncoding = LiteralKit([
@@ -53,7 +53,7 @@ export const BuffEncoding = LiteralKit([
  * const enc: BufferEncoding = "hex"
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type BufferEncoding = typeof BuffEncoding.Type;

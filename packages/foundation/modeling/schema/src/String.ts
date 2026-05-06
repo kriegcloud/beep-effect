@@ -23,7 +23,7 @@ const $I = $SchemaId.create("String");
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NonEmptyTrimmedStr = S.Trim.check(S.isNonEmpty({ message: "String must not be empty" })).pipe(
   S.brand("NonEmptyTrimmedStr"),
@@ -44,7 +44,7 @@ export const NonEmptyTrimmedStr = S.Trim.check(S.isNonEmpty({ message: "String m
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NonEmptyTrimmedStr = typeof NonEmptyTrimmedStr.Type;
 
@@ -61,7 +61,7 @@ export type NonEmptyTrimmedStr = typeof NonEmptyTrimmedStr.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UUID = NonEmptyTrimmedStr.check(S.isUUID()).pipe(
   S.brand("UUID"),
@@ -82,7 +82,7 @@ export const UUID = NonEmptyTrimmedStr.check(S.isUUID()).pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type UUID = typeof UUID.Type;
 
@@ -98,7 +98,7 @@ export type UUID = typeof UUID.Type;
  * S.decodeUnknownSync(NullableStr)(null)
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const NullableStr = S.String.pipe(
@@ -118,7 +118,7 @@ export const NullableStr = S.String.pipe(
  * const name: NullableStr = null
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type NullableStr = typeof NullableStr.Type;
@@ -135,7 +135,7 @@ export type NullableStr = typeof NullableStr.Type;
  * console.log(result) // Option.none()
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const OptionFromNullableStr = S.String.pipe(
@@ -148,7 +148,7 @@ export const OptionFromNullableStr = S.String.pipe(
 /**
  * Type for {@link OptionFromNullableStr}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type OptionFromNullableStr = typeof OptionFromNullableStr.Type;

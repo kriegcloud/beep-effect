@@ -45,7 +45,7 @@ export * from "./entities/index.js";
  * console.log(Module)
  * ```
 
- * @category values
+ * @category value-objects
  * @since 0.0.0
  */
 export * as Values from "./values/index.js";
@@ -60,7 +60,7 @@ export * as Values from "./values/index.js";
  * console.log(Module)
  * ```
 
- * @category values
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./values/index.js";

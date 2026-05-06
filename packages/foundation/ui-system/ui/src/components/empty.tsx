@@ -3,6 +3,10 @@ import { cva } from "class-variance-authority";
 import type React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Empty({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -16,6 +20,10 @@ function Empty({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -41,6 +49,10 @@ const emptyMediaVariants = cva(
   }
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function EmptyMedia({
   className,
   variant = "default",
@@ -56,10 +68,18 @@ function EmptyMedia({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="empty-title" className={cn("font-medium text-lg tracking-tight", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <div
@@ -73,6 +93,10 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -83,4 +107,8 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle };

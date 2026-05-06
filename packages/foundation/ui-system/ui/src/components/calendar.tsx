@@ -6,6 +6,10 @@ import * as React from "react";
 import { type DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Calendar({
   className,
   classNames,
@@ -131,6 +135,10 @@ function Calendar({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CalendarDayButton({ className, day, modifiers, style, ...props }: React.ComponentProps<typeof DayButton>) {
   const defaultClassNames = getDefaultClassNames();
 
@@ -161,4 +169,8 @@ function CalendarDayButton({ className, day, modifiers, style, ...props }: React
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Calendar, CalendarDayButton };

@@ -11,7 +11,7 @@ import { Struct } from "@beep/utils";
 /**
  * Canonical TypeScript SyntaxKind name entries.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 const TSSyntaxKindEntries = [
@@ -482,14 +482,14 @@ export declare namespace TSSyntaxKind {
   /**
    * Decoded representation of a TSSyntaxKind value.
    *
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    */
   export type Type = typeof TSSyntaxKind.Type;
   /**
    * Encoded representation of a TSSyntaxKind value.
    *
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    */
   export type Encoded = typeof TSSyntaxKind.Encoded;

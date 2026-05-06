@@ -58,7 +58,7 @@ export * from "./CoreConfig.ts";
  * Typed HTTP error classes and convenience constructors.
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export * from "./HttpError.ts";
 
@@ -66,7 +66,7 @@ export * from "./HttpError.ts";
  * Configurable console logging layer.
  *
  * @since 0.0.0
- * @category logging
+ * @category observability
  */
 export * from "./Logging.ts";
 

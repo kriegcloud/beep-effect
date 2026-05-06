@@ -52,6 +52,7 @@ const PermissionsPolicyDirectiveBase = LiteralKit([
 ]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermissionsPolicyDirective = PermissionsPolicyDirectiveBase.pipe(
@@ -62,11 +63,13 @@ export const PermissionsPolicyDirective = PermissionsPolicyDirectiveBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirective = typeof PermissionsPolicyDirective.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermissionsPolicyDirectiveKey = S.String.check(
@@ -83,11 +86,13 @@ export const PermissionsPolicyDirectiveKey = S.String.check(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirectiveKey = typeof PermissionsPolicyDirectiveKey.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const QuotedOrigin = S.String.check(
@@ -103,6 +108,7 @@ export const QuotedOrigin = S.String.check(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type QuotedOrigin = typeof QuotedOrigin.Type;
@@ -110,6 +116,7 @@ export type QuotedOrigin = typeof QuotedOrigin.Type;
 const PermissionsPolicyDirectiveValueSingleBase = LiteralKit(["*", "self", "none"]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermissionsPolicyDirectiveValueSingle = PermissionsPolicyDirectiveValueSingleBase.pipe(
@@ -120,11 +127,13 @@ export const PermissionsPolicyDirectiveValueSingle = PermissionsPolicyDirectiveV
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirectiveValueSingle = typeof PermissionsPolicyDirectiveValueSingle.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermissionsPolicyAllowlistedOrigin = S.Union([S.Literal("self"), QuotedOrigin]).pipe(
@@ -134,11 +143,13 @@ export const PermissionsPolicyAllowlistedOrigin = S.Union([S.Literal("self"), Qu
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyAllowlistedOrigin = typeof PermissionsPolicyAllowlistedOrigin.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermissionsPolicyDirectiveValue = S.Union([
@@ -152,11 +163,13 @@ export const PermissionsPolicyDirectiveValue = S.Union([
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirectiveValue = typeof PermissionsPolicyDirectiveValue.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermissionsPolicyDirectives = S.Record(
@@ -169,11 +182,13 @@ export const PermissionsPolicyDirectives = S.Record(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirectives = typeof PermissionsPolicyDirectives.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class PermissionsPolicyOptionStruct extends S.Class<PermissionsPolicyOptionStruct>(
@@ -188,6 +203,7 @@ export class PermissionsPolicyOptionStruct extends S.Class<PermissionsPolicyOpti
 ) {}
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermissionsPolicyOption = S.Union([S.Literal(false), PermissionsPolicyOptionStruct]).pipe(
@@ -197,11 +213,13 @@ export const PermissionsPolicyOption = S.Union([S.Literal(false), PermissionsPol
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyOption = typeof PermissionsPolicyOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class PermissionsPolicyResponseHeader extends S.Class<PermissionsPolicyResponseHeader>(
@@ -249,6 +267,7 @@ const buildHeaderValue = (directives: PermissionsPolicyDirectives): O.Option<str
   );
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PermissionsPolicyHeader = S.Union([PermissionsPolicyOption, S.Undefined]).pipe(
@@ -310,6 +329,7 @@ export const PermissionsPolicyHeader = S.Union([PermissionsPolicyOption, S.Undef
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyHeader = typeof PermissionsPolicyHeader.Type;

@@ -18,7 +18,7 @@ const $I = $SchemaId.create("BigDecimal");
  * Useful at boundaries where decimal values are transported as plain JSON
  * numbers but consumed internally as `BigDecimal`.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  * @example
  * ```typescript

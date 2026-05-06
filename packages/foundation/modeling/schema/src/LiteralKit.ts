@@ -31,7 +31,7 @@ type EnumMappings<L extends Literals = Literals> = A.NonEmptyReadonlyArray<EnumM
  * - string: as-is (e.g., `"pending"` stays `"pending"`)
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type LiteralToKey<L extends SchemaAST.LiteralValue> = L extends boolean
   ? L extends true
@@ -210,7 +210,7 @@ type ToTaggedUnionFn<L extends PropertyKeyLiteralArray, M extends EnumMappings<L
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const matchLiteral = <L extends SchemaAST.LiteralValue>(literal: L): LiteralToKey<L> =>
   Match.value(literal).pipe(
@@ -371,7 +371,7 @@ const LiteralKitTaggedUnionLiteralErrorBase: TaggedErrorClassFromFields<
  * void LiteralNotInSetError
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class LiteralNotInSetError extends LiteralNotInSetErrorBase {}
@@ -387,7 +387,7 @@ export class LiteralNotInSetError extends LiteralNotInSetErrorBase {}
  * void LiteralKitKeyCollisionError
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class LiteralKitKeyCollisionError extends LiteralKitKeyCollisionErrorBase {}
@@ -405,7 +405,7 @@ type SeenLiteralKeys = HashMap.HashMap<string, SchemaAST.LiteralValue>;
  * void LiteralKitEnumMappingDuplicateLiteralError
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class LiteralKitEnumMappingDuplicateLiteralError extends LiteralKitEnumMappingDuplicateLiteralErrorBase {}
@@ -421,7 +421,7 @@ export class LiteralKitEnumMappingDuplicateLiteralError extends LiteralKitEnumMa
  * void LiteralKitEnumMappingCoverageError
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class LiteralKitEnumMappingCoverageError extends LiteralKitEnumMappingCoverageErrorBase {}
@@ -437,7 +437,7 @@ export class LiteralKitEnumMappingCoverageError extends LiteralKitEnumMappingCov
  * void LiteralKitTaggedUnionLiteralError
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class LiteralKitTaggedUnionLiteralError extends LiteralKitTaggedUnionLiteralErrorBase {}
@@ -620,7 +620,7 @@ const attachHelperDescriptors = <T extends object>(schema: T, descriptors: Prope
  * keys mapped via {@link LiteralToKey}, or via the manual mapping when one is
  * supplied to {@link LiteralKit}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 type LiteralKitBase<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = S.Literals<L> & {
@@ -691,7 +691,7 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  * StatusKeys.Enum.ONE; // "one"
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export function LiteralKit<const L extends Literals, const M extends EnumMappings<L> | undefined = undefined>(

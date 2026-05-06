@@ -37,7 +37,7 @@ const getRangeEnd = (
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const DocumentId = S.NonEmptyString.pipe(
   S.brand("DocumentId"),
@@ -59,7 +59,7 @@ export const DocumentId = S.NonEmptyString.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type DocumentId = typeof DocumentId.Type;
 
@@ -74,7 +74,7 @@ export type DocumentId = typeof DocumentId.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type DocumentIndex = Brand.Branded<NonNegativeInt, "DocumentIndex">;
 
@@ -89,7 +89,7 @@ export type DocumentIndex = Brand.Branded<NonNegativeInt, "DocumentIndex">;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const documentIndex: Brand.Constructor<DocumentIndex> = Brand.check<DocumentIndex>(
   S.makeFilter(S.is(NonNegativeInt))
@@ -106,7 +106,7 @@ export const documentIndex: Brand.Constructor<DocumentIndex> = Brand.check<Docum
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const DocumentIndex = NonNegativeInt.pipe(S.fromBrand("DocumentIndex", documentIndex));
 
@@ -163,7 +163,7 @@ const filterDocument = (document: Document, predicate: (token: Token) => boolean
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Document extends S.Class<Document>($I`Document`)(
   {

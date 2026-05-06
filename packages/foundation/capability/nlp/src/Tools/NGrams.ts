@@ -66,7 +66,7 @@ class NGramsSuccess extends S.Class<NGramsSuccess>($I`NGramsSuccess`)(
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const NGrams = Tool.make("NGrams", {
   description: "Extract character n-grams from text using bag, edge, or set mode with deterministic ranking.",

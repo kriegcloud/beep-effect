@@ -9,7 +9,7 @@
  * Public DuckDB driver error exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category errors
  */
 export * from "./DuckDb.errors.ts";
 
@@ -17,7 +17,7 @@ export * from "./DuckDb.errors.ts";
  * Public DuckDB driver model exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export * from "./DuckDb.models.ts";
 
@@ -25,6 +25,6 @@ export * from "./DuckDb.models.ts";
  * Public DuckDB driver service exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export * from "./DuckDb.service.ts";

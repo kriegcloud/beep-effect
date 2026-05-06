@@ -45,7 +45,7 @@ class SentencesSuccess extends S.Class<SentencesSuccess>($I`SentencesSuccess`)(
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const Sentences = Tool.make("Sentences", {
   description: "Split text into sentences with token counts and character positions.",

@@ -103,7 +103,7 @@ const fromAdjacencyList = (
  * })
  * void program
  * ```
- * @category DomainLogic
+ * @category services
  * @since 0.0.0
  */
 export const topologicalSort: (
@@ -162,7 +162,7 @@ export const topologicalSort: (
  * })
  * void program
  * ```
- * @category DomainLogic
+ * @category services
  * @since 0.0.0
  */
 export const detectCycles: (
@@ -318,7 +318,7 @@ const buildCyclePath = (
  * })
  * void program
  * ```
- * @category DomainLogic
+ * @category services
  * @since 0.0.0
  */
 export const computeTransitiveClosure: {

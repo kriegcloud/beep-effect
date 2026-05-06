@@ -78,7 +78,7 @@ const decodeTomlUnknown = Effect.fn("Toml.decodeTomlUnknown")(function* (content
  * void program
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const TomlTextToUnknown = S.String.pipe(
@@ -117,7 +117,7 @@ export const TomlTextToUnknown = S.String.pipe(
  *
  * @param schema - Target schema to decode parsed TOML document into.
  * @returns Decoder function from TOML text to the target schema type.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const decodeTomlTextAs = <Schema extends S.Top>(schema: Schema) => {

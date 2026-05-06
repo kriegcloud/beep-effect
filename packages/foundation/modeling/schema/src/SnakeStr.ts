@@ -23,7 +23,7 @@ const $I = $SchemaId.create("SnakeStr");
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SnakeCaseStr = NonEmptyTrimmedStr.pipe(
   S.check(
@@ -49,6 +49,6 @@ export const SnakeCaseStr = NonEmptyTrimmedStr.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type SnakeCaseStr = typeof SnakeCaseStr.Type;

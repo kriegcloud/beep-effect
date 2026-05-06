@@ -52,7 +52,7 @@ class ChunkBySentencesSuccess extends S.Class<ChunkBySentencesSuccess>($I`ChunkB
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const ChunkBySentences = Tool.make("ChunkBySentences", {
   description: "Split text into sentence-aligned chunks, targeting a maximum character size per chunk.",

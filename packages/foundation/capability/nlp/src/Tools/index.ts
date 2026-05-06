@@ -57,7 +57,7 @@ import { TverskySimilarity as TverskySimilaritySource } from "./TverskySimilarit
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiCorpusConfig = AiCorpusConfigSource;
 /**
@@ -69,7 +69,7 @@ export const AiCorpusConfig = AiCorpusConfigSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiCorpusIdf = AiCorpusIdfSource;
 /**
@@ -81,7 +81,7 @@ export const AiCorpusIdf = AiCorpusIdfSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiCorpusMatrixShape = AiCorpusMatrixShapeSource;
 /**
@@ -93,7 +93,7 @@ export const AiCorpusMatrixShape = AiCorpusMatrixShapeSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiCorpusRankedDocument = AiCorpusRankedDocumentSource;
 /**
@@ -105,7 +105,7 @@ export const AiCorpusRankedDocument = AiCorpusRankedDocumentSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiCorpusStats = AiCorpusStatsSource;
 /**
@@ -117,7 +117,7 @@ export const AiCorpusStats = AiCorpusStatsSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiCorpusSummary = AiCorpusSummarySource;
 /**
@@ -129,7 +129,7 @@ export const AiCorpusSummary = AiCorpusSummarySource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiDocumentStats = AiDocumentStatsSource;
 /**
@@ -141,7 +141,7 @@ export const AiDocumentStats = AiDocumentStatsSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiEntity = AiEntitySource;
 /**
@@ -153,7 +153,7 @@ export const AiEntity = AiEntitySource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiKeyword = AiKeywordSource;
 /**
@@ -165,7 +165,7 @@ export const AiKeyword = AiKeywordSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiNGram = AiNGramSource;
 /**
@@ -177,7 +177,7 @@ export const AiNGram = AiNGramSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiPhoneticMatch = AiPhoneticMatchSource;
 /**
@@ -189,7 +189,7 @@ export const AiPhoneticMatch = AiPhoneticMatchSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiRankedText = AiRankedTextSource;
 /**
@@ -201,7 +201,7 @@ export const AiRankedText = AiRankedTextSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiSentence = AiSentenceSource;
 /**
@@ -213,7 +213,7 @@ export const AiSentence = AiSentenceSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiSentenceChunk = AiSentenceChunkSource;
 /**
@@ -225,7 +225,7 @@ export const AiSentenceChunk = AiSentenceChunkSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tool-schemas
  */
 export const AiToken = AiTokenSource;
 /**
@@ -237,7 +237,7 @@ export const AiToken = AiTokenSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const BowCosineSimilarity = BowCosineSimilaritySource;
 /**
@@ -249,7 +249,7 @@ export const BowCosineSimilarity = BowCosineSimilaritySource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const ChunkBySentences = ChunkBySentencesSource;
 /**
@@ -261,7 +261,7 @@ export const ChunkBySentences = ChunkBySentencesSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const CorpusStats = CorpusStatsSource;
 /**
@@ -273,7 +273,7 @@ export const CorpusStats = CorpusStatsSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category adapters
  */
 export const CreateCorpus: typeof CreateCorpusSource = CreateCorpusSource;
 /**
@@ -285,7 +285,7 @@ export const CreateCorpus: typeof CreateCorpusSource = CreateCorpusSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const DeleteCorpus = DeleteCorpusSource;
 /**
@@ -297,7 +297,7 @@ export const DeleteCorpus = DeleteCorpusSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const DocumentStats = DocumentStatsSource;
 /**
@@ -309,7 +309,7 @@ export const DocumentStats = DocumentStatsSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const ExtractEntities = ExtractEntitiesSource;
 /**
@@ -321,7 +321,7 @@ export const ExtractEntities = ExtractEntitiesSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const ExtractKeywords = ExtractKeywordsSource;
 /**
@@ -333,7 +333,7 @@ export const ExtractKeywords = ExtractKeywordsSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const LearnCorpus = LearnCorpusSource;
 /**
@@ -345,7 +345,7 @@ export const LearnCorpus = LearnCorpusSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const LearnCustomEntities = LearnCustomEntitiesSource;
 /**
@@ -357,13 +357,9 @@ export const LearnCustomEntities = LearnCustomEntitiesSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const NGrams = NGramsSource;
-/**
- * @since 0.0.0
- * @category exports
- */
 /**
  * @example
  * ```ts
@@ -373,7 +369,7 @@ export const NGrams = NGramsSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const PhoneticMatch = PhoneticMatchSource;
 /**
@@ -385,7 +381,7 @@ export const PhoneticMatch = PhoneticMatchSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const QueryCorpus = QueryCorpusSource;
 /**
@@ -397,7 +393,7 @@ export const QueryCorpus = QueryCorpusSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const RankByRelevance = RankByRelevanceSource;
 /**
@@ -409,7 +405,7 @@ export const RankByRelevance = RankByRelevanceSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const Sentences = SentencesSource;
 /**
@@ -421,7 +417,7 @@ export const Sentences = SentencesSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const TextSimilarity = TextSimilaritySource;
 /**
@@ -433,7 +429,7 @@ export const TextSimilarity = TextSimilaritySource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const Tokenize = TokenizeSource;
 /**
@@ -445,7 +441,7 @@ export const Tokenize = TokenizeSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const TransformText = TransformTextSource;
 /**
@@ -457,7 +453,7 @@ export const TransformText = TransformTextSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const TverskySimilarity = TverskySimilaritySource;
 
@@ -470,7 +466,7 @@ export const TverskySimilarity = TverskySimilaritySource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const NlpToolkit: typeof NlpToolkitSource = NlpToolkitSource;
 
@@ -483,7 +479,7 @@ export const NlpToolkit: typeof NlpToolkitSource = NlpToolkitSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const NlpToolkitLive: typeof NlpToolkitLiveSource = NlpToolkitLiveSource;
 
@@ -496,7 +492,7 @@ export const NlpToolkitLive: typeof NlpToolkitLiveSource = NlpToolkitLiveSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const NlpTools: typeof NlpToolsSource = NlpToolsSource;
 
@@ -509,6 +505,6 @@ export const NlpTools: typeof NlpToolsSource = NlpToolsSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category tools
  */
 export const exportTools: typeof exportToolsSource = exportToolsSource;

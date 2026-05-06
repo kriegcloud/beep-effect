@@ -6,22 +6,42 @@ import type * as React from "react";
 import { cn } from "../lib/index.ts";
 import { Button } from "./button";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
   return (
     <DialogPrimitive.Backdrop
@@ -35,6 +55,10 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DialogContent({
   className,
   children,
@@ -71,10 +95,18 @@ function DialogContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="dialog-header" className={cn("gap-2 flex flex-col", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -98,6 +130,10 @@ function DialogFooter({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   return (
     <DialogPrimitive.Title
@@ -108,6 +144,10 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DialogDescription({ className, ...props }: DialogPrimitive.Description.Props) {
   return (
     <DialogPrimitive.Description
@@ -130,6 +170,10 @@ Dialog.Portal = DialogPortal;
 Dialog.Title = DialogTitle;
 Dialog.Trigger = DialogTrigger;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Dialog,
   DialogClose,

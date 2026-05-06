@@ -17,7 +17,7 @@ const $I = $RepoCliId.create("commands/AIDocs/AIDocs");
  * AIDocsError - A Tagged Error Class for errors occurring in the AIDocs command
  * context
  *
- * @category Exceptions
+ * @category errors
  * @since 0.0.0
  */
 export class AIDocsError extends CauseTaggedError<AIDocsError>($I`AIDocsError`)(
@@ -31,7 +31,7 @@ export class AIDocsError extends CauseTaggedError<AIDocsError>($I`AIDocsError`)(
 /**
  * Supported external documentation source formats for AI documentation.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const AIDocKind = LiteralKit(["LLMS_TXT", "PLAIN_WEBSITE", "GITHUB_RAW"]).pipe(

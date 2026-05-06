@@ -51,7 +51,7 @@ import * as S from "effect/Schema";
  * decoded side.
  * @returns A schema that decodes a one-property struct into the selected field
  * value and encodes that field value back into a one-property struct.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export function pluck<P extends PropertyKey>(key: P) {

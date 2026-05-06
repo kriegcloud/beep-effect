@@ -31,7 +31,7 @@ const normalizeIdentifierWords = flow(
  * ```
  *
  * @since 0.0.0
- * @category tokenization
+ * @category parsing
  */
 export const tokens = flow(normalizeIdentifierWords, Str.split(" "), A.map(Str.toLowerCase), A.filter(Str.isNonEmpty));
 
@@ -50,7 +50,7 @@ export const tokens = flow(normalizeIdentifierWords, Str.split(" "), A.map(Str.t
  * ```
  *
  * @since 0.0.0
- * @category variants
+ * @category normalization
  */
 export const variants = (input: string): ReadonlyArray<string> => {
   const normalized = QueryText.normalizePhrase(input);

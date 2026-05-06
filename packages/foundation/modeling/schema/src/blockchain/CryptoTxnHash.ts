@@ -55,7 +55,7 @@ const CryptoTxnHashChecks = S.makeFilterGroup(
  * Branded schema for canonical mainnet blockchain transaction identifiers.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const CryptoTxnHash = S.NonEmptyString.check(CryptoTxnHashChecks).pipe(
   S.brand("CryptoTxnHash"),
@@ -70,7 +70,7 @@ export const CryptoTxnHash = S.NonEmptyString.check(CryptoTxnHashChecks).pipe(
  * Type for {@link CryptoTxnHash}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type CryptoTxnHash = typeof CryptoTxnHash.Type;
 
@@ -78,7 +78,7 @@ export type CryptoTxnHash = typeof CryptoTxnHash.Type;
  * Redacted schema for canonical mainnet blockchain transaction identifiers.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const CryptoTxnHashRedacted = CryptoTxnHash.pipe(
   S.RedactedFromValue,
@@ -96,6 +96,6 @@ export const CryptoTxnHashRedacted = CryptoTxnHash.pipe(
  * Type for {@link CryptoTxnHashRedacted}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type CryptoTxnHashRedacted = typeof CryptoTxnHashRedacted.Type;

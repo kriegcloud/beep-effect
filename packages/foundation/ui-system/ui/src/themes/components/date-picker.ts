@@ -4,6 +4,7 @@ import { CONTROL_HEIGHTS, CONTROL_TOUCH_HEIGHTS, TOUCH_MEDIA_QUERY } from "../sc
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * @category themes
  * @since 0.0.0
  */
 export const datePickerTheme: ThemeComponents = {

@@ -23,7 +23,7 @@ import { rootCommand } from "./commands/Root.js";
  * command and are combined here so they can be shared by all derived layers.
  *
  * @internal
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const BaseLayers = Layer.mergeAll(BunServices.layer, BunHttpClient.layer);
@@ -34,7 +34,7 @@ const BaseLayers = Layer.mergeAll(BunServices.layer, BunHttpClient.layer);
  * Keeps startup lean when dispatching build/check/test/lint/audit adapters.
  *
  * @internal
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const QualityLayers = Layer.mergeAll(BunChildProcessSpawner.layer).pipe(Layer.provideMerge(BaseLayers));
@@ -47,7 +47,7 @@ const QualityLayers = Layer.mergeAll(BunChildProcessSpawner.layer).pipe(Layer.pr
  * the repo-utils `FsUtils` service used by commands like `codegen`.
  *
  * @internal
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const DerivedLayers = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive, TSMorphServiceLive).pipe(
@@ -64,7 +64,7 @@ const qualityTaskInvocation = parseQualityTaskInvocation(argv);
  * This is the value handed to `Effect.runPromise` to execute the CLI.
  *
  * @internal
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 if (O.isSome(qualityTaskInvocation)) {

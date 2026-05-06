@@ -60,7 +60,7 @@ class ExtractEntitiesSuccess extends S.Class<ExtractEntitiesSuccess>($I`ExtractE
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const ExtractEntities = Tool.make("ExtractEntities", {
   description: "Extract named entities from text, including optional learned custom entities.",

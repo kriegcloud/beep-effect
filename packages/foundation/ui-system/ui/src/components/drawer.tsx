@@ -4,22 +4,42 @@ import type * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Drawer({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DrawerTrigger({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Trigger>) {
   return <DrawerPrimitive.Trigger data-slot="drawer-trigger" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DrawerPortal({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Portal>) {
   return <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DrawerClose({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Close>) {
   return <DrawerPrimitive.Close data-slot="drawer-close" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DrawerOverlay({ className, ...props }: React.ComponentProps<typeof DrawerPrimitive.Overlay>) {
   return (
     <DrawerPrimitive.Overlay
@@ -33,6 +53,10 @@ function DrawerOverlay({ className, ...props }: React.ComponentProps<typeof Draw
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DrawerContent({ className, children, ...props }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
   return (
     <DrawerPortal data-slot="drawer-portal">
@@ -52,6 +76,10 @@ function DrawerContent({ className, children, ...props }: React.ComponentProps<t
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -65,10 +93,18 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="drawer-footer" className={cn("gap-2 p-4 mt-auto flex flex-col", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DrawerTitle({ className, ...props }: React.ComponentProps<typeof DrawerPrimitive.Title>) {
   return (
     <DrawerPrimitive.Title
@@ -79,6 +115,10 @@ function DrawerTitle({ className, ...props }: React.ComponentProps<typeof Drawer
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function DrawerDescription({ className, ...props }: React.ComponentProps<typeof DrawerPrimitive.Description>) {
   return (
     <DrawerPrimitive.Description
@@ -89,6 +129,10 @@ function DrawerDescription({ className, ...props }: React.ComponentProps<typeof 
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Drawer,
   DrawerClose,

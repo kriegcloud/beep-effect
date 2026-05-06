@@ -23,7 +23,7 @@ const editorConfig: InitialConfigType = {
  * Rich text editor block assembled from the shared editor theme and plugins.
  *
  * @since 0.0.0
- * @category Presentation
+ * @category components
  */
 export function Editor({
   editorState,

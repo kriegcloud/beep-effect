@@ -64,7 +64,7 @@ const toReadonlyEntries = <K, V>(map: MutableHashMap_.MutableHashMap<K, V>): Rea
  * {@link MutableHashMapFromSelf} for round-tripping.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 type MutableHashMapEntry<Key extends S.Top, Value extends S.Top> = S.Codec<
   readonly [Key["Type"], Value["Type"]],
@@ -77,7 +77,7 @@ type MutableHashMapEntry<Key extends S.Top, Value extends S.Top> = S.Codec<
  * Serializable entry-array iso type for `MutableHashMap` schemas.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type MutableHashMapIso<Key extends S.Top, Value extends S.Top> = ReadonlyArray<
   readonly [Key["Iso"], Value["Iso"]]
@@ -87,7 +87,7 @@ export type MutableHashMapIso<Key extends S.Top, Value extends S.Top> = Readonly
  * Schema for validating an existing `MutableHashMap` instance.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface MutableHashMapFromSelf<Key extends S.Top, Value extends S.Top>
   extends S.declareConstructor<
@@ -105,7 +105,7 @@ export interface MutableHashMapFromSelf<Key extends S.Top, Value extends S.Top>
  * Schema for transforming entry arrays into `MutableHashMap` instances.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface MutableHashMap<Key extends S.Top, Value extends S.Top>
   extends S.decodeTo<
@@ -132,7 +132,7 @@ export interface MutableHashMap<Key extends S.Top, Value extends S.Top>
  * @param value - Unknown input to test.
  * @returns `true` when `value` is a `MutableHashMap`.
  * @since 0.0.0
- * @category Guards
+ * @category guards
  */
 export const isMutableHashMap = <Key, Value>(value: unknown): value is MutableHashMap_.MutableHashMap<Key, Value> =>
   MutableHashMap_.isMutableHashMap(value);
@@ -157,7 +157,7 @@ export const isMutableHashMap = <Key, Value>(value: unknown): value is MutableHa
  * @returns Schema whose encoded side is another `MutableHashMap` carrying the
  * encoded key and value types.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(options: {
   readonly key: Key;
@@ -256,7 +256,7 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
  * @param options - Schemas for keys and values.
  * @returns Entry-array-backed schema for mutable hash maps.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MutableHashMap = <Key extends S.Top, Value extends S.Top>(options: {
   readonly key: Key;

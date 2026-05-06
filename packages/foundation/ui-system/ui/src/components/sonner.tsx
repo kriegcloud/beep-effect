@@ -5,6 +5,10 @@ import { useTheme } from "next-themes";
 import type React from "react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
 
@@ -37,4 +41,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
   );
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Toaster };

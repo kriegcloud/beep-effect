@@ -13,7 +13,7 @@ import type * as Struct_ from "effect/Struct";
 
 /**
  * @since 0.0.0
- * @category Type IDs
+ * @category type-ids
  */
 export const TypeId = "~effect/schema/VariantSchema";
 
@@ -141,7 +141,7 @@ type SchemaClassFactory = (identifier: string) => (schema: S.Top, annotations?: 
 
 /**
  * @since 0.0.0
- * @category extractors
+ * @category type-level
  */
 export type ExtractFields<V extends string, Fields extends Struct.Fields, IsDefault = false> = {
   readonly [K in keyof Fields as [Fields[K]] extends [Field<infer Config>]
@@ -161,7 +161,7 @@ export type ExtractFields<V extends string, Fields extends Struct.Fields, IsDefa
 
 /**
  * @since 0.0.0
- * @category extractors
+ * @category type-level
  */
 export type Extract<V extends string, A extends AnyStruct, IsDefault = false> = [A] extends [Struct<infer Fields>]
   ? IsDefault extends true
@@ -222,7 +222,7 @@ const extract: {
 );
 
 /**
- * @category accessors
+ * @category getters
  * @since 0.0.0
  */
 export const fields = <A extends AnyStruct>(self: A): A[typeof TypeId] => self[TypeId];
@@ -573,13 +573,13 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
 
 /**
  * @since 0.0.0
- * @category overridable
+ * @category constructors
  */
 export const Override = <A>(value: A): A & Brand<"Override"> => value as A & Brand<"Override">;
 
 /**
  * @since 0.0.0
- * @category overridable
+ * @category schemas
  */
 export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
   extends S.Bottom<
@@ -602,7 +602,7 @@ export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
 
 /**
  * @since 0.0.0
- * @category overridable
+ * @category constructors
  */
 export const Overridable: {
   <S extends S.Top & S.WithoutConstructorDefault>(options: {
@@ -645,7 +645,7 @@ export const Overridable: {
  * ```
  *
  * @since 0.0.0
- * @category overridable
+ * @category schemas
  */
 export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> extends Overridable<S> {}
 
@@ -653,7 +653,7 @@ export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> ext
  * Upstream-compatible alias for {@link Overridable}.
  *
  * @since 0.0.0
- * @category overridable
+ * @category constructors
  */
 export const Overrideable: typeof Overridable = Overridable;
 

@@ -4,7 +4,7 @@
  * Use this for JSON parse failures, glob failures, and other operational
  * errors where a more specific error type is not warranted.
  *
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -25,7 +25,7 @@ const $I = $RepoUtilsId.create("errors/DomainError");
  * })
  * void error.message
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(

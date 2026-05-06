@@ -700,7 +700,7 @@ import { EventLog } from "effect/unstable/eventlog"
  * When `NodeRemoved` fires, `"graph:nodes"`, `"graph:edges"`, and `"graph:stats"`
  * are invalidated because the handler cascades edge removal.
  *
- * @category reactivity
+ * @category configuration
  * @since 0.0.0
  */
 const graphReactivity = EventLog.groupReactivity(
@@ -742,7 +742,7 @@ import { EventLog } from "effect/unstable/eventlog"
  * For each primary key, keep only the last event. This means a node that was
  * created, updated 5 times, then removed collapses to just the removal event.
  *
- * @category compaction
+ * @category policies
  * @since 0.0.0
  */
 const graphCompaction = EventLog.groupCompaction(

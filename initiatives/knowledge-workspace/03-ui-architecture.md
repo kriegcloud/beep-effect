@@ -97,7 +97,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    * Initialize a Cytoscape instance on the given container element.
    *
    * @since 0.1.0
-   * @category lifecycle
+   * @category resource-management
    */
   readonly initialize: (
     container: HTMLDivElement
@@ -107,7 +107,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    * Destroy the current instance and release canvas resources.
    *
    * @since 0.1.0
-   * @category lifecycle
+   * @category resource-management
    */
   readonly destroy: Effect.Effect<void>
 
@@ -115,7 +115,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    * Diff-apply elements without recreating the instance.
    *
    * @since 0.1.0
-   * @category rendering
+   * @category commands
    */
   readonly applyElements: (
     elements: ReadonlyArray<ElementDefinition>
@@ -126,7 +126,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    * `options` is omitted.
    *
    * @since 0.1.0
-   * @category layout
+   * @category commands
    */
   readonly runLayout: (
     options: undefined | LayoutOptions
@@ -137,7 +137,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    * based on node count threshold.
    *
    * @since 0.1.0
-   * @category rendering
+   * @category commands
    */
   readonly switchStylesheet: (
     nodeCount: number
@@ -147,7 +147,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    * Animate an element by ID.
    *
    * @since 0.1.0
-   * @category animation
+   * @category commands
    */
   readonly animateElement: (
     id: string,
@@ -159,7 +159,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    * Apply a CSS class to elements for temporal animation.
    *
    * @since 0.1.0
-   * @category animation
+   * @category commands
    */
   readonly applyClass: (
     selector: string,
@@ -171,7 +171,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    * Fit the viewport to all elements.
    *
    * @since 0.1.0
-   * @category viewport
+   * @category commands
    */
   readonly fit: Effect.Effect<void>
 
@@ -179,7 +179,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    * Export the canvas as a PNG data URL.
    *
    * @since 0.1.0
-   * @category export
+   * @category encoding
    */
   readonly exportPng: Effect.Effect<string>
 
@@ -268,7 +268,7 @@ import { Layer } from "effect"
  * Shared factory with cross-runtime service memoization.
  *
  * @since 0.1.0
- * @category runtime
+ * @category factories
  */
 const factory = Atom.context({ memoMap: Layer.makeMemoMapUnsafe() })
 
@@ -276,7 +276,7 @@ const factory = Atom.context({ memoMap: Layer.makeMemoMapUnsafe() })
  * Inject logging and tracing into all runtimes created from this factory.
  *
  * @since 0.1.0
- * @category runtime
+ * @category configuration
  */
 factory.addGlobalLayer(LoggingLayer)
 factory.addGlobalLayer(TracingLayer)
@@ -286,7 +286,7 @@ factory.addGlobalLayer(TracingLayer)
  * EventStreamService, EditorService, and SidecarConnection to all atoms.
  *
  * @since 0.1.0
- * @category runtime
+ * @category providers
  * @example
  *   import { workspaceRuntime } from "@beep/knowledge-workspace-ui/runtime"
  *

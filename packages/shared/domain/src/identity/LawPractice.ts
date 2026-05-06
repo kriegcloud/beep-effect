@@ -21,7 +21,7 @@ const make = EntityId.factory("law_practice", $I);
  * console.log(LawPractice.LegalClientId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const LegalClientId = make("legal_client", {
@@ -44,7 +44,7 @@ export const LegalClientId = make("legal_client", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type LegalClientId = typeof LegalClientId.Type;
@@ -59,7 +59,7 @@ export type LegalClientId = typeof LegalClientId.Type;
  * console.log(LawPractice.LegalContactId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const LegalContactId = make("legal_contact", {
@@ -82,7 +82,7 @@ export const LegalContactId = make("legal_contact", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type LegalContactId = typeof LegalContactId.Type;
@@ -97,7 +97,7 @@ export type LegalContactId = typeof LegalContactId.Type;
  * console.log(LawPractice.MatterId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const MatterId = make("matter", {
@@ -120,7 +120,7 @@ export const MatterId = make("matter", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type MatterId = typeof MatterId.Type;
@@ -135,7 +135,7 @@ export type MatterId = typeof MatterId.Type;
  * console.log(LawPractice.PatentAssetId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const PatentAssetId = make("patent_asset", {
@@ -158,7 +158,7 @@ export const PatentAssetId = make("patent_asset", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type PatentAssetId = typeof PatentAssetId.Type;

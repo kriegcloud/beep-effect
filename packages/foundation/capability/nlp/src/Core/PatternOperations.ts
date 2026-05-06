@@ -22,7 +22,7 @@ import type { EntityPatternElement, LiteralPatternElement, PatternElement, POSPa
  * ```
  *
  * @since 0.0.0
- * @category Predicates
+ * @category predicates
  */
 export const isPOSElement = (element: PatternElement): element is POSPatternElement =>
   P.isTagged(element, "POSPatternElement");
@@ -38,7 +38,7 @@ export const isPOSElement = (element: PatternElement): element is POSPatternElem
  * ```
  *
  * @since 0.0.0
- * @category Predicates
+ * @category predicates
  */
 export const isEntityElement = (element: PatternElement): element is EntityPatternElement =>
   P.isTagged(element, "EntityPatternElement");
@@ -54,7 +54,7 @@ export const isEntityElement = (element: PatternElement): element is EntityPatte
  * ```
  *
  * @since 0.0.0
- * @category Predicates
+ * @category predicates
  */
 export const isLiteralElement = (element: PatternElement): element is LiteralPatternElement =>
   P.isTagged(element, "LiteralPatternElement");
@@ -70,7 +70,7 @@ export const isLiteralElement = (element: PatternElement): element is LiteralPat
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const extractElementValues = (element: PatternElement): ReadonlyArray<string> => element.value;
 
@@ -85,7 +85,7 @@ export const extractElementValues = (element: PatternElement): ReadonlyArray<str
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const extractBracketContent = (value: string): O.Option<string> =>
   Str.startsWith("[")(value) && Str.endsWith("]")(value) ? O.some(Str.slice(1, -1)(value)) : O.none();
@@ -101,7 +101,7 @@ export const extractBracketContent = (value: string): O.Option<string> =>
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const splitBracketValues = (content: string): ReadonlyArray<string> => A.map(Str.split(content, "|"), Str.trim);
 
@@ -116,6 +116,6 @@ export const splitBracketValues = (content: string): ReadonlyArray<string> => A.
  * ```
  *
  * @since 0.0.0
- * @category Accessors
+ * @category getters
  */
 export const joinBracketValues = (values: ReadonlyArray<string>): string => `[${A.join(values, "|")}]`;

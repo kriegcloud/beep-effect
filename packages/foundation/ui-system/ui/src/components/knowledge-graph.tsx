@@ -10,6 +10,10 @@ import { cn } from "../lib/index.ts";
 // Types
 // ============================================================================
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export interface GraphNode extends d3.SimulationNodeDatum {
   /** Optional custom color */
   readonly color?: undefined | string;
@@ -25,6 +29,10 @@ export interface GraphNode extends d3.SimulationNodeDatum {
   readonly type: string;
 }
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export interface GraphLink extends d3.SimulationLinkDatum<GraphNode> {
   /** Optional relationship label */
   readonly label?: undefined | string;
@@ -55,6 +63,10 @@ interface KnowledgeGraphProps {
   readonly showLinkLabels?: undefined | boolean;
 }
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export interface KnowledgeGraphHandle {
   /** Export the graph as PNG */
   readonly exportAsPNG: () => void;
@@ -89,6 +101,10 @@ const formatTypeLabel = (type: string): string => type.replace(/_/g, " ").replac
 // Component
 // ============================================================================
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphProps>(
   (
     { nodes, links, onNodeClick, onNodeHover, showLegend = true, showLinkLabels = true, centerNodeId, className = "" },
@@ -439,4 +455,8 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
 
 KnowledgeGraph.displayName = "KnowledgeGraph";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export default KnowledgeGraph;

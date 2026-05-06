@@ -49,7 +49,7 @@ const makeMutableHashSetEquivalence =
  * {@link MutableHashSetFromSelf} for round-tripping.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type MutableHashSetIso<Value extends S.Top> = ReadonlyArray<Value["Iso"]>;
 
@@ -57,7 +57,7 @@ export type MutableHashSetIso<Value extends S.Top> = ReadonlyArray<Value["Iso"]>
  * Schema for validating an existing `MutableHashSet` instance.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface MutableHashSetFromSelf<Value extends S.Top>
   extends S.declareConstructor<
@@ -74,7 +74,7 @@ export interface MutableHashSetFromSelf<Value extends S.Top>
  * Schema for transforming arrays into `MutableHashSet` instances.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export interface MutableHashSet<Value extends S.Top>
   extends S.decodeTo<MutableHashSetFromSelf<S.toType<Value>>, S.$Array<Value>> {
@@ -97,7 +97,7 @@ export interface MutableHashSet<Value extends S.Top>
  * @param value - Unknown input to test.
  * @returns `true` when `value` is a `MutableHashSet`.
  * @since 0.0.0
- * @category Guards
+ * @category guards
  */
 export const isMutableHashSet = <Value>(value: unknown): value is MutableHashSet_.MutableHashSet<Value> =>
   MutableHashSet_.isMutableHashSet(value);
@@ -122,7 +122,7 @@ export const isMutableHashSet = <Value>(value: unknown): value is MutableHashSet
  * @returns Schema whose encoded side is another `MutableHashSet` carrying the
  * encoded member type.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MutableHashSetFromSelf = <Value extends S.Top>(value: Value): MutableHashSetFromSelf<Value> => {
   const schema = S.declareConstructor<
@@ -215,7 +215,7 @@ export const MutableHashSetFromSelf = <Value extends S.Top>(value: Value): Mutab
  * @param value - Element schema for set members.
  * @returns Array-backed schema for mutable hash sets.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MutableHashSet = <Value extends S.Top>(value: Value): MutableHashSet<Value> => {
   const schema = S.Array(value).pipe(

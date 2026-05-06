@@ -31,7 +31,7 @@ export const VERSION = "0.0.0" as const;
  * void layer
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export * as Agent from "./agent.ts";
@@ -47,7 +47,7 @@ export * as Agent from "./agent.ts";
  * void service
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export * as Client from "./client.ts";
@@ -63,7 +63,7 @@ export * as Client from "./client.ts";
  * console.log(error.code)
  * ```
  *
- * @category exports
+ * @category errors
  * @since 0.0.0
  */
 export * as Errors from "./errors.ts";
@@ -79,7 +79,7 @@ export * as Errors from "./errors.ts";
  * void make
  * ```
  *
- * @category exports
+ * @category protocols
  * @since 0.0.0
  */
 export * as Protocol from "./protocol.ts";
@@ -95,7 +95,7 @@ export * as Protocol from "./protocol.ts";
  * void group
  * ```
  *
- * @category exports
+ * @category protocols
  * @since 0.0.0
  */
 export * as Rpc from "./rpc.ts";
@@ -110,7 +110,7 @@ export * as Rpc from "./rpc.ts";
  * console.log(Schema.PROTOCOL_VERSION)
  * ```
  *
- * @category exports
+ * @category schemas
  * @since 0.0.0
  */
 export * as Schema from "./schema.ts";
@@ -126,7 +126,7 @@ export * as Schema from "./schema.ts";
  * void make
  * ```
  *
- * @category exports
+ * @category resources
  * @since 0.0.0
  */
 export * as Terminal from "./terminal.ts";

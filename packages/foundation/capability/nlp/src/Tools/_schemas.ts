@@ -54,7 +54,7 @@ const AiPhoneticAlgorithm = AiPhoneticAlgorithmKit.pipe(
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiToken extends S.Class<AiToken>($I`AiToken`)(
   {
@@ -85,7 +85,7 @@ export class AiToken extends S.Class<AiToken>($I`AiToken`)(
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiSentence extends S.Class<AiSentence>($I`AiSentence`)(
   {
@@ -111,7 +111,7 @@ export class AiSentence extends S.Class<AiSentence>($I`AiSentence`)(
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiKeyword extends S.Class<AiKeyword>($I`AiKeyword`)(
   {
@@ -134,7 +134,7 @@ export class AiKeyword extends S.Class<AiKeyword>($I`AiKeyword`)(
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiDocumentStats extends S.Class<AiDocumentStats>($I`AiDocumentStats`)(
   {
@@ -159,7 +159,7 @@ export class AiDocumentStats extends S.Class<AiDocumentStats>($I`AiDocumentStats
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiSentenceChunk extends S.Class<AiSentenceChunk>($I`AiSentenceChunk`)(
   {
@@ -185,7 +185,7 @@ export class AiSentenceChunk extends S.Class<AiSentenceChunk>($I`AiSentenceChunk
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiRankedText extends S.Class<AiRankedText>($I`AiRankedText`)(
   {
@@ -208,7 +208,7 @@ export class AiRankedText extends S.Class<AiRankedText>($I`AiRankedText`)(
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiEntity extends S.Class<AiEntity>($I`AiEntity`)(
   {
@@ -236,7 +236,7 @@ export class AiEntity extends S.Class<AiEntity>($I`AiEntity`)(
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiNGram extends S.Class<AiNGram>($I`AiNGram`)(
   {
@@ -259,7 +259,7 @@ export class AiNGram extends S.Class<AiNGram>($I`AiNGram`)(
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiPhoneticMatch extends S.Class<AiPhoneticMatch>($I`AiPhoneticMatch`)(
   {
@@ -285,7 +285,7 @@ export class AiPhoneticMatch extends S.Class<AiPhoneticMatch>($I`AiPhoneticMatch
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiCorpusConfig extends S.Class<AiCorpusConfig>($I`AiCorpusConfig`)(
   {
@@ -310,7 +310,7 @@ export class AiCorpusConfig extends S.Class<AiCorpusConfig>($I`AiCorpusConfig`)(
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiCorpusSummary extends S.Class<AiCorpusSummary>($I`AiCorpusSummary`)(
   {
@@ -336,7 +336,7 @@ export class AiCorpusSummary extends S.Class<AiCorpusSummary>($I`AiCorpusSummary
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiCorpusRankedDocument extends S.Class<AiCorpusRankedDocument>($I`AiCorpusRankedDocument`)(
   {
@@ -361,7 +361,7 @@ export class AiCorpusRankedDocument extends S.Class<AiCorpusRankedDocument>($I`A
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiCorpusIdf extends S.Class<AiCorpusIdf>($I`AiCorpusIdf`)(
   {
@@ -384,7 +384,7 @@ export class AiCorpusIdf extends S.Class<AiCorpusIdf>($I`AiCorpusIdf`)(
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiCorpusMatrixShape extends S.Class<AiCorpusMatrixShape>($I`AiCorpusMatrixShape`)(
   {
@@ -407,7 +407,7 @@ export class AiCorpusMatrixShape extends S.Class<AiCorpusMatrixShape>($I`AiCorpu
  * ```
  *
  * @since 0.0.0
- * @category ToolSchemas
+ * @category tool-schemas
  */
 export class AiCorpusStats extends S.Class<AiCorpusStats>($I`AiCorpusStats`)(
   {

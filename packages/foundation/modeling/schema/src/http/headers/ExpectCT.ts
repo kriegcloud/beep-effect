@@ -20,6 +20,7 @@ const headerName = "Expect-CT" as const;
 const defaultMaxAge = 60 * 60 * 24;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ExpectCTConfig extends S.Class<ExpectCTConfig>($I`ExpectCTConfig`)(
@@ -34,6 +35,7 @@ export class ExpectCTConfig extends S.Class<ExpectCTConfig>($I`ExpectCTConfig`)(
 ) {}
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ExpectCTEnabled = S.Tuple([S.Literal(true), ExpectCTConfig]).pipe(
@@ -43,11 +45,13 @@ export const ExpectCTEnabled = S.Tuple([S.Literal(true), ExpectCTConfig]).pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ExpectCTEnabled = typeof ExpectCTEnabled.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ExpectCTOption = S.Union([S.Boolean, ExpectCTEnabled]).pipe(
@@ -57,11 +61,13 @@ export const ExpectCTOption = S.Union([S.Boolean, ExpectCTEnabled]).pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ExpectCTOption = typeof ExpectCTOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ExpectCTResponseHeader extends S.Class<ExpectCTResponseHeader>($I`ExpectCTResponseHeader`)(
@@ -137,6 +143,7 @@ const decodeExpectCTValue = (
   });
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ExpectCTHeader = S.Union([ExpectCTOption, S.Undefined]).pipe(
@@ -194,6 +201,7 @@ export const ExpectCTHeader = S.Union([ExpectCTOption, S.Undefined]).pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ExpectCTHeader = typeof ExpectCTHeader.Type;

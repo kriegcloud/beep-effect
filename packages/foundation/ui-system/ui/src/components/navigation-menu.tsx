@@ -4,6 +4,10 @@ import { cva } from "class-variance-authority";
 import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function NavigationMenu({ className, children, ...props }: NavigationMenuPrimitive.Root.Props) {
   return (
     <NavigationMenuPrimitive.Root
@@ -20,6 +24,10 @@ function NavigationMenu({ className, children, ...props }: NavigationMenuPrimiti
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function NavigationMenuList({ className, ...props }: ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List>) {
   return (
     <NavigationMenuPrimitive.List
@@ -30,16 +38,28 @@ function NavigationMenuList({ className, ...props }: ComponentPropsWithoutRef<ty
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function NavigationMenuItem({ className, ...props }: ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Item>) {
   return (
     <NavigationMenuPrimitive.Item data-slot="navigation-menu-item" className={cn("relative", className)} {...props} />
   );
 }
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 const navigationMenuTriggerStyle = cva(
   "bg-background hover:bg-muted focus:bg-muted data-open:hover:bg-muted data-open:focus:bg-muted data-open:bg-muted/50 focus-visible:ring-ring/50 data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all focus-visible:ring-[3px] focus-visible:outline-1 disabled:opacity-50 group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center disabled:pointer-events-none outline-none"
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function NavigationMenuTrigger({ className, children, ...props }: NavigationMenuPrimitive.Trigger.Props) {
   return (
     <NavigationMenuPrimitive.Trigger
@@ -56,6 +76,10 @@ function NavigationMenuTrigger({ className, children, ...props }: NavigationMenu
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function NavigationMenuContent({ className, ...props }: NavigationMenuPrimitive.Content.Props) {
   return (
     <NavigationMenuPrimitive.Content
@@ -69,6 +93,10 @@ function NavigationMenuContent({ className, ...props }: NavigationMenuPrimitive.
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function NavigationMenuPositioner({
   className,
   side = "bottom",
@@ -98,6 +126,10 @@ function NavigationMenuPositioner({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function NavigationMenuLink({ className, ...props }: NavigationMenuPrimitive.Link.Props) {
   return (
     <NavigationMenuPrimitive.Link
@@ -111,6 +143,10 @@ function NavigationMenuLink({ className, ...props }: NavigationMenuPrimitive.Lin
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function NavigationMenuIndicator({
   className,
   ...props
@@ -129,6 +165,10 @@ function NavigationMenuIndicator({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   NavigationMenu,
   NavigationMenuContent,

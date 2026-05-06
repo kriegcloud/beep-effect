@@ -1,6 +1,10 @@
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea
@@ -14,4 +18,8 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Textarea };

@@ -4,6 +4,10 @@ import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Tabs({ className, orientation = "horizontal", ...props }: TabsPrimitive.Root.Props) {
   return (
     <TabsPrimitive.Root
@@ -15,6 +19,10 @@ function Tabs({ className, orientation = "horizontal", ...props }: TabsPrimitive
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const tabsListVariants = cva(
   "rounded-lg p-[3px] group-data-horizontal/tabs:h-8 data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col",
   {
@@ -30,6 +38,10 @@ const tabsListVariants = cva(
   }
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function TabsList({
   className,
   variant = "default",
@@ -45,6 +57,10 @@ function TabsList({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
   return (
     <TabsPrimitive.Tab
@@ -61,10 +77,18 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
   return (
     <TabsPrimitive.Panel data-slot="tabs-content" className={cn("text-sm flex-1 outline-none", className)} {...props} />
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Tabs, TabsContent, TabsList, TabsTrigger, tabsListVariants };

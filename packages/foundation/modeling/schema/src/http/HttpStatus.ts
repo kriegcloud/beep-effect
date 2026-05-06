@@ -32,7 +32,7 @@ declare module "effect/Schema" {
  * HttpStatusCategory - HTTP status code category
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HttpStatusCategory = MappedLiteralKit([
   ["INFO", "1XX"],
@@ -59,7 +59,7 @@ export const HttpStatusCategory = MappedLiteralKit([
 /**
  * {@inheritDoc HttpStatusCategory}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type HttpStatusCategory = typeof HttpStatusCategory.Type;
@@ -73,7 +73,7 @@ export type HttpStatusCategory = typeof HttpStatusCategory.Type;
  * It now tells your browser to proceed with sending the body of the request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Continue = S.Literal(100).pipe(
   $I.annoteSchema("Continue", {
@@ -87,7 +87,7 @@ export const Continue = S.Literal(100).pipe(
  * {@inheritDoc Continue}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Continue = typeof Continue.Type;
 
@@ -96,7 +96,7 @@ export type Continue = typeof Continue.Type;
  * change the protocols, and the server fulfilled the request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SwitchingProtocols = S.Literal(101).pipe(
   $I.annoteSchema("SwitchingProtocols", {
@@ -110,7 +110,7 @@ export const SwitchingProtocols = S.Literal(101).pipe(
  * {@inheritDoc SwitchingProtocols}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type SwitchingProtocols = typeof SwitchingProtocols.Type;
 
@@ -120,7 +120,7 @@ export type SwitchingProtocols = typeof SwitchingProtocols.Type;
  * the server has received the request and is currently processing it.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Processing = S.Literal(102).pipe(
   $I.annoteSchema("Processing", {
@@ -134,7 +134,7 @@ export const Processing = S.Literal(102).pipe(
  * {@inheritDoc Processing}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Processing = typeof Processing.Type;
 
@@ -143,7 +143,7 @@ export type Processing = typeof Processing.Type;
  * final HTTP response is sent.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EarlyHints = S.Literal(103).pipe(
   $I.annoteSchema("EarlyHints", {
@@ -157,7 +157,7 @@ export const EarlyHints = S.Literal(103).pipe(
  * {@inheritDoc EarlyHints}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type EarlyHints = typeof EarlyHints.Type;
 
@@ -167,7 +167,7 @@ export type EarlyHints = typeof EarlyHints.Type;
  * This information is sent in the headers of the HTTP response.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HttpStatus1XX = MappedLiteralKit([
   ["Continue", Continue.literal],
@@ -184,14 +184,14 @@ export const HttpStatus1XX = MappedLiteralKit([
 /**
  * A namespace for {@link HttpStatus1XX} to contain the Encoded type
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export declare namespace HttpStatus1XX {
   /**
    * The encoded type of {@link HttpStatus1XX}
    *
-   * @category Validation
+   * @category validation
    * @since 0.0.0
    */
   export type Encoded = typeof HttpStatus1XX.Encoded;
@@ -200,7 +200,7 @@ export declare namespace HttpStatus1XX {
 /**
  * {@inheritDoc HttpStatus1XX}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type HttpStatus1XX = typeof HttpStatus1XX.Type;
@@ -213,7 +213,7 @@ export type HttpStatus1XX = typeof HttpStatus1XX.Type;
  * 200 “OK” – The response for a successful HTTP request. The result will depend on the type of request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Ok = S.Literal(200).pipe(
   $I.annoteSchema("Ok", {
@@ -227,7 +227,7 @@ export const Ok = S.Literal(200).pipe(
  * {@inheritDoc Ok}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Ok = typeof Ok.Type;
 
@@ -235,7 +235,7 @@ export type Ok = typeof Ok.Type;
  * 201 “Created” – The request was fulfilled, and the server created a new resource.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Created = S.Literal(201).pipe(
   $I.annoteSchema("Created", {
@@ -248,7 +248,7 @@ export const Created = S.Literal(201).pipe(
  * {@inheritDoc Created}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Created = typeof Created.Type;
 
@@ -258,7 +258,7 @@ export type Created = typeof Created.Type;
  * is still undetermined.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Accepted = S.Literal(202).pipe(
   $I.annoteSchema("Accepted", {
@@ -272,7 +272,7 @@ export const Accepted = S.Literal(202).pipe(
  * {@inheritDoc Accepted}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Accepted = typeof Accepted.Type;
 
@@ -283,7 +283,7 @@ export type Accepted = typeof Accepted.Type;
  * response.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NonAuthoritativeInformation = S.Literal(203).pipe(
   $I.annoteSchema("NonAuthoritativeInformation", {
@@ -297,7 +297,7 @@ export const NonAuthoritativeInformation = S.Literal(203).pipe(
  * {@inheritDoc NonAuthoritativeInformation}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type NonAuthoritativeInformation = typeof NonAuthoritativeInformation.Type;
 
@@ -306,7 +306,7 @@ export type NonAuthoritativeInformation = typeof NonAuthoritativeInformation.Typ
  * content.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NoContent = S.Literal(204).pipe(
   $I.annoteSchema("NoContent", {
@@ -319,7 +319,7 @@ export const NoContent = S.Literal(204).pipe(
  * {@inheritDoc NoContent}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type NoContent = typeof NoContent.Type;
 
@@ -328,7 +328,7 @@ export type NoContent = typeof NoContent.Type;
  * any content but asks the client (browser) to reset the document view.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ResetContent = S.Literal(205).pipe(
   $I.annoteSchema("ResetContent", {
@@ -342,7 +342,7 @@ export const ResetContent = S.Literal(205).pipe(
  * {@inheritDoc ResetContent}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type ResetContent = typeof ResetContent.Type;
 
@@ -353,7 +353,7 @@ export type ResetContent = typeof ResetContent.Type;
  * streams.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PartialContent = S.Literal(206).pipe(
   $I.annoteSchema("PartialContent", {
@@ -367,7 +367,7 @@ export const PartialContent = S.Literal(206).pipe(
  * {@inheritDoc PartialContent}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type PartialContent = typeof PartialContent.Type;
 
@@ -377,7 +377,7 @@ export type PartialContent = typeof PartialContent.Type;
  * for all sub-requests.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MultiStatus = S.Literal(207).pipe(
   $I.annoteSchema("MultiStatus", {
@@ -391,7 +391,7 @@ export const MultiStatus = S.Literal(207).pipe(
  * {@inheritDoc MultiStatus}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type MultiStatus = typeof MultiStatus.Type;
 
@@ -401,7 +401,7 @@ export type MultiStatus = typeof MultiStatus.Type;
  * response and will not be enumerated again.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const AlreadyReported = S.Literal(208).pipe(
   $I.annoteSchema("AlreadyReported", {
@@ -415,7 +415,7 @@ export const AlreadyReported = S.Literal(208).pipe(
  * {@inheritDoc AlreadyReported}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type AlreadyReported = typeof AlreadyReported.Type;
 
@@ -425,7 +425,7 @@ export type AlreadyReported = typeof AlreadyReported.Type;
  * to the current instance.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ImUsed = S.Literal(226).pipe(
   $I.annoteSchema("ImUsed", {
@@ -439,7 +439,7 @@ export const ImUsed = S.Literal(226).pipe(
  * {@inheritDoc ImUsed}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type ImUsed = typeof ImUsed.Type;
 
@@ -448,7 +448,7 @@ export type ImUsed = typeof ImUsed.Type;
  * request was recognized by the server, was accepted, and is being processed.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HttpStatus2XX = MappedLiteralKit([
   ["Ok", Ok.literal],
@@ -471,14 +471,14 @@ export const HttpStatus2XX = MappedLiteralKit([
 /**
  * A namespace for {@link HttpStatus2XX} to contain the Encoded type
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export declare namespace HttpStatus2XX {
   /**
    * The encoded type of {@link HttpStatus2XX}
    *
-   * @category Validation
+   * @category validation
    * @since 0.0.0
    */
   export type Encoded = typeof HttpStatus2XX.Encoded;
@@ -488,7 +488,7 @@ export declare namespace HttpStatus2XX {
  * {@inheritDoc HttpStatus2XX}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type HttpStatus2XX = typeof HttpStatus2XX.Type;
 
@@ -503,7 +503,7 @@ export type HttpStatus2XX = typeof HttpStatus2XX.Type;
  * or when you are presented with options for word-sense disambiguation.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MultipleChoices = S.Literal(300).pipe(
   $I.annoteSchema("MultipleChoices", {
@@ -521,7 +521,7 @@ export const MultipleChoices = S.Literal(300).pipe(
  * {@inheritDoc MultipleChoices}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type MultipleChoices = typeof MultipleChoices.Type;
 
@@ -530,7 +530,7 @@ export type MultipleChoices = typeof MultipleChoices.Type;
  * You learn more about it from our article on 301 redirects.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MovedPermanently = S.Literal(301).pipe(
   $I.annoteSchema("MovedPermanently", {
@@ -544,7 +544,7 @@ export const MovedPermanently = S.Literal(301).pipe(
  * {@inheritDoc MovedPermanently}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type MovedPermanently = typeof MovedPermanently.Type;
 
@@ -556,7 +556,7 @@ export type MovedPermanently = typeof MovedPermanently.Type;
  * temporary redirects.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Found = S.Literal(302).pipe(
   $I.annoteSchema("Found", {
@@ -570,7 +570,7 @@ export const Found = S.Literal(302).pipe(
  * {@inheritDoc Found}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Found = typeof Found.Type;
 
@@ -579,7 +579,7 @@ export type Found = typeof Found.Type;
  * resource, but it has to be retrieved on another URL with a GET request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SeeOther = S.Literal(303).pipe(
   $I.annoteSchema("SeeOther", {
@@ -593,7 +593,7 @@ export const SeeOther = S.Literal(303).pipe(
  * {@inheritDoc SeeOther}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type SeeOther = typeof SeeOther.Type;
 
@@ -604,7 +604,7 @@ export type SeeOther = typeof SeeOther.Type;
  * browser cache usually solves this error.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NotModified = S.Literal(304).pipe(
   $I.annoteSchema("NotModified", {
@@ -618,7 +618,7 @@ export const NotModified = S.Literal(304).pipe(
  * {@inheritDoc NotModified}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type NotModified = typeof NotModified.Type;
 
@@ -627,7 +627,7 @@ export type NotModified = typeof NotModified.Type;
  * This code is now deprecated and browsers disregard it.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UseProxy = S.Literal(305).pipe(
   $I.annoteSchema("UseProxy", {
@@ -641,7 +641,7 @@ export const UseProxy = S.Literal(305).pipe(
  * {@inheritDoc UseProxy}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type UseProxy = typeof UseProxy.Type;
 
@@ -650,7 +650,7 @@ export type UseProxy = typeof UseProxy.Type;
  * following requests should use the specified proxy.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SwitchProxy = S.Literal(306).pipe(
   $I.annoteSchema("SwitchProxy", {
@@ -664,7 +664,7 @@ export const SwitchProxy = S.Literal(306).pipe(
  * {@inheritDoc SwitchProxy}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type SwitchProxy = typeof SwitchProxy.Type;
 
@@ -676,7 +676,7 @@ export type SwitchProxy = typeof SwitchProxy.Type;
  * GET, the second request should be GET as well.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const TemporaryRedirect = S.Literal(307).pipe(
   $I.annoteSchema("TemporaryRedirect", {
@@ -690,7 +690,7 @@ export const TemporaryRedirect = S.Literal(307).pipe(
  * {@inheritDoc TemporaryRedirect}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type TemporaryRedirect = typeof TemporaryRedirect.Type;
 
@@ -701,7 +701,7 @@ export type TemporaryRedirect = typeof TemporaryRedirect.Type;
  * doesn’t allow browsers to change the type of HTTP request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PermanentRedirect = S.Literal(308).pipe(
   $I.annoteSchema("PermanentRedirect", {
@@ -715,7 +715,7 @@ export const PermanentRedirect = S.Literal(308).pipe(
  * {@inheritDoc PermanentRedirect}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type PermanentRedirect = typeof PermanentRedirect.Type;
 
@@ -726,7 +726,7 @@ export type PermanentRedirect = typeof PermanentRedirect.Type;
  * browsers on how the redirect must be performed.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HttpStatus3XX = MappedLiteralKit([
   ["MultipleChoices", MultipleChoices.literal],
@@ -749,21 +749,21 @@ export const HttpStatus3XX = MappedLiteralKit([
  * {@inheritDoc HttpStatus3XX}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type HttpStatus3XX = typeof HttpStatus3XX.Type;
 
 /**
  * A namespace for {@link HttpStatus3XX} to contain the Encoded type
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export declare namespace HttpStatus3XX {
   /**
    * The encoded type of {@link HttpStatus3XX}
    *
-   * @category Validation
+   * @category validation
    * @since 0.0.0
    */
   export type Encoded = typeof HttpStatus3XX.Encoded;
@@ -779,7 +779,7 @@ export declare namespace HttpStatus3XX {
  * request routing, large file size, etc.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const BadRequest = S.Literal(400).pipe(
   $I.annoteSchema("BadRequest", {
@@ -793,7 +793,7 @@ export const BadRequest = S.Literal(400).pipe(
  * {@inheritDoc BadRequest}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type BadRequest = typeof BadRequest.Type;
 
@@ -807,7 +807,7 @@ export type BadRequest = typeof BadRequest.Type;
  * | troubleshooting the HTTP 401 error.}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Unauthorized = S.Literal(401).pipe(
   $I.annoteSchema("Unauthorized", {
@@ -828,7 +828,7 @@ export const Unauthorized = S.Literal(401).pipe(
  * {@inheritDoc Unauthorized}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Unauthorized = typeof Unauthorized.Type;
 
@@ -838,7 +838,7 @@ export type Unauthorized = typeof Unauthorized.Type;
  * indicate that the content is not available due to a failed payment.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PaymentRequired = S.Literal(402).pipe(
   $I.annoteSchema("PaymentRequired", {
@@ -852,7 +852,7 @@ export const PaymentRequired = S.Literal(402).pipe(
  * {@inheritDoc PaymentRequired}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type PaymentRequired = typeof PaymentRequired.Type;
 
@@ -867,7 +867,7 @@ export type PaymentRequired = typeof PaymentRequired.Type;
  * fix it.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Forbidden = S.Literal(403).pipe(
   $I.annoteSchema("Forbidden", {
@@ -881,7 +881,7 @@ export const Forbidden = S.Literal(403).pipe(
  * {@inheritDoc Forbidden}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Forbidden = typeof Forbidden.Type;
 
@@ -893,7 +893,7 @@ export type Forbidden = typeof Forbidden.Type;
  * following guide for troubleshooting the HTTP error 404.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NotFound = S.Literal(404).pipe(
   $I.annoteSchema("NotFound", {
@@ -907,7 +907,7 @@ export const NotFound = S.Literal(404).pipe(
  * {@inheritDoc NotFound}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type NotFound = typeof NotFound.Type;
 
@@ -916,7 +916,7 @@ export type NotFound = typeof NotFound.Type;
  * the target resource doesn’t support it.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MethodNotAllowed = S.Literal(405).pipe(
   $I.annoteSchema("MethodNotAllowed", {
@@ -930,7 +930,7 @@ export const MethodNotAllowed = S.Literal(405).pipe(
  * {@inheritDoc MethodNotAllowed}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type MethodNotAllowed = typeof MethodNotAllowed.Type;
 
@@ -939,7 +939,7 @@ export type MethodNotAllowed = typeof MethodNotAllowed.Type;
  * meet the criteria of the user-agent who requested it.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NotAcceptable = S.Literal(406).pipe(
   $I.annoteSchema("NotAcceptable", {
@@ -953,7 +953,7 @@ export const NotAcceptable = S.Literal(406).pipe(
  * {@inheritDoc NotAcceptable}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type NotAcceptable = typeof NotAcceptable.Type;
 
@@ -963,7 +963,7 @@ export type NotAcceptable = typeof NotAcceptable.Type;
  * authentication.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ProxyAuthenticationRequired = S.Literal(407).pipe(
   $I.annoteSchema("ProxyAuthenticationRequired", {
@@ -977,7 +977,7 @@ export const ProxyAuthenticationRequired = S.Literal(407).pipe(
  * {@inheritDoc ProxyAuthenticationRequired}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type ProxyAuthenticationRequired = typeof ProxyAuthenticationRequired.Type;
 
@@ -990,7 +990,7 @@ export type ProxyAuthenticationRequired = typeof ProxyAuthenticationRequired.Typ
  * message.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RequestTimeout = S.Literal(408).pipe(
   $I.annoteSchema("RequestTimeout", {
@@ -1004,7 +1004,7 @@ export const RequestTimeout = S.Literal(408).pipe(
  * {@inheritDoc RequestTimeout}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type RequestTimeout = typeof RequestTimeout.Type;
 
@@ -1015,7 +1015,7 @@ export type RequestTimeout = typeof RequestTimeout.Type;
  * server and the edits conflict with each other.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Conflict = S.Literal(409).pipe(
   $I.annoteSchema("Conflict", {
@@ -1029,7 +1029,7 @@ export const Conflict = S.Literal(409).pipe(
  * {@inheritDoc Conflict}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Conflict = typeof Conflict.Type;
 
@@ -1041,7 +1041,7 @@ export type Conflict = typeof Conflict.Type;
  * information from their databases.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Gone = S.Literal(410).pipe(
   $I.annoteSchema("Gone", {
@@ -1055,7 +1055,7 @@ export const Gone = S.Literal(410).pipe(
  * {@inheritDoc Gone}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Gone = typeof Gone.Type;
 
@@ -1064,7 +1064,7 @@ export type Gone = typeof Gone.Type;
  * and the resource on the server requires it.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const LengthRequired = S.Literal(411).pipe(
   $I.annoteSchema("LengthRequired", {
@@ -1078,7 +1078,7 @@ export const LengthRequired = S.Literal(411).pipe(
  * {@inheritDoc LengthRequired}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type LengthRequired = typeof LengthRequired.Type;
 
@@ -1087,7 +1087,7 @@ export type LengthRequired = typeof LengthRequired.Type;
  * preconditions that the server fails to meet.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PreconditionFailed = S.Literal(412).pipe(
   $I.annoteSchema("PreconditionFailed", {
@@ -1101,7 +1101,7 @@ export const PreconditionFailed = S.Literal(412).pipe(
  * {@inheritDoc PreconditionFailed}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type PreconditionFailed = typeof PreconditionFailed.Type;
 
@@ -1114,7 +1114,7 @@ export type PreconditionFailed = typeof PreconditionFailed.Type;
  * WordPress.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PayloadTooLarge = S.Literal(413).pipe(
   $I.annoteSchema("PayloadTooLarge", {
@@ -1128,7 +1128,7 @@ export const PayloadTooLarge = S.Literal(413).pipe(
  * {@inheritDoc PayloadTooLarge}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type PayloadTooLarge = typeof PayloadTooLarge.Type;
 
@@ -1138,7 +1138,7 @@ export type PayloadTooLarge = typeof PayloadTooLarge.Type;
  * data and therefore must be changed to a POST request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UriTooLong = S.Literal(414).pipe(
   $I.annoteSchema("UriTooLong", {
@@ -1152,7 +1152,7 @@ export const UriTooLong = S.Literal(414).pipe(
  * {@inheritDoc UriTooLong}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type UriTooLong = typeof UriTooLong.Type;
 
@@ -1162,7 +1162,7 @@ export type UriTooLong = typeof UriTooLong.Type;
  * .jpg format, but the server doesn’t support it.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UnsupportedMediaType = S.Literal(415).pipe(
   $I.annoteSchema("UnsupportedMediaType", {
@@ -1176,7 +1176,7 @@ export const UnsupportedMediaType = S.Literal(415).pipe(
  * {@inheritDoc UnsupportedMediaType}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type UnsupportedMediaType = typeof UnsupportedMediaType.Type;
 
@@ -1186,7 +1186,7 @@ export type UnsupportedMediaType = typeof UnsupportedMediaType.Type;
  * browser asks for a portion of a file that is outside of the end of the file.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RangeNotSatisfiable = S.Literal(416).pipe(
   $I.annoteSchema("RangeNotSatisfiable", {
@@ -1200,7 +1200,7 @@ export const RangeNotSatisfiable = S.Literal(416).pipe(
  * {@inheritDoc RangeNotSatisfiable}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type RangeNotSatisfiable = typeof RangeNotSatisfiable.Type;
 
@@ -1209,7 +1209,7 @@ export type RangeNotSatisfiable = typeof RangeNotSatisfiable.Type;
  * the request’s expected header field.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ExpectationFailed = S.Literal(417).pipe(
   $I.annoteSchema("ExpectationFailed", {
@@ -1223,7 +1223,7 @@ export const ExpectationFailed = S.Literal(417).pipe(
  * {@inheritDoc ExpectationFailed}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type ExpectationFailed = typeof ExpectationFailed.Type;
 
@@ -1232,7 +1232,7 @@ export type ExpectationFailed = typeof ExpectationFailed.Type;
  * coffee. It is an April’s Fool joke dating back to 1998.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ImATeapot = S.Literal(418).pipe(
   $I.annoteSchema("ImATeapot", {
@@ -1246,7 +1246,7 @@ export const ImATeapot = S.Literal(418).pipe(
  * {@inheritDoc ImATeapot}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type ImATeapot = typeof ImATeapot.Type;
 
@@ -1255,7 +1255,7 @@ export type ImATeapot = typeof ImATeapot.Type;
  * produce a response.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MisdirectedRequest = S.Literal(421).pipe(
   $I.annoteSchema("MisdirectedRequest", {
@@ -1268,7 +1268,7 @@ export const MisdirectedRequest = S.Literal(421).pipe(
  * {@inheritDoc MisdirectedRequest}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type MisdirectedRequest = typeof MisdirectedRequest.Type;
 
@@ -1279,7 +1279,7 @@ export type MisdirectedRequest = typeof MisdirectedRequest.Type;
  * 422 Error Code.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UnprocessableEntity = S.Literal(422).pipe(
   $I.annoteSchema("UnprocessableEntity", {
@@ -1293,7 +1293,7 @@ export const UnprocessableEntity = S.Literal(422).pipe(
  * {@inheritDoc UnprocessableEntity}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type UnprocessableEntity = typeof UnprocessableEntity.Type;
 
@@ -1301,7 +1301,7 @@ export type UnprocessableEntity = typeof UnprocessableEntity.Type;
  * 423 “Locked” – The resource that is being accessed is locked.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Locked = S.Literal(423).pipe(
   $I.annoteSchema("Locked", {
@@ -1314,7 +1314,7 @@ export const Locked = S.Literal(423).pipe(
  * {@inheritDoc Locked}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type Locked = typeof Locked.Type;
 
@@ -1323,7 +1323,7 @@ export type Locked = typeof Locked.Type;
  * request that failed as well.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const FailedDependency = S.Literal(424).pipe(
   $I.annoteSchema("FailedDependency", {
@@ -1337,7 +1337,7 @@ export const FailedDependency = S.Literal(424).pipe(
  * {@inheritDoc FailedDependency}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type FailedDependency = typeof FailedDependency.Type;
 
@@ -1346,7 +1346,7 @@ export type FailedDependency = typeof FailedDependency.Type;
  * processing a request that might be replayed.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const TooEarly = S.Literal(425).pipe(
   $I.annoteSchema("TooEarly", {
@@ -1360,7 +1360,7 @@ export const TooEarly = S.Literal(425).pipe(
  * {@inheritDoc TooEarly}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type TooEarly = typeof TooEarly.Type;
 
@@ -1370,7 +1370,7 @@ export type TooEarly = typeof TooEarly.Type;
  * to accept the request if the client upgrades to another protocol.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UpgradeRequired = S.Literal(426).pipe(
   $I.annoteSchema("UpgradeRequired", {
@@ -1384,7 +1384,7 @@ export const UpgradeRequired = S.Literal(426).pipe(
  * {@inheritDoc UpgradeRequired}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type UpgradeRequired = typeof UpgradeRequired.Type;
 
@@ -1396,7 +1396,7 @@ export type UpgradeRequired = typeof UpgradeRequired.Type;
  * the same resource.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PreconditionRequired = S.Literal(428).pipe(
   $I.annoteSchema("PreconditionRequired", {
@@ -1410,7 +1410,7 @@ export const PreconditionRequired = S.Literal(428).pipe(
  * {@inheritDoc PreconditionRequired}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type PreconditionRequired = typeof PreconditionRequired.Type;
 
@@ -1428,7 +1428,7 @@ export type PreconditionRequired = typeof PreconditionRequired.Type;
  * Authorized,” and “Certificate is not for the chosen domain.”
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const TooManyRequests = S.Literal(429).pipe(
   $I.annoteSchema("TooManyRequests", {
@@ -1442,7 +1442,7 @@ export const TooManyRequests = S.Literal(429).pipe(
  * {@inheritDoc TooManyRequests}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type TooManyRequests = typeof TooManyRequests.Type;
 
@@ -1452,7 +1452,7 @@ export type TooManyRequests = typeof TooManyRequests.Type;
  * large. The client may submit a new request if the size is reduced.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RequestHeaderFieldsTooLarge = S.Literal(431).pipe(
   $I.annoteSchema("RequestHeaderFieldsTooLarge", {
@@ -1466,7 +1466,7 @@ export const RequestHeaderFieldsTooLarge = S.Literal(431).pipe(
  * {@inheritDoc RequestHeaderFieldsTooLarge}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type RequestHeaderFieldsTooLarge = typeof RequestHeaderFieldsTooLarge.Type;
 
@@ -1476,7 +1476,7 @@ export type RequestHeaderFieldsTooLarge = typeof RequestHeaderFieldsTooLarge.Typ
  * censored by the government.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UnavailableForLegalReasons = S.Literal(451).pipe(
   $I.annoteSchema("UnavailableForLegalReasons", {
@@ -1490,7 +1490,7 @@ export const UnavailableForLegalReasons = S.Literal(451).pipe(
  * {@inheritDoc UnavailableForLegalReasons}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type UnavailableForLegalReasons = typeof UnavailableForLegalReasons.Type;
 
@@ -1502,7 +1502,7 @@ export type UnavailableForLegalReasons = typeof UnavailableForLegalReasons.Type;
  * error code.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HttpStatus4XX = MappedLiteralKit([
   ["BadRequest", BadRequest.literal],
@@ -1548,14 +1548,14 @@ export const HttpStatus4XX = MappedLiteralKit([
 /**
  * A namespace for {@link HttpStatus4XX} to contain the Encoded type
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export declare namespace HttpStatus4XX {
   /**
    * The encoded type of {@link HttpStatus4XX}
    *
-   * @category Validation
+   * @category validation
    * @since 0.0.0
    */
   export type Encoded = typeof HttpStatus4XX.Encoded;
@@ -1565,7 +1565,7 @@ export declare namespace HttpStatus4XX {
  * {@inheritDoc HttpStatus4XX}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type HttpStatus4XX = typeof HttpStatus4XX.Type;
 
@@ -1582,7 +1582,7 @@ export type HttpStatus4XX = typeof HttpStatus4XX.Type;
  * Internal Server Error” is and how to fix it} for more information.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const InternalServerError = S.Literal(500).pipe(
   $I.annoteSchema("InternalServerError", {
@@ -1596,7 +1596,7 @@ export const InternalServerError = S.Literal(500).pipe(
  * {@inheritDoc InternalServerError}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type InternalServerError = typeof InternalServerError.Type;
 
@@ -1605,7 +1605,7 @@ export type InternalServerError = typeof InternalServerError.Type;
  * doesn’t have the ability to fulfill the request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NotImplemented = S.Literal(501).pipe(
   $I.annoteSchema("NotImplemented", {
@@ -1619,7 +1619,7 @@ export const NotImplemented = S.Literal(501).pipe(
  * {@inheritDoc NotImplemented}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type NotImplemented = typeof NotImplemented.Type;
 
@@ -1630,7 +1630,7 @@ export type NotImplemented = typeof NotImplemented.Type;
  * out more about the HTTP 502 “Bad Gateway” error and how to fix it here.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const BadGateway = S.Literal(502).pipe(
   $I.annoteSchema("BadGateway", {
@@ -1644,7 +1644,7 @@ export const BadGateway = S.Literal(502).pipe(
  * {@inheritDoc BadGateway}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type BadGateway = typeof BadGateway.Type;
 
@@ -1655,7 +1655,7 @@ export type BadGateway = typeof BadGateway.Type;
  * is and how to fix it.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ServiceUnavailable = S.Literal(503).pipe(
   $I.annoteSchema("ServiceUnavailable", {
@@ -1669,7 +1669,7 @@ export const ServiceUnavailable = S.Literal(503).pipe(
  * {@inheritDoc ServiceUnavailable}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type ServiceUnavailable = typeof ServiceUnavailable.Type;
 
@@ -1682,7 +1682,7 @@ export type ServiceUnavailable = typeof ServiceUnavailable.Type;
  * “Gateway Timeout” and how to fix it.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const GatewayTimeout = S.Literal(504).pipe(
   $I.annoteSchema("GatewayTimeout", {
@@ -1696,7 +1696,7 @@ export const GatewayTimeout = S.Literal(504).pipe(
  * {@inheritDoc GatewayTimeout}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type GatewayTimeout = typeof GatewayTimeout.Type;
 
@@ -1705,7 +1705,7 @@ export type GatewayTimeout = typeof GatewayTimeout.Type;
  * protocol version used in the request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HttpVersionNotSupported = S.Literal(505).pipe(
   $I.annoteSchema("HttpVersionNotSupported", {
@@ -1719,7 +1719,7 @@ export const HttpVersionNotSupported = S.Literal(505).pipe(
  * {@inheritDoc HttpVersionNotSupported}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type HttpVersionNotSupported = typeof HttpVersionNotSupported.Type;
 
@@ -1731,7 +1731,7 @@ export type HttpVersionNotSupported = typeof HttpVersionNotSupported.Type;
  * prompts content negotiation that causes a closed loop.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const VariantAlsoNegotiates = S.Literal(506).pipe(
   $I.annoteSchema("VariantAlsoNegotiates", {
@@ -1745,7 +1745,7 @@ export const VariantAlsoNegotiates = S.Literal(506).pipe(
  * {@inheritDoc VariantAlsoNegotiates}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type VariantAlsoNegotiates = typeof VariantAlsoNegotiates.Type;
 
@@ -1754,7 +1754,7 @@ export type VariantAlsoNegotiates = typeof VariantAlsoNegotiates.Type;
  * representation required to complete the request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const InsufficientStorage = S.Literal(507).pipe(
   $I.annoteSchema("InsufficientStorage", {
@@ -1768,7 +1768,7 @@ export const InsufficientStorage = S.Literal(507).pipe(
  * {@inheritDoc InsufficientStorage}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type InsufficientStorage = typeof InsufficientStorage.Type;
 
@@ -1777,7 +1777,7 @@ export type InsufficientStorage = typeof InsufficientStorage.Type;
  * processing the request.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const LoopDetected = S.Literal(508).pipe(
   $I.annoteSchema("LoopDetected", {
@@ -1790,7 +1790,7 @@ export const LoopDetected = S.Literal(508).pipe(
  * {@inheritDoc LoopDetected}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type LoopDetected = typeof LoopDetected.Type;
 
@@ -1799,7 +1799,7 @@ export type LoopDetected = typeof LoopDetected.Type;
  * server to fulfill it. This code is now deprecated.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NotExtended = S.Literal(510).pipe(
   $I.annoteSchema("NotExtended", {
@@ -1813,7 +1813,7 @@ export const NotExtended = S.Literal(510).pipe(
  * {@inheritDoc NotExtended}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type NotExtended = typeof NotExtended.Type;
 
@@ -1824,7 +1824,7 @@ export type NotExtended = typeof NotExtended.Type;
  * agree to its Terms of Agreement.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NetworkAuthenticationRequired = S.Literal(511).pipe(
   $I.annoteSchema("NetworkAuthenticationRequired", {
@@ -1838,7 +1838,7 @@ export const NetworkAuthenticationRequired = S.Literal(511).pipe(
  * {@inheritDoc NetworkAuthenticationRequired}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type NetworkAuthenticationRequired = typeof NetworkAuthenticationRequired.Type;
 
@@ -1848,7 +1848,7 @@ export type NetworkAuthenticationRequired = typeof NetworkAuthenticationRequired
  * will see an error page on your browser when a 5XX error is triggered.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HttpStatus5XX = MappedLiteralKit([
   ["InternalServerError", InternalServerError.literal],
@@ -1872,14 +1872,14 @@ export const HttpStatus5XX = MappedLiteralKit([
 /**
  * A namespace for {@link HttpStatus5XX} to contain the Encoded type
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export declare namespace HttpStatus5XX {
   /**
    * The encoded type of {@link HttpStatus5XX}
    *
-   * @category Validation
+   * @category validation
    * @since 0.0.0
    */
   export type Encoded = typeof HttpStatus5XX.Encoded;
@@ -1888,7 +1888,7 @@ export declare namespace HttpStatus5XX {
 /**
  * {@inheritDoc HttpStatus5XX}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type HttpStatus5XX = typeof HttpStatus5XX.Type;
@@ -1903,7 +1903,7 @@ export type HttpStatus5XX = typeof HttpStatus5XX.Type;
  * 429 “Too many requests”.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RequestHeaderFieldsTooLargeShopify = S.Literal(430).pipe(
   $I.annoteSchema("RequestHeaderFieldsTooLargeShopify", {
@@ -1917,7 +1917,7 @@ export const RequestHeaderFieldsTooLargeShopify = S.Literal(430).pipe(
  * {@inheritDoc RequestHeaderFieldsTooLargeShopify}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type RequestHeaderFieldsTooLargeShopify = typeof RequestHeaderFieldsTooLargeShopify.Type;
 
@@ -1927,7 +1927,7 @@ export type RequestHeaderFieldsTooLargeShopify = typeof RequestHeaderFieldsTooLa
  * log in again.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const LoginTimeout = S.Literal(440).pipe(
   $I.annoteSchema("LoginTimeout", {
@@ -1941,7 +1941,7 @@ export const LoginTimeout = S.Literal(440).pipe(
  * {@inheritDoc LoginTimeout}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type LoginTimeout = typeof LoginTimeout.Type;
 
@@ -1950,7 +1950,7 @@ export type LoginTimeout = typeof LoginTimeout.Type;
  * large of a request or too long of a header line.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RequestHeaderTooLarge = S.Literal(494).pipe(
   $I.annoteSchema("RequestHeaderTooLarge", {
@@ -1964,7 +1964,7 @@ export const RequestHeaderTooLarge = S.Literal(494).pipe(
  * {@inheritDoc RequestHeaderTooLarge}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type RequestHeaderTooLarge = typeof RequestHeaderTooLarge.Type;
 
@@ -1973,7 +1973,7 @@ export type RequestHeaderTooLarge = typeof RequestHeaderTooLarge.Type;
  * signaling that the client has provided an invalid SSL certificate.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SslCertificateError = S.Literal(495).pipe(
   $I.annoteSchema("SslCertificateError", {
@@ -1987,7 +1987,7 @@ export const SslCertificateError = S.Literal(495).pipe(
  * {@inheritDoc SslCertificateError}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type SslCertificateError = typeof SslCertificateError.Type;
 
@@ -1996,7 +1996,7 @@ export type SslCertificateError = typeof SslCertificateError.Type;
  * required but is not provided.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SslCertificateRequired = S.Literal(496).pipe(
   $I.annoteSchema("SslCertificateRequired", {
@@ -2010,7 +2010,7 @@ export const SslCertificateRequired = S.Literal(496).pipe(
  * {@inheritDoc SslCertificateRequired}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type SslCertificateRequired = typeof SslCertificateRequired.Type;
 
@@ -2019,7 +2019,7 @@ export type SslCertificateRequired = typeof SslCertificateRequired.Type;
  * server could send a response. Another code used by NGINX.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ClientClosedRequest = S.Literal(499).pipe(
   $I.annoteSchema("ClientClosedRequest", {
@@ -2033,7 +2033,7 @@ export const ClientClosedRequest = S.Literal(499).pipe(
  * {@inheritDoc ClientClosedRequest}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type ClientClosedRequest = typeof ClientClosedRequest.Type;
 
@@ -2043,7 +2043,7 @@ export type ClientClosedRequest = typeof ClientClosedRequest.Type;
  * unknown response to Cloudflare.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WebServerReturnedAnUnknownError = S.Literal(520).pipe(
   $I.annoteSchema("WebServerReturnedAnUnknownError", {
@@ -2057,7 +2057,7 @@ export const WebServerReturnedAnUnknownError = S.Literal(520).pipe(
  * {@inheritDoc WebServerReturnedAnUnknownError}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type WebServerReturnedAnUnknownError = typeof WebServerReturnedAnUnknownError.Type;
 
@@ -2067,7 +2067,7 @@ export type WebServerReturnedAnUnknownError = typeof WebServerReturnedAnUnknownE
  * caused by the origin’s firewall blocking Cloudflare’s IPs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WebServerIsDown = S.Literal(521).pipe(
   $I.annoteSchema("WebServerIsDown", {
@@ -2081,7 +2081,7 @@ export const WebServerIsDown = S.Literal(521).pipe(
  * {@inheritDoc WebServerIsDown}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type WebServerIsDown = typeof WebServerIsDown.Type;
 
@@ -2090,7 +2090,7 @@ export type WebServerIsDown = typeof WebServerIsDown.Type;
  * establish an SSL/TLS handshake with the origin server.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SslHandshakeFailed = S.Literal(525).pipe(
   $I.annoteSchema("SslHandshakeFailed", {
@@ -2104,7 +2104,7 @@ export const SslHandshakeFailed = S.Literal(525).pipe(
  * {@inheritDoc SslHandshakeFailed}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type SslHandshakeFailed = typeof SslHandshakeFailed.Type;
 
@@ -2115,7 +2115,7 @@ export type SslHandshakeFailed = typeof SslHandshakeFailed.Type;
  * guide on how to install Let’s Encrypt for your SiteGround-hosted website.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const InvalidSslCertificate = S.Literal(526).pipe(
   $I.annoteSchema("InvalidSslCertificate", {
@@ -2129,7 +2129,7 @@ export const InvalidSslCertificate = S.Literal(526).pipe(
  * {@inheritDoc InvalidSslCertificate}
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export type InvalidSslCertificate = typeof InvalidSslCertificate.Type;
 
@@ -2140,7 +2140,7 @@ export type InvalidSslCertificate = typeof InvalidSslCertificate.Type;
  * services.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HttpStatusUnofficial = MappedLiteralKit([
   ["RequestHeaderFieldsTooLargeShopify", RequestHeaderFieldsTooLargeShopify.literal],
@@ -2163,14 +2163,14 @@ export const HttpStatusUnofficial = MappedLiteralKit([
 /**
  * A namespace for {@link HttpStatusUnofficial} to contain the Encoded type
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export declare namespace HttpStatusUnofficial {
   /**
    * The encoded type of {@link HttpStatusUnofficial}
    *
-   * @category Validation
+   * @category validation
    * @since 0.0.0
    */
   export type Encoded = typeof HttpStatusUnofficial.Encoded;
@@ -2179,7 +2179,7 @@ export declare namespace HttpStatusUnofficial {
 /**
  * {@inheritDoc HttpStatusUnofficial}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type HttpStatusUnofficial = typeof HttpStatusUnofficial.Type;
@@ -2191,7 +2191,7 @@ export type HttpStatusUnofficial = typeof HttpStatusUnofficial.Type;
 /**
  * A MappedLiteralKit of all HTTP status codes.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const HttpStatus = MappedLiteralKit([
@@ -2210,14 +2210,14 @@ export const HttpStatus = MappedLiteralKit([
 /**
  * A namespace for {@link HttpStatus} to contain the Encoded type
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export declare namespace HttpStatus {
   /**
    * The encoded type of {@link HttpStatus}
    *
-   * @category Validation
+   * @category validation
    * @since 0.0.0
    */
   export type Encoded = typeof HttpStatus.Encoded;
@@ -2226,7 +2226,7 @@ export declare namespace HttpStatus {
 /**
  * {@inheritDoc HttpStatus}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type HttpStatus = typeof HttpStatus.Type;

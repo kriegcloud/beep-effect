@@ -24,7 +24,7 @@ const $I = $SchemaId.create("NumberChecks");
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isPositive = S.isGreaterThan(0);
 
@@ -86,7 +86,7 @@ export const isPostgresSerialInt = S.makeFilterGroup(
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isNonNegative = S.isGreaterThanOrEqualTo(0);
 
@@ -104,7 +104,7 @@ export const isNonNegative = S.isGreaterThanOrEqualTo(0);
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isNegative = S.isLessThan(0);
 
@@ -122,7 +122,7 @@ export const isNegative = S.isLessThan(0);
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isNonPositive = S.isLessThanOrEqualTo(0);
 
@@ -139,7 +139,7 @@ export const isNonPositive = S.isLessThanOrEqualTo(0);
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NonNegNum = S.Number.check(isNonNegative).pipe(
   $I.annoteSchema("NonNegNum", {
@@ -158,7 +158,7 @@ export const NonNegNum = S.Number.check(isNonNegative).pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NonNegNum = typeof NonNegNum.Type;
 
@@ -175,7 +175,7 @@ export type NonNegNum = typeof NonNegNum.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NonNegativeInt = S.Int.pipe(S.brand("Int"))
   .check(
@@ -208,6 +208,6 @@ export const NonNegativeInt = S.Int.pipe(S.brand("Int"))
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NonNegativeInt = typeof NonNegativeInt.Type;

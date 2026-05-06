@@ -5,18 +5,34 @@ import { Button } from "@beep/ui/components/button";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogTrigger({ ...props }: AlertDialogPrimitive.Trigger.Props) {
   return <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogPortal({ ...props }: AlertDialogPrimitive.Portal.Props) {
   return <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdrop.Props) {
   return (
     <AlertDialogPrimitive.Backdrop
@@ -30,6 +46,10 @@ function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdr
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogContent({
   className,
   size = "default",
@@ -53,6 +73,10 @@ function AlertDialogContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -66,6 +90,10 @@ function AlertDialogHeader({ className, ...props }: React.ComponentProps<"div">)
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -79,6 +107,10 @@ function AlertDialogFooter({ className, ...props }: React.ComponentProps<"div">)
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogMedia({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -92,6 +124,10 @@ function AlertDialogMedia({ className, ...props }: React.ComponentProps<"div">) 
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
   return (
     <AlertDialogPrimitive.Title
@@ -105,6 +141,10 @@ function AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof A
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogDescription({
   className,
   ...props
@@ -121,6 +161,10 @@ function AlertDialogDescription({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogAction({
   className,
   variant = "default",
@@ -137,6 +181,10 @@ function AlertDialogAction({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDialogCancel({
   className,
   variant = "outline",
@@ -153,6 +201,10 @@ function AlertDialogCancel({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   AlertDialog,
   AlertDialogAction,

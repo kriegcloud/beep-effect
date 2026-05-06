@@ -17,7 +17,7 @@ const $I = $RepoCliId.create("commands/Reuse/internal/CodexRunner");
 /**
  * Lifecycle stages surfaced by the Codex smoke runner.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const CodexRunnerStage = LiteralKit(["findRepoRoot", "import", "construct", "startThread"]).pipe(
@@ -31,7 +31,7 @@ export const CodexRunnerStage = LiteralKit(["findRepoRoot", "import", "construct
 /**
  * Runtime type for `CodexRunnerStage`.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type CodexRunnerStage = typeof CodexRunnerStage.Type;
@@ -39,7 +39,7 @@ export type CodexRunnerStage = typeof CodexRunnerStage.Type;
 /**
  * Structured result for `beep reuse codex-smoke`.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class CodexSmokeResult extends S.Class<CodexSmokeResult>($I`CodexSmokeResult`)(
@@ -58,7 +58,7 @@ export class CodexSmokeResult extends S.Class<CodexSmokeResult>($I`CodexSmokeRes
 /**
  * Structured error emitted when the Codex SDK smoke path fails.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class CodexRunnerError extends TaggedErrorClass<CodexRunnerError>($I`CodexRunnerError`)(
@@ -77,7 +77,7 @@ const causeMessage = (cause: unknown, fallback: string): string => (P.isError(ca
 /**
  * Validate the local Codex SDK adapter without running a reuse loop.
  *
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, FileSystem.FileSystem> = Effect.gen(

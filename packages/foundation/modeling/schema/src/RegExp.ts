@@ -53,7 +53,7 @@ const decodeRegExp = (value: string): Effect.Effect<globalThis.RegExp, SchemaIss
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RegExpStr = S.String.check(RegExpStrCheck).pipe(
   S.brand("RegExpStr"),
@@ -75,7 +75,7 @@ export const RegExpStr = S.String.check(RegExpStrCheck).pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type RegExpStr = typeof RegExpStr.Type;
 
@@ -102,7 +102,7 @@ const encodeRegExpStrForbidden = (value: globalThis.RegExp): Effect.Effect<RegEx
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RegExpFromStr = RegExpStr.pipe(
   S.decodeTo(
@@ -130,6 +130,6 @@ export const RegExpFromStr = RegExpStr.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type RegExpFromStr = typeof RegExpFromStr.Type;
