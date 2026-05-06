@@ -87,6 +87,10 @@ name = "portless"
 enabled = true
 
 [[skills.config]]
+name = "quality-review-fix-loop"
+enabled = true
+
+[[skills.config]]
 name = "schema-first-development"
 enabled = true
 

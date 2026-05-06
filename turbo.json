@@ -66,7 +66,12 @@
     },
     "check": {
       "dependsOn": ["^check"],
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"],
+      "outputs": [
+        "dist/**",
+        "**/node_modules/.tmp/*.tsbuildinfo",
+        "!**/.turbo/**"
+      ]
     },
     "test": {
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]

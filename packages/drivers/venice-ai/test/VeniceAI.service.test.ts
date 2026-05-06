@@ -1,5 +1,6 @@
 import { $VeniceAiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { decodeJsonString } from "@beep/schema/Json";
 import { parseYaml } from "@beep/schema/Yaml";
 import { thunkEmptyStr, thunkTrue } from "@beep/utils";
 import {
@@ -10,9 +11,10 @@ import {
   VeniceAIError,
   VeniceAIRequestOptions,
   VeniceAiChat,
+  VeniceAiLanguageModel,
 } from "@beep/venice-ai";
 import { describe, expect, layer } from "@effect/vitest";
-import { Context, Effect, Layer, pipe, Ref, Stream } from "effect";
+import { Context, Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -303,8 +305,9 @@ const TestHttpClientLayer = Layer.effect(
   })
 );
 
-const makeVeniceAIUnitLayer = (config = new VeniceAIConfigInput({ apiKey: "test-key", baseUrl: VENICE_API_URL })) =>
-  VeniceAI.makeLayer(config).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(VeniceAITestHttpLayer));
+const makeVeniceAIUnitLayer = (
+  config = new VeniceAIConfigInput({ apiKey: Redacted.make("test-key"), baseUrl: VENICE_API_URL })
+) => VeniceAI.makeLayer(config).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(VeniceAITestHttpLayer));
 
 const makeVeniceAIChatUnitLayer = () => VeniceAiChat.makeLayer.pipe(Layer.provideMerge(makeVeniceAIUnitLayer()));
 
@@ -514,7 +517,7 @@ describe("@beep/venice-ai", () => {
         );
         const body = yield* pipe(
           bodyTextFromCapture(jsonCapture, "expected JSON body text"),
-          Effect.flatMap((text) => S.UnknownFromJsonString.pipe(S.decodeUnknownEffect)(text)),
+          Effect.flatMap(decodeJsonString),
           Effect.flatMap(decodePromptBody)
         );
 
@@ -524,7 +527,9 @@ describe("@beep/venice-ai", () => {
   );
 
   layer(
-    makeVeniceAIUnitLayer(new VeniceAIConfigInput({ apiKey: "test-key", baseUrl: "https://example.test/api/v1///" }))
+    makeVeniceAIUnitLayer(
+      new VeniceAIConfigInput({ apiKey: Redacted.make("test-key"), baseUrl: "https://example.test/api/v1///" })
+    )
   )((it) =>
     it.effect("normalizes custom base URLs", () =>
       Effect.gen(function* () {
@@ -619,6 +624,32 @@ describe("@beep/venice-ai", () => {
           )
         );
         const transportError = yield* venice.listModels().pipe(Effect.flip);
+        const hostileProxyError = VeniceAIError.fromDescriptor(VENICE_AI_OPERATION_DESCRIPTORS[0], "transport", {
+          cause: new Proxy(
+            {},
+            {
+              get() {
+                throw new Error("hostile get");
+              },
+              getOwnPropertyDescriptor() {
+                throw new Error("hostile descriptor");
+              },
+              getPrototypeOf() {
+                throw new Error("hostile prototype");
+              },
+              ownKeys() {
+                throw new Error("hostile keys");
+              },
+            }
+          ),
+        });
+        const throwingNameError = VeniceAIError.fromDescriptor(VENICE_AI_OPERATION_DESCRIPTORS[0], "transport", {
+          cause: {
+            get name(): string {
+              throw new Error("name getter failed");
+            },
+          },
+        });
 
         yield* testHttp.reset;
         yield* testHttp.respondWith(() =>
@@ -633,6 +664,18 @@ describe("@beep/venice-ai", () => {
           Effect.succeed(new Response('{"message":"not sse"}', { headers: { "content-type": "application/json" } }))
         );
         const nonSseError = yield* venice
+          .streamChatCompletion(requestFor(VENICE_AI_OPERATION_DESCRIPTORS[0]))
+          .pipe(Stream.runCollect, Effect.flip);
+
+        yield* testHttp.reset;
+        yield* testHttp.respondWith(() =>
+          Effect.succeed(
+            new Response('data: {"delta":"hello"}\n\n', {
+              headers: { "content-type": "application/json; note=text/event-stream" },
+            })
+          )
+        );
+        const spoofedContentTypeError = yield* venice
           .streamChatCompletion(requestFor(VENICE_AI_OPERATION_DESCRIPTORS[0]))
           .pipe(Stream.runCollect, Effect.flip);
 
@@ -653,12 +696,48 @@ describe("@beep/venice-ai", () => {
         expect(multipartError.reason).toBe("multipart encoding");
         expect(transportError.reason).toBe("transport");
         expect(transportError.cause).toBe("HttpClientError:TransportError");
+        expect(hostileProxyError.reason).toBe("transport");
+        expect(hostileProxyError.cause).toBeUndefined();
+        expect(throwingNameError.reason).toBe("transport");
+        expect(throwingNameError.cause).toBeUndefined();
         expect(sseError.reason).toBe("sse decoding");
         expect(sseError.cause).toBeDefined();
         expect(nonSseError.reason).toBe("sse decoding");
         expect(nonSseError.status).toBe(200);
+        expect(spoofedContentTypeError.reason).toBe("sse decoding");
+        expect(spoofedContentTypeError.status).toBe(200);
         expect(jsonError.reason).toBe("response decoding");
         expect(jsonError.cause).toBe("HttpClientError:DecodeError");
+      })
+    )
+  );
+
+  layer(makeVeniceAIUnitLayer())((it) =>
+    it.effect("maps language-model transport failures to retryable network errors", () =>
+      Effect.gen(function* () {
+        const testHttp = yield* VeniceAITestHttp;
+        yield* testHttp.reset;
+        yield* testHttp.respondWith((request) =>
+          Effect.fail(
+            new HttpClientError.HttpClientError({
+              reason: new HttpClientError.TransportError({
+                request,
+              }),
+            })
+          )
+        );
+
+        const languageModel = yield* VeniceAiLanguageModel.make({ model: "venice-test-model" });
+        const error = yield* languageModel.generateText({ prompt: "hello" }).pipe(Effect.flip);
+
+        expect(error.reason._tag).toBe("NetworkError");
+        expect(error.reason.isRetryable).toBe(true);
+        if (error.reason._tag !== "NetworkError") {
+          return;
+        }
+        expect(error.reason.request.headers).toEqual({});
+        expect(error.reason.description ?? "").not.toContain("test-key");
+        expect(error.reason.description ?? "").not.toContain("hello");
       })
     )
   );

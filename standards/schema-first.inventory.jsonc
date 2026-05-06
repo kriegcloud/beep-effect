@@ -106,6 +106,14 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/drivers/openai-compat/src/OpenAiCompat.client.ts",
+      "symbol": "OpenAiCompatClientShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/openai-compat",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/drivers/xai/src/XAi.service.ts",
       "symbol": "XAiWebSocketSession",
       "kind": "exported-interface",

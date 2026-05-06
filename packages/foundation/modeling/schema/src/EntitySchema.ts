@@ -954,6 +954,18 @@ class EntityFieldInputError extends TaggedErrorClass<EntityFieldInputError>($I`E
   })
 ) {}
 
+class EntitySchemaAttachmentError extends TaggedErrorClass<EntitySchemaAttachmentError>(
+  $I`EntitySchemaAttachmentError`
+)(
+  "EntitySchemaAttachmentError",
+  {
+    message: S.String,
+  },
+  $I.annote("EntitySchemaAttachmentError", {
+    description: "EntitySchema metadata attachment invariant failure.",
+  })
+) {}
+
 const knownAstAbsence = (allowsNull: boolean, allowsUndefined: boolean, isAmbiguous = false): AstAbsence => ({
   allowsNull,
   allowsUndefined,
@@ -1142,16 +1154,16 @@ const failEntityFieldInput = (field: string, message: string): never => {
   throw new EntityFieldInputError({ field, message });
 };
 
-const modelVariantKeys: ReadonlySet<string> = new Set<Model.Variant>([
+const modelVariantKeys = [
   "select",
   "insert",
   "update",
   "json",
   "jsonCreate",
   "jsonUpdate",
-]);
+] as const satisfies ReadonlyArray<Model.Variant>;
 
-const isModelVariantKey = (key: string): key is Model.Variant => modelVariantKeys.has(key);
+const isModelVariantKey = (key: string): key is Model.Variant => A.contains(modelVariantKeys, key);
 
 const hasVariant = (field: EntityVariantFieldInput, variant: Model.Variant): boolean =>
   S.isSchema(field.schemas[variant]);
@@ -1320,7 +1332,7 @@ const attachDefinition = <
   if (hasAttachedDefinition(entityClass, definition)) {
     return entityClass;
   }
-  throw new TypeError("Failed to attach EntitySchema definition metadata.");
+  throw new EntitySchemaAttachmentError({ message: "Failed to attach EntitySchema definition metadata." });
 };
 
 const hasAttachedDefinition = <

@@ -91,9 +91,31 @@ describe("Identity", () => {
         "~httpApiEncoding": textEncoding,
       })
     );
+    const Event = S.Union([
+      S.Struct({
+        kind: S.tag("close"),
+        code: S.Number,
+      }),
+      S.Struct({
+        kind: S.tag("message"),
+        text: S.String,
+      }),
+    ]).pipe(S.toTaggedUnion("kind"));
+    const eventAnnotated = Event.pipe(
+      $SchemaId.annoteSchema("SocketEvent", {
+        description: "Socket event union.",
+      })
+    );
+    const stringWithStatics = Object.assign(S.String.annotate({}), {
+      empty: "" as const,
+    });
+    const stringWithStaticsAnnotated = stringWithStatics.pipe($SchemaId.annoteSchema("StringWithStatics"));
 
     expect(schemaAnnotated).type.toBe<typeof S.String>();
     expect(httpAnnotated).type.toBe<typeof S.String>();
+    expect(eventAnnotated.cases.message).type.toBe<typeof Event.cases.message>();
+    expect(eventAnnotated.match).type.toBe<typeof Event.match>();
+    expect(stringWithStaticsAnnotated.empty).type.toBe<"">();
   });
 
   it("supports ergonomic and strict annoteKey typing", () => {

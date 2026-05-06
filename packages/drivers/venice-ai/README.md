@@ -30,6 +30,15 @@ const program = Effect.gen(function* () {
 The service exposes one method per operation in `swagger.yaml`, plus
 `streamChatCompletion` and `streamResponse` for SSE streaming.
 
+## Public Surface
+
+| Surface | Key exports | Notes |
+| --- | --- | --- |
+| service | `VeniceAI`, `VeniceAIConfigInput` | Effect service and runtime layer configuration for Venice AI operations |
+| compatibility | `VeniceAiChat` | chat text convenience wrapper that delegates through `VeniceAI.createChatCompletion` |
+| language model | `VeniceAiLanguageModel` namespace with `make`, `layer`, `model`, `VeniceAiLanguageModelOptions` | Effect AI language-model adapter backed by `VeniceAI.createChatCompletion` |
+| models/errors | `VeniceAIRequestOptions`, `VeniceAIResponse`, `VeniceAIError`, `VENICE_AI_OPERATION_DESCRIPTORS` | schema-first boundary models, typed errors, and operation descriptors |
+
 ## Development
 
 ```bash

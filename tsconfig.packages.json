@@ -37,6 +37,9 @@
       "path": "packages/drivers/openai"
     },
     {
+      "path": "packages/drivers/openai-compat"
+    },
+    {
       "path": "packages/drivers/postgres"
     },
     {
@@ -134,6 +137,9 @@
     },
     {
       "path": "packages/shared/use-cases"
+    },
+    {
+      "path": "packages/tooling/library/ai-metrics"
     },
     {
       "path": "packages/tooling/library/repo-utils"

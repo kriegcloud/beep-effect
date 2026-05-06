@@ -455,9 +455,18 @@
       ],
       "@beep/openai": ["./packages/drivers/openai/src/index.ts"],
       "@beep/openai/*": ["./packages/drivers/openai/src/*"],
-      "@beep/venice-ai": ["./packages/drivers/venice-ai/dist/index.d.ts"],
+      "@beep/openai-compat": ["./packages/drivers/openai-compat/src/index.ts"],
+      "@beep/openai-compat/*": ["./packages/drivers/openai-compat/src/*"],
+      "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
+      "@beep/venice-ai/*": ["./packages/drivers/venice-ai/src/*"],
       "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
       "@beep/xai/*": ["./packages/drivers/xai/src/*"],
+      "@beep/repo-ai-metrics": [
+        "./packages/tooling/library/ai-metrics/src/index.ts"
+      ],
+      "@beep/repo-ai-metrics/*": [
+        "./packages/tooling/library/ai-metrics/src/*"
+      ],
       "@beep/acp": ["./packages/drivers/acp/src/index.ts"],
       "@beep/acp/agent": ["./packages/drivers/acp/src/agent.ts"],
       "@beep/acp/client": ["./packages/drivers/acp/src/client.ts"],

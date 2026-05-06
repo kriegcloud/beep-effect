@@ -29,9 +29,8 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/venice-ai": [
-        "../../../packages/drivers/venice-ai/dist/index.d.ts"
-      ],
+      "@beep/venice-ai": ["../../../packages/drivers/venice-ai/src/index.ts"],
+      "@beep/venice-ai/*": ["../../../packages/drivers/venice-ai/src/*.ts"],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],
@@ -41,12 +40,22 @@
       "@beep/identity/packages": [
         "../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
+      "@beep/openai-compat": [
+        "../../../packages/drivers/openai-compat/src/index.ts"
+      ],
+      "@beep/openai-compat/*": [
+        "../../../packages/drivers/openai-compat/src/*.ts"
+      ],
       "@beep/schema": [
         "../../../packages/foundation/modeling/schema/src/index.ts"
       ],
       "@beep/schema/*": [
         "../../../packages/foundation/modeling/schema/src/*.ts"
-      ]
+      ],
+      "@beep/utils": [
+        "../../../packages/foundation/modeling/utils/src/index.ts"
+      ],
+      "@beep/utils/*": ["../../../packages/foundation/modeling/utils/src/*.ts"]
     }
   }
 }

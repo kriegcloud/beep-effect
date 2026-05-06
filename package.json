@@ -36,7 +36,8 @@
     "packages/drivers/openai",
     "packages/drivers/venice-ai",
     "packages/drivers/xai",
-    "packages/drivers/acp"
+    "packages/drivers/acp",
+    "packages/drivers/openai-compat"
   ],
   "repository": {
     "type": "git",
@@ -48,6 +49,7 @@
     "beep": "bun run packages/tooling/tool/cli/src/bin.ts --",
     "topo-sort": "bun run beep topo-sort",
     "codegen": "bun run beep codegen",
+    "codex:quality-review-fix-loop": "bash scripts/codex-quality-review-fix-loop.sh",
     "create-package": "bun run beep create-package",
     "files": "bun run beep files",
     "image": "bun run beep image",
@@ -104,7 +106,6 @@
     "@commitlint/config-conventional": "catalog:",
     "@effect/ai-anthropic": "catalog:",
     "@effect/ai-openai": "catalog:",
-    "@effect/ai-openai-compat": "catalog:",
     "@effect/ai-openrouter": "catalog:",
     "@effect/atom-react": "catalog:",
     "@effect/opentelemetry": "catalog:",
@@ -156,6 +157,7 @@
     "flatted": "^3.4.1",
     "happy-dom": "^20.8.9",
     "hono": "^4.12.14",
+    "ip-address": "10.1.1",
     "lodash": "catalog:",
     "postcss": "^8.5.12",
     "serialize-javascript": "^7.0.5",
@@ -196,7 +198,6 @@
     "micromark-extension-gfm": "^3.0.0",
     "@effect/ai-anthropic": "4.0.0-beta.60",
     "@effect/ai-openai": "4.0.0-beta.60",
-    "@effect/ai-openai-compat": "4.0.0-beta.60",
     "@effect/ai-openrouter": "4.0.0-beta.60",
     "@effect/atom-react": "4.0.0-beta.60",
     "@effect/openapi-generator": "4.0.0-beta.60",

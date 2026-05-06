@@ -75,6 +75,7 @@
     "@beep/ffmpeg": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/observability": "workspace:^",
+    "@beep/repo-ai-metrics": "workspace:^",
     "@beep/repo-configs": "workspace:^",
     "@beep/repo-docgen": "workspace:^",
     "@beep/repo-utils": "workspace:^",

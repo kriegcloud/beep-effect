@@ -6,9 +6,10 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | `XAi`, `XAiConfigInput`, `XAI_ENDPOINTS`, `XAiRequestOptions`, `VERSION` | package entry point |
+| entry module | `XAi`, `XAiConfigInput`, `XAI_ENDPOINTS`, `XAiRequestOptions`, `XAiLanguageModel`, `VERSION` | package entry point |
 | service | `XAi` | Effect `Context.Service` with one method per documented xAI endpoint plus SSE helpers for chat, responses, legacy completions, and Anthropic messages |
 | manifest | `XAI_ENDPOINTS`, `XAI_ENDPOINT_COUNT`, `XAI_ENDPOINT_METHOD_NAMES` | checked-in endpoint coverage source |
+| language model | `XAiLanguageModel.make`, `XAiLanguageModel.layer`, `XAiLanguageModel.model`, `XAiLanguageModel.XAiLanguageModelOptions` | Effect AI language-model adapter namespace backed by `XAi.createChatCompletion` |
 | models/errors | `XAiRequestOptions`, `XAiResponse`, `XAiWebSocketSession`, `XAiError` | schema-first boundary models and typed driver errors |
 
 ## Laws
@@ -41,6 +42,7 @@ const program = Effect.gen(function* () {
 - `bunx turbo run test:integration --filter=@beep/xai`
 - `bunx turbo run lint --filter=@beep/xai`
 - `bunx turbo run check --filter=@beep/xai`
+- `bunx turbo run type-test --filter=@beep/xai`
 
 ## Contributor Checklist
 - [ ] New exports include jsdoc metadata

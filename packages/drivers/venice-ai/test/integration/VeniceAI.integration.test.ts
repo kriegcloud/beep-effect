@@ -1,6 +1,6 @@
 import { VENICE_API_URL, VeniceAI, VeniceAIConfigInput } from "@beep/venice-ai";
 import { describe, expect, it, layer } from "@effect/vitest";
-import { Effect, Layer, pipe } from "effect";
+import { Effect, Layer, pipe, Redacted } from "effect";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
@@ -8,7 +8,7 @@ import { FetchHttpClient } from "effect/unstable/http";
 const apiKey = pipe(process.env.AI_VENICE_API_KEY, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
 
 const makeLiveLayer = (key: string) =>
-  VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: key, baseUrl: VENICE_API_URL })).pipe(
+  VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: Redacted.make(key), baseUrl: VENICE_API_URL })).pipe(
     Layer.provide(FetchHttpClient.layer)
   );
 

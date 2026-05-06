@@ -56,6 +56,37 @@ const beepBase = Result.getOrThrowWith(decodeBeepBase("beep"), schemaIssueToErro
 const MODULE_CHARACTERS = /^[A-Za-z0-9_-]+$/;
 const MODULE_LEADING_ALPHA = /^[A-Za-z]/;
 const BASE_CHARACTERS = /^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?$/;
+const SCHEMA_PROTOCOL_KEYS: ReadonlyArray<PropertyKey> = [
+  "~effect/Schema/Schema",
+  "annotate",
+  "annotateKey",
+  "ast",
+  "check",
+  "make",
+  "makeEffect",
+  "makeOption",
+  "pipe",
+  "rebuild",
+];
+
+const preserveSchemaStatics = <Schema extends S.Top>(
+  source: Schema,
+  annotated: Schema["Rebuild"]
+): AnnotatedSchema<Schema> => {
+  for (const key of Reflect.ownKeys(source)) {
+    if (A.contains(SCHEMA_PROTOCOL_KEYS, key) || Reflect.getOwnPropertyDescriptor(annotated, key) !== undefined) {
+      continue;
+    }
+
+    const descriptor = Reflect.getOwnPropertyDescriptor(source, key);
+
+    if (descriptor !== undefined) {
+      Reflect.defineProperty(annotated, key, descriptor);
+    }
+  }
+
+  return annotated as AnnotatedSchema<Schema>;
+};
 
 /**
  * Error thrown when an identity template tag receives interpolation values.
@@ -528,6 +559,10 @@ type StrictKeyIdentifier<Struct extends object, Identifier extends TString.NonEm
 
 type KeyIdentifierValue<Struct extends object, Identifier extends string> = Get<Struct, KeyIdentifierPath<Identifier>>;
 
+type SchemaStatics<Schema extends S.Top> = Omit<Schema, keyof Schema["Rebuild"] | keyof S.Top>;
+
+type AnnotatedSchema<Schema extends S.Top> = Schema["Rebuild"] & SchemaStatics<Schema>;
+
 /**
  * Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances,
  * produced by calling `compose` with one or more module segment names.
@@ -633,7 +668,7 @@ export interface IdentityComposer<Value extends string> {
   annoteHttp<Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | HttpAnnotationExtras<Schema["Type"]>
-  ): (self: Schema) => Schema["Rebuild"];
+  ): (self: Schema) => AnnotatedSchema<Schema>;
 
   /**
    * Produce a type-safe key annotation function scoped to a parent struct.
@@ -677,7 +712,7 @@ export interface IdentityComposer<Value extends string> {
   annoteSchema<Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | S.Annotations.Bottom<Schema["Type"], Schema["~type.parameters"]>
-  ): (self: Schema) => Schema["Rebuild"];
+  ): (self: Schema) => AnnotatedSchema<Schema>;
 
   /**
    * Batch-create child {@link IdentityComposer} instances for multiple module segments.
@@ -1017,10 +1052,10 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   const annoteSchema = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | S.Annotations.Bottom<Schema["Type"], Schema["~type.parameters"]>
-  ): ((self: Schema) => Schema["Rebuild"]) => {
+  ): ((self: Schema) => AnnotatedSchema<Schema>) => {
     const annotation = annote(identifier, extras);
 
-    return (self: Schema): Schema["Rebuild"] => self.annotate(annotation);
+    return (self: Schema): AnnotatedSchema<Schema> => preserveSchemaStatics(self, self.annotate(annotation));
   };
 
   function annoteKey<Parent extends object>(): <
@@ -1055,10 +1090,10 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   const annoteHttp = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | HttpAnnotationExtras<Schema["Type"]>
-  ): ((self: Schema) => Schema["Rebuild"]) => {
+  ): ((self: Schema) => AnnotatedSchema<Schema>) => {
     const annotation = annote(identifier, extras);
 
-    return (self: Schema): Schema["Rebuild"] => self.annotate(annotation);
+    return (self: Schema): AnnotatedSchema<Schema> => preserveSchemaStatics(self, self.annotate(annotation));
   };
 
   return Object.defineProperties(createTemplateIdentity, {

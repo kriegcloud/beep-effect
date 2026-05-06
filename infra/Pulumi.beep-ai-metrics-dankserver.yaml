@@ -1,0 +1,5 @@
+config:
+  aiMetrics:target: dankserver
+  aiMetrics:hashSaltSecretRef: op://beep-effect/ai-metrics/hash-salt
+# cspell:disable-next-line
+encryptionsalt: v1:Qn8fnVP3/Ms=:v1:MJzhIpdhm4EqnpNa:IJnfOzAVr7DwLzgbktj7eYMTQpHKFA==
