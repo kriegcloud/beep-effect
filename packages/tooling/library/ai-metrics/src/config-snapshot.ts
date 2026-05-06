@@ -12,8 +12,8 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { ConfigSnapshot } from "./models.js";
-import { hashPublicTextSha256 } from "./privacy.js";
+import { ConfigSnapshot } from "./models.ts";
+import { hashPublicTextSha256 } from "./privacy.ts";
 
 const $I = $RepoAiMetricsId.create("config-snapshot");
 

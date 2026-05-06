@@ -16,7 +16,7 @@
  * @category services
  * @since 0.0.0
  */
-export * from "./config-snapshot.js";
+export * from "./config-snapshot.ts";
 /**
  * Transcript ingest helpers.
  *
@@ -28,7 +28,7 @@ export * from "./config-snapshot.js";
  * @category services
  * @since 0.0.0
  */
-export * from "./ingest.js";
+export * from "./ingest.ts";
 /**
  * Install and deployment target helpers.
  *
@@ -40,7 +40,7 @@ export * from "./ingest.js";
  * @category services
  * @since 0.0.0
  */
-export * from "./install.js";
+export * from "./install.ts";
 /**
  * Canonical AI metrics models.
  *
@@ -52,7 +52,7 @@ export * from "./install.js";
  * @category models
  * @since 0.0.0
  */
-export * from "./models.js";
+export * from "./models.ts";
 /**
  * Privacy and derived-payload proof helpers.
  *
@@ -64,7 +64,7 @@ export * from "./models.js";
  * @category services
  * @since 0.0.0
  */
-export * from "./privacy.js";
+export * from "./privacy.ts";
 /**
  * Local AI-agent source discovery helpers.
  *
@@ -76,4 +76,4 @@ export * from "./privacy.js";
  * @category services
  * @since 0.0.0
  */
-export * from "./source-discovery.js";
+export * from "./source-discovery.ts";

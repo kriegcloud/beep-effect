@@ -205,11 +205,12 @@ export class AgentSession extends S.Class<AgentSession>($I`AgentSession`)(
     agentSessionId: S.String,
     agentTaskId: S.optionalKey(S.String),
     sourceKind: AiMetricsTranscriptSource,
-    sourcePath: S.String,
+    sourcePathHash: S.String,
     startedAt: S.optionalKey(S.String),
   },
   $I.annote("AgentSession", {
-    description: "Transcript session metadata normalized from Codex, Claude, or OpenClaw logs.",
+    description:
+      "Transcript session metadata normalized from Codex, Claude, or OpenClaw logs with private paths hashed.",
   })
 ) {}
 
@@ -229,7 +230,7 @@ export class AgentTurn extends S.Class<AgentTurn>($I`AgentTurn`)(
     eventName: S.String,
     lineNumber: S.Number,
     sourceKind: AiMetricsTranscriptSource,
-    sourcePath: S.String,
+    sourcePathHash: S.String,
     timestamp: S.optionalKey(S.String),
   },
   $I.annote("AgentTurn", {
@@ -400,11 +401,11 @@ export class TranscriptIngestSummary extends S.Class<TranscriptIngestSummary>($I
     lastTimestamp: S.optionalKey(S.String),
     rejectedLines: S.Number,
     sourceKind: AiMetricsTranscriptSource,
-    sourcePath: S.String,
+    sourcePathHash: S.String,
     totalLines: S.Number,
   },
   $I.annote("TranscriptIngestSummary", {
-    description: "Line-count, timestamp, and event-name summary from transcript ingestion.",
+    description: "Line-count, timestamp, and event-name summary from transcript ingestion with private paths hashed.",
   })
 ) {}
 

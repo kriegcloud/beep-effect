@@ -19,7 +19,8 @@ import {
   CodexTranscriptLine,
   OpenClawTranscriptLine,
   TranscriptIngestSummary,
-} from "./models.js";
+} from "./models.ts";
+import { hashPrivateIdentifier } from "./privacy.ts";
 
 const $I = $RepoAiMetricsId.create("ingest");
 
@@ -52,6 +53,7 @@ export class AiMetricsIngestError extends TaggedErrorClass<AiMetricsIngestError>
 
 type TranscriptTextSummaryInput = {
   readonly content: string;
+  readonly hashSalt?: string;
   readonly sourceKind: AiMetricsTranscriptSource;
   readonly sourcePath: string;
 };
@@ -65,62 +67,65 @@ const firstString = (...values: ReadonlyArray<string | undefined>): O.Option<str
 const optionalTimestamp = (timestamp: string | undefined): { readonly timestamp?: string } =>
   timestamp === undefined ? {} : { timestamp };
 
-const codexTurn = (sourcePath: string, lineNumber: number, line: CodexTranscriptLine): AgentTurn =>
+const safeEventNamePattern = /^[A-Za-z][A-Za-z0-9_.:-]{0,79}$/u;
+
+const metricEventName = (fallback: string, value: string | undefined): string =>
+  value !== undefined && safeEventNamePattern.test(value) ? value : fallback;
+
+const codexTurn = (sourcePathHash: string, lineNumber: number, line: CodexTranscriptLine): AgentTurn =>
   new AgentTurn({
-    eventName: line.type,
+    eventName: metricEventName("event", line.type),
     lineNumber,
     sourceKind: AiMetricsTranscriptSource.Enum.codex,
-    sourcePath,
+    sourcePathHash,
     ...optionalTimestamp(line.timestamp),
   });
 
-const claudeTurn = (sourcePath: string, lineNumber: number, line: ClaudeTranscriptLine): AgentTurn =>
+const claudeTurn = (sourcePathHash: string, lineNumber: number, line: ClaudeTranscriptLine): AgentTurn =>
   new AgentTurn({
-    eventName: pipe(
-      firstString(line.type, line.sessionId, line.cwd),
-      O.getOrElse(() => "message")
-    ),
+    eventName: metricEventName("message", line.type),
     lineNumber,
     sourceKind: AiMetricsTranscriptSource.Enum.claude,
-    sourcePath,
+    sourcePathHash,
     ...optionalTimestamp(line.timestamp),
   });
 
-const openClawTurn = (sourcePath: string, lineNumber: number, line: OpenClawTranscriptLine): AgentTurn =>
+const openClawTurn = (sourcePathHash: string, lineNumber: number, line: OpenClawTranscriptLine): AgentTurn =>
   new AgentTurn({
     eventName: pipe(
-      firstString(line.event, line.type, line.message),
+      firstString(line.event, line.type),
+      O.map((value) => metricEventName("event", value)),
       O.getOrElse(() => "event")
     ),
     lineNumber,
     sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
-    sourcePath,
+    sourcePathHash,
     ...optionalTimestamp(line.timestamp),
   });
 
 const decodeTranscriptTurn = (
   sourceKind: AiMetricsTranscriptSource,
-  sourcePath: string,
+  sourcePathHash: string,
   lineNumber: number,
   line: string
 ): O.Option<AgentTurn> => {
   if (sourceKind === AiMetricsTranscriptSource.Enum.codex) {
     return pipe(
       decodeCodexTranscriptLine(line),
-      O.map((decoded) => codexTurn(sourcePath, lineNumber, decoded))
+      O.map((decoded) => codexTurn(sourcePathHash, lineNumber, decoded))
     );
   }
 
   if (sourceKind === AiMetricsTranscriptSource.Enum.claude) {
     return pipe(
       decodeClaudeTranscriptLine(line),
-      O.map((decoded) => claudeTurn(sourcePath, lineNumber, decoded))
+      O.map((decoded) => claudeTurn(sourcePathHash, lineNumber, decoded))
     );
   }
 
   return pipe(
     decodeOpenClawTranscriptLine(line),
-    O.map((decoded) => openClawTurn(sourcePath, lineNumber, decoded))
+    O.map((decoded) => openClawTurn(sourcePathHash, lineNumber, decoded))
   );
 };
 
@@ -163,6 +168,7 @@ const summaryTimestampFields = (
  * const result = Effect.runPromise(
  *   summarizeTranscriptText({
  *     content: "{\"type\":\"event_msg\"}",
+ *     hashSalt: "local-smoke-salt",
  *     sourceKind: "codex",
  *     sourcePath: "sample.jsonl"
  *   })
@@ -172,12 +178,23 @@ const summaryTimestampFields = (
  * @category services
  * @since 0.0.0
  */
-export const summarizeTranscriptText: (input: TranscriptTextSummaryInput) => Effect.Effect<TranscriptIngestSummary> =
-  Effect.fn("AiMetrics.summarizeTranscriptText")(function* ({ content, sourceKind, sourcePath }) {
+export const summarizeTranscriptText: (
+  input: TranscriptTextSummaryInput
+) => Effect.Effect<TranscriptIngestSummary, AiMetricsIngestError> = Effect.fn("AiMetrics.summarizeTranscriptText")(
+  function* ({ content, hashSalt, sourceKind, sourcePath }) {
+    const sourcePathHash = yield* hashPrivateIdentifier(sourcePath, hashSalt).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsIngestError({
+            cause,
+            message: "Failed to hash transcript source path.",
+          })
+      )
+    );
     const lines = transcriptLines(content);
     const parsed = yield* Effect.forEach(
       lines,
-      (line, index) => Effect.succeed(decodeTranscriptTurn(sourceKind, sourcePath, index + 1, line)),
+      (line, index) => Effect.succeed(decodeTranscriptTurn(sourceKind, sourcePathHash, index + 1, line)),
       { concurrency: 16 }
     );
     const events = A.getSomes(parsed);
@@ -187,11 +204,12 @@ export const summarizeTranscriptText: (input: TranscriptTextSummaryInput) => Eff
       eventNames: eventNameList(events),
       rejectedLines: A.length(lines) - A.length(events),
       sourceKind,
-      sourcePath,
+      sourcePathHash,
       totalLines: A.length(lines),
       ...summaryTimestampFields(events),
     });
-  });
+  }
+);
 
 /**
  * Render a transcript ingest summary as JSON.

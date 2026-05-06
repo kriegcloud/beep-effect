@@ -12,8 +12,8 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { AiMetricsDeployTarget, AiMetricsTranscriptSource } from "./models.js";
-import { AiMetricsHashSaltStatus, hashPrivateIdentifier, resolveAiMetricsHashSaltStatus } from "./privacy.js";
+import { AiMetricsDeployTarget, AiMetricsTranscriptSource } from "./models.ts";
+import { AiMetricsHashSaltStatus, hashPrivateIdentifier, resolveAiMetricsHashSaltStatus } from "./privacy.ts";
 
 const $I = $RepoAiMetricsId.create("source-discovery");
 

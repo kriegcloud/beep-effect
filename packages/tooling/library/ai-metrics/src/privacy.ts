@@ -13,7 +13,7 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { AiMetricsTranscriptSource, type TranscriptIngestSummary } from "./models.js";
+import { AiMetricsTranscriptSource, type TranscriptIngestSummary } from "./models.ts";
 
 const $I = $RepoAiMetricsId.create("privacy");
 
@@ -208,6 +208,7 @@ class GenericTranscriptLine extends S.Class<GenericTranscriptLine>($I`GenericTra
 
 const decodeGenericTranscriptLine = S.decodeUnknownOption(S.fromJsonString(GenericTranscriptLine));
 const encodePrivacyCheckJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsPrivacyCheckResult));
+const safeEventNamePattern = /^[A-Za-z][A-Za-z0-9_.:-]{0,79}$/u;
 
 /**
  * Resolve the effective private hash salt value.
@@ -297,9 +298,13 @@ const redactionResultFor = (content: string): AiMetricsRedactionResult =>
     secretAssignmentCount: countMatches(SECRET_ASSIGNMENT_PATTERN, content),
   });
 
+const metricEventName = (fallback: string, value: string): string =>
+  safeEventNamePattern.test(value) ? value : fallback;
+
 const eventNameFor = (decoded: GenericTranscriptLine): string =>
   pipe(
-    firstString(decoded.type, decoded.event, decoded.sessionId),
+    firstString(decoded.type, decoded.event),
+    O.map((value) => metricEventName("event", value)),
     O.getOrElse(() => "event")
   );
 
@@ -315,14 +320,13 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
   content,
   hashSalt,
   sourceKind,
-  sourcePath,
+  sourcePathHash,
 }: {
   readonly content: string;
   readonly hashSalt?: string;
   readonly sourceKind: AiMetricsTranscriptSource;
-  readonly sourcePath: string;
+  readonly sourcePathHash: string;
 }) {
-  const sourcePathHash = yield* hashPrivateIdentifier(sourcePath, hashSalt);
   const lines = transcriptLines(content);
   const envelopes = yield* Effect.forEach(
     lines,
@@ -367,7 +371,7 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
   const envelopes = yield* rawEventEnvelopes({
     content,
     sourceKind: summary.sourceKind,
-    sourcePath: summary.sourcePath,
+    sourcePathHash: summary.sourcePathHash,
     ...(hashSalt === undefined ? {} : { hashSalt }),
   });
 
@@ -377,7 +381,7 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
     rawEventEnvelopes: envelopes,
     rejectedLines: summary.rejectedLines,
     sourceKind: summary.sourceKind,
-    sourcePathHash: yield* hashPrivateIdentifier(summary.sourcePath, hashSalt),
+    sourcePathHash: summary.sourcePathHash,
     totalLines: summary.totalLines,
     ...(summary.firstTimestamp === undefined ? {} : { firstTimestamp: summary.firstTimestamp }),
     ...(summary.lastTimestamp === undefined ? {} : { lastTimestamp: summary.lastTimestamp }),

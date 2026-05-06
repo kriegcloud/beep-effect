@@ -103,6 +103,10 @@ const hashSaltFlag = Flag.string("hash-salt").pipe(
   Flag.withDescription("Salt for hashing private paths and session identifiers"),
   Flag.optional
 );
+const hashSaltSecretRefFlag = Flag.string("hash-salt-secret-ref").pipe(
+  Flag.withDescription("Secret reference that resolves BEEP_AI_METRICS_HASH_SALT for non-local install targets"),
+  Flag.optional
+);
 const openClawUnitFlag = Flag.string("openclaw-unit").pipe(
   Flag.withDescription("OpenClaw user systemd unit path"),
   Flag.optional
@@ -231,6 +235,55 @@ const resolveHashSalt = Effect.fn("AIMetrics.resolveHashSalt")(function* (hashSa
   return O.isSome(envSalt) ? envSalt.value : undefined;
 });
 
+const resolveHashSaltSecretRef = Effect.fn("AIMetrics.resolveHashSaltSecretRef")(function* (
+  hashSaltSecretRef: O.Option<string>
+) {
+  if (O.isSome(hashSaltSecretRef)) {
+    return hashSaltSecretRef.value;
+  }
+
+  const envRef = yield* readOptionalConfigString("BEEP_AI_METRICS_HASH_SALT_SECRET_REF");
+  return O.isSome(envRef) ? envRef.value : undefined;
+});
+
+const requireHashSaltForTarget = Effect.fn("AIMetrics.requireHashSaltForTarget")(function* ({
+  hashSalt,
+  target,
+}: {
+  readonly hashSalt: string | undefined;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  if (target === AiMetricsDeployTarget.Enum.local || (hashSalt !== undefined && Str.isNonEmpty(Str.trim(hashSalt)))) {
+    return hashSalt;
+  }
+
+  return yield* new AiMetricsCommandError({
+    cause: target,
+    message: "Non-local AI metrics commands require --hash-salt or BEEP_AI_METRICS_HASH_SALT.",
+  });
+});
+
+const requireHashSaltSecretRefForTarget = Effect.fn("AIMetrics.requireHashSaltSecretRefForTarget")(function* ({
+  hashSaltSecretRef,
+  target,
+}: {
+  readonly hashSaltSecretRef: string | undefined;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  if (
+    target === AiMetricsDeployTarget.Enum.local ||
+    (hashSaltSecretRef !== undefined && Str.isNonEmpty(Str.trim(hashSaltSecretRef)))
+  ) {
+    return hashSaltSecretRef;
+  }
+
+  return yield* new AiMetricsCommandError({
+    cause: target,
+    message:
+      "Non-local AI metrics install plans require --hash-salt-secret-ref or BEEP_AI_METRICS_HASH_SALT_SECRET_REF.",
+  });
+});
+
 const parseSinceEpochMillis = Effect.fn("AIMetrics.parseSinceEpochMillis")(function* (since: O.Option<string>) {
   if (O.isNone(since)) {
     const now = yield* Clock.currentTimeMillis;
@@ -273,17 +326,24 @@ const renderInstallSpec = Effect.fn("AIMetrics.renderInstallSpec")(function* (
 });
 
 const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram")(function* ({
+  hashSaltSecretRef,
   json,
   target,
   tool,
 }: {
+  readonly hashSaltSecretRef: O.Option<string>;
   readonly json: boolean;
   readonly target: AiMetricsDeployTarget;
   readonly tool: AiMetricsTool;
 }) {
+  const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
+    hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
+    target,
+  });
   const spec = makeAiMetricsInstallSpec(
     new AiMetricsInstallInput({
       defaultTool: tool,
+      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
       target,
     })
@@ -293,19 +353,26 @@ const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram
 });
 
 const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
+  hashSalt,
   input,
   json,
   source,
   target,
 }: {
+  readonly hashSalt: O.Option<string>;
   readonly input: string;
   readonly json: boolean;
   readonly source: AiMetricsTranscriptSource;
   readonly target: AiMetricsDeployTarget;
 }) {
   const { absolutePath, content } = yield* readInputFile(input);
+  const resolvedHashSalt = yield* requireHashSaltForTarget({
+    hashSalt: yield* resolveHashSalt(hashSalt),
+    target,
+  });
   const summary = yield* summarizeTranscriptText({
     content,
+    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
     sourceKind: source,
     sourcePath: absolutePath,
   });
@@ -315,7 +382,7 @@ const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
     return;
   }
 
-  yield* Console.log(`ai-metrics ingest: ${summary.sourceKind} ${summary.sourcePath}`);
+  yield* Console.log(`ai-metrics ingest: ${summary.sourceKind} sourcePathHash=${summary.sourcePathHash}`);
   yield* Console.log(`target: ${target}`);
   yield* Console.log(`lines: ${summary.totalLines}`);
   yield* Console.log(`accepted events: ${summary.acceptedEvents}`);
@@ -421,7 +488,10 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
   readonly since: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
 }) {
-  const resolvedHashSalt = yield* resolveHashSalt(hashSalt);
+  const resolvedHashSalt = yield* requireHashSaltForTarget({
+    hashSalt: yield* resolveHashSalt(hashSalt),
+    target,
+  });
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
   const result = yield* discoverAiMetricsSources(
     new AiMetricsSourceDiscoveryInput({
@@ -487,6 +557,7 @@ const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(f
   const resolvedHashSalt = yield* resolveHashSalt(hashSalt);
   const summary = yield* summarizeTranscriptText({
     content,
+    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
     sourceKind: source,
     sourcePath: absolutePath,
   });
@@ -509,13 +580,24 @@ const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(f
 });
 
 const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(function* ({
+  hashSaltSecretRef,
   json,
   target,
 }: {
+  readonly hashSaltSecretRef: O.Option<string>;
   readonly json: boolean;
   readonly target: AiMetricsDeployTarget;
 }) {
-  const spec = makeAiMetricsInstallSpec(new AiMetricsInstallInput({ target }));
+  const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
+    hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
+    target,
+  });
+  const spec = makeAiMetricsInstallSpec(
+    new AiMetricsInstallInput({
+      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+      target,
+    })
+  );
 
   if (json) {
     yield* Console.log(yield* encodeInstallSpecCommandJson(spec));
@@ -570,22 +652,26 @@ const makeBenchmarkCompareProgram = Effect.fn("AIMetrics.makeBenchmarkComparePro
 const installPreviewCommand = Command.make(
   "preview",
   {
+    hashSaltSecretRef: hashSaltSecretRefFlag,
     json: jsonFlag,
     target: targetFlag,
     tool: toolFlag,
   },
-  ({ json, target, tool }) => runAiMetricsProgram(makeInstallPreviewProgram({ json, target, tool }))
+  ({ hashSaltSecretRef, json, target, tool }) =>
+    runAiMetricsProgram(makeInstallPreviewProgram({ hashSaltSecretRef, json, target, tool }))
 ).pipe(Command.withDescription("Preview the target-agnostic AI metrics install spec"));
 
 const ingestCommand = Command.make(
   "ingest",
   {
+    hashSalt: hashSaltFlag,
     input: inputFlag,
     json: jsonFlag,
     source: sourceFlag,
     target: targetFlag,
   },
-  ({ input, json, source, target }) => runAiMetricsProgram(makeIngestProgram({ input, json, source, target }))
+  ({ hashSalt, input, json, source, target }) =>
+    runAiMetricsProgram(makeIngestProgram({ hashSalt, input, json, source, target }))
 ).pipe(Command.withDescription("Summarize a Codex, Claude, or OpenClaw JSONL transcript"));
 
 const sourcesDiscoverCommand = Command.make(
@@ -673,10 +759,12 @@ const installCommand = Command.make(
 const forwarderRunCommand = Command.make(
   "run",
   {
+    hashSaltSecretRef: hashSaltSecretRefFlag,
     json: jsonFlag,
     target: targetFlag,
   },
-  ({ json, target }) => runAiMetricsProgram(makeForwarderRunProgram({ json, target }))
+  ({ hashSaltSecretRef, json, target }) =>
+    runAiMetricsProgram(makeForwarderRunProgram({ hashSaltSecretRef, json, target }))
 ).pipe(Command.withDescription("Print the v1 local forwarder target contract"));
 
 const forwarderCommand = Command.make(

@@ -72,6 +72,7 @@ describe("@beep/repo-ai-metrics", () => {
       expect(summary.eventNames).toEqual(["event_msg", "session_meta"]);
       expect(summary.firstTimestamp).toBe("2026-05-05T10:00:00Z");
       expect(summary.lastTimestamp).toBe("2026-05-05T10:01:00Z");
+      expect(summary.sourcePathHash).not.toBe("codex.jsonl");
     })
   );
 
@@ -87,7 +88,8 @@ describe("@beep/repo-ai-metrics", () => {
       });
 
       expect(summary.acceptedEvents).toBe(1);
-      expect(summary.eventNames).toEqual(["claude-session"]);
+      expect(summary.eventNames).toEqual(["message"]);
+      expect(summary.sourcePathHash).not.toBe("claude.jsonl");
     })
   );
 
@@ -95,6 +97,7 @@ describe("@beep/repo-ai-metrics", () => {
     const spec = makeAiMetricsInstallSpec(
       new AiMetricsInstallInput({
         defaultTool: AiMetricsTool.Enum.phoenix,
+        hashSaltSecretRef: "op://beep-effect/ai-metrics/hash-salt",
         privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
         target: AiMetricsDeployTarget.Enum.dankserver,
       })
@@ -109,6 +112,17 @@ describe("@beep/repo-ai-metrics", () => {
         A.map((service) => service.tool)
       )
     ).toEqual(["langfuse", "phoenix", "opik"]);
+    expect(spec.hashSaltSecretRef).toBe("op://beep-effect/ai-metrics/hash-salt");
+  });
+
+  it("rejects non-local install specs without a hash salt secret reference", () => {
+    expect(() =>
+      makeAiMetricsInstallSpec(
+        new AiMetricsInstallInput({
+          target: AiMetricsDeployTarget.Enum.dankserver,
+        })
+      )
+    ).toThrow("non-local installs require hashSaltSecretRef");
   });
 
   it.effect(
@@ -124,6 +138,7 @@ describe("@beep/repo-ai-metrics", () => {
           ].join("\n");
           const summary = yield* summarizeTranscriptText({
             content,
+            hashSalt: "test-salt",
             sourceKind: AiMetricsTranscriptSource.Enum.codex,
             sourcePath,
           });
@@ -143,6 +158,7 @@ describe("@beep/repo-ai-metrics", () => {
           expect(json).not.toContain("private output");
           expect(json).not.toContain("sk-secretfixture");
           expect(json).not.toContain(tmpDir);
+          expect(json).not.toContain(sourcePath);
         })
       ).pipe(Effect.provide(NodeServices.layer));
     })

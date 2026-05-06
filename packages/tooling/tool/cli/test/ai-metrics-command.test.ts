@@ -38,6 +38,79 @@ const loggedText = Effect.fn("AIMetricsCommandTest.loggedText")(function* () {
 });
 
 describe("ai-metrics command", () => {
+  it("emits ingest JSON without raw local paths or Claude private identifiers", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const inputPath = path.join(tmpDir, "claude.jsonl");
+          yield* writeText(
+            inputPath,
+            '{"sessionId":"claude-private-session","cwd":"/private/repo/path","timestamp":"2026-05-05T11:00:00Z","message":{"role":"user"}}\n'
+          );
+
+          yield* runAiMetricsCommand([
+            "ingest",
+            "--source",
+            "claude",
+            "--input",
+            inputPath,
+            "--hash-salt",
+            "test-salt",
+            "--json",
+          ]);
+
+          const output = yield* loggedText();
+          expect(output).toContain("sourcePathHash");
+          expect(output).toContain("message");
+          expect(output).not.toContain(tmpDir);
+          expect(output).not.toContain(inputPath);
+          expect(output).not.toContain("claude-private-session");
+          expect(output).not.toContain("/private/repo/path");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("requires a hash salt secret reference for non-local install previews", async () => {
+    await Effect.runPromise(
+      withTempDirectory(() =>
+        Effect.gen(function* () {
+          yield* runAiMetricsCommand(["install", "preview", "--target", "dankserver"]);
+
+          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
+          expect(output).toContain("hash-salt-secret-ref");
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("emits dankserver install preview JSON with a hash salt secret reference", async () => {
+    await Effect.runPromise(
+      withTempDirectory(() =>
+        Effect.gen(function* () {
+          yield* runAiMetricsCommand([
+            "install",
+            "preview",
+            "--target",
+            "dankserver",
+            "--hash-salt-secret-ref",
+            "op://beep-effect/ai-metrics/hash-salt",
+            "--json",
+          ]);
+
+          const output = yield* loggedText();
+          expect(output).toContain("dankserver");
+          expect(output).toContain("hashSaltSecretRef");
+          expect(output).toContain("op://beep-effect/ai-metrics/hash-salt");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
   it("emits config snapshot JSON for repo-owned agent files", async () => {
     await Effect.runPromise(
       withTempDirectory((tmpDir) =>

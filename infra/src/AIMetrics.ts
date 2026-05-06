@@ -37,6 +37,14 @@ const toolFromPulumiConfig = (value: string | undefined): AiMetricsTool =>
     ? AiMetricsTool.Enum.phoenix
     : Result.getOrThrowWith(decodeAiMetricsTool(value), schemaIssueToPulumiConfigError("defaultTool", value));
 
+type AIMetricsPulumiConfigValues = {
+  readonly dataRoot?: string | undefined;
+  readonly defaultTool?: string | undefined;
+  readonly hashSaltSecretRef?: string | undefined;
+  readonly publicBaseUrl?: string | undefined;
+  readonly target?: string | undefined;
+};
+
 /**
  * Pulumi-facing args for the AI metrics component.
  *
@@ -77,6 +85,36 @@ export const makeAIMetricsStackArgs = (
 ): AIMetricsStackArgs => new AIMetricsStackArgs({ install });
 
 /**
+ * Build AI metrics stack args from decoded Pulumi config values.
+ *
+ * @example
+ * ```ts
+ * import { makeAIMetricsStackArgsFromConfigValues } from "@beep/infra"
+ *
+ * console.log(makeAIMetricsStackArgsFromConfigValues({ target: "local" }).install.target)
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeAIMetricsStackArgsFromConfigValues = ({
+  dataRoot,
+  defaultTool,
+  hashSaltSecretRef,
+  publicBaseUrl,
+  target,
+}: AIMetricsPulumiConfigValues = {}): AIMetricsStackArgs =>
+  makeAIMetricsStackArgs(
+    new AiMetricsInstallInput({
+      defaultTool: toolFromPulumiConfig(defaultTool),
+      ...(dataRoot === undefined ? {} : { dataRoot }),
+      ...(hashSaltSecretRef === undefined ? {} : { hashSaltSecretRef }),
+      ...(publicBaseUrl === undefined ? {} : { publicBaseUrl }),
+      target: targetFromPulumiConfig(target),
+    })
+  );
+
+/**
  * Load AI metrics args from Pulumi config.
  *
  * @example
@@ -91,17 +129,14 @@ export const makeAIMetricsStackArgs = (
  */
 export const loadAIMetricsStackArgs = (): AIMetricsStackArgs => {
   const config = new pulumi.Config("aiMetrics");
-  const dataRoot = config.get("dataRoot");
-  const publicBaseUrl = config.get("publicBaseUrl");
 
-  return makeAIMetricsStackArgs(
-    new AiMetricsInstallInput({
-      defaultTool: toolFromPulumiConfig(config.get("defaultTool")),
-      ...(dataRoot === undefined ? {} : { dataRoot }),
-      ...(publicBaseUrl === undefined ? {} : { publicBaseUrl }),
-      target: targetFromPulumiConfig(config.get("target")),
-    })
-  );
+  return makeAIMetricsStackArgsFromConfigValues({
+    dataRoot: config.get("dataRoot"),
+    defaultTool: config.get("defaultTool"),
+    hashSaltSecretRef: config.get("hashSaltSecretRef"),
+    publicBaseUrl: config.get("publicBaseUrl"),
+    target: config.get("target"),
+  });
 };
 
 /**

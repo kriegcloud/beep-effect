@@ -1,4 +1,4 @@
-import { AIMetricsStack, loadAIMetricsStackArgs } from "../AIMetrics.js";
+import { AIMetricsStack, loadAIMetricsStackArgs } from "../AIMetrics.ts";
 
 const aiMetrics = new AIMetricsStack("ai-metrics", loadAIMetricsStackArgs());
 

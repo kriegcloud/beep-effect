@@ -6,10 +6,13 @@
  */
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
-import { Effect } from "effect";
+import { TaggedErrorClass } from "@beep/schema";
+import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { AiMetricsDeployTarget, AiMetricsPrivacyMode, AiMetricsScoreWeights, AiMetricsTool } from "./models.js";
+import * as Str from "effect/String";
+import { AiMetricsDeployTarget, AiMetricsPrivacyMode, AiMetricsScoreWeights, AiMetricsTool } from "./models.ts";
 
 const $I = $RepoAiMetricsId.create("install");
 
@@ -43,6 +46,50 @@ const defaultPublicBaseUrl = (target: AiMetricsDeployTarget): string =>
 
 const childPath = (root: string, child: string): string => `${root}/${child}`;
 
+const nonEmptyString = (value: string | undefined): O.Option<string> =>
+  value === undefined || Str.isEmpty(Str.trim(value)) ? O.none() : O.some(value);
+
+const requireHashSaltSecretRef = (
+  target: AiMetricsDeployTarget,
+  hashSaltSecretRef: string | undefined
+): O.Option<string> => {
+  const ref = nonEmptyString(hashSaltSecretRef);
+  if (target === AiMetricsDeployTarget.Enum.local || O.isSome(ref)) {
+    return ref;
+  }
+
+  throw new AiMetricsInstallConfigurationError({
+    cause: { target },
+    message:
+      "AI metrics non-local installs require hashSaltSecretRef so private identifier hashing never uses the local smoke salt.",
+  });
+};
+
+/**
+ * Error raised when an AI metrics install spec would be unsafe for the requested target.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsInstallConfigurationError } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsInstallConfigurationError)
+ * ```
+ * @category errors
+ * @since 0.0.0
+ */
+export class AiMetricsInstallConfigurationError extends TaggedErrorClass<AiMetricsInstallConfigurationError>(
+  $I`AiMetricsInstallConfigurationError`
+)(
+  "AiMetricsInstallConfigurationError",
+  {
+    cause: S.Unknown,
+    message: S.String,
+  },
+  $I.annote("AiMetricsInstallConfigurationError", {
+    description:
+      "Typed failure raised when a requested AI metrics install target is missing required safety configuration.",
+  })
+) {}
+
 /**
  * Input for resolving an AI metrics install spec.
  *
@@ -65,6 +112,7 @@ export class AiMetricsInstallInput extends S.Class<AiMetricsInstallInput>($I`AiM
       S.withConstructorDefault(Effect.succeed(AiMetricsTool.Enum.phoenix)),
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsTool.Enum.phoenix))
     ),
+    hashSaltSecretRef: S.optionalKey(S.String),
     litellmGatewayEnabled: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultKey(Effect.succeed(true))
@@ -151,6 +199,7 @@ export class AiMetricsInstallSpec extends S.Class<AiMetricsInstallSpec>($I`AiMet
     candidateTools: S.Array(AiMetricsTool),
     defaultScoreWeights: AiMetricsScoreWeights,
     defaultTool: AiMetricsTool,
+    hashSaltSecretRef: S.optionalKey(S.String),
     litellmGatewayEnabled: S.Boolean,
     plannedCommands: S.Array(S.String),
     privacyMode: AiMetricsPrivacyMode,
@@ -184,12 +233,33 @@ const makeServiceSpec =
       tool,
     });
 
-const plannedCommands = (target: AiMetricsDeployTarget, storage: AiMetricsStorageLayout): ReadonlyArray<string> => [
+const withHashSaltSecret =
+  (hashSaltSecretRef: O.Option<string>) =>
+  (command: string): string =>
+    pipe(
+      hashSaltSecretRef,
+      O.match({
+        onNone: () => command,
+        onSome: (ref) => `BEEP_AI_METRICS_HASH_SALT=<secret:${ref}> ${command}`,
+      })
+    );
+
+const plannedCommands = (
+  target: AiMetricsDeployTarget,
+  storage: AiMetricsStorageLayout,
+  hashSaltSecretRef: O.Option<string>
+): ReadonlyArray<string> => [
   `mkdir -p ${storage.rawArchiveDir} ${storage.parquetDir}`,
-  `beep-cli ai-metrics sources discover --target ${target}`,
+  withHashSaltSecret(hashSaltSecretRef)(`beep-cli ai-metrics sources discover --target ${target}`),
   "beep-cli ai-metrics config snapshot",
-  "beep-cli ai-metrics privacy check --source codex --input ~/.codex/sessions",
-  `beep-cli ai-metrics forwarder run --target ${target}`,
+  withHashSaltSecret(hashSaltSecretRef)("beep-cli ai-metrics privacy check --source codex --input ~/.codex/sessions"),
+  pipe(
+    hashSaltSecretRef,
+    O.match({
+      onNone: () => `beep-cli ai-metrics forwarder run --target ${target}`,
+      onSome: (ref) => `beep-cli ai-metrics forwarder run --target ${target} --hash-salt-secret-ref ${ref}`,
+    })
+  ),
 ];
 
 /**
@@ -211,6 +281,7 @@ export const makeAiMetricsInstallSpec = (
 ): AiMetricsInstallSpec => {
   const dataRoot = input.dataRoot ?? defaultDataRoot(input.target);
   const publicBaseUrl = input.publicBaseUrl ?? defaultPublicBaseUrl(input.target);
+  const hashSaltSecretRef = requireHashSaltSecretRef(input.target, input.hashSaltSecretRef);
   const storage = makeStorageLayout(dataRoot);
   const services = A.map(input.candidateTools, makeServiceSpec(input.defaultTool, publicBaseUrl));
 
@@ -218,8 +289,9 @@ export const makeAiMetricsInstallSpec = (
     candidateTools: input.candidateTools,
     defaultScoreWeights: new AiMetricsScoreWeights({}),
     defaultTool: input.defaultTool,
+    ...(O.isSome(hashSaltSecretRef) ? { hashSaltSecretRef: hashSaltSecretRef.value } : {}),
     litellmGatewayEnabled: input.litellmGatewayEnabled,
-    plannedCommands: plannedCommands(input.target, storage),
+    plannedCommands: plannedCommands(input.target, storage, hashSaltSecretRef),
     privacyMode: input.privacyMode,
     services,
     stackName: `beep-ai-metrics-${input.target}`,
