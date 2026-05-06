@@ -60,11 +60,12 @@ export const XAI_WEBSOCKET_URL = "wss://api.x.ai";
  *
  * @example
  * ```ts
+ * import { Redacted } from "effect"
  * import { XAiConfigInput } from "@beep/xai"
  *
  * const config = new XAiConfigInput({
- *   apiKey: "test-key",
- *   managementApiKey: "management-test-key"
+ *   apiKey: Redacted.make("test-key"),
+ *   managementApiKey: Redacted.make("management-test-key")
  * })
  *
  * void config
@@ -75,10 +76,10 @@ export const XAI_WEBSOCKET_URL = "wss://api.x.ai";
  */
 export class XAiConfigInput extends S.Class<XAiConfigInput>($I`XAiConfigInput`)(
   {
-    apiKey: S.optionalKey(S.String),
+    apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
     apiUrl: S.optionalKey(S.String),
     headers: S.optionalKey(S.Record(S.String, S.String)),
-    managementApiKey: S.optionalKey(S.String),
+    managementApiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
     managementApiUrl: S.optionalKey(S.String),
     websocketUrl: S.optionalKey(S.String),
   },

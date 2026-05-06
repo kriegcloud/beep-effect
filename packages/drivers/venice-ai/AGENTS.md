@@ -6,9 +6,10 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | `VeniceAI`, `VeniceAiChat`, `VeniceAIRequestOptions`, `VeniceAIError`, `VENICE_AI_OPERATION_DESCRIPTORS`, `VERSION` | package entry point |
+| entry module | `VeniceAI`, `VeniceAiChat`, `VeniceAiLanguageModel`, `VeniceAIRequestOptions`, `VeniceAIError`, `VENICE_AI_OPERATION_DESCRIPTORS`, `VERSION` | package entry point |
 | service | `VeniceAI` | one method per `swagger.yaml` operation plus SSE helpers |
 | compatibility | `VeniceAiChat` | delegates chat text convenience to `VeniceAI.createChatCompletion` |
+| language model | `VeniceAiLanguageModel.make`, `VeniceAiLanguageModel.layer`, `VeniceAiLanguageModel.model`, `VeniceAiLanguageModel.VeniceAiLanguageModelOptions` | Effect AI language-model adapter namespace backed by `VeniceAI.createChatCompletion` |
 
 ## Laws
 - Follow repository laws through command discovery.

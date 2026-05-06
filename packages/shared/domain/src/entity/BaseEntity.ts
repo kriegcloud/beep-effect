@@ -6,16 +6,27 @@
  */
 
 import { $SharedDomainId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { PosInt } from "@beep/schema/Int";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
 import * as P from "effect/Predicate";
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
 import * as Shared from "../identity/Shared.js";
 import { Principal } from "./Principal.js";
 import { SourceKind } from "./SourceKind.js";
 
 const $I = $SharedDomainId.create("entity/BaseEntity");
+
+class BaseEntityAttachmentError extends TaggedErrorClass<BaseEntityAttachmentError>($I`BaseEntityAttachmentError`)(
+  "BaseEntityAttachmentError",
+  {
+    message: S.String,
+  },
+  $I.annote("BaseEntityAttachmentError", {
+    description: "BaseEntity factory metadata attachment invariant failure.",
+  })
+) {}
 
 type EntityInput<
   FieldMap extends EntitySchema.EntityFieldInputs,
@@ -197,7 +208,7 @@ const replaceClass = <Base extends object>(base: Base): Omit<Base, "Class"> & { 
   if (hasReplacementClass(base)) {
     return base;
   }
-  throw new TypeError("Failed to attach BaseEntity Class factory.");
+  throw new BaseEntityAttachmentError({ message: "Failed to attach BaseEntity Class factory." });
 };
 
 const hasReplacementClass = <Base extends object>(base: Base): base is Base & { readonly Class: typeof Class } =>
@@ -223,10 +234,31 @@ export const BaseEntity = replaceClass(BaseEntityCore);
  *
  * @example
  * ```ts
- * import type { BaseEntity } from "@beep/shared-domain/entity/BaseEntity"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity"
+ * import type { BaseEntity as BaseEntityValue } from "@beep/shared-domain/entity/BaseEntity"
  *
- * declare const entity: BaseEntity
- * console.log(entity.rowVersion)
+ * const systemPrincipal = {
+ *   component: "Runtime",
+ *   kind: "System"
+ * }
+ *
+ * const program = Effect.gen(function* () {
+ *   const entity: BaseEntityValue = yield* S.decodeUnknownEffect(BaseEntity)({
+ *     createdAt: 1,
+ *     createdByPrincipal: systemPrincipal,
+ *     orgId: 1,
+ *     rowVersion: 1,
+ *     schemaVersion: "0.0.0",
+ *     source: "System",
+ *     updatedAt: 2,
+ *     updatedByPrincipal: systemPrincipal
+ *   })
+ *   return entity.rowVersion
+ * })
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0

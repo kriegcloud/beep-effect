@@ -7,6 +7,7 @@
 
 import { $XaiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { pipe, Tuple } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $XaiId.create("XAi.models");
@@ -324,6 +325,16 @@ export const XAiWebSocketEventKind = LiteralKit(["close", "error", "message"] as
  */
 export type XAiWebSocketEventKind = typeof XAiWebSocketEventKind.Type;
 
+type XAiWebSocketEventMember<T extends XAiWebSocketEventKind> = {
+  readonly bytes?: Uint8Array;
+  readonly code?: number;
+  readonly data?: unknown;
+  readonly isBinary?: boolean;
+  readonly kind: T;
+  readonly reason?: string;
+  readonly text?: string;
+};
+
 /**
  * Event emitted by an xAI WebSocket endpoint session.
  *
@@ -331,10 +342,10 @@ export type XAiWebSocketEventKind = typeof XAiWebSocketEventKind.Type;
  * ```ts
  * import { XAiWebSocketEvent } from "@beep/xai"
  *
- * const event = new XAiWebSocketEvent({
+ * const event: XAiWebSocketEvent = {
  *   kind: "message",
  *   text: "{\"type\":\"session.created\"}"
- * })
+ * }
  *
  * void event
  * ```
@@ -342,17 +353,61 @@ export type XAiWebSocketEventKind = typeof XAiWebSocketEventKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class XAiWebSocketEvent extends S.Class<XAiWebSocketEvent>($I`XAiWebSocketEvent`)(
-  {
+export const XAiWebSocketEvent = XAiWebSocketEventKind.mapMembers((members) => {
+  const fields = <T extends XAiWebSocketEventKind>(literal: S.Literal<T>) => ({
     bytes: S.optionalKey(S.Uint8Array),
     code: S.optionalKey(S.Number),
     data: S.optionalKey(S.Unknown),
     isBinary: S.optionalKey(S.Boolean),
-    kind: XAiWebSocketEventKind,
+    kind: S.tag(literal.literal),
     reason: S.optionalKey(S.String),
     text: S.optionalKey(S.String),
-  },
-  $I.annote("XAiWebSocketEvent", {
+  });
+
+  const makeClose = (literal: S.Literal<"close">) =>
+    S.Class<XAiWebSocketEventMember<"close">>($I`XAiWebSocketEventCloseMember`)(
+      fields(literal),
+      $I.annote("XAiWebSocketEventCloseMember", {
+        description: 'Event member emitted by an xAI WebSocket endpoint session for "close".',
+      })
+    );
+
+  const makeError = (literal: S.Literal<"error">) =>
+    S.Class<XAiWebSocketEventMember<"error">>($I`XAiWebSocketEventErrorMember`)(
+      fields(literal),
+      $I.annote("XAiWebSocketEventErrorMember", {
+        description: 'Event member emitted by an xAI WebSocket endpoint session for "error".',
+      })
+    );
+
+  const makeMessage = (literal: S.Literal<"message">) =>
+    S.Class<XAiWebSocketEventMember<"message">>($I`XAiWebSocketEventMessageMember`)(
+      fields(literal),
+      $I.annote("XAiWebSocketEventMessageMember", {
+        description: 'Event member emitted by an xAI WebSocket endpoint session for "message".',
+      })
+    );
+
+  return pipe(members, Tuple.evolve([makeClose, makeError, makeMessage]));
+}).pipe(
+  $I.annoteSchema("XAiWebSocketEvent", {
     description: "Event emitted by an xAI WebSocket endpoint session.",
-  })
-) {}
+  }),
+  S.toTaggedUnion("kind")
+);
+
+/**
+ * Type for {@link XAiWebSocketEvent}.
+ *
+ * @example
+ * ```ts
+ * import type { XAiWebSocketEvent } from "@beep/xai"
+ *
+ * const event: XAiWebSocketEvent = { kind: "message", text: "ok" }
+ * void event
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type XAiWebSocketEvent = typeof XAiWebSocketEvent.Type;
