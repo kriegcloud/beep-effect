@@ -67,6 +67,19 @@ const makeAiError = (method: string, reason: AiError.AiErrorReason): AiError.AiE
 const errorDescription = (error: VeniceAIError): string =>
   `Venice AI driver failed with ${error.reason}${error.operation === undefined ? "" : ` during ${error.operation}`}.`;
 
+const networkTransportError = (error: VeniceAIError): AiError.NetworkError =>
+  new AiError.NetworkError({
+    description: errorDescription(error),
+    reason: "TransportError",
+    request: {
+      hash: undefined,
+      headers: {},
+      method: error.method ?? "POST",
+      url: error.path ?? "/",
+      urlParams: [],
+    },
+  });
+
 const mapSchemaError =
   (method: string) =>
   (cause: S.SchemaError): AiError.AiError =>
@@ -90,6 +103,9 @@ const mapVeniceError =
     if (error.reason === "request encoding" || error.reason === "multipart encoding" || error.reason === "config") {
       return makeAiError(method, new AiError.InvalidRequestError({ description: errorDescription(error) }));
     }
+    if (error.reason === "transport") {
+      return makeAiError(method, networkTransportError(error));
+    }
     return makeAiError(method, new AiError.UnknownError({ description: errorDescription(error) }));
   };
 
@@ -109,7 +125,13 @@ const createChatCompletion = (
               new AiError.InvalidOutputError({ description: "Venice chat completion did not return a JSON response." })
             )
           )
-    )
+    ),
+    Effect.withSpan("VeniceAiLanguageModel.createChatCompletion", {
+      attributes: {
+        operation: "createChatCompletion",
+        provider: "venice-ai",
+      },
+    })
   );
 
 const parseStreamEvent = (
@@ -123,7 +145,13 @@ const streamChatCompletion = (
 ): Stream.Stream<OpenAiCompatChatCompletionChunk, AiError.AiError> =>
   venice.streamChatCompletion(new VeniceAIRequestOptions({ body: request })).pipe(
     Stream.mapError(mapVeniceError("streamChatCompletion")),
-    Stream.flatMap((event) => (event.done ? Stream.empty : Stream.fromEffect(parseStreamEvent(event))))
+    Stream.flatMap((event) => (event.done ? Stream.empty : Stream.fromEffect(parseStreamEvent(event)))),
+    Stream.withSpan("VeniceAiLanguageModel.streamChatCompletion", {
+      attributes: {
+        operation: "streamChatCompletion",
+        provider: "venice-ai",
+      },
+    })
   );
 
 /**

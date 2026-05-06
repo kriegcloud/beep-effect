@@ -114,6 +114,15 @@ type ColumnBuilderWithNullability<
 /**
  * Drizzle column builder type derived from one persisted descriptor.
  *
+ * @example
+ * ```ts
+ * import { EntityTable } from "@beep/drizzle"
+ * import * as EntitySchema from "@beep/schema/EntitySchema"
+ *
+ * const descriptor = EntitySchema.persist.text()
+ * type NameColumn = EntityTable.ColumnBuilderFor<typeof descriptor, string>
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -126,6 +135,14 @@ export type ColumnBuilderFor<Descriptor extends FieldDescriptor, Encoded> = Colu
 /**
  * Drizzle column-builder map derived from an entity definition.
  *
+ * @example
+ * ```ts
+ * import { EntityTable } from "@beep/drizzle"
+ * import type * as EntitySchema from "@beep/schema/EntitySchema"
+ *
+ * type Columns = EntityTable.ColumnBuilderMapFor<EntitySchema.Definition>
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -137,6 +154,14 @@ export type ColumnBuilderMapFor<Definition extends EntitySchema.Definition> = {
 
 /**
  * Drizzle table type derived from a schema-first entity class.
+ *
+ * @example
+ * ```ts
+ * import { EntityTable } from "@beep/drizzle"
+ * import type * as EntitySchema from "@beep/schema/EntitySchema"
+ *
+ * type Table = EntityTable.TableFor<EntitySchema.EntityClass.Any>
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -405,6 +430,28 @@ const hasAttachedTableMetadata = <const Entity extends EntitySchema.EntityClass.
 /**
  * Project a schema-first entity class into a typed Postgres Drizzle table.
  *
+ * @example
+ * ```ts
+ * import { EntityTable } from "@beep/drizzle"
+ * import { $SchemaId } from "@beep/identity"
+ * import * as EntitySchema from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const $I = $SchemaId.create("EntityTableExample")
+ * const Widget = EntitySchema.ClassFactory($I`Widget`)({
+ *   fields: {
+ *     name: S.String
+ *   },
+ *   persisted: {
+ *     name: EntitySchema.persist.text()
+ *   },
+ *   tableName: "widget"
+ * })
+ *
+ * const table = EntityTable.pgTableFrom(Widget)
+ * void table
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -421,7 +468,30 @@ export const pgTableFrom = <const Entity extends EntitySchema.EntityClass.Any>(e
 /**
  * Get projected table columns using Drizzle metadata.
  *
+ * @example
+ * ```ts
+ * import { EntityTable } from "@beep/drizzle"
+ * import { $SchemaId } from "@beep/identity"
+ * import * as EntitySchema from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const $I = $SchemaId.create("EntityTableColumnsExample")
+ * const Widget = EntitySchema.ClassFactory($I`Widget`)({
+ *   fields: {
+ *     name: S.String
+ *   },
+ *   persisted: {
+ *     name: EntitySchema.persist.text()
+ *   },
+ *   tableName: "widget"
+ * })
+ *
+ * const table = EntityTable.pgTableFrom(Widget)
+ * const columns = EntityTable.columns(table)
+ * console.log(columns.name.name)
+ * ```
+ *
  * @since 0.0.0
- * @category accessors
+ * @category getters
  */
 export const columns = getColumns;

@@ -43,15 +43,24 @@ type MimeTypeSchema = LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typ
  * ```ts
  * import { extractMimeTypes } from "@beep/schema/MimeType"
  *
+ * const htmlExtensions: readonly ["html"] = ["html"]
+ * const plainExtensions: readonly ["txt"] = ["txt"]
+ *
  * const types = extractMimeTypes({
- *
- *
+ *   "text/html": {
+ *     source: "iana",
+ *     extensions: htmlExtensions
+ *   },
+ *   "text/plain": {
+ *     source: "iana",
+ *     extensions: plainExtensions
+ *   }
  * })
- * console.log(types) // ["text/plain", "text/html"]
+ * console.log(types)
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const extractMimeTypes = <const T extends MimeTypeProperty>(
   mime: T
@@ -65,15 +74,17 @@ export const extractMimeTypes = <const T extends MimeTypeProperty>(
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { MimeType } from "@beep/schema/MimeType"
  *
- * const mimeType = S.decodeUnknownSync(MimeType)("application/json")
- * console.log(mimeType) // "application/json"
+ * const program = S.decodeUnknownEffect(MimeType)("application/json")
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category schemas
  */
 export const MimeType: MimeTypeSchema = pipe(
   {
@@ -108,13 +119,21 @@ export const MimeType: MimeTypeSchema = pipe(
  *
  * @example
  * ```ts
- * import type { MimeType } from "@beep/schema/MimeType"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { MimeType } from "@beep/schema/MimeType"
+ * import type { MimeType as MimeTypeValue } from "@beep/schema/MimeType"
  *
- * const contentType: MimeType = "application/json" as MimeType
+ * const program = Effect.gen(function* () {
+ *   const contentType: MimeTypeValue = yield* S.decodeUnknownEffect(MimeType)("application/json")
+ *   return contentType
+ * })
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type MimeType = MimeTypesData.MimeType;
 
@@ -123,15 +142,17 @@ export type MimeType = MimeTypesData.MimeType;
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { ApplicationMimeType } from "@beep/schema/MimeType"
  *
- * const mt = S.decodeUnknownSync(ApplicationMimeType)("application/pdf")
- * console.log(mt) // "application/pdf"
+ * const program = S.decodeUnknownEffect(ApplicationMimeType)("application/pdf")
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category schemas
  */
 export const ApplicationMimeType = MimeType.kinds.Application;
 
@@ -140,13 +161,22 @@ export const ApplicationMimeType = MimeType.kinds.Application;
  *
  * @example
  * ```ts
- * import type { ApplicationMimeType } from "@beep/schema/MimeType"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { ApplicationMimeType } from "@beep/schema/MimeType"
+ * import type { ApplicationMimeType as ApplicationMimeTypeValue } from "@beep/schema/MimeType"
  *
- * const contentType: ApplicationMimeType = "application/json" as ApplicationMimeType
+ * const program = Effect.gen(function* () {
+ *   const contentType: ApplicationMimeTypeValue =
+ *     yield* S.decodeUnknownEffect(ApplicationMimeType)("application/json")
+ *   return contentType
+ * })
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ApplicationMimeType = typeof MimeType.kinds.Application.Type;
 
@@ -155,15 +185,17 @@ export type ApplicationMimeType = typeof MimeType.kinds.Application.Type;
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { VideoMimeType } from "@beep/schema/MimeType"
  *
- * const mt = S.decodeUnknownSync(VideoMimeType)("video/mp4")
- * console.log(mt) // "video/mp4"
+ * const program = S.decodeUnknownEffect(VideoMimeType)("video/mp4")
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category schemas
  */
 export const VideoMimeType = MimeType.kinds.Video;
 
@@ -172,13 +204,21 @@ export const VideoMimeType = MimeType.kinds.Video;
  *
  * @example
  * ```ts
- * import type { VideoMimeType } from "@beep/schema/MimeType"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { VideoMimeType } from "@beep/schema/MimeType"
+ * import type { VideoMimeType as VideoMimeTypeValue } from "@beep/schema/MimeType"
  *
- * const mt: VideoMimeType = "video/mp4" as VideoMimeType
+ * const program = Effect.gen(function* () {
+ *   const mimeType: VideoMimeTypeValue = yield* S.decodeUnknownEffect(VideoMimeType)("video/mp4")
+ *   return mimeType
+ * })
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type VideoMimeType = typeof MimeType.kinds.Video.Type;
 
@@ -187,15 +227,17 @@ export type VideoMimeType = typeof MimeType.kinds.Video.Type;
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { TextMimeType } from "@beep/schema/MimeType"
  *
- * const mt = S.decodeUnknownSync(TextMimeType)("text/plain")
- * console.log(mt) // "text/plain"
+ * const program = S.decodeUnknownEffect(TextMimeType)("text/plain")
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category schemas
  */
 export const TextMimeType = MimeType.kinds.Text;
 
@@ -204,13 +246,21 @@ export const TextMimeType = MimeType.kinds.Text;
  *
  * @example
  * ```ts
- * import type { TextMimeType } from "@beep/schema/MimeType"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { TextMimeType } from "@beep/schema/MimeType"
+ * import type { TextMimeType as TextMimeTypeValue } from "@beep/schema/MimeType"
  *
- * const mt: TextMimeType = "text/plain" as TextMimeType
+ * const program = Effect.gen(function* () {
+ *   const mimeType: TextMimeTypeValue = yield* S.decodeUnknownEffect(TextMimeType)("text/plain")
+ *   return mimeType
+ * })
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TextMimeType = typeof MimeType.kinds.Text.Type;
 
@@ -219,15 +269,17 @@ export type TextMimeType = typeof MimeType.kinds.Text.Type;
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { ImageMimeType } from "@beep/schema/MimeType"
  *
- * const mt = S.decodeUnknownSync(ImageMimeType)("image/png")
- * console.log(mt) // "image/png"
+ * const program = S.decodeUnknownEffect(ImageMimeType)("image/png")
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category schemas
  */
 export const ImageMimeType = MimeType.kinds.Image;
 
@@ -236,13 +288,21 @@ export const ImageMimeType = MimeType.kinds.Image;
  *
  * @example
  * ```ts
- * import type { ImageMimeType } from "@beep/schema/MimeType"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { ImageMimeType } from "@beep/schema/MimeType"
+ * import type { ImageMimeType as ImageMimeTypeValue } from "@beep/schema/MimeType"
  *
- * const mt: ImageMimeType = "image/png" as ImageMimeType
+ * const program = Effect.gen(function* () {
+ *   const mimeType: ImageMimeTypeValue = yield* S.decodeUnknownEffect(ImageMimeType)("image/png")
+ *   return mimeType
+ * })
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ImageMimeType = typeof MimeType.kinds.Image.Type;
 
@@ -251,15 +311,17 @@ export type ImageMimeType = typeof MimeType.kinds.Image.Type;
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { AudioMimeType } from "@beep/schema/MimeType"
  *
- * const mt = S.decodeUnknownSync(AudioMimeType)("audio/mpeg")
- * console.log(mt) // "audio/mpeg"
+ * const program = S.decodeUnknownEffect(AudioMimeType)("audio/mpeg")
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category schemas
  */
 export const AudioMimeType = MimeType.kinds.Audio;
 
@@ -268,21 +330,40 @@ export const AudioMimeType = MimeType.kinds.Audio;
  *
  * @example
  * ```ts
- * import type { AudioMimeType } from "@beep/schema/MimeType"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { AudioMimeType } from "@beep/schema/MimeType"
+ * import type { AudioMimeType as AudioMimeTypeValue } from "@beep/schema/MimeType"
  *
- * const mt: AudioMimeType = "audio/mpeg" as AudioMimeType
+ * const program = Effect.gen(function* () {
+ *   const mimeType: AudioMimeTypeValue = yield* S.decodeUnknownEffect(AudioMimeType)("audio/mpeg")
+ *   return mimeType
+ * })
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type AudioMimeType = typeof MimeType.kinds.Audio.Type;
 
 /**
  * Schema for miscellaneous mime-type literals that do not fit standard categories.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { MiscMimeType } from "@beep/schema/MimeType"
+ *
+ * const program = S.decodeUnknownEffect(MiscMimeType)("font/woff2")
+ *
+ * Effect.runPromise(program)
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category schemas
  */
 export const MiscMimeType = MimeType.kinds.Misc;
 
@@ -291,12 +372,20 @@ export const MiscMimeType = MimeType.kinds.Misc;
  *
  * @example
  * ```ts
- * import type { MiscMimeType } from "@beep/schema/MimeType"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { MiscMimeType } from "@beep/schema/MimeType"
+ * import type { MiscMimeType as MiscMimeTypeValue } from "@beep/schema/MimeType"
  *
- * const mt: MiscMimeType = "application/octet-stream" as MiscMimeType
+ * const program = Effect.gen(function* () {
+ *   const mimeType: MiscMimeTypeValue = yield* S.decodeUnknownEffect(MiscMimeType)("font/woff2")
+ *   return mimeType
+ * })
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type MiscMimeType = typeof MimeType.kinds.Misc.Type;

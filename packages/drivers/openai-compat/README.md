@@ -12,7 +12,7 @@ bun add @beep/openai-compat
 ## Usage
 
 ```ts
-import { Effect } from "effect"
+import { Effect, Redacted } from "effect"
 import {
   OpenAiCompatChatCompletionRequest,
   OpenAiCompatClient,
@@ -32,7 +32,7 @@ const program = Effect.gen(function* () {
 
 const layer = OpenAiCompatClient.makeLayer(
   new OpenAiCompatClientOptions({
-    apiKey: "test-key",
+    apiKey: Redacted.make("test-key"),
     apiUrl: "https://provider.example/v1"
   })
 )
@@ -118,6 +118,12 @@ bun run test
 
 # Integration test
 bun run test:integration
+
+# Type tests
+bun run type-test
+
+# Docs
+bun run docgen
 
 # Lint
 bun run lint:fix

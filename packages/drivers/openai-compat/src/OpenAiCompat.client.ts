@@ -6,6 +6,7 @@
  */
 
 import { $OpenaiCompatId } from "@beep/identity";
+import { decodeJsonString } from "@beep/schema/Json";
 import { Context, Effect, flow, Layer, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import { identity } from "effect/Function";
@@ -29,8 +30,7 @@ import {
 } from "./OpenAiCompat.models.ts";
 
 const $I = $OpenaiCompatId.create("OpenAiCompat.client");
-
-const decodeSseJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
+const moduleName = "OpenAiCompatClient";
 
 /**
  * Runtime configuration accepted by {@link OpenAiCompatClient.makeLayer}.
@@ -95,7 +95,7 @@ export interface OpenAiCompatClientShape {
 }
 
 const makeAiError = (method: string, reason: AiError.AiErrorReason): AiError.AiError =>
-  AiError.make({ method, module: "OpenAiCompatClient", reason });
+  AiError.make({ method, module: moduleName, reason });
 
 const thunkEmptyString = () => "";
 
@@ -119,15 +119,18 @@ const mapStatusError = (
   reason: HttpClientError.StatusCodeError
 ): Effect.Effect<never, AiError.AiError> =>
   pipe(
-    reason.response.text,
-    Effect.orElseSucceed(() => ""),
-    Effect.flatMap((body) =>
+    Effect.logWarning({
+      component: moduleName,
+      event: "non-2xx-status",
+      method,
+      status: reason.response.status,
+    }),
+    Effect.andThen(
       Effect.fail(
         makeAiError(
           method,
           AiError.reasonFromHttpStatus({
-            body,
-            description: reason.description,
+            description: "OpenAI-compatible provider returned a non-2xx status.",
             status: reason.response.status,
           })
         )
@@ -146,6 +149,16 @@ const mapHttpClientError = (
         error.reason._tag === "InvalidUrlError"
       ? Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(error.reason)))
       : Effect.fail(makeAiError(method, new AiError.InvalidOutputError({ description: error.message })));
+
+const logClientFailure =
+  (method: string) =>
+  (error: AiError.AiError): Effect.Effect<void> =>
+    Effect.logDebug({
+      component: moduleName,
+      event: "operation-failed",
+      method,
+      reason: error.reason._tag,
+    });
 
 const makeHttpClient = (client: HttpClient.HttpClient, options: OpenAiCompatClientOptions): HttpClient.HttpClient =>
   client.pipe(
@@ -222,7 +235,7 @@ const mapSseRetry = (method: string): AiError.AiError =>
 
 const parseSseData = (data: string): Effect.Effect<OpenAiCompatChatCompletionChunk, AiError.AiError> =>
   pipe(
-    decodeSseJson(data),
+    decodeJsonString(data),
     Effect.flatMap(decodeChatCompletionChunk),
     Effect.mapError(mapSchemaError("streamChatCompletion"))
   );
@@ -238,30 +251,46 @@ const makeService = (client: HttpClient.HttpClient, options: OpenAiCompatClientO
       Effect.catchTags({
         HttpClientError: (error) => mapHttpClientError("createChatCompletion", error),
         SchemaError: (error) => Effect.fail(mapSchemaError("createChatCompletion")(error)),
+      }),
+      Effect.tapError(logClientFailure("createChatCompletion")),
+      Effect.withSpan("OpenAiCompatClient.createChatCompletion", {
+        attributes: {
+          component: moduleName,
+          operation: "createChatCompletion",
+        },
       })
     );
 
   const streamChatCompletion: OpenAiCompatClientShape["streamChatCompletion"] = (request) =>
-    Stream.unwrap(
-      pipe(
-        postChatCompletionRequest("streamChatCompletion", makeStreamingRequest(request)),
-        Effect.flatMap(HttpClient.filterStatusOk(httpClient).execute),
-        Effect.flatMap(ensureSseContentType("streamChatCompletion")),
-        Effect.map((response) =>
-          response.stream.pipe(
-            Stream.decodeText(),
-            Stream.pipeThroughChannel(Sse.decode()),
-            Stream.flatMap((event) =>
-              event.data === "[DONE]" ? Stream.empty : Stream.fromEffect(parseSseData(event.data))
-            ),
-            Stream.catchTags({
-              HttpClientError: (error) => Stream.fromEffect(mapHttpClientError("streamChatCompletion", error)),
-              Retry: () => Stream.fail(mapSseRetry("streamChatCompletion")),
-            })
-          )
-        ),
-        Effect.catchTag("HttpClientError", (error) => mapHttpClientError("streamChatCompletion", error))
-      )
+    pipe(
+      Stream.unwrap(
+        pipe(
+          postChatCompletionRequest("streamChatCompletion", makeStreamingRequest(request)),
+          Effect.flatMap(HttpClient.filterStatusOk(httpClient).execute),
+          Effect.flatMap(ensureSseContentType("streamChatCompletion")),
+          Effect.map((response) =>
+            response.stream.pipe(
+              Stream.decodeText(),
+              Stream.pipeThroughChannel(Sse.decode()),
+              Stream.flatMap((event) =>
+                event.data === "[DONE]" ? Stream.empty : Stream.fromEffect(parseSseData(event.data))
+              ),
+              Stream.catchTags({
+                HttpClientError: (error) => Stream.fromEffect(mapHttpClientError("streamChatCompletion", error)),
+                Retry: () => Stream.fail(mapSseRetry("streamChatCompletion")),
+              })
+            )
+          ),
+          Effect.catchTag("HttpClientError", (error) => mapHttpClientError("streamChatCompletion", error))
+        )
+      ),
+      Stream.tapError(logClientFailure("streamChatCompletion")),
+      Stream.withSpan("OpenAiCompatClient.streamChatCompletion", {
+        attributes: {
+          component: moduleName,
+          operation: "streamChatCompletion",
+        },
+      })
     );
 
   return {

@@ -1,4 +1,5 @@
 import { inspect } from "node:util";
+import { encodeJsonString } from "@beep/schema/Json";
 import {
   XAI_API_URL,
   XAI_ENDPOINT_COUNT,
@@ -10,10 +11,11 @@ import {
   XAiEndpoint,
   type XAiEndpointDescriptor,
   XAiError,
+  XAiLanguageModel,
   XAiRequestOptions,
 } from "@beep/xai";
 import { describe, expect, layer } from "@effect/vitest";
-import { Context, Effect, Layer, pipe, Ref, Stream } from "effect";
+import { Context, Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -49,7 +51,7 @@ class XAiTestHttp extends Context.Service<XAiTestHttp, XAiTestHttpShape>()(
 ) {}
 
 const sortStrings = A.sort(Order.String);
-const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
+const encodeJson = encodeJsonString;
 
 const endpointIds = () => sortStrings(A.map(XAI_ENDPOINTS, (descriptor) => descriptor.id));
 
@@ -137,9 +139,9 @@ const TestHttpClientLayer = Layer.effect(
 const makeXAiUnitLayer = () =>
   XAi.makeLayer(
     new XAiConfigInput({
-      apiKey: "api-test-key",
+      apiKey: Redacted.make("api-test-key"),
       apiUrl: XAI_API_URL,
-      managementApiKey: "management-test-key",
+      managementApiKey: Redacted.make("management-test-key"),
       managementApiUrl: XAI_MANAGEMENT_API_URL,
     })
   ).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(XAiTestHttpLayer));
@@ -147,7 +149,7 @@ const makeXAiUnitLayer = () =>
 const makeInvalidWebSocketUrlLayer = () =>
   XAi.makeLayer(
     new XAiConfigInput({
-      apiKey: "api-test-key",
+      apiKey: Redacted.make("api-test-key"),
       websocketUrl: "not a url",
     })
   ).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(XAiTestHttpLayer));
@@ -353,6 +355,32 @@ describe("@beep/xai", () => {
         const websocketError = XAiError.fromDescriptor(websocketDescriptor, "websocket", {
           cause: new Error("Bearer websocket-secret"),
         });
+        const hostileProxyError = XAiError.fromDescriptor(websocketDescriptor, "websocket", {
+          cause: new Proxy(
+            {},
+            {
+              get() {
+                throw new Error("hostile get");
+              },
+              getOwnPropertyDescriptor() {
+                throw new Error("hostile descriptor");
+              },
+              getPrototypeOf() {
+                throw new Error("hostile prototype");
+              },
+              ownKeys() {
+                throw new Error("hostile keys");
+              },
+            }
+          ),
+        });
+        const throwingNameError = XAiError.fromDescriptor(websocketDescriptor, "websocket", {
+          cause: {
+            get name(): string {
+              throw new Error("name getter failed");
+            },
+          },
+        });
         const transportJson = yield* encodeJson(transportError);
         const websocketJson = yield* encodeJson(websocketError);
         const rendered = [
@@ -366,9 +394,43 @@ describe("@beep/xai", () => {
         expect(transportError.cause).toBe("HttpClientError:TransportError");
         expect(websocketError.reason).toBe("websocket");
         expect(websocketError.cause).toBe("Error");
+        expect(hostileProxyError.reason).toBe("websocket");
+        expect(hostileProxyError.cause).toBeUndefined();
+        expect(throwingNameError.reason).toBe("websocket");
+        expect(throwingNameError.cause).toBeUndefined();
         expect(rendered).not.toContain("Bearer");
         expect(rendered).not.toContain("api-test-key");
         expect(rendered).not.toContain("websocket-secret");
+      })
+    )
+  );
+
+  layer(makeXAiUnitLayer())((it) =>
+    it.effect("maps language-model transport failures to retryable network errors", () =>
+      Effect.gen(function* () {
+        const testHttp = yield* XAiTestHttp;
+        yield* testHttp.reset;
+        yield* testHttp.respondWith((request) =>
+          Effect.fail(
+            new HttpClientError.HttpClientError({
+              reason: new HttpClientError.TransportError({
+                request,
+              }),
+            })
+          )
+        );
+
+        const languageModel = yield* XAiLanguageModel.make({ model: "grok-4" });
+        const error = yield* languageModel.generateText({ prompt: "hello" }).pipe(Effect.flip);
+
+        expect(error.reason._tag).toBe("NetworkError");
+        expect(error.reason.isRetryable).toBe(true);
+        if (error.reason._tag !== "NetworkError") {
+          return;
+        }
+        expect(error.reason.request.headers).toEqual({});
+        expect(error.reason.description ?? "").not.toContain("api-test-key");
+        expect(error.reason.description ?? "").not.toContain("hello");
       })
     )
   );

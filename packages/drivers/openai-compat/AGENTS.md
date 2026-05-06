@@ -49,6 +49,8 @@ void languageModel
 - `bunx turbo run test:integration --filter=@beep/openai-compat`
 - `bunx turbo run lint --filter=@beep/openai-compat`
 - `bunx turbo run check --filter=@beep/openai-compat`
+- `bunx turbo run type-test --filter=@beep/openai-compat`
+- `bunx turbo run docgen --filter=@beep/openai-compat`
 
 ## Contributor Checklist
 - [ ] New exports include jsdoc metadata

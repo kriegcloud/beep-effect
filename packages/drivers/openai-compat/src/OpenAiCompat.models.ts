@@ -6,11 +6,22 @@
  */
 
 import { $OpenaiCompatId } from "@beep/identity";
-import { LiteralKit } from "@beep/schema";
-import { Tuple } from "effect";
+import { LiteralKit, OptionFromOptionalNullishKey } from "@beep/schema";
+import { Effect, Tuple } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $OpenaiCompatId.create("OpenAiCompat.models");
+
+const OptionalNullableString = OptionFromOptionalNullishKey(S.String).pipe(
+  S.withConstructorDefault(Effect.succeed(O.none<string>()))
+);
+const OptionalNumber = S.OptionFromOptionalKey(S.Number).pipe(
+  S.withConstructorDefault(Effect.succeed(O.none<number>()))
+);
+const OptionalUnknownRecord = S.OptionFromOptionalKey(S.Record(S.String, S.Unknown)).pipe(
+  S.withConstructorDefault(Effect.succeed(O.none<Readonly<Record<string, unknown>>>()))
+);
 
 /**
  * Chat roles accepted by OpenAI-compatible chat completion endpoints.
@@ -643,10 +654,11 @@ export class OpenAiCompatChatCompletionRequest extends S.Class<OpenAiCompatChatC
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { OpenAiCompatAssistantMessage } from "@beep/openai-compat"
  *
  * const message = new OpenAiCompatAssistantMessage({
- *   content: "Done",
+ *   content: O.some("Done"),
  *   role: "assistant"
  * })
  *
@@ -660,9 +672,13 @@ export class OpenAiCompatAssistantMessage extends S.Class<OpenAiCompatAssistantM
   $I`OpenAiCompatAssistantMessage`
 )(
   {
-    content: S.String.pipe(S.NullOr, S.optionalKey),
+    content: OptionalNullableString,
     role: S.optionalKey(S.Literal("assistant")),
-    tool_calls: OpenAiCompatToolCall.pipe(S.Array, S.optionalKey),
+    tool_calls: OpenAiCompatToolCall.pipe(
+      S.Array,
+      S.OptionFromOptionalKey,
+      S.withConstructorDefault(Effect.succeed(O.none<ReadonlyArray<OpenAiCompatToolCall>>()))
+    ),
   },
   $I.annote("OpenAiCompatAssistantMessage", {
     description: "Assistant message returned by OpenAI-compatible chat completion endpoints.",
@@ -674,10 +690,11 @@ export class OpenAiCompatAssistantMessage extends S.Class<OpenAiCompatAssistantM
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { OpenAiCompatAssistantDelta } from "@beep/openai-compat"
  *
  * const delta = new OpenAiCompatAssistantDelta({
- *   content: "Hi ",
+ *   content: O.some("Hi "),
  *   role: "assistant"
  * })
  *
@@ -689,9 +706,13 @@ export class OpenAiCompatAssistantMessage extends S.Class<OpenAiCompatAssistantM
  */
 export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDelta>($I`OpenAiCompatAssistantDelta`)(
   {
-    content: S.String.pipe(S.NullOr, S.optionalKey),
+    content: OptionalNullableString,
     role: S.optionalKey(S.Literal("assistant")),
-    tool_calls: OpenAiCompatToolCall.pipe(S.Array, S.optionalKey),
+    tool_calls: OpenAiCompatToolCall.pipe(
+      S.Array,
+      S.OptionFromOptionalKey,
+      S.withConstructorDefault(Effect.succeed(O.none<ReadonlyArray<OpenAiCompatToolCall>>()))
+    ),
   },
   $I.annote("OpenAiCompatAssistantDelta", {
     description: "Delta message returned by OpenAI-compatible chat completion streams.",
@@ -703,12 +724,13 @@ export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDel
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { OpenAiCompatUsage } from "@beep/openai-compat"
  *
  * const usage = new OpenAiCompatUsage({
- *   completion_tokens: 2,
- *   prompt_tokens: 1,
- *   total_tokens: 3
+ *   completion_tokens: O.some(2),
+ *   prompt_tokens: O.some(1),
+ *   total_tokens: O.some(3)
  * })
  *
  * void usage
@@ -719,10 +741,10 @@ export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDel
  */
 export class OpenAiCompatUsage extends S.Class<OpenAiCompatUsage>($I`OpenAiCompatUsage`)(
   {
-    completion_tokens: S.optionalKey(S.Number),
-    prompt_tokens: S.optionalKey(S.Number),
-    prompt_tokens_details: S.optionalKey(S.Record(S.String, S.Unknown)),
-    total_tokens: S.optionalKey(S.Number),
+    completion_tokens: OptionalNumber,
+    prompt_tokens: OptionalNumber,
+    prompt_tokens_details: OptionalUnknownRecord,
+    total_tokens: OptionalNumber,
   },
   $I.annote("OpenAiCompatUsage", {
     description: "Token usage returned by OpenAI-compatible chat completion endpoints.",
@@ -734,12 +756,13 @@ export class OpenAiCompatUsage extends S.Class<OpenAiCompatUsage>($I`OpenAiCompa
  *
  * @example
  * ```ts
- * import { OpenAiCompatChatCompletionChoice } from "@beep/openai-compat"
+ * import * as O from "effect/Option"
+ * import { OpenAiCompatAssistantMessage, OpenAiCompatChatCompletionChoice } from "@beep/openai-compat"
  *
  * const choice = new OpenAiCompatChatCompletionChoice({
- *   finish_reason: "stop",
+ *   finish_reason: O.some("stop"),
  *   index: 0,
- *   message: { content: "Hello", role: "assistant" }
+ *   message: O.some(new OpenAiCompatAssistantMessage({ content: O.some("Hello"), role: "assistant" }))
  * })
  *
  * void choice
@@ -752,9 +775,11 @@ export class OpenAiCompatChatCompletionChoice extends S.Class<OpenAiCompatChatCo
   $I`OpenAiCompatChatCompletionChoice`
 )(
   {
-    finish_reason: S.String.pipe(S.NullOr, S.optionalKey),
+    finish_reason: OptionalNullableString,
     index: S.optionalKey(S.Number),
-    message: S.optionalKey(OpenAiCompatAssistantMessage),
+    message: S.OptionFromOptionalKey(OpenAiCompatAssistantMessage).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<OpenAiCompatAssistantMessage>()))
+    ),
   },
   $I.annote("OpenAiCompatChatCompletionChoice", {
     description: "Chat completion choice returned by OpenAI-compatible endpoints.",
@@ -766,10 +791,21 @@ export class OpenAiCompatChatCompletionChoice extends S.Class<OpenAiCompatChatCo
  *
  * @example
  * ```ts
- * import { OpenAiCompatChatCompletionResponse } from "@beep/openai-compat"
+ * import * as O from "effect/Option"
+ * import {
+ *   OpenAiCompatAssistantMessage,
+ *   OpenAiCompatChatCompletionChoice,
+ *   OpenAiCompatChatCompletionResponse
+ * } from "@beep/openai-compat"
  *
  * const response = new OpenAiCompatChatCompletionResponse({
- *   choices: [{ finish_reason: "stop", index: 0, message: { content: "Hello" } }]
+ *   choices: [
+ *     new OpenAiCompatChatCompletionChoice({
+ *       finish_reason: O.some("stop"),
+ *       index: 0,
+ *       message: O.some(new OpenAiCompatAssistantMessage({ content: O.some("Hello") }))
+ *     })
+ *   ]
  * })
  *
  * void response
@@ -785,7 +821,9 @@ export class OpenAiCompatChatCompletionResponse extends S.Class<OpenAiCompatChat
     choices: S.Array(OpenAiCompatChatCompletionChoice),
     id: S.optionalKey(S.String),
     model: S.optionalKey(S.String),
-    usage: S.optionalKey(OpenAiCompatUsage),
+    usage: S.OptionFromOptionalKey(OpenAiCompatUsage).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<OpenAiCompatUsage>()))
+    ),
   },
   $I.annote("OpenAiCompatChatCompletionResponse", {
     description: "Chat completion response returned by OpenAI-compatible endpoints.",
@@ -797,10 +835,11 @@ export class OpenAiCompatChatCompletionResponse extends S.Class<OpenAiCompatChat
  *
  * @example
  * ```ts
- * import { OpenAiCompatChatCompletionChunkChoice } from "@beep/openai-compat"
+ * import * as O from "effect/Option"
+ * import { OpenAiCompatAssistantDelta, OpenAiCompatChatCompletionChunkChoice } from "@beep/openai-compat"
  *
  * const choice = new OpenAiCompatChatCompletionChunkChoice({
- *   delta: { content: "Hi " },
+ *   delta: O.some(new OpenAiCompatAssistantDelta({ content: O.some("Hi ") })),
  *   index: 0
  * })
  *
@@ -814,8 +853,10 @@ export class OpenAiCompatChatCompletionChunkChoice extends S.Class<OpenAiCompatC
   $I`OpenAiCompatChatCompletionChunkChoice`
 )(
   {
-    delta: S.optionalKey(OpenAiCompatAssistantDelta),
-    finish_reason: S.String.pipe(S.NullOr, S.optionalKey),
+    delta: S.OptionFromOptionalKey(OpenAiCompatAssistantDelta).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<OpenAiCompatAssistantDelta>()))
+    ),
+    finish_reason: OptionalNullableString,
     index: S.optionalKey(S.Number),
   },
   $I.annote("OpenAiCompatChatCompletionChunkChoice", {
@@ -828,10 +869,20 @@ export class OpenAiCompatChatCompletionChunkChoice extends S.Class<OpenAiCompatC
  *
  * @example
  * ```ts
- * import { OpenAiCompatChatCompletionChunk } from "@beep/openai-compat"
+ * import * as O from "effect/Option"
+ * import {
+ *   OpenAiCompatAssistantDelta,
+ *   OpenAiCompatChatCompletionChunk,
+ *   OpenAiCompatChatCompletionChunkChoice
+ * } from "@beep/openai-compat"
  *
  * const chunk = new OpenAiCompatChatCompletionChunk({
- *   choices: [{ delta: { content: "Hi " }, index: 0 }]
+ *   choices: [
+ *     new OpenAiCompatChatCompletionChunkChoice({
+ *       delta: O.some(new OpenAiCompatAssistantDelta({ content: O.some("Hi ") })),
+ *       index: 0
+ *     })
+ *   ]
  * })
  *
  * void chunk
@@ -847,7 +898,9 @@ export class OpenAiCompatChatCompletionChunk extends S.Class<OpenAiCompatChatCom
     choices: S.Array(OpenAiCompatChatCompletionChunkChoice),
     id: S.optionalKey(S.String),
     model: S.optionalKey(S.String),
-    usage: S.optionalKey(OpenAiCompatUsage),
+    usage: S.OptionFromOptionalKey(OpenAiCompatUsage).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<OpenAiCompatUsage>()))
+    ),
   },
   $I.annote("OpenAiCompatChatCompletionChunk", {
     description: "Stream chunk returned by OpenAI-compatible chat completion endpoints.",

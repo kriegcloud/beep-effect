@@ -1,5 +1,5 @@
 import { XAi, XAiConfigInput, type XAiError, XAiLanguageModel } from "@beep/xai";
-import type { Effect, Layer } from "effect";
+import { type Effect, type Layer, Redacted } from "effect";
 import type * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import type * as AiModel from "effect/unstable/ai/Model";
 import type * as HttpClient from "effect/unstable/http/HttpClient";
@@ -7,10 +7,14 @@ import { describe, expect, it } from "tstyche";
 
 describe("XAi", () => {
   it("preserves layer types", () => {
-    expect(XAi.makeLayer(new XAiConfigInput({ apiKey: "test-key" }))).type.toBeAssignableTo<
+    expect(XAi.makeLayer(new XAiConfigInput({ apiKey: Redacted.make("test-key") }))).type.toBeAssignableTo<
       Layer.Layer<XAi, never, HttpClient.HttpClient>
     >();
     expect(XAi.layer).type.toBeAssignableTo<Layer.Layer<XAi, XAiError>>();
+
+    // @ts-expect-error!
+    const invalidConfig = new XAiConfigInput({ apiKey: "test-key" });
+    void invalidConfig;
   });
 
   it("preserves Effect AI language model adapter types", () => {

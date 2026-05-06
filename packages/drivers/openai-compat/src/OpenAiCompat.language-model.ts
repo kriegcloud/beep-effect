@@ -6,12 +6,14 @@
  */
 
 import { $OpenaiCompatId } from "@beep/identity";
-import { Effect, Layer, pipe, Stream, Tuple } from "effect";
+import { decodeJsonString, encodeJsonString } from "@beep/schema/Json";
+import { Effect, flow, Layer, pipe, Stream, Tuple } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as AiError from "effect/unstable/ai/AiError";
 import * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import * as AiModel from "effect/unstable/ai/Model";
@@ -37,8 +39,6 @@ import {
 } from "./OpenAiCompat.models.ts";
 
 const $I = $OpenaiCompatId.create("OpenAiCompat.language-model");
-const decodeUnknownJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
-const encodeUnknownJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unknown));
 
 /**
@@ -83,10 +83,10 @@ export class OpenAiCompatLanguageModelConfig extends S.Class<OpenAiCompatLanguag
  * @example
  * ```ts
  * import { Effect, Stream } from "effect"
- * import type { OpenAiCompatProvider } from "@beep/openai-compat"
+ * import { OpenAiCompatChatCompletionResponse, type OpenAiCompatProvider } from "@beep/openai-compat"
  *
  * const provider: OpenAiCompatProvider = {
- *   createChatCompletion: () => Effect.succeed({ choices: [] }),
+ *   createChatCompletion: () => Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
  *   streamChatCompletion: () => Stream.empty
  * }
  *
@@ -104,10 +104,10 @@ export type OpenAiCompatProvider = OpenAiCompatClientShape;
  * @example
  * ```ts
  * import { Effect, Stream } from "effect"
- * import type { OpenAiCompatLanguageModelOptions } from "@beep/openai-compat"
+ * import { OpenAiCompatChatCompletionResponse, type OpenAiCompatLanguageModelOptions } from "@beep/openai-compat"
  *
  * const provider: OpenAiCompatLanguageModelOptions["provider"] = {
- *   createChatCompletion: () => Effect.succeed({ choices: [] }),
+ *   createChatCompletion: () => Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
  *   streamChatCompletion: () => Stream.empty
  * }
  *
@@ -179,6 +179,12 @@ const makeInvalidOutput = (moduleName: string, method: string, description: stri
 const makeInvalidUserInput = (moduleName: string, method: string, description: string): AiError.AiError =>
   makeAiError(moduleName, method, new AiError.InvalidUserInputError({ description }));
 
+const makeUnsupportedSchema = (moduleName: string, method: string, description: string): AiError.AiError =>
+  makeAiError(moduleName, method, new AiError.UnsupportedSchemaError({ description }));
+
+const schemaConversionDescription = (context: string, error: unknown): string =>
+  P.isError(error) ? `${context} ${error.message}` : context;
+
 const mapSchemaError =
   (moduleName: string, method: string) =>
   (cause: S.SchemaError): AiError.AiError =>
@@ -190,43 +196,59 @@ const jsonObjectOrEmpty = (value: unknown): Readonly<Record<string, unknown>> =>
     O.getOrElse((): Readonly<Record<string, unknown>> => ({}))
   );
 
-const optionalString = (value: string | null | undefined): O.Option<string> =>
-  P.isString(value) && value.length > 0 ? O.some(value) : O.none();
+const nonEmptyStringOption: (value: string) => O.Option<string> = O.liftPredicate(Str.isNonEmpty);
 
-const toFinishReason = (reason: string | null | undefined): Response.FinishReason => {
-  if (reason === "stop") {
-    return "stop";
-  }
-  if (reason === "length") {
-    return "length";
-  }
-  if (reason === "tool_calls" || reason === "function_call") {
-    return "tool-calls";
-  }
-  if (reason === "content_filter") {
-    return "content-filter";
-  }
-  return reason === undefined || reason === null ? "unknown" : "other";
-};
+const toFinishReason: (reason: O.Option<string>) => Response.FinishReason = flow(
+  O.match({
+    onNone: () => "unknown",
+    onSome: (value) => {
+      if (value === "stop") {
+        return "stop";
+      }
+      if (value === "length") {
+        return "length";
+      }
+      if (value === "tool_calls" || value === "function_call") {
+        return "tool-calls";
+      }
+      if (value === "content_filter") {
+        return "content-filter";
+      }
+      return "other";
+    },
+  })
+);
 
-const usageFromCompat = (usage: OpenAiCompatChatCompletionResponse["usage"]): Response.Usage =>
-  new Response.Usage({
+const usageFromCompat = (usage: OpenAiCompatChatCompletionResponse["usage"]): Response.Usage => {
+  const promptTokens = pipe(
+    usage,
+    O.flatMap((value) => value.prompt_tokens),
+    O.getOrUndefined
+  );
+  const completionTokens = pipe(
+    usage,
+    O.flatMap((value) => value.completion_tokens),
+    O.getOrUndefined
+  );
+
+  return new Response.Usage({
     inputTokens: {
       cacheRead: undefined,
       cacheWrite: undefined,
-      total: usage?.prompt_tokens,
-      uncached: usage?.prompt_tokens,
+      total: promptTokens,
+      uncached: promptTokens,
     },
     outputTokens: {
       reasoning: undefined,
-      text: usage?.completion_tokens,
-      total: usage?.completion_tokens,
+      text: completionTokens,
+      total: completionTokens,
     },
   });
+};
 
 const makeFinishPart = (
   usage: OpenAiCompatChatCompletionResponse["usage"],
-  reason: string | null | undefined
+  reason: O.Option<string>
 ): Response.FinishPart =>
   Response.makePart("finish", {
     reason: toFinishReason(reason),
@@ -239,14 +261,14 @@ const encodeToolParams = (
   method: string,
   params: unknown
 ): Effect.Effect<string, AiError.AiError> =>
-  pipe(encodeUnknownJson(params), Effect.mapError(mapSchemaError(moduleName, method)));
+  pipe(encodeJsonString(params), Effect.mapError(mapSchemaError(moduleName, method)));
 
 const decodeToolParams = (
   moduleName: string,
   method: string,
   source: string
 ): Effect.Effect<unknown, AiError.AiError> =>
-  pipe(decodeUnknownJson(source), Effect.mapError(mapSchemaError(moduleName, method)));
+  pipe(decodeJsonString(source), Effect.mapError(mapSchemaError(moduleName, method)));
 
 const textContentPart = (part: Prompt.TextPart): Readonly<Record<string, unknown>> => ({
   text: part.text,
@@ -288,14 +310,14 @@ const userContentPart = (
   return fileContentPart(moduleName, part);
 };
 
-const assistantTextContent = (parts: ReadonlyArray<Prompt.AssistantMessagePart>): string | null => {
+const assistantTextContent = (parts: ReadonlyArray<Prompt.AssistantMessagePart>): O.Option<string> => {
   const text = pipe(
     parts,
     A.filter((part) => part.type === "text" || part.type === "reasoning"),
     A.map((part) => part.text),
     A.join("")
   );
-  return text.length > 0 ? text : null;
+  return nonEmptyStringOption(text);
 };
 
 const assistantToolCall = (
@@ -377,7 +399,7 @@ const prepareMessage = (
       assistantToolCalls(moduleName, toolNameMapper, message.content),
       Effect.map((toolCalls) => [
         new OpenAiCompatAssistantChatMessage({
-          content: assistantTextContent(message.content),
+          content: pipe(assistantTextContent(message.content), O.getOrNull),
           role: "assistant",
           ...R.getSomes({
             tool_calls: A.isReadonlyArrayNonEmpty(toolCalls) ? O.some(toolCalls) : O.none(),
@@ -412,16 +434,26 @@ const prepareTool = (
   tool: Tool.Any
 ): Effect.Effect<OpenAiCompatFunctionTool, AiError.AiError> =>
   Effect.try({
-    catch: () => makeInvalidOutput(moduleName, "prepareTools", "Unable to convert tool parameters to JSON Schema."),
+    catch: (error) =>
+      makeUnsupportedSchema(
+        moduleName,
+        "prepareTools",
+        schemaConversionDescription("Unable to convert tool parameters to JSON Schema.", error)
+      ),
     try: () => {
       const name = Tool.isProviderDefined(tool) ? tool.providerName : tool.name;
       const parameters = Tool.getJsonSchema(tool, { transformer: toCodecOpenAI });
       return new OpenAiCompatFunctionTool({
         function: {
-          description: Tool.getDescription(tool) ?? null,
+          description: pipe(Tool.getDescription(tool), O.fromUndefinedOr, O.getOrNull),
           name,
           parameters: jsonObjectOrEmpty(parameters),
-          strict: Tool.getStrictMode(tool) ?? config.strictJsonSchema ?? true,
+          strict: pipe(
+            Tool.getStrictMode(tool),
+            O.fromUndefinedOr,
+            O.orElse(() => O.fromUndefinedOr(config.strictJsonSchema)),
+            O.getOrElse(() => true)
+          ),
         },
         type: "function",
       });
@@ -457,11 +489,15 @@ const prepareToolChoice = (
       type: "function",
     });
   }
-  if (toolChoice.oneOf.length === 1 && toolChoice.mode === "required") {
-    return O.some({
-      function: { name: toolNameMapper.getProviderName(toolChoice.oneOf[0] ?? "") },
-      type: "function",
-    });
+  if (A.length(toolChoice.oneOf) === 1 && toolChoice.mode === "required") {
+    return pipe(
+      toolChoice.oneOf,
+      A.head,
+      O.map((toolName) => ({
+        function: { name: toolNameMapper.getProviderName(toolName) },
+        type: "function",
+      }))
+    );
   }
   return O.some(toolChoice.mode === "required" ? "required" : "auto");
 };
@@ -475,11 +511,11 @@ const prepareResponseFormat = (
     return Effect.succeed(O.none());
   }
   return Effect.try({
-    catch: () =>
-      makeInvalidOutput(
+    catch: (error) =>
+      makeUnsupportedSchema(
         moduleName,
         "prepareResponseFormat",
-        "Unable to convert structured response schema to JSON Schema."
+        schemaConversionDescription("Unable to convert structured response schema to JSON Schema.", error)
       ),
     try: () =>
       O.some(
@@ -489,7 +525,10 @@ const prepareResponseFormat = (
             schema: jsonObjectOrEmpty(
               Tool.getJsonSchemaFromSchema(responseFormat.schema, { transformer: toCodecOpenAI })
             ),
-            strict: config.strictJsonSchema ?? true,
+            strict: pipe(
+              O.fromUndefinedOr(config.strictJsonSchema),
+              O.getOrElse(() => true)
+            ),
           },
           type: "json_schema",
         })
@@ -553,19 +592,28 @@ const makeChoiceParts = (
   response: OpenAiCompatChatCompletionResponse
 ): Effect.Effect<Array<Response.PartEncoded>, AiError.AiError> =>
   Effect.gen(function* () {
-    const choice = pipe(response.choices, A.head, O.getOrUndefined);
-    if (P.isUndefined(choice)) {
-      return yield* makeInvalidOutput(moduleName, "makeResponse", "Provider response did not include a choice.");
-    }
+    const choice = yield* pipe(
+      response.choices,
+      A.head,
+      O.match({
+        onNone: () =>
+          Effect.fail(makeInvalidOutput(moduleName, "makeResponse", "Provider response did not include a choice.")),
+        onSome: Effect.succeed,
+      })
+    );
     const textParts = pipe(
-      optionalString(choice.message?.content),
+      choice.message,
+      O.flatMap((message) => message.content),
+      O.flatMap(nonEmptyStringOption),
       O.match({
         onNone: A.empty<Response.PartEncoded>,
         onSome: (text) => [Response.makePart("text", { text })],
       })
     );
     const toolParts = yield* pipe(
-      choice.message?.tool_calls ?? [],
+      choice.message,
+      O.flatMap((message) => message.tool_calls),
+      O.getOrElse(A.empty<OpenAiCompatToolCall>),
       Effect.forEach((toolCall) => makeToolCallPart(moduleName, toolNameMapper, toolCall))
     );
     return [...textParts, ...toolParts, makeFinishPart(response.usage, choice.finish_reason)];
@@ -576,7 +624,7 @@ const finishStreamParts = (state: StreamState): ReadonlyArray<Response.StreamPar
     ? []
     : [
         ...(state.textStarted && !state.textEnded ? [Response.makePart("text-end", { id: "0" })] : []),
-        makeFinishPart(undefined, undefined),
+        makeFinishPart(O.none(), O.none()),
       ];
 
 const makeStreamChoiceParts = (
@@ -591,7 +639,9 @@ const makeStreamChoiceParts = (
       Effect.forEach((choice) =>
         Effect.gen(function* () {
           const textParts = pipe(
-            optionalString(choice.delta?.content),
+            choice.delta,
+            O.flatMap((delta) => delta.content),
+            O.flatMap(nonEmptyStringOption),
             O.match({
               onNone: A.empty<Response.StreamPartEncoded>,
               onSome: (delta) => [
@@ -601,14 +651,16 @@ const makeStreamChoiceParts = (
             })
           );
           const toolParts = yield* pipe(
-            choice.delta?.tool_calls ?? [],
+            choice.delta,
+            O.flatMap((delta) => delta.tool_calls),
+            O.getOrElse(A.empty<OpenAiCompatToolCall>),
             Effect.forEach((toolCall) => makeToolCallPart(moduleName, toolNameMapper, toolCall))
           );
-          const hasFinish = !P.isNullish(choice.finish_reason);
+          const hasFinish = O.isSome(choice.finish_reason);
           const parts: ReadonlyArray<Response.StreamPartEncoded> = [
             ...textParts,
             ...toolParts,
-            ...(hasFinish && (state.textStarted || textParts.length > 0)
+            ...(hasFinish && (state.textStarted || A.isReadonlyArrayNonEmpty(textParts))
               ? [Response.makePart("text-end", { id: "0" })]
               : []),
             ...(hasFinish ? [makeFinishPart(chunk.usage, choice.finish_reason)] : []),
@@ -658,13 +710,13 @@ const makeStreamResponse = (
  * @example
  * ```ts
  * import { Effect, Stream } from "effect"
- * import { makeFromProvider } from "@beep/openai-compat"
+ * import { makeFromProvider, OpenAiCompatChatCompletionResponse } from "@beep/openai-compat"
  *
  * const model = makeFromProvider({
  *   model: "gpt-compatible",
  *   moduleName: "ExampleLanguageModel",
  *   provider: {
- *     createChatCompletion: () => Effect.succeed({ choices: [] }),
+ *     createChatCompletion: () => Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
  *     streamChatCompletion: () => Stream.empty
  *   }
  * })
@@ -706,13 +758,13 @@ export const makeFromProvider: (options: OpenAiCompatLanguageModelOptions) => Ef
  * @example
  * ```ts
  * import { Effect, Stream } from "effect"
- * import { layerFromProvider } from "@beep/openai-compat"
+ * import { layerFromProvider, OpenAiCompatChatCompletionResponse } from "@beep/openai-compat"
  *
  * const layer = layerFromProvider({
  *   model: "gpt-compatible",
  *   moduleName: "ExampleLanguageModel",
  *   provider: {
- *     createChatCompletion: () => Effect.succeed({ choices: [] }),
+ *     createChatCompletion: () => Effect.succeed(new OpenAiCompatChatCompletionResponse({ choices: [] })),
  *     streamChatCompletion: () => Stream.empty
  *   }
  * })

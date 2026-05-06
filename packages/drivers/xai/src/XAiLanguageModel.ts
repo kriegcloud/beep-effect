@@ -61,6 +61,19 @@ const makeAiError = (method: string, reason: AiError.AiErrorReason): AiError.AiE
 const errorDescription = (error: XAiError): string =>
   `xAI driver failed with ${error.reason}${error.methodName === undefined ? "" : ` during ${error.methodName}`}.`;
 
+const networkTransportError = (error: XAiError): AiError.NetworkError =>
+  new AiError.NetworkError({
+    description: errorDescription(error),
+    reason: "TransportError",
+    request: {
+      hash: undefined,
+      headers: {},
+      method: error.method ?? "POST",
+      url: error.path ?? "/",
+      urlParams: [],
+    },
+  });
+
 const mapSchemaError =
   (method: string) =>
   (cause: S.SchemaError): AiError.AiError =>
@@ -84,6 +97,9 @@ const mapXAiError =
     if (error.reason === "request encoding" || error.reason === "multipart encoding" || error.reason === "config") {
       return makeAiError(method, new AiError.InvalidRequestError({ description: errorDescription(error) }));
     }
+    if (error.reason === "transport" || error.reason === "websocket") {
+      return makeAiError(method, networkTransportError(error));
+    }
     return makeAiError(method, new AiError.UnknownError({ description: errorDescription(error) }));
   };
 
@@ -103,7 +119,13 @@ const createChatCompletion = (
               new AiError.InvalidOutputError({ description: "xAI chat completion did not return a JSON response." })
             )
           )
-    )
+    ),
+    Effect.withSpan("XAiLanguageModel.createChatCompletion", {
+      attributes: {
+        operation: "createChatCompletion",
+        provider: "xai",
+      },
+    })
   );
 
 const parseStreamEvent = (event: XAiServerSentEvent): Effect.Effect<OpenAiCompatChatCompletionChunk, AiError.AiError> =>
@@ -115,7 +137,13 @@ const streamChatCompletion = (
 ): Stream.Stream<OpenAiCompatChatCompletionChunk, AiError.AiError> =>
   xai.streamChatCompletion(new XAiRequestOptions({ body: request })).pipe(
     Stream.mapError(mapXAiError("streamChatCompletion")),
-    Stream.flatMap((event) => (event.done ? Stream.empty : Stream.fromEffect(parseStreamEvent(event))))
+    Stream.flatMap((event) => (event.done ? Stream.empty : Stream.fromEffect(parseStreamEvent(event)))),
+    Stream.withSpan("XAiLanguageModel.streamChatCompletion", {
+      attributes: {
+        operation: "streamChatCompletion",
+        provider: "xai",
+      },
+    })
   );
 
 /**

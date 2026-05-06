@@ -53,8 +53,10 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
       "./internal/*": null,
       "./package.json": "./package.json"
     }
@@ -63,6 +65,7 @@
     "@beep/identity": "workspace:^",
     "@beep/openai-compat": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
     "effect": "catalog:",
     "ws": "catalog:"
   },

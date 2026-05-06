@@ -234,10 +234,31 @@ export const BaseEntity = replaceClass(BaseEntityCore);
  *
  * @example
  * ```ts
- * import type { BaseEntity } from "@beep/shared-domain/entity/BaseEntity"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity"
+ * import type { BaseEntity as BaseEntityValue } from "@beep/shared-domain/entity/BaseEntity"
  *
- * declare const entity: BaseEntity
- * console.log(entity.rowVersion)
+ * const systemPrincipal = {
+ *   component: "Runtime",
+ *   kind: "System"
+ * }
+ *
+ * const program = Effect.gen(function* () {
+ *   const entity: BaseEntityValue = yield* S.decodeUnknownEffect(BaseEntity)({
+ *     createdAt: 1,
+ *     createdByPrincipal: systemPrincipal,
+ *     orgId: 1,
+ *     rowVersion: 1,
+ *     schemaVersion: "0.0.0",
+ *     source: "System",
+ *     updatedAt: 2,
+ *     updatedByPrincipal: systemPrincipal
+ *   })
+ *   return entity.rowVersion
+ * })
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @since 0.0.0

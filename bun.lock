@@ -252,6 +252,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -263,6 +264,7 @@
         "@beep/identity": "workspace:^",
         "@beep/openai-compat": "workspace:^",
         "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "effect": "catalog:",
         "ws": "catalog:",
       },

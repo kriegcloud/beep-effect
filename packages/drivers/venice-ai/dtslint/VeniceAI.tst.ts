@@ -18,7 +18,7 @@ import {
   VeniceAiChat,
   VeniceAiLanguageModel,
 } from "@beep/venice-ai";
-import type { Effect, Layer, Stream } from "effect";
+import { type Effect, type Layer, Redacted, type Stream } from "effect";
 import type * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import type * as AiModel from "effect/unstable/ai/Model";
 import type * as HttpClient from "effect/unstable/http/HttpClient";
@@ -56,12 +56,16 @@ describe("VeniceAI", () => {
 
   it("preserves layer and descriptor types", () => {
     expect(VENICE_AI_OPERATION_DESCRIPTORS).type.toBeAssignableTo<ReadonlyArray<VeniceAIOperationDescriptor>>();
-    expect(VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: "test-key" }))).type.toBeAssignableTo<
+    expect(VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: Redacted.make("test-key") }))).type.toBeAssignableTo<
       Layer.Layer<VeniceAI, never, HttpClient.HttpClient>
     >();
     expect(VeniceAI.layer).type.toBeAssignableTo<Layer.Layer<VeniceAI, VeniceAIError>>();
     expect(VeniceAiChat.makeLayer).type.toBeAssignableTo<Layer.Layer<VeniceAiChat, never, VeniceAI>>();
     expect(VeniceAiChat.layer).type.toBeAssignableTo<Layer.Layer<VeniceAiChat, VeniceAIError>>();
+
+    // @ts-expect-error!
+    const invalidConfig = new VeniceAIConfigInput({ apiKey: "test-key" });
+    void invalidConfig;
   });
 
   it("preserves Effect AI language model adapter types", () => {

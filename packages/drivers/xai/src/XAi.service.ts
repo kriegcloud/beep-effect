@@ -6,6 +6,7 @@
  */
 
 import { $XaiId } from "@beep/identity";
+import { decodeJsonString, encodeJsonString } from "@beep/schema/Json";
 import { thunkEmptyStr } from "@beep/utils";
 import { Config, Context, Effect, flow, Layer, Match, pipe, Queue, Redacted, Stream } from "effect";
 import * as A from "effect/Array";
@@ -203,10 +204,10 @@ type ResolvedXAiConfig = {
 const normalizeBaseUrl = Str.replace(/\/+$/, "");
 
 const resolveConfig = (config: XAiConfigInput): ResolvedXAiConfig => ({
-  apiKey: pipe(O.fromUndefinedOr(config.apiKey), O.map(Redacted.make)),
+  apiKey: O.fromUndefinedOr(config.apiKey),
   apiUrl: normalizeBaseUrl(config.apiUrl ?? XAI_API_URL),
   headers: config.headers ?? {},
-  managementApiKey: pipe(O.fromUndefinedOr(config.managementApiKey), O.map(Redacted.make)),
+  managementApiKey: O.fromUndefinedOr(config.managementApiKey),
   managementApiUrl: normalizeBaseUrl(config.managementApiUrl ?? XAI_MANAGEMENT_API_URL),
   websocketUrl: normalizeBaseUrl(config.websocketUrl ?? XAI_WEBSOCKET_URL),
 });
@@ -218,6 +219,28 @@ const isTextContentType = (contentType: string): boolean =>
 
 const responseContentType = (response: HttpClientResponse.HttpClientResponse): O.Option<string> =>
   O.fromNullishOr(response.headers["content-type"]);
+
+const diagnosticsFor = (event: string, error: XAiError): Readonly<Record<string, unknown>> => ({
+  event,
+  methodName: error.methodName,
+  path: error.path,
+  provider: "xai",
+  reason: error.reason,
+  ...R.getSomes({
+    cause: O.fromUndefinedOr(error.cause),
+  }),
+  ...R.getSomes({
+    status: O.fromUndefinedOr(error.status),
+  }),
+});
+
+const logDriverFailure =
+  (event: string) =>
+  (error: XAiError): Effect.Effect<void> =>
+    Effect.logDebug(diagnosticsFor(event, error));
+
+const logStatusFailure = (error: XAiError): Effect.Effect<void> =>
+  Effect.logWarning(diagnosticsFor("response-status", error));
 
 const defaultAcceptHeader = (descriptor: XAiEndpointDescriptor): string => {
   if (descriptor.response === "binary") {
@@ -364,9 +387,10 @@ const executeRaw = Effect.fn("XAi.executeRaw")(function* (
 ) {
   const request = yield* buildRequest(config, descriptor, options);
 
-  return yield* client
-    .execute(request)
-    .pipe(Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "transport", { cause })));
+  return yield* client.execute(request).pipe(
+    Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "transport", { cause })),
+    Effect.tapError(logDriverFailure("transport"))
+  );
 });
 
 const responseContext = (response: HttpClientResponse.HttpClientResponse) => ({
@@ -383,7 +407,9 @@ const ensureSuccessStatus = (
 ): Effect.Effect<HttpClientResponse.HttpClientResponse, XAiError> =>
   response.status >= 200 && response.status < 300
     ? Effect.succeed(response)
-    : Effect.fail(XAiError.fromDescriptor(descriptor, "response status", { status: response.status }));
+    : pipe(XAiError.fromDescriptor(descriptor, "response status", { status: response.status }), (error) =>
+        pipe(logStatusFailure(error), Effect.andThen(Effect.fail(error)))
+      );
 
 const contentMediaType: (contentType: string) => string = flow(
   Str.split(";"),
@@ -468,11 +494,24 @@ const executeOperation = (
   client: HttpClient.HttpClient,
   config: ResolvedXAiConfig,
   descriptor: XAiEndpointDescriptor
-): XAiEndpointMethod =>
-  Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = new XAiRequestOptions({})) {
+): XAiEndpointMethod => {
+  const operation = Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = new XAiRequestOptions({})) {
     const response = yield* executeRaw(client, config, descriptor, request);
     return yield* decodeResponse(descriptor, response);
   });
+
+  return (request) =>
+    operation(request).pipe(
+      Effect.tapError(logDriverFailure("operation")),
+      Effect.withSpan("XAi.operation", {
+        attributes: {
+          methodName: descriptor.methodName,
+          path: descriptor.path,
+          provider: "xai",
+        },
+      })
+    );
+};
 
 const addStreamFlag = (body: unknown): unknown => (P.isObject(body) ? { ...body, stream: true } : { stream: true });
 
@@ -483,9 +522,9 @@ const makeStreamingRequest = (request = new XAiRequestOptions({})): XAiRequestOp
     body: addStreamFlag(request.body),
   });
 
-const decodeSseJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
+const decodeSseJson = decodeJsonString;
 const decodeJsonOption = S.decodeUnknownOption(S.UnknownFromJsonString);
-const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
+const encodeJson = encodeJsonString;
 
 const dataLine = (line: string): O.Option<string> =>
   Str.startsWith("data:")(line) ? O.some(Str.trim(Str.slice(5)(line))) : O.none();
@@ -565,6 +604,15 @@ const streamOperation =
         const successfulResponse = yield* ensureSuccessStatus(descriptor, response);
         const sseResponse = yield* ensureSseContentType(descriptor, successfulResponse);
         return streamSseData(descriptor, sseResponse);
+      })
+    ).pipe(
+      Stream.tapError(logDriverFailure("stream")),
+      Stream.withSpan("XAi.stream", {
+        attributes: {
+          methodName: descriptor.methodName,
+          path: descriptor.path,
+          provider: "xai",
+        },
       })
     );
 
@@ -742,23 +790,36 @@ const sendSocketBytes = (
 const encodeSocketJson = (descriptor: XAiEndpointDescriptor, body: unknown): Effect.Effect<string, XAiError> =>
   encodeJson(body).pipe(Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause })));
 
-const websocketOperation = (config: ResolvedXAiConfig, descriptor: XAiEndpointDescriptor): XAiWebSocketMethod =>
-  Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = new XAiRequestOptions({})) {
+const websocketOperation = (config: ResolvedXAiConfig, descriptor: XAiEndpointDescriptor): XAiWebSocketMethod => {
+  const operation = Effect.fn(`XAi.${descriptor.methodName}`)(function* (request = new XAiRequestOptions({})) {
     yield* failUnexpectedRequestPayload(descriptor, request);
     const socket = yield* connectSocket(config, descriptor, request);
 
     return {
       close: (code?: number, reason?: string) => Effect.sync(() => socket.close(code, reason)),
       events: makeWebSocketEvents(socket),
-      sendBytes: (bytes) => sendSocketBytes(descriptor, socket, bytes),
-      sendJson: (body) =>
+      sendBytes: (bytes: Uint8Array) => sendSocketBytes(descriptor, socket, bytes),
+      sendJson: (body: unknown) =>
         pipe(
           encodeSocketJson(descriptor, body),
           Effect.flatMap((text) => sendSocketText(descriptor, socket, text))
         ),
-      sendText: (text) => sendSocketText(descriptor, socket, text),
+      sendText: (text: string) => sendSocketText(descriptor, socket, text),
     };
   });
+
+  return (request) =>
+    operation(request).pipe(
+      Effect.tapError(logDriverFailure("websocket")),
+      Effect.withSpan("XAi.websocket", {
+        attributes: {
+          methodName: descriptor.methodName,
+          path: descriptor.path,
+          provider: "xai",
+        },
+      })
+    );
+};
 
 const endpointByMethodName = Effect.fn("XAi.endpointByMethodName")(function* (methodName: XAiEndpointMethodName) {
   return yield* pipe(
@@ -908,9 +969,10 @@ export class XAi extends Context.Service<XAi, XAiShape>()($I`XAi`) {
    *
    * @example
    * ```ts
+   * import { Redacted } from "effect"
    * import { XAi, XAiConfigInput } from "@beep/xai"
    *
-   * const layer = XAi.makeLayer(new XAiConfigInput({ apiKey: "test-key" }))
+   * const layer = XAi.makeLayer(new XAiConfigInput({ apiKey: Redacted.make("test-key") }))
    * void layer
    * ```
    *

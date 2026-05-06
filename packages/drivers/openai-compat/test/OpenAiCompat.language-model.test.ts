@@ -9,6 +9,7 @@ import {
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AiError from "effect/unstable/ai/AiError";
 import * as Tool from "effect/unstable/ai/Tool";
@@ -21,19 +22,21 @@ import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 const makeResponse = (content: string, finishReason: string | null = "stop"): OpenAiCompatChatCompletionResponse => ({
   choices: [
     {
-      finish_reason: finishReason,
+      finish_reason: O.fromNullishOr(finishReason),
       index: 0,
-      message: {
-        content,
+      message: O.some({
+        content: O.some(content),
         role: "assistant",
-      },
+        tool_calls: O.none(),
+      }),
     },
   ],
-  usage: {
-    completion_tokens: 2,
-    prompt_tokens: 1,
-    total_tokens: 3,
-  },
+  usage: O.some({
+    completion_tokens: O.some(2),
+    prompt_tokens: O.some(1),
+    prompt_tokens_details: O.none(),
+    total_tokens: O.some(3),
+  }),
 });
 
 type TestRespond = (
@@ -94,11 +97,12 @@ describe("OpenAiCompat language model", () => {
             Effect.succeed({
               choices: [
                 {
-                  finish_reason: "tool_calls",
+                  finish_reason: O.some("tool_calls"),
                   index: 0,
-                  message: {
+                  message: O.some({
+                    content: O.none(),
                     role: "assistant",
-                    tool_calls: [
+                    tool_calls: O.some([
                       {
                         function: {
                           arguments: '{"city":"Austin"}',
@@ -107,10 +111,11 @@ describe("OpenAiCompat language model", () => {
                         id: "call_1",
                         type: "function",
                       },
-                    ],
-                  },
+                    ]),
+                  }),
                 },
               ],
+              usage: O.none(),
             }),
           streamChatCompletion: () => Stream.empty,
         },
@@ -138,11 +143,12 @@ describe("OpenAiCompat language model", () => {
       const chunk = (content: string, finishReason?: string | null): OpenAiCompatChatCompletionChunk => ({
         choices: [
           {
-            delta: { content, role: "assistant" },
-            finish_reason: finishReason,
+            delta: O.some({ content: O.some(content), role: "assistant", tool_calls: O.none() }),
+            finish_reason: O.fromNullishOr(finishReason),
             index: 0,
           },
         ],
+        usage: O.none(),
       });
       const languageModel = yield* makeFromProvider({
         model: "compat-model",
@@ -177,6 +183,60 @@ describe("OpenAiCompat language model", () => {
     })
   );
 
+  it.effect("maps tool schema conversion failures to UnsupportedSchemaError before provider calls", () =>
+    Effect.gen(function* () {
+      const languageModel = yield* makeFromProvider({
+        model: "compat-model",
+        moduleName: "OpenAiCompatLanguageModelTest",
+        provider: {
+          createChatCompletion: () => Effect.die("provider should not be called"),
+          streamChatCompletion: () => Stream.empty,
+        },
+      });
+      const UnsupportedTool = Tool.make("unsupported_schema", {
+        parameters: S.Unknown,
+        success: S.String,
+      });
+
+      const error = yield* pipe(
+        languageModel.generateText({
+          prompt: "use tool",
+          toolkit: Toolkit.make(UnsupportedTool),
+        }),
+        Effect.flip
+      );
+
+      expect(AiError.isAiError(error)).toBe(true);
+      expect(error.method).toBe("prepareTools");
+      expect(error.reason._tag).toBe("UnsupportedSchemaError");
+    })
+  );
+
+  it.effect("maps structured response schema conversion failures to UnsupportedSchemaError before provider calls", () =>
+    Effect.gen(function* () {
+      const languageModel = yield* makeFromProvider({
+        model: "compat-model",
+        moduleName: "OpenAiCompatLanguageModelTest",
+        provider: {
+          createChatCompletion: () => Effect.die("provider should not be called"),
+          streamChatCompletion: () => Stream.empty,
+        },
+      });
+
+      const error = yield* pipe(
+        languageModel.generateObject({
+          prompt: "return object",
+          schema: S.Unknown,
+        }),
+        Effect.flip
+      );
+
+      expect(AiError.isAiError(error)).toBe(true);
+      expect(error.method).toBe("prepareResponseFormat");
+      expect(error.reason._tag).toBe("UnsupportedSchemaError");
+    })
+  );
+
   it.effect("maps JSON body encoding failures to AiError", () =>
     Effect.gen(function* () {
       const request = new OpenAiCompatChatCompletionRequest({
@@ -198,6 +258,36 @@ describe("OpenAiCompat language model", () => {
       expect(AiError.isAiError(error)).toBe(true);
       expect(error.method).toBe("createChatCompletion");
       expect(error.reason._tag).toBe("InvalidRequestError");
+    })
+  );
+
+  it.effect("maps non-2xx client responses without exposing response bodies", () =>
+    Effect.gen(function* () {
+      const request = new OpenAiCompatChatCompletionRequest({
+        messages: [],
+        model: "compat-model",
+      });
+
+      const error = yield* pipe(
+        Effect.gen(function* () {
+          const client = yield* OpenAiCompatClient;
+          return yield* client.createChatCompletion(request).pipe(Effect.flip);
+        }),
+        Effect.provide(
+          makeOpenAiCompatClientLayer(() =>
+            Effect.succeed(
+              new Response('{"secret":"prompt text"}', {
+                status: 401,
+              })
+            )
+          )
+        )
+      );
+
+      expect(AiError.isAiError(error)).toBe(true);
+      expect(error.method).toBe("createChatCompletion");
+      expect(error.reason._tag).toBe("AuthenticationError");
+      expect(error.reason.message).not.toContain("prompt text");
     })
   );
 
