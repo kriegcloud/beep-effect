@@ -55,6 +55,8 @@ describe("Shared Next.js config preset", () => {
     expect(config.agentRules).toBe(false);
     expect(config.turbopack?.root).toBe("/repo");
     expect(config.typescript?.tsconfigPath).toBe("tsconfig.next.json");
+    expect(Object.getOwnPropertyNames(config.experimental ?? {})).not.toContain("pipe");
+    expect(Object.getOwnPropertyNames(config.typescript ?? {})).not.toContain("pipe");
   });
 
   it("adds secure headers without invoking app headers during construction", async () => {
@@ -120,5 +122,19 @@ describe("Shared Next.js config preset", () => {
 
     expect(config).toEqual({});
     expect(events).toEqual(["mdx", "pwa", "analyzer"]);
+  });
+
+  it("supports data-last composition for pipeline use", () => {
+    const config = composeNextConfig([
+      (current) => ({
+        ...current,
+        poweredByHeader: false,
+      }),
+    ])({ reactStrictMode: true });
+
+    expect(config).toEqual({
+      poweredByHeader: false,
+      reactStrictMode: true,
+    });
   });
 });

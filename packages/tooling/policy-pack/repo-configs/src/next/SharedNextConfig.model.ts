@@ -1,8 +1,8 @@
 /**
  * Shared repo-owned Next.js configuration preset.
  *
- * @since 0.0.0
  * @packageDocumentation
+ * @since 0.0.0
  */
 import { createRequire } from "node:module";
 import { $RepoConfigsId } from "@beep/identity";
@@ -12,6 +12,7 @@ import createMDX from "@next/mdx";
 import { pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -75,29 +76,27 @@ const AnalyzerLogLevel = LiteralKit(["info", "warn", "error", "silent"] as const
  * The app entrypoint passes environment values into this data contract. The
  * shared helper decodes only the keys it understands and strips everything
  * else, avoiding hidden ambient `process.env` reads inside repo-configs.
- *
  * @example
  * ```ts
  * import { BeepNextConfigEnv } from "@beep/repo-configs/next"
- *
  * const env = BeepNextConfigEnv.make({
  *   ANALYZE: "1",
  *   NEXT_DISABLE_PWA: "1"
  * })
  * void env
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
-export const BeepNextConfigEnv = S.Struct({
-  ANALYZE: optional(S.String, "Enables bundle analyzer output when set to 1."),
-  NEXT_DISABLE_PWA: optional(S.String, "Keeps PWA disabled unless set to 0."),
-}).pipe(
-  $I.annoteSchema("BeepNextConfigEnv", {
+export const BeepNextConfigEnv = class BeepNextConfigEnv extends S.Class<BeepNextConfigEnv>($I`BeepNextConfigEnv`)(
+  {
+    ANALYZE: optional(S.String, "Enables bundle analyzer output when set to 1."),
+    NEXT_DISABLE_PWA: optional(S.String, "Keeps PWA disabled unless set to 0."),
+  },
+  $I.annote("BeepNextConfigEnv", {
     description: "Environment snapshot understood by the shared Next.js config preset.",
   })
-);
+) {};
 
 /**
  * Environment snapshot understood by the shared Next.js config preset.
@@ -105,15 +104,27 @@ export const BeepNextConfigEnv = S.Struct({
  * @example
  * ```ts
  * import type { BeepNextConfigEnv } from "@beep/repo-configs/next"
- *
  * const env: BeepNextConfigEnv = { ANALYZE: "1" }
  * void env
  * ```
- *
  * @category models
  * @since 0.0.0
  */
 export type BeepNextConfigEnv = typeof BeepNextConfigEnv.Type;
+
+class BeepNextBundleAnalyzerConfigOptions extends S.Class<BeepNextBundleAnalyzerConfigOptions>(
+  $I`BeepNextBundleAnalyzerConfigOptions`
+)(
+  {
+    enabled: optional(S.Boolean, "Overrides the decoded ANALYZE env toggle."),
+    openAnalyzer: optional(S.Boolean, "Automatically open analyzer output in a browser."),
+    analyzerMode: optional(AnalyzerMode, "Bundle analyzer output mode."),
+    logLevel: optional(AnalyzerLogLevel, "Bundle analyzer logging level."),
+  },
+  $I.annote("BeepNextBundleAnalyzerConfigOptions", {
+    description: "Bundle analyzer object configuration for the shared Next.js preset.",
+  })
+) {}
 
 /**
  * Bundle analyzer feature configuration for the shared Next.js preset.
@@ -121,26 +132,16 @@ export type BeepNextConfigEnv = typeof BeepNextConfigEnv.Type;
  * @example
  * ```ts
  * import { BeepNextBundleAnalyzerConfig } from "@beep/repo-configs/next"
- *
  * const config = BeepNextBundleAnalyzerConfig.make({
  *   analyzerMode: "static",
  *   openAnalyzer: false
  * })
  * void config
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
-export const BeepNextBundleAnalyzerConfig = S.Union([
-  S.Literal(false),
-  S.Struct({
-    enabled: optional(S.Boolean, "Overrides the decoded ANALYZE env toggle."),
-    openAnalyzer: optional(S.Boolean, "Automatically open analyzer output in a browser."),
-    analyzerMode: optional(AnalyzerMode, "Bundle analyzer output mode."),
-    logLevel: optional(AnalyzerLogLevel, "Bundle analyzer logging level."),
-  }),
-]).pipe(
+export const BeepNextBundleAnalyzerConfig = S.Union([S.Literal(false), BeepNextBundleAnalyzerConfigOptions]).pipe(
   $I.annoteSchema("BeepNextBundleAnalyzerConfig", {
     description: "Bundle analyzer feature configuration for the shared Next.js preset.",
   })
@@ -152,15 +153,22 @@ export const BeepNextBundleAnalyzerConfig = S.Union([
  * @example
  * ```ts
  * import type { BeepNextBundleAnalyzerConfig } from "@beep/repo-configs/next"
- *
  * const config: BeepNextBundleAnalyzerConfig = { enabled: true }
  * void config
  * ```
- *
  * @category models
  * @since 0.0.0
  */
 export type BeepNextBundleAnalyzerConfig = typeof BeepNextBundleAnalyzerConfig.Type;
+
+class BeepNextMdxConfigOptions extends S.Class<BeepNextMdxConfigOptions>($I`BeepNextMdxConfigOptions`)(
+  {
+    extension: optional(S.RegExp, "Webpack rule condition for MDX file extensions."),
+  },
+  $I.annote("BeepNextMdxConfigOptions", {
+    description: "MDX object configuration for the shared Next.js preset.",
+  })
+) {}
 
 /**
  * MDX feature configuration for the shared Next.js preset.
@@ -168,22 +176,15 @@ export type BeepNextBundleAnalyzerConfig = typeof BeepNextBundleAnalyzerConfig.T
  * @example
  * ```ts
  * import { BeepNextMdxConfig } from "@beep/repo-configs/next"
- *
  * const config = BeepNextMdxConfig.make({
  *   extension: /\.(md|mdx)$/
  * })
  * void config
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
-export const BeepNextMdxConfig = S.Union([
-  S.Literal(false),
-  S.Struct({
-    extension: optional(S.RegExp, "Webpack rule condition for MDX file extensions."),
-  }),
-]).pipe(
+export const BeepNextMdxConfig = S.Union([S.Literal(false), BeepNextMdxConfigOptions]).pipe(
   $I.annoteSchema("BeepNextMdxConfig", {
     description: "MDX feature configuration for the shared Next.js preset.",
   })
@@ -195,15 +196,26 @@ export const BeepNextMdxConfig = S.Union([
  * @example
  * ```ts
  * import type { BeepNextMdxConfig } from "@beep/repo-configs/next"
- *
  * const config: BeepNextMdxConfig = {}
  * void config
  * ```
- *
  * @category models
  * @since 0.0.0
  */
 export type BeepNextMdxConfig = typeof BeepNextMdxConfig.Type;
+
+class BeepNextPwaConfigOptions extends S.Class<BeepNextPwaConfigOptions>($I`BeepNextPwaConfigOptions`)(
+  {
+    enabled: optional(S.Boolean, "Overrides the decoded NEXT_DISABLE_PWA env toggle."),
+    dest: optional(S.String, "Directory where next-pwa writes generated service worker assets."),
+    register: optional(S.Boolean, "Whether next-pwa should auto-register the generated service worker."),
+    skipWaiting: optional(S.Boolean, "Whether the generated service worker should skip the waiting phase."),
+    options: optional(UnknownRecord, "Additional next-pwa passthrough options."),
+  },
+  $I.annote("BeepNextPwaConfigOptions", {
+    description: "PWA object configuration for the shared Next.js preset.",
+  })
+) {}
 
 /**
  * PWA feature configuration for the shared Next.js preset.
@@ -211,31 +223,19 @@ export type BeepNextMdxConfig = typeof BeepNextMdxConfig.Type;
  * @remarks
  * `enabled` overrides the decoded env snapshot. When absent, PWA remains
  * disabled unless `NEXT_DISABLE_PWA` is set to `0`.
- *
  * @example
  * ```ts
  * import { BeepNextPwaConfig } from "@beep/repo-configs/next"
- *
  * const config = BeepNextPwaConfig.make({
  *   dest: "public",
  *   register: true
  * })
  * void config
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
-export const BeepNextPwaConfig = S.Union([
-  S.Literal(false),
-  S.Struct({
-    enabled: optional(S.Boolean, "Overrides the decoded NEXT_DISABLE_PWA env toggle."),
-    dest: optional(S.String, "Directory where next-pwa writes generated service worker assets."),
-    register: optional(S.Boolean, "Whether next-pwa should auto-register the generated service worker."),
-    skipWaiting: optional(S.Boolean, "Whether the generated service worker should skip the waiting phase."),
-    options: optional(UnknownRecord, "Additional next-pwa passthrough options."),
-  }),
-]).pipe(
+export const BeepNextPwaConfig = S.Union([S.Literal(false), BeepNextPwaConfigOptions]).pipe(
   $I.annoteSchema("BeepNextPwaConfig", {
     description: "PWA feature configuration for the shared Next.js preset.",
   })
@@ -247,11 +247,9 @@ export const BeepNextPwaConfig = S.Union([
  * @example
  * ```ts
  * import type { BeepNextPwaConfig } from "@beep/repo-configs/next"
- *
  * const config: BeepNextPwaConfig = { enabled: false }
  * void config
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -265,60 +263,40 @@ export type BeepNextPwaConfig = typeof BeepNextPwaConfig.Type;
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { BeepNextConfigOptions } from "@beep/repo-configs/next"
- *
  * const program = S.decodeUnknownEffect(BeepNextConfigOptions)({
  *   repoRoot: "/repo",
  *   allowedDevOrigins: ["codedank-web.localhost"]
  * })
  * void Effect.runPromise(program)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
-export const BeepNextConfigOptions = S.Struct({
-  repoRoot: S.String.annotateKey({
-    description: "Absolute repository root used for tracing and Turbopack roots.",
-  }),
-  allowedDevOrigins: AllowedDevOrigin.pipe(S.Array, S.mutable).annotateKey({
-    description: "App-local development origins allowed by the Next.js dev server.",
-  }),
-  env: optional(BeepNextConfigEnv, "Environment snapshot for shared feature toggles."),
-  additionalPageExtensions: optional(StringList, "Additional page extensions appended to the shared defaults."),
-  additionalTranspilePackages: optional(StringList, "Additional workspace packages transpiled by Next.js."),
-  additionalOptimizePackageImports: optional(
-    StringList,
-    "Additional packages added to experimental.optimizePackageImports."
-  ),
-  securityHeaders: optional(SecureHeadersConfig, "Shared secure-header configuration."),
-  mdx: optional(BeepNextMdxConfig, "MDX feature configuration."),
-  pwa: optional(BeepNextPwaConfig, "PWA feature configuration."),
-  bundleAnalyzer: optional(BeepNextBundleAnalyzerConfig, "Bundle analyzer feature configuration."),
-  next: optional(NextConfigModel, "Raw Next.js config overrides merged with the shared preset."),
-}).pipe(
-  $I.annoteSchema("BeepNextConfigOptions", {
+export class BeepNextConfigOptions extends S.Class<BeepNextConfigOptions>($I`BeepNextConfigOptions`)(
+  {
+    repoRoot: S.String.annotateKey({
+      description: "Absolute repository root used for tracing and Turbopack roots.",
+    }),
+    allowedDevOrigins: AllowedDevOrigin.pipe(S.Array, S.mutable).annotateKey({
+      description: "App-local development origins allowed by the Next.js dev server.",
+    }),
+    env: optional(BeepNextConfigEnv, "Environment snapshot for shared feature toggles."),
+    additionalPageExtensions: optional(StringList, "Additional page extensions appended to the shared defaults."),
+    additionalTranspilePackages: optional(StringList, "Additional workspace packages transpiled by Next.js."),
+    additionalOptimizePackageImports: optional(
+      StringList,
+      "Additional packages added to experimental.optimizePackageImports."
+    ),
+    securityHeaders: optional(SecureHeadersConfig, "Shared secure-header configuration."),
+    mdx: optional(BeepNextMdxConfig, "MDX feature configuration."),
+    pwa: optional(BeepNextPwaConfig, "PWA feature configuration."),
+    bundleAnalyzer: optional(BeepNextBundleAnalyzerConfig, "Bundle analyzer feature configuration."),
+    next: optional(NextConfigModel, "Raw Next.js config overrides merged with the shared preset."),
+  },
+  $I.annote("BeepNextConfigOptions", {
     description: "Input options for the shared repo-owned Next.js config preset.",
   })
-);
-
-/**
- * Decoded options for the shared repo-owned Next.js config preset.
- *
- * @example
- * ```ts
- * import type { BeepNextConfigOptions } from "@beep/repo-configs/next"
- *
- * const options: BeepNextConfigOptions = {
- *   repoRoot: "/repo",
- *   allowedDevOrigins: []
- * }
- * void options
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export type BeepNextConfigOptions = typeof BeepNextConfigOptions.Type;
+) {}
 
 /**
  * User-authored input options accepted by {@link defineBeepNextConfig}.
@@ -326,11 +304,9 @@ export type BeepNextConfigOptions = typeof BeepNextConfigOptions.Type;
  * @remarks
  * `env` intentionally accepts unknown objects such as `process.env`; the schema
  * decoder keeps only the two feature-toggle keys the shared preset owns.
- *
  * @example
  * ```ts
  * import type { BeepNextConfigOptionsInput } from "@beep/repo-configs/next"
- *
  * const options: BeepNextConfigOptionsInput = {
  *   repoRoot: "/repo",
  *   allowedDevOrigins: ["codedank-web.localhost"],
@@ -338,7 +314,6 @@ export type BeepNextConfigOptions = typeof BeepNextConfigOptions.Type;
  * }
  * void options
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -352,11 +327,9 @@ export type BeepNextConfigOptionsInput = Omit<typeof BeepNextConfigOptions.Encod
  * @example
  * ```ts
  * import type { NextConfigPlugin } from "@beep/repo-configs/next"
- *
  * const plugin: NextConfigPlugin = (config) => config
  * void plugin
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -526,11 +499,9 @@ const makeBaseConfig = (options: BeepNextConfigOptions): NextConfigFromNext => {
  * ```ts
  * import { Effect } from "effect"
  * import { decodeBeepNextConfigEnv } from "@beep/repo-configs/next"
- *
  * const program = decodeBeepNextConfigEnv({ ANALYZE: "1" })
  * void Effect.runPromise(program)
  * ```
- *
  * @category decoding
  * @since 0.0.0
  */
@@ -539,14 +510,14 @@ export const decodeBeepNextConfigEnv = S.decodeUnknownEffect(BeepNextConfigEnv);
 /**
  * Synchronously decode an environment snapshot for the shared Next.js preset.
  *
+ * @param env - Unknown environment snapshot containing shared preset toggles.
+ * @returns The decoded environment toggle object.
  * @example
  * ```ts
  * import { defineBeepNextConfigEnv } from "@beep/repo-configs/next"
- *
  * const env = defineBeepNextConfigEnv({ NEXT_DISABLE_PWA: "0" })
  * void env
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -559,39 +530,40 @@ export const defineBeepNextConfigEnv = (env: unknown): BeepNextConfigEnv =>
  * @example
  * ```ts
  * import { composeNextConfig } from "@beep/repo-configs/next"
- *
  * const config = composeNextConfig({ reactStrictMode: true }, [
  *   (current) => ({ ...current, poweredByHeader: false })
  * ])
  * void config
  * ```
- *
  * @category combinators
  * @since 0.0.0
  */
-export const composeNextConfig = (
-  config: NextConfigFromNext,
-  plugins: ReadonlyArray<NextConfigPlugin>
-): NextConfigFromNext =>
-  pipe(
-    plugins,
-    A.reduce(config, (current, plugin) => plugin(current))
-  );
+export const composeNextConfig: {
+  (config: NextConfigFromNext, plugins: ReadonlyArray<NextConfigPlugin>): NextConfigFromNext;
+  (plugins: ReadonlyArray<NextConfigPlugin>): (config: NextConfigFromNext) => NextConfigFromNext;
+} = dual(
+  2,
+  (config: NextConfigFromNext, plugins: ReadonlyArray<NextConfigPlugin>): NextConfigFromNext =>
+    pipe(
+      plugins,
+      A.reduce(config, (current, plugin) => plugin(current))
+    )
+);
 
 /**
  * Build the shared repo-owned Next.js base config before plugin wrapping.
  *
+ * @param options - User-authored shared Next.js preset options.
+ * @returns The shared base Next.js configuration before plugin wrapping.
  * @example
  * ```ts
  * import { makeBeepNextBaseConfig } from "@beep/repo-configs/next"
- *
  * const config = makeBeepNextBaseConfig({
  *   repoRoot: "/repo",
  *   allowedDevOrigins: ["codedank-web.localhost"]
  * })
  * void config
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -601,14 +573,14 @@ export const makeBeepNextBaseConfig = (options: BeepNextConfigOptionsInput): Nex
 /**
  * Define a shared repo-owned Next.js config with the standard plugin stack.
  *
+ * @param options - User-authored shared Next.js preset options.
+ * @returns The fully composed shared Next.js configuration.
  * @remarks
  * The canonical composition order is MDX, then PWA, then bundle analyzer.
  * Secure headers are added to the base config before those plugin wrappers.
- *
  * @example
  * ```ts
  * import { defineBeepNextConfig } from "@beep/repo-configs/next"
- *
  * const config = defineBeepNextConfig({
  *   repoRoot: "/repo",
  *   allowedDevOrigins: ["codedank-web.localhost"],
@@ -616,7 +588,6 @@ export const makeBeepNextBaseConfig = (options: BeepNextConfigOptionsInput): Nex
  * })
  * void config
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */

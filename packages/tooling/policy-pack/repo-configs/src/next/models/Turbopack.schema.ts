@@ -1,8 +1,8 @@
 /**
  * Schemas for Next.js Turbopack configuration.
  *
- * @since 0.0.0
  * @packageDocumentation
+ * @since 0.0.0
  */
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
@@ -16,11 +16,9 @@ const $I = $RepoConfigsId.create("next/models/Turbopack.schema");
  * @example
  * ```ts
  * import { JSONValue } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const value = JSONValue.make({ enabled: true })
  * void value
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -31,11 +29,9 @@ export type JSONValue = string | number | boolean | Array<JSONValue> | { [key: s
  * @example
  * ```ts
  * import { JSONValue } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const value = JSONValue.make({ enabled: true })
  * void value
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -53,11 +49,9 @@ export const JSONValue: S.Codec<JSONValue, JSONValue> = S.suspend(() =>
  * @example
  * ```ts
  * import { TurbopackLoaderOptions } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const options = TurbopackLoaderOptions.make({ flag: true })
  * void options
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -73,15 +67,23 @@ export const TurbopackLoaderOptions = S.Record(S.String, JSONValue).pipe(
  * @example
  * ```ts
  * import type { TurbopackLoaderOptions } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const options: TurbopackLoaderOptions = { flag: true }
  * void options
  * ```
- *
  * @category models
  * @since 0.0.0
  */
 export type TurbopackLoaderOptions = typeof TurbopackLoaderOptions.Type;
+
+class TurbopackLoaderItemConfig extends S.Class<TurbopackLoaderItemConfig>($I`TurbopackLoaderItemConfig`)(
+  {
+    loader: S.String,
+    options: S.optionalKey(TurbopackLoaderOptions),
+  },
+  $I.annote("TurbopackLoaderItemConfig", {
+    description: "Object-form loader entry accepted by a Turbopack rule.",
+  })
+) {}
 
 /**
  * Loader entry accepted by a Turbopack rule.
@@ -89,21 +91,13 @@ export type TurbopackLoaderOptions = typeof TurbopackLoaderOptions.Type;
  * @example
  * ```ts
  * import { TurbopackLoaderItem } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const loader = TurbopackLoaderItem.make({ loader: "sass-loader" })
  * void loader
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
-export const TurbopackLoaderItem = S.Union([
-  S.String,
-  S.Struct({
-    loader: S.String,
-    options: S.optionalKey(TurbopackLoaderOptions),
-  }),
-]).pipe(
+export const TurbopackLoaderItem = S.Union([S.String, TurbopackLoaderItemConfig]).pipe(
   $I.annoteSchema("TurbopackLoaderItem", {
     description: "Loader entry accepted by a Turbopack rule.",
   })
@@ -115,11 +109,9 @@ export const TurbopackLoaderItem = S.Union([
  * @example
  * ```ts
  * import type { TurbopackLoaderItem } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const loader: TurbopackLoaderItem = "sass-loader"
  * void loader
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -131,11 +123,9 @@ export type TurbopackLoaderItem = typeof TurbopackLoaderItem.Type;
  * @example
  * ```ts
  * import { TurbopackLoaderBuiltinCondition } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const condition = TurbopackLoaderBuiltinCondition.Enum.browser
  * void condition
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -158,11 +148,9 @@ export const TurbopackLoaderBuiltinCondition = LiteralKit([
  * @example
  * ```ts
  * import type { TurbopackLoaderBuiltinCondition } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const condition = "browser" satisfies TurbopackLoaderBuiltinCondition
  * void condition
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -174,11 +162,9 @@ export type TurbopackLoaderBuiltinCondition = typeof TurbopackLoaderBuiltinCondi
  * @example
  * ```ts
  * import { TurbopackRuleCondition } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const condition = TurbopackRuleCondition.make({ all: ["browser"] })
  * void condition
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -193,32 +179,65 @@ export type TurbopackRuleCondition =
       readonly query?: string | RegExp;
       readonly contentType?: string | RegExp;
     };
+
+class TurbopackRuleAllCondition extends S.Class<TurbopackRuleAllCondition>($I`TurbopackRuleAllCondition`)(
+  {
+    all: S.suspend(() => TurbopackRuleCondition).pipe(S.Array, S.mutable),
+  },
+  $I.annote("TurbopackRuleAllCondition", {
+    description: "Turbopack rule condition requiring all nested conditions to match.",
+  })
+) {}
+
+class TurbopackRuleAnyCondition extends S.Class<TurbopackRuleAnyCondition>($I`TurbopackRuleAnyCondition`)(
+  {
+    any: S.suspend(() => TurbopackRuleCondition).pipe(S.Array, S.mutable),
+  },
+  $I.annote("TurbopackRuleAnyCondition", {
+    description: "Turbopack rule condition requiring any nested condition to match.",
+  })
+) {}
+
+class TurbopackRuleNotCondition extends S.Class<TurbopackRuleNotCondition>($I`TurbopackRuleNotCondition`)(
+  {
+    not: S.suspend(() => TurbopackRuleCondition),
+  },
+  $I.annote("TurbopackRuleNotCondition", {
+    description: "Turbopack rule condition negating a nested condition.",
+  })
+) {}
+
+class TurbopackRuleMatcherCondition extends S.Class<TurbopackRuleMatcherCondition>($I`TurbopackRuleMatcherCondition`)(
+  {
+    path: S.optionalKey(S.Union([S.String, S.RegExp])),
+    content: S.optionalKey(S.RegExp),
+    query: S.optionalKey(S.Union([S.String, S.RegExp])),
+    contentType: S.optionalKey(S.Union([S.String, S.RegExp])),
+  },
+  $I.annote("TurbopackRuleMatcherCondition", {
+    description: "Turbopack rule condition matching file path, content, query, or content type.",
+  })
+) {}
+
 /**
  * Recursive condition schema used by Turbopack rules.
  *
  * @example
  * ```ts
  * import { TurbopackRuleCondition } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const condition = TurbopackRuleCondition.make({ all: ["browser"] })
  * void condition
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
 export const TurbopackRuleCondition: S.Codec<TurbopackRuleCondition, TurbopackRuleCondition> = S.suspend(() =>
   S.Union([
-    S.Struct({ all: TurbopackRuleCondition.pipe(S.Array, S.mutable) }),
-    S.Struct({ any: TurbopackRuleCondition.pipe(S.Array, S.mutable) }),
-    S.Struct({ not: TurbopackRuleCondition }),
+    TurbopackRuleAllCondition,
+    TurbopackRuleAnyCondition,
+    TurbopackRuleNotCondition,
     TurbopackLoaderBuiltinCondition,
-    S.Struct({
-      path: S.optionalKey(S.Union([S.String, S.RegExp])),
-      content: S.optionalKey(S.RegExp),
-      query: S.optionalKey(S.Union([S.String, S.RegExp])),
-      contentType: S.optionalKey(S.Union([S.String, S.RegExp])),
-    }),
+    TurbopackRuleMatcherCondition,
   ])
 ).pipe(
   $I.annoteSchema("TurbopackRuleCondition", {
@@ -232,11 +251,9 @@ export const TurbopackRuleCondition: S.Codec<TurbopackRuleCondition, TurbopackRu
  * @example
  * ```ts
  * import { TurbopackModuleType } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const type = TurbopackModuleType.Enum.ecmascript
  * void type
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -264,11 +281,9 @@ export const TurbopackModuleType = LiteralKit([
  * @example
  * ```ts
  * import type { TurbopackModuleType } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const type = "text" satisfies TurbopackModuleType
  * void type
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -280,46 +295,29 @@ export type TurbopackModuleType = typeof TurbopackModuleType.Type;
  * @example
  * ```ts
  * import { TurbopackRuleConfigItem } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const rule = TurbopackRuleConfigItem.make({ type: "text" })
  * void rule
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
-export const TurbopackRuleConfigItem = S.Struct({
-  loaders: S.optionalKey(
-    TurbopackLoaderItem.pipe(S.Array, S.mutable, S.annotateKey({ description: "Loaders to apply." }))
-  ),
-  as: S.optionalKey(S.String.annotateKey({ description: "Rename the file extension for loader output." })),
-  condition: S.optionalKey(
-    TurbopackRuleCondition.annotateKey({ description: "Condition for when this rule applies." })
-  ),
-  type: S.optionalKey(
-    TurbopackModuleType.annotateKey({ description: "Module type to use for matched files without a custom loader." })
-  ),
-}).pipe(
-  $I.annoteSchema("TurbopackRuleConfigItem", {
+export class TurbopackRuleConfigItem extends S.Class<TurbopackRuleConfigItem>($I`TurbopackRuleConfigItem`)(
+  {
+    loaders: S.optionalKey(
+      TurbopackLoaderItem.pipe(S.Array, S.mutable, S.annotateKey({ description: "Loaders to apply." }))
+    ),
+    as: S.optionalKey(S.String.annotateKey({ description: "Rename the file extension for loader output." })),
+    condition: S.optionalKey(
+      TurbopackRuleCondition.annotateKey({ description: "Condition for when this rule applies." })
+    ),
+    type: S.optionalKey(
+      TurbopackModuleType.annotateKey({ description: "Module type to use for matched files without a custom loader." })
+    ),
+  },
+  $I.annote("TurbopackRuleConfigItem", {
     description: "Object-form Turbopack rule configuration.",
   })
-);
-
-/**
- * Object-form Turbopack rule configuration.
- *
- * @example
- * ```ts
- * import type { TurbopackRuleConfigItem } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
- * const rule: TurbopackRuleConfigItem = { type: "text" }
- * void rule
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export type TurbopackRuleConfigItem = typeof TurbopackRuleConfigItem.Type;
+) {}
 
 /**
  * Turbopack rule configuration collection.
@@ -327,11 +325,9 @@ export type TurbopackRuleConfigItem = typeof TurbopackRuleConfigItem.Type;
  * @example
  * ```ts
  * import { TurbopackRuleConfigCollection } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const collection = TurbopackRuleConfigCollection.make([{ loader: "sass-loader" }])
  * void collection
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -350,15 +346,24 @@ export const TurbopackRuleConfigCollection = S.Union([
  * @example
  * ```ts
  * import type { TurbopackRuleConfigCollection } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const collection: TurbopackRuleConfigCollection = ["sass-loader"]
  * void collection
  * ```
- *
  * @category models
  * @since 0.0.0
  */
 export type TurbopackRuleConfigCollection = typeof TurbopackRuleConfigCollection.Type;
+
+class TurbopackIgnoredIssue extends S.Class<TurbopackIgnoredIssue>($I`TurbopackIgnoredIssue`)(
+  {
+    path: S.Union([S.String, S.RegExp]),
+    title: S.optionalKey(S.Union([S.String, S.RegExp])),
+    description: S.optionalKey(S.Union([S.String, S.RegExp])),
+  },
+  $I.annote("TurbopackIgnoredIssue", {
+    description: "Issue filter rule ignored by Turbopack.",
+  })
+) {}
 
 /**
  * Options for Turbopack in `next.config.js`.
@@ -366,75 +371,58 @@ export type TurbopackRuleConfigCollection = typeof TurbopackRuleConfigCollection
  * @example
  * ```ts
  * import { TurbopackOptions } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
  * const options = TurbopackOptions.make({ root: process.cwd() })
  * void options
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
-export const TurbopackOptions = S.Struct({
-  resolveAlias: S.optionalKey(
-    S.Record(
-      S.String,
-      S.Union([
+export class TurbopackOptions extends S.Class<TurbopackOptions>($I`TurbopackOptions`)(
+  {
+    resolveAlias: S.optionalKey(
+      S.Record(
         S.String,
-        S.String.pipe(S.Array, S.mutable),
-        S.Record(S.String, S.Union([S.String, S.String.pipe(S.Array, S.mutable)])),
-      ])
-    ).annotateKey({
-      description: "Mapping of aliased imports to modules loaded in their place.",
-      documentation: "https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#resolving-aliases",
-    })
-  ),
-  resolveExtensions: S.optionalKey(
-    S.String.pipe(
-      S.Array,
-      S.mutable,
-      S.annotateKey({
-        description: "Extensions to resolve when importing files.",
-        documentation:
-          "https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#resolving-custom-extensions",
+        S.Union([
+          S.String,
+          S.String.pipe(S.Array, S.mutable),
+          S.Record(S.String, S.Union([S.String, S.String.pipe(S.Array, S.mutable)])),
+        ])
+      ).annotateKey({
+        description: "Mapping of aliased imports to modules loaded in their place.",
+        documentation: "https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#resolving-aliases",
       })
-    )
-  ),
-  rules: S.optionalKey(
-    S.Record(S.String, TurbopackRuleConfigCollection).annotateKey({
-      description: "Webpack loaders to apply when running with Turbopack.",
-      documentation:
-        "https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#configuring-webpack-loaders",
-    })
-  ),
-  root: S.optionalKey(S.String.annotateKey({ description: "Repo root available for Turbopack resolution." })),
-  debugIds: S.optionalKey(
-    S.Boolean.annotateKey({ description: "Enables generation of debug IDs in JavaScript bundles and source maps." })
-  ),
-  ignoreIssue: S.optionalKey(
-    S.Struct({
-      path: S.Union([S.String, S.RegExp]),
-      title: S.optionalKey(S.Union([S.String, S.RegExp])),
-      description: S.optionalKey(S.Union([S.String, S.RegExp])),
-    }).pipe(S.Array, S.mutable, S.annotateKey({ description: "Issue filter rules ignored by Turbopack." }))
-  ),
-}).pipe(
-  $I.annoteSchema("TurbopackOptions", {
+    ),
+    resolveExtensions: S.optionalKey(
+      S.String.pipe(
+        S.Array,
+        S.mutable,
+        S.annotateKey({
+          description: "Extensions to resolve when importing files.",
+          documentation:
+            "https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#resolving-custom-extensions",
+        })
+      )
+    ),
+    rules: S.optionalKey(
+      S.Record(S.String, TurbopackRuleConfigCollection).annotateKey({
+        description: "Webpack loaders to apply when running with Turbopack.",
+        documentation:
+          "https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#configuring-webpack-loaders",
+      })
+    ),
+    root: S.optionalKey(S.String.annotateKey({ description: "Repo root available for Turbopack resolution." })),
+    debugIds: S.optionalKey(
+      S.Boolean.annotateKey({ description: "Enables generation of debug IDs in JavaScript bundles and source maps." })
+    ),
+    ignoreIssue: S.optionalKey(
+      TurbopackIgnoredIssue.pipe(
+        S.Array,
+        S.mutable,
+        S.annotateKey({ description: "Issue filter rules ignored by Turbopack." })
+      )
+    ),
+  },
+  $I.annote("TurbopackOptions", {
     description: "Options for Turbopack in next.config.js.",
   })
-);
-
-/**
- * Options for Turbopack in `next.config.js`.
- *
- * @example
- * ```ts
- * import type { TurbopackOptions } from "@beep/repo-configs/next/models/Turbopack.schema"
- *
- * const options: TurbopackOptions = { root: process.cwd() }
- * void options
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export type TurbopackOptions = typeof TurbopackOptions.Type;
+) {}

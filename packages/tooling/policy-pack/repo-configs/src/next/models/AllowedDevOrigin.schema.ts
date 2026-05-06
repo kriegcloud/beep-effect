@@ -1,8 +1,8 @@
 /**
  * A module containing the AllowedDevOrigin schema for Next.js configuration.
  *
- * @since 0.0.0
  * @packageDocumentation
+ * @since 0.0.0
  */
 import { $RepoConfigsId } from "@beep/identity";
 import * as S from "effect/Schema";
@@ -20,11 +20,9 @@ const allowedDevOriginPattern =
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { AllowedDevOrigin } from "@beep/repo-configs/next/models/AllowedDevOrigin.schema"
- *
  * const program = S.decodeUnknownEffect(AllowedDevOrigin)("*.local-origin.dev")
  * void Effect.runPromise(program)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -50,11 +48,9 @@ export const AllowedDevOrigin = S.Trim.check(
  * @example
  * ```ts
  * import type { AllowedDevOrigin } from "@beep/repo-configs/next/models/AllowedDevOrigin.schema"
- *
  * const origin = "local-origin.dev" as AllowedDevOrigin
  * void origin
  * ```
- *
  * @category models
  * @since 0.0.0
  */

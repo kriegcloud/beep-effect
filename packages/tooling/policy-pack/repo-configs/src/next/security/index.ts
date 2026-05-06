@@ -1,8 +1,8 @@
 /**
  * Secure header helpers for shared Next.js configuration.
  *
- * @since 0.0.0
  * @packageDocumentation
+ * @since 0.0.0
  */
 import { $RepoConfigsId } from "@beep/identity";
 import { pipe } from "effect";
@@ -15,21 +15,6 @@ import type { NextConfig } from "next";
 
 const $I = $RepoConfigsId.create("next/security/index");
 
-const HeaderList = S.Struct({
-  key: S.String.annotateKey({
-    description: "HTTP response header name.",
-  }),
-  value: S.String.annotateKey({
-    description: "HTTP response header value.",
-  }),
-}).pipe(
-  S.Array,
-  S.mutable,
-  $I.annoteSchema("SecureHeaderList", {
-    description: "List of secure HTTP response headers.",
-  })
-);
-
 const defaultHeaderSource = "/(.*)";
 const isFalse = (value: unknown): value is false => Eq.equals(false)(value);
 
@@ -39,25 +24,28 @@ const isFalse = (value: unknown): value is false => Eq.equals(false)(value);
  * @example
  * ```ts
  * import { SecureHeader } from "@beep/repo-configs/next/security"
- *
  * const header = SecureHeader.make({
  *   key: "X-Content-Type-Options",
  *   value: "nosniff"
  * })
  * void header
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
-export const SecureHeader = S.Struct({
-  key: S.String,
-  value: S.String,
-}).pipe(
-  $I.annoteSchema("SecureHeader", {
+export const SecureHeader = class SecureHeader extends S.Class<SecureHeader>($I`SecureHeader`)(
+  {
+    key: S.String.annotateKey({
+      description: "HTTP response header name.",
+    }),
+    value: S.String.annotateKey({
+      description: "HTTP response header value.",
+    }),
+  },
+  $I.annote("SecureHeader", {
     description: "A secure HTTP response header emitted through Next.js headers().",
   })
-);
+) {};
 
 /**
  * A secure HTTP response header emitted through Next.js `headers()`.
@@ -65,43 +53,27 @@ export const SecureHeader = S.Struct({
  * @example
  * ```ts
  * import type { SecureHeader } from "@beep/repo-configs/next/security"
- *
  * const header: SecureHeader = {
  *   key: "X-Frame-Options",
  *   value: "DENY"
  * }
  * void header
  * ```
- *
  * @category models
  * @since 0.0.0
  */
 export type SecureHeader = typeof SecureHeader.Type;
 
-/**
- * Shared secure-header configuration for the repo Next.js preset.
- *
- * @remarks
- * `false` disables shared secure headers. An object with `headers` replaces
- * the repo default set; an object with `additionalHeaders` merges additively
- * with app values winning by header key.
- *
- * @example
- * ```ts
- * import { SecureHeadersConfig } from "@beep/repo-configs/next/security"
- *
- * const config = SecureHeadersConfig.make({
- *   additionalHeaders: [{ key: "X-Beep", value: "1" }]
- * })
- * void config
- * ```
- *
- * @category schemas
- * @since 0.0.0
- */
-export const SecureHeadersConfig = S.Union([
-  S.Literal(false),
-  S.Struct({
+const HeaderList = SecureHeader.pipe(
+  S.Array,
+  S.mutable,
+  $I.annoteSchema("SecureHeaderList", {
+    description: "List of secure HTTP response headers.",
+  })
+);
+
+class SecureHeadersConfigValue extends S.Class<SecureHeadersConfigValue>($I`SecureHeadersConfigValue`)(
+  {
     source: S.optionalKey(S.String).annotateKey({
       description: "Next.js route source receiving the secure headers.",
     }),
@@ -111,8 +83,31 @@ export const SecureHeadersConfig = S.Union([
     additionalHeaders: S.optionalKey(HeaderList).annotateKey({
       description: "Additional secure headers merged with the repo default list.",
     }),
-  }),
-]).pipe(
+  },
+  $I.annote("SecureHeadersConfigValue", {
+    description: "Object form of shared secure-header configuration for the repo Next.js preset.",
+  })
+) {}
+
+/**
+ * Shared secure-header configuration for the repo Next.js preset.
+ *
+ * @remarks
+ * `false` disables shared secure headers. An object with `headers` replaces
+ * the repo default set; an object with `additionalHeaders` merges additively
+ * with app values winning by header key.
+ * @example
+ * ```ts
+ * import { SecureHeadersConfig } from "@beep/repo-configs/next/security"
+ * const config = SecureHeadersConfig.make({
+ *   additionalHeaders: [{ key: "X-Beep", value: "1" }]
+ * })
+ * void config
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SecureHeadersConfig = S.Union([S.Literal(false), SecureHeadersConfigValue]).pipe(
   $I.annoteSchema("SecureHeadersConfig", {
     description: "Shared secure-header configuration for the repo Next.js preset.",
   })
@@ -124,13 +119,11 @@ export const SecureHeadersConfig = S.Union([
  * @example
  * ```ts
  * import type { SecureHeadersConfig } from "@beep/repo-configs/next/security"
- *
  * const config: SecureHeadersConfig = {
  *   source: "/(.*)"
  * }
  * void config
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -142,11 +135,9 @@ export type SecureHeadersConfig = typeof SecureHeadersConfig.Type;
  * @example
  * ```ts
  * import { DEFAULT_BEEP_SECURE_HEADERS } from "@beep/repo-configs/next/security"
- *
  * const headers = DEFAULT_BEEP_SECURE_HEADERS
  * void headers
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */
@@ -199,16 +190,16 @@ const headerSource = (config: SecureHeadersConfig | undefined): string =>
 /**
  * Build the secure header list for the shared Next.js preset.
  *
+ * @param config - Secure header override or extension settings.
+ * @returns The secure HTTP header list to attach to the Next.js config.
  * @example
  * ```ts
  * import { makeSecureHeaders } from "@beep/repo-configs/next/security"
- *
  * const headers = makeSecureHeaders({
  *   additionalHeaders: [{ key: "X-Beep", value: "1" }]
  * })
  * void headers
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -228,19 +219,19 @@ export const makeSecureHeaders = (config?: SecureHeadersConfig): ReadonlyArray<S
 /**
  * Add shared secure headers to a Next.js config.
  *
+ * @param config - Base Next.js configuration receiving secure headers.
+ * @param secureHeadersConfig - Secure header override or extension settings.
+ * @returns A Next.js configuration with the shared secure-header route prepended.
  * @remarks
  * Existing app `headers()` are called only when Next.js calls the composed
  * `headers()` function. The shared secure-header route is prepended so app
  * routes remain visible and can add more specific behavior after the baseline.
- *
  * @example
  * ```ts
  * import { withSecureHeaders } from "@beep/repo-configs/next/security"
- *
  * const config = withSecureHeaders({ reactStrictMode: true })
  * void config
  * ```
- *
  * @category combinators
  * @since 0.0.0
  */

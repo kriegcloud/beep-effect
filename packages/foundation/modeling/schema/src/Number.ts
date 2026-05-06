@@ -132,7 +132,7 @@ export const isNonPositive = S.isLessThanOrEqualTo(0);
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { NonNegNum } from "@beep/schema/Int"
+ * import { NonNegNum } from "@beep/schema/Number"
  *
  * S.decodeUnknownSync(NonNegNum)(0)
  * S.decodeUnknownSync(NonNegNum)(100)
@@ -151,7 +151,7 @@ export const NonNegNum = S.Number.check(isNonNegative).pipe(
  *
  * @example
  * ```ts
- * import type { NonNegNum } from "@beep/schema/Int"
+ * import type { NonNegNum } from "@beep/schema/Number"
  *
  * const index: NonNegNum = 0 as NonNegNum
  * ```

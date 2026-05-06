@@ -1,3 +1,9 @@
+/**
+ * Schemas for Next.js prefetch inlining configuration.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $RepoConfigsId } from "@beep/identity";
 import { NonNegNum } from "@beep/schema";
 import * as S from "effect/Schema";

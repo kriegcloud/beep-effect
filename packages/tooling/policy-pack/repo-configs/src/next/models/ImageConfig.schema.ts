@@ -1,8 +1,8 @@
 /**
  * Schemas for Next.js image configuration.
  *
- * @since 0.0.0
  * @packageDocumentation
+ * @since 0.0.0
  */
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit, NonNegNum, SchemaUtils } from "@beep/schema";
@@ -19,11 +19,9 @@ const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new
  * @example
  * ```ts
  * import { LoaderValue } from "@beep/repo-configs/next/models/ImageConfig.schema"
- *
  * const loader = LoaderValue
  * void loader
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -39,11 +37,9 @@ export const LoaderValue = LiteralKit(["default", "imgix", "cloudinary", "akamai
  * @example
  * ```ts
  * import { ImageLoaderProps } from "@beep/repo-configs/next/models/ImageConfig.schema"
- *
  * const schema = ImageLoaderProps
  * void schema
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -64,11 +60,9 @@ export class ImageLoaderProps extends S.Class<ImageLoaderProps>($I`ImageLoaderPr
  * @example
  * ```ts
  * import { LocalPattern } from "@beep/repo-configs/next/models/ImageConfig.schema"
- *
  * const pattern = new LocalPattern({ pathname: "/assets/**" })
  * void pattern
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -98,11 +92,9 @@ export class LocalPattern extends S.Class<LocalPattern>($I`LocalPattern`)({
  * @example
  * ```ts
  * import { RemotePattern } from "@beep/repo-configs/next/models/ImageConfig.schema"
- *
  * const pattern = new RemotePattern({ hostname: "images.example.com" })
  * void pattern
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -157,11 +149,9 @@ export class RemotePattern extends S.Class<RemotePattern>($I`RemotePattern`)({
  * @example
  * ```ts
  * import { ImageFormat } from "@beep/repo-configs/next/models/ImageConfig.schema"
- *
  * const format = ImageFormat
  * void format
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -177,11 +167,9 @@ export const ImageFormat = LiteralKit(["image/avif", "image/webp"]).pipe(
  * @example
  * ```ts
  * import type { ImageFormat } from "@beep/repo-configs/next/models/ImageConfig.schema"
- *
  * const format = "image/webp" satisfies ImageFormat
  * void format
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -191,7 +179,6 @@ export type ImageFormat = typeof ImageFormat.Type;
  * Image configurations
  *
  * @see [Image configuration options](https://nextjs.org/docs/api-reference/next/image#configuration-options)
- *
  * @category models
  * @since 0.0.0
  */
@@ -333,6 +320,7 @@ export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageCo
     /**
      * When true, the `cacheHandler` configured in next.config.js will also be used
      * for caching optimized images. When false, images use the default filesystem cache.
+     *
      * @see [Image Optimization Caching](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheHandler#image-optimization-caching)
      */
     customCacheHandler: S.Boolean.annotateKey({
@@ -356,11 +344,9 @@ export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageCo
  * @example
  * ```ts
  * import { ImageConfig } from "@beep/repo-configs/next/models/ImageConfig.schema"
- *
  * const config = ImageConfig
  * void config
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -405,11 +391,9 @@ export const ImageConfig = ImageConfigComplete.mapFields(Struct.map(S.optionalKe
  * @example
  * ```ts
  * import type { ImageConfig } from "@beep/repo-configs/next/models/ImageConfig.schema"
- *
  * const config = {} satisfies ImageConfig
  * void config
  * ```
- *
  * @category models
  * @since 0.0.0
  */

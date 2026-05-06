@@ -1,8 +1,8 @@
 /**
  * Shared schemas for primitive Next.js configuration helper types.
  *
- * @since 0.0.0
  * @packageDocumentation
+ * @since 0.0.0
  */
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
@@ -21,11 +21,9 @@ const FileSizeByte = LiteralKit(["b", "B"] as const);
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { FileSizeSuffix } from "@beep/repo-configs/next/models/Shared.schema"
- *
  * const program = S.decodeUnknownEffect(FileSizeSuffix)("mb")
  * void Effect.runPromise(program)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -42,11 +40,9 @@ export const FileSizeSuffix = S.TemplateLiteral([FileSizeScale, FileSizeByte]).p
  * @example
  * ```ts
  * import type { FileSizeSuffix } from "@beep/repo-configs/next/models/Shared.schema"
- *
  * const suffix = "MB" satisfies FileSizeSuffix
  * void suffix
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -62,11 +58,9 @@ const SizeLimitText = S.TemplateLiteral([S.Number, FileSizeSuffix]);
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { SizeLimit } from "@beep/repo-configs/next/models/Shared.schema"
- *
  * const program = S.decodeUnknownEffect(SizeLimit)("2mb")
  * void Effect.runPromise(program)
  * ```
- *
  * @category schemas
  * @since 0.0.0
  */
@@ -83,11 +77,9 @@ export const SizeLimit = S.Union([S.Number, SizeLimitText]).pipe(
  * @example
  * ```ts
  * import type { SizeLimit } from "@beep/repo-configs/next/models/Shared.schema"
- *
  * const limit = "2mb" satisfies SizeLimit
  * void limit
  * ```
- *
  * @category models
  * @since 0.0.0
  */

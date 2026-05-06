@@ -465,7 +465,12 @@
       "@beep/repo-ai-metrics": [
         "./packages/tooling/library/ai-metrics/src/index.ts"
       ],
-      "@beep/repo-ai-metrics/*": ["./packages/tooling/library/ai-metrics/src/*"]
+      "@beep/repo-ai-metrics/*": [
+        "./packages/tooling/library/ai-metrics/src/*"
+      ],
+      "@beep/repo-configs/next": [
+        "./packages/tooling/policy-pack/repo-configs/src/next/index.ts"
+      ]
     }
   }
 }
