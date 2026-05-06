@@ -1,7 +1,7 @@
 # @beep/op-ip-web Agent Guide
 
 ## Purpose & Fit
-- 
+-
 
 ## Surface Map
 | Surface | Key exports | Notes |

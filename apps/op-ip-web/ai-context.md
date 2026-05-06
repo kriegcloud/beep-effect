@@ -1,12 +1,10 @@
 ---
 path: apps/op-ip-web
-summary: 
+summary:
 tags: [effect]
 ---
 
 # @beep/op-ip-web
-
-
 
 ## Architecture
 
