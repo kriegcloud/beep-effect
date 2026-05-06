@@ -474,7 +474,7 @@ const typedIdentityExportBlock = (packageName: string): string => {
     "",
     "/**",
     " * @since 0.0.0",
-    " * @category Configuration",
+    " * @category configuration",
     ` * @type {Identity.IdentityComposer<"@beep/${packageName}">}`,
     " */",
     `export const ${accessorName}: Identity.IdentityComposer<"@beep/${packageName}"> = composers.${accessorName};`,

@@ -296,7 +296,7 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
  * const validated = S.decodeUnknownSync(SerializedWikiLink)(rawJson)
  * ```
  *
- * @category model
+ * @category models
  * @since 0.0.0
  */
 ```
