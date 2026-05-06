@@ -265,7 +265,7 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  * void program
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const CSV: {
@@ -292,24 +292,28 @@ export const CSV: {
  * Branded runtime type for CSV document text produced by encoding a `CSV`
  * schema.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type CsvText = typeof CsvText.Type;
 
 /**
+ * @category configuration
  * @since 0.0.0
  */
 export * from "./CsvCodecOptions.ts";
 /**
+ * @category errors
  * @since 0.0.0
  */
 export * from "./CsvError.ts";
 /**
+ * @category formatting
  * @since 0.0.0
  */
 export * from "./format/index.ts";
 /**
+ * @category parsing
  * @since 0.0.0
  */
 export * from "./parse/index.ts";

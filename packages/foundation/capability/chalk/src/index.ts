@@ -26,11 +26,11 @@
  */
 /**
  * @since 0.0.0
- * @category exports
+ * @category utilities
  */
 export * from "./Chalk.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category utilities
  */
 export { default } from "./Chalk.ts";

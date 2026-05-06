@@ -46,7 +46,7 @@ type WinkCustomEntityRecord = {
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const InstanceId = S.NonEmptyString.pipe(
   S.brand("InstanceId"),
@@ -68,7 +68,7 @@ export const InstanceId = S.NonEmptyString.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type InstanceId = typeof InstanceId.Type;
 
@@ -83,7 +83,7 @@ export type InstanceId = typeof InstanceId.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class WinkEngineState extends S.Class<WinkEngineState>($I`WinkEngineState`)(
   {
@@ -106,7 +106,7 @@ export class WinkEngineState extends S.Class<WinkEngineState>($I`WinkEngineState
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WinkEngineRuntimeState = {
   readonly customEntities: O.Option<WinkEngineCustomEntities>;
@@ -235,7 +235,7 @@ const makeWinkEngine = Effect.gen(function* () {
  * ```
  *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class WinkEngine extends Context.Service<WinkEngine, WinkEngineShape>()($I`WinkEngine`) {}
 
@@ -250,6 +250,6 @@ export class WinkEngine extends Context.Service<WinkEngine, WinkEngineShape>()($
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkEngineLive = Layer.effect(WinkEngine, makeWinkEngine);

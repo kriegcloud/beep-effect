@@ -15,7 +15,7 @@
  * console.log(SpecimenTestUseCases)
  * ```
  *
- * @category exports
+ * @category fixtures
  * @since 0.0.0
  */
 export * from "./server.js";

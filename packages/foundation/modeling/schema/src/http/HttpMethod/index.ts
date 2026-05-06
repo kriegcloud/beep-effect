@@ -7,6 +7,6 @@
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export * from "./HttpMethod.ts";

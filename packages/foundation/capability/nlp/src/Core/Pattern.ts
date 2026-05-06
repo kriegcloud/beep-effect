@@ -73,7 +73,7 @@ const renderBracketString = (values: ReadonlyArray<string>): string => `[${A.joi
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const WinkPOSTag = WinkPOSTagKit.pipe(
   $I.annoteSchema("WinkPOSTag", {
@@ -93,7 +93,7 @@ export const WinkPOSTag = WinkPOSTagKit.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WinkPOSTag = typeof WinkPOSTag.Type;
 
@@ -108,7 +108,7 @@ export type WinkPOSTag = typeof WinkPOSTag.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const WinkEntityType = WinkEntityTypeKit.pipe(
   $I.annoteSchema("WinkEntityType", {
@@ -128,7 +128,7 @@ export const WinkEntityType = WinkEntityTypeKit.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WinkEntityType = typeof WinkEntityType.Type;
 
@@ -154,7 +154,7 @@ const DisambiguatedLiteralPatternOptionChoice = S.makeFilter(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const POSPatternOption = S.NonEmptyArray(S.Union([WinkPOSTag, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
@@ -177,7 +177,7 @@ export const POSPatternOption = S.NonEmptyArray(S.Union([WinkPOSTag, EmptyPatter
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type POSPatternOption = typeof POSPatternOption.Type;
 
@@ -192,7 +192,7 @@ export type POSPatternOption = typeof POSPatternOption.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const EntityPatternOption = S.NonEmptyArray(S.Union([WinkEntityType, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
@@ -215,7 +215,7 @@ export const EntityPatternOption = S.NonEmptyArray(S.Union([WinkEntityType, Empt
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EntityPatternOption = typeof EntityPatternOption.Type;
 
@@ -230,7 +230,7 @@ export type EntityPatternOption = typeof EntityPatternOption.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const LiteralPatternOption = S.NonEmptyArray(S.Union([S.NonEmptyString, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
@@ -254,7 +254,7 @@ export const LiteralPatternOption = S.NonEmptyArray(S.Union([S.NonEmptyString, E
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type LiteralPatternOption = typeof LiteralPatternOption.Type;
 
@@ -269,7 +269,7 @@ export type LiteralPatternOption = typeof LiteralPatternOption.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class POSPatternElement extends S.TaggedClass<POSPatternElement>($I`POSPatternElement`)(
   "POSPatternElement",
@@ -292,7 +292,7 @@ export class POSPatternElement extends S.TaggedClass<POSPatternElement>($I`POSPa
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class EntityPatternElement extends S.TaggedClass<EntityPatternElement>($I`EntityPatternElement`)(
   "EntityPatternElement",
@@ -315,7 +315,7 @@ export class EntityPatternElement extends S.TaggedClass<EntityPatternElement>($I
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class LiteralPatternElement extends S.TaggedClass<LiteralPatternElement>($I`LiteralPatternElement`)(
   "LiteralPatternElement",
@@ -338,7 +338,7 @@ export class LiteralPatternElement extends S.TaggedClass<LiteralPatternElement>(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const PatternElement = S.Union([POSPatternElement, EntityPatternElement, LiteralPatternElement]).pipe(
   S.annotate(
@@ -359,7 +359,7 @@ export const PatternElement = S.Union([POSPatternElement, EntityPatternElement, 
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PatternElement = typeof PatternElement.Type;
 
@@ -374,7 +374,7 @@ export type PatternElement = typeof PatternElement.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const PatternId = S.NonEmptyString.pipe(
   S.brand("PatternId"),
@@ -396,7 +396,7 @@ export const PatternId = S.NonEmptyString.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PatternId = typeof PatternId.Type;
 
@@ -411,7 +411,7 @@ export type PatternId = typeof PatternId.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const MarkRange = S.Tuple([NonNegativeInt, NonNegativeInt]).pipe(
   S.annotate(
@@ -432,7 +432,7 @@ export const MarkRange = S.Tuple([NonNegativeInt, NonNegativeInt]).pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type MarkRange = typeof MarkRange.Type;
 
@@ -447,7 +447,7 @@ export type MarkRange = typeof MarkRange.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
   "Pattern",

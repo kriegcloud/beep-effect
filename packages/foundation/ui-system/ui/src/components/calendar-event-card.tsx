@@ -4,7 +4,15 @@ import { CheckIcon, SpinnerGap } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type EventStatus = "idle" | "loading" | "completed";
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type EventVariant = "display" | "action";
 
 interface CalendarEventCardProps {
@@ -21,6 +29,10 @@ interface CalendarEventCardProps {
   readonly variant?: undefined | EventVariant;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function CalendarEventCard({
   eventColor,
   status = "idle",
@@ -115,6 +127,10 @@ interface EventTitleProps {
   readonly className?: undefined | string;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function EventTitle({ children, className }: EventTitleProps) {
   return <h3 className={cn("font-medium text-zinc-900 dark:text-zinc-100", className)}>{children}</h3>;
 }
@@ -125,6 +141,10 @@ interface EventTimeProps {
   readonly startTime: string;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function EventTime({ startTime, endTime, className }: EventTimeProps) {
   const hasEndTime = endTime !== undefined && endTime.length > 0;
 
@@ -141,6 +161,10 @@ interface EventLocationProps {
   readonly className?: undefined | string;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function EventLocation({ children, className }: EventLocationProps) {
   return <p className={cn("text-xs text-zinc-500 dark:text-zinc-500", className)}>{children}</p>;
 }

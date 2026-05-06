@@ -9,7 +9,7 @@
  * Public native FFmpeg driver error exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category errors
  */
 export * from "./FFmpeg.errors.ts";
 
@@ -17,7 +17,7 @@ export * from "./FFmpeg.errors.ts";
  * Public native FFmpeg driver model exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export * from "./FFmpeg.models.ts";
 
@@ -25,6 +25,6 @@ export * from "./FFmpeg.models.ts";
  * Public native FFmpeg driver service exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export * from "./FFmpeg.service.ts";

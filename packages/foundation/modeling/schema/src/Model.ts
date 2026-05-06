@@ -154,7 +154,7 @@ export {
    * ```
    *
    * @since 0.0.0
-   * @category extractors
+   * @category getters
    */
   extract,
   /**
@@ -171,7 +171,7 @@ export {
    * ```
    *
    * @since 0.0.0
-   * @category fields
+   * @category constructors
    */
   Field,
   /**
@@ -187,7 +187,7 @@ export {
    * ```
    *
    * @since 0.0.0
-   * @category fields
+   * @category constructors
    */
   FieldExcept,
   /**
@@ -203,7 +203,7 @@ export {
    * ```
    *
    * @since 0.0.0
-   * @category fields
+   * @category constructors
    */
   FieldOnly,
   /**
@@ -220,7 +220,7 @@ export {
    * ```
    *
    * @since 0.0.0
-   * @category fields
+   * @category mapping
    */
   fieldEvolve,
   /**
@@ -276,7 +276,7 @@ export {
  * ```
  *
  * @since 0.0.0
- * @category fields
+ * @category getters
  */
 export const fields: <A extends VariantSchema.Struct<TUnsafe.Any>>(self: A) => A[typeof VariantSchema.TypeId] =
   VariantSchema.fields;
@@ -297,7 +297,7 @@ export const fields: <A extends VariantSchema.Struct<TUnsafe.Any>>(self: A) => A
  * ```
  *
  * @since 0.0.0
- * @category overridable
+ * @category constructors
  */
 export const Override: <A>(value: A) => A & Brand<"Override"> = VariantSchema.Override;
 
@@ -306,7 +306,7 @@ export const Override: <A>(value: A) => A & Brand<"Override"> = VariantSchema.Ov
  * {@link Override}.
  *
  * @since 0.0.0
- * @category overridable
+ * @category schemas
  */
 export interface Overridable<S extends S.Top & S.WithoutConstructorDefault> extends VariantSchema.Overridable<S> {}
 
@@ -314,7 +314,7 @@ export interface Overridable<S extends S.Top & S.WithoutConstructorDefault> exte
  * Upstream-compatible spelling for {@link Overridable}.
  *
  * @since 0.0.0
- * @category overridable
+ * @category schemas
  */
 export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> extends Overridable<S> {}
 
@@ -323,7 +323,7 @@ export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> ext
  * constructor creation.
  *
  * @since 0.0.0
- * @category overridable
+ * @category constructors
  */
 export const Overridable: typeof VariantSchema.Overridable = VariantSchema.Overridable;
 
@@ -331,7 +331,7 @@ export const Overridable: typeof VariantSchema.Overridable = VariantSchema.Overr
  * Upstream-compatible spelling for {@link Overridable}.
  *
  * @since 0.0.0
- * @category overridable
+ * @category constructors
  */
 export const Overrideable: typeof Overridable = Overridable;
 
@@ -339,7 +339,7 @@ export const Overrideable: typeof Overridable = Overridable;
  * Interface for a database-generated field present in `select`, `update`, and `json` variants.
  *
  * @since 0.0.0
- * @category generated
+ * @category models
  */
 export interface Generated<S extends S.Top>
   extends VariantSchema.Field<{
@@ -366,7 +366,7 @@ export interface Generated<S extends S.Top>
  * ```
  *
  * @since 0.0.0
- * @category generated
+ * @category constructors
  */
 export const Generated = <S extends S.Top>(schema: S): Generated<S> =>
   Field({
@@ -379,7 +379,7 @@ export const Generated = <S extends S.Top>(schema: S): Generated<S> =>
  * Interface for an application-generated field present in `select`, `insert`, `update`, and `json` variants.
  *
  * @since 0.0.0
- * @category generated
+ * @category models
  */
 export interface GeneratedByApp<S extends S.Top>
   extends VariantSchema.Field<{
@@ -396,7 +396,7 @@ export interface GeneratedByApp<S extends S.Top>
  * and `jsonUpdate` because the server assigns the value.
  *
  * @since 0.0.0
- * @category generated
+ * @category constructors
  */
 export const GeneratedByApp = <S extends S.Top>(schema: S): GeneratedByApp<S> =>
   Field({
@@ -410,7 +410,7 @@ export const GeneratedByApp = <S extends S.Top>(schema: S): GeneratedByApp<S> =>
  * Interface for a sensitive field excluded from all JSON variants.
  *
  * @since 0.0.0
- * @category sensitive
+ * @category models
  */
 export interface Sensitive<S extends S.Top>
   extends VariantSchema.Field<{
@@ -435,7 +435,7 @@ export interface Sensitive<S extends S.Top>
  * ```
  *
  * @since 0.0.0
- * @category sensitive
+ * @category constructors
  */
 export const Sensitive = <S extends S.Top>(schema: S): Sensitive<S> =>
   Field({
@@ -459,7 +459,7 @@ export const Sensitive = <S extends S.Top>(schema: S): Sensitive<S> =>
  * ```
  *
  * @since 0.0.0
- * @category optional
+ * @category models
  */
 export interface optionalOption<S extends S.Top>
   extends S.decodeTo<S.Option<S.toType<S>>, S.optionalKey<S.NullOr<S>>> {}
@@ -477,7 +477,7 @@ export interface optionalOption<S extends S.Top>
  * ```
  *
  * @since 0.0.0
- * @category optional
+ * @category constructors
  */
 export const optionalOption = <S extends S.Top>(schema: S): optionalOption<S> =>
   S.NullOr(schema).pipe(
@@ -509,7 +509,7 @@ export const optionalOption = <S extends S.Top>(schema: S): optionalOption<S> =>
  * ```
  *
  * @since 0.0.0
- * @category optional
+ * @category models
  */
 export interface FieldOption<S extends S.Top>
   extends VariantSchema.Field<{
@@ -537,7 +537,7 @@ export interface FieldOption<S extends S.Top>
  * ```
  *
  * @since 0.0.0
- * @category optional
+ * @category constructors
  */
 export const FieldOption: <Field extends VariantSchema.Field<TUnsafe.Any> | S.Top>(
   self: Field
@@ -572,7 +572,7 @@ export const FieldOption: <Field extends VariantSchema.Field<TUnsafe.Any> | S.To
  * ```
  *
  * @since 0.0.0
- * @category booleans
+ * @category models
  */
 export interface BooleanSqlite
   extends VariantSchema.Field<{
@@ -599,7 +599,7 @@ export interface BooleanSqlite
  * ```
  *
  * @since 0.0.0
- * @category booleans
+ * @category schemas
  */
 export const BooleanSqlite: BooleanSqlite = Field({
   select: S.BooleanFromBit,
@@ -622,7 +622,7 @@ export const BooleanSqlite: BooleanSqlite = Field({
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category models
  */
 export interface Date extends S.decodeTo<S.instanceOf<DateTime.Utc>, S.String> {}
 
@@ -641,7 +641,7 @@ export interface Date extends S.decodeTo<S.instanceOf<DateTime.Utc>, S.String> {
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const Date: Date = S.String.pipe(
   S.decodeTo(S.DateTimeUtc, {
@@ -661,7 +661,7 @@ export const Date: Date = S.String.pipe(
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateWithNow = Overridable(Date, {
   defaultValue: Effect.map(DateTime.now, DateTime.removeTime),
@@ -678,7 +678,7 @@ export const DateWithNow = Overridable(Date, {
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateTimeWithNow = Overridable(S.DateTimeUtcFromString, {
   defaultValue: DateTime.now,
@@ -695,7 +695,7 @@ export const DateTimeWithNow = Overridable(S.DateTimeUtcFromString, {
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateTimeFromDateWithNow = Overridable(S.DateTimeUtcFromDate, {
   defaultValue: DateTime.now,
@@ -712,7 +712,7 @@ export const DateTimeFromDateWithNow = Overridable(S.DateTimeUtcFromDate, {
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateTimeFromNumberWithNow = Overridable(S.DateTimeUtcFromMillis, {
   defaultValue: DateTime.now,
@@ -730,7 +730,7 @@ export const DateTimeFromNumberWithNow = Overridable(S.DateTimeUtcFromMillis, {
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category models
  */
 export interface DateTimeInsert
   extends VariantSchema.Field<{
@@ -756,7 +756,7 @@ export interface DateTimeInsert
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateTimeInsert: DateTimeInsert = Field({
   select: S.DateTimeUtcFromString,
@@ -776,7 +776,7 @@ export const DateTimeInsert: DateTimeInsert = Field({
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category models
  */
 export interface DateTimeInsertFromDate
   extends VariantSchema.Field<{
@@ -802,7 +802,7 @@ export interface DateTimeInsertFromDate
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateTimeInsertFromDate: DateTimeInsertFromDate = Field({
   select: S.DateTimeUtcFromDate,
@@ -822,7 +822,7 @@ export const DateTimeInsertFromDate: DateTimeInsertFromDate = Field({
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category models
  */
 export interface DateTimeInsertFromNumber
   extends VariantSchema.Field<{
@@ -848,7 +848,7 @@ export interface DateTimeInsertFromNumber
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateTimeInsertFromNumber: DateTimeInsertFromNumber = Field({
   select: S.DateTimeUtcFromMillis,
@@ -868,7 +868,7 @@ export const DateTimeInsertFromNumber: DateTimeInsertFromNumber = Field({
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category models
  */
 export interface DateTimeUpdate
   extends VariantSchema.Field<{
@@ -896,7 +896,7 @@ export interface DateTimeUpdate
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateTimeUpdate: DateTimeUpdate = Field({
   select: S.DateTimeUtcFromString,
@@ -917,7 +917,7 @@ export const DateTimeUpdate: DateTimeUpdate = Field({
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category models
  */
 export interface DateTimeUpdateFromDate
   extends VariantSchema.Field<{
@@ -945,7 +945,7 @@ export interface DateTimeUpdateFromDate
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateTimeUpdateFromDate: DateTimeUpdateFromDate = Field({
   select: S.DateTimeUtcFromDate,
@@ -966,7 +966,7 @@ export const DateTimeUpdateFromDate: DateTimeUpdateFromDate = Field({
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category models
  */
 export interface DateTimeUpdateFromNumber
   extends VariantSchema.Field<{
@@ -994,7 +994,7 @@ export interface DateTimeUpdateFromNumber
  * ```
  *
  * @since 0.0.0
- * @category date & time
+ * @category schemas
  */
 export const DateTimeUpdateFromNumber: DateTimeUpdateFromNumber = Field({
   select: S.DateTimeUtcFromMillis,
@@ -1017,7 +1017,7 @@ export const DateTimeUpdateFromNumber: DateTimeUpdateFromNumber = Field({
  * ```
  *
  * @since 0.0.0
- * @category json
+ * @category models
  */
 export interface JsonFromString<S extends S.Top>
   extends VariantSchema.Field<{
@@ -1045,7 +1045,7 @@ export interface JsonFromString<S extends S.Top>
  * ```
  *
  * @since 0.0.0
- * @category json
+ * @category codecs
  */
 export const JsonFromString = <S extends S.Top>(schema: S): JsonFromString<S> => {
   const parsed = schema.pipe(S.toCodecJson, S.fromJsonString) as TUnsafe.Any;
@@ -1074,7 +1074,7 @@ export const JsonFromString = <S extends S.Top>(schema: S): JsonFromString<S> =>
  * ```
  *
  * @since 0.0.0
- * @category uuid
+ * @category models
  */
 export interface UuidV4Insert<B extends string>
   extends VariantSchema.Field<{
@@ -1116,7 +1116,7 @@ export const Uint8Array: S.instanceOf<Uint8Array<ArrayBuffer>> = S.Uint8Array as
  * ```
  *
  * @since 0.0.0
- * @category uuid
+ * @category constructors
  */
 export const UuidV4WithGenerate = <B extends string>(
   schema: S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>
@@ -1141,7 +1141,7 @@ export const UuidV4WithGenerate = <B extends string>(
  * ```
  *
  * @since 0.0.0
- * @category uuid
+ * @category constructors
  */
 export const UuidV4Insert = <const B extends string>(
   schema: S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>

@@ -21,7 +21,7 @@ const $I = $SchemaId.create("Json");
  * void decoded
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const JsonObject = S.Record(S.String, S.Json).pipe(
@@ -33,7 +33,7 @@ export const JsonObject = S.Record(S.String, S.Json).pipe(
 /**
  * Runtime type extracted from the {@link JsonObject} schema.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type JsonObject = typeof JsonObject.Type;
@@ -50,7 +50,7 @@ export type JsonObject = typeof JsonObject.Type;
  * void decoded
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const JsonArray = S.Array(S.Json).pipe(
@@ -62,7 +62,7 @@ export const JsonArray = S.Array(S.Json).pipe(
 /**
  * Runtime type extracted from the {@link JsonArray} schema.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type JsonArray = typeof JsonArray.Type;

@@ -53,7 +53,7 @@ class BowCosineSimilaritySuccess extends S.Class<BowCosineSimilaritySuccess>($I`
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const BowCosineSimilarity = Tool.make("BowCosineSimilarity", {
   description:

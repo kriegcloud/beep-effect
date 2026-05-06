@@ -3,6 +3,10 @@ import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const badgeVariants = cva(
   "h-5 gap-1 rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium transition-all has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&>svg]:size-3! inline-flex items-center justify-center w-fit whitespace-nowrap shrink-0 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-colors overflow-hidden group/badge",
   {
@@ -23,6 +27,10 @@ const badgeVariants = cva(
   }
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Badge({
   className,
   variant = "default",
@@ -45,4 +53,8 @@ function Badge({
   });
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Badge, badgeVariants };

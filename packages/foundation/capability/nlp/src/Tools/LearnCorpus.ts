@@ -63,7 +63,7 @@ class LearnCorpusSuccess extends S.Class<LearnCorpusSuccess>($I`LearnCorpusSucce
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const LearnCorpus = Tool.make("LearnCorpus", {
   description: "Learn one or more documents into an existing corpus session for incremental indexing.",

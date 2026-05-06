@@ -15,7 +15,7 @@
  * console.log(SpecimenEntity)
  * ```
  *
- * @category exports
+ * @category models
  * @since 0.0.0
  */
 export * from "./Specimen.model.js";
@@ -29,7 +29,7 @@ export * from "./Specimen.model.js";
  * console.log(SpecimenEntity)
  * ```
  *
- * @category exports
+ * @category policies
  * @since 0.0.0
  */
 export * from "./Specimen.policy.js";
@@ -43,7 +43,7 @@ export * from "./Specimen.policy.js";
  * console.log(SpecimenEntity)
  * ```
  *
- * @category exports
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./Specimen.values.js";

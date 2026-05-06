@@ -456,7 +456,7 @@ const renderSyncDataError = (error: SyncDataToTsError): string =>
 /**
  * CLI command for syncing official upstream datasets into checked-in TypeScript modules.
  *
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const syncDataToTsCommand = Command.make(

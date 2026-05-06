@@ -22,7 +22,7 @@ const $I = $SchemaId.create("Primitive");
  * S.decodeUnknownSync(Primitive)(null)
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const Primitive = S.Union([S.String, S.Number, S.Boolean, S.BigInt, S.Null, S.Undefined]).pipe(
@@ -41,7 +41,7 @@ export const Primitive = S.Union([S.String, S.Number, S.Boolean, S.BigInt, S.Nul
  * const value: Primitive = "hello"
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type Primitive = typeof Primitive.Type;

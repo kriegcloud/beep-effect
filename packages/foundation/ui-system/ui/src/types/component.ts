@@ -12,6 +12,7 @@ type InferProps<C extends React.ElementType> =
     : React.ComponentPropsWithoutRef<C>;
 
 /**
+ * @category type-level
  * @since 0.0.0
  */
 export type OverridableComponent<
@@ -26,6 +27,7 @@ export type OverridableComponent<
   OverridableComponentMeta<Props, DefaultComponent>;
 
 /**
+ * @category type-level
  * @since 0.0.0
  */
 export type ForwardStyledProps<P extends object = Record<never, never>> = P & {

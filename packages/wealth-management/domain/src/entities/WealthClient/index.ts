@@ -30,7 +30,7 @@ export * from "./WealthClient.model.js";
  * console.log(Module)
  * ```
  *
- * @category exports
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./WealthClient.values.js";

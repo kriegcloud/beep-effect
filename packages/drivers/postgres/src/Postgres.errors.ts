@@ -378,7 +378,7 @@ export class PostgresError extends TaggedErrorClass<PostgresError>($I`PostgresEr
  * void diagnostics
  * ```
  *
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export const extractPostgresDiagnostics = (cause: unknown): PostgresError =>

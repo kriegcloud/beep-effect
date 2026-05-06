@@ -57,7 +57,7 @@ type HeadingBlock = H1 | H2 | H3 | H4 | H5 | H6;
  * console.log(error._tag) // "RenderError"
  * ```
  *
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class RenderError extends TaggedErrorClass<RenderError>($I`RenderError`)(

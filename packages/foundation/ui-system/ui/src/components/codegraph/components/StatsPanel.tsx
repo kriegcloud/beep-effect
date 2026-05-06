@@ -25,6 +25,10 @@ const showDuplicatesAtom = Atom.make<boolean>(false);
 
 const basename = Str.replace(/^.*[\\/]/, "");
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function StatsPanel({ loading, stats }: Props) {
   const [showDeadCode, setShowDeadCode] = useAtom(showDeadCodeAtom);
   const [showGodObjects, setShowGodObjects] = useAtom(showGodObjectsAtom);

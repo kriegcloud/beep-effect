@@ -208,7 +208,7 @@ export class ProvenanceSummary extends S.Class<ProvenanceSummary>($I`ProvenanceS
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export class ProvenanceServiceError extends TaggedErrorClass<ProvenanceServiceError>($I`ProvenanceServiceError`)(
   "ProvenanceServiceError",

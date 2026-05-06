@@ -7,7 +7,7 @@ import { ContentEditable } from "../../editor/editor-ui/content-editable.js";
  * Core plugin set for the shared editor block.
  *
  * @since 0.0.0
- * @category Presentation
+ * @category components
  */
 export function Plugins() {
   return (

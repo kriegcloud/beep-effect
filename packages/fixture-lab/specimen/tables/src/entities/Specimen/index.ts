@@ -15,7 +15,7 @@
  * console.log(SpecimenTableEntity)
  * ```
  *
- * @category exports
+ * @category read-models
  * @since 0.0.0
  */
 export * from "./Specimen.read-model-table.js";
@@ -29,7 +29,7 @@ export * from "./Specimen.read-model-table.js";
  * console.log(SpecimenTableEntity)
  * ```
  *
- * @category exports
+ * @category tables
  * @since 0.0.0
  */
 export * from "./Specimen.table.js";

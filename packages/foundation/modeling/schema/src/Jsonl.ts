@@ -101,7 +101,7 @@ const decodeJsonlUnknown = Effect.fn("Jsonl.decodeJsonlUnknown")(function* (cont
  * void program
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const JsonlTextToUnknown = S.String.pipe(
@@ -138,7 +138,7 @@ export const JsonlTextToUnknown = S.String.pipe(
  *
  * @param schema - Target schema to decode the parsed JSONL value array into.
  * @returns Decoder function from JSONL text to the target schema type.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const decodeJsonlTextAs = <Schema extends S.Top>(schema: Schema) => {

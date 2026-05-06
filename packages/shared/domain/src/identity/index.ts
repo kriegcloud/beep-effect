@@ -15,7 +15,7 @@
  * console.log(AgentCapability.AgentId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export * as AgentCapability from "./AgentCapability.ts";
@@ -29,7 +29,7 @@ export * as AgentCapability from "./AgentCapability.ts";
  * console.log(Epistemic.CandidateClaimId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export * as Epistemic from "./Epistemic.ts";
@@ -43,7 +43,7 @@ export * as Epistemic from "./Epistemic.ts";
  * console.log(FixtureLabSpecimen.SpecimenId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export * as FixtureLabSpecimen from "./FixtureLabSpecimen.ts";
@@ -57,7 +57,7 @@ export * as FixtureLabSpecimen from "./FixtureLabSpecimen.ts";
  * console.log(LawPractice.LegalClientId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export * as LawPractice from "./LawPractice.ts";
@@ -71,7 +71,7 @@ export * as LawPractice from "./LawPractice.ts";
  * console.log(Shared.OrganizationId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export * as Shared from "./Shared.ts";
@@ -85,7 +85,7 @@ export * as Shared from "./Shared.ts";
  * console.log(WealthManagement.HouseholdId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export * as WealthManagement from "./WealthManagement.ts";
@@ -99,7 +99,7 @@ export * as WealthManagement from "./WealthManagement.ts";
  * console.log(Workspace.WorkspaceId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export * as Workspace from "./Workspace.ts";

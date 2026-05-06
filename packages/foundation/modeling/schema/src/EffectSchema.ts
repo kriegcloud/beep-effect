@@ -50,7 +50,7 @@ const effectAnnotations = {
  *
  * @param u - The value to test.
  * @returns Whether the value is an Effect runtime value.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const isEffect = Effect.isEffect;
@@ -70,7 +70,7 @@ export const isEffect = Effect.isEffect;
  * void decoded
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const EffectSchema = S.declare<Effect.Effect<unknown, unknown, unknown>>(isEffect, effectAnnotations).pipe(
@@ -92,7 +92,7 @@ export const EffectSchema = S.declare<Effect.Effect<unknown, unknown, unknown>>(
  * void program
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type EffectSchema = typeof EffectSchema.Type;

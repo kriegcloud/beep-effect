@@ -22,7 +22,7 @@ import { dual } from "effect/Function";
  * - Data-last: `pipe("/tmp", waitForFile("done.txt"))`
  *
  * @since 0.0.0
- * @category utility
+ * @category utilities
  * @example
  * ```typescript
  * import { Effect } from "effect"

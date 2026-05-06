@@ -52,7 +52,7 @@ const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Sha256Hex = S.String.check(Sha256HexChecks).pipe(
   S.brand("Sha256Hex"),
@@ -74,7 +74,7 @@ export const Sha256Hex = S.String.check(Sha256HexChecks).pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Sha256Hex = typeof Sha256Hex.Type;
 
@@ -96,7 +96,7 @@ export type Sha256Hex = typeof Sha256Hex.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Sha256HexFromBytes = S.Uint8Array.pipe(
   S.decodeTo(Sha256Hex, {
@@ -121,7 +121,7 @@ export const Sha256HexFromBytes = S.Uint8Array.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
 
@@ -142,7 +142,7 @@ export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Sha256HexFromHexBytes = S.Uint8ArrayFromHex.pipe(
   S.decodeTo(Sha256HexFromBytes),
@@ -164,6 +164,6 @@ export const Sha256HexFromHexBytes = S.Uint8ArrayFromHex.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Sha256HexFromHexBytes = typeof Sha256HexFromHexBytes.Type;

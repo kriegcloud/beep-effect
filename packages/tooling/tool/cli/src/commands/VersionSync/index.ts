@@ -23,7 +23,7 @@ const isWriteModeFlags = P.Tuple([P.isTruthy, P.not(P.isTruthy)]);
  * @param write - Whether `--write` was passed.
  * @param dryRun - Whether `--dry-run` was passed.
  * @returns The resolved command execution mode.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const resolveMode = (write: boolean, dryRun: boolean): VersionSyncMode => {
@@ -42,7 +42,7 @@ const resolveMode = (write: boolean, dryRun: boolean): VersionSyncMode => {
 /**
  * CLI command for synchronizing version pins across the monorepo.
  *
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const versionSyncCommand = Command.make(

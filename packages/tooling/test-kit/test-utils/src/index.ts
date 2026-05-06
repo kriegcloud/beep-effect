@@ -1,10 +1,16 @@
 /**
  * @packageDocumentation
  * \@beep/test-utils
+ * @category testing
  * @since 0.0.0
  */
 
-/** @since 0.0.0 */
+/**
+ * SQL test utility exports.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
 export * from "./SqlTest.js";
 
 /**
@@ -16,7 +22,7 @@ export * from "./SqlTest.js";
  * const version = VERSION
  * void version
  * ```
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;

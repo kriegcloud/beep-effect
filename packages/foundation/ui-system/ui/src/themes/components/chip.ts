@@ -8,6 +8,7 @@ declare module "@mui/material/Chip" {
 }
 
 /**
+ * @category themes
  * @since 0.0.0
  */
 export const chipTheme: ThemeComponents = {

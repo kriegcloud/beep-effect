@@ -21,6 +21,7 @@ import { CspError, type SecureHeaderError } from "./SecureHeaderError.ts";
 const $I = $SchemaId.create("http/headers/Csp");
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const DirectiveSource = S.Union([...internal.ArrayOfStrOrStr.members, S.Undefined]).pipe(
@@ -30,6 +31,7 @@ export const DirectiveSource = S.Union([...internal.ArrayOfStrOrStr.members, S.U
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type DirectiveSource = typeof DirectiveSource.Type;
@@ -41,6 +43,7 @@ const directiveValueSeparator = "; ";
 const ContentSecurityPolicyHeaderNameBase = LiteralKit([headerName, reportOnlyHeaderName]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ContentSecurityPolicyHeaderName = ContentSecurityPolicyHeaderNameBase.pipe(
@@ -51,6 +54,7 @@ export const ContentSecurityPolicyHeaderName = ContentSecurityPolicyHeaderNameBa
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ContentSecurityPolicyHeaderName = typeof ContentSecurityPolicyHeaderName.Type;
@@ -82,7 +86,7 @@ const unwrapDirectiveValue = <T>(value: undefined | T | O.Option<T>): T | undefi
  * // => "Content-Security-Policy-Report-Only"
  * ```
  *
- * @category utility
+ * @category utilities
  * @since 0.0.0
  * @param reportOnly - Whether to return the report-only header name.
  * @returns The matching content security policy header name.
@@ -93,7 +97,7 @@ export const getProperHeaderName = (reportOnly = false): ContentSecurityPolicyHe
 /**
  * Create a serialized directive string from a directive name and one or more values.
  *
- * @category utility
+ * @category utilities
  * @since 0.0.0
  * @template T
  * @param directiveName - Directive name to serialize.
@@ -136,6 +140,7 @@ export const createDirectiveValue: {
 );
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const PluginTypes = internal.ArrayOfStrOrStr.pipe(
@@ -145,6 +150,7 @@ export const PluginTypes = internal.ArrayOfStrOrStr.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type PluginTypes = typeof PluginTypes.Type;
@@ -167,6 +173,7 @@ const SandboxBase = LiteralKit([
 ]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const Sandbox = SandboxBase.pipe(
@@ -177,6 +184,7 @@ export const Sandbox = SandboxBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type Sandbox = typeof Sandbox.Type;
@@ -219,6 +227,7 @@ const fetchDirectiveNamesByKey = {
 } as const;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
@@ -287,6 +296,7 @@ export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
 }
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDirective`)(
@@ -330,6 +340,7 @@ export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDir
 }
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class NavigationDirective extends S.Class<NavigationDirective>($I`NavigationDirective`)(
@@ -373,6 +384,7 @@ export class NavigationDirective extends S.Class<NavigationDirective>($I`Navigat
 }
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ReportURI = S.Union([...internal.StringOrUrl.members, S.Array(internal.StringOrUrl)]).pipe(
@@ -382,6 +394,7 @@ export const ReportURI = S.Union([...internal.StringOrUrl.members, S.Array(inter
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ReportingDirective extends S.Class<ReportingDirective>($I`ReportingDirective`)(
@@ -417,6 +430,7 @@ export class ReportingDirective extends S.Class<ReportingDirective>($I`Reporting
 }
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const CspDirectives = S.Struct({
@@ -431,6 +445,7 @@ export const CspDirectives = S.Struct({
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPolicyOptionStruct>(
@@ -462,6 +477,7 @@ export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPo
 ) {}
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ContentSecurityPolicyOption = S.Union([S.Literal(false), ContentSecurityPolicyOptionStruct]).pipe(
@@ -471,11 +487,13 @@ export const ContentSecurityPolicyOption = S.Union([S.Literal(false), ContentSec
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ContentSecurityPolicyOption = typeof ContentSecurityPolicyOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ContentSecurityPolicyResponseHeader extends S.Class<ContentSecurityPolicyResponseHeader>(
@@ -534,6 +552,7 @@ const decodeContentSecurityPolicyHeader = (
   });
 
 /**
+ * @category formatting
  * @since 0.0.0
  */
 export const createContentSecurityPolicyOptionHeaderValue = (
@@ -559,6 +578,7 @@ export const createContentSecurityPolicyOptionHeaderValue = (
 };
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption, S.Undefined]).pipe(
@@ -626,6 +646,7 @@ export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption,
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ContentSecurityPolicyHeader = typeof ContentSecurityPolicyHeader.Type;

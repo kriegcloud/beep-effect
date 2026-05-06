@@ -4,7 +4,7 @@ import type { ThemeOptions } from "./types.ts";
  * Shadow scale used by the shared theme.
  *
  * @since 0.0.0
- * @category theme
+ * @category themes
  */
 export const shadows: ThemeOptions["shadows"] = [
   "none",

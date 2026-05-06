@@ -66,7 +66,7 @@ type EntityPersistedFor<
  * ```
  *
  * @since 0.0.0
- * @category fields
+ * @category schemas
  */
 export const fields = {
   createdAt: EntitySchema.DateTimeFromMillis,
@@ -90,7 +90,7 @@ export const fields = {
  * ```
  *
  * @since 0.0.0
- * @category fields
+ * @category models
  */
 export const persisted = {
   createdAt: EntitySchema.persist.timestampMillis({

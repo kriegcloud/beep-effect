@@ -8,6 +8,6 @@
 
 /**
  * @since 0.0.0
- * @category exports
+ * @category schemas
  */
 export * from "./csv/index.ts";

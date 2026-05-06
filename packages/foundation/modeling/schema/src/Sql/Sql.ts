@@ -16,7 +16,7 @@ const $I = $SchemaId.create("Sql/Sql");
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Dialect = LiteralKit([
   "pg",
@@ -35,13 +35,13 @@ export const Dialect = LiteralKit([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Dialect = typeof Dialect.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ColumnDataType = LiteralKit([
   "array",
@@ -59,13 +59,13 @@ export const ColumnDataType = LiteralKit([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColumnDataType = typeof ColumnDataType.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ColumnDataArrayConstraint = LiteralKit([
   "vector",
@@ -83,13 +83,13 @@ export const ColumnDataArrayConstraint = LiteralKit([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColumnDataArrayConstraint = typeof ColumnDataArrayConstraint.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ColumnDataBigIntConstraint = LiteralKit(["int64", "uint64"]).annotate(
   $I.annote("ColumnDataBigIntConstraint", {
@@ -99,13 +99,13 @@ export const ColumnDataBigIntConstraint = LiteralKit(["int64", "uint64"]).annota
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColumnDataBigIntConstraint = typeof ColumnDataBigIntConstraint.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ColumnDataNumberConstraint = LiteralKit([
   "double",
@@ -132,13 +132,13 @@ export const ColumnDataNumberConstraint = LiteralKit([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColumnDataNumberConstraint = typeof ColumnDataNumberConstraint.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ColumnDataObjectConstraint = LiteralKit([
   "buffer",
@@ -162,13 +162,13 @@ export const ColumnDataObjectConstraint = LiteralKit([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColumnDataObjectConstraint = typeof ColumnDataObjectConstraint.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ColumnDataStringConstraint = LiteralKit([
   "binary",
@@ -196,13 +196,13 @@ export const ColumnDataStringConstraint = LiteralKit([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColumnDataStringConstraint = typeof ColumnDataStringConstraint.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ColumnDataConstraint = LiteralKit([
   ...ColumnDataArrayConstraint.Options,
@@ -218,7 +218,7 @@ export const ColumnDataConstraint = LiteralKit([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColumnDataConstraint = typeof ColumnDataConstraint.Type;
 
@@ -233,7 +233,7 @@ const prefixTypeMap = {
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ColumnType = LiteralKit([
   ...ColumnDataType.Options,
@@ -250,13 +250,13 @@ export const ColumnType = LiteralKit([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColumnType = typeof ColumnType.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UpdateDeleteAction = LiteralKit(["cascade", "restrict", "no action", "set null", "set default"]).annotate(
   $I.annote("UpdateDeleteAction", {
@@ -266,13 +266,13 @@ export const UpdateDeleteAction = LiteralKit(["cascade", "restrict", "no action"
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type UpdateDeleteAction = typeof UpdateDeleteAction.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const DimensionStringFromNumber = MappedLiteralKit([
   [0, "[]"],
@@ -289,7 +289,7 @@ export const DimensionStringFromNumber = MappedLiteralKit([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export declare namespace DimensionStringFromNumber {
   /**
@@ -304,7 +304,7 @@ export declare namespace DimensionStringFromNumber {
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ArrayDimension = LiteralKit(DimensionStringFromNumber.From.Options).annotate(
   $I.annote("ArrayDimension", {
@@ -314,13 +314,13 @@ export const ArrayDimension = LiteralKit(DimensionStringFromNumber.From.Options)
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ArrayDimension = typeof ArrayDimension.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ArrayDimensionString = LiteralKit(DimensionStringFromNumber.To.Options).annotate(
   $I.annote("ArrayDimensionString", {
@@ -330,13 +330,13 @@ export const ArrayDimensionString = LiteralKit(DimensionStringFromNumber.To.Opti
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ArrayDimensionString = typeof ArrayDimensionString.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PolicyConfigAs = LiteralKit(["permissive", "restrictive"]).annotate(
   $I.annote("PolicyConfigAs", {
@@ -345,13 +345,13 @@ export const PolicyConfigAs = LiteralKit(["permissive", "restrictive"]).annotate
 );
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PolicyConfigAs = typeof PolicyConfigAs.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PolicyConfigFor = LiteralKit(["all", "select", "insert", "update", "delete"]).annotate(
   $I.annote("PolicyConfigFor", {
@@ -361,13 +361,13 @@ export const PolicyConfigFor = LiteralKit(["all", "select", "insert", "update", 
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PolicyConfigFor = typeof PolicyConfigFor.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Casing = LiteralKit(["snake_case", "camelCase"]).annotate(
   $I.annote("Casing", {
@@ -377,13 +377,13 @@ export const Casing = LiteralKit(["snake_case", "camelCase"]).annotate(
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Casing = typeof Casing.Type;
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RelationType = LiteralKit(["many", "one"]).annotate(
   $I.annote("RelationType", {
@@ -393,13 +393,13 @@ export const RelationType = LiteralKit(["many", "one"]).annotate(
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type RelationType = typeof RelationType.Type;
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export declare namespace ColumnDataType {
   /**
@@ -429,7 +429,7 @@ export declare namespace ColumnDataType {
  * Schema-backed data extracted from a SQL column type string.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ColumnTypeData extends S.Class<ColumnTypeData>($I`ColumnTypeData`)(
   {
@@ -443,7 +443,7 @@ export class ColumnTypeData extends S.Class<ColumnTypeData>($I`ColumnTypeData`)(
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export declare namespace ColumnTypeData {
   /**
@@ -457,13 +457,13 @@ export declare namespace ColumnTypeData {
 
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export type Assume<T, U> = T extends U ? T : U;
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ExtractColumnTypeData<T extends ColumnType> =
   T extends `${infer Type extends ColumnDataType} ${infer Constraint extends ColumnDataConstraint}`
@@ -472,7 +472,7 @@ export type ExtractColumnTypeData<T extends ColumnType> =
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ArrayColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.array,
@@ -486,7 +486,7 @@ export const ArrayColumnTypeDataConstraint = S.TemplateLiteralParser([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export declare namespace ArrayColumnTypeDataConstraint {
   /**
@@ -501,7 +501,7 @@ export declare namespace ArrayColumnTypeDataConstraint {
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const BigIntColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.bigint,
@@ -515,7 +515,7 @@ export const BigIntColumnTypeDataConstraint = S.TemplateLiteralParser([
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export declare namespace BigIntColumnTypeDataConstraint {
   /**
@@ -530,7 +530,7 @@ export declare namespace BigIntColumnTypeDataConstraint {
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NumberColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.number,
@@ -543,7 +543,7 @@ export const NumberColumnTypeDataConstraint = S.TemplateLiteralParser([
 );
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export declare namespace NumberColumnTypeDataConstraint {
   /**
@@ -558,7 +558,7 @@ export declare namespace NumberColumnTypeDataConstraint {
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ObjectColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.object,
@@ -571,7 +571,7 @@ export const ObjectColumnTypeDataConstraint = S.TemplateLiteralParser([
 );
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export declare namespace ObjectColumnTypeDataConstraint {
   /**
@@ -585,7 +585,7 @@ export declare namespace ObjectColumnTypeDataConstraint {
 }
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const StringColumnTypeDataConstraint = S.TemplateLiteralParser([
   ColumnType.Enum.string,
@@ -598,7 +598,7 @@ export const StringColumnTypeDataConstraint = S.TemplateLiteralParser([
 );
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export declare namespace StringColumnTypeDataConstraint {
   /**
@@ -613,7 +613,7 @@ export declare namespace StringColumnTypeDataConstraint {
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export interface MakeOptions<Variants extends ReadonlyArray<string>, Default extends Variants[number]> {
   readonly defaultVariant: Default;
@@ -622,7 +622,7 @@ export interface MakeOptions<Variants extends ReadonlyArray<string>, Default ext
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export interface MakeReturn<Variants extends ReadonlyArray<string>, Default extends Variants[number]> {
   readonly Class: ReturnType<typeof VariantSchema.make<Variants, Default>>["Class"];
@@ -637,7 +637,7 @@ export interface MakeReturn<Variants extends ReadonlyArray<string>, Default exte
 
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const make = <const Variants extends ReadonlyArray<string>, const Default extends Variants[number]>(
   options: MakeOptions<Variants, Default>

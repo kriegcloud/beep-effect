@@ -125,7 +125,7 @@ const anyFnAnnotations = {
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type FnType<Input, Output> = [Input] extends [never]
   ? () => Output
@@ -169,7 +169,7 @@ type FnNoArgInput<Input extends S.Top> = [Input["Type"]] extends [never]
  * Provides `implement`, `implementEffect`, and `implementSync` helpers.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export interface FnSchemaNoArg<Input extends NoArgInputSchema, Output extends S.Top, Error extends S.Top>
   extends S.Codec<FnRuntime<Input, Output>, FnRuntime<Input, Output>> {
@@ -188,7 +188,7 @@ export interface FnSchemaNoArg<Input extends NoArgInputSchema, Output extends S.
  * input and validate output at invocation time.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export interface FnSchemaUnary<Input extends S.Top, Output extends S.Top, Error extends S.Top>
   extends S.Codec<FnRuntime<Input, Output>, FnRuntime<Input, Output>> {
@@ -208,7 +208,7 @@ export interface FnSchemaUnary<Input extends S.Top, Output extends S.Top, Error 
  * {@link FnSchemaNoArg} or {@link FnSchemaUnary} based on the input schema.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type FnSchema<Input extends S.Top, Output extends S.Top, Error extends S.Top = typeof S.Never> = [
   Input["Type"],
@@ -224,7 +224,7 @@ export type FnSchema<Input extends S.Top, Output extends S.Top, Error extends S.
  * `inputSchema`, `outputSchema`, `errorSchema`).
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type FnSchemaStatics<Input extends S.Top, Output extends S.Top, Error extends S.Top = typeof S.Never> = Pick<
   FnSchema<Input, Output, Error>,
@@ -409,7 +409,7 @@ const makeUnaryFnSchema = <Input extends S.Top, Output extends S.Top, Error exte
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const AnyFn = S.declare<Function>(isFunctionValue, anyFnAnnotations).pipe(
   $I.annoteSchema("AnyFn", {
@@ -421,7 +421,7 @@ export const AnyFn = S.declare<Function>(isFunctionValue, anyFnAnnotations).pipe
  * Type for {@link AnyFn}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type AnyFn = typeof AnyFn.Type;
 
@@ -445,7 +445,7 @@ export type AnyFn = typeof AnyFn.Type;
  * @param error - Optional schema for the expected effect error channel.
  * @returns A zero-argument {@link Fn} schema.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export function ThunkOf<Output extends S.Top>(output: Output): FnSchema<typeof S.Never, Output, typeof S.Never>;
 export function ThunkOf<Output extends S.Top, Error extends S.Top>(
@@ -474,7 +474,7 @@ export function ThunkOf<Output extends S.Top, Error extends S.Top>(output: Outpu
  * @param options - Output and optional error contracts for the thunk.
  * @returns A thunk schema with invocation helpers.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(options: {
   readonly output: Output;
@@ -498,7 +498,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  * @param options - Input/output contract for the thunk-like function.
  * @returns A thunk schema whose `inputSchema` remains `Schema.Undefined`.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(options: {
   readonly input: typeof S.Undefined;
@@ -523,7 +523,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  * @param options - Input/output contract for the thunk-like function.
  * @returns A thunk schema whose `inputSchema` remains `Schema.Void`.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(options: {
   readonly input: typeof S.Void;
@@ -553,7 +553,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  * @param options - Input, output, and optional error contracts for the function.
  * @returns A unary function schema with invocation helpers.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export function Fn<Input extends S.Top, Output extends S.Top, Error extends S.Top = typeof S.Never>(options: {
   readonly input: Input;

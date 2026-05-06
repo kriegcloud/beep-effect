@@ -90,7 +90,7 @@ function checkFunction(model: Domain.Function) {
  * const checked = checkFunctions([])
  * void checked
  * ```
- * @category checkers
+ * @category predicates
  * @since 0.0.0
  */
 export function checkFunctions(models: ReadonlyArray<Domain.Function>) {
@@ -116,7 +116,7 @@ const checkClass = Effect.fn("checkClass")(function* (model: Domain.Class) {
  * const checked = checkClasses([])
  * void checked
  * ```
- * @category checkers
+ * @category predicates
  * @since 0.0.0
  */
 export function checkClasses(models: ReadonlyArray<Domain.Class>) {
@@ -138,7 +138,7 @@ function checkConstant(model: Domain.Constant) {
  * const checked = checkConstants([])
  * void checked
  * ```
- * @category checkers
+ * @category predicates
  * @since 0.0.0
  */
 export function checkConstants(models: ReadonlyArray<Domain.Constant>) {
@@ -160,7 +160,7 @@ function checkInterface(model: Domain.Interface) {
  * const checked = checkInterfaces([])
  * void checked
  * ```
- * @category checkers
+ * @category predicates
  * @since 0.0.0
  */
 export function checkInterfaces(models: ReadonlyArray<Domain.Interface>) {
@@ -182,7 +182,7 @@ function checkTypeAlias(model: Domain.TypeAlias) {
  * const checked = checkTypeAliases([])
  * void checked
  * ```
- * @category checkers
+ * @category predicates
  * @since 0.0.0
  */
 export function checkTypeAliases(models: ReadonlyArray<Domain.TypeAlias>) {
@@ -212,7 +212,7 @@ function checkNamespace(
  * const checked = checkNamespaces([])
  * void checked
  * ```
- * @category checkers
+ * @category predicates
  * @since 0.0.0
  */
 export function checkNamespaces(models: ReadonlyArray<Domain.Namespace>) {
@@ -234,7 +234,7 @@ function checkExport(model: Domain.Export) {
  * const checked = checkExports([])
  * void checked
  * ```
- * @category checkers
+ * @category predicates
  * @since 0.0.0
  */
 export function checkExports(models: ReadonlyArray<Domain.Export>) {
@@ -251,7 +251,7 @@ export function checkExports(models: ReadonlyArray<Domain.Export>) {
  * import { checkModule } from "@beep/repo-docgen/Checker"
  * void checkModule
  * ```
- * @category checkers
+ * @category predicates
  * @since 0.0.0
  */
 export function checkModule(module: Domain.Module) {
@@ -295,7 +295,7 @@ export function checkModule(module: Domain.Module) {
  * const checked = checkModules([])
  * void checked
  * ```
- * @category checkers
+ * @category predicates
  * @since 0.0.0
  */
 export function checkModules(modules: ReadonlyArray<Domain.Module>) {

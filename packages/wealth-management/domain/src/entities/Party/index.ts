@@ -30,7 +30,7 @@ export * from "./Party.model.js";
  * console.log(Module)
  * ```
  *
- * @category exports
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./Party.values.js";

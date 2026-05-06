@@ -5,6 +5,10 @@ import { OTPInput, OTPInputContext } from "input-otp";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function InputOTP({
   className,
   containerClassName,
@@ -23,6 +27,10 @@ function InputOTP({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -36,6 +44,10 @@ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function InputOTPSlot({
   index,
   className,
@@ -66,6 +78,10 @@ function InputOTPSlot({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -79,4 +95,8 @@ function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot };

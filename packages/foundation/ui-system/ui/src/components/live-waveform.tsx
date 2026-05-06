@@ -5,6 +5,10 @@ import * as P from "effect/Predicate";
 import { type HTMLAttributes, useEffect, useRef } from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type LiveWaveformProps = HTMLAttributes<HTMLDivElement> & {
   readonly active?: undefined | boolean;
   readonly processing?: undefined | boolean;
@@ -28,6 +32,10 @@ export type LiveWaveformProps = HTMLAttributes<HTMLDivElement> & {
   readonly onStreamEnd?: undefined | (() => void);
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const LiveWaveform = ({
   active = false,
   processing = false,

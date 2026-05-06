@@ -330,7 +330,7 @@ type NlpToolkitLiveError = CorpusManagerError | SimilarityError | VectorizerErro
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const NlpTools: NlpToolList = [
   BowCosineSimilarity,
@@ -365,7 +365,7 @@ export const NlpTools: NlpToolList = [
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const NlpToolkit: Toolkit.Toolkit<NlpToolkitTools> = Toolkit.make(...NlpTools);
 
@@ -380,7 +380,7 @@ export const NlpToolkit: Toolkit.Toolkit<NlpToolkitTools> = Toolkit.make(...NlpT
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const NlpToolkitLive: Layer.Layer<
   Tool.HandlersFor<typeof NlpToolkit.tools>,

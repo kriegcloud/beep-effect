@@ -31,7 +31,7 @@ export const VERSION = "0.0.0" as const;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export * from "./Md.model.ts";
 /**
@@ -45,7 +45,7 @@ export * from "./Md.model.ts";
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category formatting
  */
 export * from "./Md.render.ts";
 /**
@@ -61,7 +61,7 @@ export * from "./Md.render.ts";
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category constructors
  */
 export * from "./Md.ts";
 
@@ -76,6 +76,6 @@ export * from "./Md.ts";
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category utilities
  */
 export * from "./Md.utils.ts";

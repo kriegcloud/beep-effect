@@ -116,7 +116,7 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
  * import { TsMorphServiceUnavailableError } from "@beep/repo-utils"
  * const value = TsMorphServiceUnavailableError
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServiceUnavailableError>(
@@ -141,7 +141,7 @@ export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServ
  * import { TsMorphScopeResolutionError } from "@beep/repo-utils"
  * const value = TsMorphScopeResolutionError
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeResolutionError>(
@@ -166,7 +166,7 @@ export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeRe
  * import { TsMorphProjectLoadError } from "@beep/repo-utils"
  * const value = TsMorphProjectLoadError
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoadError>($I`TsMorphProjectLoadError`)(
@@ -189,7 +189,7 @@ export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoad
  * import { TsMorphSourceFileError } from "@beep/repo-utils"
  * const value = TsMorphSourceFileError
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileError>($I`TsMorphSourceFileError`)(
@@ -213,7 +213,7 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
  * import { TsMorphSymbolNotFoundError } from "@beep/repo-utils"
  * const value = TsMorphSymbolNotFoundError
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNotFoundError>(
@@ -241,7 +241,7 @@ export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNo
  * import { TsMorphUnsupportedFileError } from "@beep/repo-utils"
  * const value = TsMorphUnsupportedFileError
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsupportedFileError>(
@@ -266,7 +266,7 @@ export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsuppo
  * import { TSMorphServiceError } from "@beep/repo-utils"
  * const value = TSMorphServiceError
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const TSMorphServiceError = S.Union([
@@ -286,7 +286,7 @@ export const TSMorphServiceError = S.Union([
  * import type { TSMorphServiceError } from "@beep/repo-utils"
  * type Example = TSMorphServiceError
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TSMorphServiceError = typeof TSMorphServiceError.Type;
@@ -299,7 +299,7 @@ export type TSMorphServiceError = typeof TSMorphServiceError.Type;
  * import type { TSMorphServiceShape } from "@beep/repo-utils"
  * type Example = TSMorphServiceShape
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TSMorphServiceShape = {
@@ -346,7 +346,7 @@ export type TSMorphServiceShape = {
  * import { TSMorphService } from "@beep/repo-utils"
  * const value = TSMorphService
  * ```
- * @category PortContract
+ * @category ports
  * @since 0.0.0
  */
 export class TSMorphService extends Context.Service<TSMorphService, TSMorphServiceShape>()($I`TSMorphService`) {}
@@ -690,7 +690,7 @@ const collectOutlineEntries = Effect.fn(function* (
  * import { createTSMorphService } from "@beep/repo-utils"
  * const value = createTSMorphService
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const createTSMorphService = Effect.fn("createTSMorphService")(function* (): Effect.fn.Return<
@@ -1377,7 +1377,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
  * import { TSMorphServiceLive } from "@beep/repo-utils"
  * const value = TSMorphServiceLive
  * ```
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const TSMorphServiceLive: Layer.Layer<TSMorphService, never, FileSystem.FileSystem | Path.Path> = Layer.effect(

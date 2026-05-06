@@ -15,7 +15,7 @@
  * console.log(SpecimenServerEntity)
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export * from "./Specimen.layer.js";
@@ -30,7 +30,7 @@ export * from "./Specimen.layer.js";
  * void program
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export * from "./Specimen.repo.js";

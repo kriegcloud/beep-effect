@@ -11,7 +11,7 @@ const $I = $SchemaId.create("person/Age");
  * The age of a person in years.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Age = S.Int.check(
   S.isBetween({
@@ -28,7 +28,7 @@ export const Age = S.Int.check(
 /**
  * {@inheritDoc Age}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type Age = typeof Age.Type;

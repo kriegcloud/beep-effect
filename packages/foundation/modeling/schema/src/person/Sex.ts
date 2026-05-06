@@ -11,7 +11,7 @@ const $I = $SchemaId.create("person/Sex");
  * The sex of a person ("male" or "female").
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Sex = LiteralKit(["male", "female"]).pipe(
   $I.annoteSchema("Sex", {
@@ -21,7 +21,7 @@ export const Sex = LiteralKit(["male", "female"]).pipe(
 /**
  * {@inheritDoc Sex}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type Sex = typeof Sex.Type;

@@ -23,7 +23,7 @@ const $I = $SchemaId.create("Timezone");
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Timezone = LiteralKit([
   "Africa/Abidjan",
@@ -488,6 +488,6 @@ export const Timezone = LiteralKit([
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Timezone = typeof Timezone.Type;

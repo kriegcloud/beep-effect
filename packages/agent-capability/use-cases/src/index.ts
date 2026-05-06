@@ -15,7 +15,7 @@
  * console.log(RuntimeUseCases)
  * ```
  *
- * @category exports
+ * @category protocols
  * @since 0.0.0
  */
 export * from "./public.js";

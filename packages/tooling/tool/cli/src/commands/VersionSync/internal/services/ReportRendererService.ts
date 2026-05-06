@@ -26,7 +26,7 @@ const stringEquivalence = S.toEquivalence(S.String);
 /**
  * Service contract for rendering a version-sync report to console.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type ReportRendererServiceShape = {
@@ -37,7 +37,7 @@ export type ReportRendererServiceShape = {
 /**
  * Service tag for report rendering.
  *
- * @category PortContract
+ * @category ports
  * @since 0.0.0
  */
 export class ReportRendererService extends Context.Service<ReportRendererService, ReportRendererServiceShape>()(
@@ -121,7 +121,7 @@ const renderReport: ReportRendererServiceShape["renderReport"] = Effect.fn(funct
 /**
  * Live layer for report rendering.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const ReportRendererServiceLive = Layer.succeed(

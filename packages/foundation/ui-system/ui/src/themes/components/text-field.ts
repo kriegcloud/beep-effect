@@ -26,6 +26,7 @@ declare module "@mui/material/FormControl" {
 }
 
 /**
+ * @category themes
  * @since 0.0.0
  */
 export const textFieldTheme: ThemeComponents = {

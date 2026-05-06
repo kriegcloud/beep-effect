@@ -883,7 +883,7 @@ const titleSegment = <const Identifier extends string>(identifier: Identifier): 
  * Derive a table name from the final segment of a schema identifier.
  *
  * @since 0.0.0
- * @category naming
+ * @category formatting
  */
 export const tableNameFromIdentifier = <const Identifier extends string>(
   identifier: Identifier
@@ -894,7 +894,7 @@ export const tableNameFromIdentifier = <const Identifier extends string>(
  * Resolve a column name from field key and descriptor override.
  *
  * @since 0.0.0
- * @category naming
+ * @category formatting
  */
 export const columnNameFor: {
   <const Key extends string, const Descriptor extends PersistDescriptor>(
@@ -1062,7 +1062,7 @@ export type EncodedFieldShape = typeof EncodedFieldShape.Type;
  * Return the encoded AST for a schema field.
  *
  * @since 0.0.0
- * @category ast
+ * @category getters
  */
 export const encodedAstFor = (field: S.Top): AST.AST => AST.toEncoded(field.ast);
 
@@ -1098,7 +1098,7 @@ const absenceKindFor = (shape: Omit<EncodedFieldShape, "absenceKind">): EncodedA
  * Derive encoded nullability and optionality from the encoded schema AST.
  *
  * @since 0.0.0
- * @category ast
+ * @category getters
  */
 export const encodedFieldShape = (field: S.Top): EncodedFieldShape => {
   const ast = encodedAstFor(field);
@@ -1118,7 +1118,7 @@ export const encodedFieldShape = (field: S.Top): EncodedFieldShape => {
  * Derive and validate selected-row absence semantics for one field.
  *
  * @since 0.0.0
- * @category ast
+ * @category validation
  */
 export const selectedRowFieldShape: {
   (key: string, field: S.Top): EncodedFieldShape;
@@ -1138,7 +1138,7 @@ export const selectedRowFieldShape: {
  * True when a field's encoded side allows null.
  *
  * @since 0.0.0
- * @category ast
+ * @category predicates
  */
 export const isEncodedNullable = (field: S.Top): boolean => encodedFieldShape(field).allowsNull;
 
@@ -1146,7 +1146,7 @@ export const isEncodedNullable = (field: S.Top): boolean => encodedFieldShape(fi
  * True when a field's encoded side is optional.
  *
  * @since 0.0.0
- * @category ast
+ * @category predicates
  */
 export const isEncodedOptional = (field: S.Top): boolean => encodedFieldShape(field).isOptional;
 
@@ -1594,7 +1594,7 @@ export const ClassFactory =
  * Retrieve entity metadata from schema annotations or class statics.
  *
  * @since 0.0.0
- * @category accessors
+ * @category getters
  */
 export const getDefinition = <Entity extends EntityClass.Any>(entity: Entity): EntityClass.DefinitionOf<Entity> => {
   const annotated = entity.ast.annotations?.[DefinitionAnnotationKey];

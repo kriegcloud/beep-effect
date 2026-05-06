@@ -36,7 +36,7 @@ const EthereumValidatorPublicKeyChecks = S.makeFilterGroup(
  * Branded schema for canonical Ethereum validator public keys.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EthereumValidatorPublicKey = S.String.check(EthereumValidatorPublicKeyChecks).pipe(
   S.brand("EthereumValidatorPublicKey"),
@@ -51,7 +51,7 @@ export const EthereumValidatorPublicKey = S.String.check(EthereumValidatorPublic
  * Type for {@link EthereumValidatorPublicKey}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EthereumValidatorPublicKey = typeof EthereumValidatorPublicKey.Type;
 
@@ -59,7 +59,7 @@ export type EthereumValidatorPublicKey = typeof EthereumValidatorPublicKey.Type;
  * Redacted schema for canonical Ethereum validator public keys.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EthereumValidatorPublicKeyRedacted = EthereumValidatorPublicKey.pipe(
   S.RedactedFromValue,
@@ -77,6 +77,6 @@ export const EthereumValidatorPublicKeyRedacted = EthereumValidatorPublicKey.pip
  * Type for {@link EthereumValidatorPublicKeyRedacted}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EthereumValidatorPublicKeyRedacted = typeof EthereumValidatorPublicKeyRedacted.Type;

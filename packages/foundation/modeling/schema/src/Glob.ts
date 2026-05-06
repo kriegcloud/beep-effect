@@ -101,7 +101,7 @@ const GlobChecks = S.makeFilterGroup(
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Glob = S.String.check(GlobChecks).pipe(
   S.brand("Glob"),
@@ -116,6 +116,6 @@ export const Glob = S.String.check(GlobChecks).pipe(
  * Type for {@link Glob}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Glob = typeof Glob.Type;

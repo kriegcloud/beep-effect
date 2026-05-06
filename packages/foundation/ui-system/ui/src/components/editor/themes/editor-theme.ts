@@ -8,7 +8,7 @@ import "./editor-theme.css";
  * Shared Lexical theme classes for the shadcn editor registry components.
  *
  * @since 0.0.0
- * @category Presentation
+ * @category themes
  */
 export const editorTheme: EditorThemeClasses = {
   ltr: "text-left",

@@ -80,6 +80,7 @@ const Unradio = styled("span")(({ theme }) => ({
 const iconSize = 24; // 1.5rem icon size
 
 /**
+ * @category themes
  * @since 0.0.0
  */
 export const controlsTheme: ThemeComponents = {

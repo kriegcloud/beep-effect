@@ -4,10 +4,18 @@ import type * as React from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ResizablePanelGroup({ className, ...props }: React.ComponentProps<typeof Group>) {
   return <Group data-slot="resizable-panel-group" className={cn("flex h-full w-full", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ResizablePanel({ ...props }: React.ComponentProps<typeof Panel>) {
   return <Panel data-slot="resizable-panel" {...props} />;
 }
@@ -17,6 +25,10 @@ interface ResizableHandleProps extends React.ComponentProps<typeof Separator> {
   readonly withHandle?: undefined | boolean;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ResizableHandle({
   withHandle: _withHandle,
   orientation = "horizontal",
@@ -41,4 +53,8 @@ function ResizableHandle({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { ResizableHandle, ResizablePanel, ResizablePanelGroup };

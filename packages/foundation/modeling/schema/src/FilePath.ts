@@ -83,7 +83,7 @@ export type HasNullByte = typeof HasNullByte.Type;
  * namespace prefixes.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SupportedWindowsNamespace = S.NonEmptyString.check(
   S.makeFilter(P.not(usesUnsupportedWindowsNamespacePrefix), {
@@ -113,7 +113,7 @@ export type SupportedWindowsNamespace = typeof SupportedWindowsNamespace.Type;
  * Branded schema for strings that contain a POSIX separator.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UsesPosixSeparator = S.String.check(
   S.isIncludes("/", {
@@ -143,7 +143,7 @@ export type UsesPosixSeparator = typeof UsesPosixSeparator.Type;
  * Branded schema for strings that contain a Windows separator.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const UsesWindowsSeparator = S.String.check(
   S.makeFilter(Str.includes("\\"), {
@@ -173,7 +173,7 @@ export type UsesWindowsSeparator = typeof UsesWindowsSeparator.Type;
  * Branded schema for strings that end with a POSIX or Windows path separator.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EndsWithSeparator = S.String.check(
   S.makeFilter(P.or(Str.endsWith("/"), Str.endsWith("\\")), {
@@ -205,7 +205,7 @@ const WindowsDotSegmentKit = LiteralKit([".", ".."] as const);
  * Literal union for Windows dot-segment markers.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WindowsDotSegment = WindowsDotSegmentKit.annotate(
   $I.annote("WindowsDotSegment", {
@@ -226,7 +226,7 @@ export type WindowsDotSegment = typeof WindowsDotSegment.Type;
  * separators or dot-segment markers.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ValidWindowsPlainPathSegment = S.NonEmptyString.check(
   S.makeFilterGroup(
@@ -279,7 +279,7 @@ const isWindowsDotSegment = S.is(WindowsDotSegment);
  * Branded schema for Windows root segments such as UNC server and share names.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ValidWindowsRootSegment = ValidWindowsPlainPathSegment.check(
   S.makeFilter(P.not(isWindowsDotSegment), {
@@ -310,7 +310,7 @@ export type ValidWindowsRootSegment = typeof ValidWindowsRootSegment.Type;
  * dot-segment markers.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ValidWindowsPathSegment = S.Union([WindowsDotSegment, ValidWindowsPlainPathSegment]).pipe(
   S.brand("ValidWindowsPathSegment"),
@@ -333,7 +333,7 @@ export type ValidWindowsPathSegment = typeof ValidWindowsPathSegment.Type;
  * Branded schema for a non-empty Windows path segment list.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WindowsSegments = S.NonEmptyArray(ValidWindowsPathSegment).pipe(
   S.brand("WindowsSegments"),
@@ -357,7 +357,7 @@ export type WindowsSegments = typeof WindowsSegments.Type;
  * and share segments.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ValidWindowsUncRest = S.NonEmptyArray(ValidWindowsPathSegment).pipe(
   S.brand("ValidWindowsUncRest"),
@@ -380,7 +380,7 @@ export type ValidWindowsUncRest = typeof ValidWindowsUncRest.Type;
  * Branded schema for a full UNC segment list `[server, share, ...rest]`.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ValidWindowsUncSegments = S.TupleWithRest(
   S.Tuple([ValidWindowsRootSegment, ValidWindowsRootSegment, ValidWindowsPathSegment]),
@@ -406,7 +406,7 @@ export type ValidWindowsUncSegments = typeof ValidWindowsUncSegments.Type;
  * Branded schema for Windows drive roots such as `C:` and `C:\\`.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WindowsDriveRoot = S.String.check(
   S.isPattern(windowsDriveRootRegExp, {
@@ -436,7 +436,7 @@ export type WindowsDriveRoot = typeof WindowsDriveRoot.Type;
  * Branded schema for UNC roots such as `\\\\server\\share`.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WindowsUncRoot = S.String.check(
   S.isPattern(windowsUncRootRegExp, {
@@ -470,7 +470,7 @@ const isWindowsUncRoot = S.is(WindowsUncRoot);
  * Branded schema for path strings that include a non-root leaf segment.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HasLeafSegment = S.NonEmptyString.check(
   S.makeFilterGroup(
@@ -534,7 +534,7 @@ const isValidWindowsUncSegments = S.is(ValidWindowsUncSegments);
  * Branded schema for Windows drive paths with a leaf segment.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WindowsDrivePath = S.NonEmptyString.check(
   S.makeFilterGroup(
@@ -592,7 +592,7 @@ export type WindowsDrivePath = typeof WindowsDrivePath.Type;
  * segments.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WindowsUncPath = S.NonEmptyString.check(
   S.makeFilterGroup(
@@ -658,7 +658,7 @@ const isWindowsDrivePrefix = matchesPattern(windowsDrivePrefixRegExp);
  * include a leaf segment.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WindowsRelativePath = S.NonEmptyString.check(
   S.makeFilterGroup(
@@ -741,7 +741,7 @@ const SupportedPathFamilyKit = LiteralKit([
  * Literal union of file-path families recognized by {@link FilePath}.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SupportedPathFamily = SupportedPathFamilyKit.annotate(
   $I.annote("SupportedPathFamily", {

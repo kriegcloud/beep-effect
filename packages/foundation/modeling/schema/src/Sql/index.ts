@@ -1,5 +1,5 @@
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export * from "./Sql.ts";

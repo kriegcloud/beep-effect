@@ -19,6 +19,10 @@ const ToggleGroupContext = React.createContext<
   orientation: "horizontal",
 });
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ToggleGroup({
   className,
   variant,
@@ -53,6 +57,10 @@ function ToggleGroup({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ToggleGroupItem({
   className,
   children,
@@ -83,4 +91,8 @@ function ToggleGroupItem({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { ToggleGroup, ToggleGroupItem };

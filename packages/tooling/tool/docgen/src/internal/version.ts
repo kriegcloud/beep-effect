@@ -16,7 +16,7 @@
  * ```
  *
  * @internal
- * @category version
+ * @category configuration
  * @since 0.0.0
  */
 export const moduleVersion = "0.0.0";

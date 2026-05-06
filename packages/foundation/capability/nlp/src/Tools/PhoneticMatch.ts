@@ -53,7 +53,7 @@ class PhoneticMatchParameters extends S.Class<PhoneticMatchParameters>($I`Phonet
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const PhoneticMatch = Tool.make("PhoneticMatch", {
   description: "Compute phonetic overlap between two texts using Soundex or phonetization.",

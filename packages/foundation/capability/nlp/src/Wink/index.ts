@@ -16,7 +16,7 @@ import { WinkEngineRefLive as WinkEngineRefLiveSource, WinkEngineRef as WinkEngi
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkLayerAllLive = WinkLayerAllLiveSource;
 /**
@@ -28,17 +28,17 @@ export const WinkLayerAllLive = WinkLayerAllLiveSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkLayerLive = WinkLayerLiveSource;
 /**
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export * from "./WinkCorpusManager.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export * from "./WinkEngine.ts";
 /**
@@ -50,7 +50,7 @@ export * from "./WinkEngine.ts";
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export const WinkEngineRef = WinkEngineRefSource;
 /**
@@ -62,36 +62,36 @@ export const WinkEngineRef = WinkEngineRefSource;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category layers
  */
 export const WinkEngineRefLive = WinkEngineRefLiveSource;
 /**
  * @since 0.0.0
- * @category exports
+ * @category errors
  */
 export * from "./WinkErrors.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export * from "./WinkPattern.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export * from "./WinkSimilarity.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export * from "./WinkTokenizer.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category utilities
  */
 export * from "./WinkUtils.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export * from "./WinkVectorizer.ts";

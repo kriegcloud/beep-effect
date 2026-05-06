@@ -9,13 +9,13 @@
  * DOM element schema re-exports.
  *
  * @since 0.0.0
- * @category re-exports
+ * @category schemas
  */
 export * from "./elements.ts";
 /**
  * DOM event schema re-exports.
  *
  * @since 0.0.0
- * @category re-exports
+ * @category schemas
  */
 export * from "./events.ts";

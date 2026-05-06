@@ -6,13 +6,13 @@
  */
 
 /**
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export * from "./Age.ts";
 
 /**
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export * from "./Sex.ts";

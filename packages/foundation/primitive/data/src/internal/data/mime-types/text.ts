@@ -13,7 +13,7 @@
  * registry and an array of associated file extensions.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import { text } from "@beep/data/mime-types/text"

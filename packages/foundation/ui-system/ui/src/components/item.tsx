@@ -6,12 +6,20 @@ import { cva } from "class-variance-authority";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div role="list" data-slot="item-group" className={cn("group/item-group flex flex-col", className)} {...props} />
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Separator>) {
   return <Separator data-slot="item-separator" orientation="horizontal" className={cn("my-0", className)} {...props} />;
 }
@@ -37,6 +45,10 @@ const itemVariants = cva(
   }
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Item({
   className,
   variant = "default",
@@ -82,6 +94,10 @@ const itemMediaVariants = cva(
   }
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ItemMedia({
   className,
   variant = "default",
@@ -97,6 +113,10 @@ function ItemMedia({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -107,6 +127,10 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -117,6 +141,10 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
@@ -131,10 +159,18 @@ function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="item-actions" className={cn("flex items-center gap-2", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -145,6 +181,10 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -155,6 +195,10 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Item,
   ItemActions,

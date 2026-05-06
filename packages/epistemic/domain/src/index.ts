@@ -30,7 +30,7 @@ export * from "./entities/index.js";
  * console.log(Module)
  * ```
 
- * @category values
+ * @category models
  * @since 0.0.0
  */
 export * from "./values/index.js";

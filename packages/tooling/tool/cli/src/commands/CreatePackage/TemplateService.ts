@@ -18,7 +18,7 @@ const $I = $RepoCliId.create("commands/CreatePackage/TemplateService");
 /**
  * Mapping between template source file and output file path.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
@@ -34,7 +34,7 @@ export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
 /**
  * Rendered template output.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTemplate`)(
@@ -50,7 +50,7 @@ export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTempl
 /**
  * Request payload for template rendering.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`TemplateRenderRequest`)(
@@ -70,7 +70,7 @@ export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`Tem
 /**
  * Service contract for template rendering.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type TemplateServiceShape = {
@@ -82,7 +82,7 @@ export type TemplateServiceShape = {
 /**
  * Service tag for template rendering.
  *
- * @category PortContract
+ * @category ports
  * @since 0.0.0
  */
 export class TemplateService extends Context.Service<TemplateService, TemplateServiceShape>()($I`TemplateService`) {}
@@ -120,7 +120,7 @@ const createHandlebarsEnvironment = () => {
  * Construct the default template service implementation.
  *
  * @returns Template renderer backed by Handlebars.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const createTemplateService = (): TemplateServiceShape => {

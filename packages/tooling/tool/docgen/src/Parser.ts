@@ -40,7 +40,7 @@ const withSource = <A, E, R>(source: SourceShape, effect: Effect.Effect<A, E, R 
  * import { SourceShape } from "@beep/repo-docgen/Parser"
  * void SourceShape
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export class SourceShape {
@@ -77,7 +77,7 @@ export class SourceShape {
  * import { Source } from "@beep/repo-docgen/Parser"
  * void Source
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export class Source extends Context.Service<Source, SourceShape>()($I`Source`) {
@@ -121,7 +121,7 @@ type Comment = {
  * const comment = parseComment("/** Example. *\/")
  * void comment
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseComment = (text: string): Comment => {
@@ -198,7 +198,7 @@ const parseInterfaceDeclarations = (interfaces: ReadonlyArray<ast.InterfaceDecla
  * import { parseInterfaces } from "@beep/repo-docgen/Parser"
  * void parseInterfaces
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseInterfaces = Effect.gen(function* () {
@@ -289,7 +289,7 @@ const getFunctionDeclarations = Effect.gen(function* () {
  * import { parseFunctions } from "@beep/repo-docgen/Parser"
  * void parseFunctions
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseFunctions = Effect.gen(function* () {
@@ -329,7 +329,7 @@ const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDecl
  * import { parseTypeAliases } from "@beep/repo-docgen/Parser"
  * void parseTypeAliases
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseTypeAliases = Effect.gen(function* () {
@@ -363,7 +363,7 @@ const parseConstantVariableDeclaration = Effect.fn("parseConstantVariableDeclara
  * import { parseConstants } from "@beep/repo-docgen/Parser"
  * void parseConstants
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseConstants = Effect.gen(function* () {
@@ -441,7 +441,7 @@ const parseNamedExports = (ed: ast.ExportDeclaration) => {
  * import { parseExports } from "@beep/repo-docgen/Parser"
  * void parseExports
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseExports = Effect.gen(function* () {
@@ -479,7 +479,7 @@ const parseModuleDeclarations = (namespaces: ReadonlyArray<ast.ModuleDeclaration
  * import { parseNamespaces } from "@beep/repo-docgen/Parser"
  * void parseNamespaces
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseNamespaces = Effect.gen(function* () {
@@ -555,7 +555,7 @@ const parseProperties = (c: ast.ClassDeclaration) =>
  * import { getConstructorDeclarationSignature } from "@beep/repo-docgen/Parser"
  * void getConstructorDeclarationSignature
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const getConstructorDeclarationSignature = (constructorDeclaration: ast.ConstructorDeclaration): string =>
@@ -610,7 +610,7 @@ const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
  * import { parseClasses } from "@beep/repo-docgen/Parser"
  * void parseClasses
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseClasses = Effect.gen(function* () {
@@ -628,7 +628,7 @@ export const parseClasses = Effect.gen(function* () {
  * import { parseModuleDocumentation } from "@beep/repo-docgen/Parser"
  * void parseModuleDocumentation
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseModuleDocumentation = Effect.gen(function* () {
@@ -652,7 +652,7 @@ export const parseModuleDocumentation = Effect.gen(function* () {
  * import { parseModule } from "@beep/repo-docgen/Parser"
  * void parseModule
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseModule = Effect.gen(function* () {
@@ -691,7 +691,7 @@ export const parseModule = Effect.gen(function* () {
  * import { parseFile } from "@beep/repo-docgen/Parser"
  * void parseFile
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseFile =
@@ -750,7 +750,7 @@ const createProject = Effect.fn("createProject")(function* (files: ReadonlyArray
  * const parsed = parseFiles([])
  * void parsed
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const parseFiles = (files: ReadonlyArray<Domain.File>) =>

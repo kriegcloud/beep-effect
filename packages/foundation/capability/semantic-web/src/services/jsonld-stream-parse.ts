@@ -247,7 +247,7 @@ export const JsonLdStreamParseErrorReason = LiteralKit([
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export class JsonLdStreamParseError extends TaggedErrorClass<JsonLdStreamParseError>($I`JsonLdStreamParseError`)(
   "JsonLdStreamParseError",

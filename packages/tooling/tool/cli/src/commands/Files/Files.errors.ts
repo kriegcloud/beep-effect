@@ -27,7 +27,7 @@ interface PlatformErrorOptions {
  * const error = new FilesCommandError({ message: "Invalid directory" })
  * void error.message
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class FilesCommandError extends TaggedErrorClass<FilesCommandError>($I`FilesCommandError`)(
@@ -48,7 +48,7 @@ export class FilesCommandError extends TaggedErrorClass<FilesCommandError>($I`Fi
  * @param filePath - Path involved in the failed operation.
  * @param options - Wrapped platform failure details.
  * @returns File command error with operation context.
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export const formatPlatformError: {
@@ -68,7 +68,7 @@ export const formatPlatformError: {
  *
  * @param filePath - Path rejected because it has no suffix to preserve.
  * @returns Failed effect with a file command error.
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export const failOnExtensionlessFile = (filePath: string): Effect.Effect<never, FilesCommandError> =>

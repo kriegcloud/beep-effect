@@ -26,7 +26,7 @@ const $I = $SchemaId.create("Percentage");
  * console.log(value) // 75.5
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const Percentage = S.Number.check(
@@ -50,7 +50,7 @@ export const Percentage = S.Number.check(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Percentage = typeof Percentage.Type;
 
@@ -66,7 +66,7 @@ export type Percentage = typeof Percentage.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isPercentage = S.is(Percentage);
 
@@ -81,28 +81,28 @@ export const isPercentage = S.is(Percentage);
  * ```
  *
  * @since 0.0.0
- * @category Constants
+ * @category constants
  */
 export const ZERO: Percentage = Percentage.make(0);
 /**
  * Percentage constant for 20%.
  *
  * @since 0.0.0
- * @category Constants
+ * @category constants
  */
 export const TWENTY: Percentage = Percentage.make(20);
 /**
  * Percentage constant for 50%.
  *
  * @since 0.0.0
- * @category Constants
+ * @category constants
  */
 export const FIFTY: Percentage = Percentage.make(50);
 /**
  * Percentage constant for 100%.
  *
  * @since 0.0.0
- * @category Constants
+ * @category constants
  */
 export const HUNDRED: Percentage = Percentage.make(100);
 
@@ -117,7 +117,7 @@ export const HUNDRED: Percentage = Percentage.make(100);
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const toDecimal = (percentage: Percentage): number => percentage / 100;
 
@@ -133,7 +133,7 @@ export const toDecimal = (percentage: Percentage): number => percentage / 100;
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const fromDecimal = (decimal: number): Percentage => Percentage.make(decimal * 100);
 
@@ -149,7 +149,7 @@ export const fromDecimal = (decimal: number): Percentage => Percentage.make(deci
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isZero = (percentage: Percentage): boolean => percentage === 0;
 
@@ -165,7 +165,7 @@ export const isZero = (percentage: Percentage): boolean => percentage === 0;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isFull = (percentage: Percentage): boolean => percentage === 100;
 
@@ -181,7 +181,7 @@ export const isFull = (percentage: Percentage): boolean => percentage === 100;
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const complement = (percentage: Percentage): Percentage => Percentage.make(100 - percentage);
 
@@ -197,7 +197,7 @@ export const complement = (percentage: Percentage): Percentage => Percentage.mak
  * ```
  *
  * @since 0.0.0
- * @category Formatting
+ * @category formatting
  */
 export const format: {
   (percentage: Percentage): (decimalPlaces?: undefined | number) => string;

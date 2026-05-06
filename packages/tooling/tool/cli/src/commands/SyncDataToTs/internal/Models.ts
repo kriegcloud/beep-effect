@@ -18,7 +18,7 @@ const SyncDataSourceFormatKit = LiteralKit(["json", "csv", "xml"]);
 /**
  * Supported source formats for sync-data-to-ts targets.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SyncDataSourceFormat = SyncDataSourceFormatKit.annotate(
@@ -30,7 +30,7 @@ export const SyncDataSourceFormat = SyncDataSourceFormatKit.annotate(
 /**
  * Supported source formats for sync-data-to-ts targets.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SyncDataSourceFormat = typeof SyncDataSourceFormat.Type;
@@ -40,7 +40,7 @@ const SyncDataRunModeKit = LiteralKit(["write", "check", "dry-run"]);
 /**
  * Command execution mode for sync-data-to-ts.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SyncDataRunMode = SyncDataRunModeKit.annotate(
@@ -52,7 +52,7 @@ export const SyncDataRunMode = SyncDataRunModeKit.annotate(
 /**
  * Command execution mode for sync-data-to-ts.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SyncDataRunMode = typeof SyncDataRunMode.Type;
@@ -60,7 +60,7 @@ export type SyncDataRunMode = typeof SyncDataRunMode.Type;
 /**
  * Operational error during source fetch, parsing, projection, or file writes.
  *
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export class SyncDataToTsError extends TaggedErrorClass<SyncDataToTsError>($I`SyncDataToTsError`)(
@@ -80,7 +80,7 @@ export class SyncDataToTsError extends TaggedErrorClass<SyncDataToTsError>($I`Sy
 /**
  * Drift detected in check mode.
  *
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export class SyncDataToTsDriftError extends TaggedErrorClass<SyncDataToTsDriftError>($I`SyncDataToTsDriftError`)(
@@ -98,7 +98,7 @@ export class SyncDataToTsDriftError extends TaggedErrorClass<SyncDataToTsDriftEr
 /**
  * Rendered target projection ready to compare or write to disk.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class SyncDataTargetProjection extends S.Class<SyncDataTargetProjection>($I`SyncDataTargetProjection`)(
@@ -164,7 +164,7 @@ class SyncDataTargetXml extends S.Class<SyncDataTargetXml>($I`SyncDataTargetXml`
  * Checked-in sync target definition.
  *
  * @returns Tagged union schema keyed by `format`.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const SyncDataTarget = SyncDataSourceFormat.mapMembers(
@@ -180,7 +180,7 @@ export const SyncDataTarget = SyncDataSourceFormat.mapMembers(
 /**
  * {@inheritDoc SyncDataTarget}
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type SyncDataTarget = typeof SyncDataTarget.Type;
@@ -188,7 +188,7 @@ export type SyncDataTarget = typeof SyncDataTarget.Type;
 /**
  * Per-target command result after diffing or writing.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class SyncDataTargetResult extends S.Class<SyncDataTargetResult>($I`SyncDataTargetResult`)(

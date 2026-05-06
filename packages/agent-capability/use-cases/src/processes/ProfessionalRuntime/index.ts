@@ -15,7 +15,7 @@
  * console.log(ProfessionalRuntime.ProposeCandidateOutputSet)
  * ```
  *
- * @category exports
+ * @category commands
  * @since 0.0.0
  */
 export * from "./ProfessionalRuntime.commands.js";
@@ -30,7 +30,7 @@ export * from "./ProfessionalRuntime.commands.js";
  * console.log(ProfessionalRuntime.CandidateOutputSet)
  * ```
  *
- * @category exports
+ * @category protocols
  * @since 0.0.0
  */
 export * from "./ProfessionalRuntime.contracts.js";
@@ -45,7 +45,7 @@ export * from "./ProfessionalRuntime.contracts.js";
  * console.log(ProfessionalRuntime.ProfessionalRuntimeValidationError)
  * ```
  *
- * @category exports
+ * @category errors
  * @since 0.0.0
  */
 export * from "./ProfessionalRuntime.errors.js";
@@ -59,7 +59,7 @@ export * from "./ProfessionalRuntime.errors.js";
  * console.log(ProfessionalRuntime.GetContextPacket)
  * ```
  *
- * @category exports
+ * @category queries
  * @since 0.0.0
  */
 export * from "./ProfessionalRuntime.queries.js";
@@ -74,7 +74,7 @@ export * from "./ProfessionalRuntime.queries.js";
  * console.log(sdk)
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.js";
@@ -88,7 +88,7 @@ export type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.js";
  * console.log(ProfessionalRuntime.RuntimeCandidateLifecycle)
  * ```
  *
- * @category exports
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./ProfessionalRuntime.values.js";

@@ -8,14 +8,26 @@ import * as S from "effect/Schema";
 
 const $I = $UiId.create("components/codegraph/components/SearchBar");
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const SearchMode = LiteralKit(["focus", "fit"]).pipe(
   $I.annoteSchema("SearchMode", {
     description: "The search mode for the codegraph",
   })
 );
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type SearchMode = typeof SearchMode.Type;
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export class SearchBarProps extends S.Class<SearchBarProps>($I`SearchBarProps`)({
   // cy:
 }) {}

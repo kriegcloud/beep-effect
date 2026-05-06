@@ -3,18 +3,34 @@
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category providers
+ * @since 0.0.0
+ */
 function TooltipProvider({ ...props }: TooltipPrimitive.Provider.Props) {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function TooltipTrigger({ className, ...props }: TooltipPrimitive.Trigger.Props) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" className={cn(className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function TooltipContent({
   className,
   sideOffset = 4,
@@ -45,4 +61,8 @@ function TooltipContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger };

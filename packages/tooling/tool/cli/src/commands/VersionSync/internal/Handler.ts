@@ -64,7 +64,7 @@ const handleVersionSyncProgram = Effect.fn(function* (options: VersionSyncOption
  *
  * @param options - Parsed version-sync options.
  * @returns Effect that resolves or fails with typed version-sync errors.
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const handleVersionSync: (

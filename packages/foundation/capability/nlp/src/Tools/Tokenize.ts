@@ -45,7 +45,7 @@ class TokenizeSuccess extends S.Class<TokenizeSuccess>($I`TokenizeSuccess`)(
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const Tokenize = Tool.make("Tokenize", {
   description: "Tokenize text into linguistic tokens with part-of-speech tags, lemmas, and character positions.",

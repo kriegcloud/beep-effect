@@ -44,7 +44,7 @@ const STABLE_DOCKER_TAG_PATTERN = /^(?!latest$)(?!.*(?:rc|beta|alpha|nightly|dev
 // ── Docker Hub API ──────────────────────────────────────────────────────────
 
 /**
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 class DockerTagResult extends S.Class<DockerTagResult>($I`DockerTagResult`)(
@@ -57,7 +57,7 @@ class DockerTagResult extends S.Class<DockerTagResult>($I`DockerTagResult`)(
 ) {}
 
 /**
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 class DockerTagsResponse extends S.Class<DockerTagsResponse>($I`DockerTagsResponse`)(
@@ -74,7 +74,7 @@ class DockerTagsResponse extends S.Class<DockerTagsResponse>($I`DockerTagsRespon
 /**
  * A Docker image reference parsed from docker-compose.yml.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 class DockerImageRef extends S.Class<DockerImageRef>($I`DockerImageRef`)(
@@ -123,7 +123,7 @@ class DockerComposeDocument extends S.Class<DockerComposeDocument>($I`DockerComp
 /**
  * Resolved Docker image state.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class DockerImageState extends S.Class<DockerImageState>($I`DockerImageState`)(
@@ -321,7 +321,7 @@ const findLatestSemver = (tags: ReadonlyArray<string>): O.Option<string> => {
 /**
  * Resolve Docker image state from docker-compose.yml.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const resolveDockerImages: {
@@ -397,7 +397,7 @@ export const resolveDockerImages: {
 /**
  * Fetch the latest appropriate tag for a Docker image from Docker Hub.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const fetchLatestDockerTag: (
@@ -449,7 +449,7 @@ const fetchLatestDockerTag: (
  *
  * @param state - The resolved Docker image state.
  * @returns The version category report for Docker images.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const buildDockerReport: (state: DockerImageState) => VersionCategoryReport = (state) => {

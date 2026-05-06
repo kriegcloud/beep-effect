@@ -43,7 +43,7 @@ const EthAmountInput = S.Finite.pipe(
  * `BigDecimal`.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EthAmount = EthAmountInput.pipe(
   S.decodeTo(S.BigDecimal, {
@@ -61,6 +61,6 @@ export const EthAmount = EthAmountInput.pipe(
  * Type for {@link EthAmount}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EthAmount = typeof EthAmount.Type;

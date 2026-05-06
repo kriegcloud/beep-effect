@@ -10,6 +10,10 @@ import type React from "react";
 import { useMemo } from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
     <fieldset
@@ -23,6 +27,10 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function FieldLegend({
   className,
   variant = "legend",
@@ -38,6 +46,10 @@ function FieldLegend({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -66,6 +78,10 @@ const fieldVariants = cva("data-[invalid=true]:text-destructive gap-2 group/fiel
   },
 });
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Field({
   className,
   orientation = "vertical",
@@ -82,6 +98,10 @@ function Field({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -92,6 +112,10 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>) {
   return (
     <Label
@@ -106,6 +130,10 @@ function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>)
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -119,6 +147,10 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
@@ -134,6 +166,10 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function FieldSeparator({
   children,
   className,
@@ -161,6 +197,10 @@ function FieldSeparator({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function FieldError({
   className,
   children,
@@ -225,6 +265,10 @@ function FieldError({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Field,
   FieldContent,

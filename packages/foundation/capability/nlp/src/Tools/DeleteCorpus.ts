@@ -43,7 +43,7 @@ class DeleteCorpusSuccess extends S.Class<DeleteCorpusSuccess>($I`DeleteCorpusSu
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const DeleteCorpus = Tool.make("DeleteCorpus", {
   description: "Delete a corpus session and release its in-memory index state.",

@@ -80,7 +80,7 @@ const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`ExportedToolError`)(
   "ExportedToolError",
@@ -126,7 +126,7 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
  * ```
  *
  * @since 0.0.0
- * @category Models
+ * @category models
  */
 export interface ExportedTool {
   readonly description: string;
@@ -247,7 +247,7 @@ const buildExportedTool: {
 
 /**
  * @since 0.0.0
- * @category Adapters
+ * @category adapters
  */
 const exportToolsEffect: Effect.Effect<
   ReadonlyArray<ExportedTool>,
@@ -274,6 +274,6 @@ const exportToolsEffect: Effect.Effect<
  * ```
  *
  * @since 0.0.0
- * @category Adapters
+ * @category adapters
  */
 export const exportTools: typeof exportToolsEffect = exportToolsEffect;

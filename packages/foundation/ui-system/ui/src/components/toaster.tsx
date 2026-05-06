@@ -13,6 +13,10 @@ import {
 import { globalToastManager } from "@beep/ui/services/toaster.service";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function Toaster() {
   const { toasts } = ToastPrimitive.useToastManager();
 
@@ -48,4 +52,8 @@ export function Toaster() {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { ToastPrimitive };

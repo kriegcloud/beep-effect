@@ -103,76 +103,91 @@ const CoreErrorBase = makeSecureHeaderErrorBase<CoreError, typeof SecureHeader.E
 );
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class CspError extends CspErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class ForceHttpsRedirectError extends ForceHttpsRedirectErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class XssProtectionError extends XssProtectionErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class ReferrerPolicyError extends ReferrerPolicyErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class NoSniffError extends NoSniffErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class NoOpenError extends NoOpenErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class FrameGuardError extends FrameGuardErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class ExpectCtError extends ExpectCtErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class PermissionsPolicyError extends PermissionsPolicyErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class CrossOriginOpenerPolicyError extends CrossOriginOpenerPolicyErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class CrossOriginEmbedderPolicyError extends CrossOriginEmbedderPolicyErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class CrossOriginResourcePolicyError extends CrossOriginResourcePolicyErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class PermittedCrossDomainPoliciesError extends PermittedCrossDomainPoliciesErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export class CoreError extends CoreErrorBase {}
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export const SecureHeaderError = SecureHeader.mapMembers(
@@ -200,6 +215,7 @@ export const SecureHeaderError = SecureHeader.mapMembers(
 );
 
 /**
+ * @category errors
  * @since 0.0.0
  */
 export type SecureHeaderError = typeof SecureHeaderError.Type;

@@ -21,7 +21,7 @@ const make = EntityId.factory("workspace", $I);
  * console.log(Workspace.WorkspaceId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const WorkspaceId = make("workspace", {
@@ -44,7 +44,7 @@ export const WorkspaceId = make("workspace", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type WorkspaceId = typeof WorkspaceId.Type;
@@ -59,7 +59,7 @@ export type WorkspaceId = typeof WorkspaceId.Type;
  * console.log(Workspace.EmailArtifactId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const EmailArtifactId = make("email_artifact", {
@@ -82,7 +82,7 @@ export const EmailArtifactId = make("email_artifact", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type EmailArtifactId = typeof EmailArtifactId.Type;
@@ -97,7 +97,7 @@ export type EmailArtifactId = typeof EmailArtifactId.Type;
  * console.log(Workspace.CandidateProjectId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const CandidateProjectId = make("candidate_project", {
@@ -120,7 +120,7 @@ export const CandidateProjectId = make("candidate_project", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type CandidateProjectId = typeof CandidateProjectId.Type;
@@ -135,7 +135,7 @@ export type CandidateProjectId = typeof CandidateProjectId.Type;
  * console.log(Workspace.CandidateTaskId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const CandidateTaskId = make("candidate_task", {
@@ -158,7 +158,7 @@ export const CandidateTaskId = make("candidate_task", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type CandidateTaskId = typeof CandidateTaskId.Type;
@@ -173,7 +173,7 @@ export type CandidateTaskId = typeof CandidateTaskId.Type;
  * console.log(Workspace.CandidateDraftId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const CandidateDraftId = make("candidate_draft", {
@@ -196,7 +196,7 @@ export const CandidateDraftId = make("candidate_draft", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type CandidateDraftId = typeof CandidateDraftId.Type;
@@ -211,7 +211,7 @@ export type CandidateDraftId = typeof CandidateDraftId.Type;
  * console.log(Workspace.ApprovalGateId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const ApprovalGateId = make("approval_gate", {
@@ -234,7 +234,7 @@ export const ApprovalGateId = make("approval_gate", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type ApprovalGateId = typeof ApprovalGateId.Type;
@@ -249,7 +249,7 @@ export type ApprovalGateId = typeof ApprovalGateId.Type;
  * console.log(Workspace.ContextPacketId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const ContextPacketId = make("context_packet", {
@@ -272,7 +272,7 @@ export const ContextPacketId = make("context_packet", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type ContextPacketId = typeof ContextPacketId.Type;

@@ -59,7 +59,7 @@ class CreateCorpusParameters extends S.Class<CreateCorpusParameters>($I`CreateCo
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const CreateCorpus = Tool.make("CreateCorpus", {
   description: "Create a stateful BM25-style corpus session that can be learned incrementally across tool calls.",

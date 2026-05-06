@@ -73,7 +73,7 @@ const EvmAddressChecks = S.makeFilterGroup(
  * Branded schema for canonical mainnet EVM wallet addresses.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EvmAddress = S.NonEmptyString.check(EvmAddressChecks).pipe(
   S.brand("EvmAddress"),
@@ -88,7 +88,7 @@ export const EvmAddress = S.NonEmptyString.check(EvmAddressChecks).pipe(
  * Type for {@link EvmAddress}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EvmAddress = typeof EvmAddress.Type;
 
@@ -96,7 +96,7 @@ export type EvmAddress = typeof EvmAddress.Type;
  * Redacted schema for canonical mainnet EVM wallet addresses.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const EvmAddressRedacted = EvmAddress.pipe(
   S.RedactedFromValue,
@@ -114,6 +114,6 @@ export const EvmAddressRedacted = EvmAddress.pipe(
  * Type for {@link EvmAddressRedacted}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EvmAddressRedacted = typeof EvmAddressRedacted.Type;

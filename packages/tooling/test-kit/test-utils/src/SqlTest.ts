@@ -291,7 +291,7 @@ export class TestDatabaseInfo extends Context.Service<TestDatabaseInfo, TestData
  * })
  * void error.message
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class SqlTestHarnessError extends TaggedErrorClass<SqlTestHarnessError>($I`SqlTestHarnessError`)(

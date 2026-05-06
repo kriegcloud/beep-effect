@@ -20,7 +20,7 @@ export class ImportNamespaceSpecifierNode extends S.Class<ImportNamespaceSpecifi
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ImportSpecifierNode extends S.Class<ImportSpecifierNode>("ImportSpecifierNode")({
   type: S.tag("ImportSpecifier"),
@@ -69,13 +69,13 @@ export const decodeImportNamespaceSpecifierNode = S.decodeUnknownOption(ImportNa
 
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const decodeImportSpecifierNode = S.decodeUnknownOption(ImportSpecifierNode);
 
 /**
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const resolveImportSpecifierImportKind = (
   node: unknown,

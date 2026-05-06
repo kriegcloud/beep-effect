@@ -7,8 +7,16 @@ import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { cn } from "../lib/index.ts";
 import { Button } from "./button";
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type ConversationProps = ComponentProps<typeof StickToBottom>;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const Conversation = ({ className, ...props }: ConversationProps) => (
   <StickToBottom
     className={cn("relative flex-1 overflow-y-auto", className)}
@@ -19,18 +27,34 @@ export const Conversation = ({ className, ...props }: ConversationProps) => (
   />
 );
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type ConversationContentProps = ComponentProps<typeof StickToBottom.Content>;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const ConversationContent = ({ className, ...props }: ConversationContentProps) => (
   <StickToBottom.Content className={cn("p-4", className)} {...props} />
 );
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type ConversationEmptyStateProps = Omit<ComponentProps<"div">, "title"> & {
   readonly title?: undefined | React.ReactNode;
   readonly description?: undefined | React.ReactNode;
   readonly icon?: undefined | React.ReactNode;
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const ConversationEmptyState = ({
   className,
   title = "No messages yet",
@@ -55,8 +79,16 @@ export const ConversationEmptyState = ({
   </div>
 );
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type ConversationScrollButtonProps = ComponentProps<typeof Button>;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const ConversationScrollButton = ({ className, ...props }: ConversationScrollButtonProps) => {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
 

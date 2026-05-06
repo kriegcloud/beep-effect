@@ -25,7 +25,7 @@ const $I = $SchemaId.create("CurrencyCode");
  * console.log(code) // "USD"
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const CurrencyCode = S.String.check(S.isPattern(/^[A-Z]{3}$/)).pipe(
@@ -45,7 +45,7 @@ export const CurrencyCode = S.String.check(S.isPattern(/^[A-Z]{3}$/)).pipe(
  * const currency: CurrencyCode = "EUR" as CurrencyCode
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type CurrencyCode = typeof CurrencyCode.Type;
@@ -61,7 +61,7 @@ export type CurrencyCode = typeof CurrencyCode.Type;
  * console.log(isCurrencyCode("usd")) // false
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const isCurrencyCode = S.is(CurrencyCode);
@@ -76,70 +76,70 @@ export const isCurrencyCode = S.is(CurrencyCode);
  * console.log(USD) // "USD"
  * ```
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const USD: CurrencyCode = CurrencyCode.make("USD");
 /**
  * ISO 4217 constant for Euro.
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const EUR: CurrencyCode = CurrencyCode.make("EUR");
 /**
  * ISO 4217 constant for British Pound Sterling.
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const GBP: CurrencyCode = CurrencyCode.make("GBP");
 /**
  * ISO 4217 constant for Japanese Yen.
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const JPY: CurrencyCode = CurrencyCode.make("JPY");
 /**
  * ISO 4217 constant for Swiss Franc.
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const CHF: CurrencyCode = CurrencyCode.make("CHF");
 /**
  * ISO 4217 constant for Canadian Dollar.
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const CAD: CurrencyCode = CurrencyCode.make("CAD");
 /**
  * ISO 4217 constant for Australian Dollar.
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const AUD: CurrencyCode = CurrencyCode.make("AUD");
 /**
  * ISO 4217 constant for Chinese Yuan.
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const CNY: CurrencyCode = CurrencyCode.make("CNY");
 /**
  * ISO 4217 constant for Hong Kong Dollar.
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const HKD: CurrencyCode = CurrencyCode.make("HKD");
 /**
  * ISO 4217 constant for Singapore Dollar.
  *
- * @category Constants
+ * @category constants
  * @since 0.0.0
  */
 export const SGD: CurrencyCode = CurrencyCode.make("SGD");

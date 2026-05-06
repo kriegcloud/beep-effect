@@ -7,6 +7,10 @@ import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-reac
 import * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
 type CarouselOptions = UseCarouselParameters[0];
@@ -30,6 +34,10 @@ type CarouselContextProps = {
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 
+/**
+ * @category hooks
+ * @since 0.0.0
+ */
 function useCarousel() {
   const context = React.useContext(CarouselContext);
 
@@ -40,6 +48,10 @@ function useCarousel() {
   return context;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Carousel({
   orientation = "horizontal",
   opts,
@@ -135,6 +147,10 @@ function Carousel({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
   const { carouselRef, orientation } = useCarousel();
 
@@ -145,6 +161,10 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
   const { orientation } = useCarousel();
 
@@ -159,6 +179,10 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CarouselPrevious({
   className,
   variant = "outline",
@@ -189,6 +213,10 @@ function CarouselPrevious({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function CarouselNext({
   className,
   variant = "outline",
@@ -219,4 +247,8 @@ function CarouselNext({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Carousel, type CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, useCarousel };

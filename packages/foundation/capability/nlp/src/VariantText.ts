@@ -27,7 +27,7 @@ const stringEquals: {
  * ```
  *
  * @since 0.0.0
- * @category variants
+ * @category normalization
  */
 export const orderedDedupe: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
   A.filter(Str.isNonEmpty),

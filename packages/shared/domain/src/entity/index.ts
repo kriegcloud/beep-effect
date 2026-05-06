@@ -16,7 +16,7 @@
  * ```
  *
  * @since 0.0.0
- * @category entity constructors
+ * @category constructors
  */
 export * as BaseEntity from "./BaseEntity.ts";
 
@@ -31,7 +31,7 @@ export * as BaseEntity from "./BaseEntity.ts";
  * ```
  *
  * @since 0.0.0
- * @category entity constructors
+ * @category constructors
  */
 export * as EntityId from "./EntityId.ts";
 
@@ -46,7 +46,7 @@ export * as EntityId from "./EntityId.ts";
  * ```
  *
  * @since 0.0.0
- * @category entity references
+ * @category identifiers
  */
 export * as EntityRef from "./EntityRef.ts";
 
@@ -61,7 +61,7 @@ export * as EntityRef from "./EntityRef.ts";
  * ```
  *
  * @since 0.0.0
- * @category actor references
+ * @category identifiers
  */
 export * as Principal from "./Principal.ts";
 
@@ -76,7 +76,7 @@ export * as Principal from "./Principal.ts";
  * ```
  *
  * @since 0.0.0
- * @category primitives
+ * @category schemas
  */
 export * as primitives from "./primitives.ts";
 
@@ -91,6 +91,6 @@ export * as primitives from "./primitives.ts";
  * ```
  *
  * @since 0.0.0
- * @category entity fields
+ * @category schemas
  */
 export * as SourceKind from "./SourceKind.ts";

@@ -102,7 +102,7 @@ const decodePatternElement = (input: string) =>
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const BracketStringToPOSPatternElement = S.String.pipe(
   S.decodeTo(POSPatternElement, {
@@ -133,7 +133,7 @@ export const BracketStringToPOSPatternElement = S.String.pipe(
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const BracketStringToEntityPatternElement = S.String.pipe(
   S.decodeTo(EntityPatternElement, {
@@ -166,7 +166,7 @@ export const BracketStringToEntityPatternElement = S.String.pipe(
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const BracketStringToLiteralPatternElement = S.String.pipe(
   S.decodeTo(LiteralPatternElement, {
@@ -199,7 +199,7 @@ export const BracketStringToLiteralPatternElement = S.String.pipe(
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const BracketStringToPatternElement = S.String.pipe(
   S.decodeTo(PatternElement, {
@@ -224,7 +224,7 @@ export const BracketStringToPatternElement = S.String.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type BracketStringToPatternElement = typeof BracketStringToPatternElement.Type;
 
@@ -239,7 +239,7 @@ export type BracketStringToPatternElement = typeof BracketStringToPatternElement
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PatternFromString = (input: unknown) =>
   Result.getOrThrowWith(

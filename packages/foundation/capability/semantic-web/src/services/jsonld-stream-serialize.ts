@@ -121,7 +121,7 @@ export const JsonLdStreamSerializeErrorReason = LiteralKit(["serializeFailure", 
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export class JsonLdStreamSerializeError extends TaggedErrorClass<JsonLdStreamSerializeError>(
   $I`JsonLdStreamSerializeError`

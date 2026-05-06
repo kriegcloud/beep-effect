@@ -58,7 +58,7 @@ const promiseAnnotations = {
  *
  * @param u - The value to test.
  * @returns Whether the value is a native JavaScript `Promise`.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const isPromise = (u: unknown): u is globalThis.Promise<unknown> =>
@@ -85,7 +85,7 @@ export const isPromise = (u: unknown): u is globalThis.Promise<unknown> =>
  * void decoded
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const PromiseSchema = S.declare<globalThis.Promise<unknown>>(isPromise, promiseAnnotations).pipe(
@@ -106,7 +106,7 @@ export const PromiseSchema = S.declare<globalThis.Promise<unknown>>(isPromise, p
  * void task
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type PromiseSchema = typeof PromiseSchema.Type;

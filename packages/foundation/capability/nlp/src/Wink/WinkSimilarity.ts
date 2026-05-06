@@ -69,7 +69,7 @@ const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => {
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
   {
@@ -96,7 +96,7 @@ export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet`)(
   {
@@ -123,7 +123,7 @@ export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore`)(
   {
@@ -153,7 +153,7 @@ export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`SimilarityError`)(
   "SimilarityError",
@@ -280,7 +280,7 @@ const makeWinkSimilarity = Effect.gen(function* () {
  * ```
  *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class WinkSimilarity extends Context.Service<WinkSimilarity, WinkSimilarityShape>()($I`WinkSimilarity`) {}
 
@@ -295,6 +295,6 @@ export class WinkSimilarity extends Context.Service<WinkSimilarity, WinkSimilari
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkSimilarityLive = Layer.effect(WinkSimilarity, makeWinkSimilarity);

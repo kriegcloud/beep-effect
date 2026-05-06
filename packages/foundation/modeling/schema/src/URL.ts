@@ -14,7 +14,7 @@ const $I = $SchemaId.create("URL");
 /**
  * A type guard for URL a URL encoded string
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 const isURLStr = (u: unknown): u is URLStr =>
@@ -27,7 +27,7 @@ const isURLStr = (u: unknown): u is URLStr =>
 /**
  * A Schema filter for a URL encoded as a string
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 const filterURLStr = S.makeFilter(isURLStr, {
@@ -37,7 +37,7 @@ const filterURLStr = S.makeFilter(isURLStr, {
 /**
  * A URL encoded string constructor
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 const urlStr = Brand.check<URLStr>(filterURLStr);
@@ -54,7 +54,7 @@ const urlStr = Brand.check<URLStr>(filterURLStr);
  * console.log(url)
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const URLStr = NonEmptyTrimmedStr.pipe(
@@ -79,7 +79,7 @@ export const URLStr = NonEmptyTrimmedStr.pipe(
  * const endpoint: URLStr = "https://api.example.com" as URLStr
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type URLStr = Brand.Branded<NonEmptyTrimmedStr, "URLStr">;

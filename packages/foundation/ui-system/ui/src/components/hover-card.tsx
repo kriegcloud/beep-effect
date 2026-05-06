@@ -4,14 +4,26 @@ import { PreviewCard as PreviewCardPrimitive } from "@base-ui/react/preview-card
 
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function HoverCard({ ...props }: PreviewCardPrimitive.Root.Props) {
   return <PreviewCardPrimitive.Root data-slot="hover-card" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function HoverCardTrigger({ ...props }: PreviewCardPrimitive.Trigger.Props) {
   return <PreviewCardPrimitive.Trigger data-slot="hover-card-trigger" {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function HoverCardContent({
   className,
   side = "bottom",
@@ -43,4 +55,8 @@ function HoverCardContent({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { HoverCard, HoverCardContent, HoverCardTrigger };

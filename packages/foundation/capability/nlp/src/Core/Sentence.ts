@@ -30,7 +30,7 @@ const getRangeEnd = (options: { readonly end: number } | number): number =>
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type SentenceIndex = Brand.Branded<NonNegativeInt, "SentenceIndex">;
 
@@ -45,7 +45,7 @@ export type SentenceIndex = Brand.Branded<NonNegativeInt, "SentenceIndex">;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const sentenceIndex: Brand.Constructor<SentenceIndex> = Brand.check<SentenceIndex>(
   S.makeFilter(S.is(NonNegativeInt))
@@ -62,7 +62,7 @@ export const sentenceIndex: Brand.Constructor<SentenceIndex> = Brand.check<Sente
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SentenceIndex = NonNegativeInt.pipe(S.fromBrand("SentenceIndex", sentenceIndex));
 
@@ -77,7 +77,7 @@ export const SentenceIndex = NonNegativeInt.pipe(S.fromBrand("SentenceIndex", se
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Sentence extends S.Class<Sentence>($I`Sentence`)(
   {

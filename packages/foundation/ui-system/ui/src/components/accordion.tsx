@@ -4,16 +4,28 @@ import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
 import { CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Accordion({ className, ...props }: AccordionPrimitive.Root.Props) {
   return <AccordionPrimitive.Root data-slot="accordion" className={cn("flex w-full flex-col", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
   return (
     <AccordionPrimitive.Item data-slot="accordion-item" className={cn("not-last:border-b", className)} {...props} />
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.Trigger.Props) {
   return (
     <AccordionPrimitive.Header className="flex">
@@ -39,6 +51,10 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AccordionContent({ className, children, ...props }: AccordionPrimitive.Panel.Props) {
   return (
     <AccordionPrimitive.Panel
@@ -58,4 +74,8 @@ function AccordionContent({ className, children, ...props }: AccordionPrimitive.
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Accordion, AccordionContent, AccordionItem, AccordionTrigger };

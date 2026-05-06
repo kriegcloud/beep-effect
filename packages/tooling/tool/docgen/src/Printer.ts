@@ -25,7 +25,7 @@ import * as Parser from "./Parser.js";
  * import type { Printable } from "@beep/repo-docgen/Printer"
  * type ExamplePrintable = Printable
  * ```
- * @category printers
+ * @category formatting
  * @since 0.0.0
  */
 export type Printable =
@@ -340,7 +340,7 @@ const printNamespace = (
  * import { print } from "@beep/repo-docgen/Printer"
  * void print
  * ```
- * @category printers
+ * @category formatting
  * @since 0.0.0
  */
 export const print = (printable: Printable) =>
@@ -384,7 +384,7 @@ const sortByName: <A extends { name: string }>(self: Iterable<A>) => Array<A> = 
  * import { printModule } from "@beep/repo-docgen/Printer"
  * void printModule
  * ```
- * @category printers
+ * @category formatting
  * @since 0.0.0
  */
 export const printModule = (module: Domain.Module) =>
@@ -431,7 +431,7 @@ export const printModule = (module: Domain.Module) =>
  * import { printFrontMatter } from "@beep/repo-docgen/Printer"
  * void printFrontMatter
  * ```
- * @category printers
+ * @category formatting
  * @since 0.0.0
  */
 export const printFrontMatter: {
@@ -459,7 +459,7 @@ parent: Modules
  * const rendered = prettify("# Title")
  * void rendered
  * ```
- * @category printers
+ * @category formatting
  * @since 0.0.0
  */
 export function prettify(content: string) {

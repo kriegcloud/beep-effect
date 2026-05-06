@@ -12,8 +12,16 @@ import { cn } from "../lib/index.ts";
 
 const $I = $UiId.create("components/toast");
 
+/**
+ * @category providers
+ * @since 0.0.0
+ */
 const ToastProvider = ToastPrimitive.Provider;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const ToastViewport = React.forwardRef<HTMLDivElement, ToastPrimitive.Viewport.Props & { className?: string }>(
   ({ className, ...props }, ref) => (
     <ToastPrimitive.Viewport
@@ -47,14 +55,26 @@ interface ToastRootProps extends Omit<ToastPrimitive.Root.Props, "toast">, Varia
   toast: ToastPrimitive.Root.ToastObject<ToastData>;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const ToastVariant = LiteralKit(["default", "destructive"] as const).pipe(
   $I.annoteSchema("ToastVariant", {
     description: "Visual variants supported by toast notifications.",
   })
 );
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type ToastVariant = typeof ToastVariant.Type;
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export class ToastData extends S.Class<ToastData>($I`ToastData`)(
   {
     variant: S.optionalKey(ToastVariant),
@@ -64,6 +84,10 @@ export class ToastData extends S.Class<ToastData>($I`ToastData`)(
   })
 ) {}
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const Toast = React.forwardRef<HTMLDivElement, ToastRootProps>(({ className, variant, toast, ...props }, ref) => {
   const resolvedVariant = variant ?? toast.data?.variant ?? "default";
   return (
@@ -77,6 +101,10 @@ const Toast = React.forwardRef<HTMLDivElement, ToastRootProps>(({ className, var
 });
 Toast.displayName = "Toast";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const ToastAction = React.forwardRef<HTMLButtonElement, ToastPrimitive.Action.Props & { className?: string }>(
   ({ className, ...props }, ref) => (
     <ToastPrimitive.Action
@@ -91,6 +119,10 @@ const ToastAction = React.forwardRef<HTMLButtonElement, ToastPrimitive.Action.Pr
 );
 ToastAction.displayName = "ToastAction";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const ToastClose = React.forwardRef<HTMLButtonElement, ToastPrimitive.Close.Props & { className?: string }>(
   ({ className, ...props }, ref) => (
     <ToastPrimitive.Close
@@ -107,6 +139,10 @@ const ToastClose = React.forwardRef<HTMLButtonElement, ToastPrimitive.Close.Prop
 );
 ToastClose.displayName = "ToastClose";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const ToastTitle = React.forwardRef<HTMLHeadingElement, ToastPrimitive.Title.Props & { className?: string }>(
   ({ className, ...props }, ref) => (
     <ToastPrimitive.Title ref={ref} className={cn("font-semibold text-sm [&+div]:text-xs", className)} {...props} />
@@ -114,6 +150,10 @@ const ToastTitle = React.forwardRef<HTMLHeadingElement, ToastPrimitive.Title.Pro
 );
 ToastTitle.displayName = "ToastTitle";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const ToastDescription = React.forwardRef<
   HTMLParagraphElement,
   ToastPrimitive.Description.Props & { className?: string }
@@ -122,10 +162,22 @@ const ToastDescription = React.forwardRef<
 ));
 ToastDescription.displayName = "ToastDescription";
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 type ToastActionElement = React.ReactElement<typeof ToastAction>;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Toast,
   ToastAction,

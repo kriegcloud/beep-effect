@@ -96,6 +96,10 @@ const getFallbackMetadata = (href: string): UrlMetadata => {
   };
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function LinkPreview({ href, children, className, metadata }: LinkPreviewProps) {
   const elementRef = useRef<HTMLAnchorElement>(null);
 

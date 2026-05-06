@@ -8,18 +8,21 @@
  * - **Topological sort** - Output packages in dependency order
  *
  * @packageDocumentation
+ * @category cli-commands
  * @since 0.0.0
  */
 
 /**
  * Code generation command for workspace barrels and exports.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Code generation command for workspace barrels and exports.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   codegenCommand,
@@ -27,12 +30,14 @@ export {
 /**
  * Package scaffolding command for creating new workspace packages.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Package scaffolding command for creating new workspace packages.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   createPackageCommand,
@@ -40,12 +45,14 @@ export {
 /**
  * Human-first docgen command group.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Human-first docgen command group.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   docgenCommand,
@@ -53,12 +60,14 @@ export {
 /**
  * Command-first docs discovery command tree.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Command-first docs discovery command tree.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   docsCommand,
@@ -66,12 +75,14 @@ export {
 /**
  * Dataset file curation command group.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Dataset file curation command group.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   filesCommand,
@@ -79,12 +90,14 @@ export {
 /**
  * Graphiti operational command group.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Graphiti operational command group.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   graphitiCommand,
@@ -92,12 +105,14 @@ export {
 /**
  * Image and video curation command group.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Image and video curation command group.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   imageCommand,
@@ -105,12 +120,14 @@ export {
 /**
  * Effect laws command group.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Effect laws command group.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   lawsCommand,
@@ -118,12 +135,14 @@ export {
 /**
  * Lint policy command group.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Lint policy command group.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   lintCommand,
@@ -131,12 +150,14 @@ export {
 /**
  * Purge command for removing root/workspace build artifacts.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Purge command for removing root/workspace build artifacts.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   purgeCommand,
@@ -144,12 +165,14 @@ export {
 /**
  * Reuse-discovery command group.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Reuse-discovery command group.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   reuseCommand,
@@ -157,12 +180,14 @@ export {
 /**
  * Root CLI command that composes subcommands.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Root CLI command that composes subcommands.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   rootCommand,
@@ -170,12 +195,14 @@ export {
 /**
  * Official data sync command for checked-in generated TypeScript modules.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Official data sync command for checked-in generated TypeScript modules.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   syncDataToTsCommand,
@@ -183,12 +210,14 @@ export {
 /**
  * Dependency topological sort command.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Dependency topological sort command.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   topoSortCommand,
@@ -196,12 +225,14 @@ export {
 /**
  * Tsconfig sync command for workspace tsconfig references and root aliases.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Tsconfig sync command for workspace tsconfig references and root aliases.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   tsconfigSyncCommand,
@@ -209,12 +240,14 @@ export {
 /**
  * Version sync command for detecting and fixing version drift.
  *
+ * @category cli-commands
  * @since 0.0.0
  */
 export {
   /**
    * Version sync command for detecting and fixing version drift.
    *
+   * @category cli-commands
    * @since 0.0.0
    */
   versionSyncCommand,

@@ -33,7 +33,7 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/BunResolve
 // ── GitHub API schema ───────────────────────────────────────────────────────
 
 /**
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 
@@ -63,7 +63,7 @@ class BunPackageJsonDocument extends S.Class<BunPackageJsonDocument>($I`BunPacka
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 /**
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const BUN_RELEASE_URL = "https://api.github.com/repos/oven-sh/bun/releases/latest";
@@ -73,7 +73,7 @@ const BUN_RELEASE_URL = "https://api.github.com/repos/oven-sh/bun/releases/lates
  *
  * @param tagName - The GitHub release tag (e.g. `bun-v1.3.9`).
  * @returns The bare version string.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const extractBunVersion = Str.replace(/^bun-v/, "");
@@ -83,7 +83,7 @@ const extractBunVersion = Str.replace(/^bun-v/, "");
  *
  * @param value - The packageManager field value (e.g. `bun@1.3.9`).
  * @returns The bare version string.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const extractPackageManagerVersion = Str.replace(/^bun@/, "");
@@ -97,7 +97,7 @@ type BunSemverIdentifier = typeof BunSemverIdentifier.Type;
 /**
  * Parsed Bun semantic version components.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class BunSemver extends S.Class<BunSemver>($I`BunSemver`)(
@@ -251,7 +251,7 @@ const selectLatestLocalBunVersion = (state: BunVersionState): string => {
 /**
  * Resolved Bun version state.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState`)(
@@ -274,7 +274,7 @@ export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState
 /**
  * Resolve current Bun versions from local files and optionally fetch latest from GitHub.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const resolveBunVersions: {
@@ -348,7 +348,7 @@ export const resolveBunVersions: {
 /**
  * Fetch the latest stable Bun release version from GitHub.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const fetchLatestBunVersion = Effect.fn(function* (): Effect.fn.Return<
@@ -388,7 +388,7 @@ const fetchLatestBunVersion = Effect.fn(function* (): Effect.fn.Return<
  *
  * @param state - The resolved Bun version state.
  * @returns The version category report for Bun.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const buildBunReport: (state: BunVersionState) => VersionCategoryReport = (state) => {

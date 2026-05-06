@@ -23,6 +23,7 @@ const defaultValue = "deny" as const;
 const FrameGuardModeBase = LiteralKit(["deny", "sameorigin"]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const FrameGuardMode = FrameGuardModeBase.pipe(
@@ -33,11 +34,13 @@ export const FrameGuardMode = FrameGuardModeBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type FrameGuardMode = typeof FrameGuardMode.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class FrameGuardAllowFromConfig extends S.Class<FrameGuardAllowFromConfig>($I`FrameGuardAllowFromConfig`)(
@@ -50,6 +53,7 @@ export class FrameGuardAllowFromConfig extends S.Class<FrameGuardAllowFromConfig
 ) {}
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const FrameGuardAllowFrom = S.Tuple([S.Literal("allow-from"), FrameGuardAllowFromConfig]).pipe(
@@ -59,11 +63,13 @@ export const FrameGuardAllowFrom = S.Tuple([S.Literal("allow-from"), FrameGuardA
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type FrameGuardAllowFrom = typeof FrameGuardAllowFrom.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const FrameGuardOption = S.Union([S.Literal(false), FrameGuardMode, FrameGuardAllowFrom]).pipe(
@@ -73,11 +79,13 @@ export const FrameGuardOption = S.Union([S.Literal(false), FrameGuardMode, Frame
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type FrameGuardOption = typeof FrameGuardOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class FrameGuardResponseHeader extends S.Class<FrameGuardResponseHeader>($I`FrameGuardResponseHeader`)(
@@ -121,6 +129,7 @@ const formatFrameGuardValue = (option: FrameGuardMode | FrameGuardAllowFrom): Ef
   });
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const FrameGuardHeader = S.Union([FrameGuardOption, S.Undefined]).pipe(
@@ -192,6 +201,7 @@ export const FrameGuardHeader = S.Union([FrameGuardOption, S.Undefined]).pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type FrameGuardHeader = typeof FrameGuardHeader.Type;

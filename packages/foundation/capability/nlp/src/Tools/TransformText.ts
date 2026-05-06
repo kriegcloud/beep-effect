@@ -74,7 +74,7 @@ class TransformTextSuccess extends S.Class<TransformTextSuccess>($I`TransformTex
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const TransformText = Tool.make("TransformText", {
   description: "Apply text transformation operations in sequence for cleaning and normalization.",

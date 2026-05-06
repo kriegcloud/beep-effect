@@ -21,7 +21,7 @@ const make = EntityId.factory("shared", $I);
  * console.log(OrganizationId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const OrganizationId = make("organization", {
@@ -44,7 +44,7 @@ export const OrganizationId = make("organization", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type OrganizationId = typeof OrganizationId.Type;
@@ -59,7 +59,7 @@ export type OrganizationId = typeof OrganizationId.Type;
  * console.log(UserId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const UserId = make("user", {
@@ -82,7 +82,7 @@ export const UserId = make("user", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type UserId = typeof UserId.Type;
@@ -97,7 +97,7 @@ export type UserId = typeof UserId.Type;
  * console.log(MembershipId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const MembershipId = make("membership", {
@@ -120,7 +120,7 @@ export const MembershipId = make("membership", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type MembershipId = typeof MembershipId.Type;
@@ -135,7 +135,7 @@ export type MembershipId = typeof MembershipId.Type;
  * console.log(TeamId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const TeamId = make("team", {
@@ -158,7 +158,7 @@ export const TeamId = make("team", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type TeamId = typeof TeamId.Type;
@@ -173,7 +173,7 @@ export type TeamId = typeof TeamId.Type;
  * console.log(ServiceAccountId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const ServiceAccountId = make("service_account", {
@@ -196,7 +196,7 @@ export const ServiceAccountId = make("service_account", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type ServiceAccountId = typeof ServiceAccountId.Type;
@@ -211,7 +211,7 @@ export type ServiceAccountId = typeof ServiceAccountId.Type;
  * console.log(AgentId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const AgentId = make("agent", {
@@ -234,7 +234,7 @@ export const AgentId = make("agent", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type AgentId = typeof AgentId.Type;
@@ -249,7 +249,7 @@ export type AgentId = typeof AgentId.Type;
  * console.log(AgentVersionId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const AgentVersionId = make("agent_version", {
@@ -272,7 +272,7 @@ export const AgentVersionId = make("agent_version", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type AgentVersionId = typeof AgentVersionId.Type;
@@ -287,7 +287,7 @@ export type AgentVersionId = typeof AgentVersionId.Type;
  * console.log(ConnectorAccountId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const ConnectorAccountId = make("connector_account", {
@@ -310,7 +310,7 @@ export const ConnectorAccountId = make("connector_account", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type ConnectorAccountId = typeof ConnectorAccountId.Type;
@@ -325,7 +325,7 @@ export type ConnectorAccountId = typeof ConnectorAccountId.Type;
  * console.log(ActivityId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const ActivityId = make("activity", {
@@ -348,7 +348,7 @@ export const ActivityId = make("activity", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type ActivityId = typeof ActivityId.Type;
@@ -363,7 +363,7 @@ export type ActivityId = typeof ActivityId.Type;
  * console.log(LocalMachineId.tableName)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const LocalMachineId = make("local_machine", {
@@ -386,7 +386,7 @@ export const LocalMachineId = make("local_machine", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type LocalMachineId = typeof LocalMachineId.Type;

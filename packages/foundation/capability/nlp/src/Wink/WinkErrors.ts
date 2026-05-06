@@ -32,7 +32,7 @@ const getEntityNameOption = (options: { readonly entityName?: string | undefined
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEngineError`)(
   "WinkEngineError",
@@ -77,7 +77,7 @@ export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEn
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationError>($I`WinkTokenizationError`)(
   "WinkTokenizationError",
@@ -126,7 +126,7 @@ export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationErro
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEntityError`)(
   "WinkEntityError",
@@ -175,6 +175,6 @@ export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEn
  * ```
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export type WinkError = WinkEngineError | WinkEntityError | WinkTokenizationError;

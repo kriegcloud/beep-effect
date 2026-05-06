@@ -43,7 +43,7 @@ import * as Str from "effect/String";
  * @param separator - Delimiter used for both decoding and encoding.
  * @returns A schema that decodes delimited strings into readonly string arrays
  * and encodes readonly string arrays back into delimited strings.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export function split(separator: string) {

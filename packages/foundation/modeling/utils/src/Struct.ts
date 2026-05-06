@@ -35,7 +35,7 @@ const NonEmptyStringKeys = S.NonEmptyArray(S.String);
  * void error
  * ```
  *
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class EmptyStructError extends S.TaggedErrorClass<EmptyStructError>($I`EmptyStructError`)(

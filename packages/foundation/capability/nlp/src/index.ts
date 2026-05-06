@@ -33,7 +33,7 @@ export const VERSION = "0.0.0";
  * ```
  *
  * @since 0.0.0
- * @category modules
+ * @category models
  */
 export * as Core from "./Core/index.ts";
 /**
@@ -48,7 +48,7 @@ export * as Core from "./Core/index.ts";
  * ```
  *
  * @since 0.0.0
- * @category modules
+ * @category parsing
  */
 export * as IdentifierText from "./IdentifierText.ts";
 /**
@@ -63,7 +63,7 @@ export * as IdentifierText from "./IdentifierText.ts";
  * ```
  *
  * @since 0.0.0
- * @category modules
+ * @category layers
  */
 export * as Layers from "./Layers/index.ts";
 /**
@@ -78,7 +78,7 @@ export * as Layers from "./Layers/index.ts";
  * ```
  *
  * @since 0.0.0
- * @category modules
+ * @category normalization
  */
 export * as PathText from "./PathText.ts";
 /**
@@ -93,7 +93,7 @@ export * as PathText from "./PathText.ts";
  * ```
  *
  * @since 0.0.0
- * @category modules
+ * @category normalization
  */
 export * as QueryText from "./QueryText.ts";
 /**
@@ -108,7 +108,7 @@ export * as QueryText from "./QueryText.ts";
  * ```
  *
  * @since 0.0.0
- * @category modules
+ * @category tools
  */
 export * as Tools from "./Tools/index.ts";
 /**
@@ -123,7 +123,7 @@ export * as Tools from "./Tools/index.ts";
  * ```
  *
  * @since 0.0.0
- * @category modules
+ * @category normalization
  */
 export * as VariantText from "./VariantText.ts";
 /**
@@ -138,6 +138,6 @@ export * as VariantText from "./VariantText.ts";
  * ```
  *
  * @since 0.0.0
- * @category modules
+ * @category layers
  */
 export * as Wink from "./Wink/index.ts";

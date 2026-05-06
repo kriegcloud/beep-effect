@@ -21,7 +21,7 @@ const make = EntityId.factory("fixture_lab_specimen", $I);
  * console.log(FixtureLabSpecimen.SpecimenId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const SpecimenId = make("specimen", {
@@ -44,7 +44,7 @@ export const SpecimenId = make("specimen", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type SpecimenId = typeof SpecimenId.Type;

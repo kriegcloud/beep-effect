@@ -13,6 +13,7 @@ import * as SchemaUtils from "../../SchemaUtils/index.ts";
 const $I = $SchemaId.create("http/HttpMethod/HttpMethod");
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const HttpMethod_ = LiteralKit(["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "TRACE"]);
@@ -42,6 +43,7 @@ type HttpMethodValue = typeof HttpMethod_.Type;
 const hasBody: (method: HttpMethodValue) => method is WithBody = S.is(WithBody);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const HttpMethod = HttpMethod_.pipe(
@@ -71,6 +73,7 @@ export const HttpMethod = HttpMethod_.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type HttpMethod = typeof HttpMethod.Type;

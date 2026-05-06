@@ -438,7 +438,7 @@ export class GatewayTimeoutError extends TaggedErrorClass<GatewayTimeoutError>($
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeBadRequestError: StatusErrorConstructor<BadRequestError> = dual(
   isStatusErrorDataFirst,
@@ -457,7 +457,7 @@ export const makeBadRequestError: StatusErrorConstructor<BadRequestError> = dual
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeUnauthorizedError: StatusErrorConstructor<UnauthorizedError> = dual(
   isStatusErrorDataFirst,
@@ -476,7 +476,7 @@ export const makeUnauthorizedError: StatusErrorConstructor<UnauthorizedError> = 
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeForbiddenError: StatusErrorConstructor<ForbiddenError> = dual(
   isStatusErrorDataFirst,
@@ -495,7 +495,7 @@ export const makeForbiddenError: StatusErrorConstructor<ForbiddenError> = dual(
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeNotFoundError: StatusErrorConstructor<NotFoundError> = dual(
   isStatusErrorDataFirst,
@@ -514,7 +514,7 @@ export const makeNotFoundError: StatusErrorConstructor<NotFoundError> = dual(
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeConflictError: StatusErrorConstructor<ConflictError> = dual(
   isStatusErrorDataFirst,
@@ -533,7 +533,7 @@ export const makeConflictError: StatusErrorConstructor<ConflictError> = dual(
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeUnprocessableEntityError: StatusErrorConstructor<UnprocessableEntityError> = dual(
   isStatusErrorDataFirst,
@@ -552,7 +552,7 @@ export const makeUnprocessableEntityError: StatusErrorConstructor<UnprocessableE
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeTooManyRequestsError: StatusErrorConstructor<TooManyRequestsError> = dual(
   isStatusErrorDataFirst,
@@ -571,7 +571,7 @@ export const makeTooManyRequestsError: StatusErrorConstructor<TooManyRequestsErr
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeInternalServerError: StatusErrorConstructor<InternalServerErrorError> = dual(
   isStatusErrorDataFirst,
@@ -590,7 +590,7 @@ export const makeInternalServerError: StatusErrorConstructor<InternalServerError
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeBadGatewayError: StatusErrorConstructor<BadGatewayError> = dual(
   isStatusErrorDataFirst,
@@ -609,7 +609,7 @@ export const makeBadGatewayError: StatusErrorConstructor<BadGatewayError> = dual
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeServiceUnavailableError: StatusErrorConstructor<ServiceUnavailableError> = dual(
   isStatusErrorDataFirst,
@@ -628,7 +628,7 @@ export const makeServiceUnavailableError: StatusErrorConstructor<ServiceUnavaila
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export const makeGatewayTimeoutError: StatusErrorConstructor<GatewayTimeoutError> = dual(
   isStatusErrorDataFirst,

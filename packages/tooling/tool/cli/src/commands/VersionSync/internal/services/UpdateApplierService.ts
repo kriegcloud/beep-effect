@@ -40,7 +40,7 @@ const countChangedFile = (count: number, changed: boolean): number => Num.sum(co
 /**
  * Service contract for applying report-driven file updates.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type UpdateApplierServiceShape = {
@@ -53,7 +53,7 @@ export type UpdateApplierServiceShape = {
 /**
  * Service tag for write-mode update application.
  *
- * @category PortContract
+ * @category ports
  * @since 0.0.0
  */
 export class UpdateApplierService extends Context.Service<UpdateApplierService, UpdateApplierServiceShape>()(
@@ -231,7 +231,7 @@ const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot,
 /**
  * Live layer for update application.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const UpdateApplierServiceLive = Layer.succeed(

@@ -1,16 +1,17 @@
 /**
  * Public theme infrastructure exports for `@beep/ui`.
  *
+ * @category themes
  * @since 0.0.0
  * @packageDocumentation
  */
 /**
  * @since 0.0.0
- * @category exports
+ * @category themes
  */
 export * from "./theme.ts";
 /**
  * @since 0.0.0
- * @category exports
+ * @category themes
  */
 export * from "./theme-provider.tsx";

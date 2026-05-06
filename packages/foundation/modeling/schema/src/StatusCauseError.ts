@@ -33,7 +33,7 @@ const $I = $SchemaId.create("StatusCauseError");
  * void error
  * ```
  *
- * @category fields
+ * @category schemas
  * @since 0.0.0
  */
 export const StatusCauseFields = {

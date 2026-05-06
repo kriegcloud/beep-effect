@@ -20,6 +20,7 @@ const headerName = "Strict-Transport-Security" as const;
 const defaultMaxAge = 60 * 60 * 24 * 365 * 2;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ForceHttpsRedirectConfig extends S.Class<ForceHttpsRedirectConfig>($I`ForceHttpsRedirectConfig`)(
@@ -34,6 +35,7 @@ export class ForceHttpsRedirectConfig extends S.Class<ForceHttpsRedirectConfig>(
 ) {}
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ForceHttpsRedirectEnabled = S.Tuple([S.Literal(true), ForceHttpsRedirectConfig]).pipe(
@@ -43,11 +45,13 @@ export const ForceHttpsRedirectEnabled = S.Tuple([S.Literal(true), ForceHttpsRed
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ForceHttpsRedirectEnabled = typeof ForceHttpsRedirectEnabled.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ForceHttpsRedirectOption = S.Union([S.Boolean, ForceHttpsRedirectEnabled]).pipe(
@@ -57,11 +61,13 @@ export const ForceHttpsRedirectOption = S.Union([S.Boolean, ForceHttpsRedirectEn
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ForceHttpsRedirectOption = typeof ForceHttpsRedirectOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ForceHttpsRedirectResponseHeader extends S.Class<ForceHttpsRedirectResponseHeader>(
@@ -90,6 +96,7 @@ const formatForceHttpsRedirectValue = (config: ForceHttpsRedirectConfig): string
   );
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ForceHttpsRedirectHeader = S.Union([ForceHttpsRedirectOption, S.Undefined]).pipe(
@@ -159,6 +166,7 @@ export const ForceHttpsRedirectHeader = S.Union([ForceHttpsRedirectOption, S.Und
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ForceHttpsRedirectHeader = typeof ForceHttpsRedirectHeader.Type;

@@ -51,7 +51,7 @@ const $I = $RepoCliId.create("commands/CreatePackage/Handler");
  * @param baseDir - Directory of the currently executing command module.
  * @param path - Path service used to compose normalized candidate paths.
  * @returns Candidate directories in preferred lookup order.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 
@@ -71,7 +71,7 @@ const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<
  *
  * @param baseDir - Optional command module directory override (defaults to current module directory).
  * @returns Resolved template directory path.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const resolveCreatePackageTemplateDir = Effect.fn(function* (
@@ -98,7 +98,7 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (
 /**
  * Valid package types.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const VALID_TYPES = ["library", "tool", "app"] as const;
@@ -204,7 +204,7 @@ const isPackageName = S.is(PackageName);
 /**
  * Mapping from template source to output path.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
@@ -221,7 +221,7 @@ const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
 /**
  * Ordered list of all generated files for dry-run and summary output.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const ALL_FILES = [
@@ -242,7 +242,7 @@ const ALL_FILES = [
 /**
  * Root-relative directories created for each package.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 const PACKAGE_DIRECTORIES = ["src", "test", "dtslint", "docs"] as const;
@@ -261,7 +261,7 @@ const IDENTITY_PACKAGES_EXPORT_PATH = ["src", "packages.ts"] as const;
 /**
  * Variables passed into every template during package scaffolding.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext`)(
@@ -474,7 +474,7 @@ const typedIdentityExportBlock = (packageName: string): string => {
     "",
     "/**",
     " * @since 0.0.0",
-    " * @category Configuration",
+    " * @category configuration",
     ` * @type {Identity.IdentityComposer<"@beep/${packageName}">}`,
     " */",
     `export const ${accessorName}: Identity.IdentityComposer<"@beep/${packageName}"> = composers.${accessorName};`,
@@ -538,7 +538,7 @@ const identityPackageRegistrationNeeded = Effect.fn(function* (
  * CLI command that scaffolds a new package with templates, a Schema-validated
  * `package.json`, root workspace registration, identity registration, and shared repo config synchronization.
  *
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const createPackageCommand = Command.make(
@@ -847,7 +847,7 @@ export const createPackageCommand = Command.make(
  * @param description - Human-readable package description for the `"description"` field.
  * @param packagePath - Package path relative to repo root (e.g. `"packages/tooling/library/my-utils"`).
  * @returns A JSON string (with trailing newline) ready to be written to disk.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const generatePackageJson: (

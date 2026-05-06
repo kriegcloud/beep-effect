@@ -106,7 +106,7 @@ class WorkspacePackageManifest extends S.Class<WorkspacePackageManifest>($I`Work
  * })
  * void error.operation
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class ReuseAnalysisError extends TaggedErrorClass<ReuseAnalysisError>($I`ReuseAnalysisError`)(
@@ -132,7 +132,7 @@ export class ReuseAnalysisError extends TaggedErrorClass<ReuseAnalysisError>($I`
  * })
  * void error.candidateId
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class ReuseCandidateNotFoundError extends TaggedErrorClass<ReuseCandidateNotFoundError>(
@@ -937,7 +937,7 @@ const collectPatternMatchCountsForScope = (analysisContext: ReuseAnalysisContext
 /**
  * Service contract for building a shared reuse catalog from repository scopes plus curated external entries.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 type ReuseCatalogServiceShape = {
@@ -969,7 +969,7 @@ export class ReuseCatalogService extends Context.Service<ReuseCatalogService, Re
 /**
  * Service contract for turning reuse hotspots into scout and specialist work partitions.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 type ReusePartitionPlannerServiceShape = {
@@ -1000,7 +1000,7 @@ export class ReusePartitionPlannerService extends Context.Service<
 /**
  * Service contract for reuse candidate discovery and file-local reuse option lookups.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 type ReuseDiscoveryServiceShape = {
@@ -1037,7 +1037,7 @@ export class ReuseDiscoveryService extends Context.Service<ReuseDiscoveryService
 /**
  * Service contract for materializing ranked inventories and implementation packets from discovered candidates.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 type ReuseInventoryServiceShape = {

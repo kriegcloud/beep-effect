@@ -30,7 +30,7 @@ export * from "./Matter.model.js";
  * console.log(Module)
  * ```
  *
- * @category exports
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./Matter.values.js";

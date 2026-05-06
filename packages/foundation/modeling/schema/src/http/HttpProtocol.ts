@@ -12,7 +12,7 @@ const $I = $SchemaId.create("http/HttpProtocol");
 /**
  * An HTTP protocol ("http" or "https")
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const HttpProtocol = LiteralKit(["http", "https"]).pipe(
@@ -24,7 +24,7 @@ export const HttpProtocol = LiteralKit(["http", "https"]).pipe(
 /**
  * {@inheritDoc HttpProtocol}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type HttpProtocol = typeof HttpProtocol.Type;

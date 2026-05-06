@@ -17,7 +17,7 @@ const $I = $SchemaId.create("Sql/Error");
  * - `error`: Blocks further processing, must be fixed
  * - `warning`: Non-blocking, should be addressed
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const ErrorSeverity: LiteralKit<readonly ["error", "warning"]> = LiteralKit(["error", "warning"]).annotate(
@@ -29,7 +29,7 @@ export const ErrorSeverity: LiteralKit<readonly ["error", "warning"]> = LiteralK
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ErrorSeverity = typeof ErrorSeverity.Type;
 
@@ -37,7 +37,7 @@ export type ErrorSeverity = typeof ErrorSeverity.Type;
  * Common fields shared by all DSL validation errors.
  * Used for documentation - actual errors use Schema.TaggedError.
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const commonFields = {
   message: S.String,
@@ -201,7 +201,7 @@ const AutoIncrementTypeErrorBase: TaggedErrorClassFromFields<
  * Longer identifiers are silently truncated, causing subtle bugs.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class IdentifierTooLongError extends IdentifierTooLongErrorBase {}
 
@@ -213,7 +213,7 @@ export class IdentifierTooLongError extends IdentifierTooLongErrorBase {}
  * - Contain only letters, digits (0-9), underscores, and dollar signs ($)
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class InvalidIdentifierCharsError extends InvalidIdentifierCharsErrorBase {}
 
@@ -224,7 +224,7 @@ export class InvalidIdentifierCharsError extends InvalidIdentifierCharsErrorBase
  * A nullable schema type (S.NullOr, S.optional) conflicts with this.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class NullablePrimaryKeyError extends NullablePrimaryKeyErrorBase {}
 
@@ -242,7 +242,7 @@ export class NullablePrimaryKeyError extends NullablePrimaryKeyErrorBase {}
  * - A variant field with empty or undefined schemas
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class MissingVariantSchemaError extends MissingVariantSchemaErrorBase {}
 
@@ -256,7 +256,7 @@ export class MissingVariantSchemaError extends MissingVariantSchemaErrorBase {}
  * - Union containing only null
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class UnsupportedColumnTypeError extends UnsupportedColumnTypeErrorBase {}
 
@@ -273,7 +273,7 @@ export class UnsupportedColumnTypeError extends UnsupportedColumnTypeErrorBase {
  * - Error messages and debugging
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class EmptyModelIdentifierError extends EmptyModelIdentifierErrorBase {}
 
@@ -284,7 +284,7 @@ export class EmptyModelIdentifierError extends EmptyModelIdentifierErrorBase {}
  * Multiple auto-incrementing columns would require separate sequences.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class MultipleAutoIncrementError extends MultipleAutoIncrementErrorBase {}
 
@@ -297,7 +297,7 @@ export class MultipleAutoIncrementError extends MultipleAutoIncrementErrorBase {
  * Use Match.tag("ModelValidationAggregateError", ...) for exhaustive matching.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ModelValidationAggregateError extends ModelValidationAggregateErrorBase {}
 
@@ -308,7 +308,7 @@ export class ModelValidationAggregateError extends ModelValidationAggregateError
  * AutoIncrement on other types (string, boolean, etc.) is invalid.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class AutoIncrementTypeError extends AutoIncrementTypeErrorBase {}
 
@@ -316,7 +316,7 @@ export class AutoIncrementTypeError extends AutoIncrementTypeErrorBase {}
  * Union of all DSL validation error types.
  * Used for exhaustive pattern matching with Match.exhaustive.
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 
 export const DSLValidationError = S.Union([
@@ -339,13 +339,13 @@ export const DSLValidationError = S.Union([
   );
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type DSLValidationError = typeof DSLValidationError.Type;
 
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export declare namespace DSLValidationError {
   /**

@@ -69,7 +69,7 @@ const classifyRecord = (
  * // deps.workspace.dependencies -> { "@my/other": "workspace:*" }
  * // deps.npm.dependencies -> { "lodash": "^4.0.0" }
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const extractWorkspaceDependencies: {

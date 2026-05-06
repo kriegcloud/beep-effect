@@ -23,7 +23,7 @@ const $I = $SchemaId.create("PascalStr");
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const PascalCaseStr = NonEmptyTrimmedStr.pipe(
   S.check(
@@ -49,6 +49,6 @@ export const PascalCaseStr = NonEmptyTrimmedStr.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PascalCaseStr = typeof PascalCaseStr.Type;

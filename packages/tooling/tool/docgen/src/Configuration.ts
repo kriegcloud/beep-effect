@@ -25,7 +25,7 @@ const $I = $RepoDocgenId.create("Configuration");
  * import { DEFAULT_THEME } from "@beep/repo-docgen/Configuration"
  * void DEFAULT_THEME
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 // cspell:ignore mikearnaldi
@@ -48,7 +48,7 @@ const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
  * import { ConfigurationSchema } from "@beep/repo-docgen/Configuration"
  * void ConfigurationSchema
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`ConfigurationSchema`)({
@@ -77,7 +77,7 @@ export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`Configu
  * import type { ConfigurationDocument } from "@beep/repo-docgen/Configuration"
  * type ExampleConfigurationDocument = ConfigurationDocument
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 export type ConfigurationDocument = typeof ConfigurationSchema.Type;
@@ -90,7 +90,7 @@ export type ConfigurationDocument = typeof ConfigurationSchema.Type;
  * import { ConfigurationShape } from "@beep/repo-docgen/Configuration"
  * void ConfigurationShape
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 export class ConfigurationShape extends S.Class<ConfigurationShape>($I`ConfigurationShape`)({
@@ -119,7 +119,7 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
  * import { Configuration } from "@beep/repo-docgen/Configuration"
  * void Configuration
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 export class Configuration extends Context.Service<Configuration, ConfigurationShape>()($I`Configuration`) {
@@ -142,7 +142,7 @@ export class Configuration extends Context.Service<Configuration, ConfigurationS
  * import type { CompilerOptionsInput } from "@beep/repo-docgen/Configuration"
  * type ExampleCompilerOptionsInput = CompilerOptionsInput
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 export type CompilerOptionsInput = string | S.Schema.Type<typeof CompilerOptionsShape>;
@@ -176,7 +176,7 @@ type LoadArgs = {
  * import { defaultCompilerOptions } from "@beep/repo-docgen/Configuration"
  * void defaultCompilerOptions
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 export const defaultCompilerOptions = {
@@ -333,7 +333,7 @@ const resolveBoolean = (fromCLI: O.Option<boolean>, fromDocgenJson: O.Option<boo
  * import { load } from "@beep/repo-docgen/Configuration"
  * void load
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 export const load = Effect.fn("load")(function* (args: LoadArgs) {
@@ -420,7 +420,7 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
  * import { configProviderLayer } from "@beep/repo-docgen/Configuration"
  * void configProviderLayer
  * ```
- * @category service
+ * @category services
  * @since 0.0.0
  */
 export const configProviderLayer = Layer.empty;

@@ -36,7 +36,7 @@ import { symbolCategoryFromKind } from "./TSMorph.model.js";
  * import type { OutlineDeclaration } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * type Example = OutlineDeclaration
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export type OutlineDeclaration =
@@ -65,7 +65,7 @@ const bySymbolStartLineAscending: Order.Order<TsMorphSymbol> = Order.mapInput(
  * import { byTsMorphSymbolAscending } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = byTsMorphSymbolAscending
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const byTsMorphSymbolAscending: Order.Order<TsMorphSymbol> = Order.combine(
@@ -94,7 +94,7 @@ const byDiagnosticCodeAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput
  * import { byNormalizedDiagnosticAscending } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = byNormalizedDiagnosticAscending
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const byNormalizedDiagnosticAscending: Order.Order<TsMorphDiagnostic> = Order.combine(
@@ -120,7 +120,7 @@ const firstSignatureLine = (text: string): string =>
  * import { readDocstring } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = readDocstring
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
@@ -148,7 +148,7 @@ export const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
  * import { readDecorators } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = readDecorators
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> =>
@@ -166,7 +166,7 @@ export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> 
  * import { readSignature } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = readSignature
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const readSignature = (node: OutlineDeclaration): string => {
@@ -190,7 +190,7 @@ export const readSignature = (node: OutlineDeclaration): string => {
  * import { makeSummary } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = makeSummary
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const makeSummary = (docstring: O.Option<string>): O.Option<string> => docstring;
@@ -207,7 +207,7 @@ export const makeSummary = (docstring: O.Option<string>): O.Option<string> => do
  * import { makeKeywords } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = makeKeywords
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const makeKeywords: {
@@ -230,7 +230,7 @@ export const makeKeywords: {
  * import { makeScopeSymbolSearchText } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = makeScopeSymbolSearchText
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const makeScopeSymbolSearchText: {
@@ -278,7 +278,7 @@ const flattenDiagnosticMessageTextMatcher = Match.type<string | DiagnosticMessag
  * import { flattenDiagnosticMessageText } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = flattenDiagnosticMessageText
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const flattenDiagnosticMessageText = (message: string | DiagnosticMessageChain): string =>
@@ -306,7 +306,7 @@ const normalizeDiagnosticCategoryMatcher = Match.type<DiagnosticCategory>().pipe
  * import { normalizeDiagnosticCategory } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = normalizeDiagnosticCategory
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMorphDiagnostic["category"] =>
@@ -322,7 +322,7 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
  * import { getDeclarationName } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = getDeclarationName
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const getDeclarationName = (
@@ -398,7 +398,7 @@ export const getDeclarationName = (
  * import { pipeQualifiedName } from "@beep/repo-utils/TSMorph/TSMorph.shared"
  * const value = pipeQualifiedName
  * ```
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const pipeQualifiedName: {

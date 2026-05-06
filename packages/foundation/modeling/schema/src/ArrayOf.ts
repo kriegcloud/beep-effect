@@ -23,7 +23,7 @@ const $I = $SchemaId.create("ArrayOf");
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ArrayOfStrings = S.Array(S.String).annotate(
   $I.annote("ArrayOfStrings", {
@@ -35,7 +35,7 @@ export const ArrayOfStrings = S.Array(S.String).annotate(
  * Type for {@link ArrayOfStrings}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ArrayOfStrings = S.Schema.Type<typeof ArrayOfStrings>;
 
@@ -52,7 +52,7 @@ export type ArrayOfStrings = S.Schema.Type<typeof ArrayOfStrings>;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NonEmptyArrayOfStrings = S.NonEmptyArray(S.String).annotate(
   $I.annote("NonEmptyArrayOfStrings", {
@@ -64,7 +64,7 @@ export const NonEmptyArrayOfStrings = S.NonEmptyArray(S.String).annotate(
  * Type for {@link NonEmptyArrayOfStrings}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NonEmptyArrayOfStrings = S.Schema.Type<typeof NonEmptyArrayOfStrings>;
 
@@ -81,7 +81,7 @@ export type NonEmptyArrayOfStrings = S.Schema.Type<typeof NonEmptyArrayOfStrings
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ArrayOfNonEmptyStrings = S.Array(S.NonEmptyString).annotate(
   $I.annote("ArrayOfNonEmptyStrings", {
@@ -93,7 +93,7 @@ export const ArrayOfNonEmptyStrings = S.Array(S.NonEmptyString).annotate(
  * Type for {@link ArrayOfNonEmptyStrings}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ArrayOfNonEmptyStrings = S.Schema.Type<typeof ArrayOfNonEmptyStrings>;
 
@@ -110,7 +110,7 @@ export type ArrayOfNonEmptyStrings = S.Schema.Type<typeof ArrayOfNonEmptyStrings
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NonEmptyArrayOfNonEmptyStrings = S.NonEmptyArray(S.NonEmptyString).annotate(
   $I.annote("NonEmptyArrayOfNonEmptyStrings", {
@@ -122,7 +122,7 @@ export const NonEmptyArrayOfNonEmptyStrings = S.NonEmptyArray(S.NonEmptyString).
  * Type for {@link NonEmptyArrayOfNonEmptyStrings}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NonEmptyArrayOfNonEmptyStrings = S.Schema.Type<typeof NonEmptyArrayOfNonEmptyStrings>;
 
@@ -139,7 +139,7 @@ export type NonEmptyArrayOfNonEmptyStrings = S.Schema.Type<typeof NonEmptyArrayO
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ArrayOfNumbers = S.Array(S.Number).annotate(
   $I.annote("ArrayOfNumbers", {
@@ -151,7 +151,7 @@ export const ArrayOfNumbers = S.Array(S.Number).annotate(
  * Type for {@link ArrayOfNumbers}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ArrayOfNumbers = S.Schema.Type<typeof ArrayOfNumbers>;
 
@@ -168,7 +168,7 @@ export type ArrayOfNumbers = S.Schema.Type<typeof ArrayOfNumbers>;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NonEmptyArrayOfNumbers = S.NonEmptyArray(S.Number).annotate(
   $I.annote("NonEmptyArrayOfNumbers", {
@@ -180,7 +180,7 @@ export const NonEmptyArrayOfNumbers = S.NonEmptyArray(S.Number).annotate(
  * Type for {@link NonEmptyArrayOfNumbers}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NonEmptyArrayOfNumbers = S.Schema.Type<typeof NonEmptyArrayOfNumbers>;
 
@@ -197,7 +197,7 @@ export type NonEmptyArrayOfNumbers = S.Schema.Type<typeof NonEmptyArrayOfNumbers
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ArrayOfInts = S.Array(S.Int).annotate(
   $I.annote("ArrayOfInts", {
@@ -209,7 +209,7 @@ export const ArrayOfInts = S.Array(S.Int).annotate(
  * Type for {@link ArrayOfInts}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ArrayOfInts = S.Schema.Type<typeof ArrayOfInts>;
 
@@ -226,7 +226,7 @@ export type ArrayOfInts = S.Schema.Type<typeof ArrayOfInts>;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NonEmptyArrayOfInts = S.NonEmptyArray(S.Int).annotate(
   $I.annote("NonEmptyArrayOfInts", {
@@ -238,6 +238,6 @@ export const NonEmptyArrayOfInts = S.NonEmptyArray(S.Int).annotate(
  * Type for {@link NonEmptyArrayOfInts}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NonEmptyArrayOfInts = S.Schema.Type<typeof NonEmptyArrayOfInts>;

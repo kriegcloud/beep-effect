@@ -22,7 +22,7 @@ const $I = $RepoCliId.create("commands/SyncDataToTs/targets/Iso4217");
 /**
  * Official SIX XML source for ISO 4217 List One.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const ISO4217_SOURCE_URL =
@@ -277,7 +277,7 @@ const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToT
 /**
  * Checked-in sync target for the official SIX ISO 4217 List One XML feed.
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const iso4217Target: SyncDataTarget = {

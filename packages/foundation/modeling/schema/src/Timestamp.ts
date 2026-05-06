@@ -307,7 +307,7 @@ export const nowEffect: Effect.Effect<Timestamp> = Effect.map(
  * Chronological `Order` for `Timestamp` values.
  *
  * @since 0.0.0
- * @category ordering
+ * @category utilities
  */
 export const Order: Order_.Order<Timestamp> = Order_.make((a, b) => {
   if (a.epochMillis < b.epochMillis) return -1;

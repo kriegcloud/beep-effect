@@ -6,7 +6,7 @@ const $I = $UiId.create("components/codegraph/neo4j");
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export class DeadCodeItem extends S.Class<DeadCodeItem>($I`DeadCodeItem`)(
   {
@@ -20,7 +20,7 @@ export class DeadCodeItem extends S.Class<DeadCodeItem>($I`DeadCodeItem`)(
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export class GodObjectItem extends S.Class<GodObjectItem>($I`GodObjectItem`)(
   {
@@ -35,7 +35,7 @@ export class GodObjectItem extends S.Class<GodObjectItem>($I`GodObjectItem`)(
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export class GodFileItem extends S.Class<GodFileItem>($I`GodFileItem`)(
   {
@@ -48,7 +48,7 @@ export class GodFileItem extends S.Class<GodFileItem>($I`GodFileItem`)(
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export class DuplicateGroupFunction extends S.Class<DuplicateGroupFunction>($I`DuplicateGroupFunction`)({
   name: S.String,
@@ -57,7 +57,7 @@ export class DuplicateGroupFunction extends S.Class<DuplicateGroupFunction>($I`D
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export class DuplicateGroup extends S.Class<DuplicateGroup>($I`DuplicateGroup`)({
   bodyHash: Sha256Hex,
@@ -67,7 +67,7 @@ export class DuplicateGroup extends S.Class<DuplicateGroup>($I`DuplicateGroup`)(
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export class HealthStats extends S.Class<HealthStats>($I`HealthStats`)({
   nodeCount: NonNegativeInt,
@@ -95,7 +95,7 @@ export class HealthStats extends S.Class<HealthStats>($I`HealthStats`)({
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export const ViewMode = LiteralKit(["overview", "full"]).pipe(
   $I.annoteSchema("ViewMode", {
@@ -105,13 +105,13 @@ export const ViewMode = LiteralKit(["overview", "full"]).pipe(
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export type ViewMode = typeof ViewMode.Type;
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export const CacheKey = S.TemplateLiteral([S.String, ":", S.Union([S.String, S.Literal("all")])]).pipe(
   $I.annoteSchema("CacheKey", {
@@ -121,6 +121,6 @@ export const CacheKey = S.TemplateLiteral([S.String, ":", S.Union([S.String, S.L
 
 /**
  * @since 0.0.0
- * @category Model
+ * @category models
  */
 export type CacheKey = typeof CacheKey.Type;

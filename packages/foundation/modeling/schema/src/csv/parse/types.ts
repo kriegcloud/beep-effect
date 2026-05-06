@@ -14,7 +14,7 @@ const $I = $SchemaId.create("csv/parse/types");
 /**
  * An array containing possibly nullish strings.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const HeaderArray = pipe(
@@ -29,7 +29,7 @@ export const HeaderArray = pipe(
 /**
  * {@inheritDoc HeaderArray}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type HeaderArray = typeof HeaderArray.Type;
@@ -38,7 +38,7 @@ export type HeaderArray = typeof HeaderArray.Type;
  * An identity function taking an array containing possibly nullish strings
  * and returning it.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const HeaderTransformFunction = Fn({
@@ -53,7 +53,7 @@ export const HeaderTransformFunction = Fn({
 /**
  * {@inheritDoc HeaderTransformFunction}
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export type HeaderTransformFunction = typeof HeaderTransformFunction.Type;

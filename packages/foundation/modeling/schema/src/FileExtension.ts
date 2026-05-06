@@ -67,7 +67,7 @@ type MimeTypeExtension<T extends MimeTypeProperty> = T[keyof T]["extensions"][nu
  * @param mime - The mime-type dictionary whose extensions should be collected.
  * @returns A deduplicated non-empty list of extensions.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const extractMimeExtensions = <const T extends MimeTypeProperty>(
   mime: T
@@ -94,7 +94,7 @@ export const extractMimeExtensions = <const T extends MimeTypeProperty>(
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ApplicationFileExtension = pipe(
   application,
@@ -116,7 +116,7 @@ export const ApplicationFileExtension = pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ApplicationFileExtension = typeof ApplicationFileExtension.Type;
 
@@ -133,7 +133,7 @@ export type ApplicationFileExtension = typeof ApplicationFileExtension.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const VideoFileExtension = pipe(
   video,
@@ -155,7 +155,7 @@ export const VideoFileExtension = pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type VideoFileExtension = typeof VideoFileExtension.Type;
 
@@ -172,7 +172,7 @@ export type VideoFileExtension = typeof VideoFileExtension.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const TextFileExtension = pipe(
   text,
@@ -194,7 +194,7 @@ export const TextFileExtension = pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TextFileExtension = typeof TextFileExtension.Type;
 
@@ -211,7 +211,7 @@ export type TextFileExtension = typeof TextFileExtension.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ImageFileExtension = pipe(
   image,
@@ -233,7 +233,7 @@ export const ImageFileExtension = pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ImageFileExtension = typeof ImageFileExtension.Type;
 
@@ -250,7 +250,7 @@ export type ImageFileExtension = typeof ImageFileExtension.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const AudioFileExtension = pipe(
   audio,
@@ -272,7 +272,7 @@ export const AudioFileExtension = pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type AudioFileExtension = typeof AudioFileExtension.Type;
 
@@ -288,7 +288,7 @@ export type AudioFileExtension = typeof AudioFileExtension.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MiscFileExtension = pipe(
   misc,
@@ -310,7 +310,7 @@ export const MiscFileExtension = pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type MiscFileExtension = typeof MiscFileExtension.Type;
 
@@ -327,7 +327,7 @@ export type MiscFileExtension = typeof MiscFileExtension.Type;
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const FileExtension = LiteralKit([
   ...ApplicationFileExtension.Options,
@@ -353,6 +353,6 @@ export const FileExtension = LiteralKit([
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type FileExtension = typeof FileExtension.Type;

@@ -32,7 +32,7 @@ export const isMouseEvent = (u: unknown): u is MouseEvent => u instanceof MouseE
 /**
  * A DOM event
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const DOMEvent = S.declare(isEvent).pipe(
@@ -44,7 +44,7 @@ export const DOMEvent = S.declare(isEvent).pipe(
 /**
  * {@inheritDoc DOMEvent}
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type DOMEvent = typeof DOMEvent.Type;
@@ -52,7 +52,7 @@ export type DOMEvent = typeof DOMEvent.Type;
 /**
  * A DOM mouse event
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const DOMMouseEvent = S.declare(isMouseEvent).pipe(
@@ -64,7 +64,7 @@ export const DOMMouseEvent = S.declare(isMouseEvent).pipe(
 /**
  * {@inheritDoc DOMMouseEvent}
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type DOMMouseEvent = typeof DOMMouseEvent.Type;

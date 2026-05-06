@@ -196,7 +196,7 @@ export class ShaclValidationResult extends S.Class<ShaclValidationResult>($I`Sha
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export class ShaclValidationError extends TaggedErrorClass<ShaclValidationError>($I`ShaclValidationError`)(
   "ShaclValidationError",

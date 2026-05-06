@@ -172,7 +172,7 @@ const isNonPrintableByte = (byte: number): boolean => byte < 32 && byte !== 9 &&
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const BinaryFileExtension = LiteralKit(binaryFileExtensionOptions).pipe(
   $I.annoteSchema("BinaryFileExtension", {
@@ -194,7 +194,7 @@ const isBinaryFileExtensionSchema = S.is(BinaryFileExtension);
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type BinaryFileExtension = typeof BinaryFileExtension.Type;
 
@@ -212,7 +212,7 @@ export type BinaryFileExtension = typeof BinaryFileExtension.Type;
  * @param value - The value to test as a binary file extension.
  * @returns Whether the value is a supported dotted binary file extension.
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isBinaryFileExtension = (value: unknown): value is BinaryFileExtension =>
   isBinaryFileExtensionSchema(value);
@@ -234,7 +234,7 @@ export const isBinaryFileExtension = (value: unknown): value is BinaryFileExtens
  * @param filePath - The file path or file name whose extension should be checked.
  * @returns `true` when the normalized dotted extension is known to be binary.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export function hasBinaryExtension(filePath: string): boolean {
   return HashSet.has(binaryFileExtensionSet, extractNormalizedExtension(filePath));
@@ -261,7 +261,7 @@ export function hasBinaryExtension(filePath: string): boolean {
  * @param bytes - The bytes to inspect for binary content markers.
  * @returns `true` when the inspected bytes look binary, otherwise `false`.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export function isBinaryContent(bytes: Uint8Array): boolean {
   const sample = pipe(bytes, A.fromIterable, A.take(BINARY_CONTENT_SAMPLE_SIZE));

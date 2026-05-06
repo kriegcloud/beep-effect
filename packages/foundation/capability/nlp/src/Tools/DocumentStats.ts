@@ -35,7 +35,7 @@ class DocumentStatsParameters extends S.Class<DocumentStatsParameters>($I`Docume
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const DocumentStats = Tool.make("DocumentStats", {
   description:

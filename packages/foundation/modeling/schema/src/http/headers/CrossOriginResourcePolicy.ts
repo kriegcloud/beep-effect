@@ -21,6 +21,7 @@ const headerName = "Cross-Origin-Resource-Policy" as const;
 const CorpValueBase = LiteralKit(["same-site", "same-origin", "cross-origin"]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const CorpValue = CorpValueBase.pipe(
@@ -31,6 +32,7 @@ export const CorpValue = CorpValueBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type CorpValue = typeof CorpValue.Type;
@@ -38,6 +40,7 @@ export type CorpValue = typeof CorpValue.Type;
 const CrossOriginResourcePolicyOptionBase = LiteralKit([false, ...CorpValueBase.Options]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const CrossOriginResourcePolicyOption = CrossOriginResourcePolicyOptionBase.pipe(
@@ -48,11 +51,13 @@ export const CrossOriginResourcePolicyOption = CrossOriginResourcePolicyOptionBa
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type CrossOriginResourcePolicyOption = typeof CrossOriginResourcePolicyOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class CrossOriginResourcePolicyResponseHeader extends S.Class<CrossOriginResourcePolicyResponseHeader>(
@@ -70,6 +75,7 @@ export class CrossOriginResourcePolicyResponseHeader extends S.Class<CrossOrigin
 type CrossOriginResourcePolicyResponseHeaderEncoded = typeof CrossOriginResourcePolicyResponseHeader.Encoded;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const CrossOriginResourcePolicyHeader = S.Union([CrossOriginResourcePolicyOption, S.Undefined]).pipe(
@@ -127,6 +133,7 @@ export const CrossOriginResourcePolicyHeader = S.Union([CrossOriginResourcePolic
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type CrossOriginResourcePolicyHeader = typeof CrossOriginResourcePolicyHeader.Type;

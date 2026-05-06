@@ -16,6 +16,7 @@ import * as S from "effect/Schema";
 const $I = $SchemaId.create("http/headers/_internal/helpers");
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const ArrayOfStrOrStr = S.Union([S.String, S.Array(S.String)]).pipe(
@@ -25,11 +26,13 @@ export const ArrayOfStrOrStr = S.Union([S.String, S.Array(S.String)]).pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type ArrayOfStrOrStr = typeof ArrayOfStrOrStr.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const StringOrUrl = S.Union([S.String, S.URL]).pipe(
@@ -39,11 +42,13 @@ export const StringOrUrl = S.Union([S.String, S.URL]).pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type StringOrUrl = typeof StringOrUrl.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
@@ -67,6 +72,7 @@ export const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type EncodedStrictURIFromStrOrURL = typeof EncodedStrictURIFromStrOrURL.Type;
@@ -75,23 +81,27 @@ const decodeStrictURI = S.decodeUnknownResult(EncodedStrictURIFromStrOrURL);
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 /**
+ * @category encoding
  * @since 0.0.0
  */
 export const encodeStrictURI = (value: StringOrUrl): EncodedStrictURIFromStrOrURL =>
   Result.getOrThrowWith(decodeStrictURI(value), schemaIssueToError);
 
 /**
+ * @category encoding
  * @since 0.0.0
  */
 export const encodeStrictURIOption = S.decodeUnknownOption(EncodedStrictURIFromStrOrURL);
 
 /**
+ * @category utilities
  * @since 0.0.0
  */
 export const wrapArray = <T>(value: T | ReadonlyArray<T>): readonly T[] =>
   A.isArray(value) ? cast(value) : cast(A.make(value));
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class ResponseHeader extends S.Class<ResponseHeader>($I`ResponseHeader`)(
@@ -105,6 +115,7 @@ export class ResponseHeader extends S.Class<ResponseHeader>($I`ResponseHeader`)(
 ) {}
 
 /**
+ * @category constructors
  * @since 0.0.0
  */
 export const makeHeaderEncodeForbidden =
@@ -117,6 +128,7 @@ export const makeHeaderEncodeForbidden =
     );
 
 /**
+ * @category constructors
  * @since 0.0.0
  */
 export const makeResponseHeader: {
@@ -132,6 +144,7 @@ export const makeResponseHeader: {
 );
 
 /**
+ * @category constructors
  * @since 0.0.0
  */
 export const makeResponseHeaderOption: {

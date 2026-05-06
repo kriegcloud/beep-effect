@@ -199,7 +199,7 @@ export const createWorktreeInfo = Effect.fn("Worktree.createWorktreeInfo")(funct
 /**
  * Remove a managed git worktree.
  *
- * @category resource management
+ * @category resource-management
  * @since 0.0.0
  */
 export const removeWorktree = Effect.fn("Worktree.removeWorktree")(function* (worktreePath: string) {
@@ -212,7 +212,7 @@ export const removeWorktree = Effect.fn("Worktree.removeWorktree")(function* (wo
 /**
  * Prune stale git worktree metadata.
  *
- * @category resource management
+ * @category resource-management
  * @since 0.0.0
  */
 export const pruneStaleWorktrees = Effect.fn("Worktree.pruneStaleWorktrees")(function* (repoDir: string) {

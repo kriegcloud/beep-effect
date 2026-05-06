@@ -16,21 +16,41 @@ const NotificationStatus = LiteralKit(["unread", "read", "archived"]).pipe(
   })
 );
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type NotificationStatus = typeof NotificationStatus.Type;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const ActionType = LiteralKit(["redirect", "api_call", "workflow", "modal"]).pipe(
   $I.annoteSchema("ActionType", {
     description: "The type of action to perform",
   })
 );
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type ActionType = typeof ActionType.Type;
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export const ActionStyle = LiteralKit(["primary", "danger", "default"]).pipe(
   $I.annoteSchema("ActionStyle", {
     description: "The style of the action button",
   })
 );
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type ActionStyle = typeof ActionStyle.Type;
 
 const NotificationActionFields = {
@@ -40,6 +60,10 @@ const NotificationActionFields = {
   style: S.OptionFromOptionalKey(ActionStyle),
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export const NotificationAction = ActionType.toTaggedUnion("type")({
   redirect: NotificationActionFields,
   api_call: NotificationActionFields,
@@ -51,6 +75,10 @@ export const NotificationAction = ActionType.toTaggedUnion("type")({
   })
 );
 
+/**
+ * @category type-level
+ * @since 0.0.0
+ */
 export type NotificationAction = typeof NotificationAction.Type;
 
 const actionIcon = (action: NotificationAction) => {
@@ -102,6 +130,10 @@ const formatDate = (date: Date | string): string => {
   return shortDateFormatter.format(DateTime.toEpochMillis(parsed));
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function NotificationCard({
   id,
   title,

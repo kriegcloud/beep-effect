@@ -39,7 +39,7 @@ The `EventJournal` exposes a `changes` field that returns a `PubSub.Subscription
  * })
  * ```
  *
- * @category streaming
+ * @category streams
  * @since 0.0.0
  */
 ```
@@ -88,7 +88,7 @@ The `EventLog.Registry` supports `registerReactivity`, which maps event tags to 
  * })
  * ```
  *
- * @category reactivity
+ * @category configuration
  * @since 0.0.0
  */
 ```
@@ -289,7 +289,7 @@ Temporal queries hit the `SqlEventJournal` table directly rather than the live P
  *   })
  * ```
  *
- * @category replay
+ * @category projections
  * @since 0.0.0
  */
 ```

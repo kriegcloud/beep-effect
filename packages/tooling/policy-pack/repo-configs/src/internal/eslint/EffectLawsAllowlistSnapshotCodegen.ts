@@ -27,7 +27,7 @@ const stringifyJsonPretty = SchemaGetter.stringifyJson({ space: 2 });
  * @param allowlistText - Raw JSONC allowlist content.
  * @returns Snapshot model containing normalized entries or schema diagnostics.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const buildAllowlistSnapshotFromJsoncText = (
   allowlistText: string
@@ -58,7 +58,7 @@ export const buildAllowlistSnapshotFromJsoncText = (
  * @param snapshot - Snapshot model to emit.
  * @returns Effect producing TypeScript module text exporting immutable snapshot data.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const renderAllowlistSnapshotModule = (
   snapshot: EffectLawsAllowlistSnapshot
@@ -87,7 +87,7 @@ export const renderAllowlistSnapshotModule = (
  * @param allowlistText - Raw JSONC allowlist content.
  * @returns Effect producing a generated TypeScript source.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const buildAllowlistSnapshotModuleFromJsoncText = (
   allowlistText: string

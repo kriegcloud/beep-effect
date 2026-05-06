@@ -2,6 +2,10 @@ import { Input as InputPrimitive } from "@base-ui/react/input";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Input({ className, type, style, ...props }: React.ComponentProps<"input">) {
   return (
     <InputPrimitive
@@ -17,4 +21,8 @@ function Input({ className, type, style, ...props }: React.ComponentProps<"input
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Input };

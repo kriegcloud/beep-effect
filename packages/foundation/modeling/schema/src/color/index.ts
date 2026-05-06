@@ -2,6 +2,6 @@
  * Color schema re-exports.
  *
  * @since 0.0.0
- * @category re-exports
+ * @category schemas
  */
 export * from "./Color.ts";

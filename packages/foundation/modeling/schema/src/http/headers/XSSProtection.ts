@@ -22,6 +22,7 @@ const headerName = "X-XSS-Protection" as const;
 const XSSProtectionModeBase = LiteralKit(["sanitize", "block-rendering"]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const XSSProtectionMode = XSSProtectionModeBase.pipe(
@@ -32,11 +33,13 @@ export const XSSProtectionMode = XSSProtectionModeBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type XSSProtectionMode = typeof XSSProtectionMode.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class XSSProtectionReportConfig extends S.Class<XSSProtectionReportConfig>($I`XSSProtectionReportConfig`)(
@@ -49,6 +52,7 @@ export class XSSProtectionReportConfig extends S.Class<XSSProtectionReportConfig
 ) {}
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const XSSProtectionReport = S.Tuple([S.Literal("report"), XSSProtectionReportConfig]).pipe(
@@ -58,11 +62,13 @@ export const XSSProtectionReport = S.Tuple([S.Literal("report"), XSSProtectionRe
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type XSSProtectionReport = typeof XSSProtectionReport.Type;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const XSSProtectionOption = S.Union([S.Literal(false), XSSProtectionMode, XSSProtectionReport]).pipe(
@@ -72,11 +78,13 @@ export const XSSProtectionOption = S.Union([S.Literal(false), XSSProtectionMode,
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type XSSProtectionOption = typeof XSSProtectionOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class XSSProtectionResponseHeader extends S.Class<XSSProtectionResponseHeader>($I`XSSProtectionResponseHeader`)(
@@ -128,6 +136,7 @@ const formatXSSProtectionValue = (option: undefined | XSSProtectionOption): Effe
   });
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const XSSProtectionHeader = S.Union([XSSProtectionOption, S.Undefined]).pipe(
@@ -178,6 +187,7 @@ export const XSSProtectionHeader = S.Union([XSSProtectionOption, S.Undefined]).p
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type XSSProtectionHeader = typeof XSSProtectionHeader.Type;

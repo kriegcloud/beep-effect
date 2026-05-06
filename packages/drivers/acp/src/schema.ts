@@ -15,7 +15,7 @@
  * console.log(AGENT_METHODS.initialize, PROTOCOL_VERSION)
  * ```
  *
- * @category exports
+ * @category constants
  * @since 0.0.0
  */
 export * from "./_generated/meta.gen.ts";
@@ -35,7 +35,7 @@ export * from "./_generated/meta.gen.ts";
  * console.log(request.protocolVersion)
  * ```
  *
- * @category exports
+ * @category schemas
  * @since 0.0.0
  */
 export * from "./_generated/schema.gen.ts";

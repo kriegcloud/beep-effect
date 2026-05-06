@@ -18,10 +18,18 @@ const alertVariants = cva(
   }
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function Alert({ className, variant, ...props }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
   return <div data-slot="alert" role="alert" className={cn(alertVariants({ variant }), className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -35,6 +43,10 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -48,8 +60,16 @@ function AlertDescription({ className, ...props }: React.ComponentProps<"div">) 
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="alert-action" className={cn("absolute top-2 right-2", className)} {...props} />;
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Alert, AlertAction, AlertDescription, AlertTitle };

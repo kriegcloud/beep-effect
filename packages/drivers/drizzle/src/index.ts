@@ -9,7 +9,7 @@
  * Public Drizzle driver error exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category errors
  */
 export * from "./Drizzle.errors.ts";
 
@@ -17,7 +17,7 @@ export * from "./Drizzle.errors.ts";
  * Public Drizzle driver service exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category services
  */
 export * from "./Drizzle.service.ts";
 
@@ -25,6 +25,6 @@ export * from "./Drizzle.service.ts";
  * Public schema-first Drizzle table projection exports.
  *
  * @since 0.0.0
- * @category exports
+ * @category tables
  */
 export * as EntityTable from "./EntityTable.ts";

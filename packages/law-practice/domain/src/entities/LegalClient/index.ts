@@ -30,7 +30,7 @@ export * from "./LegalClient.model.js";
  * console.log(Module)
  * ```
  *
- * @category exports
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./LegalClient.values.js";

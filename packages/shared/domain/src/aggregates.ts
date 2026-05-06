@@ -15,7 +15,7 @@
  * console.log(Aggregates)
  * ```
  *
- * @category exports
+ * @category aggregates
  * @since 0.0.0
  */
 export * from "./aggregates/index.ts";

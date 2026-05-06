@@ -39,7 +39,7 @@ const $I = $AcpId.create("protocol");
  * console.log(event.stage)
  * ```
  *
- * @category logging
+ * @category observability
  * @since 0.0.0
  */
 export class AcpProtocolLogEvent extends S.Class<AcpProtocolLogEvent>($I`AcpProtocolLogEvent`)(
@@ -145,7 +145,7 @@ export type AcpIncomingNotification = typeof AcpIncomingNotification.Type;
  * void hasServerMethods
  * ```
  *
- * @category protocol
+ * @category protocols
  * @since 0.0.0
  */
 export interface AcpPatchedProtocolOptions extends AcpProtocolLoggingOptions {
@@ -169,7 +169,7 @@ export interface AcpPatchedProtocolOptions extends AcpProtocolLoggingOptions {
  * void notificationsOf
  * ```
  *
- * @category protocol
+ * @category protocols
  * @since 0.0.0
  */
 export interface AcpPatchedProtocol {

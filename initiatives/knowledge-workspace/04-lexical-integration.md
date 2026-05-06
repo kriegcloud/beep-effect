@@ -64,7 +64,7 @@ The WikiLinkNode data is validated through an `S.Class` with `$I` identity:
  * ) {}
  * ```
  *
- * @category model
+ * @category models
  * @since 0.0.0
  */
 ```
@@ -306,7 +306,7 @@ When a page is saved, the editor emits graph events through the `KnowledgeGraph`
  * // Page.json    -- JSON API variant
  * ```
  *
- * @category model
+ * @category models
  * @since 0.0.0
  */
 ```
@@ -338,7 +338,7 @@ When a page is saved, the editor emits graph events through the `KnowledgeGraph`
  * )
  * ```
  *
- * @category mutations
+ * @category commands
  * @since 0.0.0
  */
 ```

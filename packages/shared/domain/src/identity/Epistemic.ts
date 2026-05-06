@@ -21,7 +21,7 @@ const make = EntityId.factory("epistemic", $I);
  * console.log(Epistemic.CandidateClaimId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const CandidateClaimId = make("candidate_claim", {
@@ -44,7 +44,7 @@ export const CandidateClaimId = make("candidate_claim", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type CandidateClaimId = typeof CandidateClaimId.Type;
@@ -59,7 +59,7 @@ export type CandidateClaimId = typeof CandidateClaimId.Type;
  * console.log(Epistemic.EvidenceId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const EvidenceId = make("evidence", {
@@ -82,7 +82,7 @@ export const EvidenceId = make("evidence", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type EvidenceId = typeof EvidenceId.Type;
@@ -97,7 +97,7 @@ export type EvidenceId = typeof EvidenceId.Type;
  * console.log(Epistemic.ActivityId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const ActivityId = make("activity", {
@@ -120,7 +120,7 @@ export const ActivityId = make("activity", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type ActivityId = typeof ActivityId.Type;
@@ -135,7 +135,7 @@ export type ActivityId = typeof ActivityId.Type;
  * console.log(Epistemic.UsageRecordId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const UsageRecordId = make("usage_record", {
@@ -158,7 +158,7 @@ export const UsageRecordId = make("usage_record", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type UsageRecordId = typeof UsageRecordId.Type;

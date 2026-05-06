@@ -21,7 +21,7 @@ const make = EntityId.factory("wealth_management", $I);
  * console.log(WealthManagement.HouseholdId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const HouseholdId = make("household", {
@@ -44,7 +44,7 @@ export const HouseholdId = make("household", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type HouseholdId = typeof HouseholdId.Type;
@@ -59,7 +59,7 @@ export type HouseholdId = typeof HouseholdId.Type;
  * console.log(WealthManagement.WealthClientId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const WealthClientId = make("wealth_client", {
@@ -82,7 +82,7 @@ export const WealthClientId = make("wealth_client", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type WealthClientId = typeof WealthClientId.Type;
@@ -97,7 +97,7 @@ export type WealthClientId = typeof WealthClientId.Type;
  * console.log(WealthManagement.PartyId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const PartyId = make("party", {
@@ -120,7 +120,7 @@ export const PartyId = make("party", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type PartyId = typeof PartyId.Type;
@@ -135,7 +135,7 @@ export type PartyId = typeof PartyId.Type;
  * console.log(WealthManagement.AccountId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const AccountId = make("account", {
@@ -158,7 +158,7 @@ export const AccountId = make("account", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type AccountId = typeof AccountId.Type;

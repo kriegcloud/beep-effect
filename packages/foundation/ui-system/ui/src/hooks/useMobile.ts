@@ -1,6 +1,7 @@
 /**
  * Responsive mobile-state helpers for `@beep/ui`.
  *
+ * @category hooks
  * @since 0.0.0
  * @packageDocumentation
  */
@@ -26,7 +27,7 @@ export const resolveIsMobile = (isMobile: O.Option<boolean>): boolean => O.getOr
  * React hook that tracks whether the current viewport matches the mobile media query.
  *
  * @since 0.0.0
- * @category React
+ * @category components
  */
 export function useIsMobile() {
   const [isMobileAtom] = React.useState(() => Atom.make<O.Option<boolean>>(O.none<boolean>()));

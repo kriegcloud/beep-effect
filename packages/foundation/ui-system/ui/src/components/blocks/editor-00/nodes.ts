@@ -7,7 +7,7 @@ import { type Klass, type LexicalNode, type LexicalNodeReplacement, ParagraphNod
  * Lexical node set registered by the shared editor block.
  *
  * @since 0.0.0
- * @category Presentation
+ * @category components
  */
 export const nodes: ReadonlyArray<Klass<LexicalNode> | LexicalNodeReplacement> = [
   HeadingNode,

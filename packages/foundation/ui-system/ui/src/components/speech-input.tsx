@@ -48,6 +48,10 @@ interface SpeechInputContextValue {
 
 const SpeechInputContext = createContext<SpeechInputContextValue | null>(null);
 
+/**
+ * @category hooks
+ * @since 0.0.0
+ */
 function useSpeechInput() {
   const context = useContext(SpeechInputContext);
   if (!context) {
@@ -133,6 +137,10 @@ const buildEvent = ({
   transcript: buildTranscript({ partialTranscript, committedTranscripts }),
 });
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function SpeechInput(
   {
     children,
@@ -285,6 +293,10 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
 // Record button - toggles between mic icon and stop icon
 type SpeechInputRecordButtonProps = Omit<ComponentPropsWithoutRef<typeof Button>, "size">;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const SpeechInputRecordButton = forwardRef<HTMLButtonElement, SpeechInputRecordButtonProps>(
   function SpeechInputRecordButton({ className, onClick, variant = "ghost", disabled, ...props }, _ref) {
     const speechInput = useSpeechInput();
@@ -338,6 +350,10 @@ type SpeechInputPreviewProps = ComponentPropsWithoutRef<"div"> & {
   readonly placeholder?: undefined | string;
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const SpeechInputPreview = forwardRef<HTMLDivElement, SpeechInputPreviewProps>(function SpeechInputPreview(
   { className, placeholder = "Listening...", ...props },
   ref
@@ -378,6 +394,10 @@ const SpeechInputPreview = forwardRef<HTMLDivElement, SpeechInputPreviewProps>(f
 // Cancel button
 type SpeechInputCancelButtonProps = Omit<ComponentPropsWithoutRef<typeof Button>, "size">;
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 const SpeechInputCancelButton = forwardRef<HTMLButtonElement, SpeechInputCancelButtonProps>(
   function SpeechInputCancelButton({ className, onClick, variant = "ghost", ...props }, ref) {
     const speechInput = useSpeechInput();
@@ -407,4 +427,8 @@ const SpeechInputCancelButton = forwardRef<HTMLButtonElement, SpeechInputCancelB
   }
 );
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { SpeechInput, SpeechInputCancelButton, SpeechInputPreview, SpeechInputRecordButton, useSpeechInput };

@@ -27,7 +27,7 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/NodeResolv
 /**
  * A workflow file location with a `node-version` field.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class NodeVersionLocation extends S.Class<NodeVersionLocation>($I`NodeVersionLocation`)(
@@ -46,7 +46,7 @@ export class NodeVersionLocation extends S.Class<NodeVersionLocation>($I`NodeVer
 /**
  * Resolved Node version state.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class NodeVersionState extends S.Class<NodeVersionState>($I`NodeVersionState`)(
@@ -126,7 +126,7 @@ const stringEquivalence = S.toEquivalence(S.String);
 /**
  * Resolve Node.js version state from `.nvmrc` and workflow files.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const resolveNodeVersions: (
@@ -186,7 +186,7 @@ export const resolveNodeVersions: (
  * @param content - The raw YAML content of the workflow file.
  * @param relativeFile - The relative path to the workflow file.
  * @returns An array of locations where `node-version` is declared.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const findNodeVersionLocations: (
@@ -241,7 +241,7 @@ const findNodeVersionLocations: (
  *
  * @param state - The resolved Node version state.
  * @returns The version category report for Node.js.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport = (state) => {

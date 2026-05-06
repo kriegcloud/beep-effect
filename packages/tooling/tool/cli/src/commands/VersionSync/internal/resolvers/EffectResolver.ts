@@ -57,7 +57,7 @@ class EffectCatalogPackage extends S.Class<EffectCatalogPackage>($I`EffectCatalo
 /**
  * Resolved Effect catalog state derived from the root `package.json` catalog entries.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class EffectCatalogState extends S.Class<EffectCatalogState>($I`EffectCatalogState`)(
@@ -147,7 +147,7 @@ const isSnapshotLockstepEffectPackage = (packageName: string): boolean => {
 /**
  * Resolve the root package.json Effect catalog state.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const resolveEffectCatalog: (
@@ -212,7 +212,7 @@ export const resolveEffectCatalog: (
  *
  * @param state - Resolved Effect catalog dependency state.
  * @returns The Effect-specific version drift report derived from the catalog state.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryReport = (state) => {

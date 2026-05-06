@@ -15,7 +15,7 @@ const $I = $SchemaId.create("dom/elements");
  * Type guard for HTMLElement
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  * @param u - Value to test.
  * @returns `true` when the value is an `HTMLElement`.
  */
@@ -25,7 +25,7 @@ export const isHTMLElement = (u: unknown): u is HTMLElement => u instanceof HTML
  * An HTMLElement
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const DOMHtmlElement = S.declare(isHTMLElement).pipe(
   $I.annoteSchema("DOMHtmlElement", {
@@ -37,7 +37,7 @@ export const DOMHtmlElement = S.declare(isHTMLElement).pipe(
  * {@inheritDoc HTMLElement}
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type DOMHtmlElement = typeof DOMHtmlElement.Type;
 
@@ -45,7 +45,7 @@ export type DOMHtmlElement = typeof DOMHtmlElement.Type;
  * Type guard for React.CSSProperties
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  * @param u - Value to test.
  * @returns `true` when the value is a `React.CSSProperties` object.
  */
@@ -62,7 +62,7 @@ export const isCSSProperties = (u: unknown): u is React.CSSProperties => {
  * A React.CSSProperties
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const DOMCssProperties = S.declare(isCSSProperties).pipe(
   $I.annoteSchema("DOMCssProperties", {
@@ -74,7 +74,7 @@ export const DOMCssProperties = S.declare(isCSSProperties).pipe(
  * Type guard for React.ReactNode
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  * @param u - Value to test.
  * @returns `true` when the value is a valid `React.ReactNode`.
  */
@@ -114,7 +114,7 @@ export const isReactNode = (u: unknown): u is React.ReactNode => {
  * A React.ReactNode
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const DOMReactNode = S.declare(isReactNode).pipe(
   $I.annoteSchema("DOMReactNode", {
@@ -126,7 +126,7 @@ export const DOMReactNode = S.declare(isReactNode).pipe(
  * {@inheritDoc DOMReactNode}
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type DOMReactNode = typeof DOMReactNode.Type;
 
@@ -134,7 +134,7 @@ export type DOMReactNode = typeof DOMReactNode.Type;
  * Type guard for React.Ref<T>
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  * @param u - Value to test.
  * @returns `true` when the value is a valid `React.Ref<T>`.
  */
@@ -169,7 +169,7 @@ export const isReactRef = <T>(u: unknown): u is React.Ref<T> => {
  * Creates a Schema for React.Ref<T> where T extends HTMLElement
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @returns A Schema for React.Ref<T>
  */
 export const createDOMRefSchema = <T extends HTMLElement>() => {
@@ -184,7 +184,7 @@ export const createDOMRefSchema = <T extends HTMLElement>() => {
  * Type guard for DragEvent
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  * @param u - Value to test.
  * @returns `true` when the value is a `DragEvent`.
  */
@@ -194,7 +194,7 @@ export const isDragEvent = (u: unknown): u is DragEvent => u instanceof DragEven
  * A DragEvent
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const DOMDragEvent = S.declare(isDragEvent).pipe(
   $I.annoteSchema("DOMDragEvent", {
@@ -206,6 +206,6 @@ export const DOMDragEvent = S.declare(isDragEvent).pipe(
  * {@inheritDoc DOMDragEvent}
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type DOMDragEvent = typeof DOMDragEvent.Type;

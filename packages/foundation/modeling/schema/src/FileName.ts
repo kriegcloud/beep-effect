@@ -83,7 +83,7 @@ const FileNameStemWithDot = S.TemplateLiteral([FileNameStem, "."]);
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 const FileNameSchema = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).pipe(
   $I.annoteSchema("FileName", {
@@ -95,7 +95,7 @@ const FileNameSchema = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).p
 
 /**
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const FileName: S.Codec<`${string}.${string}`, `${string}.${string}`> = FileNameSchema as unknown as S.Codec<
   `${string}.${string}`,
@@ -113,6 +113,6 @@ export const FileName: S.Codec<`${string}.${string}`, `${string}.${string}`> = F
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type FileName = typeof FileName.Type;

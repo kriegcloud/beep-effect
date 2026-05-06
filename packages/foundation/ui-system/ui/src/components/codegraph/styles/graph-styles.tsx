@@ -3,6 +3,10 @@ type GraphStylesheetEntry = {
   readonly style: Readonly<Record<string, string | number>>;
 };
 
+/**
+ * @category themes
+ * @since 0.0.0
+ */
 export const graphStyles = [
   {
     selector: "node",
@@ -507,7 +511,12 @@ export const graphStyles = [
   },
 ];
 
-/** Performance-optimized styles for large graphs with more than 300 nodes. */
+/**
+ * Performance-optimized styles for large graphs with more than 300 nodes.
+ *
+ * @category themes
+ * @since 0.0.0
+ */
 export const graphStylesFast = [
   {
     selector: "node",

@@ -51,7 +51,7 @@ const makeWinkEngineRef = Effect.gen(function* () {
  * ```
  *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class WinkEngineRef extends Context.Service<WinkEngineRef, WinkEngineRefShape>()($I`WinkEngineRef`) {}
 
@@ -66,7 +66,7 @@ export class WinkEngineRef extends Context.Service<WinkEngineRef, WinkEngineRefS
  * ```
  *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const WinkEngineRefLive = Layer.effect(WinkEngineRef, makeWinkEngineRef);
 
@@ -79,7 +79,7 @@ export const WinkEngineRefLive = Layer.effect(WinkEngineRef, makeWinkEngineRef);
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export type WinkEngineRuntimeState = WinkEngineRuntimeStateType;
 /**
@@ -91,7 +91,7 @@ export type WinkEngineRuntimeState = WinkEngineRuntimeStateType;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category identifiers
  */
 export const InstanceId = InstanceIdService;
 /**
@@ -103,6 +103,6 @@ export const InstanceId = InstanceIdService;
  * ```
  *
  * @since 0.0.0
- * @category exports
+ * @category models
  */
 export const WinkEngineState = WinkEngineStateService;

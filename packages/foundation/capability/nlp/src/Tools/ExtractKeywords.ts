@@ -50,7 +50,7 @@ class ExtractKeywordsSuccess extends S.Class<ExtractKeywordsSuccess>($I`ExtractK
  * ```
  *
  * @since 0.0.0
- * @category Tools
+ * @category tools
  */
 export const ExtractKeywords = Tool.make("ExtractKeywords", {
   description: "Extract keywords from text ranked by TF-IDF-style importance.",

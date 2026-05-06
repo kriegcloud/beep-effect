@@ -2,6 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 import { Button } from "./button.js";
 
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 const meta = {
   title: "UI/Button",
   component: Button,
@@ -21,10 +25,17 @@ const meta = {
   },
 } satisfies Meta<typeof Button>;
 
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** @since 0.0.0 */
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export const Default: Story = {
   args: { children: "Button" },
   play: async ({ canvasElement, args }) => {
@@ -36,42 +47,66 @@ export const Default: Story = {
   },
 };
 
-/** @since 0.0.0 */
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export const Outline: Story = {
   args: { children: "Outline", variant: "outline" },
 };
 
-/** @since 0.0.0 */
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export const Secondary: Story = {
   args: { children: "Secondary", variant: "secondary" },
 };
 
-/** @since 0.0.0 */
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export const Ghost: Story = {
   args: { children: "Ghost", variant: "ghost" },
 };
 
-/** @since 0.0.0 */
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export const Destructive: Story = {
   args: { children: "Destructive", variant: "destructive" },
 };
 
-/** @since 0.0.0 */
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export const Link: Story = {
   args: { children: "Link", variant: "link" },
 };
 
-/** @since 0.0.0 */
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export const Small: Story = {
   args: { children: "Small", size: "sm" },
 };
 
-/** @since 0.0.0 */
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export const Large: Story = {
   args: { children: "Large", size: "lg" },
 };
 
-/** @since 0.0.0 */
+/**
+ * @category testing
+ * @since 0.0.0
+ */
 export const ClickInteraction: Story = {
   args: { children: "Click Me" },
   play: async ({ canvasElement, args }) => {

@@ -22,6 +22,7 @@ const defaultValue = "noopen" as const;
 const NoOpenValueBase = LiteralKit([defaultValue]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const NoOpenValue = NoOpenValueBase.pipe(
@@ -32,6 +33,7 @@ export const NoOpenValue = NoOpenValueBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type NoOpenValue = typeof NoOpenValue.Type;
@@ -39,6 +41,7 @@ export type NoOpenValue = typeof NoOpenValue.Type;
 const NoOpenOptionBase = LiteralKit([false, ...NoOpenValueBase.Options]);
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const NoOpenOption = NoOpenOptionBase.pipe(
@@ -49,11 +52,13 @@ export const NoOpenOption = NoOpenOptionBase.pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type NoOpenOption = typeof NoOpenOption.Type;
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export class NoOpenResponseHeader extends S.Class<NoOpenResponseHeader>($I`NoOpenResponseHeader`)(
@@ -69,6 +74,7 @@ export class NoOpenResponseHeader extends S.Class<NoOpenResponseHeader>($I`NoOpe
 type NoOpenResponseHeaderEncoded = typeof NoOpenResponseHeader.Encoded;
 
 /**
+ * @category schemas
  * @since 0.0.0
  */
 export const NoOpenHeader = S.UndefinedOr(NoOpenOption).pipe(
@@ -127,6 +133,7 @@ export const NoOpenHeader = S.UndefinedOr(NoOpenOption).pipe(
 );
 
 /**
+ * @category models
  * @since 0.0.0
  */
 export type NoOpenHeader = typeof NoOpenHeader.Type;

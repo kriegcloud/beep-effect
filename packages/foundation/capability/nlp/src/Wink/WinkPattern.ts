@@ -58,7 +58,7 @@ const patternElementToBracketString = (pattern: Pattern): ReadonlyArray<string> 
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const EntityGroupName = S.NonEmptyString.pipe(
   S.brand("EntityGroupName"),
@@ -80,7 +80,7 @@ export const EntityGroupName = S.NonEmptyString.pipe(
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EntityGroupName = typeof EntityGroupName.Type;
 
@@ -95,7 +95,7 @@ export type EntityGroupName = typeof EntityGroupName.Type;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class CustomEntityExample extends S.Class<CustomEntityExample>($I`CustomEntityExample`)(
   {
@@ -139,7 +139,7 @@ export class CustomEntityExample extends S.Class<CustomEntityExample>($I`CustomE
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>($I`WinkEngineCustomEntities`)(
   {

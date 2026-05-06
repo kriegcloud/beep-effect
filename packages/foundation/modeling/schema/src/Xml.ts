@@ -73,7 +73,7 @@ const decodeXmlUnknown = Effect.fn("Xml.decodeXmlUnknown")(function* (content: s
  * void program
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const XmlTextToUnknown = S.String.pipe(
@@ -113,7 +113,7 @@ export const XmlTextToUnknown = S.String.pipe(
  *
  * @param schema - Target schema to decode parsed XML document into.
  * @returns Decoder function from XML text to the target schema type.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const decodeXmlTextAs = <Schema extends S.Top>(schema: Schema) => {

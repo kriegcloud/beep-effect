@@ -40,7 +40,7 @@ const GITHUB_CHECK_MODES = ["quality", "repo-sanity", "secrets", "security", "sa
  * import { QualityTaskName } from "@beep/repo-cli/commands/Quality/Tasks"
  * const isLint = QualityTaskName.is.lint("lint")
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).annotate(
@@ -57,7 +57,7 @@ export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).annotate(
  * import type { QualityTaskName } from "@beep/repo-cli/commands/Quality/Tasks"
  * const task: QualityTaskName = "check"
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type QualityTaskName = typeof QualityTaskName.Type;
@@ -74,7 +74,7 @@ export type QualityTaskName = typeof QualityTaskName.Type;
  *   fixScript: "beep:lint:fix"
  * })
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class PackageTaskProfile extends S.Class<PackageTaskProfile>($I`PackageTaskProfile`)(
@@ -101,7 +101,7 @@ export class PackageTaskProfile extends S.Class<PackageTaskProfile>($I`PackageTa
  *   cwd: "/repo"
  * })
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class QualityTaskStep extends S.Class<QualityTaskStep>($I`QualityTaskStep`)(
@@ -130,7 +130,7 @@ export class QualityTaskStep extends S.Class<QualityTaskStep>($I`QualityTaskStep
  *   fix: false
  * })
  * ```
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`QualityTaskInvocation`)(
@@ -156,7 +156,7 @@ export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`Qua
  *   exitCode: 1
  * })
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`QualityTaskFailed`)(
@@ -181,7 +181,7 @@ export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`Qu
  *   message: "Could not find package.json"
  * })
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class QualityTaskConfigurationError extends TaggedErrorClass<QualityTaskConfigurationError>(
@@ -206,7 +206,7 @@ export class QualityTaskConfigurationError extends TaggedErrorClass<QualityTaskC
  *   message: "Unexpected quality task failure"
  * })
  * ```
- * @category error handling
+ * @category error-handling
  * @since 0.0.0
  */
 export class UnexpectedQualityTaskFailure extends TaggedErrorClass<UnexpectedQualityTaskFailure>(
@@ -687,7 +687,7 @@ type SqlIntegrationStepForTestingOptions = {
  * @param args - Turbo passthrough arguments.
  * @param options - Shared PostgreSQL-compatible test database options.
  * @returns Planned SQL integration subprocess step.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const sqlIntegrationStepForTesting: {
@@ -701,7 +701,7 @@ export const sqlIntegrationStepForTesting: {
  * Run the SQL integration lane with an injected resource and child command.
  * Exposed for lifecycle-focused unit tests.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const runSqlIntegrationTestLaneForTesting = runSqlIntegrationTestLane;
@@ -710,7 +710,7 @@ export const runSqlIntegrationTestLaneForTesting = runSqlIntegrationTestLane;
  * Resolve the SQL integration database connection URI from environment variables.
  * Exposed for focused unit tests.
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const sqlIntegrationConnectionUriFromEnvForTesting = sqlIntegrationConnectionUriFromEnv;
@@ -851,7 +851,7 @@ const rootStepsFor = (repoRoot: string, invocation: QualityTaskInvocation): Read
  * @param repoRoot - Repository root directory.
  * @param invocation - Parsed quality invocation.
  * @returns Planned subprocess steps.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const rootQualityStepsForTesting: {
@@ -970,7 +970,7 @@ const mapUnexpectedQualityTaskCause = Effect.catchCause(
  * const invocation = parseQualityTaskInvocation(["lint", "--fix"])
  * const handled = O.isSome(invocation)
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Option<QualityTaskInvocation> => {
@@ -1014,7 +1014,7 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
  *   })
  * )
  * ```
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const runQualityTask: (
@@ -1048,7 +1048,7 @@ export const runQualityTask: (
  * import { runQualityTaskIfRequested } from "@beep/repo-cli/commands/Quality/Tasks"
  * const program = runQualityTaskIfRequested(["build", "--affected"])
  * ```
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const runQualityTaskIfRequested: (
@@ -1080,7 +1080,7 @@ export const runQualityTaskIfRequested: (
  *   })
  * )
  * ```
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const collectStepOutput = (step: QualityTaskStep) =>

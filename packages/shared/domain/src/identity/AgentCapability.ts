@@ -21,7 +21,7 @@ const make = EntityId.factory("agent_capability", $I);
  * console.log(AgentCapability.AgentId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const AgentId = make("agent", {
@@ -44,7 +44,7 @@ export const AgentId = make("agent", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type AgentId = typeof AgentId.Type;
@@ -59,7 +59,7 @@ export type AgentId = typeof AgentId.Type;
  * console.log(AgentCapability.SkillId.entityType)
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export const SkillId = make("skill", {
@@ -82,7 +82,7 @@ export const SkillId = make("skill", {
  * void program
  * ```
  *
- * @category entity ids
+ * @category entity-ids
  * @since 0.0.0
  */
 export type SkillId = typeof SkillId.Type;

@@ -64,7 +64,7 @@ export const normalizePhrase: (input: string) => string = flow(
  * ```
  *
  * @since 0.0.0
- * @category extraction
+ * @category parsing
  */
 export const extractBacktickValue = (input: string): O.Option<string> =>
   pipe(firstCapture(/`([^`]+)`/, input), O.filter(Str.isNonEmpty));

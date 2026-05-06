@@ -15,7 +15,7 @@
  * console.log(ProposeCandidateOutputSet)
  * ```
  *
- * @category exports
+ * @category commands
  * @since 0.0.0
  */
 export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.commands.js";
@@ -29,7 +29,7 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.commands.js";
  * console.log(CandidateOutputSet)
  * ```
  *
- * @category exports
+ * @category protocols
  * @since 0.0.0
  */
 export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.contracts.js";
@@ -43,7 +43,7 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.contracts.js"
  * console.log(new ProfessionalRuntimeValidationError({ message: "invalid runtime proposal" }))
  * ```
  *
- * @category exports
+ * @category errors
  * @since 0.0.0
  */
 export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.errors.js";
@@ -57,7 +57,7 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.errors.js";
  * console.log(GetContextPacket)
  * ```
  *
- * @category exports
+ * @category queries
  * @since 0.0.0
  */
 export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.queries.js";
@@ -72,7 +72,7 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.queries.js";
  * console.log(sdk)
  * ```
  *
- * @category exports
+ * @category services
  * @since 0.0.0
  */
 export type { ProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/ProfessionalRuntime.service.js";
@@ -86,7 +86,7 @@ export type { ProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/Pro
  * console.log(RuntimeCandidateLifecycle)
  * ```
  *
- * @category exports
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.values.js";

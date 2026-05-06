@@ -85,6 +85,10 @@ const formatDate = (date: Date | string): string => {
   return shortDateFormatter.format(DateTime.toEpochMillis(parsed));
 };
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export function TodoItem({
   id,
   title,

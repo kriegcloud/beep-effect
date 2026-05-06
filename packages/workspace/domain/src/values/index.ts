@@ -15,7 +15,7 @@
  * console.log(Module)
  * ```
 
- * @category values
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./ApprovalDecision/index.js";
@@ -30,7 +30,7 @@ export * from "./ApprovalDecision/index.js";
  * console.log(Module)
  * ```
 
- * @category values
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./CandidateLifecycle/index.js";

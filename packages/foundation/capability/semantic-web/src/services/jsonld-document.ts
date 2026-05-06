@@ -66,7 +66,7 @@ export const JsonLdDocumentErrorReason = LiteralKit([
  * ```
  *
  * @since 0.0.0
- * @category error handling
+ * @category error-handling
  */
 export class JsonLdDocumentError extends TaggedErrorClass<JsonLdDocumentError>($I`JsonLdDocumentError`)(
   "JsonLdDocumentError",

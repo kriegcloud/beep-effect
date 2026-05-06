@@ -2,6 +2,7 @@
  * The theme provider module.
  *
  * @packageDocumentation
+ * @category themes
  * @since 0.0.0
  */
 "use client";
@@ -20,7 +21,7 @@ const $I = $UiId.create("themes/theme-provider");
  * The mode of the theme.
  *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const ThemeMode = LiteralKit(["light", "dark", "system"]).pipe(
   $I.annoteSchema("ThemeMode", {
@@ -32,7 +33,7 @@ export const ThemeMode = LiteralKit(["light", "dark", "system"]).pipe(
  * Type of {@link ThemeMode}.
  *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export type ThemeMode = typeof ThemeMode.Type;
 
@@ -40,7 +41,7 @@ export type ThemeMode = typeof ThemeMode.Type;
  * The resolved mode of the theme, excluding 'system'.
  *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const ResolvedThemeMode = LiteralKit(ThemeMode.omitOptions(["system"])).pipe(
   $I.annoteSchema("ResolvedThemeMode", {
@@ -52,7 +53,7 @@ export const ResolvedThemeMode = LiteralKit(ThemeMode.omitOptions(["system"])).p
  * Type of {@link ResolvedThemeMode}.
  *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export type ResolvedThemeMode = typeof ResolvedThemeMode.Type;
 

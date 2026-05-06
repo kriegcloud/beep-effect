@@ -15,7 +15,7 @@
  * console.log(Module)
  * ```
 
- * @category values
+ * @category models
  * @since 0.0.0
  */
 export * from "./ClaimLifecycle.model.js";

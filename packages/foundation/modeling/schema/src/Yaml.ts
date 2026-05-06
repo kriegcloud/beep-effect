@@ -72,7 +72,7 @@ const decodeYamlUnknown = Effect.fn("Yaml.decodeYamlUnknown")(function* (input: 
  * void value
  * ```
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const parseYaml = makeParseYaml(yamlRuntime, loadYamlModule);
@@ -95,7 +95,7 @@ export const parseYaml = makeParseYaml(yamlRuntime, loadYamlModule);
  * void program
  * ```
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const YamlTextToUnknown = S.String.pipe(
@@ -135,7 +135,7 @@ export const YamlTextToUnknown = S.String.pipe(
  *
  * @param schema - Target schema to decode parsed YAML document into.
  * @returns Decoder function from YAML text to the target schema type.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const decodeYamlTextAs = <Schema extends S.Top>(schema: Schema) => {

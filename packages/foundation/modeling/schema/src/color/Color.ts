@@ -382,7 +382,7 @@ const withAlphaValue = ({ color, alpha }: WithAlphaInput): RgbaColorString => {
  * Boundary schema for hex color input strings.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HexColorInput = S.String.check(HexColorInputChecks).pipe(
   S.annotate(
@@ -396,7 +396,7 @@ export const HexColorInput = S.String.check(HexColorInputChecks).pipe(
  * Type for {@link HexColorInput}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type HexColorInput = typeof HexColorInput.Type;
 
@@ -404,7 +404,7 @@ export type HexColorInput = typeof HexColorInput.Type;
  * Canonical lowercase six-digit hex color schema.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HexColor = S.String.check(HexColorChecks).pipe(
   S.brand("HexColor"),
@@ -419,7 +419,7 @@ export const HexColor = S.String.check(HexColorChecks).pipe(
  * Type for {@link HexColor}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type HexColor = typeof HexColor.Type;
 
@@ -427,7 +427,7 @@ export type HexColor = typeof HexColor.Type;
  * Canonicalization schema from boundary hex input to canonical hex output.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const NormalizeHexColor = HexColorInput.pipe(
   S.decodeTo(
@@ -448,7 +448,7 @@ export const NormalizeHexColor = HexColorInput.pipe(
  * Type for {@link NormalizeHexColor}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NormalizeHexColor = typeof NormalizeHexColor.Type;
 
@@ -456,7 +456,7 @@ export type NormalizeHexColor = typeof NormalizeHexColor.Type;
  * Branded finite RGB input channel.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RgbInputChannel = S.Finite.pipe(
   S.brand("RgbInputChannel"),
@@ -471,7 +471,7 @@ export const RgbInputChannel = S.Finite.pipe(
  * Type for {@link RgbInputChannel}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type RgbInputChannel = typeof RgbInputChannel.Type;
 
@@ -479,7 +479,7 @@ export type RgbInputChannel = typeof RgbInputChannel.Type;
  * Branded normalized RGB channel in the range 0 through 1.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RgbChannel = RgbInputChannel.pipe(
   S.check(RgbChannelRangeCheck),
@@ -495,7 +495,7 @@ export const RgbChannel = RgbInputChannel.pipe(
  * Type for {@link RgbChannel}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type RgbChannel = typeof RgbChannel.Type;
 
@@ -503,7 +503,7 @@ export type RgbChannel = typeof RgbChannel.Type;
  * RGB object with finite channel inputs.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class RgbInput extends S.Class<RgbInput>($I`RgbInput`)(
   {
@@ -520,7 +520,7 @@ export class RgbInput extends S.Class<RgbInput>($I`RgbInput`)(
  * RGB object with normalized channels.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class Rgb extends S.Class<Rgb>($I`Rgb`)(
   {
@@ -537,7 +537,7 @@ export class Rgb extends S.Class<Rgb>($I`Rgb`)(
  * Branded finite OKLCH coordinate.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const OklchCoordinate = S.Finite.pipe(
   S.brand("OklchCoordinate"),
@@ -552,7 +552,7 @@ export const OklchCoordinate = S.Finite.pipe(
  * Type for {@link OklchCoordinate}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type OklchCoordinate = typeof OklchCoordinate.Type;
 
@@ -560,7 +560,7 @@ export type OklchCoordinate = typeof OklchCoordinate.Type;
  * Canonical OKLCH lightness component.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const OklchLightness = OklchCoordinate.pipe(
   S.check(OklchLightnessRangeCheck),
@@ -576,7 +576,7 @@ export const OklchLightness = OklchCoordinate.pipe(
  * Type for {@link OklchLightness}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type OklchLightness = typeof OklchLightness.Type;
 
@@ -584,7 +584,7 @@ export type OklchLightness = typeof OklchLightness.Type;
  * Canonical OKLCH chroma component.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const OklchChroma = OklchCoordinate.pipe(
   S.check(OklchChromaCheck),
@@ -600,7 +600,7 @@ export const OklchChroma = OklchCoordinate.pipe(
  * Type for {@link OklchChroma}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type OklchChroma = typeof OklchChroma.Type;
 
@@ -608,7 +608,7 @@ export type OklchChroma = typeof OklchChroma.Type;
  * Canonical OKLCH hue component.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const OklchHue = OklchCoordinate.pipe(
   S.check(OklchHueRangeCheck),
@@ -624,7 +624,7 @@ export const OklchHue = OklchCoordinate.pipe(
  * Type for {@link OklchHue}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type OklchHue = typeof OklchHue.Type;
 
@@ -632,7 +632,7 @@ export type OklchHue = typeof OklchHue.Type;
  * OKLCH object with finite coordinates.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class OklchInput extends S.Class<OklchInput>($I`OklchInput`)(
   {
@@ -649,7 +649,7 @@ export class OklchInput extends S.Class<OklchInput>($I`OklchInput`)(
  * Canonical OKLCH color object.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class OklchColor extends S.Class<OklchColor>($I`OklchColor`)(
   {
@@ -666,7 +666,7 @@ export class OklchColor extends S.Class<OklchColor>($I`OklchColor`)(
  * Fixed-size 12-step canonical hex color scale.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HexColorScale12 = S.Array(HexColor)
   .check(HexColorScale12Checks)
@@ -683,7 +683,7 @@ export const HexColorScale12 = S.Array(HexColor)
  * Type for {@link HexColorScale12}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type HexColorScale12 = typeof HexColorScale12.Type;
 
@@ -691,7 +691,7 @@ export type HexColorScale12 = typeof HexColorScale12.Type;
  * CSS rgba color string produced by with-alpha helpers.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RgbaColorString = S.String.check(RgbaColorStringChecks).pipe(
   S.brand("RgbaColorString"),
@@ -706,7 +706,7 @@ export const RgbaColorString = S.String.check(RgbaColorStringChecks).pipe(
  * Type for {@link RgbaColorString}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type RgbaColorString = typeof RgbaColorString.Type;
 
@@ -714,7 +714,7 @@ export type RgbaColorString = typeof RgbaColorString.Type;
  * Transformation schema for decoding boundary hex input into normalized RGB.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HexToRgb = NormalizeHexColor.pipe(
   S.decodeTo(
@@ -735,7 +735,7 @@ export const HexToRgb = NormalizeHexColor.pipe(
  * Type for {@link HexToRgb}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type HexToRgb = typeof HexToRgb.Type;
 
@@ -743,7 +743,7 @@ export type HexToRgb = typeof HexToRgb.Type;
  * Transformation schema for encoding RGB input into canonical hex.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RgbToHex = RgbInput.pipe(
   S.decodeTo(HexColor, {
@@ -761,7 +761,7 @@ export const RgbToHex = RgbInput.pipe(
  * Type for {@link RgbToHex}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type RgbToHex = typeof RgbToHex.Type;
 
@@ -769,7 +769,7 @@ export type RgbToHex = typeof RgbToHex.Type;
  * Transformation schema for decoding normalized RGB into canonical OKLCH.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RgbToOklch = Rgb.pipe(
   S.decodeTo(OklchColor, {
@@ -787,7 +787,7 @@ export const RgbToOklch = Rgb.pipe(
  * Type for {@link RgbToOklch}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type RgbToOklch = typeof RgbToOklch.Type;
 
@@ -795,7 +795,7 @@ export type RgbToOklch = typeof RgbToOklch.Type;
  * Transformation schema for encoding OKLCH coordinates into RGB input values.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const OklchToRgb = OklchInput.pipe(
   S.decodeTo(RgbInput, {
@@ -813,7 +813,7 @@ export const OklchToRgb = OklchInput.pipe(
  * Type for {@link OklchToRgb}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type OklchToRgb = typeof OklchToRgb.Type;
 
@@ -821,7 +821,7 @@ export type OklchToRgb = typeof OklchToRgb.Type;
  * Transformation schema for decoding boundary hex input into canonical OKLCH.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const HexToOklch = NormalizeHexColor.pipe(
   S.decodeTo(
@@ -842,7 +842,7 @@ export const HexToOklch = NormalizeHexColor.pipe(
  * Type for {@link HexToOklch}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type HexToOklch = typeof HexToOklch.Type;
 
@@ -850,7 +850,7 @@ export type HexToOklch = typeof HexToOklch.Type;
  * Transformation schema for encoding OKLCH coordinates into canonical hex.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const OklchToHex = OklchInput.pipe(
   S.decodeTo(HexColor, {
@@ -868,7 +868,7 @@ export const OklchToHex = OklchInput.pipe(
  * Type for {@link OklchToHex}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type OklchToHex = typeof OklchToHex.Type;
 
@@ -876,7 +876,7 @@ export type OklchToHex = typeof OklchToHex.Type;
  * Shared finite amount used by color helper request schemas.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ColorAmount = S.Finite.pipe(
   S.brand("ColorAmount"),
@@ -891,7 +891,7 @@ export const ColorAmount = S.Finite.pipe(
  * Type for {@link ColorAmount}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColorAmount = typeof ColorAmount.Type;
 
@@ -909,7 +909,7 @@ const HexColorScale12Input = S.Array(NormalizeHexColor)
  * Request schema for generating a chromatic 12-step scale.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class GenerateScaleInput extends S.Class<GenerateScaleInput>($I`GenerateScaleInput`)(
   {
@@ -925,7 +925,7 @@ export class GenerateScaleInput extends S.Class<GenerateScaleInput>($I`GenerateS
  * One-way schema for generating a chromatic 12-step scale.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const GenerateScale = GenerateScaleInput.pipe(
   S.decodeTo(HexColorScale12, {
@@ -945,7 +945,7 @@ export const GenerateScale = GenerateScaleInput.pipe(
  * Type for {@link GenerateScale}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type GenerateScale = typeof GenerateScale.Type;
 
@@ -953,7 +953,7 @@ export type GenerateScale = typeof GenerateScale.Type;
  * Request schema for generating a neutral 12-step scale.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class GenerateNeutralScaleInput extends S.Class<GenerateNeutralScaleInput>($I`GenerateNeutralScaleInput`)(
   {
@@ -969,7 +969,7 @@ export class GenerateNeutralScaleInput extends S.Class<GenerateNeutralScaleInput
  * One-way schema for generating a neutral 12-step scale.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const GenerateNeutralScale = GenerateNeutralScaleInput.pipe(
   S.decodeTo(HexColorScale12, {
@@ -989,7 +989,7 @@ export const GenerateNeutralScale = GenerateNeutralScaleInput.pipe(
  * Type for {@link GenerateNeutralScale}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type GenerateNeutralScale = typeof GenerateNeutralScale.Type;
 
@@ -997,7 +997,7 @@ export type GenerateNeutralScale = typeof GenerateNeutralScale.Type;
  * Request schema for generating an alpha-blended 12-step scale.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class GenerateAlphaScaleInput extends S.Class<GenerateAlphaScaleInput>($I`GenerateAlphaScaleInput`)(
   {
@@ -1013,7 +1013,7 @@ export class GenerateAlphaScaleInput extends S.Class<GenerateAlphaScaleInput>($I
  * One-way schema for generating an alpha-blended 12-step scale.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const GenerateAlphaScale = GenerateAlphaScaleInput.pipe(
   S.decodeTo(HexColorScale12, {
@@ -1033,7 +1033,7 @@ export const GenerateAlphaScale = GenerateAlphaScaleInput.pipe(
  * Type for {@link GenerateAlphaScale}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type GenerateAlphaScale = typeof GenerateAlphaScale.Type;
 
@@ -1041,7 +1041,7 @@ export type GenerateAlphaScale = typeof GenerateAlphaScale.Type;
  * Request schema for mixing two colors.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class MixColorsInput extends S.Class<MixColorsInput>($I`MixColorsInput`)(
   {
@@ -1058,7 +1058,7 @@ export class MixColorsInput extends S.Class<MixColorsInput>($I`MixColorsInput`)(
  * One-way schema for mixing two colors.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const MixColors = MixColorsInput.pipe(
   S.decodeTo(HexColor, {
@@ -1076,7 +1076,7 @@ export const MixColors = MixColorsInput.pipe(
  * Type for {@link MixColors}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type MixColors = typeof MixColors.Type;
 
@@ -1084,7 +1084,7 @@ export type MixColors = typeof MixColors.Type;
  * Request schema for lightening a color.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class LightenInput extends S.Class<LightenInput>($I`LightenInput`)(
   {
@@ -1100,7 +1100,7 @@ export class LightenInput extends S.Class<LightenInput>($I`LightenInput`)(
  * One-way schema for lightening a color.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Lighten = LightenInput.pipe(
   S.decodeTo(HexColor, {
@@ -1118,7 +1118,7 @@ export const Lighten = LightenInput.pipe(
  * Type for {@link Lighten}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Lighten = typeof Lighten.Type;
 
@@ -1126,7 +1126,7 @@ export type Lighten = typeof Lighten.Type;
  * Request schema for darkening a color.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class DarkenInput extends S.Class<DarkenInput>($I`DarkenInput`)(
   {
@@ -1142,7 +1142,7 @@ export class DarkenInput extends S.Class<DarkenInput>($I`DarkenInput`)(
  * One-way schema for darkening a color.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const Darken = DarkenInput.pipe(
   S.decodeTo(HexColor, {
@@ -1160,7 +1160,7 @@ export const Darken = DarkenInput.pipe(
  * Type for {@link Darken}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Darken = typeof Darken.Type;
 
@@ -1168,7 +1168,7 @@ export type Darken = typeof Darken.Type;
  * Request schema for converting a color plus alpha to an rgba string.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export class WithAlphaInput extends S.Class<WithAlphaInput>($I`WithAlphaInput`)(
   {
@@ -1184,7 +1184,7 @@ export class WithAlphaInput extends S.Class<WithAlphaInput>($I`WithAlphaInput`)(
  * One-way schema for rendering an rgba string.
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const WithAlpha = WithAlphaInput.pipe(
   S.decodeTo(RgbaColorString, {
@@ -1202,6 +1202,6 @@ export const WithAlpha = WithAlphaInput.pipe(
  * Type for {@link WithAlpha}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WithAlpha = typeof WithAlpha.Type;
