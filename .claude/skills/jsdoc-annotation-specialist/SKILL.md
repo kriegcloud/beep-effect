@@ -70,7 +70,7 @@ Tag order within the block:
 10. `@see`
 11. `@deprecated` (with `{@link}` migration target)
 12. `@public` / `@beta` / `@alpha` / `@internal` / `@experimental`
-13. `@category` (required, lowercase)
+13. `@category` (required, canonical kebab-case slug)
 14. `@since` (required, `0.0.0`)
 
 ## TSDoc Grammar Hard Rules
@@ -192,34 +192,35 @@ const MyUnion = S.Union([SchemaA, SchemaB]).pipe(
 
 ## Category Conventions
 
-Always lowercase. Choose the most specific match:
+Use canonical kebab-case slugs. Choose the exported symbol's semantic role, not
+its package location. The code source of truth is
+`packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts`.
 
-| Category | When to use |
-|----------|-------------|
-| `constructors` | Creation: `make`, `of`, `from*`, `new`, EntityIds |
-| `combinators` | Transformation: `map`, `flatMap`, `filter`, `pipe` chains |
-| `models` | Type definitions, interfaces, schema type aliases |
-| `schemas` | Schema definitions (`S.Class`, `S.Struct`, etc.) |
-| `services` | `Effect.Service` declarations |
-| `layers` | `Layer.Layer` definitions |
-| `errors` | Tagged error classes |
-| `streams` | `Stream`-returning functions and stream constructors |
-| `utilities` | General-purpose helpers |
-| `predicates` | Boolean-returning: `is*`, `has*` |
-| `getters` | Property access |
-| `guards` | Type guards |
-| `refinements` | Type narrowing |
-| `error handling` | Error management, recovery |
-| `resource management` | Resource lifecycle, acquire/release |
-| `symbols` | TypeId, branded types |
-| `sequencing` | Sequential operations |
-| `concurrency` | Parallel operations |
-| `filtering` | Data selection |
-| `folding` | Aggregation, reduction |
-| `mapping` | Data transformation |
-| `elements` | Element-level operations on collections |
-| `interop` | Interoperability with non-Effect code |
-| `testing` | Test utilities |
+Canonical groups:
+
+- Core API roles: `models`, `schemas`, `type-level`, `constructors`,
+  `factories`, `destructors`, `combinators`, `predicates`, `guards`,
+  `refinements`, `assertions`, `getters`, `setters`, `mapping`, `filtering`,
+  `folding`, `sequencing`, `concurrency`, `resource-management`,
+  `error-handling`, `utilities`, `layers`
+- Domain roles: `aggregates`, `entities`, `value-objects`, `domain-events`,
+  `policies`, `specifications`, `identifiers`, `entity-ids`, `type-ids`,
+  `symbols`, `errors`
+- Application and ports: `use-cases`, `commands`, `queries`, `events`,
+  `workflows`, `processes`, `schedulers`, `protocols`, `ports`, `services`,
+  `handlers`, `endpoints`, `clients`, `adapters`, `repositories`,
+  `projections`, `read-models`, `tables`
+- Data boundaries: `validation`, `parsing`, `encoding`, `decoding`,
+  `serialization`, `codecs`, `formatting`, `normalization`, `dtos`, `mappers`
+- UI and client state: `components`, `hooks`, `providers`, `themes`, `tokens`,
+  `forms`, `atoms`
+- Tooling and cross-cutting: `tools`, `tool-schemas`, `cli-commands`,
+  `configuration`, `constants`, `observability`, `diagnostics`, `fixtures`,
+  `testing`, `streams`, `resources`, `interop`
+
+Legacy values such as `DomainModel`, `Utility`, `UseCase`, `PortContract`, and
+`ToolSchemas` are migration aliases only. New or touched JSDoc should use the
+canonical slug.
 
 ## Type Alias Convention
 
@@ -315,7 +316,7 @@ Run this checklist against every file before finishing:
 1. Every `export const`, `export function`, `export class`, `export interface`,
    `export type` has a JSDoc block.
 2. Every JSDoc block contains at least one `@example` with a code fence.
-3. Every JSDoc block contains `@category` (lowercase value from the standard list).
+3. Every JSDoc block contains `@category` (canonical kebab-case slug from the standard list).
 4. Every JSDoc block contains `@since 0.0.0`.
 
 ### Conditional tag correctness

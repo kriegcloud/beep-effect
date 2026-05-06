@@ -68,7 +68,7 @@ Tags appear in this order within a JSDoc block:
 10. `@see` — cross-references
 11. `@deprecated` — with `{@link}` migration target
 12. `@public` / `@beta` / `@alpha` / `@internal` / `@experimental` — release stage
-13. `@category` — required, lowercase
+13. `@category` — required, canonical kebab-case slug
 14. `@since` — required, version
 
 ### Required Tags (Always Present on Exports)
@@ -76,7 +76,7 @@ Tags appear in this order within a JSDoc block:
 Every exported symbol carries:
 
 - `@example` — at least one compilable example
-- `@category` — lowercase, from the category list below
+- `@category` — canonical kebab-case slug from the category list below
 - `@since` — currently `@since 0.0.0` workspace-wide (intentional placeholder
   until v1.0; do not infer real versions from git history)
 
@@ -725,36 +725,35 @@ export * from "./errors.js"
 
 ### Naming Convention
 
-Always lowercase. Choose the most specific match.
+Use canonical kebab-case slugs. Choose the most specific semantic role of the
+exported symbol, not its file location or architectural layer. For example, a
+command schema is `commands`, not `schemas`; a port service contract is
+`ports`, not `services`.
+
+The code source of truth is
+`packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts`.
 
 ### Standard Categories
 
-| Category | When to use |
-|----------|-------------|
-| `constructors` | Creation: `make`, `of`, `from*`, `new`, EntityIds |
-| `combinators` | Transformation: `map`, `flatMap`, `filter`, `pipe` chains |
-| `models` | Type definitions, interfaces, schema type aliases |
-| `schemas` | Schema definitions (`S.Class`, `S.Struct`, etc.) |
-| `services` | `Effect.Service` declarations |
-| `layers` | `Layer.Layer` definitions |
-| `errors` | Tagged error classes |
-| `streams` | `Stream`-returning functions and stream constructors |
-| `utilities` | General-purpose helpers |
-| `predicates` | Boolean-returning: `is*`, `has*` |
-| `getters` | Property access |
-| `guards` | Type guards |
-| `refinements` | Type narrowing |
-| `error handling` | Error management, recovery |
-| `resource management` | Resource lifecycle, acquire/release |
-| `symbols` | TypeId, branded types |
-| `sequencing` | Sequential operations |
-| `concurrency` | Parallel operations |
-| `filtering` | Data selection |
-| `folding` | Aggregation, reduction |
-| `mapping` | Data transformation |
-| `elements` | Element-level operations on collections |
-| `interop` | Interoperability with non-Effect code |
-| `testing` | Test utilities |
+| Group | Categories |
+|---|---|
+| Core API roles | `models`, `schemas`, `type-level`, `constructors`, `factories`, `destructors`, `combinators`, `predicates`, `guards`, `refinements`, `assertions`, `getters`, `setters`, `mapping`, `filtering`, `folding`, `sequencing`, `concurrency`, `resource-management`, `error-handling`, `utilities`, `layers` |
+| Domain roles | `aggregates`, `entities`, `value-objects`, `domain-events`, `policies`, `specifications`, `identifiers`, `entity-ids`, `type-ids`, `symbols`, `errors` |
+| Application and ports | `use-cases`, `commands`, `queries`, `events`, `workflows`, `processes`, `schedulers`, `protocols`, `ports`, `services`, `handlers`, `endpoints`, `clients`, `adapters`, `repositories`, `projections`, `read-models`, `tables` |
+| Data boundaries | `validation`, `parsing`, `encoding`, `decoding`, `serialization`, `codecs`, `formatting`, `normalization`, `dtos`, `mappers` |
+| UI and client state | `components`, `hooks`, `providers`, `themes`, `tokens`, `forms`, `atoms` |
+| Tooling and cross-cutting | `tools`, `tool-schemas`, `cli-commands`, `configuration`, `constants`, `observability`, `diagnostics`, `fixtures`, `testing`, `streams`, `resources`, `interop` |
+
+### Transitional Aliases
+
+Legacy values such as `DomainModel`, `Utility`, `UseCase`, `PortContract`,
+`ToolSchemas`, `entity ids`, `error handling`, and `resource management` are
+accepted as migration aliases by tooling. New or touched JSDoc should use the
+canonical slug.
+
+Values such as `exports`, `re-exports`, `modules`, `core`, `generated`, and
+`presentation` are rejected as categories because those facts belong in AST
+graph metadata or a more specific symbol role.
 
 ## 🛠️ CUSTOM TAG REGISTRATION
 
@@ -882,7 +881,7 @@ const program = Effect.gen(function* () {
 - [ ] Examples compile with `bun run docgen`
 - [ ] All imports use correct namespace aliases
 - [ ] No `any` types, type assertions, `declare`, or empty example bodies
-- [ ] `@category` (lowercase, from standard list)
+- [ ] `@category` (canonical kebab-case slug from standard list)
 - [ ] `@since 0.0.0`
 - [ ] Conditional tags present only when they add information
 - [ ] `@remarks` present when semantics are non-obvious

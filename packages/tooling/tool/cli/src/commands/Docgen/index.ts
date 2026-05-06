@@ -556,7 +556,10 @@ const docgenCheckCommand = Command.make(
       }
 
       for (const analysis of analyses) {
-        const issues = A.filter(analysis.exports, (entry) => A.isReadonlyArrayNonEmpty(entry.missingTags));
+        const issues = A.filter(
+          analysis.exports,
+          (entry) => A.isReadonlyArrayNonEmpty(entry.missingTags) || A.isReadonlyArrayNonEmpty(entry.categoryIssues)
+        );
 
         if (issues.length === 0) {
           yield* Console.log(`docgen: OK ${analysis.packagePath}`);
@@ -567,9 +570,17 @@ const docgenCheckCommand = Command.make(
           `docgen: ${analysis.packagePath} has ${analysis.summary.missingDocumentation} export(s) missing docgen metadata`
         );
         for (const issue of issues) {
-          yield* Console.error(
-            `  ${issue.filePath}:${issue.line} ${issue.name} missing ${A.join(issue.missingTags, ", ")}`
+          const issueText = A.join(
+            [
+              ...(issue.missingTags.length === 0 ? A.empty() : [`missing ${A.join(issue.missingTags, ", ")}`]),
+              ...(issue.categoryIssues.length === 0
+                ? A.empty()
+                : [`invalid category: ${A.join(issue.categoryIssues, "; ")}`]),
+            ],
+            "; "
           );
+
+          yield* Console.error(`  ${issue.filePath}:${issue.line} ${issue.name} ${issueText}`);
         }
       }
 
@@ -601,7 +612,7 @@ const printDocgenIndex = Effect.fn(function* () {
 /**
  * Human-first docgen command suite.
  *
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
