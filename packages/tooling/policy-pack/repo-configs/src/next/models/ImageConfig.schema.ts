@@ -66,25 +66,30 @@ export class ImageLoaderProps extends S.Class<ImageLoaderProps>($I`ImageLoaderPr
  * @category models
  * @since 0.0.0
  */
-export class LocalPattern extends S.Class<LocalPattern>($I`LocalPattern`)({
-  /**
-   * Can be literal or wildcard.
-   * Single `*` matches a single path segment.
-   * Double `**` matches any number of path segments.
-   */
-  pathname: S.optionalKey(S.String).annotateKey({
-    description:
-      "Can be literal or wildcard.\nSingle `*` matches a single path segment.\nDouble `**` matches any number of path segments.",
-  }),
-  /**
-   * Can be literal query string such as `?v=1` or
-   * empty string meaning no query string.
-   *
-   */
-  search: S.optionalKey(S.String).annotateKey({
-    description: "Can be literal query string such as `?v=1` or\nempty string meaning no query string.",
-  }),
-}) {}
+export class LocalPattern extends S.Class<LocalPattern>($I`LocalPattern`)(
+  {
+    /**
+     * Can be literal or wildcard.
+     * Single `*` matches a single path segment.
+     * Double `**` matches any number of path segments.
+     */
+    pathname: S.optionalKey(S.String).annotateKey({
+      description:
+        "Can be literal or wildcard.\nSingle `*` matches a single path segment.\nDouble `**` matches any number of path segments.",
+    }),
+    /**
+     * Can be literal query string such as `?v=1` or
+     * empty string meaning no query string.
+     *
+     */
+    search: S.optionalKey(S.String).annotateKey({
+      description: "Can be literal query string such as `?v=1` or\nempty string meaning no query string.",
+    }),
+  },
+  $I.annote("LocalPattern", {
+    description: "Next.js local image matching pattern.",
+  })
+) {}
 
 /**
  * Next.js remote image matching pattern.
@@ -98,50 +103,55 @@ export class LocalPattern extends S.Class<LocalPattern>($I`LocalPattern`)({
  * @category models
  * @since 0.0.0
  */
-export class RemotePattern extends S.Class<RemotePattern>($I`RemotePattern`)({
-  /**
-   * Must be `http` or `https`.
-   */
-  protocol: S.optionalKey(
-    LiteralKit(["http", "https"]).annotateKey({
-      description: "Must be `http` or `https`.",
-    })
-  ),
-  /**
-   * Can be literal or wildcard.
-   * Single `*` matches a single subdomain.
-   * Double `**` matches any number of subdomains.
-   */
-  hostname: S.String.annotateKey({
-    description:
-      "Can be literal or wildcard.\nSingle `*` matches a single subdomain.\nDouble `**` matches any number of subdomains.",
-  }),
-  /**
-   * Can be literal port such as `8080` or empty string
-   * meaning no port.
-   */
-  port: S.optionalKey(S.String).annotateKey({
-    description: "Can be literal port such as `8080` or empty string\nmeaning no port.",
-  }),
+export class RemotePattern extends S.Class<RemotePattern>($I`RemotePattern`)(
+  {
+    /**
+     * Must be `http` or `https`.
+     */
+    protocol: S.optionalKey(
+      LiteralKit(["http", "https"]).annotateKey({
+        description: "Must be `http` or `https`.",
+      })
+    ),
+    /**
+     * Can be literal or wildcard.
+     * Single `*` matches a single subdomain.
+     * Double `**` matches any number of subdomains.
+     */
+    hostname: S.String.annotateKey({
+      description:
+        "Can be literal or wildcard.\nSingle `*` matches a single subdomain.\nDouble `**` matches any number of subdomains.",
+    }),
+    /**
+     * Can be literal port such as `8080` or empty string
+     * meaning no port.
+     */
+    port: S.optionalKey(S.String).annotateKey({
+      description: "Can be literal port such as `8080` or empty string\nmeaning no port.",
+    }),
 
-  /**
-   * Can be literal or wildcard.
-   * Single `*` matches a single path segment.
-   * Double `**` matches any number of path segments.
-   */
-  pathname: S.optionalKey(S.String).annotateKey({
-    description:
-      "Can be literal or wildcard.\nSingle `*` matches a single path segment.\nDouble `**` matches any number of path segments.",
-  }),
+    /**
+     * Can be literal or wildcard.
+     * Single `*` matches a single path segment.
+     * Double `**` matches any number of path segments.
+     */
+    pathname: S.optionalKey(S.String).annotateKey({
+      description:
+        "Can be literal or wildcard.\nSingle `*` matches a single path segment.\nDouble `**` matches any number of path segments.",
+    }),
 
-  /**
-   * Can be literal query string such as `?v=1` or
-   * empty string meaning no query string.
-   */
-  search: S.optionalKey(S.String).annotateKey({
-    description: "Can be literal query string such as `?v=1` or\nempty string meaning no query string.",
-  }),
-}) {}
+    /**
+     * Can be literal query string such as `?v=1` or
+     * empty string meaning no query string.
+     */
+    search: S.optionalKey(S.String).annotateKey({
+      description: "Can be literal query string such as `?v=1` or\nempty string meaning no query string.",
+    }),
+  },
+  $I.annote("RemotePattern", {
+    description: "Next.js remote image matching pattern.",
+  })
+) {}
 
 /**
  * Supported image output formats for Next.js image optimization.
@@ -179,6 +189,12 @@ export type ImageFormat = typeof ImageFormat.Type;
  * Image configurations
  *
  * @see [Image configuration options](https://nextjs.org/docs/api-reference/next/image#configuration-options)
+ * @example
+ * ```ts
+ * import { ImageConfigComplete } from "@beep/repo-configs/next/models/ImageConfig.schema"
+ * const schema = ImageConfigComplete
+ * void schema
+ * ```
  * @category models
  * @since 0.0.0
  */

@@ -104,6 +104,7 @@
         "react-dom": "catalog:",
       },
       "devDependencies": {
+        "@beep/repo-configs": "workspace:^",
         "@beep/repo-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@mdx-js/loader": "catalog:",
