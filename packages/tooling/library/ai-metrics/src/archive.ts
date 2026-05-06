@@ -7,7 +7,7 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Clock, Effect, Encoding, FileSystem, Path, Result } from "effect";
+import { Clock, Effect, Encoding, FileSystem, Path, Redacted, Result } from "effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { AiMetricsTranscriptSource } from "./models.ts";
@@ -98,14 +98,49 @@ export class AiMetricsRawArchiveObject extends S.Class<AiMetricsRawArchiveObject
   })
 ) {}
 
+/**
+ * Redacted base64 AES-256-GCM key used for raw archive encryption.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsRawArchiveKey } from "@beep/repo-ai-metrics"
+ * import { Redacted } from "effect"
+ * const key: AiMetricsRawArchiveKey = Redacted.make("base64-32-byte-key")
+ * void key
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const AiMetricsRawArchiveKey = S.String.pipe(
+  S.RedactedFromValue,
+  $I.annoteSchema("AiMetricsRawArchiveKey", {
+    description: "Redacted base64 AES-256-GCM key used for raw archive encryption.",
+  })
+);
+
+/**
+ * Type for {@link AiMetricsRawArchiveKey}.
+ *
+ * @example
+ * ```ts
+ * import type { AiMetricsRawArchiveKey } from "@beep/repo-ai-metrics"
+ * import { Redacted } from "effect"
+ * const key: AiMetricsRawArchiveKey = Redacted.make("base64-32-byte-key")
+ * void key
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsRawArchiveKey = typeof AiMetricsRawArchiveKey.Type;
+
 const encodeArchiveEnvelope = S.encodeUnknownEffect(S.fromJsonString(AiMetricsEncryptedRawArchiveEnvelope));
 const decodeArchiveEnvelope = S.decodeUnknownEffect(S.fromJsonString(AiMetricsEncryptedRawArchiveEnvelope));
 
 const archiveFailure = (message: string, cause: unknown): AiMetricsArchiveError =>
   new AiMetricsArchiveError({ cause, message });
 
-const decodeRawArchiveKey = (rawArchiveKeyBase64: string): Effect.Effect<Uint8Array, AiMetricsArchiveError> =>
-  Result.match(Encoding.decodeBase64(Str.trim(rawArchiveKeyBase64)), {
+const decodeRawArchiveKey = (rawArchiveKey: AiMetricsRawArchiveKey): Effect.Effect<Uint8Array, AiMetricsArchiveError> =>
+  Result.match(Encoding.decodeBase64(Str.trim(Redacted.value(rawArchiveKey))), {
     onFailure: (cause) => Effect.fail(archiveFailure("Raw archive key must be valid base64.", cause)),
     onSuccess: (bytes) =>
       bytes.length === AES_GCM_KEY_BYTES
@@ -117,8 +152,8 @@ const decodeRawArchiveKey = (rawArchiveKeyBase64: string): Effect.Effect<Uint8Ar
           ),
   });
 
-const importRawArchiveKey = (rawArchiveKeyBase64: string): Effect.Effect<CryptoKey, AiMetricsArchiveError> =>
-  Effect.flatMap(decodeRawArchiveKey(rawArchiveKeyBase64), (bytes) =>
+const importRawArchiveKey = (rawArchiveKey: AiMetricsRawArchiveKey): Effect.Effect<CryptoKey, AiMetricsArchiveError> =>
+  Effect.flatMap(decodeRawArchiveKey(rawArchiveKey), (bytes) =>
     Effect.tryPromise({
       try: () =>
         globalThis.crypto.subtle.importKey("raw", cryptoBytes(bytes), "AES-GCM", false, ["encrypt", "decrypt"]),
@@ -188,93 +223,147 @@ const readExistingArchiveObject = Effect.fn("AiMetrics.readExistingArchiveObject
 /**
  * Write one raw transcript file into the encrypted content-addressed archive.
  *
+ * @remarks
+ * The raw archive key is unwrapped only inside the crypto import boundary.
+ * @example
+ * ```ts
+ * import {
+ *   AiMetricsTranscriptSource,
+ *   writeEncryptedRawArchiveObject
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect, Redacted } from "effect"
+ * const program = writeEncryptedRawArchiveObject({
+ *   content: "{\"type\":\"event_msg\"}",
+ *   hashSalt: "fixture-salt",
+ *   rawArchiveDir: ".ai-metrics/raw",
+ *   rawArchiveKey: Redacted.make("base64-32-byte-key"),
+ *   sourceKind: AiMetricsTranscriptSource.Enum.codex,
+ *   sourcePath: "session.jsonl"
+ * })
+ * void Effect.map(program, (object) => object.archiveObjectId)
+ * ```
  * @category services
  * @since 0.0.0
  */
-export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncryptedRawArchiveObject")(function* ({
-  content,
-  hashSalt,
-  rawArchiveDir,
-  rawArchiveKeyBase64,
-  sourceKind,
-  sourcePath,
-}: {
-  readonly content: string;
-  readonly hashSalt?: string;
-  readonly rawArchiveDir: string;
-  readonly rawArchiveKeyBase64: string;
-  readonly sourceKind: AiMetricsTranscriptSource;
-  readonly sourcePath: string;
-}) {
-  const fs = yield* FileSystem.FileSystem;
-  const pathApi = yield* Path.Path;
-  const sourcePathHash = yield* hashPrivateIdentifier(sourcePath, hashSalt).pipe(
-    Effect.mapError((cause) => archiveFailure("Failed to hash raw archive source path.", cause))
-  );
-  const plaintextContentHash = yield* hashPublicTextSha256(content).pipe(
-    Effect.mapError((cause) => archiveFailure("Failed to hash raw archive plaintext.", cause))
-  );
-  const archiveObjectId = yield* archiveObjectIdFor(sourceKind, sourcePathHash, plaintextContentHash);
-  const archivePath = archiveObjectPath(pathApi, rawArchiveDir, sourceKind, archiveObjectId);
-  const alreadyArchived = yield* fs.exists(archivePath);
-  if (alreadyArchived) {
-    return yield* readExistingArchiveObject(archivePath);
-  }
-
-  const key = yield* importRawArchiveKey(rawArchiveKeyBase64);
-  const nonce = randomNonce();
-  const ciphertext = yield* Effect.tryPromise({
-    try: () =>
-      globalThis.crypto.subtle.encrypt(
-        { iv: cryptoBytes(nonce), name: "AES-GCM" },
-        key,
-        new TextEncoder().encode(content)
-      ),
-    catch: (cause) => archiveFailure("Failed to encrypt raw archive object.", cause),
-  });
-  const encryptedAtEpochMillis = yield* Clock.currentTimeMillis;
-  const envelope = new AiMetricsEncryptedRawArchiveEnvelope({
-    algorithm: "AES-256-GCM",
-    archiveObjectId,
-    ciphertextBase64: Encoding.encodeBase64(new Uint8Array(ciphertext)),
-    encryptedAtEpochMillis,
-    nonceBase64: Encoding.encodeBase64(nonce),
-    plaintextContentHash,
+export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncryptedRawArchiveObject")(
+  function* ({
+    content,
+    hashSalt,
+    rawArchiveDir,
+    rawArchiveKey,
     sourceKind,
-    sourcePathHash,
-  });
-  const envelopeText = yield* encodeArchiveEnvelope(envelope).pipe(
-    Effect.mapError((cause) => archiveFailure("Failed to encode raw archive envelope.", cause))
-  );
-
-  yield* fs
-    .makeDirectory(pathApi.dirname(archivePath), { recursive: true })
-    .pipe(
-      Effect.mapError((cause) => archiveFailure(`Failed to create raw archive directory for "${archivePath}".`, cause))
+    sourcePath,
+  }: {
+    readonly content: string;
+    readonly hashSalt?: string;
+    readonly rawArchiveDir: string;
+    readonly rawArchiveKey: AiMetricsRawArchiveKey;
+    readonly sourceKind: AiMetricsTranscriptSource;
+    readonly sourcePath: string;
+  }) {
+    const fs = yield* FileSystem.FileSystem;
+    const pathApi = yield* Path.Path;
+    const sourcePathHash = yield* hashPrivateIdentifier(sourcePath, hashSalt).pipe(
+      Effect.mapError((cause) => archiveFailure("Failed to hash raw archive source path.", cause))
     );
-  yield* fs
-    .writeFileString(archivePath, envelopeText)
-    .pipe(Effect.mapError((cause) => archiveFailure(`Failed to write raw archive object "${archivePath}".`, cause)));
+    const plaintextContentHash = yield* hashPublicTextSha256(content).pipe(
+      Effect.mapError((cause) => archiveFailure("Failed to hash raw archive plaintext.", cause))
+    );
+    const archiveObjectId = yield* archiveObjectIdFor(sourceKind, sourcePathHash, plaintextContentHash);
+    const archivePath = archiveObjectPath(pathApi, rawArchiveDir, sourceKind, archiveObjectId);
+    const alreadyArchived = yield* fs.exists(archivePath);
+    if (alreadyArchived) {
+      return yield* readExistingArchiveObject(archivePath);
+    }
 
-  return envelopeToObject(archivePath, envelope);
-});
+    const key = yield* importRawArchiveKey(rawArchiveKey);
+    const nonce = randomNonce();
+    const ciphertext = yield* Effect.tryPromise({
+      try: () =>
+        globalThis.crypto.subtle.encrypt(
+          { iv: cryptoBytes(nonce), name: "AES-GCM" },
+          key,
+          new TextEncoder().encode(content)
+        ),
+      catch: (cause) => archiveFailure("Failed to encrypt raw archive object.", cause),
+    });
+    const encryptedAtEpochMillis = yield* Clock.currentTimeMillis;
+    const envelope = new AiMetricsEncryptedRawArchiveEnvelope({
+      algorithm: "AES-256-GCM",
+      archiveObjectId,
+      ciphertextBase64: Encoding.encodeBase64(new Uint8Array(ciphertext)),
+      encryptedAtEpochMillis,
+      nonceBase64: Encoding.encodeBase64(nonce),
+      plaintextContentHash,
+      sourceKind,
+      sourcePathHash,
+    });
+    const envelopeText = yield* encodeArchiveEnvelope(envelope).pipe(
+      Effect.mapError((cause) => archiveFailure("Failed to encode raw archive envelope.", cause))
+    );
+
+    yield* fs
+      .makeDirectory(pathApi.dirname(archivePath), { recursive: true })
+      .pipe(
+        Effect.mapError((cause) =>
+          archiveFailure(`Failed to create raw archive directory for "${archivePath}".`, cause)
+        )
+      );
+    yield* fs
+      .writeFileString(archivePath, envelopeText)
+      .pipe(Effect.mapError((cause) => archiveFailure(`Failed to write raw archive object "${archivePath}".`, cause)));
+
+    return envelopeToObject(archivePath, envelope);
+  },
+  (effect, input) =>
+    effect.pipe(
+      Effect.withSpan("repo_ai_metrics.archive.write", {
+        attributes: {
+          "ai_metrics.source_kind": input.sourceKind,
+        },
+      })
+    )
+);
 
 /**
  * Decrypt an archive envelope for package-level verification.
  *
+ * @remarks
  * P2 intentionally does not expose this as a CLI command.
- *
+ * Decryption is package-level verification support, not a user-facing CLI path.
+ * @example
+ * ```ts
+ * import {
+ *   AiMetricsEncryptedRawArchiveEnvelope,
+ *   decryptEncryptedRawArchiveEnvelope
+ * } from "@beep/repo-ai-metrics"
+ * import { Redacted } from "effect"
+ * const program = decryptEncryptedRawArchiveEnvelope({
+ *   envelope: new AiMetricsEncryptedRawArchiveEnvelope({
+ *     algorithm: "AES-256-GCM",
+ *     archiveObjectId: "raw-example",
+ *     ciphertextBase64: "ciphertext",
+ *     encryptedAtEpochMillis: 0,
+ *     nonceBase64: "nonce",
+ *     plaintextContentHash: "hash",
+ *     sourceKind: "codex",
+ *     sourcePathHash: "source-hash"
+ *   }),
+ *   rawArchiveKey: Redacted.make("base64-32-byte-key")
+ * })
+ * void program
+ * ```
  * @category services
  * @since 0.0.0
  */
 export const decryptEncryptedRawArchiveEnvelope = Effect.fn("AiMetrics.decryptEncryptedRawArchiveEnvelope")(function* ({
   envelope,
-  rawArchiveKeyBase64,
+  rawArchiveKey,
 }: {
   readonly envelope: AiMetricsEncryptedRawArchiveEnvelope;
-  readonly rawArchiveKeyBase64: string;
+  readonly rawArchiveKey: AiMetricsRawArchiveKey;
 }) {
-  const key = yield* importRawArchiveKey(rawArchiveKeyBase64);
+  const key = yield* importRawArchiveKey(rawArchiveKey);
   const nonce = yield* Result.match(Encoding.decodeBase64(envelope.nonceBase64), {
     onFailure: (cause) => Effect.fail(archiveFailure("Archive envelope nonce is not valid base64.", cause)),
     onSuccess: Effect.succeed,
@@ -295,6 +384,12 @@ export const decryptEncryptedRawArchiveEnvelope = Effect.fn("AiMetrics.decryptEn
 /**
  * Read and decode an encrypted raw archive envelope from disk.
  *
+ * @example
+ * ```ts
+ * import { readEncryptedRawArchiveEnvelope } from "@beep/repo-ai-metrics"
+ * const program = readEncryptedRawArchiveEnvelope(".ai-metrics/raw/codex/raw-example.json")
+ * void program
+ * ```
  * @category services
  * @since 0.0.0
  */

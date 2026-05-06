@@ -58,7 +58,8 @@ const createTableStatements = [
     config_snapshot_id VARCHAR NOT NULL
   )`,
   `CREATE TABLE IF NOT EXISTS ai_metrics_raw_archive_objects (
-    archive_object_id VARCHAR PRIMARY KEY,
+    archive_run_object_id VARCHAR PRIMARY KEY,
+    archive_object_id VARCHAR NOT NULL,
     ingest_run_id VARCHAR NOT NULL,
     source_kind VARCHAR NOT NULL,
     source_path_hash VARCHAR NOT NULL,
@@ -296,7 +297,7 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
 ) {
   const duckdb = yield* DuckDb;
   const sanitized = record.privacy.sanitized;
-  const sourceFileId = yield* rowId("source-file", [sanitized.sourceKind, sanitized.sourcePathHash]);
+  const sourceFileId = yield* rowId("source-file", [input.ingestRunId, sanitized.sourceKind, sanitized.sourcePathHash]);
   const eventNamesJson = yield* jsonString(sanitized.eventNames);
 
   yield* duckdb.run(
@@ -350,8 +351,10 @@ const upsertArchiveObject = Effect.fn("AiMetrics.derivedStorage.upsertArchiveObj
 ) {
   const duckdb = yield* DuckDb;
   const archive = record.archiveObject;
+  const archiveRunObjectId = yield* rowId("archive-object", [input.ingestRunId, archive.archiveObjectId]);
   yield* duckdb.run(
     `INSERT OR REPLACE INTO ai_metrics_raw_archive_objects (
+      archive_run_object_id,
       archive_object_id,
       ingest_run_id,
       source_kind,
@@ -361,6 +364,7 @@ const upsertArchiveObject = Effect.fn("AiMetrics.derivedStorage.upsertArchiveObj
       algorithm,
       encrypted_at_epoch_ms
     ) VALUES (
+      $archiveRunObjectId,
       $archiveObjectId,
       $ingestRunId,
       $sourceKind,
@@ -373,6 +377,7 @@ const upsertArchiveObject = Effect.fn("AiMetrics.derivedStorage.upsertArchiveObj
     {
       algorithm: archive.algorithm,
       archiveObjectId: archive.archiveObjectId,
+      archiveRunObjectId,
       archivePath: archive.archivePath,
       encryptedAtEpochMillis: archive.encryptedAtEpochMillis,
       ingestRunId: input.ingestRunId,
@@ -389,7 +394,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
 ) {
   const duckdb = yield* DuckDb;
   const sanitized = record.privacy.sanitized;
-  const agentSessionId = yield* rowId("session", [sanitized.sourceKind, sanitized.sourcePathHash]);
+  const agentSessionId = yield* rowId("session", [input.ingestRunId, sanitized.sourceKind, sanitized.sourcePathHash]);
   yield* duckdb.run(
     `INSERT OR REPLACE INTO ai_metrics_sessions (
       agent_session_id,
@@ -420,6 +425,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
     sanitized.rawEventEnvelopes,
     Effect.fnUntraced(function* (envelope) {
       const turnId = yield* rowId("turn", [
+        input.ingestRunId,
         envelope.sourceKind,
         envelope.sourcePathHash,
         envelope.lineNumber,
@@ -472,62 +478,82 @@ const recordTurnCount: (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>
 /**
  * Project sanitized AI metrics records into DuckDB and export Parquet snapshots.
  *
+ * @example
+ * ```ts
+ * import {
+ *   AiMetricsDerivedStorageWriteInput,
+ *   writeAiMetricsDerivedStorage
+ * } from "@beep/repo-ai-metrics"
+ * const input = AiMetricsDerivedStorageWriteInput
+ * const write = writeAiMetricsDerivedStorage
+ * void input
+ * void write
+ * ```
  * @category services
  * @since 0.0.0
  */
-export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsDerivedStorage")(function* (
-  input: AiMetricsDerivedStorageWriteInput
-) {
-  const fs = yield* FileSystem.FileSystem;
-  const pathApi = yield* Path.Path;
-  const duckdb = yield* DuckDb;
-  const parquetExportDir = pathApi.join(input.storage.parquetDir, input.ingestRunId);
-  yield* fs
-    .makeDirectory(pathApi.dirname(input.storage.duckDbPath), { recursive: true })
-    .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics DuckDB storage directory.", cause)));
-  yield* fs
-    .makeDirectory(parquetExportDir, { recursive: true })
-    .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics Parquet export directory.", cause)));
-  const completedAtEpochMillis = yield* Clock.currentTimeMillis;
-  const turnCount = recordTurnCount(input.records);
+export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsDerivedStorage")(
+  function* (input: AiMetricsDerivedStorageWriteInput) {
+    const fs = yield* FileSystem.FileSystem;
+    const pathApi = yield* Path.Path;
+    const duckdb = yield* DuckDb;
+    const parquetExportDir = pathApi.join(input.storage.parquetDir, input.ingestRunId);
+    yield* fs
+      .makeDirectory(pathApi.dirname(input.storage.duckDbPath), { recursive: true })
+      .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics DuckDB storage directory.", cause)));
+    yield* fs
+      .makeDirectory(parquetExportDir, { recursive: true })
+      .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics Parquet export directory.", cause)));
+    const completedAtEpochMillis = yield* Clock.currentTimeMillis;
+    const turnCount = recordTurnCount(input.records);
 
-  yield* duckdb
-    .withTransaction(
-      Effect.fn(function* (transaction) {
-        yield* transaction.runMany(createTableStatements);
-        yield* upsertRun(input, completedAtEpochMillis, turnCount).pipe(Effect.provideService(DuckDb, transaction));
-        yield* Effect.forEach(
-          input.records,
-          Effect.fnUntraced(function* (record) {
-            yield* upsertSourceFile(input, record).pipe(Effect.provideService(DuckDb, transaction));
-            yield* upsertArchiveObject(input, record).pipe(Effect.provideService(DuckDb, transaction));
-            yield* upsertSessionAndTurns(input, record).pipe(Effect.provideService(DuckDb, transaction));
-          }),
-          { discard: true }
-        );
+    yield* duckdb
+      .withTransaction(
+        Effect.fn(function* (transaction) {
+          yield* transaction.runMany(createTableStatements);
+          yield* upsertRun(input, completedAtEpochMillis, turnCount).pipe(Effect.provideService(DuckDb, transaction));
+          yield* Effect.forEach(
+            input.records,
+            Effect.fnUntraced(function* (record) {
+              yield* upsertSourceFile(input, record).pipe(Effect.provideService(DuckDb, transaction));
+              yield* upsertArchiveObject(input, record).pipe(Effect.provideService(DuckDb, transaction));
+              yield* upsertSessionAndTurns(input, record).pipe(Effect.provideService(DuckDb, transaction));
+            }),
+            { discard: true }
+          );
+        })
+      )
+      .pipe(Effect.mapError((cause) => derivedFailure("Failed to write AI metrics derived DuckDB tables.", cause)));
+
+    yield* Effect.forEach(
+      DERIVED_TABLES,
+      (tableName) =>
+        duckdb.copyTableToParquet(
+          new DuckDbParquetExport({
+            filePath: pathApi.join(parquetExportDir, `${tableName}.parquet`),
+            tableName,
+          })
+        ),
+      { discard: true }
+    ).pipe(Effect.mapError((cause) => derivedFailure("Failed to export AI metrics derived tables to Parquet.", cause)));
+
+    return new AiMetricsDerivedStorageWriteResult({
+      archiveObjectCount: input.records.length,
+      duckDbPath: input.storage.duckDbPath,
+      ingestRunId: input.ingestRunId,
+      parquetExportDir,
+      parquetTables: DERIVED_TABLES,
+      sourceFileCount: input.records.length,
+      turnCount,
+    });
+  },
+  (effect, input) =>
+    effect.pipe(
+      Effect.withSpan("repo_ai_metrics.derived_storage.write", {
+        attributes: {
+          "ai_metrics.record_count": input.records.length,
+          "ai_metrics.target": input.target,
+        },
       })
     )
-    .pipe(Effect.mapError((cause) => derivedFailure("Failed to write AI metrics derived DuckDB tables.", cause)));
-
-  yield* Effect.forEach(
-    DERIVED_TABLES,
-    (tableName) =>
-      duckdb.copyTableToParquet(
-        new DuckDbParquetExport({
-          filePath: pathApi.join(parquetExportDir, `${tableName}.parquet`),
-          tableName,
-        })
-      ),
-    { discard: true }
-  ).pipe(Effect.mapError((cause) => derivedFailure("Failed to export AI metrics derived tables to Parquet.", cause)));
-
-  return new AiMetricsDerivedStorageWriteResult({
-    archiveObjectCount: input.records.length,
-    duckDbPath: input.storage.duckDbPath,
-    ingestRunId: input.ingestRunId,
-    parquetExportDir,
-    parquetTables: DERIVED_TABLES,
-    sourceFileCount: input.records.length,
-    turnCount,
-  });
-});
+);

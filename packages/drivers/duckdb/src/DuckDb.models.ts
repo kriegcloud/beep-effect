@@ -72,10 +72,14 @@ export class DuckDbParquetExport extends S.Class<DuckDbParquetExport>($I`DuckDbP
  * @example
  * ```ts
  * import { DuckDbRow } from "@beep/duckdb"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
- * const row = S.decodeUnknownSync(DuckDbRow)({ count: 1 })
- * void row
+ * const program = Effect.gen(function* () {
+ *   return yield* S.decodeUnknownEffect(DuckDbRow)({ count: 1 })
+ * })
+ *
+ * void program
  * ```
  *
  * @category schemas
@@ -109,10 +113,14 @@ export type DuckDbRow = typeof DuckDbRow.Type;
  * @example
  * ```ts
  * import { DuckDbRows } from "@beep/duckdb"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
- * const rows = S.decodeUnknownSync(DuckDbRows)([])
- * void rows
+ * const program = Effect.gen(function* () {
+ *   return yield* S.decodeUnknownEffect(DuckDbRows)([])
+ * })
+ *
+ * void program
  * ```
  *
  * @category schemas

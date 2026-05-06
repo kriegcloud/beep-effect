@@ -72,6 +72,7 @@
   },
   "dependencies": {
     "@beep/chalk": "workspace:^",
+    "@beep/duckdb": "workspace:^",
     "@beep/ffmpeg": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/observability": "workspace:^",

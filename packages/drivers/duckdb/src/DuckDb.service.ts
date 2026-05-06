@@ -196,19 +196,49 @@ const makeConnectionClient = (
   useConnection: <A>(operation: string, use: NativeUse<A>) => Effect.Effect<A, DuckDbError>
 ): DuckDbClient => {
   const run = (statement: string, parameters?: DuckDbQueryParameters | undefined): Effect.Effect<void, DuckDbError> =>
-    useConnection("run", (connection) => runOnConnection("run", options, connection, statement, parameters));
+    useConnection("run", (connection) => runOnConnection("run", options, connection, statement, parameters)).pipe(
+      Effect.withSpan("db.query", {
+        attributes: {
+          "db.operation": "run",
+          "db.system": "duckdb",
+        },
+      })
+    );
 
   const query = (
     statement: string,
     parameters?: DuckDbQueryParameters | undefined
   ): Effect.Effect<DuckDbRows, DuckDbError> =>
-    useConnection("query", (connection) => queryOnConnection(options, connection, statement, parameters));
+    useConnection("query", (connection) => queryOnConnection(options, connection, statement, parameters)).pipe(
+      Effect.withSpan("db.query", {
+        attributes: {
+          "db.operation": "query",
+          "db.system": "duckdb",
+        },
+      })
+    );
 
   const runMany = (statements: ReadonlyArray<string>): Effect.Effect<void, DuckDbError> =>
-    Effect.forEach(statements, (statement) => run(statement), { discard: true });
+    Effect.forEach(statements, (statement) => run(statement), { discard: true }).pipe(
+      Effect.withSpan("db.query", {
+        attributes: {
+          "db.operation": "run_many",
+          "db.statement_count": statements.length,
+          "db.system": "duckdb",
+        },
+      })
+    );
 
   const copyTableToParquet = (request: DuckDbParquetExport): Effect.Effect<void, DuckDbError> =>
-    run(copyStatement(request));
+    run(copyStatement(request)).pipe(
+      Effect.withSpan("db.export", {
+        attributes: {
+          "db.operation": "copy_table_to_parquet",
+          "db.system": "duckdb",
+          "db.table": request.tableName,
+        },
+      })
+    );
 
   const withTransaction = <A, R>(
     use: (transaction: DuckDbClient) => Effect.Effect<A, DuckDbError, R>
@@ -224,6 +254,12 @@ const makeConnectionClient = (
           return value;
         }),
       releaseConnection
+    ).pipe(
+      Effect.withSpan("db.transaction", {
+        attributes: {
+          "db.system": "duckdb",
+        },
+      })
     );
 
   return {

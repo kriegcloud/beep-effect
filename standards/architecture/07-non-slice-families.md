@@ -194,6 +194,14 @@ This keeps the family legible while still making dependency rules visible.
 Repo-wide orchestration is behavior inside `tool`, not a separate one-off
 package kind.
 
+Tooling may compose a driver directly when the package is acting as an
+operational adapter around a product-neutral external engine. Typical examples
+are repository analytics, generators, migration tools, fixture builders, and CLI
+workflows. This is not permission for product semantics to enter `drivers`, and
+it is not permission to route reusable runtime substrate through `tooling`.
+Every such package must own the direct dependency and project reference it
+imports.
+
 ## Worked Examples
 
 ```txt

@@ -2,9 +2,12 @@ import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import {
   AiMetricsConfigSnapshotInput,
   AiMetricsDeployTarget,
+  AiMetricsDerivedStorageWriteInput,
+  AiMetricsDerivedTranscriptRecord,
   AiMetricsForwarderInput,
   AiMetricsInstallInput,
   AiMetricsPrivacyMode,
+  AiMetricsRawArchiveObject,
   AiMetricsSourceDiscoveryInput,
   AiMetricsTool,
   AiMetricsTranscriptSource,
@@ -20,10 +23,11 @@ import {
   runAiMetricsForwarder,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
+  writeAiMetricsDerivedStorage,
 } from "@beep/repo-ai-metrics";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Encoding, FileSystem, Order, Path, pipe } from "effect";
+import { Effect, Encoding, FileSystem, Order, Path, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 
@@ -112,7 +116,7 @@ describe("@beep/repo-ai-metrics", () => {
           const codexRoot = path.join(homeDir, ".codex/sessions");
           const claudeRoot = path.join(homeDir, ".claude/projects/repo");
           const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
-          const rawArchiveKeyBase64 = Encoding.encodeBase64(new Uint8Array(32).fill(7));
+          const rawArchiveKey = Redacted.make(Encoding.encodeBase64(new Uint8Array(32).fill(7)));
 
           yield* writeText(
             path.join(codexRoot, "codex.jsonl"),
@@ -136,7 +140,7 @@ describe("@beep/repo-ai-metrics", () => {
                 hashSalt: "test-salt",
                 homeDir,
                 includeAll: true,
-                rawArchiveKeyBase64,
+                rawArchiveKey,
                 repoRoot,
                 target: AiMetricsDeployTarget.Enum.local,
               })
@@ -159,8 +163,96 @@ describe("@beep/repo-ai-metrics", () => {
             expect(archiveText).not.toContain("secret-value");
 
             const envelope = yield* readEncryptedRawArchiveEnvelope(archivePath);
-            const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKeyBase64 });
+            const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKey });
             expect(plaintext).toContain("secret-value");
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "retains repeated derived ingest runs for the same source records",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const dataRoot = path.join(tmpDir, "metrics");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const sourcePath = path.join(tmpDir, "home/.codex/sessions/codex.jsonl");
+          const content = '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}';
+
+          yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
+
+          yield* Effect.gen(function* () {
+            const summary = yield* summarizeTranscriptText({
+              content,
+              hashSalt: "test-salt",
+              sourceKind: AiMetricsTranscriptSource.Enum.codex,
+              sourcePath,
+            });
+            const privacy = yield* makeAiMetricsPrivacyCheckResult({
+              content,
+              hashSalt: "test-salt",
+              sourcePath,
+              summary,
+            });
+            const installSpec = yield* makeAiMetricsInstallSpec(
+              new AiMetricsInstallInput({
+                dataRoot,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+            const configSnapshot = yield* makeAiMetricsConfigSnapshot(
+              new AiMetricsConfigSnapshotInput({
+                repoRoot: path.join(tmpDir, "repo"),
+              })
+            );
+            const record = new AiMetricsDerivedTranscriptRecord({
+              archiveObject: new AiMetricsRawArchiveObject({
+                algorithm: "AES-256-GCM",
+                archiveObjectId: "raw-content-addressed-object",
+                archivePath: path.join(dataRoot, "raw/codex/raw-content-addressed-object.json"),
+                encryptedAtEpochMillis: 1,
+                plaintextContentHash: "plaintext-content-hash",
+                sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                sourcePathHash: summary.sourcePathHash,
+              }),
+              privacy,
+            });
+            const baseInput = {
+              configSnapshot: configSnapshot.snapshot,
+              records: [record],
+              startedAtEpochMillis: 1,
+              storage: installSpec.storage,
+              target: AiMetricsDeployTarget.Enum.local,
+            };
+
+            yield* writeAiMetricsDerivedStorage(
+              new AiMetricsDerivedStorageWriteInput({
+                ...baseInput,
+                ingestRunId: "forwarder-1",
+              })
+            );
+            yield* writeAiMetricsDerivedStorage(
+              new AiMetricsDerivedStorageWriteInput({
+                ...baseInput,
+                ingestRunId: "forwarder-2",
+              })
+            );
+
+            const duckdb = yield* DuckDb;
+            const runRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_ingest_runs");
+            const sourceRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_source_files");
+            const archiveRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_raw_archive_objects");
+            const sessionRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_sessions");
+            const turnRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_turns");
+
+            expect(runRows).toEqual([{ count: "2" }]);
+            expect(sourceRows).toEqual([{ count: "2" }]);
+            expect(archiveRows).toEqual([{ count: "2" }]);
+            expect(sessionRows).toEqual([{ count: "2" }]);
+            expect(turnRows).toEqual([{ count: "2" }]);
           }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
       ).pipe(Effect.provide(NodeServices.layer));

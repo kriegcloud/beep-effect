@@ -36,7 +36,7 @@ import {
   summaryToJson,
 } from "@beep/repo-ai-metrics";
 import { TaggedErrorClass } from "@beep/schema";
-import { Clock, Config, Console, Duration, Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Clock, Config, Console, Duration, Effect, FileSystem, Order, Path, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -230,6 +230,24 @@ const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>,
     )
 );
 
+const readOptionalRedactedConfigString: (
+  key: string
+) => Effect.Effect<O.Option<Redacted.Redacted<string>>, AiMetricsCommandError> = Effect.fn(
+  "AIMetrics.readOptionalRedactedConfigString"
+)((key) =>
+  Config.option(Config.redacted(key))
+    .asEffect()
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsCommandError({
+            cause,
+            message: `Failed to read ${key} from the Effect config provider.`,
+          })
+      )
+    )
+);
+
 const resolveHomeDir = Effect.fn("AIMetrics.resolveHomeDir")(function* (homeDir: O.Option<string>) {
   if (O.isSome(homeDir)) {
     return homeDir.value;
@@ -273,11 +291,11 @@ const resolveHashSaltSecretRef = Effect.fn("AIMetrics.resolveHashSaltSecretRef")
 
 const resolveRawArchiveKey = Effect.fn("AIMetrics.resolveRawArchiveKey")(function* (rawArchiveKey: O.Option<string>) {
   if (O.isSome(rawArchiveKey)) {
-    return rawArchiveKey.value;
+    return Redacted.make(rawArchiveKey.value);
   }
 
-  const envKey = yield* readOptionalConfigString("BEEP_AI_METRICS_RAW_ARCHIVE_KEY");
-  if (O.isSome(envKey) && Str.isNonEmpty(Str.trim(envKey.value))) {
+  const envKey = yield* readOptionalRedactedConfigString("BEEP_AI_METRICS_RAW_ARCHIVE_KEY");
+  if (O.isSome(envKey) && Str.isNonEmpty(Str.trim(Redacted.value(envKey.value)))) {
     return envKey.value;
   }
 
@@ -715,7 +733,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
       target,
     })
   );
-  const rawArchiveKeyBase64 = yield* resolveRawArchiveKey(rawArchiveKey);
+  const resolvedRawArchiveKey = yield* resolveRawArchiveKey(rawArchiveKey);
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
   const result = yield* runAiMetricsForwarder(
     new AiMetricsForwarderInput({
@@ -729,7 +747,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
       includeAll: all,
       maxFiles,
       ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
-      rawArchiveKeyBase64,
+      rawArchiveKey: resolvedRawArchiveKey,
       repoRoot: yield* resolveRepoRoot(repoRoot),
       ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
       target,

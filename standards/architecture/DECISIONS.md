@@ -75,6 +75,24 @@ Putting business repository implementations inside `drivers/drizzle` or
 `drivers/postgres` makes drivers product-aware and leaks infrastructure
 names into product topology.
 
+## 2026-05-06: Allow Narrow Tooling-To-Driver Operational Adapters
+
+- **Status:** Active
+
+Decision:
+
+Tooling packages may depend on driver packages when the tooling package is the
+operational adapter for repository analytics, generation, migration, fixtures,
+or CLI workflows that need a product-neutral external engine.
+
+Rationale:
+
+Some repo-operational workflows, such as durable AI metrics projections into
+DuckDB, need a technical engine without becoming product runtime code. The
+driver still owns the external API boundary; the tooling package owns the
+repo-operational semantics and must declare the direct dependency/reference it
+imports.
+
 ## 2026-04-21: Use Domain-Kind Folders
 
 - **Status:** Active

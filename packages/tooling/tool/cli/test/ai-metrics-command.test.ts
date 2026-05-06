@@ -266,7 +266,52 @@ describe("ai-metrics command", () => {
           expect(output).toContain("archiveObjectCount");
           expect(output).toContain("turnCount");
           expect(output).not.toContain("private-forwarder-secret");
+          expect(output).not.toContain(rawArchiveKey);
           expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not expose raw source paths or archive keys on forwarder read failures", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const rawArchiveKey = Encoding.encodeBase64(new Uint8Array(32).fill(13));
+          const sourcePath = path.join(homeDir, ".codex/sessions/private-source.jsonl");
+
+          yield* writeText(sourcePath, '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}');
+          yield* fs.chmod(sourcePath, 0o000);
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
+
+          yield* runAiMetricsCommand([
+            "forwarder",
+            "run",
+            "--repo-root",
+            repoRoot,
+            "--home-dir",
+            homeDir,
+            "--data-root",
+            dataRoot,
+            "--all",
+            "--hash-salt",
+            "test-salt",
+            "--raw-archive-key",
+            rawArchiveKey,
+            "--json",
+          ]);
+
+          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
+          expect(output).toContain("Failed to read AI metrics codex source file");
+          expect(output).not.toContain(sourcePath);
+          expect(output).not.toContain(tmpDir);
+          expect(output).not.toContain(rawArchiveKey);
+          expect(process.exitCode).toBe(1);
         })
       )
     );

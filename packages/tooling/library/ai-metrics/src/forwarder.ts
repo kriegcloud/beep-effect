@@ -12,7 +12,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { writeEncryptedRawArchiveObject } from "./archive.ts";
+import { AiMetricsRawArchiveKey, writeEncryptedRawArchiveObject } from "./archive.ts";
 import { AiMetricsConfigSnapshotInput, makeAiMetricsConfigSnapshot } from "./config-snapshot.ts";
 import {
   AiMetricsDerivedStorageWriteInput,
@@ -22,7 +22,7 @@ import {
 import { summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
 import { AiMetricsDeployTarget, AiMetricsTranscriptSource } from "./models.ts";
-import { makeAiMetricsPrivacyCheckResult } from "./privacy.ts";
+import { hashPrivateIdentifier, makeAiMetricsPrivacyCheckResult } from "./privacy.ts";
 
 const $I = $RepoAiMetricsId.create("forwarder");
 const DEFAULT_MAX_FILES = 200;
@@ -81,7 +81,7 @@ export class AiMetricsForwarderInput extends S.Class<AiMetricsForwarderInput>($I
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_FILES))
     ),
     openClawUnitPath: S.optionalKey(S.String),
-    rawArchiveKeyBase64: S.String,
+    rawArchiveKey: AiMetricsRawArchiveKey,
     rawArchiveKeySecretRef: S.optionalKey(S.String),
     repoRoot: S.String,
     sinceEpochMillis: S.optionalKey(S.Number),
@@ -148,6 +148,20 @@ const modifiedAtMillis = (info: FileSystem.File.Info): number =>
     O.map((mtime) => mtime.getTime()),
     O.getOrElse(() => 0)
   );
+
+const sourcePathHashForDiagnostics = Effect.fn("AiMetrics.forwarder.sourcePathHashForDiagnostics")(function* (
+  input: AiMetricsForwarderInput,
+  sourceFile: ForwarderSourceFile
+) {
+  return yield* hashPrivateIdentifier(sourceFile.sourcePath, input.hashSalt).pipe(
+    Effect.mapError((cause) =>
+      forwarderFailure("Failed to hash AI metrics source path for diagnostics.", {
+        cause,
+        sourceKind: sourceFile.sourceKind,
+      })
+    )
+  );
+});
 
 const shouldIncludeFile =
   (input: AiMetricsForwarderInput) =>
@@ -264,103 +278,158 @@ const discoverForwarderSourceFiles = Effect.fn("AiMetrics.forwarder.discoverSour
   return pipe(A.flatten(sources), A.sort(byModifiedDescending), A.take(input.maxFiles));
 });
 
-const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(function* (
-  input: AiMetricsForwarderInput,
-  rawArchiveDir: string,
-  sourceFile: ForwarderSourceFile
-) {
-  const fs = yield* FileSystem.FileSystem;
-  const content = yield* fs
-    .readFileString(sourceFile.sourcePath)
-    .pipe(
-      Effect.mapError((cause) =>
-        forwarderFailure(`Failed to read AI metrics source file "${sourceFile.sourcePath}".`, cause)
+const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
+  function* (input: AiMetricsForwarderInput, rawArchiveDir: string, sourceFile: ForwarderSourceFile) {
+    const fs = yield* FileSystem.FileSystem;
+    const diagnosticSourcePathHash = yield* sourcePathHashForDiagnostics(input, sourceFile);
+    const content = yield* fs.readFileString(sourceFile.sourcePath).pipe(
+      Effect.mapError((_cause) =>
+        forwarderFailure(`Failed to read AI metrics ${sourceFile.sourceKind} source file.`, {
+          failure: "source_file_read_failed",
+          sourceKind: sourceFile.sourceKind,
+          sourcePathHash: diagnosticSourcePathHash,
+        })
       )
     );
-  const summary = yield* summarizeTranscriptText({
-    content,
-    ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
-    sourceKind: sourceFile.sourceKind,
-    sourcePath: sourceFile.sourcePath,
-  }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to summarize AI metrics source file.", cause)));
-  const archiveObject = yield* writeEncryptedRawArchiveObject({
-    content,
-    ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
-    rawArchiveDir,
-    rawArchiveKeyBase64: input.rawArchiveKeyBase64,
-    sourceKind: sourceFile.sourceKind,
-    sourcePath: sourceFile.sourcePath,
-  }).pipe(
-    Effect.mapError((cause) => forwarderFailure("Failed to write encrypted AI metrics raw archive object.", cause))
-  );
-  const privacy = yield* makeAiMetricsPrivacyCheckResult({
-    content,
-    ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
-    sourcePath: sourceFile.sourcePath,
-    summary,
-  }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics privacy projection.", cause)));
+    const summary = yield* summarizeTranscriptText({
+      content,
+      ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      sourceKind: sourceFile.sourceKind,
+      sourcePath: sourceFile.sourcePath,
+    }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to summarize AI metrics source file.", cause)));
+    const archiveObject = yield* writeEncryptedRawArchiveObject({
+      content,
+      ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      rawArchiveDir,
+      rawArchiveKey: input.rawArchiveKey,
+      sourceKind: sourceFile.sourceKind,
+      sourcePath: sourceFile.sourcePath,
+    }).pipe(
+      Effect.mapError((cause) => forwarderFailure("Failed to write encrypted AI metrics raw archive object.", cause))
+    );
+    const privacy = yield* makeAiMetricsPrivacyCheckResult({
+      content,
+      ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      sourcePath: sourceFile.sourcePath,
+      summary,
+    }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics privacy projection.", cause)));
 
-  return new AiMetricsDerivedTranscriptRecord({ archiveObject, privacy });
-});
+    return new AiMetricsDerivedTranscriptRecord({ archiveObject, privacy });
+  },
+  (effect, _input, _rawArchiveDir, sourceFile) =>
+    effect.pipe(
+      Effect.withSpan("repo_ai_metrics.forwarder.process_source_file", {
+        attributes: {
+          "ai_metrics.source_kind": sourceFile.sourceKind,
+        },
+      })
+    )
+);
 
 /**
  * Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export.
  *
+ * @example
+ * ```ts
+ * import {
+ *   AiMetricsForwarderInput,
+ *   runAiMetricsForwarder
+ * } from "@beep/repo-ai-metrics"
+ * import { Redacted } from "effect"
+ * const input = new AiMetricsForwarderInput({
+ *   homeDir: "/home/example",
+ *   rawArchiveKey: Redacted.make("base64-32-byte-key"),
+ *   repoRoot: "/work/repo"
+ * })
+ * const program = runAiMetricsForwarder(input)
+ * void program
+ * ```
  * @category services
  * @since 0.0.0
  */
-export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder")(function* (
-  input: AiMetricsForwarderInput
-) {
-  const startedAtEpochMillis = yield* Clock.currentTimeMillis;
-  const installSpec = yield* makeAiMetricsInstallSpec(
-    new AiMetricsInstallInput({
-      ...(input.dataRoot === undefined ? {} : { dataRoot: input.dataRoot }),
-      ...(input.hashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: input.hashSaltSecretRef }),
-      ...(input.rawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: input.rawArchiveKeySecretRef }),
-      target: input.target,
-    })
-  ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to resolve AI metrics install storage layout.", cause)));
-  const configSnapshot = yield* makeAiMetricsConfigSnapshot(
-    new AiMetricsConfigSnapshotInput({
-      repoRoot: input.repoRoot,
-    })
-  ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics config snapshot.", cause)));
-  const sourceFiles = yield* discoverForwarderSourceFiles(input);
-  const records = yield* Effect.forEach(
-    sourceFiles,
-    (sourceFile) => processSourceFile(input, installSpec.storage.rawArchiveDir, sourceFile),
-    { concurrency: 4 }
-  );
-  const ingestRunId = `forwarder-${startedAtEpochMillis}`;
-  const derived = yield* writeAiMetricsDerivedStorage(
-    new AiMetricsDerivedStorageWriteInput({
-      configSnapshot: configSnapshot.snapshot,
-      ingestRunId,
-      records,
-      startedAtEpochMillis,
-      storage: installSpec.storage,
-      target: input.target,
-    })
-  ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to write AI metrics derived storage.", cause)));
+export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder")(
+  function* (input: AiMetricsForwarderInput) {
+    const startedAtEpochMillis = yield* Clock.currentTimeMillis;
+    const installSpec = yield* makeAiMetricsInstallSpec(
+      new AiMetricsInstallInput({
+        ...(input.dataRoot === undefined ? {} : { dataRoot: input.dataRoot }),
+        ...(input.hashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: input.hashSaltSecretRef }),
+        ...(input.rawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: input.rawArchiveKeySecretRef }),
+        target: input.target,
+      })
+    ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to resolve AI metrics install storage layout.", cause)));
+    const configSnapshot = yield* makeAiMetricsConfigSnapshot(
+      new AiMetricsConfigSnapshotInput({
+        repoRoot: input.repoRoot,
+      })
+    ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics config snapshot.", cause)));
+    const sourceFiles = yield* discoverForwarderSourceFiles(input);
+    const records = yield* Effect.forEach(
+      sourceFiles,
+      (sourceFile) => processSourceFile(input, installSpec.storage.rawArchiveDir, sourceFile),
+      { concurrency: 4 }
+    );
+    const ingestRunId = `forwarder-${startedAtEpochMillis}`;
+    const derived = yield* writeAiMetricsDerivedStorage(
+      new AiMetricsDerivedStorageWriteInput({
+        configSnapshot: configSnapshot.snapshot,
+        ingestRunId,
+        records,
+        startedAtEpochMillis,
+        storage: installSpec.storage,
+        target: input.target,
+      })
+    ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to write AI metrics derived storage.", cause)));
 
-  return new AiMetricsForwarderRunResult({
-    archiveObjectCount: derived.archiveObjectCount,
-    configSnapshotId: configSnapshot.snapshot.snapshotId,
-    duckDbPath: derived.duckDbPath,
-    ingestRunId: derived.ingestRunId,
-    parquetExportDir: derived.parquetExportDir,
-    parquetTables: derived.parquetTables,
-    rawArchiveDir: installSpec.storage.rawArchiveDir,
-    sourceFileCount: derived.sourceFileCount,
-    target: input.target,
-    turnCount: derived.turnCount,
-  });
-});
+    return new AiMetricsForwarderRunResult({
+      archiveObjectCount: derived.archiveObjectCount,
+      configSnapshotId: configSnapshot.snapshot.snapshotId,
+      duckDbPath: derived.duckDbPath,
+      ingestRunId: derived.ingestRunId,
+      parquetExportDir: derived.parquetExportDir,
+      parquetTables: derived.parquetTables,
+      rawArchiveDir: installSpec.storage.rawArchiveDir,
+      sourceFileCount: derived.sourceFileCount,
+      target: input.target,
+      turnCount: derived.turnCount,
+    });
+  },
+  (effect, input) =>
+    effect.pipe(
+      Effect.withSpan("repo_ai_metrics.forwarder.run", {
+        attributes: {
+          "ai_metrics.include_all": input.includeAll,
+          "ai_metrics.max_files": input.maxFiles,
+          "ai_metrics.target": input.target,
+        },
+      })
+    )
+);
 
 /**
  * Render a durable forwarder run result as JSON.
  *
+ * @example
+ * ```ts
+ * import {
+ *   AiMetricsForwarderRunResult,
+ *   forwarderRunResultToJson
+ * } from "@beep/repo-ai-metrics"
+ * const result = new AiMetricsForwarderRunResult({
+ *   archiveObjectCount: 0,
+ *   configSnapshotId: "config-1",
+ *   duckDbPath: ".ai-metrics/derived/ai-metrics.duckdb",
+ *   ingestRunId: "forwarder-1",
+ *   parquetExportDir: ".ai-metrics/derived/parquet/forwarder-1",
+ *   parquetTables: [],
+ *   rawArchiveDir: ".ai-metrics/raw",
+ *   sourceFileCount: 0,
+ *   target: "local",
+ *   turnCount: 0
+ * })
+ * const program = forwarderRunResultToJson(result)
+ * void program
+ * ```
  * @category utilities
  * @since 0.0.0
  */
