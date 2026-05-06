@@ -1,4 +1,5 @@
 import {
+  decodeChatCompletionChunk,
   makeFromProvider,
   type OpenAiCompatChatCompletionChunk,
   OpenAiCompatChatCompletionRequest,
@@ -12,6 +13,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AiError from "effect/unstable/ai/AiError";
+import * as Prompt from "effect/unstable/ai/Prompt";
 import * as Tool from "effect/unstable/ai/Tool";
 import * as Toolkit from "effect/unstable/ai/Toolkit";
 import * as HttpClient from "effect/unstable/http/HttpClient";
@@ -180,6 +182,166 @@ describe("OpenAiCompat language model", () => {
           A.join("")
         )
       ).toBe("hi there");
+    })
+  );
+
+  it.effect("decodes partial streaming tool-call deltas", () =>
+    Effect.gen(function* () {
+      const chunk = yield* decodeChatCompletionChunk({
+        choices: [
+          {
+            delta: {
+              tool_calls: [
+                {
+                  function: {
+                    arguments: '{"city"',
+                  },
+                  index: 0,
+                },
+              ],
+            },
+            index: 0,
+          },
+        ],
+      });
+      const toolCalls = pipe(
+        chunk.choices,
+        A.head,
+        O.flatMap((choice) => choice.delta),
+        O.flatMap((delta) => delta.tool_calls),
+        O.getOrElse(A.empty)
+      );
+
+      expect(toolCalls[0]?.id).toBeUndefined();
+      expect(toolCalls[0]?.function?.name).toBeUndefined();
+      expect(toolCalls[0]?.function?.arguments).toBe('{"city"');
+    })
+  );
+
+  it.effect("buffers streaming tool-call argument deltas until JSON is complete", () =>
+    Effect.gen(function* () {
+      const chunk = (
+        toolCalls: OpenAiCompatChatCompletionChunk["choices"][number]["delta"],
+        finishReason?: string
+      ): OpenAiCompatChatCompletionChunk => ({
+        choices: [
+          {
+            delta: toolCalls,
+            finish_reason: O.fromUndefinedOr(finishReason),
+            index: 0,
+          },
+        ],
+        id: "chatcmpl_test",
+        usage: O.none(),
+      });
+      const WeatherTool = Tool.make("weather", {
+        parameters: S.Struct({ city: S.String }),
+        success: S.String,
+      });
+      const languageModel = yield* makeFromProvider({
+        model: "compat-model",
+        moduleName: "OpenAiCompatLanguageModelTest",
+        provider: {
+          createChatCompletion: () => Effect.succeed(makeResponse("unused")),
+          streamChatCompletion: () =>
+            Stream.make(
+              chunk(
+                O.some({
+                  content: O.none(),
+                  role: "assistant",
+                  tool_calls: O.some([
+                    {
+                      function: {
+                        arguments: '{"city"',
+                        name: "weather",
+                      },
+                      id: "call_1",
+                      index: 0,
+                      type: "function",
+                    },
+                  ]),
+                })
+              ),
+              chunk(
+                O.some({
+                  content: O.none(),
+                  tool_calls: O.some([
+                    {
+                      function: {
+                        arguments: ':"Austin"}',
+                      },
+                      index: 0,
+                    },
+                  ]),
+                }),
+                "tool_calls"
+              )
+            ),
+        },
+      });
+
+      const parts = yield* pipe(
+        languageModel.streamText({
+          disableToolCallResolution: true,
+          prompt: "weather",
+          toolkit: Toolkit.make(WeatherTool),
+        }),
+        Stream.runCollect,
+        Effect.map(A.fromIterable)
+      );
+      const toolCall = pipe(
+        parts,
+        A.findFirst((part) => part.type === "tool-call"),
+        O.getOrThrow
+      );
+      if (toolCall.type !== "tool-call") {
+        return yield* Effect.die("Expected streamed parts to include a completed tool call.");
+      }
+
+      expect(A.map(parts, (part) => part.type)).toEqual([
+        "tool-params-start",
+        "tool-params-delta",
+        "tool-params-delta",
+        "tool-params-end",
+        "tool-call",
+        "finish",
+      ]);
+      expect(toolCall.params).toEqual({ city: "Austin" });
+    })
+  );
+
+  it.effect("rejects non-image file parts before provider calls", () =>
+    Effect.gen(function* () {
+      const languageModel = yield* makeFromProvider({
+        model: "compat-model",
+        moduleName: "OpenAiCompatLanguageModelTest",
+        provider: {
+          createChatCompletion: () => Effect.die("provider should not be called"),
+          streamChatCompletion: () => Stream.empty,
+        },
+      });
+
+      const error = yield* pipe(
+        languageModel.generateText({
+          prompt: Prompt.make([
+            {
+              content: [
+                Prompt.filePart({
+                  data: new URL("https://example.com/document.pdf"),
+                  mediaType: "application/pdf",
+                }),
+              ],
+              role: "user",
+            },
+          ]),
+        }),
+        Effect.flip
+      );
+
+      expect(AiError.isAiError(error)).toBe(true);
+      expect(error.method).toBe("prepareMessages");
+      expect(error.reason._tag).toBe("UnsupportedSchemaError");
+      expect(error.reason.message).toContain("application/pdf");
     })
   );
 

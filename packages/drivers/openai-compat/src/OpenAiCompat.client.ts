@@ -187,6 +187,7 @@ const postChatCompletionRequest = (
 const makeStreamingRequest = (request: OpenAiCompatChatCompletionRequest): OpenAiCompatChatCompletionRequest =>
   new OpenAiCompatChatCompletionRequest({
     ...request,
+    // The client can be used directly, so it asserts streaming fields even when the language-model adapter set them.
     stream: true,
     stream_options: {
       include_usage: true,

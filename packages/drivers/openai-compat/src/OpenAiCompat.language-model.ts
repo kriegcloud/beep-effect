@@ -33,6 +33,7 @@ import {
   type OpenAiCompatResponseFormat,
   OpenAiCompatSystemChatMessage,
   OpenAiCompatToolCall,
+  type OpenAiCompatToolCallDelta,
   OpenAiCompatToolCallFunction,
   OpenAiCompatToolChatMessage,
   OpenAiCompatUserChatMessage,
@@ -158,13 +159,21 @@ export class OpenAiCompatLanguageModelClientOptions extends S.Class<OpenAiCompat
   })
 ) {}
 
+type ActiveToolCall = {
+  readonly arguments: string;
+  readonly id: string;
+  readonly name: string;
+};
+
 type StreamState = {
+  readonly activeToolCalls: Readonly<Record<string, ActiveToolCall>>;
   readonly finished: boolean;
   readonly textEnded: boolean;
   readonly textStarted: boolean;
 };
 
 const initialStreamState = (): StreamState => ({
+  activeToolCalls: {},
   finished: false,
   textEnded: false,
   textStarted: false,
@@ -197,6 +206,7 @@ const jsonObjectOrEmpty = (value: unknown): Readonly<Record<string, unknown>> =>
   );
 
 const nonEmptyStringOption: (value: string) => O.Option<string> = O.liftPredicate(Str.isNonEmpty);
+const isImageMediaType = flow(Str.toLowerCase, Str.startsWith("image/"));
 
 const toFinishReason: (reason: O.Option<string>) => Response.FinishReason = flow(
   O.match({
@@ -279,6 +289,15 @@ const fileContentPart = (
   moduleName: string,
   part: Prompt.FilePart
 ): Effect.Effect<Readonly<Record<string, unknown>>, AiError.AiError> => {
+  if (!isImageMediaType(part.mediaType)) {
+    return Effect.fail(
+      makeUnsupportedSchema(
+        moduleName,
+        "prepareMessages",
+        `OpenAI-compatible chat requests only support image file parts; received media type "${part.mediaType}".`
+      )
+    );
+  }
   if (P.isString(part.data)) {
     return Effect.succeed({
       image_url: { url: part.data },
@@ -586,12 +605,93 @@ const makeToolCallPart = (
     )
   );
 
+const streamToolCallIndex = (toolCall: OpenAiCompatToolCallDelta, indexInChunk: number): string =>
+  String(toolCall.index ?? indexInChunk);
+
+const streamToolCallId = (
+  chunk: OpenAiCompatChatCompletionChunk,
+  toolIndex: string,
+  activeToolCall: ActiveToolCall | undefined,
+  toolCall: OpenAiCompatToolCallDelta
+): string =>
+  activeToolCall?.id ?? toolCall.id ?? (chunk.id === undefined ? `tool_${toolIndex}` : `${chunk.id}_tool_${toolIndex}`);
+
+const streamToolCallName = (
+  toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
+  activeToolCall: ActiveToolCall | undefined,
+  toolCall: OpenAiCompatToolCallDelta
+): string =>
+  toolCall.function?.name === undefined
+    ? (activeToolCall?.name ?? toolNameMapper.getCustomName("unknown_tool"))
+    : toolNameMapper.getCustomName(toolCall.function.name);
+
+const makeToolCallDeltaParts = (
+  toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
+  chunk: OpenAiCompatChatCompletionChunk,
+  activeToolCalls: Readonly<Record<string, ActiveToolCall>>,
+  toolCall: OpenAiCompatToolCallDelta,
+  indexInChunk: number
+): readonly [Readonly<Record<string, ActiveToolCall>>, ReadonlyArray<Response.StreamPartEncoded>] => {
+  const toolIndex = streamToolCallIndex(toolCall, indexInChunk);
+  const activeToolCall = activeToolCalls[toolIndex];
+  const id = streamToolCallId(chunk, toolIndex, activeToolCall, toolCall);
+  const name = streamToolCallName(toolNameMapper, activeToolCall, toolCall);
+  const argumentsDelta = toolCall.function?.arguments ?? "";
+  const nextToolCall: ActiveToolCall = {
+    arguments: `${activeToolCall?.arguments ?? ""}${argumentsDelta}`,
+    id,
+    name,
+  };
+  const parts: ReadonlyArray<Response.StreamPartEncoded> = [
+    ...(activeToolCall === undefined
+      ? [Response.makePart("tool-params-start", { id, name, providerExecuted: false })]
+      : []),
+    ...(Str.isNonEmpty(argumentsDelta) ? [Response.makePart("tool-params-delta", { delta: argumentsDelta, id })] : []),
+  ];
+  return Tuple.make(R.set(activeToolCalls, toolIndex, nextToolCall), parts);
+};
+
+const makeCompletedStreamToolCallParts = (
+  moduleName: string,
+  toolCall: ActiveToolCall
+): Effect.Effect<ReadonlyArray<Response.StreamPartEncoded>, AiError.AiError> =>
+  pipe(
+    decodeToolParams(moduleName, "makeStreamResponse", Str.isNonEmpty(toolCall.arguments) ? toolCall.arguments : "{}"),
+    Effect.map((params) => [
+      Response.makePart("tool-params-end", { id: toolCall.id }),
+      Response.makePart("tool-call", {
+        id: toolCall.id,
+        name: toolCall.name,
+        params,
+        providerExecuted: false,
+      }),
+    ])
+  );
+
+const makeCompletedStreamToolCallsParts = (
+  moduleName: string,
+  activeToolCalls: Readonly<Record<string, ActiveToolCall>>
+): Effect.Effect<ReadonlyArray<Response.StreamPartEncoded>, AiError.AiError> =>
+  pipe(
+    R.values(activeToolCalls),
+    Effect.forEach((toolCall) => makeCompletedStreamToolCallParts(moduleName, toolCall)),
+    Effect.map(A.flatten)
+  );
+
 const makeChoiceParts = (
   moduleName: string,
   toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
   response: OpenAiCompatChatCompletionResponse
 ): Effect.Effect<Array<Response.PartEncoded>, AiError.AiError> =>
   Effect.gen(function* () {
+    if (A.length(response.choices) > 1) {
+      yield* Effect.logDebug({
+        choiceCount: A.length(response.choices),
+        component: moduleName,
+        event: "additional-choices-ignored",
+        method: "makeResponse",
+      });
+    }
     const choice = yield* pipe(
       response.choices,
       A.head,
@@ -634,6 +734,7 @@ const makeStreamChoiceParts = (
   chunk: OpenAiCompatChatCompletionChunk
 ): Effect.Effect<readonly [StreamState, ReadonlyArray<Response.StreamPartEncoded>], AiError.AiError> =>
   Effect.gen(function* () {
+    let activeToolCalls = state.activeToolCalls;
     const choiceParts = yield* pipe(
       chunk.choices,
       Effect.forEach((choice) =>
@@ -650,16 +751,36 @@ const makeStreamChoiceParts = (
               ],
             })
           );
-          const toolParts = yield* pipe(
+          const [nextActiveToolCalls, toolDeltaParts] = pipe(
             choice.delta,
             O.flatMap((delta) => delta.tool_calls),
-            O.getOrElse(A.empty<OpenAiCompatToolCall>),
-            Effect.forEach((toolCall) => makeToolCallPart(moduleName, toolNameMapper, toolCall))
+            O.getOrElse(A.empty<OpenAiCompatToolCallDelta>),
+            A.reduce(
+              Tuple.make(activeToolCalls, A.empty<Response.StreamPartEncoded>()),
+              ([currentActiveToolCalls, currentParts], toolCall, indexInChunk) => {
+                const [updatedActiveToolCalls, deltaParts] = makeToolCallDeltaParts(
+                  toolNameMapper,
+                  chunk,
+                  currentActiveToolCalls,
+                  toolCall,
+                  indexInChunk
+                );
+                return Tuple.make(updatedActiveToolCalls, [...currentParts, ...deltaParts]);
+              }
+            )
           );
+          activeToolCalls = nextActiveToolCalls;
           const hasFinish = O.isSome(choice.finish_reason);
+          const completedToolParts = hasFinish
+            ? yield* makeCompletedStreamToolCallsParts(moduleName, activeToolCalls)
+            : [];
+          if (hasFinish) {
+            activeToolCalls = {};
+          }
           const parts: ReadonlyArray<Response.StreamPartEncoded> = [
             ...textParts,
-            ...toolParts,
+            ...toolDeltaParts,
+            ...completedToolParts,
             ...(hasFinish && (state.textStarted || A.isReadonlyArrayNonEmpty(textParts))
               ? [Response.makePart("text-end", { id: "0" })]
               : []),
@@ -688,7 +809,7 @@ const makeStreamChoiceParts = (
         parts,
         A.some((part) => part.type === "finish")
       );
-    return Tuple.make({ finished, textEnded, textStarted }, parts);
+    return Tuple.make({ activeToolCalls, finished, textEnded, textStarted }, parts);
   });
 
 const makeStreamResponse = (

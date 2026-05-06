@@ -167,6 +167,65 @@ export class OpenAiCompatToolCall extends S.Class<OpenAiCompatToolCall>($I`OpenA
 ) {}
 
 /**
+ * Incremental function payload inside an OpenAI-compatible streaming tool-call delta.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatToolCallFunctionDelta } from "@beep/openai-compat"
+ *
+ * const delta = new OpenAiCompatToolCallFunctionDelta({
+ *   arguments: "{\"city\""
+ * })
+ *
+ * void delta
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatToolCallFunctionDelta extends S.Class<OpenAiCompatToolCallFunctionDelta>(
+  $I`OpenAiCompatToolCallFunctionDelta`
+)(
+  {
+    arguments: S.optionalKey(S.String),
+    name: S.optionalKey(S.String),
+  },
+  $I.annote("OpenAiCompatToolCallFunctionDelta", {
+    description: "Incremental function payload inside an OpenAI-compatible streaming tool-call delta.",
+  })
+) {}
+
+/**
+ * Incremental tool-call payload emitted by OpenAI-compatible chat completion streams.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatToolCallDelta } from "@beep/openai-compat"
+ *
+ * const delta = new OpenAiCompatToolCallDelta({
+ *   function: { arguments: "{\"city\"" },
+ *   index: 0
+ * })
+ *
+ * void delta
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatToolCallDelta extends S.Class<OpenAiCompatToolCallDelta>($I`OpenAiCompatToolCallDelta`)(
+  {
+    function: S.optionalKey(OpenAiCompatToolCallFunctionDelta),
+    id: S.optionalKey(S.String),
+    index: S.optionalKey(S.Number),
+    type: S.optionalKey(S.Literal("function")),
+  },
+  $I.annote("OpenAiCompatToolCallDelta", {
+    description: "Incremental tool-call payload emitted by OpenAI-compatible chat completion streams.",
+  })
+) {}
+
+/**
  * Function details sent to OpenAI-compatible chat completion endpoints.
  *
  * @example
@@ -708,10 +767,10 @@ export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDel
   {
     content: OptionalNullableString,
     role: S.optionalKey(S.Literal("assistant")),
-    tool_calls: OpenAiCompatToolCall.pipe(
+    tool_calls: OpenAiCompatToolCallDelta.pipe(
       S.Array,
       S.OptionFromOptionalKey,
-      S.withConstructorDefault(Effect.succeed(O.none<ReadonlyArray<OpenAiCompatToolCall>>()))
+      S.withConstructorDefault(Effect.succeed(O.none<ReadonlyArray<OpenAiCompatToolCallDelta>>()))
     ),
   },
   $I.annote("OpenAiCompatAssistantDelta", {
