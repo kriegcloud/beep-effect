@@ -26,6 +26,7 @@ actually lives here.
 
 ## Current Initiatives
 
+- `ai-metrics-stack`
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
 - `ip-law-knowledge-graph`

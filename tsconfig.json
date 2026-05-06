@@ -453,24 +453,18 @@
       "@beep/repo-utils/JSDoc/models/tag-values": [
         "./packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
-      "@beep/openai": [
-        "./packages/drivers/openai/src/index.ts"
+      "@beep/openai": ["./packages/drivers/openai/src/index.ts"],
+      "@beep/openai/*": ["./packages/drivers/openai/src/*"],
+      "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
+      "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
+      "@beep/xai/*": ["./packages/drivers/xai/src/*"],
+      "@beep/repo-ai-metrics": [
+        "./packages/tooling/library/ai-metrics/src/index.ts"
       ],
-      "@beep/openai/*": [
-        "./packages/drivers/openai/src/*"
+      "@beep/repo-ai-metrics/*": [
+        "./packages/tooling/library/ai-metrics/src/*"
       ],
-      "@beep/venice-ai": [
-        "./packages/drivers/venice-ai/src/index.ts"
-      ],
-      "@beep/venice-ai/*": [
-        "./packages/drivers/venice-ai/src/*"
-      ],
-      "@beep/xai": [
-        "./packages/drivers/xai/src/index.ts"
-      ],
-      "@beep/xai/*": [
-        "./packages/drivers/xai/src/*"
-      ]
+      "@beep/venice-ai/*": ["./packages/drivers/venice-ai/src/*"]
     }
   }
 }

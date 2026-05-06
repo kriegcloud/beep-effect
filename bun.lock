@@ -116,6 +116,7 @@
       "dependencies": {
         "@1password/connect": "catalog:",
         "@beep/identity": "workspace:^",
+        "@beep/repo-ai-metrics": "workspace:^",
         "@pulumi/command": "catalog:",
         "@pulumi/github": "catalog:",
         "@pulumi/kubernetes": "catalog:",
@@ -739,6 +740,19 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/tooling/library/ai-metrics": {
+      "name": "@beep/repo-ai-metrics",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/tooling/library/repo-utils": {
       "name": "@beep/repo-utils",
       "version": "0.0.0",
@@ -808,6 +822,7 @@
         "@beep/ffmpeg": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/observability": "workspace:^",
+        "@beep/repo-ai-metrics": "workspace:^",
         "@beep/repo-configs": "workspace:^",
         "@beep/repo-docgen": "workspace:^",
         "@beep/repo-utils": "workspace:^",
@@ -1437,6 +1452,8 @@
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
 
     "@beep/professional-runtime-proof": ["@beep/professional-runtime-proof@workspace:apps/professional-runtime-proof"],
+
+    "@beep/repo-ai-metrics": ["@beep/repo-ai-metrics@workspace:packages/tooling/library/ai-metrics"],
 
     "@beep/repo-cli": ["@beep/repo-cli@workspace:packages/tooling/tool/cli"],
 

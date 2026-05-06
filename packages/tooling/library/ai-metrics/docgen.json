@@ -1,7 +1,6 @@
 {
-  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
-  "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/xai/src/",
+  "$schema": "../../../../packages/tooling/tool/docgen/schema.json",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/library/ai-metrics/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -29,23 +28,28 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/xai": ["../../../packages/drivers/xai/src/index.ts"],
-      "@beep/xai/*": ["../../../packages/drivers/xai/src/*.ts"],
+      "@beep/repo-ai-metrics": [
+        "../../../../packages/tooling/library/ai-metrics/src/index.ts"
+      ],
+      "@beep/repo-ai-metrics/*": [
+        "../../../../packages/tooling/library/ai-metrics/src/*.ts"
+      ],
       "@beep/identity": [
-        "../../../packages/foundation/modeling/identity/src/index.ts"
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
       ],
       "@beep/identity/*": [
-        "../../../packages/foundation/modeling/identity/src/*.ts"
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
       ],
       "@beep/identity/packages": [
-        "../../../packages/foundation/modeling/identity/src/packages.ts"
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/schema": [
-        "../../../packages/foundation/modeling/schema/src/index.ts"
+        "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],
       "@beep/schema/*": [
-        "../../../packages/foundation/modeling/schema/src/*.ts"
+        "../../../../packages/foundation/modeling/schema/src/*.ts"
       ]
     }
-  }
+  },
+  "exclude": ["src/internal/**/*.ts"]
 }

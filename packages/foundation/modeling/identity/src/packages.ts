@@ -71,6 +71,7 @@ const composers = $I.compose(
   "workspace-domain",
 
   // Repository Tooling Packages
+  "repo-ai-metrics",
   "repo-cli",
   "repo-configs",
   "repo-docgen",
@@ -220,6 +221,21 @@ export const $UtilsId = composers.$UtilsId;
 export const $UiId = composers.$UiId;
 
 // --- tooling ---
+
+/**
+ * Identity composer for the `@beep/repo-ai-metrics` package.
+ *
+ * @example
+ * ```typescript
+ * import { $RepoAiMetricsId } from "@beep/identity"
+ *
+ * const id = $RepoAiMetricsId.make("AgentTask")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $RepoAiMetricsId = composers.$RepoAiMetricsId;
 
 /**
  * Identity composer for the `@beep/repo-cli` package.

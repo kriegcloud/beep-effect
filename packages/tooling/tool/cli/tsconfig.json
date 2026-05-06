@@ -24,6 +24,9 @@
       "path": "../../../foundation/modeling/schema/tsconfig.json"
     },
     {
+      "path": "../../library/ai-metrics/tsconfig.json"
+    },
+    {
       "path": "../../library/repo-utils/tsconfig.json"
     },
     {

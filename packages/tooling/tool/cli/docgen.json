@@ -62,6 +62,12 @@
       "@beep/observability/web": [
         "../../../../packages/foundation/capability/observability/src/web/index.ts"
       ],
+      "@beep/repo-ai-metrics": [
+        "../../../../packages/tooling/library/ai-metrics/src/index.ts"
+      ],
+      "@beep/repo-ai-metrics/*": [
+        "../../../../packages/tooling/library/ai-metrics/src/*.ts"
+      ],
       "@beep/repo-configs": [
         "../../../../packages/tooling/policy-pack/repo-configs/src/index.ts"
       ],

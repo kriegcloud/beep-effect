@@ -30,7 +30,22 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/venice-ai": ["../../../packages/drivers/venice-ai/src/index.ts"],
-      "@beep/venice-ai/*": ["../../../packages/drivers/venice-ai/src/*.ts"]
+      "@beep/venice-ai/*": ["../../../packages/drivers/venice-ai/src/*.ts"],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/foundation/modeling/schema/src/*.ts"
+      ]
     }
   }
 }

@@ -18,7 +18,7 @@
     "audit": "bun run --if-present beep:audit",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:check:tests && bun run beep:test && bun run beep:test:integration && bun run type-test && bun run beep:lint",
-    "beep:build": "rm -rf dist && tsc -b tsconfig.json && bun run babel",
+    "beep:build": "rm -rf dist && tsc -b tsconfig.json --force && bun run babel",
     "beep:check": "tsgo -b tsconfig.json",
     "beep:check:tests": "tsgo -p tsconfig.test.json --noEmit",
     "beep:lint": "biome check .",
@@ -37,14 +37,13 @@
     "type-test": "bun run dtslint"
   },
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
   "files": [
+    "src/**/*.ts",
     "dist/**/*.js",
     "dist/**/*.js.map",
     "dist/**/*.d.ts",
@@ -55,10 +54,8 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
