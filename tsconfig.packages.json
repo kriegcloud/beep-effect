@@ -10,6 +10,9 @@
       "path": "apps/codedank-web"
     },
     {
+      "path": "apps/op-ip-web"
+    },
+    {
       "path": "apps/professional-runtime-proof"
     },
     {

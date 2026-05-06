@@ -71,6 +71,40 @@
         "react-dom": "catalog:",
       },
       "devDependencies": {
+        "@beep/repo-configs": "workspace:^",
+        "@beep/repo-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@mdx-js/loader": "catalog:",
+        "@next/bundle-analyzer": "catalog:",
+        "@next/mdx": "catalog:",
+        "@tailwindcss/postcss": "catalog:",
+        "@testing-library/dom": "catalog:",
+        "@testing-library/react": "catalog:",
+        "@types/mdx": "catalog:",
+        "@types/node": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "babel-plugin-react-compiler": "catalog:",
+        "jsdom": "catalog:",
+        "next-pwa": "catalog:",
+        "tailwindcss": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "apps/op-ip-web": {
+      "name": "@beep/op-ip-web",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/ui": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@mdx-js/react": "catalog:",
+        "next": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
         "@beep/repo-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@mdx-js/loader": "catalog:",
@@ -761,6 +795,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/platform-node": "catalog:",
         "@typescript-eslint/parser": "catalog:",
@@ -773,8 +808,18 @@
       "devDependencies": {
         "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
+        "@next/bundle-analyzer": "catalog:",
+        "@next/mdx": "catalog:",
         "@types/estree": "catalog:",
         "@types/node": "catalog:",
+        "next": "catalog:",
+        "next-pwa": "catalog:",
+      },
+      "peerDependencies": {
+        "@next/bundle-analyzer": "catalog:",
+        "@next/mdx": "catalog:",
+        "next": "catalog:",
+        "next-pwa": "catalog:",
       },
     },
     "packages/tooling/test-kit/test-utils": {
@@ -1431,6 +1476,8 @@
     "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/capability/nlp"],
 
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
+
+    "@beep/op-ip-web": ["@beep/op-ip-web@workspace:apps/op-ip-web"],
 
     "@beep/openai": ["@beep/openai@workspace:packages/drivers/openai"],
 

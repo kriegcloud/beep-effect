@@ -101,6 +101,7 @@
       "@beep/infra": ["./infra/src/index.ts"],
       "@beep/md": ["./packages/foundation/capability/md/src/index.ts"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
+      "@beep/op-ip-web": ["./apps/op-ip-web/src/index.ts"],
       "@beep/professional-runtime-proof": [
         "./apps/professional-runtime-proof/src/index.ts"
       ],
@@ -453,24 +454,12 @@
       "@beep/repo-utils/JSDoc/models/tag-values": [
         "./packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
-      "@beep/openai": [
-        "./packages/drivers/openai/src/index.ts"
-      ],
-      "@beep/openai/*": [
-        "./packages/drivers/openai/src/*"
-      ],
-      "@beep/venice-ai": [
-        "./packages/drivers/venice-ai/src/index.ts"
-      ],
-      "@beep/venice-ai/*": [
-        "./packages/drivers/venice-ai/src/*"
-      ],
-      "@beep/xai": [
-        "./packages/drivers/xai/src/index.ts"
-      ],
-      "@beep/xai/*": [
-        "./packages/drivers/xai/src/*"
-      ]
+      "@beep/openai": ["./packages/drivers/openai/src/index.ts"],
+      "@beep/openai/*": ["./packages/drivers/openai/src/*"],
+      "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
+      "@beep/venice-ai/*": ["./packages/drivers/venice-ai/src/*"],
+      "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
+      "@beep/xai/*": ["./packages/drivers/xai/src/*"]
     }
   }
 }

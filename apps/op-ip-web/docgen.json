@@ -1,0 +1,78 @@
+{
+  "$schema": "../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/apps/op-ip-web/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/op-ip-web": ["../../apps/op-ip-web/src/index.ts"],
+      "@beep/identity": [
+        "../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/repo-utils": [
+        "../../packages/tooling/library/repo-utils/src/index.ts"
+      ],
+      "@beep/repo-utils/*": [
+        "../../packages/tooling/library/repo-utils/src/*.ts"
+      ],
+      "@beep/repo-utils/JSDoc/models/tag-values": [
+        "../../packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
+      ],
+      "@beep/schema": [
+        "../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": ["../../packages/foundation/modeling/schema/src/*.ts"],
+      "@beep/ui": ["../../packages/foundation/ui-system/ui/src/index.ts"],
+      "@beep/ui/themes": [
+        "../../packages/foundation/ui-system/ui/src/themes/index.ts"
+      ],
+      "@beep/ui/styles/globals.css": [
+        "../../packages/foundation/ui-system/ui/src/styles/globals.css"
+      ],
+      "@beep/ui/postcss.config": [
+        "../../packages/foundation/ui-system/ui/postcss.config.mjs"
+      ],
+      "@beep/ui/components/blocks/editor-00/editor": [
+        "../../packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx"
+      ],
+      "@beep/ui/components/editor/editor-ui/content-editable": [
+        "../../packages/foundation/ui-system/ui/src/components/editor/editor-ui/content-editable.tsx"
+      ],
+      "@beep/ui/components/editor/themes/editor-theme": [
+        "../../packages/foundation/ui-system/ui/src/components/editor/themes/editor-theme.ts"
+      ],
+      "@beep/utils": ["../../packages/foundation/modeling/utils/src/index.ts"],
+      "@beep/utils/*": ["../../packages/foundation/modeling/utils/src/*.ts"]
+    }
+  }
+}

@@ -127,40 +127,36 @@ export const isNegative = S.isLessThan(0);
 export const isNonPositive = S.isLessThanOrEqualTo(0);
 
 /**
- * Branded schema for non-negative integers.
+ * Branded schema for non-negative number (zero or greater).
  *
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { NonNegativeInt } from "@beep/schema/Number"
+ * import { NonNegNum } from "@beep/schema/Int"
  *
- * const value = S.decodeUnknownSync(NonNegativeInt)(10)
- * console.log(value) // 10
+ * S.decodeUnknownSync(NonNegNum)(0)
+ * S.decodeUnknownSync(NonNegNum)(100)
  * ```
  *
  * @since 0.0.0
  * @category Validation
  */
-export const NonNegativeInt = S.Int.check(isNonNegative).pipe(
-  S.brand("NonNegativeInt"),
-  S.annotate(
-    $I.annote("NonNegativeInt", {
-      description: "A non-negative integer",
-    })
-  )
+export const NonNegNum = S.Number.check(isNonNegative).pipe(
+  $I.annoteSchema("NonNegNum", {
+    description: "A non-negative number (zero or greater)",
+  })
 );
-
 /**
- * Type for {@link NonNegativeInt}.
+ * Type for {@link NonNegNum}.
  *
  * @example
  * ```ts
- * import type { NonNegativeInt } from "@beep/schema/Number"
+ * import type { NonNegNum } from "@beep/schema/Int"
  *
- * const pageSize: NonNegativeInt = 25 as NonNegativeInt
+ * const index: NonNegNum = 0 as NonNegNum
  * ```
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export type NonNegativeInt = typeof NonNegativeInt.Type;
+export type NonNegNum = typeof NonNegNum.Type;
