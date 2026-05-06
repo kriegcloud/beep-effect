@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "../../../..");
+const boundaryTypecheckTimeout = 300_000;
 const readText = (relativePath: string) => readFileSync(resolve(packageRoot, relativePath), "utf8");
 const runTypecheck = (tscPath: string, tsconfigPath: string) =>
   new Promise<void>((resolvePromise, rejectPromise) => {
@@ -49,16 +50,16 @@ describe("Boundary", () => {
     expect(webLayerSource).not.toContain("node:");
   });
 
-  it("typechecks browser-safe, server-safe, and experimental-server fixtures", { timeout: 180_000 }, async () => {
+  it("typechecks browser-safe, server-safe, and experimental-server fixtures", {
+    timeout: boundaryTypecheckTimeout,
+  }, async () => {
     const tscPath = resolve(repoRoot, "node_modules/.bin/tsc");
     const browserTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.browser.json");
     const experimentalServerTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.experimental-server.json");
     const serverTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.server.json");
 
-    await Promise.all([
-      runTypecheck(tscPath, browserTsconfig),
-      runTypecheck(tscPath, serverTsconfig),
-      runTypecheck(tscPath, experimentalServerTsconfig),
-    ]);
+    await runTypecheck(tscPath, browserTsconfig);
+    await runTypecheck(tscPath, serverTsconfig);
+    await runTypecheck(tscPath, experimentalServerTsconfig);
   });
 });
