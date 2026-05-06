@@ -28,6 +28,9 @@
       "path": "packages/drivers/drizzle"
     },
     {
+      "path": "packages/drivers/duckdb"
+    },
+    {
       "path": "packages/drivers/ffmpeg"
     },
     {

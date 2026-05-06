@@ -248,7 +248,7 @@ const makeSnapshotFile = Effect.fn("AiMetrics.makeSnapshotFile")(function* (repo
       (cause) =>
         new AiMetricsConfigSnapshotError({
           cause,
-          message: `Failed to stat config snapshot file "${filePath}".`,
+          message: "Failed to stat config snapshot file.",
         })
     )
   );
@@ -257,7 +257,7 @@ const makeSnapshotFile = Effect.fn("AiMetrics.makeSnapshotFile")(function* (repo
       (cause) =>
         new AiMetricsConfigSnapshotError({
           cause,
-          message: `Failed to read config snapshot file "${filePath}".`,
+          message: "Failed to read config snapshot file.",
         })
     )
   );

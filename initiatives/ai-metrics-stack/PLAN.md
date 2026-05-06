@@ -1,7 +1,7 @@
 # AI Metrics Stack Plan
 
-This plan executes [SPEC.md](./SPEC.md). The current target phase is P2 because
-P0 bootstrap and P1 source/privacy proof are complete.
+This plan executes [SPEC.md](./SPEC.md). The current target phase is P3 because
+P0 bootstrap, P1 source/privacy proof, and P2 durable ingest are complete.
 
 ## P0: Initiative Bootstrap And Current State
 
@@ -36,14 +36,22 @@ Status: completed
 
 ## P2: Durable Ingest And Derived Storage
 
-Status: pending
+Status: completed
 
-- Write encrypted raw JSONL archive files under the target data root.
-- Materialize derived Parquet and DuckDB tables for sessions, turns, model
-  calls, tool invocations, labels, benchmark runs, and scorecards.
-- Add replay/projection interfaces and an internal EventLog memory/SQL proof.
-- Add idempotent ingest keys so re-running collectors does not duplicate
-  derived events.
+- Added `@beep/duckdb` as the driver-level DuckDB boundary, using the official
+  DuckDB Node API and DuckDB `COPY ... FORMAT parquet` export path.
+- Added AES-256-GCM encrypted raw archive objects under the target data root,
+  keyed by `sourceKind + sourcePathHash + plaintextContentHash`.
+- Added durable forwarder ingest for Codex and Claude JSONL plus OpenClaw safe
+  gateway metadata, with config snapshot attribution.
+- Materialized derived DuckDB tables for ingest runs, source files, raw archive
+  objects, sessions, turns, and empty future-ready model/tool/label/benchmark
+  and scorecard tables.
+- Exported all derived tables to per-run Parquet snapshots.
+- Added an internal in-memory Effect EventLog proof for sanitized turn
+  projection.
+- Recorded evidence in
+  [history/outputs/p2-durable-ingest-and-derived-storage.md](./history/outputs/p2-durable-ingest-and-derived-storage.md).
 
 ## P3: OTLP And Backend Stack
 

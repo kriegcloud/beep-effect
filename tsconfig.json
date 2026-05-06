@@ -474,7 +474,8 @@
       "@beep/acp/protocol": ["./packages/drivers/acp/src/protocol.ts"],
       "@beep/acp/rpc": ["./packages/drivers/acp/src/rpc.ts"],
       "@beep/acp/schema": ["./packages/drivers/acp/src/schema.ts"],
-      "@beep/acp/terminal": ["./packages/drivers/acp/src/terminal.ts"]
+      "@beep/acp/terminal": ["./packages/drivers/acp/src/terminal.ts"],
+      "@beep/duckdb": ["./packages/drivers/duckdb/src/index.ts"]
     }
   }
 }

@@ -1,6 +1,6 @@
 import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index";
 import { NodeServices } from "@effect/platform-node";
-import { Effect, FileSystem, Layer, Path, pipe } from "effect";
+import { ConfigProvider, Effect, Encoding, FileSystem, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -36,6 +36,16 @@ const writeText = Effect.fn("AIMetricsCommandTest.writeText")(function* (filePat
 const loggedText = Effect.fn("AIMetricsCommandTest.loggedText")(function* () {
   return pipe(yield* TestConsole.logLines, A.join("\n"));
 });
+
+const withRawArchiveKeyEnv = <A, E, R>(rawArchiveKey: string, use: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+  Effect.provide(
+    use,
+    ConfigProvider.layer(
+      ConfigProvider.fromUnknown({
+        BEEP_AI_METRICS_RAW_ARCHIVE_KEY: rawArchiveKey,
+      })
+    )
+  );
 
 describe("ai-metrics command", () => {
   it("emits ingest JSON without raw local paths or Claude private identifiers", async () => {
@@ -77,6 +87,34 @@ describe("ai-metrics command", () => {
     );
   });
 
+  it("does not expose input paths when ingest cannot read transcript input", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const inputPath = path.join(tmpDir, "private-missing-codex.jsonl");
+
+          yield* runAiMetricsCommand([
+            "ingest",
+            "--source",
+            "codex",
+            "--input",
+            inputPath,
+            "--hash-salt",
+            "test-salt",
+            "--json",
+          ]);
+
+          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
+          expect(output).toContain("Failed to read transcript input.");
+          expect(output).not.toContain(inputPath);
+          expect(output).not.toContain(tmpDir);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
   it("requires a hash salt secret reference for non-local install previews", async () => {
     await Effect.runPromise(
       withTempDirectory(() =>
@@ -102,6 +140,8 @@ describe("ai-metrics command", () => {
             "dankserver",
             "--hash-salt-secret-ref",
             "op://beep-effect/ai-metrics/hash-salt",
+            "--raw-archive-key-secret-ref",
+            "op://beep-effect/ai-metrics/raw-archive-key",
             "--json",
           ]);
 
@@ -109,6 +149,8 @@ describe("ai-metrics command", () => {
           expect(output).toContain("dankserver");
           expect(output).toContain("hashSaltSecretRef");
           expect(output).toContain("op://beep-effect/ai-metrics/hash-salt");
+          expect(output).toContain("rawArchiveKeySecretRef");
+          expect(output).toContain("op://beep-effect/ai-metrics/raw-archive-key");
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
@@ -131,6 +173,28 @@ describe("ai-metrics command", () => {
           expect(output).toContain("AGENTS.md");
           expect(output).not.toContain(".repos/effect-v4/AGENTS.md");
           expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not expose repo paths when config snapshot cannot read an agent file", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const agentPath = path.join(tmpDir, "AGENTS.md");
+          yield* writeText(agentPath, "root guide\n");
+          yield* fs.chmod(agentPath, 0o000);
+
+          yield* runAiMetricsCommand(["config", "snapshot", "--repo-root", tmpDir, "--json"]);
+
+          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
+          expect(output).toContain("Failed to read config snapshot file.");
+          expect(output).not.toContain(agentPath);
+          expect(output).not.toContain(tmpDir);
+          expect(process.exitCode).toBe(1);
         })
       )
     );
@@ -170,6 +234,35 @@ describe("ai-metrics command", () => {
           expect(output).not.toContain("sk-privatefixture");
           expect(output).not.toContain(tmpDir);
           expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not expose input paths when privacy check cannot inspect input", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const inputPath = path.join(tmpDir, "private-missing-codex.jsonl");
+
+          yield* runAiMetricsCommand([
+            "privacy",
+            "check",
+            "--source",
+            "codex",
+            "--input",
+            inputPath,
+            "--hash-salt",
+            "test-salt",
+            "--json",
+          ]);
+
+          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
+          expect(output).toContain("Failed to inspect privacy input.");
+          expect(output).not.toContain(inputPath);
+          expect(output).not.toContain(tmpDir);
+          expect(process.exitCode).toBe(1);
         })
       )
     );
@@ -216,6 +309,100 @@ describe("ai-metrics command", () => {
           expect(output).not.toContain(tmpDir);
           expect(output).not.toContain("super-secret-token");
           expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("runs durable local forwarder without exposing raw transcript text", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const rawArchiveKey = Encoding.encodeBase64(new Uint8Array(32).fill(11));
+
+          yield* writeText(
+            path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
+            [
+              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"private-forwarder-secret"}}',
+            ].join("\n")
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
+
+          yield* withRawArchiveKeyEnv(
+            rawArchiveKey,
+            runAiMetricsCommand([
+              "forwarder",
+              "run",
+              "--repo-root",
+              repoRoot,
+              "--home-dir",
+              homeDir,
+              "--data-root",
+              dataRoot,
+              "--all",
+              "--hash-salt",
+              "test-salt",
+              "--json",
+            ])
+          );
+
+          const output = yield* loggedText();
+          expect(output).toContain("sourceFileCount");
+          expect(output).toContain("archiveObjectCount");
+          expect(output).toContain("turnCount");
+          expect(output).not.toContain("private-forwarder-secret");
+          expect(output).not.toContain(rawArchiveKey);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not expose raw source paths or archive keys on forwarder read failures", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const rawArchiveKey = Encoding.encodeBase64(new Uint8Array(32).fill(13));
+          const sourcePath = path.join(homeDir, ".codex/sessions/private-source.jsonl");
+
+          yield* writeText(sourcePath, '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}');
+          yield* fs.chmod(sourcePath, 0o000);
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
+
+          yield* withRawArchiveKeyEnv(
+            rawArchiveKey,
+            runAiMetricsCommand([
+              "forwarder",
+              "run",
+              "--repo-root",
+              repoRoot,
+              "--home-dir",
+              homeDir,
+              "--data-root",
+              dataRoot,
+              "--all",
+              "--hash-salt",
+              "test-salt",
+              "--json",
+            ])
+          );
+
+          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
+          expect(output).toContain("Failed to read AI metrics codex source file");
+          expect(output).not.toContain(sourcePath);
+          expect(output).not.toContain(tmpDir);
+          expect(output).not.toContain(rawArchiveKey);
+          expect(process.exitCode).toBe(1);
         })
       )
     );

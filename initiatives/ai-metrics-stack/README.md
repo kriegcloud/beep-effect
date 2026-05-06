@@ -26,6 +26,9 @@ scorecard has been generated from live data.
   - current implemented scaffold and open gaps
 - [history/outputs/p1-source-discovery-and-privacy.md](./history/outputs/p1-source-discovery-and-privacy.md)
   - source discovery, config snapshot, and privacy proof evidence
+- [history/outputs/p2-durable-ingest-and-derived-storage.md](./history/outputs/p2-durable-ingest-and-derived-storage.md)
+  - encrypted raw archive, DuckDB derived storage, Parquet export, and EventLog
+    proof evidence
 - [research/effect-native-observability.md](./research/effect-native-observability.md)
   - Effect v4 observability package findings
 - [research/backend-shortlist.md](./research/backend-shortlist.md) - backend
@@ -33,13 +36,14 @@ scorecard has been generated from live data.
 
 ## Current Progress
 
-P0 and P1 are complete enough to use as the starting checkpoint:
+P0, P1, and P2 are complete enough to use as the starting checkpoint:
 
 - `@beep/repo-ai-metrics` exists with schema-first models, tolerant transcript
   ingest summaries, target-agnostic install specs, benchmark and scorecard
   models.
 - `beep-cli ai-metrics` exists with install preview, ingest, source discovery,
-  config snapshot, privacy check, forwarder, and benchmark command scaffolds.
+  config snapshot, privacy check, durable forwarder, and benchmark command
+  scaffolds.
 - `@beep/infra` exposes an import-safe `AIMetricsStack` Pulumi component and
   Pulumi entrypoint.
 - Source discovery covers Codex, Claude Code, and OpenClaw safe gateway
@@ -48,9 +52,11 @@ P0 and P1 are complete enough to use as the starting checkpoint:
   `AGENTS.md`, and `CLAUDE.md` inputs while excluding vendored/generated roots.
 - Privacy checks emit sanitized transcript summaries and hash-only event
   envelopes, with synthetic and real local smoke evidence.
-- Current gaps are explicit in the packet: encrypted raw archive, derived
-  tables, OTLP export, labels, benchmarks, real Pulumi remote apply, and the
-  seven-day scorecard proof.
+- The durable forwarder writes AES-256-GCM encrypted raw archive objects,
+  derived DuckDB tables, and per-run Parquet exports.
+- Current gaps are explicit in the packet: OTLP export, backend deployment,
+  labels, benchmarks, real Pulumi remote apply, and the seven-day scorecard
+  proof.
 
 ## Completion Standard
 

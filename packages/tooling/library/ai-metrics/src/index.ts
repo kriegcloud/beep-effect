@@ -6,6 +6,18 @@
  */
 
 /**
+ * Encrypted raw archive helpers.
+ *
+ * @example
+ * ```ts
+ * import { writeEncryptedRawArchiveObject } from "@beep/repo-ai-metrics"
+ * console.log(writeEncryptedRawArchiveObject)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./archive.ts";
+/**
  * Repo-local configuration snapshot helpers.
  *
  * @example
@@ -17,6 +29,30 @@
  * @since 0.0.0
  */
 export * from "./config-snapshot.ts";
+/**
+ * DuckDB derived storage helpers.
+ *
+ * @example
+ * ```ts
+ * import { writeAiMetricsDerivedStorage } from "@beep/repo-ai-metrics"
+ * console.log(writeAiMetricsDerivedStorage)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./derived-storage.ts";
+/**
+ * Durable forwarder workflow.
+ *
+ * @example
+ * ```ts
+ * import { runAiMetricsForwarder } from "@beep/repo-ai-metrics"
+ * console.log(runAiMetricsForwarder)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./forwarder.ts";
 /**
  * Transcript ingest helpers.
  *
