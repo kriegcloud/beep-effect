@@ -39,6 +39,7 @@
       "@beep/chalk/*": [
         "../../../../packages/foundation/capability/chalk/src/*.ts"
       ],
+      "@beep/duckdb": ["../../../../packages/drivers/duckdb/src/index.ts"],
       "@beep/ffmpeg": ["../../../../packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["../../../../packages/drivers/ffmpeg/src/*.ts"],
       "@beep/identity": [
@@ -73,6 +74,9 @@
       ],
       "@beep/repo-configs/*": [
         "../../../../packages/tooling/policy-pack/repo-configs/src/*.ts"
+      ],
+      "@beep/repo-configs/next": [
+        "../../../../packages/tooling/policy-pack/repo-configs/src/next/index.ts"
       ],
       "@beep/repo-docgen": [
         "../../../../packages/tooling/tool/docgen/src/index.ts"

@@ -7,6 +7,9 @@
       "path": "apps/codedank-web"
     },
     {
+      "path": "apps/op-ip-web"
+    },
+    {
       "path": "apps/professional-runtime-proof"
     },
     {
@@ -22,7 +25,13 @@
       "path": "packages/agent-capability/use-cases"
     },
     {
+      "path": "packages/drivers/acp"
+    },
+    {
       "path": "packages/drivers/drizzle"
+    },
+    {
+      "path": "packages/drivers/duckdb"
     },
     {
       "path": "packages/drivers/ffmpeg"

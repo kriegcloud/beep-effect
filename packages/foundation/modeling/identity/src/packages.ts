@@ -91,7 +91,9 @@ const composers = $I.compose(
   "shared-config",
 
   "codedank-web",
+  "op-ip-web",
   "drizzle",
+  "duckdb",
   "ffmpeg",
   "postgres",
 
@@ -109,6 +111,7 @@ const composers = $I.compose(
   "openai",
   "venice-ai",
   "xai",
+  "acp",
   "openai-compat"
 );
 
@@ -252,6 +255,21 @@ export const $RepoAiMetricsId = composers.$RepoAiMetricsId;
  * @category configuration
  */
 export const $RepoCliId = composers.$RepoCliId;
+
+/**
+ * Identity composer for the `@beep/repo-configs` package.
+ *
+ * @example
+ * ```typescript
+ * import { $RepoConfigsId } from "@beep/identity"
+ *
+ * const id = $RepoConfigsId.make("Command")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $RepoConfigsId = composers.$RepoConfigsId;
 
 /**
  * Identity composer for the `@beep/repo-utils` package.
@@ -647,7 +665,19 @@ export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = c
  * @since 0.0.0
  * @category configuration
  */
+export const $OpIpWebId: Identity.IdentityComposer<"@beep/op-ip-web"> = composers.$OpIpWebId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ */
 export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.$DrizzleId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $DuckdbId: Identity.IdentityComposer<"@beep/duckdb"> = composers.$DuckdbId;
 
 /**
  * @since 0.0.0
@@ -835,6 +865,22 @@ export const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai"> = compose
  * @category configuration
  */
 export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;
+
+/**
+ * Identity composer for `@beep/acp`.
+ *
+ * @example
+ * ```typescript
+ * import { $AcpId } from "@beep/identity"
+ *
+ * const id = $AcpId.make("AcpClient")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $AcpId: Identity.IdentityComposer<"@beep/acp"> = composers.$AcpId;
 
 /**
  * Identity composer for `@beep/openai-compat`.

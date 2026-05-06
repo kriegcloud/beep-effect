@@ -127,28 +127,75 @@ export const isNegative = S.isLessThan(0);
 export const isNonPositive = S.isLessThanOrEqualTo(0);
 
 /**
- * Branded schema for non-negative integers.
+ * Branded schema for non-negative number (zero or greater).
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NonNegNum } from "@beep/schema/Number"
+ *
+ * S.decodeUnknownSync(NonNegNum)(0)
+ * S.decodeUnknownSync(NonNegNum)(100)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const NonNegNum = S.Number.check(isNonNegative).pipe(
+  $I.annoteSchema("NonNegNum", {
+    description: "A non-negative number (zero or greater)",
+  })
+);
+
+/**
+ * Type for {@link NonNegNum}.
+ *
+ * @example
+ * ```ts
+ * import type { NonNegNum } from "@beep/schema/Number"
+ *
+ * const index: NonNegNum = 0 as NonNegNum
+ * ```
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type NonNegNum = typeof NonNegNum.Type;
+
+/**
+ * Branded schema for non-negative integers (zero or greater).
  *
  * @example
  * ```ts
  * import * as S from "effect/Schema"
  * import { NonNegativeInt } from "@beep/schema/Number"
  *
- * const value = S.decodeUnknownSync(NonNegativeInt)(10)
- * console.log(value) // 10
+ * S.decodeUnknownSync(NonNegativeInt)(0)
+ * S.decodeUnknownSync(NonNegativeInt)(100)
  * ```
  *
  * @since 0.0.0
  * @category Validation
  */
-export const NonNegativeInt = S.Int.check(isNonNegative).pipe(
-  S.brand("NonNegativeInt"),
-  S.annotate(
-    $I.annote("NonNegativeInt", {
+export const NonNegativeInt = S.Int.pipe(S.brand("Int"))
+  .check(
+    S.isFinite({
+      message: "Expected a finite integer",
+      description: "A finite integer",
+    })
+  )
+  .pipe(S.brand("NonNegativeInt"))
+  .check(
+    isNonNegative.annotate({
+      message: "Expected a non-negative integer",
       description: "A non-negative integer",
     })
   )
-);
+  .annotate(
+    $I.annote("NonNegativeInt", {
+      description: "A non-negative integer",
+    })
+  );
 
 /**
  * Type for {@link NonNegativeInt}.
@@ -157,7 +204,7 @@ export const NonNegativeInt = S.Int.check(isNonNegative).pipe(
  * ```ts
  * import type { NonNegativeInt } from "@beep/schema/Number"
  *
- * const pageSize: NonNegativeInt = 25 as NonNegativeInt
+ * const index: NonNegativeInt = 0 as NonNegativeInt
  * ```
  *
  * @since 0.0.0

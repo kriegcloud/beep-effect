@@ -4,12 +4,7 @@
  * @since 0.0.0
  */
 
-import {
-  isNegative as isNegativeInternal,
-  isNonNegative as isNonNegativeInternal,
-  isNonPositive as isNonPositiveInternal,
-  isPositive as isPositiveInternal,
-} from "./Number.ts";
+export * from "./Number.ts";
 
 /**
  * @since 0.0.0
@@ -34,7 +29,32 @@ export * from "./MappedLiteralKit.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./AbortSignal.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./ArrayOf.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./BigDecimal.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./BufferEncoding.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./blockchain/index.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./CauseTaggedError.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -54,12 +74,37 @@ export * from "./csv.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./DateTimeUtcFromValid.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * as DomainModel from "./DomainModel.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Duration.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./dom/index.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./EffectSchema.ts";
 /**
  * @since 0.0.0
  * @category Validation
  */
 export * from "./Email.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * as EntitySchema from "./EntitySchema.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -94,6 +139,11 @@ export * from "./Float64Array.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Fn.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Glob.ts";
 /**
  * @since 0.0.0
@@ -109,7 +159,17 @@ export * from "./Html.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./http/index.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Int.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Json.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -124,7 +184,22 @@ export * from "./Jsonl.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./KebabStr.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./LocalDate.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Logs.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./location/index.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -139,128 +214,17 @@ export * from "./MimeType.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * as Model from "./Model.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./MutableHashMap.ts";
 /**
  * @since 0.0.0
  * @category Validation
  */
 export * from "./MutableHashSet.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./PosixPath.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./PromiseSchema.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export const isNegative = isNegativeInternal;
-/**
- * @since 0.0.0
- * @category Validation
- */
-export const isNonNegative = isNonNegativeInternal;
-/**
- * @since 0.0.0
- * @category Validation
- */
-export const isNonPositive = isNonPositiveInternal;
-/**
- * @since 0.0.0
- * @category Validation
- */
-export const isPositive = isPositiveInternal;
-
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./AbortSignal.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./BigDecimal.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./BufferEncoding.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./blockchain/index.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./CauseTaggedError.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./DateTimeUtcFromValid.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * as DomainModel from "./DomainModel.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./Duration.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./dom/index.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * as EntitySchema from "./EntitySchema.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./Fn.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./http/index.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./Json.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./KebabStr.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./LocalDate.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./location/index.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * as Model from "./Model.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -275,7 +239,17 @@ export * from "./PascalStr.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./PosixPath.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Primitive.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./PromiseSchema.ts";
 /**
  * @since 0.0.0
  * @category Validation

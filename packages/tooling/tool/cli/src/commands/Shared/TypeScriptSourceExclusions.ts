@@ -27,6 +27,8 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS = [
   "/storybook-static/",
   "/.next/",
   "/.turbo/",
+  "/_generated/",
+  "/generated/",
   "/initiatives/",
   "/test/",
   "/tests/",
@@ -49,6 +51,8 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES = [
   ".test.tsx",
   ".spec.ts",
   ".spec.tsx",
+  ".gen.ts",
+  ".gen.tsx",
   ".stories.tsx",
 ] as const;
 

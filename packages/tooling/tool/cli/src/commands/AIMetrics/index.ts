@@ -5,11 +5,14 @@
  * @since 0.0.0
  */
 
+import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $RepoCliId } from "@beep/identity/packages";
 import {
   type AiMetricsConfigSnapshotError,
   AiMetricsConfigSnapshotInput,
   AiMetricsDeployTarget,
+  type AiMetricsForwarderError,
+  AiMetricsForwarderInput,
   type AiMetricsIngestError,
   type AiMetricsInstallConfigurationError,
   AiMetricsInstallInput,
@@ -22,16 +25,18 @@ import {
   AiMetricsTranscriptSource,
   configSnapshotToJson,
   discoverAiMetricsSources,
+  forwarderRunResultToJson,
   makeAiMetricsConfigSnapshot,
   makeAiMetricsInstallSpec,
   makeAiMetricsPrivacyCheckResult,
   privacyCheckToJson,
+  runAiMetricsForwarder,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
   summaryToJson,
 } from "@beep/repo-ai-metrics";
 import { TaggedErrorClass } from "@beep/schema";
-import { Clock, Config, Console, Duration, Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Clock, Config, Console, Duration, Effect, FileSystem, Order, Path, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -108,6 +113,11 @@ const hashSaltSecretRefFlag = Flag.string("hash-salt-secret-ref").pipe(
   Flag.withDescription("Secret reference that resolves BEEP_AI_METRICS_HASH_SALT for non-local install targets"),
   Flag.optional
 );
+const rawArchiveKeySecretRefFlag = Flag.string("raw-archive-key-secret-ref").pipe(
+  Flag.withDescription("Secret reference that resolves BEEP_AI_METRICS_RAW_ARCHIVE_KEY for non-local install targets"),
+  Flag.optional
+);
+const dataRootFlag = Flag.string("data-root").pipe(Flag.withDescription("AI metrics data root"), Flag.optional);
 const openClawUnitFlag = Flag.string("openclaw-unit").pipe(
   Flag.withDescription("OpenClaw user systemd unit path"),
   Flag.optional
@@ -122,7 +132,7 @@ const readInputFile = Effect.fn("AIMetrics.readInputFile")(function* (input: str
       (cause) =>
         new AiMetricsCommandError({
           cause,
-          message: `Failed to read transcript input "${absolutePath}".`,
+          message: "Failed to read transcript input.",
         })
     )
   );
@@ -159,6 +169,7 @@ const encodeInstallSpecCommandJson = Effect.fn("AIMetrics.encodeInstallSpecComma
 type AiMetricsProgramError =
   | AiMetricsCommandError
   | AiMetricsConfigSnapshotError
+  | AiMetricsForwarderError
   | AiMetricsIngestError
   | AiMetricsInstallConfigurationError
   | AiMetricsPrivacyError
@@ -172,6 +183,10 @@ const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramErro
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
       AiMetricsIngestError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`ai-metrics: ${error.message}`);
+      }),
+      AiMetricsForwarderError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
@@ -199,6 +214,24 @@ const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>,
   "AIMetrics.readOptionalConfigString"
 )((key) =>
   Config.option(Config.string(key))
+    .asEffect()
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsCommandError({
+            cause,
+            message: `Failed to read ${key} from the Effect config provider.`,
+          })
+      )
+    )
+);
+
+const readOptionalRedactedConfigString: (
+  key: string
+) => Effect.Effect<O.Option<Redacted.Redacted<string>>, AiMetricsCommandError> = Effect.fn(
+  "AIMetrics.readOptionalRedactedConfigString"
+)((key) =>
+  Config.option(Config.redacted(key))
     .asEffect()
     .pipe(
       Effect.mapError(
@@ -252,6 +285,29 @@ const resolveHashSaltSecretRef = Effect.fn("AIMetrics.resolveHashSaltSecretRef")
   return O.isSome(envRef) ? envRef.value : undefined;
 });
 
+const resolveRawArchiveKey = Effect.fn("AIMetrics.resolveRawArchiveKey")(function* () {
+  const envKey = yield* readOptionalRedactedConfigString("BEEP_AI_METRICS_RAW_ARCHIVE_KEY");
+  if (O.isSome(envKey) && Str.isNonEmpty(Str.trim(Redacted.value(envKey.value)))) {
+    return envKey.value;
+  }
+
+  return yield* new AiMetricsCommandError({
+    cause: "BEEP_AI_METRICS_RAW_ARCHIVE_KEY",
+    message: "AI metrics forwarder requires BEEP_AI_METRICS_RAW_ARCHIVE_KEY.",
+  });
+});
+
+const resolveRawArchiveKeySecretRef = Effect.fn("AIMetrics.resolveRawArchiveKeySecretRef")(function* (
+  rawArchiveKeySecretRef: O.Option<string>
+) {
+  if (O.isSome(rawArchiveKeySecretRef)) {
+    return rawArchiveKeySecretRef.value;
+  }
+
+  const envRef = yield* readOptionalConfigString("BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF");
+  return O.isSome(envRef) ? envRef.value : undefined;
+});
+
 const requireHashSaltForTarget = Effect.fn("AIMetrics.requireHashSaltForTarget")(function* ({
   hashSalt,
   target,
@@ -290,6 +346,29 @@ const requireHashSaltSecretRefForTarget = Effect.fn("AIMetrics.requireHashSaltSe
   });
 });
 
+const requireRawArchiveKeySecretRefForTarget = Effect.fn("AIMetrics.requireRawArchiveKeySecretRefForTarget")(
+  function* ({
+    rawArchiveKeySecretRef,
+    target,
+  }: {
+    readonly rawArchiveKeySecretRef: string | undefined;
+    readonly target: AiMetricsDeployTarget;
+  }) {
+    if (
+      target === AiMetricsDeployTarget.Enum.local ||
+      (rawArchiveKeySecretRef !== undefined && Str.isNonEmpty(Str.trim(rawArchiveKeySecretRef)))
+    ) {
+      return rawArchiveKeySecretRef;
+    }
+
+    return yield* new AiMetricsCommandError({
+      cause: target,
+      message:
+        "Non-local AI metrics install plans require --raw-archive-key-secret-ref or BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF.",
+    });
+  }
+);
+
 const parseSinceEpochMillis = Effect.fn("AIMetrics.parseSinceEpochMillis")(function* (since: O.Option<string>) {
   if (O.isNone(since)) {
     const now = yield* Clock.currentTimeMillis;
@@ -326,7 +405,8 @@ const renderInstallSpec = Effect.fn("AIMetrics.renderInstallSpec")(function* (
   yield* Console.log(`target: ${spec.target}`);
   yield* Console.log(`data root: ${spec.storage.dataRoot}`);
   yield* Console.log(`raw archive: ${spec.storage.rawArchiveDir}`);
-  yield* Console.log(`derived duckdb: ${spec.storage.duckDbPath}`);
+  const duckDbLocation = spec.storage.duckDbPath;
+  yield* Console.log(`derived duckdb: ${duckDbLocation}`);
   yield* Console.log(`privacy: ${spec.privacyMode}`);
   yield* Console.log(`default tool: ${spec.defaultTool}`);
 });
@@ -334,11 +414,13 @@ const renderInstallSpec = Effect.fn("AIMetrics.renderInstallSpec")(function* (
 const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram")(function* ({
   hashSaltSecretRef,
   json,
+  rawArchiveKeySecretRef,
   target,
   tool,
 }: {
   readonly hashSaltSecretRef: O.Option<string>;
   readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
   readonly tool: AiMetricsTool;
 }) {
@@ -346,10 +428,17 @@ const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
     target,
   });
+  const resolvedRawArchiveKeySecretRef = yield* requireRawArchiveKeySecretRefForTarget({
+    rawArchiveKeySecretRef: yield* resolveRawArchiveKeySecretRef(rawArchiveKeySecretRef),
+    target,
+  });
   const spec = yield* makeAiMetricsInstallSpec(
     new AiMetricsInstallInput({
       defaultTool: tool,
       ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+      ...(resolvedRawArchiveKeySecretRef === undefined
+        ? {}
+        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
       privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
       target,
     })
@@ -388,7 +477,8 @@ const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
     return;
   }
 
-  yield* Console.log(`ai-metrics ingest: ${summary.sourceKind} sourcePathHash=${summary.sourcePathHash}`);
+  const sourceHash = summary.sourcePathHash;
+  yield* Console.log(`ai-metrics ingest: ${summary.sourceKind} sourceHash=${sourceHash}`);
   yield* Console.log(`target: ${target}`);
   yield* Console.log(`lines: ${summary.totalLines}`);
   yield* Console.log(`accepted events: ${summary.acceptedEvents}`);
@@ -406,7 +496,7 @@ const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(fun
       (cause) =>
         new AiMetricsCommandError({
           cause,
-          message: `Failed to stat privacy input "${inputPath}".`,
+          message: "Failed to inspect privacy input.",
         })
     )
   );
@@ -418,7 +508,7 @@ const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(fun
   if (stat.type !== "Directory") {
     return yield* new AiMetricsCommandError({
       cause: stat.type,
-      message: `Expected --input to be a transcript file or directory: "${inputPath}".`,
+      message: "Expected --input to be a transcript file or directory.",
     });
   }
 
@@ -463,7 +553,7 @@ const readPrivacyInput = Effect.fn("AIMetrics.readPrivacyInput")(function* (inpu
           (cause) =>
             new AiMetricsCommandError({
               cause,
-              message: `Failed to read transcript input "${filePath}".`,
+              message: "Failed to read transcript input.",
             })
         )
       ),
@@ -586,35 +676,94 @@ const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(f
 });
 
 const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(function* ({
+  all,
+  dataRoot,
+  hashSalt,
   hashSaltSecretRef,
+  homeDir,
   json,
+  maxFiles,
+  openClawUnit,
+  rawArchiveKeySecretRef,
+  repoRoot,
+  since,
   target,
 }: {
+  readonly all: boolean;
+  readonly dataRoot: O.Option<string>;
+  readonly hashSalt: O.Option<string>;
   readonly hashSaltSecretRef: O.Option<string>;
+  readonly homeDir: O.Option<string>;
   readonly json: boolean;
+  readonly maxFiles: number;
+  readonly openClawUnit: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly repoRoot: O.Option<string>;
+  readonly since: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
 }) {
+  const resolvedHashSalt = yield* requireHashSaltForTarget({
+    hashSalt: yield* resolveHashSalt(hashSalt),
+    target,
+  });
   const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
     target,
   });
+  const resolvedRawArchiveKeySecretRef = yield* requireRawArchiveKeySecretRefForTarget({
+    rawArchiveKeySecretRef: yield* resolveRawArchiveKeySecretRef(rawArchiveKeySecretRef),
+    target,
+  });
+  const resolvedDataRoot = O.getOrUndefined(dataRoot);
   const spec = yield* makeAiMetricsInstallSpec(
     new AiMetricsInstallInput({
+      ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
       ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+      ...(resolvedRawArchiveKeySecretRef === undefined
+        ? {}
+        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
       target,
     })
   );
+  const resolvedRawArchiveKey = yield* resolveRawArchiveKey();
+  const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
+  const result = yield* runAiMetricsForwarder(
+    new AiMetricsForwarderInput({
+      ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
+      ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
+      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+      ...(resolvedRawArchiveKeySecretRef === undefined
+        ? {}
+        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+      homeDir: yield* resolveHomeDir(homeDir),
+      includeAll: all,
+      maxFiles,
+      ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
+      rawArchiveKey: resolvedRawArchiveKey,
+      repoRoot: yield* resolveRepoRoot(repoRoot),
+      ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
+      target,
+    })
+  ).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  );
 
   if (json) {
-    yield* Console.log(yield* encodeInstallSpecCommandJson(spec));
+    yield* Console.log(yield* forwarderRunResultToJson(result));
     return;
   }
 
   yield* Console.log(`ai-metrics forwarder: target=${target}`);
-  yield* Console.log(`raw archive destination: ${spec.storage.rawArchiveDir}`);
-  yield* Console.log(
-    "v1 forwarder mode: snapshot local transcript files, normalize summaries, and push raw archive out-of-band"
-  );
+  yield* Console.log(`ingest run: ${result.ingestRunId}`);
+  yield* Console.log(`source files: ${result.sourceFileCount}`);
+  yield* Console.log(`archive objects: ${result.archiveObjectCount}`);
+  yield* Console.log(`turns: ${result.turnCount}`);
+  yield* Console.log(`raw archive: ${result.rawArchiveDir}`);
+  const duckDbLocation = result.duckDbPath;
+  const parquetLocation = result.parquetExportDir;
+  yield* Console.log(`derived duckdb: ${duckDbLocation}`);
+  yield* Console.log(`parquet export: ${parquetLocation}`);
 });
 
 const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(function* ({
@@ -660,11 +809,12 @@ const installPreviewCommand = Command.make(
   {
     hashSaltSecretRef: hashSaltSecretRefFlag,
     json: jsonFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     target: targetFlag,
     tool: toolFlag,
   },
-  ({ hashSaltSecretRef, json, target, tool }) =>
-    runAiMetricsProgram(makeInstallPreviewProgram({ hashSaltSecretRef, json, target, tool }))
+  ({ hashSaltSecretRef, json, rawArchiveKeySecretRef, target, tool }) =>
+    runAiMetricsProgram(makeInstallPreviewProgram({ hashSaltSecretRef, json, rawArchiveKeySecretRef, target, tool }))
 ).pipe(Command.withDescription("Preview the target-agnostic AI metrics install spec"));
 
 const ingestCommand = Command.make(
@@ -765,13 +915,52 @@ const installCommand = Command.make(
 const forwarderRunCommand = Command.make(
   "run",
   {
+    all: allFlag,
+    dataRoot: dataRootFlag,
+    hashSalt: hashSaltFlag,
     hashSaltSecretRef: hashSaltSecretRefFlag,
+    homeDir: homeDirFlag,
     json: jsonFlag,
+    maxFiles: maxFilesFlag,
+    openClawUnit: openClawUnitFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    repoRoot: repoRootFlag,
+    since: sinceFlag,
     target: targetFlag,
   },
-  ({ hashSaltSecretRef, json, target }) =>
-    runAiMetricsProgram(makeForwarderRunProgram({ hashSaltSecretRef, json, target }))
-).pipe(Command.withDescription("Print the v1 local forwarder target contract"));
+  ({
+    all,
+    dataRoot,
+    hashSalt,
+    hashSaltSecretRef,
+    homeDir,
+    json,
+    maxFiles,
+    openClawUnit,
+    rawArchiveKeySecretRef,
+    repoRoot,
+    since,
+    target,
+  }) =>
+    runAiMetricsProgram(
+      makeForwarderRunProgram({
+        all,
+        dataRoot,
+        hashSalt,
+        hashSaltSecretRef,
+        homeDir,
+        json,
+        maxFiles,
+        openClawUnit,
+        rawArchiveKeySecretRef,
+        repoRoot,
+        since,
+        target,
+      })
+    )
+).pipe(
+  Command.withDescription("Run durable local transcript ingest into encrypted raw archive and derived DuckDB storage")
+);
 
 const forwarderCommand = Command.make(
   "forwarder",

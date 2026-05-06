@@ -61,11 +61,15 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/repo-configs": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/ui": "workspace:^",
         "@beep/utils": "workspace:^",
         "@mdx-js/react": "catalog:",
+        "@next/bundle-analyzer": "catalog:",
+        "@next/mdx": "catalog:",
         "next": "catalog:",
+        "next-pwa": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
       },
@@ -73,8 +77,6 @@
         "@beep/repo-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@mdx-js/loader": "catalog:",
-        "@next/bundle-analyzer": "catalog:",
-        "@next/mdx": "catalog:",
         "@tailwindcss/postcss": "catalog:",
         "@testing-library/dom": "catalog:",
         "@testing-library/react": "catalog:",
@@ -84,7 +86,40 @@
         "@types/react-dom": "catalog:",
         "babel-plugin-react-compiler": "catalog:",
         "jsdom": "catalog:",
+        "tailwindcss": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "apps/op-ip-web": {
+      "name": "@beep/op-ip-web",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/repo-configs": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/ui": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@mdx-js/react": "catalog:",
+        "@next/bundle-analyzer": "catalog:",
+        "@next/mdx": "catalog:",
+        "next": "catalog:",
         "next-pwa": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/repo-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@mdx-js/loader": "catalog:",
+        "@tailwindcss/postcss": "catalog:",
+        "@testing-library/dom": "catalog:",
+        "@testing-library/react": "catalog:",
+        "@types/mdx": "catalog:",
+        "@types/node": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "babel-plugin-react-compiler": "catalog:",
+        "jsdom": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",
       },
@@ -171,6 +206,22 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/acp": {
+      "name": "@beep/acp",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/openapi-generator": "catalog:",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "ts-morph": "catalog:",
+      },
+    },
     "packages/drivers/drizzle": {
       "name": "@beep/drizzle",
       "version": "0.0.0",
@@ -185,6 +236,22 @@
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/duckdb": {
+      "name": "@beep/duckdb",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@duckdb/node-api": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "vitest": "catalog:",
       },
     },
     "packages/drivers/ffmpeg": {
@@ -760,6 +827,7 @@
       "name": "@beep/repo-ai-metrics",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/duckdb": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "effect": "catalog:",
@@ -792,6 +860,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/platform-node": "catalog:",
         "@typescript-eslint/parser": "catalog:",
@@ -804,8 +873,18 @@
       "devDependencies": {
         "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
+        "@next/bundle-analyzer": "catalog:",
+        "@next/mdx": "catalog:",
         "@types/estree": "catalog:",
         "@types/node": "catalog:",
+        "next": "catalog:",
+        "next-pwa": "catalog:",
+      },
+      "peerDependencies": {
+        "@next/bundle-analyzer": "catalog:",
+        "@next/mdx": "catalog:",
+        "next": "catalog:",
+        "next-pwa": "catalog:",
       },
     },
     "packages/tooling/test-kit/test-utils": {
@@ -836,6 +915,7 @@
       },
       "dependencies": {
         "@beep/chalk": "workspace:^",
+        "@beep/duckdb": "workspace:^",
         "@beep/ffmpeg": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/observability": "workspace:^",
@@ -962,11 +1042,13 @@
     "@clack/prompts": "^1.3.0",
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
+    "@duckdb/node-api": "1.5.2-r.1",
     "@effect/ai-anthropic": "4.0.0-beta.60",
     "@effect/ai-openai": "4.0.0-beta.60",
     "@effect/ai-openrouter": "4.0.0-beta.60",
     "@effect/atom-react": "4.0.0-beta.60",
     "@effect/markdown-toc": "0.1.0",
+    "@effect/openapi-generator": "4.0.0-beta.60",
     "@effect/opentelemetry": "4.0.0-beta.60",
     "@effect/platform-browser": "4.0.0-beta.60",
     "@effect/platform-bun": "4.0.0-beta.60",
@@ -1416,6 +1498,8 @@
 
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
+    "@beep/acp": ["@beep/acp@workspace:packages/drivers/acp"],
+
     "@beep/agent-capability-domain": ["@beep/agent-capability-domain@workspace:packages/agent-capability/domain"],
 
     "@beep/agent-capability-use-cases": ["@beep/agent-capability-use-cases@workspace:packages/agent-capability/use-cases"],
@@ -1431,6 +1515,8 @@
     "@beep/db-admin": ["@beep/db-admin@workspace:packages/_internal/db-admin"],
 
     "@beep/drizzle": ["@beep/drizzle@workspace:packages/drivers/drizzle"],
+
+    "@beep/duckdb": ["@beep/duckdb@workspace:packages/drivers/duckdb"],
 
     "@beep/epistemic-domain": ["@beep/epistemic-domain@workspace:packages/epistemic/domain"],
 
@@ -1463,6 +1549,8 @@
     "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/capability/nlp"],
 
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
+
+    "@beep/op-ip-web": ["@beep/op-ip-web@workspace:apps/op-ip-web"],
 
     "@beep/openai": ["@beep/openai@workspace:packages/drivers/openai"],
 
@@ -2262,6 +2350,22 @@
 
     "@dotenvx/dotenvx": ["@dotenvx/dotenvx@1.64.0", "", { "dependencies": { "commander": "^11.1.0", "dotenv": "^17.2.1", "eciesjs": "^0.4.10", "execa": "^5.1.1", "fdir": "^6.2.0", "ignore": "^5.3.0", "object-treeify": "1.1.33", "picomatch": "^4.0.4", "which": "^4.0.0", "yocto-spinner": "^1.1.0" }, "bin": { "dotenvx": "src/cli/dotenvx.js" } }, "sha512-6+xRpZaWuHXEqnhBjae+VmQI9Uaqw5Uzu/ScpO+W7ww9Zp3lHSNBoNjFcUxhrCyc7pRGQzyDjhKzloqrPHERiQ=="],
 
+    "@duckdb/node-api": ["@duckdb/node-api@1.5.2-r.1", "", { "dependencies": { "@duckdb/node-bindings": "1.5.2-r.1" } }, "sha512-OzBBnS0JGXMoS5mzKNY/Ylr7SshcRQiLFIoxQ4AlePwJ2fNeDL/fbHu/knjxUrXwW1fJBTUgwWftmxDdnZZb3A=="],
+
+    "@duckdb/node-bindings": ["@duckdb/node-bindings@1.5.2-r.1", "", { "optionalDependencies": { "@duckdb/node-bindings-darwin-arm64": "1.5.2-r.1", "@duckdb/node-bindings-darwin-x64": "1.5.2-r.1", "@duckdb/node-bindings-linux-arm64": "1.5.2-r.1", "@duckdb/node-bindings-linux-x64": "1.5.2-r.1", "@duckdb/node-bindings-win32-arm64": "1.5.2-r.1", "@duckdb/node-bindings-win32-x64": "1.5.2-r.1" } }, "sha512-bUg3bLVj70YVku6fKyQJS8ASORl7kM7YFVFznsEB9pWbtazPj+ME2x2FUk0WiTzjJdutjzSSGXF066mB4bGGZA=="],
+
+    "@duckdb/node-bindings-darwin-arm64": ["@duckdb/node-bindings-darwin-arm64@1.5.2-r.1", "", { "os": "darwin", "cpu": "arm64" }, "sha512-v35FyKOb8EJCvaiPF7k0gvKiJTXR7PPQDNoWR0Gu+YSX5O9b+DIguzt1348Of3HebHy6ATSMzlUekaVA9YXu+g=="],
+
+    "@duckdb/node-bindings-darwin-x64": ["@duckdb/node-bindings-darwin-x64@1.5.2-r.1", "", { "os": "darwin", "cpu": "x64" }, "sha512-SU9dIJ1BluKkkGxi4UsP4keqkkstB2YDySF9KcYu3EZKIVM3FTv2zc7XO38dXnHOq6+F3WqhWWZvD+XU945p7A=="],
+
+    "@duckdb/node-bindings-linux-arm64": ["@duckdb/node-bindings-linux-arm64@1.5.2-r.1", "", { "os": "linux", "cpu": "arm64" }, "sha512-3Tra9xM3aM3denaER4KhJ6//6PpmPbik9ECBQ+sh9PyKaEgHw/0kAcKnLm5EzWUnXF0qYmZlewvkCrse8KmOYw=="],
+
+    "@duckdb/node-bindings-linux-x64": ["@duckdb/node-bindings-linux-x64@1.5.2-r.1", "", { "os": "linux", "cpu": "x64" }, "sha512-pcQvZRHiIfJ9cq8parkSQczQHEml/IeGfnDCMAbEgD6+jaV9Y9Y5Ph1kP9aR+bm6him1S5ZIEr3kZbihjKnWbA=="],
+
+    "@duckdb/node-bindings-win32-arm64": ["@duckdb/node-bindings-win32-arm64@1.5.2-r.1", "", { "os": "win32", "cpu": "arm64" }, "sha512-Ji8tym+N3LkrhVt0Up3bsacD/kpg4/JXFJQqxswiYvBaNCQOk+D+aiVS0GN5pcqvmnG7V7TpsDRzkLEFaWp1vw=="],
+
+    "@duckdb/node-bindings-win32-x64": ["@duckdb/node-bindings-win32-x64@1.5.2-r.1", "", { "os": "win32", "cpu": "x64" }, "sha512-5XqcqC+4R8ghBEEbnc2a0sqfz1zyPBRb9YcmIWfiuDoCYSYFbKhmHcEyNftZDHcwCoLOHXnUin45jraex4STqQ=="],
+
     "@ecies/ciphers": ["@ecies/ciphers@0.2.6", "", { "peerDependencies": { "@noble/ciphers": "^1.0.0" } }, "sha512-patgsRPKGkhhoBjETV4XxD0En4ui5fbX0hzayqI3M8tvNMGUoUvmyYAIWwlxBc1KX5cturfqByYdj5bYGRpN9g=="],
 
     "@effect/ai-anthropic": ["@effect/ai-anthropic@4.0.0-beta.60", "", { "peerDependencies": { "effect": "^4.0.0-beta.60" } }, "sha512-4gwCvqK3JOPoDaya8zar8QIZ9A8+t7yxne4vfoIELLXPZ8YNPhS4LUoYmRNrhBzATmwUNK0dd28hDAYSyqLTKQ=="],
@@ -2273,6 +2377,8 @@
     "@effect/atom-react": ["@effect/atom-react@4.0.0-beta.60", "", { "peerDependencies": { "effect": "^4.0.0-beta.60", "react": "^19.2.4", "scheduler": "*" } }, "sha512-AxP9Wotmu2pW4XNQhMskOwC+Fjo117I5OQlTamJwrqlG1ISM+IZPbm7etWgEb5V4rVHafcd2jJXJHuK0ZKCivQ=="],
 
     "@effect/markdown-toc": ["@effect/markdown-toc@0.1.0", "", { "dependencies": { "concat-stream": "^1.5.2", "diacritics-map": "^0.1.0", "gray-matter": "^3.1.1", "lazy-cache": "^2.0.2", "list-item": "^1.1.1", "markdown-link": "^0.1.1", "minimist": "^1.2.0", "mixin-deep": "^1.1.3", "object.pick": "^1.2.0", "remarkable": "^1.7.1", "repeat-string": "^1.6.1", "strip-color": "^0.1.0" }, "bin": { "markdown-toc": "cli.js" } }, "sha512-IRfvvwqQLabVTIw9hhIj4scOGIYPfa13QuEFv+dBWE6p47R+RR0J8jQvfDINFf0Vn80XXVjNRtZxkZpkKXLx2A=="],
+
+    "@effect/openapi-generator": ["@effect/openapi-generator@4.0.0-beta.60", "", { "peerDependencies": { "@effect/platform-node": "^4.0.0-beta.60", "effect": "^4.0.0-beta.60" }, "bin": { "openapigen": "dist/bin.js" } }, "sha512-WCmdo8EAjeskdBGx6BC7CU2U23V+Ao48q6wnK5h7jliARQkjs9zzORLl59MJkewOYf56HrMdpOug21YIg7reUA=="],
 
     "@effect/opentelemetry": ["@effect/opentelemetry@4.0.0-beta.60", "", { "peerDependencies": { "@opentelemetry/api": "^1.9", "@opentelemetry/resources": "^2.0.0", "@opentelemetry/sdk-logs": ">=0.203.0 <0.300.0", "@opentelemetry/sdk-metrics": "^2.0.0", "@opentelemetry/sdk-trace-base": "^2.0.0", "@opentelemetry/sdk-trace-node": "^2.0.0", "@opentelemetry/sdk-trace-web": "^2.0.0", "@opentelemetry/semantic-conventions": "^1.33.0", "effect": "^4.0.0-beta.60" }, "optionalPeers": ["@opentelemetry/api", "@opentelemetry/resources", "@opentelemetry/sdk-logs", "@opentelemetry/sdk-metrics", "@opentelemetry/sdk-trace-base", "@opentelemetry/sdk-trace-node", "@opentelemetry/sdk-trace-web"] }, "sha512-yQCo/T6divTcg09VGJpi2/vDOqUNFwxkgGWT1groQdKgy9A/NlHDMk9B75ALhT/NeNzqsYAhhIlu6Xrv+Ghj+A=="],
 

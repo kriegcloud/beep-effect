@@ -42,6 +42,7 @@ type AIMetricsPulumiConfigValues = {
   readonly defaultTool?: string | undefined;
   readonly hashSaltSecretRef?: string | undefined;
   readonly publicBaseUrl?: string | undefined;
+  readonly rawArchiveKeySecretRef?: string | undefined;
   readonly target?: string | undefined;
 };
 
@@ -102,6 +103,7 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
   defaultTool,
   hashSaltSecretRef,
   publicBaseUrl,
+  rawArchiveKeySecretRef,
   target,
 }: AIMetricsPulumiConfigValues = {}): AIMetricsStackArgs =>
   makeAIMetricsStackArgs(
@@ -110,6 +112,7 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
       ...(dataRoot === undefined ? {} : { dataRoot }),
       ...(hashSaltSecretRef === undefined ? {} : { hashSaltSecretRef }),
       ...(publicBaseUrl === undefined ? {} : { publicBaseUrl }),
+      ...(rawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef }),
       target: targetFromPulumiConfig(target),
     })
   );
@@ -135,6 +138,7 @@ export const loadAIMetricsStackArgs = (): AIMetricsStackArgs => {
     defaultTool: config.get("defaultTool"),
     hashSaltSecretRef: config.get("hashSaltSecretRef"),
     publicBaseUrl: config.get("publicBaseUrl"),
+    rawArchiveKeySecretRef: config.get("rawArchiveKeySecretRef"),
     target: config.get("target"),
   });
 };

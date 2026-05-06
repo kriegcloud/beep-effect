@@ -101,6 +101,7 @@
       "@beep/infra": ["./infra/src/index.ts"],
       "@beep/md": ["./packages/foundation/capability/md/src/index.ts"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
+      "@beep/op-ip-web": ["./apps/op-ip-web/src/index.ts"],
       "@beep/professional-runtime-proof": [
         "./apps/professional-runtime-proof/src/index.ts"
       ],
@@ -464,7 +465,21 @@
       "@beep/repo-ai-metrics": [
         "./packages/tooling/library/ai-metrics/src/index.ts"
       ],
-      "@beep/repo-ai-metrics/*": ["./packages/tooling/library/ai-metrics/src/*"]
+      "@beep/repo-ai-metrics/*": [
+        "./packages/tooling/library/ai-metrics/src/*"
+      ],
+      "@beep/repo-configs/next": [
+        "./packages/tooling/policy-pack/repo-configs/src/next/index.ts"
+      ],
+      "@beep/acp": ["./packages/drivers/acp/src/index.ts"],
+      "@beep/acp/agent": ["./packages/drivers/acp/src/agent.ts"],
+      "@beep/acp/client": ["./packages/drivers/acp/src/client.ts"],
+      "@beep/acp/errors": ["./packages/drivers/acp/src/errors.ts"],
+      "@beep/acp/protocol": ["./packages/drivers/acp/src/protocol.ts"],
+      "@beep/acp/rpc": ["./packages/drivers/acp/src/rpc.ts"],
+      "@beep/acp/schema": ["./packages/drivers/acp/src/schema.ts"],
+      "@beep/acp/terminal": ["./packages/drivers/acp/src/terminal.ts"],
+      "@beep/duckdb": ["./packages/drivers/duckdb/src/index.ts"]
     }
   }
 }

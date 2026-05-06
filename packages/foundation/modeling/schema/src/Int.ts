@@ -7,7 +7,7 @@
 
 import { $SchemaId } from "@beep/identity";
 import * as S from "effect/Schema";
-import { isNegative, isNonNegative, isNonPositive, isPositive, isPostgresSerialInt } from "./Number.ts";
+import { isNegative, isNonPositive, isPositive, isPostgresSerialInt } from "./Number.ts";
 
 const $I = $SchemaId.create("Int");
 
@@ -237,30 +237,4 @@ export type NonPositiveInt = typeof NonPositiveInt.Type;
  * @since 0.0.0
  * @category Validation
  */
-export const NonNegativeInt = Int.pipe(S.brand("NonNegativeInt"))
-  .check(
-    isNonNegative.annotate({
-      message: "Expected a non-negative integer",
-      description: "A non-negative integer",
-    })
-  )
-  .annotate(
-    $I.annote("NonNegativeInt", {
-      description: "A non-negative integer",
-    })
-  );
-
-/**
- * Type for {@link NonNegativeInt}.
- *
- * @example
- * ```ts
- * import type { NonNegativeInt } from "@beep/schema/Int"
- *
- * const index: NonNegativeInt = 0 as NonNegativeInt
- * ```
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export type NonNegativeInt = typeof NonNegativeInt.Type;
+export { NonNegativeInt } from "./Number.ts";

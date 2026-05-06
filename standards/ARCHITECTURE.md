@@ -572,6 +572,13 @@ These rules are dependency ceilings, not permission for cycles.
 Repo-wide orchestration is behavior inside `tool`. It is not a separate
 canonical kind.
 
+Tooling packages may depend on a driver only for a narrowly scoped operational
+adapter: repository analytics, code generation, migration, fixture, or CLI work
+that needs a product-neutral external engine. The tooling package must declare
+the driver dependency and project reference directly, keep product semantics out
+of the driver, and keep reusable runtime substrate in `foundation` instead of
+using tooling as a backdoor dependency root.
+
 ### Slice Consumption Rules
 
 Slices and the shared kernel may consume `foundation`, but only in boundary-

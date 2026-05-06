@@ -1,4 +1,4 @@
-# Repository-local Codex configuration for beep-effect2.
+# Repository-local Codex configuration for beep-effect3.
 #
 # Claude remains the source of truth for the skill bodies in `.claude/skills`.
 # Codex discovers the mirrored repo skill root through `.agents/skills`, which is
