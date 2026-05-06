@@ -9,9 +9,6 @@
   },
   "references": [
     {
-      "path": "../openai-compat/tsconfig.json"
-    },
-    {
       "path": "../../foundation/modeling/identity/tsconfig.json"
     },
     {

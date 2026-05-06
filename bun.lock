@@ -212,6 +212,19 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/openai-compat": {
+      "name": "@beep/openai-compat",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/postgres": {
       "name": "@beep/postgres",
       "version": "0.0.0",
@@ -235,6 +248,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/openai-compat": "workspace:^",
         "@beep/schema": "workspace:^",
         "effect": "catalog:",
       },
@@ -248,6 +262,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/openai-compat": "workspace:^",
         "@beep/schema": "workspace:^",
         "effect": "catalog:",
         "ws": "catalog:",
@@ -1433,6 +1448,8 @@
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
 
     "@beep/openai": ["@beep/openai@workspace:packages/drivers/openai"],
+
+    "@beep/openai-compat": ["@beep/openai-compat@workspace:packages/drivers/openai-compat"],
 
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
 

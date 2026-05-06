@@ -36,7 +36,7 @@ import {
   type XAiResponse,
   XAiServerSentEvent,
   XAiTextResponse,
-  XAiWebSocketEvent,
+  type XAiWebSocketEvent,
 } from "./XAi.models.ts";
 
 const $I = $XaiId.create("XAi.service");
@@ -612,20 +612,20 @@ const queryValueToStrings = (value: XAiQueryValue): ReadonlyArray<string> => {
 
 const parseWebSocketMessage = (data: WebSocket.RawData, isBinary: boolean): XAiWebSocketEvent => {
   if (isBinary) {
-    return new XAiWebSocketEvent({
+    return {
       bytes: rawDataToBytes(data),
       isBinary,
       kind: "message",
-    });
+    };
   }
 
   const text = rawDataToText(data);
-  return new XAiWebSocketEvent({
+  return {
     data: O.getOrElse(decodeJsonOption(text), () => text),
     isBinary,
     kind: "message",
     text,
-  });
+  };
 };
 
 const websocketUrl = Effect.fn("XAi.websocketUrl")(function* (
@@ -685,11 +685,11 @@ const makeWebSocketEvents = (socket: WebSocket): Stream.Stream<XAiWebSocketEvent
         const onMessage = (data: WebSocket.RawData, isBinary: boolean) =>
           Queue.offerUnsafe(queue, parseWebSocketMessage(data, isBinary));
         const onClose = (code: number, reason: Buffer) => {
-          Queue.offerUnsafe(queue, new XAiWebSocketEvent({ code, kind: "close", reason: reason.toString("utf8") }));
+          Queue.offerUnsafe(queue, { code, kind: "close", reason: reason.toString("utf8") });
           Queue.endUnsafe(queue);
         };
         const onError = (error: Error) =>
-          Queue.offerUnsafe(queue, new XAiWebSocketEvent({ data: error, kind: "error", reason: error.message }));
+          Queue.offerUnsafe(queue, { data: error, kind: "error", reason: error.message });
 
         socket.on("message", onMessage);
         socket.on("close", onClose);

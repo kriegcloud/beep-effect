@@ -1,0 +1,741 @@
+/**
+ * Schema-first OpenAI-compatible chat completion request and response models.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $OpenaiCompatId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
+import { Tuple } from "effect";
+import * as S from "effect/Schema";
+
+const $I = $OpenaiCompatId.create("OpenAiCompat.models");
+
+/**
+ * Chat roles accepted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatChatRole } from "@beep/openai-compat"
+ *
+ * const isUserRole = OpenAiCompatChatRole.is.user("user")
+ *
+ * void isUserRole
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const OpenAiCompatChatRole = LiteralKit(["system", "user", "assistant", "tool"] as const).pipe(
+  $I.annoteSchema("OpenAiCompatChatRole", {
+    description: "Chat roles accepted by OpenAI-compatible chat completion endpoints.",
+  })
+);
+
+/**
+ * Chat roles accepted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import type { OpenAiCompatChatRole } from "@beep/openai-compat"
+ *
+ * const role: OpenAiCompatChatRole = "assistant"
+ *
+ * void role
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OpenAiCompatChatRole = typeof OpenAiCompatChatRole.Type;
+
+/**
+ * Finish reasons emitted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatFinishReason } from "@beep/openai-compat"
+ *
+ * const stopped = OpenAiCompatFinishReason.is.stop("stop")
+ *
+ * void stopped
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const OpenAiCompatFinishReason = LiteralKit([
+  "stop",
+  "length",
+  "tool_calls",
+  "content_filter",
+  "function_call",
+] as const).pipe(
+  $I.annoteSchema("OpenAiCompatFinishReason", {
+    description: "Finish reasons emitted by OpenAI-compatible chat completion endpoints.",
+  })
+);
+
+/**
+ * Finish reasons emitted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import type { OpenAiCompatFinishReason } from "@beep/openai-compat"
+ *
+ * const reason: OpenAiCompatFinishReason = "tool_calls"
+ *
+ * void reason
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OpenAiCompatFinishReason = typeof OpenAiCompatFinishReason.Type;
+
+/**
+ * Function payload inside an OpenAI-compatible tool call.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatToolCallFunction } from "@beep/openai-compat"
+ *
+ * const call = new OpenAiCompatToolCallFunction({
+ *   arguments: "{\"city\":\"Austin\"}",
+ *   name: "weather"
+ * })
+ *
+ * void call
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatToolCallFunction extends S.Class<OpenAiCompatToolCallFunction>(
+  $I`OpenAiCompatToolCallFunction`
+)(
+  {
+    arguments: S.String,
+    name: S.String,
+  },
+  $I.annote("OpenAiCompatToolCallFunction", {
+    description: "Function payload inside an OpenAI-compatible tool call.",
+  })
+) {}
+
+/**
+ * Tool call payload emitted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatToolCall } from "@beep/openai-compat"
+ *
+ * const call = new OpenAiCompatToolCall({
+ *   function: { arguments: "{}", name: "noop" },
+ *   id: "call_1",
+ *   type: "function"
+ * })
+ *
+ * void call
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatToolCall extends S.Class<OpenAiCompatToolCall>($I`OpenAiCompatToolCall`)(
+  {
+    function: OpenAiCompatToolCallFunction,
+    id: S.String,
+    index: S.optionalKey(S.Number),
+    type: S.tag("function"),
+  },
+  $I.annote("OpenAiCompatToolCall", {
+    description: "Tool call payload emitted by OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * Function details sent to OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatFunctionToolDefinition } from "@beep/openai-compat"
+ *
+ * const definition = new OpenAiCompatFunctionToolDefinition({
+ *   name: "noop",
+ *   parameters: { type: "object" }
+ * })
+ *
+ * void definition
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatFunctionToolDefinition extends S.Class<OpenAiCompatFunctionToolDefinition>(
+  $I`OpenAiCompatFunctionToolDefinition`
+)(
+  {
+    description: S.String.pipe(S.NullOr, S.optionalKey),
+    name: S.String,
+    parameters: S.Record(S.String, S.Unknown),
+    strict: S.optionalKey(S.Boolean),
+  },
+  $I.annote("OpenAiCompatFunctionToolDefinition", {
+    description: "Function details sent to OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * Function declaration sent to OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatFunctionTool } from "@beep/openai-compat"
+ *
+ * const tool = new OpenAiCompatFunctionTool({
+ *   function: { name: "noop", parameters: { type: "object" } },
+ *   type: "function"
+ * })
+ *
+ * void tool
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatFunctionTool extends S.Class<OpenAiCompatFunctionTool>($I`OpenAiCompatFunctionTool`)(
+  {
+    function: OpenAiCompatFunctionToolDefinition,
+    type: S.tag("function"),
+  },
+  $I.annote("OpenAiCompatFunctionTool", {
+    description: "Function declaration sent to OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * Chat message accepted by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatChatMessage } from "@beep/openai-compat"
+ *
+ * const message = new OpenAiCompatChatMessage({
+ *   content: "Hello",
+ *   role: "user"
+ * })
+ *
+ * void message
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatChatMessage extends S.Class<OpenAiCompatChatMessage>($I`OpenAiCompatChatMessage`)(
+  {
+    content: S.Union([S.String, S.Array(S.Record(S.String, S.Unknown))]).pipe(S.NullOr, S.optionalKey),
+    name: S.optionalKey(S.String),
+    role: OpenAiCompatChatRole,
+    tool_call_id: S.optionalKey(S.String),
+    tool_calls: OpenAiCompatToolCall.pipe(S.Array, S.optionalKey),
+  },
+  $I.annote("OpenAiCompatChatMessage", {
+    description: "Chat message accepted by OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * JSON schema response-format details for chat completion requests.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatJsonSchemaDefinition } from "@beep/openai-compat"
+ *
+ * const definition = new OpenAiCompatJsonSchemaDefinition({
+ *   name: "Answer",
+ *   schema: { type: "object" },
+ *   strict: true
+ * })
+ *
+ * void definition
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatJsonSchemaDefinition extends S.Class<OpenAiCompatJsonSchemaDefinition>(
+  $I`OpenAiCompatJsonSchemaDefinition`
+)(
+  {
+    description: S.optionalKey(S.String),
+    name: S.String,
+    schema: S.Record(S.String, S.Unknown),
+    strict: S.optionalKey(S.Boolean),
+  },
+  $I.annote("OpenAiCompatJsonSchemaDefinition", {
+    description: "JSON schema response-format details for chat completion requests.",
+  })
+) {}
+
+/**
+ * Structured response format configuration for chat completion requests.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatJsonSchemaResponseFormat } from "@beep/openai-compat"
+ *
+ * const format = new OpenAiCompatJsonSchemaResponseFormat({
+ *   json_schema: { name: "Answer", schema: { type: "object" }, strict: true },
+ *   type: "json_schema"
+ * })
+ *
+ * void format
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatJsonSchemaResponseFormat extends S.Class<OpenAiCompatJsonSchemaResponseFormat>(
+  $I`OpenAiCompatJsonSchemaResponseFormat`
+)(
+  {
+    json_schema: OpenAiCompatJsonSchemaDefinition,
+    type: S.tag("json_schema"),
+  },
+  $I.annote("OpenAiCompatJsonSchemaResponseFormat", {
+    description: "Structured response format configuration for chat completion requests.",
+  })
+) {}
+
+/**
+ * Response format discriminator accepted by OpenAI-compatible chat completion requests.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatResponseFormatKind } from "@beep/openai-compat"
+ *
+ * const isJsonSchema = OpenAiCompatResponseFormatKind.is.json_schema("json_schema")
+ *
+ * void isJsonSchema
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const OpenAiCompatResponseFormatKind = LiteralKit(["text", "json_object", "json_schema"] as const).pipe(
+  $I.annoteSchema("OpenAiCompatResponseFormatKind", {
+    description: "Response format discriminator accepted by OpenAI-compatible chat completion requests.",
+  })
+);
+
+/**
+ * Type for {@link OpenAiCompatResponseFormatKind}.
+ *
+ * @example
+ * ```ts
+ * import type { OpenAiCompatResponseFormatKind } from "@beep/openai-compat"
+ *
+ * const kind: OpenAiCompatResponseFormatKind = "json_object"
+ *
+ * void kind
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OpenAiCompatResponseFormatKind = typeof OpenAiCompatResponseFormatKind.Type;
+
+/**
+ * Text response format configuration.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatTextResponseFormat } from "@beep/openai-compat"
+ *
+ * const format = new OpenAiCompatTextResponseFormat({ type: "text" })
+ *
+ * void format
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatTextResponseFormat extends S.Class<OpenAiCompatTextResponseFormat>(
+  $I`OpenAiCompatTextResponseFormat`
+)(
+  {
+    type: S.tag("text"),
+  },
+  $I.annote("OpenAiCompatTextResponseFormat", {
+    description: "Text response format configuration.",
+  })
+) {}
+
+/**
+ * JSON object response format configuration.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatJsonObjectResponseFormat } from "@beep/openai-compat"
+ *
+ * const format = new OpenAiCompatJsonObjectResponseFormat({ type: "json_object" })
+ *
+ * void format
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatJsonObjectResponseFormat extends S.Class<OpenAiCompatJsonObjectResponseFormat>(
+  $I`OpenAiCompatJsonObjectResponseFormat`
+)(
+  {
+    type: S.tag("json_object"),
+  },
+  $I.annote("OpenAiCompatJsonObjectResponseFormat", {
+    description: "JSON object response format configuration.",
+  })
+) {}
+
+/**
+ * Response format configuration accepted by OpenAI-compatible chat completion requests.
+ *
+ * @example
+ * ```ts
+ * import type { OpenAiCompatResponseFormat } from "@beep/openai-compat"
+ *
+ * const format: OpenAiCompatResponseFormat = { type: "json_object" }
+ *
+ * void format
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const OpenAiCompatResponseFormat = OpenAiCompatResponseFormatKind.mapMembers(
+  Tuple.evolve([
+    () => OpenAiCompatTextResponseFormat,
+    () => OpenAiCompatJsonObjectResponseFormat,
+    () => OpenAiCompatJsonSchemaResponseFormat,
+  ])
+).pipe(
+  $I.annoteSchema("OpenAiCompatResponseFormat", {
+    description: "Response format configuration accepted by OpenAI-compatible chat completion requests.",
+  }),
+  S.toTaggedUnion("type")
+);
+
+/**
+ * Response format configuration accepted by OpenAI-compatible chat completion requests.
+ *
+ * @example
+ * ```ts
+ * import type { OpenAiCompatResponseFormat } from "@beep/openai-compat"
+ *
+ * const format: OpenAiCompatResponseFormat = { type: "text" }
+ *
+ * void format
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OpenAiCompatResponseFormat = typeof OpenAiCompatResponseFormat.Type;
+
+/**
+ * Chat completion request sent to OpenAI-compatible providers.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatChatCompletionRequest } from "@beep/openai-compat"
+ *
+ * const request = new OpenAiCompatChatCompletionRequest({
+ *   messages: [{ content: "Hello", role: "user" }],
+ *   model: "gpt-compatible"
+ * })
+ *
+ * void request
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatChatCompletionRequest extends S.Class<OpenAiCompatChatCompletionRequest>(
+  $I`OpenAiCompatChatCompletionRequest`
+)(
+  {
+    frequency_penalty: S.Number.pipe(S.optionalKey),
+    max_completion_tokens: S.Number.pipe(S.optionalKey),
+    max_tokens: S.Number.pipe(S.optionalKey),
+    messages: S.Array(OpenAiCompatChatMessage),
+    model: S.String,
+    parallel_tool_calls: S.Boolean.pipe(S.optionalKey),
+    presence_penalty: S.Number.pipe(S.optionalKey),
+    response_format: S.optionalKey(OpenAiCompatResponseFormat),
+    seed: S.Number.pipe(S.optionalKey),
+    stream: S.Boolean.pipe(S.optionalKey),
+    stream_options: S.optionalKey(S.Record(S.String, S.Unknown)),
+    temperature: S.Number.pipe(S.NullOr, S.optionalKey),
+    tool_choice: S.optionalKey(S.Unknown),
+    tools: OpenAiCompatFunctionTool.pipe(S.Array, S.optionalKey),
+    top_p: S.Number.pipe(S.NullOr, S.optionalKey),
+    user: S.optionalKey(S.String),
+  },
+  $I.annote("OpenAiCompatChatCompletionRequest", {
+    description: "Chat completion request sent to OpenAI-compatible providers.",
+  })
+) {}
+
+/**
+ * Assistant message returned by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatAssistantMessage } from "@beep/openai-compat"
+ *
+ * const message = new OpenAiCompatAssistantMessage({
+ *   content: "Done",
+ *   role: "assistant"
+ * })
+ *
+ * void message
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatAssistantMessage extends S.Class<OpenAiCompatAssistantMessage>(
+  $I`OpenAiCompatAssistantMessage`
+)(
+  {
+    content: S.String.pipe(S.NullOr, S.optionalKey),
+    role: S.optionalKey(S.Literal("assistant")),
+    tool_calls: OpenAiCompatToolCall.pipe(S.Array, S.optionalKey),
+  },
+  $I.annote("OpenAiCompatAssistantMessage", {
+    description: "Assistant message returned by OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * Delta message returned by OpenAI-compatible chat completion streams.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatAssistantDelta } from "@beep/openai-compat"
+ *
+ * const delta = new OpenAiCompatAssistantDelta({
+ *   content: "Hi ",
+ *   role: "assistant"
+ * })
+ *
+ * void delta
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatAssistantDelta extends S.Class<OpenAiCompatAssistantDelta>($I`OpenAiCompatAssistantDelta`)(
+  {
+    content: S.String.pipe(S.NullOr, S.optionalKey),
+    role: S.optionalKey(S.Literal("assistant")),
+    tool_calls: OpenAiCompatToolCall.pipe(S.Array, S.optionalKey),
+  },
+  $I.annote("OpenAiCompatAssistantDelta", {
+    description: "Delta message returned by OpenAI-compatible chat completion streams.",
+  })
+) {}
+
+/**
+ * Token usage returned by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatUsage } from "@beep/openai-compat"
+ *
+ * const usage = new OpenAiCompatUsage({
+ *   completion_tokens: 2,
+ *   prompt_tokens: 1,
+ *   total_tokens: 3
+ * })
+ *
+ * void usage
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatUsage extends S.Class<OpenAiCompatUsage>($I`OpenAiCompatUsage`)(
+  {
+    completion_tokens: S.optionalKey(S.Number),
+    prompt_tokens: S.optionalKey(S.Number),
+    prompt_tokens_details: S.optionalKey(S.Record(S.String, S.Unknown)),
+    total_tokens: S.optionalKey(S.Number),
+  },
+  $I.annote("OpenAiCompatUsage", {
+    description: "Token usage returned by OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * Chat completion choice returned by OpenAI-compatible endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatChatCompletionChoice } from "@beep/openai-compat"
+ *
+ * const choice = new OpenAiCompatChatCompletionChoice({
+ *   finish_reason: "stop",
+ *   index: 0,
+ *   message: { content: "Hello", role: "assistant" }
+ * })
+ *
+ * void choice
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatChatCompletionChoice extends S.Class<OpenAiCompatChatCompletionChoice>(
+  $I`OpenAiCompatChatCompletionChoice`
+)(
+  {
+    finish_reason: S.String.pipe(S.NullOr, S.optionalKey),
+    index: S.optionalKey(S.Number),
+    message: S.optionalKey(OpenAiCompatAssistantMessage),
+  },
+  $I.annote("OpenAiCompatChatCompletionChoice", {
+    description: "Chat completion choice returned by OpenAI-compatible endpoints.",
+  })
+) {}
+
+/**
+ * Chat completion response returned by OpenAI-compatible endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatChatCompletionResponse } from "@beep/openai-compat"
+ *
+ * const response = new OpenAiCompatChatCompletionResponse({
+ *   choices: [{ finish_reason: "stop", index: 0, message: { content: "Hello" } }]
+ * })
+ *
+ * void response
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatChatCompletionResponse extends S.Class<OpenAiCompatChatCompletionResponse>(
+  $I`OpenAiCompatChatCompletionResponse`
+)(
+  {
+    choices: S.Array(OpenAiCompatChatCompletionChoice),
+    id: S.optionalKey(S.String),
+    model: S.optionalKey(S.String),
+    usage: S.optionalKey(OpenAiCompatUsage),
+  },
+  $I.annote("OpenAiCompatChatCompletionResponse", {
+    description: "Chat completion response returned by OpenAI-compatible endpoints.",
+  })
+) {}
+
+/**
+ * Stream chunk choice returned by OpenAI-compatible endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatChatCompletionChunkChoice } from "@beep/openai-compat"
+ *
+ * const choice = new OpenAiCompatChatCompletionChunkChoice({
+ *   delta: { content: "Hi " },
+ *   index: 0
+ * })
+ *
+ * void choice
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatChatCompletionChunkChoice extends S.Class<OpenAiCompatChatCompletionChunkChoice>(
+  $I`OpenAiCompatChatCompletionChunkChoice`
+)(
+  {
+    delta: S.optionalKey(OpenAiCompatAssistantDelta),
+    finish_reason: S.String.pipe(S.NullOr, S.optionalKey),
+    index: S.optionalKey(S.Number),
+  },
+  $I.annote("OpenAiCompatChatCompletionChunkChoice", {
+    description: "Stream chunk choice returned by OpenAI-compatible endpoints.",
+  })
+) {}
+
+/**
+ * Stream chunk returned by OpenAI-compatible chat completion endpoints.
+ *
+ * @example
+ * ```ts
+ * import { OpenAiCompatChatCompletionChunk } from "@beep/openai-compat"
+ *
+ * const chunk = new OpenAiCompatChatCompletionChunk({
+ *   choices: [{ delta: { content: "Hi " }, index: 0 }]
+ * })
+ *
+ * void chunk
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenAiCompatChatCompletionChunk extends S.Class<OpenAiCompatChatCompletionChunk>(
+  $I`OpenAiCompatChatCompletionChunk`
+)(
+  {
+    choices: S.Array(OpenAiCompatChatCompletionChunkChoice),
+    id: S.optionalKey(S.String),
+    model: S.optionalKey(S.String),
+    usage: S.optionalKey(OpenAiCompatUsage),
+  },
+  $I.annote("OpenAiCompatChatCompletionChunk", {
+    description: "Stream chunk returned by OpenAI-compatible chat completion endpoints.",
+  })
+) {}
+
+/**
+ * Decodes an unknown value into an OpenAI-compatible chat completion response.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { decodeChatCompletionResponse } from "@beep/openai-compat"
+ *
+ * const decoded = Effect.runSync(decodeChatCompletionResponse({ choices: [] }))
+ *
+ * void decoded
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const decodeChatCompletionResponse = S.decodeUnknownEffect(OpenAiCompatChatCompletionResponse);
+
+/**
+ * Decodes an unknown value into an OpenAI-compatible chat completion stream chunk.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { decodeChatCompletionChunk } from "@beep/openai-compat"
+ *
+ * const decoded = Effect.runSync(decodeChatCompletionChunk({ choices: [] }))
+ *
+ * void decoded
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const decodeChatCompletionChunk = S.decodeUnknownEffect(OpenAiCompatChatCompletionChunk);

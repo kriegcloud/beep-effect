@@ -153,7 +153,26 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
     });
 }
 
-type XAiErrorOptions = {
-  readonly cause?: unknown;
-  readonly status?: number;
-};
+/**
+ * Options used when constructing xAI driver errors.
+ *
+ * @example
+ * ```ts
+ * import { XAiErrorOptions } from "@beep/xai"
+ *
+ * const options = new XAiErrorOptions({ status: 500 })
+ * void options
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class XAiErrorOptions extends S.Class<XAiErrorOptions>($I`XAiErrorOptions`)(
+  {
+    cause: S.optionalKey(S.DefectWithStack),
+    status: S.optionalKey(S.Number),
+  },
+  $I.annote("XAiErrorOptions", {
+    description: "Options for configuring XAiError instances, including optional cause and status fields.",
+  })
+) {}

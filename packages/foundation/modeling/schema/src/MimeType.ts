@@ -53,8 +53,12 @@ type MimeTypeSchema = LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typ
  * @since 0.0.0
  * @category Utility
  */
-export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.NonEmptyReadonlyArray<keyof T> =>
-  Fn.cast<Array<keyof T>, A.NonEmptyReadonlyArray<keyof T>>(pipe(mime, Struct.keys, A.dedupe));
+export const extractMimeTypes = <const T extends MimeTypeProperty>(
+  mime: T
+): A.NonEmptyReadonlyArray<Extract<keyof T, string>> =>
+  Fn.cast<Array<keyof T & string>, A.NonEmptyReadonlyArray<Extract<keyof T, string>>>(
+    pipe(mime, Struct.keys, A.dedupe)
+  );
 
 /**
  * Schema kit that covers all supported mime types with per-category sub-schemas.

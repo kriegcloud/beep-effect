@@ -107,7 +107,8 @@ const composers = $I.compose(
   "sandbox",
   "openai",
   "venice-ai",
-  "xai"
+  "xai",
+  "openai-compat"
 );
 
 // --- foundation ---
@@ -818,3 +819,11 @@ export const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai"> = compose
  * @category Configuration
  */
 export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;
+
+/**
+ * Identity composer for `@beep/openai-compat`.
+ *
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat"> = composers.$OpenaiCompatId;

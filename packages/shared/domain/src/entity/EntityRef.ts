@@ -6,6 +6,7 @@
  */
 
 import { $SharedDomainId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import { Result } from "effect";
 import { dual, pipe } from "effect/Function";
 import * as S from "effect/Schema";
@@ -13,6 +14,16 @@ import type * as SchemaIssue from "effect/SchemaIssue";
 import * as EntityId from "./EntityId.js";
 
 const $I = $SharedDomainId.create("entity/EntityRef");
+
+class EntityRefInvariantError extends TaggedErrorClass<EntityRefInvariantError>($I`EntityRefInvariantError`)(
+  "EntityRefInvariantError",
+  {
+    entityType: S.String,
+  },
+  $I.annote("EntityRefInvariantError", {
+    description: "EntityRef runtime invariant failure.",
+  })
+) {}
 
 /**
  * Entity type grammar used by polymorphic references.
@@ -122,7 +133,7 @@ function assertEntityRefFor<const Entity extends EntityId.Any>(
   ref: EntityRef
 ): asserts ref is EntityRefFor<Entity> {
   if (!isEntityRefFor(entityId, ref)) {
-    throw new TypeError(`EntityRef invariant failed for '${entityId.entityType}'.`);
+    throw new EntityRefInvariantError({ entityType: entityId.entityType });
   }
 }
 

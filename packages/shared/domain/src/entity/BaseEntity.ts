@@ -6,16 +6,27 @@
  */
 
 import { $SharedDomainId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { PosInt } from "@beep/schema/Int";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
 import * as P from "effect/Predicate";
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
 import * as Shared from "../identity/Shared.js";
 import { Principal } from "./Principal.js";
 import { SourceKind } from "./SourceKind.js";
 
 const $I = $SharedDomainId.create("entity/BaseEntity");
+
+class BaseEntityAttachmentError extends TaggedErrorClass<BaseEntityAttachmentError>($I`BaseEntityAttachmentError`)(
+  "BaseEntityAttachmentError",
+  {
+    message: S.String,
+  },
+  $I.annote("BaseEntityAttachmentError", {
+    description: "BaseEntity factory metadata attachment invariant failure.",
+  })
+) {}
 
 type EntityInput<
   FieldMap extends EntitySchema.EntityFieldInputs,
@@ -197,7 +208,7 @@ const replaceClass = <Base extends object>(base: Base): Omit<Base, "Class"> & { 
   if (hasReplacementClass(base)) {
     return base;
   }
-  throw new TypeError("Failed to attach BaseEntity Class factory.");
+  throw new BaseEntityAttachmentError({ message: "Failed to attach BaseEntity Class factory." });
 };
 
 const hasReplacementClass = <Base extends object>(base: Base): base is Base & { readonly Class: typeof Class } =>

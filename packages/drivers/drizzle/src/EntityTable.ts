@@ -5,6 +5,8 @@
  * @since 0.0.0
  */
 
+import { $DrizzleId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as Struct from "@beep/utils/Struct";
 import { getColumns } from "drizzle-orm";
@@ -42,7 +44,19 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
+
+const $I = $DrizzleId.create("EntityTable");
+
+class EntityTableInvariantError extends TaggedErrorClass<EntityTableInvariantError>($I`EntityTableInvariantError`)(
+  "EntityTableInvariantError",
+  {
+    message: S.String,
+  },
+  $I.annote("EntityTableInvariantError", {
+    description: "Drizzle entity table projection invariant failure.",
+  })
+) {}
 
 type EncodedAllowsNull<Encoded> = null extends Encoded ? true : false;
 
@@ -152,7 +166,9 @@ const columnMethods = <Builder extends AnyPgColumnBuilder>(column: Builder): Col
   if (hasColumnMethods(column)) {
     return column;
   }
-  throw new TypeError("Drizzle column builder is missing the expected fluent column methods.");
+  throw new EntityTableInvariantError({
+    message: "Drizzle column builder is missing the expected fluent column methods.",
+  });
 };
 
 const typedColumn = <Encoded, Builder extends AnyPgColumnBuilder>(column: Builder): Set$Type<Builder, Encoded> =>
@@ -371,7 +387,9 @@ const attachTableMetadata = <const Entity extends EntitySchema.EntityClass.Any>(
   if (hasAttachedTableMetadata(table, definition, entitySchema)) {
     return table;
   }
-  throw new TypeError(`Failed to attach EntitySchema metadata to table '${definition.tableName}'.`);
+  throw new EntityTableInvariantError({
+    message: `Failed to attach EntitySchema metadata to table '${definition.tableName}'.`,
+  });
 };
 
 const hasAttachedTableMetadata = <const Entity extends EntitySchema.EntityClass.Any>(
