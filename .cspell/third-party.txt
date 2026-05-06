@@ -49,8 +49,14 @@ vitest
 wezterm
 rxvt
 cytoscape
+DuckDB
+duckdb
 exifr
 fflate
+LiteLLM
+litellm
+Opik
+opik
 piexifjs
 rustls
 serde

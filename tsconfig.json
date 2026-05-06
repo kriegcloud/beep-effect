@@ -455,12 +455,16 @@
       ],
       "@beep/openai": ["./packages/drivers/openai/src/index.ts"],
       "@beep/openai/*": ["./packages/drivers/openai/src/*"],
-      "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
-      "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
-      "@beep/xai/*": ["./packages/drivers/xai/src/*"],
       "@beep/openai-compat": ["./packages/drivers/openai-compat/src/index.ts"],
       "@beep/openai-compat/*": ["./packages/drivers/openai-compat/src/*"],
-      "@beep/venice-ai/*": ["./packages/drivers/venice-ai/src/*"]
+      "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
+      "@beep/venice-ai/*": ["./packages/drivers/venice-ai/src/*"],
+      "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
+      "@beep/xai/*": ["./packages/drivers/xai/src/*"],
+      "@beep/repo-ai-metrics": [
+        "./packages/tooling/library/ai-metrics/src/index.ts"
+      ],
+      "@beep/repo-ai-metrics/*": ["./packages/tooling/library/ai-metrics/src/*"]
     }
   }
 }

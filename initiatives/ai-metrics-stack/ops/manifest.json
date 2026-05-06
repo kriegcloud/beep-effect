@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0.0",
+  "initiative": {
+    "id": "ai-metrics-stack",
+    "title": "AI Metrics Stack",
+    "status": "active",
+    "created": "2026-05-05",
+    "updated": "2026-05-05",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "currentSourceOfTruth": "SPEC.md",
+  "currentTargetPhase": "P2",
+  "completionEvidence": "dankserver deployment plus one seven-day real-data config-impact scorecard",
+  "targets": {
+    "production": "dankserver",
+    "smoke": "local",
+    "network": "tailnet-only"
+  },
+  "defaults": {
+    "backendPosture": "otlp-first",
+    "defaultUi": "phoenix",
+    "privacyMode": "encrypted_raw_redacted_ui",
+    "rawSpine": "encrypted-jsonl-parquet-archive-with-eventlog-proof",
+    "capturePosture": "passive-first-optional-litellm",
+    "scoreModel": "outcome-heavy"
+  },
+  "owningSurfaces": {
+    "developerAiAnalytics": "packages/tooling/library/ai-metrics",
+    "runtimeObservability": "packages/foundation/capability/observability",
+    "operatorCli": "packages/tooling/tool/cli",
+    "deployment": "infra"
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Initiative Bootstrap And Current State",
+      "status": "completed",
+      "output": "history/outputs/p0-current-state.md"
+    },
+    {
+      "id": "P1",
+      "name": "Source Discovery And Privacy",
+      "status": "completed",
+      "output": "history/outputs/p1-source-discovery-and-privacy.md"
+    },
+    {
+      "id": "P2",
+      "name": "Durable Ingest And Derived Storage",
+      "status": "pending",
+      "output": "history/outputs/p2-durable-ingest-and-derived-storage.md"
+    },
+    {
+      "id": "P3",
+      "name": "OTLP And Backend Stack",
+      "status": "pending",
+      "output": "history/outputs/p3-otlp-and-backend-stack.md"
+    },
+    {
+      "id": "P4",
+      "name": "Scorecards Labels And Benchmarks",
+      "status": "pending",
+      "output": "history/outputs/p4-scorecards-labels-and-benchmarks.md"
+    },
+    {
+      "id": "P5",
+      "name": "Install And Remote Deployment",
+      "status": "pending",
+      "output": "history/outputs/p5-install-and-remote-deployment.md"
+    },
+    {
+      "id": "P6",
+      "name": "Seven-Day Proof And Hardening",
+      "status": "pending",
+      "output": "history/outputs/p6-seven-day-proof-and-hardening.md"
+    }
+  ],
+  "commandGates": [
+    {
+      "id": "root-check",
+      "command": "bun run check"
+    },
+    {
+      "id": "config-sync",
+      "command": "bun run config-sync"
+    },
+    {
+      "id": "ai-metrics-package",
+      "command": "cd packages/tooling/library/ai-metrics && bun run check && bun run test && bun run lint && bun run docgen"
+    },
+    {
+      "id": "cli-package",
+      "command": "cd packages/tooling/tool/cli && bun run check && bun run test && bun run lint"
+    },
+    {
+      "id": "infra-package",
+      "command": "cd infra && bun run check && bun run test && bun run lint"
+    },
+    {
+      "id": "dankserver-preview",
+      "command": "cd infra && pulumi preview --stack beep-ai-metrics-dankserver"
+    },
+    {
+      "id": "dankserver-apply",
+      "command": "cd infra && pulumi up --stack beep-ai-metrics-dankserver"
+    }
+  ],
+  "knownGaps": [
+    "source discovery is runtime-only and does not yet persist a durable source registry",
+    "forwarder command prints a contract but does not yet copy or export data",
+    "raw archive encryption and redacted derived payloads are not implemented",
+    "Phoenix and optional LiteLLM deployment are not yet applied on dankserver",
+    "CLI label review and weekly report generation are not implemented",
+    "EventLog projection proof is not implemented"
+  ],
+  "nextAction": "Implement P2 durable ingest, encrypted raw archive, and derived storage contracts."
+}

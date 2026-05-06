@@ -43,6 +43,7 @@
     "./package.json": "./package.json"
   },
   "files": [
+    "src/**/*.ts",
     "dist/**/*.js",
     "dist/**/*.js.map",
     "dist/**/*.d.ts",
@@ -53,10 +54,8 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }

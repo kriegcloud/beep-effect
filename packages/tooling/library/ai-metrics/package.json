@@ -1,35 +1,29 @@
 {
-  "name": "@beep/repo-cli",
+  "name": "@beep/repo-ai-metrics",
   "version": "0.0.0",
   "type": "module",
   "private": true,
   "license": "Apache-2.0",
-  "description": "CLI tool for creating and managing packages in the beep-effect monorepo following Effect v4 standards",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/tool/cli",
+  "description": "Schema-first metrics, ingest, scoring, and install models for repo AI-agent analytics",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/library/ai-metrics",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/tooling/tool/cli"
+    "directory": "packages/tooling/library/ai-metrics"
   },
   "beep": {
     "family": "tooling",
-    "kind": "tool"
+    "kind": "library"
   },
   "sideEffects": [],
-  "bin": {
-    "beep-cli": "./src/bin.ts"
-  },
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
-    "./commands/*": "./src/commands/*.ts",
-    "./internal/*": null,
-    "./bin": null
+    "./internal/*": null
   },
   "files": [
     "src/**/*.ts",
-    "src/commands/CreatePackage/templates/**/*.hbs",
     "dist/**/*.js",
     "dist/**/*.js.map",
     "dist/**/*.d.ts",
@@ -38,26 +32,19 @@
   "publishConfig": {
     "access": "public",
     "provenance": true,
-    "bin": {
-      "beep-cli": "./dist/bin.js"
-    },
     "exports": {
       "./package.json": "./package.json",
       ".": "./dist/index.js",
       "./*": "./dist/*.js",
-      "./commands/*": "./dist/commands/*.js",
-      "./internal/*": null,
-      "./bin": null
+      "./internal/*": null
     }
   },
   "scripts": {
-    "codegen": "echo 'codegen will be implemented by this package'",
+    "codegen": "echo 'no codegen needed'",
     "build": "bun run beep:build",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "bun run beep:check",
     "test": "bun run beep:test",
-    "type-test": "cd ../../../.. && bunx tstyche",
-    "test:watch": "vitest",
     "coverage": "bunx --bun vitest run --coverage",
     "docgen": "bun run ../../../../packages/tooling/tool/docgen/src/bin.ts",
     "lint": "bun run beep:lint",
@@ -71,32 +58,13 @@
     "audit": "bun run --if-present beep:audit"
   },
   "dependencies": {
-    "@beep/chalk": "workspace:^",
-    "@beep/ffmpeg": "workspace:^",
     "@beep/identity": "workspace:^",
-    "@beep/observability": "workspace:^",
-    "@beep/repo-ai-metrics": "workspace:^",
-    "@beep/repo-configs": "workspace:^",
-    "@beep/repo-docgen": "workspace:^",
-    "@beep/repo-utils": "workspace:^",
     "@beep/schema": "workspace:^",
-    "@beep/test-utils": "workspace:^",
-    "@effect/markdown-toc": "catalog:",
-    "@effect/platform-node": "catalog:",
-    "@openai/codex-sdk": "catalog:",
-    "doctrine": "catalog:",
-    "effect": "catalog:",
-    "fast-xml-parser": "catalog:",
-    "handlebars": "catalog:",
-    "image-size": "catalog:",
-    "sharp": "catalog:",
-    "ts-morph": "catalog:",
-    "yaml": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
+    "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
-    "@types/babel__code-frame": "catalog:",
-    "@types/doctrine": "catalog:",
     "@types/node": "catalog:"
   }
 }
