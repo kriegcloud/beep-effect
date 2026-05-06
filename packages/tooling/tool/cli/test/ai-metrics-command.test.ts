@@ -77,6 +77,34 @@ describe("ai-metrics command", () => {
     );
   });
 
+  it("does not expose input paths when ingest cannot read transcript input", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const inputPath = path.join(tmpDir, "private-missing-codex.jsonl");
+
+          yield* runAiMetricsCommand([
+            "ingest",
+            "--source",
+            "codex",
+            "--input",
+            inputPath,
+            "--hash-salt",
+            "test-salt",
+            "--json",
+          ]);
+
+          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
+          expect(output).toContain("Failed to read transcript input.");
+          expect(output).not.toContain(inputPath);
+          expect(output).not.toContain(tmpDir);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
   it("requires a hash salt secret reference for non-local install previews", async () => {
     await Effect.runPromise(
       withTempDirectory(() =>
@@ -140,6 +168,28 @@ describe("ai-metrics command", () => {
     );
   });
 
+  it("does not expose repo paths when config snapshot cannot read an agent file", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const agentPath = path.join(tmpDir, "AGENTS.md");
+          yield* writeText(agentPath, "root guide\n");
+          yield* fs.chmod(agentPath, 0o000);
+
+          yield* runAiMetricsCommand(["config", "snapshot", "--repo-root", tmpDir, "--json"]);
+
+          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
+          expect(output).toContain("Failed to read config snapshot file.");
+          expect(output).not.toContain(agentPath);
+          expect(output).not.toContain(tmpDir);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
   it("emits privacy check JSON without raw transcript text", async () => {
     await Effect.runPromise(
       withTempDirectory((tmpDir) =>
@@ -174,6 +224,35 @@ describe("ai-metrics command", () => {
           expect(output).not.toContain("sk-privatefixture");
           expect(output).not.toContain(tmpDir);
           expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not expose input paths when privacy check cannot inspect input", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const inputPath = path.join(tmpDir, "private-missing-codex.jsonl");
+
+          yield* runAiMetricsCommand([
+            "privacy",
+            "check",
+            "--source",
+            "codex",
+            "--input",
+            inputPath,
+            "--hash-salt",
+            "test-salt",
+            "--json",
+          ]);
+
+          const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
+          expect(output).toContain("Failed to inspect privacy input.");
+          expect(output).not.toContain(inputPath);
+          expect(output).not.toContain(tmpDir);
+          expect(process.exitCode).toBe(1);
         })
       )
     );

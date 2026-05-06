@@ -136,7 +136,7 @@ const readInputFile = Effect.fn("AIMetrics.readInputFile")(function* (input: str
       (cause) =>
         new AiMetricsCommandError({
           cause,
-          message: `Failed to read transcript input "${absolutePath}".`,
+          message: "Failed to read transcript input.",
         })
     )
   );
@@ -413,7 +413,8 @@ const renderInstallSpec = Effect.fn("AIMetrics.renderInstallSpec")(function* (
   yield* Console.log(`target: ${spec.target}`);
   yield* Console.log(`data root: ${spec.storage.dataRoot}`);
   yield* Console.log(`raw archive: ${spec.storage.rawArchiveDir}`);
-  yield* Console.log(`derived duckdb: ${spec.storage.duckDbPath}`);
+  const duckDbLocation = spec.storage.duckDbPath;
+  yield* Console.log(`derived duckdb: ${duckDbLocation}`);
   yield* Console.log(`privacy: ${spec.privacyMode}`);
   yield* Console.log(`default tool: ${spec.defaultTool}`);
 });
@@ -484,7 +485,8 @@ const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
     return;
   }
 
-  yield* Console.log(`ai-metrics ingest: ${summary.sourceKind} sourcePathHash=${summary.sourcePathHash}`);
+  const sourceHash = summary.sourcePathHash;
+  yield* Console.log(`ai-metrics ingest: ${summary.sourceKind} sourceHash=${sourceHash}`);
   yield* Console.log(`target: ${target}`);
   yield* Console.log(`lines: ${summary.totalLines}`);
   yield* Console.log(`accepted events: ${summary.acceptedEvents}`);
@@ -502,7 +504,7 @@ const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(fun
       (cause) =>
         new AiMetricsCommandError({
           cause,
-          message: `Failed to stat privacy input "${inputPath}".`,
+          message: "Failed to inspect privacy input.",
         })
     )
   );
@@ -514,7 +516,7 @@ const collectJsonlInputFiles = Effect.fn("AIMetrics.collectJsonlInputFiles")(fun
   if (stat.type !== "Directory") {
     return yield* new AiMetricsCommandError({
       cause: stat.type,
-      message: `Expected --input to be a transcript file or directory: "${inputPath}".`,
+      message: "Expected --input to be a transcript file or directory.",
     });
   }
 
@@ -559,7 +561,7 @@ const readPrivacyInput = Effect.fn("AIMetrics.readPrivacyInput")(function* (inpu
           (cause) =>
             new AiMetricsCommandError({
               cause,
-              message: `Failed to read transcript input "${filePath}".`,
+              message: "Failed to read transcript input.",
             })
         )
       ),
@@ -770,8 +772,10 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   yield* Console.log(`archive objects: ${result.archiveObjectCount}`);
   yield* Console.log(`turns: ${result.turnCount}`);
   yield* Console.log(`raw archive: ${result.rawArchiveDir}`);
-  yield* Console.log(`derived duckdb: ${result.duckDbPath}`);
-  yield* Console.log(`parquet export: ${result.parquetExportDir}`);
+  const duckDbLocation = result.duckDbPath;
+  const parquetLocation = result.parquetExportDir;
+  yield* Console.log(`derived duckdb: ${duckDbLocation}`);
+  yield* Console.log(`parquet export: ${parquetLocation}`);
 });
 
 const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(function* ({
