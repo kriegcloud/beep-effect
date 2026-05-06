@@ -20,7 +20,7 @@ zero required blockers in the chosen scope.
 
 Fill or infer these values before starting:
 
-- `repo_root`: `/home/elpresidank/YeeBois/projects/beep-effect2`
+- `repo_root`: absolute path to the working repo checkout (for example, the value of `git rev-parse --show-toplevel`)
 - `initiative_summary`: one paragraph describing the initiative being closed
 - `base_ref`: `origin/main` unless the user provides a different comparison base
 - `review_scope`: changed files plus directly affected public APIs, package
@@ -37,9 +37,9 @@ Fill or infer these values before starting:
 - `publish_policy`: local commits only unless the user explicitly asks to push,
   open a PR, reply to review threads, or resolve GitHub comments
 
-## Beep-Effect2 Defaults
+## beep-effect Defaults
 
-Use these defaults when `repo_root` is beep-effect2. For other repositories,
+Use these defaults when `repo_root` is a beep-effect checkout. For other repositories,
 replace this section with the local equivalents before starting.
 
 ### Source Of Truth
@@ -109,7 +109,7 @@ bun run lint
 ```
 
 For docs/export changes, ensure the local docgen lane is included. In
-beep-effect2, `bash scripts/run-github-checks.sh quality` covers build, check,
+beep-effect, `bash scripts/run-github-checks.sh quality` covers build, check,
 lint, docgen generate/aggregate, test, repo sanity, and changeset status.
 
 Warnings and policy diagnostics are actionable. Do not call the baseline green

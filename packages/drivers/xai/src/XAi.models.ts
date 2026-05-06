@@ -354,23 +354,41 @@ type XAiWebSocketEventMember<T extends XAiWebSocketEventKind> = {
  * @since 0.0.0
  */
 export const XAiWebSocketEvent = XAiWebSocketEventKind.mapMembers((members) => {
-  const make = <T extends XAiWebSocketEventKind>(literal: S.Literal<T>) =>
-    S.Class<XAiWebSocketEventMember<T>>($I`XAiWebSocketEventMember`)(
-      {
-        bytes: S.optionalKey(S.Uint8Array),
-        code: S.optionalKey(S.Number),
-        data: S.optionalKey(S.Unknown),
-        isBinary: S.optionalKey(S.Boolean),
-        kind: S.tag(literal.literal),
-        reason: S.optionalKey(S.String),
-        text: S.optionalKey(S.String),
-      },
-      $I.annote("XAiWebSocketEventMember", {
-        description: "Event member emitted by an xAI WebSocket endpoint session.",
+  const fields = <T extends XAiWebSocketEventKind>(literal: S.Literal<T>) => ({
+    bytes: S.optionalKey(S.Uint8Array),
+    code: S.optionalKey(S.Number),
+    data: S.optionalKey(S.Unknown),
+    isBinary: S.optionalKey(S.Boolean),
+    kind: S.tag(literal.literal),
+    reason: S.optionalKey(S.String),
+    text: S.optionalKey(S.String),
+  });
+
+  const makeClose = (literal: S.Literal<"close">) =>
+    S.Class<XAiWebSocketEventMember<"close">>($I`XAiWebSocketEventCloseMember`)(
+      fields(literal),
+      $I.annote("XAiWebSocketEventCloseMember", {
+        description: 'Event member emitted by an xAI WebSocket endpoint session for "close".',
       })
     );
 
-  return pipe(members, Tuple.evolve([make, make, make]));
+  const makeError = (literal: S.Literal<"error">) =>
+    S.Class<XAiWebSocketEventMember<"error">>($I`XAiWebSocketEventErrorMember`)(
+      fields(literal),
+      $I.annote("XAiWebSocketEventErrorMember", {
+        description: 'Event member emitted by an xAI WebSocket endpoint session for "error".',
+      })
+    );
+
+  const makeMessage = (literal: S.Literal<"message">) =>
+    S.Class<XAiWebSocketEventMember<"message">>($I`XAiWebSocketEventMessageMember`)(
+      fields(literal),
+      $I.annote("XAiWebSocketEventMessageMember", {
+        description: 'Event member emitted by an xAI WebSocket endpoint session for "message".',
+      })
+    );
+
+  return pipe(members, Tuple.evolve([makeClose, makeError, makeMessage]));
 }).pipe(
   $I.annoteSchema("XAiWebSocketEvent", {
     description: "Event emitted by an xAI WebSocket endpoint session.",

@@ -167,16 +167,20 @@ type ActiveToolCall = {
 
 type StreamState = {
   readonly activeToolCalls: Readonly<Record<string, ActiveToolCall>>;
+  readonly finishReason: O.Option<string>;
   readonly finished: boolean;
   readonly textEnded: boolean;
   readonly textStarted: boolean;
+  readonly usage: OpenAiCompatChatCompletionChunk["usage"];
 };
 
 const initialStreamState = (): StreamState => ({
   activeToolCalls: {},
+  finishReason: O.none(),
   finished: false,
   textEnded: false,
   textStarted: false,
+  usage: O.none(),
 });
 
 const makeAiError = (moduleName: string, method: string, reason: AiError.AiErrorReason): AiError.AiError =>
@@ -724,7 +728,7 @@ const finishStreamParts = (state: StreamState): ReadonlyArray<Response.StreamPar
     ? []
     : [
         ...(state.textStarted && !state.textEnded ? [Response.makePart("text-end", { id: "0" })] : []),
-        makeFinishPart(O.none(), O.none()),
+        makeFinishPart(state.usage, state.finishReason),
       ];
 
 const makeStreamChoiceParts = (
@@ -735,6 +739,8 @@ const makeStreamChoiceParts = (
 ): Effect.Effect<readonly [StreamState, ReadonlyArray<Response.StreamPartEncoded>], AiError.AiError> =>
   Effect.gen(function* () {
     let activeToolCalls = state.activeToolCalls;
+    let finishReason = state.finishReason;
+    const usage = O.isSome(chunk.usage) ? chunk.usage : state.usage;
     const choiceParts = yield* pipe(
       chunk.choices,
       Effect.forEach((choice) =>
@@ -771,6 +777,9 @@ const makeStreamChoiceParts = (
           );
           activeToolCalls = nextActiveToolCalls;
           const hasFinish = O.isSome(choice.finish_reason);
+          if (hasFinish) {
+            finishReason = choice.finish_reason;
+          }
           const completedToolParts = hasFinish
             ? yield* makeCompletedStreamToolCallsParts(moduleName, activeToolCalls)
             : [];
@@ -784,32 +793,30 @@ const makeStreamChoiceParts = (
             ...(hasFinish && (state.textStarted || A.isReadonlyArrayNonEmpty(textParts))
               ? [Response.makePart("text-end", { id: "0" })]
               : []),
-            ...(hasFinish ? [makeFinishPart(chunk.usage, choice.finish_reason)] : []),
           ];
           return parts;
         })
       )
     );
+    const shouldFinish =
+      !state.finished && O.isSome(usage) && (O.isSome(finishReason) || !A.isReadonlyArrayNonEmpty(chunk.choices));
     const parts: Array<Response.StreamPartEncoded> = pipe(choiceParts, A.flatten);
+    const finishedParts = shouldFinish ? [makeFinishPart(usage, finishReason)] : [];
+    const allParts = [...parts, ...finishedParts];
     const textStarted =
       state.textStarted ||
       pipe(
-        parts,
+        allParts,
         A.some((part) => part.type === "text-start")
       );
     const textEnded =
       state.textEnded ||
       pipe(
-        parts,
+        allParts,
         A.some((part) => part.type === "text-end")
       );
-    const finished =
-      state.finished ||
-      pipe(
-        parts,
-        A.some((part) => part.type === "finish")
-      );
-    return Tuple.make({ activeToolCalls, finished, textEnded, textStarted }, parts);
+    const finished = state.finished || shouldFinish;
+    return Tuple.make({ activeToolCalls, finishReason, finished, textEnded, textStarted, usage }, allParts);
   });
 
 const makeStreamResponse = (

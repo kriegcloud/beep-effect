@@ -39,6 +39,10 @@ describe("MimeType helpers", () => {
 
     expect(extractMimeTypes(sample)).toEqual(["text/example-a", "text/example-b"]);
   });
+
+  it("allows empty mime dictionaries at the public extraction boundary", () => {
+    expect(extractMimeTypes({})).toEqual([]);
+  });
 });
 
 describe("MimeType kinds", () => {

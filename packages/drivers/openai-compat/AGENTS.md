@@ -20,8 +20,9 @@
 
 ## Quick Recipes
 ```ts
-import { Effect, Stream } from "effect"
+import { Effect, Layer, Stream } from "effect"
 import { makeFromProvider, OpenAiCompatClient } from "@beep/openai-compat"
+import { FetchHttpClient } from "effect/unstable/http"
 
 const clientProgram = Effect.gen(function* () {
   const client = yield* OpenAiCompatClient
@@ -40,8 +41,12 @@ const languageModel = makeFromProvider({
   }
 })
 
-void clientProgram
-void languageModel
+const clientLayer = OpenAiCompatClient.makeLayer().pipe(
+  Layer.provide(FetchHttpClient.layer)
+)
+
+void Effect.runPromise(clientProgram.pipe(Effect.provide(clientLayer)))
+void Effect.runPromise(languageModel)
 ```
 
 ## Verifications
@@ -57,4 +62,5 @@ void languageModel
 - [ ] Tests added or updated for behavior changes
 - [ ] `bun run check` passes
 - [ ] `bun run test` passes
+- [ ] `bun run type-test` passes
 - [ ] `bun run lint` passes

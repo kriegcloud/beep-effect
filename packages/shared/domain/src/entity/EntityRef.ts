@@ -18,6 +18,8 @@ const $I = $SharedDomainId.create("entity/EntityRef");
 class EntityRefInvariantError extends TaggedErrorClass<EntityRefInvariantError>($I`EntityRefInvariantError`)(
   "EntityRefInvariantError",
   {
+    actualEntityType: S.String,
+    actualId: S.Unknown,
     entityType: S.String,
   },
   $I.annote("EntityRefInvariantError", {
@@ -133,7 +135,11 @@ function assertEntityRefFor<const Entity extends EntityId.Any>(
   ref: EntityRef
 ): asserts ref is EntityRefFor<Entity> {
   if (!isEntityRefFor(entityId, ref)) {
-    throw new EntityRefInvariantError({ entityType: entityId.entityType });
+    throw new EntityRefInvariantError({
+      actualEntityType: ref.entityType,
+      actualId: ref.id,
+      entityType: entityId.entityType,
+    });
   }
 }
 

@@ -31,8 +31,7 @@ INITIATIVE_SUMMARY="${*:-Infer the initiative being closed from the current bran
 
 cd "$ROOT_DIR"
 
-codex exec --cd "$ROOT_DIR" - <<PROMPT
-Use \$quality-review-fix-loop.
+PROMPT_BODY="Use \$quality-review-fix-loop.
 
 Initiative summary:
 ${INITIATIVE_SUMMARY}
@@ -40,5 +39,6 @@ ${INITIATIVE_SUMMARY}
 Start by inspecting the current git state and changed surface. Follow the
 repo-local skill exactly. Do not push, open a PR, reply to GitHub review
 threads, or publish anything unless the user explicitly requested that in the
-initiative summary.
-PROMPT
+initiative summary."
+
+printf '%s\n' "$PROMPT_BODY" | codex exec --cd "$ROOT_DIR" -

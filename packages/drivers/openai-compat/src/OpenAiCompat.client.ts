@@ -166,8 +166,7 @@ const makeHttpClient = (client: HttpClient.HttpClient, options: OpenAiCompatClie
       request.pipe(
         HttpClientRequest.prependUrl(options.apiUrl ?? "https://api.openai.com/v1"),
         options.apiKey === undefined ? identity : HttpClientRequest.bearerToken(options.apiKey),
-        options.headers === undefined ? identity : HttpClientRequest.setHeaders(options.headers),
-        HttpClientRequest.acceptJson
+        options.headers === undefined ? identity : HttpClientRequest.setHeaders(options.headers)
       )
     )
   );
@@ -247,6 +246,7 @@ const makeService = (client: HttpClient.HttpClient, options: OpenAiCompatClientO
   const createChatCompletion: OpenAiCompatClientShape["createChatCompletion"] = (request) =>
     pipe(
       postChatCompletionRequest("createChatCompletion", request),
+      Effect.map(HttpClientRequest.setHeaders({ Accept: "application/json" })),
       Effect.flatMap(HttpClient.filterStatusOk(httpClient).execute),
       Effect.flatMap(decodeResponse),
       Effect.catchTags({
@@ -267,6 +267,7 @@ const makeService = (client: HttpClient.HttpClient, options: OpenAiCompatClientO
       Stream.unwrap(
         pipe(
           postChatCompletionRequest("streamChatCompletion", makeStreamingRequest(request)),
+          Effect.map(HttpClientRequest.setHeaders({ Accept: "text/event-stream" })),
           Effect.flatMap(HttpClient.filterStatusOk(httpClient).execute),
           Effect.flatMap(ensureSseContentType("streamChatCompletion")),
           Effect.map((response) =>

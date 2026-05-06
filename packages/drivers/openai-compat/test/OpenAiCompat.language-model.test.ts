@@ -185,6 +185,66 @@ describe("OpenAiCompat language model", () => {
     })
   );
 
+  it.effect("emits streamed finish after the trailing usage chunk", () =>
+    Effect.gen(function* () {
+      const textChunk = (content: string): OpenAiCompatChatCompletionChunk => ({
+        choices: [
+          {
+            delta: O.some({ content: O.some(content), role: "assistant", tool_calls: O.none() }),
+            finish_reason: O.none(),
+            index: 0,
+          },
+        ],
+        usage: O.none(),
+      });
+      const finishChunk: OpenAiCompatChatCompletionChunk = {
+        choices: [
+          {
+            delta: O.some({ content: O.none(), tool_calls: O.none() }),
+            finish_reason: O.some("stop"),
+            index: 0,
+          },
+        ],
+        usage: O.none(),
+      };
+      const usageChunk: OpenAiCompatChatCompletionChunk = {
+        choices: [],
+        usage: O.some({
+          completion_tokens: O.some(5),
+          prompt_tokens: O.some(3),
+          prompt_tokens_details: O.none(),
+          total_tokens: O.some(8),
+        }),
+      };
+      const languageModel = yield* makeFromProvider({
+        model: "compat-model",
+        moduleName: "OpenAiCompatLanguageModelTest",
+        provider: {
+          createChatCompletion: () => Effect.succeed(makeResponse("unused")),
+          streamChatCompletion: () => Stream.make(textChunk("hello"), finishChunk, usageChunk),
+        },
+      });
+
+      const parts = yield* pipe(
+        languageModel.streamText({ prompt: "hello" }),
+        Stream.runCollect,
+        Effect.map(A.fromIterable)
+      );
+      const finish = pipe(
+        parts,
+        A.findFirst((part) => part.type === "finish"),
+        O.getOrThrow
+      );
+      if (finish.type !== "finish") {
+        return yield* Effect.die("Expected streamed parts to include a finish part.");
+      }
+
+      expect(A.map(parts, (part) => part.type)).toEqual(["text-start", "text-delta", "text-end", "finish"]);
+      expect(finish.usage.inputTokens.total).toBe(3);
+      expect(finish.usage.outputTokens.total).toBe(5);
+    })
+  );
+
   it.effect("decodes partial streaming tool-call deltas", () =>
     Effect.gen(function* () {
       const chunk = yield* decodeChatCompletionChunk({
@@ -481,6 +541,83 @@ describe("OpenAiCompat language model", () => {
       expect(AiError.isAiError(error)).toBe(true);
       expect(error.method).toBe("streamChatCompletion");
       expect(error.reason._tag).toBe("InvalidOutputError");
+    })
+  );
+
+  it.effect("sets operation-specific Accept headers and allows configured overrides", () =>
+    Effect.gen(function* () {
+      const capturedHeaders = yield* Ref.make<ReadonlyArray<Record<string, string>>>([]);
+      const jsonBody =
+        '{"choices":[{"finish_reason":"stop","index":0,"message":{"content":"ok","role":"assistant","tool_calls":[]}}],"usage":{"completion_tokens":2,"prompt_tokens":1,"total_tokens":3}}';
+      const defaultLayer = OpenAiCompatClient.makeLayer(
+        new OpenAiCompatClientOptions({ apiKey: Redacted.make("test-key") })
+      ).pipe(
+        Layer.provide(
+          makeHttpClientLayer((request) =>
+            pipe(
+              Ref.update(capturedHeaders, A.append(request.headers)),
+              Effect.as(
+                request.headers.accept === "text/event-stream"
+                  ? new Response("data: [DONE]\n\n", {
+                      headers: { "content-type": "text/event-stream" },
+                    })
+                  : new Response(jsonBody, {
+                      headers: { "content-type": "application/json" },
+                    })
+              )
+            )
+          )
+        )
+      );
+      const request = new OpenAiCompatChatCompletionRequest({
+        messages: [],
+        model: "compat-model",
+      });
+
+      yield* pipe(
+        Effect.gen(function* () {
+          const client = yield* OpenAiCompatClient;
+          yield* client.createChatCompletion(request);
+          yield* client.streamChatCompletion(request).pipe(Stream.runCollect);
+        }),
+        Effect.provide(defaultLayer)
+      );
+
+      const defaults = yield* Ref.get(capturedHeaders);
+      expect(defaults[0]?.accept).toBe("application/json");
+      expect(defaults[1]?.accept).toBe("text/event-stream");
+
+      const overrideHeaders = yield* Ref.make<ReadonlyArray<Record<string, string>>>([]);
+      const overrideLayer = OpenAiCompatClient.makeLayer(
+        new OpenAiCompatClientOptions({
+          apiKey: Redacted.make("test-key"),
+          headers: { Accept: "application/vnd.compat+json" },
+        })
+      ).pipe(
+        Layer.provide(
+          makeHttpClientLayer((request) =>
+            pipe(
+              Ref.update(overrideHeaders, A.append(request.headers)),
+              Effect.as(
+                new Response(jsonBody, {
+                  headers: { "content-type": "application/json" },
+                })
+              )
+            )
+          )
+        )
+      );
+
+      yield* pipe(
+        Effect.gen(function* () {
+          const client = yield* OpenAiCompatClient;
+          yield* client.createChatCompletion(request);
+        }),
+        Effect.provide(overrideLayer)
+      );
+
+      const overridden = yield* Ref.get(overrideHeaders);
+      expect(overridden[0]?.accept).toBe("application/vnd.compat+json");
     })
   );
 

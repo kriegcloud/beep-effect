@@ -8,7 +8,7 @@
 import { MimeTypesData } from "@beep/data";
 import { $SchemaId } from "@beep/identity/packages";
 import { Struct } from "@beep/utils";
-import { Function as Fn, pipe } from "effect";
+import { Function as Fn, flow, pipe } from "effect";
 import * as A from "effect/Array";
 import { LiteralKit, type LiteralKit as LiteralKitSchema } from "./LiteralKit.ts";
 
@@ -20,6 +20,7 @@ type MimeTypeProperty = {
     readonly extensions: A.NonEmptyReadonlyArray<string>;
   };
 };
+type MimeTypeKey<T extends MimeTypeProperty> = keyof T & string;
 
 type MimeTypeKinds = {
   readonly Application: LiteralKitSchema<
@@ -62,11 +63,21 @@ type MimeTypeSchema = LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typ
  * @since 0.0.0
  * @category utilities
  */
-export const extractMimeTypes = <const T extends MimeTypeProperty>(
-  mime: T
-): A.NonEmptyReadonlyArray<Extract<keyof T, string>> =>
-  Fn.cast<Array<keyof T & string>, A.NonEmptyReadonlyArray<Extract<keyof T, string>>>(
-    pipe(mime, Struct.keys, A.dedupe)
+export const extractMimeTypes: <const T extends MimeTypeProperty>(mime: T) => ReadonlyArray<MimeTypeKey<T>> = flow(
+  Struct.keys,
+  A.dedupe
+);
+
+const extractNonEmptyMimeTypes = <const T extends MimeTypeProperty>(
+  mime: T,
+  fallback: MimeTypeKey<T>
+): A.NonEmptyReadonlyArray<MimeTypeKey<T>> =>
+  pipe(
+    extractMimeTypes(mime),
+    A.match({
+      onEmpty: () => [fallback],
+      onNonEmpty: Fn.identity,
+    })
   );
 
 /**
@@ -88,12 +99,12 @@ export const extractMimeTypes = <const T extends MimeTypeProperty>(
  */
 export const MimeType: MimeTypeSchema = pipe(
   {
-    Application: LiteralKit(extractMimeTypes(MimeTypesData.application)),
-    Video: LiteralKit(extractMimeTypes(MimeTypesData.video)),
-    Text: LiteralKit(extractMimeTypes(MimeTypesData.text)),
-    Image: LiteralKit(extractMimeTypes(MimeTypesData.image)),
-    Audio: LiteralKit(extractMimeTypes(MimeTypesData.audio)),
-    Misc: LiteralKit(extractMimeTypes(MimeTypesData.misc)),
+    Application: LiteralKit(extractNonEmptyMimeTypes(MimeTypesData.application, "application/json")),
+    Video: LiteralKit(extractNonEmptyMimeTypes(MimeTypesData.video, "video/mp4")),
+    Text: LiteralKit(extractNonEmptyMimeTypes(MimeTypesData.text, "text/html")),
+    Image: LiteralKit(extractNonEmptyMimeTypes(MimeTypesData.image, "image/png")),
+    Audio: LiteralKit(extractNonEmptyMimeTypes(MimeTypesData.audio, "audio/mpeg")),
+    Misc: LiteralKit(extractNonEmptyMimeTypes(MimeTypesData.misc, "font/woff2")),
   } as const,
   (kinds) => {
     const { Application, Video, Text, Image, Audio, Misc } = kinds;
