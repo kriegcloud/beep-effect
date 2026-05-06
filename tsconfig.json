@@ -456,6 +456,8 @@
       ],
       "@beep/openai": ["./packages/drivers/openai/src/index.ts"],
       "@beep/openai/*": ["./packages/drivers/openai/src/*"],
+      "@beep/openai-compat": ["./packages/drivers/openai-compat/src/index.ts"],
+      "@beep/openai-compat/*": ["./packages/drivers/openai-compat/src/*"],
       "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
       "@beep/venice-ai/*": ["./packages/drivers/venice-ai/src/*"],
       "@beep/xai": ["./packages/drivers/xai/src/index.ts"],

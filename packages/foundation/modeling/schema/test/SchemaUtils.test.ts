@@ -1,3 +1,4 @@
+import { $SchemaId } from "@beep/identity/packages";
 import * as SchemaUtils from "@beep/schema/SchemaUtils/index";
 import { pluck } from "@beep/schema/SchemaUtils/pluck";
 import { split } from "@beep/schema/SchemaUtils/split";
@@ -77,6 +78,23 @@ describe("toEquivalence", () => {
 
     expect(pipe({ name: "document toEquivalence", tags: ["docs", "tests"] }, sameAsExpected)).toBe(true);
     expect(pipe({ name: "document toEquivalence", tags: ["tests", "docs"] }, sameAsExpected)).toBe(false);
+  });
+});
+
+describe("withStatics", () => {
+  it("preserves statics when identity annotations run later in the pipeline", () => {
+    const TenantName = S.String.pipe(
+      SchemaUtils.withStatics((schema) => ({
+        empty: "" as const,
+        isTenantName: S.is(schema),
+      })),
+      $SchemaId.annoteSchema("TenantName", {
+        description: "Tenant name with helper statics.",
+      })
+    );
+
+    expect(TenantName.empty).toBe("");
+    expect(TenantName.isTenantName("tenant")).toBe(true);
   });
 });
 

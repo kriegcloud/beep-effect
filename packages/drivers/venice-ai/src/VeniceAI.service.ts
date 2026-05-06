@@ -7,7 +7,8 @@
 
 import { $VeniceAiId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Config, Context, Effect, Layer, pipe, Redacted, Stream } from "effect";
+import { decodeJsonString } from "@beep/schema/Json";
+import { Config, Context, Effect, flow, Layer, pipe, type Redacted, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -299,10 +300,11 @@ export class VeniceAIRequestOptions extends S.Class<VeniceAIRequestOptions>($I`V
  *
  * @example
  * ```ts
+ * import { Redacted } from "effect"
  * import { VeniceAIConfigInput } from "@beep/venice-ai"
  *
  * const config = new VeniceAIConfigInput({
- *   apiKey: "test-key",
+ *   apiKey: Redacted.make("test-key"),
  *   baseUrl: "https://api.venice.ai/api/v1"
  * })
  *
@@ -314,7 +316,7 @@ export class VeniceAIRequestOptions extends S.Class<VeniceAIRequestOptions>($I`V
  */
 export class VeniceAIConfigInput extends S.Class<VeniceAIConfigInput>($I`VeniceAIConfigInput`)(
   {
-    apiKey: S.optionalKey(S.String),
+    apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
     baseUrl: S.optionalKey(S.String),
     headers: S.optionalKey(S.Record(S.String, S.String)),
   },
@@ -658,19 +660,40 @@ type VeniceAIErrorOptions = {
   readonly status?: number;
 };
 
-const stringProperty = (value: unknown, key: string): O.Option<string> =>
-  P.isObject(value) && P.hasProperty(value, key) && P.isString(value[key]) ? O.some(value[key]) : O.none();
+const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
+  if (!P.isObject(value)) {
+    return O.none();
+  }
+
+  return O.fromUndefinedOr(
+    Result.getOrElse(
+      Result.try(() => Reflect.get(value, key)),
+      () => undefined
+    )
+  );
+};
+
+const readString = (value: unknown, key: PropertyKey): O.Option<string> =>
+  O.filter(readProperty(value, key), P.isString);
+
+const safeBoolean = (evaluate: () => boolean): boolean => Result.getOrElse(Result.try(evaluate), () => false);
 
 const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
-  HttpClientError.isHttpClientError(cause) ? O.some(`HttpClientError:${cause.reason._tag}`) : O.none();
+  safeBoolean(() => HttpClientError.isHttpClientError(cause))
+    ? pipe(
+        readProperty(cause, "reason"),
+        O.flatMap((reason) => readString(reason, "_tag")),
+        O.map((tag) => `HttpClientError:${tag}`)
+      )
+    : O.none();
 
 const causeFromUnknown = (cause: unknown): O.Option<string> =>
   P.isUndefined(cause)
     ? O.none()
     : O.firstSomeOf([
         httpClientCauseLabel(cause),
-        stringProperty(cause, "_tag"),
-        stringProperty(cause, "name"),
+        readString(cause, "_tag"),
+        readString(cause, "name"),
         P.isString(cause) ? O.some("String") : O.none(),
       ]);
 
@@ -702,7 +725,7 @@ class ChatCompletionTextResponse extends S.Class<ChatCompletionTextResponse>($I`
 ) {}
 
 const decodeChatCompletionTextResponse = S.decodeUnknownEffect(ChatCompletionTextResponse);
-const decodeSseJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
+const decodeSseJson = decodeJsonString;
 
 const createChatCompletionOperation = new VeniceAIOperationDescriptor({
   method: "POST",
@@ -1275,7 +1298,7 @@ export type VeniceAIShape = VeniceAINonStreamingShape & {
 };
 
 type ResolvedVeniceAIConfig = {
-  readonly apiKey: O.Option<Redacted.Redacted>;
+  readonly apiKey: O.Option<Redacted.Redacted<string>>;
   readonly baseUrl: string;
   readonly headers: Readonly<Record<string, string>>;
 };
@@ -1290,7 +1313,7 @@ const resolveConfig = (
 ): ResolvedVeniceAIConfig => ({
   apiKey: pipe(
     O.fromUndefinedOr(redactedApiKey),
-    O.orElse(() => pipe(O.fromUndefinedOr(config.apiKey), O.map(Redacted.make)))
+    O.orElse(() => O.fromUndefinedOr(config.apiKey))
   ),
   baseUrl: normalizeBaseUrl(config.baseUrl ?? VENICE_API_URL),
   headers: config.headers ?? {},
@@ -1306,6 +1329,28 @@ const hasRequestContentType = (descriptor: VeniceAIOperationDescriptor, contentT
 
 const responseContentType = (response: HttpClientResponse.HttpClientResponse): O.Option<string> =>
   O.fromNullishOr(response.headers["content-type"]);
+
+const diagnosticsFor = (event: string, error: VeniceAIError): Readonly<Record<string, unknown>> => ({
+  event,
+  operation: error.operation,
+  path: error.path,
+  provider: "venice-ai",
+  reason: error.reason,
+  ...R.getSomes({
+    cause: O.fromUndefinedOr(error.cause),
+  }),
+  ...R.getSomes({
+    status: O.fromUndefinedOr(error.status),
+  }),
+});
+
+const logDriverFailure =
+  (event: string) =>
+  (error: VeniceAIError): Effect.Effect<void> =>
+    Effect.logDebug(diagnosticsFor(event, error));
+
+const logStatusFailure = (error: VeniceAIError): Effect.Effect<void> =>
+  Effect.logWarning(diagnosticsFor("response-status", error));
 
 const defaultAcceptHeader = (descriptor: VeniceAIOperationDescriptor): string =>
   pipe(
@@ -1434,9 +1479,10 @@ const executeRaw = Effect.fn("VeniceAI.executeRaw")(function* (
 ) {
   const request = yield* buildRequest(config, descriptor, options);
 
-  return yield* client
-    .execute(request)
-    .pipe(Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "transport", { cause })));
+  return yield* client.execute(request).pipe(
+    Effect.mapError((cause) => VeniceAIError.fromDescriptor(descriptor, "transport", { cause })),
+    Effect.tapError(logDriverFailure("transport"))
+  );
 });
 
 const responseContext = (response: HttpClientResponse.HttpClientResponse) => ({
@@ -1453,9 +1499,19 @@ const ensureSuccessStatus = (
 ): Effect.Effect<HttpClientResponse.HttpClientResponse, VeniceAIError> =>
   response.status >= 200 && response.status < 300
     ? Effect.succeed(response)
-    : Effect.fail(VeniceAIError.fromDescriptor(descriptor, "response status", { status: response.status }));
+    : pipe(VeniceAIError.fromDescriptor(descriptor, "response status", { status: response.status }), (error) =>
+        pipe(logStatusFailure(error), Effect.andThen(Effect.fail(error)))
+      );
 
-const isSseContentType = (contentType: string): boolean => Str.includes("text/event-stream")(contentType);
+const contentMediaType: (contentType: string) => string = flow(
+  Str.split(";"),
+  A.get(0),
+  O.getOrElse(() => ""),
+  Str.trim,
+  Str.toLowerCase
+);
+
+const isSseContentType = (contentType: string): boolean => contentMediaType(contentType) === "text/event-stream";
 
 const ensureSseResponse = (
   descriptor: VeniceAIOperationDescriptor,
@@ -1513,11 +1569,26 @@ const executeOperation = (
   client: HttpClient.HttpClient,
   config: ResolvedVeniceAIConfig,
   descriptor: VeniceAIOperationDescriptor
-): VeniceAIMethod =>
-  Effect.fn(`VeniceAI.${descriptor.operationId}`)(function* (request = new VeniceAIRequestOptions({})) {
+): VeniceAIMethod => {
+  const operation = Effect.fn(`VeniceAI.${descriptor.operationId}`)(function* (
+    request = new VeniceAIRequestOptions({})
+  ) {
     const response = yield* executeRaw(client, config, descriptor, request);
     return yield* decodeResponse(descriptor, response);
   });
+
+  return (request) =>
+    operation(request).pipe(
+      Effect.tapError(logDriverFailure("operation")),
+      Effect.withSpan("VeniceAI.operation", {
+        attributes: {
+          operation: descriptor.operationId,
+          path: descriptor.path,
+          provider: "venice-ai",
+        },
+      })
+    );
+};
 
 const addStreamFlag = (body: unknown): unknown => (P.isObject(body) ? { ...body, stream: true } : { stream: true });
 
@@ -1644,6 +1715,15 @@ const streamOperation =
           Stream.mapEffect(({ data, index }) => parseSseData(descriptor, data, index))
         );
       })
+    ).pipe(
+      Stream.tapError(logDriverFailure("stream")),
+      Stream.withSpan("VeniceAI.stream", {
+        attributes: {
+          operation: descriptor.operationId,
+          path: descriptor.path,
+          provider: "venice-ai",
+        },
+      })
     );
 
 const extractChatText = Effect.fn("VeniceAI.extractChatText")(function* (response: VeniceAIResponse) {
@@ -1759,9 +1839,10 @@ export class VeniceAI extends Context.Service<VeniceAI, VeniceAIShape>()($I`Veni
    *
    * @example
    * ```ts
+   * import { Redacted } from "effect"
    * import { VeniceAI, VeniceAIConfigInput } from "@beep/venice-ai"
    *
-   * const layer = VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: "test-key" }))
+   * const layer = VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: Redacted.make("test-key") }))
    * void layer
    * ```
    *

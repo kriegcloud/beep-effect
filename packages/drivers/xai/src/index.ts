@@ -98,3 +98,19 @@ export * from "./XAi.models.ts";
  * @since 0.0.0
  */
 export * from "./XAi.service.ts";
+
+/**
+ * Effect AI language-model adapter exports for xAI chat completions.
+ *
+ * @example
+ * ```ts
+ * import { XAiLanguageModel } from "@beep/xai"
+ *
+ * const aiModel = XAiLanguageModel.model("grok-3")
+ * void aiModel
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * as XAiLanguageModel from "./XAiLanguageModel.ts";

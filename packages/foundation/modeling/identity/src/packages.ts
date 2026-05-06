@@ -108,7 +108,8 @@ const composers = $I.compose(
   "sandbox",
   "openai",
   "venice-ai",
-  "xai"
+  "xai",
+  "openai-compat"
 );
 
 // --- foundation ---
@@ -625,26 +626,26 @@ export const $ProfessionalRuntimeProofId: Identity.IdentityComposer<"@beep/profe
 /**
  * RepoPkgs - export object containing all package IdentityComposer's
  *
- * @category Configuration
+ * @category configuration
  * @since 0.0.0
  */
 export const RepoPkgs = composers;
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const $MdId: Identity.IdentityComposer<"@beep/md"> = composers.$MdId;
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = composers.$CodedankWebId;
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const $OpIpWebId: Identity.IdentityComposer<"@beep/op-ip-web"> = composers.$OpIpWebId;
 
@@ -656,13 +657,13 @@ export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const $FfmpegId: Identity.IdentityComposer<"@beep/ffmpeg"> = composers.$FfmpegId;
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const $PostgresId: Identity.IdentityComposer<"@beep/postgres"> = composers.$PostgresId;
 
@@ -825,18 +826,34 @@ export const $SandboxId: Identity.IdentityComposer<"@beep/sandbox"> = composers.
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const $OpenaiId: Identity.IdentityComposer<"@beep/openai"> = composers.$OpenaiId;
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai"> = composers.$VeniceAiId;
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;
+
+/**
+ * Identity composer for `@beep/openai-compat`.
+ *
+ * @example
+ * ```typescript
+ * import { $OpenaiCompatId } from "@beep/identity"
+ *
+ * const id = $OpenaiCompatId.make("LanguageModel")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat"> = composers.$OpenaiCompatId;

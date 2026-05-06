@@ -37,6 +37,9 @@
       "path": "packages/drivers/openai"
     },
     {
+      "path": "packages/drivers/openai-compat"
+    },
+    {
       "path": "packages/drivers/postgres"
     },
     {
