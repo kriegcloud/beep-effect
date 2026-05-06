@@ -464,7 +464,10 @@
       "@beep/repo-ai-metrics": [
         "./packages/tooling/library/ai-metrics/src/index.ts"
       ],
-      "@beep/repo-ai-metrics/*": ["./packages/tooling/library/ai-metrics/src/*"]
+      "@beep/repo-ai-metrics/*": [
+        "./packages/tooling/library/ai-metrics/src/*"
+      ],
+      "@beep/duckdb": ["./packages/drivers/duckdb/src/index.ts"]
     }
   }
 }

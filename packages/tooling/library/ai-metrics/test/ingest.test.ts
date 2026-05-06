@@ -1,23 +1,33 @@
+import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import {
   AiMetricsConfigSnapshotInput,
   AiMetricsDeployTarget,
+  AiMetricsDerivedStorageWriteInput,
+  AiMetricsDerivedTranscriptRecord,
+  AiMetricsForwarderInput,
   AiMetricsInstallInput,
   AiMetricsPrivacyMode,
+  AiMetricsRawArchiveObject,
   AiMetricsSourceDiscoveryInput,
   AiMetricsTool,
   AiMetricsTranscriptSource,
   configSnapshotToJson,
+  decryptEncryptedRawArchiveEnvelope,
   discoverAiMetricsSources,
+  forwarderRunResultToJson,
   makeAiMetricsConfigSnapshot,
   makeAiMetricsInstallSpec,
   makeAiMetricsPrivacyCheckResult,
   privacyCheckToJson,
+  readEncryptedRawArchiveEnvelope,
+  runAiMetricsForwarder,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
+  writeAiMetricsDerivedStorage,
 } from "@beep/repo-ai-metrics";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Effect, Encoding, FileSystem, Order, Path, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 
@@ -94,6 +104,167 @@ describe("@beep/repo-ai-metrics", () => {
   );
 
   it.effect(
+    "runs durable ingest with encrypted raw archive, DuckDB projection, and Parquet export",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+          const claudeRoot = path.join(homeDir, ".claude/projects/repo");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const rawArchiveKey = Redacted.make(Encoding.encodeBase64(new Uint8Array(32).fill(7)));
+
+          yield* writeText(
+            path.join(codexRoot, "codex.jsonl"),
+            [
+              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
+              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"SECRET_TOKEN=secret-value"}}',
+            ].join("\n")
+          );
+          yield* writeText(
+            path.join(claudeRoot, "claude.jsonl"),
+            '{"type":"assistant","timestamp":"2026-05-05T10:02:00Z","message":{"content":"done"}}'
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
+
+          yield* Effect.gen(function* () {
+            const result = yield* runAiMetricsForwarder(
+              new AiMetricsForwarderInput({
+                claudeProjectsRoot: claudeRoot,
+                codexSessionsRoot: codexRoot,
+                dataRoot,
+                hashSalt: "test-salt",
+                homeDir,
+                includeAll: true,
+                rawArchiveKey,
+                repoRoot,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+
+            expect(result.sourceFileCount).toBe(2);
+            expect(result.archiveObjectCount).toBe(2);
+            expect(result.turnCount).toBe(3);
+            expect(yield* forwarderRunResultToJson(result)).toContain(result.ingestRunId);
+            expect(yield* fs.exists(path.join(result.parquetExportDir, "ai_metrics_turns.parquet"))).toBe(true);
+
+            const duckdb = yield* DuckDb;
+            const turnRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_turns");
+            expect(turnRows).toEqual([{ count: "3" }]);
+            const archiveRows = yield* duckdb.query(
+              "SELECT archive_path FROM ai_metrics_raw_archive_objects WHERE source_kind = 'codex'"
+            );
+            const archivePath = globalThis.String(archiveRows[0]?.archive_path ?? "");
+            const archiveText = yield* fs.readFileString(archivePath);
+            expect(archiveText).not.toContain("secret-value");
+
+            const envelope = yield* readEncryptedRawArchiveEnvelope(archivePath);
+            const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKey });
+            expect(plaintext).toContain("secret-value");
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "retains repeated derived ingest runs for the same source records",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const dataRoot = path.join(tmpDir, "metrics");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const sourcePath = path.join(tmpDir, "home/.codex/sessions/codex.jsonl");
+          const content = '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}';
+
+          yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
+
+          yield* Effect.gen(function* () {
+            const summary = yield* summarizeTranscriptText({
+              content,
+              hashSalt: "test-salt",
+              sourceKind: AiMetricsTranscriptSource.Enum.codex,
+              sourcePath,
+            });
+            const privacy = yield* makeAiMetricsPrivacyCheckResult({
+              content,
+              hashSalt: "test-salt",
+              sourcePath,
+              summary,
+            });
+            const installSpec = yield* makeAiMetricsInstallSpec(
+              new AiMetricsInstallInput({
+                dataRoot,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+            const configSnapshot = yield* makeAiMetricsConfigSnapshot(
+              new AiMetricsConfigSnapshotInput({
+                repoRoot: path.join(tmpDir, "repo"),
+              })
+            );
+            const record = new AiMetricsDerivedTranscriptRecord({
+              archiveObject: new AiMetricsRawArchiveObject({
+                algorithm: "AES-256-GCM",
+                archiveObjectId: "raw-content-addressed-object",
+                archivePath: path.join(dataRoot, "raw/codex/raw-content-addressed-object.json"),
+                created: false,
+                encryptedAtEpochMillis: 1,
+                plaintextContentHash: "plaintext-content-hash",
+                sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                sourcePathHash: summary.sourcePathHash,
+              }),
+              privacy,
+            });
+            const baseInput = {
+              configSnapshot: configSnapshot.snapshot,
+              records: [record],
+              startedAtEpochMillis: 1,
+              storage: installSpec.storage,
+              target: AiMetricsDeployTarget.Enum.local,
+            };
+
+            yield* writeAiMetricsDerivedStorage(
+              new AiMetricsDerivedStorageWriteInput({
+                ...baseInput,
+                ingestRunId: "forwarder-1",
+              })
+            );
+            yield* writeAiMetricsDerivedStorage(
+              new AiMetricsDerivedStorageWriteInput({
+                ...baseInput,
+                ingestRunId: "forwarder-2",
+              })
+            );
+
+            const duckdb = yield* DuckDb;
+            const runRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_ingest_runs");
+            const runArchiveCounts = yield* duckdb.query(
+              "SELECT archive_object_count::integer AS archiveObjectCount FROM ai_metrics_ingest_runs ORDER BY ingest_run_id"
+            );
+            const sourceRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_source_files");
+            const archiveRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_raw_archive_objects");
+            const sessionRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_sessions");
+            const turnRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_turns");
+
+            expect(runRows).toEqual([{ count: "2" }]);
+            expect(runArchiveCounts).toEqual([{ archiveObjectCount: 0 }, { archiveObjectCount: 0 }]);
+            expect(sourceRows).toEqual([{ count: "2" }]);
+            expect(archiveRows).toEqual([{ count: "2" }]);
+            expect(sessionRows).toEqual([{ count: "2" }]);
+            expect(turnRows).toEqual([{ count: "2" }]);
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
     "resolves the dankserver install target",
     Effect.fn(function* () {
       const spec = yield* makeAiMetricsInstallSpec(
@@ -101,6 +272,7 @@ describe("@beep/repo-ai-metrics", () => {
           defaultTool: AiMetricsTool.Enum.phoenix,
           hashSaltSecretRef: "op://beep-effect/ai-metrics/hash-salt",
           privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
+          rawArchiveKeySecretRef: "op://beep-effect/ai-metrics/raw-archive-key",
           target: AiMetricsDeployTarget.Enum.dankserver,
         })
       );

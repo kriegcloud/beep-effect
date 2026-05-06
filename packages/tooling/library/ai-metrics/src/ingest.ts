@@ -7,7 +7,7 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Effect, Order, pipe } from "effect";
+import { Effect, flow, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -129,21 +129,17 @@ const decodeTranscriptTurn = (
   );
 };
 
-const eventNameList = (events: ReadonlyArray<AgentTurn>): ReadonlyArray<string> =>
-  pipe(
-    events,
-    A.map((event) => event.eventName),
-    A.dedupe,
-    A.sort(Order.String)
-  );
+const eventNameList: (events: ReadonlyArray<AgentTurn>) => ReadonlyArray<string> = flow(
+  A.map((event) => event.eventName),
+  A.dedupe,
+  A.sort(Order.String)
+);
 
-const timestampList = (events: ReadonlyArray<AgentTurn>): ReadonlyArray<string> =>
-  pipe(
-    events,
-    A.map((event) => O.fromNullishOr(event.timestamp)),
-    A.getSomes,
-    A.sort(Order.String)
-  );
+const timestampList: (events: ReadonlyArray<AgentTurn>) => ReadonlyArray<string> = flow(
+  A.map((event) => O.fromNullishOr(event.timestamp)),
+  A.getSomes,
+  A.sort(Order.String)
+);
 
 const summaryTimestampFields = (
   events: ReadonlyArray<AgentTurn>
