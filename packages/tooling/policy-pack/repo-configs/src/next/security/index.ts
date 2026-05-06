@@ -33,7 +33,7 @@ const isFalse = (value: unknown): value is false => Eq.equals(false)(value);
  * @category schemas
  * @since 0.0.0
  */
-export const SecureHeader = class SecureHeader extends S.Class<SecureHeader>($I`SecureHeader`)(
+export class SecureHeader extends S.Class<SecureHeader>($I`SecureHeader`)(
   {
     key: S.String.annotateKey({
       description: "HTTP response header name.",
@@ -45,24 +45,7 @@ export const SecureHeader = class SecureHeader extends S.Class<SecureHeader>($I`
   $I.annote("SecureHeader", {
     description: "A secure HTTP response header emitted through Next.js headers().",
   })
-) {};
-
-/**
- * A secure HTTP response header emitted through Next.js `headers()`.
- *
- * @example
- * ```ts
- * import type { SecureHeader } from "@beep/repo-configs/next/security"
- * const header: SecureHeader = {
- *   key: "X-Frame-Options",
- *   value: "DENY"
- * }
- * void header
- * ```
- * @category models
- * @since 0.0.0
- */
-export type SecureHeader = typeof SecureHeader.Type;
+) {}
 
 const HeaderList = SecureHeader.pipe(
   S.Array,

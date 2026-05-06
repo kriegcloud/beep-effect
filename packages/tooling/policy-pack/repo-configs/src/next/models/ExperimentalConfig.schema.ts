@@ -10,6 +10,7 @@ import { LiteralKit } from "@beep/schema";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { ExperimentalConfig as ExperimentalConfigFromNext } from "next/dist/server/config-shared.js";
+import { isFunctionValue } from "../internal.ts";
 import { LightningCssFeatures } from "./ConfigPrimitives.schema.ts";
 import { SizeLimit } from "./Shared.schema.ts";
 import { SubresourceIntegrityAlgorithm } from "./SubresourceIntegrityPlugin.schema.ts";
@@ -27,8 +28,6 @@ const MdxType = LiteralKit(["gfm", "commonmark"] as const);
 const BrowserDebugLevel = LiteralKit(["error", "warn", "verbose"] as const);
 const ReportSystemEnvInlining = LiteralKit(["error", "warn"] as const);
 const SwcEnvMode = LiteralKit(["usage", "entry"] as const);
-
-const isFunctionValue = <A extends Function>(value: unknown): value is A => P.isFunction(value);
 
 const typedUnknown = <A>(name: string, description: string) =>
   S.declare<A>((value: unknown): value is A => P.isUnknown(value), {

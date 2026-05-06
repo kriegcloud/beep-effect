@@ -7,9 +7,9 @@
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { SchemaAST } from "effect";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { NextConfig as NextConfigFromNext } from "next";
+import { isFunctionValue } from "../internal.ts";
 
 const $I = $RepoConfigsId.create("next/models/Compiler.schema");
 
@@ -17,7 +17,6 @@ const StringArray = S.String.pipe(S.Array, S.mutable);
 const StringTuple = S.mutable(S.Tuple([S.String, S.String]));
 const UnknownRecord = S.Record(S.String, S.Unknown);
 
-const isFunctionValue = <A extends Function>(value: unknown): value is A => P.isFunction(value);
 const makeStructFromFields = <const Fields extends S.Struct.Fields>(fields: Fields): S.Struct<Fields> =>
   S.make<S.Struct<Fields>>(
     new SchemaAST.Objects(

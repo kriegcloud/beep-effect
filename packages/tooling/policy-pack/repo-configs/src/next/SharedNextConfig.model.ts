@@ -18,14 +18,13 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type { NextConfig as NextConfigFromNext } from "next";
+import { isFunctionValue, schemaIssueToError } from "./internal.ts";
 import { AllowedDevOrigin } from "./models/AllowedDevOrigin.schema.ts";
 import { defineNextConfig, NextConfig as NextConfigModel } from "./NextConfig.model.ts";
 import { SecureHeadersConfig, withSecureHeaders } from "./security/index.ts";
 
 const $I = $RepoConfigsId.create("next/SharedNextConfig.model");
 const require = createRequire(import.meta.url);
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
-const isFunctionValue = <A extends Function>(value: unknown): value is A => P.isFunction(value);
 const isFalse = (value: unknown): value is false => Eq.equals(false)(value);
 
 const StringList = S.String.pipe(
@@ -88,7 +87,7 @@ const AnalyzerLogLevel = LiteralKit(["info", "warn", "error", "silent"] as const
  * @category schemas
  * @since 0.0.0
  */
-export const BeepNextConfigEnv = class BeepNextConfigEnv extends S.Class<BeepNextConfigEnv>($I`BeepNextConfigEnv`)(
+export class BeepNextConfigEnv extends S.Class<BeepNextConfigEnv>($I`BeepNextConfigEnv`)(
   {
     ANALYZE: optional(S.String, "Enables bundle analyzer output when set to 1."),
     NEXT_DISABLE_PWA: optional(S.String, "Keeps PWA disabled unless set to 0."),
@@ -96,21 +95,7 @@ export const BeepNextConfigEnv = class BeepNextConfigEnv extends S.Class<BeepNex
   $I.annote("BeepNextConfigEnv", {
     description: "Environment snapshot understood by the shared Next.js config preset.",
   })
-) {};
-
-/**
- * Environment snapshot understood by the shared Next.js config preset.
- *
- * @example
- * ```ts
- * import type { BeepNextConfigEnv } from "@beep/repo-configs/next"
- * const env: BeepNextConfigEnv = { ANALYZE: "1" }
- * void env
- * ```
- * @category models
- * @since 0.0.0
- */
-export type BeepNextConfigEnv = typeof BeepNextConfigEnv.Type;
+) {}
 
 class BeepNextBundleAnalyzerConfigOptions extends S.Class<BeepNextBundleAnalyzerConfigOptions>(
   $I`BeepNextBundleAnalyzerConfigOptions`
@@ -351,10 +336,8 @@ const NextPwaFactory = S.declare<NextPwaFactory>(isFunctionValue, {
     description: "Callable next-pwa plugin factory.",
   })
 );
-const nextPwaFactory = Result.getOrThrowWith(
-  S.decodeUnknownResult(NextPwaFactory)(require("next-pwa")),
-  schemaIssueToError
-);
+const loadNextPwaFactory = (): NextPwaFactory =>
+  Result.getOrThrowWith(S.decodeUnknownResult(NextPwaFactory)(require("next-pwa")), schemaIssueToError);
 const decodeBeepNextConfigEnvResult = S.decodeUnknownResult(BeepNextConfigEnv);
 const decodeBeepNextConfigOptionsResult = S.decodeUnknownResult(BeepNextConfigOptions);
 
@@ -432,6 +415,7 @@ const makePwaPlugin = (options: BeepNextConfigOptions): O.Option<NextConfigPlugi
   pipe(
     pwaConfig(options.pwa),
     O.map((config) => {
+      const nextPwaFactory = loadNextPwaFactory();
       const passthroughOptions = pipe(O.fromNullishOr(config.options), O.getOrElse(emptyRecord));
       return nextPwaFactory({
         ...passthroughOptions,

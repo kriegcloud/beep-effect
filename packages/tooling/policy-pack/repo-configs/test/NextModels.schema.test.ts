@@ -20,12 +20,13 @@ describe("Next shared schemas", () => {
     await expect(Effect.runPromise(decodeFileSizeSuffix("MB"))).resolves.toBe("MB");
     await expect(Effect.runPromise(decodeSizeLimit(1024))).resolves.toBe(1024);
     await expect(Effect.runPromise(decodeSizeLimit("1.5gb"))).resolves.toBe("1.5gb");
-    await expect(Effect.runPromise(decodeSizeLimit("-2KB"))).resolves.toBe("-2KB");
   });
 
   it("rejects malformed size suffixes and size limit strings", async () => {
     expect(Exit.isFailure(await exit(decodeFileSizeSuffix("xb")))).toBe(true);
     expect(Exit.isFailure(await exit(decodeFileSizeSuffix("mbps")))).toBe(true);
+    expect(Exit.isFailure(await exit(decodeSizeLimit(-1)))).toBe(true);
+    expect(Exit.isFailure(await exit(decodeSizeLimit("-2KB")))).toBe(true);
     expect(Exit.isFailure(await exit(decodeSizeLimit("1")))).toBe(true);
     expect(Exit.isFailure(await exit(decodeSizeLimit("1xb")))).toBe(true);
     expect(Exit.isFailure(await exit(decodeSizeLimit("mb")))).toBe(true);

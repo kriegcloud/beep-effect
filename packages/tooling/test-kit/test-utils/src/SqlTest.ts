@@ -24,6 +24,7 @@ const PgliteImageName = "beep/pglite-testcontainers:0.4.5";
 const PgliteDockerContextUrl = new URL("../docker/pglite", import.meta.url);
 const PgliteHealthCheckCommand =
   "node -e \"const { Client } = require('pg'); const client = new Client({ host: '127.0.0.1', port: Number(process.env.PGPORT || '5432'), database: process.env.PGDATABASE, user: process.env.PGUSER, password: process.env.PGPASSWORD, ssl: false }); client.connect().then(() => client.query('select 1')).then(() => client.end()).catch((cause) => { console.error(cause); process.exit(1); });\"";
+const PgliteHealthCheckIntervalMs = 1_000;
 let pgliteImageBuild = O.none<Promise<GenericContainer>>();
 
 const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardown"]).annotate(
@@ -623,9 +624,9 @@ const startPgliteContainer = Effect.fn("SqlTest.startPgliteContainer")(function*
       })
       .withHealthCheck({
         test: ["CMD-SHELL", PgliteHealthCheckCommand],
-        interval: 250,
+        interval: PgliteHealthCheckIntervalMs,
         timeout: 1_000,
-        retries: 1_000,
+        retries: Math.ceil(config.startupTimeoutMs / PgliteHealthCheckIntervalMs),
       })
       .withStartupTimeout(config.startupTimeoutMs)
       .withWaitStrategy(Testcontainers.Wait.forHealthCheck());

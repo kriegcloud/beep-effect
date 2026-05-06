@@ -6,7 +6,9 @@
  */
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $RepoConfigsId.create("next/models/Shared.schema");
 
@@ -48,10 +50,23 @@ export const FileSizeSuffix = S.TemplateLiteral([FileSizeScale, FileSizeByte]).p
  */
 export type FileSizeSuffix = typeof FileSizeSuffix.Type;
 
-const SizeLimitText = S.TemplateLiteral([S.Number, FileSizeSuffix]);
+const NonNegativeSizeLimitNumber = S.Number.check(
+  S.isGreaterThanOrEqualTo(0, {
+    identifier: $I`NonNegativeSizeLimitNumber`,
+    title: "Non-negative size limit number",
+    description: "A numeric Next.js size limit must be zero or greater.",
+  })
+);
+const SizeLimitText = S.TemplateLiteral([S.Number, FileSizeSuffix]).check(
+  S.makeFilter(P.not(Str.startsWith("-")), {
+    identifier: $I`NonNegativeSizeLimitText`,
+    title: "Non-negative size limit text",
+    description: "A suffixed Next.js size limit must not start with a negative sign.",
+  })
+);
 
 /**
- * Numeric or suffixed string size limit accepted by Next.js.
+ * Non-negative numeric or suffixed string size limit accepted by Next.js.
  *
  * @example
  * ```ts
@@ -64,15 +79,16 @@ const SizeLimitText = S.TemplateLiteral([S.Number, FileSizeSuffix]);
  * @category schemas
  * @since 0.0.0
  */
-export const SizeLimit = S.Union([S.Number, SizeLimitText]).pipe(
+export const SizeLimit = S.Union([NonNegativeSizeLimitNumber, SizeLimitText]).pipe(
   $I.annoteSchema("SizeLimit", {
-    description: "Numeric or suffixed string size limit accepted by Next.js.",
-    documentation: "Matches Next.js SizeLimit: a number or a string shaped as `${number}${FileSizeSuffix}`.",
+    description: "Non-negative numeric or suffixed string size limit accepted by Next.js.",
+    documentation:
+      "Matches Next.js SizeLimit shape while rejecting negative values that are not meaningful size limits.",
   })
 );
 
 /**
- * Numeric or suffixed string size limit accepted by Next.js.
+ * Non-negative numeric or suffixed string size limit accepted by Next.js.
  *
  * @example
  * ```ts

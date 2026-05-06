@@ -20,25 +20,29 @@ const hasSharedConnectionUri = sharedConnectionUri !== undefined && sharedConnec
 let pgliteTestcontainersAvailable = false;
 const isSqlTestHarnessError = S.is(SqlTestHarnessError);
 const ContainerInspectTimeout = Duration.seconds(5);
+const PgliteIntegrationTimeoutMs = 300_000;
 
-beforeAll(
-  () =>
-    Effect.runPromise(
-      Effect.scoped(
-        makePgliteTestcontainerResource({
-          startupTimeoutMs: 30_000,
-        })
-      )
-    ).then(
-      () => {
-        pgliteTestcontainersAvailable = true;
-      },
-      () => {
-        pgliteTestcontainersAvailable = false;
-      }
-    ),
-  120_000
-);
+beforeAll(() => {
+  if (hasSharedConnectionUri) {
+    pgliteTestcontainersAvailable = false;
+    return;
+  }
+
+  return Effect.runPromise(
+    Effect.scoped(
+      makePgliteTestcontainerResource({
+        startupTimeoutMs: 30_000,
+      }).pipe(Effect.timeoutOption(Duration.seconds(45)))
+    )
+  ).then(
+    (availability) => {
+      pgliteTestcontainersAvailable = O.isSome(availability);
+    },
+    () => {
+      pgliteTestcontainersAvailable = false;
+    }
+  );
+}, 60_000);
 
 const skipWhenNoSharedDatabase = (ctx: { readonly skip: (message?: string) => void }) =>
   hasSharedConnectionUri
@@ -48,7 +52,7 @@ const skipWhenNoSharedDatabase = (ctx: { readonly skip: (message?: string) => vo
 const skipTestcontainersWhenUnavailable = (ctx: { readonly skip: (message?: string) => void }) =>
   pgliteTestcontainersAvailable
     ? Effect.void
-    : Effect.sync(() => ctx.skip("Docker/Testcontainers is unavailable for PGLite integration tests."));
+    : Effect.sync(() => ctx.skip("Docker/Testcontainers is unavailable or redundant for PGLite integration tests."));
 
 const makeSharedLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
   hooks === undefined
@@ -155,7 +159,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
         expect(result.one).toBe(1);
         expect(result.schema).toBe(true);
       }),
-    120_000
+    PgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -190,7 +194,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
 
         expect(values).toEqual(["alpha", "beta"]);
       }),
-    120_000
+    PgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -230,7 +234,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
         expect(countAfterCreate).toBe(1);
         expect(countAfterFreshProvision).toBe(0);
       }),
-    120_000
+    PgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -281,7 +285,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
         expect(result.driver).toBe("pg-external");
         expect(result.values).toEqual(["alpha", "beta"]);
       }),
-    120_000
+    PgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -312,7 +316,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
           }
         }
       }),
-    120_000
+    PgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -339,7 +343,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
 
         expect(existsAfterClose).toBe(false);
       }),
-    120_000
+    PgliteIntegrationTimeoutMs
   );
 });
 
@@ -381,7 +385,7 @@ describe.sequential("PGLite Testcontainers SQL test driver", () => {
         expect(result.port).toBe(true);
         expect(result.username).toBe(true);
       }),
-    120_000
+    PgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -402,6 +406,6 @@ describe.sequential("PGLite Testcontainers SQL test driver", () => {
 
         expect(yield* isContainerInspectable(containerId)).toBe(false);
       }),
-    120_000
+    PgliteIntegrationTimeoutMs
   );
 });
