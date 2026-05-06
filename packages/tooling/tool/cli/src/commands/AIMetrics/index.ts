@@ -113,10 +113,6 @@ const hashSaltSecretRefFlag = Flag.string("hash-salt-secret-ref").pipe(
   Flag.withDescription("Secret reference that resolves BEEP_AI_METRICS_HASH_SALT for non-local install targets"),
   Flag.optional
 );
-const rawArchiveKeyFlag = Flag.string("raw-archive-key").pipe(
-  Flag.withDescription("Base64 32-byte AES-256-GCM key used to encrypt raw archive objects"),
-  Flag.optional
-);
 const rawArchiveKeySecretRefFlag = Flag.string("raw-archive-key-secret-ref").pipe(
   Flag.withDescription("Secret reference that resolves BEEP_AI_METRICS_RAW_ARCHIVE_KEY for non-local install targets"),
   Flag.optional
@@ -289,11 +285,7 @@ const resolveHashSaltSecretRef = Effect.fn("AIMetrics.resolveHashSaltSecretRef")
   return O.isSome(envRef) ? envRef.value : undefined;
 });
 
-const resolveRawArchiveKey = Effect.fn("AIMetrics.resolveRawArchiveKey")(function* (rawArchiveKey: O.Option<string>) {
-  if (O.isSome(rawArchiveKey)) {
-    return Redacted.make(rawArchiveKey.value);
-  }
-
+const resolveRawArchiveKey = Effect.fn("AIMetrics.resolveRawArchiveKey")(function* () {
   const envKey = yield* readOptionalRedactedConfigString("BEEP_AI_METRICS_RAW_ARCHIVE_KEY");
   if (O.isSome(envKey) && Str.isNonEmpty(Str.trim(Redacted.value(envKey.value)))) {
     return envKey.value;
@@ -301,7 +293,7 @@ const resolveRawArchiveKey = Effect.fn("AIMetrics.resolveRawArchiveKey")(functio
 
   return yield* new AiMetricsCommandError({
     cause: "BEEP_AI_METRICS_RAW_ARCHIVE_KEY",
-    message: "AI metrics forwarder requires --raw-archive-key or BEEP_AI_METRICS_RAW_ARCHIVE_KEY.",
+    message: "AI metrics forwarder requires BEEP_AI_METRICS_RAW_ARCHIVE_KEY.",
   });
 });
 
@@ -692,7 +684,6 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   json,
   maxFiles,
   openClawUnit,
-  rawArchiveKey,
   rawArchiveKeySecretRef,
   repoRoot,
   since,
@@ -706,7 +697,6 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   readonly json: boolean;
   readonly maxFiles: number;
   readonly openClawUnit: O.Option<string>;
-  readonly rawArchiveKey: O.Option<string>;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly repoRoot: O.Option<string>;
   readonly since: O.Option<string>;
@@ -735,7 +725,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
       target,
     })
   );
-  const resolvedRawArchiveKey = yield* resolveRawArchiveKey(rawArchiveKey);
+  const resolvedRawArchiveKey = yield* resolveRawArchiveKey();
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
   const result = yield* runAiMetricsForwarder(
     new AiMetricsForwarderInput({
@@ -755,10 +745,8 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
       target,
     })
   ).pipe(
-    Effect.provideService(
-      DuckDb,
-      DuckDb.makeNodeClient(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))
-    )
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
   );
 
   if (json) {
@@ -935,7 +923,6 @@ const forwarderRunCommand = Command.make(
     json: jsonFlag,
     maxFiles: maxFilesFlag,
     openClawUnit: openClawUnitFlag,
-    rawArchiveKey: rawArchiveKeyFlag,
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     repoRoot: repoRootFlag,
     since: sinceFlag,
@@ -950,7 +937,6 @@ const forwarderRunCommand = Command.make(
     json,
     maxFiles,
     openClawUnit,
-    rawArchiveKey,
     rawArchiveKeySecretRef,
     repoRoot,
     since,
@@ -966,7 +952,6 @@ const forwarderRunCommand = Command.make(
         json,
         maxFiles,
         openClawUnit,
-        rawArchiveKey,
         rawArchiveKeySecretRef,
         repoRoot,
         since,

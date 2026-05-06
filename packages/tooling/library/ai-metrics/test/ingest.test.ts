@@ -213,6 +213,7 @@ describe("@beep/repo-ai-metrics", () => {
                 algorithm: "AES-256-GCM",
                 archiveObjectId: "raw-content-addressed-object",
                 archivePath: path.join(dataRoot, "raw/codex/raw-content-addressed-object.json"),
+                created: false,
                 encryptedAtEpochMillis: 1,
                 plaintextContentHash: "plaintext-content-hash",
                 sourceKind: AiMetricsTranscriptSource.Enum.codex,
@@ -243,12 +244,16 @@ describe("@beep/repo-ai-metrics", () => {
 
             const duckdb = yield* DuckDb;
             const runRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_ingest_runs");
+            const runArchiveCounts = yield* duckdb.query(
+              "SELECT archive_object_count::integer AS archiveObjectCount FROM ai_metrics_ingest_runs ORDER BY ingest_run_id"
+            );
             const sourceRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_source_files");
             const archiveRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_raw_archive_objects");
             const sessionRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_sessions");
             const turnRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_turns");
 
             expect(runRows).toEqual([{ count: "2" }]);
+            expect(runArchiveCounts).toEqual([{ archiveObjectCount: 0 }, { archiveObjectCount: 0 }]);
             expect(sourceRows).toEqual([{ count: "2" }]);
             expect(archiveRows).toEqual([{ count: "2" }]);
             expect(sessionRows).toEqual([{ count: "2" }]);

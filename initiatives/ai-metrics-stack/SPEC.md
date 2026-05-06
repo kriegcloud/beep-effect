@@ -114,8 +114,8 @@ The default privacy mode is `encrypted_raw_redacted_ui`.
 Raw archive encryption uses a separate key contract from private identifier
 hashing. Install and IaC plans refer to `rawArchiveKeySecretRef`; P2 runtime
 commands consume the actual 32-byte base64 key from
-`BEEP_AI_METRICS_RAW_ARCHIVE_KEY` or `--raw-archive-key` and do not resolve
-secret-manager references themselves.
+`BEEP_AI_METRICS_RAW_ARCHIVE_KEY` and do not resolve secret-manager references
+themselves.
 
 ## Deployment Contract
 

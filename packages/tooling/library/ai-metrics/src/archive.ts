@@ -88,6 +88,7 @@ export class AiMetricsRawArchiveObject extends S.Class<AiMetricsRawArchiveObject
     algorithm: S.Literal("AES-256-GCM"),
     archiveObjectId: S.String,
     archivePath: S.String,
+    created: S.Boolean,
     encryptedAtEpochMillis: S.Number,
     plaintextContentHash: S.String,
     sourceKind: AiMetricsTranscriptSource,
@@ -194,12 +195,14 @@ const archiveObjectPath = (
 
 const envelopeToObject = (
   archivePath: string,
-  envelope: AiMetricsEncryptedRawArchiveEnvelope
+  envelope: AiMetricsEncryptedRawArchiveEnvelope,
+  created: boolean
 ): AiMetricsRawArchiveObject =>
   new AiMetricsRawArchiveObject({
     algorithm: envelope.algorithm,
     archiveObjectId: envelope.archiveObjectId,
     archivePath,
+    created,
     encryptedAtEpochMillis: envelope.encryptedAtEpochMillis,
     plaintextContentHash: envelope.plaintextContentHash,
     sourceKind: envelope.sourceKind,
@@ -217,7 +220,7 @@ const readExistingArchiveObject = Effect.fn("AiMetrics.readExistingArchiveObject
     Effect.mapError((cause) => archiveFailure(`Failed to decode existing archive object "${archivePath}".`, cause))
   );
 
-  return envelopeToObject(archivePath, envelope);
+  return envelopeToObject(archivePath, envelope, false);
 });
 
 /**
@@ -313,7 +316,7 @@ export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncrypte
       .writeFileString(archivePath, envelopeText)
       .pipe(Effect.mapError((cause) => archiveFailure(`Failed to write raw archive object "${archivePath}".`, cause)));
 
-    return envelopeToObject(archivePath, envelope);
+    return envelopeToObject(archivePath, envelope, true);
   },
   (effect, input) =>
     effect.pipe(

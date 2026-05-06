@@ -23,7 +23,7 @@ Status: completed
 - Kept `beep-cli ai-metrics ingest` as summary-only.
 - Added a separate raw archive key contract:
   `rawArchiveKeySecretRef` for install/IaC planning and
-  `BEEP_AI_METRICS_RAW_ARCHIVE_KEY` or `--raw-archive-key` for runtime.
+  `BEEP_AI_METRICS_RAW_ARCHIVE_KEY` for runtime.
 - Added an internal in-memory Effect EventLog proof for sanitized turn
   projection.
 - Updated the dankserver Pulumi stack config with
@@ -38,7 +38,7 @@ Status: completed
 - The CLI provides the DuckDB service at the command boundary so library code
   does not dynamically provide Layers.
 - P2 does not resolve `op://` secret references at runtime. Operators provide
-  the actual raw archive key through the environment or CLI flag.
+  the actual raw archive key through the environment.
 - P2 does not expose a raw decrypt CLI command.
 
 ## Evidence

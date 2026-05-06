@@ -249,12 +249,16 @@ const rowId = Effect.fn("AiMetrics.derivedStorage.rowId")(function* (
 
 const optionalStringOrNull = (value: string | undefined): string | null => value ?? null;
 
+const countCreatedArchiveObjects = (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>): number =>
+  A.filter(records, (record) => record.archiveObject.created).length;
+
 const upsertRun = Effect.fn("AiMetrics.derivedStorage.upsertRun")(function* (
   input: AiMetricsDerivedStorageWriteInput,
   completedAtEpochMillis: number,
   turnCount: number
 ) {
   const duckdb = yield* DuckDb;
+  const archiveObjectCount = countCreatedArchiveObjects(input.records);
   yield* duckdb.run(
     `INSERT OR REPLACE INTO ai_metrics_ingest_runs (
       ingest_run_id,
@@ -278,7 +282,7 @@ const upsertRun = Effect.fn("AiMetrics.derivedStorage.upsertRun")(function* (
       $turnCount
     )`,
     {
-      archiveObjectCount: input.records.length,
+      archiveObjectCount,
       completedAtEpochMillis,
       configHash: input.configSnapshot.configHash,
       configSnapshotId: input.configSnapshot.snapshotId,
@@ -506,6 +510,7 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
       .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics Parquet export directory.", cause)));
     const completedAtEpochMillis = yield* Clock.currentTimeMillis;
     const turnCount = recordTurnCount(input.records);
+    const archiveObjectCount = countCreatedArchiveObjects(input.records);
 
     yield* duckdb
       .withTransaction(
@@ -538,7 +543,7 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
     ).pipe(Effect.mapError((cause) => derivedFailure("Failed to export AI metrics derived tables to Parquet.", cause)));
 
     return new AiMetricsDerivedStorageWriteResult({
-      archiveObjectCount: input.records.length,
+      archiveObjectCount,
       duckDbPath: input.storage.duckDbPath,
       ingestRunId: input.ingestRunId,
       parquetExportDir,

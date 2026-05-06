@@ -1,6 +1,6 @@
 import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index";
 import { NodeServices } from "@effect/platform-node";
-import { Effect, Encoding, FileSystem, Layer, Path, pipe } from "effect";
+import { ConfigProvider, Effect, Encoding, FileSystem, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -36,6 +36,16 @@ const writeText = Effect.fn("AIMetricsCommandTest.writeText")(function* (filePat
 const loggedText = Effect.fn("AIMetricsCommandTest.loggedText")(function* () {
   return pipe(yield* TestConsole.logLines, A.join("\n"));
 });
+
+const withRawArchiveKeyEnv = <A, E, R>(rawArchiveKey: string, use: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+  Effect.provide(
+    use,
+    ConfigProvider.layer(
+      ConfigProvider.fromUnknown({
+        BEEP_AI_METRICS_RAW_ARCHIVE_KEY: rawArchiveKey,
+      })
+    )
+  );
 
 describe("ai-metrics command", () => {
   it("emits ingest JSON without raw local paths or Claude private identifiers", async () => {
@@ -323,22 +333,23 @@ describe("ai-metrics command", () => {
           );
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
 
-          yield* runAiMetricsCommand([
-            "forwarder",
-            "run",
-            "--repo-root",
-            repoRoot,
-            "--home-dir",
-            homeDir,
-            "--data-root",
-            dataRoot,
-            "--all",
-            "--hash-salt",
-            "test-salt",
-            "--raw-archive-key",
+          yield* withRawArchiveKeyEnv(
             rawArchiveKey,
-            "--json",
-          ]);
+            runAiMetricsCommand([
+              "forwarder",
+              "run",
+              "--repo-root",
+              repoRoot,
+              "--home-dir",
+              homeDir,
+              "--data-root",
+              dataRoot,
+              "--all",
+              "--hash-salt",
+              "test-salt",
+              "--json",
+            ])
+          );
 
           const output = yield* loggedText();
           expect(output).toContain("sourceFileCount");
@@ -368,22 +379,23 @@ describe("ai-metrics command", () => {
           yield* fs.chmod(sourcePath, 0o000);
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
 
-          yield* runAiMetricsCommand([
-            "forwarder",
-            "run",
-            "--repo-root",
-            repoRoot,
-            "--home-dir",
-            homeDir,
-            "--data-root",
-            dataRoot,
-            "--all",
-            "--hash-salt",
-            "test-salt",
-            "--raw-archive-key",
+          yield* withRawArchiveKeyEnv(
             rawArchiveKey,
-            "--json",
-          ]);
+            runAiMetricsCommand([
+              "forwarder",
+              "run",
+              "--repo-root",
+              repoRoot,
+              "--home-dir",
+              homeDir,
+              "--data-root",
+              dataRoot,
+              "--all",
+              "--hash-salt",
+              "test-salt",
+              "--json",
+            ])
+          );
 
           const output = pipe(yield* TestConsole.errorLines, A.join("\n"));
           expect(output).toContain("Failed to read AI metrics codex source file");
