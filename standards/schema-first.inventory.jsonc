@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-02",
+  "generatedOn": "2026-05-05",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -39,6 +39,14 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/ffmpeg",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/openai-compat/src/OpenAiCompat.client.ts",
+      "symbol": "OpenAiCompatClientShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/openai-compat",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {

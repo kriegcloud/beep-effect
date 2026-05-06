@@ -7,10 +7,13 @@
 
 import { $XaiId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { pipe, Result } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import {
   XAiEndpoint,
   type XAiEndpointDescriptor,
@@ -85,7 +88,7 @@ const isXAiEndpointDescriptor = S.is(XAiEndpoint);
 export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
   "XAiError",
   {
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.String),
     endpoint: S.optionalKey(XAiEndpointId),
     method: S.optionalKey(XAiHttpMethod),
     methodName: S.optionalKey(XAiEndpointMethodName),
@@ -124,7 +127,9 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
         path: descriptor.path,
         reason,
         ...R.getSomes({
-          cause: O.fromUndefinedOr(options.cause),
+          cause: causeFromUnknown(options.cause),
+        }),
+        ...R.getSomes({
           status: O.fromUndefinedOr(options.status),
         }),
       })
@@ -148,12 +153,68 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
     new XAiError({
       reason: "config",
       ...R.getSomes({
-        cause: O.fromUndefinedOr(cause),
+        cause: causeFromUnknown(cause),
       }),
     });
 }
 
-type XAiErrorOptions = {
-  readonly cause?: unknown;
-  readonly status?: number;
+const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
+  if (!P.isObject(value)) {
+    return O.none();
+  }
+
+  return O.fromUndefinedOr(
+    Result.getOrElse(
+      Result.try(() => Reflect.get(value, key)),
+      () => undefined
+    )
+  );
 };
+
+const readString = (value: unknown, key: PropertyKey): O.Option<string> =>
+  O.filter(readProperty(value, key), P.isString);
+
+const safeBoolean = (evaluate: () => boolean): boolean => Result.getOrElse(Result.try(evaluate), () => false);
+
+const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
+  safeBoolean(() => HttpClientError.isHttpClientError(cause))
+    ? pipe(
+        readProperty(cause, "reason"),
+        O.flatMap((reason) => readString(reason, "_tag")),
+        O.map((tag) => `HttpClientError:${tag}`)
+      )
+    : O.none();
+
+const causeFromUnknown = (cause: unknown): O.Option<string> =>
+  P.isUndefined(cause)
+    ? O.none()
+    : O.firstSomeOf([
+        httpClientCauseLabel(cause),
+        readString(cause, "_tag"),
+        readString(cause, "name"),
+        P.isString(cause) ? O.some("String") : O.none(),
+      ]);
+
+/**
+ * Options used when constructing xAI driver errors.
+ *
+ * @example
+ * ```ts
+ * import { XAiErrorOptions } from "@beep/xai"
+ *
+ * const options = new XAiErrorOptions({ status: 500 })
+ * void options
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class XAiErrorOptions extends S.Class<XAiErrorOptions>($I`XAiErrorOptions`)(
+  {
+    cause: S.optionalKey(S.Unknown),
+    status: S.optionalKey(S.Number),
+  },
+  $I.annote("XAiErrorOptions", {
+    description: "Options for configuring XAiError instances, including optional redacted cause and status fields.",
+  })
+) {}

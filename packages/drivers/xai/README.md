@@ -39,6 +39,15 @@ calls: `streamChatCompletion`, `streamResponse`, `streamLegacyCompletion`, and
 
 For explicit tests or app wiring, use `XAi.makeLayer(new XAiConfigInput(...))`.
 
+## Public Surface
+
+| Surface | Key exports | Notes |
+| --- | --- | --- |
+| service | `XAi`, `XAiConfigInput` | Effect service and runtime layer configuration for documented xAI endpoints |
+| manifest | `XAI_ENDPOINTS`, `XAI_ENDPOINT_COUNT`, `XAI_ENDPOINT_METHOD_NAMES` | checked-in endpoint coverage inventory |
+| language model | `XAiLanguageModel` namespace with `make`, `layer`, `model`, `XAiLanguageModelOptions` | Effect AI language-model adapter backed by `XAi.createChatCompletion` |
+| models/errors | `XAiRequestOptions`, `XAiResponse`, `XAiWebSocketSession`, `XAiError` | schema-first boundary models and typed driver errors |
+
 ## Development
 
 ```bash

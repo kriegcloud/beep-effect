@@ -66,3 +66,39 @@ export const JsonArray = S.Array(S.Json).pipe(
  * @since 0.0.0
  */
 export type JsonArray = typeof JsonArray.Type;
+
+/**
+ * Decodes a JSON string into an unknown JSON-compatible value.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { decodeJsonString } from "@beep/schema/Json"
+ *
+ * const decoded = Effect.runSync(decodeJsonString("{\"ok\":true}"))
+ *
+ * void decoded
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const decodeJsonString = S.decodeUnknownEffect(S.UnknownFromJsonString);
+
+/**
+ * Encodes an unknown JSON-compatible value into a compact JSON string.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { encodeJsonString } from "@beep/schema/Json"
+ *
+ * const encoded = Effect.runSync(encodeJsonString({ ok: true }))
+ *
+ * void encoded
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const encodeJsonString = S.encodeUnknownEffect(S.UnknownFromJsonString);

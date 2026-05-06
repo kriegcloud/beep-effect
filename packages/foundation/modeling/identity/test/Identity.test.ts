@@ -112,6 +112,48 @@ describe("@beep/identity", () => {
     expect(annotations?.version).toBe(1);
   });
 
+  it("preserves tagged-union statics when applying annoteSchema", () => {
+    const schema = S.Union([
+      S.Struct({
+        kind: S.tag("close"),
+        code: S.Number,
+      }),
+      S.Struct({
+        kind: S.tag("message"),
+        text: S.String,
+      }),
+    ]).pipe(
+      S.toTaggedUnion("kind"),
+      $SchemaId.annoteSchema("SocketEvent", {
+        description: "Socket event union.",
+      })
+    );
+    const annotations = S.resolveAnnotations(schema);
+
+    expect(schema.cases.close).toBeDefined();
+    expect(schema.cases.message).toBeDefined();
+    expect(schema.guards.message({ kind: "message", text: "hello" })).toBe(true);
+    expect(schema.isAnyOf(["message"])({ kind: "message", text: "hello" })).toBe(true);
+    expect(
+      schema.match(
+        { kind: "message", text: "hello" },
+        {
+          close: () => "close",
+          message: () => "message",
+        }
+      )
+    ).toBe("message");
+    expect(annotations?.identifier).toBe("SocketEvent");
+  });
+
+  it("preserves custom own statics when applying annoteSchema", () => {
+    const schema = Object.assign(S.String.annotate({}), {
+      empty: "" as const,
+    }).pipe($SchemaId.annoteSchema("StringWithStatics"));
+
+    expect(schema.empty).toBe("");
+  });
+
   it("applies key annotations via annoteKey", () => {
     const schema = S.Struct({
       field1: S.String.pipe(
