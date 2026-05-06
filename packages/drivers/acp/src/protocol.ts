@@ -54,34 +54,82 @@ export class AcpProtocolLogEvent extends S.Class<AcpProtocolLogEvent>($I`AcpProt
 ) {}
 
 /**
- * Notifications decoded from the ACP peer stream.
+ * Schema-backed ACP protocol logging flags.
+ *
+ * @example
+ * ```ts
+ * import { AcpProtocolLoggingOptions } from "@beep/acp/protocol"
+ *
+ * const options = new AcpProtocolLoggingOptions({ logIncoming: true })
+ * console.log(options.logIncoming)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AcpProtocolLoggingOptions extends S.Class<AcpProtocolLoggingOptions>($I`AcpProtocolLoggingOptions`)(
+  {
+    logIncoming: S.optionalKey(S.Boolean),
+    logOutgoing: S.optionalKey(S.Boolean),
+  },
+  $I.annote("AcpProtocolLoggingOptions", {
+    description: "Schema-backed ACP protocol logging flags.",
+  })
+) {}
+
+const AcpSessionUpdateIncomingNotification = S.TaggedStruct("SessionUpdate", {
+  method: S.Literal(CLIENT_METHODS.session_update),
+  params: AcpSchema.SessionNotification,
+});
+
+const AcpElicitationCompleteIncomingNotification = S.TaggedStruct("ElicitationComplete", {
+  method: S.Literal(CLIENT_METHODS.session_elicitation_complete),
+  params: AcpSchema.ElicitationCompleteNotification,
+});
+
+const AcpExtIncomingNotification = S.TaggedStruct("ExtNotification", {
+  method: S.String,
+  params: S.Unknown,
+});
+
+/**
+ * Schema for notifications decoded from the ACP peer stream.
+ *
+ * @example
+ * ```ts
+ * import { AcpIncomingNotification } from "@beep/acp/protocol"
+ *
+ * console.log(AcpIncomingNotification.ast)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const AcpIncomingNotification = S.Union([
+  AcpSessionUpdateIncomingNotification,
+  AcpElicitationCompleteIncomingNotification,
+  AcpExtIncomingNotification,
+]).pipe(
+  $I.annoteSchema("AcpIncomingNotification", {
+    description: "Schema for notifications decoded from the ACP peer stream.",
+  })
+);
+
+/**
+ * Type for {@link AcpIncomingNotification}.
  *
  * @example
  * ```ts
  * import type { AcpIncomingNotification } from "@beep/acp/protocol"
  *
- * const handle = (notification: AcpIncomingNotification) => notification._tag
+ * const tagOf = (notification: AcpIncomingNotification) => notification._tag
+ * void tagOf
  * ```
  *
- * @category protocol
+ * @category models
  * @since 0.0.0
  */
-export type AcpIncomingNotification =
-  | {
-      readonly _tag: "SessionUpdate";
-      readonly method: typeof CLIENT_METHODS.session_update;
-      readonly params: typeof AcpSchema.SessionNotification.Type;
-    }
-  | {
-      readonly _tag: "ElicitationComplete";
-      readonly method: typeof CLIENT_METHODS.session_elicitation_complete;
-      readonly params: typeof AcpSchema.ElicitationCompleteNotification.Type;
-    }
-  | {
-      readonly _tag: "ExtNotification";
-      readonly method: string;
-      readonly params: unknown;
-    };
+export type AcpIncomingNotification = typeof AcpIncomingNotification.Type;
 
 /**
  * Options used to create the patched ACP protocol.
@@ -92,17 +140,16 @@ export type AcpIncomingNotification =
  * import type { AcpPatchedProtocolOptions } from "@beep/acp/protocol"
  *
  * const methods = HashSet.empty<string>()
- * declare const options: Omit<AcpPatchedProtocolOptions, "stdio">
- * console.log(HashSet.size(options.serverRequestMethods) >= HashSet.size(methods))
+ * const hasServerMethods = (options: Omit<AcpPatchedProtocolOptions, "stdio">) =>
+ *   HashSet.size(options.serverRequestMethods) >= HashSet.size(methods)
+ * void hasServerMethods
  * ```
  *
  * @category protocol
  * @since 0.0.0
  */
-export interface AcpPatchedProtocolOptions {
+export interface AcpPatchedProtocolOptions extends AcpProtocolLoggingOptions {
   readonly logger?: (event: AcpProtocolLogEvent) => Effect.Effect<void, never>;
-  readonly logIncoming?: boolean;
-  readonly logOutgoing?: boolean;
   readonly onExtRequest?: (method: string, params: unknown) => Effect.Effect<unknown, AcpError.AcpError, never>;
   readonly onNotification?: (notification: AcpIncomingNotification) => Effect.Effect<void, AcpError.AcpError, never>;
   readonly onTermination?: (error: AcpError.AcpError) => Effect.Effect<void, never, never>;
@@ -118,9 +165,8 @@ export interface AcpPatchedProtocolOptions {
  * ```ts
  * import type { AcpPatchedProtocol } from "@beep/acp/protocol"
  *
- * declare const protocol: AcpPatchedProtocol
- * const notifications = protocol.incoming
- * console.log(typeof notifications)
+ * const notificationsOf = (protocol: AcpPatchedProtocol) => protocol.incoming
+ * void notificationsOf
  * ```
  *
  * @category protocol
@@ -147,15 +193,16 @@ const textFromWire = (value: string | Uint8Array): string => (P.isString(value) 
  * @example
  * ```ts
  * import { Effect } from "effect"
+ * import { Stdio } from "effect"
  * import * as HashSet from "effect/HashSet"
  * import { makeAcpPatchedProtocol } from "@beep/acp/protocol"
  *
- * declare const stdio: import("effect/Stdio").Stdio
- *
- * const program = makeAcpPatchedProtocol({
- *   stdio,
- *   serverRequestMethods: HashSet.empty()
- * })
+ * const program = Effect.flatMap(Effect.service(Stdio.Stdio), (stdio) =>
+ *   makeAcpPatchedProtocol({
+ *     stdio,
+ *     serverRequestMethods: HashSet.empty()
+ *   })
+ * )
  * ```
  *
  * @category constructors

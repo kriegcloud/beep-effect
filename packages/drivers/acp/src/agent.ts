@@ -41,10 +41,8 @@ const $I = $AcpId.create("agent");
  * @category models
  * @since 0.0.0
  */
-export interface AcpAgentOptions {
+export interface AcpAgentOptions extends AcpProtocol.AcpProtocolLoggingOptions {
   readonly logger?: (event: AcpProtocol.AcpProtocolLogEvent) => Effect.Effect<void, never>;
-  readonly logIncoming?: boolean;
-  readonly logOutgoing?: boolean;
 }
 
 /**
@@ -54,8 +52,8 @@ export interface AcpAgentOptions {
  * ```ts
  * import type { AcpAgentShape } from "@beep/acp/agent"
  *
- * declare const agent: AcpAgentShape
- * const notifications = agent.raw.notifications
+ * const notificationsOf = (agent: AcpAgentShape) => agent.raw.notifications
+ * void notificationsOf
  * ```
  *
  * @category services
@@ -274,10 +272,11 @@ const decodeCancelNotification = S.decodeUnknownEffect(AcpSchema.CancelNotificat
  *
  * @example
  * ```ts
+ * import type * as Stdio from "effect/Stdio"
  * import { make } from "@beep/acp/agent"
  *
- * declare const stdio: import("effect/Stdio").Stdio
- * const agent = make(stdio)
+ * const fromStdio = (stdio: Stdio.Stdio) => make(stdio)
+ * void fromStdio
  * ```
  *
  * @category constructors
@@ -597,10 +596,11 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
  *
  * @example
  * ```ts
+ * import type * as Stdio from "effect/Stdio"
  * import { layer } from "@beep/acp/agent"
  *
- * declare const stdio: import("effect/Stdio").Stdio
- * const live = layer(stdio)
+ * const fromStdio = (stdio: Stdio.Stdio) => layer(stdio)
+ * void fromStdio
  * ```
  *
  * @category layers

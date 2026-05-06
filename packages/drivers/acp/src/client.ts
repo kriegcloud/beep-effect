@@ -43,10 +43,8 @@ const $I = $AcpId.create("client");
  * @category models
  * @since 0.0.0
  */
-export interface AcpClientOptions {
+export interface AcpClientOptions extends AcpProtocol.AcpProtocolLoggingOptions {
   readonly logger?: (event: AcpProtocol.AcpProtocolLogEvent) => Effect.Effect<void, never>;
-  readonly logIncoming?: boolean;
-  readonly logOutgoing?: boolean;
 }
 
 type AcpClientRaw = {
@@ -62,8 +60,8 @@ type AcpClientRaw = {
  * ```ts
  * import type { AcpClientShape } from "@beep/acp/client"
  *
- * declare const client: AcpClientShape
- * const notifications = client.raw.notifications
+ * const notificationsOf = (client: AcpClientShape) => client.raw.notifications
+ * void notificationsOf
  * ```
  *
  * @category services
@@ -346,10 +344,11 @@ interface BufferedNotificationHandler<A> {
  *
  * @example
  * ```ts
+ * import type * as Stdio from "effect/Stdio"
  * import { make } from "@beep/acp/client"
  *
- * declare const stdio: import("effect/Stdio").Stdio
- * const client = make(stdio)
+ * const fromStdio = (stdio: Stdio.Stdio) => make(stdio)
+ * void fromStdio
  * ```
  *
  * @category constructors
@@ -398,18 +397,35 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
       )
     );
 
-  const runNotificationHandlers = <A>(registration: BufferedNotificationHandler<A>, notification: A) =>
-    Effect.forEach(registration.handlers, (handler) => handler(notification).pipe(Effect.catch(() => Effect.void)), {
-      discard: true,
-    });
+  const logNotificationHandlerFailure = (method: string, error: AcpError.AcpError) =>
+    Effect.logWarning("ACP client notification handler failed").pipe(
+      Effect.annotateLogs({
+        errorMessage: error.message,
+        errorTag: error._tag,
+        method,
+      })
+    );
 
-  const flushBufferedNotifications = <A>(registration: BufferedNotificationHandler<A>) =>
+  const runNotificationHandlers = <A>(method: string, registration: BufferedNotificationHandler<A>, notification: A) =>
+    Effect.forEach(
+      registration.handlers,
+      (handler) =>
+        handler(notification).pipe(
+          Effect.tapError((error) => logNotificationHandlerFailure(method, error)),
+          Effect.catch(() => Effect.void)
+        ),
+      {
+        discard: true,
+      }
+    );
+
+  const flushBufferedNotifications = <A>(method: string, registration: BufferedNotificationHandler<A>) =>
     Effect.suspend(() => {
       if (registration.handlers.length === 0 || registration.pending.length === 0) {
         return Effect.void;
       }
       const pending = registration.pending.splice(0, registration.pending.length);
-      return Effect.forEach(pending, (notification) => runNotificationHandlers(registration, notification), {
+      return Effect.forEach(pending, (notification) => runNotificationHandlers(method, registration, notification), {
         discard: true,
       });
     });
@@ -421,14 +437,18 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
           notificationHandlers.sessionUpdate.pending.push(notification.params);
           return Effect.void;
         }
-        return runNotificationHandlers(notificationHandlers.sessionUpdate, notification.params);
+        return runNotificationHandlers(notification.method, notificationHandlers.sessionUpdate, notification.params);
       }
       case "ElicitationComplete": {
         if (notificationHandlers.elicitationComplete.handlers.length === 0) {
           notificationHandlers.elicitationComplete.pending.push(notification.params);
           return Effect.void;
         }
-        return runNotificationHandlers(notificationHandlers.elicitationComplete, notification.params);
+        return runNotificationHandlers(
+          notification.method,
+          notificationHandlers.elicitationComplete,
+          notification.params
+        );
       }
       case "ExtNotification": {
         return Ref.get(extNotificationHandlers).pipe(
@@ -573,13 +593,16 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
     handler: (notification: AcpSchema.SessionNotification) => Effect.Effect<void, AcpError.AcpError>
   ) {
     notificationHandlers.sessionUpdate.handlers.push(handler);
-    yield* flushBufferedNotifications(notificationHandlers.sessionUpdate);
+    yield* flushBufferedNotifications(CLIENT_METHODS.session_update, notificationHandlers.sessionUpdate);
   });
   const handleElicitationComplete = Effect.fn($I`AcpClient_handleElicitationComplete`)(function* (
     handler: (notification: AcpSchema.ElicitationCompleteNotification) => Effect.Effect<void, AcpError.AcpError>
   ) {
     notificationHandlers.elicitationComplete.handlers.push(handler);
-    yield* flushBufferedNotifications(notificationHandlers.elicitationComplete);
+    yield* flushBufferedNotifications(
+      CLIENT_METHODS.session_elicitation_complete,
+      notificationHandlers.elicitationComplete
+    );
   });
   const handleUnknownExtRequest = Effect.fn($I`AcpClient_handleUnknownExtRequest`)(
     (handler: (method: string, params: unknown) => Effect.Effect<unknown, AcpError.AcpError>) =>
@@ -652,10 +675,11 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
  *
  * @example
  * ```ts
+ * import type { ChildProcessSpawner } from "effect/unstable/process"
  * import { layerChildProcess } from "@beep/acp/client"
  *
- * declare const handle: import("effect/unstable/process").ChildProcessSpawner.ChildProcessHandle
- * const live = layerChildProcess(handle)
+ * const fromHandle = (handle: ChildProcessSpawner.ChildProcessHandle) => layerChildProcess(handle)
+ * void fromHandle
  * ```
  *
  * @category layers

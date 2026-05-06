@@ -63,7 +63,7 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
+      ".": "./dist/index.js",
       "./agent": "./dist/agent.js",
       "./client": "./dist/client.js",
       "./errors": "./dist/errors.js",
