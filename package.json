@@ -155,6 +155,7 @@
     "flatted": "^3.4.1",
     "happy-dom": "^20.8.9",
     "hono": "^4.12.14",
+    "ip-address": "10.1.1",
     "lodash": "catalog:",
     "postcss": "^8.5.12",
     "serialize-javascript": "^7.0.5",

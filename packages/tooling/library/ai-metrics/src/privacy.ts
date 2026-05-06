@@ -300,7 +300,7 @@ const redactionResultFor = (content: string): AiMetricsRedactionResult => {
 const eventNameFor = (sourceKind: AiMetricsTranscriptSource, decoded: GenericTranscriptLine): string =>
   pipe(
     firstString(decoded.type, decoded.event),
-    O.map((value) => metricEventName(sourceKind, "event", value)),
+    O.map((value) => metricEventName({ fallback: "event", sourceKind, value })),
     O.getOrElse(() => "event")
   );
 

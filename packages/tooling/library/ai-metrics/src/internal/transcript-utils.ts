@@ -79,11 +79,15 @@ export const optionalTimestamp = (timestamp: string | undefined): { readonly tim
  * @category utilities
  * @since 0.0.0
  */
-export const metricEventName = (
-  sourceKind: AiMetricsTranscriptSource,
-  fallback: string,
-  value: string | undefined
-): string =>
+export const metricEventName = ({
+  fallback,
+  sourceKind,
+  value,
+}: {
+  readonly fallback: string;
+  readonly sourceKind: AiMetricsTranscriptSource;
+  readonly value: string | undefined;
+}): string =>
   pipe(
     O.fromNullishOr(value),
     O.filter((eventName) => A.contains(eventNamesForSource(sourceKind), eventName)),

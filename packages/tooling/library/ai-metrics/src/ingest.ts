@@ -60,7 +60,11 @@ type TranscriptTextSummaryInput = {
 
 const codexTurn = (sourcePathHash: string, lineNumber: number, line: CodexTranscriptLine): AgentTurn =>
   new AgentTurn({
-    eventName: metricEventName(AiMetricsTranscriptSource.Enum.codex, "event", line.type),
+    eventName: metricEventName({
+      fallback: "event",
+      sourceKind: AiMetricsTranscriptSource.Enum.codex,
+      value: line.type,
+    }),
     lineNumber,
     sourceKind: AiMetricsTranscriptSource.Enum.codex,
     sourcePathHash,
@@ -69,7 +73,11 @@ const codexTurn = (sourcePathHash: string, lineNumber: number, line: CodexTransc
 
 const claudeTurn = (sourcePathHash: string, lineNumber: number, line: ClaudeTranscriptLine): AgentTurn =>
   new AgentTurn({
-    eventName: metricEventName(AiMetricsTranscriptSource.Enum.claude, "message", line.type),
+    eventName: metricEventName({
+      fallback: "message",
+      sourceKind: AiMetricsTranscriptSource.Enum.claude,
+      value: line.type,
+    }),
     lineNumber,
     sourceKind: AiMetricsTranscriptSource.Enum.claude,
     sourcePathHash,
@@ -80,7 +88,13 @@ const openClawTurn = (sourcePathHash: string, lineNumber: number, line: OpenClaw
   new AgentTurn({
     eventName: pipe(
       firstString(line.event, line.type),
-      O.map((value) => metricEventName(AiMetricsTranscriptSource.Enum.openclaw, "event", value)),
+      O.map((value) =>
+        metricEventName({
+          fallback: "event",
+          sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
+          value,
+        })
+      ),
       O.getOrElse(() => "event")
     ),
     lineNumber,
