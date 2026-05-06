@@ -590,6 +590,8 @@ describe("Docgen operations", () => {
           line: 12,
           presentTags: ["@category"],
           missingTags: ["@example", "@since"],
+          categoryValues: ["schemas"],
+          categoryIssues: [],
           hasJsDoc: true,
           priority: "medium",
           declarationSource: "export class Schema {}",
@@ -601,6 +603,7 @@ describe("Docgen operations", () => {
         fullyDocumented: 0,
         missingDocumentation: 1,
         missingCategory: 0,
+        invalidCategory: 0,
         missingExample: 1,
         missingSince: 1,
       }),
@@ -694,10 +697,137 @@ describe("Docgen operations", () => {
 
           expect(errorLines.join("\n")).toContain("packages/foundation/modeling/schema has");
           expect(errorLines.join("\n")).toContain("<module fileoverview> missing @since");
-          expect(errorLines.join("\n")).toContain("MissingMetadata missing @since");
+          expect(errorLines.join("\n")).toContain("MissingMetadata missing @category, @since");
           expect(wroteMarkdown).toBe(false);
           expect(wroteJson).toBe(false);
           expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("checks rejected category values without writing analysis files", {
+    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+  }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Package docs.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+/**
+ * Rejected category fixture.
+ *
+ * @category exports
+ * @since 0.0.0
+ */
+export const RejectedCategory = "nope";
+`
+          );
+
+          yield* runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]);
+
+          const errorText = (yield* TestConsole.errorLines).join("\n");
+          const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
+          const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
+
+          expect(errorText).toContain("packages/foundation/modeling/schema has");
+          expect(errorText).toContain("RejectedCategory invalid category: Re-exports are graph edges");
+          expect(errorText).not.toContain("RejectedCategory missing");
+          expect(wroteMarkdown).toBe(false);
+          expect(wroteJson).toBe(false);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("flags rejected category values during analysis", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Package docs.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+/**
+ * Rejected category fixture.
+ *
+ * @category exports
+ * @since 0.0.0
+ */
+export const RejectedCategory = "nope";
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const analysis = yield* analyzePackageDocumentation(target!);
+          const rejected = analysis.exports.find((entry) => entry.name === "RejectedCategory");
+
+          expect(rejected?.missingTags).toEqual([]);
+          expect(rejected?.categoryValues).toEqual(["exports"]);
+          expect(rejected?.categoryIssues.join("\n")).toContain("Re-exports are graph edges");
+          expect(analysis.summary.invalidCategory).toBe(1);
+          expect(analysis.summary.missingDocumentation).toBe(1);
         })
       )
     );

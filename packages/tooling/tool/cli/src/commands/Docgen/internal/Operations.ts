@@ -35,12 +35,13 @@ import {
   type DocgenAliasSource,
   toCanonicalDocgenConfigJson,
 } from "../../Shared/DocgenConfig.js";
+import { normalizeJSDocCategory } from "../../Shared/JSDocCategories.js";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
 
 const DOCGEN_CONFIG_FILENAME = "docgen.json" as const;
 const DOCS_MODULES_SEGMENTS = ["docs", "modules"] as const;
-const DOCGEN_REQUIRED_TAGS = ["@example", "@since"] as const;
+const DOCGEN_REQUIRED_TAGS = ["@category", "@example", "@since"] as const;
 const DOCGEN_CONFIG_SCAN_GLOBS = ["apps/**/docgen.json", "packages/**/docgen.json", "infra/docgen.json"] as const;
 const DOCGEN_CONFIG_SCAN_IGNORES = [
   "**/.git/**",
@@ -217,6 +218,8 @@ export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`Docge
     line: S.Number,
     presentTags: S.Array(S.String),
     missingTags: S.Array(S.String),
+    categoryValues: S.Array(S.String),
+    categoryIssues: S.Array(S.String),
     hasJsDoc: S.Boolean,
     context: S.optionalKey(S.String),
     priority: DocgenIssuePriority,
@@ -239,6 +242,7 @@ export class DocgenAnalysisSummary extends S.Class<DocgenAnalysisSummary>($I`Doc
     fullyDocumented: S.Number,
     missingDocumentation: S.Number,
     missingCategory: S.Number,
+    invalidCategory: S.Number,
     missingExample: S.Number,
     missingSince: S.Number,
   },
@@ -527,6 +531,16 @@ const extractJsDocTags = (node: Node): ReadonlyArray<string> =>
     A.flatMap((doc) => A.map(doc.getTags(), (tag) => `@${tag.getTagName()}`))
   );
 
+const extractJsDocCategoryValues = (node: Node): ReadonlyArray<string> =>
+  pipe(
+    getJsDocs(node),
+    A.flatMap((doc) =>
+      A.flatMap(doc.getTags(), (tag) =>
+        tag.getTagName() === "category" ? [Str.trim(tag.getCommentText() ?? "")] : A.empty<string>()
+      )
+    )
+  );
+
 const getLeadingJsDocCommentText = (node: ExportDeclaration): O.Option<string> =>
   pipe(
     node.getLeadingCommentRanges(),
@@ -540,6 +554,16 @@ const extractJsDocTagsFromText = (commentText: string): ReadonlyArray<string> =>
     commentText.matchAll(/@([A-Za-z][\w-]*)/g),
     A.fromIterable,
     A.flatMap((match) => (match[1] === undefined ? A.empty<string>() : [`@${match[1]}`]))
+  );
+
+const extractJsDocCategoryValuesFromText = (commentText: string): ReadonlyArray<string> =>
+  pipe(
+    commentText.split(/\r?\n/),
+    A.flatMap((line) => {
+      const match = /@category(?:\s+([^*]+?))?\s*(?:\*\/)?\s*$/.exec(line);
+
+      return match === null ? A.empty<string>() : [Str.trim(match[1] ?? "")];
+    })
   );
 
 const extractContext = (node: Node): undefined | string =>
@@ -563,6 +587,8 @@ type DocgenRequiredTag = (typeof DOCGEN_REQUIRED_TAGS)[number];
 const resolveRequiredTags = (config: DocgenConfigDocument): ReadonlyArray<DocgenRequiredTag> => {
   const tags = A.empty<DocgenRequiredTag>();
 
+  tags.push("@category");
+
   if (config.enforceExamples === true) {
     tags.push("@example");
   }
@@ -579,10 +605,22 @@ const missingRequiredTags = (
   requiredTags: ReadonlyArray<DocgenRequiredTag>
 ): ReadonlyArray<DocgenRequiredTag> => A.filter(requiredTags, (tag) => !A.contains(presentTags, tag));
 
+const categoryIssueMessages: (categoryValues: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  A.map(normalizeJSDocCategory),
+  A.filter((category) => category.status === "rejected" || category.status === "unknown"),
+  A.map((category) => category.message ?? `Invalid @category value ${category.original}.`)
+);
+
 const extractLeadingCommentTags = (node: Node): ReadonlyArray<string> =>
   pipe(
     node.getLeadingCommentRanges(),
     A.flatMap((range) => extractJsDocTagsFromText(range.getText()))
+  );
+
+const extractLeadingCommentCategoryValues = (node: Node): ReadonlyArray<string> =>
+  pipe(
+    node.getLeadingCommentRanges(),
+    A.flatMap((range) => extractJsDocCategoryValuesFromText(range.getText()))
   );
 
 const collectExportSpecifierTags = (sourceFile: SourceFile): HashMap.HashMap<string, ReadonlyArray<string>> => {
@@ -605,6 +643,28 @@ const collectExportSpecifierTags = (sourceFile: SourceFile): HashMap.HashMap<str
   return index;
 };
 
+const collectExportSpecifierCategoryValues = (
+  sourceFile: SourceFile
+): HashMap.HashMap<string, ReadonlyArray<string>> => {
+  let index = HashMap.empty<string, ReadonlyArray<string>>();
+
+  for (const declaration of sourceFile.getDescendantsOfKind(SyntaxKind.ExportDeclaration)) {
+    for (const specifier of declaration.getNamedExports()) {
+      const exportName = specifier.getAliasNode()?.getText() ?? specifier.getName();
+      const categoryValues = pipe(
+        [...extractLeadingCommentCategoryValues(specifier), ...extractJsDocCategoryValuesFromText(specifier.getText())],
+        A.dedupe
+      );
+
+      if (A.isReadonlyArrayNonEmpty(categoryValues)) {
+        index = HashMap.set(index, exportName, categoryValues);
+      }
+    }
+  }
+
+  return index;
+};
+
 const getExportKind = (node: Node): DocgenExportKind => {
   if (Node.isFunctionDeclaration(node)) return "function";
   if (Node.isVariableDeclaration(node)) return "const";
@@ -616,15 +676,24 @@ const getExportKind = (node: Node): DocgenExportKind => {
   return "const";
 };
 
-const computePriority = (hasJsDoc: boolean, missingTags: ReadonlyArray<string>): DocgenIssuePriority => {
-  if (!hasJsDoc || missingTags.length >= 3) {
+const computePriority = (
+  hasJsDoc: boolean,
+  missingTags: ReadonlyArray<string>,
+  categoryIssues: ReadonlyArray<string>
+): DocgenIssuePriority => {
+  const issueCount = missingTags.length + categoryIssues.length;
+
+  if (!hasJsDoc || issueCount >= 3) {
     return "high";
   }
-  if (missingTags.length > 0) {
+  if (issueCount > 0) {
     return "medium";
   }
   return "low";
 };
+
+const hasAnalysisIssue = (analysis: DocgenExportAnalysis): boolean =>
+  analysis.missingTags.length > 0 || analysis.categoryIssues.length > 0;
 
 const makeExportAnalysis = (options: {
   readonly name: string;
@@ -633,6 +702,8 @@ const makeExportAnalysis = (options: {
   readonly line: number;
   readonly presentTags: ReadonlyArray<string>;
   readonly missingTags: ReadonlyArray<string>;
+  readonly categoryValues: ReadonlyArray<string>;
+  readonly categoryIssues: ReadonlyArray<string>;
   readonly hasJsDoc: boolean;
   readonly declarationSource: string;
   readonly context?: string | undefined;
@@ -644,8 +715,10 @@ const makeExportAnalysis = (options: {
     line: options.line,
     presentTags: [...options.presentTags],
     missingTags: [...options.missingTags],
+    categoryValues: [...options.categoryValues],
+    categoryIssues: [...options.categoryIssues],
     hasJsDoc: options.hasJsDoc,
-    priority: computePriority(options.hasJsDoc, options.missingTags),
+    priority: computePriority(options.hasJsDoc, options.missingTags, options.categoryIssues),
     declarationSource: options.declarationSource,
     ...(options.context === undefined ? {} : { context: options.context }),
   });
@@ -655,10 +728,13 @@ const analyzeExport = (
   node: Node,
   filePath: string,
   requiredTags: ReadonlyArray<DocgenRequiredTag>,
-  inheritedTags: ReadonlyArray<string>
+  inheritedTags: ReadonlyArray<string>,
+  inheritedCategoryValues: ReadonlyArray<string>
 ): DocgenExportAnalysis => {
   const presentTags = pipe([...extractJsDocTags(node), ...inheritedTags], A.dedupe);
+  const categoryValues = pipe([...extractJsDocCategoryValues(node), ...inheritedCategoryValues], A.dedupe);
   const missingTags = missingRequiredTags(presentTags, requiredTags);
+  const categoryIssues = categoryIssueMessages(categoryValues);
 
   return makeExportAnalysis({
     name,
@@ -667,6 +743,8 @@ const analyzeExport = (
     line: node.getStartLineNumber(),
     presentTags,
     missingTags,
+    categoryValues,
+    categoryIssues,
     hasJsDoc: hasJsDocComment(node) || A.isReadonlyArrayNonEmpty(inheritedTags),
     declarationSource: node.getText(),
     context: extractContext(node),
@@ -693,6 +771,8 @@ const analyzeModuleFileoverview = (
         line: 1,
         presentTags: A.empty(),
         missingTags: ["@since"],
+        categoryValues: A.empty(),
+        categoryIssues: A.empty(),
         hasJsDoc: false,
         declarationSource: "",
         context: "Module fileoverview JSDoc is missing.",
@@ -718,6 +798,8 @@ const analyzeModuleFileoverview = (
       line: 1,
       presentTags,
       missingTags: ["@since"],
+      categoryValues: extractJsDocCategoryValuesFromText(commentText),
+      categoryIssues: A.empty(),
       hasJsDoc: true,
       declarationSource: commentText,
       context: "Module fileoverview is missing @since.",
@@ -744,7 +826,20 @@ const analyzeReExports = (
       );
       const declarationTextTags = extractJsDocTagsFromText(declaration.getText());
       const presentTags = pipe([...jsDocTags, ...leadingTags, ...declarationTextTags], A.dedupe);
+      const categoryValues = pipe(
+        [
+          ...extractJsDocCategoryValues(declaration),
+          ...pipe(
+            getLeadingJsDocCommentText(declaration),
+            O.map(extractJsDocCategoryValuesFromText),
+            O.getOrElse(A.empty<string>)
+          ),
+          ...extractJsDocCategoryValuesFromText(declaration.getText()),
+        ],
+        A.dedupe
+      );
       const missingTags = missingRequiredTags(presentTags, requiredTags);
+      const categoryIssues = categoryIssueMessages(categoryValues);
 
       return makeExportAnalysis({
         name: declaration.getText(),
@@ -753,12 +848,14 @@ const analyzeReExports = (
         line: declaration.getStartLineNumber(),
         presentTags,
         missingTags,
+        categoryValues,
+        categoryIssues,
         hasJsDoc: presentTags.length > 0,
         declarationSource: declaration.getText(),
         context: `Re-export from ${declaration.getModuleSpecifierValue() ?? "<unknown>"} needs documentation.`,
       });
     }),
-    A.filter((analysis) => A.isReadonlyArrayNonEmpty(analysis.missingTags))
+    A.filter(hasAnalysisIssue)
   );
 
 const sourceFileMatchesExclude = (
@@ -847,6 +944,7 @@ const analyzeSourceFile = (
   const relativeFilePath = relativePathWithinPackage(absolutePackagePath, sourceFile.getFilePath(), path);
   const reExports = analyzeReExports(sourceFile, relativeFilePath, requiredTags);
   const exportSpecifierTags = collectExportSpecifierTags(sourceFile);
+  const exportSpecifierCategoryValues = collectExportSpecifierCategoryValues(sourceFile);
   const directExports = pipe(
     A.fromIterable(sourceFile.getExportedDeclarations().entries()),
     A.flatMap(([name, declarations]) => {
@@ -854,9 +952,12 @@ const analyzeSourceFile = (
       const siblingTags = pipe(localDeclarations, A.flatMap(extractJsDocTags), A.dedupe);
       const specifierTags = O.getOrElse(HashMap.get(exportSpecifierTags, name), A.empty<string>);
       const inheritedTags = pipe([...siblingTags, ...specifierTags], A.dedupe);
+      const siblingCategoryValues = pipe(localDeclarations, A.flatMap(extractJsDocCategoryValues), A.dedupe);
+      const specifierCategoryValues = O.getOrElse(HashMap.get(exportSpecifierCategoryValues, name), A.empty<string>);
+      const inheritedCategoryValues = pipe([...siblingCategoryValues, ...specifierCategoryValues], A.dedupe);
 
       return A.map(localDeclarations, (declaration) =>
-        analyzeExport(name, declaration, relativeFilePath, requiredTags, inheritedTags)
+        analyzeExport(name, declaration, relativeFilePath, requiredTags, inheritedTags, inheritedCategoryValues)
       );
     })
   );
@@ -873,9 +974,10 @@ const analyzeSourceFile = (
 const computeAnalysisSummary = (analyses: ReadonlyArray<DocgenExportAnalysis>): DocgenAnalysisSummary =>
   new DocgenAnalysisSummary({
     totalExports: analyses.length,
-    fullyDocumented: A.filter(analyses, (analysis) => analysis.missingTags.length === 0).length,
-    missingDocumentation: A.filter(analyses, (analysis) => analysis.missingTags.length > 0).length,
+    fullyDocumented: A.filter(analyses, (analysis) => !hasAnalysisIssue(analysis)).length,
+    missingDocumentation: A.filter(analyses, hasAnalysisIssue).length,
     missingCategory: A.filter(analyses, (analysis) => A.contains(analysis.missingTags, "@category")).length,
+    invalidCategory: A.filter(analyses, (analysis) => A.isReadonlyArrayNonEmpty(analysis.categoryIssues)).length,
     missingExample: A.filter(analyses, (analysis) => A.contains(analysis.missingTags, "@example")).length,
     missingSince: A.filter(analyses, (analysis) => A.contains(analysis.missingTags, "@since")).length,
   });
@@ -885,6 +987,9 @@ const formatChecklistItem = (analysis: DocgenExportAnalysis): string =>
     [
       `- [ ] \`${analysis.filePath}:${analysis.line}\` - **${analysis.name}** (${analysis.kind})`,
       `  - Missing: ${A.join(analysis.missingTags, ", ") || "none"}`,
+      ...(analysis.categoryIssues.length === 0
+        ? A.empty()
+        : [`  - Category issues: ${A.join(analysis.categoryIssues, "; ")}`]),
       ...(analysis.presentTags.length === 0 ? A.empty() : [`  - Has: ${A.join(analysis.presentTags, ", ")}`]),
       ...(analysis.context === undefined ? A.empty() : [`  - Context: ${analysis.context}`]),
     ],
@@ -1235,7 +1340,7 @@ export const generateAnalysisReport: {
   (analysis: DocgenPackageAnalysis, fixMode: boolean): string;
   (fixMode: boolean): (analysis: DocgenPackageAnalysis) => string;
 } = dual(2, (analysis: DocgenPackageAnalysis, fixMode: boolean): string => {
-  const issues = A.filter(analysis.exports, (entry) => A.isReadonlyArrayNonEmpty(entry.missingTags));
+  const issues = A.filter(analysis.exports, hasAnalysisIssue);
   const high = A.filter(issues, (entry) => entry.priority === "high");
   const medium = A.filter(issues, (entry) => entry.priority === "medium");
   const low = A.filter(issues, (entry) => entry.priority === "low");
@@ -1249,7 +1354,7 @@ export const generateAnalysisReport: {
   sections.push("");
   sections.push("## What To Fix");
   sections.push("");
-  sections.push("Public exports should include the repo-required JSDoc tags:");
+  sections.push("Public exports should include the repo-required JSDoc tags and canonical category values:");
   sections.push("");
   sections.push("1. `@category`");
   sections.push("2. `@example`");
@@ -1311,6 +1416,9 @@ export const generateAnalysisReport: {
         sections.push(`- Location: \`${entry.filePath}:${entry.line}\``);
         sections.push(`- Kind: ${entry.kind}`);
         sections.push(`- Missing: ${entry.missingTags.join(", ")}`);
+        if (entry.categoryIssues.length > 0) {
+          sections.push(`- Category issues: ${entry.categoryIssues.join("; ")}`);
+        }
         if (entry.presentTags.length > 0) {
           sections.push(`- Present: ${entry.presentTags.join(", ")}`);
         }
@@ -1330,6 +1438,7 @@ export const generateAnalysisReport: {
   sections.push(`| Fully Documented | ${analysis.summary.fullyDocumented} |`);
   sections.push(`| Missing Documentation | ${analysis.summary.missingDocumentation} |`);
   sections.push(`| Missing @category | ${analysis.summary.missingCategory} |`);
+  sections.push(`| Invalid @category | ${analysis.summary.invalidCategory} |`);
   sections.push(`| Missing @example | ${analysis.summary.missingExample} |`);
   sections.push(`| Missing @since | ${analysis.summary.missingSince} |`);
   sections.push("");
