@@ -13,6 +13,7 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { firstString, metricEventName, optionalTimestamp, transcriptLines } from "./internal/transcript-utils.ts";
 import { AiMetricsTranscriptSource, type TranscriptIngestSummary } from "./models.ts";
 
 const $I = $RepoAiMetricsId.create("privacy");
@@ -25,23 +26,16 @@ const $I = $RepoAiMetricsId.create("privacy");
  */
 export const AI_METRICS_LOCAL_INSECURE_HASH_SALT = "beep-ai-metrics-local-smoke-insecure-salt";
 
+// These global regexes are safe for concurrent use here because matchAll and replace
+// start each string operation from index 0 even when the expression has the g flag.
 const SECRET_ASSIGNMENT_PATTERN =
   /\b([A-Z][A-Z0-9_]*(?:API[_-]?KEY|KEY|TOKEN|SECRET|PASSWORD|PASS|PWD|AUTH|CREDENTIAL)[A-Z0-9_]*)\s*=\s*("[^"]*"|'[^']*'|[^\s;&|]+)/giu;
 const AUTH_HEADER_PATTERN = /\b(authorization|proxy-authorization)\s*:\s*([^\n\r]+)/giu;
 const BEARER_PATTERN = /\b(Bearer|Basic)\s+([A-Za-z0-9._~+/=-]{8,})/giu;
 const OPENAI_KEY_PATTERN = /\b(sk-[A-Za-z0-9_-]{8,})\b/gu;
 
-const transcriptLines = (content: string): ReadonlyArray<string> =>
-  pipe(content, Str.split("\n"), A.map(Str.trim), A.filter(Str.isNonEmpty));
-
 const countMatches = (pattern: RegExp, content: string): number =>
   pipe(content, Str.matchAll(pattern), A.fromIterable, A.length);
-
-const firstString = (...values: ReadonlyArray<string | undefined>): O.Option<string> =>
-  pipe(values, A.map(O.fromNullishOr), A.getSomes, A.head);
-
-const optionalTimestamp = (timestamp: string | undefined): { readonly timestamp?: string } =>
-  timestamp === undefined ? {} : { timestamp };
 
 /**
  * Whether private identifier hashes used an operator-provided salt or a local smoke fallback.
@@ -208,7 +202,6 @@ class GenericTranscriptLine extends S.Class<GenericTranscriptLine>($I`GenericTra
 
 const decodeGenericTranscriptLine = S.decodeUnknownOption(S.fromJsonString(GenericTranscriptLine));
 const encodePrivacyCheckJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsPrivacyCheckResult));
-const safeEventNamePattern = /^[A-Za-z][A-Za-z0-9_.:-]{0,79}$/u;
 
 /**
  * Resolve the effective private hash salt value.
@@ -288,23 +281,26 @@ export const redactAiMetricsSensitiveText = (text: string): string =>
     )(Str.replace(AUTH_HEADER_PATTERN, "$1: [REDACTED]")(Str.replace(SECRET_ASSIGNMENT_PATTERN, "$1=[REDACTED]")(text)))
   );
 
-const redactionResultFor = (content: string): AiMetricsRedactionResult =>
-  new AiMetricsRedactionResult({
-    authHeaderCount: countMatches(AUTH_HEADER_PATTERN, content),
-    bearerTokenCount: countMatches(BEARER_PATTERN, content),
+const redactionResultFor = (content: string): AiMetricsRedactionResult => {
+  const authHeaderCount = countMatches(AUTH_HEADER_PATTERN, content);
+  const bearerTokenCount = countMatches(BEARER_PATTERN, content);
+  const openAiKeyCount = countMatches(OPENAI_KEY_PATTERN, content);
+  const secretAssignmentCount = countMatches(SECRET_ASSIGNMENT_PATTERN, content);
+
+  return new AiMetricsRedactionResult({
+    authHeaderCount,
+    bearerTokenCount,
     excludedRawTextFieldCount: countMatches(/"message"|"payload"|"prompt"|"content"|"text"|"result"/gu, content),
-    openAiKeyCount: countMatches(OPENAI_KEY_PATTERN, content),
-    safeForDerivedUi: true,
-    secretAssignmentCount: countMatches(SECRET_ASSIGNMENT_PATTERN, content),
+    openAiKeyCount,
+    safeForDerivedUi: authHeaderCount + bearerTokenCount + openAiKeyCount + secretAssignmentCount === 0,
+    secretAssignmentCount,
   });
+};
 
-const metricEventName = (fallback: string, value: string): string =>
-  safeEventNamePattern.test(value) ? value : fallback;
-
-const eventNameFor = (decoded: GenericTranscriptLine): string =>
+const eventNameFor = (sourceKind: AiMetricsTranscriptSource, decoded: GenericTranscriptLine): string =>
   pipe(
     firstString(decoded.type, decoded.event),
-    O.map((value) => metricEventName("event", value)),
+    O.map((value) => metricEventName(sourceKind, "event", value)),
     O.getOrElse(() => "event")
   );
 
@@ -338,7 +334,7 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
 
       return O.some(
         new AiMetricsRawEventEnvelope({
-          eventName: eventNameFor(decoded.value),
+          eventName: eventNameFor(sourceKind, decoded.value),
           lineNumber: index + 1,
           rawEventHash: yield* hashPrivateIdentifier(line, hashSalt),
           sourceKind,

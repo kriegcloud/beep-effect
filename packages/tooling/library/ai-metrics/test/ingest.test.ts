@@ -93,37 +93,59 @@ describe("@beep/repo-ai-metrics", () => {
     })
   );
 
-  it("resolves the dankserver install target", () => {
-    const spec = makeAiMetricsInstallSpec(
-      new AiMetricsInstallInput({
-        defaultTool: AiMetricsTool.Enum.phoenix,
-        hashSaltSecretRef: "op://beep-effect/ai-metrics/hash-salt",
-        privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
-        target: AiMetricsDeployTarget.Enum.dankserver,
-      })
-    );
-
-    expect(spec.stackName).toBe("beep-ai-metrics-dankserver");
-    expect(spec.storage.dataRoot).toBe("/srv/data/ai-metrics");
-    expect(spec.defaultScoreWeights.outcome).toBe(0.7);
-    expect(
-      pipe(
-        spec.services,
-        A.map((service) => service.tool)
-      )
-    ).toEqual(["langfuse", "phoenix", "opik"]);
-    expect(spec.hashSaltSecretRef).toBe("op://beep-effect/ai-metrics/hash-salt");
-  });
-
-  it("rejects non-local install specs without a hash salt secret reference", () => {
-    expect(() =>
-      makeAiMetricsInstallSpec(
+  it.effect(
+    "resolves the dankserver install target",
+    Effect.fn(function* () {
+      const spec = yield* makeAiMetricsInstallSpec(
         new AiMetricsInstallInput({
+          defaultTool: AiMetricsTool.Enum.phoenix,
+          hashSaltSecretRef: "op://beep-effect/ai-metrics/hash-salt",
+          privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
           target: AiMetricsDeployTarget.Enum.dankserver,
         })
-      )
-    ).toThrow("non-local installs require hashSaltSecretRef");
-  });
+      );
+
+      expect(spec.stackName).toBe("beep-ai-metrics-dankserver");
+      expect(spec.storage.dataRoot).toBe("/srv/data/ai-metrics");
+      expect(spec.defaultScoreWeights.outcome).toBe(0.7);
+      expect(
+        pipe(
+          spec.services,
+          A.map((service) => service.tool)
+        )
+      ).toEqual(["langfuse", "phoenix", "opik"]);
+      expect(spec.hashSaltSecretRef).toBe("op://beep-effect/ai-metrics/hash-salt");
+    })
+  );
+
+  it.effect(
+    "rejects non-local install specs without a hash salt secret reference",
+    Effect.fn(function* () {
+      const error = yield* Effect.flip(
+        makeAiMetricsInstallSpec(
+          new AiMetricsInstallInput({
+            target: AiMetricsDeployTarget.Enum.dankserver,
+          })
+        )
+      );
+
+      expect(error.message).toContain("non-local installs require hashSaltSecretRef");
+    })
+  );
+
+  it.effect(
+    "falls back unknown transcript type metadata to bounded event names",
+    Effect.fn(function* () {
+      const summary = yield* summarizeTranscriptText({
+        content: '{"type":"sk-secretfixture","timestamp":"2026-05-05T10:00:00Z"}',
+        hashSalt: "test-salt",
+        sourceKind: AiMetricsTranscriptSource.Enum.codex,
+        sourcePath: "codex.jsonl",
+      });
+
+      expect(summary.eventNames).toEqual(["event"]);
+    })
+  );
 
   it.effect(
     "builds a privacy proof without exposing raw prompt, output, path, or secret text",
@@ -151,6 +173,7 @@ describe("@beep/repo-ai-metrics", () => {
           const json = yield* privacyCheckToJson(result);
 
           expect(result.hashSaltStatus).toBe("provided");
+          expect(result.redaction.safeForDerivedUi).toBe(false);
           expect(result.redaction.excludedRawTextFieldCount).toBeGreaterThan(0);
           expect(result.redaction.openAiKeyCount).toBe(1);
           expect(result.sanitized.rawEventEnvelopes).toHaveLength(2);
@@ -161,6 +184,27 @@ describe("@beep/repo-ai-metrics", () => {
           expect(json).not.toContain(sourcePath);
         })
       ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "reports derived UI as safe when secret-shaped values are absent",
+    Effect.fn(function* () {
+      const content = '{"type":"session_meta","timestamp":"2026-05-05T12:00:00Z"}';
+      const summary = yield* summarizeTranscriptText({
+        content,
+        hashSalt: "test-salt",
+        sourceKind: AiMetricsTranscriptSource.Enum.codex,
+        sourcePath: "codex.jsonl",
+      });
+      const result = yield* makeAiMetricsPrivacyCheckResult({
+        content,
+        hashSalt: "test-salt",
+        sourcePath: "codex.jsonl",
+        summary,
+      });
+
+      expect(result.redaction.safeForDerivedUi).toBe(true);
     })
   );
 

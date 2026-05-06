@@ -1,5 +1,6 @@
 import { makeAIMetricsStackArgs, makeAIMetricsStackArgsFromConfigValues } from "@beep/infra";
 import { AiMetricsDeployTarget, AiMetricsInstallInput, makeAiMetricsInstallSpec } from "@beep/repo-ai-metrics";
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
 describe("@beep/infra AIMetrics", () => {
@@ -13,7 +14,9 @@ describe("@beep/infra AIMetrics", () => {
 
     expect(args.install.target).toBe("dankserver");
     expect(args.install.dataRoot).toBeUndefined();
-    expect(makeAiMetricsInstallSpec(args.install).hashSaltSecretRef).toBe("op://beep-effect/ai-metrics/hash-salt");
+    expect(Effect.runSync(makeAiMetricsInstallSpec(args.install)).hashSaltSecretRef).toBe(
+      "op://beep-effect/ai-metrics/hash-salt"
+    );
   });
 
   it("maps the dankserver Pulumi stack config to a production-safe install spec", () => {
@@ -21,7 +24,7 @@ describe("@beep/infra AIMetrics", () => {
       hashSaltSecretRef: "op://beep-effect/ai-metrics/hash-salt",
       target: "dankserver",
     });
-    const spec = makeAiMetricsInstallSpec(args.install);
+    const spec = Effect.runSync(makeAiMetricsInstallSpec(args.install));
 
     expect(args.install.target).toBe("dankserver");
     expect(spec.target).toBe("dankserver");
@@ -31,6 +34,8 @@ describe("@beep/infra AIMetrics", () => {
   it("rejects dankserver install specs when the hash salt secret reference is absent", () => {
     const args = makeAIMetricsStackArgsFromConfigValues({ target: "dankserver" });
 
-    expect(() => makeAiMetricsInstallSpec(args.install)).toThrow("non-local installs require hashSaltSecretRef");
+    expect(() => Effect.runSync(makeAiMetricsInstallSpec(args.install))).toThrow(
+      "non-local installs require hashSaltSecretRef"
+    );
   });
 });

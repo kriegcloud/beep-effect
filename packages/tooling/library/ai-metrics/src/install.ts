@@ -49,21 +49,21 @@ const childPath = (root: string, child: string): string => `${root}/${child}`;
 const nonEmptyString = (value: string | undefined): O.Option<string> =>
   value === undefined || Str.isEmpty(Str.trim(value)) ? O.none() : O.some(value);
 
-const requireHashSaltSecretRef = (
+const requireHashSaltSecretRef = Effect.fn("AiMetrics.requireHashSaltSecretRef")(function* (
   target: AiMetricsDeployTarget,
   hashSaltSecretRef: string | undefined
-): O.Option<string> => {
+) {
   const ref = nonEmptyString(hashSaltSecretRef);
   if (target === AiMetricsDeployTarget.Enum.local || O.isSome(ref)) {
     return ref;
   }
 
-  throw new AiMetricsInstallConfigurationError({
+  return yield* new AiMetricsInstallConfigurationError({
     cause: { target },
     message:
       "AI metrics non-local installs require hashSaltSecretRef so private identifier hashing never uses the local smoke salt.",
   });
-};
+});
 
 /**
  * Error raised when an AI metrics install spec would be unsafe for the requested target.
@@ -188,8 +188,8 @@ export class AiMetricsServiceSpec extends S.Class<AiMetricsServiceSpec>($I`AiMet
  *
  * @example
  * ```ts
- * import { makeAiMetricsInstallSpec } from "@beep/repo-ai-metrics"
- * console.log(makeAiMetricsInstallSpec().stackName)
+ * import { AiMetricsInstallSpec } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsInstallSpec)
  * ```
  * @category models
  * @since 0.0.0
@@ -266,22 +266,25 @@ const plannedCommands = (
  * Resolve an install spec for the requested AI metrics target.
  *
  * @param input - Optional operator install preferences; omitted fields use the local target defaults.
- * @returns The normalized install spec consumed by IaC and CLI planning.
+ * @returns An effect that resolves the normalized install spec consumed by IaC and CLI planning.
  * @example
  * ```ts
  * import { makeAiMetricsInstallSpec } from "@beep/repo-ai-metrics"
- * const spec = makeAiMetricsInstallSpec()
+ * import { Effect } from "effect"
+ * const spec = Effect.runSync(makeAiMetricsInstallSpec())
  * console.log(spec.storage.rawArchiveDir)
  * ```
  * @category constructors
  * @since 0.0.0
  */
-export const makeAiMetricsInstallSpec = (
-  input: AiMetricsInstallInput = new AiMetricsInstallInput({})
-): AiMetricsInstallSpec => {
+export const makeAiMetricsInstallSpec: (
+  input?: AiMetricsInstallInput
+) => Effect.Effect<AiMetricsInstallSpec, AiMetricsInstallConfigurationError> = Effect.fn(
+  "AiMetrics.makeAiMetricsInstallSpec"
+)(function* (input: AiMetricsInstallInput = new AiMetricsInstallInput({})) {
   const dataRoot = input.dataRoot ?? defaultDataRoot(input.target);
   const publicBaseUrl = input.publicBaseUrl ?? defaultPublicBaseUrl(input.target);
-  const hashSaltSecretRef = requireHashSaltSecretRef(input.target, input.hashSaltSecretRef);
+  const hashSaltSecretRef = yield* requireHashSaltSecretRef(input.target, input.hashSaltSecretRef);
   const storage = makeStorageLayout(dataRoot);
   const services = A.map(input.candidateTools, makeServiceSpec(input.defaultTool, publicBaseUrl));
 
@@ -299,4 +302,4 @@ export const makeAiMetricsInstallSpec = (
     tailnetOnly: input.tailnetOnly,
     target: input.target,
   });
-};
+});

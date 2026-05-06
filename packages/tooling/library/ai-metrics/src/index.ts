@@ -35,7 +35,7 @@ export * from "./ingest.ts";
  * @example
  * ```ts
  * import { makeAiMetricsInstallSpec } from "@beep/repo-ai-metrics"
- * console.log(makeAiMetricsInstallSpec())
+ * console.log(makeAiMetricsInstallSpec)
  * ```
  * @category services
  * @since 0.0.0

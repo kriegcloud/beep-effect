@@ -14,7 +14,7 @@ import {
   makeAiMetricsInstallSpec,
 } from "@beep/repo-ai-metrics";
 import * as pulumi from "@pulumi/pulumi";
-import { Result } from "effect";
+import { Effect, Result } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $InfraId.create("AIMetrics");
@@ -189,7 +189,7 @@ export class AIMetricsStack extends pulumi.ComponentResource {
   ) {
     super("beep:infra:AIMetricsStack", name, {}, opts);
 
-    const spec = makeAiMetricsInstallSpec(args.install);
+    const spec = Effect.runSync(makeAiMetricsInstallSpec(args.install));
     this.installSpec = pulumi.output(spec);
     this.rawArchiveDir = pulumi.output(spec.storage.rawArchiveDir);
     this.duckDbPath = pulumi.output(spec.storage.duckDbPath);

@@ -11,7 +11,7 @@ import { Effect, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
+import { firstString, metricEventName, optionalTimestamp, transcriptLines } from "./internal/transcript-utils.ts";
 import {
   AgentTurn,
   AiMetricsTranscriptSource,
@@ -58,23 +58,9 @@ type TranscriptTextSummaryInput = {
   readonly sourcePath: string;
 };
 
-const transcriptLines = (content: string): ReadonlyArray<string> =>
-  pipe(content, Str.split("\n"), A.map(Str.trim), A.filter(Str.isNonEmpty));
-
-const firstString = (...values: ReadonlyArray<string | undefined>): O.Option<string> =>
-  pipe(values, A.map(O.fromNullishOr), A.getSomes, A.head);
-
-const optionalTimestamp = (timestamp: string | undefined): { readonly timestamp?: string } =>
-  timestamp === undefined ? {} : { timestamp };
-
-const safeEventNamePattern = /^[A-Za-z][A-Za-z0-9_.:-]{0,79}$/u;
-
-const metricEventName = (fallback: string, value: string | undefined): string =>
-  value !== undefined && safeEventNamePattern.test(value) ? value : fallback;
-
 const codexTurn = (sourcePathHash: string, lineNumber: number, line: CodexTranscriptLine): AgentTurn =>
   new AgentTurn({
-    eventName: metricEventName("event", line.type),
+    eventName: metricEventName(AiMetricsTranscriptSource.Enum.codex, "event", line.type),
     lineNumber,
     sourceKind: AiMetricsTranscriptSource.Enum.codex,
     sourcePathHash,
@@ -83,7 +69,7 @@ const codexTurn = (sourcePathHash: string, lineNumber: number, line: CodexTransc
 
 const claudeTurn = (sourcePathHash: string, lineNumber: number, line: ClaudeTranscriptLine): AgentTurn =>
   new AgentTurn({
-    eventName: metricEventName("message", line.type),
+    eventName: metricEventName(AiMetricsTranscriptSource.Enum.claude, "message", line.type),
     lineNumber,
     sourceKind: AiMetricsTranscriptSource.Enum.claude,
     sourcePathHash,
@@ -94,7 +80,7 @@ const openClawTurn = (sourcePathHash: string, lineNumber: number, line: OpenClaw
   new AgentTurn({
     eventName: pipe(
       firstString(line.event, line.type),
-      O.map((value) => metricEventName("event", value)),
+      O.map((value) => metricEventName(AiMetricsTranscriptSource.Enum.openclaw, "event", value)),
       O.getOrElse(() => "event")
     ),
     lineNumber,

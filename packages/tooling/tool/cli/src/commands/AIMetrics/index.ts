@@ -11,6 +11,7 @@ import {
   AiMetricsConfigSnapshotInput,
   AiMetricsDeployTarget,
   type AiMetricsIngestError,
+  type AiMetricsInstallConfigurationError,
   AiMetricsInstallInput,
   AiMetricsInstallSpec,
   type AiMetricsPrivacyError,
@@ -159,6 +160,7 @@ type AiMetricsProgramError =
   | AiMetricsCommandError
   | AiMetricsConfigSnapshotError
   | AiMetricsIngestError
+  | AiMetricsInstallConfigurationError
   | AiMetricsPrivacyError
   | AiMetricsSourceDiscoveryError;
 
@@ -170,6 +172,10 @@ const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramErro
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
       AiMetricsIngestError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`ai-metrics: ${error.message}`);
+      }),
+      AiMetricsInstallConfigurationError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
@@ -340,7 +346,7 @@ const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
     target,
   });
-  const spec = makeAiMetricsInstallSpec(
+  const spec = yield* makeAiMetricsInstallSpec(
     new AiMetricsInstallInput({
       defaultTool: tool,
       ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
@@ -592,7 +598,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
     target,
   });
-  const spec = makeAiMetricsInstallSpec(
+  const spec = yield* makeAiMetricsInstallSpec(
     new AiMetricsInstallInput({
       ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       target,

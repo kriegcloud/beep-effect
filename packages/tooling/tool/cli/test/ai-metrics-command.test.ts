@@ -46,7 +46,10 @@ describe("ai-metrics command", () => {
           const inputPath = path.join(tmpDir, "claude.jsonl");
           yield* writeText(
             inputPath,
-            '{"sessionId":"claude-private-session","cwd":"/private/repo/path","timestamp":"2026-05-05T11:00:00Z","message":{"role":"user"}}\n'
+            [
+              '{"sessionId":"claude-private-session","cwd":"/private/repo/path","timestamp":"2026-05-05T11:00:00Z","message":{"role":"user"}}',
+              '{"type":"sk-private-event-name","timestamp":"2026-05-05T11:01:00Z","message":{"role":"assistant"}}',
+            ].join("\n")
           );
 
           yield* runAiMetricsCommand([
@@ -66,6 +69,7 @@ describe("ai-metrics command", () => {
           expect(output).not.toContain(tmpDir);
           expect(output).not.toContain(inputPath);
           expect(output).not.toContain("claude-private-session");
+          expect(output).not.toContain("sk-private-event-name");
           expect(output).not.toContain("/private/repo/path");
           expect(process.exitCode ?? 0).toBe(0);
         })
