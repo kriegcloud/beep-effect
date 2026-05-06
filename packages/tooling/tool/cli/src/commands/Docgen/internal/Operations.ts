@@ -80,7 +80,7 @@ const byIssueAscending: Order.Order<DocgenExportAnalysis> = Order.mapInput(
 /**
  * Workspace docgen status derived from config and generated output presence.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const DocgenPackageStatus = LiteralKit([
@@ -95,7 +95,7 @@ export const DocgenPackageStatus = LiteralKit([
 /**
  * Workspace docgen status derived from config and generated output presence.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type DocgenPackageStatus = typeof DocgenPackageStatus.Type;
@@ -109,7 +109,7 @@ const DocgenJsonObject = S.Record(S.String, S.Unknown).annotate(
 /**
  * Parsed `docgen.json` document used by the command suite.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class DocgenConfigDocument extends S.Class<DocgenConfigDocument>($I`DocgenConfigDocument`)(
@@ -138,7 +138,7 @@ export class DocgenConfigDocument extends S.Class<DocgenConfigDocument>($I`Docge
 /**
  * Workspace package metadata used by docgen commands.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class DocgenWorkspacePackage extends S.Class<DocgenWorkspacePackage>($I`DocgenWorkspacePackage`)(
@@ -159,7 +159,7 @@ export class DocgenWorkspacePackage extends S.Class<DocgenWorkspacePackage>($I`D
 /**
  * Issue priority used by analysis findings.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const DocgenIssuePriority = LiteralKit(["high", "medium", "low"]).annotate(
@@ -170,7 +170,7 @@ export const DocgenIssuePriority = LiteralKit(["high", "medium", "low"]).annotat
 /**
  * Issue priority used by analysis findings.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type DocgenIssuePriority = typeof DocgenIssuePriority.Type;
@@ -178,7 +178,7 @@ export type DocgenIssuePriority = typeof DocgenIssuePriority.Type;
 /**
  * Export kind surfaced by analysis.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const DocgenExportKind = LiteralKit([
@@ -199,7 +199,7 @@ export const DocgenExportKind = LiteralKit([
 /**
  * Export kind surfaced by analysis.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type DocgenExportKind = typeof DocgenExportKind.Type;
@@ -207,7 +207,7 @@ export type DocgenExportKind = typeof DocgenExportKind.Type;
 /**
  * Analysis finding for a single export or module-level doc requirement.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`DocgenExportAnalysis`)(
@@ -233,7 +233,7 @@ export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`Docge
 /**
  * Summary counts for a package analysis run.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class DocgenAnalysisSummary extends S.Class<DocgenAnalysisSummary>($I`DocgenAnalysisSummary`)(
@@ -254,7 +254,7 @@ export class DocgenAnalysisSummary extends S.Class<DocgenAnalysisSummary>($I`Doc
 /**
  * Package-level analysis document written by `docgen analyze`.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class DocgenPackageAnalysis extends S.Class<DocgenPackageAnalysis>($I`DocgenPackageAnalysis`)(
@@ -273,7 +273,7 @@ export class DocgenPackageAnalysis extends S.Class<DocgenPackageAnalysis>($I`Doc
 /**
  * Per-package docgen generation result.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class DocgenGenerationResult extends S.Class<DocgenGenerationResult>($I`DocgenGenerationResult`)(
@@ -293,7 +293,7 @@ export class DocgenGenerationResult extends S.Class<DocgenGenerationResult>($I`D
 /**
  * Per-package aggregated docs result.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class DocgenAggregateResult extends S.Class<DocgenAggregateResult>($I`DocgenAggregateResult`)(
@@ -756,13 +756,13 @@ const analyzeModuleFileoverview = (
   relativeFilePath: string,
   requiredTags: ReadonlyArray<DocgenRequiredTag>
 ): O.Option<DocgenExportAnalysis> => {
-  if (!A.contains(requiredTags, "@since")) {
-    return O.none();
-  }
-
   const match = /^(?:#![^\n]*\n)?\s*(\/\*\*[\s\S]*?\*\/)/.exec(sourceFile.getFullText());
 
   if (match === null) {
+    if (!A.contains(requiredTags, "@since")) {
+      return O.none();
+    }
+
     return O.some(
       makeExportAnalysis({
         name: "<module fileoverview>",
@@ -781,14 +781,18 @@ const analyzeModuleFileoverview = (
   }
 
   const commentText = match[1] ?? "";
-  if (/@since\b/.test(commentText)) {
-    return O.none();
-  }
-
   const presentTags = pipe(
     ["@file", "@fileoverview", "@module", "@category", "@example"],
     A.filter((tag) => Str.includes(tag)(commentText))
   );
+  const categoryValues = extractJsDocCategoryValuesFromText(commentText);
+  const categoryIssues = categoryIssueMessages(categoryValues);
+  const missingTags =
+    /@since\b/.test(commentText) || !A.contains(requiredTags, "@since") ? A.empty<DocgenRequiredTag>() : ["@since"];
+
+  if (missingTags.length === 0 && categoryIssues.length === 0) {
+    return O.none();
+  }
 
   return O.some(
     makeExportAnalysis({
@@ -797,12 +801,17 @@ const analyzeModuleFileoverview = (
       filePath: relativeFilePath,
       line: 1,
       presentTags,
-      missingTags: ["@since"],
-      categoryValues: extractJsDocCategoryValuesFromText(commentText),
-      categoryIssues: A.empty(),
+      missingTags,
+      categoryValues,
+      categoryIssues,
       hasJsDoc: true,
       declarationSource: commentText,
-      context: "Module fileoverview is missing @since.",
+      context:
+        missingTags.length > 0 && categoryIssues.length > 0
+          ? "Module fileoverview is missing @since and has invalid @category metadata."
+          : missingTags.length > 0
+            ? "Module fileoverview is missing @since."
+            : "Module fileoverview has invalid @category metadata.",
     })
   );
 };
@@ -1112,7 +1121,7 @@ const copyDocsTree = (
  *
  * @param relativePath - Workspace-relative package path.
  * @returns Current nested docs output path with the top-level workspace root trimmed.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const normalizeDocsOutputPath = (relativePath: string): string =>
@@ -1123,7 +1132,7 @@ export const normalizeDocsOutputPath = (relativePath: string): string =>
  *
  * @param absolutePackagePath - Absolute package path containing the `docgen.json` file to decode.
  * @returns Parsed current-schema docgen configuration.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const loadDocgenConfigDocument: (
@@ -1151,7 +1160,7 @@ export const loadDocgenConfigDocument: (
  * @param targetPackage - Target workspace package.
  * @param rootDir - Absolute repo root.
  * @returns Bootstrapped docgen config using current repo defaults plus dependency-aware paths.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const createDocgenConfigDocument: {
@@ -1194,7 +1203,7 @@ export const createDocgenConfigDocument: {
  *
  * @param rootDir - Optional repo root override.
  * @returns Sorted workspace package descriptors with current docgen status.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const discoverDocgenWorkspacePackages: (
@@ -1237,7 +1246,7 @@ export const discoverDocgenWorkspacePackages: (
  * @param selector - Package selector supplied by the CLI.
  * @param options - Optional repo root override.
  * @returns Resolved workspace package descriptor.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const resolveDocgenWorkspacePackage: {
@@ -1289,7 +1298,7 @@ export const resolveDocgenWorkspacePackage: {
  *
  * @param targetPackage - Target workspace package.
  * @returns Package analysis document grounded in the current repo package layout.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const analyzePackageDocumentation: (
@@ -1333,7 +1342,7 @@ export const analyzePackageDocumentation: (
  * @param analysis - Package analysis document.
  * @param fixMode - Whether to emit checklist-focused output.
  * @returns Human-first markdown report content.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const generateAnalysisReport: {
@@ -1451,7 +1460,7 @@ export const generateAnalysisReport: {
  *
  * @param analysis - Package analysis document.
  * @returns JSON representation suitable for writing to disk or stdout.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const generateAnalysisJson = (analysis: DocgenPackageAnalysis): string => jsonText(analysis);
@@ -1461,7 +1470,7 @@ export const generateAnalysisJson = (analysis: DocgenPackageAnalysis): string =>
  *
  * @param options - Aggregate configuration for the docs copy step, including the clean flag and optional package selector.
  * @returns Per-package aggregation results using the current nested layout.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const aggregateGeneratedDocs = (options?: {
@@ -1611,7 +1620,7 @@ export const aggregateGeneratedDocs = (options?: {
  *
  * @param targetPackage - Target workspace package.
  * @returns Generation result including output and module count.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const runDocgenForPackage: (

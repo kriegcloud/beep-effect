@@ -833,6 +833,72 @@ export const RejectedCategory = "nope";
     );
   });
 
+  it("flags rejected category values on module fileoverview during analysis", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Package docs.
+ *
+ * @packageDocumentation
+ * @category exports
+ * @since 0.0.0
+ */
+
+const packageDocAnchor = true;
+
+/**
+ * Valid export fixture.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ValidExport = packageDocAnchor;
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const analysis = yield* analyzePackageDocumentation(target!);
+          const fileoverview = analysis.exports.find((entry) => entry.name === "<module fileoverview>");
+
+          expect(fileoverview?.missingTags).toEqual([]);
+          expect(fileoverview?.categoryValues).toEqual(["exports"]);
+          expect(fileoverview?.categoryIssues.join("\n")).toContain("Re-exports are graph edges");
+          expect(analysis.summary.invalidCategory).toBe(1);
+          expect(analysis.summary.missingDocumentation).toBe(1);
+        })
+      )
+    );
+  });
+
   it("returns a non-zero exit code when generate targets an unconfigured package", {
     timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
   }, async () => {

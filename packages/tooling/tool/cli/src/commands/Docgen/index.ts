@@ -612,7 +612,7 @@ const printDocgenIndex = Effect.fn(function* () {
 /**
  * Human-first docgen command suite.
  *
- * @category UseCase
+ * @category use-cases
  * @since 0.0.0
  */
 export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
