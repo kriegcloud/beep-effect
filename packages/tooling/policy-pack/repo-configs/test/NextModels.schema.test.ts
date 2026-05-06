@@ -6,6 +6,7 @@ import {
   Redirect,
   Rewrite,
   RouteHas,
+  SassOptions,
   SizeLimit,
 } from "@beep/repo-configs/next";
 import { Effect, Exit } from "effect";
@@ -20,6 +21,7 @@ const decodeHeader = S.decodeUnknownEffect(Header);
 const decodeRedirect = S.decodeUnknownEffect(Redirect);
 const decodeMiddleware = S.decodeUnknownEffect(Middleware);
 const decodeLoggingConfig = S.decodeUnknownEffect(LoggingConfig);
+const decodeSassOptions = S.decodeUnknownEffect(SassOptions);
 
 const exit = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(Effect.exit(effect));
 
@@ -118,5 +120,20 @@ describe("Next config primitive schemas", () => {
     await expect(Effect.runPromise(decodeLoggingConfig({ incomingRequests: {} }))).resolves.toEqual({
       incomingRequests: {},
     });
+  });
+});
+
+describe("Next compiler schemas", () => {
+  it("accepts Sass options with implementation and package-specific passthrough keys", async () => {
+    const options = {
+      implementation: "sass",
+      silenceDeprecations: ["legacy-js-api"],
+    };
+    await expect(Effect.runPromise(decodeSassOptions(options))).resolves.toEqual(options);
+  });
+
+  it("rejects non-object Sass options and non-string implementations", async () => {
+    expect(Exit.isFailure(await exit(decodeSassOptions(["sass"])))).toBe(true);
+    expect(Exit.isFailure(await exit(decodeSassOptions({ implementation: false })))).toBe(true);
   });
 });

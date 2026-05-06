@@ -14,11 +14,16 @@ const $I = $RepoConfigsId.create("next/models/Compiler.schema");
 
 const StringArray = S.String.pipe(S.Array, S.mutable);
 const StringTuple = S.mutable(S.Tuple([S.String, S.String]));
-const UnknownRecord = S.Record(S.String, S.Unknown);
 type RunAfterProductionCompileHook = NonNullable<
   NonNullable<NextConfigFromNext["compiler"]>["runAfterProductionCompile"]
 >;
+type SassOptionsFromNext = NonNullable<NextConfigFromNext["sassOptions"]>;
 const isRunAfterProductionCompileHook = (value: unknown): value is RunAfterProductionCompileHook => P.isFunction(value);
+const isSassOptions = (value: unknown): value is SassOptionsFromNext => {
+  if (!P.isObject(value)) return false;
+  const implementation = value.implementation;
+  return P.isUndefined(implementation) || P.isString(implementation);
+};
 
 const RunAfterProductionCompile = S.declare<RunAfterProductionCompileHook>(isRunAfterProductionCompileHook, {
   expected: "Function",
@@ -192,23 +197,24 @@ export class CompilerConfig extends S.Class<CompilerConfig>($I`CompilerConfig`)(
   })
 ) {}
 
-const SassOptionsStruct = S.Struct({
-  implementation: S.optionalKey(S.String),
-});
-
 /**
  * Sass options passed through to Next.js.
  *
  * @example
  * ```ts
- * import { SassOptions } from "@beep/repo-configs/next/models/Compiler.schema"
- * const options = SassOptions.make({ implementation: "sass" })
- * void options
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { SassOptions } from "@beep/repo-configs/next"
+ * const program = S.decodeUnknownEffect(SassOptions)({ implementation: "sass" })
+ * void Effect.runPromise(program)
  * ```
  * @category schemas
  * @since 0.0.0
  */
-export const SassOptions = S.StructWithRest(SassOptionsStruct, [UnknownRecord]).pipe(
+export const SassOptions = S.declare<SassOptionsFromNext>(isSassOptions, {
+  expected: "SassOptions",
+  description: "Sass options passed through to Next.js.",
+}).pipe(
   $I.annoteSchema("SassOptions", {
     description: "Sass options passed through to Next.js.",
   })
@@ -219,7 +225,7 @@ export const SassOptions = S.StructWithRest(SassOptionsStruct, [UnknownRecord]).
  *
  * @example
  * ```ts
- * import type { SassOptions } from "@beep/repo-configs/next/models/Compiler.schema"
+ * import type { SassOptions } from "@beep/repo-configs/next"
  * const options: SassOptions = { implementation: "sass" }
  * void options
  * ```
