@@ -34,6 +34,7 @@
   "dependencies": {
     "@1password/connect": "catalog:",
     "@beep/identity": "workspace:^",
+    "@beep/repo-ai-metrics": "workspace:^",
     "@pulumi/command": "catalog:",
     "@pulumi/github": "catalog:",
     "@pulumi/kubernetes": "catalog:",

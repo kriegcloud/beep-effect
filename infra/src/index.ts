@@ -26,3 +26,18 @@
  * @since 0.0.0
  */
 export const infraProjectName = "beep-effect";
+
+/**
+ * AI metrics Pulumi orchestration exports.
+ *
+ * @example
+ * ```ts
+ * import { AIMetricsStack } from "@beep/infra"
+ *
+ * console.log(AIMetricsStack)
+ * ```
+ *
+ * @category resources
+ * @since 0.0.0
+ */
+export * from "./AIMetrics.js";

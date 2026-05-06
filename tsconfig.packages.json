@@ -139,6 +139,9 @@
       "path": "packages/shared/use-cases"
     },
     {
+      "path": "packages/tooling/library/ai-metrics"
+    },
+    {
       "path": "packages/tooling/library/repo-utils"
     },
     {

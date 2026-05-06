@@ -9,7 +9,7 @@ import {
   TestDatabaseInfo,
 } from "@beep/test-utils";
 import { beforeAll, describe, expect, it } from "@effect/vitest";
-import { Cause, Context, Effect, Exit, Layer, pipe, Scope } from "effect";
+import { Cause, Context, Duration, Effect, Exit, Layer, pipe, Scope } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -19,6 +19,7 @@ const sharedConnectionUri = process.env.BEEP_TEST_DATABASE_URL;
 const hasSharedConnectionUri = sharedConnectionUri !== undefined && sharedConnectionUri !== "";
 let pgliteTestcontainersAvailable = false;
 const isSqlTestHarnessError = S.is(SqlTestHarnessError);
+const ContainerInspectTimeout = Duration.seconds(5);
 
 beforeAll(
   () =>
@@ -110,7 +111,7 @@ const schemaExists = Effect.fn("SqlTestIntegration.schemaExists")(function* (sch
 });
 
 const isContainerInspectable = Effect.fn("SqlTestIntegration.isContainerInspectable")(function* (containerId: string) {
-  return yield* Effect.tryPromise({
+  const inspected = yield* Effect.tryPromise({
     try: async () => {
       const { getContainerRuntimeClient } = await import("testcontainers");
       const runtime = await getContainerRuntimeClient();
@@ -118,7 +119,12 @@ const isContainerInspectable = Effect.fn("SqlTestIntegration.isContainerInspecta
       return true;
     },
     catch: () => false,
-  }).pipe(Effect.catch(Effect.succeed));
+  }).pipe(Effect.catch(Effect.succeed), Effect.timeoutOption(ContainerInspectTimeout));
+
+  return pipe(
+    inspected,
+    O.getOrElse(() => false)
+  );
 });
 
 describe.sequential("PGLite shared external SQL test driver", () => {

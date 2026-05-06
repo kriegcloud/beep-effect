@@ -7,6 +7,7 @@
  */
 
 import { Command } from "effect/unstable/cli";
+import { aiMetricsCommand } from "./AIMetrics/index.js";
 import { codegenCommand } from "./Codegen.js";
 import { createPackageCommand } from "./CreatePackage/index.js";
 import { docgenCommand } from "./Docgen/index.js";
@@ -40,6 +41,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
   Command.withDescription("CLI tool for managing beep-effect monorepo packages"),
   Command.withSubcommands([
     topoSortCommand,
+    aiMetricsCommand,
     docgenCommand,
     docsCommand,
     filesCommand,
