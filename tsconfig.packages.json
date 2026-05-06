@@ -28,7 +28,13 @@
       "path": "packages/agent-capability/use-cases"
     },
     {
+      "path": "packages/drivers/acp"
+    },
+    {
       "path": "packages/drivers/drizzle"
+    },
+    {
+      "path": "packages/drivers/duckdb"
     },
     {
       "path": "packages/drivers/ffmpeg"

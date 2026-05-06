@@ -7,7 +7,7 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Effect, FileSystem, flow, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -248,7 +248,7 @@ const makeSnapshotFile = Effect.fn("AiMetrics.makeSnapshotFile")(function* (repo
       (cause) =>
         new AiMetricsConfigSnapshotError({
           cause,
-          message: `Failed to stat config snapshot file "${filePath}".`,
+          message: "Failed to stat config snapshot file.",
         })
     )
   );
@@ -257,7 +257,7 @@ const makeSnapshotFile = Effect.fn("AiMetrics.makeSnapshotFile")(function* (repo
       (cause) =>
         new AiMetricsConfigSnapshotError({
           cause,
-          message: `Failed to read config snapshot file "${filePath}".`,
+          message: "Failed to read config snapshot file.",
         })
     )
   );
@@ -269,12 +269,10 @@ const makeSnapshotFile = Effect.fn("AiMetrics.makeSnapshotFile")(function* (repo
   });
 });
 
-const snapshotHashInput = (files: ReadonlyArray<AiMetricsConfigSnapshotFile>): string =>
-  pipe(
-    files,
-    A.map((file) => `${file.relativePath}\u0000${file.contentHash}`),
-    A.join("\n")
-  );
+const snapshotHashInput: (files: ReadonlyArray<AiMetricsConfigSnapshotFile>) => string = flow(
+  A.map((file) => `${file.relativePath}\u0000${file.contentHash}`),
+  A.join("\n")
+);
 
 /**
  * Build a deterministic snapshot of repo-owned agent-facing configuration.

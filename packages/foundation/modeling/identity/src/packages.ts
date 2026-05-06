@@ -93,6 +93,7 @@ const composers = $I.compose(
   "codedank-web",
   "op-ip-web",
   "drizzle",
+  "duckdb",
   "ffmpeg",
   "postgres",
 
@@ -110,6 +111,7 @@ const composers = $I.compose(
   "openai",
   "venice-ai",
   "xai",
+  "acp",
   "openai-compat"
 );
 
@@ -675,6 +677,12 @@ export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.
  * @since 0.0.0
  * @category configuration
  */
+export const $DuckdbId: Identity.IdentityComposer<"@beep/duckdb"> = composers.$DuckdbId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ */
 export const $FfmpegId: Identity.IdentityComposer<"@beep/ffmpeg"> = composers.$FfmpegId;
 
 /**
@@ -857,6 +865,22 @@ export const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai"> = compose
  * @category configuration
  */
 export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;
+
+/**
+ * Identity composer for `@beep/acp`.
+ *
+ * @example
+ * ```typescript
+ * import { $AcpId } from "@beep/identity"
+ *
+ * const id = $AcpId.make("AcpClient")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $AcpId: Identity.IdentityComposer<"@beep/acp"> = composers.$AcpId;
 
 /**
  * Identity composer for `@beep/openai-compat`.
