@@ -7,7 +7,7 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Effect, Encoding, Order, pipe } from "effect";
+import { Effect, Encoding, flow, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -304,13 +304,11 @@ const eventNameFor = (sourceKind: AiMetricsTranscriptSource, decoded: GenericTra
     O.getOrElse(() => "event")
   );
 
-const eventNameList = (envelopes: ReadonlyArray<AiMetricsRawEventEnvelope>): ReadonlyArray<string> =>
-  pipe(
-    envelopes,
-    A.map((event) => event.eventName),
-    A.dedupe,
-    A.sort(Order.String)
-  );
+const eventNameList: (envelopes: ReadonlyArray<AiMetricsRawEventEnvelope>) => ReadonlyArray<string> = flow(
+  A.map((event) => event.eventName),
+  A.dedupe,
+  A.sort(Order.String)
+);
 
 const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
   content,

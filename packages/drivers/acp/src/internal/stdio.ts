@@ -1,11 +1,7 @@
+import { Effect, Queue, Sink, Stdio, Stream } from "effect";
 import type * as Cause from "effect/Cause";
-import * as Effect from "effect/Effect";
-import * as Queue from "effect/Queue";
-import * as Sink from "effect/Sink";
-import * as Stdio from "effect/Stdio";
-import * as Stream from "effect/Stream";
+import * as P from "effect/Predicate";
 import type { ChildProcessSpawner } from "effect/unstable/process";
-
 import * as AcpError from "../errors.ts";
 
 const encoder = new TextEncoder();
@@ -15,9 +11,7 @@ export const makeChildStdio = (handle: ChildProcessSpawner.ChildProcessHandle) =
     args: Effect.succeed([]),
     stdin: handle.stdout,
     stdout: () =>
-      Sink.mapInput(handle.stdin, (chunk: string | Uint8Array) =>
-        typeof chunk === "string" ? encoder.encode(chunk) : chunk
-      ),
+      Sink.mapInput(handle.stdin, (chunk: string | Uint8Array) => (P.isString(chunk) ? encoder.encode(chunk) : chunk)),
     stderr: () => Sink.drain,
   });
 
@@ -32,7 +26,7 @@ export const makeInMemoryStdio = Effect.fn("makeInMemoryStdio")(function* () {
       stdin: Stream.fromQueue(input),
       stdout: () =>
         Sink.forEach((chunk: string | Uint8Array) =>
-          Queue.offer(output, typeof chunk === "string" ? chunk : decoder.decode(chunk, { stream: true }))
+          Queue.offer(output, P.isString(chunk) ? chunk : decoder.decode(chunk, { stream: true }))
         ),
       stderr: () => Sink.drain,
     }),

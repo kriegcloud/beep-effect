@@ -6,25 +6,18 @@
  */
 
 import { $AcpId } from "@beep/identity";
+import { Deferred, Effect, HashMap, HashSet, Inspectable, Queue, Ref, Stream } from "effect";
 import type * as Cause from "effect/Cause";
-import * as Deferred from "effect/Deferred";
-import * as Effect from "effect/Effect";
-import * as HashMap from "effect/HashMap";
-import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Queue from "effect/Queue";
-import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
 import type * as Stdio from "effect/Stdio";
-import * as Stream from "effect/Stream";
 import * as RpcClient from "effect/unstable/rpc/RpcClient";
 import * as RpcClientError from "effect/unstable/rpc/RpcClientError";
 import type * as RpcMessage from "effect/unstable/rpc/RpcMessage";
 import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
-
 import { CLIENT_METHODS } from "./_generated/meta.gen.ts";
 import * as AcpSchema from "./_generated/schema.gen.ts";
 import * as AcpError from "./errors.ts";
@@ -491,7 +484,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
           ? error
           : new AcpError.AcpTransportError({
               cause: error,
-              detail: error instanceof Error ? error.message : String(error),
+              detail: Inspectable.toStringUnknown(error, 0),
             });
         return handleTermination(() => Effect.succeed(normalized));
       },
@@ -501,7 +494,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
             options.terminationError ??
             Effect.succeed(
               new AcpError.AcpTransportError({
-                cause: new Error("ACP input stream ended"),
+                cause: "ACP input stream ended",
                 detail: "ACP input stream ended",
               })
             )
@@ -527,7 +520,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   });
 
   const serverProtocol = RpcServer.Protocol.of({
-    clientIds: Effect.succeed(new Set([0])),
+    clientIds: Effect.succeed(HashSet.make(0) as unknown as ReadonlySet<number>),
     disconnects,
     end: Effect.fn($I`AcpServer_Protocol_end`)((_clientId) => Queue.end(outgoing)),
     initialMessage: Effect.succeedNone,
@@ -581,12 +574,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
 
 function isProtocolError(value: unknown): value is { code: number; message: string; data?: unknown } {
   return (
-    typeof value === "object" &&
-    value !== null &&
-    "code" in value &&
-    typeof value.code === "number" &&
-    "message" in value &&
-    typeof value.message === "string"
+    P.isObject(value) && "code" in value && P.isNumber(value.code) && "message" in value && P.isString(value.message)
   );
 }
 

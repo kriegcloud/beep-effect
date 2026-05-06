@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 
 import { $AcpId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
 import { make as makeJsonSchemaGenerator } from "@effect/openapi-generator/JsonSchemaGenerator";
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 import * as NodeServices from "@effect/platform-node/NodeServices";
-import { Effect, FileSystem, Layer, Logger, Path } from "effect";
+import { Effect, FileSystem, Layer, Logger, Order, Path, pipe } from "effect";
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { FetchHttpClient, HttpClient, HttpClientResponse } from "effect/unstable/http";
@@ -14,6 +18,13 @@ const CURRENT_SCHEMA_RELEASE = "v0.11.3";
 const GENERATED_SCHEMA_ID = '$AcpId.create("_generated/schema.gen")';
 const GENERATED_META_ID = '$AcpId.create("_generated/meta.gen")';
 const $I = $AcpId.create("scripts/generate");
+const schemaNameOrder = Order.make<string>((left, right) => {
+  const ordering = left.localeCompare(right);
+  if (ordering < 0) {
+    return -1;
+  }
+  return ordering > 0 ? 1 : 0;
+});
 
 interface GenerateCommandError {
   readonly _tag: "GenerateCommandError";
@@ -27,6 +38,21 @@ interface GeneratedPaths {
   readonly upstreamMetaPath: string;
   readonly upstreamSchemaPath: string;
 }
+
+interface SchemaEntry {
+  readonly code: string;
+  readonly name: string;
+}
+
+class AcpGeneratorOutputError extends TaggedErrorClass<AcpGeneratorOutputError>($I`AcpGeneratorOutputError`)(
+  "AcpGeneratorOutputError",
+  {
+    message: S.String,
+  },
+  $I.annote("AcpGeneratorOutputError", {
+    description: "Generator output from the upstream JSON-schema converter was not in the expected shape.",
+  })
+) {}
 
 class MetaJson extends S.Class<MetaJson>($I`MetaJson`)(
   {
@@ -110,12 +136,12 @@ const writeGeneratedFiles = Effect.fn("writeGeneratedFiles")(function* (schemaOu
   yield* fs.writeFileString(metaOutputPath, metaOutput);
 });
 
-function collectSchemaEntries(chunk: string): ReadonlyArray<{ readonly name: string; readonly code: string }> {
+function collectSchemaEntries(chunk: string): ReadonlyArray<SchemaEntry> {
   const lines = chunk
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0 && !line.startsWith("//"));
-  const entries: Array<{ name: string; code: string }> = [];
+  const entries: Array<SchemaEntry> = [];
 
   for (let index = 0; index < lines.length; index += 1) {
     const typeLine = lines[index];
@@ -125,12 +151,12 @@ function collectSchemaEntries(chunk: string): ReadonlyArray<{ readonly name: str
 
     const constLine = lines[index + 1];
     if (!constLine?.startsWith("export const ")) {
-      throw new Error(`Malformed generator output near: ${typeLine}`);
+      throw new AcpGeneratorOutputError({ message: `Malformed generator output near: ${typeLine}` });
     }
 
     const match = /^export type ([A-Za-z0-9_]+)/.exec(typeLine);
     if (!match?.[1]) {
-      throw new Error(`Could not extract schema name from: ${typeLine}`);
+      throw new AcpGeneratorOutputError({ message: `Could not extract schema name from: ${typeLine}` });
     }
 
     entries.push({
@@ -206,38 +232,32 @@ function renderMetaConst(name: string, value: string, description: string): stri
 }
 
 function normalizeNullableTypes(value: typeof S.Json.Type): typeof S.Json.Type {
-  if (Array.isArray(value)) {
-    return value.map(normalizeNullableTypes);
+  if (A.isArray(value)) {
+    return A.map(value, normalizeNullableTypes) as typeof S.Json.Type;
   }
-  if (value === null || typeof value !== "object") {
+  if (value === null || !P.isObject(value)) {
     return value;
   }
 
-  const normalizedEntries = Object.entries(value).map(([key, child]) => [key, normalizeNullableTypes(child)]);
-  const normalizedObject = Object.fromEntries(normalizedEntries) as Record<string, typeof S.Json.Type>;
+  const normalizedObject = R.map(value as Record<string, typeof S.Json.Type>, normalizeNullableTypes);
   const typeValue = normalizedObject.type;
 
-  if (!Array.isArray(typeValue)) {
+  if (!A.isArray(typeValue)) {
     return normalizedObject;
   }
 
-  const normalizedTypes = typeValue.filter((entry): entry is string => typeof entry === "string");
-  if (normalizedTypes.length !== typeValue.length || !normalizedTypes.includes("null")) {
+  const normalizedTypes = A.filter(typeValue, P.isString);
+  if (A.length(normalizedTypes) !== A.length(typeValue) || !A.contains(normalizedTypes, "null")) {
     return normalizedObject;
   }
 
-  const nonNullTypes = normalizedTypes.filter((entry) => entry !== "null");
-  if (nonNullTypes.length !== 1) {
+  const nonNullTypes = A.filter(normalizedTypes, (entry) => entry !== "null");
+  if (A.length(nonNullTypes) !== 1) {
     return normalizedObject;
   }
   const nonNullType = nonNullTypes[0]!;
 
-  const nextObject: Record<string, typeof S.Json.Type> = {};
-  for (const [key, child] of Object.entries(normalizedObject)) {
-    if (key !== "type") {
-      nextObject[key] = child;
-    }
-  }
+  const nextObject = R.remove(normalizedObject, "type");
 
   return {
     anyOf: [
@@ -262,12 +282,13 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
 
   const upstreamSchema = yield* readJsonFile(UpstreamJsonSchema, upstreamSchemaPath);
   const upstreamMeta = yield* readJsonFile(MetaJson, upstreamMetaPath);
-  const normalizedDefinitions = Object.fromEntries(
-    Object.entries(upstreamSchema.$defs).map(([name, schema]) => [name, normalizeNullableTypes(schema)])
-  );
+  const normalizedDefinitions = R.map(upstreamSchema.$defs, normalizeNullableTypes);
 
-  const sortedEntries = Object.entries(normalizedDefinitions).toSorted(([left], [right]) => left.localeCompare(right));
-  const generatedEntries = new Map<string, string>();
+  const sortedEntries = pipe(
+    R.toEntries(normalizedDefinitions),
+    A.sort(Order.mapInput(schemaNameOrder, ([name]) => name))
+  );
+  let generatedEntries = A.empty<SchemaEntry>();
   const generator = makeJsonSchemaGenerator();
 
   for (const [name, schema] of sortedEntries) {
@@ -277,13 +298,20 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
   const output = generator.generate("openapi-3.1", normalizedDefinitions as never, false).trim();
   if (output.length > 0) {
     for (const entry of collectSchemaEntries(output)) {
-      if (!generatedEntries.has(entry.name)) {
-        generatedEntries.set(entry.name, entry.code);
+      if (!A.some(generatedEntries, (existing) => existing.name === entry.name)) {
+        generatedEntries = A.append(generatedEntries, entry);
       }
     }
   }
 
   const prelude = [
+    "/**",
+    " * Generated ACP protocol schema and metadata modules.",
+    " *",
+    " * @packageDocumentation",
+    " * @since 0.0.0",
+    " */",
+    "",
     `// This file is generated by the @beep/acp package. Do not edit manually.`,
     `// Current ACP schema release: ${CURRENT_SCHEMA_RELEASE}`,
     "",
@@ -296,7 +324,11 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
     "",
     `const $I = ${GENERATED_SCHEMA_ID};`,
     "",
-    [...generatedEntries.values()].join("\n\n"),
+    pipe(
+      generatedEntries,
+      A.map((entry) => entry.code),
+      A.join("\n\n")
+    ),
     "",
   ].join("\n");
 
@@ -328,7 +360,7 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
   ].join("\n");
 
   yield* writeGeneratedFiles(schemaOutput, metaOutput);
-  yield* Effect.log(`Generated ${generatedEntries.size} ACP schemas from ${CURRENT_SCHEMA_RELEASE}`);
+  yield* Effect.log(`Generated ${A.length(generatedEntries)} ACP schemas from ${CURRENT_SCHEMA_RELEASE}`);
 
   const { generatedDir } = yield* getGeneratedPaths();
   yield* Effect.service(ChildProcessSpawner.ChildProcessSpawner).pipe(

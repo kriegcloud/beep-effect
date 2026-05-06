@@ -1,8 +1,6 @@
-import * as Effect from "effect/Effect";
+import { Effect, SchemaIssue } from "effect";
 import * as S from "effect/Schema";
-import * as SchemaIssue from "effect/SchemaIssue";
 import type { RpcClientError } from "effect/unstable/rpc";
-
 import * as AcpSchema from "../_generated/schema.gen.ts";
 import * as AcpError from "../errors.ts";
 
@@ -23,11 +21,25 @@ export const callRpc = <A>(
     Effect.catchIf(S.is(AcpSchema.Error), (error) => Effect.fail(AcpError.AcpRequestError.fromProtocolError(error)))
   );
 
-export const runHandler = Effect.fnUntraced(function* <A, B>(
-  handler: ((payload: A) => Effect.Effect<B, AcpError.AcpError>) | undefined,
-  payload: A,
-  method: string
-) {
+interface RunHandlerOptions<A, B> {
+  readonly handler: ((payload: A) => Effect.Effect<B, AcpError.AcpError>) | undefined;
+  readonly method: string;
+  readonly payload: A;
+}
+
+interface DecodeExtRequestRegistrationOptions<A, I> {
+  readonly handler: (payload: A) => Effect.Effect<unknown, AcpError.AcpError>;
+  readonly method: string;
+  readonly payload: S.Codec<A, I>;
+}
+
+interface DecodeExtNotificationRegistrationOptions<A, I> {
+  readonly handler: (payload: A) => Effect.Effect<void, AcpError.AcpError>;
+  readonly method: string;
+  readonly payload: S.Codec<A, I>;
+}
+
+export const runHandler = Effect.fnUntraced(function* <A, B>({ handler, method, payload }: RunHandlerOptions<A, B>) {
   if (handler === undefined) {
     return yield* Effect.fail(AcpError.AcpRequestError.methodNotFound(method).toProtocolError());
   }
@@ -40,11 +52,11 @@ export const runHandler = Effect.fnUntraced(function* <A, B>(
   );
 });
 
-export function decodeExtRequestRegistration<A, I>(
-  method: string,
-  payload: S.Codec<A, I>,
-  handler: (payload: A) => Effect.Effect<unknown, AcpError.AcpError>
-) {
+export function decodeExtRequestRegistration<A, I>({
+  handler,
+  method,
+  payload,
+}: DecodeExtRequestRegistrationOptions<A, I>) {
   return (params: unknown): Effect.Effect<unknown, AcpError.AcpError> =>
     S.decodeUnknownEffect(payload)(params).pipe(
       Effect.mapError((error) =>
@@ -56,11 +68,11 @@ export function decodeExtRequestRegistration<A, I>(
     );
 }
 
-export function decodeExtNotificationRegistration<A, I>(
-  method: string,
-  payload: S.Codec<A, I>,
-  handler: (payload: A) => Effect.Effect<void, AcpError.AcpError>
-) {
+export function decodeExtNotificationRegistration<A, I>({
+  handler,
+  method,
+  payload,
+}: DecodeExtNotificationRegistrationOptions<A, I>) {
   return (params: unknown): Effect.Effect<void, AcpError.AcpError> =>
     S.decodeUnknownEffect(payload)(params).pipe(
       Effect.mapError(

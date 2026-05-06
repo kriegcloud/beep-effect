@@ -4,7 +4,7 @@
  * @since 0.0.0
  */
 
-import { pipe } from "effect";
+import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
@@ -52,8 +52,11 @@ const eventNamesForSource = (sourceKind: AiMetricsTranscriptSource): ReadonlyArr
  * @category utilities
  * @since 0.0.0
  */
-export const transcriptLines = (content: string): ReadonlyArray<string> =>
-  pipe(content, Str.split("\n"), A.map(Str.trim), A.filter(Str.isNonEmpty));
+export const transcriptLines: (content: string) => ReadonlyArray<string> = flow(
+  Str.split("\n"),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty)
+);
 
 /**
  * Return the first defined string from a small candidate list.

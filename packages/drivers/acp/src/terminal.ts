@@ -1,3 +1,10 @@
+/**
+ * ACP terminal handle helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import type * as Effect from "effect/Effect";
 
 import type * as AcpSchema from "./_generated/schema.gen.ts";

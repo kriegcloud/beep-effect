@@ -234,7 +234,7 @@ const fileSystemFailure = (message: string, cause: unknown): AiMetricsSourceDisc
 const normalizedRelativePath = (pathApi: Path.Path, root: string, filePath: string): string =>
   pipe(pathApi.relative(root, filePath), Str.replace(/\\/gu, "/"));
 
-const repoPathToClaudeProjectName = (repoRoot: string): string => pipe(repoRoot, Str.replace(/[/\\]/gu, "-"));
+const repoPathToClaudeProjectName: (repoRoot: string) => string = Str.replace(/[/\\]/gu, "-");
 
 const optionalModifiedAtMillis = (info: FileSystem.File.Info): O.Option<number> =>
   pipe(

@@ -1,6 +1,8 @@
 /**
  * Function utilities built on top of `effect/Function`.
  *
+ * cspell:words uncurry nullary
+ *
  * @example
  * ```ts
  * import { tuple, reverseCurry } from "@beep/utils/Function"
@@ -50,8 +52,8 @@ export * from "effect/Function";
  * ```
  *
  * @template T - The tuple element list captured from the argument list.
- * @param {...unknown} elements - The values to preserve in tuple order.
- * @returns {Readonly<T>} The provided elements typed as a readonly tuple.
+ * @param elements - The values to preserve in tuple order.
+ * @returns The provided elements typed as a readonly tuple.
  * @category constructors
  * @since 0.0.0
  */
@@ -76,8 +78,8 @@ export function tuple<const T extends ReadonlyArray<unknown>>(...elements: T): R
  * @template A - The first argument type.
  * @template B - The second argument type.
  * @template C - The return type.
- * @param {function(A): function(B): C} fn - The curried function to call with tuple elements.
- * @returns {function([A, B]): C} A function that applies `[a, b]` as `fn(a)(b)`.
+ * @param fn - The curried function to call with tuple elements.
+ * @returns A function that applies `[a, b]` as `fn(a)(b)`.
  * @category combinators
  * @since 0.0.0
  */
@@ -102,8 +104,8 @@ export function tupledCurry<A, B, C>(fn: (a: A) => (b: B) => C): (arg0: [A, B]) 
  * @template A - The first argument type after reversal.
  * @template B - The second argument type after reversal.
  * @template C - The return type.
- * @param {function(B): function(A): C} fn - The curried function whose argument order should be reversed.
- * @returns {function(A): function(B): C} A curried function that applies arguments as `fn(b)(a)`.
+ * @param fn - The curried function whose argument order should be reversed.
+ * @returns A curried function that applies arguments as `fn(b)(a)`.
  * @category combinators
  * @since 0.0.0
  */
@@ -127,8 +129,8 @@ export function reverseCurry<A, B, C>(fn: (b: B) => (a: A) => C) {
  * @template A - The first argument type.
  * @template B - The second argument type.
  * @template C - The return type.
- * @param {function(A, B): C} fn - The two-argument function to curry.
- * @returns {function(A): function(B): C} A curried function that applies arguments as `fn(a, b)`.
+ * @param fn - The two-argument function to curry.
+ * @returns A curried function that applies arguments as `fn(a, b)`.
  * @category combinators
  * @since 0.0.0
  */
@@ -152,8 +154,8 @@ export function curry<A, B, C>(fn: (a: A, b: B) => C) {
  * @template A - The first argument type.
  * @template B - The second argument type.
  * @template C - The return type.
- * @param {function(A): function(B): C} fn - The curried function to call with two arguments.
- * @returns {function(A, B): C} An uncurried function that applies arguments as `fn(a)(b)`.
+ * @param fn - The curried function to call with two arguments.
+ * @returns An uncurried function that applies arguments as `fn(a)(b)`.
  * @category combinators
  * @since 0.0.0
  */
@@ -182,8 +184,8 @@ export function uncurry<A, B, C>(fn: (a: A) => (b: B) => C): (arg0: A, arg1: B) 
  * ```
  *
  * @template A - The value produced by the thunk.
- * @param {function(): A} fn - The nullary function to evaluate at most once.
- * @returns {function(): A} A nullary function that returns the cached value after the first successful call.
+ * @param fn - The nullary function to evaluate at most once.
+ * @returns A nullary function that returns the cached value after the first successful call.
  * @category constructors
  * @since 0.0.0
  */

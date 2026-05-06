@@ -1,14 +1,15 @@
+/**
+ * ACP agent service and agent-side layer constructors.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $AcpId } from "@beep/identity";
-import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
-import * as HashMap from "effect/HashMap";
-import * as HashSet from "effect/HashSet";
-import * as Layer from "effect/Layer";
+import { Context, Effect, HashMap, HashSet, Layer, Ref, Stdio } from "effect";
 import * as O from "effect/Option";
-import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
-import * as Stdio from "effect/Stdio";
 import type * as Stream from "effect/Stream";
 import * as RpcClient from "effect/unstable/rpc/RpcClient";
 import * as RpcServer from "effect/unstable/rpc/RpcServer";
@@ -302,6 +303,26 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
     O.none<(method: string, params: unknown) => Effect.Effect<void, AcpError.AcpError>>()
   );
 
+  const runUnknownExtNotification = (method: string, params: unknown) =>
+    Ref.get(unknownExtNotificationHandler).pipe(
+      Effect.flatMap(
+        O.match({
+          onNone: () => Effect.void,
+          onSome: (handler) => handler(method, params),
+        })
+      )
+    );
+
+  const runUnknownExtRequest = (method: string, params: unknown) =>
+    Ref.get(unknownExtRequestHandler).pipe(
+      Effect.flatMap(
+        O.match({
+          onNone: () => Effect.fail(AcpError.AcpRequestError.methodNotFound(method)),
+          onSome: (handler) => handler(method, params),
+        })
+      )
+    );
+
   const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
     stdio,
     serverRequestMethods: HashSet.fromIterable(AcpRpcs.AgentRpcs.requests.keys()),
@@ -333,15 +354,7 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
       return Ref.get(extNotificationHandlers).pipe(
         Effect.flatMap((handlers) =>
           O.match(HashMap.get(handlers, notification.method), {
-            onNone: () =>
-              Ref.get(unknownExtNotificationHandler).pipe(
-                Effect.flatMap(
-                  O.match({
-                    onNone: () => Effect.void,
-                    onSome: (handler) => handler(notification.method, notification.params),
-                  })
-                )
-              ),
+            onNone: () => runUnknownExtNotification(notification.method, notification.params),
             onSome: (handler) => handler(notification.params),
           })
         )
@@ -351,15 +364,7 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
       return Ref.get(extRequestHandlers).pipe(
         Effect.flatMap((handlers) =>
           O.match(HashMap.get(handlers, method), {
-            onNone: () =>
-              Ref.get(unknownExtRequestHandler).pipe(
-                Effect.flatMap(
-                  O.match({
-                    onNone: () => Effect.fail(AcpError.AcpRequestError.methodNotFound(method)),
-                    onSome: (handler) => handler(method, params),
-                  })
-                )
-              ),
+            onNone: () => runUnknownExtRequest(method, params),
             onSome: (handler) => handler(params),
           })
         )
@@ -369,28 +374,34 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
 
   const agentHandlerLayer = AcpRpcs.AgentRpcs.toLayer(
     AcpRpcs.AgentRpcs.of({
-      [AGENT_METHODS.initialize]: (payload) => runHandler(coreHandlers.initialize, payload, AGENT_METHODS.initialize),
+      [AGENT_METHODS.initialize]: (payload) =>
+        runHandler({ handler: coreHandlers.initialize, method: AGENT_METHODS.initialize, payload }),
       [AGENT_METHODS.authenticate]: (payload) =>
-        runHandler(coreHandlers.authenticate, payload, AGENT_METHODS.authenticate),
-      [AGENT_METHODS.logout]: (payload) => runHandler(coreHandlers.logout, payload, AGENT_METHODS.logout),
+        runHandler({ handler: coreHandlers.authenticate, method: AGENT_METHODS.authenticate, payload }),
+      [AGENT_METHODS.logout]: (payload) =>
+        runHandler({ handler: coreHandlers.logout, method: AGENT_METHODS.logout, payload }),
       [AGENT_METHODS.session_new]: (payload) =>
-        runHandler(coreHandlers.createSession, payload, AGENT_METHODS.session_new),
+        runHandler({ handler: coreHandlers.createSession, method: AGENT_METHODS.session_new, payload }),
       [AGENT_METHODS.session_load]: (payload) =>
-        runHandler(coreHandlers.loadSession, payload, AGENT_METHODS.session_load),
+        runHandler({ handler: coreHandlers.loadSession, method: AGENT_METHODS.session_load, payload }),
       [AGENT_METHODS.session_list]: (payload) =>
-        runHandler(coreHandlers.listSessions, payload, AGENT_METHODS.session_list),
+        runHandler({ handler: coreHandlers.listSessions, method: AGENT_METHODS.session_list, payload }),
       [AGENT_METHODS.session_fork]: (payload) =>
-        runHandler(coreHandlers.forkSession, payload, AGENT_METHODS.session_fork),
+        runHandler({ handler: coreHandlers.forkSession, method: AGENT_METHODS.session_fork, payload }),
       [AGENT_METHODS.session_resume]: (payload) =>
-        runHandler(coreHandlers.resumeSession, payload, AGENT_METHODS.session_resume),
+        runHandler({ handler: coreHandlers.resumeSession, method: AGENT_METHODS.session_resume, payload }),
       [AGENT_METHODS.session_close]: (payload) =>
-        runHandler(coreHandlers.closeSession, payload, AGENT_METHODS.session_close),
+        runHandler({ handler: coreHandlers.closeSession, method: AGENT_METHODS.session_close, payload }),
       [AGENT_METHODS.session_set_model]: (payload) =>
-        runHandler(coreHandlers.setSessionModel, payload, AGENT_METHODS.session_set_model),
+        runHandler({ handler: coreHandlers.setSessionModel, method: AGENT_METHODS.session_set_model, payload }),
       [AGENT_METHODS.session_set_config_option]: (payload) =>
-        runHandler(coreHandlers.setSessionConfigOption, payload, AGENT_METHODS.session_set_config_option),
+        runHandler({
+          handler: coreHandlers.setSessionConfigOption,
+          method: AGENT_METHODS.session_set_config_option,
+          payload,
+        }),
       [AGENT_METHODS.session_prompt]: (payload) =>
-        runHandler(coreHandlers.prompt, payload, AGENT_METHODS.session_prompt),
+        runHandler({ handler: coreHandlers.prompt, method: AGENT_METHODS.session_prompt, payload }),
     })
   );
 
@@ -499,7 +510,7 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
     handler: (payload: A) => Effect.Effect<unknown, AcpError.AcpError>
   ) {
     yield* Ref.update(extRequestHandlers, (handlers) =>
-      HashMap.set(handlers, method, decodeExtRequestRegistration(method, payload, handler))
+      HashMap.set(handlers, method, decodeExtRequestRegistration({ handler, method, payload }))
     );
   });
   const handleExtNotification = Effect.fn($I`AcpAgent_handleExtNotification`)(function* <A, I>(
@@ -508,7 +519,7 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
     handler: (payload: A) => Effect.Effect<void, AcpError.AcpError>
   ) {
     yield* Ref.update(extNotificationHandlers, (handlers) =>
-      HashMap.set(handlers, method, decodeExtNotificationRegistration(method, payload, handler))
+      HashMap.set(handlers, method, decodeExtNotificationRegistration({ handler, method, payload }))
     );
   });
 
