@@ -205,9 +205,11 @@ class FetchLoggingConfig extends S.Class<FetchLoggingConfig>($I`FetchLoggingConf
 
 class IncomingRequestLoggingConfig extends S.Class<IncomingRequestLoggingConfig>($I`IncomingRequestLoggingConfig`)(
   {
-    ignore: RegExpArray.annotateKey({
-      description: "Regular expressions matching incoming requests that should not be logged.",
-    }),
+    ignore: S.optionalKey(
+      RegExpArray.annotateKey({
+        description: "Regular expressions matching incoming requests that should not be logged.",
+      })
+    ),
   },
   $I.annote("IncomingRequestLoggingConfig", {
     description: "Incoming request logging ignore rules.",

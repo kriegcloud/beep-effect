@@ -1,5 +1,13 @@
-import { Header, Middleware, Redirect, Rewrite, RouteHas } from "@beep/repo-configs/next/models/Routes.schema";
-import { FileSizeSuffix, SizeLimit } from "@beep/repo-configs/next/models/Shared.schema";
+import {
+  FileSizeSuffix,
+  Header,
+  LoggingConfig,
+  Middleware,
+  Redirect,
+  Rewrite,
+  RouteHas,
+  SizeLimit,
+} from "@beep/repo-configs/next";
 import { Effect, Exit } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
@@ -11,6 +19,7 @@ const decodeRewrite = S.decodeUnknownEffect(Rewrite);
 const decodeHeader = S.decodeUnknownEffect(Header);
 const decodeRedirect = S.decodeUnknownEffect(Redirect);
 const decodeMiddleware = S.decodeUnknownEffect(Middleware);
+const decodeLoggingConfig = S.decodeUnknownEffect(LoggingConfig);
 
 const exit = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(Effect.exit(effect));
 
@@ -101,5 +110,13 @@ describe("Next route schemas", () => {
         await exit(decodeRedirect({ source: "/old", destination: "/new", permanent: true, statusCode: 308 }))
       )
     ).toBe(true);
+  });
+});
+
+describe("Next config primitive schemas", () => {
+  it("accepts logging config with empty incoming request options", async () => {
+    await expect(Effect.runPromise(decodeLoggingConfig({ incomingRequests: {} }))).resolves.toEqual({
+      incomingRequests: {},
+    });
   });
 });

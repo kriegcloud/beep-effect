@@ -81,10 +81,10 @@ class SecureHeadersConfigValue extends S.Class<SecureHeadersConfigValue>($I`Secu
  * with app values winning by header key.
  * @example
  * ```ts
- * import { SecureHeadersConfig } from "@beep/repo-configs/next/security"
- * const config = SecureHeadersConfig.make({
+ * import type { SecureHeadersConfig } from "@beep/repo-configs/next/security"
+ * const config: SecureHeadersConfig = {
  *   additionalHeaders: [{ key: "X-Beep", value: "1" }]
- * })
+ * }
  * void config
  * ```
  * @category schemas
