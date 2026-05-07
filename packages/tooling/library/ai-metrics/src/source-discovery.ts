@@ -39,6 +39,12 @@ export const AiMetricsSourceStatus = LiteralKit(["available", "missing", "unavai
 /**
  * Runtime type for {@link AiMetricsSourceStatus}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsSourceStatus } from "@beep/repo-ai-metrics"
+ * const status: AiMetricsSourceStatus = "available"
+ * console.log(status)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -64,6 +70,12 @@ export const AiMetricsSourceRole = LiteralKit(["primary", "subagent", "gateway_m
 /**
  * Runtime type for {@link AiMetricsSourceRole}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsSourceRole } from "@beep/repo-ai-metrics"
+ * const role: AiMetricsSourceRole = "primary"
+ * console.log(role)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -472,6 +484,11 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
 /**
  * Discover local AI metrics transcript sources for the smoke target.
  *
+ * @example
+ * ```ts
+ * import { discoverAiMetricsSources } from "@beep/repo-ai-metrics"
+ * console.log(discoverAiMetricsSources)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -523,6 +540,11 @@ export const discoverAiMetricsSources = Effect.fn("AiMetrics.discoverAiMetricsSo
 /**
  * Render a source discovery result as JSON.
  *
+ * @example
+ * ```ts
+ * import { sourceDiscoveryToJson } from "@beep/repo-ai-metrics"
+ * console.log(sourceDiscoveryToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */

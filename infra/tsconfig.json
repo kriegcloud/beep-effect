@@ -16,6 +16,9 @@
       "path": "../packages/foundation/modeling/identity/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/utils/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/primitive/types/tsconfig.json"
     },
     {

@@ -84,6 +84,14 @@ P5 install and remote deployment:
 - preserve the resolving 1Password refs
   `op://TBK/ai-metrics/hash-salt` and
   `op://TBK/ai-metrics/raw-archive-key`
+- use both resolved runtime values and secret-ref flags when resuming
+  non-local forwarder/export/report commands:
+  ```sh
+  export BEEP_AI_METRICS_HASH_SALT_SECRET_REF="op://TBK/ai-metrics/hash-salt"
+  export BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF="op://TBK/ai-metrics/raw-archive-key"
+  export BEEP_AI_METRICS_HASH_SALT="$(op read "$BEEP_AI_METRICS_HASH_SALT_SECRET_REF")"
+  export BEEP_AI_METRICS_RAW_ARCHIVE_KEY="$(op read "$BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF")"
+  ```
 - optional LiteLLM gateway remains deferred until after the Phoenix-only slice
   is live
 

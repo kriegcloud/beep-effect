@@ -508,6 +508,11 @@ const ensureBenchmarkCaseExists = Effect.fn("AiMetrics.scorecard.ensureBenchmark
 /**
  * Read unlabeled tasks for human review.
  *
+ * @example
+ * ```ts
+ * import { queueAiMetricsLabels } from "@beep/repo-ai-metrics"
+ * console.log(queueAiMetricsLabels)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -577,6 +582,11 @@ export const queueAiMetricsLabels: (
 /**
  * Add or replace the current structured human label for a task.
  *
+ * @example
+ * ```ts
+ * import { addAiMetricsOutcomeLabel } from "@beep/repo-ai-metrics"
+ * console.log(addAiMetricsOutcomeLabel)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -650,6 +660,11 @@ export const addAiMetricsOutcomeLabel: (
 /**
  * Add or replace a deploy-safe benchmark case.
  *
+ * @example
+ * ```ts
+ * import { upsertAiMetricsBenchmarkCase } from "@beep/repo-ai-metrics"
+ * console.log(upsertAiMetricsBenchmarkCase)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -724,6 +739,11 @@ const caseFromRow = Effect.fn("AiMetrics.scorecard.caseFromRow")(function* (row:
 /**
  * List deploy-safe benchmark cases.
  *
+ * @example
+ * ```ts
+ * import { listAiMetricsBenchmarkCases } from "@beep/repo-ai-metrics"
+ * console.log(listAiMetricsBenchmarkCases)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -755,6 +775,11 @@ export const listAiMetricsBenchmarkCases: Effect.Effect<
 /**
  * Record an observed benchmark run for one config snapshot.
  *
+ * @example
+ * ```ts
+ * import { recordAiMetricsBenchmarkRun } from "@beep/repo-ai-metrics"
+ * console.log(recordAiMetricsBenchmarkRun)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -1156,6 +1181,11 @@ const writeWeeklyArtifacts = Effect.fn("AiMetrics.scorecard.writeWeeklyArtifacts
 /**
  * Generate and persist a weekly config-impact report.
  *
+ * @example
+ * ```ts
+ * import { generateAiMetricsWeeklyReport } from "@beep/repo-ai-metrics"
+ * console.log(generateAiMetricsWeeklyReport)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -1230,6 +1260,11 @@ export const generateAiMetricsWeeklyReport: (
 /**
  * Render a label queue result as JSON.
  *
+ * @example
+ * ```ts
+ * import { aiMetricsLabelQueueToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsLabelQueueToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -1246,6 +1281,11 @@ export const aiMetricsLabelQueueToJson: (
 /**
  * Render an outcome label as JSON.
  *
+ * @example
+ * ```ts
+ * import { aiMetricsOutcomeLabelToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsOutcomeLabelToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -1259,6 +1299,11 @@ export const aiMetricsOutcomeLabelToJson: (result: OutcomeLabel) => Effect.Effec
 /**
  * Render a benchmark case as JSON.
  *
+ * @example
+ * ```ts
+ * import { aiMetricsBenchmarkCaseToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsBenchmarkCaseToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -1272,6 +1317,11 @@ export const aiMetricsBenchmarkCaseToJson: (result: BenchmarkCase) => Effect.Eff
 /**
  * Render benchmark cases as JSON.
  *
+ * @example
+ * ```ts
+ * import { aiMetricsBenchmarkCaseListToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsBenchmarkCaseListToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -1288,6 +1338,11 @@ export const aiMetricsBenchmarkCaseListToJson: (
 /**
  * Render a benchmark run as JSON.
  *
+ * @example
+ * ```ts
+ * import { aiMetricsBenchmarkRunToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsBenchmarkRunToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -1301,6 +1356,11 @@ export const aiMetricsBenchmarkRunToJson: (result: BenchmarkRun) => Effect.Effec
 /**
  * Render a weekly report result as JSON.
  *
+ * @example
+ * ```ts
+ * import { aiMetricsWeeklyReportToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsWeeklyReportToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */

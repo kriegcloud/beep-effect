@@ -1,10 +1,12 @@
 import {
+  AIMetricsPulumiConfigValues,
   AIMetricsRemoteDeploymentConfig,
   makeAIMetricsStackArgs,
   makeAIMetricsStackArgsFromConfigValues,
 } from "@beep/infra";
 import { AiMetricsDeployTarget, AiMetricsInstallInput, makeAiMetricsInstallSpec } from "@beep/repo-ai-metrics";
 import { Effect } from "effect";
+import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
 describe("@beep/infra AIMetrics", () => {
@@ -93,6 +95,23 @@ describe("@beep/infra AIMetrics", () => {
         }),
       ])
     );
+  });
+
+  it("decodes numeric Pulumi tailnet HTTPS port values", () => {
+    const decoded = Effect.runSync(
+      S.decodeUnknownEffect(AIMetricsPulumiConfigValues)({
+        phoenixTailnetHttpsPort: 9446,
+      })
+    );
+
+    expect(decoded.phoenixTailnetHttpsPort).toBe(9446);
+    expect(() =>
+      Effect.runSync(
+        S.decodeUnknownEffect(AIMetricsPulumiConfigValues)({
+          phoenixTailnetHttpsPort: "9446",
+        })
+      )
+    ).toThrow();
   });
 
   it("rejects dankserver install specs when the hash salt secret reference is absent", () => {

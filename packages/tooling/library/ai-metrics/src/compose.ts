@@ -70,7 +70,7 @@ export const renderAiMetricsLocalPhoenixCompose: (
             PHOENIX_WORKING_DIR: "/data",
           },
           image: phoenix.value.image,
-          ports: ["6006:6006"],
+          ports: ["127.0.0.1:6006:6006"],
           restart: "unless-stopped",
           volumes: ["phoenix_data:/data"],
         },

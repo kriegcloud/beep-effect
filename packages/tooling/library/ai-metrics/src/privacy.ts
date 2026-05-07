@@ -21,6 +21,11 @@ const $I = $RepoAiMetricsId.create("privacy");
 /**
  * Local fallback salt used only for smoke-mode private identifier hashes.
  *
+ * @example
+ * ```ts
+ * import { AI_METRICS_LOCAL_INSECURE_HASH_SALT } from "@beep/repo-ai-metrics"
+ * console.log(AI_METRICS_LOCAL_INSECURE_HASH_SALT)
+ * ```
  * @category constants
  * @since 0.0.0
  */
@@ -57,6 +62,12 @@ export const AiMetricsHashSaltStatus = LiteralKit(["provided", "insecure_default
 /**
  * Runtime type for {@link AiMetricsHashSaltStatus}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsHashSaltStatus } from "@beep/repo-ai-metrics"
+ * const status: AiMetricsHashSaltStatus = "provided"
+ * console.log(status)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -208,6 +219,11 @@ const encodePrivacyCheckJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsP
  *
  * @param hashSalt - Operator-provided salt, or an empty value for local smoke mode.
  * @returns The salt value used before hashing private identifiers.
+ * @example
+ * ```ts
+ * import { resolveAiMetricsHashSaltValue } from "@beep/repo-ai-metrics"
+ * console.log(resolveAiMetricsHashSaltValue("salt"))
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -219,6 +235,11 @@ export const resolveAiMetricsHashSaltValue = (hashSalt: string | undefined): str
  *
  * @param hashSalt - Operator-provided salt, or an empty value for local smoke mode.
  * @returns Whether hashing used an operator salt or the local insecure fallback.
+ * @example
+ * ```ts
+ * import { resolveAiMetricsHashSaltStatus } from "@beep/repo-ai-metrics"
+ * console.log(resolveAiMetricsHashSaltStatus("salt"))
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -230,6 +251,11 @@ export const resolveAiMetricsHashSaltStatus = (hashSalt: string | undefined): Ai
 /**
  * Compute a deterministic public SHA-256 digest for non-private content identity.
  *
+ * @example
+ * ```ts
+ * import { hashPublicTextSha256 } from "@beep/repo-ai-metrics"
+ * console.log(hashPublicTextSha256)
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -249,6 +275,11 @@ export const hashPublicTextSha256: (value: string) => Effect.Effect<string, AiMe
 /**
  * Compute a salted SHA-256 digest for private identifiers such as local paths and session ids.
  *
+ * @example
+ * ```ts
+ * import { hashPrivateIdentifier } from "@beep/repo-ai-metrics"
+ * console.log(hashPrivateIdentifier)
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -267,6 +298,11 @@ export const hashPrivateIdentifier: {
  *
  * @param text - Transcript or diagnostic text that may contain secret-shaped values.
  * @returns Text with secret-shaped values replaced by redaction markers.
+ * @example
+ * ```ts
+ * import { redactAiMetricsSensitiveText } from "@beep/repo-ai-metrics"
+ * console.log(redactAiMetricsSensitiveText("OPENAI_API_KEY=sk-testfixture"))
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -350,6 +386,11 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
 /**
  * Build a sanitized transcript projection from an ingest summary and raw JSONL text.
  *
+ * @example
+ * ```ts
+ * import { makeSanitizedTranscript } from "@beep/repo-ai-metrics"
+ * console.log(makeSanitizedTranscript)
+ * ```
  * @category constructors
  * @since 0.0.0
  */
@@ -385,6 +426,11 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
 /**
  * Build the P1 privacy proof payload for one transcript.
  *
+ * @example
+ * ```ts
+ * import { makeAiMetricsPrivacyCheckResult } from "@beep/repo-ai-metrics"
+ * console.log(makeAiMetricsPrivacyCheckResult)
+ * ```
  * @category constructors
  * @since 0.0.0
  */
@@ -411,6 +457,11 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
 /**
  * Render a privacy check result as JSON.
  *
+ * @example
+ * ```ts
+ * import { privacyCheckToJson } from "@beep/repo-ai-metrics"
+ * console.log(privacyCheckToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */

@@ -38,6 +38,12 @@ export const AiMetricsOtlpAttributeValue = S.Union([S.String, S.Number, S.Boolea
 /**
  * Runtime type for {@link AiMetricsOtlpAttributeValue}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsOtlpAttributeValue } from "@beep/repo-ai-metrics"
+ * const value: AiMetricsOtlpAttributeValue = "hash-only"
+ * console.log(value)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -215,8 +221,11 @@ const providerFor = (row: AiMetricsOtlpTurnExportRow): string => {
   return unknownMetadata;
 };
 
-const toolNameFor = (row: AiMetricsOtlpTurnExportRow): string =>
-  pipe(row.eventName, Str.toLowerCase, Str.includes("tool")) ? row.eventName : unknownMetadata;
+const toolNameFor = (row: AiMetricsOtlpTurnExportRow): O.Option<string> =>
+  pipe(row.eventName, Str.toLowerCase, Str.includes("tool")) ? O.some(row.eventName) : O.none();
+
+const openInferenceSpanKindFor = (row: AiMetricsOtlpTurnExportRow): string =>
+  O.isSome(toolNameFor(row)) ? "TOOL" : "CHAIN";
 
 const resolveIngestRunId = Effect.fn("AiMetrics.otlp.resolveIngestRunId")(function* (ingestRunId: string | undefined) {
   if (ingestRunId !== undefined && Str.trim(ingestRunId) !== "latest") {
@@ -287,30 +296,31 @@ const sessionProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanPr
     spanName: "ai_metrics.agent.session",
   });
 
-const turnProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanProjection =>
-  new AiMetricsOtlpSpanProjection({
+const turnProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanProjection => {
+  const toolName = toolNameFor(row);
+
+  return new AiMetricsOtlpSpanProjection({
     attributes: {
       ...R.getSomes({
         "ai_metrics.timestamp": O.fromNullishOr(row.timestamp),
+        "ai_metrics.tool_name": toolName,
+        "tool.name": toolName,
       }),
       "ai_metrics.config_snapshot_id": row.configSnapshotId,
       "ai_metrics.event_name": row.eventName,
       "ai_metrics.ingest_run_id": row.ingestRunId,
       "ai_metrics.line_number": row.lineNumber,
-      "ai_metrics.model": unknownMetadata,
       "ai_metrics.provider": providerFor(row),
       "ai_metrics.raw_event_hash": row.rawEventHash,
       "ai_metrics.source_kind": row.sourceKind,
       "ai_metrics.source_path_hash": row.sourcePathHash,
-      "ai_metrics.tool_name": toolNameFor(row),
       "ai_metrics.turn_id": row.turnId,
-      "llm.model_name": unknownMetadata,
-      "llm.provider": providerFor(row),
-      "openinference.span.kind": "LLM",
+      "openinference.span.kind": openInferenceSpanKindFor(row),
       "session.id": row.agentSessionId,
     },
     spanName: "ai_metrics.agent.turn",
   });
+};
 
 const spanProjectionsFor = (
   ingestRunId: string,
@@ -334,6 +344,11 @@ const spanProjectionsFor = (
 /**
  * Read derived DuckDB rows and build redacted OTLP span projections.
  *
+ * @example
+ * ```ts
+ * import { readAiMetricsOtlpSpanProjections } from "@beep/repo-ai-metrics"
+ * console.log(readAiMetricsOtlpSpanProjections)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -359,6 +374,11 @@ const emitSpanProjection = Effect.fn("AiMetrics.otlp.emitSpanProjection")((proje
 /**
  * Emit redacted AI metrics derived spans through the active Effect tracer.
  *
+ * @example
+ * ```ts
+ * import { runAiMetricsOtlpExport } from "@beep/repo-ai-metrics"
+ * console.log(runAiMetricsOtlpExport)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -395,6 +415,11 @@ export const runAiMetricsOtlpExport: (
 /**
  * Render an OTLP export result as JSON.
  *
+ * @example
+ * ```ts
+ * import { otlpExportResultToJson } from "@beep/repo-ai-metrics"
+ * console.log(otlpExportResultToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */

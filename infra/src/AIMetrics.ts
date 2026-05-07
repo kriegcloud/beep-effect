@@ -56,11 +56,14 @@ const defaultServiceForSpec = (spec: AiMetricsInstallSpec): AiMetricsServiceSpec
     O.getOrThrowWith(() => new pulumi.RunError("AI metrics install spec does not contain an enabled backend service."))
   );
 
-const assertRemotePhoenixDefaultService = (service: AiMetricsServiceSpec): void => {
-  if (service.tool !== AiMetricsTool.Enum.phoenix) {
-    throw new pulumi.RunError("P5b AI metrics remote apply only supports Phoenix as the default backend service.");
-  }
-};
+const remotePhoenixDefaultService = (service: AiMetricsServiceSpec): AiMetricsServiceSpec =>
+  pipe(
+    O.some(service),
+    O.filter((candidate) => candidate.tool === AiMetricsTool.Enum.phoenix),
+    O.getOrThrowWith(
+      () => new pulumi.RunError("P5b AI metrics remote apply only supports Phoenix as the default backend service.")
+    )
+  );
 
 const shellQuote = (value: string): string => `'${pipe(value, Str.replace(/'/gu, `'"'"'`))}'`;
 
@@ -211,7 +214,7 @@ export const AIMetricsPulumiConfigValues = S.Class<AIMetricsPulumiConfigValues>(
     defaultTool: S.String,
     hashSaltSecretRef: S.String,
     phoenixImage: S.String,
-    phoenixTailnetHttpsPort: S.String,
+    phoenixTailnetHttpsPort: S.Int,
     publicBaseUrl: S.String,
     rawArchiveKeySecretRef: S.String,
     remoteConfigRoot: S.String,
@@ -558,7 +561,7 @@ export class AIMetricsStack extends pulumi.ComponentResource {
     const remoteResources =
       spec.target === AiMetricsDeployTarget.Enum.dankserver
         ? (() => {
-            assertRemotePhoenixDefaultService(defaultService);
+            const remoteDefaultService = remotePhoenixDefaultService(defaultService);
             const connection = remoteSshConnection(args.remote);
             const preflight = new command.remote.Command(
               `${name}-phoenix-preflight`,
@@ -582,15 +585,15 @@ export class AIMetricsStack extends pulumi.ComponentResource {
               `${name}-phoenix-apply`,
               {
                 connection,
-                create: renderRemoteApplyCommand(args.remote, defaultService),
+                create: renderRemoteApplyCommand(args.remote, remoteDefaultService),
                 logging: command.types.enums.remote.Logging.StdoutAndStderr,
                 triggers: [
-                  defaultService.image,
-                  defaultService.publicUrl,
-                  renderRemotePhoenixCompose(defaultService),
+                  remoteDefaultService.image,
+                  remoteDefaultService.publicUrl,
+                  renderRemotePhoenixCompose(remoteDefaultService),
                   renderRemotePhoenixSystemdService(args.remote.remoteConfigRoot),
                 ],
-                update: renderRemoteApplyCommand(args.remote, defaultService),
+                update: renderRemoteApplyCommand(args.remote, remoteDefaultService),
               },
               {
                 dependsOn: preflight,
@@ -601,10 +604,10 @@ export class AIMetricsStack extends pulumi.ComponentResource {
               `${name}-phoenix-health`,
               {
                 connection,
-                create: renderRemoteHealthCommand(args.remote, defaultService),
+                create: renderRemoteHealthCommand(args.remote, remoteDefaultService),
                 logging: command.types.enums.remote.Logging.StdoutAndStderr,
-                triggers: [defaultService.publicUrl, args.remote.phoenixTailnetHttpsPort],
-                update: renderRemoteHealthCommand(args.remote, defaultService),
+                triggers: [remoteDefaultService.publicUrl, args.remote.phoenixTailnetHttpsPort],
+                update: renderRemoteHealthCommand(args.remote, remoteDefaultService),
               },
               {
                 dependsOn: apply,

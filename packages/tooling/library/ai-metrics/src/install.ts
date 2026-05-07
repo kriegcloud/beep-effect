@@ -285,6 +285,12 @@ export const AiMetricsInstallPlanStepKind = LiteralKit([
 /**
  * Runtime type for {@link AiMetricsInstallPlanStepKind}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsInstallPlanStepKind } from "@beep/repo-ai-metrics"
+ * const kind: AiMetricsInstallPlanStepKind = "storage"
+ * console.log(kind)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -370,6 +376,12 @@ export const AiMetricsInstallDoctorCheckStatus = LiteralKit([
 /**
  * Runtime type for {@link AiMetricsInstallDoctorCheckStatus}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsInstallDoctorCheckStatus } from "@beep/repo-ai-metrics"
+ * const status: AiMetricsInstallDoctorCheckStatus = "passed"
+ * console.log(status)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -395,6 +407,12 @@ export const AiMetricsInstallDoctorStatus = LiteralKit(["passed", "warning", "fa
 /**
  * Runtime type for {@link AiMetricsInstallDoctorStatus}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsInstallDoctorStatus } from "@beep/repo-ai-metrics"
+ * const status: AiMetricsInstallDoctorStatus = "warning"
+ * console.log(status)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -1141,6 +1159,11 @@ export const makeAiMetricsInstallApplyDryRunResult: (
 /**
  * Render a P5a install plan as JSON.
  *
+ * @example
+ * ```ts
+ * import { aiMetricsInstallPlanToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsInstallPlanToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -1153,6 +1176,11 @@ export const aiMetricsInstallPlanToJson: (
 /**
  * Render a P5a install doctor result as JSON.
  *
+ * @example
+ * ```ts
+ * import { aiMetricsInstallDoctorToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsInstallDoctorToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */
@@ -1165,6 +1193,11 @@ export const aiMetricsInstallDoctorToJson: (
 /**
  * Render a P5a dry-run apply result as JSON.
  *
+ * @example
+ * ```ts
+ * import { aiMetricsInstallApplyDryRunToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsInstallApplyDryRunToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */

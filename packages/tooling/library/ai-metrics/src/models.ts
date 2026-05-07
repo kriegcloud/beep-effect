@@ -32,6 +32,12 @@ export const AiMetricsDeployTarget = LiteralKit(["local", "dankserver"] as const
 /**
  * Runtime type for {@link AiMetricsDeployTarget}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsDeployTarget } from "@beep/repo-ai-metrics"
+ * const target: AiMetricsDeployTarget = "local"
+ * console.log(target)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -57,6 +63,12 @@ export const AiMetricsTool = LiteralKit(["langfuse", "phoenix", "opik", "posthog
 /**
  * Runtime type for {@link AiMetricsTool}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsTool } from "@beep/repo-ai-metrics"
+ * const tool: AiMetricsTool = "phoenix"
+ * console.log(tool)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -82,6 +94,12 @@ export const AiMetricsTranscriptSource = LiteralKit(["codex", "claude", "opencla
 /**
  * Runtime type for {@link AiMetricsTranscriptSource}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsTranscriptSource } from "@beep/repo-ai-metrics"
+ * const source: AiMetricsTranscriptSource = "codex"
+ * console.log(source)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -111,6 +129,12 @@ export const AiMetricsPrivacyMode = LiteralKit([
 /**
  * Runtime type for {@link AiMetricsPrivacyMode}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsPrivacyMode } from "@beep/repo-ai-metrics"
+ * const mode: AiMetricsPrivacyMode = "encrypted_raw_redacted_ui"
+ * console.log(mode)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -136,6 +160,12 @@ export const AiMetricsOtlpProtocol = LiteralKit(["http/protobuf"] as const).anno
 /**
  * Runtime type for {@link AiMetricsOtlpProtocol}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsOtlpProtocol } from "@beep/repo-ai-metrics"
+ * const protocol: AiMetricsOtlpProtocol = "http/protobuf"
+ * console.log(protocol)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -161,6 +191,12 @@ export const AiMetricsOtlpSignalScope = LiteralKit(["traces_only"] as const).ann
 /**
  * Runtime type for {@link AiMetricsOtlpSignalScope}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsOtlpSignalScope } from "@beep/repo-ai-metrics"
+ * const scope: AiMetricsOtlpSignalScope = "traces_only"
+ * console.log(scope)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -186,6 +222,12 @@ export const AiMetricsQualityGateStatus = LiteralKit(["passed", "failed", "not_r
 /**
  * Runtime type for {@link AiMetricsQualityGateStatus}.
  *
+ * @example
+ * ```ts
+ * import type { AiMetricsQualityGateStatus } from "@beep/repo-ai-metrics"
+ * const status: AiMetricsQualityGateStatus = "passed"
+ * console.log(status)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -529,6 +571,12 @@ export class TranscriptIngestSummary extends S.Class<TranscriptIngestSummary>($I
 /**
  * Minimal external Codex JSONL shape.
  *
+ * @example
+ * ```ts
+ * import { CodexTranscriptLine } from "@beep/repo-ai-metrics"
+ * const line = new CodexTranscriptLine({ type: "session_meta" })
+ * console.log(line.type)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -546,6 +594,12 @@ export class CodexTranscriptLine extends S.Class<CodexTranscriptLine>($I`CodexTr
 /**
  * Minimal external Claude JSONL shape.
  *
+ * @example
+ * ```ts
+ * import { ClaudeTranscriptLine } from "@beep/repo-ai-metrics"
+ * const line = new ClaudeTranscriptLine({ type: "message" })
+ * console.log(line.type)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -565,6 +619,12 @@ export class ClaudeTranscriptLine extends S.Class<ClaudeTranscriptLine>($I`Claud
 /**
  * Minimal external OpenClaw JSONL shape.
  *
+ * @example
+ * ```ts
+ * import { OpenClawTranscriptLine } from "@beep/repo-ai-metrics"
+ * const line = new OpenClawTranscriptLine({ event: "gateway_metadata" })
+ * console.log(line.event)
+ * ```
  * @category models
  * @since 0.0.0
  */

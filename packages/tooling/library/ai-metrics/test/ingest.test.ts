@@ -536,7 +536,7 @@ services:
       PHOENIX_WORKING_DIR: /data
     image: arizephoenix/phoenix:latest
     ports:
-      - 6006:6006
+      - 127.0.0.1:6006:6006
     restart: unless-stopped
     volumes:
       - phoenix_data:/data
@@ -661,7 +661,8 @@ volumes:
                   attributes: expect.objectContaining({
                     "ai_metrics.event_name": "tool_result",
                     "ai_metrics.tool_name": "tool_result",
-                    "openinference.span.kind": "LLM",
+                    "openinference.span.kind": "TOOL",
+                    "tool.name": "tool_result",
                   }),
                   spanName: "ai_metrics.agent.turn",
                 }),

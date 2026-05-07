@@ -4,6 +4,7 @@ import {
   AiMetricsInstallDoctorResult,
   AiMetricsInstallPlan,
   AiMetricsLabelQueueResult,
+  AiMetricsOtlpExportResult,
   AiMetricsWeeklyReportResult,
 } from "@beep/repo-ai-metrics";
 import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index";
@@ -24,7 +25,15 @@ const decodeInstallApplyDryRun = S.decodeUnknownEffect(S.fromJsonString(AiMetric
 const decodeInstallDoctor = S.decodeUnknownEffect(S.fromJsonString(AiMetricsInstallDoctorResult));
 const decodeInstallPlan = S.decodeUnknownEffect(S.fromJsonString(AiMetricsInstallPlan));
 const decodeLabelQueue = S.decodeUnknownEffect(S.fromJsonString(AiMetricsLabelQueueResult));
+const decodeOtlpExportResult = S.decodeUnknownEffect(S.fromJsonString(AiMetricsOtlpExportResult));
 const decodeWeeklyReport = S.decodeUnknownEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
+
+type CapturedOtlpRequest = {
+  readonly bodyByteLength: number;
+  readonly bodyText: string;
+  readonly contentType: string;
+  readonly path: string;
+};
 
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -72,17 +81,30 @@ const withRawArchiveKeyEnv = <A, E, R>(rawArchiveKey: string, use: Effect.Effect
     )
   );
 
-const withOtlpSink = <A, E, R>(use: (baseUrl: string) => Effect.Effect<A, E, R>) =>
+const withOtlpSink = <A, E, R>(
+  use: (baseUrl: string, requests: ReadonlyArray<CapturedOtlpRequest>) => Effect.Effect<A, E, R>
+) =>
   Effect.acquireUseRelease(
-    Effect.sync(() =>
-      Bun.serve({
-        fetch: () => new Response(null, { status: 200 }),
+    Effect.sync(() => {
+      const requests: Array<CapturedOtlpRequest> = [];
+      const server = Bun.serve({
+        fetch: async (request) => {
+          const body = await request.arrayBuffer();
+          requests.push({
+            bodyByteLength: body.byteLength,
+            bodyText: new TextDecoder().decode(body),
+            contentType: request.headers.get("content-type") ?? "",
+            path: new URL(request.url).pathname,
+          });
+          return new Response(null, { status: 200 });
+        },
         hostname: "127.0.0.1",
         port: 0,
-      })
-    ),
-    (server) => use(`http://127.0.0.1:${server.port}`),
-    (server) => Effect.promise(() => server.stop(true))
+      });
+      return { requests, server };
+    }),
+    ({ requests, server }) => use(`http://127.0.0.1:${server.port}`, requests),
+    ({ server }) => Effect.promise(() => server.stop(true))
   );
 
 describe("ai-metrics command", () => {
@@ -203,7 +225,7 @@ describe("ai-metrics command", () => {
 
           const output = yield* loggedText();
           expect(output).toContain("arizephoenix/phoenix:latest");
-          expect(output).toContain("6006:6006");
+          expect(output).toContain("127.0.0.1:6006:6006");
           expect(output).toContain("beep-ai-metrics-phoenix");
           expect(process.exitCode ?? 0).toBe(0);
         })
@@ -764,6 +786,86 @@ describe("ai-metrics command", () => {
           expect(output).not.toContain(tmpDir);
           expect(process.exitCode).toBe(1);
         })
+      )
+    );
+  });
+
+  it("exports local derived OTLP spans as protobuf without raw transcript leakage", async () => {
+    await Effect.runPromise(
+      withOtlpSink((otlpBaseUrl, requests) =>
+        withTempDirectory((tmpDir) =>
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const homeDir = path.join(tmpDir, "home");
+            const repoRoot = path.join(tmpDir, "repo");
+            const dataRoot = path.join(tmpDir, "metrics");
+            const rawArchiveKey = Encoding.encodeBase64(new Uint8Array(32).fill(17));
+
+            yield* writeText(
+              path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
+              [
+                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":"private-otlp-fixture"}',
+              ].join("\n")
+            );
+            yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
+
+            yield* withRawArchiveKeyEnv(
+              rawArchiveKey,
+              runAiMetricsCommand([
+                "forwarder",
+                "run",
+                "--repo-root",
+                repoRoot,
+                "--home-dir",
+                homeDir,
+                "--data-root",
+                dataRoot,
+                "--all",
+                "--hash-salt",
+                "test-salt",
+                "--json",
+              ])
+            );
+
+            yield* runAiMetricsCommand([
+              "otlp",
+              "export",
+              "--target",
+              "local",
+              "--data-root",
+              dataRoot,
+              "--ingest-run",
+              "latest",
+              "--otlp-base-url",
+              otlpBaseUrl,
+              "--json",
+            ]);
+            yield* Effect.sleep(250);
+
+            const resultJson = yield* lastLoggedLine();
+            const result = yield* decodeOtlpExportResult(resultJson);
+            const traceRequest = pipe(
+              requests,
+              A.findFirst((request) => request.path === "/v1/traces")
+            );
+
+            expect(O.isSome(traceRequest)).toBe(true);
+            if (O.isNone(traceRequest)) {
+              return;
+            }
+            expect(traceRequest.value.contentType).toContain("application/x-protobuf");
+            expect(traceRequest.value.bodyByteLength).toBeGreaterThan(0);
+            expect(traceRequest.value.bodyText).not.toContain("private-otlp-fixture");
+            expect(traceRequest.value.bodyText).not.toContain(tmpDir);
+            expect(result.endpointTraceUrl).toBe(`${otlpBaseUrl}/v1/traces`);
+            expect(result.spanCount).toBeGreaterThan(0);
+            expect(resultJson).not.toContain("private-otlp-fixture");
+            expect(resultJson).not.toContain(rawArchiveKey);
+            expect(resultJson).not.toContain(tmpDir);
+            expect(process.exitCode ?? 0).toBe(0);
+          })
+        )
       )
     );
   });

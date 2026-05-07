@@ -6,7 +6,7 @@ services:
       PHOENIX_WORKING_DIR: /data
     image: arizephoenix/phoenix:latest
     ports:
-      - 6006:6006
+      - 127.0.0.1:6006:6006
     restart: unless-stopped
     volumes:
       - phoenix_data:/data

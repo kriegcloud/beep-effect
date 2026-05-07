@@ -79,6 +79,16 @@ const NodeSdkMetricTemporality = LiteralKit(["cumulative", "delta"]).pipe(
 /**
  * Additional controls for the shared Node SDK layer.
  *
+ * @example
+ * ```typescript
+ * import { NodeSdkServerOptions } from "@beep/observability/server"
+ *
+ * const options = new NodeSdkServerOptions({
+ *   loggerMergeWithExisting: true
+ * })
+ * console.log(options.loggerMergeWithExisting)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -108,8 +118,19 @@ const isServerObservabilityConfig = S.is(ServerObservabilityConfig);
  * ```typescript
  * import { ServerObservabilityConfig, toNodeSdkResource } from "@beep/observability/server"
  *
- * declare const config: ServerObservabilityConfig
- * const resource = toNodeSdkResource(config)
+ * const config = new ServerObservabilityConfig({
+ *   devtoolsEnabled: false,
+ *   devtoolsUrl: "ws://localhost:34437",
+ *   environment: "test",
+ *   minLogLevel: "Info",
+ *   otlpBaseUrl: "http://localhost:4318",
+ *   otlpEnabled: false,
+ *   otlpResourceAttributes: {},
+ *   prometheusPrefix: "beep",
+ *   serviceName: "beep",
+ *   serviceVersion: "0.0.0"
+ * })
+ * export const resource = toNodeSdkResource(config)
  * ```
  *
  * @since 0.0.0
@@ -125,8 +146,19 @@ export const toNodeSdkResource = (config: ServerObservabilityConfig): NonNullabl
  * ```typescript
  * import { ServerObservabilityConfig, makeNodeSdkServerConfig } from "@beep/observability/server"
  *
- * declare const config: ServerObservabilityConfig
- * const sdkConfig = makeNodeSdkServerConfig(config)
+ * const config = new ServerObservabilityConfig({
+ *   devtoolsEnabled: false,
+ *   devtoolsUrl: "ws://localhost:34437",
+ *   environment: "test",
+ *   minLogLevel: "Info",
+ *   otlpBaseUrl: "http://localhost:4318",
+ *   otlpEnabled: false,
+ *   otlpResourceAttributes: {},
+ *   prometheusPrefix: "beep",
+ *   serviceName: "beep",
+ *   serviceVersion: "0.0.0"
+ * })
+ * export const sdkConfig = makeNodeSdkServerConfig(config)
  * ```
  *
  * @since 0.0.0
@@ -198,8 +230,19 @@ export const makeNodeSdkServerConfig: {
  * ```typescript
  * import { ServerObservabilityConfig, makeNodeSdkServerTraceConfig } from "@beep/observability/server"
  *
- * declare const config: ServerObservabilityConfig
- * const sdkConfig = makeNodeSdkServerTraceConfig(config)
+ * const config = new ServerObservabilityConfig({
+ *   devtoolsEnabled: false,
+ *   devtoolsUrl: "ws://localhost:34437",
+ *   environment: "test",
+ *   minLogLevel: "Info",
+ *   otlpBaseUrl: "http://localhost:4318",
+ *   otlpEnabled: false,
+ *   otlpResourceAttributes: {},
+ *   prometheusPrefix: "beep",
+ *   serviceName: "beep",
+ *   serviceVersion: "0.0.0"
+ * })
+ * export const sdkConfig = makeNodeSdkServerTraceConfig(config)
  * ```
  *
  * @since 0.0.0
@@ -225,8 +268,19 @@ export const makeNodeSdkServerTraceConfig: {
  * ```typescript
  * import { ServerObservabilityConfig, layerNodeSdkServer } from "@beep/observability/server"
  *
- * declare const config: ServerObservabilityConfig
- * const NodeSdkLive = layerNodeSdkServer(config)
+ * const config = new ServerObservabilityConfig({
+ *   devtoolsEnabled: false,
+ *   devtoolsUrl: "ws://localhost:34437",
+ *   environment: "test",
+ *   minLogLevel: "Info",
+ *   otlpBaseUrl: "http://localhost:4318",
+ *   otlpEnabled: false,
+ *   otlpResourceAttributes: {},
+ *   prometheusPrefix: "beep",
+ *   serviceName: "beep",
+ *   serviceVersion: "0.0.0"
+ * })
+ * export const NodeSdkLive = layerNodeSdkServer(config)
  * ```
  *
  * @since 0.0.0
@@ -250,8 +304,19 @@ export const layerNodeSdkServer: {
  * ```typescript
  * import { ServerObservabilityConfig, layerNodeSdkServerTraces } from "@beep/observability/server"
  *
- * declare const config: ServerObservabilityConfig
- * const NodeSdkLive = layerNodeSdkServerTraces(config)
+ * const config = new ServerObservabilityConfig({
+ *   devtoolsEnabled: false,
+ *   devtoolsUrl: "ws://localhost:34437",
+ *   environment: "test",
+ *   minLogLevel: "Info",
+ *   otlpBaseUrl: "http://localhost:4318",
+ *   otlpEnabled: false,
+ *   otlpResourceAttributes: {},
+ *   prometheusPrefix: "beep",
+ *   serviceName: "beep",
+ *   serviceVersion: "0.0.0"
+ * })
+ * export const NodeSdkLive = layerNodeSdkServerTraces(config)
  * ```
  *
  * @since 0.0.0
