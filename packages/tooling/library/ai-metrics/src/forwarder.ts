@@ -363,6 +363,10 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
         repoRoot: input.repoRoot,
       })
     ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics config snapshot.", cause)));
+    const pathApi = yield* Path.Path;
+    const repoRootHash = yield* hashPrivateIdentifier(pathApi.resolve(input.repoRoot), input.hashSalt).pipe(
+      Effect.mapError((cause) => forwarderFailure("Failed to hash AI metrics repo root.", cause))
+    );
     const sourceFiles = yield* discoverForwarderSourceFiles(input);
     const records = yield* Effect.forEach(
       sourceFiles,
@@ -375,6 +379,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
         configSnapshot: configSnapshot.snapshot,
         ingestRunId,
         records,
+        repoRootHash,
         startedAtEpochMillis,
         storage: installSpec.storage,
         target: input.target,

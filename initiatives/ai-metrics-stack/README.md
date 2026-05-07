@@ -29,6 +29,18 @@ scorecard has been generated from live data.
 - [history/outputs/p2-durable-ingest-and-derived-storage.md](./history/outputs/p2-durable-ingest-and-derived-storage.md)
   - encrypted raw archive, DuckDB derived storage, Parquet export, and EventLog
     proof evidence
+- [history/outputs/p3-otlp-and-backend-stack.md](./history/outputs/p3-otlp-and-backend-stack.md)
+  - OTLP contracts, Phoenix local compose smoke target, redacted span export,
+    and import-safe infra outputs
+- [history/outputs/p4-scorecards-labels-and-benchmarks.md](./history/outputs/p4-scorecards-labels-and-benchmarks.md)
+  - task projection, structured labels, benchmark records, weekly reports, and
+    coverage-aware scoring evidence
+- [history/outputs/p5a-operator-contract-and-dry-run-apply.md](./history/outputs/p5a-operator-contract-and-dry-run-apply.md)
+  - typed install plan, doctor, dry-run apply, and non-mutating operator
+    workflow evidence
+- [history/outputs/p5b-real-pulumi-remote-apply.md](./history/outputs/p5b-real-pulumi-remote-apply.md)
+  - Pulumi remote Phoenix apply resources, dedicated tailnet HTTPS route, and
+    live deployment evidence
 - [research/effect-native-observability.md](./research/effect-native-observability.md)
   - Effect v4 observability package findings
 - [research/backend-shortlist.md](./research/backend-shortlist.md) - backend
@@ -36,14 +48,17 @@ scorecard has been generated from live data.
 
 ## Current Progress
 
-P0, P1, and P2 are complete enough to use as the starting checkpoint:
+P0, P1, P2, P3, P4, P5a, and the P5b live Phoenix deployment are complete
+enough to use as the starting checkpoint. The first real collection/export
+proof is complete and P6 is underway. Pulumi state reconciliation is still gated
+on the local Pulumi passphrase environment:
 
 - `@beep/repo-ai-metrics` exists with schema-first models, tolerant transcript
   ingest summaries, target-agnostic install specs, benchmark and scorecard
   models.
 - `beep-cli ai-metrics` exists with install preview, ingest, source discovery,
-  config snapshot, privacy check, durable forwarder, and benchmark command
-  scaffolds.
+  config snapshot, privacy check, durable forwarder, OTLP export, labels,
+  benchmark records, and weekly report generation.
 - `@beep/infra` exposes an import-safe `AIMetricsStack` Pulumi component and
   Pulumi entrypoint.
 - Source discovery covers Codex, Claude Code, and OpenClaw safe gateway
@@ -54,9 +69,29 @@ P0, P1, and P2 are complete enough to use as the starting checkpoint:
   envelopes, with synthetic and real local smoke evidence.
 - The durable forwarder writes AES-256-GCM encrypted raw archive objects,
   derived DuckDB tables, and per-run Parquet exports.
-- Current gaps are explicit in the packet: OTLP export, backend deployment,
-  labels, benchmarks, real Pulumi remote apply, and the seven-day scorecard
-  proof.
+- P3 adds install-owned OTLP/Phoenix contracts, generated local Phoenix compose
+  smoke, trace-only `@beep/observability` wiring, redacted DuckDB-to-OTLP span
+  export, CLI `otlp export`, and import-safe Pulumi backend outputs.
+- P4 adds deploy-safe agent task projection rows, structured outcome labels,
+  recorded benchmark cases/runs, coverage-aware scorecards, and Markdown/JSON
+  weekly report artifacts.
+- P5a adds typed install plans, install doctor checks, and dry-run-only apply
+  output for local and dankserver targets without resolving secrets, probing
+  SSH, or mutating local/remote state.
+- P5b adds `@beep/infra` Pulumi remote command resources for dankserver
+  preflight, Phoenix compose/systemd apply, dedicated
+  `https://dankserver.tailc7c348.ts.net:8447` Tailscale Serve routing, and
+  health checks.
+- The AI metrics 1Password refs resolve at
+  `op://TBK/ai-metrics/hash-salt` and
+  `op://TBK/ai-metrics/raw-archive-key`.
+- The first live P6 proof collected 10 Codex source files, projected 23,830
+  turns, exported 23,840 redacted OTLP spans to Phoenix, generated a baseline
+  weekly report, and confirmed Phoenix GraphQL has traces.
+- Current gaps are explicit in the packet: reconcile the live host mutation with
+  Pulumi from a shell with `PULUMI_CONFIG_PASSPHRASE` or
+  `PULUMI_CONFIG_PASSPHRASE_FILE`, keep live collection running for seven days,
+  add outcome labels and benchmark runs, and document backup/restore/retention.
 
 ## Completion Standard
 

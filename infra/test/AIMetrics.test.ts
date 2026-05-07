@@ -1,4 +1,8 @@
-import { makeAIMetricsStackArgs, makeAIMetricsStackArgsFromConfigValues } from "@beep/infra";
+import {
+  AIMetricsRemoteDeploymentConfig,
+  makeAIMetricsStackArgs,
+  makeAIMetricsStackArgsFromConfigValues,
+} from "@beep/infra";
 import { AiMetricsDeployTarget, AiMetricsInstallInput, makeAiMetricsInstallSpec } from "@beep/repo-ai-metrics";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
@@ -7,34 +11,88 @@ describe("@beep/infra AIMetrics", () => {
   it("keeps stack args import-safe and target-aware", () => {
     const args = makeAIMetricsStackArgs(
       new AiMetricsInstallInput({
-        hashSaltSecretRef: "op://beep-effect/ai-metrics/hash-salt",
-        rawArchiveKeySecretRef: "op://beep-effect/ai-metrics/raw-archive-key",
+        hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
+        rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
         target: AiMetricsDeployTarget.Enum.dankserver,
-      })
+      }),
+      new AIMetricsRemoteDeploymentConfig({})
     );
 
     expect(args.install.target).toBe("dankserver");
     expect(args.install.dataRoot).toBeUndefined();
+    expect(args.remote.remoteConfigRoot).toBe("/home/elpresidank/ai-metrics");
+    expect(args.remote.phoenixTailnetHttpsPort).toBe(8447);
     expect(Effect.runSync(makeAiMetricsInstallSpec(args.install)).hashSaltSecretRef).toBe(
-      "op://beep-effect/ai-metrics/hash-salt"
+      "op://TBK/ai-metrics/hash-salt"
     );
     expect(Effect.runSync(makeAiMetricsInstallSpec(args.install)).rawArchiveKeySecretRef).toBe(
-      "op://beep-effect/ai-metrics/raw-archive-key"
+      "op://TBK/ai-metrics/raw-archive-key"
     );
   });
 
   it("maps the dankserver Pulumi stack config to a production-safe install spec", () => {
     const args = makeAIMetricsStackArgsFromConfigValues({
-      hashSaltSecretRef: "op://beep-effect/ai-metrics/hash-salt",
-      rawArchiveKeySecretRef: "op://beep-effect/ai-metrics/raw-archive-key",
+      hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
+      rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
       target: "dankserver",
     });
     const spec = Effect.runSync(makeAiMetricsInstallSpec(args.install));
 
     expect(args.install.target).toBe("dankserver");
+    expect(args.install.publicBaseUrl).toBe("https://dankserver.tailc7c348.ts.net:8447");
+    expect(args.remote.ssh.host).toBe("dankserver");
+    expect(args.remote.ssh.user).toBe("elpresidank");
     expect(spec.target).toBe("dankserver");
-    expect(spec.hashSaltSecretRef).toBe("op://beep-effect/ai-metrics/hash-salt");
-    expect(spec.rawArchiveKeySecretRef).toBe("op://beep-effect/ai-metrics/raw-archive-key");
+    expect(spec.hashSaltSecretRef).toBe("op://TBK/ai-metrics/hash-salt");
+    expect(spec.rawArchiveKeySecretRef).toBe("op://TBK/ai-metrics/raw-archive-key");
+    expect(spec.services).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          enabledByDefault: true,
+          internalUrl: "http://127.0.0.1:6006",
+          otlp: expect.objectContaining({
+            signalScope: "traces_only",
+            traceUrl: "https://dankserver.tailc7c348.ts.net:8447/v1/traces",
+          }),
+          publicUrl: "https://dankserver.tailc7c348.ts.net:8447",
+          tool: "phoenix",
+        }),
+      ])
+    );
+  });
+
+  it("applies remote Phoenix image, port, and SSH config overrides", () => {
+    const args = makeAIMetricsStackArgsFromConfigValues({
+      hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
+      phoenixImage: "arizephoenix/phoenix:latest-p5b",
+      phoenixTailnetHttpsPort: 9446,
+      rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
+      remoteConfigRoot: "/srv/ai-metrics",
+      sshAgentSocketPath: "/tmp/agent.sock",
+      sshHost: "dankserver-yubi",
+      sshUser: "deploy",
+      tailnetFqdn: "dankserver.tail.example.ts.net",
+      target: "dankserver",
+    });
+    const spec = Effect.runSync(makeAiMetricsInstallSpec(args.install));
+
+    expect(args.install.publicBaseUrl).toBe("https://dankserver.tail.example.ts.net:9446");
+    expect(args.remote.remoteConfigRoot).toBe("/srv/ai-metrics");
+    expect(args.remote.ssh.agentSocketPath).toBe("/tmp/agent.sock");
+    expect(args.remote.ssh.host).toBe("dankserver-yubi");
+    expect(args.remote.ssh.user).toBe("deploy");
+    expect(spec.services).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          image: "arizephoenix/phoenix:latest-p5b",
+          otlp: expect.objectContaining({
+            traceUrl: "https://dankserver.tail.example.ts.net:9446/v1/traces",
+          }),
+          publicUrl: "https://dankserver.tail.example.ts.net:9446",
+          tool: "phoenix",
+        }),
+      ])
+    );
   });
 
   it("rejects dankserver install specs when the hash salt secret reference is absent", () => {

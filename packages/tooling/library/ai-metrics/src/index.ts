@@ -18,6 +18,18 @@
  */
 export * from "./archive.ts";
 /**
+ * Local backend compose rendering helpers.
+ *
+ * @example
+ * ```ts
+ * import { renderAiMetricsLocalPhoenixCompose } from "@beep/repo-ai-metrics"
+ * console.log(renderAiMetricsLocalPhoenixCompose)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./compose.ts";
+/**
  * Repo-local configuration snapshot helpers.
  *
  * @example
@@ -90,6 +102,18 @@ export * from "./install.ts";
  */
 export * from "./models.ts";
 /**
+ * OTLP span projection and export helpers.
+ *
+ * @example
+ * ```ts
+ * import { runAiMetricsOtlpExport } from "@beep/repo-ai-metrics"
+ * console.log(runAiMetricsOtlpExport)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./otlp.ts";
+/**
  * Privacy and derived-payload proof helpers.
  *
  * @example
@@ -101,6 +125,18 @@ export * from "./models.ts";
  * @since 0.0.0
  */
 export * from "./privacy.ts";
+/**
+ * Labels, benchmarks, and weekly scorecard reports.
+ *
+ * @example
+ * ```ts
+ * import { generateAiMetricsWeeklyReport } from "@beep/repo-ai-metrics"
+ * console.log(generateAiMetricsWeeklyReport)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./scorecard.ts";
 /**
  * Local AI-agent source discovery helpers.
  *

@@ -117,6 +117,105 @@ export const AiMetricsPrivacyMode = LiteralKit([
 export type AiMetricsPrivacyMode = typeof AiMetricsPrivacyMode.Type;
 
 /**
+ * OTLP protocol variants supported by the P3 AI metrics backend contract.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsOtlpProtocol } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsOtlpProtocol.Enum["http/protobuf"])
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const AiMetricsOtlpProtocol = LiteralKit(["http/protobuf"] as const).annotate(
+  $I.annote("AiMetricsOtlpProtocol", {
+    description: "OTLP wire protocol variants supported by the AI metrics backend contract.",
+  })
+);
+
+/**
+ * Runtime type for {@link AiMetricsOtlpProtocol}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsOtlpProtocol = typeof AiMetricsOtlpProtocol.Type;
+
+/**
+ * Telemetry signal scope exported to the P3 Phoenix backend.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsOtlpSignalScope } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsOtlpSignalScope.Enum.traces_only)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const AiMetricsOtlpSignalScope = LiteralKit(["traces_only"] as const).annotate(
+  $I.annote("AiMetricsOtlpSignalScope", {
+    description: "Telemetry signal scope exported to the AI metrics backend.",
+  })
+);
+
+/**
+ * Runtime type for {@link AiMetricsOtlpSignalScope}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsOtlpSignalScope = typeof AiMetricsOtlpSignalScope.Type;
+
+/**
+ * Quality-gate outcome recorded for a labeled task or benchmark run.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsQualityGateStatus } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsQualityGateStatus.Enum.passed)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const AiMetricsQualityGateStatus = LiteralKit(["passed", "failed", "not_run", "unknown"] as const).annotate(
+  $I.annote("AiMetricsQualityGateStatus", {
+    description: "Bounded quality-gate outcome used by AI metrics labels and benchmark runs.",
+  })
+);
+
+/**
+ * Runtime type for {@link AiMetricsQualityGateStatus}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsQualityGateStatus = typeof AiMetricsQualityGateStatus.Type;
+
+/**
+ * Install-owned OTLP endpoint contract consumed by CLI, local smoke, and IaC.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsOtlpEndpointSpec } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsOtlpEndpointSpec)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsOtlpEndpointSpec extends S.Class<AiMetricsOtlpEndpointSpec>($I`AiMetricsOtlpEndpointSpec`)(
+  {
+    baseUrl: S.String,
+    protocol: AiMetricsOtlpProtocol,
+    resourceAttributes: S.Record(S.String, S.String),
+    signalScope: AiMetricsOtlpSignalScope,
+    traceUrl: S.String,
+  },
+  $I.annote("AiMetricsOtlpEndpointSpec", {
+    description: "Trace-only OTLP endpoint contract shared by AI metrics installers and exporters.",
+  })
+) {}
+
+/**
  * Outcome-heavy scorecard weights for coding-agent performance.
  *
  * @example
@@ -180,12 +279,16 @@ export class AgentTask extends S.Class<AgentTask>($I`AgentTask`)(
   {
     agentTaskId: S.String,
     configSnapshotId: S.optionalKey(S.String),
-    createdAt: S.String,
-    repoPath: S.String,
+    createdAtEpochMillis: S.Number,
+    firstSeenAt: S.optionalKey(S.String),
+    lastSeenAt: S.optionalKey(S.String),
+    repoRootHash: S.String,
+    sourceKind: AiMetricsTranscriptSource,
+    sourcePathHash: S.String,
     title: S.String,
   },
   $I.annote("AgentTask", {
-    description: "One developer goal grouped across sessions, turns, commands, and labels.",
+    description: "Deploy-safe task unit grouped across sessions, turns, commands, labels, and scorecards.",
   })
 ) {}
 
@@ -299,13 +402,17 @@ export class ToolInvocation extends S.Class<ToolInvocation>($I`ToolInvocation`)(
 export class OutcomeLabel extends S.Class<OutcomeLabel>($I`OutcomeLabel`)(
   {
     agentTaskId: S.String,
+    followUpFix: S.Boolean,
+    interventionCount: S.Number,
     labelId: S.String,
+    labeledAtEpochMillis: S.Number,
+    note: S.optionalKey(S.String),
     passed: S.Boolean,
+    qualityGate: AiMetricsQualityGateStatus,
     rating: S.Number,
-    reason: S.String,
   },
   $I.annote("OutcomeLabel", {
-    description: "Small manual label used to calibrate agent task outcome scoring.",
+    description: "Structured manual label used to calibrate deploy-safe AI metrics scorecards.",
   })
 ) {}
 
@@ -324,12 +431,12 @@ export class BenchmarkCase extends S.Class<BenchmarkCase>($I`BenchmarkCase`)(
   {
     benchmarkCaseId: S.String,
     expectedChecks: S.Array(S.String),
-    prompt: S.String,
-    repoPath: S.String,
+    promptHash: S.String,
+    promptRef: S.optionalKey(S.String),
     title: S.String,
   },
   $I.annote("BenchmarkCase", {
-    description: "Repeatable coding-agent or runtime-proof benchmark case.",
+    description: "Repeatable coding-agent benchmark case with prompt content stored by hash or external reference.",
   })
 ) {}
 
@@ -350,7 +457,10 @@ export class BenchmarkRun extends S.Class<BenchmarkRun>($I`BenchmarkRun`)(
     benchmarkRunId: S.String,
     configSnapshotId: S.String,
     elapsedMs: S.Number,
+    note: S.optionalKey(S.String),
     passed: S.Boolean,
+    qualityGate: AiMetricsQualityGateStatus,
+    recordedAtEpochMillis: S.Number,
   },
   $I.annote("BenchmarkRun", {
     description: "Observed result from running one benchmark case against one configuration snapshot.",
@@ -370,15 +480,22 @@ export class BenchmarkRun extends S.Class<BenchmarkRun>($I`BenchmarkRun`)(
  */
 export class Scorecard extends S.Class<Scorecard>($I`Scorecard`)(
   {
+    benchmarkRunCount: S.Number,
+    configSnapshotId: S.String,
     costScore: S.Number,
+    coverageGaps: S.Array(S.String),
     flowScore: S.Number,
+    labelCount: S.Number,
     outcomeScore: S.Number,
     scorecardId: S.String,
+    taskCount: S.Number,
     totalScore: S.Number,
     weights: AiMetricsScoreWeights,
+    windowEndEpochMillis: S.Number,
+    windowStartEpochMillis: S.Number,
   },
   $I.annote("Scorecard", {
-    description: "Outcome-heavy aggregate score for an agent task, benchmark run, or weekly review.",
+    description: "Outcome-heavy aggregate score for one config snapshot inside a weekly review window.",
   })
 ) {}
 
