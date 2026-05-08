@@ -5,12 +5,13 @@
  * @since 0.0.0
  */
 
-import { DuckDb, DuckDbParquetExport } from "@beep/duckdb";
+import { DuckDb, type DuckDbError, DuckDbParquetExport } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Clock, Effect, FileSystem, flow, Path } from "effect";
+import { Clock, Effect, FileSystem, flow, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { AiMetricsRawArchiveObject } from "./archive.ts";
 import { AiMetricsStorageLayout } from "./install.ts";
 import { AiMetricsDeployTarget, ConfigSnapshot } from "./models.ts";
@@ -22,11 +23,13 @@ const DERIVED_TABLES = [
   "ai_metrics_ingest_runs",
   "ai_metrics_source_files",
   "ai_metrics_raw_archive_objects",
+  "ai_metrics_agent_tasks",
   "ai_metrics_sessions",
   "ai_metrics_turns",
   "ai_metrics_model_calls",
   "ai_metrics_tool_invocations",
   "ai_metrics_outcome_labels",
+  "ai_metrics_benchmark_cases",
   "ai_metrics_benchmark_runs",
   "ai_metrics_scorecards",
 ] as const;
@@ -37,8 +40,8 @@ const createTableStatements = [
     target VARCHAR NOT NULL,
     config_snapshot_id VARCHAR NOT NULL,
     config_hash VARCHAR NOT NULL,
-    started_at_epoch_ms BIGINT NOT NULL,
-    completed_at_epoch_ms BIGINT NOT NULL,
+    started_at_epoch_ms DOUBLE NOT NULL,
+    completed_at_epoch_ms DOUBLE NOT NULL,
     source_file_count INTEGER NOT NULL,
     archive_object_count INTEGER NOT NULL,
     turn_count INTEGER NOT NULL
@@ -66,10 +69,22 @@ const createTableStatements = [
     plaintext_content_hash VARCHAR NOT NULL,
     archive_path VARCHAR NOT NULL,
     algorithm VARCHAR NOT NULL,
-    encrypted_at_epoch_ms BIGINT NOT NULL
+    encrypted_at_epoch_ms DOUBLE NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS ai_metrics_agent_tasks (
+    agent_task_id VARCHAR PRIMARY KEY,
+    title VARCHAR NOT NULL,
+    source_kind VARCHAR NOT NULL,
+    source_path_hash VARCHAR NOT NULL,
+    repo_root_hash VARCHAR NOT NULL,
+    config_snapshot_id VARCHAR NOT NULL,
+    created_at_epoch_ms DOUBLE NOT NULL,
+    first_seen_at VARCHAR,
+    last_seen_at VARCHAR
   )`,
   `CREATE TABLE IF NOT EXISTS ai_metrics_sessions (
     agent_session_id VARCHAR PRIMARY KEY,
+    agent_task_id VARCHAR,
     ingest_run_id VARCHAR NOT NULL,
     source_kind VARCHAR NOT NULL,
     source_path_hash VARCHAR NOT NULL,
@@ -104,26 +119,137 @@ const createTableStatements = [
   )`,
   `CREATE TABLE IF NOT EXISTS ai_metrics_outcome_labels (
     label_id VARCHAR PRIMARY KEY,
-    agent_task_id VARCHAR,
-    rating DOUBLE,
-    passed BOOLEAN,
-    reason VARCHAR
+    agent_task_id VARCHAR NOT NULL,
+    rating DOUBLE NOT NULL,
+    passed BOOLEAN NOT NULL,
+    quality_gate VARCHAR NOT NULL,
+    intervention_count INTEGER NOT NULL,
+    follow_up_fix BOOLEAN NOT NULL,
+    note VARCHAR,
+    labeled_at_epoch_ms DOUBLE NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS ai_metrics_benchmark_cases (
+    benchmark_case_id VARCHAR PRIMARY KEY,
+    title VARCHAR NOT NULL,
+    prompt_hash VARCHAR NOT NULL,
+    prompt_ref VARCHAR,
+    expected_checks_json VARCHAR NOT NULL,
+    created_at_epoch_ms DOUBLE NOT NULL
   )`,
   `CREATE TABLE IF NOT EXISTS ai_metrics_benchmark_runs (
     benchmark_run_id VARCHAR PRIMARY KEY,
-    benchmark_case_id VARCHAR,
-    config_snapshot_id VARCHAR,
-    elapsed_ms DOUBLE,
-    passed BOOLEAN
+    benchmark_case_id VARCHAR NOT NULL,
+    config_snapshot_id VARCHAR NOT NULL,
+    elapsed_ms DOUBLE NOT NULL,
+    passed BOOLEAN NOT NULL,
+    quality_gate VARCHAR NOT NULL,
+    note VARCHAR,
+    recorded_at_epoch_ms DOUBLE NOT NULL
   )`,
   `CREATE TABLE IF NOT EXISTS ai_metrics_scorecards (
     scorecard_id VARCHAR PRIMARY KEY,
-    total_score DOUBLE,
-    outcome_score DOUBLE,
-    flow_score DOUBLE,
-    cost_score DOUBLE
+    config_snapshot_id VARCHAR NOT NULL,
+    window_start_epoch_ms DOUBLE NOT NULL,
+    window_end_epoch_ms DOUBLE NOT NULL,
+    total_score DOUBLE NOT NULL,
+    outcome_score DOUBLE NOT NULL,
+    flow_score DOUBLE NOT NULL,
+    cost_score DOUBLE NOT NULL,
+    task_count INTEGER NOT NULL,
+    label_count INTEGER NOT NULL,
+    benchmark_run_count INTEGER NOT NULL,
+    coverage_gaps_json VARCHAR NOT NULL
   )`,
 ] as const;
+
+const migrationColumns = [
+  {
+    columnDefinition: "agent_task_id VARCHAR",
+    columnName: "agent_task_id",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "quality_gate VARCHAR",
+    columnName: "quality_gate",
+    tableName: "ai_metrics_outcome_labels",
+  },
+  {
+    columnDefinition: "intervention_count INTEGER",
+    columnName: "intervention_count",
+    tableName: "ai_metrics_outcome_labels",
+  },
+  {
+    columnDefinition: "follow_up_fix BOOLEAN",
+    columnName: "follow_up_fix",
+    tableName: "ai_metrics_outcome_labels",
+  },
+  {
+    columnDefinition: "note VARCHAR",
+    columnName: "note",
+    tableName: "ai_metrics_outcome_labels",
+  },
+  {
+    columnDefinition: "labeled_at_epoch_ms DOUBLE",
+    columnName: "labeled_at_epoch_ms",
+    tableName: "ai_metrics_outcome_labels",
+  },
+  {
+    columnDefinition: "quality_gate VARCHAR",
+    columnName: "quality_gate",
+    tableName: "ai_metrics_benchmark_runs",
+  },
+  {
+    columnDefinition: "note VARCHAR",
+    columnName: "note",
+    tableName: "ai_metrics_benchmark_runs",
+  },
+  {
+    columnDefinition: "recorded_at_epoch_ms DOUBLE",
+    columnName: "recorded_at_epoch_ms",
+    tableName: "ai_metrics_benchmark_runs",
+  },
+  {
+    columnDefinition: "config_snapshot_id VARCHAR",
+    columnName: "config_snapshot_id",
+    tableName: "ai_metrics_scorecards",
+  },
+  {
+    columnDefinition: "window_start_epoch_ms DOUBLE",
+    columnName: "window_start_epoch_ms",
+    tableName: "ai_metrics_scorecards",
+  },
+  {
+    columnDefinition: "window_end_epoch_ms DOUBLE",
+    columnName: "window_end_epoch_ms",
+    tableName: "ai_metrics_scorecards",
+  },
+  {
+    columnDefinition: "task_count INTEGER",
+    columnName: "task_count",
+    tableName: "ai_metrics_scorecards",
+  },
+  {
+    columnDefinition: "label_count INTEGER",
+    columnName: "label_count",
+    tableName: "ai_metrics_scorecards",
+  },
+  {
+    columnDefinition: "benchmark_run_count INTEGER",
+    columnName: "benchmark_run_count",
+    tableName: "ai_metrics_scorecards",
+  },
+  {
+    columnDefinition: "coverage_gaps_json VARCHAR",
+    columnName: "coverage_gaps_json",
+    tableName: "ai_metrics_scorecards",
+  },
+] as const;
+
+type MigrationColumn = {
+  readonly columnDefinition: string;
+  readonly columnName: string;
+  readonly tableName: string;
+};
 
 /**
  * Error raised by the DuckDB derived storage projection.
@@ -194,6 +320,7 @@ export class AiMetricsDerivedStorageWriteInput extends S.Class<AiMetricsDerivedS
     configSnapshot: ConfigSnapshot,
     ingestRunId: S.String,
     records: S.Array(AiMetricsDerivedTranscriptRecord),
+    repoRootHash: S.String,
     startedAtEpochMillis: S.Number,
     storage: AiMetricsStorageLayout,
     target: AiMetricsDeployTarget,
@@ -247,7 +374,49 @@ const rowId = Effect.fn("AiMetrics.derivedStorage.rowId")(function* (
   return `${prefix}-${digest}`;
 });
 
+const addColumnIfMissing: (input: MigrationColumn) => Effect.Effect<void, DuckDbError, DuckDb> = Effect.fn(
+  "AiMetrics.derivedStorage.addColumnIfMissing"
+)(function* ({ columnDefinition, columnName, tableName }) {
+  const duckdb = yield* DuckDb;
+  const rows = yield* duckdb.query(
+    `SELECT column_name AS "columnName"
+     FROM information_schema.columns
+      WHERE table_name = $tableName AND column_name = $columnName`,
+    { columnName, tableName }
+  );
+  if (A.isReadonlyArrayNonEmpty(rows)) {
+    return;
+  }
+
+  yield* duckdb.run(`ALTER TABLE ${tableName} ADD COLUMN ${columnDefinition}`);
+});
+
+const ensureAiMetricsDerivedStorageRaw = Effect.fn("AiMetrics.derivedStorage.ensureRaw")(function* () {
+  const duckdb = yield* DuckDb;
+  yield* duckdb.runMany(createTableStatements);
+  yield* Effect.forEach(migrationColumns, addColumnIfMissing, { discard: true });
+});
+
+/**
+ * Ensure the AI metrics derived DuckDB schema exists and has P4 columns.
+ *
+ * @example
+ * ```ts
+ * import { ensureAiMetricsDerivedStorage } from "@beep/repo-ai-metrics"
+ * console.log(ensureAiMetricsDerivedStorage)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const ensureAiMetricsDerivedStorage: Effect.Effect<void, AiMetricsDerivedStorageError, DuckDb> =
+  ensureAiMetricsDerivedStorageRaw().pipe(
+    Effect.withSpan("repo_ai_metrics.derived_storage.ensure"),
+    Effect.mapError((cause) => derivedFailure("Failed to ensure AI metrics derived DuckDB schema.", cause))
+  );
+
 const optionalStringOrNull = (value: string | undefined): string | null => value ?? null;
+
+const epochMillisParam = (value: number): string => globalThis.String(value);
 
 const countCreatedArchiveObjects = (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>): number =>
   A.filter(records, (record) => record.archiveObject.created).length;
@@ -283,16 +452,75 @@ const upsertRun = Effect.fn("AiMetrics.derivedStorage.upsertRun")(function* (
     )`,
     {
       archiveObjectCount,
-      completedAtEpochMillis,
+      completedAtEpochMillis: epochMillisParam(completedAtEpochMillis),
       configHash: input.configSnapshot.configHash,
       configSnapshotId: input.configSnapshot.snapshotId,
       ingestRunId: input.ingestRunId,
       sourceFileCount: input.records.length,
-      startedAtEpochMillis: input.startedAtEpochMillis,
+      startedAtEpochMillis: epochMillisParam(input.startedAtEpochMillis),
       target: input.target,
       turnCount,
     }
   );
+});
+
+const agentTaskIdFor = Effect.fn("AiMetrics.derivedStorage.agentTaskIdFor")(function* (
+  record: AiMetricsDerivedTranscriptRecord
+) {
+  const sanitized = record.privacy.sanitized;
+  return yield* rowId("agent-task", [sanitized.sourceKind, sanitized.sourcePathHash]);
+});
+
+const taskTitleFor = (record: AiMetricsDerivedTranscriptRecord): string => {
+  const sanitized = record.privacy.sanitized;
+  const sourceSuffix = pipe(sanitized.sourcePathHash, Str.takeLeft(12));
+  return `${sanitized.sourceKind} task ${sourceSuffix}`;
+};
+
+const upsertAgentTask = Effect.fn("AiMetrics.derivedStorage.upsertAgentTask")(function* (
+  input: AiMetricsDerivedStorageWriteInput,
+  record: AiMetricsDerivedTranscriptRecord
+) {
+  const duckdb = yield* DuckDb;
+  const sanitized = record.privacy.sanitized;
+  const agentTaskId = yield* agentTaskIdFor(record);
+
+  yield* duckdb.run(
+    `INSERT OR REPLACE INTO ai_metrics_agent_tasks (
+      agent_task_id,
+      title,
+      source_kind,
+      source_path_hash,
+      repo_root_hash,
+      config_snapshot_id,
+      created_at_epoch_ms,
+      first_seen_at,
+      last_seen_at
+    ) VALUES (
+      $agentTaskId,
+      $title,
+      $sourceKind,
+      $sourcePathHash,
+      $repoRootHash,
+      $configSnapshotId,
+      $createdAtEpochMillis,
+      $firstSeenAt,
+      $lastSeenAt
+    )`,
+    {
+      agentTaskId,
+      configSnapshotId: input.configSnapshot.snapshotId,
+      createdAtEpochMillis: epochMillisParam(input.startedAtEpochMillis),
+      firstSeenAt: optionalStringOrNull(sanitized.firstTimestamp),
+      lastSeenAt: optionalStringOrNull(sanitized.lastTimestamp),
+      repoRootHash: input.repoRootHash,
+      sourceKind: sanitized.sourceKind,
+      sourcePathHash: sanitized.sourcePathHash,
+      title: taskTitleFor(record),
+    }
+  );
+
+  return agentTaskId;
 });
 
 const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(function* (
@@ -383,7 +611,7 @@ const upsertArchiveObject = Effect.fn("AiMetrics.derivedStorage.upsertArchiveObj
       archiveObjectId: archive.archiveObjectId,
       archiveRunObjectId,
       archivePath: archive.archivePath,
-      encryptedAtEpochMillis: archive.encryptedAtEpochMillis,
+      encryptedAtEpochMillis: epochMillisParam(archive.encryptedAtEpochMillis),
       ingestRunId: input.ingestRunId,
       plaintextContentHash: archive.plaintextContentHash,
       sourceKind: archive.sourceKind,
@@ -394,6 +622,7 @@ const upsertArchiveObject = Effect.fn("AiMetrics.derivedStorage.upsertArchiveObj
 
 const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionAndTurns")(function* (
   input: AiMetricsDerivedStorageWriteInput,
+  agentTaskId: string,
   record: AiMetricsDerivedTranscriptRecord
 ) {
   const duckdb = yield* DuckDb;
@@ -402,6 +631,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
   yield* duckdb.run(
     `INSERT OR REPLACE INTO ai_metrics_sessions (
       agent_session_id,
+      agent_task_id,
       ingest_run_id,
       source_kind,
       source_path_hash,
@@ -409,6 +639,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       config_snapshot_id
     ) VALUES (
       $agentSessionId,
+      $agentTaskId,
       $ingestRunId,
       $sourceKind,
       $sourcePathHash,
@@ -417,6 +648,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
     )`,
     {
       agentSessionId,
+      agentTaskId,
       configSnapshotId: input.configSnapshot.snapshotId,
       ingestRunId: input.ingestRunId,
       sourceKind: sanitized.sourceKind,
@@ -515,14 +747,17 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
     yield* duckdb
       .withTransaction(
         Effect.fn(function* (transaction) {
-          yield* transaction.runMany(createTableStatements);
+          yield* ensureAiMetricsDerivedStorageRaw().pipe(Effect.provideService(DuckDb, transaction));
           yield* upsertRun(input, completedAtEpochMillis, turnCount).pipe(Effect.provideService(DuckDb, transaction));
           yield* Effect.forEach(
             input.records,
             Effect.fnUntraced(function* (record) {
+              const agentTaskId = yield* upsertAgentTask(input, record).pipe(
+                Effect.provideService(DuckDb, transaction)
+              );
               yield* upsertSourceFile(input, record).pipe(Effect.provideService(DuckDb, transaction));
               yield* upsertArchiveObject(input, record).pipe(Effect.provideService(DuckDb, transaction));
-              yield* upsertSessionAndTurns(input, record).pipe(Effect.provideService(DuckDb, transaction));
+              yield* upsertSessionAndTurns(input, agentTaskId, record).pipe(Effect.provideService(DuckDb, transaction));
             }),
             { discard: true }
           );

@@ -123,7 +123,10 @@ The local target must support repeatable smoke tests without a remote host.
 
 The dankserver target must use Pulumi remote apply from `@beep/infra` to
 install and verify required services, storage directories, tailnet-only access,
-OTLP endpoints, Phoenix, optional LiteLLM gateway, and health checks.
+OTLP endpoints, Phoenix, and health checks. The first deployable P5b slice is
+Phoenix-only on the dedicated tailnet URL
+`https://dankserver.tailc7c348.ts.net:8447`; optional LiteLLM gateway
+enrichment is deferred until after Phoenix is live.
 
 Manual host commands may appear as debugging aids but must not be the final
 deployment mechanism.

@@ -8,16 +8,25 @@ scorecard.
 
 ## Starting State
 
-P0 and P1 are already credited. The repo contains:
+P0 through P4 plus P5a are already credited. P5b implementation exists, the
+Phoenix backend is live on dankserver at
+`https://dankserver.tailc7c348.ts.net:8447`, and the first P6 real-data
+forwarder/export proof has reached Phoenix. Pulumi state reconciliation still
+needs the local Pulumi passphrase environment. The repo contains:
 
 - `packages/tooling/library/ai-metrics`
 - `packages/tooling/tool/cli/src/commands/AIMetrics`
 - `infra/src/AIMetrics.ts`
 - `infra/Pulumi.yaml`
 
-Treat those as the current implementation base, not as final deploy readiness.
-P1 added source discovery, config snapshots, and privacy checks; P2 starts with
-durable ingest and storage.
+Treat those as the current implementation base for real-data collection.
+P1 added source discovery, config snapshots, and privacy checks. P2 added
+durable ingest and storage. P3 added OTLP/Phoenix contracts, local compose
+smoke, and redacted derived span export. P4 added labels, benchmarks, and
+weekly scorecards. P5a added the non-mutating install plan, doctor, and
+dry-run apply operator contract. P5b added `@beep/infra` Pulumi remote command
+resources for Phoenix compose/systemd apply, dedicated Tailscale Serve HTTPS on
+`8447`, and health checks.
 
 ## Decisions To Preserve
 
@@ -44,37 +53,55 @@ P1 source discovery and privacy:
 
 P2 durable ingest and storage:
 
-- write encrypted raw archive
-- derive DuckDB and Parquet tables
-- add idempotent ingest keys
-- add EventLog memory/SQL projection proof behind an internal boundary
+- completed; see `history/outputs/p2-durable-ingest-and-derived-storage.md`
+- preserve encrypted raw archive and redacted DuckDB/Parquet derived storage
 
 P3 OTLP and backend:
 
-- instrument collectors with Effect `Metric`, `Tracer`, `Logger`, and
-  `ErrorReporter`
-- export with stable `@effect/opentelemetry`
-- deploy Phoenix as the default UI
+- completed; see `history/outputs/p3-otlp-and-backend-stack.md`
+- preserve trace-only Phoenix smoke and metadata-only OpenInference exports
 - keep unstable Effect observability/devtools out of deploy-critical paths
 
 P4 scorecards and benchmarks:
 
-- add CLI label review queue
-- add curated benchmark cases
-- link runs to config snapshots
-- generate weekly config-impact reports
+- completed; see `history/outputs/p4-scorecards-labels-and-benchmarks.md`
+- preserve hash-only task/report metadata and redacted label notes
+- keep benchmark cases prompt-hash/reference only until an explicit decrypt or
+  prompt registry workflow exists
+- use coverage-aware neutral scoring while model/token/cost enrichment remains
+  sparse
 
 P5 install and remote deployment:
 
-- expand install plan/doctor/apply commands
-- make Pulumi remote apply configure dankserver
-- deploy storage, services, OTLP endpoint, Phoenix, optional LiteLLM gateway,
-  and tailnet-only access
+- P5a completed; see
+  `history/outputs/p5a-operator-contract-and-dry-run-apply.md`
+- P5b implementation complete; see
+  `history/outputs/p5b-real-pulumi-remote-apply.md`
+- reconcile Pulumi state from a shell with `PULUMI_CONFIG_PASSPHRASE` or
+  `PULUMI_CONFIG_PASSPHRASE_FILE`
+- preserve the verified `https://dankserver.tailc7c348.ts.net:8447` Phoenix
+  route and the verified Phoenix OTLP export with real redacted traces
+- preserve the resolving 1Password refs
+  `op://TBK/ai-metrics/hash-salt` and
+  `op://TBK/ai-metrics/raw-archive-key`
+- use both resolved runtime values and secret-ref flags when resuming
+  non-local forwarder/export/report commands:
+  ```sh
+  export BEEP_AI_METRICS_HASH_SALT_SECRET_REF="op://TBK/ai-metrics/hash-salt"
+  export BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF="op://TBK/ai-metrics/raw-archive-key"
+  export BEEP_AI_METRICS_HASH_SALT="$(op read "$BEEP_AI_METRICS_HASH_SALT_SECRET_REF")"
+  export BEEP_AI_METRICS_RAW_ARCHIVE_KEY="$(op read "$BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF")"
+  ```
+- optional LiteLLM gateway remains deferred until after the Phoenix-only slice
+  is live
 
 P6 proof and hardening:
 
-- collect seven days of live data
-- publish first weekly scorecard
+- first live collection/export proof completed; see
+  `history/outputs/p6-seven-day-proof-and-hardening.md`
+- continue collecting seven days of live data
+- publish first seven-day weekly scorecard
+- add outcome labels and benchmark runs for real tasks
 - verify backup, restore, retention, and failure recovery
 
 ## Stop Conditions

@@ -61,7 +61,8 @@
     "@beep/duckdb": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "yaml": "catalog:"
   },
   "devDependencies": {
     "@effect/platform-node": "catalog:",

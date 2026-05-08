@@ -5,11 +5,11 @@
     "title": "AI Metrics Stack",
     "status": "active",
     "created": "2026-05-05",
-    "updated": "2026-05-06",
+    "updated": "2026-05-07",
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P3",
+  "currentTargetPhase": "P6",
   "completionEvidence": "dankserver deployment plus one seven-day real-data config-impact scorecard",
   "targets": {
     "production": "dankserver",
@@ -53,25 +53,39 @@
     {
       "id": "P3",
       "name": "OTLP And Backend Stack",
-      "status": "pending",
+      "status": "completed",
       "output": "history/outputs/p3-otlp-and-backend-stack.md"
     },
     {
       "id": "P4",
       "name": "Scorecards Labels And Benchmarks",
-      "status": "pending",
+      "status": "completed",
       "output": "history/outputs/p4-scorecards-labels-and-benchmarks.md"
     },
     {
       "id": "P5",
       "name": "Install And Remote Deployment",
-      "status": "pending",
-      "output": "history/outputs/p5-install-and-remote-deployment.md"
+      "status": "in_progress",
+      "output": "history/outputs/p5a-operator-contract-and-dry-run-apply.md",
+      "subphases": [
+        {
+          "id": "P5a",
+          "name": "Operator Contract And Dry-Run Apply",
+          "status": "completed",
+          "output": "history/outputs/p5a-operator-contract-and-dry-run-apply.md"
+        },
+        {
+          "id": "P5b",
+          "name": "Real Pulumi Remote Apply",
+          "status": "in_progress",
+          "output": "history/outputs/p5b-real-pulumi-remote-apply.md"
+        }
+      ]
     },
     {
       "id": "P6",
       "name": "Seven-Day Proof And Hardening",
-      "status": "pending",
+      "status": "in_progress",
       "output": "history/outputs/p6-seven-day-proof-and-hardening.md"
     }
   ],
@@ -110,11 +124,13 @@
     }
   ],
   "knownGaps": [
-    "Phoenix and optional LiteLLM deployment are not yet applied on dankserver",
-    "CLI label review and weekly report generation are not implemented",
-    "OTLP export and backend adapter contracts are not implemented",
+    "P5b Phoenix is live and verified on dankserver, but Pulumi state reconciliation is blocked until PULUMI_CONFIG_PASSPHRASE or PULUMI_CONFIG_PASSPHRASE_FILE is present",
+    "P6 needs seven days of live collection before the completion scorecard can be credited",
+    "Real outcome labels and benchmark runs still need to be added for the live tasks collected during the proof window",
+    "Backup, restore, retention, and failure recovery documentation remains pending",
+    "Optional LiteLLM deployment remains deferred beyond the Phoenix-only P5b slice",
     "xAI, Venice, LiteLLM, and gateway enrichment remain deferred beyond P2",
     "raw archive decrypt tooling is intentionally not exposed in P2"
   ],
-  "nextAction": "Implement P3 OTLP export and backend stack contracts."
+  "nextAction": "Keep the P6 live collector running for seven days, add outcome labels and benchmark runs for real tasks, document backup/restore/retention, and reconcile Pulumi state from a shell with the Pulumi passphrase environment."
 }

@@ -1,7 +1,12 @@
 # AI Metrics Stack Plan
 
-This plan executes [SPEC.md](./SPEC.md). The current target phase is P3 because
-P0 bootstrap, P1 source/privacy proof, and P2 durable ingest are complete.
+This plan executes [SPEC.md](./SPEC.md). The current target phase is P6 because
+P0 bootstrap, P1 source/privacy proof, P2 durable ingest, P3 OTLP/backend
+contracts, P4 report-first scorecards, and the P5a operator contract are
+complete. P5b implementation is in place, Phoenix is live on dankserver, the
+AI metrics 1Password refs resolve, and the first real redacted forwarder plus
+OTLP export has reached Phoenix. Pulumi state reconciliation still needs a
+shell with the Pulumi passphrase environment.
 
 ## P0: Initiative Bootstrap And Current State
 
@@ -55,46 +60,79 @@ Status: completed
 
 ## P3: OTLP And Backend Stack
 
-Status: pending
+Status: completed
 
 - Use core Effect `Metric`, `Tracer`, `Logger`, `LogLevel`, `ErrorReporter`,
   `Clock`, and `Redacted` APIs as the instrumentation vocabulary.
-- Export through stable `@effect/opentelemetry/NodeSdk.layer` for v1.
+- Export through stable `@effect/opentelemetry/NodeSdk.layer` for v1, with a
+  trace-only `@beep/observability` Node SDK helper using protobuf OTLP HTTP
+  exporters for Phoenix smoke targets.
 - Keep `effect/unstable/observability` and `effect/unstable/devtools` as later
   or experimental references.
-- Deploy Phoenix as the default UI and keep Langfuse, Opik, and PostHog behind
-  adapter contracts.
+- Added generated local Phoenix compose smoke target and kept Langfuse, Opik,
+  and PostHog behind install/export contracts instead of backend-specific
+  drivers.
 - Add low-cardinality OTLP attribute policy for agent, source, provider, model,
   config snapshot, and outcome labels.
+- Added redacted derived DuckDB to OTLP span projection and CLI export workflow.
+- Recorded evidence in
+  [history/outputs/p3-otlp-and-backend-stack.md](./history/outputs/p3-otlp-and-backend-stack.md).
 
 ## P4: Scorecards, Labels, And Benchmarks
 
-Status: pending
+Status: completed
 
-- Add `ai-metrics label review` for quick human labels on recent sessions and
-  tasks.
-- Add curated benchmark cases that can run against named config snapshots.
-- Compare real sessions and benchmark runs with the outcome-heavy score model.
-- Generate a weekly config-impact report from derived tables.
+- Added deterministic `AgentTask` projection rows linked to sessions through
+  hash-only deploy-safe metadata.
+- Added scriptable `ai-metrics label queue` and `label add` workflows with
+  structured labels, redacted notes, and config-snapshot attribution.
+- Added deploy-safe benchmark case and recorded run workflows linked to config
+  snapshots without storing prompt text in derived tables.
+- Added `ai-metrics report weekly` to generate Markdown and JSON weekly
+  config-impact reports from derived DuckDB tables.
+- Recorded evidence in
+  [history/outputs/p4-scorecards-labels-and-benchmarks.md](./history/outputs/p4-scorecards-labels-and-benchmarks.md).
 
 ## P5: Install And Remote Deployment
 
-Status: pending
+Status: in progress
 
-- Expand `ai-metrics install` into `plan`, `doctor`, and `apply` workflows.
-- Use `@beep/infra` and Pulumi remote apply to configure dankserver storage,
-  services, tailnet-only routing, Phoenix, optional LiteLLM gateway, and health
-  checks.
+- P5a completed: added typed install plan, install doctor, and dry-run apply
+  contracts plus CLI workflows. Recorded evidence in
+  [history/outputs/p5a-operator-contract-and-dry-run-apply.md](./history/outputs/p5a-operator-contract-and-dry-run-apply.md).
+- P5b implementation complete: `@beep/infra` now uses Pulumi remote command
+  resources to preflight dankserver, render the Phoenix compose and user
+  systemd unit, configure dedicated Tailscale Serve HTTPS on port `8447`, and
+  run health checks. Recorded evidence in
+  [history/outputs/p5b-real-pulumi-remote-apply.md](./history/outputs/p5b-real-pulumi-remote-apply.md).
+- P5b live deployment completed over SSH using the same remote commands the
+  Pulumi component owns. Phoenix is verified at
+  `https://dankserver.tailc7c348.ts.net:8447`.
+- The AI metrics 1Password refs now resolve at
+  `op://TBK/ai-metrics/hash-salt` and
+  `op://TBK/ai-metrics/raw-archive-key`.
+- The first live forwarder run wrote encrypted raw archive metadata, derived
+  DuckDB/Parquet state, and redacted OTLP traces. Recorded evidence in
+  [history/outputs/p6-seven-day-proof-and-hardening.md](./history/outputs/p6-seven-day-proof-and-hardening.md).
+- P5b Pulumi state reconciliation remains pending:
+  `pulumi preview --stack beep-ai-metrics-dankserver` currently stops before
+  provider runtime because this shell does not have
+  `PULUMI_CONFIG_PASSPHRASE` or `PULUMI_CONFIG_PASSPHRASE_FILE`.
 - Preserve local as the repeatable smoke target.
 
 ## P6: Seven-Day Proof And Hardening
 
-Status: pending
+Status: in progress
 
-- Run live collection for seven days.
-- Generate the first weekly scorecard from real data.
-- Verify raw archive, derived DuckDB/Parquet tables, OTLP traces, labels,
-  benchmarks, and dashboard views.
+- Run live collection for seven days. The first real collection/export proof is
+  complete; the seven-day window is now the active proof target.
+- Generate the first weekly scorecard from real data. A baseline report exists
+  with expected `no_labels`, `no_benchmark_runs`, and sparse
+  model/tool-coverage gaps.
+- Verify raw archive, derived DuckDB/Parquet tables, OTLP traces, label queue,
+  baseline report, and Phoenix dashboard data.
+- Add outcome labels and benchmark runs for real tasks during the seven-day
+  window.
 - Document backup, restore, retention, and failure recovery.
 
 ## Required Checks

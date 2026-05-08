@@ -277,6 +277,11 @@ const snapshotHashInput: (files: ReadonlyArray<AiMetricsConfigSnapshotFile>) => 
 /**
  * Build a deterministic snapshot of repo-owned agent-facing configuration.
  *
+ * @example
+ * ```ts
+ * import { makeAiMetricsConfigSnapshot } from "@beep/repo-ai-metrics"
+ * console.log(makeAiMetricsConfigSnapshot)
+ * ```
  * @category services
  * @since 0.0.0
  */
@@ -309,6 +314,11 @@ export const makeAiMetricsConfigSnapshot = Effect.fn("AiMetrics.makeAiMetricsCon
 /**
  * Render a config snapshot result as JSON.
  *
+ * @example
+ * ```ts
+ * import { configSnapshotToJson } from "@beep/repo-ai-metrics"
+ * console.log(configSnapshotToJson)
+ * ```
  * @category utilities
  * @since 0.0.0
  */

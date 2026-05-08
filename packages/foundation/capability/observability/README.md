@@ -23,6 +23,12 @@ The root entrypoint is browser-safe and only exports shared schemas and helpers.
 - Use `@beep/observability/experimental/server` for OTLP packet capture and devtools relay experiments.
 - Use `@beep/observability/web` for browser-safe OpenTelemetry setup.
 
+## Current Consumers
+
+- `@beep/repo-cli` uses phase profiling and AI metrics trace-only OTLP runtime wiring.
+- `@beep/sandbox` uses phase profiling for capability experiments.
+- `@beep/repo-ai-metrics` is the P3 semantic producer consumed through CLI/runtime wiring; AI metrics semantics remain in the tooling package while this package owns the reusable runtime signal layer.
+
 Example entrypoints live under [examples](./examples):
 
 - `examples/node-sdk-server.ts`

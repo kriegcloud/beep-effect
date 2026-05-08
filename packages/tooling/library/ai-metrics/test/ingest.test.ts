@@ -1,34 +1,60 @@
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import {
+  AiMetricsBenchmarkCaseInput,
+  AiMetricsBenchmarkRunInput,
   AiMetricsConfigSnapshotInput,
   AiMetricsDeployTarget,
   AiMetricsDerivedStorageWriteInput,
   AiMetricsDerivedTranscriptRecord,
   AiMetricsForwarderInput,
+  AiMetricsInstallDoctorInput,
   AiMetricsInstallInput,
+  AiMetricsLabelQueueInput,
+  AiMetricsOtlpExportInput,
+  AiMetricsOutcomeLabelInput,
   AiMetricsPrivacyMode,
+  AiMetricsQualityGateStatus,
   AiMetricsRawArchiveObject,
   AiMetricsSourceDiscoveryInput,
   AiMetricsTool,
   AiMetricsTranscriptSource,
+  AiMetricsWeeklyReportInput,
+  addAiMetricsOutcomeLabel,
+  aiMetricsInstallApplyDryRunToJson,
+  aiMetricsInstallDoctorToJson,
+  aiMetricsInstallPlanToJson,
   configSnapshotToJson,
   decryptEncryptedRawArchiveEnvelope,
   discoverAiMetricsSources,
   forwarderRunResultToJson,
+  generateAiMetricsWeeklyReport,
+  listAiMetricsBenchmarkCases,
   makeAiMetricsConfigSnapshot,
+  makeAiMetricsInstallApplyDryRunResult,
+  makeAiMetricsInstallDoctorResult,
+  makeAiMetricsInstallPlan,
   makeAiMetricsInstallSpec,
   makeAiMetricsPrivacyCheckResult,
+  otlpExportResultToJson,
   privacyCheckToJson,
+  queueAiMetricsLabels,
+  readAiMetricsOtlpSpanProjections,
   readEncryptedRawArchiveEnvelope,
+  recordAiMetricsBenchmarkRun,
+  renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
+  runAiMetricsOtlpExport,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
+  upsertAiMetricsBenchmarkCase,
   writeAiMetricsDerivedStorage,
 } from "@beep/repo-ai-metrics";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Encoding, FileSystem, Order, Path, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
@@ -57,6 +83,12 @@ const relativeSnapshotPaths = (files: ReadonlyArray<{ readonly relativePath: str
     files,
     A.map((file) => file.relativePath),
     A.sort(Order.String)
+  );
+
+const phoenixService = <A extends { readonly tool: string }>(spec: { readonly services: ReadonlyArray<A> }) =>
+  pipe(
+    spec.services,
+    A.findFirst((service) => service.tool === AiMetricsTool.Enum.phoenix)
   );
 
 describe("@beep/repo-ai-metrics", () => {
@@ -224,6 +256,7 @@ describe("@beep/repo-ai-metrics", () => {
             const baseInput = {
               configSnapshot: configSnapshot.snapshot,
               records: [record],
+              repoRootHash: "repo-root-hash",
               startedAtEpochMillis: 1,
               storage: installSpec.storage,
               target: AiMetricsDeployTarget.Enum.local,
@@ -265,14 +298,121 @@ describe("@beep/repo-ai-metrics", () => {
   );
 
   it.effect(
+    "records labels, benchmark results, and a weekly config-impact report without raw text",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const reportDir = path.join(dataRoot, "reports");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const rawArchiveKey = Redacted.make(Encoding.encodeBase64(new Uint8Array(32).fill(17)));
+
+          yield* writeText(
+            path.join(homeDir, ".codex/sessions/codex.jsonl"),
+            [
+              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private benchmark prompt"}',
+            ].join("\n")
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
+
+          yield* Effect.gen(function* () {
+            const forwarder = yield* runAiMetricsForwarder(
+              new AiMetricsForwarderInput({
+                codexSessionsRoot: path.join(homeDir, ".codex/sessions"),
+                dataRoot,
+                hashSalt: "test-salt",
+                homeDir,
+                includeAll: true,
+                rawArchiveKey,
+                repoRoot,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+            const queue = yield* queueAiMetricsLabels(
+              new AiMetricsLabelQueueInput({
+                limit: 10,
+                target: AiMetricsDeployTarget.Enum.local,
+                windowEndEpochMillis: 4_102_444_800_000,
+                windowStartEpochMillis: 0,
+              })
+            );
+            const firstTask = A.head(queue.items);
+            expect(O.isSome(firstTask)).toBe(true);
+            if (O.isNone(firstTask)) {
+              return;
+            }
+            const label = yield* addAiMetricsOutcomeLabel(
+              new AiMetricsOutcomeLabelInput({
+                agentTaskId: firstTask.value.agentTaskId,
+                followUpFix: false,
+                interventionCount: 1,
+                note: "OPENAI_API_KEY=secret-scorecard-fixture",
+                passed: true,
+                qualityGate: AiMetricsQualityGateStatus.Enum.passed,
+                rating: 5,
+              })
+            );
+            const benchmarkCase = yield* upsertAiMetricsBenchmarkCase(
+              new AiMetricsBenchmarkCaseInput({
+                benchmarkCaseId: "case-p4",
+                expectedChecks: ["bun run check"],
+                promptHash: "prompt-hash-only",
+                promptRef: "benchmarks/case-p4.md",
+                title: "P4 report proof",
+              })
+            );
+            const benchmarkRun = yield* recordAiMetricsBenchmarkRun(
+              new AiMetricsBenchmarkRunInput({
+                benchmarkCaseId: benchmarkCase.benchmarkCaseId,
+                configSnapshotId: forwarder.configSnapshotId,
+                elapsedMs: 1200,
+                note: "passed without raw prompt",
+                passed: true,
+                qualityGate: AiMetricsQualityGateStatus.Enum.passed,
+              })
+            );
+            const report = yield* generateAiMetricsWeeklyReport(
+              new AiMetricsWeeklyReportInput({
+                reportDir,
+                target: AiMetricsDeployTarget.Enum.local,
+                windowEndEpochMillis: 4_102_444_800_000,
+                windowStartEpochMillis: 0,
+              })
+            );
+            const listedCases = yield* listAiMetricsBenchmarkCases;
+            const reportJson = yield* fs.readFileString(report.jsonPath);
+            const reportMarkdown = yield* fs.readFileString(report.markdownPath);
+
+            expect(queue.items).toHaveLength(1);
+            expect(label.note).toContain("[REDACTED]");
+            expect(benchmarkRun.passed).toBe(true);
+            expect(listedCases.cases).toHaveLength(1);
+            expect(report.document.scores).toHaveLength(1);
+            expect(reportJson).toContain(forwarder.configSnapshotId);
+            expect(reportJson).not.toContain("private benchmark prompt");
+            expect(reportJson).not.toContain("secret-scorecard-fixture");
+            expect(reportJson).not.toContain(tmpDir);
+            expect(reportMarkdown).toContain("AI Metrics Weekly Config-Impact Report");
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
     "resolves the dankserver install target",
     Effect.fn(function* () {
       const spec = yield* makeAiMetricsInstallSpec(
         new AiMetricsInstallInput({
           defaultTool: AiMetricsTool.Enum.phoenix,
-          hashSaltSecretRef: "op://beep-effect/ai-metrics/hash-salt",
+          hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
           privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
-          rawArchiveKeySecretRef: "op://beep-effect/ai-metrics/raw-archive-key",
+          rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
           target: AiMetricsDeployTarget.Enum.dankserver,
         })
       );
@@ -286,7 +426,265 @@ describe("@beep/repo-ai-metrics", () => {
           A.map((service) => service.tool)
         )
       ).toEqual(["langfuse", "phoenix", "opik"]);
-      expect(spec.hashSaltSecretRef).toBe("op://beep-effect/ai-metrics/hash-salt");
+      const phoenix = phoenixService(spec);
+      expect(O.isSome(phoenix)).toBe(true);
+      if (O.isNone(phoenix)) {
+        return;
+      }
+      expect(phoenix.value.image).toBe("arizephoenix/phoenix:latest");
+      expect(phoenix.value.otlp.traceUrl).toBe("https://dankserver.tailc7c348.ts.net:8447/v1/traces");
+      expect(phoenix.value.publicUrl).toBe("https://dankserver.tailc7c348.ts.net:8447");
+      expect(spec.hashSaltSecretRef).toBe("op://TBK/ai-metrics/hash-salt");
+      expect(
+        pipe(
+          spec.plannedCommands,
+          A.some(
+            P.every([
+              Str.includes("ai-metrics otlp export --target dankserver"),
+              Str.includes("--data-root .beep/ai-metrics"),
+              Str.includes("--otlp-base-url https://dankserver.tailc7c348.ts.net:8447"),
+              Str.includes("--hash-salt-secret-ref op://TBK/ai-metrics/hash-salt"),
+              Str.includes("--raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key"),
+            ])
+          )
+        )
+      ).toBe(true);
+    })
+  );
+
+  it.effect(
+    "builds typed P5a install plan, doctor, and dry-run apply contracts",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const install = new AiMetricsInstallInput({
+            hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
+            rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
+            target: AiMetricsDeployTarget.Enum.dankserver,
+          });
+
+          yield* writeText(
+            path.join(homeDir, ".codex/sessions/2026/05/05/codex-session.jsonl"),
+            '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}\n'
+          );
+
+          const discovery = yield* discoverAiMetricsSources(
+            new AiMetricsSourceDiscoveryInput({
+              hashSalt: "test-salt",
+              homeDir,
+              includeAll: true,
+              repoRoot,
+              target: AiMetricsDeployTarget.Enum.local,
+            })
+          );
+          const plan = yield* makeAiMetricsInstallPlan(install);
+          const doctor = yield* makeAiMetricsInstallDoctorResult(
+            new AiMetricsInstallDoctorInput({
+              install,
+              sourceDiscovery: discovery,
+            })
+          );
+          const apply = yield* makeAiMetricsInstallApplyDryRunResult(install);
+          const planJson = yield* aiMetricsInstallPlanToJson(plan);
+          const doctorJson = yield* aiMetricsInstallDoctorToJson(doctor);
+          const applyJson = yield* aiMetricsInstallApplyDryRunToJson(apply);
+
+          expect(plan.dryRunOnly).toBe(true);
+          expect(plan.steps).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                command: "cd infra && pulumi preview --stack beep-ai-metrics-dankserver",
+                stepId: "backend.phoenix.plan",
+              }),
+            ])
+          );
+          expect(doctor.status).toBe("warning");
+          expect(doctor.availableSourceCount).toBe(1);
+          expect(apply.dryRun).toBe(true);
+          expect(planJson).toContain("backend.phoenix.plan");
+          expect(doctorJson).toContain("sources.available");
+          expect(applyJson).toContain("CLI install apply is dry-run-only");
+          expect(planJson).not.toContain(tmpDir);
+          expect(doctorJson).not.toContain(tmpDir);
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "adds Phoenix OTLP contracts and renders a dedicated local compose file",
+    Effect.fn(function* () {
+      const spec = yield* makeAiMetricsInstallSpec();
+      const phoenix = phoenixService(spec);
+      expect(O.isSome(phoenix)).toBe(true);
+      if (O.isNone(phoenix)) {
+        return;
+      }
+      const compose = yield* renderAiMetricsLocalPhoenixCompose(spec);
+
+      expect(phoenix.value.internalUrl).toBe("http://127.0.0.1:6006");
+      expect(phoenix.value.otlp.traceUrl).toBe("http://127.0.0.1:6006/v1/traces");
+      expect(phoenix.value.otlp.signalScope).toBe("traces_only");
+      expect(compose).toBe(`name: beep-ai-metrics-local
+services:
+  ai-metrics-phoenix:
+    container_name: beep-ai-metrics-phoenix
+    environment:
+      PHOENIX_WORKING_DIR: /data
+    image: arizephoenix/phoenix:latest
+    ports:
+      - 127.0.0.1:6006:6006
+    restart: unless-stopped
+    volumes:
+      - phoenix_data:/data
+volumes:
+  phoenix_data: {}
+`);
+    })
+  );
+
+  it.effect(
+    "allows the Phoenix image to be overridden by the install input",
+    Effect.fn(function* () {
+      const spec = yield* makeAiMetricsInstallSpec(
+        new AiMetricsInstallInput({
+          phoenixImage: "arizephoenix/phoenix:latest-p5b",
+        })
+      );
+      const compose = yield* renderAiMetricsLocalPhoenixCompose(spec);
+
+      const phoenix = phoenixService(spec);
+      expect(O.isSome(phoenix)).toBe(true);
+      if (O.isNone(phoenix)) {
+        return;
+      }
+      expect(phoenix.value.image).toBe("arizephoenix/phoenix:latest-p5b");
+      expect(compose).toContain("image: arizephoenix/phoenix:latest-p5b");
+    })
+  );
+
+  it.effect(
+    "projects derived DuckDB rows into redacted OpenInference metadata spans",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const dataRoot = path.join(tmpDir, "metrics");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const sourcePath = path.join(tmpDir, "home/.claude/projects/repo/claude.jsonl");
+          const content = [
+            '{"type":"user","timestamp":"2026-05-05T10:00:00Z","message":{"content":"private-input"}}',
+            '{"type":"assistant","timestamp":"2026-05-05T10:00:30Z","message":{"content":"private-model-output"}}',
+            '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":{"content":"private-output"}}',
+          ].join("\n");
+
+          yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
+
+          yield* Effect.gen(function* () {
+            const summary = yield* summarizeTranscriptText({
+              content,
+              hashSalt: "test-salt",
+              sourceKind: AiMetricsTranscriptSource.Enum.claude,
+              sourcePath,
+            });
+            const privacy = yield* makeAiMetricsPrivacyCheckResult({
+              content,
+              hashSalt: "test-salt",
+              sourcePath,
+              summary,
+            });
+            const installSpec = yield* makeAiMetricsInstallSpec(
+              new AiMetricsInstallInput({
+                dataRoot,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+            const configSnapshot = yield* makeAiMetricsConfigSnapshot(
+              new AiMetricsConfigSnapshotInput({
+                repoRoot: path.join(tmpDir, "repo"),
+              })
+            );
+            const record = new AiMetricsDerivedTranscriptRecord({
+              archiveObject: new AiMetricsRawArchiveObject({
+                algorithm: "AES-256-GCM",
+                archiveObjectId: "raw-content-addressed-object",
+                archivePath: path.join(dataRoot, "raw/codex/raw-content-addressed-object.json"),
+                created: true,
+                encryptedAtEpochMillis: 1,
+                plaintextContentHash: "plaintext-content-hash",
+                sourceKind: AiMetricsTranscriptSource.Enum.claude,
+                sourcePathHash: summary.sourcePathHash,
+              }),
+              privacy,
+            });
+            yield* writeAiMetricsDerivedStorage(
+              new AiMetricsDerivedStorageWriteInput({
+                configSnapshot: configSnapshot.snapshot,
+                ingestRunId: "forwarder-otlp",
+                records: [record],
+                repoRootHash: "repo-root-hash",
+                startedAtEpochMillis: 1,
+                storage: installSpec.storage,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+
+            const phoenix = phoenixService(installSpec);
+            expect(O.isSome(phoenix)).toBe(true);
+            if (O.isNone(phoenix)) {
+              return;
+            }
+            const input = new AiMetricsOtlpExportInput({
+              duckDbPath,
+              endpoint: phoenix.value.otlp,
+              ingestRunId: "latest",
+              target: AiMetricsDeployTarget.Enum.local,
+            });
+            const batch = yield* readAiMetricsOtlpSpanProjections(input);
+            const result = yield* runAiMetricsOtlpExport(input);
+            const json = yield* otlpExportResultToJson(result);
+
+            expect(batch.ingestRunId).toBe("forwarder-otlp");
+            expect(batch.sessionSpanCount).toBe(1);
+            expect(batch.turnSpanCount).toBe(3);
+            expect(batch.projections).toEqual(
+              expect.arrayContaining([
+                expect.objectContaining({
+                  attributes: expect.objectContaining({
+                    "openinference.span.kind": "AGENT",
+                  }),
+                  spanName: "ai_metrics.agent.session",
+                }),
+                expect.objectContaining({
+                  attributes: expect.objectContaining({
+                    "ai_metrics.event_name": "assistant",
+                    "openinference.span.kind": "LLM",
+                  }),
+                  spanName: "ai_metrics.agent.turn",
+                }),
+                expect.objectContaining({
+                  attributes: expect.objectContaining({
+                    "ai_metrics.event_name": "tool_result",
+                    "ai_metrics.tool_name": "tool_result",
+                    "openinference.span.kind": "TOOL",
+                    "tool.name": "tool_result",
+                  }),
+                  spanName: "ai_metrics.agent.turn",
+                }),
+              ])
+            );
+            expect(result.spanCount).toBe(4);
+            expect(json).toContain("forwarder-otlp");
+            expect(json).not.toContain("private-input");
+            expect(json).not.toContain("private-model-output");
+            expect(json).not.toContain("private-output");
+            expect(json).not.toContain(tmpDir);
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
     })
   );
 

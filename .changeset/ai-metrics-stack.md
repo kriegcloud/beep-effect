@@ -1,4 +1,6 @@
 ---
 ---
 
-Record the AI metrics stack foundation, install/deploy workflow wiring, source-ingest tooling, and related quality fixes without forcing package release bumps from this internal branch.
+Record the AI metrics stack deployment, local forwarder, OTLP export, and
+Phoenix proof as internal repo tooling work without forcing package release
+versions from this branch.

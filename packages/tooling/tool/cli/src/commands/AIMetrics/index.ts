@@ -7,7 +7,10 @@
 
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $RepoCliId } from "@beep/identity/packages";
+import { layerNodeSdkServerTraces, ServerObservabilityConfig } from "@beep/observability/server";
 import {
+  AiMetricsBenchmarkCaseInput,
+  AiMetricsBenchmarkRunInput,
   type AiMetricsConfigSnapshotError,
   AiMetricsConfigSnapshotInput,
   AiMetricsDeployTarget,
@@ -15,28 +18,74 @@ import {
   AiMetricsForwarderInput,
   type AiMetricsIngestError,
   type AiMetricsInstallConfigurationError,
+  AiMetricsInstallDoctorInput,
+  type AiMetricsInstallDoctorResult,
+  AiMetricsInstallDoctorStatus,
   AiMetricsInstallInput,
+  type AiMetricsInstallPlan,
   AiMetricsInstallSpec,
+  AiMetricsLabelQueueInput,
+  AiMetricsOtlpEndpointSpec,
+  type AiMetricsOtlpExportError,
+  AiMetricsOtlpExportInput,
+  AiMetricsOutcomeLabelInput,
   type AiMetricsPrivacyError,
   AiMetricsPrivacyMode,
+  AiMetricsQualityGateStatus,
+  type AiMetricsScorecardError,
   type AiMetricsSourceDiscoveryError,
   AiMetricsSourceDiscoveryInput,
   AiMetricsTool,
   AiMetricsTranscriptSource,
+  AiMetricsWeeklyReportInput,
+  addAiMetricsOutcomeLabel,
+  aiMetricsBenchmarkCaseListToJson,
+  aiMetricsBenchmarkCaseToJson,
+  aiMetricsBenchmarkRunToJson,
+  aiMetricsInstallApplyDryRunToJson,
+  aiMetricsInstallDoctorToJson,
+  aiMetricsInstallPlanToJson,
+  aiMetricsLabelQueueToJson,
+  aiMetricsOutcomeLabelToJson,
+  aiMetricsWeeklyReportToJson,
   configSnapshotToJson,
   discoverAiMetricsSources,
   forwarderRunResultToJson,
+  generateAiMetricsWeeklyReport,
+  listAiMetricsBenchmarkCases,
   makeAiMetricsConfigSnapshot,
+  makeAiMetricsInstallApplyDryRunResult,
+  makeAiMetricsInstallDoctorResult,
+  makeAiMetricsInstallPlan,
   makeAiMetricsInstallSpec,
   makeAiMetricsPrivacyCheckResult,
+  otlpExportResultToJson,
   privacyCheckToJson,
+  queueAiMetricsLabels,
+  recordAiMetricsBenchmarkRun,
+  renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
+  runAiMetricsOtlpExport,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
   summaryToJson,
+  upsertAiMetricsBenchmarkCase,
 } from "@beep/repo-ai-metrics";
 import { TaggedErrorClass } from "@beep/schema";
-import { Clock, Config, Console, Duration, Effect, FileSystem, Order, Path, pipe, Redacted } from "effect";
+import {
+  Clock,
+  Config,
+  Console,
+  DateTime,
+  Duration,
+  Effect,
+  FileSystem,
+  Layer,
+  Order,
+  Path,
+  pipe,
+  Redacted,
+} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -92,10 +141,47 @@ const toolFlag = Flag.choiceWithValue("tool", [
 ]).pipe(Flag.withDefault(AiMetricsTool.Enum.phoenix), Flag.withDescription("Default observability tool"));
 const caseFlag = Flag.string("case").pipe(Flag.withDescription("Benchmark case identifier"));
 const configFlag = Flag.string("config").pipe(Flag.withDescription("Config snapshot identifier"));
+const taskFlag = Flag.string("task").pipe(Flag.withDescription("AI metrics agent task identifier"));
+const titleFlag = Flag.string("title").pipe(Flag.withDescription("Human-readable benchmark case title"));
+const promptHashFlag = Flag.string("prompt-hash").pipe(Flag.withDescription("Hash of benchmark prompt content"));
+const promptRefFlag = Flag.string("prompt-ref").pipe(
+  Flag.withDescription("Optional reference to benchmark prompt content"),
+  Flag.optional
+);
+const checksFlag = Flag.string("checks").pipe(
+  Flag.withDefault(""),
+  Flag.withDescription("Comma-separated benchmark quality checks")
+);
+const ratingFlag = Flag.integer("rating").pipe(Flag.withDescription("Human rating from 1 to 5"));
+const interventionsFlag = Flag.integer("interventions").pipe(
+  Flag.withDefault(0),
+  Flag.withDescription("Human intervention count")
+);
+const elapsedMsFlag = Flag.integer("elapsed-ms").pipe(Flag.withDescription("Benchmark elapsed milliseconds"));
+const limitFlag = Flag.integer("limit").pipe(Flag.withDefault(20), Flag.withDescription("Maximum rows to return"));
+const passedValueFlag = Flag.choiceWithValue("passed", [
+  ["true", true],
+  ["false", false],
+]).pipe(Flag.withDescription("Whether the task or benchmark passed"));
+const followUpFixValueFlag = Flag.choiceWithValue("follow-up-fix", [
+  ["true", true],
+  ["false", false],
+]).pipe(Flag.withDefault(false), Flag.withDescription("Whether a follow-up fix or revert was needed"));
+const qualityGateFlag = Flag.choiceWithValue("quality-gate", [
+  ["passed", AiMetricsQualityGateStatus.Enum.passed],
+  ["failed", AiMetricsQualityGateStatus.Enum.failed],
+  ["not_run", AiMetricsQualityGateStatus.Enum.not_run],
+  ["unknown", AiMetricsQualityGateStatus.Enum.unknown],
+]).pipe(Flag.withDefault(AiMetricsQualityGateStatus.Enum.unknown), Flag.withDescription("Quality-gate outcome"));
+const noteFlag = Flag.string("note").pipe(Flag.withDescription("Optional redacted human note"), Flag.optional);
 const repoRootFlag = Flag.string("repo-root").pipe(Flag.withDescription("Repository root path"), Flag.optional);
 const homeDirFlag = Flag.string("home-dir").pipe(Flag.withDescription("Home directory to scan"), Flag.optional);
 const sinceFlag = Flag.string("since").pipe(
   Flag.withDescription("Only include files modified since this ISO timestamp or epoch milliseconds"),
+  Flag.optional
+);
+const untilFlag = Flag.string("until").pipe(
+  Flag.withDescription("Only include records before this ISO timestamp or epoch milliseconds"),
   Flag.optional
 );
 const allFlag = Flag.boolean("all").pipe(
@@ -121,6 +207,18 @@ const dataRootFlag = Flag.string("data-root").pipe(Flag.withDescription("AI metr
 const openClawUnitFlag = Flag.string("openclaw-unit").pipe(
   Flag.withDescription("OpenClaw user systemd unit path"),
   Flag.optional
+);
+const otlpFlag = Flag.boolean("otlp").pipe(Flag.withDescription("Enable explicit OTLP trace export for this command"));
+const dryRunFlag = Flag.boolean("dry-run").pipe(
+  Flag.withDescription("Preview install apply steps without changing local or remote state")
+);
+const otlpBaseUrlFlag = Flag.string("otlp-base-url").pipe(
+  Flag.withDescription("Override the install spec OTLP base URL"),
+  Flag.optional
+);
+const ingestRunFlag = Flag.string("ingest-run").pipe(
+  Flag.withDefault("latest"),
+  Flag.withDescription("Derived ingest run id to export, or latest")
 );
 
 const readInputFile = Effect.fn("AIMetrics.readInputFile")(function* (input: string) {
@@ -172,7 +270,9 @@ type AiMetricsProgramError =
   | AiMetricsForwarderError
   | AiMetricsIngestError
   | AiMetricsInstallConfigurationError
+  | AiMetricsOtlpExportError
   | AiMetricsPrivacyError
+  | AiMetricsScorecardError
   | AiMetricsSourceDiscoveryError;
 
 const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramError, R>): Effect.Effect<void, never, R> =>
@@ -194,11 +294,19 @@ const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramErro
         process.exitCode = 1;
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
+      AiMetricsOtlpExportError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`ai-metrics: ${error.message}`);
+      }),
       AiMetricsConfigSnapshotError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
       AiMetricsPrivacyError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`ai-metrics: ${error.message}`);
+      }),
+      AiMetricsScorecardError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
@@ -369,27 +477,120 @@ const requireRawArchiveKeySecretRefForTarget = Effect.fn("AIMetrics.requireRawAr
   }
 );
 
+const parseEpochMillisOption = (value: string): O.Option<number> => {
+  const trimmed = Str.trim(value);
+  const parsedEpoch = globalThis.Number(trimmed);
+  if (globalThis.Number.isFinite(parsedEpoch)) {
+    return O.some(parsedEpoch);
+  }
+
+  return pipe(DateTime.make(trimmed), O.map(DateTime.toEpochMillis));
+};
+
 const parseSinceEpochMillis = Effect.fn("AIMetrics.parseSinceEpochMillis")(function* (since: O.Option<string>) {
   if (O.isNone(since)) {
     const now = yield* Clock.currentTimeMillis;
     return now - Duration.toMillis(Duration.days(7));
   }
 
-  const trimmed = Str.trim(since.value);
-  const parsedEpoch = globalThis.Number(trimmed);
-  if (globalThis.Number.isFinite(parsedEpoch)) {
-    return parsedEpoch;
-  }
-
-  const parsedDate = globalThis.Date.parse(trimmed);
-  if (globalThis.Number.isFinite(parsedDate)) {
-    return parsedDate;
+  const parsed = parseEpochMillisOption(since.value);
+  if (O.isSome(parsed)) {
+    return parsed.value;
   }
 
   return yield* new AiMetricsCommandError({
     cause: since.value,
     message: `Invalid --since value "${since.value}". Use an ISO timestamp or epoch milliseconds.`,
   });
+});
+
+const parseOptionalEpochMillis = Effect.fn("AIMetrics.parseOptionalEpochMillis")(function* (
+  flagName: string,
+  value: O.Option<string>
+) {
+  if (O.isNone(value)) {
+    return O.none<number>();
+  }
+
+  const parsed = parseEpochMillisOption(value.value);
+  if (O.isSome(parsed)) return parsed;
+
+  return yield* new AiMetricsCommandError({
+    cause: value.value,
+    message: `Invalid --${flagName} value "${value.value}". Use an ISO timestamp or epoch milliseconds.`,
+  });
+});
+
+const parseWindow = Effect.fn("AIMetrics.parseWindow")(function* ({
+  since,
+  until,
+}: {
+  readonly since: O.Option<string>;
+  readonly until: O.Option<string>;
+}) {
+  const end = yield* parseOptionalEpochMillis("until", until);
+  const windowEndEpochMillis = O.isSome(end) ? end.value : yield* Clock.currentTimeMillis;
+  const start = yield* parseOptionalEpochMillis("since", since);
+  const windowStartEpochMillis = O.isSome(start)
+    ? start.value
+    : windowEndEpochMillis - Duration.toMillis(Duration.days(7));
+
+  if (windowStartEpochMillis < windowEndEpochMillis) {
+    return { windowEndEpochMillis, windowStartEpochMillis };
+  }
+
+  return yield* new AiMetricsCommandError({
+    cause: { windowEndEpochMillis, windowStartEpochMillis },
+    message: "AI metrics report windows require --since to be before --until.",
+  });
+});
+
+const parseChecks = (checks: string): ReadonlyArray<string> =>
+  pipe(Str.split(checks, ","), A.map(Str.trim), A.filter(Str.isNonEmpty));
+
+const makeCommandInstallInput = Effect.fn("AIMetrics.makeCommandInstallInput")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  rawArchiveKeySecretRef,
+  target,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const resolvedDataRoot = O.getOrUndefined(dataRoot);
+  const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
+    hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
+    target,
+  });
+  const resolvedRawArchiveKeySecretRef = yield* requireRawArchiveKeySecretRefForTarget({
+    rawArchiveKeySecretRef: yield* resolveRawArchiveKeySecretRef(rawArchiveKeySecretRef),
+    target,
+  });
+
+  return new AiMetricsInstallInput({
+    ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
+    ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+    ...(resolvedRawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+    target,
+  });
+});
+
+const makeCommandInstallSpec = Effect.fn("AIMetrics.makeCommandInstallSpec")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  rawArchiveKeySecretRef,
+  target,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  return yield* makeAiMetricsInstallSpec(
+    yield* makeCommandInstallInput({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target })
+  );
 });
 
 const renderInstallSpec = Effect.fn("AIMetrics.renderInstallSpec")(function* (
@@ -410,6 +611,53 @@ const renderInstallSpec = Effect.fn("AIMetrics.renderInstallSpec")(function* (
   yield* Console.log(`privacy: ${spec.privacyMode}`);
   yield* Console.log(`default tool: ${spec.defaultTool}`);
 });
+
+const defaultServiceEndpoint = Effect.fn("AIMetrics.defaultServiceEndpoint")(function* (
+  spec: AiMetricsInstallSpec,
+  otlpBaseUrl: O.Option<string>
+) {
+  const service = pipe(
+    spec.services,
+    A.findFirst((candidate) => candidate.enabledByDefault)
+  );
+
+  if (O.isNone(service)) {
+    return yield* new AiMetricsCommandError({
+      cause: spec.defaultTool,
+      message: "AI metrics install spec does not contain an enabled backend service.",
+    });
+  }
+
+  if (O.isNone(otlpBaseUrl)) {
+    return service.value.otlp;
+  }
+
+  const baseUrl = pipe(otlpBaseUrl.value, Str.replace(/\/+$/u, ""));
+  return new AiMetricsOtlpEndpointSpec({
+    baseUrl,
+    protocol: service.value.otlp.protocol,
+    resourceAttributes: service.value.otlp.resourceAttributes,
+    signalScope: service.value.otlp.signalScope,
+    traceUrl: `${baseUrl}/v1/traces`,
+  });
+});
+
+const serverObservabilityConfigFor = (
+  target: AiMetricsDeployTarget,
+  endpoint: AiMetricsOtlpEndpointSpec
+): ServerObservabilityConfig =>
+  new ServerObservabilityConfig({
+    devtoolsEnabled: false,
+    devtoolsUrl: "ws://localhost:34437",
+    environment: target,
+    minLogLevel: "Info",
+    otlpBaseUrl: endpoint.baseUrl,
+    otlpEnabled: true,
+    otlpResourceAttributes: endpoint.resourceAttributes,
+    prometheusPrefix: "beep_ai_metrics",
+    serviceName: "beep-ai-metrics",
+    serviceVersion: "0.0.0",
+  });
 
 const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram")(function* ({
   hashSaltSecretRef,
@@ -445,6 +693,182 @@ const makeInstallPreviewProgram = Effect.fn("AIMetrics.makeInstallPreviewProgram
   );
 
   yield* renderInstallSpec(spec, json);
+});
+
+const makeInstallComposeProgram = Effect.fn("AIMetrics.makeInstallComposeProgram")(function* ({
+  json,
+  target,
+  tool,
+}: {
+  readonly json: boolean;
+  readonly target: AiMetricsDeployTarget;
+  readonly tool: AiMetricsTool;
+}) {
+  const spec = yield* makeAiMetricsInstallSpec(
+    new AiMetricsInstallInput({
+      defaultTool: tool,
+      privacyMode: AiMetricsPrivacyMode.Enum.encrypted_raw_redacted_ui,
+      target,
+    })
+  );
+  const compose = yield* renderAiMetricsLocalPhoenixCompose(spec);
+
+  if (json) {
+    yield* Console.log(
+      yield* encodeCommandJson({
+        compose,
+        target,
+        tool,
+      })
+    );
+    return;
+  }
+
+  yield* Console.log(compose);
+});
+
+const renderInstallPlan = Effect.fn("AIMetrics.renderInstallPlan")(function* (
+  plan: AiMetricsInstallPlan,
+  json: boolean
+) {
+  if (json) {
+    yield* Console.log(yield* aiMetricsInstallPlanToJson(plan));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics install plan: target=${plan.target}`);
+  yield* Console.log(`stack: ${plan.stackName}`);
+  yield* Console.log(`dry-run-only: ${plan.dryRunOnly}`);
+  for (const step of plan.steps) {
+    yield* Console.log(`${step.order}. ${step.stepId}: ${step.command}`);
+  }
+});
+
+const makeInstallPlanProgram = Effect.fn("AIMetrics.makeInstallPlanProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  target,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const input = yield* makeCommandInstallInput({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const plan = yield* makeAiMetricsInstallPlan(input);
+  yield* renderInstallPlan(plan, json);
+});
+
+const renderInstallDoctor = Effect.fn("AIMetrics.renderInstallDoctor")(function* (
+  result: AiMetricsInstallDoctorResult,
+  json: boolean
+) {
+  if (json) {
+    yield* Console.log(yield* aiMetricsInstallDoctorToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics install doctor: target=${result.target} status=${result.status}`);
+  yield* Console.log(`available sources: ${result.availableSourceCount}`);
+  for (const check of result.checks) {
+    yield* Console.log(`${check.status} ${check.checkId}: ${check.message}`);
+  }
+});
+
+const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")(function* ({
+  all,
+  dataRoot,
+  hashSalt,
+  hashSaltSecretRef,
+  homeDir,
+  json,
+  maxFiles,
+  openClawUnit,
+  rawArchiveKeySecretRef,
+  repoRoot,
+  since,
+  target,
+}: {
+  readonly all: boolean;
+  readonly dataRoot: O.Option<string>;
+  readonly hashSalt: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly homeDir: O.Option<string>;
+  readonly json: boolean;
+  readonly maxFiles: number;
+  readonly openClawUnit: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly repoRoot: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const install = yield* makeCommandInstallInput({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const resolvedHashSalt = yield* resolveHashSalt(hashSalt);
+  const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
+  const sourceDiscovery = yield* discoverAiMetricsSources(
+    new AiMetricsSourceDiscoveryInput({
+      homeDir: yield* resolveHomeDir(homeDir),
+      includeAll: all,
+      maxFiles,
+      repoRoot: yield* resolveRepoRoot(repoRoot),
+      target: AiMetricsDeployTarget.Enum.local,
+      ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
+      ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
+      ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
+    })
+  );
+  const result = yield* makeAiMetricsInstallDoctorResult(
+    new AiMetricsInstallDoctorInput({
+      install,
+      sourceDiscovery,
+    })
+  );
+
+  yield* renderInstallDoctor(result, json);
+  if (result.status === AiMetricsInstallDoctorStatus.Enum.failed) {
+    process.exitCode = 1;
+  }
+});
+
+const makeInstallApplyProgram = Effect.fn("AIMetrics.makeInstallApplyProgram")(function* ({
+  dataRoot,
+  dryRun,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  target,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly dryRun: boolean;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  if (!dryRun) {
+    return yield* new AiMetricsCommandError({
+      cause: "install apply",
+      message:
+        "AI metrics CLI install apply is dry-run-only. Pass --dry-run; real dankserver mutation is owned by the Pulumi P5b stack.",
+    });
+  }
+
+  const input = yield* makeCommandInstallInput({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const result = yield* makeAiMetricsInstallApplyDryRunResult(input);
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsInstallApplyDryRunToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics install apply: target=${result.target} dry-run=${result.dryRun}`);
+  yield* Console.log(result.message);
+  for (const step of result.plan.steps) {
+    yield* Console.log(`${step.order}. ${step.stepId}: ${step.command}`);
+  }
 });
 
 const makeIngestProgram = Effect.fn("AIMetrics.makeIngestProgram")(function* ({
@@ -684,6 +1108,8 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   json,
   maxFiles,
   openClawUnit,
+  otlp,
+  otlpBaseUrl,
   rawArchiveKeySecretRef,
   repoRoot,
   since,
@@ -697,6 +1123,8 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   readonly json: boolean;
   readonly maxFiles: number;
   readonly openClawUnit: O.Option<string>;
+  readonly otlp: boolean;
+  readonly otlpBaseUrl: O.Option<string>;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly repoRoot: O.Option<string>;
   readonly since: O.Option<string>;
@@ -727,7 +1155,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   );
   const resolvedRawArchiveKey = yield* resolveRawArchiveKey();
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
-  const result = yield* runAiMetricsForwarder(
+  const forwarderEffect = runAiMetricsForwarder(
     new AiMetricsForwarderInput({
       ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
       ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
@@ -748,6 +1176,16 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     // @effect-diagnostics-next-line strictEffectProvide:off
     Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
   );
+  const result = otlp
+    ? yield* forwarderEffect.pipe(
+        // @effect-diagnostics-next-line strictEffectProvide:off
+        Effect.provide(
+          layerNodeSdkServerTraces(
+            serverObservabilityConfigFor(target, yield* defaultServiceEndpoint(spec, otlpBaseUrl))
+          )
+        )
+      )
+    : yield* forwarderEffect;
 
   if (json) {
     yield* Console.log(yield* forwarderRunResultToJson(result));
@@ -766,29 +1204,122 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   yield* Console.log(`parquet export: ${parquetLocation}`);
 });
 
-const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(function* ({
-  caseId,
-  configSnapshotId,
+const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  ingestRunId,
   json,
+  otlpBaseUrl,
+  rawArchiveKeySecretRef,
+  target,
 }: {
-  readonly caseId: string;
-  readonly configSnapshotId: string;
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly ingestRunId: string;
   readonly json: boolean;
+  readonly otlpBaseUrl: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
 }) {
-  const line = `benchmark=${caseId} config=${configSnapshotId} score-model=outcome-heavy`;
+  const resolvedDataRoot = O.getOrUndefined(dataRoot);
+  const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
+    hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
+    target,
+  });
+  const resolvedRawArchiveKeySecretRef = yield* requireRawArchiveKeySecretRefForTarget({
+    rawArchiveKeySecretRef: yield* resolveRawArchiveKeySecretRef(rawArchiveKeySecretRef),
+    target,
+  });
+  const spec = yield* makeAiMetricsInstallSpec(
+    new AiMetricsInstallInput({
+      ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
+      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+      ...(resolvedRawArchiveKeySecretRef === undefined
+        ? {}
+        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+      target,
+    })
+  );
+  const endpoint = yield* defaultServiceEndpoint(spec, otlpBaseUrl);
+  const result = yield* runAiMetricsOtlpExport(
+    new AiMetricsOtlpExportInput({
+      duckDbPath: spec.storage.duckDbPath,
+      endpoint,
+      ingestRunId,
+      target,
+    })
+  ).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(
+      Layer.mergeAll(
+        DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })),
+        layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint))
+      )
+    )
+  );
 
   if (json) {
-    yield* Console.log(
-      yield* encodeCommandJson({
-        benchmarkCaseId: caseId,
-        configSnapshotId,
-        scoreModel: "outcome-heavy",
-      })
-    );
+    yield* Console.log(yield* otlpExportResultToJson(result));
     return;
   }
 
-  yield* Console.log(`ai-metrics benchmark run: ${line}`);
+  yield* Console.log(`ai-metrics otlp export: target=${target}`);
+  yield* Console.log(`ingest run: ${result.ingestRunId}`);
+  yield* Console.log(`spans: ${result.spanCount}`);
+  yield* Console.log(`sessions: ${result.sessionSpanCount}`);
+  yield* Console.log(`turns: ${result.turnSpanCount}`);
+  yield* Console.log(`trace endpoint: ${result.endpointTraceUrl}`);
+});
+
+const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(function* ({
+  caseId,
+  configSnapshotId,
+  dataRoot,
+  elapsedMs,
+  hashSaltSecretRef,
+  json,
+  note,
+  passed,
+  qualityGate,
+  rawArchiveKeySecretRef,
+  target,
+}: {
+  readonly caseId: string;
+  readonly configSnapshotId: string;
+  readonly dataRoot: O.Option<string>;
+  readonly elapsedMs: number;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly note: O.Option<string>;
+  readonly passed: boolean;
+  readonly qualityGate: AiMetricsQualityGateStatus;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const result = yield* recordAiMetricsBenchmarkRun(
+    new AiMetricsBenchmarkRunInput({
+      benchmarkCaseId: caseId,
+      configSnapshotId,
+      elapsedMs,
+      passed,
+      qualityGate,
+      ...(O.isSome(note) ? { note: note.value } : {}),
+    })
+  ).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  );
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsBenchmarkRunToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics benchmark run: ${result.benchmarkRunId}`);
+  yield* Console.log(`case: ${result.benchmarkCaseId}`);
+  yield* Console.log(`config: ${result.configSnapshotId}`);
+  yield* Console.log(`passed: ${result.passed}`);
 });
 
 const makeBenchmarkCompareProgram = Effect.fn("AIMetrics.makeBenchmarkCompareProgram")(function* ({
@@ -804,6 +1335,223 @@ const makeBenchmarkCompareProgram = Effect.fn("AIMetrics.makeBenchmarkComparePro
   yield* Console.log("ai-metrics benchmark compare: outcome-heavy scorecard ready for derived run tables");
 });
 
+const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  limit,
+  rawArchiveKeySecretRef,
+  since,
+  target,
+  until,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly limit: number;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+  readonly until: O.Option<string>;
+}) {
+  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const window = yield* parseWindow({ since, until });
+  const result = yield* queueAiMetricsLabels(
+    new AiMetricsLabelQueueInput({
+      limit,
+      target,
+      windowEndEpochMillis: window.windowEndEpochMillis,
+      windowStartEpochMillis: window.windowStartEpochMillis,
+    })
+  ).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  );
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsLabelQueueToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics label queue: target=${target}`);
+  yield* Console.log(`items: ${A.length(result.items)}`);
+  for (const item of result.items) {
+    yield* Console.log(`${item.agentTaskId} config=${item.configSnapshotId} turns=${item.turnCount}`);
+  }
+});
+
+const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function* ({
+  dataRoot,
+  followUpFix,
+  hashSaltSecretRef,
+  interventions,
+  json,
+  note,
+  passed,
+  qualityGate,
+  rating,
+  rawArchiveKeySecretRef,
+  target,
+  taskId,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly followUpFix: boolean;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly interventions: number;
+  readonly json: boolean;
+  readonly note: O.Option<string>;
+  readonly passed: boolean;
+  readonly qualityGate: AiMetricsQualityGateStatus;
+  readonly rating: number;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+  readonly taskId: string;
+}) {
+  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const result = yield* addAiMetricsOutcomeLabel(
+    new AiMetricsOutcomeLabelInput({
+      agentTaskId: taskId,
+      followUpFix,
+      interventionCount: interventions,
+      passed,
+      qualityGate,
+      rating,
+      ...(O.isSome(note) ? { note: note.value } : {}),
+    })
+  ).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  );
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsOutcomeLabelToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics label add: ${result.labelId}`);
+  yield* Console.log(`task: ${result.agentTaskId}`);
+  yield* Console.log(`passed: ${result.passed}`);
+});
+
+const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddProgram")(function* ({
+  caseId,
+  checks,
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  promptHash,
+  promptRef,
+  rawArchiveKeySecretRef,
+  target,
+  title,
+}: {
+  readonly caseId: string;
+  readonly checks: string;
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly promptHash: string;
+  readonly promptRef: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+  readonly title: string;
+}) {
+  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const result = yield* upsertAiMetricsBenchmarkCase(
+    new AiMetricsBenchmarkCaseInput({
+      benchmarkCaseId: caseId,
+      expectedChecks: parseChecks(checks),
+      promptHash,
+      title,
+      ...(O.isSome(promptRef) ? { promptRef: promptRef.value } : {}),
+    })
+  ).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  );
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsBenchmarkCaseToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics benchmark case add: ${result.benchmarkCaseId}`);
+  yield* Console.log(`checks: ${A.length(result.expectedChecks)}`);
+});
+
+const makeBenchmarkCaseListProgram = Effect.fn("AIMetrics.makeBenchmarkCaseListProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  target,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const result = yield* listAiMetricsBenchmarkCases.pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  );
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsBenchmarkCaseListToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics benchmark case list: ${A.length(result.cases)}`);
+  for (const benchmarkCase of result.cases) {
+    yield* Console.log(`${benchmarkCase.benchmarkCaseId}: ${benchmarkCase.title}`);
+  }
+});
+
+const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  since,
+  target,
+  until,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+  readonly until: O.Option<string>;
+}) {
+  const path = yield* Path.Path;
+  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const window = yield* parseWindow({ since, until });
+  const result = yield* generateAiMetricsWeeklyReport(
+    new AiMetricsWeeklyReportInput({
+      reportDir: path.join(spec.storage.dataRoot, "reports"),
+      target,
+      windowEndEpochMillis: window.windowEndEpochMillis,
+      windowStartEpochMillis: window.windowStartEpochMillis,
+    })
+  ).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  );
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsWeeklyReportToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics report weekly: target=${target}`);
+  yield* Console.log(`scorecards: ${A.length(result.document.scores)}`);
+  yield* Console.log(`markdown: ${result.markdownPath}`);
+  yield* Console.log(`json: ${result.jsonPath}`);
+});
+
 const installPreviewCommand = Command.make(
   "preview",
   {
@@ -816,6 +1564,93 @@ const installPreviewCommand = Command.make(
   ({ hashSaltSecretRef, json, rawArchiveKeySecretRef, target, tool }) =>
     runAiMetricsProgram(makeInstallPreviewProgram({ hashSaltSecretRef, json, rawArchiveKeySecretRef, target, tool }))
 ).pipe(Command.withDescription("Preview the target-agnostic AI metrics install spec"));
+
+const installPlanCommand = Command.make(
+  "plan",
+  {
+    dataRoot: dataRootFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    json: jsonFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    target: targetFlag,
+  },
+  ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
+    runAiMetricsProgram(makeInstallPlanProgram({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }))
+).pipe(Command.withDescription("Render the typed P5a AI metrics install plan"));
+
+const installDoctorCommand = Command.make(
+  "doctor",
+  {
+    all: allFlag,
+    dataRoot: dataRootFlag,
+    hashSalt: hashSaltFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    homeDir: homeDirFlag,
+    json: jsonFlag,
+    maxFiles: maxFilesFlag,
+    openClawUnit: openClawUnitFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    repoRoot: repoRootFlag,
+    since: sinceFlag,
+    target: targetFlag,
+  },
+  ({
+    all,
+    dataRoot,
+    hashSalt,
+    hashSaltSecretRef,
+    homeDir,
+    json,
+    maxFiles,
+    openClawUnit,
+    rawArchiveKeySecretRef,
+    repoRoot,
+    since,
+    target,
+  }) =>
+    runAiMetricsProgram(
+      makeInstallDoctorProgram({
+        all,
+        dataRoot,
+        hashSalt,
+        hashSaltSecretRef,
+        homeDir,
+        json,
+        maxFiles,
+        openClawUnit,
+        rawArchiveKeySecretRef,
+        repoRoot,
+        since,
+        target,
+      })
+    )
+).pipe(Command.withDescription("Validate the P5a AI metrics install contract without resolving secrets or SSH"));
+
+const installApplyCommand = Command.make(
+  "apply",
+  {
+    dataRoot: dataRootFlag,
+    dryRun: dryRunFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    json: jsonFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    target: targetFlag,
+  },
+  ({ dataRoot, dryRun, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
+    runAiMetricsProgram(
+      makeInstallApplyProgram({ dataRoot, dryRun, hashSaltSecretRef, json, rawArchiveKeySecretRef, target })
+    )
+).pipe(Command.withDescription("Dry-run the P5a AI metrics install apply workflow"));
+
+const installComposeCommand = Command.make(
+  "compose",
+  {
+    json: jsonFlag,
+    target: targetFlag,
+    tool: toolFlag,
+  },
+  ({ json, target, tool }) => runAiMetricsProgram(makeInstallComposeProgram({ json, target, tool }))
+).pipe(Command.withDescription("Render the dedicated local Phoenix compose smoke target"));
 
 const ingestCommand = Command.make(
   "ingest",
@@ -908,9 +1743,22 @@ const installCommand = Command.make(
   Effect.fn(function* () {
     yield* Console.log("AI metrics install commands:");
     yield* Console.log("- bun run beep ai-metrics install preview --target local");
+    yield* Console.log("- bun run beep ai-metrics install plan --target local");
+    yield* Console.log("- bun run beep ai-metrics install doctor --target local");
+    yield* Console.log("- bun run beep ai-metrics install apply --target local --dry-run");
+    yield* Console.log("- bun run beep ai-metrics install compose --target local");
     yield* Console.log("- bun run beep ai-metrics install preview --target dankserver");
   })
-).pipe(Command.withDescription("AI metrics install workflow"), Command.withSubcommands([installPreviewCommand]));
+).pipe(
+  Command.withDescription("AI metrics install workflow"),
+  Command.withSubcommands([
+    installPreviewCommand,
+    installPlanCommand,
+    installDoctorCommand,
+    installApplyCommand,
+    installComposeCommand,
+  ])
+);
 
 const forwarderRunCommand = Command.make(
   "run",
@@ -923,6 +1771,8 @@ const forwarderRunCommand = Command.make(
     json: jsonFlag,
     maxFiles: maxFilesFlag,
     openClawUnit: openClawUnitFlag,
+    otlp: otlpFlag,
+    otlpBaseUrl: otlpBaseUrlFlag,
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     repoRoot: repoRootFlag,
     since: sinceFlag,
@@ -937,6 +1787,8 @@ const forwarderRunCommand = Command.make(
     json,
     maxFiles,
     openClawUnit,
+    otlp,
+    otlpBaseUrl,
     rawArchiveKeySecretRef,
     repoRoot,
     since,
@@ -952,6 +1804,8 @@ const forwarderRunCommand = Command.make(
         json,
         maxFiles,
         openClawUnit,
+        otlp,
+        otlpBaseUrl,
         rawArchiveKeySecretRef,
         repoRoot,
         since,
@@ -971,16 +1825,154 @@ const forwarderCommand = Command.make(
   })
 ).pipe(Command.withDescription("AI metrics local forwarder workflow"), Command.withSubcommands([forwarderRunCommand]));
 
+const otlpExportCommand = Command.make(
+  "export",
+  {
+    dataRoot: dataRootFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    ingestRunId: ingestRunFlag,
+    json: jsonFlag,
+    otlpBaseUrl: otlpBaseUrlFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    target: targetFlag,
+  },
+  ({ dataRoot, hashSaltSecretRef, ingestRunId, json, otlpBaseUrl, rawArchiveKeySecretRef, target }) =>
+    runAiMetricsProgram(
+      makeOtlpExportProgram({
+        dataRoot,
+        hashSaltSecretRef,
+        ingestRunId,
+        json,
+        otlpBaseUrl,
+        rawArchiveKeySecretRef,
+        target,
+      })
+    )
+).pipe(Command.withDescription("Export redacted derived AI metrics spans through OTLP"));
+
+const otlpCommand = Command.make(
+  "otlp",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("AI metrics OTLP commands:");
+    yield* Console.log("- bun run beep ai-metrics otlp export --target local --ingest-run latest");
+  })
+).pipe(Command.withDescription("AI metrics OTLP export workflow"), Command.withSubcommands([otlpExportCommand]));
+
 const benchmarkRunCommand = Command.make(
   "run",
   {
     caseId: caseFlag,
     configSnapshotId: configFlag,
+    dataRoot: dataRootFlag,
+    elapsedMs: elapsedMsFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
     json: jsonFlag,
+    note: noteFlag,
+    passed: passedValueFlag,
+    qualityGate: qualityGateFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    target: targetFlag,
   },
-  ({ caseId, configSnapshotId, json }) =>
-    runAiMetricsProgram(makeBenchmarkRunProgram({ caseId, configSnapshotId, json }))
-).pipe(Command.withDescription("Register a benchmark run request for a config snapshot"));
+  ({
+    caseId,
+    configSnapshotId,
+    dataRoot,
+    elapsedMs,
+    hashSaltSecretRef,
+    json,
+    note,
+    passed,
+    qualityGate,
+    rawArchiveKeySecretRef,
+    target,
+  }) =>
+    runAiMetricsProgram(
+      makeBenchmarkRunProgram({
+        caseId,
+        configSnapshotId,
+        dataRoot,
+        elapsedMs,
+        hashSaltSecretRef,
+        json,
+        note,
+        passed,
+        qualityGate,
+        rawArchiveKeySecretRef,
+        target,
+      })
+    )
+).pipe(Command.withDescription("Record a benchmark run result for a config snapshot"));
+
+const benchmarkCaseAddCommand = Command.make(
+  "add",
+  {
+    caseId: caseFlag,
+    checks: checksFlag,
+    dataRoot: dataRootFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    json: jsonFlag,
+    promptHash: promptHashFlag,
+    promptRef: promptRefFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    target: targetFlag,
+    title: titleFlag,
+  },
+  ({
+    caseId,
+    checks,
+    dataRoot,
+    hashSaltSecretRef,
+    json,
+    promptHash,
+    promptRef,
+    rawArchiveKeySecretRef,
+    target,
+    title,
+  }) =>
+    runAiMetricsProgram(
+      makeBenchmarkCaseAddProgram({
+        caseId,
+        checks,
+        dataRoot,
+        hashSaltSecretRef,
+        json,
+        promptHash,
+        promptRef,
+        rawArchiveKeySecretRef,
+        target,
+        title,
+      })
+    )
+).pipe(Command.withDescription("Add or replace a deploy-safe benchmark case"));
+
+const benchmarkCaseListCommand = Command.make(
+  "list",
+  {
+    dataRoot: dataRootFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    json: jsonFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    target: targetFlag,
+  },
+  ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
+    runAiMetricsProgram(
+      makeBenchmarkCaseListProgram({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target })
+    )
+).pipe(Command.withDescription("List deploy-safe benchmark cases"));
+
+const benchmarkCaseCommand = Command.make(
+  "case",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("AI metrics benchmark case commands:");
+    yield* Console.log("- bun run beep ai-metrics benchmark case add --case <id> --title <title> --prompt-hash <hash>");
+    yield* Console.log("- bun run beep ai-metrics benchmark case list");
+  })
+).pipe(
+  Command.withDescription("AI metrics benchmark case workflow"),
+  Command.withSubcommands([benchmarkCaseAddCommand, benchmarkCaseListCommand])
+);
 
 const benchmarkCompareCommand = Command.make(
   "compare",
@@ -995,13 +1987,119 @@ const benchmarkCommand = Command.make(
   {},
   Effect.fn(function* () {
     yield* Console.log("AI metrics benchmark commands:");
-    yield* Console.log("- bun run beep ai-metrics benchmark run --case <id> --config <snapshot>");
+    yield* Console.log("- bun run beep ai-metrics benchmark case add --case <id> --title <title> --prompt-hash <hash>");
+    yield* Console.log("- bun run beep ai-metrics benchmark run --case <id> --config <snapshot> --passed true");
     yield* Console.log("- bun run beep ai-metrics benchmark compare");
   })
 ).pipe(
   Command.withDescription("AI metrics benchmark workflow"),
-  Command.withSubcommands([benchmarkRunCommand, benchmarkCompareCommand])
+  Command.withSubcommands([benchmarkCaseCommand, benchmarkRunCommand, benchmarkCompareCommand])
 );
+
+const labelQueueCommand = Command.make(
+  "queue",
+  {
+    dataRoot: dataRootFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    json: jsonFlag,
+    limit: limitFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    since: sinceFlag,
+    target: targetFlag,
+    until: untilFlag,
+  },
+  ({ dataRoot, hashSaltSecretRef, json, limit, rawArchiveKeySecretRef, since, target, until }) =>
+    runAiMetricsProgram(
+      makeLabelQueueProgram({ dataRoot, hashSaltSecretRef, json, limit, rawArchiveKeySecretRef, since, target, until })
+    )
+).pipe(Command.withDescription("List unlabeled AI metrics tasks"));
+
+const labelAddCommand = Command.make(
+  "add",
+  {
+    dataRoot: dataRootFlag,
+    followUpFix: followUpFixValueFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    interventions: interventionsFlag,
+    json: jsonFlag,
+    note: noteFlag,
+    passed: passedValueFlag,
+    qualityGate: qualityGateFlag,
+    rating: ratingFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    target: targetFlag,
+    taskId: taskFlag,
+  },
+  ({
+    dataRoot,
+    followUpFix,
+    hashSaltSecretRef,
+    interventions,
+    json,
+    note,
+    passed,
+    qualityGate,
+    rating,
+    rawArchiveKeySecretRef,
+    target,
+    taskId,
+  }) =>
+    runAiMetricsProgram(
+      makeLabelAddProgram({
+        dataRoot,
+        followUpFix,
+        hashSaltSecretRef,
+        interventions,
+        json,
+        note,
+        passed,
+        qualityGate,
+        rating,
+        rawArchiveKeySecretRef,
+        target,
+        taskId,
+      })
+    )
+).pipe(Command.withDescription("Add or replace a structured human outcome label"));
+
+const labelCommand = Command.make(
+  "label",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("AI metrics label commands:");
+    yield* Console.log("- bun run beep ai-metrics label queue");
+    yield* Console.log("- bun run beep ai-metrics label add --task <id> --passed true --rating 5");
+  })
+).pipe(
+  Command.withDescription("AI metrics human label workflow"),
+  Command.withSubcommands([labelQueueCommand, labelAddCommand])
+);
+
+const reportWeeklyCommand = Command.make(
+  "weekly",
+  {
+    dataRoot: dataRootFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    json: jsonFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    since: sinceFlag,
+    target: targetFlag,
+    until: untilFlag,
+  },
+  ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, since, target, until }) =>
+    runAiMetricsProgram(
+      makeWeeklyReportProgram({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, since, target, until })
+    )
+).pipe(Command.withDescription("Generate a weekly config-impact scorecard report"));
+
+const reportCommand = Command.make(
+  "report",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("AI metrics report commands:");
+    yield* Console.log("- bun run beep ai-metrics report weekly");
+  })
+).pipe(Command.withDescription("AI metrics report workflow"), Command.withSubcommands([reportWeeklyCommand]));
 
 /**
  * AI metrics root command.
@@ -1025,8 +2123,12 @@ export const aiMetricsCommand = Command.make(
     yield* Console.log("- privacy check");
     yield* Console.log("- install preview");
     yield* Console.log("- forwarder run");
+    yield* Console.log("- otlp export");
+    yield* Console.log("- label queue");
+    yield* Console.log("- label add");
     yield* Console.log("- benchmark run");
     yield* Console.log("- benchmark compare");
+    yield* Console.log("- report weekly");
   })
 ).pipe(
   Command.withDescription("Collect, normalize, and plan deployment for AI-agent metrics"),
@@ -1037,6 +2139,9 @@ export const aiMetricsCommand = Command.make(
     privacyCommand,
     installCommand,
     forwarderCommand,
+    otlpCommand,
+    labelCommand,
     benchmarkCommand,
+    reportCommand,
   ])
 );
