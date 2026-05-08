@@ -68,8 +68,6 @@ In progress.
   ```sh
   export BEEP_AI_METRICS_HASH_SALT_SECRET_REF="op://TBK/ai-metrics/hash-salt"
   export BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF="op://TBK/ai-metrics/raw-archive-key"
-  export BEEP_AI_METRICS_HASH_SALT="$(op read "$BEEP_AI_METRICS_HASH_SALT_SECRET_REF")"
-  export BEEP_AI_METRICS_RAW_ARCHIVE_KEY="$(op read "$BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF")"
 
   beep-cli ai-metrics forwarder run --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref "$BEEP_AI_METRICS_HASH_SALT_SECRET_REF" --raw-archive-key-secret-ref "$BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF" --otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447
   beep-cli ai-metrics report weekly --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref "$BEEP_AI_METRICS_HASH_SALT_SECRET_REF" --raw-archive-key-secret-ref "$BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF"

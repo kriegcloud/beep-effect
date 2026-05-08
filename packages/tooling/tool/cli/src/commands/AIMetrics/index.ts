@@ -72,7 +72,20 @@ import {
   upsertAiMetricsBenchmarkCase,
 } from "@beep/repo-ai-metrics";
 import { TaggedErrorClass } from "@beep/schema";
-import { Clock, Config, Console, Duration, Effect, FileSystem, Layer, Order, Path, pipe, Redacted } from "effect";
+import {
+  Clock,
+  Config,
+  Console,
+  DateTime,
+  Duration,
+  Effect,
+  FileSystem,
+  Layer,
+  Order,
+  Path,
+  pipe,
+  Redacted,
+} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -464,21 +477,25 @@ const requireRawArchiveKeySecretRefForTarget = Effect.fn("AIMetrics.requireRawAr
   }
 );
 
+const parseEpochMillisOption = (value: string): O.Option<number> => {
+  const trimmed = Str.trim(value);
+  const parsedEpoch = globalThis.Number(trimmed);
+  if (globalThis.Number.isFinite(parsedEpoch)) {
+    return O.some(parsedEpoch);
+  }
+
+  return pipe(DateTime.make(trimmed), O.map(DateTime.toEpochMillis));
+};
+
 const parseSinceEpochMillis = Effect.fn("AIMetrics.parseSinceEpochMillis")(function* (since: O.Option<string>) {
   if (O.isNone(since)) {
     const now = yield* Clock.currentTimeMillis;
     return now - Duration.toMillis(Duration.days(7));
   }
 
-  const trimmed = Str.trim(since.value);
-  const parsedEpoch = globalThis.Number(trimmed);
-  if (globalThis.Number.isFinite(parsedEpoch)) {
-    return parsedEpoch;
-  }
-
-  const parsedDate = globalThis.Date.parse(trimmed);
-  if (globalThis.Number.isFinite(parsedDate)) {
-    return parsedDate;
+  const parsed = parseEpochMillisOption(since.value);
+  if (O.isSome(parsed)) {
+    return parsed.value;
   }
 
   return yield* new AiMetricsCommandError({
@@ -495,16 +512,8 @@ const parseOptionalEpochMillis = Effect.fn("AIMetrics.parseOptionalEpochMillis")
     return O.none<number>();
   }
 
-  const trimmed = Str.trim(value.value);
-  const parsedEpoch = globalThis.Number(trimmed);
-  if (globalThis.Number.isFinite(parsedEpoch)) {
-    return O.some(parsedEpoch);
-  }
-
-  const parsedDate = globalThis.Date.parse(trimmed);
-  if (globalThis.Number.isFinite(parsedDate)) {
-    return O.some(parsedDate);
-  }
+  const parsed = parseEpochMillisOption(value.value);
+  if (O.isSome(parsed)) return parsed;
 
   return yield* new AiMetricsCommandError({
     cause: value.value,

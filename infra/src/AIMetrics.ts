@@ -634,9 +634,9 @@ export class AIMetricsStack extends pulumi.ComponentResource {
     this.phoenixPublicUrl = pulumi.output(defaultService.publicUrl);
     this.phoenixTailnetHttpsPort = pulumi.output(args.remote.phoenixTailnetHttpsPort);
     this.remoteConfigRoot = pulumi.output(args.remote.remoteConfigRoot);
-    this.remotePreflightStdout = remoteResources?.preflight.stdout ?? pulumi.output("");
-    this.remoteApplyStdout = remoteResources?.apply.stdout ?? pulumi.output("");
-    this.remoteHealthStdout = remoteResources?.health.stdout ?? pulumi.output("");
+    this.remotePreflightStdout = pulumi.secret(remoteResources?.preflight.stdout ?? pulumi.output(""));
+    this.remoteApplyStdout = pulumi.secret(remoteResources?.apply.stdout ?? pulumi.output(""));
+    this.remoteHealthStdout = pulumi.secret(remoteResources?.health.stdout ?? pulumi.output(""));
 
     this.registerOutputs({
       defaultService: this.defaultService,

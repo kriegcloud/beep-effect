@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { DuckDb, DuckDbParquetExport } from "@beep/duckdb";
+import { DuckDb, type DuckDbError, DuckDbParquetExport } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { Clock, Effect, FileSystem, flow, Path, pipe } from "effect";
@@ -245,6 +245,12 @@ const migrationColumns = [
   },
 ] as const;
 
+type MigrationColumn = {
+  readonly columnDefinition: string;
+  readonly columnName: string;
+  readonly tableName: string;
+};
+
 /**
  * Error raised by the DuckDB derived storage projection.
  *
@@ -368,20 +374,14 @@ const rowId = Effect.fn("AiMetrics.derivedStorage.rowId")(function* (
   return `${prefix}-${digest}`;
 });
 
-const addColumnIfMissing = Effect.fn("AiMetrics.derivedStorage.addColumnIfMissing")(function* ({
-  columnDefinition,
-  columnName,
-  tableName,
-}: {
-  readonly columnDefinition: string;
-  readonly columnName: string;
-  readonly tableName: string;
-}) {
+const addColumnIfMissing: (input: MigrationColumn) => Effect.Effect<void, DuckDbError, DuckDb> = Effect.fn(
+  "AiMetrics.derivedStorage.addColumnIfMissing"
+)(function* ({ columnDefinition, columnName, tableName }) {
   const duckdb = yield* DuckDb;
   const rows = yield* duckdb.query(
     `SELECT column_name AS "columnName"
      FROM information_schema.columns
-     WHERE table_name = $tableName AND column_name = $columnName`,
+      WHERE table_name = $tableName AND column_name = $columnName`,
     { columnName, tableName }
   );
   if (A.isReadonlyArrayNonEmpty(rows)) {

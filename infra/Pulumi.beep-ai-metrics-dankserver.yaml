@@ -2,7 +2,8 @@ config:
   aiMetrics:target: dankserver
   aiMetrics:defaultTool: phoenix
   aiMetrics:hashSaltSecretRef: op://TBK/ai-metrics/hash-salt
-  aiMetrics:phoenixImage: arizephoenix/phoenix:latest
+  # Pinned per Phoenix production guidance; refresh deliberately when upgrading.
+  aiMetrics:phoenixImage: arizephoenix/phoenix:15.5.0
   aiMetrics:phoenixTailnetHttpsPort: 8447
   aiMetrics:rawArchiveKeySecretRef: op://TBK/ai-metrics/raw-archive-key
   aiMetrics:remoteConfigRoot: /home/elpresidank/ai-metrics

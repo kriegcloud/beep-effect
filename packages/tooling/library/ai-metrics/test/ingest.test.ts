@@ -577,6 +577,7 @@ volumes:
           const sourcePath = path.join(tmpDir, "home/.claude/projects/repo/claude.jsonl");
           const content = [
             '{"type":"user","timestamp":"2026-05-05T10:00:00Z","message":{"content":"private-input"}}',
+            '{"type":"assistant","timestamp":"2026-05-05T10:00:30Z","message":{"content":"private-model-output"}}',
             '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":{"content":"private-output"}}',
           ].join("\n");
 
@@ -648,14 +649,21 @@ volumes:
 
             expect(batch.ingestRunId).toBe("forwarder-otlp");
             expect(batch.sessionSpanCount).toBe(1);
-            expect(batch.turnSpanCount).toBe(2);
+            expect(batch.turnSpanCount).toBe(3);
             expect(batch.projections).toEqual(
               expect.arrayContaining([
                 expect.objectContaining({
                   attributes: expect.objectContaining({
-                    "openinference.span.kind": "CHAIN",
+                    "openinference.span.kind": "AGENT",
                   }),
                   spanName: "ai_metrics.agent.session",
+                }),
+                expect.objectContaining({
+                  attributes: expect.objectContaining({
+                    "ai_metrics.event_name": "assistant",
+                    "openinference.span.kind": "LLM",
+                  }),
+                  spanName: "ai_metrics.agent.turn",
                 }),
                 expect.objectContaining({
                   attributes: expect.objectContaining({
@@ -668,9 +676,10 @@ volumes:
                 }),
               ])
             );
-            expect(result.spanCount).toBe(3);
+            expect(result.spanCount).toBe(4);
             expect(json).toContain("forwarder-otlp");
             expect(json).not.toContain("private-input");
+            expect(json).not.toContain("private-model-output");
             expect(json).not.toContain("private-output");
             expect(json).not.toContain(tmpDir);
           }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));

@@ -224,8 +224,24 @@ const providerFor = (row: AiMetricsOtlpTurnExportRow): string => {
 const toolNameFor = (row: AiMetricsOtlpTurnExportRow): O.Option<string> =>
   pipe(row.eventName, Str.toLowerCase, Str.includes("tool")) ? O.some(row.eventName) : O.none();
 
-const openInferenceSpanKindFor = (row: AiMetricsOtlpTurnExportRow): string =>
-  O.isSome(toolNameFor(row)) ? "TOOL" : "CHAIN";
+const llmEventNameFragments = [
+  "assistant",
+  "message",
+  "model",
+  "llm",
+  "api_request",
+  "completion",
+  "response",
+] as const;
+
+const openInferenceSpanKindFor = (row: AiMetricsOtlpTurnExportRow): string => {
+  if (O.isSome(toolNameFor(row))) {
+    return "TOOL";
+  }
+
+  const eventName = Str.toLowerCase(row.eventName);
+  return A.some(llmEventNameFragments, (fragment) => Str.includes(fragment)(eventName)) ? "LLM" : "CHAIN";
+};
 
 const resolveIngestRunId = Effect.fn("AiMetrics.otlp.resolveIngestRunId")(function* (ingestRunId: string | undefined) {
   if (ingestRunId !== undefined && Str.trim(ingestRunId) !== "latest") {
@@ -290,7 +306,7 @@ const sessionProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanPr
       "ai_metrics.ingest_run_id": row.ingestRunId,
       "ai_metrics.source_kind": row.sourceKind,
       "ai_metrics.source_path_hash": row.sourcePathHash,
-      "openinference.span.kind": "CHAIN",
+      "openinference.span.kind": "AGENT",
       "session.id": row.agentSessionId,
     },
     spanName: "ai_metrics.agent.session",

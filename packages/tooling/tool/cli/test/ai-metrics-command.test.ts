@@ -9,7 +9,7 @@ import {
 } from "@beep/repo-ai-metrics";
 import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index";
 import { NodeServices } from "@effect/platform-node";
-import { ConfigProvider, Effect, Encoding, FileSystem, Layer, Path, pipe } from "effect";
+import { ConfigProvider, Duration, Effect, Encoding, FileSystem, Layer, Path, pipe, Schedule } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -105,6 +105,28 @@ const withOtlpSink = <A, E, R>(
     }),
     ({ requests, server }) => use(`http://127.0.0.1:${server.port}`, requests),
     ({ server }) => Effect.promise(() => server.stop(true))
+  );
+
+const findCapturedOtlpTraceRequest = Effect.fn("AIMetricsCommandTest.findCapturedOtlpTraceRequest")(function* (
+  requests: ReadonlyArray<CapturedOtlpRequest>
+) {
+  const traceRequest = pipe(
+    requests,
+    A.findFirst((request) => request.path === "/v1/traces")
+  );
+
+  if (O.isSome(traceRequest)) {
+    return traceRequest.value;
+  }
+
+  return yield* Effect.fail("OTLP trace request was not captured yet.");
+});
+
+const waitForCapturedOtlpTraceRequest = (
+  requests: ReadonlyArray<CapturedOtlpRequest>
+): Effect.Effect<CapturedOtlpRequest, string> =>
+  findCapturedOtlpTraceRequest(requests).pipe(
+    Effect.retry(Schedule.both(Schedule.spaced(Duration.millis(25)), Schedule.recurs(200)))
   );
 
 describe("ai-metrics command", () => {
@@ -841,23 +863,15 @@ describe("ai-metrics command", () => {
               otlpBaseUrl,
               "--json",
             ]);
-            yield* Effect.sleep(250);
 
             const resultJson = yield* lastLoggedLine();
             const result = yield* decodeOtlpExportResult(resultJson);
-            const traceRequest = pipe(
-              requests,
-              A.findFirst((request) => request.path === "/v1/traces")
-            );
+            const traceRequest = yield* waitForCapturedOtlpTraceRequest(requests);
 
-            expect(O.isSome(traceRequest)).toBe(true);
-            if (O.isNone(traceRequest)) {
-              return;
-            }
-            expect(traceRequest.value.contentType).toContain("application/x-protobuf");
-            expect(traceRequest.value.bodyByteLength).toBeGreaterThan(0);
-            expect(traceRequest.value.bodyText).not.toContain("private-otlp-fixture");
-            expect(traceRequest.value.bodyText).not.toContain(tmpDir);
+            expect(traceRequest.contentType).toContain("application/x-protobuf");
+            expect(traceRequest.bodyByteLength).toBeGreaterThan(0);
+            expect(traceRequest.bodyText).not.toContain("private-otlp-fixture");
+            expect(traceRequest.bodyText).not.toContain(tmpDir);
             expect(result.endpointTraceUrl).toBe(`${otlpBaseUrl}/v1/traces`);
             expect(result.spanCount).toBeGreaterThan(0);
             expect(resultJson).not.toContain("private-otlp-fixture");
