@@ -1,5 +1,35 @@
 # effect
 
+## 4.0.0-beta.64
+
+### Patch Changes
+
+- [#2137](https://github.com/Effect-TS/effect-smol/pull/2137) [`7d4877a`](https://github.com/Effect-TS/effect-smol/commit/7d4877a1929cdb690280ea254326c04f2ec97ea5) Thanks @tim-smart! - Add optional soft delete column support to SqlModel repositories and resolvers.
+
+## 4.0.0-beta.63
+
+### Patch Changes
+
+- [#2136](https://github.com/Effect-TS/effect-smol/pull/2136) [`7f927ff`](https://github.com/Effect-TS/effect-smol/commit/7f927ffb7a9801dcfc4096c29e369d13d65cd0ac) Thanks @tim-smart! - add HttpApiTest module
+
+- [#2123](https://github.com/Effect-TS/effect-smol/pull/2123) [`a696b3e`](https://github.com/Effect-TS/effect-smol/commit/a696b3e83a8504cdbe261a18c10a1cc0619ae102) Thanks @lewxdev! - add `Effect.acquireDisposable`
+
+## 4.0.0-beta.62
+
+### Patch Changes
+
+- [#2131](https://github.com/Effect-TS/effect-smol/pull/2131) [`4ab4b90`](https://github.com/Effect-TS/effect-smol/commit/4ab4b9007dc27a52ffabc6fcb37c96eeec795bf7) Thanks @tim-smart! - Allow Kubernetes pod condition `lastTransitionTime` values to be null in K8sHttpClient schemas.
+
+## 4.0.0-beta.61
+
+### Patch Changes
+
+- [#2130](https://github.com/Effect-TS/effect-smol/pull/2130) [`50790af`](https://github.com/Effect-TS/effect-smol/commit/50790af9b190c38d10fb0723837d49b66432638f) Thanks @tim-smart! - Record fiber runtime start metrics when fibers are constructed so yielded fibers are only counted once.
+
+- [#2120](https://github.com/Effect-TS/effect-smol/pull/2120) [`71f7c3d`](https://github.com/Effect-TS/effect-smol/commit/71f7c3df997deda92c84146d569696dab3bd645c) Thanks @tim-smart! - Port `Effect.firstSuccessOf` from Effect v3.
+
+- [#2122](https://github.com/Effect-TS/effect-smol/pull/2122) [`aae8797`](https://github.com/Effect-TS/effect-smol/commit/aae8797b9cb383be0c182dd58d03d787c354238b) Thanks @tim-smart! - fix empty body decoding in HttpApiBuilder
+
 ## 4.0.0-beta.60
 
 ### Patch Changes

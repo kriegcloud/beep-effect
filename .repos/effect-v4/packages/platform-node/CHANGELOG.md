@@ -1,5 +1,37 @@
 # @effect/platform-node
 
+## 4.0.0-beta.64
+
+### Patch Changes
+
+- Updated dependencies [[`7d4877a`](https://github.com/Effect-TS/effect-smol/commit/7d4877a1929cdb690280ea254326c04f2ec97ea5)]:
+  - effect@4.0.0-beta.64
+  - @effect/platform-node-shared@4.0.0-beta.64
+
+## 4.0.0-beta.63
+
+### Patch Changes
+
+- Updated dependencies [[`7f927ff`](https://github.com/Effect-TS/effect-smol/commit/7f927ffb7a9801dcfc4096c29e369d13d65cd0ac), [`a696b3e`](https://github.com/Effect-TS/effect-smol/commit/a696b3e83a8504cdbe261a18c10a1cc0619ae102)]:
+  - effect@4.0.0-beta.63
+  - @effect/platform-node-shared@4.0.0-beta.63
+
+## 4.0.0-beta.62
+
+### Patch Changes
+
+- Updated dependencies [[`4ab4b90`](https://github.com/Effect-TS/effect-smol/commit/4ab4b9007dc27a52ffabc6fcb37c96eeec795bf7)]:
+  - effect@4.0.0-beta.62
+  - @effect/platform-node-shared@4.0.0-beta.62
+
+## 4.0.0-beta.61
+
+### Patch Changes
+
+- Updated dependencies [[`50790af`](https://github.com/Effect-TS/effect-smol/commit/50790af9b190c38d10fb0723837d49b66432638f), [`71f7c3d`](https://github.com/Effect-TS/effect-smol/commit/71f7c3df997deda92c84146d569696dab3bd645c), [`aae8797`](https://github.com/Effect-TS/effect-smol/commit/aae8797b9cb383be0c182dd58d03d787c354238b)]:
+  - effect@4.0.0-beta.61
+  - @effect/platform-node-shared@4.0.0-beta.61
+
 ## 4.0.0-beta.60
 
 ### Patch Changes
