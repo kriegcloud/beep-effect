@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0.0",
+  "initiative": {
+    "id": "jsdoc-quality-enforcement",
+    "title": "JSDoc Quality Enforcement",
+    "status": "bootstrap",
+    "created": "2026-05-08",
+    "updated": "2026-05-08",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "currentSourceOfTruth": "SPEC.md",
+  "reportDirectory": "research",
+  "rawOutputDirectory": "history/outputs",
+  "researchLanes": [
+    {
+      "id": "current-jsdoc-docgen-enforcement",
+      "title": "Current JSDoc And Docgen Enforcement Reality",
+      "status": "pending",
+      "output": "research/current-jsdoc-docgen-enforcement.md"
+    },
+    {
+      "id": "pattern-and-skill-guidance",
+      "title": "Pattern And Skill Guidance Quality",
+      "status": "pending",
+      "output": "research/pattern-and-skill-guidance.md"
+    },
+    {
+      "id": "agentic-scoring-remediation",
+      "title": "Agentic Scoring And Remediation Feasibility",
+      "status": "pending",
+      "output": "research/agentic-scoring-remediation.md"
+    },
+    {
+      "id": "codex-workflow-surfaces",
+      "title": "Codex Workflow Surfaces",
+      "status": "pending",
+      "output": "research/codex-workflow-surfaces.md"
+    },
+    {
+      "id": "cost-caching-incremental-adoption",
+      "title": "Cost Caching And Incremental Adoption Strategy",
+      "status": "pending",
+      "output": "research/cost-caching-incremental-adoption.md"
+    }
+  ],
+  "nextAction": "Run parallel research agents and place synthesized reports in research/."
+}

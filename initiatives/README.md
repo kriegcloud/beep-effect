@@ -30,6 +30,7 @@ actually lives here.
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
 - `ip-law-knowledge-graph`
+- `jsdoc-quality-enforcement`
 - `law-kg-prd`
 - `repo-codegraph-jsdoc`
 - `repo-architecture-automation`
