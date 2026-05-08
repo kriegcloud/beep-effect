@@ -111,90 +111,99 @@ const connectionFailure =
   (cause: unknown): DuckDbError =>
     DuckDbError.fromUnknown(operation, cause, {
       databasePath: options.databasePath,
-      ...R.getSomes({ message: O.fromUndefinedOr(message) }),
+      ...R.getSomes({
+        message: O.fromUndefinedOr(message),
+      }),
       ...R.getSomes({ statement: O.fromUndefinedOr(statement) }),
     });
 
-const releaseConnection = ({ connection, instance }: NativeConnection): Effect.Effect<void> =>
-  Effect.try({
-    try: () => {
-      connection.closeSync();
-      instance.closeSync();
-    },
-    catch: () => undefined,
-  }).pipe(
-    Effect.asVoid,
-    Effect.catch(() => Effect.void)
-  );
-
-const runOnConnection = (
-  operation: string,
-  options: DuckDbConnectionOptions,
-  connection: DuckDBConnection,
-  statement: string,
-  parameters?: DuckDbQueryParameters | undefined
-): Effect.Effect<void, DuckDbError> =>
-  Effect.tryPromise({
-    try: () => connection.run(statement, parameters),
-    catch: connectionFailure(operation, options, statement),
-  }).pipe(Effect.asVoid);
-
-const queryOnConnection = (
-  options: DuckDbConnectionOptions,
-  connection: DuckDBConnection,
-  statement: string,
-  parameters?: DuckDbQueryParameters | undefined
-): Effect.Effect<DuckDbRows, DuckDbError> =>
-  Effect.gen(function* () {
-    const rows = yield* Effect.tryPromise({
-      try: async () => {
-        const reader = await connection.runAndReadAll(statement, parameters);
-        return reader.getRowObjectsJson();
+const releaseConnection = Effect.fn("DuckDb.releaseConnection")(
+  ({ connection, instance }: NativeConnection): Effect.Effect<void> =>
+    Effect.try({
+      try: () => {
+        connection.closeSync();
+        instance.closeSync();
       },
-      catch: connectionFailure("query", options, statement),
-    });
-    return yield* decodeRows(rows).pipe(
-      Effect.mapError((cause) =>
-        DuckDbError.fromUnknown("query", cause, {
-          databasePath: options.databasePath,
-          message: "DuckDB query returned a non-JSON-compatible row shape.",
-          statement,
-        })
-      )
-    );
+      catch: () => undefined,
+    }).pipe(
+      Effect.asVoid,
+      Effect.catch(() => Effect.void)
+    )
+);
+
+const runOnConnection = Effect.fn("DuckDb.runOnConnection")(
+  (
+    operation: string,
+    options: DuckDbConnectionOptions,
+    connection: DuckDBConnection,
+    statement: string,
+    parameters?: DuckDbQueryParameters | undefined
+  ): Effect.Effect<void, DuckDbError> =>
+    Effect.tryPromise({
+      try: () => connection.run(statement, parameters),
+      catch: connectionFailure(operation, options, statement),
+    }).pipe(Effect.asVoid)
+);
+
+const queryOnConnection = Effect.fn("DuckDb.queryOnConnection")(function* (
+  options: DuckDbConnectionOptions,
+  connection: DuckDBConnection,
+  statement: string,
+  parameters?: DuckDbQueryParameters | undefined
+) {
+  const rows = yield* Effect.tryPromise({
+    try: async () => {
+      const reader = await connection.runAndReadAll(statement, parameters);
+      return reader.getRowObjectsJson();
+    },
+    catch: connectionFailure("query", options, statement),
   });
+  return yield* decodeRows(rows).pipe(
+    Effect.mapError((cause) =>
+      DuckDbError.fromUnknown("query", cause, {
+        databasePath: options.databasePath,
+        message: "DuckDB query returned a non-JSON-compatible row shape.",
+        statement,
+      })
+    )
+  );
+});
 
 const acquireSharedConnection = (options: DuckDbConnectionOptions) => {
   let nativePromise: Promise<NativeConnection> | undefined;
 
-  return (operation: string): Effect.Effect<NativeConnection, DuckDbError> =>
-    Effect.tryPromise({
-      try: () => {
-        nativePromise ??= DuckDBInstance.create(options.databasePath, options.databaseOptions)
-          .then(async (instance) => ({ connection: await instance.connect(), instance }))
-          .catch((cause) => {
-            nativePromise = undefined;
-            throw cause;
-          });
-        return nativePromise;
-      },
-      catch: connectionFailure(operation, options, undefined, "Failed to open DuckDB connection."),
-    });
+  return Effect.fn("DuckDb.acquireSharedConnection")(
+    (operation: string): Effect.Effect<NativeConnection, DuckDbError> =>
+      Effect.tryPromise({
+        try: () => {
+          nativePromise ??= DuckDBInstance.create(options.databasePath, options.databaseOptions)
+            .then(async (instance) => ({
+              connection: await instance.connect(),
+              instance,
+            }))
+            .catch((cause) => {
+              nativePromise = undefined;
+              throw cause;
+            });
+          return nativePromise;
+        },
+        catch: connectionFailure(operation, options, undefined, "Failed to open DuckDB connection."),
+      })
+  );
 };
 
 const acquireScopedSharedConnection = (options: DuckDbConnectionOptions, scope: Scope.Scope) => {
   const getConnection = acquireSharedConnection(options);
   let finalizerRegistered = false;
 
-  return (operation: string): Effect.Effect<NativeConnection, DuckDbError> =>
-    Effect.gen(function* () {
-      const native = yield* getConnection(operation);
-      if (!finalizerRegistered) {
-        finalizerRegistered = true;
-        yield* Scope.addFinalizer(scope, releaseConnection(native));
-      }
-      return native;
-    });
+  return Effect.fn("DuckDb.acquireScopedSharedConnection")(function* (operation: string) {
+    const native = yield* getConnection(operation);
+    if (!finalizerRegistered) {
+      finalizerRegistered = true;
+      yield* Scope.addFinalizer(scope, releaseConnection(native));
+    }
+    return native;
+  });
 };
 
 const copyStatement = (request: DuckDbParquetExport): string =>
@@ -205,60 +214,74 @@ const makeConnectionClient = (
   useConnection: <A, R>(operation: string, use: NativeUse<A, R>) => Effect.Effect<A, DuckDbError, R>,
   transactionScoped = false
 ): DuckDbClient => {
-  const run = (statement: string, parameters?: DuckDbQueryParameters | undefined): Effect.Effect<void, DuckDbError> =>
-    useConnection("run", (connection) => runOnConnection("run", options, connection, statement, parameters)).pipe(
-      Effect.withSpan("db.query", {
-        attributes: {
-          "db.operation": "run",
-          "db.system": "duckdb",
-        },
-      })
-    );
+  const run = Effect.fn("DuckDb.run")(
+    (statement: string, parameters?: DuckDbQueryParameters | undefined): Effect.Effect<void, DuckDbError> =>
+      useConnection("run", (connection) => runOnConnection("run", options, connection, statement, parameters)).pipe(
+        Effect.withSpan("db.query", {
+          attributes: {
+            "db.operation": "run",
+            "db.system": "duckdb",
+          },
+        })
+      )
+  );
 
-  const query = (
-    statement: string,
-    parameters?: DuckDbQueryParameters | undefined
-  ): Effect.Effect<DuckDbRows, DuckDbError> =>
-    useConnection("query", (connection) => queryOnConnection(options, connection, statement, parameters)).pipe(
-      Effect.withSpan("db.query", {
-        attributes: {
-          "db.operation": "query",
-          "db.system": "duckdb",
-        },
-      })
-    );
+  const query = Effect.fn("DuckDb.query")(
+    (statement: string, parameters?: DuckDbQueryParameters | undefined): Effect.Effect<DuckDbRows, DuckDbError> =>
+      useConnection("query", (connection) => queryOnConnection(options, connection, statement, parameters)).pipe(
+        Effect.withSpan("db.query", {
+          attributes: {
+            "db.operation": "query",
+            "db.system": "duckdb",
+          },
+        })
+      )
+  );
 
-  const runMany = (statements: ReadonlyArray<string>): Effect.Effect<void, DuckDbError> =>
-    Effect.forEach(statements, (statement) => run(statement), { discard: true }).pipe(
-      Effect.withSpan("db.query", {
-        attributes: {
-          "db.operation": "run_many",
-          "db.statement_count": statements.length,
-          "db.system": "duckdb",
-        },
-      })
-    );
+  const runMany = Effect.fn("DuckDb.runMany")(
+    (statements: ReadonlyArray<string>): Effect.Effect<void, DuckDbError> =>
+      Effect.forEach(statements, (statement) => run(statement), { discard: true }).pipe(
+        Effect.withSpan("db.query", {
+          attributes: {
+            "db.operation": "run_many",
+            "db.statement_count": statements.length,
+            "db.system": "duckdb",
+          },
+        })
+      )
+  );
 
-  const copyTableToParquet = (request: DuckDbParquetExport): Effect.Effect<void, DuckDbError> =>
-    run(copyStatement(request)).pipe(
-      Effect.withSpan("db.export", {
-        attributes: {
-          "db.operation": "copy_table_to_parquet",
-          "db.system": "duckdb",
-          "db.table": request.tableName,
-        },
-      })
-    );
-
+  const copyTableToParquet = Effect.fn("DuckDb.copyTableToParquet")(
+    (request: DuckDbParquetExport): Effect.Effect<void, DuckDbError> =>
+      run(copyStatement(request)).pipe(
+        Effect.withSpan("db.export", {
+          attributes: {
+            "db.operation": "copy_table_to_parquet",
+            "db.system": "duckdb",
+            "db.table": request.tableName,
+          },
+        })
+      )
+  );
   let client: DuckDbClient;
-  const withTransaction = <A, R>(
+  const withTransaction = Effect.fn("DuckDb.withTransaction")(function* <A, R>(
     use: (transaction: DuckDbClient) => Effect.Effect<A, DuckDbError, R>
-  ): Effect.Effect<A, DuckDbError, R> =>
-    transactionScoped
+  ): Effect.fn.Return<A, DuckDbError, R> {
+    return yield* transactionScoped
       ? use(client)
-      : useConnection("withTransaction", (connection) =>
-          Effect.gen(function* () {
-            const transaction = makeConnectionClient(options, (_operation, useNative) => useNative(connection), true);
+      : useConnection(
+          "withTransaction",
+          Effect.fn("DuckDb.withTransactionOnConnection")(function* (connection: DuckDBConnection) {
+            const transaction = makeConnectionClient(
+              options,
+              Effect.fn("DuckDb.useTransactionConnection")(function* <A, R>(
+                _operation: string,
+                useNative: NativeUse<A, R>
+              ): Effect.fn.Return<A, DuckDbError, R> {
+                return yield* useNative(connection);
+              }),
+              true
+            );
             yield* runOnConnection("withTransaction", options, connection, "BEGIN TRANSACTION");
             const exit = yield* Effect.exit(use(transaction));
             if (Exit.isSuccess(exit)) {
@@ -279,6 +302,7 @@ const makeConnectionClient = (
             },
           })
         );
+  });
 
   client = {
     copyTableToParquet,
@@ -292,9 +316,14 @@ const makeConnectionClient = (
 
 const makeNodeClient = (options: DuckDbConnectionOptions): DuckDbClient => {
   const getConnection = acquireSharedConnection(options);
-  return makeConnectionClient(options, (operation, use) =>
-    Effect.flatMap(getConnection(operation), ({ connection }) => use(connection))
-  );
+  const useNodeConnection = Effect.fn("DuckDb.useNodeConnection")(function* <A, R>(
+    operation: string,
+    use: NativeUse<A, R>
+  ): Effect.fn.Return<A, DuckDbError, R> {
+    const { connection } = yield* getConnection(operation);
+    return yield* use(connection);
+  });
+  return makeConnectionClient(options, useNodeConnection);
 };
 
 const makeNodeLayer = (options: DuckDbConnectionOptions): Layer.Layer<DuckDb> =>
@@ -302,14 +331,14 @@ const makeNodeLayer = (options: DuckDbConnectionOptions): Layer.Layer<DuckDb> =>
     Effect.gen(function* () {
       const scope = yield* Scope.Scope;
       const getConnection = acquireScopedSharedConnection(options, scope);
-      return Context.make(
-        DuckDb,
-        DuckDb.of(
-          makeConnectionClient(options, (operation, useNative) =>
-            Effect.flatMap(getConnection(operation), ({ connection }) => useNative(connection))
-          )
-        )
-      );
+      const useLayerConnection = Effect.fn("DuckDb.useLayerConnection")(function* <A, R>(
+        operation: string,
+        useNative: NativeUse<A, R>
+      ): Effect.fn.Return<A, DuckDbError, R> {
+        const { connection } = yield* getConnection(operation);
+        return yield* useNative(connection);
+      });
+      return Context.make(DuckDb, DuckDb.of(makeConnectionClient(options, useLayerConnection)));
     })
   );
 

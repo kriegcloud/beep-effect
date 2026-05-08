@@ -6,6 +6,8 @@ initiative.
 ## Handoffs
 
 - [HANDOFF_P0-P6.md](./HANDOFF_P0-P6.md) - full initiative execution handoff
+- [HANDOFF_FRESH_REVIEW.md](./HANDOFF_FRESH_REVIEW.md) - fresh-eyes review
+  prompt before continuing P6
 
 ## Operating Rule
 
