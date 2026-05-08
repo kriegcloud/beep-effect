@@ -30,6 +30,7 @@ const defaultSshUser = "elpresidank";
 const defaultTailnetFqdn = "dankserver.tailc7c348.ts.net";
 const remotePhoenixServiceName = "ai-metrics-phoenix.service";
 const remotePhoenixComposeFile = "phoenix.compose.yaml";
+const remotePhoenixTailnetPortStateFile = "phoenix-tailnet-https-port";
 
 const schemaIssueToPulumiConfigError =
   (key: string, value: string) =>
@@ -140,6 +141,8 @@ const renderRemoteApplyCommand = (remote: AIMetricsRemoteDeploymentConfig, servi
       userSystemdEnvironment,
       `remote_root=${shellQuote(remote.remoteConfigRoot)}`,
       `compose_path="\${remote_root}/${remotePhoenixComposeFile}"`,
+      `port_state_path="\${remote_root}/${remotePhoenixTailnetPortStateFile}"`,
+      `current_tailnet_port=${shellQuote(String(remote.phoenixTailnetHttpsPort))}`,
       `unit_path="\${HOME}/.config/systemd/user/${remotePhoenixServiceName}"`,
       'install -d -m 0755 "${remote_root}"',
       'install -d -m 0755 "${HOME}/.config/systemd/user"',
@@ -152,7 +155,14 @@ const renderRemoteApplyCommand = (remote: AIMetricsRemoteDeploymentConfig, servi
       "systemctl --user daemon-reload",
       `systemctl --user enable ${remotePhoenixServiceName} >/dev/null`,
       `systemctl --user restart ${remotePhoenixServiceName}`,
-      `tailscale serve --yes --bg --https=${remote.phoenixTailnetHttpsPort} http://127.0.0.1:6006`,
+      'if [ -f "${port_state_path}" ]; then',
+      '  previous_tailnet_port="$(tr -d \'[:space:]\' < "${port_state_path}")"',
+      '  if printf "%s" "${previous_tailnet_port}" | grep -Eq \'^[0-9]+$\' && [ "${previous_tailnet_port}" != "${current_tailnet_port}" ]; then',
+      '    tailscale serve --https="${previous_tailnet_port}" off >/dev/null || true',
+      "  fi",
+      "fi",
+      'tailscale serve --yes --bg --https="${current_tailnet_port}" http://127.0.0.1:6006',
+      'printf "%s\\n" "${current_tailnet_port}" > "${port_state_path}"',
       `printf 'AI metrics Phoenix remote apply completed at ${service.publicUrl}\\n'`,
     ].join("\n")
   )}`;
@@ -562,6 +572,13 @@ export class AIMetricsStack extends pulumi.ComponentResource {
       spec.target === AiMetricsDeployTarget.Enum.dankserver
         ? (() => {
             const remoteDefaultService = remotePhoenixDefaultService(defaultService);
+            const remoteDeploymentTriggers = [
+              remoteDefaultService.image,
+              remoteDefaultService.publicUrl,
+              renderRemotePhoenixCompose(remoteDefaultService),
+              renderRemotePhoenixSystemdService(args.remote.remoteConfigRoot),
+              args.remote.phoenixTailnetHttpsPort,
+            ];
             const connection = remoteSshConnection(args.remote);
             const preflight = new command.remote.Command(
               `${name}-phoenix-preflight`,
@@ -587,12 +604,7 @@ export class AIMetricsStack extends pulumi.ComponentResource {
                 connection,
                 create: renderRemoteApplyCommand(args.remote, remoteDefaultService),
                 logging: command.types.enums.remote.Logging.StdoutAndStderr,
-                triggers: [
-                  remoteDefaultService.image,
-                  remoteDefaultService.publicUrl,
-                  renderRemotePhoenixCompose(remoteDefaultService),
-                  renderRemotePhoenixSystemdService(args.remote.remoteConfigRoot),
-                ],
+                triggers: remoteDeploymentTriggers,
                 update: renderRemoteApplyCommand(args.remote, remoteDefaultService),
               },
               {
@@ -606,7 +618,7 @@ export class AIMetricsStack extends pulumi.ComponentResource {
                 connection,
                 create: renderRemoteHealthCommand(args.remote, remoteDefaultService),
                 logging: command.types.enums.remote.Logging.StdoutAndStderr,
-                triggers: [remoteDefaultService.publicUrl, args.remote.phoenixTailnetHttpsPort],
+                triggers: remoteDeploymentTriggers,
                 update: renderRemoteHealthCommand(args.remote, remoteDefaultService),
               },
               {

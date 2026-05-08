@@ -27,6 +27,7 @@ const decodeInstallPlan = S.decodeUnknownEffect(S.fromJsonString(AiMetricsInstal
 const decodeLabelQueue = S.decodeUnknownEffect(S.fromJsonString(AiMetricsLabelQueueResult));
 const decodeOtlpExportResult = S.decodeUnknownEffect(S.fromJsonString(AiMetricsOtlpExportResult));
 const decodeWeeklyReport = S.decodeUnknownEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
+const farFutureUntilEpochMs = 4_102_444_800_000;
 
 type CapturedOtlpRequest = {
   readonly bodyByteLength: number;
@@ -691,7 +692,7 @@ describe("ai-metrics command", () => {
             "--since",
             "0",
             "--until",
-            "4102444800000",
+            String(farFutureUntilEpochMs),
             "--json",
           ]);
           const queue = yield* decodeLabelQueue(yield* lastLoggedLine());
@@ -766,7 +767,7 @@ describe("ai-metrics command", () => {
             "--since",
             "0",
             "--until",
-            "4102444800000",
+            String(farFutureUntilEpochMs),
             "--json",
           ]);
           const report = yield* decodeWeeklyReport(yield* lastLoggedLine());
