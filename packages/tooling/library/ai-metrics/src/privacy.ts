@@ -460,10 +460,7 @@ export const makeAiMetricsSourceAttribution = Effect.fn("AiMetrics.makeAiMetrics
   const subagent = firstCodexSubagentSource(sessionMetaLines);
   const subagentValue = O.getOrUndefined(subagent);
   const payloadValue = O.getOrUndefined(payload);
-  const sourceRole =
-    O.isSome(subagent) || subagentValue?.thread_spawn === true
-      ? AiMetricsSourceRole.Enum.subagent
-      : AiMetricsSourceRole.Enum.primary;
+  const sourceRole = O.isSome(subagent) ? AiMetricsSourceRole.Enum.subagent : AiMetricsSourceRole.Enum.primary;
   const parentSessionId = firstNonEmptyString(subagentValue?.parent_session_id, payloadValue?.parent_session_id);
   const parentThreadId = firstNonEmptyString(subagentValue?.parent_thread_id, payloadValue?.parent_thread_id);
   const agentNicknameHash = yield* optionalHashPrivateIdentifier(

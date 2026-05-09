@@ -179,6 +179,10 @@ const createTableStatements = [
     completion_ready BOOLEAN NOT NULL,
     coverage_gaps_json VARCHAR NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS ai_metrics_schema_migrations (
+    migration_id VARCHAR PRIMARY KEY,
+    applied_at_epoch_ms DOUBLE NOT NULL
+  )`,
 ] as const;
 
 const migrationColumns = [
@@ -368,11 +372,55 @@ const migrationBackfillStatements = [
   "UPDATE ai_metrics_scorecards SET coverage_gaps_json = '[]' WHERE coverage_gaps_json IS NULL",
 ] as const;
 
+const legacyAgentTaskIdExpression = (tableAlias: string): string =>
+  `concat('agent-task-', sha256(concat('agent-task', chr(0), ${tableAlias}.source_kind, chr(0), ${tableAlias}.source_path_hash)))`;
+
+const currentAgentTaskIdExpression = (tableAlias: string): string =>
+  `concat('agent-task-', sha256(concat('agent-task', chr(0), ${tableAlias}.config_snapshot_id, chr(0), ${tableAlias}.source_kind, chr(0), ${tableAlias}.source_role, chr(0), ${tableAlias}.source_path_hash)))`;
+
+const legacyAgentTaskIdMigrationStatements = [
+  `DELETE FROM ai_metrics_agent_tasks AS legacy
+   WHERE legacy.agent_task_id = ${legacyAgentTaskIdExpression("legacy")}
+     AND EXISTS (
+       SELECT 1
+       FROM ai_metrics_agent_tasks AS current
+       WHERE current.agent_task_id = ${currentAgentTaskIdExpression("legacy")}
+         AND current.agent_task_id <> legacy.agent_task_id
+     )`,
+  `UPDATE ai_metrics_agent_tasks AS task
+   SET agent_task_id = ${currentAgentTaskIdExpression("task")}
+   WHERE task.agent_task_id = ${legacyAgentTaskIdExpression("task")}`,
+] as const;
+
 type MigrationColumn = {
   readonly columnDefinition: string;
   readonly columnName: string;
   readonly tableName: string;
 };
+
+type DerivedStorageMigration = {
+  readonly migrationId: string;
+  readonly requiredColumns?: ReadonlyArray<Pick<MigrationColumn, "columnName" | "tableName">>;
+  readonly statements: ReadonlyArray<string>;
+};
+
+const derivedStorageMigrations = [
+  {
+    migrationId: "ai-metrics-p6a-default-backfill-v1",
+    statements: migrationBackfillStatements,
+  },
+  {
+    migrationId: "ai-metrics-agent-task-id-v2",
+    requiredColumns: [
+      { columnName: "agent_task_id", tableName: "ai_metrics_agent_tasks" },
+      { columnName: "config_snapshot_id", tableName: "ai_metrics_agent_tasks" },
+      { columnName: "source_kind", tableName: "ai_metrics_agent_tasks" },
+      { columnName: "source_path_hash", tableName: "ai_metrics_agent_tasks" },
+      { columnName: "source_role", tableName: "ai_metrics_agent_tasks" },
+    ],
+    statements: legacyAgentTaskIdMigrationStatements,
+  },
+] as const satisfies ReadonlyArray<DerivedStorageMigration>;
 
 /**
  * Error raised by the DuckDB derived storage projection.
@@ -514,11 +562,72 @@ const addColumnIfMissing: (input: MigrationColumn) => Effect.Effect<void, DuckDb
   yield* duckdb.run(`ALTER TABLE ${tableName} ADD COLUMN ${columnDefinition}`);
 });
 
+const migrationColumnExists: (
+  input: Pick<MigrationColumn, "columnName" | "tableName">
+) => Effect.Effect<boolean, DuckDbError, DuckDb> = Effect.fn("AiMetrics.derivedStorage.migrationColumnExists")(
+  function* ({ columnName, tableName }) {
+    const duckdb = yield* DuckDb;
+    const rows = yield* duckdb.query(
+      `SELECT column_name AS "columnName"
+     FROM information_schema.columns
+      WHERE table_name = $tableName AND column_name = $columnName`,
+      { columnName, tableName }
+    );
+
+    return A.isReadonlyArrayNonEmpty(rows);
+  }
+);
+
+const migrationHasRequiredColumns: (migration: DerivedStorageMigration) => Effect.Effect<boolean, DuckDbError, DuckDb> =
+  Effect.fn("AiMetrics.derivedStorage.migrationHasRequiredColumns")(function* (migration) {
+    if (migration.requiredColumns === undefined || migration.requiredColumns.length === 0) {
+      return true;
+    }
+
+    const columnResults = yield* Effect.forEach(migration.requiredColumns, migrationColumnExists);
+    return A.every(columnResults, (exists) => exists);
+  });
+
+const runDerivedStorageMigrationOnce: (migration: DerivedStorageMigration) => Effect.Effect<void, DuckDbError, DuckDb> =
+  Effect.fn("AiMetrics.derivedStorage.runMigrationOnce")(function* (migration) {
+    const duckdb = yield* DuckDb;
+    const appliedRows = yield* duckdb.query(
+      `SELECT migration_id AS "migrationId"
+     FROM ai_metrics_schema_migrations
+     WHERE migration_id = $migrationId`,
+      { migrationId: migration.migrationId }
+    );
+
+    if (A.isReadonlyArrayNonEmpty(appliedRows)) {
+      return;
+    }
+
+    const hasRequiredColumns = yield* migrationHasRequiredColumns(migration);
+    if (!hasRequiredColumns) {
+      return;
+    }
+
+    yield* duckdb.runMany(migration.statements);
+    yield* duckdb.run(
+      `INSERT OR REPLACE INTO ai_metrics_schema_migrations (
+      migration_id,
+      applied_at_epoch_ms
+    ) VALUES (
+      $migrationId,
+      $appliedAtEpochMillis
+    )`,
+      {
+        appliedAtEpochMillis: globalThis.String(yield* Clock.currentTimeMillis),
+        migrationId: migration.migrationId,
+      }
+    );
+  });
+
 const ensureAiMetricsDerivedStorageRaw = Effect.fn("AiMetrics.derivedStorage.ensureRaw")(function* () {
   const duckdb = yield* DuckDb;
   yield* duckdb.runMany(createTableStatements);
   yield* Effect.forEach(migrationColumns, addColumnIfMissing, { discard: true });
-  yield* duckdb.runMany(migrationBackfillStatements);
+  yield* Effect.forEach(derivedStorageMigrations, runDerivedStorageMigrationOnce, { discard: true });
 });
 
 /**

@@ -27,6 +27,7 @@ import { summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
 import { AiMetricsDeployTarget, AiMetricsTranscriptSource } from "./models.ts";
 import { hashPrivateIdentifier, makeAiMetricsPrivacyCheckResult } from "./privacy.ts";
+import { shellQuote } from "./shell.ts";
 
 const $I = $RepoAiMetricsId.create("forwarder");
 const DEFAULT_MAX_FILES = 200;
@@ -240,8 +241,6 @@ const repoPathToClaudeProjectName: (repoRoot: string) => string = Str.replace(/[
 
 const normalizedRelativePath = (pathApi: Path.Path, root: string, filePath: string): string =>
   pipe(pathApi.relative(root, filePath), Str.replace(/\\/gu, "/"));
-
-const shellQuote = (value: string): string => `'${Str.replace(/'/gu, "'\\''")(value)}'`;
 
 const requireForwarderHashSalt = Effect.fn("AiMetrics.forwarder.requireHashSalt")(function* (
   input: AiMetricsForwarderInput

@@ -31,6 +31,7 @@ import {
   forwarderRunResultToJson,
   forwarderTimerPlanToJson,
   generateAiMetricsWeeklyReport,
+  hashPublicTextSha256,
   listAiMetricsBenchmarkCases,
   makeAiMetricsConfigSnapshot,
   makeAiMetricsInstallApplyDryRunResult,
@@ -1061,6 +1062,93 @@ volumes:
 
             expect(sourceRows).toEqual([{ sourceRole: "primary" }]);
             expect(scorecardRows).toEqual([{ completionReady: false, coverageGapsJson: "[]" }]);
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "deduplicates legacy agent task ids during derived storage migration",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const duckDbPath = path.join(tmpDir, "ai-metrics.duckdb");
+
+          yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            const legacyTaskId = `agent-task-${yield* hashPublicTextSha256("agent-task\u0000codex\u0000source-hash")}`;
+            const currentTaskId = `agent-task-${yield* hashPublicTextSha256(
+              "agent-task\u0000snapshot-1\u0000codex\u0000primary\u0000source-hash"
+            )}`;
+            yield* duckdb.run(
+              `CREATE TABLE ai_metrics_agent_tasks (
+                agent_task_id VARCHAR PRIMARY KEY,
+                title VARCHAR NOT NULL,
+                source_kind VARCHAR NOT NULL,
+                source_path_hash VARCHAR NOT NULL,
+                source_role VARCHAR NOT NULL,
+                repo_root_hash VARCHAR NOT NULL,
+                config_snapshot_id VARCHAR NOT NULL,
+                created_at_epoch_ms DOUBLE NOT NULL,
+                first_seen_at VARCHAR,
+                last_seen_at VARCHAR
+              )`
+            );
+            yield* duckdb.run(
+              `INSERT INTO ai_metrics_agent_tasks (
+                agent_task_id,
+                title,
+                source_kind,
+                source_path_hash,
+                source_role,
+                repo_root_hash,
+                config_snapshot_id,
+                created_at_epoch_ms,
+                first_seen_at,
+                last_seen_at
+              ) VALUES (
+                $legacyTaskId,
+                'legacy task',
+                'codex',
+                'source-hash',
+                'primary',
+                'repo-hash',
+                'snapshot-1',
+                1,
+                NULL,
+                NULL
+              ), (
+                $currentTaskId,
+                'current task',
+                'codex',
+                'source-hash',
+                'primary',
+                'repo-hash',
+                'snapshot-1',
+                2,
+                NULL,
+                NULL
+              )`,
+              { currentTaskId, legacyTaskId }
+            );
+
+            yield* ensureAiMetricsDerivedStorage;
+
+            const taskRows = yield* duckdb.query(
+              `SELECT agent_task_id AS "agentTaskId"
+               FROM ai_metrics_agent_tasks
+               ORDER BY agent_task_id`
+            );
+            const migrationRows = yield* duckdb.query(
+              `SELECT migration_id AS "migrationId"
+               FROM ai_metrics_schema_migrations
+               WHERE migration_id = 'ai-metrics-agent-task-id-v2'`
+            );
+
+            expect(taskRows).toEqual([{ agentTaskId: currentTaskId }]);
+            expect(migrationRows).toEqual([{ migrationId: "ai-metrics-agent-task-id-v2" }]);
           }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
       ).pipe(Effect.provide(NodeServices.layer));
