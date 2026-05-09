@@ -64,10 +64,13 @@ const changedFilesFlag = Flag.boolean("changed-files").pipe(
 );
 const qualityScoreFlag = Flag.choiceWithValue("score", [
   ["none", "none"],
+  ["rubric", "rubric"],
   ["codex", "codex"],
 ]).pipe(
-  Flag.withDefault("none"),
-  Flag.withDescription("Advisory scoring mode: none for deterministic rubric, codex for Codex-ready packets")
+  Flag.withDefault("rubric"),
+  Flag.withDescription(
+    "Advisory scoring mode: rubric for deterministic findings, none as a compatibility alias, codex for Codex-ready packets"
+  )
 );
 const verboseFlag = Flag.boolean("verbose").pipe(
   Flag.withAlias("v"),
@@ -663,7 +666,13 @@ const docgenQualityCommand = Command.make(
       }
 
       if (O.isSome(packageSelector) && targets.length === 1) {
-        const destination = defaultQualityPath(targets[0]!.absolutePath, json, path);
+        const target = A.head(targets);
+
+        if (O.isNone(target)) {
+          return;
+        }
+
+        const destination = defaultQualityPath(target.value.absolutePath, json, path);
         yield* fs.writeFileString(destination, content);
         yield* Console.log(`docgen: wrote ${destination}`);
         return;

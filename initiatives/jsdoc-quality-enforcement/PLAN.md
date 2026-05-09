@@ -9,7 +9,9 @@ V1 is implemented as a report-only quality workflow:
 - `@beep/repo-docgen` remains deterministic and supplies parsing and required
   documentation policy.
 - Source-file ts-morph evidence and `@beep/repo-utils/TSMorph` content hashing
-  enrich review subjects after package and source selection.
+  enrich review subjects after package and source selection; diagnostics and
+  related-symbol fields are present in the schema but remain follow-up
+  enrichment when unavailable.
 - `.patterns/jsdoc-documentation.md` and all `jsdoc-annotation-specialist`
   skill copies carry the whole-block usefulness and universal `@example`
   policy.

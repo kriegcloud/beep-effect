@@ -714,6 +714,152 @@ export const parseValue = (value: string): string => value.trim();
     );
   });
 
+  it("collects local export-list symbols without creating fake module subjects", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Parses a value into the normalized schema fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import { parseValue } from "@beep/schema"
+ * const result = parseValue(" hello ")
+ * expect(result).toBe("hello")
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+const parseValue = (value: string): string => value.trim();
+
+export { parseValue };
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzePackageQuality(target!);
+          const exportNames = report.subjects.map((subject) => subject.exportName);
+          const subject = report.subjects.find((entry) => entry.exportName === "parseValue");
+
+          expect(exportNames).toEqual(["parseValue"]);
+          expect(subject?.stableIdentity).toMatch(
+            /^@beep\/schema:packages\/foundation\/modeling\/schema\/src\/index\.ts:const:parseValue:[a-f0-9]{12}$/
+          );
+          expect(subject?.sourceAnchor).toContain("packages/foundation/modeling/schema/src/index.ts:");
+        })
+      )
+    );
+  });
+
+  it("honors docgen exclude globs during quality subject collection", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src", "internal"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "docgen.json"),
+            encodeJson({
+              srcDir: "src",
+              exclude: ["src/internal/**/*.ts", "src/*.generated.ts"],
+            })
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Package docs.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+/**
+ * Parses a value into the normalized schema fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import { parseValue } from "@beep/schema"
+ * const result = parseValue(" hello ")
+ * expect(result).toBe("hello")
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "internal", "Hidden.ts"),
+            `export const HiddenInternal = "skip me";\n`
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "schema.generated.ts"),
+            `export const GeneratedExport = "skip me too";\n`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzePackageQuality(target!);
+          const exportNames = report.subjects.map((subject) => subject.exportName);
+
+          expect(exportNames).toContain("parseValue");
+          expect(exportNames).not.toContain("HiddenInternal");
+          expect(exportNames).not.toContain("GeneratedExport");
+        })
+      )
+    );
+  });
+
   it("renders consolidated quality reports and Codex remediation packets", async () => {
     await Effect.runPromise(
       withTempRepo(
@@ -788,11 +934,22 @@ export const parseValue = (value: string): string => value.trim();
           expect(report.summary.failures).toBeGreaterThan(0);
           expect(report.packages[0]?.summary.remediationPackets).toBeGreaterThan(0);
           expect(report.remediationPackets[0]?.prompt).toContain("Keep @example mandatory");
+          expect(report.remediationPackets[0]?.verificationArgv).toEqual([
+            "bun",
+            "run",
+            "beep",
+            "docgen",
+            "quality",
+            "-p",
+            "packages/foundation/modeling/schema",
+            "--json",
+          ]);
           expect(deterministicReport.scorer).toBe("deterministic-rubric-v1");
           expect(deterministicReport.summary.remediationPackets).toBe(0);
           expect(deterministicReport.remediationPackets).toHaveLength(0);
           expect(markdown).toContain("# JSDoc Quality Report");
           expect(markdown).toContain("## @beep/schema");
+          expect(markdown).toContain("Improve the JSDoc block for this exported symbol");
           expect(decoded.schemaVersion).toBe(1);
         })
       )

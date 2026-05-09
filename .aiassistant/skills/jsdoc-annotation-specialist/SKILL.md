@@ -53,6 +53,7 @@ Every exported symbol MUST have this minimum structure:
  * import * as S from "effect/Schema"
  *
  * const result = MyModule.myFunction(args)
+ * console.log(result)
  * ```
  *
  * @category constructors
@@ -79,10 +80,10 @@ Tag order within the block:
 
 ## Quality Rubric
 
-The repo quality command scores the whole JSDoc block, not just whether tags
-exist. Treat `@example` as universal for exported symbols; for error classes,
-type-only helpers, constants, schemas, and re-exports, choose a handling,
-narrowing, construction, or import example that fits the symbol.
+The report-only `beep docgen quality` command scores the whole JSDoc block, not
+just whether tags exist. Treat `@example` as universal for exported symbols; for
+error classes, type-only helpers, constants, schemas, and re-exports, choose a
+handling, narrowing, construction, or import example that fits the symbol.
 
 A useful example is fenced TypeScript and shows an observable result: an
 assertion, returned value, decoded value, Effect execution, or visible output.

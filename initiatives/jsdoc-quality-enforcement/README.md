@@ -13,8 +13,9 @@ V1 adds a report-only `beep docgen quality` workflow owned by `@beep/repo-cli`.
 It extracts deterministic quality subjects with `@beep/repo-docgen` parsing and
 required-tag policy, enriches them with source-file ts-morph evidence and
 `@beep/repo-utils` content hashing, scores the whole JSDoc block with typed
-findings, and emits bounded advisory Codex remediation packets. The command is
-not a blocking gate.
+findings, and emits bounded advisory Codex remediation packets. Diagnostics and
+related-symbol fields are reserved for follow-up enrichment when unavailable.
+The command is not a blocking gate.
 
 ## Read This First
 

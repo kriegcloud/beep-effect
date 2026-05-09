@@ -53,10 +53,14 @@ const EXCLUDED_SOURCE_SEGMENTS = [
   "/tests/",
   "/dtslint/",
 ] as const;
-const REPO_WIDE_CHANGED_FILE_COMMANDS = [
-  ["diff", "--name-only", "--diff-filter=ACMR", "origin/main...HEAD", "--", "*.ts", "*.tsx"],
-  ["diff", "--name-only", "--diff-filter=ACMR", "HEAD", "--", "*.ts", "*.tsx"],
-  ["ls-files", "--others", "--exclude-standard", "--", "*.ts", "*.tsx"],
+const REPO_BASE_CHANGED_FILE_COMMAND = [
+  "diff",
+  "--name-only",
+  "--diff-filter=ACMR",
+  "origin/main...HEAD",
+  "--",
+  "*.ts",
+  "*.tsx",
 ] as const;
 const WORKING_TREE_CHANGED_FILE_COMMANDS = [
   ["diff", "--name-only", "--diff-filter=ACMR", "HEAD", "--", "*.ts", "*.tsx"],
@@ -110,7 +114,7 @@ export type DocgenQualityScopeMode = typeof DocgenQualityScopeMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityScoreMode = LiteralKit(["none", "codex"]).annotate(
+export const DocgenQualityScoreMode = LiteralKit(["none", "rubric", "codex"]).annotate(
   $I.annote("DocgenQualityScoreMode", {
     description: "Optional advisory scoring mode for docgen quality.",
   })
@@ -122,7 +126,7 @@ export const DocgenQualityScoreMode = LiteralKit(["none", "codex"]).annotate(
  * @example
  * ```ts
  * import type { DocgenQualityScoreMode } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * const mode: DocgenQualityScoreMode = "codex"
+ * const mode: DocgenQualityScoreMode = "rubric"
  * void mode
  * ```
  * @category type-level
@@ -334,6 +338,7 @@ class DocgenQualityRemediationPacket extends S.Class<DocgenQualityRemediationPac
     title: S.String,
     prompt: S.String,
     verificationCommand: S.String,
+    verificationArgv: S.Array(S.String),
   },
   $I.annote("DocgenQualityRemediationPacket", {
     description: "Bounded advisory packet for future Codex remediation.",
@@ -368,8 +373,9 @@ export class DocgenQualityReport extends S.Class<DocgenQualityReport>($I`DocgenQ
   })
 ) {}
 
-type DocgenQualitySubjectCandidate = Omit<DocgenQualitySubject, "contentHash"> & {
+type DocgenQualitySubjectCandidate = Omit<DocgenQualitySubject, "contentHash" | "stableIdentity"> & {
   readonly hashSourceText: string;
+  readonly identityStem: string;
 };
 
 const byPackagePathAscending: Order.Order<DocgenWorkspacePackage> = Order.mapInput(
@@ -427,17 +433,38 @@ const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: 
   return pipe(output.split(/\r?\n/), A.map(Str.trim), A.filter(Str.isNonEmpty));
 });
 
-const collectChangedFiles = Effect.fn("DocgenQuality.collectChangedFiles")(function* (
-  repoRoot: string,
-  scope: DocgenQualityScopeMode
+const collectWorkingTreeChangedFiles = Effect.fn("DocgenQuality.collectWorkingTreeChangedFiles")(function* (
+  repoRoot: string
 ) {
-  const commands = scope === "changed-files" ? WORKING_TREE_CHANGED_FILE_COMMANDS : REPO_WIDE_CHANGED_FILE_COMMANDS;
   const files = yield* Effect.forEach(
-    commands,
+    WORKING_TREE_CHANGED_FILE_COMMANDS,
     (args) => runGitLines(repoRoot, args).pipe(Effect.catch(() => Effect.succeed(A.empty<string>()))),
     { concurrency: "unbounded" }
   );
   return pipe(A.flatten(files), A.map(normalizeSlashes), A.dedupe);
+});
+
+const collectChangedFiles = Effect.fn("DocgenQuality.collectChangedFiles")(function* (
+  repoRoot: string,
+  scope: DocgenQualityScopeMode
+) {
+  if (scope === "changed-files") {
+    return yield* collectWorkingTreeChangedFiles(repoRoot);
+  }
+
+  const baseChanged = yield* runGitLines(repoRoot, REPO_BASE_CHANGED_FILE_COMMAND).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message:
+            "Unable to resolve affected docgen quality scope from origin/main...HEAD. Use --changed-files, --all, or --package explicitly, or refresh origin/main.",
+          cause,
+        })
+    )
+  );
+  const workingTreeChanged = yield* collectWorkingTreeChangedFiles(repoRoot);
+
+  return pipe([...baseChanged, ...workingTreeChanged], A.map(normalizeSlashes), A.dedupe);
 });
 
 const selectPackagesForFiles = (
@@ -516,7 +543,47 @@ export const resolveDocgenQualityTargets = Effect.fn("DocgenQuality.resolveDocge
   };
 });
 
-const sourceFileMatchesExclude = (relativeFilePath: string, exclude: ReadonlyArray<string> | undefined): boolean => {
+const escapeRegexChar = (char: string): string => Str.replace(/[.+?^${}()|[\]\\]/g, "\\$&")(char);
+
+const globPatternToRegExp = (pattern: string): RegExp => {
+  let source = "^";
+  let index = 0;
+
+  while (index < pattern.length) {
+    const char = pattern[index];
+    const next = pattern[index + 1];
+    const afterNext = pattern[index + 2];
+
+    if (char === "*" && next === "*" && afterNext === "/") {
+      source += "(?:.*/)?";
+      index += 3;
+      continue;
+    }
+
+    if (char === "*" && next === "*") {
+      source += ".*";
+      index += 2;
+      continue;
+    }
+
+    if (char === "*") {
+      source += "[^/]*";
+      index += 1;
+      continue;
+    }
+
+    source += escapeRegexChar(char ?? "");
+    index += 1;
+  }
+
+  return new RegExp(`${source}$`);
+};
+
+const sourceFileMatchesExclude = (
+  relativeFilePath: string,
+  srcDir: string,
+  exclude: ReadonlyArray<string> | undefined
+): boolean => {
   const normalized = normalizeSlashes(relativeFilePath);
 
   if (normalized.endsWith(".d.ts")) {
@@ -531,16 +598,13 @@ const sourceFileMatchesExclude = (relativeFilePath: string, exclude: ReadonlyArr
     return false;
   }
 
-  return A.some(exclude, (pattern) => {
-    const normalizedPattern = normalizeSlashes(pattern);
-    const prefix = normalizedPattern.endsWith("/**/*")
-      ? normalizedPattern.slice(0, -"/**/*".length)
-      : normalizedPattern.endsWith("/**")
-        ? normalizedPattern.slice(0, -"/**".length)
-        : normalizedPattern;
+  const srcRelative = Str.startsWith(`${srcDir}/`)(normalized) ? normalized.slice(srcDir.length + 1) : normalized;
 
-    return normalized === prefix || Str.startsWith(`${prefix}/`)(normalized);
-  });
+  return A.some(exclude, (pattern) =>
+    A.some([normalized, srcRelative], (candidate) =>
+      globPatternToRegExp(normalizeSlashes(Str.replace(/^\.\//, "")(pattern))).test(candidate)
+    )
+  );
 };
 
 const getJsDocs = (node: Node): ReadonlyArray<JSDoc> => {
@@ -579,6 +643,8 @@ const getTopFileoverviewText = (sourceFile: SourceFile): string => {
   const match = /^\s*(\/\*\*[\s\S]*?\*\/)/.exec(sourceFile.getFullText());
   return match?.[1] ?? "";
 };
+
+const isFileoverviewJsDoc = (rawJsDoc: string): boolean => /@(packageDocumentation|fileoverview|file)\b/.test(rawJsDoc);
 
 const normalizeTags = (rawJsDoc: string): Record<string, ReadonlyArray<string>> => {
   if (Str.trim(rawJsDoc).length === 0) {
@@ -667,7 +733,20 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
     }
   }
 
-  return candidates;
+  for (const [name, declarations] of sourceFile.getExportedDeclarations()) {
+    for (const declaration of declarations) {
+      if (declaration.getSourceFile() !== sourceFile) {
+        continue;
+      }
+
+      candidates = A.append(candidates, {
+        name,
+        declaration,
+      });
+    }
+  }
+
+  return A.dedupeWith(candidates, (left, right) => left.name === right.name && left.declaration === right.declaration);
 };
 
 const nodeLine = (node: Node): number => node.getSourceFile().getLineAndColumnAtPos(node.getStart()).line;
@@ -773,7 +852,7 @@ const makeSubjectCandidate = ({
 }): DocgenQualitySubjectCandidate => {
   const tags = normalizeTags(rawJsDoc);
   const categoryValues = tagValues(tags, "category");
-  const stableIdentity = `${packageName}:${repoPath}:${line}:${declarationKind}:${exportName}`;
+  const identityStem = `${packageName}:${repoPath}:${declarationKind}:${exportName}`;
   return {
     packageName,
     packagePath,
@@ -789,13 +868,13 @@ const makeSubjectCandidate = ({
     tags,
     parsedExamples: tagValues(tags, "example"),
     generatedDocSnippet,
-    stableIdentity,
+    identityStem,
     diagnostics: collectDiagnostics(diagnostics, line, endLine),
     relatedSymbols,
     deterministicMissingTags: missingRequiredTags(declarationKind, tags),
     categoryValues,
     categoryIssues: categoryIssueMessages(categoryValues),
-    hashSourceText,
+    hashSourceText: [packageName, repoPath, declarationKind, exportName, hashSourceText].join("\n"),
   };
 };
 
@@ -814,7 +893,7 @@ const isInterestingSourceFile = (
   }
 
   const relativeFilePath = normalizeSlashes(path.relative(target.absolutePath, sourceFile.getFilePath()));
-  return Str.startsWith(`${srcDir}/`)(relativeFilePath) && !sourceFileMatchesExclude(relativeFilePath, exclude);
+  return Str.startsWith(`${srcDir}/`)(relativeFilePath) && !sourceFileMatchesExclude(relativeFilePath, srcDir, exclude);
 };
 
 const collectModuleSubject = ({
@@ -836,7 +915,7 @@ const collectModuleSubject = ({
 }): O.Option<DocgenQualitySubjectCandidate> => {
   const rawJsDoc = getTopFileoverviewText(sourceFile);
 
-  if (Str.trim(rawJsDoc).length === 0) {
+  if (Str.trim(rawJsDoc).length === 0 || !isFileoverviewJsDoc(rawJsDoc)) {
     return O.none();
   }
 
@@ -996,10 +1075,11 @@ const finalizeSubject = Effect.fn("DocgenQuality.finalizeSubject")(function* (
   const contentHash = yield* decodeContentHashFromSourceText(candidate.hashSourceText).pipe(
     Effect.mapError((cause) => new DomainError({ message: "Failed to compute JSDoc quality subject hash.", cause }))
   );
-  const { hashSourceText: _hashSourceText, ...subject } = candidate;
+  const { hashSourceText: _hashSourceText, identityStem, ...subject } = candidate;
   void _hashSourceText;
   return new DocgenQualitySubject({
     ...subject,
+    stableIdentity: `${identityStem}:${contentHash.slice(0, 12)}`,
     contentHash,
   });
 });
@@ -1318,6 +1398,8 @@ const remediationPrompt = (subject: DocgenQualitySubject, review: DocgenQualityR
     "Keep @example mandatory. Prefer a realistic TypeScript example with an observable result.",
   ].join("\n");
 
+const shellQuote = (value: string): string => `'${Str.replace(/'/g, "'\\''")(value)}'`;
+
 const makeRemediationPacket = (
   subject: DocgenQualitySubject,
   review: DocgenQualityReview
@@ -1327,7 +1409,8 @@ const makeRemediationPacket = (
     subjectId: subject.stableIdentity,
     title: `Improve JSDoc for ${subject.exportName}`,
     prompt: remediationPrompt(subject, review),
-    verificationCommand: `bun run beep docgen quality -p ${subject.packagePath} --json`,
+    verificationCommand: `bun run beep docgen quality -p ${shellQuote(subject.packagePath)} --json`,
+    verificationArgv: ["bun", "run", "beep", "docgen", "quality", "-p", subject.packagePath, "--json"],
   });
 
 const remediationPacketsForPackage = (pkg: DocgenQualityPackageReport): ReadonlyArray<DocgenQualityRemediationPacket> =>
@@ -1532,6 +1615,10 @@ export const generateQualityReport = (report: DocgenQualityReport): string => {
         `- ${packet.id}: ${packet.title}`,
         `  - Subject: \`${packet.subjectId}\``,
         `  - Verify: \`${packet.verificationCommand}\``,
+        "",
+        "  ```text",
+        ...A.map(packet.prompt.split(/\r?\n/), (line) => `  ${line}`),
+        "  ```",
         ""
       );
     }

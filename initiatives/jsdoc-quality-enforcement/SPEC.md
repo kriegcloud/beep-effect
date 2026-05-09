@@ -49,15 +49,17 @@ the research agent at research time.
   codes, an advisory 1-10 score, and rationale.
 - Every review subject carries parsed examples, description, tags, source
   anchor, signature, declaration kind, package identity, stable identity,
-  content hash, diagnostics, related symbols, and generated-doc snippet when
-  present.
+  content hash, and generated-doc snippet when present. The V1 schema also
+  reserves diagnostics and related-symbol fields; they may be empty until
+  deeper `@beep/repo-utils/TSMorph` enrichment is promoted.
 - `@beep/repo-cli` owns orchestration, report writing, scope selection, and
   advisory remediation packets.
 - `@beep/repo-docgen` remains deterministic and supplies parsing and required
   documentation policy.
 - V1 enrichment uses source-file ts-morph evidence and
   `@beep/repo-utils/TSMorph` content hashing after docgen-oriented package and
-  source enumeration.
+  source enumeration; project diagnostics and related-symbol expansion remain
+  follow-up enrichment.
 - Default scope is affected packages. Supported non-default modes are
   `--package`, `--changed-files`, and `--all`.
 - Codex use in V1 is advisory packet output only. No automatic edits are made.
