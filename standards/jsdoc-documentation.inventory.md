@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-05-09T08:26:36.147Z
+Generated: 2026-05-09T09:28:12.290Z
 
 ## Scope
 
@@ -2450,7 +2450,7 @@ Export findings:
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:234` `TsMorphIntegrationService` (class) - missing @example
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:258` `createTsMorphIntegrationService` (const) - missing @example
 - `src/commands/CreatePackage/index.ts:16` `createPackageCommand` (const) - missing @example
-- `src/commands/Docgen/index.ts:720` `docgenCommand` (const) - missing @example
+- `src/commands/Docgen/index.ts:728` `docgenCommand` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:86` `DocgenPackageStatus` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:101` `DocgenPackageStatus` (type) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:115` `DocgenConfigDocument` (class) - missing @example

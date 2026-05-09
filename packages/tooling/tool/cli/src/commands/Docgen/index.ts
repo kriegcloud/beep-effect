@@ -74,7 +74,9 @@ const qualityScoreFlag = Flag.choiceWithValue("score", [
 );
 const packetLimitFlag = Flag.integer("packet-limit").pipe(
   Flag.withDefault(25),
-  Flag.withDescription("Maximum number of Codex advisory remediation packets to emit; use 0 to suppress packets")
+  Flag.withDescription(
+    "Maximum number of Codex advisory remediation packets to emit; use 0 to suppress packets; must be zero or greater"
+  )
 );
 const verboseFlag = Flag.boolean("verbose").pipe(
   Flag.withAlias("v"),
@@ -655,6 +657,12 @@ const docgenQualityCommand = Command.make(
       if (targets.length === 0) {
         yield* Console.log("docgen: no packages selected for quality analysis");
         return;
+      }
+
+      if (packetLimit < 0) {
+        return yield* new DomainError({
+          message: "--packet-limit must be zero or greater; use 0 to suppress packets",
+        });
       }
 
       const report = yield* analyzeDocgenQuality({

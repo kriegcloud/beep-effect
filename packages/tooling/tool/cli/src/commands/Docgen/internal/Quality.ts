@@ -24,7 +24,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
-import { type Diagnostic, type ExportDeclaration, type JSDoc, Node, Project, type SourceFile } from "ts-morph";
+import { type Diagnostic, type JSDoc, Node, Project, type SourceFile } from "ts-morph";
 import { normalizeJSDocCategory } from "../../Shared/JSDocCategories.js";
 import {
   assertNoOrphanDocgenConfigPaths,
@@ -521,9 +521,7 @@ const selectPackagesForFiles = (
 ): ReadonlyArray<DocgenWorkspacePackage> =>
   pipe(
     packages,
-    A.filter((pkg) =>
-      A.some(files, (filePath) => filePath === pkg.relativePath || Str.startsWith(`${pkg.relativePath}/`)(filePath))
-    ),
+    A.filter((pkg) => A.some(files, (filePath) => Str.startsWith(`${pkg.relativePath}/`)(filePath))),
     A.sort(byPackagePathAscending)
   );
 
@@ -697,7 +695,7 @@ const getLastJsDocText = (node: Node): string =>
     O.getOrElse(thunkEmptyStr)
   );
 
-const getLeadingJsDocCommentText = (node: ExportDeclaration): string =>
+const getLeadingJsDocCommentText = (node: Node): string =>
   pipe(
     node.getLeadingCommentRanges(),
     A.filter((range) => Str.startsWith("/**")(range.getText())),
@@ -814,6 +812,32 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
   let candidates = A.empty<ExportedDeclarationCandidate>();
   const localDeclarations = collectLocalDeclarations(sourceFile);
 
+  for (const exportAssignment of sourceFile.getExportAssignments()) {
+    if (exportAssignment.isExportEquals()) {
+      continue;
+    }
+
+    const rawJsDoc = getLeadingJsDocCommentText(exportAssignment);
+    const expression = exportAssignment.getExpression();
+    const declarations = Node.isIdentifier(expression)
+      ? pipe(
+          localDeclarations,
+          A.filter((entry) => entry.name === expression.getText()),
+          A.map((entry) => entry.declaration)
+        )
+      : [expression];
+
+    for (const declaration of declarations) {
+      candidates = A.append(candidates, {
+        name: "default",
+        declaration,
+        anchorNode: exportAssignment,
+        ...(Str.trim(rawJsDoc).length > 0 ? { rawJsDoc } : {}),
+        exportDeclarationText: exportAssignment.getText(),
+      });
+    }
+  }
+
   for (const exportDeclaration of sourceFile.getExportDeclarations()) {
     if (exportDeclaration.getModuleSpecifierValue() !== undefined) {
       continue;
@@ -862,7 +886,7 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
         Node.isModuleDeclaration(statement)) &&
       statement.isExported()
     ) {
-      const name = statement.getName();
+      const name = statement.isDefaultExport() ? "default" : statement.getName();
 
       if (name !== undefined) {
         candidates = A.append(candidates, {
@@ -1061,6 +1085,8 @@ const collectModuleSubject = ({
   );
 };
 
+// Re-export declarations are permanent export graph edges, not owner
+// declarations for quality scoring. The owning declaration remains the subject.
 const collectReExportSubjects = A.empty;
 
 const collectDirectExportSubjects = ({

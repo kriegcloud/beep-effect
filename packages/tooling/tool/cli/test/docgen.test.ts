@@ -953,6 +953,125 @@ export type Elem<T> = T extends readonly (infer U)[] ? U : never;
     );
   });
 
+  it("preserves default-export subjects in quality analysis", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "DefaultFunction.ts"),
+            `/**
+ * Normalizes a default-exported function value.
+ *
+ * @example
+ * \`\`\`ts
+ * import normalizeDefault from "@beep/schema/DefaultFunction"
+ *
+ * console.log(normalizeDefault(" hello "))
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export default function (value: string): string {
+  return value.trim();
+}
+`
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "DefaultClass.ts"),
+            `/**
+ * Default-exported value holder fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import DefaultValueHolder from "@beep/schema/DefaultClass"
+ *
+ * console.log(new DefaultValueHolder().value)
+ * \`\`\`
+ * @category models
+ * @since 0.0.0
+ */
+export default class {
+  readonly value = "class-default";
+}
+`
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "AssignedDefault.ts"),
+            `/**
+ * Trims a value before exporting it as the module default.
+ *
+ * @example
+ * \`\`\`ts
+ * import trimDefault from "@beep/schema/AssignedDefault"
+ *
+ * console.log(trimDefault(" hello "))
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+const trimDefault = (value: string): string => value.trim();
+
+export default trimDefault;
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzePackageQuality(target!);
+          const defaultSubjects = pipe(
+            report.subjects,
+            A.filter((subject) => subject.exportName === "default")
+          );
+
+          expect(defaultSubjects).toHaveLength(3);
+          expect(
+            pipe(
+              defaultSubjects,
+              A.map((subject) => subject.declarationKind)
+            )
+          ).toEqual(expect.arrayContaining(["class", "const", "function"]));
+          expect(
+            pipe(
+              defaultSubjects,
+              A.map((subject) => subject.repoPath)
+            )
+          ).toEqual(
+            expect.arrayContaining([
+              "packages/foundation/modeling/schema/src/AssignedDefault.ts",
+              "packages/foundation/modeling/schema/src/DefaultClass.ts",
+              "packages/foundation/modeling/schema/src/DefaultFunction.ts",
+            ])
+          );
+        })
+      )
+    );
+  });
+
   it("treats module re-exports as graph edges instead of quality subjects", async () => {
     await Effect.runPromise(
       withTempRepo(
@@ -1402,6 +1521,133 @@ export const value${index} = ${index};
           expect(limitedReport.packages[0]?.omittedPacketCount).toBe(28);
           expect(suppressedReport.remediationPackets).toHaveLength(0);
           expect(suppressedReport.packages[0]?.omittedPacketCount).toBe(30);
+        })
+      )
+    );
+  });
+
+  it("wires --packet-limit through the quality CLI", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          const outputPath = path.join(tmpDir, "quality.json");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            A.join(
+              A.map(
+                A.range(1, 5),
+                (index) => `/**
+ * Missing example CLI fixture ${index}.
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const cliValue${index} = ${index};
+`
+              ),
+              "\n"
+            )
+          );
+
+          yield* runDocgenCommand([
+            "quality",
+            "-p",
+            "packages/foundation/modeling/schema",
+            "--json",
+            "--score",
+            "codex",
+            "--packet-limit",
+            "2",
+            "--output",
+            outputPath,
+          ]);
+
+          const decoded = decodeUnknownJson(yield* fs.readFileString(outputPath)) as {
+            readonly packages?: ReadonlyArray<{
+              readonly omittedPacketCount?: unknown;
+              readonly summary?: { readonly remediationPackets?: unknown };
+            }>;
+            readonly remediationPackets?: ReadonlyArray<unknown>;
+          };
+
+          expect(decoded.remediationPackets).toHaveLength(2);
+          expect(decoded.packages?.[0]?.summary?.remediationPackets).toBe(2);
+          expect(decoded.packages?.[0]?.omittedPacketCount).toBe(3);
+        })
+      )
+    );
+  });
+
+  it("rejects negative --packet-limit values", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Parses a value into the normalized schema fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import { parseValue } from "@beep/schema"
+ *
+ * console.log(parseValue(" hello "))
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+
+          yield* runDocgenCommand(["quality", "-p", "packages/foundation/modeling/schema", "--packet-limit=-1"]);
+
+          expect((yield* TestConsole.errorLines).join("\n")).toContain("--packet-limit must be zero or greater");
+          expect(process.exitCode).toBe(1);
         })
       )
     );
