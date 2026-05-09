@@ -15,7 +15,7 @@ import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { ContentHashFromSourceText } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
-import { DateTime, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
+import { DateTime, Effect, FileSystem, flow, Match, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -826,20 +826,14 @@ const declarationText = (node: Node): string =>
     2_000
   );
 
-const diagnosticCategory = (category: number): string => {
-  switch (category) {
-    case 0:
-      return "warning";
-    case 1:
-      return "error";
-    case 2:
-      return "suggestion";
-    case 3:
-      return "message";
-    default:
-      return "unknown";
-  }
-};
+const diagnosticCategory = (category: number): string =>
+  Match.value(category).pipe(
+    Match.when(0, () => "warning"),
+    Match.when(1, () => "error"),
+    Match.when(2, () => "suggestion"),
+    Match.when(3, () => "message"),
+    Match.orElse(() => "unknown")
+  );
 
 const diagnosticMessageText = (message: string | { getMessageText: () => string }): string =>
   P.isString(message) ? message : message.getMessageText();
