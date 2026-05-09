@@ -649,6 +649,9 @@ describe("@beep/repo-ai-metrics", () => {
 
       expect(plan.serviceUnit).toContain("flock -n");
       expect(plan.serviceUnit).toContain('"status":"failed"');
+      expect(plan.serviceUnit).toContain("json.dumps");
+      expect(plan.serviceUnit).toContain('decode("utf-8","replace")');
+      expect(plan.serviceUnit).not.toContain("sed 's/");
       expect(plan.serviceUnit).toContain("StartLimitBurst=3\nStartLimitIntervalSec=30m\n\n[Service]");
       expect(plan.serviceUnit).toContain("Restart=on-failure");
       expect(plan.timerUnit).toContain("OnUnitInactiveSec=15m");
@@ -1328,6 +1331,67 @@ volumes:
           expect(codex.value.includedFileCount).toBe(1);
           expect(codex.value.limitedByMaxFiles).toBe(false);
           expect(result.discoveredFileCount).toBe(1);
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "streams Codex attribution until a parsed session_meta line is present",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+          const decoy = JSON.stringify({
+            payload: {
+              message: `not metadata session_meta ${pipe("x", Str.repeat(70_000))}`,
+            },
+            timestamp: "2026-05-05T10:00:00Z",
+            type: "event_msg",
+          });
+          const actual = JSON.stringify({
+            payload: {
+              id: "child-session",
+              source: {
+                subagent: {
+                  agent_nickname: "worker-one",
+                  agent_role: "worker",
+                  parent_thread_id: "parent-thread",
+                  thread_spawn: true,
+                },
+              },
+            },
+            timestamp: "2026-05-05T10:01:00Z",
+            type: "session_meta",
+          });
+          yield* writeText(path.join(codexRoot, "codex-subagent.jsonl"), `${decoy}\n${actual}\n`);
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "root agent guide\n");
+
+          const result = yield* discoverAiMetricsSources(
+            new AiMetricsSourceDiscoveryInput({
+              codexSessionsRoot: codexRoot,
+              hashSalt: "test-salt",
+              homeDir,
+              includeAll: true,
+              repoRoot,
+            })
+          );
+          const codex = pipe(
+            result.sources,
+            A.findFirst((source) => source.sourceKind === AiMetricsTranscriptSource.Enum.codex)
+          );
+
+          expect(O.isSome(codex)).toBe(true);
+          if (O.isNone(codex)) {
+            return;
+          }
+          expect(codex.value.files).toHaveLength(1);
+          expect(codex.value.files[0]?.agentRoleHash).toBeDefined();
+          expect(codex.value.files[0]?.sourceRole).toBe("subagent");
+          expect(codex.value.files[0]?.threadSpawn).toBe(true);
         })
       ).pipe(Effect.provide(NodeServices.layer));
     })

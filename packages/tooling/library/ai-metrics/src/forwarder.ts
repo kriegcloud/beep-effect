@@ -279,11 +279,13 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
   const stderrTmpPath = `${input.statusPath}.stderr.tmp`;
   const envFileShellPath = "~/.config/beep/ai-metrics.env";
   const envFileUnitPath = "%h/.config/beep/ai-metrics.env";
+  const failureStatusPython =
+    'import json,sys; data=open(sys.argv[2],"rb").read(2000).decode("utf-8","replace"); print(json.dumps({"status":"failed","exitCode":int(sys.argv[1]),"stderr":data},separators=(",",":")))';
   const execCommand = [
     "set -euo pipefail",
     `mkdir -p "$(dirname ${shellQuote(input.statusPath)})" "$(dirname ${shellQuote(input.lockPath)})"`,
     "exit_code=0",
-    `if flock -n ${shellQuote(input.lockPath)} ${input.command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; stderr="$(head -c 2000 ${shellQuote(stderrTmpPath)} | sed 's/\\\\/\\\\\\\\/g; s/"/\\\\"/g' | tr '\\n' ' ')"; printf '{"status":"failed","exitCode":%s,"stderr":"%s"}\\n' "$exit_code" "$stderr" > ${shellQuote(statusTmpPath)}; fi`,
+    `if flock -n ${shellQuote(input.lockPath)} ${input.command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
     `rm -f ${shellQuote(stderrTmpPath)}`,
     `mv ${shellQuote(statusTmpPath)} ${shellQuote(input.statusPath)}`,
     'exit "$exit_code"',

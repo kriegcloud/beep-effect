@@ -12,7 +12,13 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { AiMetricsDeployTarget, AiMetricsSourceRole, AiMetricsTranscriptSource } from "./models.ts";
+import { transcriptLines } from "./internal/transcript-utils.ts";
+import {
+  AiMetricsDeployTarget,
+  AiMetricsSourceRole,
+  AiMetricsTranscriptSource,
+  CodexTranscriptLine,
+} from "./models.ts";
 import {
   AiMetricsHashSaltStatus,
   hashPrivateIdentifier,
@@ -222,6 +228,7 @@ export class AiMetricsSourceDiscoveryError extends TaggedErrorClass<AiMetricsSou
 ) {}
 
 const encodeSourceDiscoveryJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsSourceDiscoveryResult));
+const decodeCodexTranscriptLine = S.decodeUnknownOption(S.fromJsonString(CodexTranscriptLine));
 
 const byPathHashAscending: Order.Order<AiMetricsDiscoveredTranscriptFile> = Order.mapInput(
   Order.String,
@@ -252,6 +259,18 @@ const fileSystemFailure = (message: string, cause: unknown): AiMetricsSourceDisc
 const normalizedRelativePath = (pathApi: Path.Path, root: string, filePath: string): string =>
   pipe(pathApi.relative(root, filePath), Str.replace(/\\/gu, "/"));
 
+const contentHasCodexSessionMetaLine = (content: string): boolean =>
+  pipe(
+    content,
+    transcriptLines,
+    A.some((line) =>
+      pipe(
+        decodeCodexTranscriptLine(line),
+        O.exists((decoded) => decoded.type === "session_meta")
+      )
+    )
+  );
+
 const readAttributionContent = (
   fs: FileSystem.FileSystem,
   sourceKind: AiMetricsTranscriptSource,
@@ -263,11 +282,10 @@ const readAttributionContent = (
 
   return fs.stream(sourcePath, { chunkSize: 64 * 1024 }).pipe(
     Stream.decodeText(),
-    Stream.takeUntil(Str.includes("session_meta")),
-    Stream.runFold(
-      () => "",
-      (content, chunk) => `${content}${chunk}`
-    )
+    Stream.scan("", (content, chunk) => `${content}${chunk}`),
+    Stream.takeUntil(contentHasCodexSessionMetaLine),
+    Stream.runLast,
+    Effect.map(O.getOrElse(() => ""))
   );
 };
 
