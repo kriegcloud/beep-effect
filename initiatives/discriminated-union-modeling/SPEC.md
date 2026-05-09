@@ -17,7 +17,7 @@
 
 Promote finite-case data modeling from local style preference to architecture
 doctrine: data shapes that represent variants, lifecycle states, status/result
-cases, or case-specific payloads should be discriminated unions.
+cases, or case-specific payloads must be discriminated unions.
 
 ## Doctrine
 
@@ -41,7 +41,7 @@ If a data shape has a finite set of cases, model the cases explicitly:
 
 External wire contracts sometimes encode finite cases as optional or nullish
 bags. Those shapes may remain at the boundary when required for compatibility,
-but internal code should decode or normalize them into a tagged model before
+but internal code must decode or normalize them into a tagged model before
 case-specific behavior branches.
 
 Optional fields remain appropriate when they mean true absence within one case.

@@ -720,7 +720,7 @@ for normal discriminators such as `kind`, `type`, `status`, `profile`, or
 `family`, and `S.TaggedUnion(...)` only for canonical `_tag` unions.
 
 External wire contracts may still arrive as optional/nullish bags when
-compatibility requires that shape. Those bags should be decoded or normalized at
+compatibility requires that shape. Those bags must be decoded or normalized at
 the boundary into an internal tagged model before domain, use-case, driver, or
 client behavior branches on the case.
 

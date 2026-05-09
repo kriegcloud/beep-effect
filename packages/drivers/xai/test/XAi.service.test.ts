@@ -436,6 +436,31 @@ describe("@beep/xai", () => {
   );
 
   layer(makeXAiUnitLayer())((it) =>
+    it.effect("rejects non-JSON chat completion responses in the language model adapter", () =>
+      Effect.gen(function* () {
+        const testHttp = yield* XAiTestHttp;
+        yield* testHttp.reset;
+        yield* testHttp.respondWith(() =>
+          Effect.succeed(
+            new Response("not json", {
+              headers: {
+                "content-type": "text/plain",
+              },
+              status: 200,
+            })
+          )
+        );
+
+        const languageModel = yield* XAiLanguageModel.make({ model: "grok-4" });
+        const error = yield* languageModel.generateText({ prompt: "hello" }).pipe(Effect.flip);
+
+        expect(error.reason._tag).toBe("InvalidOutputError");
+        expect(inspect(error.reason)).toContain("xAI chat completion did not return a JSON response.");
+      })
+    )
+  );
+
+  layer(makeXAiUnitLayer())((it) =>
     it.effect("rejects request payloads that do not match the endpoint body mode", () =>
       Effect.gen(function* () {
         const xai = yield* XAi;

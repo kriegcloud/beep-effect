@@ -45,6 +45,7 @@ batch.
 - `bun --cwd packages/foundation/capability/semantic-web run lint`
 - `bun run check`
 - `bun run lint`
+- `bash scripts/run-github-checks.sh quality`
 
 If a root gate is blocked by unrelated pre-existing state, record the exact
 failure and the focused gates that passed.
