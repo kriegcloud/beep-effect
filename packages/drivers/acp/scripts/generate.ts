@@ -74,6 +74,12 @@ class UpstreamJsonSchema extends S.Class<UpstreamJsonSchema>($I`UpstreamJsonSche
   })
 ) {}
 
+const decodeUpstreamSchema = S.decodeEffect(S.fromJsonString(UpstreamJsonSchema));
+const decodeMetaJson = S.decodeEffect(S.fromJsonString(MetaJson));
+const encodeAgentMethods = S.encodeEffect(S.fromJsonString(MetaJson.fields.agentMethods));
+const encodeClientMethods = S.encodeEffect(S.fromJsonString(MetaJson.fields.clientMethods));
+const encodeVersion = S.encodeEffect(S.fromJsonString(MetaJson.fields.version));
+
 const getGeneratedPaths = Effect.fn("getGeneratedPaths")(function* () {
   const path = yield* Path.Path;
   const generatedDir = path.join(import.meta.dirname, "..", "src", "_generated");
@@ -120,12 +126,9 @@ const downloadSchemas = Effect.fn("downloadSchemas")(function* (tag: string) {
   );
 });
 
-const readJsonFile = Effect.fn("readJsonFile")(function* <
-  SchemaValue extends S.Top & { readonly DecodingServices: never },
->(schema: SchemaValue, filePath: string) {
+const readFileString = Effect.fn("readFileString")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
-  const raw = yield* fs.readFileString(filePath);
-  return yield* S.decodeEffect(S.fromJsonString(schema))(raw);
+  return yield* fs.readFileString(filePath);
 });
 
 const writeGeneratedFiles = Effect.fn("writeGeneratedFiles")(function* (schemaOutput: string, metaOutput: string) {
@@ -280,8 +283,8 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
     yield* downloadSchemas(CURRENT_SCHEMA_RELEASE);
   }
 
-  const upstreamSchema = yield* readJsonFile(UpstreamJsonSchema, upstreamSchemaPath);
-  const upstreamMeta = yield* readJsonFile(MetaJson, upstreamMetaPath);
+  const upstreamSchema = yield* readFileString(upstreamSchemaPath).pipe(Effect.flatMap(decodeUpstreamSchema));
+  const upstreamMeta = yield* readFileString(upstreamMetaPath).pipe(Effect.flatMap(decodeMetaJson));
   const normalizedDefinitions = R.map(upstreamSchema.$defs, normalizeNullableTypes);
 
   const sortedEntries = pipe(
@@ -341,21 +344,17 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
     "",
     renderMetaConst(
       "AGENT_METHODS",
-      yield* S.encodeEffect(S.fromJsonString(MetaJson.fields.agentMethods))(upstreamMeta.agentMethods),
+      yield* encodeAgentMethods(upstreamMeta.agentMethods),
       "Generated ACP agent method lookup table."
     ),
     "",
     renderMetaConst(
       "CLIENT_METHODS",
-      yield* S.encodeEffect(S.fromJsonString(MetaJson.fields.clientMethods))(upstreamMeta.clientMethods),
+      yield* encodeClientMethods(upstreamMeta.clientMethods),
       "Generated ACP client method lookup table."
     ),
     "",
-    renderMetaConst(
-      "PROTOCOL_VERSION",
-      yield* S.encodeEffect(S.fromJsonString(MetaJson.fields.version))(upstreamMeta.version),
-      "Generated ACP protocol version."
-    ),
+    renderMetaConst("PROTOCOL_VERSION", yield* encodeVersion(upstreamMeta.version), "Generated ACP protocol version."),
     "",
   ].join("\n");
 

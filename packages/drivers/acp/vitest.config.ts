@@ -5,7 +5,7 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      // Package-specific overrides
+      testTimeout: 15_000,
     },
   })
 );

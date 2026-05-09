@@ -4,6 +4,8 @@ import type { RpcClientError } from "effect/unstable/rpc";
 import * as AcpSchema from "../_generated/schema.gen.ts";
 import * as AcpError from "../errors.ts";
 
+const isAcpProtocolError = S.is(AcpSchema.Error);
+const isAcpRequestError = S.is(AcpError.AcpRequestError);
 const formatSchemaIssue = SchemaIssue.makeFormatterDefault();
 
 export const callRpc = <A>(
@@ -18,7 +20,7 @@ export const callRpc = <A>(
         })
       )
     ),
-    Effect.catchIf(S.is(AcpSchema.Error), (error) => Effect.fail(AcpError.AcpRequestError.fromProtocolError(error)))
+    Effect.catchIf(isAcpProtocolError, (error) => Effect.fail(AcpError.AcpRequestError.fromProtocolError(error)))
   );
 
 interface RunHandlerOptions<A, B> {
@@ -45,7 +47,7 @@ export const runHandler = Effect.fnUntraced(function* <A, B>({ handler, method, 
   }
   return yield* handler(payload).pipe(
     Effect.mapError((error) =>
-      S.is(AcpError.AcpRequestError)(error)
+      isAcpRequestError(error)
         ? error.toProtocolError()
         : AcpError.AcpRequestError.internalError(error.message).toProtocolError()
     )
