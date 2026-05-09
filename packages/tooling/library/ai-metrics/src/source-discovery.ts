@@ -12,8 +12,13 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { AiMetricsDeployTarget, AiMetricsTranscriptSource } from "./models.ts";
-import { AiMetricsHashSaltStatus, hashPrivateIdentifier, resolveAiMetricsHashSaltStatus } from "./privacy.ts";
+import { AiMetricsDeployTarget, AiMetricsSourceRole, AiMetricsTranscriptSource } from "./models.ts";
+import {
+  AiMetricsHashSaltStatus,
+  hashPrivateIdentifier,
+  makeAiMetricsSourceAttribution,
+  resolveAiMetricsHashSaltStatus,
+} from "./privacy.ts";
 
 const $I = $RepoAiMetricsId.create("source-discovery");
 
@@ -49,37 +54,6 @@ export const AiMetricsSourceStatus = LiteralKit(["available", "missing", "unavai
  * @since 0.0.0
  */
 export type AiMetricsSourceStatus = typeof AiMetricsSourceStatus.Type;
-
-/**
- * Role of a discovered source file within the source's local storage.
- *
- * @example
- * ```ts
- * import { AiMetricsSourceRole } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsSourceRole.Enum.primary)
- * ```
- * @category models
- * @since 0.0.0
- */
-export const AiMetricsSourceRole = LiteralKit(["primary", "subagent", "gateway_metadata"] as const).annotate(
-  $I.annote("AiMetricsSourceRole", {
-    description: "Role of a discovered source file or metadata record.",
-  })
-);
-
-/**
- * Runtime type for {@link AiMetricsSourceRole}.
- *
- * @example
- * ```ts
- * import type { AiMetricsSourceRole } from "@beep/repo-ai-metrics"
- * const role: AiMetricsSourceRole = "primary"
- * console.log(role)
- * ```
- * @category models
- * @since 0.0.0
- */
-export type AiMetricsSourceRole = typeof AiMetricsSourceRole.Type;
 
 /**
  * Input for local AI metrics source discovery.
@@ -136,12 +110,18 @@ export class AiMetricsDiscoveredTranscriptFile extends S.Class<AiMetricsDiscover
   $I`AiMetricsDiscoveredTranscriptFile`
 )(
   {
+    agentNicknameHash: S.optionalKey(S.String),
+    agentRoleHash: S.optionalKey(S.String),
+    forkedFromIdHash: S.optionalKey(S.String),
     modifiedAtMillis: S.Number,
+    parentSessionIdHash: S.optionalKey(S.String),
+    parentThreadIdHash: S.optionalKey(S.String),
     sessionIdHash: S.optionalKey(S.String),
     sizeBytes: S.Number,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
     sourceRole: AiMetricsSourceRole,
+    threadSpawn: S.optionalKey(S.Boolean),
   },
   $I.annote("AiMetricsDiscoveredTranscriptFile", {
     description: "Discovered local source file with private identifiers represented by salted hashes.",
@@ -161,8 +141,20 @@ export class AiMetricsDiscoveredTranscriptFile extends S.Class<AiMetricsDiscover
  */
 export class AiMetricsDiscoveredSource extends S.Class<AiMetricsDiscoveredSource>($I`AiMetricsDiscoveredSource`)(
   {
+    candidateFileCount: S.Number.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
     fileCount: S.Number,
     files: S.Array(AiMetricsDiscoveredTranscriptFile),
+    includedFileCount: S.Number.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
+    limitedByMaxFiles: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
     message: S.optionalKey(S.String),
     newestModifiedAtMillis: S.optionalKey(S.Number),
     rootPathHash: S.String,
@@ -240,6 +232,20 @@ const byModifiedDescending: Order.Order<AiMetricsDiscoveredTranscriptFile> = Ord
   (file) => -file.modifiedAtMillis
 );
 
+type SourceCandidateFile = {
+  readonly modifiedAtMillis: number;
+  readonly sourcePath: string;
+};
+
+const byCandidatePathAscending: Order.Order<SourceCandidateFile> = Order.mapInput(
+  Order.String,
+  (file) => file.sourcePath
+);
+const byCandidateModifiedDescending: Order.Order<SourceCandidateFile> = Order.mapInput(
+  Order.Number,
+  (file) => -file.modifiedAtMillis
+);
+
 const fileSystemFailure = (message: string, cause: unknown): AiMetricsSourceDiscoveryError =>
   new AiMetricsSourceDiscoveryError({ cause, message });
 
@@ -264,9 +270,6 @@ const shouldIncludeModifiedAt =
   (input: AiMetricsSourceDiscoveryInput) =>
   (info: FileSystem.File.Info): boolean =>
     input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
-
-const sourceRoleFor = (relativePath: string): AiMetricsSourceRole =>
-  Str.includes("/subagents/")(relativePath) ? AiMetricsSourceRole.Enum.subagent : AiMetricsSourceRole.Enum.primary;
 
 const sessionIdFromPath = (pathApi: Path.Path, sourcePath: string): string =>
   pipe(pathApi.basename(sourcePath), Str.replace(/\.jsonl$/u, ""));
@@ -330,18 +333,33 @@ const makeDiscoveredTranscriptFile = Effect.fn("AiMetrics.makeDiscoveredTranscri
   const pathApi = yield* Path.Path;
   const info = yield* fs
     .stat(sourcePath)
-    .pipe(
-      Effect.mapError((cause) => fileSystemFailure(`Failed to stat AI metrics source file "${sourcePath}".`, cause))
-    );
+    .pipe(Effect.mapError((cause) => fileSystemFailure("Failed to stat AI metrics source file.", cause)));
+  const content = yield* fs
+    .readFileString(sourcePath)
+    .pipe(Effect.mapError((cause) => fileSystemFailure("Failed to read AI metrics source file.", cause)));
   const relativePath = normalizedRelativePath(pathApi, root, sourcePath);
+  const attribution = yield* makeAiMetricsSourceAttribution({
+    content,
+    ...(hashSalt === undefined ? {} : { hashSalt }),
+    relativePath,
+    sourceKind,
+    sourcePath,
+  }).pipe(Effect.mapError((cause) => fileSystemFailure("Failed to derive AI metrics source attribution.", cause)));
+  const fallbackSessionIdHash = yield* hashPrivateIdentifier(sessionIdFromPath(pathApi, sourcePath), hashSalt);
 
   return new AiMetricsDiscoveredTranscriptFile({
+    ...(attribution.agentNicknameHash === undefined ? {} : { agentNicknameHash: attribution.agentNicknameHash }),
+    ...(attribution.agentRoleHash === undefined ? {} : { agentRoleHash: attribution.agentRoleHash }),
+    ...(attribution.forkedFromIdHash === undefined ? {} : { forkedFromIdHash: attribution.forkedFromIdHash }),
     modifiedAtMillis: modifiedAtMillis(info),
-    sessionIdHash: yield* hashPrivateIdentifier(sessionIdFromPath(pathApi, sourcePath), hashSalt),
+    ...(attribution.parentSessionIdHash === undefined ? {} : { parentSessionIdHash: attribution.parentSessionIdHash }),
+    ...(attribution.parentThreadIdHash === undefined ? {} : { parentThreadIdHash: attribution.parentThreadIdHash }),
+    sessionIdHash: attribution.sessionIdHash ?? fallbackSessionIdHash,
     sizeBytes: globalThis.Number(info.size),
     sourceKind,
     sourcePathHash: yield* hashPrivateIdentifier(sourcePath, hashSalt),
-    sourceRole: sourceRoleFor(relativePath),
+    sourceRole: attribution.sourceRole,
+    ...(attribution.threadSpawn === undefined ? {} : { threadSpawn: attribution.threadSpawn }),
   });
 });
 
@@ -394,39 +412,47 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
 
   const fs = yield* FileSystem.FileSystem;
   const allFiles = yield* collectJsonlFiles(root);
-  const filtered = yield* Effect.forEach(
-    allFiles,
-    Effect.fnUntraced(function* (sourcePath) {
-      const info = yield* fs.stat(sourcePath).pipe(Effect.option);
-      if (O.isNone(info) || info.value.type !== "File" || !shouldIncludeModifiedAt(input)(info.value)) {
-        return O.none<AiMetricsDiscoveredTranscriptFile>();
-      }
+  const candidates = pipe(
+    yield* Effect.forEach(
+      allFiles,
+      Effect.fnUntraced(function* (sourcePath) {
+        const info = yield* fs.stat(sourcePath).pipe(Effect.option);
+        if (O.isNone(info) || info.value.type !== "File" || !shouldIncludeModifiedAt(input)(info.value)) {
+          return O.none<SourceCandidateFile>();
+        }
 
-      return O.some(
-        yield* makeDiscoveredTranscriptFile({
-          root,
-          sourceKind,
-          sourcePath,
-          ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
-        })
-      );
-    }),
+        return O.some({ modifiedAtMillis: modifiedAtMillis(info.value), sourcePath });
+      }),
+      { concurrency: 16 }
+    ),
+    A.getSomes,
+    A.sort(byCandidatePathAscending),
+    A.sort(byCandidateModifiedDescending)
+  );
+  const includedCandidates = A.take(candidates, input.maxFiles);
+  const files = yield* Effect.forEach(
+    includedCandidates,
+    (candidate) =>
+      makeDiscoveredTranscriptFile({
+        root,
+        sourceKind,
+        sourcePath: candidate.sourcePath,
+        ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      }),
     { concurrency: 16 }
   );
-  const files = pipe(
-    A.getSomes(filtered),
-    A.sort(byPathHashAscending),
-    A.sort(byModifiedDescending),
-    A.take(input.maxFiles)
-  );
+  const includedFiles = pipe(files, A.sort(byPathHashAscending), A.sort(byModifiedDescending));
 
   return new AiMetricsDiscoveredSource({
-    fileCount: A.length(files),
-    files,
+    candidateFileCount: A.length(candidates),
+    fileCount: A.length(includedFiles),
+    files: includedFiles,
+    includedFileCount: A.length(includedFiles),
+    limitedByMaxFiles: A.length(candidates) > A.length(includedFiles),
     rootPathHash,
     sourceKind,
     status: AiMetricsSourceStatus.Enum.available,
-    ...newestModifiedAtFields(files),
+    ...newestModifiedAtFields(includedFiles),
   });
 });
 
@@ -461,6 +487,20 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
     });
   }
 
+  if (!shouldIncludeModifiedAt(input)(unitInfo.value)) {
+    return new AiMetricsDiscoveredSource({
+      candidateFileCount: 0,
+      fileCount: 0,
+      files: [],
+      includedFileCount: 0,
+      limitedByMaxFiles: false,
+      message: "OpenClaw user systemd gateway metadata is outside the selected modified-time window",
+      rootPathHash,
+      sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
+      status: AiMetricsSourceStatus.Enum.available,
+    });
+  }
+
   const file = new AiMetricsDiscoveredTranscriptFile({
     modifiedAtMillis: modifiedAtMillis(unitInfo.value),
     sessionIdHash: yield* hashPrivateIdentifier("openclaw-gateway.service", input.hashSalt),
@@ -471,8 +511,11 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
   });
 
   return new AiMetricsDiscoveredSource({
+    candidateFileCount: 1,
     fileCount: 1,
     files: [file],
+    includedFileCount: 1,
+    limitedByMaxFiles: false,
     message: "OpenClaw discovery is limited to safe gateway metadata in P1",
     newestModifiedAtMillis: file.modifiedAtMillis,
     rootPathHash,

@@ -1,12 +1,14 @@
 # AI Metrics Stack Plan
 
-This plan executes [SPEC.md](./SPEC.md). The current target phase is P6 because
-P0 bootstrap, P1 source/privacy proof, P2 durable ingest, P3 OTLP/backend
+This plan executes [SPEC.md](./SPEC.md). The current target phase is P6a because
+the fresh review found P6 should not be treated as merely operational yet. P0
+bootstrap, P1 source/privacy proof, P2 durable ingest, P3 OTLP/backend
 contracts, P4 report-first scorecards, and the P5a operator contract are
-complete. P5b implementation is in place, Phoenix is live on dankserver, the
-AI metrics 1Password refs resolve, and the first real redacted forwarder plus
-OTLP export has reached Phoenix. Pulumi state reconciliation still needs a
-shell with the Pulumi passphrase environment.
+complete. P5b implementation is in place, Phoenix is live on dankserver, the AI
+metrics 1Password refs resolve, and the first real redacted forwarder plus OTLP
+export has reached Phoenix. The current proof evidence is baseline pre-P6a
+evidence; the credited seven-day proof restarts after P6a gates pass. Pulumi
+state reconciliation still needs a shell with the Pulumi passphrase environment.
 
 ## P0: Initiative Bootstrap And Current State
 
@@ -122,18 +124,45 @@ Status: in progress
 
 ## P6: Seven-Day Proof And Hardening
 
+Status: paused for P6a
+
+- Preserve the first real collection/export proof as baseline evidence.
+- Restart the credited seven-day proof only after P6a hardening passes.
+- During the restarted window, keep live collection owned by the workstation
+  timer and generate a completion-creditable scorecard with real labels and a
+  benchmark run.
+
+## P6a: Fresh Review Data And Ops Hardening
+
 Status: in progress
 
-- Run live collection for seven days. The first real collection/export proof is
-  complete; the seven-day window is now the active proof target.
-- Generate the first weekly scorecard from real data. A baseline report exists
-  with expected `no_labels`, `no_benchmark_runs`, and sparse
-  model/tool-coverage gaps.
-- Verify raw archive, derived DuckDB/Parquet tables, OTLP traces, label queue,
-  baseline report, and Phoenix dashboard data.
-- Add outcome labels and benchmark runs for real tasks during the seven-day
-  window.
-- Document backup, restore, retention, and failure recovery.
+- Preserve Codex subagent attribution through source discovery, privacy
+  projection, derived DuckDB/Parquet, OTLP span attributes, and label queues
+  using source role plus hash-only parent/session/thread metadata.
+- Replace global forwarder source starvation with source-aware per-source
+  budgets and coverage reporting for Codex, Claude Code, and OpenClaw gateway
+  metadata.
+- Persist config snapshot manifests and latest pointers so scorecards can
+  distinguish included config files from actual added, modified, and removed
+  paths.
+- Make weekly scorecards report `completionReady=false` until at least one
+  outcome label and one benchmark run exist for the scored config snapshot.
+  Provider/model/tool/token/cost metrics remain explicit
+  `*_unavailable_not_scored` gaps until real integrations populate them.
+- Add an explicit OTLP metadata allowlist and keep subagent/source identifiers
+  hash-only in derived exports.
+- Add a workstation systemd user timer render path for live collection with
+  lock, retry/backoff, status artifact, and journal evidence. True server-owned
+  collection remains a P7 topology target.
+- Add an archive decrypt drill that verifies one encrypted raw archive object
+  without printing transcript text.
+- Update install/runbook commands so 1Password refs are separate from runtime
+  values: commands that need the raw archive key must export
+  `BEEP_AI_METRICS_RAW_ARCHIVE_KEY="$(op read '<ref>')"`.
+- Reconcile Pulumi before restarting the credited proof: preview/apply/health
+  must be green and the live Phoenix version must match declared stack config.
+- Document retention, deletion, archive decrypt, backup, restore, and proof
+  restart policy in the P6a output.
 
 ## Required Checks
 
@@ -142,6 +171,6 @@ Status: in progress
 - `@beep/repo-ai-metrics`: `check`, `test`, `lint`, `docgen`
 - `@beep/repo-cli`: `check`, `test`, `lint`
 - `@beep/infra`: `check`, `test`, `lint`
-- CLI smoke for source discovery, ingest, install plan/doctor, labels,
-  benchmarks, and report generation
+- CLI smoke for source discovery, ingest, install plan/doctor, forwarder timer
+  rendering, archive drill, labels, benchmarks, and report generation
 - Pulumi preview and apply for the dankserver target

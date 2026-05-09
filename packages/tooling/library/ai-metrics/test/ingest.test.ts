@@ -7,6 +7,7 @@ import {
   AiMetricsDerivedStorageWriteInput,
   AiMetricsDerivedTranscriptRecord,
   AiMetricsForwarderInput,
+  AiMetricsForwarderTimerInput,
   AiMetricsInstallDoctorInput,
   AiMetricsInstallInput,
   AiMetricsLabelQueueInput,
@@ -26,7 +27,9 @@ import {
   configSnapshotToJson,
   decryptEncryptedRawArchiveEnvelope,
   discoverAiMetricsSources,
+  ensureAiMetricsDerivedStorage,
   forwarderRunResultToJson,
+  forwarderTimerPlanToJson,
   generateAiMetricsWeeklyReport,
   listAiMetricsBenchmarkCases,
   makeAiMetricsConfigSnapshot,
@@ -41,12 +44,14 @@ import {
   readAiMetricsOtlpSpanProjections,
   readEncryptedRawArchiveEnvelope,
   recordAiMetricsBenchmarkRun,
+  renderAiMetricsForwarderTimerPlan,
   renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
   runAiMetricsOtlpExport,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
   upsertAiMetricsBenchmarkCase,
+  writeAiMetricsConfigSnapshotArtifacts,
   writeAiMetricsDerivedStorage,
 } from "@beep/repo-ai-metrics";
 import { NodeServices } from "@effect/platform-node";
@@ -181,12 +186,23 @@ describe("@beep/repo-ai-metrics", () => {
             expect(result.sourceFileCount).toBe(2);
             expect(result.archiveObjectCount).toBe(2);
             expect(result.turnCount).toBe(3);
+            expect(result.sourceCoverage).toEqual(
+              expect.arrayContaining([
+                expect.objectContaining({ candidateFileCount: 1, includedFileCount: 1, sourceKind: "codex" }),
+                expect.objectContaining({ candidateFileCount: 1, includedFileCount: 1, sourceKind: "claude" }),
+              ])
+            );
             expect(yield* forwarderRunResultToJson(result)).toContain(result.ingestRunId);
             expect(yield* fs.exists(path.join(result.parquetExportDir, "ai_metrics_turns.parquet"))).toBe(true);
+            expect(yield* fs.exists(path.join(dataRoot, "config-snapshots/latest.json"))).toBe(true);
 
             const duckdb = yield* DuckDb;
             const turnRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_turns");
             expect(turnRows).toEqual([{ count: "3" }]);
+            const sourceRoleRows = yield* duckdb.query(
+              "SELECT source_role AS sourceRole FROM ai_metrics_sessions ORDER BY source_kind"
+            );
+            expect(sourceRoleRows).toEqual([{ sourceRole: "primary" }, { sourceRole: "primary" }]);
             const archiveRows = yield* duckdb.query(
               "SELECT archive_path FROM ai_metrics_raw_archive_objects WHERE source_kind = 'codex'"
             );
@@ -197,6 +213,77 @@ describe("@beep/repo-ai-metrics", () => {
             const envelope = yield* readEncryptedRawArchiveEnvelope(archivePath);
             const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKey });
             expect(plaintext).toContain("secret-value");
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "applies maxFiles per source instead of starving lower-recency sources globally",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+          const claudeRoot = path.join(homeDir, ".claude/projects/repo");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const rawArchiveKey = Redacted.make(Encoding.encodeBase64(new Uint8Array(32).fill(9)));
+
+          yield* writeText(
+            path.join(codexRoot, "codex-a.jsonl"),
+            '{"type":"event_msg","timestamp":"2026-05-05T10:00:00Z"}'
+          );
+          yield* writeText(
+            path.join(codexRoot, "codex-b.jsonl"),
+            '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}'
+          );
+          yield* writeText(
+            path.join(claudeRoot, "claude-a.jsonl"),
+            '{"type":"assistant","timestamp":"2026-05-05T10:02:00Z"}'
+          );
+          yield* writeText(
+            path.join(claudeRoot, "claude-b.jsonl"),
+            '{"type":"assistant","timestamp":"2026-05-05T10:03:00Z"}'
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
+
+          yield* Effect.gen(function* () {
+            const result = yield* runAiMetricsForwarder(
+              new AiMetricsForwarderInput({
+                claudeProjectsRoot: claudeRoot,
+                codexSessionsRoot: codexRoot,
+                dataRoot,
+                hashSalt: "test-salt",
+                homeDir,
+                includeAll: true,
+                maxFiles: 1,
+                rawArchiveKey,
+                repoRoot,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+
+            expect(result.sourceFileCount).toBe(2);
+            expect(result.sourceCoverage).toEqual(
+              expect.arrayContaining([
+                expect.objectContaining({
+                  candidateFileCount: 2,
+                  includedFileCount: 1,
+                  limitedByMaxFiles: true,
+                  sourceKind: "codex",
+                }),
+                expect.objectContaining({
+                  candidateFileCount: 2,
+                  includedFileCount: 1,
+                  limitedByMaxFiles: true,
+                  sourceKind: "claude",
+                }),
+              ])
+            );
           }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
       ).pipe(Effect.provide(NodeServices.layer));
@@ -274,6 +361,20 @@ describe("@beep/repo-ai-metrics", () => {
                 ingestRunId: "forwarder-2",
               })
             );
+            yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Changed agent guide\n");
+            const changedConfigSnapshot = yield* makeAiMetricsConfigSnapshot(
+              new AiMetricsConfigSnapshotInput({
+                repoRoot: path.join(tmpDir, "repo"),
+              })
+            );
+            yield* writeAiMetricsDerivedStorage(
+              new AiMetricsDerivedStorageWriteInput({
+                ...baseInput,
+                configSnapshot: changedConfigSnapshot.snapshot,
+                ingestRunId: "forwarder-3",
+                startedAtEpochMillis: 2,
+              })
+            );
 
             const duckdb = yield* DuckDb;
             const runRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_ingest_runs");
@@ -282,15 +383,23 @@ describe("@beep/repo-ai-metrics", () => {
             );
             const sourceRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_source_files");
             const archiveRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_raw_archive_objects");
+            const agentTaskRows = yield* duckdb.query(
+              "SELECT count(*) AS count, count(DISTINCT config_snapshot_id)::integer AS configSnapshotCount FROM ai_metrics_agent_tasks"
+            );
             const sessionRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_sessions");
             const turnRows = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_turns");
 
-            expect(runRows).toEqual([{ count: "2" }]);
-            expect(runArchiveCounts).toEqual([{ archiveObjectCount: 0 }, { archiveObjectCount: 0 }]);
-            expect(sourceRows).toEqual([{ count: "2" }]);
-            expect(archiveRows).toEqual([{ count: "2" }]);
-            expect(sessionRows).toEqual([{ count: "2" }]);
-            expect(turnRows).toEqual([{ count: "2" }]);
+            expect(runRows).toEqual([{ count: "3" }]);
+            expect(runArchiveCounts).toEqual([
+              { archiveObjectCount: 0 },
+              { archiveObjectCount: 0 },
+              { archiveObjectCount: 0 },
+            ]);
+            expect(sourceRows).toEqual([{ count: "3" }]);
+            expect(archiveRows).toEqual([{ count: "3" }]);
+            expect(agentTaskRows).toEqual([{ configSnapshotCount: 2, count: "2" }]);
+            expect(sessionRows).toEqual([{ count: "3" }]);
+            expect(turnRows).toEqual([{ count: "3" }]);
           }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
       ).pipe(Effect.provide(NodeServices.layer));
@@ -393,6 +502,7 @@ describe("@beep/repo-ai-metrics", () => {
             expect(benchmarkRun.passed).toBe(true);
             expect(listedCases.cases).toHaveLength(1);
             expect(report.document.scores).toHaveLength(1);
+            expect(report.document.scores[0]?.scorecard.completionReady).toBe(true);
             expect(reportJson).toContain(forwarder.configSnapshotId);
             expect(reportJson).not.toContain("private benchmark prompt");
             expect(reportJson).not.toContain("secret-scorecard-fixture");
@@ -443,12 +553,18 @@ describe("@beep/repo-ai-metrics", () => {
               Str.includes("ai-metrics otlp export --target dankserver"),
               Str.includes("--data-root .beep/ai-metrics"),
               Str.includes("--otlp-base-url https://dankserver.tailc7c348.ts.net:8447"),
-              Str.includes("--hash-salt-secret-ref op://TBK/ai-metrics/hash-salt"),
-              Str.includes("--raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key"),
+              Str.includes("--hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt'"),
+              Str.includes("--raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key'"),
             ])
           )
         )
       ).toBe(true);
+      expect(spec.plannedCommands).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining("ai-metrics label queue --target dankserver --data-root .beep/ai-metrics"),
+          expect.stringContaining("ai-metrics report weekly --target dankserver --data-root .beep/ai-metrics"),
+        ])
+      );
     })
   );
 
@@ -511,6 +627,40 @@ describe("@beep/repo-ai-metrics", () => {
           expect(doctorJson).not.toContain(tmpDir);
         })
       ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "renders a workstation forwarder timer with lock, retry, status, and journal commands",
+    Effect.fn(function* () {
+      const plan = renderAiMetricsForwarderTimerPlan(
+        new AiMetricsForwarderTimerInput({
+          command:
+            "bun run beep ai-metrics forwarder run --target dankserver --data-root .beep/ai-metrics --otlp --json",
+          hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
+          intervalMinutes: 15,
+          lockPath: "%t/beep-ai-metrics-forwarder.lock",
+          rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
+          statusPath: ".beep/ai-metrics/forwarder/status/latest.json",
+          workingDirectory: "/repo/beep-effect",
+        })
+      );
+      const json = yield* forwarderTimerPlanToJson(plan);
+
+      expect(plan.serviceUnit).toContain("flock -n");
+      expect(plan.serviceUnit).toContain("Restart=on-failure");
+      expect(plan.timerUnit).toContain("OnUnitInactiveSec=15m");
+      expect(plan.statusPath).toBe(".beep/ai-metrics/forwarder/status/latest.json");
+      expect(plan.installCommands).toEqual(expect.arrayContaining([expect.stringContaining("journalctl --user")]));
+      expect(plan.installCommands).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining("beep-ai-metrics-forwarder.service"),
+          expect.stringContaining("beep-ai-metrics-forwarder.timer"),
+          expect.stringContaining("BEEP_AI_METRICS_HASH_SALT=%s"),
+          expect.stringContaining("BEEP_AI_METRICS_RAW_ARCHIVE_KEY=%s"),
+        ])
+      );
+      expect(json).not.toContain("base64-32-byte-key");
     })
   );
 
@@ -654,6 +804,7 @@ volumes:
               expect.arrayContaining([
                 expect.objectContaining({
                   attributes: expect.objectContaining({
+                    "ai_metrics.source_role": "primary",
                     "openinference.span.kind": "AGENT",
                   }),
                   spanName: "ai_metrics.agent.session",
@@ -700,6 +851,27 @@ volumes:
       );
 
       expect(error.message).toContain("non-local installs require hashSaltSecretRef");
+    })
+  );
+
+  it.effect(
+    "rejects non-local forwarder runs without a resolved hash salt value",
+    Effect.fn(function* () {
+      const error = yield* Effect.flip(
+        runAiMetricsForwarder(
+          new AiMetricsForwarderInput({
+            dataRoot: ".beep/ai-metrics",
+            hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
+            homeDir: "/tmp/home",
+            rawArchiveKey: Redacted.make(Encoding.encodeBase64(new Uint8Array(32).fill(1))),
+            rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
+            repoRoot: "/tmp/repo",
+            target: AiMetricsDeployTarget.Enum.dankserver,
+          })
+        )
+      );
+
+      expect(error.message).toContain("non-local forwarder runs require a resolved hash salt value");
     })
   );
 
@@ -758,6 +930,138 @@ volumes:
   );
 
   it.effect(
+    "preserves Codex subagent attribution as hashed derived metadata",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const dataRoot = path.join(tmpDir, "metrics");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const sourcePath = path.join(tmpDir, "home/.codex/sessions/subagent.jsonl");
+          const content = [
+            '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"child-session","source":{"subagent":{"thread_spawn":true,"parent_thread_id":"parent-thread","agent_role":"worker","agent_nickname":"worker-one"}}}}',
+            '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}',
+          ].join("\n");
+
+          yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
+
+          yield* Effect.gen(function* () {
+            const summary = yield* summarizeTranscriptText({
+              content,
+              hashSalt: "test-salt",
+              sourceKind: AiMetricsTranscriptSource.Enum.codex,
+              sourcePath,
+            });
+            const privacy = yield* makeAiMetricsPrivacyCheckResult({
+              content,
+              hashSalt: "test-salt",
+              sourcePath,
+              summary,
+            });
+            const installSpec = yield* makeAiMetricsInstallSpec(
+              new AiMetricsInstallInput({
+                dataRoot,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+            const configSnapshot = yield* makeAiMetricsConfigSnapshot(
+              new AiMetricsConfigSnapshotInput({
+                repoRoot: path.join(tmpDir, "repo"),
+              })
+            );
+
+            expect(privacy.sanitized.sourceRole).toBe("subagent");
+            expect(privacy.sanitized.threadSpawn).toBe(true);
+            expect(privacy.sanitized.sessionIdHash).not.toBe("child-session");
+            expect(privacy.sanitized.parentThreadIdHash).not.toBe("parent-thread");
+            expect(privacy.sanitized.agentRoleHash).not.toBe("worker");
+            expect(privacy.sanitized.rawEventEnvelopes[0]?.sourceRole).toBe("subagent");
+
+            yield* writeAiMetricsDerivedStorage(
+              new AiMetricsDerivedStorageWriteInput({
+                configSnapshot: configSnapshot.snapshot,
+                ingestRunId: "forwarder-subagent",
+                records: [
+                  new AiMetricsDerivedTranscriptRecord({
+                    archiveObject: new AiMetricsRawArchiveObject({
+                      algorithm: "AES-256-GCM",
+                      archiveObjectId: "raw-subagent",
+                      archivePath: path.join(dataRoot, "raw/codex/raw-subagent.json"),
+                      created: false,
+                      encryptedAtEpochMillis: 1,
+                      plaintextContentHash: "plaintext-content-hash",
+                      sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                      sourcePathHash: summary.sourcePathHash,
+                    }),
+                    privacy,
+                  }),
+                ],
+                repoRootHash: "repo-root-hash",
+                startedAtEpochMillis: 1,
+                storage: installSpec.storage,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+
+            const duckdb = yield* DuckDb;
+            const sessionRows = yield* duckdb.query(
+              "SELECT source_role AS sourceRole, thread_spawn AS threadSpawn, parent_thread_id_hash AS parentThreadIdHash FROM ai_metrics_sessions"
+            );
+            const turnRows = yield* duckdb.query("SELECT DISTINCT source_role AS sourceRole FROM ai_metrics_turns");
+
+            expect(sessionRows).toEqual([
+              expect.objectContaining({
+                parentThreadIdHash: privacy.sanitized.parentThreadIdHash,
+                sourceRole: "subagent",
+                threadSpawn: true,
+              }),
+            ]);
+            expect(turnRows).toEqual([{ sourceRole: "subagent" }]);
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "backfills P6a readiness and source-role columns for existing DuckDB rows",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const duckDbPath = path.join(tmpDir, "ai-metrics.duckdb");
+
+          yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            yield* duckdb.run("CREATE TABLE ai_metrics_source_files (source_file_id VARCHAR PRIMARY KEY)");
+            yield* duckdb.run("INSERT INTO ai_metrics_source_files (source_file_id) VALUES ('source-1')");
+            yield* duckdb.run("CREATE TABLE ai_metrics_agent_tasks (agent_task_id VARCHAR PRIMARY KEY)");
+            yield* duckdb.run("INSERT INTO ai_metrics_agent_tasks (agent_task_id) VALUES ('task-1')");
+            yield* duckdb.run("CREATE TABLE ai_metrics_sessions (session_run_id VARCHAR PRIMARY KEY)");
+            yield* duckdb.run("INSERT INTO ai_metrics_sessions (session_run_id) VALUES ('session-1')");
+            yield* duckdb.run("CREATE TABLE ai_metrics_turns (turn_id VARCHAR PRIMARY KEY)");
+            yield* duckdb.run("INSERT INTO ai_metrics_turns (turn_id) VALUES ('turn-1')");
+            yield* duckdb.run("CREATE TABLE ai_metrics_scorecards (scorecard_id VARCHAR PRIMARY KEY)");
+            yield* duckdb.run("INSERT INTO ai_metrics_scorecards (scorecard_id) VALUES ('scorecard-1')");
+
+            yield* ensureAiMetricsDerivedStorage;
+
+            const sourceRows = yield* duckdb.query(
+              "SELECT source_role AS sourceRole FROM ai_metrics_source_files WHERE source_file_id = 'source-1'"
+            );
+            const scorecardRows = yield* duckdb.query(
+              "SELECT completion_ready AS completionReady, coverage_gaps_json AS coverageGapsJson FROM ai_metrics_scorecards WHERE scorecard_id = 'scorecard-1'"
+            );
+
+            expect(sourceRows).toEqual([{ sourceRole: "primary" }]);
+            expect(scorecardRows).toEqual([{ completionReady: false, coverageGapsJson: "[]" }]);
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
     "reports derived UI as safe when secret-shaped values are absent",
     Effect.fn(function* () {
       const content = '{"type":"session_meta","timestamp":"2026-05-05T12:00:00Z"}';
@@ -792,7 +1096,9 @@ volumes:
           yield* writeText(path.join(tmpDir, ".repos/effect-v4/AGENTS.md"), "vendored guide\n");
           yield* writeText(path.join(tmpDir, "node_modules/pkg/CLAUDE.md"), "dependency guide\n");
 
+          const snapshotDir = path.join(tmpDir, ".beep/ai-metrics/config-snapshots");
           const result = yield* makeAiMetricsConfigSnapshot(new AiMetricsConfigSnapshotInput({ repoRoot: tmpDir }));
+          yield* writeAiMetricsConfigSnapshotArtifacts({ outputDir: snapshotDir, result });
           const again = yield* makeAiMetricsConfigSnapshot(new AiMetricsConfigSnapshotInput({ repoRoot: tmpDir }));
           const json = yield* configSnapshotToJson(result);
 
@@ -803,13 +1109,90 @@ volumes:
             "AGENTS.md",
             "packages/demo/AGENTS.md",
           ]);
+          expect(result.snapshot.includedPaths).toEqual(relativeSnapshotPaths(result.files));
+          expect(result.snapshot.changedPaths).toEqual(relativeSnapshotPaths(result.files));
           expect(result.snapshot.configHash).toBe(again.snapshot.configHash);
           expect(json).not.toContain(".repos/effect-v4/AGENTS.md");
           expect(json).not.toContain("node_modules/pkg/CLAUDE.md");
 
           yield* writeText(path.join(tmpDir, ".codex/config.toml"), 'model = "gpt-5.1"\n');
-          const changed = yield* makeAiMetricsConfigSnapshot(new AiMetricsConfigSnapshotInput({ repoRoot: tmpDir }));
+          const changed = yield* makeAiMetricsConfigSnapshot(
+            new AiMetricsConfigSnapshotInput({
+              previousSnapshotPath: path.join(snapshotDir, "latest.json"),
+              repoRoot: tmpDir,
+            })
+          );
           expect(changed.snapshot.configHash).not.toBe(result.snapshot.configHash);
+          expect(changed.snapshot.changedPaths).toEqual([".codex/config.toml"]);
+          expect(changed.diff.modifiedPaths).toEqual([".codex/config.toml"]);
+          expect(changed.snapshot.previousSnapshotId).toBe(result.snapshot.snapshotId);
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "fails malformed previous config snapshots instead of treating them as first-run state",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          yield* writeText(path.join(tmpDir, "AGENTS.md"), "root agent guide\n");
+          yield* writeText(path.join(tmpDir, ".beep/ai-metrics/config-snapshots/latest.json"), "{not-json");
+
+          const error = yield* Effect.flip(
+            makeAiMetricsConfigSnapshot(
+              new AiMetricsConfigSnapshotInput({
+                previousSnapshotPath: path.join(tmpDir, ".beep/ai-metrics/config-snapshots/latest.json"),
+                repoRoot: tmpDir,
+              })
+            )
+          );
+
+          expect(error.message).toContain("Failed to decode previous AI metrics config snapshot artifact");
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "does not advance the latest config snapshot pointer until a forwarder run succeeds",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+
+          yield* writeText(
+            path.join(codexRoot, "codex.jsonl"),
+            '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}'
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
+
+          const error = yield* Effect.flip(
+            runAiMetricsForwarder(
+              new AiMetricsForwarderInput({
+                codexSessionsRoot: codexRoot,
+                dataRoot,
+                hashSalt: "test-salt",
+                homeDir,
+                includeAll: true,
+                rawArchiveKey: Redacted.make("not-valid-base64"),
+                repoRoot,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            )
+          );
+          const snapshotDir = path.join(dataRoot, "config-snapshots");
+          const snapshotFiles = yield* fs.readDirectory(snapshotDir);
+
+          expect(error.message).toContain("Failed to write encrypted AI metrics raw archive object");
+          expect(yield* fs.exists(path.join(snapshotDir, "latest.json"))).toBe(false);
+          expect(A.some(snapshotFiles, Str.endsWith(".json"))).toBe(true);
         })
       ).pipe(Effect.provide(NodeServices.layer));
     })

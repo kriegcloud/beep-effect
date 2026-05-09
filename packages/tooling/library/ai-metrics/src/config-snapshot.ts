@@ -51,10 +51,34 @@ export class AiMetricsConfigSnapshotInput extends S.Class<AiMetricsConfigSnapsho
       S.withConstructorDefault(Effect.succeed("repo-local-agent-config")),
       S.withDecodingDefaultKey(Effect.succeed("repo-local-agent-config"))
     ),
+    previousSnapshotPath: S.optionalKey(S.String),
     repoRoot: S.String,
   },
   $I.annote("AiMetricsConfigSnapshotInput", {
     description: "Repo root and label used to build an agent-facing configuration snapshot.",
+  })
+) {}
+
+/**
+ * Diff between the current and previous AI metrics config snapshot.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsConfigSnapshotDiff } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsConfigSnapshotDiff)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsConfigSnapshotDiff extends S.Class<AiMetricsConfigSnapshotDiff>($I`AiMetricsConfigSnapshotDiff`)(
+  {
+    addedPaths: S.Array(S.String),
+    modifiedPaths: S.Array(S.String),
+    removedPaths: S.Array(S.String),
+    unchangedPaths: S.Array(S.String),
+  },
+  $I.annote("AiMetricsConfigSnapshotDiff", {
+    description: "Path-level before/after diff for agent-facing configuration snapshots.",
   })
 ) {}
 
@@ -96,8 +120,10 @@ export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapsh
 )(
   {
     excludedDirectoryNames: S.Array(S.String),
+    diff: AiMetricsConfigSnapshotDiff,
     fileCount: S.Number,
     files: S.Array(AiMetricsConfigSnapshotFile),
+    previousSnapshotId: S.optionalKey(S.String),
     snapshot: ConfigSnapshot,
   },
   $I.annote("AiMetricsConfigSnapshotResult", {
@@ -130,6 +156,7 @@ export class AiMetricsConfigSnapshotError extends TaggedErrorClass<AiMetricsConf
 ) {}
 
 const encodeConfigSnapshotJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsConfigSnapshotResult));
+const decodeConfigSnapshotJson = S.decodeUnknownEffect(S.fromJsonString(AiMetricsConfigSnapshotResult));
 
 const byRelativePathAscending: Order.Order<AiMetricsConfigSnapshotFile> = Order.mapInput(
   Order.String,
@@ -274,6 +301,114 @@ const snapshotHashInput: (files: ReadonlyArray<AiMetricsConfigSnapshotFile>) => 
   A.join("\n")
 );
 
+const fileByRelativePath = (
+  files: ReadonlyArray<AiMetricsConfigSnapshotFile>,
+  relativePath: string
+): O.Option<AiMetricsConfigSnapshotFile> => A.findFirst(files, (file) => file.relativePath === relativePath);
+
+const snapshotDiff = (
+  files: ReadonlyArray<AiMetricsConfigSnapshotFile>,
+  previousFiles: ReadonlyArray<AiMetricsConfigSnapshotFile>
+): AiMetricsConfigSnapshotDiff => {
+  const currentPaths = pipe(
+    A.map(files, (file) => file.relativePath),
+    A.sort(Order.String)
+  );
+  const previousPaths = pipe(
+    A.map(previousFiles, (file) => file.relativePath),
+    A.sort(Order.String)
+  );
+  const addedPaths = pipe(
+    currentPaths,
+    A.filter((relativePath) => O.isNone(fileByRelativePath(previousFiles, relativePath))),
+    A.sort(Order.String)
+  );
+  const removedPaths = pipe(
+    previousPaths,
+    A.filter((relativePath) => O.isNone(fileByRelativePath(files, relativePath))),
+    A.sort(Order.String)
+  );
+  const modifiedPaths = pipe(
+    files,
+    A.filter((file) =>
+      pipe(
+        fileByRelativePath(previousFiles, file.relativePath),
+        O.exists((previousFile) => previousFile.contentHash !== file.contentHash)
+      )
+    ),
+    A.map((file) => file.relativePath),
+    A.sort(Order.String)
+  );
+  const unchangedPaths = pipe(
+    files,
+    A.filter((file) =>
+      pipe(
+        fileByRelativePath(previousFiles, file.relativePath),
+        O.exists((previousFile) => previousFile.contentHash === file.contentHash)
+      )
+    ),
+    A.map((file) => file.relativePath),
+    A.sort(Order.String)
+  );
+
+  return new AiMetricsConfigSnapshotDiff({
+    addedPaths,
+    modifiedPaths,
+    removedPaths,
+    unchangedPaths,
+  });
+};
+
+const changedPathsFor = (diff: AiMetricsConfigSnapshotDiff): ReadonlyArray<string> =>
+  pipe(
+    A.appendAll(A.appendAll(diff.addedPaths, diff.modifiedPaths), diff.removedPaths),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+
+const readPreviousSnapshot = Effect.fn("AiMetrics.readPreviousConfigSnapshot")(function* (
+  previousSnapshotPath: string | undefined
+) {
+  if (previousSnapshotPath === undefined) {
+    return O.none<AiMetricsConfigSnapshotResult>();
+  }
+
+  const fs = yield* FileSystem.FileSystem;
+  const exists = yield* fs.exists(previousSnapshotPath).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AiMetricsConfigSnapshotError({
+          cause,
+          message: "Failed to inspect previous AI metrics config snapshot artifact.",
+        })
+    )
+  );
+  if (!exists) {
+    return O.none<AiMetricsConfigSnapshotResult>();
+  }
+
+  const content = yield* fs.readFileString(previousSnapshotPath).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AiMetricsConfigSnapshotError({
+          cause,
+          message: "Failed to read previous AI metrics config snapshot artifact.",
+        })
+    )
+  );
+
+  return yield* decodeConfigSnapshotJson(content).pipe(
+    Effect.map(O.some),
+    Effect.mapError(
+      (cause) =>
+        new AiMetricsConfigSnapshotError({
+          cause,
+          message: "Failed to decode previous AI metrics config snapshot artifact.",
+        })
+    )
+  );
+});
+
 /**
  * Build a deterministic snapshot of repo-owned agent-facing configuration.
  *
@@ -297,19 +432,95 @@ export const makeAiMetricsConfigSnapshot = Effect.fn("AiMetrics.makeAiMetricsCon
   );
   const snapshotHash = yield* hashPublicTextSha256(`ai-metrics-config-snapshot-v1\n${snapshotHashInput(files)}`);
   const relativePaths = A.map(files, (file) => file.relativePath);
+  const previous = yield* readPreviousSnapshot(input.previousSnapshotPath);
+  const previousFiles = pipe(
+    previous,
+    O.map((snapshot) => snapshot.files),
+    O.getOrElse(A.empty<AiMetricsConfigSnapshotFile>)
+  );
+  const diff = snapshotDiff(files, previousFiles);
+  const changedPaths = changedPathsFor(diff);
+  const previousSnapshotId = pipe(
+    previous,
+    O.map((snapshot) => snapshot.snapshot.snapshotId)
+  );
 
   return new AiMetricsConfigSnapshotResult({
     excludedDirectoryNames: EXCLUDED_DIR_NAMES,
+    diff,
     fileCount: A.length(files),
     files,
+    ...(O.isSome(previousSnapshotId) ? { previousSnapshotId: previousSnapshotId.value } : {}),
     snapshot: new ConfigSnapshot({
-      changedPaths: relativePaths,
+      changedPaths,
       configHash: snapshotHash,
+      includedPaths: relativePaths,
       label: input.label,
+      ...(O.isSome(previousSnapshotId) ? { previousSnapshotId: previousSnapshotId.value } : {}),
       snapshotId: `config-${snapshotHash}`,
     }),
   });
 });
+
+/**
+ * Persist a config snapshot manifest and latest pointer for future diff attribution.
+ *
+ * @example
+ * ```ts
+ * import { writeAiMetricsConfigSnapshotArtifacts } from "@beep/repo-ai-metrics"
+ * console.log(writeAiMetricsConfigSnapshotArtifacts)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const writeAiMetricsConfigSnapshotArtifacts = Effect.fn("AiMetrics.writeAiMetricsConfigSnapshotArtifacts")(
+  function* ({
+    commitLatest = true,
+    outputDir,
+    result,
+  }: {
+    readonly commitLatest?: boolean;
+    readonly outputDir: string;
+    readonly result: AiMetricsConfigSnapshotResult;
+  }) {
+    const fs = yield* FileSystem.FileSystem;
+    const pathApi = yield* Path.Path;
+    const content = yield* configSnapshotToJson(result);
+    const manifestPath = pathApi.join(outputDir, `${result.snapshot.snapshotId}.json`);
+    const latestPath = pathApi.join(outputDir, "latest.json");
+    yield* fs.makeDirectory(outputDir, { recursive: true }).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsConfigSnapshotError({
+            cause,
+            message: "Failed to create AI metrics config snapshot artifact directory.",
+          })
+      )
+    );
+    yield* fs.writeFileString(manifestPath, content).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsConfigSnapshotError({
+            cause,
+            message: "Failed to write AI metrics config snapshot manifest.",
+          })
+      )
+    );
+    if (commitLatest) {
+      yield* fs.writeFileString(latestPath, content).pipe(
+        Effect.mapError(
+          (cause) =>
+            new AiMetricsConfigSnapshotError({
+              cause,
+              message: "Failed to write AI metrics latest config snapshot pointer.",
+            })
+        )
+      );
+    }
+
+    return { latestPath, manifestPath };
+  }
+);
 
 /**
  * Render a config snapshot result as JSON.

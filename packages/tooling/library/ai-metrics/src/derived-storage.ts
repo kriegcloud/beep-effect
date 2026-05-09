@@ -51,6 +51,14 @@ const createTableStatements = [
     ingest_run_id VARCHAR NOT NULL,
     source_kind VARCHAR NOT NULL,
     source_path_hash VARCHAR NOT NULL,
+    source_role VARCHAR NOT NULL,
+    session_id_hash VARCHAR,
+    parent_session_id_hash VARCHAR,
+    parent_thread_id_hash VARCHAR,
+    forked_from_id_hash VARCHAR,
+    thread_spawn BOOLEAN,
+    agent_role_hash VARCHAR,
+    agent_nickname_hash VARCHAR,
     total_lines INTEGER NOT NULL,
     accepted_events INTEGER NOT NULL,
     rejected_lines INTEGER NOT NULL,
@@ -76,6 +84,7 @@ const createTableStatements = [
     title VARCHAR NOT NULL,
     source_kind VARCHAR NOT NULL,
     source_path_hash VARCHAR NOT NULL,
+    source_role VARCHAR NOT NULL,
     repo_root_hash VARCHAR NOT NULL,
     config_snapshot_id VARCHAR NOT NULL,
     created_at_epoch_ms DOUBLE NOT NULL,
@@ -88,6 +97,14 @@ const createTableStatements = [
     ingest_run_id VARCHAR NOT NULL,
     source_kind VARCHAR NOT NULL,
     source_path_hash VARCHAR NOT NULL,
+    source_role VARCHAR NOT NULL,
+    session_id_hash VARCHAR,
+    parent_session_id_hash VARCHAR,
+    parent_thread_id_hash VARCHAR,
+    forked_from_id_hash VARCHAR,
+    thread_spawn BOOLEAN,
+    agent_role_hash VARCHAR,
+    agent_nickname_hash VARCHAR,
     started_at VARCHAR,
     config_snapshot_id VARCHAR NOT NULL
   )`,
@@ -97,6 +114,7 @@ const createTableStatements = [
     agent_session_id VARCHAR NOT NULL,
     source_kind VARCHAR NOT NULL,
     source_path_hash VARCHAR NOT NULL,
+    source_role VARCHAR NOT NULL,
     line_number INTEGER NOT NULL,
     event_name VARCHAR NOT NULL,
     raw_event_hash VARCHAR NOT NULL,
@@ -158,15 +176,106 @@ const createTableStatements = [
     task_count INTEGER NOT NULL,
     label_count INTEGER NOT NULL,
     benchmark_run_count INTEGER NOT NULL,
+    completion_ready BOOLEAN NOT NULL,
     coverage_gaps_json VARCHAR NOT NULL
   )`,
 ] as const;
 
 const migrationColumns = [
   {
+    columnDefinition: "source_role VARCHAR DEFAULT 'primary'",
+    columnName: "source_role",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "session_id_hash VARCHAR",
+    columnName: "session_id_hash",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "parent_session_id_hash VARCHAR",
+    columnName: "parent_session_id_hash",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "parent_thread_id_hash VARCHAR",
+    columnName: "parent_thread_id_hash",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "forked_from_id_hash VARCHAR",
+    columnName: "forked_from_id_hash",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "thread_spawn BOOLEAN",
+    columnName: "thread_spawn",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "agent_role_hash VARCHAR",
+    columnName: "agent_role_hash",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "agent_nickname_hash VARCHAR",
+    columnName: "agent_nickname_hash",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "source_role VARCHAR DEFAULT 'primary'",
+    columnName: "source_role",
+    tableName: "ai_metrics_agent_tasks",
+  },
+  {
     columnDefinition: "agent_task_id VARCHAR",
     columnName: "agent_task_id",
     tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "source_role VARCHAR DEFAULT 'primary'",
+    columnName: "source_role",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "session_id_hash VARCHAR",
+    columnName: "session_id_hash",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "parent_session_id_hash VARCHAR",
+    columnName: "parent_session_id_hash",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "parent_thread_id_hash VARCHAR",
+    columnName: "parent_thread_id_hash",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "forked_from_id_hash VARCHAR",
+    columnName: "forked_from_id_hash",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "thread_spawn BOOLEAN",
+    columnName: "thread_spawn",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "agent_role_hash VARCHAR",
+    columnName: "agent_role_hash",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "agent_nickname_hash VARCHAR",
+    columnName: "agent_nickname_hash",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "source_role VARCHAR DEFAULT 'primary'",
+    columnName: "source_role",
+    tableName: "ai_metrics_turns",
   },
   {
     columnDefinition: "quality_gate VARCHAR",
@@ -239,10 +348,24 @@ const migrationColumns = [
     tableName: "ai_metrics_scorecards",
   },
   {
-    columnDefinition: "coverage_gaps_json VARCHAR",
+    columnDefinition: "completion_ready BOOLEAN DEFAULT FALSE",
+    columnName: "completion_ready",
+    tableName: "ai_metrics_scorecards",
+  },
+  {
+    columnDefinition: "coverage_gaps_json VARCHAR DEFAULT '[]'",
     columnName: "coverage_gaps_json",
     tableName: "ai_metrics_scorecards",
   },
+] as const;
+
+const migrationBackfillStatements = [
+  "UPDATE ai_metrics_source_files SET source_role = 'primary' WHERE source_role IS NULL",
+  "UPDATE ai_metrics_agent_tasks SET source_role = 'primary' WHERE source_role IS NULL",
+  "UPDATE ai_metrics_sessions SET source_role = 'primary' WHERE source_role IS NULL",
+  "UPDATE ai_metrics_turns SET source_role = 'primary' WHERE source_role IS NULL",
+  "UPDATE ai_metrics_scorecards SET completion_ready = FALSE WHERE completion_ready IS NULL",
+  "UPDATE ai_metrics_scorecards SET coverage_gaps_json = '[]' WHERE coverage_gaps_json IS NULL",
 ] as const;
 
 type MigrationColumn = {
@@ -395,6 +518,7 @@ const ensureAiMetricsDerivedStorageRaw = Effect.fn("AiMetrics.derivedStorage.ens
   const duckdb = yield* DuckDb;
   yield* duckdb.runMany(createTableStatements);
   yield* Effect.forEach(migrationColumns, addColumnIfMissing, { discard: true });
+  yield* duckdb.runMany(migrationBackfillStatements);
 });
 
 /**
@@ -415,6 +539,7 @@ export const ensureAiMetricsDerivedStorage: Effect.Effect<void, AiMetricsDerived
   );
 
 const optionalStringOrNull = (value: string | undefined): string | null => value ?? null;
+const optionalBooleanOrNull = (value: boolean | undefined): boolean | null => value ?? null;
 
 const epochMillisParam = (value: number): string => globalThis.String(value);
 
@@ -465,16 +590,17 @@ const upsertRun = Effect.fn("AiMetrics.derivedStorage.upsertRun")(function* (
 });
 
 const agentTaskIdFor = Effect.fn("AiMetrics.derivedStorage.agentTaskIdFor")(function* (
+  input: AiMetricsDerivedStorageWriteInput,
   record: AiMetricsDerivedTranscriptRecord
 ) {
   const sanitized = record.privacy.sanitized;
-  return yield* rowId("agent-task", [sanitized.sourceKind, sanitized.sourcePathHash]);
+  return yield* rowId("agent-task", [input.configSnapshot.snapshotId, sanitized.sourceKind, sanitized.sourcePathHash]);
 });
 
 const taskTitleFor = (record: AiMetricsDerivedTranscriptRecord): string => {
   const sanitized = record.privacy.sanitized;
   const sourceSuffix = pipe(sanitized.sourcePathHash, Str.takeLeft(12));
-  return `${sanitized.sourceKind} task ${sourceSuffix}`;
+  return `${sanitized.sourceKind} ${sanitized.sourceRole} task ${sourceSuffix}`;
 };
 
 const upsertAgentTask = Effect.fn("AiMetrics.derivedStorage.upsertAgentTask")(function* (
@@ -483,7 +609,7 @@ const upsertAgentTask = Effect.fn("AiMetrics.derivedStorage.upsertAgentTask")(fu
 ) {
   const duckdb = yield* DuckDb;
   const sanitized = record.privacy.sanitized;
-  const agentTaskId = yield* agentTaskIdFor(record);
+  const agentTaskId = yield* agentTaskIdFor(input, record);
 
   yield* duckdb.run(
     `INSERT OR REPLACE INTO ai_metrics_agent_tasks (
@@ -491,6 +617,7 @@ const upsertAgentTask = Effect.fn("AiMetrics.derivedStorage.upsertAgentTask")(fu
       title,
       source_kind,
       source_path_hash,
+      source_role,
       repo_root_hash,
       config_snapshot_id,
       created_at_epoch_ms,
@@ -501,6 +628,7 @@ const upsertAgentTask = Effect.fn("AiMetrics.derivedStorage.upsertAgentTask")(fu
       $title,
       $sourceKind,
       $sourcePathHash,
+      $sourceRole,
       $repoRootHash,
       $configSnapshotId,
       $createdAtEpochMillis,
@@ -516,6 +644,7 @@ const upsertAgentTask = Effect.fn("AiMetrics.derivedStorage.upsertAgentTask")(fu
       repoRootHash: input.repoRootHash,
       sourceKind: sanitized.sourceKind,
       sourcePathHash: sanitized.sourcePathHash,
+      sourceRole: sanitized.sourceRole,
       title: taskTitleFor(record),
     }
   );
@@ -538,6 +667,14 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
       ingest_run_id,
       source_kind,
       source_path_hash,
+      source_role,
+      session_id_hash,
+      parent_session_id_hash,
+      parent_thread_id_hash,
+      forked_from_id_hash,
+      thread_spawn,
+      agent_role_hash,
+      agent_nickname_hash,
       total_lines,
       accepted_events,
       rejected_lines,
@@ -551,6 +688,14 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
       $ingestRunId,
       $sourceKind,
       $sourcePathHash,
+      $sourceRole,
+      $sessionIdHash,
+      $parentSessionIdHash,
+      $parentThreadIdHash,
+      $forkedFromIdHash,
+      $threadSpawn,
+      $agentRoleHash,
+      $agentNicknameHash,
       $totalLines,
       $acceptedEvents,
       $rejectedLines,
@@ -562,16 +707,24 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
     )`,
     {
       acceptedEvents: sanitized.acceptedEvents,
+      agentNicknameHash: optionalStringOrNull(sanitized.agentNicknameHash),
+      agentRoleHash: optionalStringOrNull(sanitized.agentRoleHash),
       configSnapshotId: input.configSnapshot.snapshotId,
       eventNamesJson,
       firstTimestamp: optionalStringOrNull(sanitized.firstTimestamp),
+      forkedFromIdHash: optionalStringOrNull(sanitized.forkedFromIdHash),
       ingestRunId: input.ingestRunId,
       lastTimestamp: optionalStringOrNull(sanitized.lastTimestamp),
+      parentSessionIdHash: optionalStringOrNull(sanitized.parentSessionIdHash),
+      parentThreadIdHash: optionalStringOrNull(sanitized.parentThreadIdHash),
       redactionSafeForDerivedUi: record.privacy.redaction.safeForDerivedUi,
       rejectedLines: sanitized.rejectedLines,
+      sessionIdHash: optionalStringOrNull(sanitized.sessionIdHash),
       sourceFileId,
       sourceKind: sanitized.sourceKind,
       sourcePathHash: sanitized.sourcePathHash,
+      sourceRole: sanitized.sourceRole,
+      threadSpawn: optionalBooleanOrNull(sanitized.threadSpawn),
       totalLines: sanitized.totalLines,
     }
   );
@@ -635,6 +788,14 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       ingest_run_id,
       source_kind,
       source_path_hash,
+      source_role,
+      session_id_hash,
+      parent_session_id_hash,
+      parent_thread_id_hash,
+      forked_from_id_hash,
+      thread_spawn,
+      agent_role_hash,
+      agent_nickname_hash,
       started_at,
       config_snapshot_id
     ) VALUES (
@@ -643,17 +804,33 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       $ingestRunId,
       $sourceKind,
       $sourcePathHash,
+      $sourceRole,
+      $sessionIdHash,
+      $parentSessionIdHash,
+      $parentThreadIdHash,
+      $forkedFromIdHash,
+      $threadSpawn,
+      $agentRoleHash,
+      $agentNicknameHash,
       $startedAt,
       $configSnapshotId
     )`,
     {
       agentSessionId,
       agentTaskId,
+      agentNicknameHash: optionalStringOrNull(sanitized.agentNicknameHash),
+      agentRoleHash: optionalStringOrNull(sanitized.agentRoleHash),
       configSnapshotId: input.configSnapshot.snapshotId,
+      forkedFromIdHash: optionalStringOrNull(sanitized.forkedFromIdHash),
       ingestRunId: input.ingestRunId,
+      parentSessionIdHash: optionalStringOrNull(sanitized.parentSessionIdHash),
+      parentThreadIdHash: optionalStringOrNull(sanitized.parentThreadIdHash),
+      sessionIdHash: optionalStringOrNull(sanitized.sessionIdHash),
       sourceKind: sanitized.sourceKind,
       sourcePathHash: sanitized.sourcePathHash,
+      sourceRole: sanitized.sourceRole,
       startedAt: optionalStringOrNull(sanitized.firstTimestamp),
+      threadSpawn: optionalBooleanOrNull(sanitized.threadSpawn),
     }
   );
 
@@ -674,6 +851,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
           agent_session_id,
           source_kind,
           source_path_hash,
+          source_role,
           line_number,
           event_name,
           raw_event_hash,
@@ -684,6 +862,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
           $agentSessionId,
           $sourceKind,
           $sourcePathHash,
+          $sourceRole,
           $lineNumber,
           $eventName,
           $rawEventHash,
@@ -697,6 +876,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
           rawEventHash: envelope.rawEventHash,
           sourceKind: envelope.sourceKind,
           sourcePathHash: envelope.sourcePathHash,
+          sourceRole: envelope.sourceRole,
           timestamp: optionalStringOrNull(envelope.timestamp),
           turnId,
         }

@@ -14,7 +14,12 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { firstString, metricEventName, optionalTimestamp, transcriptLines } from "./internal/transcript-utils.ts";
-import { AiMetricsTranscriptSource, type TranscriptIngestSummary } from "./models.ts";
+import {
+  AiMetricsSourceAttribution,
+  AiMetricsSourceRole,
+  AiMetricsTranscriptSource,
+  type TranscriptIngestSummary,
+} from "./models.ts";
 
 const $I = $RepoAiMetricsId.create("privacy");
 
@@ -116,6 +121,10 @@ export class AiMetricsRawEventEnvelope extends S.Class<AiMetricsRawEventEnvelope
     rawEventHash: S.String,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
+    sourceRole: AiMetricsSourceRole.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsSourceRole.Enum.primary)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
+    ),
     timestamp: S.optionalKey(S.String),
   },
   $I.annote("AiMetricsRawEventEnvelope", {
@@ -139,13 +148,24 @@ export class AiMetricsSanitizedTranscript extends S.Class<AiMetricsSanitizedTran
 )(
   {
     acceptedEvents: S.Number,
+    agentNicknameHash: S.optionalKey(S.String),
+    agentRoleHash: S.optionalKey(S.String),
     eventNames: S.Array(S.String),
     firstTimestamp: S.optionalKey(S.String),
+    forkedFromIdHash: S.optionalKey(S.String),
     lastTimestamp: S.optionalKey(S.String),
+    parentSessionIdHash: S.optionalKey(S.String),
+    parentThreadIdHash: S.optionalKey(S.String),
     rawEventEnvelopes: S.Array(AiMetricsRawEventEnvelope),
     rejectedLines: S.Number,
+    sessionIdHash: S.optionalKey(S.String),
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
+    sourceRole: AiMetricsSourceRole.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsSourceRole.Enum.primary)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
+    ),
+    threadSpawn: S.optionalKey(S.Boolean),
     totalLines: S.Number,
   },
   $I.annote("AiMetricsSanitizedTranscript", {
@@ -211,7 +231,53 @@ class GenericTranscriptLine extends S.Class<GenericTranscriptLine>($I`GenericTra
   })
 ) {}
 
+class CodexSubagentSource extends S.Class<CodexSubagentSource>($I`CodexSubagentSource`)(
+  {
+    agent_nickname: S.optionalKey(S.String),
+    agent_role: S.optionalKey(S.String),
+    forked_from_id: S.optionalKey(S.String),
+    parent_session_id: S.optionalKey(S.String),
+    parent_thread_id: S.optionalKey(S.String),
+    thread_spawn: S.optionalKey(S.Boolean),
+  },
+  $I.annote("CodexSubagentSource", {
+    description: "Hash-only source metadata shape decoded from Codex session_meta lines.",
+  })
+) {}
+
+class CodexSessionSource extends S.Class<CodexSessionSource>($I`CodexSessionSource`)(
+  {
+    subagent: S.optionalKey(CodexSubagentSource),
+  },
+  $I.annote("CodexSessionSource", {
+    description: "Codex session_meta source metadata used for attribution.",
+  })
+) {}
+
+class CodexSessionPayload extends S.Class<CodexSessionPayload>($I`CodexSessionPayload`)(
+  {
+    id: S.optionalKey(S.String),
+    parent_session_id: S.optionalKey(S.String),
+    parent_thread_id: S.optionalKey(S.String),
+    source: S.optionalKey(CodexSessionSource),
+  },
+  $I.annote("CodexSessionPayload", {
+    description: "Codex session_meta payload fields used for privacy-preserving attribution.",
+  })
+) {}
+
+class CodexSessionMetaLine extends S.Class<CodexSessionMetaLine>($I`CodexSessionMetaLine`)(
+  {
+    payload: S.optionalKey(CodexSessionPayload),
+    type: S.String,
+  },
+  $I.annote("CodexSessionMetaLine", {
+    description: "Codex JSONL session_meta line used to detect delegated subagent transcripts.",
+  })
+) {}
+
 const decodeGenericTranscriptLine = S.decodeUnknownOption(S.fromJsonString(GenericTranscriptLine));
+const decodeCodexSessionMetaLine = S.decodeUnknownOption(S.fromJsonString(CodexSessionMetaLine));
 const encodePrivacyCheckJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsPrivacyCheckResult));
 
 /**
@@ -293,6 +359,129 @@ export const hashPrivateIdentifier: {
   })
 );
 
+const firstNonEmptyString = (...values: ReadonlyArray<string | undefined>): O.Option<string> =>
+  pipe(
+    values,
+    A.map((value) =>
+      pipe(
+        O.fromNullishOr(value),
+        O.filter((candidate) => Str.isNonEmpty(Str.trim(candidate)))
+      )
+    ),
+    A.getSomes,
+    A.head
+  );
+
+const optionalHashPrivateIdentifier = Effect.fn("AiMetrics.optionalHashPrivateIdentifier")(function* (
+  value: O.Option<string>,
+  hashSalt: string | undefined
+) {
+  if (O.isNone(value)) {
+    return undefined;
+  }
+
+  return yield* hashPrivateIdentifier(value.value, hashSalt);
+});
+
+const codexSessionMetaLines: (content: string) => ReadonlyArray<CodexSessionMetaLine> = flow(
+  transcriptLines,
+  A.map((line) => decodeCodexSessionMetaLine(line)),
+  A.getSomes,
+  A.filter((line) => line.type === "session_meta")
+);
+
+const firstCodexSessionPayload: (lines: ReadonlyArray<CodexSessionMetaLine>) => O.Option<CodexSessionPayload> = flow(
+  A.map((line) => O.fromNullishOr(line.payload)),
+  A.getSomes,
+  A.head
+);
+
+const firstCodexSubagentSource: (lines: ReadonlyArray<CodexSessionMetaLine>) => O.Option<CodexSubagentSource> = flow(
+  A.map((line) => O.fromNullishOr(line.payload?.source?.subagent)),
+  A.getSomes,
+  A.head
+);
+
+const pathRoleFor = (relativePath: string): AiMetricsSourceRole =>
+  Str.includes("/subagents/")(relativePath) ? AiMetricsSourceRole.Enum.subagent : AiMetricsSourceRole.Enum.primary;
+
+/**
+ * Derive privacy-safe source attribution from local transcript metadata.
+ *
+ * @example
+ * ```ts
+ * import { makeAiMetricsSourceAttribution } from "@beep/repo-ai-metrics"
+ * console.log(makeAiMetricsSourceAttribution)
+ * ```
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeAiMetricsSourceAttribution = Effect.fn("AiMetrics.makeAiMetricsSourceAttribution")(function* ({
+  content,
+  hashSalt,
+  relativePath,
+  sourceKind,
+  sourcePath,
+}: {
+  readonly content: string;
+  readonly hashSalt?: string;
+  readonly relativePath: string;
+  readonly sourceKind: AiMetricsTranscriptSource;
+  readonly sourcePath: string;
+}) {
+  if (sourceKind === AiMetricsTranscriptSource.Enum.openclaw) {
+    return new AiMetricsSourceAttribution({
+      sessionIdHash: yield* hashPrivateIdentifier("openclaw-gateway.service", hashSalt),
+      sourceRole: AiMetricsSourceRole.Enum.gateway_metadata,
+    });
+  }
+
+  if (sourceKind === AiMetricsTranscriptSource.Enum.claude) {
+    return new AiMetricsSourceAttribution({
+      sessionIdHash: yield* hashPrivateIdentifier(sourcePath, hashSalt),
+      sourceRole: pathRoleFor(relativePath),
+    });
+  }
+
+  const sessionMetaLines = codexSessionMetaLines(content);
+  const payload = firstCodexSessionPayload(sessionMetaLines);
+  const subagent = firstCodexSubagentSource(sessionMetaLines);
+  const subagentValue = O.getOrUndefined(subagent);
+  const payloadValue = O.getOrUndefined(payload);
+  const sourceRole =
+    O.isSome(subagent) || subagentValue?.thread_spawn === true
+      ? AiMetricsSourceRole.Enum.subagent
+      : AiMetricsSourceRole.Enum.primary;
+  const parentSessionId = firstNonEmptyString(subagentValue?.parent_session_id, payloadValue?.parent_session_id);
+  const parentThreadId = firstNonEmptyString(subagentValue?.parent_thread_id, payloadValue?.parent_thread_id);
+  const agentNicknameHash = yield* optionalHashPrivateIdentifier(
+    firstNonEmptyString(subagentValue?.agent_nickname),
+    hashSalt
+  );
+  const agentRoleHash = yield* optionalHashPrivateIdentifier(firstNonEmptyString(subagentValue?.agent_role), hashSalt);
+  const forkedFromIdHash = yield* optionalHashPrivateIdentifier(
+    firstNonEmptyString(subagentValue?.forked_from_id),
+    hashSalt
+  );
+  const parentSessionIdHash = yield* optionalHashPrivateIdentifier(parentSessionId, hashSalt);
+  const parentThreadIdHash = yield* optionalHashPrivateIdentifier(parentThreadId, hashSalt);
+  const sessionIdHash = yield* optionalHashPrivateIdentifier(
+    firstNonEmptyString(payloadValue?.id, sourcePath),
+    hashSalt
+  );
+
+  return new AiMetricsSourceAttribution({
+    ...(subagentValue?.thread_spawn === undefined ? {} : { threadSpawn: subagentValue.thread_spawn }),
+    ...(agentNicknameHash === undefined ? {} : { agentNicknameHash }),
+    ...(agentRoleHash === undefined ? {} : { agentRoleHash }),
+    ...(forkedFromIdHash === undefined ? {} : { forkedFromIdHash }),
+    ...(parentSessionIdHash === undefined ? {} : { parentSessionIdHash }),
+    ...(parentThreadIdHash === undefined ? {} : { parentThreadIdHash }),
+    ...(sessionIdHash === undefined ? {} : { sessionIdHash }),
+    sourceRole,
+  });
+});
+
 /**
  * Redact secret-shaped text before any diagnostic rendering.
  *
@@ -347,11 +536,13 @@ const eventNameList: (envelopes: ReadonlyArray<AiMetricsRawEventEnvelope>) => Re
 );
 
 const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
+  attribution,
   content,
   hashSalt,
   sourceKind,
   sourcePathHash,
 }: {
+  readonly attribution: AiMetricsSourceAttribution;
   readonly content: string;
   readonly hashSalt?: string;
   readonly sourceKind: AiMetricsTranscriptSource;
@@ -373,6 +564,7 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
           rawEventHash: yield* hashPrivateIdentifier(line, hashSalt),
           sourceKind,
           sourcePathHash,
+          sourceRole: attribution.sourceRole,
           ...optionalTimestamp(decoded.value.timestamp),
         })
       );
@@ -397,13 +589,23 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
 export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscript")(function* ({
   content,
   hashSalt,
+  sourcePath,
   summary,
 }: {
   readonly content: string;
   readonly hashSalt?: string;
+  readonly sourcePath: string;
   readonly summary: TranscriptIngestSummary;
 }) {
+  const attribution = yield* makeAiMetricsSourceAttribution({
+    content,
+    ...(hashSalt === undefined ? {} : { hashSalt }),
+    relativePath: sourcePath,
+    sourceKind: summary.sourceKind,
+    sourcePath,
+  });
   const envelopes = yield* rawEventEnvelopes({
+    attribution,
     content,
     sourceKind: summary.sourceKind,
     sourcePathHash: summary.sourcePathHash,
@@ -412,11 +614,19 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
 
   return new AiMetricsSanitizedTranscript({
     acceptedEvents: summary.acceptedEvents,
+    ...(attribution.agentNicknameHash === undefined ? {} : { agentNicknameHash: attribution.agentNicknameHash }),
+    ...(attribution.agentRoleHash === undefined ? {} : { agentRoleHash: attribution.agentRoleHash }),
     eventNames: eventNameList(envelopes),
+    ...(attribution.forkedFromIdHash === undefined ? {} : { forkedFromIdHash: attribution.forkedFromIdHash }),
     rawEventEnvelopes: envelopes,
     rejectedLines: summary.rejectedLines,
+    ...(attribution.parentSessionIdHash === undefined ? {} : { parentSessionIdHash: attribution.parentSessionIdHash }),
+    ...(attribution.parentThreadIdHash === undefined ? {} : { parentThreadIdHash: attribution.parentThreadIdHash }),
+    ...(attribution.sessionIdHash === undefined ? {} : { sessionIdHash: attribution.sessionIdHash }),
     sourceKind: summary.sourceKind,
     sourcePathHash: summary.sourcePathHash,
+    sourceRole: attribution.sourceRole,
+    ...(attribution.threadSpawn === undefined ? {} : { threadSpawn: attribution.threadSpawn }),
     totalLines: summary.totalLines,
     ...(summary.firstTimestamp === undefined ? {} : { firstTimestamp: summary.firstTimestamp }),
     ...(summary.lastTimestamp === undefined ? {} : { lastTimestamp: summary.lastTimestamp }),
@@ -449,7 +659,12 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
     hashSaltStatus: resolveAiMetricsHashSaltStatus(hashSalt),
     inputPathHash: yield* hashPrivateIdentifier(sourcePath, hashSalt),
     redaction: redactionResultFor(content),
-    sanitized: yield* makeSanitizedTranscript({ content, summary, ...(hashSalt === undefined ? {} : { hashSalt }) }),
+    sanitized: yield* makeSanitizedTranscript({
+      content,
+      sourcePath,
+      summary,
+      ...(hashSalt === undefined ? {} : { hashSalt }),
+    }),
     sourceKind: summary.sourceKind,
   });
 });

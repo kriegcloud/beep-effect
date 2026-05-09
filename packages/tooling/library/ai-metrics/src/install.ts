@@ -272,8 +272,10 @@ export const AiMetricsInstallPlanStepKind = LiteralKit([
   "config_snapshot",
   "privacy_check",
   "forwarder",
+  "forwarder_timer",
   "otlp_export",
   "label_queue",
+  "retention_drill",
   "weekly_report",
   "pulumi",
 ] as const).annotate(
@@ -598,6 +600,8 @@ const makeServiceSpec =
     });
   };
 
+const shellQuote = (value: string): string => `'${Str.replace(/'/gu, "'\\''")(value)}'`;
+
 const withHashSaltSecret =
   (hashSaltSecretRef: O.Option<string>) =>
   (command: string): string =>
@@ -605,9 +609,12 @@ const withHashSaltSecret =
       hashSaltSecretRef,
       O.match({
         onNone: () => command,
-        onSome: (ref) => `BEEP_AI_METRICS_HASH_SALT=<secret:${ref}> ${command}`,
+        onSome: (ref) => `BEEP_AI_METRICS_HASH_SALT="$(op read ${shellQuote(ref)})" ${command}`,
       })
     );
+
+const rawArchiveKeyPrefix = (rawRef: string): string =>
+  `BEEP_AI_METRICS_RAW_ARCHIVE_KEY="$(op read ${shellQuote(rawRef)})"`;
 
 const withInstallSecretRefFlags =
   (hashSaltSecretRef: O.Option<string>, rawArchiveKeySecretRef: O.Option<string>) =>
@@ -616,11 +623,11 @@ const withInstallSecretRefFlags =
       [
         pipe(
           hashSaltSecretRef,
-          O.map((ref) => `--hash-salt-secret-ref ${ref}`)
+          O.map((ref) => `--hash-salt-secret-ref ${shellQuote(ref)}`)
         ),
         pipe(
           rawArchiveKeySecretRef,
-          O.map((ref) => `--raw-archive-key-secret-ref ${ref}`)
+          O.map((ref) => `--raw-archive-key-secret-ref ${shellQuote(ref)}`)
         ),
       ],
       A.getSomes,
@@ -756,7 +763,7 @@ const makeInstallPlanSteps = (
             ),
           onSome: (rawRef) =>
             withHashSaltSecret(hashSaltSecretRef)(
-              `BEEP_AI_METRICS_RAW_ARCHIVE_KEY=<secret:${rawRef}> beep-cli ai-metrics forwarder run --target ${spec.target}${collectorDataRootFlag} --raw-archive-key-secret-ref ${rawRef}${spec.target === AiMetricsDeployTarget.Enum.dankserver ? " --otlp" : ""}${otlpBaseUrlFlag}`
+              `${rawArchiveKeyPrefix(rawRef)} beep-cli ai-metrics forwarder run --target ${spec.target}${collectorDataRootFlag} --raw-archive-key-secret-ref ${shellQuote(rawRef)}${spec.target === AiMetricsDeployTarget.Enum.dankserver ? " --otlp" : ""}${otlpBaseUrlFlag}`
             ),
         })
       ),
@@ -773,6 +780,19 @@ const makeInstallPlanSteps = (
     }),
     planStep({
       command: installFlags(
+        `beep-cli ai-metrics forwarder timer --target ${spec.target}${collectorDataRootFlag}${otlpBaseUrlFlag}`
+      ),
+      description:
+        "Render the workstation systemd user timer that owns repeated P6a collection with lock, retry, status, and journal evidence.",
+      kind: AiMetricsInstallPlanStepKind.Enum.forwarder_timer,
+      mutatesHost: false,
+      order: 65,
+      requiresRemote: false,
+      stepId: "forwarder.timer",
+      title: "Render forwarder timer",
+    }),
+    planStep({
+      command: installFlags(
         `beep-cli ai-metrics otlp export --target ${spec.target}${collectorDataRootFlag} --ingest-run latest${otlpBaseUrlFlag}`
       ),
       description: "Export redacted derived spans to the Phoenix OTLP trace endpoint.",
@@ -784,7 +804,9 @@ const makeInstallPlanSteps = (
       title: "Export derived OTLP spans",
     }),
     planStep({
-      command: installFlags(`beep-cli ai-metrics label queue --target ${spec.target} --limit 20`),
+      command: installFlags(
+        `beep-cli ai-metrics label queue --target ${spec.target}${collectorDataRootFlag} --limit 20`
+      ),
       description: "Review real tasks that need outcome labels before weekly scoring.",
       kind: AiMetricsInstallPlanStepKind.Enum.label_queue,
       mutatesHost: false,
@@ -794,7 +816,7 @@ const makeInstallPlanSteps = (
       title: "Review outcome label queue",
     }),
     planStep({
-      command: installFlags(`beep-cli ai-metrics report weekly --target ${spec.target}`),
+      command: installFlags(`beep-cli ai-metrics report weekly --target ${spec.target}${collectorDataRootFlag}`),
       description: "Generate the weekly config-impact scorecard from derived data.",
       kind: AiMetricsInstallPlanStepKind.Enum.weekly_report,
       mutatesHost: false,
@@ -802,6 +824,28 @@ const makeInstallPlanSteps = (
       requiresRemote: false,
       stepId: "report.weekly",
       title: "Generate weekly scorecard",
+    }),
+    planStep({
+      command: pipe(
+        rawArchiveKeySecretRef,
+        O.match({
+          onNone: () =>
+            withHashSaltSecret(hashSaltSecretRef)(
+              `BEEP_AI_METRICS_RAW_ARCHIVE_KEY=<base64-32-byte-key> ${installFlags(`beep-cli ai-metrics archive drill --target ${spec.target}${collectorDataRootFlag}`)}`
+            ),
+          onSome: (rawRef) =>
+            `${rawArchiveKeyPrefix(rawRef)} ${withHashSaltSecret(hashSaltSecretRef)(
+              installFlags(`beep-cli ai-metrics archive drill --target ${spec.target}${collectorDataRootFlag}`)
+            )}`,
+        })
+      ),
+      description: "Run a small archive decrypt or restore drill before restarting the credited seven-day proof.",
+      kind: AiMetricsInstallPlanStepKind.Enum.retention_drill,
+      mutatesHost: false,
+      order: 95,
+      requiresRemote: false,
+      stepId: "archive.drill",
+      title: "Run archive drill",
     }),
     planStep({
       command:
@@ -844,9 +888,15 @@ const plannedCommands = (
         ),
       onSome: (rawRef) =>
         withHashSaltSecret(hashSaltSecretRef)(
-          `BEEP_AI_METRICS_RAW_ARCHIVE_KEY=<secret:${rawRef}> beep-cli ai-metrics forwarder run --target ${target}${target === AiMetricsDeployTarget.Enum.dankserver ? ` --data-root ${localCollectorDataRoot}` : ""} --raw-archive-key-secret-ref ${rawRef}${target === AiMetricsDeployTarget.Enum.dankserver ? ` --otlp --otlp-base-url ${publicBaseUrl}` : ""}`
+          `${rawArchiveKeyPrefix(rawRef)} beep-cli ai-metrics forwarder run --target ${target}${target === AiMetricsDeployTarget.Enum.dankserver ? ` --data-root ${localCollectorDataRoot}` : ""} --raw-archive-key-secret-ref ${shellQuote(rawRef)}${target === AiMetricsDeployTarget.Enum.dankserver ? ` --otlp --otlp-base-url ${publicBaseUrl}` : ""}`
         ),
     })
+  ),
+  withInstallSecretRefFlags(
+    hashSaltSecretRef,
+    rawArchiveKeySecretRef
+  )(
+    `beep-cli ai-metrics forwarder timer --target ${target}${target === AiMetricsDeployTarget.Enum.dankserver ? ` --data-root ${localCollectorDataRoot} --otlp-base-url ${publicBaseUrl}` : ""}`
   ),
   withInstallSecretRefFlags(
     hashSaltSecretRef,
@@ -857,11 +907,38 @@ const plannedCommands = (
   withInstallSecretRefFlags(
     hashSaltSecretRef,
     rawArchiveKeySecretRef
-  )(`beep-cli ai-metrics label queue --target ${target} --limit 20`),
+  )(
+    `beep-cli ai-metrics label queue --target ${target}${target === AiMetricsDeployTarget.Enum.dankserver ? ` --data-root ${localCollectorDataRoot}` : ""} --limit 20`
+  ),
   withInstallSecretRefFlags(
     hashSaltSecretRef,
     rawArchiveKeySecretRef
-  )(`beep-cli ai-metrics report weekly --target ${target}`),
+  )(
+    `beep-cli ai-metrics report weekly --target ${target}${target === AiMetricsDeployTarget.Enum.dankserver ? ` --data-root ${localCollectorDataRoot}` : ""}`
+  ),
+  pipe(
+    rawArchiveKeySecretRef,
+    O.match({
+      onNone: () =>
+        withHashSaltSecret(hashSaltSecretRef)(
+          `BEEP_AI_METRICS_RAW_ARCHIVE_KEY=<base64-32-byte-key> ${withInstallSecretRefFlags(
+            hashSaltSecretRef,
+            rawArchiveKeySecretRef
+          )(
+            `beep-cli ai-metrics archive drill --target ${target}${target === AiMetricsDeployTarget.Enum.dankserver ? ` --data-root ${localCollectorDataRoot}` : ""}`
+          )}`
+        ),
+      onSome: (rawRef) =>
+        `${rawArchiveKeyPrefix(rawRef)} ${withHashSaltSecret(hashSaltSecretRef)(
+          withInstallSecretRefFlags(
+            hashSaltSecretRef,
+            rawArchiveKeySecretRef
+          )(
+            `beep-cli ai-metrics archive drill --target ${target}${target === AiMetricsDeployTarget.Enum.dankserver ? ` --data-root ${localCollectorDataRoot}` : ""}`
+          )
+        )}`,
+    })
+  ),
 ];
 
 const encodeInstallPlanJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsInstallPlan));
