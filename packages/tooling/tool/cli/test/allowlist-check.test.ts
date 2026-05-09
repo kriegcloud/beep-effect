@@ -39,7 +39,11 @@ describe("allowlist-check", () => {
     await Effect.runPromise(
       withTempRepo((tmpDir) =>
         Effect.gen(function* () {
-          yield* writeRepoFile(tmpDir, "packages/demo/src/index.ts", "export const value = 1;\n");
+          yield* writeRepoFile(
+            tmpDir,
+            "packages/demo/src/index.ts",
+            "export const value = Object.keys({ ok: true });\n"
+          );
           yield* writeRepoFile(
             tmpDir,
             ALLOWLIST_PATH,
@@ -121,7 +125,11 @@ describe("allowlist-check", () => {
           const path = yield* Path.Path;
           const workingDir = path.join(tmpDir, "packages/demo");
 
-          yield* writeRepoFile(tmpDir, "packages/demo/src/index.ts", "export const value = 1;\n");
+          yield* writeRepoFile(
+            tmpDir,
+            "packages/demo/src/index.ts",
+            "export const value = Object.keys({ ok: true });\n"
+          );
           yield* writeRepoFile(
             tmpDir,
             ALLOWLIST_PATH,

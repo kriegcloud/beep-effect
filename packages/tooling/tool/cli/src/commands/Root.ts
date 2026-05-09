@@ -8,7 +8,9 @@
 
 import { Command } from "effect/unstable/cli";
 import { aiMetricsCommand } from "./AIMetrics/index.js";
+import { ciCommand } from "./Ci.js";
 import { codegenCommand } from "./Codegen.js";
+import { codexCommand } from "./Codex.js";
 import { createPackageCommand } from "./CreatePackage/index.js";
 import { docgenCommand } from "./Docgen/index.js";
 import { docsCommand } from "./Docs.js";
@@ -18,6 +20,7 @@ import { imageCommand } from "./Image/index.js";
 import { lawsCommand } from "./Laws/index.js";
 import { lintCommand } from "./Lint/index.js";
 import { purgeCommand } from "./Purge.js";
+import { qualityCommand } from "./Quality/ScriptCommands.js";
 import { reuseCommand } from "./Reuse/index.js";
 import { syncDataToTsCommand } from "./SyncDataToTs/index.js";
 import { topoSortCommand } from "./TopoSort.js";
@@ -42,12 +45,15 @@ export const rootCommand = Command.make("beep-cli").pipe(
   Command.withSubcommands([
     topoSortCommand,
     aiMetricsCommand,
+    ciCommand,
+    codexCommand,
     docgenCommand,
     docsCommand,
     filesCommand,
     imageCommand,
     lintCommand,
     lawsCommand,
+    qualityCommand,
     graphitiCommand,
     createPackageCommand,
     codegenCommand,

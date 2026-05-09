@@ -109,14 +109,14 @@ describe("quality task adapter", () => {
     expect(legacySteps).toHaveLength(1);
     expect(explicitSteps[0]).toMatchObject({
       label: "audit:repo-sanity",
-      command: "bash",
-      args: ["scripts/run-github-checks.sh", "repo-sanity"],
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "repo-sanity"],
       cwd: "/repo",
     });
     expect(legacySteps[0]).toMatchObject({
       label: "audit:repo-sanity",
-      command: "bash",
-      args: ["scripts/run-github-checks.sh", "repo-sanity"],
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "repo-sanity"],
       cwd: "/repo",
     });
   });
@@ -142,17 +142,17 @@ describe("quality task adapter", () => {
       expect.objectContaining({
         label: "check:dtslint:tsgo",
         command: "bun",
-        args: ["run", "scripts/run-dtslint-tsgo-checks.mjs"],
+        args: ["run", "beep", "quality", "dtslint-tsgo"],
       }),
       expect.objectContaining({
         label: "check:tsgo:tests",
         command: "bun",
-        args: ["run", "scripts/run-test-tsgo-checks.mjs"],
+        args: ["run", "beep", "quality", "test-tsgo"],
       }),
       expect.objectContaining({
         label: "check:tsgo:smoke",
         command: "bun",
-        args: ["run", "scripts/check-tsgo-smoke.mjs"],
+        args: ["run", "beep", "quality", "tsgo-smoke"],
       }),
     ]);
   });

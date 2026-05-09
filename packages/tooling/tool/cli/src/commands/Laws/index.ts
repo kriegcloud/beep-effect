@@ -307,6 +307,10 @@ const lawsNativeRuntimeCommand = Command.make(
     yield* Console.log(`[effect-governance-native-runtime] touched_files=${summary.touchedFiles}`);
     yield* Console.log(`[effect-governance-native-runtime] warnings=${summary.warningCount}`);
     yield* Console.log(`[effect-governance-native-runtime] errors=${summary.errorCount}`);
+    yield* Console.log(`[effect-governance-native-runtime] allowlisted=${summary.allowlistedCount}`);
+    yield* Console.log(
+      `[effect-governance-native-runtime] unused_allowlist_entries=${summary.unusedAllowlistEntries.length}`
+    );
 
     for (const diagnostic of summary.diagnostics) {
       yield* Console.log(

@@ -20,43 +20,11 @@
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
+      "file": "packages/foundation/ui-system/ui/src/lib/react-invariant.ts",
       "kind": "native-error",
-      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
+      "reason": "React context hooks need synchronous invariant failures during render so provider misuse is surfaced immediately by React's error boundary/dev overlay path.",
       "owner": "@beep/ui",
-      "issue": "UI-SIDEBAR-CONTEXT-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-      "kind": "native-error",
-      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
-      "owner": "@beep/ui",
-      "issue": "UI-CAROUSEL-CONTEXT-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/components/speech-input.tsx",
-      "kind": "native-error",
-      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
-      "owner": "@beep/ui",
-      "issue": "UI-SPEECH-INPUT-CONTEXT-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-      "kind": "native-error",
-      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
-      "owner": "@beep/ui",
-      "issue": "UI-TOUR-CONTEXT-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts",
-      "kind": "date-static",
-      "reason": "OTLP serialization hooks are synchronous body factories, so packet capture timestamps must be recorded at that immediate runtime boundary without introducing Effect execution into the serializer contract.",
-      "owner": "@beep/observability",
-      "issue": "OBSERVABILITY-OTLP-PACKET-LAB-TIMESTAMP"
+      "issue": "UI-REACT-CONTEXT-INVARIANT"
     },
     {
       "rule": "beep-laws/no-native-runtime",
@@ -65,6 +33,54 @@
       "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
       "owner": "@beep/nlp",
       "issue": "WINK-SIMILARITY-NATIVE-SET-BRIDGE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "new-map-set",
+      "reason": "The JSDoc inventory support generator is a standalone Bun/ts-morph workspace scanner that uses native Set and Map collections to mirror parser traversal state deterministically outside package runtime code.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "native-error",
+      "reason": "The JSDoc inventory support generator is invoked as a direct CLI script and throws native Error values for malformed workspace metadata before emitting generated inventory artifacts.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "array-static",
+      "reason": "The JSDoc inventory support generator decodes untyped JSONC workspace manifests and uses native Array guards at the external data boundary before normalizing values.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "typeof-runtime",
+      "reason": "The JSDoc inventory support generator decodes untyped JSONC and ts-morph metadata in a standalone support-script boundary where simple runtime guards keep generated inventory deterministic.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "object-method",
+      "reason": "The JSDoc inventory support generator renders aggregate maps from plain JSON-compatible records and uses Object entries only at the generated-report boundary.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "new-date",
+      "reason": "The JSDoc inventory support generator stamps generated inventory metadata once during direct CLI execution outside package runtime code.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
     }
   ]
 }

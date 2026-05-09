@@ -229,28 +229,47 @@ bunx @beep/repo-cli docs policies
 bunx @beep/repo-cli docs find <topic>
 ```
 
-### `kg`
+### `quality`
 
-AST knowledge graph indexing, publication, verification, parity, and replay operations.
+Run repository operational quality lanes that are not package-local Turbo tasks.
 
 ```bash
-# Index deterministic local artifacts
-bunx @beep/repo-cli kg index --mode full
-bunx @beep/repo-cli kg index --mode delta --changed packages/foo/src/index.ts
+bun run beep quality github-checks quality
+bun run beep quality github-checks repo-sanity
+bun run beep quality bun-audit
+bun run beep quality dtslint-tsgo
+bun run beep quality test-tsgo
+bun run beep quality tsgo-smoke
+bun run beep quality jsdoc-module-tags
+bun run beep quality jsdoc-inventory
+```
 
-# Dual-write publish to Falkor, Graphiti, or both
-bunx @beep/repo-cli kg publish --target both --mode full
-bunx @beep/repo-cli kg publish --target both --mode delta --changed packages/tooling/tool/cli/src/commands/kg.ts
-bunx @beep/repo-cli kg publish --target both --mode full --group beep-ast-kg-ci-<run-id>
+### `ci`
 
-# Verify and parity checks
-bunx @beep/repo-cli kg verify --target both --group beep-ast-kg --commit <sha>
-bunx @beep/repo-cli kg parity --profile code-graph-functional --group beep-ast-kg
-bunx @beep/repo-cli kg parity --profile code-graph-strict --group beep-ast-kg --strict-min-paths 1
+Render CI helper output from checked-in repo automation.
 
-# Replay previously spooled envelopes
-bunx @beep/repo-cli kg replay --from-spool .beep/ast-kg/.cache/graphiti-spool/<sha>.jsonl --target both
-bunx @beep/repo-cli kg replay --from-spool .beep/ast-kg/.cache/graphiti-spool/<sha>.jsonl --target both --group beep-ast-kg-drill
+```bash
+bun run beep ci append-turbo-summary
+bun run beep ci append-turbo-summary .turbo/runs/latest.json
+```
+
+### `graphiti`
+
+Run and manage the local Graphiti MCP queue proxy.
+
+```bash
+bun run beep graphiti proxy
+bun run beep graphiti proxy ensure
+bun run beep graphiti proxy service install
+bun run beep graphiti recover --dry-run
+```
+
+### `codex`
+
+Launch Codex helper workflows from repo-owned prompts.
+
+```bash
+bun run beep codex quality-review-fix-loop "close the current initiative"
 ```
 
 ## License
