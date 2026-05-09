@@ -80,6 +80,26 @@ Every exported symbol carries:
 - `@since` — currently `@since 0.0.0` workspace-wide (intentional placeholder
   until v1.0; do not infer real versions from git history)
 
+### Quality Rubric (Whole Block)
+
+Quality review scores the whole JSDoc block, not just the presence of tags.
+A passing block should give a future reader or coding agent enough context to
+use the symbol without inventing intent.
+
+- The description says what problem the symbol solves, not just what its name
+  already says.
+- `@example` is still universal for exported symbols. Error classes, type-only
+  helpers, schemas, constants, and re-exports need examples too; choose a
+  handling, narrowing, construction, or import example that fits the symbol.
+- Examples use fenced TypeScript and show an observable result, assertion,
+  decoded value, Effect execution, or returned value. `const result = ...;
+  void result` is a compile trick, not useful documentation.
+- Conditional tags are added only when they supply information that is not
+  visible in the signature.
+
+Use `bun run beep docgen quality -p <package> --json --score codex` for the
+report-only quality subject and remediation packet shape.
+
 ### Conditional Tags (Present Only When They Add Information)
 
 These tags appear when — and only when — they encode something the signature
@@ -518,8 +538,9 @@ export class Household extends S.Class<Household>($I`Household`)(
 
 ### `TaggedErrorClass` — Tagged Error
 
-Errors typically don't carry `@example`; the example lives on the function
-that raises them.
+Error classes still carry `@example`; prefer showing the function that raises
+or handles the error so the example teaches the reader how the class appears
+at a call site.
 
 ````ts
 /**
@@ -879,6 +900,7 @@ const program = Effect.gen(function* () {
 - [ ] Brief, clear one-line description
 - [ ] At least one practical, compilable example
 - [ ] Examples compile with `bun run docgen`
+- [ ] Quality report is reviewable with `bun run beep docgen quality -p <package>`
 - [ ] All imports use correct namespace aliases
 - [ ] No `any` types, type assertions, `declare`, or empty example bodies
 - [ ] `@category` (canonical kebab-case slug from standard list)

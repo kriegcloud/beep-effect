@@ -1,7 +1,8 @@
 # Research Reports
 
-Place synthesized research reports for the JSDoc quality enforcement initiative
-in this directory.
+This directory contains the synthesized research reports that grounded the V1
+JSDoc quality workflow. Future evaluation reports can be added here when they
+are decision-oriented and worth preserving.
 
 ## Report Template
 
@@ -32,3 +33,5 @@ in this directory.
 - Link to repo files and external sources used by the research.
 - Put bulky raw outputs in `../history/outputs/` only when they are useful
   provenance.
+- Do not treat advisory V1 quality findings as a blocking policy without a new
+  eval-backed decision.

@@ -11,7 +11,13 @@ import {
   generateAnalysisReport,
   loadDocgenConfigDocument,
 } from "@beep/repo-cli/commands/Docgen/internal/Operations";
-import { FsUtilsLive } from "@beep/repo-utils";
+import {
+  analyzeDocgenQuality,
+  analyzePackageQuality,
+  generateQualityJson,
+  generateQualityReport,
+} from "@beep/repo-cli/commands/Docgen/internal/Quality";
+import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -22,12 +28,17 @@ import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
-const TestLayer = Layer.mergeAll(PlatformLayer, FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)));
+const TestLayer = Layer.mergeAll(
+  PlatformLayer,
+  FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)),
+  TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer))
+);
 const CommandPlatformLayer = Layer.mergeAll(NodeServices.layer);
 const CommandTestLayer = Layer.mergeAll(
   CommandPlatformLayer,
   NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(CommandPlatformLayer)),
   FsUtilsLive.pipe(Layer.provideMerge(CommandPlatformLayer)),
+  TSMorphServiceLive.pipe(Layer.provideMerge(CommandPlatformLayer)),
   TestConsole.layer
 );
 const runDocgenCommand = Command.runWith(docgenCommand, { version: "0.0.0" });
@@ -618,6 +629,176 @@ describe("Docgen operations", () => {
     expect(report).not.toContain("You are tasked");
   });
 
+  it("builds rich JSDoc quality subjects and advisory findings", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+          yield* fs.writeFileString(
+            path.join(tmpDir, "tsconfig.json"),
+            encodeJson({
+              compilerOptions: {
+                module: "es2022",
+                target: "es2022",
+                moduleResolution: "bundler",
+                strict: true,
+                noEmit: true,
+              },
+              include: ["packages/**/*.ts"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Package docs.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+/**
+ * Parses a value into the normalized schema fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import { parseValue } from "@beep/schema"
+ * const result = parseValue(" hello ")
+ * void result
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzePackageQuality(target!);
+          const subject = report.subjects.find((entry) => entry.exportName === "parseValue");
+          const review = report.reviews.find((entry) => entry.subjectId === subject?.stableIdentity);
+
+          expect(subject?.description).toContain("Parses a value");
+          expect(subject?.parsedExamples).toHaveLength(1);
+          expect(subject?.sourceAnchor).toContain("packages/foundation/modeling/schema/src/index.ts:");
+          expect(subject?.contentHash).toMatch(/^[a-f0-9]{64}$/);
+          expect(subject?.declarationKind).toBe("const");
+          expect(review?.tier).toBe("warn");
+          expect(review?.findings.map((finding) => finding.code)).toContain("example-only-voids-result");
+        })
+      )
+    );
+  });
+
+  it("renders consolidated quality reports and Codex remediation packets", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+          yield* fs.writeFileString(
+            path.join(tmpDir, "tsconfig.json"),
+            encodeJson({
+              compilerOptions: {
+                module: "es2022",
+                target: "es2022",
+                moduleResolution: "bundler",
+                strict: true,
+                noEmit: true,
+              },
+              include: ["packages/**/*.ts"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Missing example fixture.
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzeDocgenQuality({
+            scope: "package",
+            scoreMode: "codex",
+            targets: [target!],
+          });
+          const deterministicReport = yield* analyzeDocgenQuality({
+            scope: "package",
+            scoreMode: "none",
+            targets: [target!],
+          });
+          const markdown = generateQualityReport(report);
+          const json = yield* generateQualityJson(report);
+          const decoded = decodeUnknownJson(json) as Record<string, unknown>;
+
+          expect(report.scorer).toBe("codex-advisory-packet-v1");
+          expect(report.summary.failures).toBeGreaterThan(0);
+          expect(report.packages[0]?.summary.remediationPackets).toBeGreaterThan(0);
+          expect(report.remediationPackets[0]?.prompt).toContain("Keep @example mandatory");
+          expect(deterministicReport.scorer).toBe("deterministic-rubric-v1");
+          expect(deterministicReport.summary.remediationPackets).toBe(0);
+          expect(deterministicReport.remediationPackets).toHaveLength(0);
+          expect(markdown).toContain("# JSDoc Quality Report");
+          expect(markdown).toContain("## @beep/schema");
+          expect(decoded.schemaVersion).toBe(1);
+        })
+      )
+    );
+  });
+
   it("fails analysis when a package-local docgen.json is malformed", async () => {
     await Effect.runPromise(
       withTempRepo(
@@ -765,6 +946,89 @@ export const RejectedCategory = "nope";
           expect(wroteMarkdown).toBe(false);
           expect(wroteJson).toBe(false);
           expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("writes report-only quality JSON without failing the command", {
+    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+  }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+          yield* fs.writeFileString(
+            path.join(tmpDir, "tsconfig.json"),
+            encodeJson({
+              compilerOptions: {
+                module: "es2022",
+                target: "es2022",
+                moduleResolution: "bundler",
+                strict: true,
+                noEmit: true,
+              },
+              include: ["packages/**/*.ts"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          const outputPath = path.join(tmpDir, "quality.json");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Missing example fixture.
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+
+          yield* runDocgenCommand([
+            "quality",
+            "-p",
+            "packages/foundation/modeling/schema",
+            "--json",
+            "--score",
+            "codex",
+            "-o",
+            outputPath,
+          ]);
+
+          const output = yield* fs.readFileString(outputPath);
+          const decoded = decodeUnknownJson(output) as {
+            readonly schemaVersion?: unknown;
+            readonly scorer?: unknown;
+            readonly remediationPackets?: ReadonlyArray<{ readonly prompt?: string }>;
+          };
+          const logText = (yield* TestConsole.logLines).join("\n");
+
+          expect(decoded.schemaVersion).toBe(1);
+          expect(decoded.scorer).toBe("codex-advisory-packet-v1");
+          expect(decoded.remediationPackets?.[0]?.prompt).toContain("Keep @example mandatory");
+          expect(logText).toContain("docgen: wrote");
+          expect(process.exitCode).toBe(0);
         })
       )
     );
