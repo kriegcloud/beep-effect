@@ -277,7 +277,7 @@ const readAttributionContent = (
   sourcePath: string
 ) => {
   if (sourceKind !== AiMetricsTranscriptSource.Enum.codex) {
-    return fs.readFileString(sourcePath);
+    return Effect.succeed("");
   }
 
   return fs.stream(sourcePath, { chunkSize: 64 * 1024 }).pipe(
