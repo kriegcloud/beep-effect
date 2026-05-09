@@ -77,6 +77,7 @@ V1 adds:
 - `beep docgen quality --all`
 - `beep docgen quality --json`
 - `beep docgen quality --score codex`
+- `beep docgen quality --score codex --packet-limit <count>`
 - `beep docgen quality -o <path>`
 
 Package-local runs without `--output` write `JSDOC_QUALITY.md` or
@@ -93,6 +94,11 @@ The consolidated report contains:
 - `scope`
 - `scorer`
 - `summary`
+- `packages[].status`
+- `packages[].durationMs`
+- `packages[].error`
+- `packages[].timedOut`
+- `packages[].omittedPacketCount`
 - `packages[].subjects[]`
 - `packages[].reviews[]`
 - `remediationPackets[]`

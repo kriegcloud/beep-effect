@@ -3,7 +3,7 @@
   "initiative": {
     "id": "jsdoc-quality-enforcement",
     "title": "JSDoc Quality Enforcement",
-    "status": "p5-evaluated",
+    "status": "p6-hardened",
     "created": "2026-05-08",
     "updated": "2026-05-09",
     "packetAnchorDocument": "SPEC.md"
@@ -51,7 +51,8 @@
     ".patterns/jsdoc-documentation.md",
     ".claude/skills/jsdoc-annotation-specialist/SKILL.md",
     ".agents/skills/jsdoc-annotation-specialist/SKILL.md",
-    ".aiassistant/skills/jsdoc-annotation-specialist/SKILL.md"
+    ".aiassistant/skills/jsdoc-annotation-specialist/SKILL.md",
+    "packages/tooling/tool/cli/README.md"
   ],
   "v1NonGoals": [
     "blocking quality gates",
@@ -59,5 +60,5 @@
     "local model workers",
     "example exception categories"
   ],
-  "nextAction": "Plan P6 hardening before enforcement: bound docgen quality runtime, decide re-export/barrel policy, decide type-only example policy, and only then consider package opt-in warnings."
+  "nextAction": "Run post-P6 report samples and consider package opt-in warnings only after the hardened report signal proves stable."
 }

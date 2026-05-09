@@ -2,7 +2,7 @@
 
 ## Status
 
-V1 implemented; P5 enforcement-readiness eval complete
+V1 implemented; P6 hardening complete; still report-only
 
 ## Overview
 
@@ -13,7 +13,9 @@ V1 adds a report-only `beep docgen quality` workflow owned by `@beep/repo-cli`.
 It extracts deterministic quality subjects with `@beep/repo-docgen` parsing and
 required-tag policy, enriches them with source-file ts-morph evidence and
 `@beep/repo-utils` content hashing, scores the whole JSDoc block with typed
-findings, and emits bounded advisory Codex remediation packets. Diagnostics and
+findings, and emits bounded advisory Codex remediation packets. P6 adds schema
+v2 package status metadata, faster schema-heavy reports, re-export edge policy,
+type-only example evidence, and capped packet output. Diagnostics and
 related-symbol fields are reserved for follow-up enrichment when unavailable.
 The command is not a blocking gate.
 
@@ -28,11 +30,9 @@ The command is not a blocking gate.
 ## Operating Rules
 
 - Treat V1 quality findings as advisory report output only.
-- Do not add blocking enforcement until the P6 hardening items from
-  [research/enforcement-readiness-eval.md](./research/enforcement-readiness-eval.md)
-  are resolved.
-- Keep `@example` universal for exported symbols; do not invent exception
-  categories in remediation work.
+- Do not add blocking enforcement until post-P6 reports prove stable signal.
+- Keep `@example` universal for owning exported symbols; re-export declarations
+  are graph edges, not exception categories.
 - Place curated future evaluation reports in `research/`.
 - Place raw agent outputs, transcripts, or generated evidence in
   `history/outputs/` only when they need to be preserved.

@@ -82,12 +82,19 @@ Tag order within the block:
 
 The report-only `beep docgen quality` command scores the whole JSDoc block, not
 just whether tags exist. Treat `@example` as universal for exported symbols; for
-error classes, type-only helpers, constants, schemas, and re-exports, choose a
-handling, narrowing, construction, or import example that fits the symbol.
+error classes, type-only helpers, constants, and schemas, choose a handling,
+narrowing, construction, or import example that fits the symbol.
 
-A useful example is fenced TypeScript and shows an observable result: an
-assertion, returned value, decoded value, Effect execution, or visible output.
-`const result = ...; void result` is a compile trick, not documentation.
+Re-export declarations are graph edges, not symbol-quality subjects. Document
+the exported symbol at its owning declaration instead of inventing a fake barrel
+example.
+
+A useful example is fenced TypeScript and shows an observable result:
+assertion, returned value, decoded value, Effect execution, visible output, or
+type-level evidence. For type-only exports, useful evidence includes named
+aliases, assignability or `satisfies` checks, `Equal`/`Expect`-style assertions,
+or comments that show inferred types. `const result = ...; void result` is a
+compile trick, not documentation.
 
 ## TSDoc Grammar Hard Rules
 
@@ -338,9 +345,10 @@ Run this checklist against every file before finishing:
 ### Whole-block quality
 
 5. Description explains purpose rather than restating the symbol name.
-6. `@example` shows meaningful input and an observable result.
-7. Error, type-only, schema, constant, and re-export symbols still have
-   examples suited to their shape.
+6. `@example` shows meaningful input and an observable result, or type-level
+   evidence for type-only exports.
+7. Error, type-only, schema, and constant symbols still have examples suited to
+   their shape; re-export declarations point at owning symbol docs.
 
 ### Conditional tag correctness
 

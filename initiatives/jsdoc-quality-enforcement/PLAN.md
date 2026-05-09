@@ -28,7 +28,7 @@ V1 is implemented as a report-only quality workflow:
 | P3 | Complete | Challenge the implementation direction. | `grill-with-docs` decision plan |
 | P4 | Complete | Implement report-only V1 quality workflow. | `beep docgen quality`, tests, guidance updates |
 | P5 | Complete | Evaluate enforcement readiness. | `research/enforcement-readiness-eval.md`, compact summary artifact |
-| P6 | Pending | Harden before any enforcement. | Runtime bounds, re-export policy, type-only example policy, opt-in warning proposal |
+| P6 | Complete | Harden before any enforcement. | Schema v2 package status, bounded JSON/report runtime, re-export/type-only policy, capped packets |
 
 ## V1 Implementation Changes
 
@@ -43,16 +43,25 @@ V1 is implemented as a report-only quality workflow:
 - Updated JSDoc pattern and skill guidance to reject low-value examples such as
   result-silencing examples.
 
+## P6 Hardening Changes
+
+- Bumped quality reports to schema v2 with package status, duration, timeout,
+  error, and omitted-packet metadata.
+- Kept re-export declarations as export graph edges instead of
+  symbol-quality subjects.
+- Accepted type-level evidence as useful `@example` content for type-only
+  exports while still flagging value examples that only silence results.
+- Ranked and capped Codex advisory remediation packets at 25 per run by
+  default, with `--packet-limit` for explicit overrides.
+- Bounded large JSON report rendering so schema-heavy packages emit reports
+  instead of stalling in pretty-formatting.
+
 ## Future Work
 
-- Bound package-local report runtime before proposing any blocking threshold.
-- Decide re-export/barrel documentation policy before gating namespace export
-  findings.
-- Decide type-only example usefulness policy before gating observable-result
-  findings on type exports.
+- Run a post-P6 report sample before proposing any blocking threshold.
+- Consider package opt-in warning mode before changed-files-only blocking after
+  P6 hardening proves stable signal in routine use.
 - Decide whether advisory packets should grow into guided Codex remediation
-  execution after packet sizing and prioritization are improved.
+  execution after capped packet batches are reviewed in real remediation work.
 - Revisit local/Qwen workers only behind an eval-only mode with measured
   precision and cost.
-- Consider package opt-in warning mode before changed-files-only blocking after
-  P6 hardening proves stable signal.

@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-05-09T03:07:26.659Z
+Generated: 2026-05-09T08:26:36.147Z
 
 ## Scope
 
@@ -14,8 +14,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 24 |
 | packagesWithoutPublicSrcSurface | 1 |
 | packagesNeedingRemediation | 30 |
-| publicModules | 835 |
-| publicExports | 5825 |
+| publicModules | 837 |
+| publicExports | 5852 |
 | openModules | 123 |
 | openExports | 2457 |
 | missingExportExamples | 2251 |
@@ -55,7 +55,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 12 | `@beep/fixture-lab-specimen-domain` | `packages/fixture-lab/specimen/domain` | needs-remediation | 6 | 10 | 0 | 2 |
 | 13 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 2 | 21 | 0 | 6 |
 | 14 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
-| 15 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | clean | 13 | 156 | 0 | 0 |
+| 15 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | clean | 14 | 168 | 0 | 0 |
 | 16 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
 | 17 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 30 |
 | 18 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 24 | 130 | 0 | 5 |
@@ -68,12 +68,12 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 25 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | needs-remediation | 13 | 47 | 0 | 11 |
 | 26 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | clean | 7 | 12 | 0 | 0 |
 | 27 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
-| 28 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 22 | 0 | 0 |
+| 28 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 21 | 0 | 0 |
 | 29 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | clean | 14 | 25 | 0 | 0 |
 | 30 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 31 | `@beep/fixture-lab-specimen-tables` | `packages/fixture-lab/specimen/tables` | clean | 6 | 12 | 0 | 0 |
 | 32 | `@beep/db-admin` | `packages/_internal/db-admin` | clean | 1 | 1 | 0 | 0 |
-| 33 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 69 | 482 | 0 | 349 |
+| 33 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 70 | 498 | 0 | 349 |
 | 34 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
 | 35 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
 | 36 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 248 |
@@ -281,7 +281,7 @@ Export findings:
 - `src/EntitySchema.ts:749` `AssignedPersisted` (type) - missing @example
 - `src/EntitySchema.ts:766` `assignEntityParts` (const) - missing @example
 - `src/EntitySchema.ts:788` `ClassFactory` (type) - missing @example
-- `src/EntitySchema.ts:1600` `ClassFactory` (const) - missing @example
+- `src/EntitySchema.ts:1614` `ClassFactory` (const) - missing @example
 - `src/EntitySchema.ts:842` `persist` (const) - missing @example
 - `src/EntitySchema.ts:860` `DateTimeFromMillis` (const) - missing @example
 - `src/EntitySchema.ts:868` `int` (const) - missing @example
@@ -295,7 +295,7 @@ Export findings:
 - `src/EntitySchema.ts:1123` `selectedRowFieldShape` (const) - missing @example
 - `src/EntitySchema.ts:1143` `isEncodedNullable` (const) - missing @example
 - `src/EntitySchema.ts:1151` `isEncodedOptional` (const) - missing @example
-- `src/EntitySchema.ts:1621` `getDefinition` (const) - missing @example
+- `src/EntitySchema.ts:1635` `getDefinition` (const) - missing @example
 - `src/FileExtension.ts:121` `ApplicationFileExtension` (type) - 1 unsafe example violation(s)
 - `src/FileExtension.ts:160` `VideoFileExtension` (type) - 1 unsafe example violation(s)
 - `src/FileExtension.ts:199` `TextFileExtension` (type) - 1 unsafe example violation(s)
@@ -417,27 +417,27 @@ Export findings:
 - `src/LiteralKit.ts:644` `LiteralKit` (interface) - missing summary; missing @example, @category
 - `src/LiteralKit.ts:36` `LiteralToKey` (type) - missing @example
 - `src/LocalDate.ts:129` `isLocalDate` (const) - missing @example
-- `src/LocalDate.ts:212` `fromString` (const) - missing @example
-- `src/LocalDate.ts:235` `fromDate` (const) - missing @example
-- `src/LocalDate.ts:249` `today` (const) - missing @example
-- `src/LocalDate.ts:257` `todayEffect` (const) - missing @example
-- `src/LocalDate.ts:268` `fromDateTime` (const) - missing @example
-- `src/LocalDate.ts:283` `Order` (const) - missing @example
-- `src/LocalDate.ts:302` `isBefore` (const) - missing @example
-- `src/LocalDate.ts:313` `isAfter` (const) - missing @example
-- `src/LocalDate.ts:324` `equals` (const) - missing @example
-- `src/LocalDate.ts:339` `addDays` (const) - missing @example
-- `src/LocalDate.ts:354` `addMonths` (const) - missing @example
-- `src/LocalDate.ts:369` `addYears` (const) - missing @example
-- `src/LocalDate.ts:384` `diffInDays` (const) - missing @example
-- `src/LocalDate.ts:400` `startOfMonth` (const) - missing @example
-- `src/LocalDate.ts:414` `endOfMonth` (const) - missing @example
-- `src/LocalDate.ts:428` `startOfYear` (const) - missing @example
-- `src/LocalDate.ts:442` `endOfYear` (const) - missing @example
-- `src/LocalDate.ts:456` `isLeapYear` (const) - missing @example
-- `src/LocalDate.ts:466` `daysInMonth` (const) - missing @example
-- `src/LocalDate.ts:513` `LocalDateFromString` (type) - missing @example
-- `src/LocalDate.ts:521` `LocalDateFromString` (namespace) - missing @example
+- `src/LocalDate.ts:213` `fromString` (const) - missing @example
+- `src/LocalDate.ts:236` `fromDate` (const) - missing @example
+- `src/LocalDate.ts:250` `today` (const) - missing @example
+- `src/LocalDate.ts:258` `todayEffect` (const) - missing @example
+- `src/LocalDate.ts:269` `fromDateTime` (const) - missing @example
+- `src/LocalDate.ts:284` `Order` (const) - missing @example
+- `src/LocalDate.ts:303` `isBefore` (const) - missing @example
+- `src/LocalDate.ts:314` `isAfter` (const) - missing @example
+- `src/LocalDate.ts:325` `equals` (const) - missing @example
+- `src/LocalDate.ts:340` `addDays` (const) - missing @example
+- `src/LocalDate.ts:355` `addMonths` (const) - missing @example
+- `src/LocalDate.ts:370` `addYears` (const) - missing @example
+- `src/LocalDate.ts:385` `diffInDays` (const) - missing @example
+- `src/LocalDate.ts:401` `startOfMonth` (const) - missing @example
+- `src/LocalDate.ts:415` `endOfMonth` (const) - missing @example
+- `src/LocalDate.ts:429` `startOfYear` (const) - missing @example
+- `src/LocalDate.ts:443` `endOfYear` (const) - missing @example
+- `src/LocalDate.ts:457` `isLeapYear` (const) - missing @example
+- `src/LocalDate.ts:467` `daysInMonth` (const) - missing @example
+- `src/LocalDate.ts:514` `LocalDateFromString` (type) - missing @example
+- `src/LocalDate.ts:522` `LocalDateFromString` (namespace) - missing @example
 - `src/Logs.ts:43` `LogLevel` (type) - missing @example
 - `src/Logs.ts:74` `LogSeverity` (type) - missing @example
 - `src/MappedLiteralKit.ts:331` `MappedLiteralKit` (function) - 1 unsafe example violation(s)
@@ -2450,7 +2450,7 @@ Export findings:
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:234` `TsMorphIntegrationService` (class) - missing @example
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:258` `createTsMorphIntegrationService` (const) - missing @example
 - `src/commands/CreatePackage/index.ts:16` `createPackageCommand` (const) - missing @example
-- `src/commands/Docgen/index.ts:618` `docgenCommand` (const) - missing @example
+- `src/commands/Docgen/index.ts:720` `docgenCommand` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:86` `DocgenPackageStatus` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:101` `DocgenPackageStatus` (type) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:115` `DocgenConfigDocument` (class) - missing @example
@@ -3177,7 +3177,7 @@ Export findings:
 - `src/services/canonicalization.ts:47` `CanonicalizationAlgorithm` (const) - 1 schema annotation/type-alias gap(s)
 - `src/services/jsonld-context.ts:43` `JsonLdContextErrorReason` (const) - 1 schema annotation/type-alias gap(s)
 - `src/services/jsonld-document.ts:45` `JsonLdDocumentErrorReason` (const) - 1 schema annotation/type-alias gap(s)
-- `src/services/jsonld-stream-parse.ts:229` `JsonLdStreamParseErrorReason` (const) - 1 schema annotation/type-alias gap(s)
+- `src/services/jsonld-stream-parse.ts:230` `JsonLdStreamParseErrorReason` (const) - 1 schema annotation/type-alias gap(s)
 - `src/services/jsonld-stream-serialize.ts:107` `JsonLdStreamSerializeErrorReason` (const) - 1 schema annotation/type-alias gap(s)
 - `src/services/provenance.ts:64` `ProvenanceExportProfile` (const) - 1 schema annotation/type-alias gap(s)
 - `src/services/shacl-validation.ts:46` `ShaclSeverity` (const) - 1 schema annotation/type-alias gap(s)
