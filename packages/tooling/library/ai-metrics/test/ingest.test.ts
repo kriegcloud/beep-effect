@@ -651,6 +651,7 @@ describe("@beep/repo-ai-metrics", () => {
       expect(plan.serviceUnit).toContain('"status":"failed"');
       expect(plan.serviceUnit).toContain("json.dumps");
       expect(plan.serviceUnit).toContain('decode("utf-8","replace")');
+      expect(plan.serviceUnit).toMatch(/exit_code=0; > .*latest\.json\.stderr\.tmp.*; if flock -n/su);
       expect(plan.serviceUnit).not.toContain("sed 's/");
       expect(plan.serviceUnit).toContain("StartLimitBurst=3\nStartLimitIntervalSec=30m\n\n[Service]");
       expect(plan.serviceUnit).toContain("Restart=on-failure");
@@ -1286,6 +1287,48 @@ volumes:
           expect(json).toContain("gateway_metadata");
           expect(json).not.toContain(tmpDir);
           expect(json).not.toContain("super-secret-token");
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "does not read Claude transcript bodies during source attribution",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const claudeRoot = path.join(homeDir, ".claude/projects/repo");
+          const claudePath = path.join(claudeRoot, "claude-unreadable.jsonl");
+          yield* writeText(claudePath, '{"sessionId":"claude-session","timestamp":"2026-05-05T11:00:00Z"}\n');
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "root agent guide\n");
+          yield* fs.chmod(claudePath, 0);
+
+          const result = yield* discoverAiMetricsSources(
+            new AiMetricsSourceDiscoveryInput({
+              claudeProjectsRoot: claudeRoot,
+              hashSalt: "test-salt",
+              homeDir,
+              includeAll: true,
+              repoRoot,
+            })
+          );
+          yield* fs.chmod(claudePath, 0o600).pipe(Effect.ignore);
+          const claude = pipe(
+            result.sources,
+            A.findFirst((source) => source.sourceKind === AiMetricsTranscriptSource.Enum.claude)
+          );
+
+          expect(O.isSome(claude)).toBe(true);
+          if (O.isNone(claude)) {
+            return;
+          }
+          expect(claude.value.candidateFileCount).toBe(1);
+          expect(claude.value.includedFileCount).toBe(1);
+          expect(claude.value.files[0]?.sourceRole).toBe("primary");
         })
       ).pipe(Effect.provide(NodeServices.layer));
     })

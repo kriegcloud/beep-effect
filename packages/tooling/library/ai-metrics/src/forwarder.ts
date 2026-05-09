@@ -285,6 +285,7 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
     "set -euo pipefail",
     `mkdir -p "$(dirname ${shellQuote(input.statusPath)})" "$(dirname ${shellQuote(input.lockPath)})"`,
     "exit_code=0",
+    `> ${shellQuote(stderrTmpPath)}`,
     `if flock -n ${shellQuote(input.lockPath)} ${input.command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
     `rm -f ${shellQuote(stderrTmpPath)}`,
     `mv ${shellQuote(statusTmpPath)} ${shellQuote(input.statusPath)}`,
