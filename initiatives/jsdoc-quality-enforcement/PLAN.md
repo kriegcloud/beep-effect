@@ -2,7 +2,7 @@
 
 ## Current Plan
 
-V1 is implemented as a report-only quality workflow:
+V1 is complete as a report-only quality workflow:
 
 - `@beep/repo-cli` owns `beep docgen quality`, scope selection, report writing,
   and advisory remediation packets.
@@ -17,6 +17,8 @@ V1 is implemented as a report-only quality workflow:
   policy.
 - [ops/manifest.json](./ops/manifest.json) remains the machine-readable packet
   index.
+- Post-P6 report stability evidence is captured in
+  [research/post-p6-report-stability-eval.md](./research/post-p6-report-stability-eval.md).
 
 ## Phase Posture
 
@@ -29,6 +31,7 @@ V1 is implemented as a report-only quality workflow:
 | P4 | Complete | Implement report-only V1 quality workflow. | `beep docgen quality`, tests, guidance updates |
 | P5 | Complete | Evaluate enforcement readiness. | `research/enforcement-readiness-eval.md`, compact summary artifact |
 | P6 | Complete | Harden before any enforcement. | Schema v2 package status, bounded JSON/report runtime, re-export/type-only policy, capped packets |
+| P7 | Complete | Re-run post-P6 sample and close V1. | `research/post-p6-report-stability-eval.md`, post-P6 compact summary artifact |
 
 ## V1 Implementation Changes
 
@@ -58,9 +61,9 @@ V1 is implemented as a report-only quality workflow:
 
 ## Future Work
 
-- Run a post-P6 report sample before proposing any blocking threshold.
+- Treat blocking enforcement as a future initiative, not a continuation of V1.
 - Consider package opt-in warning mode before changed-files-only blocking after
-  P6 hardening proves stable signal in routine use.
+  teams have reviewed package baselines and real documentation remediation PRs.
 - Decide whether advisory packets should grow into guided Codex remediation
   execution after capped packet batches are reviewed in real remediation work.
 - Revisit local/Qwen workers only behind an eval-only mode with measured

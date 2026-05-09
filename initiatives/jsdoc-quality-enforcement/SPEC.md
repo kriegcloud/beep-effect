@@ -2,7 +2,7 @@
 
 ## Status
 
-V1 implemented
+V1 complete; report-only
 
 ## Owner
 
@@ -135,6 +135,7 @@ under [history/outputs/](./history/outputs) when they are useful provenance.
   `AGENTS.md` guidance.
 - Cost, caching, batching, and incremental adoption strategy for repo-wide
   documentation quality review.
+- Post-P6 report stability across an architecture-stratified package sample.
 
 ## Non-Goals
 
@@ -158,3 +159,5 @@ under [history/outputs/](./history/outputs) when they are useful provenance.
   and Codex remediation packet output.
 - Guidance surfaces record the universal `@example` and whole-block usefulness
   policy.
+- Post-P6 evaluation proves the representative package sample completes without
+  timeouts and records bounded Codex packet behavior.
