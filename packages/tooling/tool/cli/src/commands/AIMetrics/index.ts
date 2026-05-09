@@ -1280,7 +1280,7 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
     rawArchiveKeySecretRef: yield* resolveRawArchiveKeySecretRef(rawArchiveKeySecretRef),
     target,
   });
-  const dataRootFlag = ` --data-root ${spec.storage.dataRoot}`;
+  const dataRootFlag = ` --data-root ${shellQuote(spec.storage.dataRoot)}`;
   const hashSaltSecretRefFlagText =
     resolvedHashSaltSecretRef === undefined ? "" : ` --hash-salt-secret-ref ${shellQuote(resolvedHashSaltSecretRef)}`;
   const rawArchiveKeySecretRefFlagText =
@@ -1288,7 +1288,7 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
       ? ""
       : ` --raw-archive-key-secret-ref ${shellQuote(resolvedRawArchiveKeySecretRef)}`;
   const otlpFlagText =
-    target === AiMetricsDeployTarget.Enum.dankserver ? ` --otlp --otlp-base-url ${endpoint.baseUrl}` : "";
+    target === AiMetricsDeployTarget.Enum.dankserver ? ` --otlp --otlp-base-url ${shellQuote(endpoint.baseUrl)}` : "";
   const plan = renderAiMetricsForwarderTimerPlan(
     new AiMetricsForwarderTimerInput({
       command: `bun run beep ai-metrics forwarder run --target ${target}${dataRootFlag}${hashSaltSecretRefFlagText}${rawArchiveKeySecretRefFlagText}${otlpFlagText} --json`,
@@ -2394,7 +2394,7 @@ const archiveCommand = Command.make(
     yield* Console.log("AI metrics archive commands:");
     yield* Console.log("- bun run beep ai-metrics archive drill");
     yield* Console.log(
-      "- bun run beep ai-metrics archive drill --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref op://TBK/ai-metrics/hash-salt --raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key"
+      `- BEEP_AI_METRICS_RAW_ARCHIVE_KEY="$(op read 'op://TBK/ai-metrics/raw-archive-key')" bun run beep ai-metrics archive drill --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref op://TBK/ai-metrics/hash-salt --raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key`
     );
   })
 ).pipe(

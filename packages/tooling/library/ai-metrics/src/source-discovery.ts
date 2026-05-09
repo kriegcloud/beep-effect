@@ -7,7 +7,7 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Clock, Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Clock, Effect, FileSystem, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -252,6 +252,25 @@ const fileSystemFailure = (message: string, cause: unknown): AiMetricsSourceDisc
 const normalizedRelativePath = (pathApi: Path.Path, root: string, filePath: string): string =>
   pipe(pathApi.relative(root, filePath), Str.replace(/\\/gu, "/"));
 
+const readAttributionContent = (
+  fs: FileSystem.FileSystem,
+  sourceKind: AiMetricsTranscriptSource,
+  sourcePath: string
+) => {
+  if (sourceKind !== AiMetricsTranscriptSource.Enum.codex) {
+    return fs.readFileString(sourcePath);
+  }
+
+  return fs.stream(sourcePath, { chunkSize: 64 * 1024 }).pipe(
+    Stream.decodeText(),
+    Stream.takeUntil(Str.includes("session_meta")),
+    Stream.runFold(
+      () => "",
+      (content, chunk) => `${content}${chunk}`
+    )
+  );
+};
+
 const repoPathToClaudeProjectName: (repoRoot: string) => string = Str.replace(/[/\\]/gu, "-");
 
 const optionalModifiedAtMillis = (info: FileSystem.File.Info): O.Option<number> =>
@@ -334,9 +353,9 @@ const makeDiscoveredTranscriptFile = Effect.fn("AiMetrics.makeDiscoveredTranscri
   const info = yield* fs
     .stat(sourcePath)
     .pipe(Effect.mapError((cause) => fileSystemFailure("Failed to stat AI metrics source file.", cause)));
-  const content = yield* fs
-    .readFileString(sourcePath)
-    .pipe(Effect.mapError((cause) => fileSystemFailure("Failed to read AI metrics source file.", cause)));
+  const content = yield* readAttributionContent(fs, sourceKind, sourcePath).pipe(
+    Effect.mapError((cause) => fileSystemFailure("Failed to read AI metrics source file.", cause))
+  );
   const relativePath = normalizedRelativePath(pathApi, root, sourcePath);
   const attribution = yield* makeAiMetricsSourceAttribution({
     content,
@@ -430,16 +449,19 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
     A.sort(byCandidateModifiedDescending)
   );
   const includedCandidates = A.take(candidates, input.maxFiles);
-  const files = yield* Effect.forEach(
-    includedCandidates,
-    (candidate) =>
-      makeDiscoveredTranscriptFile({
-        root,
-        sourceKind,
-        sourcePath: candidate.sourcePath,
-        ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
-      }),
-    { concurrency: 16 }
+  const files = pipe(
+    yield* Effect.forEach(
+      includedCandidates,
+      (candidate) =>
+        makeDiscoveredTranscriptFile({
+          root,
+          sourceKind,
+          sourcePath: candidate.sourcePath,
+          ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+        }).pipe(Effect.option),
+      { concurrency: 16 }
+    ),
+    A.getSomes
   );
   const includedFiles = pipe(files, A.sort(byPathHashAscending), A.sort(byModifiedDescending));
 
@@ -448,7 +470,7 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
     fileCount: A.length(includedFiles),
     files: includedFiles,
     includedFileCount: A.length(includedFiles),
-    limitedByMaxFiles: A.length(candidates) > A.length(includedFiles),
+    limitedByMaxFiles: A.length(candidates) > A.length(includedCandidates),
     rootPathHash,
     sourceKind,
     status: AiMetricsSourceStatus.Enum.available,

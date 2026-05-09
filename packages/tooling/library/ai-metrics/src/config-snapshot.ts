@@ -82,6 +82,13 @@ export class AiMetricsConfigSnapshotDiff extends S.Class<AiMetricsConfigSnapshot
   })
 ) {}
 
+const emptyConfigSnapshotDiff = new AiMetricsConfigSnapshotDiff({
+  addedPaths: [],
+  modifiedPaths: [],
+  removedPaths: [],
+  unchangedPaths: [],
+});
+
 /**
  * One file included in an AI metrics config snapshot.
  *
@@ -120,7 +127,7 @@ export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapsh
 )(
   {
     excludedDirectoryNames: S.Array(S.String),
-    diff: AiMetricsConfigSnapshotDiff,
+    diff: AiMetricsConfigSnapshotDiff.pipe(S.withDecodingDefaultKey(Effect.succeed(emptyConfigSnapshotDiff))),
     fileCount: S.Number,
     files: S.Array(AiMetricsConfigSnapshotFile),
     previousSnapshotId: S.optionalKey(S.String),
@@ -488,6 +495,7 @@ export const writeAiMetricsConfigSnapshotArtifacts = Effect.fn("AiMetrics.writeA
     const content = yield* configSnapshotToJson(result);
     const manifestPath = pathApi.join(outputDir, `${result.snapshot.snapshotId}.json`);
     const latestPath = pathApi.join(outputDir, "latest.json");
+    const latestTmpPath = pathApi.join(outputDir, "latest.json.tmp");
     yield* fs.makeDirectory(outputDir, { recursive: true }).pipe(
       Effect.mapError(
         (cause) =>
@@ -507,12 +515,21 @@ export const writeAiMetricsConfigSnapshotArtifacts = Effect.fn("AiMetrics.writeA
       )
     );
     if (commitLatest) {
-      yield* fs.writeFileString(latestPath, content).pipe(
+      yield* fs.writeFileString(latestTmpPath, content).pipe(
         Effect.mapError(
           (cause) =>
             new AiMetricsConfigSnapshotError({
               cause,
-              message: "Failed to write AI metrics latest config snapshot pointer.",
+              message: "Failed to write AI metrics latest config snapshot temporary pointer.",
+            })
+        )
+      );
+      yield* fs.rename(latestTmpPath, latestPath).pipe(
+        Effect.mapError(
+          (cause) =>
+            new AiMetricsConfigSnapshotError({
+              cause,
+              message: "Failed to promote AI metrics latest config snapshot pointer.",
             })
         )
       );
