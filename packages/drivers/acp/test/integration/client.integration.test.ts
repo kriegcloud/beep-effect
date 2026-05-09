@@ -19,8 +19,14 @@ import { encodeJsonl, jsonRpcRequest, jsonRpcResponse, makeInMemoryStdio } from 
 
 const InitializeRequest = jsonRpcRequest("initialize", AcpSchema.InitializeRequest);
 const InitializeResponse = jsonRpcResponse(AcpSchema.InitializeResponse);
-const ExtRequest = jsonRpcRequest("x/test", Schema.Struct({ hello: Schema.String }));
-const ExtResponse = jsonRpcResponse(Schema.Struct({ ok: Schema.Boolean }));
+const ExtRequestPayload = Schema.Struct({ hello: Schema.String });
+const ExtResponsePayload = Schema.Struct({ ok: Schema.Boolean });
+const TypedRequestPayload = Schema.Struct({ message: Schema.String });
+const TypedNotificationPayload = Schema.Struct({ count: Schema.Number });
+const ExtRequest = jsonRpcRequest("x/test", ExtRequestPayload);
+const ExtResponse = jsonRpcResponse(ExtResponsePayload);
+const decodeInitializeRequest = Schema.decodeEffect(Schema.fromJsonString(InitializeRequest));
+const decodeExtRequest = Schema.decodeEffect(Schema.fromJsonString(ExtRequest));
 const mockPeerPath = Effect.map(Effect.service(Path.Path), (path) =>
   path.join(import.meta.dirname, "../fixtures/acp-mock-peer.ts")
 );
@@ -73,7 +79,7 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
         yield* acp.handleElicitationComplete((notification) =>
           Ref.update(elicitationCompletions, (current) => [...current, notification])
         );
-        yield* acp.handleExtRequest("x/typed_request", Schema.Struct({ message: Schema.String }), (payload) =>
+        yield* acp.handleExtRequest("x/typed_request", TypedRequestPayload, (payload) =>
           Ref.update(typedRequests, (current) => [...current, payload]).pipe(
             Effect.as({
               ok: true,
@@ -81,7 +87,7 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
             })
           )
         );
-        yield* acp.handleExtNotification("x/typed_notification", Schema.Struct({ count: Schema.Number }), (payload) =>
+        yield* acp.handleExtNotification("x/typed_notification", TypedNotificationPayload, (payload) =>
           Ref.update(typedNotifications, (current) => [...current, payload])
         );
 
@@ -163,9 +169,7 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
             },
           })
         );
-        yield* acp.handleExtRequest("x/typed_request", Schema.Struct({ message: Schema.String }), () =>
-          Effect.succeed({ ok: true })
-        );
+        yield* acp.handleExtRequest("x/typed_request", TypedRequestPayload, () => Effect.succeed({ ok: true }));
 
         yield* acp.agent.initialize({
           protocolVersion: 1,
@@ -235,7 +239,7 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
             },
           })
         );
-        yield* acp.handleExtRequest("x/typed_request", Schema.Struct({ message: Schema.String }), (payload) =>
+        yield* acp.handleExtRequest("x/typed_request", TypedRequestPayload, (payload) =>
           Ref.update(typedRequests, (current) => [...current, payload]).pipe(
             Effect.as({
               ok: true,
@@ -243,7 +247,7 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
             })
           )
         );
-        yield* acp.handleExtNotification("x/typed_notification", Schema.Struct({ count: Schema.Number }), (payload) =>
+        yield* acp.handleExtNotification("x/typed_notification", TypedNotificationPayload, (payload) =>
           Ref.update(typedNotifications, (current) => [...current, payload])
         );
 
@@ -311,14 +315,8 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
             },
           })
         );
-        yield* acp.handleExtRequest("x/typed_request", Schema.Struct({ message: Schema.String }), () =>
-          Effect.succeed({ ok: true })
-        );
-        yield* acp.handleExtNotification(
-          "x/typed_notification",
-          Schema.Struct({ count: Schema.Number }),
-          () => Effect.void
-        );
+        yield* acp.handleExtRequest("x/typed_request", TypedRequestPayload, () => Effect.succeed({ ok: true }));
+        yield* acp.handleExtNotification("x/typed_notification", TypedNotificationPayload, () => Effect.void);
         yield* acp.handleSessionUpdate(() =>
           Effect.fail(AcpError.AcpRequestError.internalError("session update handler failed"))
         );
@@ -375,9 +373,7 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
       const firstOutbound = yield* Queue.take(output);
       const secondOutbound = yield* Queue.take(output);
 
-      const decodedInitialize = Schema.decodeEffect(Schema.fromJsonString(InitializeRequest));
-      const decodedExt = Schema.decodeEffect(Schema.fromJsonString(ExtRequest));
-      const firstIsInitialize = yield* decodedInitialize(firstOutbound).pipe(
+      const firstIsInitialize = yield* decodeInitializeRequest(firstOutbound).pipe(
         Effect.match({
           onFailure: () => false,
           onSuccess: () => true,
@@ -385,9 +381,11 @@ it.layer(NodeServices.layer)("effect-acp client", (it) => {
       );
 
       const initializeRequest = firstIsInitialize
-        ? yield* decodedInitialize(firstOutbound)
-        : yield* decodedInitialize(secondOutbound);
-      const extRequest = firstIsInitialize ? yield* decodedExt(secondOutbound) : yield* decodedExt(firstOutbound);
+        ? yield* decodeInitializeRequest(firstOutbound)
+        : yield* decodeInitializeRequest(secondOutbound);
+      const extRequest = firstIsInitialize
+        ? yield* decodeExtRequest(secondOutbound)
+        : yield* decodeExtRequest(firstOutbound);
 
       assert.notEqual(initializeRequest.id, extRequest.id);
 

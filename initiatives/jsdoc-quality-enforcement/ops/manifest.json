@@ -3,9 +3,9 @@
   "initiative": {
     "id": "jsdoc-quality-enforcement",
     "title": "JSDoc Quality Enforcement",
-    "status": "bootstrap",
+    "status": "v1-implemented",
     "created": "2026-05-08",
-    "updated": "2026-05-08",
+    "updated": "2026-05-09",
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
@@ -13,35 +13,44 @@
   "rawOutputDirectory": "history/outputs",
   "researchLanes": [
     {
-      "id": "current-jsdoc-docgen-enforcement",
-      "title": "Current JSDoc And Docgen Enforcement Reality",
-      "status": "pending",
-      "output": "research/current-jsdoc-docgen-enforcement.md"
+      "id": "docgen-tsmorph-quality-gate",
+      "title": "Docgen, TSMorph, And Quality Gate Design",
+      "status": "complete",
+      "output": "research/docgen-tsmorph-quality-gate.md"
     },
     {
-      "id": "pattern-and-skill-guidance",
-      "title": "Pattern And Skill Guidance Quality",
-      "status": "pending",
-      "output": "research/pattern-and-skill-guidance.md"
+      "id": "standards-skills-alignment",
+      "title": "Standards And Skills Alignment",
+      "status": "complete",
+      "output": "research/standards-skills-alignment.md"
     },
     {
-      "id": "agentic-scoring-remediation",
-      "title": "Agentic Scoring And Remediation Feasibility",
-      "status": "pending",
-      "output": "research/agentic-scoring-remediation.md"
+      "id": "codex-workflow-and-agentic-workers",
+      "title": "Codex Workflow And Agentic Workers",
+      "status": "complete",
+      "output": "research/codex-workflow-and-agentic-workers.md"
     },
     {
-      "id": "codex-workflow-surfaces",
-      "title": "Codex Workflow Surfaces",
-      "status": "pending",
-      "output": "research/codex-workflow-surfaces.md"
-    },
-    {
-      "id": "cost-caching-incremental-adoption",
-      "title": "Cost Caching And Incremental Adoption Strategy",
-      "status": "pending",
-      "output": "research/cost-caching-incremental-adoption.md"
+      "id": "synthesis-and-recommendations",
+      "title": "Synthesis And Recommendations",
+      "status": "complete",
+      "output": "research/synthesis-and-recommendations.md"
     }
   ],
-  "nextAction": "Run parallel research agents and place synthesized reports in research/."
+  "implementedSurfaces": [
+    "packages/tooling/tool/cli/src/commands/Docgen/index.ts",
+    "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
+    "packages/tooling/tool/cli/test/docgen.test.ts",
+    ".patterns/jsdoc-documentation.md",
+    ".claude/skills/jsdoc-annotation-specialist/SKILL.md",
+    ".agents/skills/jsdoc-annotation-specialist/SKILL.md",
+    ".aiassistant/skills/jsdoc-annotation-specialist/SKILL.md"
+  ],
+  "v1NonGoals": [
+    "blocking quality gates",
+    "automatic Codex edits",
+    "local model workers",
+    "example exception categories"
+  ],
+  "nextAction": "Collect repo-specific quality report examples and evaluate whether any advisory finding should become a future opt-in gate."
 }

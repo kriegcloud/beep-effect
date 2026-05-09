@@ -34,6 +34,20 @@ Generate barrel file exports for a package.
 bunx @beep/repo-cli codegen [package-dir]
 ```
 
+### `docgen quality`
+
+Produce a report-only JSDoc quality review for exported symbols. The command
+does not block on advisory findings; use `--score codex` when you want bounded
+remediation packets for follow-up documentation work. Package-local runs write
+`JSDOC_QUALITY.md` or `JSDOC_QUALITY.json` by default; use `--output` for a
+scratch destination.
+
+```bash
+bun run beep docgen quality -p packages/shared/config -o /tmp/jsdoc-quality.md
+bun run beep docgen quality --changed-files --json
+bun run beep docgen quality --all --score codex -o /tmp/jsdoc-quality.json
+```
+
 ### `files`
 
 Curate direct image and video files for dataset preparation. From the repo root,

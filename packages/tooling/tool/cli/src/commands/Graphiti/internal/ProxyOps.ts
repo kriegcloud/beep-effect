@@ -67,6 +67,7 @@ type ProxyServiceConfig = {
   readonly systemdUserDir: string;
 };
 
+const DEFAULT_PROXY_MCP_URL = "http://127.0.0.1:8123/mcp";
 const emptyString = () => "";
 
 const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
@@ -199,6 +200,8 @@ const runInheritedStep = Effect.fn("GraphitiProxyOps.runInheritedStep")(function
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(step.command, [...step.args], {
         cwd: step.cwd,
+        env: step.env,
+        extendEnv: true,
         stdin: "inherit",
         stdout: "inherit",
         stderr: "inherit",
@@ -348,7 +351,14 @@ const recoverGraphitiStackInternal = Effect.fn("GraphitiProxyOps.recoverGraphiti
 
   const falkor = yield* containerHealth(repoRoot, config.falkorContainer);
   const graphiti = yield* containerHealth(repoRoot, config.graphitiContainer);
-  if (!shouldRecoverGraphitiStackForTesting(config.recoverOnUnhealthy, force, falkor, graphiti)) {
+  if (
+    !shouldRecoverGraphitiStackForTesting({
+      falkor,
+      force,
+      graphiti,
+      recoverOnUnhealthy: config.recoverOnUnhealthy,
+    })
+  ) {
     yield* Console.log("[graphiti-recover] Backing containers are already healthy.");
     return;
   }
@@ -526,6 +536,40 @@ export const ensureGraphitiProxy = Effect.fn("GraphitiProxyOps.ensureGraphitiPro
 });
 
 /**
+ * Run a knowledge-graph CLI command with the local Graphiti proxy ensured first.
+ *
+ * @param args - Arguments forwarded to `bun run beep kg`.
+ * @returns Effect that runs the forwarded knowledge-graph command.
+ * @example
+ * ```ts
+ * import { runKgWithGraphitiProxy } from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps"
+ * const program = runKgWithGraphitiProxy(["verify", "--target", "both"])
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runKgWithGraphitiProxy = Effect.fn("GraphitiProxyOps.runKgWithGraphitiProxy")(function* (
+  args: ReadonlyArray<string>
+): Effect.fn.Return<void, GraphitiProxyOpsError, GraphitiProxyOpsEnvironment> {
+  const repoRoot = yield* findRepoRoot().pipe(
+    Effect.mapError((cause) => new GraphitiProxyOpsError({ message: "Failed to locate repository root.", cause }))
+  );
+
+  yield* ensureGraphitiProxy();
+  yield* runInheritedStep(
+    new QualityTaskStep({
+      label: "kg:proxy",
+      command: "bun",
+      args: ["run", "beep", "kg", ...args],
+      cwd: repoRoot,
+      env: {
+        BEEP_GRAPHITI_URL: envValue("BEEP_GRAPHITI_URL", DEFAULT_PROXY_MCP_URL),
+      },
+    })
+  );
+});
+
+/**
  * Recover the local Graphiti backing stack by restarting unhealthy containers.
  *
  * @param options - Recovery execution options.
@@ -554,20 +598,28 @@ export const recoverGraphitiStack = Effect.fn("GraphitiProxyOps.recoverGraphitiS
  * Decide whether Graphiti recovery should restart the backing containers.
  *
  * @internal
+ * @param options - Recovery decision inputs.
+ * @returns Whether the recovery routine should restart the backing containers.
  * @example
  * ```ts
  * import { shouldRecoverGraphitiStackForTesting } from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps"
- * const shouldRecover = shouldRecoverGraphitiStackForTesting(true, false, "unhealthy", "healthy")
+ * const shouldRecover = shouldRecoverGraphitiStackForTesting({
+ *   falkor: "unhealthy",
+ *   force: false,
+ *   graphiti: "healthy",
+ *   recoverOnUnhealthy: true
+ * })
  * ```
  * @category testing
  * @since 0.0.0
  */
-export const shouldRecoverGraphitiStackForTesting = (
-  recoverOnUnhealthy: boolean,
-  force: boolean,
-  falkor: string,
-  graphiti: string
-): boolean => force || (recoverOnUnhealthy && (falkor !== "healthy" || graphiti !== "healthy"));
+export const shouldRecoverGraphitiStackForTesting = (options: {
+  readonly recoverOnUnhealthy: boolean;
+  readonly force: boolean;
+  readonly falkor: string;
+  readonly graphiti: string;
+}): boolean =>
+  options.force || (options.recoverOnUnhealthy && (options.falkor !== "healthy" || options.graphiti !== "healthy"));
 
 const renderServiceUnit = (repoRoot: string, bunBin: string, config: ProxyServiceConfig): string =>
   [

@@ -23,6 +23,8 @@ import * as AcpSchema from "./_generated/schema.gen.ts";
 import * as AcpError from "./errors.ts";
 
 const $I = $AcpId.create("protocol");
+const isAcpError = S.is(AcpError.AcpError);
+const isAcpRequestError = S.is(AcpError.AcpRequestError);
 
 /**
  * Structured log event emitted by the ACP protocol adapter.
@@ -541,7 +543,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     ),
     Effect.matchEffect({
       onFailure: (error) => {
-        const normalized: AcpError.AcpError = S.is(AcpError.AcpError)(error)
+        const normalized: AcpError.AcpError = isAcpError(error)
           ? error
           : new AcpError.AcpTransportError({
               cause: error,
@@ -639,7 +641,7 @@ function isProtocolError(value: unknown): value is { code: number; message: stri
 }
 
 function normalizeToRequestError(error: AcpError.AcpError): AcpError.AcpRequestError {
-  return S.is(AcpError.AcpRequestError)(error) ? error : AcpError.AcpRequestError.internalError(error.message);
+  return isAcpRequestError(error) ? error : AcpError.AcpRequestError.internalError(error.message);
 }
 
 function toRpcClientError(error: AcpError.AcpError): RpcClientError.RpcClientError {

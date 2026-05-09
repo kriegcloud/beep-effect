@@ -160,6 +160,8 @@ const collectOutput = Effect.fn("QualityScriptCommands.collectOutput")(function*
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(step.command, [...step.args], {
         cwd: step.cwd,
+        env: step.env,
+        extendEnv: true,
         stdout: "pipe",
         stderr: "pipe",
       });
@@ -395,8 +397,13 @@ const runSecurityScan = Effect.fn("QualityScriptCommands.runSecurityScan")(funct
 
 const runSastScan = Effect.fn("QualityScriptCommands.runSastScan")(function* (
   repoRoot: string
-): Effect.fn.Return<void, QualityScriptCommandError, FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  void,
+  QualityScriptCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
   const trackedFilesOutput = yield* collectSuccessfulOutput(
     new QualityTaskStep({
       label: "sast:changed-files",
@@ -426,8 +433,18 @@ const runSastScan = Effect.fn("QualityScriptCommands.runSastScan")(function* (
   const semgrepFiles = yield* Effect.forEach(
     candidateFiles,
     Effect.fn(function* (filePath) {
-      const exists = yield* fs.exists(`${repoRoot}/${filePath}`).pipe(Effect.orElseSucceed(thunkFalse));
-      return exists ? O.some(filePath) : O.none<string>();
+      const absolutePath = path.join(repoRoot, filePath);
+      const exists = yield* fs.exists(absolutePath).pipe(Effect.orElseSucceed(thunkFalse));
+      if (!exists) {
+        return O.none<string>();
+      }
+
+      const canonicalPath = yield* fs.realPath(absolutePath).pipe(Effect.option);
+      if (O.isNone(canonicalPath) || canonicalPath.value !== path.resolve(absolutePath)) {
+        return O.none<string>();
+      }
+
+      return O.some(filePath);
     }),
     { concurrency: 8 }
   ).pipe(Effect.map(A.getSomes));
@@ -1038,17 +1055,13 @@ export const runJSDocModuleTagsCheck = Effect.fn("QualityScriptCommands.runJSDoc
 export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInventory")(function* (): Effect.fn.Return<
   void,
   QualityScriptCommandError,
-  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner
 > {
-  const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(
     Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
   );
 
-  yield* runFixedStep(repoRoot, "quality:jsdoc-inventory", "bun", [
-    "run",
-    path.join(repoRoot, "packages", "tooling", "tool", "cli", "support", "generate-jsdoc-documentation-inventory.ts"),
-  ]);
+  yield* runBun(repoRoot, "quality:jsdoc-inventory", ["--filter=@beep/repo-cli", "beep:jsdoc-inventory"]);
 });
 
 const runQualityProgram = <A, R>(

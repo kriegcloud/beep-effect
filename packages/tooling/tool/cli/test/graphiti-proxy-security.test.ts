@@ -159,9 +159,37 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
   );
 
   it("recovers the backing stack only when recovery is enabled and a container is unhealthy", () => {
-    expect(shouldRecoverGraphitiStackForTesting(true, false, "unhealthy", "healthy")).toBe(true);
-    expect(shouldRecoverGraphitiStackForTesting(true, false, "healthy", "healthy")).toBe(false);
-    expect(shouldRecoverGraphitiStackForTesting(false, false, "unhealthy", "healthy")).toBe(false);
-    expect(shouldRecoverGraphitiStackForTesting(false, true, "healthy", "healthy")).toBe(true);
+    expect(
+      shouldRecoverGraphitiStackForTesting({
+        falkor: "unhealthy",
+        force: false,
+        graphiti: "healthy",
+        recoverOnUnhealthy: true,
+      })
+    ).toBe(true);
+    expect(
+      shouldRecoverGraphitiStackForTesting({
+        falkor: "healthy",
+        force: false,
+        graphiti: "healthy",
+        recoverOnUnhealthy: true,
+      })
+    ).toBe(false);
+    expect(
+      shouldRecoverGraphitiStackForTesting({
+        falkor: "unhealthy",
+        force: false,
+        graphiti: "healthy",
+        recoverOnUnhealthy: false,
+      })
+    ).toBe(false);
+    expect(
+      shouldRecoverGraphitiStackForTesting({
+        falkor: "healthy",
+        force: true,
+        graphiti: "healthy",
+        recoverOnUnhealthy: false,
+      })
+    ).toBe(true);
   });
 });

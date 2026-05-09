@@ -9,6 +9,7 @@ import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $RepoCliId } from "@beep/identity/packages";
 import { layerNodeSdkServerTraces, ServerObservabilityConfig } from "@beep/observability/server";
 import {
+  type AiMetricsArchiveError,
   AiMetricsBenchmarkCaseInput,
   AiMetricsBenchmarkRunInput,
   type AiMetricsConfigSnapshotError,
@@ -16,6 +17,7 @@ import {
   AiMetricsDeployTarget,
   type AiMetricsForwarderError,
   AiMetricsForwarderInput,
+  AiMetricsForwarderTimerInput,
   type AiMetricsIngestError,
   type AiMetricsInstallConfigurationError,
   AiMetricsInstallDoctorInput,
@@ -49,9 +51,12 @@ import {
   aiMetricsOutcomeLabelToJson,
   aiMetricsWeeklyReportToJson,
   configSnapshotToJson,
+  decryptEncryptedRawArchiveEnvelope,
   discoverAiMetricsSources,
   forwarderRunResultToJson,
+  forwarderTimerPlanToJson,
   generateAiMetricsWeeklyReport,
+  hashPublicTextSha256,
   listAiMetricsBenchmarkCases,
   makeAiMetricsConfigSnapshot,
   makeAiMetricsInstallApplyDryRunResult,
@@ -62,10 +67,13 @@ import {
   otlpExportResultToJson,
   privacyCheckToJson,
   queueAiMetricsLabels,
+  readEncryptedRawArchiveEnvelope,
   recordAiMetricsBenchmarkRun,
+  renderAiMetricsForwarderTimerPlan,
   renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
   runAiMetricsOtlpExport,
+  shellQuote,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
   summaryToJson,
@@ -96,6 +104,7 @@ const $I = $RepoCliId.create("commands/AIMetrics");
 
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 const encodeInstallSpecJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsInstallSpec));
+const localCollectorDataRoot = ".beep/ai-metrics";
 
 /**
  * Error raised by the AI metrics CLI.
@@ -118,6 +127,19 @@ export class AiMetricsCommandError extends TaggedErrorClass<AiMetricsCommandErro
     description: "User-facing failure raised by the AI metrics CLI command suite.",
   })
 ) {}
+
+class AiMetricsArchiveDrillRow extends S.Class<AiMetricsArchiveDrillRow>($I`AiMetricsArchiveDrillRow`)(
+  {
+    archiveObjectId: S.String,
+    archivePath: S.String,
+    plaintextContentHash: S.String,
+  },
+  $I.annote("AiMetricsArchiveDrillRow", {
+    description: "Latest encrypted raw archive row selected for a non-printing decrypt drill.",
+  })
+) {}
+
+const decodeArchiveDrillRows = S.decodeUnknownEffect(S.Array(AiMetricsArchiveDrillRow));
 
 const jsonFlag = Flag.boolean("json").pipe(Flag.withDescription("Emit machine-readable JSON output"));
 const inputFlag = Flag.string("input").pipe(
@@ -159,6 +181,10 @@ const interventionsFlag = Flag.integer("interventions").pipe(
 );
 const elapsedMsFlag = Flag.integer("elapsed-ms").pipe(Flag.withDescription("Benchmark elapsed milliseconds"));
 const limitFlag = Flag.integer("limit").pipe(Flag.withDefault(20), Flag.withDescription("Maximum rows to return"));
+const intervalMinutesFlag = Flag.integer("interval-minutes").pipe(
+  Flag.withDefault(30),
+  Flag.withDescription("Minutes between scheduled forwarder runs")
+);
 const passedValueFlag = Flag.choiceWithValue("passed", [
   ["true", true],
   ["false", false],
@@ -265,6 +291,7 @@ const encodeInstallSpecCommandJson = Effect.fn("AIMetrics.encodeInstallSpecComma
 });
 
 type AiMetricsProgramError =
+  | AiMetricsArchiveError
   | AiMetricsCommandError
   | AiMetricsConfigSnapshotError
   | AiMetricsForwarderError
@@ -278,6 +305,10 @@ type AiMetricsProgramError =
 const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramError, R>): Effect.Effect<void, never, R> =>
   effect.pipe(
     Effect.catchTags({
+      AiMetricsArchiveError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`ai-metrics: ${error.message}`);
+      }),
       AiMetricsCommandError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`ai-metrics: ${error.message}`);
@@ -547,6 +578,9 @@ const parseWindow = Effect.fn("AIMetrics.parseWindow")(function* ({
 
 const parseChecks = (checks: string): ReadonlyArray<string> =>
   pipe(Str.split(checks, ","), A.map(Str.trim), A.filter(Str.isNonEmpty));
+
+const p6aCollectorDataRoot = (dataRoot: O.Option<string>, target: AiMetricsDeployTarget): O.Option<string> =>
+  O.isSome(dataRoot) || target === AiMetricsDeployTarget.Enum.local ? dataRoot : O.some(localCollectorDataRoot);
 
 const makeCommandInstallInput = Effect.fn("AIMetrics.makeCommandInstallInput")(function* ({
   dataRoot,
@@ -1035,7 +1069,9 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
   yield* Console.log(`hash salt: ${result.hashSaltStatus}`);
   yield* Console.log(`discovered files: ${result.discoveredFileCount}`);
   for (const source of result.sources) {
-    yield* Console.log(`${source.sourceKind}: ${source.status} files=${source.fileCount}`);
+    yield* Console.log(
+      `${source.sourceKind}: ${source.status} files=${source.fileCount} candidates=${source.candidateFileCount} limited=${source.limitedByMaxFiles}`
+    );
   }
 });
 
@@ -1142,7 +1178,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     rawArchiveKeySecretRef: yield* resolveRawArchiveKeySecretRef(rawArchiveKeySecretRef),
     target,
   });
-  const resolvedDataRoot = O.getOrUndefined(dataRoot);
+  const resolvedDataRoot = O.getOrUndefined(p6aCollectorDataRoot(dataRoot, target));
   const spec = yield* makeAiMetricsInstallSpec(
     new AiMetricsInstallInput({
       ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
@@ -1198,10 +1234,88 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   yield* Console.log(`archive objects: ${result.archiveObjectCount}`);
   yield* Console.log(`turns: ${result.turnCount}`);
   yield* Console.log(`raw archive: ${result.rawArchiveDir}`);
+  for (const source of result.sourceCoverage) {
+    yield* Console.log(
+      `${source.sourceKind}: included=${source.includedFileCount} candidates=${source.candidateFileCount} limited=${source.limitedByMaxFiles}`
+    );
+  }
   const duckDbLocation = result.duckDbPath;
   const parquetLocation = result.parquetExportDir;
   yield* Console.log(`derived duckdb: ${duckDbLocation}`);
   yield* Console.log(`parquet export: ${parquetLocation}`);
+});
+
+const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  intervalMinutes,
+  json,
+  otlpBaseUrl,
+  rawArchiveKeySecretRef,
+  repoRoot,
+  target,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly intervalMinutes: number;
+  readonly json: boolean;
+  readonly otlpBaseUrl: O.Option<string>;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly repoRoot: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const resolvedDataRoot = p6aCollectorDataRoot(dataRoot, target);
+  const spec = yield* makeCommandInstallSpec({
+    dataRoot: resolvedDataRoot,
+    hashSaltSecretRef,
+    rawArchiveKeySecretRef,
+    target,
+  });
+  const endpoint = yield* defaultServiceEndpoint(spec, otlpBaseUrl);
+  const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
+    hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
+    target,
+  });
+  const resolvedRawArchiveKeySecretRef = yield* requireRawArchiveKeySecretRefForTarget({
+    rawArchiveKeySecretRef: yield* resolveRawArchiveKeySecretRef(rawArchiveKeySecretRef),
+    target,
+  });
+  const dataRootFlag = ` --data-root ${shellQuote(spec.storage.dataRoot)}`;
+  const hashSaltSecretRefFlagText =
+    resolvedHashSaltSecretRef === undefined ? "" : ` --hash-salt-secret-ref ${shellQuote(resolvedHashSaltSecretRef)}`;
+  const rawArchiveKeySecretRefFlagText =
+    resolvedRawArchiveKeySecretRef === undefined
+      ? ""
+      : ` --raw-archive-key-secret-ref ${shellQuote(resolvedRawArchiveKeySecretRef)}`;
+  const otlpFlagText =
+    target === AiMetricsDeployTarget.Enum.dankserver ? ` --otlp --otlp-base-url ${shellQuote(endpoint.baseUrl)}` : "";
+  const plan = renderAiMetricsForwarderTimerPlan(
+    new AiMetricsForwarderTimerInput({
+      command: `bun run beep ai-metrics forwarder run --target ${target}${dataRootFlag}${hashSaltSecretRefFlagText}${rawArchiveKeySecretRefFlagText}${otlpFlagText} --json`,
+      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+      intervalMinutes,
+      lockPath: "%t/beep-ai-metrics-forwarder.lock",
+      ...(resolvedRawArchiveKeySecretRef === undefined
+        ? {}
+        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+      statusPath: `${spec.storage.dataRoot}/forwarder/status/latest.json`,
+      workingDirectory: yield* resolveRepoRoot(repoRoot),
+    })
+  );
+
+  if (json) {
+    yield* Console.log(yield* forwarderTimerPlanToJson(plan));
+    return;
+  }
+
+  yield* Console.log(`# ${plan.serviceUnitName}`);
+  yield* Console.log(plan.serviceUnit);
+  yield* Console.log(`# ${plan.timerUnitName}`);
+  yield* Console.log(plan.timerUnit);
+  yield* Console.log("# install commands");
+  for (const command of plan.installCommands) {
+    yield* Console.log(command);
+  }
 });
 
 const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(function* ({
@@ -1221,7 +1335,7 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
 }) {
-  const resolvedDataRoot = O.getOrUndefined(dataRoot);
+  const resolvedDataRoot = O.getOrUndefined(p6aCollectorDataRoot(dataRoot, target));
   const resolvedHashSaltSecretRef = yield* requireHashSaltSecretRefForTarget({
     hashSaltSecretRef: yield* resolveHashSaltSecretRef(hashSaltSecretRef),
     target,
@@ -1296,7 +1410,12 @@ const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(f
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
 }) {
-  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const spec = yield* makeCommandInstallSpec({
+    dataRoot: p6aCollectorDataRoot(dataRoot, target),
+    hashSaltSecretRef,
+    rawArchiveKeySecretRef,
+    target,
+  });
   const result = yield* recordAiMetricsBenchmarkRun(
     new AiMetricsBenchmarkRunInput({
       benchmarkCaseId: caseId,
@@ -1354,7 +1473,12 @@ const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(funct
   readonly target: AiMetricsDeployTarget;
   readonly until: O.Option<string>;
 }) {
-  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const spec = yield* makeCommandInstallSpec({
+    dataRoot: p6aCollectorDataRoot(dataRoot, target),
+    hashSaltSecretRef,
+    rawArchiveKeySecretRef,
+    target,
+  });
   const window = yield* parseWindow({ since, until });
   const result = yield* queueAiMetricsLabels(
     new AiMetricsLabelQueueInput({
@@ -1407,7 +1531,12 @@ const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function*
   readonly target: AiMetricsDeployTarget;
   readonly taskId: string;
 }) {
-  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const spec = yield* makeCommandInstallSpec({
+    dataRoot: p6aCollectorDataRoot(dataRoot, target),
+    hashSaltSecretRef,
+    rawArchiveKeySecretRef,
+    target,
+  });
   const result = yield* addAiMetricsOutcomeLabel(
     new AiMetricsOutcomeLabelInput({
       agentTaskId: taskId,
@@ -1456,7 +1585,12 @@ const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddPro
   readonly target: AiMetricsDeployTarget;
   readonly title: string;
 }) {
-  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const spec = yield* makeCommandInstallSpec({
+    dataRoot: p6aCollectorDataRoot(dataRoot, target),
+    hashSaltSecretRef,
+    rawArchiveKeySecretRef,
+    target,
+  });
   const result = yield* upsertAiMetricsBenchmarkCase(
     new AiMetricsBenchmarkCaseInput({
       benchmarkCaseId: caseId,
@@ -1492,7 +1626,12 @@ const makeBenchmarkCaseListProgram = Effect.fn("AIMetrics.makeBenchmarkCaseListP
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
 }) {
-  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const spec = yield* makeCommandInstallSpec({
+    dataRoot: p6aCollectorDataRoot(dataRoot, target),
+    hashSaltSecretRef,
+    rawArchiveKeySecretRef,
+    target,
+  });
   const result = yield* listAiMetricsBenchmarkCases.pipe(
     // @effect-diagnostics-next-line strictEffectProvide:off
     Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
@@ -1527,7 +1666,12 @@ const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(f
   readonly until: O.Option<string>;
 }) {
   const path = yield* Path.Path;
-  const spec = yield* makeCommandInstallSpec({ dataRoot, hashSaltSecretRef, rawArchiveKeySecretRef, target });
+  const spec = yield* makeCommandInstallSpec({
+    dataRoot: p6aCollectorDataRoot(dataRoot, target),
+    hashSaltSecretRef,
+    rawArchiveKeySecretRef,
+    target,
+  });
   const window = yield* parseWindow({ since, until });
   const result = yield* generateAiMetricsWeeklyReport(
     new AiMetricsWeeklyReportInput({
@@ -1550,6 +1694,96 @@ const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(f
   yield* Console.log(`scorecards: ${A.length(result.document.scores)}`);
   yield* Console.log(`markdown: ${result.markdownPath}`);
   yield* Console.log(`json: ${result.jsonPath}`);
+});
+
+const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(function* ({
+  dataRoot,
+  hashSaltSecretRef,
+  json,
+  rawArchiveKeySecretRef,
+  target,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly hashSaltSecretRef: O.Option<string>;
+  readonly json: boolean;
+  readonly rawArchiveKeySecretRef: O.Option<string>;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const spec = yield* makeCommandInstallSpec({
+    dataRoot: p6aCollectorDataRoot(dataRoot, target),
+    hashSaltSecretRef,
+    rawArchiveKeySecretRef,
+    target,
+  });
+  const rawArchiveKey = yield* resolveRawArchiveKey();
+  const result = yield* Effect.gen(function* () {
+    const duckdb = yield* DuckDb;
+    const rows = yield* duckdb
+      .query(
+        `SELECT archive_object_id AS "archiveObjectId",
+                archive_path AS "archivePath",
+                plaintext_content_hash AS "plaintextContentHash"
+         FROM ai_metrics_raw_archive_objects
+         ORDER BY encrypted_at_epoch_ms DESC
+         LIMIT 1`
+      )
+      .pipe(
+        Effect.mapError(
+          (cause) =>
+            new AiMetricsCommandError({
+              cause,
+              message: "Failed to select an AI metrics archive object for the decrypt drill.",
+            })
+        )
+      );
+    const decoded = yield* decodeArchiveDrillRows(rows).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsCommandError({
+            cause,
+            message: "Failed to decode AI metrics archive drill rows.",
+          })
+      )
+    );
+    const row = A.head(decoded);
+    if (O.isNone(row)) {
+      return yield* new AiMetricsCommandError({
+        cause: "ai_metrics_raw_archive_objects",
+        message: "No AI metrics raw archive object is available for a decrypt drill.",
+      });
+    }
+
+    const envelope = yield* readEncryptedRawArchiveEnvelope(row.value.archivePath);
+    const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKey });
+    const plaintextHash = yield* hashPublicTextSha256(plaintext);
+    const plaintextHashMatches = plaintextHash === row.value.plaintextContentHash;
+    if (!plaintextHashMatches) {
+      return yield* new AiMetricsCommandError({
+        cause: row.value.archiveObjectId,
+        message: "AI metrics archive decrypt drill failed plaintext hash verification.",
+      });
+    }
+
+    return {
+      archiveObjectId: row.value.archiveObjectId,
+      decryptedByteCount: new TextEncoder().encode(plaintext).byteLength,
+      plaintextHashMatches,
+      target,
+    };
+  }).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  );
+
+  if (json) {
+    yield* Console.log(yield* encodeCommandJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics archive drill: target=${target}`);
+  yield* Console.log(`archive object: ${result.archiveObjectId}`);
+  yield* Console.log(`decrypted bytes: ${result.decryptedByteCount}`);
+  yield* Console.log(`plaintext hash matches: ${result.plaintextHashMatches}`);
 });
 
 const installPreviewCommand = Command.make(
@@ -1816,14 +2050,47 @@ const forwarderRunCommand = Command.make(
   Command.withDescription("Run durable local transcript ingest into encrypted raw archive and derived DuckDB storage")
 );
 
+const forwarderTimerCommand = Command.make(
+  "timer",
+  {
+    dataRoot: dataRootFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    intervalMinutes: intervalMinutesFlag,
+    json: jsonFlag,
+    otlpBaseUrl: otlpBaseUrlFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    repoRoot: repoRootFlag,
+    target: targetFlag,
+  },
+  ({ dataRoot, hashSaltSecretRef, intervalMinutes, json, otlpBaseUrl, rawArchiveKeySecretRef, repoRoot, target }) =>
+    runAiMetricsProgram(
+      makeForwarderTimerProgram({
+        dataRoot,
+        hashSaltSecretRef,
+        intervalMinutes,
+        json,
+        otlpBaseUrl,
+        rawArchiveKeySecretRef,
+        repoRoot,
+        target,
+      })
+    )
+).pipe(Command.withDescription("Render a workstation systemd user timer for live AI metrics collection"));
+
 const forwarderCommand = Command.make(
   "forwarder",
   {},
   Effect.fn(function* () {
     yield* Console.log("AI metrics forwarder commands:");
     yield* Console.log("- bun run beep ai-metrics forwarder run --target local");
+    yield* Console.log(
+      "- bun run beep ai-metrics forwarder timer --target dankserver --hash-salt-secret-ref op://TBK/ai-metrics/hash-salt --raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key"
+    );
   })
-).pipe(Command.withDescription("AI metrics local forwarder workflow"), Command.withSubcommands([forwarderRunCommand]));
+).pipe(
+  Command.withDescription("AI metrics local forwarder workflow"),
+  Command.withSubcommands([forwarderRunCommand, forwarderTimerCommand])
+);
 
 const otlpExportCommand = Command.make(
   "export",
@@ -2068,6 +2335,9 @@ const labelCommand = Command.make(
   Effect.fn(function* () {
     yield* Console.log("AI metrics label commands:");
     yield* Console.log("- bun run beep ai-metrics label queue");
+    yield* Console.log(
+      "- bun run beep ai-metrics label queue --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref op://TBK/ai-metrics/hash-salt --raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key"
+    );
     yield* Console.log("- bun run beep ai-metrics label add --task <id> --passed true --rating 5");
   })
 ).pipe(
@@ -2098,8 +2368,39 @@ const reportCommand = Command.make(
   Effect.fn(function* () {
     yield* Console.log("AI metrics report commands:");
     yield* Console.log("- bun run beep ai-metrics report weekly");
+    yield* Console.log(
+      "- bun run beep ai-metrics report weekly --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref op://TBK/ai-metrics/hash-salt --raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key"
+    );
   })
 ).pipe(Command.withDescription("AI metrics report workflow"), Command.withSubcommands([reportWeeklyCommand]));
+
+const archiveDrillCommand = Command.make(
+  "drill",
+  {
+    dataRoot: dataRootFlag,
+    hashSaltSecretRef: hashSaltSecretRefFlag,
+    json: jsonFlag,
+    rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
+    target: targetFlag,
+  },
+  ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
+    runAiMetricsProgram(makeArchiveDrillProgram({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }))
+).pipe(Command.withDescription("Decrypt one encrypted raw archive object without printing transcript text"));
+
+const archiveCommand = Command.make(
+  "archive",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("AI metrics archive commands:");
+    yield* Console.log("- bun run beep ai-metrics archive drill");
+    yield* Console.log(
+      `- BEEP_AI_METRICS_RAW_ARCHIVE_KEY="$(op read 'op://TBK/ai-metrics/raw-archive-key')" bun run beep ai-metrics archive drill --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref op://TBK/ai-metrics/hash-salt --raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key`
+    );
+  })
+).pipe(
+  Command.withDescription("AI metrics archive verification workflow"),
+  Command.withSubcommands([archiveDrillCommand])
+);
 
 /**
  * AI metrics root command.
@@ -2129,6 +2430,7 @@ export const aiMetricsCommand = Command.make(
     yield* Console.log("- benchmark run");
     yield* Console.log("- benchmark compare");
     yield* Console.log("- report weekly");
+    yield* Console.log("- archive drill");
   })
 ).pipe(
   Command.withDescription("Collect, normalize, and plan deployment for AI-agent metrics"),
@@ -2143,5 +2445,6 @@ export const aiMetricsCommand = Command.make(
     labelCommand,
     benchmarkCommand,
     reportCommand,
+    archiveCommand,
   ])
 );

@@ -30,6 +30,54 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
+      "file": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts",
+      "kind": "native-switch",
+      "reason": "Existing fixture dispatch predates the stricter native switch gate and is tracked explicitly so the repo-cli script migration does not widen into runtime refactors.",
+      "owner": "@beep/agent-capability",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/drivers/acp/src/client.ts",
+      "kind": "native-switch",
+      "reason": "Existing ACP client protocol dispatch predates the stricter native switch gate and is tracked explicitly for a focused driver cleanup.",
+      "owner": "@beep/acp",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts",
+      "kind": "native-switch",
+      "reason": "Existing experimental OTLP packet rendering dispatch predates the stricter native switch gate and is tracked explicitly for a focused observability cleanup.",
+      "owner": "@beep/observability",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
+      "kind": "native-switch",
+      "reason": "Existing schema helper dispatch predates the stricter native switch gate and is tracked explicitly for a focused schema cleanup.",
+      "owner": "@beep/schema",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/modeling/schema/src/LocalDate.ts",
+      "kind": "native-switch",
+      "reason": "Existing date parsing dispatch predates the stricter native switch gate and is tracked explicitly for a focused schema cleanup.",
+      "owner": "@beep/schema",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/ui-system/ui/src/components/notification-card.tsx",
+      "kind": "native-switch",
+      "reason": "Existing presentation variant dispatch predates the stricter native switch gate and is tracked explicitly for a focused UI cleanup.",
+      "owner": "@beep/ui",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts",
       "kind": "new-map-set",
       "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
