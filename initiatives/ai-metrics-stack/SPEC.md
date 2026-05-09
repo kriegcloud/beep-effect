@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-05
-- **Updated:** 2026-05-06
+- **Updated:** 2026-05-09
 
 ## Purpose
 
@@ -83,7 +83,8 @@ output.
   with internal EventLog projection proof.
 - Benchmark lane: curated cases plus real outcome labels.
 - Labeling workflow: CLI review queue.
-- Completion evidence: deployed stack plus one seven-day real-data scorecard.
+- Completion evidence: P6a hardening gates, deployed stack, and one restarted
+  seven-day real-data scorecard.
 
 ## Data Products
 
@@ -100,7 +101,14 @@ Minimum scorecard dimensions:
 - model/provider/gateway path
 - token and cost metrics when available
 - transcript source and agent tool
-- config snapshot hash and changed paths
+- primary/subagent source role and hashed parentage when available
+- config snapshot hash, included paths, and actual changed paths
+
+A weekly report is completion-creditable only when it has at least one real
+outcome label and at least one benchmark run linked to the scored config
+snapshot. Model-call, tool-invocation, token, latency, and cost fields may be
+reported as unavailable/not-scored until a real provider/gateway source is
+integrated, but they must not be silently treated as measured values.
 
 ## Privacy Contract
 
@@ -108,6 +116,13 @@ Raw transcripts and provider payloads are private. They may be retained only in
 the encrypted raw archive under the selected target data root. Derived tables,
 OTLP payloads, and dashboard events must use redacted text, hashed identifiers,
 bounded low-cardinality attributes, and explicit allowlists.
+
+Derived metadata is part of the privacy boundary. Session ids, parent thread
+ids, fork ids, local paths, source paths, agent roles/nicknames, raw event ids,
+timestamps, tool names, labels, and exception text must be explicitly reviewed
+before entering derived DuckDB, Parquet, OTLP, or report payloads. P6a derived
+attribution preserves source role and hash-only parentage for Codex subagents;
+raw transcript bodies and raw local paths remain excluded from derived outputs.
 
 The default privacy mode is `encrypted_raw_redacted_ui`.
 
@@ -131,16 +146,27 @@ enrichment is deferred until after Phoenix is live.
 Manual host commands may appear as debugging aids but must not be the final
 deployment mechanism.
 
+P6a live collection is workstation-owned because Codex and Claude raw sources
+live on the workstation. The credited proof window must use a local scheduled
+runner with a lock, retry/backoff, status artifact, and journal evidence.
+Server-owned collection is a P7 topology target and requires a separate
+transcript access/sync and privacy design.
+
 ## Completion Criteria
 
 The initiative is complete only when:
 
 - `beep-cli ai-metrics install doctor --target dankserver` passes
 - Pulumi preview and apply succeed for the dankserver target
-- live collectors populate raw and derived storage
+- P6a source-aware collection, subagent attribution, scorecard readiness,
+  config diffs, metadata allowlist, and archive drill gates pass
+- live collection is owned by the workstation timer for the restarted seven-day
+  proof and populates raw and derived storage
 - Phoenix or the selected default UI shows real data
 - source discovery covers Codex, Claude Code, OpenClaw, and optional gateway
   logs
 - the CLI label queue can record real outcome labels
 - benchmark runs are linked to config snapshots
-- a seven-day weekly report exists in derived storage and as a readable output
+- a restarted seven-day weekly report exists in derived storage and as a
+  readable output, with labels and benchmark evidence sufficient for completion
+  credit

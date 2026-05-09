@@ -13,7 +13,11 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { AiMetricsRawArchiveKey, writeEncryptedRawArchiveObject } from "./archive.ts";
-import { AiMetricsConfigSnapshotInput, makeAiMetricsConfigSnapshot } from "./config-snapshot.ts";
+import {
+  AiMetricsConfigSnapshotInput,
+  makeAiMetricsConfigSnapshot,
+  writeAiMetricsConfigSnapshotArtifacts,
+} from "./config-snapshot.ts";
 import {
   AiMetricsDerivedStorageWriteInput,
   AiMetricsDerivedTranscriptRecord,
@@ -23,6 +27,7 @@ import { summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
 import { AiMetricsDeployTarget, AiMetricsTranscriptSource } from "./models.ts";
 import { hashPrivateIdentifier, makeAiMetricsPrivacyCheckResult } from "./privacy.ts";
+import { shellQuote } from "./shell.ts";
 
 const $I = $RepoAiMetricsId.create("forwarder");
 const DEFAULT_MAX_FILES = 200;
@@ -96,6 +101,31 @@ export class AiMetricsForwarderInput extends S.Class<AiMetricsForwarderInput>($I
 ) {}
 
 /**
+ * Per-source coverage selected by one durable forwarder run.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsForwarderSourceCoverage } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsForwarderSourceCoverage)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsForwarderSourceCoverage extends S.Class<AiMetricsForwarderSourceCoverage>(
+  $I`AiMetricsForwarderSourceCoverage`
+)(
+  {
+    candidateFileCount: S.Number,
+    includedFileCount: S.Number,
+    limitedByMaxFiles: S.Boolean,
+    sourceKind: AiMetricsTranscriptSource,
+  },
+  $I.annote("AiMetricsForwarderSourceCoverage", {
+    description: "Source-aware file selection counts used to detect maxFiles starvation.",
+  })
+) {}
+
+/**
  * Safe result emitted by one durable AI metrics forwarder run.
  *
  * @example
@@ -115,6 +145,10 @@ export class AiMetricsForwarderRunResult extends S.Class<AiMetricsForwarderRunRe
     parquetExportDir: S.String,
     parquetTables: S.Array(S.String),
     rawArchiveDir: S.String,
+    sourceCoverage: S.Array(AiMetricsForwarderSourceCoverage).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultKey(Effect.succeed([]))
+    ),
     sourceFileCount: S.Number,
     target: AiMetricsDeployTarget,
     turnCount: S.Number,
@@ -124,18 +158,201 @@ export class AiMetricsForwarderRunResult extends S.Class<AiMetricsForwarderRunRe
   })
 ) {}
 
+/**
+ * Input for rendering a workstation-owned forwarder timer.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsForwarderTimerInput } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsForwarderTimerInput)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsForwarderTimerInput extends S.Class<AiMetricsForwarderTimerInput>(
+  $I`AiMetricsForwarderTimerInput`
+)(
+  {
+    command: S.String,
+    hashSaltSecretRef: S.optionalKey(S.String),
+    intervalMinutes: S.Number.pipe(
+      S.withConstructorDefault(Effect.succeed(30)),
+      S.withDecodingDefaultKey(Effect.succeed(30))
+    ),
+    lockPath: S.String,
+    rawArchiveKeySecretRef: S.optionalKey(S.String),
+    serviceName: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("beep-ai-metrics-forwarder")),
+      S.withDecodingDefaultKey(Effect.succeed("beep-ai-metrics-forwarder"))
+    ),
+    statusPath: S.String,
+    workingDirectory: S.String,
+  },
+  $I.annote("AiMetricsForwarderTimerInput", {
+    description: "Workstation timer parameters for scheduled AI metrics forwarder collection.",
+  })
+) {}
+
+/**
+ * Rendered systemd user units for the workstation-owned forwarder timer.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsForwarderTimerPlan } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsForwarderTimerPlan)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsForwarderTimerPlan extends S.Class<AiMetricsForwarderTimerPlan>($I`AiMetricsForwarderTimerPlan`)(
+  {
+    installCommands: S.Array(S.String),
+    lockPath: S.String,
+    serviceUnit: S.String,
+    serviceUnitName: S.String,
+    statusPath: S.String,
+    timerUnit: S.String,
+    timerUnitName: S.String,
+  },
+  $I.annote("AiMetricsForwarderTimerPlan", {
+    description: "Systemd user timer artifacts that own P6a live collection on the workstation.",
+  })
+) {}
+
 const encodeForwarderResultJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsForwarderRunResult));
+const encodeForwarderTimerPlanJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsForwarderTimerPlan));
 
 type ForwarderSourceFile = {
   readonly modifiedAtMillis: number;
+  readonly relativePath: string;
   readonly sourceKind: AiMetricsTranscriptSource;
   readonly sourcePath: string;
+};
+
+type ForwarderSourceSelection = {
+  readonly coverage: AiMetricsForwarderSourceCoverage;
+  readonly files: ReadonlyArray<ForwarderSourceFile>;
 };
 
 const forwarderFailure = (message: string, cause: unknown): AiMetricsForwarderError =>
   new AiMetricsForwarderError({ cause, message });
 
 const repoPathToClaudeProjectName: (repoRoot: string) => string = Str.replace(/[/\\]/gu, "-");
+
+const normalizedRelativePath = (pathApi: Path.Path, root: string, filePath: string): string =>
+  pipe(pathApi.relative(root, filePath), Str.replace(/\\/gu, "/"));
+
+const requireForwarderHashSalt = Effect.fn("AiMetrics.forwarder.requireHashSalt")(function* (
+  input: AiMetricsForwarderInput
+) {
+  if (
+    input.target === AiMetricsDeployTarget.Enum.local ||
+    (input.hashSalt !== undefined && Str.isNonEmpty(Str.trim(input.hashSalt)))
+  ) {
+    return;
+  }
+
+  return yield* forwarderFailure(
+    "AI metrics non-local forwarder runs require a resolved hash salt value.",
+    input.target
+  );
+});
+
+/**
+ * Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence.
+ *
+ * @param input - Timer rendering input with service names, command text, status path, and secret references.
+ * @returns A render-only systemd timer/service plan for operator installation.
+ * @example
+ * ```ts
+ * import { renderAiMetricsForwarderTimerPlan } from "@beep/repo-ai-metrics"
+ * console.log(renderAiMetricsForwarderTimerPlan)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimerInput): AiMetricsForwarderTimerPlan => {
+  const serviceUnitName = `${input.serviceName}.service`;
+  const timerUnitName = `${input.serviceName}.timer`;
+  const statusTmpPath = `${input.statusPath}.tmp`;
+  const stderrTmpPath = `${input.statusPath}.stderr.tmp`;
+  const envFileShellPath = "~/.config/beep/ai-metrics.env";
+  const envFileUnitPath = "%h/.config/beep/ai-metrics.env";
+  const failureStatusPython =
+    'import json,sys; data=open(sys.argv[2],"rb").read(2000).decode("utf-8","replace"); print(json.dumps({"status":"failed","exitCode":int(sys.argv[1]),"stderr":data},separators=(",",":")))';
+  const execCommand = [
+    "set -euo pipefail",
+    `mkdir -p "$(dirname ${shellQuote(input.statusPath)})" "$(dirname ${shellQuote(input.lockPath)})"`,
+    "exit_code=0",
+    `> ${shellQuote(stderrTmpPath)}`,
+    `if flock -n ${shellQuote(input.lockPath)} ${input.command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
+    `rm -f ${shellQuote(stderrTmpPath)}`,
+    `mv ${shellQuote(statusTmpPath)} ${shellQuote(input.statusPath)}`,
+    'exit "$exit_code"',
+  ].join("; ");
+  const serviceUnit = [
+    "[Unit]",
+    "Description=Beep AI metrics forwarder collection",
+    "Documentation=AGENTS.md",
+    "StartLimitBurst=3",
+    "StartLimitIntervalSec=30m",
+    "",
+    "[Service]",
+    "Type=oneshot",
+    `WorkingDirectory=${input.workingDirectory}`,
+    `EnvironmentFile=${envFileUnitPath}`,
+    `ExecStart=/usr/bin/env bash -lc ${shellQuote(execCommand)}`,
+    "Restart=on-failure",
+    "RestartSec=5m",
+    "",
+  ].join("\n");
+  const timerUnit = [
+    "[Unit]",
+    "Description=Run Beep AI metrics forwarder collection",
+    "",
+    "[Timer]",
+    "OnBootSec=5m",
+    `OnUnitInactiveSec=${input.intervalMinutes}m`,
+    "RandomizedDelaySec=2m",
+    "Persistent=true",
+    "",
+    "[Install]",
+    "WantedBy=timers.target",
+    "",
+  ].join("\n");
+  const writeEnvFileCommands = [
+    `install -m 0600 /dev/null ${envFileShellPath}`,
+    ...(input.hashSaltSecretRef === undefined
+      ? []
+      : [
+          `printf 'BEEP_AI_METRICS_HASH_SALT=%s\\n' "$(op read ${shellQuote(input.hashSaltSecretRef)})" >> ${envFileShellPath}`,
+        ]),
+    ...(input.rawArchiveKeySecretRef === undefined
+      ? []
+      : [
+          `printf 'BEEP_AI_METRICS_RAW_ARCHIVE_KEY=%s\\n' "$(op read ${shellQuote(input.rawArchiveKeySecretRef)})" >> ${envFileShellPath}`,
+        ]),
+  ];
+
+  return new AiMetricsForwarderTimerPlan({
+    installCommands: [
+      `mkdir -p ~/.config/systemd/user ~/.config/beep "$(dirname ${shellQuote(input.statusPath)})"`,
+      ...writeEnvFileCommands,
+      `printf '%s\\n' ${shellQuote(serviceUnit)} > ~/.config/systemd/user/${serviceUnitName}`,
+      `printf '%s\\n' ${shellQuote(timerUnit)} > ~/.config/systemd/user/${timerUnitName}`,
+      `systemctl --user daemon-reload`,
+      `systemctl --user enable --now ${timerUnitName}`,
+      `systemctl --user status ${timerUnitName}`,
+      `journalctl --user -u ${serviceUnitName} -n 80 --no-pager`,
+    ],
+    lockPath: input.lockPath,
+    serviceUnit,
+    serviceUnitName,
+    statusPath: input.statusPath,
+    timerUnit,
+    timerUnitName,
+  });
+};
 
 const statOption = Effect.fn("AiMetrics.forwarder.statOption")(function* (pathName: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -213,6 +430,7 @@ const jsonlSourceFiles = Effect.fn("AiMetrics.forwarder.jsonlSourceFiles")(funct
   sourceKind: AiMetricsTranscriptSource
 ) {
   const fs = yield* FileSystem.FileSystem;
+  const pathApi = yield* Path.Path;
   const sourcePaths = yield* collectJsonlFiles(root);
   const files = yield* Effect.forEach(
     sourcePaths,
@@ -224,6 +442,7 @@ const jsonlSourceFiles = Effect.fn("AiMetrics.forwarder.jsonlSourceFiles")(funct
 
       return O.some({
         modifiedAtMillis: modifiedAtMillis(info.value),
+        relativePath: normalizedRelativePath(pathApi, root, sourcePath),
         sourceKind,
         sourcePath,
       });
@@ -247,6 +466,7 @@ const openClawSourceFiles = Effect.fn("AiMetrics.forwarder.openClawSourceFiles")
 
   return A.of({
     modifiedAtMillis: modifiedAtMillis(info.value),
+    relativePath: pathApi.basename(unitPath),
     sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
     sourcePath: unitPath,
   });
@@ -257,6 +477,25 @@ const byModifiedDescending: Order.Order<ForwarderSourceFile> = Order.mapInput(
   (file) => -file.modifiedAtMillis
 );
 
+const selectSourceFiles = (
+  sourceKind: AiMetricsTranscriptSource,
+  files: ReadonlyArray<ForwarderSourceFile>,
+  maxFiles: number
+): ForwarderSourceSelection => {
+  const sortedFiles = pipe(files, A.sort(byModifiedDescending));
+  const includedFiles = A.take(sortedFiles, maxFiles);
+
+  return {
+    coverage: new AiMetricsForwarderSourceCoverage({
+      candidateFileCount: A.length(sortedFiles),
+      includedFileCount: A.length(includedFiles),
+      limitedByMaxFiles: A.length(sortedFiles) > A.length(includedFiles),
+      sourceKind,
+    }),
+    files: includedFiles,
+  };
+};
+
 const discoverForwarderSourceFiles = Effect.fn("AiMetrics.forwarder.discoverSourceFiles")(function* (
   input: AiMetricsForwarderInput
 ) {
@@ -266,16 +505,28 @@ const discoverForwarderSourceFiles = Effect.fn("AiMetrics.forwarder.discoverSour
   const codexRoot = input.codexSessionsRoot ?? pathApi.join(homeDir, ".codex/sessions");
   const claudeRoot =
     input.claudeProjectsRoot ?? pathApi.join(homeDir, ".claude/projects", repoPathToClaudeProjectName(repoRoot));
-  const sources = yield* Effect.all(
+  const [codexFiles, claudeFiles, openClawFiles] = yield* Effect.all(
     [
       jsonlSourceFiles(input, codexRoot, AiMetricsTranscriptSource.Enum.codex),
       jsonlSourceFiles(input, claudeRoot, AiMetricsTranscriptSource.Enum.claude),
       openClawSourceFiles(input),
-    ],
+    ] as const,
     { concurrency: 3 }
   );
+  const selections = [
+    selectSourceFiles(AiMetricsTranscriptSource.Enum.codex, codexFiles, input.maxFiles),
+    selectSourceFiles(AiMetricsTranscriptSource.Enum.claude, claudeFiles, input.maxFiles),
+    selectSourceFiles(AiMetricsTranscriptSource.Enum.openclaw, openClawFiles, input.maxFiles),
+  ] as const;
 
-  return pipe(A.flatten(sources), A.sort(byModifiedDescending), A.take(input.maxFiles));
+  return {
+    coverage: A.map(selections, (selection) => selection.coverage),
+    files: pipe(
+      selections,
+      A.flatMap((selection) => selection.files),
+      A.sort(byModifiedDescending)
+    ),
+  };
 });
 
 const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
@@ -310,6 +561,7 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
     const privacy = yield* makeAiMetricsPrivacyCheckResult({
       content,
       ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      relativePath: sourceFile.relativePath,
       sourcePath: sourceFile.sourcePath,
       summary,
     }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics privacy projection.", cause)));
@@ -350,6 +602,7 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
 export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder")(
   function* (input: AiMetricsForwarderInput) {
     const startedAtEpochMillis = yield* Clock.currentTimeMillis;
+    yield* requireForwarderHashSalt(input);
     const installSpec = yield* makeAiMetricsInstallSpec(
       new AiMetricsInstallInput({
         ...(input.dataRoot === undefined ? {} : { dataRoot: input.dataRoot }),
@@ -358,18 +611,25 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
         target: input.target,
       })
     ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to resolve AI metrics install storage layout.", cause)));
+    const pathApi = yield* Path.Path;
+    const configSnapshotDir = pathApi.join(installSpec.storage.dataRoot, "config-snapshots");
     const configSnapshot = yield* makeAiMetricsConfigSnapshot(
       new AiMetricsConfigSnapshotInput({
+        previousSnapshotPath: pathApi.join(configSnapshotDir, "latest.json"),
         repoRoot: input.repoRoot,
       })
     ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics config snapshot.", cause)));
-    const pathApi = yield* Path.Path;
+    yield* writeAiMetricsConfigSnapshotArtifacts({
+      commitLatest: false,
+      outputDir: configSnapshotDir,
+      result: configSnapshot,
+    }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to persist AI metrics config snapshot.", cause)));
     const repoRootHash = yield* hashPrivateIdentifier(pathApi.resolve(input.repoRoot), input.hashSalt).pipe(
       Effect.mapError((cause) => forwarderFailure("Failed to hash AI metrics repo root.", cause))
     );
-    const sourceFiles = yield* discoverForwarderSourceFiles(input);
+    const sourceSelection = yield* discoverForwarderSourceFiles(input);
     const records = yield* Effect.forEach(
-      sourceFiles,
+      sourceSelection.files,
       (sourceFile) => processSourceFile(input, installSpec.storage.rawArchiveDir, sourceFile),
       { concurrency: 4 }
     );
@@ -385,6 +645,10 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
         target: input.target,
       })
     ).pipe(Effect.mapError((cause) => forwarderFailure("Failed to write AI metrics derived storage.", cause)));
+    yield* writeAiMetricsConfigSnapshotArtifacts({
+      outputDir: configSnapshotDir,
+      result: configSnapshot,
+    }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to commit latest AI metrics config snapshot.", cause)));
 
     return new AiMetricsForwarderRunResult({
       archiveObjectCount: derived.archiveObjectCount,
@@ -394,6 +658,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       parquetExportDir: derived.parquetExportDir,
       parquetTables: derived.parquetTables,
       rawArchiveDir: installSpec.storage.rawArchiveDir,
+      sourceCoverage: sourceSelection.coverage,
       sourceFileCount: derived.sourceFileCount,
       target: input.target,
       turnCount: derived.turnCount,
@@ -444,6 +709,27 @@ export const forwarderRunResultToJson: (
   function* (result) {
     return yield* encodeForwarderResultJson(result).pipe(
       Effect.mapError((cause) => forwarderFailure("Failed to encode AI metrics forwarder result as JSON.", cause))
+    );
+  }
+);
+
+/**
+ * Render a forwarder timer plan as JSON.
+ *
+ * @example
+ * ```ts
+ * import { forwarderTimerPlanToJson } from "@beep/repo-ai-metrics"
+ * console.log(forwarderTimerPlanToJson)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const forwarderTimerPlanToJson: (
+  result: AiMetricsForwarderTimerPlan
+) => Effect.Effect<string, AiMetricsForwarderError> = Effect.fn("AiMetrics.forwarderTimerPlanToJson")(
+  function* (result) {
+    return yield* encodeForwarderTimerPlanJson(result).pipe(
+      Effect.mapError((cause) => forwarderFailure("Failed to encode AI metrics forwarder timer plan as JSON.", cause))
     );
   }
 );

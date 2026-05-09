@@ -106,6 +106,64 @@ export const AiMetricsTranscriptSource = LiteralKit(["codex", "claude", "opencla
 export type AiMetricsTranscriptSource = typeof AiMetricsTranscriptSource.Type;
 
 /**
+ * Role of a discovered source file within the source's local storage.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsSourceRole } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsSourceRole.Enum.primary)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const AiMetricsSourceRole = LiteralKit(["primary", "subagent", "gateway_metadata"] as const).annotate(
+  $I.annote("AiMetricsSourceRole", {
+    description: "Privacy-safe role of a discovered source file or metadata record.",
+  })
+);
+
+/**
+ * Runtime type for {@link AiMetricsSourceRole}.
+ *
+ * @example
+ * ```ts
+ * import type { AiMetricsSourceRole } from "@beep/repo-ai-metrics"
+ * const role: AiMetricsSourceRole = "primary"
+ * console.log(role)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsSourceRole = typeof AiMetricsSourceRole.Type;
+
+/**
+ * Privacy-preserving source attribution derived from transcript metadata.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsSourceAttribution } from "@beep/repo-ai-metrics"
+ * console.log(new AiMetricsSourceAttribution({ sourceRole: "primary" }).sourceRole)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsSourceAttribution extends S.Class<AiMetricsSourceAttribution>($I`AiMetricsSourceAttribution`)(
+  {
+    agentNicknameHash: S.optionalKey(S.String),
+    agentRoleHash: S.optionalKey(S.String),
+    forkedFromIdHash: S.optionalKey(S.String),
+    parentSessionIdHash: S.optionalKey(S.String),
+    parentThreadIdHash: S.optionalKey(S.String),
+    sessionIdHash: S.optionalKey(S.String),
+    sourceRole: AiMetricsSourceRole,
+    threadSpawn: S.optionalKey(S.Boolean),
+  },
+  $I.annote("AiMetricsSourceAttribution", {
+    description: "Hash-only metadata that distinguishes primary sessions from delegated subagent work.",
+  })
+) {}
+
+/**
  * Raw transcript retention and derived-dashboard privacy posture.
  *
  * @example
@@ -298,11 +356,16 @@ export class ConfigSnapshot extends S.Class<ConfigSnapshot>($I`ConfigSnapshot`)(
     changedPaths: S.Array(S.String),
     configHash: S.String,
     gitCommit: S.optionalKey(S.String),
+    includedPaths: S.Array(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultKey(Effect.succeed([]))
+    ),
     label: S.String,
+    previousSnapshotId: S.optionalKey(S.String),
     snapshotId: S.String,
   },
   $I.annote("ConfigSnapshot", {
-    description: "Hashed snapshot of Codex, Claude, assistant, and repo guidance configuration.",
+    description: "Hashed snapshot of Codex, Claude, assistant, and repo guidance configuration with diff attribution.",
   })
 ) {}
 
@@ -327,6 +390,10 @@ export class AgentTask extends S.Class<AgentTask>($I`AgentTask`)(
     repoRootHash: S.String,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
+    sourceRole: AiMetricsSourceRole.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsSourceRole.Enum.primary)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
+    ),
     title: S.String,
   },
   $I.annote("AgentTask", {
@@ -349,9 +416,20 @@ export class AgentSession extends S.Class<AgentSession>($I`AgentSession`)(
   {
     agentSessionId: S.String,
     agentTaskId: S.optionalKey(S.String),
+    agentNicknameHash: S.optionalKey(S.String),
+    agentRoleHash: S.optionalKey(S.String),
+    forkedFromIdHash: S.optionalKey(S.String),
+    parentSessionIdHash: S.optionalKey(S.String),
+    parentThreadIdHash: S.optionalKey(S.String),
+    sessionIdHash: S.optionalKey(S.String),
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
+    sourceRole: AiMetricsSourceRole.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsSourceRole.Enum.primary)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
+    ),
     startedAt: S.optionalKey(S.String),
+    threadSpawn: S.optionalKey(S.Boolean),
   },
   $I.annote("AgentSession", {
     description:
@@ -376,6 +454,10 @@ export class AgentTurn extends S.Class<AgentTurn>($I`AgentTurn`)(
     lineNumber: S.Number,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
+    sourceRole: AiMetricsSourceRole.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsSourceRole.Enum.primary)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
+    ),
     timestamp: S.optionalKey(S.String),
   },
   $I.annote("AgentTurn", {
@@ -523,6 +605,10 @@ export class BenchmarkRun extends S.Class<BenchmarkRun>($I`BenchmarkRun`)(
 export class Scorecard extends S.Class<Scorecard>($I`Scorecard`)(
   {
     benchmarkRunCount: S.Number,
+    completionReady: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
     configSnapshotId: S.String,
     costScore: S.Number,
     coverageGaps: S.Array(S.String),

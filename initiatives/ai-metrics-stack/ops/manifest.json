@@ -5,12 +5,12 @@
     "title": "AI Metrics Stack",
     "status": "active",
     "created": "2026-05-05",
-    "updated": "2026-05-07",
+    "updated": "2026-05-09",
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P6",
-  "completionEvidence": "dankserver deployment plus one seven-day real-data config-impact scorecard",
+  "currentTargetPhase": "P6a",
+  "completionEvidence": "P6a hardening gates plus dankserver deployment plus one restarted seven-day real-data config-impact scorecard",
   "targets": {
     "production": "dankserver",
     "smoke": "local",
@@ -85,8 +85,16 @@
     {
       "id": "P6",
       "name": "Seven-Day Proof And Hardening",
-      "status": "in_progress",
-      "output": "history/outputs/p6-seven-day-proof-and-hardening.md"
+      "status": "paused",
+      "output": "history/outputs/p6-seven-day-proof-and-hardening.md",
+      "subphases": [
+        {
+          "id": "P6a",
+          "name": "Fresh Review Data And Ops Hardening",
+          "status": "in_progress",
+          "output": "history/outputs/p6a-fresh-review-hardening.md"
+        }
+      ]
     }
   ],
   "commandGates": [
@@ -111,6 +119,14 @@
       "command": "cd packages/tooling/tool/cli && bun run check && bun run test && bun run lint"
     },
     {
+      "id": "ai-metrics-forwarder-timer-smoke",
+      "command": "bun run beep ai-metrics forwarder timer --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt' --raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key' --json"
+    },
+    {
+      "id": "ai-metrics-archive-drill",
+      "command": "BEEP_AI_METRICS_RAW_ARCHIVE_KEY=\"$(op read 'op://TBK/ai-metrics/raw-archive-key')\" bun run beep ai-metrics archive drill --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt' --raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key' --json"
+    },
+    {
       "id": "infra-package",
       "command": "cd infra && bun run check && bun run test && bun run lint"
     },
@@ -125,12 +141,13 @@
   ],
   "knownGaps": [
     "P5b Phoenix is live and verified on dankserver, but Pulumi state reconciliation is blocked until PULUMI_CONFIG_PASSPHRASE or PULUMI_CONFIG_PASSPHRASE_FILE is present",
-    "P6 needs seven days of live collection before the completion scorecard can be credited",
-    "Real outcome labels and benchmark runs still need to be added for the live tasks collected during the proof window",
-    "Backup, restore, retention, and failure recovery documentation remains pending",
+    "P6 is paused until P6a hardening gates pass; the existing collection evidence is baseline pre-P6a evidence",
+    "The credited seven-day proof must restart after P6a with workstation timer ownership",
+    "Real outcome labels and benchmark runs still need to be added before a scorecard can be completionReady",
+    "Backup, restore, retention, deletion, and failure recovery documentation remains pending",
     "Optional LiteLLM deployment remains deferred beyond the Phoenix-only P5b slice",
     "xAI, Venice, LiteLLM, and gateway enrichment remain deferred beyond P2",
-    "raw archive decrypt tooling is intentionally not exposed in P2"
+    "Server-owned collection remains a P7 topology target requiring transcript access/sync and privacy design"
   ],
-  "nextAction": "Keep the P6 live collector running for seven days, add outcome labels and benchmark runs for real tasks, document backup/restore/retention, and reconcile Pulumi state from a shell with the Pulumi passphrase environment."
+  "nextAction": "Finish P6a hardening checks, reconcile Pulumi state from a shell with the Pulumi passphrase environment, install the workstation timer, run the archive drill, add labels and benchmark runs, then restart the credited seven-day proof."
 }
