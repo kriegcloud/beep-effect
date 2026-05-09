@@ -3,7 +3,7 @@
   "initiative": {
     "id": "jsdoc-quality-enforcement",
     "title": "JSDoc Quality Enforcement",
-    "status": "v1-implemented",
+    "status": "p5-evaluated",
     "created": "2026-05-08",
     "updated": "2026-05-09",
     "packetAnchorDocument": "SPEC.md"
@@ -35,8 +35,15 @@
       "title": "Synthesis And Recommendations",
       "status": "complete",
       "output": "research/synthesis-and-recommendations.md"
+    },
+    {
+      "id": "enforcement-readiness-eval",
+      "title": "Enforcement Readiness Evaluation",
+      "status": "complete",
+      "output": "research/enforcement-readiness-eval.md"
     }
   ],
+  "evaluationOutputs": ["history/outputs/jsdoc-quality-p5-summary.json"],
   "implementedSurfaces": [
     "packages/tooling/tool/cli/src/commands/Docgen/index.ts",
     "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
@@ -52,5 +59,5 @@
     "local model workers",
     "example exception categories"
   ],
-  "nextAction": "Collect repo-specific quality report examples and evaluate whether any advisory finding should become a future opt-in gate."
+  "nextAction": "Plan P6 hardening before enforcement: bound docgen quality runtime, decide re-export/barrel policy, decide type-only example policy, and only then consider package opt-in warnings."
 }

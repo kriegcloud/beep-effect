@@ -2,7 +2,7 @@
 
 ## Status
 
-V1 implemented
+V1 implemented; P5 enforcement-readiness eval complete
 
 ## Overview
 
@@ -28,6 +28,9 @@ The command is not a blocking gate.
 ## Operating Rules
 
 - Treat V1 quality findings as advisory report output only.
+- Do not add blocking enforcement until the P6 hardening items from
+  [research/enforcement-readiness-eval.md](./research/enforcement-readiness-eval.md)
+  are resolved.
 - Keep `@example` universal for exported symbols; do not invent exception
   categories in remediation work.
 - Place curated future evaluation reports in `research/`.
