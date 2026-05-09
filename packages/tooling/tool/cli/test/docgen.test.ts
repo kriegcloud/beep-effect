@@ -25,6 +25,7 @@ import { Effect, Exit, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
+import { ChildProcess } from "effect/unstable/process";
 import { describe, expect, it } from "vitest";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
@@ -45,6 +46,19 @@ const runDocgenCommand = Command.runWith(docgenCommand, { version: "0.0.0" });
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 const decodeUnknownJson = S.decodeUnknownSync(S.fromJsonString(S.Unknown));
 const DOCGEN_COMMAND_TEST_TIMEOUT = 30_000;
+
+const runCommand = (command: string, args: ReadonlyArray<string>, cwd: string) =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make(command, [...args], {
+        cwd,
+        stdout: "ignore",
+        stderr: "ignore",
+      });
+      const exitCode = yield* handle.exitCode;
+      expect(exitCode).toBe(0);
+    })
+  );
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -742,20 +756,20 @@ export const parseValue = (value: string): string => value.trim();
           yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
           yield* fs.writeFileString(
             path.join(packageDir, "src", "index.ts"),
-            `/**
+            `const parseValue = (value: string): string => value.trim();
+
+/**
  * Parses a value into the normalized schema fixture.
  *
  * @example
  * \`\`\`ts
  * import { parseValue } from "@beep/schema"
  * const result = parseValue(" hello ")
- * expect(result).toBe("hello")
+ * console.log(result)
  * \`\`\`
  * @category parsing
  * @since 0.0.0
  */
-const parseValue = (value: string): string => value.trim();
-
 export { parseValue };
 `
           );
@@ -768,12 +782,18 @@ export { parseValue };
           const report = yield* analyzePackageQuality(target!);
           const exportNames = report.subjects.map((subject) => subject.exportName);
           const subject = report.subjects.find((entry) => entry.exportName === "parseValue");
+          const review = report.reviews.find((entry) => entry.subjectId === subject?.stableIdentity);
+          const findingCodes = review?.findings.map((finding) => finding.code) ?? [];
 
           expect(exportNames).toEqual(["parseValue"]);
+          expect(subject?.description).toContain("Parses a value");
           expect(subject?.stableIdentity).toMatch(
             /^@beep\/schema:packages\/foundation\/modeling\/schema\/src\/index\.ts:const:parseValue:[a-f0-9]{12}$/
           );
           expect(subject?.sourceAnchor).toContain("packages/foundation/modeling/schema/src/index.ts:");
+          expect(findingCodes).not.toContain("missing-example");
+          expect(findingCodes).not.toContain("example-lacks-observable-result");
+          expect(review?.tier).toBe("pass");
         })
       )
     );
@@ -855,6 +875,70 @@ export const parseValue = (value: string): string => value.trim();
           expect(exportNames).toContain("parseValue");
           expect(exportNames).not.toContain("HiddenInternal");
           expect(exportNames).not.toContain("GeneratedExport");
+        })
+      )
+    );
+  });
+
+  it("selects packages from changed-files git output", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* runCommand("git", ["init"], tmpDir);
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Parses a value into the normalized schema fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import { parseValue } from "@beep/schema"
+ * const result = parseValue(" hello ")
+ * console.log(result)
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+
+          yield* runDocgenCommand(["quality", "--changed-files", "--json"]);
+
+          const output = (yield* TestConsole.logLines).join("\n");
+          const decoded = decodeUnknownJson(output) as {
+            readonly scope?: string;
+            readonly packages?: ReadonlyArray<{
+              readonly packageName?: string;
+              readonly subjects?: ReadonlyArray<{ readonly exportName?: string }>;
+            }>;
+          };
+
+          expect(decoded.scope).toBe("changed-files");
+          expect(decoded.packages?.[0]?.packageName).toBe("@beep/schema");
+          expect(decoded.packages?.[0]?.subjects?.map((subject) => subject.exportName)).toContain("parseValue");
         })
       )
     );

@@ -76,8 +76,8 @@ const decodeContentHashFromSourceText = S.decodeUnknownEffect(ContentHashFromSou
  * @example
  * ```ts
  * import { DocgenQualityScopeMode } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * const mode = DocgenQualityScopeMode
- * void mode
+ *
+ * console.log(DocgenQualityScopeMode.is["changed-files"]("changed-files"))
  * ```
  * @category models
  * @since 0.0.0
@@ -94,8 +94,9 @@ export const DocgenQualityScopeMode = LiteralKit(["affected", "package", "change
  * @example
  * ```ts
  * import type { DocgenQualityScopeMode } from "@beep/repo-cli/commands/Docgen/internal/Quality"
+ *
  * const mode: DocgenQualityScopeMode = "affected"
- * void mode
+ * console.log(mode)
  * ```
  * @category type-level
  * @since 0.0.0
@@ -108,8 +109,8 @@ export type DocgenQualityScopeMode = typeof DocgenQualityScopeMode.Type;
  * @example
  * ```ts
  * import { DocgenQualityScoreMode } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * const mode = DocgenQualityScoreMode
- * void mode
+ *
+ * console.log(DocgenQualityScoreMode.is.rubric("rubric"))
  * ```
  * @category models
  * @since 0.0.0
@@ -126,8 +127,9 @@ export const DocgenQualityScoreMode = LiteralKit(["none", "rubric", "codex"]).an
  * @example
  * ```ts
  * import type { DocgenQualityScoreMode } from "@beep/repo-cli/commands/Docgen/internal/Quality"
+ *
  * const mode: DocgenQualityScoreMode = "rubric"
- * void mode
+ * console.log(mode)
  * ```
  * @category type-level
  * @since 0.0.0
@@ -140,8 +142,8 @@ export type DocgenQualityScoreMode = typeof DocgenQualityScoreMode.Type;
  * @example
  * ```ts
  * import { DocgenQualityTier } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * const tier = DocgenQualityTier
- * void tier
+ *
+ * console.log(DocgenQualityTier.is.warn("warn"))
  * ```
  * @category models
  * @since 0.0.0
@@ -158,8 +160,9 @@ export const DocgenQualityTier = LiteralKit(["pass", "warn", "fail"]).annotate(
  * @example
  * ```ts
  * import type { DocgenQualityTier } from "@beep/repo-cli/commands/Docgen/internal/Quality"
+ *
  * const tier: DocgenQualityTier = "warn"
- * void tier
+ * console.log(tier)
  * ```
  * @category type-level
  * @since 0.0.0
@@ -172,8 +175,8 @@ export type DocgenQualityTier = typeof DocgenQualityTier.Type;
  * @example
  * ```ts
  * import { DocgenQualityFindingCode } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * const codes = DocgenQualityFindingCode
- * void codes
+ *
+ * console.log(DocgenQualityFindingCode.is["missing-example"]("missing-example"))
  * ```
  * @category models
  * @since 0.0.0
@@ -202,8 +205,9 @@ export const DocgenQualityFindingCode = LiteralKit([
  * @example
  * ```ts
  * import type { DocgenQualityFindingCode } from "@beep/repo-cli/commands/Docgen/internal/Quality"
+ *
  * const code: DocgenQualityFindingCode = "missing-example"
- * void code
+ * console.log(code)
  * ```
  * @category type-level
  * @since 0.0.0
@@ -254,8 +258,9 @@ class DocgenRelatedSymbol extends S.Class<DocgenRelatedSymbol>($I`DocgenRelatedS
  * @example
  * ```ts
  * import type { DocgenQualitySubject } from "@beep/repo-cli/commands/Docgen/internal/Quality"
+ *
  * const subject: Pick<DocgenQualitySubject, "exportName"> = { exportName: "makeUser" }
- * void subject
+ * console.log(subject.exportName)
  * ```
  * @category models
  * @since 0.0.0
@@ -351,8 +356,9 @@ class DocgenQualityRemediationPacket extends S.Class<DocgenQualityRemediationPac
  * @example
  * ```ts
  * import type { DocgenQualityReport } from "@beep/repo-cli/commands/Docgen/internal/Quality"
+ *
  * const report: Pick<DocgenQualityReport, "schemaVersion"> = { schemaVersion: 1 }
- * void report
+ * console.log(report.schemaVersion)
  * ```
  * @category models
  * @since 0.0.0
@@ -419,8 +425,8 @@ const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: 
       const text = yield* handle.stdout.pipe(
         Stream.decodeText(),
         Stream.runFold(
-          () => "",
-          (acc, chunk) => `${acc}${chunk}`
+          (): string => "",
+          (acc: string, chunk: string) => `${acc}${chunk}`
         )
       );
       const exitCode = yield* handle.exitCode;
@@ -485,10 +491,29 @@ const countSelectedScopes = (packageSelector: O.Option<string>, all: boolean, ch
 /**
  * Resolves `docgen quality` targets using the v1 scope policy.
  *
+ * @effects Requires workspace discovery and git state for affected or changed-file scopes.
  * @example
  * ```ts
+ * import { FsUtilsLive } from "@beep/repo-utils"
  * import { resolveDocgenQualityTargets } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * void resolveDocgenQualityTargets
+ * import { BunChildProcessSpawner, BunServices } from "@effect/platform-bun"
+ * import { Effect, Layer } from "effect"
+ * import * as O from "effect/Option"
+ *
+ * const RuntimeLayer = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive).pipe(
+ *   Layer.provideMerge(BunServices.layer)
+ * )
+ *
+ * const program = Effect.gen(function* () {
+ *   const targets = yield* resolveDocgenQualityTargets({
+ *     all: false,
+ *     changedFiles: true,
+ *     packageSelector: O.none()
+ *   })
+ *   return `${targets.scope}: ${targets.targets.length} packages`
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(RuntimeLayer))).then(console.log)
  * ```
  * @category workflows
  * @since 0.0.0
@@ -697,10 +722,45 @@ const getExportKind = (node: Node): string => {
 type ExportedDeclarationCandidate = {
   readonly name: string;
   readonly declaration: Node;
+  readonly anchorNode?: Node;
+  readonly rawJsDoc?: string;
+  readonly exportDeclarationText?: string;
 };
 
 const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyArray<ExportedDeclarationCandidate> => {
   let candidates = A.empty<ExportedDeclarationCandidate>();
+  const exportedDeclarations = sourceFile.getExportedDeclarations();
+
+  for (const exportDeclaration of sourceFile.getExportDeclarations()) {
+    if (exportDeclaration.getModuleSpecifierValue() !== undefined) {
+      continue;
+    }
+
+    const rawJsDoc = getLeadingJsDocCommentText(exportDeclaration);
+    if (Str.trim(rawJsDoc).length === 0) {
+      continue;
+    }
+
+    for (const specifier of exportDeclaration.getNamedExports()) {
+      const exportName = specifier.getAliasNode()?.getText() ?? specifier.getName();
+      const declarations =
+        exportedDeclarations.get(exportName) ?? exportedDeclarations.get(specifier.getName()) ?? A.empty();
+
+      for (const declaration of declarations) {
+        if (declaration.getSourceFile() !== sourceFile) {
+          continue;
+        }
+
+        candidates = A.append(candidates, {
+          name: exportName,
+          declaration,
+          anchorNode: exportDeclaration,
+          rawJsDoc,
+          exportDeclarationText: exportDeclaration.getText(),
+        });
+      }
+    }
+  }
 
   for (const statement of sourceFile.getStatements()) {
     if (Node.isVariableStatement(statement) && statement.isExported()) {
@@ -733,7 +793,7 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
     }
   }
 
-  for (const [name, declarations] of sourceFile.getExportedDeclarations()) {
+  for (const [name, declarations] of exportedDeclarations) {
     for (const declaration of declarations) {
       if (declaration.getSourceFile() !== sourceFile) {
         continue;
@@ -1021,9 +1081,10 @@ const collectDirectExportSubjects = ({
 }): ReadonlyArray<DocgenQualitySubjectCandidate> => {
   let subjects = A.empty<DocgenQualitySubjectCandidate>();
 
-  for (const { declaration, name: exportName } of collectExportedDeclarationCandidates(sourceFile)) {
-    const rawJsDoc = getLastJsDocText(declaration);
-    const line = nodeLine(declaration);
+  for (const candidate of collectExportedDeclarationCandidates(sourceFile)) {
+    const { declaration, name: exportName } = candidate;
+    const rawJsDoc = candidate.rawJsDoc ?? getLastJsDocText(declaration);
+    const line = nodeLine(candidate.anchorNode ?? declaration);
     const declarationSource = declarationText(declaration);
 
     subjects = A.append(
@@ -1036,7 +1097,7 @@ const collectDirectExportSubjects = ({
         exportName,
         filePath,
         generatedDocSnippet,
-        hashSourceText: `${rawJsDoc}\n${declarationSource}`,
+        hashSourceText: `${rawJsDoc}\n${declarationSource}\n${candidate.exportDeclarationText ?? ""}`,
         line,
         packageName,
         packagePath,
@@ -1184,11 +1245,11 @@ const exampleIsTooTrivial = (example: string): boolean => {
 
 const exampleOnlyVoidsResult = (example: string): boolean => {
   const code = exampleCodeText(example);
-  return /void\s+\w+/.test(code) && !/expect\s*\(|assert|return\s+|Console\.|Effect\.run/.test(code);
+  return /void\s+\w+/.test(code) && !/expect\s*\(|assert|return\s+|(?:Console|console)\.|Effect\.run/.test(code);
 };
 
 const exampleHasObservableResult = (example: string): boolean =>
-  /expect\s*\(|assert|return\s+|Console\.|Effect\.run|S\.decode|Schema\.decode|Equal\.|\.pipe\(/.test(
+  /expect\s*\(|assert|return\s+|(?:Console|console)\.|Effect\.run|S\.decode|Schema\.decode|Equal\.|\.pipe\(/.test(
     exampleCodeText(example)
   );
 
@@ -1451,10 +1512,26 @@ const packageReport = (
 /**
  * Builds a package-local quality report from ts-morph-enriched subjects.
  *
+ * @effects Reads package docgen configuration and TypeScript source files.
  * @example
  * ```ts
+ * import { FsUtilsLive } from "@beep/repo-utils"
  * import { analyzePackageQuality } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * void analyzePackageQuality
+ * import { discoverDocgenWorkspacePackages } from "@beep/repo-cli/commands/Docgen/internal/Operations"
+ * import { BunServices } from "@effect/platform-bun"
+ * import { Effect, Layer } from "effect"
+ *
+ * const RuntimeLayer = Layer.mergeAll(FsUtilsLive).pipe(Layer.provideMerge(BunServices.layer))
+ *
+ * const program = Effect.gen(function* () {
+ *   const packages = yield* discoverDocgenWorkspacePackages()
+ *   const target = packages[0]
+ *   if (target === undefined) return "no packages"
+ *   const report = yield* analyzePackageQuality(target)
+ *   return `${report.packageName}: ${report.summary.subjects} subjects`
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(RuntimeLayer))).then(console.log)
  * ```
  * @category workflows
  * @since 0.0.0
@@ -1477,10 +1554,24 @@ export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQual
 /**
  * Builds the consolidated report emitted by the quality command.
  *
+ * @effects Runs package-local JSDoc quality analysis for the provided targets.
  * @example
  * ```ts
+ * import { FsUtilsLive } from "@beep/repo-utils"
  * import { analyzeDocgenQuality } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * void analyzeDocgenQuality
+ * import { discoverDocgenWorkspacePackages } from "@beep/repo-cli/commands/Docgen/internal/Operations"
+ * import { BunServices } from "@effect/platform-bun"
+ * import { Effect, Layer } from "effect"
+ *
+ * const RuntimeLayer = Layer.mergeAll(FsUtilsLive).pipe(Layer.provideMerge(BunServices.layer))
+ *
+ * const program = Effect.gen(function* () {
+ *   const targets = yield* discoverDocgenWorkspacePackages()
+ *   const report = yield* analyzeDocgenQuality({ scope: "all", scoreMode: "rubric", targets })
+ *   return `${report.summary.packages} packages reviewed`
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(RuntimeLayer))).then(console.log)
  * ```
  * @category workflows
  * @since 0.0.0
@@ -1530,10 +1621,23 @@ export const analyzeDocgenQuality = Effect.fn("DocgenQuality.analyzeDocgenQualit
  *
  * @param report - Consolidated quality report to encode.
  * @returns An Effect that yields the formatted JSON report.
+ * @effects Encodes the report as formatted JSON and fails with a typed domain error if encoding fails.
  * @example
  * ```ts
- * import { generateQualityJson } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * void generateQualityJson
+ * import { FsUtilsLive } from "@beep/repo-utils"
+ * import { analyzeDocgenQuality, generateQualityJson } from "@beep/repo-cli/commands/Docgen/internal/Quality"
+ * import { BunServices } from "@effect/platform-bun"
+ * import { Effect, Layer } from "effect"
+ *
+ * const RuntimeLayer = Layer.mergeAll(FsUtilsLive).pipe(Layer.provideMerge(BunServices.layer))
+ *
+ * const program = Effect.gen(function* () {
+ *   const report = yield* analyzeDocgenQuality({ scope: "all", scoreMode: "rubric", targets: [] })
+ *   const json = yield* generateQualityJson(report)
+ *   return json.includes("\"schemaVersion\"")
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(RuntimeLayer))).then(console.log)
  * ```
  * @category formatting
  * @since 0.0.0
@@ -1569,8 +1673,20 @@ const markdownSubject = (subject: DocgenQualitySubject, review: DocgenQualityRev
  * @returns Human-readable Markdown report content.
  * @example
  * ```ts
- * import { generateQualityReport } from "@beep/repo-cli/commands/Docgen/internal/Quality"
- * void generateQualityReport
+ * import { FsUtilsLive } from "@beep/repo-utils"
+ * import { analyzeDocgenQuality, generateQualityReport } from "@beep/repo-cli/commands/Docgen/internal/Quality"
+ * import { BunServices } from "@effect/platform-bun"
+ * import { Effect, Layer } from "effect"
+ *
+ * const RuntimeLayer = Layer.mergeAll(FsUtilsLive).pipe(Layer.provideMerge(BunServices.layer))
+ *
+ * const program = Effect.gen(function* () {
+ *   const report = yield* analyzeDocgenQuality({ scope: "all", scoreMode: "rubric", targets: [] })
+ *   const markdown = generateQualityReport(report)
+ *   return markdown.startsWith("# JSDoc Quality Report")
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(RuntimeLayer))).then(console.log)
  * ```
  * @category formatting
  * @since 0.0.0
