@@ -73,6 +73,7 @@ import {
   renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
   runAiMetricsOtlpExport,
+  shellQuote,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
   summaryToJson,
@@ -104,7 +105,6 @@ const $I = $RepoCliId.create("commands/AIMetrics");
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 const encodeInstallSpecJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsInstallSpec));
 const localCollectorDataRoot = ".beep/ai-metrics";
-const shellQuote = (value: string): string => `'${Str.replace(/'/gu, "'\\''")(value)}'`;
 
 /**
  * Error raised by the AI metrics CLI.

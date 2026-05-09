@@ -22,6 +22,7 @@ import {
   AiMetricsScoreWeights,
   AiMetricsTool,
 } from "./models.ts";
+import { shellQuote } from "./shell.ts";
 import { AiMetricsSourceDiscoveryResult, AiMetricsSourceStatus } from "./source-discovery.ts";
 
 const $I = $RepoAiMetricsId.create("install");
@@ -599,8 +600,6 @@ const makeServiceSpec =
       tool,
     });
   };
-
-const shellQuote = (value: string): string => `'${Str.replace(/'/gu, "'\\''")(value)}'`;
 
 const withHashSaltSecret =
   (hashSaltSecretRef: O.Option<string>) =>
