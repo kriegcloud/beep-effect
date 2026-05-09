@@ -6,8 +6,10 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { DateTime, Effect, FileSystem, flow, Path } from "effect";
+import { DateTime, Effect, FileSystem, Path } from "effect";
 import * as A from "effect/Array";
+import { dual, flow } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { buildRecoveryMessage, type FailedStep, RecoveryInput } from "./RecoveryMessage.ts";
@@ -353,98 +355,115 @@ const markFailure = (step: FailedStep, setFailedStep: (step: FailedStep) => void
  * @category combinators
  * @since 0.0.0
  */
-export const syncOut: <R>(
-  hostRepoDir: string,
-  handle: IsolatedSandboxHandle<R>,
-  options?: SyncOutOptions
-) => Effect.Effect<SyncOutResult, SyncError, R | SandboxProcess | FileSystem.FileSystem | Path.Path> = Effect.fn(
-  "SyncOut.syncOut"
-)(function* <R>(
-  hostRepoDir: string,
-  handle: IsolatedSandboxHandle<R>,
-  options: SyncOutOptions = new SyncOutOptions({})
-) {
-  const path = yield* Path.Path;
-  const hostHead = Str.trim(yield* runHostGit(["rev-parse", "HEAD"], hostRepoDir));
-  const sandboxHead = Str.trim(
-    (yield* execSandboxOk(handle, "git rev-parse HEAD", new SandboxExecOptions({ cwd: handle.worktreePath }))).stdout
-  );
-  const hasCommits = hostHead !== sandboxHead;
-  const diffResult = yield* execSandbox(handle, "git diff HEAD", new SandboxExecOptions({ cwd: handle.worktreePath }));
-  const hasDiff = diffResult.exitCode === 0 && Str.trim(diffResult.stdout).length > 0;
-  const untrackedResult = yield* execSandbox(
-    handle,
-    "git ls-files --others --exclude-standard -z",
-    new SandboxExecOptions({ cwd: handle.worktreePath })
-  );
-  const untrackedFiles = untrackedResult.exitCode === 0 ? parseNulSeparatedPaths(untrackedResult.stdout) : [];
-  const hasUntracked = untrackedFiles.length > 0;
+export const syncOut: {
+  <R>(
+    hostRepoDir: string,
+    handle: IsolatedSandboxHandle<R>
+  ): Effect.Effect<SyncOutResult, SyncError, R | SandboxProcess | FileSystem.FileSystem | Path.Path>;
+  <R>(
+    hostRepoDir: string,
+    handle: IsolatedSandboxHandle<R>,
+    options: SyncOutOptions
+  ): Effect.Effect<SyncOutResult, SyncError, R | SandboxProcess | FileSystem.FileSystem | Path.Path>;
+  <R>(
+    handle: IsolatedSandboxHandle<R>,
+    options?: SyncOutOptions
+  ): (
+    hostRepoDir: string
+  ) => Effect.Effect<SyncOutResult, SyncError, R | SandboxProcess | FileSystem.FileSystem | Path.Path>;
+} = dual(
+  (args) => P.isString(args[0]),
+  Effect.fn("SyncOut.syncOut")(function* <R>(
+    hostRepoDir: string,
+    handle: IsolatedSandboxHandle<R>,
+    options: SyncOutOptions = new SyncOutOptions({})
+  ) {
+    const path = yield* Path.Path;
+    const hostHead = Str.trim(yield* runHostGit(["rev-parse", "HEAD"], hostRepoDir));
+    const sandboxHead = Str.trim(
+      (yield* execSandboxOk(handle, "git rev-parse HEAD", new SandboxExecOptions({ cwd: handle.worktreePath }))).stdout
+    );
+    const hasCommits = hostHead !== sandboxHead;
+    const diffResult = yield* execSandbox(
+      handle,
+      "git diff HEAD",
+      new SandboxExecOptions({ cwd: handle.worktreePath })
+    );
+    const hasDiff = diffResult.exitCode === 0 && Str.trim(diffResult.stdout).length > 0;
+    const untrackedResult = yield* execSandbox(
+      handle,
+      "git ls-files --others --exclude-standard -z",
+      new SandboxExecOptions({ cwd: handle.worktreePath })
+    );
+    const untrackedFiles = untrackedResult.exitCode === 0 ? parseNulSeparatedPaths(untrackedResult.stdout) : [];
+    const hasUntracked = untrackedFiles.length > 0;
 
-  if (!hasCommits && !hasDiff && !hasUntracked) {
+    if (!hasCommits && !hasDiff && !hasUntracked) {
+      return new SyncOutResult({
+        applied: false,
+        hasCommits,
+        hasDiff,
+        hasUntracked,
+      });
+    }
+
+    const patchDir = yield* createPatchDir(hostRepoDir);
+    const relativePatchDir = path.join(".sandcastle", "patches", path.basename(patchDir));
+    const nonEmptyPatches = hasCommits ? yield* saveCommittedPatches(handle, hostHead, patchDir) : [];
+
+    if (hasDiff) {
+      yield* saveUncommittedDiff(patchDir, diffResult.stdout);
+    }
+
+    if (hasUntracked) {
+      yield* saveUntrackedFiles(handle, patchDir, untrackedFiles);
+    }
+
+    let failedStep: FailedStep | undefined;
+    const setFailedStep = (step: FailedStep): void => {
+      failedStep = step;
+    };
+
+    if (nonEmptyPatches.length > 0) {
+      yield* runHostGitResult(["am", "--abort"], hostRepoDir).pipe(Effect.ignore);
+      yield* runHostGit(["am", "--3way", ...nonEmptyPatches], hostRepoDir).pipe(markFailure("commits", setFailedStep));
+    }
+
+    if (failedStep === undefined && hasDiff) {
+      yield* runHostGit(["apply", path.join(patchDir, "changes.patch")], hostRepoDir).pipe(
+        markFailure("diff", setFailedStep)
+      );
+    }
+
+    if (failedStep === undefined && hasUntracked) {
+      yield* copyUntrackedToHost(hostRepoDir, patchDir, untrackedFiles).pipe(markFailure("untracked", setFailedStep));
+    }
+
+    if (failedStep !== undefined) {
+      const recoveryMessage = buildRecoveryMessage(
+        new RecoveryInput({
+          ...(options.branch === undefined ? {} : { branch: options.branch }),
+          failedStep,
+          hasCommits: nonEmptyPatches.length > 0,
+          hasDiff,
+          hasUntracked,
+          patchDir: relativePatchDir,
+        })
+      );
+
+      return yield* SyncError.new(
+        recoveryMessage,
+        `Sync-out patch application failed. Saved artifacts in ${relativePatchDir}.\n\n${recoveryMessage}`
+      );
+    }
+
+    yield* cleanupPatchDir(patchDir);
+
     return new SyncOutResult({
-      applied: false,
-      hasCommits,
+      applied: true,
+      hasCommits: nonEmptyPatches.length > 0,
       hasDiff,
       hasUntracked,
     });
-  }
-
-  const patchDir = yield* createPatchDir(hostRepoDir);
-  const relativePatchDir = path.join(".sandcastle", "patches", path.basename(patchDir));
-  const nonEmptyPatches = hasCommits ? yield* saveCommittedPatches(handle, hostHead, patchDir) : [];
-
-  if (hasDiff) {
-    yield* saveUncommittedDiff(patchDir, diffResult.stdout);
-  }
-
-  if (hasUntracked) {
-    yield* saveUntrackedFiles(handle, patchDir, untrackedFiles);
-  }
-
-  let failedStep: FailedStep | undefined;
-  const setFailedStep = (step: FailedStep): void => {
-    failedStep = step;
-  };
-
-  if (nonEmptyPatches.length > 0) {
-    yield* runHostGitResult(["am", "--abort"], hostRepoDir).pipe(Effect.ignore);
-    yield* runHostGit(["am", "--3way", ...nonEmptyPatches], hostRepoDir).pipe(markFailure("commits", setFailedStep));
-  }
-
-  if (failedStep === undefined && hasDiff) {
-    yield* runHostGit(["apply", path.join(patchDir, "changes.patch")], hostRepoDir).pipe(
-      markFailure("diff", setFailedStep)
-    );
-  }
-
-  if (failedStep === undefined && hasUntracked) {
-    yield* copyUntrackedToHost(hostRepoDir, patchDir, untrackedFiles).pipe(markFailure("untracked", setFailedStep));
-  }
-
-  if (failedStep !== undefined) {
-    const recoveryMessage = buildRecoveryMessage(
-      new RecoveryInput({
-        ...(options.branch === undefined ? {} : { branch: options.branch }),
-        failedStep,
-        hasCommits: nonEmptyPatches.length > 0,
-        hasDiff,
-        hasUntracked,
-        patchDir: relativePatchDir,
-      })
-    );
-
-    return yield* SyncError.new(
-      recoveryMessage,
-      `Sync-out patch application failed. Saved artifacts in ${relativePatchDir}.\n\n${recoveryMessage}`
-    );
-  }
-
-  yield* cleanupPatchDir(patchDir);
-
-  return new SyncOutResult({
-    applied: true,
-    hasCommits: nonEmptyPatches.length > 0,
-    hasDiff,
-    hasUntracked,
-  });
-});
+  })
+);

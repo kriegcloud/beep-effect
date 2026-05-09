@@ -6,7 +6,7 @@
  */
 
 import { $AgentCapabilityUseCasesId } from "@beep/identity/packages";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import * as S from "effect/Schema";
 import { CandidateOutputSet } from "./ProfessionalRuntime.contracts.js";
 import { ProfessionalRuntimeValidationError } from "./ProfessionalRuntime.errors.js";
@@ -661,14 +661,11 @@ export const runRuntimeFixture = Effect.fn("RuntimeFixture.run")((input: Runtime
     try: () => {
       assertScenario(input);
 
-      switch (input.email.scenarioId) {
-        case "law-patent-intake":
-          return runLawPatentIntake(input);
-        case "wealth-cash-request":
-          return runWealthCashRequest(input);
-        default:
-          return failValidation(`Unknown runtime fixture scenario: ${input.email.scenarioId}`);
-      }
+      return Match.value(input.email.scenarioId).pipe(
+        Match.when("law-patent-intake", () => runLawPatentIntake(input)),
+        Match.when("wealth-cash-request", () => runWealthCashRequest(input)),
+        Match.orElse(() => failValidation(`Unknown runtime fixture scenario: ${input.email.scenarioId}`))
+      );
     },
     catch: (error) =>
       S.is(ProfessionalRuntimeValidationError)(error)

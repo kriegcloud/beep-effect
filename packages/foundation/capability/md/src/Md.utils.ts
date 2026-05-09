@@ -345,12 +345,15 @@ export const renderInlineCode = (text: string): string => {
  * @category utilities
  * @since 0.0.0
  */
-export const renderFencedCode = (text: string, language: string): string => {
+export const renderFencedCode: {
+  (text: string, language: string): string;
+  (language: string): (text: string) => string;
+} = dual(2, (text: string, language: string): string => {
   const fence = pipe("`", Str.repeat(N.max(maxBackticks(text), 2) + 1));
   const info = sanitizeCodeFenceLanguage(language);
 
   return `${fence}${info}\n${text}\n${fence}`;
-};
+});
 
 /**
  * Type guard for rendered string arrays accepted by {@link joinBlocks}.

@@ -6,6 +6,7 @@ import * as A from "effect/Array";
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
+import { requireReactContext } from "../lib/react-invariant.ts";
 
 /**
  * @category type-level
@@ -40,12 +41,7 @@ const CarouselContext = React.createContext<CarouselContextProps | null>(null);
  */
 function useCarousel() {
   const context = React.useContext(CarouselContext);
-
-  if (!context) {
-    throw new Error("useCarousel must be used within a <Carousel />");
-  }
-
-  return context;
+  return requireReactContext(context, { message: "useCarousel must be used within a <Carousel />" });
 }
 
 /**

@@ -732,15 +732,15 @@ const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
   turboStep(repoRoot, "check", ["check"], args),
   ...optionalQualityTaskStep({
     enabled: shouldRunRepoWideSteps(args),
-    step: () => bunRunStep(repoRoot, "check:dtslint:tsgo", ["scripts/run-dtslint-tsgo-checks.mjs"]),
+    step: () => repoCliStep(repoRoot, "check:dtslint:tsgo", ["quality", "dtslint-tsgo"]),
   }),
   ...optionalQualityTaskStep({
     enabled: shouldRunRepoWideSteps(args),
-    step: () => bunRunStep(repoRoot, "check:tsgo:tests", ["scripts/run-test-tsgo-checks.mjs"]),
+    step: () => repoCliStep(repoRoot, "check:tsgo:tests", ["quality", "test-tsgo"]),
   }),
   ...optionalQualityTaskStep({
     enabled: shouldRunRepoWideSteps(args),
-    step: () => bunRunStep(repoRoot, "check:tsgo:smoke", ["scripts/check-tsgo-smoke.mjs"]),
+    step: () => repoCliStep(repoRoot, "check:tsgo:smoke", ["quality", "tsgo-smoke"]),
   }),
 ];
 
@@ -780,7 +780,7 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   repoCliStep(repoRoot, "lint:package-test-imports", ["lint", "package-test-imports"]),
   repoCliStep(repoRoot, "lint:schema-first", ["lint", "schema-first"]),
   bunxStep(repoRoot, "lint:jsdoc", ["eslint", "."]),
-  bunRunStep(repoRoot, "lint:jsdoc-module-tags", ["scripts/check-jsdoc-module-tags.mjs"]),
+  repoCliStep(repoRoot, "lint:jsdoc-module-tags", ["quality", "jsdoc-module-tags"]),
   repoCliStep(repoRoot, "lint:docgen", ["docgen", "check"]),
   bunxStep(repoRoot, "lint:spell", ["cspell", "."]),
   bunxStep(repoRoot, "lint:markdown", ["markdownlint-cli2"]),
@@ -819,14 +819,7 @@ const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
     onNonEmpty: () => auditArgs,
   });
 
-  return [
-    new QualityTaskStep({
-      label: `audit:${scriptMode}`,
-      command: "bash",
-      args: ["scripts/run-github-checks.sh", ...scriptArgs],
-      cwd: repoRoot,
-    }),
-  ];
+  return [repoCliStep(repoRoot, `audit:${scriptMode}`, ["quality", "github-checks", ...scriptArgs])];
 };
 
 const invocationArgs = (invocation: QualityTaskInvocation): ReadonlyArray<string> =>

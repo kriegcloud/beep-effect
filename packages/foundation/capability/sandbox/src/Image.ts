@@ -8,6 +8,7 @@
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { Effect, Path } from "effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { DockerError, PodmanError } from "./Sandbox.errors.ts";
@@ -63,6 +64,54 @@ export class ContainerImageBuildOptions extends S.Class<ContainerImageBuildOptio
   },
   $I.annote("ContainerImageBuildOptions", {
     description: "Options for building a local sandbox image.",
+  })
+) {}
+
+/**
+ * Docker-specific image build options.
+ *
+ * @example
+ * ```ts
+ * import { DockerImageBuildOptions } from "@beep/sandbox"
+ *
+ * const options = new DockerImageBuildOptions({ contextDir: ".sandcastle" })
+ * console.log(options.contextDir)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DockerImageBuildOptions extends S.Class<DockerImageBuildOptions>($I`DockerImageBuildOptions`)(
+  {
+    contextDir: S.String,
+    dockerfile: S.optionalKey(S.String),
+  },
+  $I.annote("DockerImageBuildOptions", {
+    description: "Docker-specific image build options.",
+  })
+) {}
+
+/**
+ * Podman-specific image build options.
+ *
+ * @example
+ * ```ts
+ * import { PodmanImageBuildOptions } from "@beep/sandbox"
+ *
+ * const options = new PodmanImageBuildOptions({ contextDir: ".sandcastle" })
+ * console.log(options.contextDir)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PodmanImageBuildOptions extends S.Class<PodmanImageBuildOptions>($I`PodmanImageBuildOptions`)(
+  {
+    containerfile: S.optionalKey(S.String),
+    contextDir: S.String,
+  },
+  $I.annote("PodmanImageBuildOptions", {
+    description: "Podman-specific image build options.",
   })
 ) {}
 
@@ -212,28 +261,36 @@ export const removeContainerImage: (
  *
  * @example
  * ```ts
- * import { buildDockerImage } from "@beep/sandbox"
+ * import { buildDockerImage, DockerImageBuildOptions } from "@beep/sandbox"
  *
- * const program = buildDockerImage("beep-sandbox:demo", ".sandcastle")
+ * const program = buildDockerImage(
+ *   "beep-sandbox:demo",
+ *   new DockerImageBuildOptions({ contextDir: ".sandcastle" })
+ * )
  * console.log(program)
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const buildDockerImage = (
-  imageName: string,
-  contextDir: string,
-  dockerfile?: string
-): Effect.Effect<void, DockerError | PodmanError, Path.Path | SandboxProcess> =>
+export const buildDockerImage: {
+  (
+    imageName: string,
+    options: DockerImageBuildOptions
+  ): Effect.Effect<void, DockerError | PodmanError, Path.Path | SandboxProcess>;
+  (
+    options: DockerImageBuildOptions
+  ): (imageName: string) => Effect.Effect<void, DockerError | PodmanError, Path.Path | SandboxProcess>;
+} = dual(2, (imageName: string, options: DockerImageBuildOptions) =>
   buildContainerImage(
     new ContainerImageBuildOptions({
-      contextDir,
-      ...(P.isUndefined(dockerfile) ? {} : { file: dockerfile }),
+      contextDir: options.contextDir,
+      ...(P.isUndefined(options.dockerfile) ? {} : { file: options.dockerfile }),
       imageName,
       runtime: "docker",
     })
-  );
+  )
+);
 
 /**
  * Remove a Docker image used for sandbox runs.
@@ -262,28 +319,36 @@ export const removeDockerImage = (imageName: string): Effect.Effect<void, Docker
  *
  * @example
  * ```ts
- * import { buildPodmanImage } from "@beep/sandbox"
+ * import { buildPodmanImage, PodmanImageBuildOptions } from "@beep/sandbox"
  *
- * const program = buildPodmanImage("beep-sandbox:demo", ".sandcastle")
+ * const program = buildPodmanImage(
+ *   "beep-sandbox:demo",
+ *   new PodmanImageBuildOptions({ contextDir: ".sandcastle" })
+ * )
  * console.log(program)
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const buildPodmanImage = (
-  imageName: string,
-  contextDir: string,
-  containerfile?: string
-): Effect.Effect<void, DockerError | PodmanError, Path.Path | SandboxProcess> =>
+export const buildPodmanImage: {
+  (
+    imageName: string,
+    options: PodmanImageBuildOptions
+  ): Effect.Effect<void, DockerError | PodmanError, Path.Path | SandboxProcess>;
+  (
+    options: PodmanImageBuildOptions
+  ): (imageName: string) => Effect.Effect<void, DockerError | PodmanError, Path.Path | SandboxProcess>;
+} = dual(2, (imageName: string, options: PodmanImageBuildOptions) =>
   buildContainerImage(
     new ContainerImageBuildOptions({
-      contextDir,
-      ...(P.isUndefined(containerfile) ? {} : { file: containerfile }),
+      contextDir: options.contextDir,
+      ...(P.isUndefined(options.containerfile) ? {} : { file: options.containerfile }),
       imageName,
       runtime: "podman",
     })
-  );
+  )
+);
 
 /**
  * Remove a Podman image used for sandbox runs.

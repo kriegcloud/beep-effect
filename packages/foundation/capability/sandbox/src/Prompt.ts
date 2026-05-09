@@ -9,6 +9,7 @@ import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { Duration, Effect, FileSystem, HashSet } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -252,7 +253,10 @@ export const validateNoBuiltInArgOverride = Effect.fn("Prompt.validateNoBuiltInA
  * @category getters
  * @since 0.0.0
  */
-export const findMissingPromptArgKeys = (prompt: string, providedArgs: PromptArgs): ReadonlyArray<string> => {
+export const findMissingPromptArgKeys: {
+  (prompt: string, providedArgs: PromptArgs): ReadonlyArray<string>;
+  (providedArgs: PromptArgs): (prompt: string) => ReadonlyArray<string>;
+} = dual(2, (prompt: string, providedArgs: PromptArgs): ReadonlyArray<string> => {
   const matches = [...prompt.matchAll(PLACEHOLDER_PATTERN)];
   let seen = HashSet.empty<string>();
   const missing = A.empty<string>();
@@ -273,7 +277,7 @@ export const findMissingPromptArgKeys = (prompt: string, providedArgs: PromptArg
   }
 
   return missing;
-};
+});
 
 /**
  * Substitute `{{KEY}}` prompt arguments in a prompt template.
@@ -388,43 +392,51 @@ const expandShellExpression = Effect.fn("Prompt.expandShellExpression")(function
  * @category combinators
  * @since 0.0.0
  */
-export const expandPromptShellExpressions: <R>(
-  sandbox: SandboxHandle<R>,
-  options: ExpandPromptShellExpressionsOptions
-) => Effect.Effect<string, SandboxError, R | Display> = Effect.fn("Prompt.expandPromptShellExpressions")(function* <R>(
-  sandbox: SandboxHandle<R>,
-  options: ExpandPromptShellExpressionsOptions
-) {
-  const matches = [...options.prompt.matchAll(MARKED_SHELL_BLOCK_PATTERN)];
+export const expandPromptShellExpressions: {
+  <R>(
+    sandbox: SandboxHandle<R>,
+    options: ExpandPromptShellExpressionsOptions
+  ): Effect.Effect<string, SandboxError, R | Display>;
+  <R>(
+    options: ExpandPromptShellExpressionsOptions
+  ): (sandbox: SandboxHandle<R>) => Effect.Effect<string, SandboxError, R | Display>;
+} = dual(
+  2,
+  Effect.fn("Prompt.expandPromptShellExpressions")(function* <R>(
+    sandbox: SandboxHandle<R>,
+    options: ExpandPromptShellExpressionsOptions
+  ) {
+    const matches = [...options.prompt.matchAll(MARKED_SHELL_BLOCK_PATTERN)];
 
-  if (matches.length === 0) {
-    return Str.replaceAll(SHELL_BLOCK_MARKER, "")(options.prompt);
-  }
+    if (matches.length === 0) {
+      return Str.replaceAll(SHELL_BLOCK_MARKER, "")(options.prompt);
+    }
 
-  const display = yield* Display;
+    const display = yield* Display;
 
-  return yield* display.taskLog(
-    "Expanding shell expressions",
-    Effect.fn("Prompt.expandPromptShellExpressions.task")(function* (message) {
-      const results = yield* Effect.forEach(
-        matches,
-        (match) => {
-          const command = match[1] ?? "";
+    return yield* display.taskLog(
+      "Expanding shell expressions",
+      Effect.fn("Prompt.expandPromptShellExpressions.task")(function* (message) {
+        const results = yield* Effect.forEach(
+          matches,
+          (match) => {
+            const command = match[1] ?? "";
 
-          return expandShellExpression(sandbox, options.cwd, command, options.timeoutMs);
-        },
-        { concurrency: "unbounded" }
-      );
+            return expandShellExpression(sandbox, options.cwd, command, options.timeoutMs);
+          },
+          { concurrency: "unbounded" }
+        );
 
-      for (let index = 0; index < matches.length; index++) {
-        const command = matches[index]?.[1] ?? "";
-        const result = results[index] ?? "";
-        const tokens = Math.ceil(result.length / 4);
+        for (let index = 0; index < matches.length; index++) {
+          const command = matches[index]?.[1] ?? "";
+          const result = results[index] ?? "";
+          const tokens = Math.ceil(result.length / 4);
 
-        message(`${command} => ~${tokens} tokens`);
-      }
+          message(`${command} => ~${tokens} tokens`);
+        }
 
-      return replaceMarkedShellBlocks(options.prompt, matches, results);
-    })
-  );
-});
+        return replaceMarkedShellBlocks(options.prompt, matches, results);
+      })
+    );
+  })
+);

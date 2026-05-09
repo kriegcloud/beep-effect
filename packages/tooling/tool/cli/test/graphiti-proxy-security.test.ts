@@ -1,4 +1,5 @@
 import { GraphitiProxyConfig } from "@beep/repo-cli/commands/Graphiti/internal/ProxyConfig";
+import { shouldRecoverGraphitiStackForTesting } from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps";
 import { makeGraphitiProxyForwarderService } from "@beep/repo-cli/commands/Graphiti/internal/ProxyServices";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
@@ -156,4 +157,11 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
       expect(responseText).toContain("absolute-form request targets");
     })
   );
+
+  it("recovers the backing stack only when recovery is enabled and a container is unhealthy", () => {
+    expect(shouldRecoverGraphitiStackForTesting(true, false, "unhealthy", "healthy")).toBe(true);
+    expect(shouldRecoverGraphitiStackForTesting(true, false, "healthy", "healthy")).toBe(false);
+    expect(shouldRecoverGraphitiStackForTesting(false, false, "unhealthy", "healthy")).toBe(false);
+    expect(shouldRecoverGraphitiStackForTesting(false, true, "healthy", "healthy")).toBe(true);
+  });
 });

@@ -10,7 +10,7 @@ import { HtmlFragment, Markdown, TaggedErrorClass } from "@beep/schema";
 import { Html, thunkEmptyStr } from "@beep/utils";
 import { Effect, flow, identity, Match, Result, SchemaGetter, SchemaIssue } from "effect";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -499,8 +499,10 @@ export const renderHtmlUnsafe = (document: Document): HtmlFragment => renderWith
  * @category utilities
  * @since 0.0.0
  */
-export const renderWithUnsafe = <Output>(adapter: PureRenderAdapter<Output>, document: Document): Output =>
-  adapter.render(document);
+export const renderWithUnsafe: {
+  <Output>(adapter: PureRenderAdapter<Output>, document: Document): Output;
+  <Output>(document: Document): (adapter: PureRenderAdapter<Output>) => Output;
+} = dual(2, <Output>(adapter: PureRenderAdapter<Output>, document: Document): Output => adapter.render(document));
 
 /**
  * Starts an effectful render adapter and returns its effect directly.
@@ -525,10 +527,21 @@ export const renderWithUnsafe = <Output>(adapter: PureRenderAdapter<Output>, doc
  * @category utilities
  * @since 0.0.0
  */
-export const renderEffectWithUnsafe = <Output, Error, Requirements>(
-  adapter: EffectRenderAdapter<Output, Error, Requirements>,
-  document: Document
-): Effect.Effect<Output, Error, Requirements> => adapter.render(document);
+export const renderEffectWithUnsafe: {
+  <Output, Error, Requirements>(
+    adapter: EffectRenderAdapter<Output, Error, Requirements>,
+    document: Document
+  ): Effect.Effect<Output, Error, Requirements>;
+  <Output, Error, Requirements>(
+    document: Document
+  ): (adapter: EffectRenderAdapter<Output, Error, Requirements>) => Effect.Effect<Output, Error, Requirements>;
+} = dual(
+  2,
+  <Output, Error, Requirements>(
+    adapter: EffectRenderAdapter<Output, Error, Requirements>,
+    document: Document
+  ): Effect.Effect<Output, Error, Requirements> => adapter.render(document)
+);
 
 /**
  * Starts an effectful render adapter with synchronous adapter failures captured.
@@ -553,16 +566,29 @@ export const renderEffectWithUnsafe = <Output, Error, Requirements>(
  * @category utilities
  * @since 0.0.0
  */
-export const renderEffectWith = <Output, Error, Requirements>(
-  adapter: EffectRenderAdapter<Output, Error, Requirements>,
-  document: Document
-): Effect.Effect<Output, Error | RenderError, Requirements> =>
-  Effect.fromResult(
-    Result.try({
-      try: () => renderEffectWithUnsafe(adapter, document),
-      catch: toRenderError(adapterName(adapter)),
-    })
-  ).pipe(Effect.flatMap(identity));
+export const renderEffectWith: {
+  <Output, Error, Requirements>(
+    adapter: EffectRenderAdapter<Output, Error, Requirements>,
+    document: Document
+  ): Effect.Effect<Output, Error | RenderError, Requirements>;
+  <Output, Error, Requirements>(
+    document: Document
+  ): (
+    adapter: EffectRenderAdapter<Output, Error, Requirements>
+  ) => Effect.Effect<Output, Error | RenderError, Requirements>;
+} = dual(
+  2,
+  <Output, Error, Requirements>(
+    adapter: EffectRenderAdapter<Output, Error, Requirements>,
+    document: Document
+  ): Effect.Effect<Output, Error | RenderError, Requirements> =>
+    Effect.fromResult(
+      Result.try({
+        try: () => renderEffectWithUnsafe(adapter, document),
+        catch: toRenderError(adapterName(adapter)),
+      })
+    ).pipe(Effect.flatMap(identity))
+);
 
 /**
  * Built-in Markdown render adapter.
@@ -624,14 +650,17 @@ export const HtmlFragmentAdapter: PureRenderAdapter<HtmlFragment> = {
  * @category utilities
  * @since 0.0.0
  */
-export const renderWith = <Output>(
-  adapter: PureRenderAdapter<Output>,
-  document: Document
-): Result.Result<Output, RenderError> =>
-  Result.try({
-    try: () => adapter.render(document),
-    catch: toRenderError(adapterName(adapter)),
-  });
+export const renderWith: {
+  <Output>(adapter: PureRenderAdapter<Output>, document: Document): Result.Result<Output, RenderError>;
+  <Output>(document: Document): (adapter: PureRenderAdapter<Output>) => Result.Result<Output, RenderError>;
+} = dual(
+  2,
+  <Output>(adapter: PureRenderAdapter<Output>, document: Document): Result.Result<Output, RenderError> =>
+    Result.try({
+      try: () => adapter.render(document),
+      catch: toRenderError(adapterName(adapter)),
+    })
+);
 
 /**
  * Renders a document through the Markdown adapter.

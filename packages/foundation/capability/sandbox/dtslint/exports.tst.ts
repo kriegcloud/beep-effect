@@ -9,6 +9,7 @@ import {
   Display,
   ExecResult,
   type FailedStep,
+  LogFilenameOptions,
   makeTerminalCleanupHandler,
   noSandbox,
   ProcessCommand,
@@ -57,7 +58,8 @@ describe("@beep/sandbox package exports", () => {
     >();
     expect(recoveryInput.failedStep).type.toBe<FailedStep>();
     expect(buildRecoveryMessage(recoveryInput)).type.toBe<string>();
-    expect(buildLogFilename("main", undefined, undefined)).type.toBe<string>();
+    expect(buildLogFilename("main")).type.toBe<string>();
+    expect(buildLogFilename("main", new LogFilenameOptions({}))).type.toBe<string>();
     expect(Display.key).type.toBeAssignableTo<string>();
     expect(SandboxProcess.key).type.toBeAssignableTo<string>();
     expect(textDeltaBuffer.write("hello")).type.toBe<void>();

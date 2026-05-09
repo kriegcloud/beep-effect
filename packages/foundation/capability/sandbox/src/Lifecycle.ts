@@ -7,6 +7,7 @@
 
 import { $SandboxId } from "@beep/identity";
 import { Duration, Effect } from "effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -152,6 +153,21 @@ export class MergeToHeadOptions extends S.Class<MergeToHeadOptions>($I`MergeToHe
   })
 ) {}
 
+/**
+ * Options for running host lifecycle hooks.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RunHostHooksOptions extends S.Class<RunHostHooksOptions>($I`RunHostHooksOptions`)(
+  {
+    defaultTimeout: S.DurationFromMillis.pipe(S.withConstructorDefault(Effect.succeed(DEFAULT_HOOK_TIMEOUT))),
+  },
+  $I.annote("RunHostHooksOptions", {
+    description: "Options for running host lifecycle hooks.",
+  })
+) {}
+
 const commandOutput = (result: Pick<ExecResult | ProcessResult, "stderr" | "stdout">): string =>
   result.stderr === "" ? result.stdout : result.stderr;
 
@@ -277,26 +293,36 @@ const runSandboxHook = Effect.fn("Lifecycle.runSandboxHook")(function* <R>(
  * @category combinators
  * @since 0.0.0
  */
-export const runHostHooks: (
-  hooks: ReadonlyArray<HostLifecycleHookCommand>,
-  cwd: string,
-  defaultTimeout?: Duration.Duration
-) => Effect.Effect<void, SandboxError, SandboxProcess> = Effect.fn("Lifecycle.runHostHooks")(function* (
-  hooks: ReadonlyArray<HostLifecycleHookCommand>,
-  cwd: string,
-  defaultTimeout: Duration.Duration = DEFAULT_HOOK_TIMEOUT
-) {
-  if (hooks.length === 0) {
-    return;
-  }
+export const runHostHooks: {
+  (hooks: ReadonlyArray<HostLifecycleHookCommand>, cwd: string): Effect.Effect<void, SandboxError, SandboxProcess>;
+  (
+    hooks: ReadonlyArray<HostLifecycleHookCommand>,
+    cwd: string,
+    options: RunHostHooksOptions
+  ): Effect.Effect<void, SandboxError, SandboxProcess>;
+  (
+    cwd: string,
+    options?: RunHostHooksOptions
+  ): (hooks: ReadonlyArray<HostLifecycleHookCommand>) => Effect.Effect<void, SandboxError, SandboxProcess>;
+} = dual(
+  (args) => !P.isString(args[0]),
+  Effect.fn("Lifecycle.runHostHooks")(function* (
+    hooks: ReadonlyArray<HostLifecycleHookCommand>,
+    cwd: string,
+    options: RunHostHooksOptions = new RunHostHooksOptions({})
+  ) {
+    if (hooks.length === 0) {
+      return;
+    }
 
-  const process = yield* SandboxProcess;
+    const process = yield* SandboxProcess;
 
-  yield* Effect.forEach(hooks, (hook) => runHostHook(process, hook, cwd, defaultTimeout), {
-    concurrency: 1,
-    discard: true,
-  });
-});
+    yield* Effect.forEach(hooks, (hook) => runHostHook(process, hook, cwd, options.defaultTimeout), {
+      concurrency: 1,
+      discard: true,
+    });
+  })
+);
 
 const runSandboxReadyHooks = Effect.fn("Lifecycle.runSandboxReadyHooks")(function* <R>(
   sandbox: SandboxHandle<R>,
@@ -409,11 +435,20 @@ const runGitSetup = Effect.fn("Lifecycle.runGitSetup")(function* <R>(
  * @category combinators
  * @since 0.0.0
  */
-export const prepareSandboxLifecycle: <R>(
-  sandbox: SandboxHandle<R>,
-  options: SandboxLifecycleSetupOptions
-) => Effect.Effect<void, SandboxError, R | SandboxProcess | Display> = Effect.fn("Lifecycle.prepareSandboxLifecycle")(
-  function* <R>(sandbox: SandboxHandle<R>, options: SandboxLifecycleSetupOptions) {
+export const prepareSandboxLifecycle: {
+  <R>(
+    sandbox: SandboxHandle<R>,
+    options: SandboxLifecycleSetupOptions
+  ): Effect.Effect<void, SandboxError, R | SandboxProcess | Display>;
+  <R>(
+    options: SandboxLifecycleSetupOptions
+  ): (sandbox: SandboxHandle<R>) => Effect.Effect<void, SandboxError, R | SandboxProcess | Display>;
+} = dual(
+  2,
+  Effect.fn("Lifecycle.prepareSandboxLifecycle")(function* <R>(
+    sandbox: SandboxHandle<R>,
+    options: SandboxLifecycleSetupOptions
+  ) {
     const display = yield* Display;
 
     yield* display.taskLog(
@@ -439,7 +474,7 @@ export const prepareSandboxLifecycle: <R>(
         );
       })
     );
-  }
+  })
 );
 
 const hostGitOk = (

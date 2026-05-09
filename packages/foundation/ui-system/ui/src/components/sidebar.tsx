@@ -7,6 +7,7 @@ import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
+import { requireReactContext } from "../lib/react-invariant.ts";
 import { Button } from "./button";
 import { Input } from "./input";
 import { Separator } from "./separator";
@@ -36,10 +37,7 @@ const SidebarContext = React.createContext<SidebarContextValue | null>(null);
  */
 function useSidebar() {
   const context = React.useContext(SidebarContext);
-  if (context === null) {
-    throw new Error("useSidebar must be used within a SidebarProvider.");
-  }
-  return context;
+  return requireReactContext(context, { message: "useSidebar must be used within a SidebarProvider." });
 }
 
 function useIsMobile() {

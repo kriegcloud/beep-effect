@@ -16,6 +16,7 @@ import {
   Equal,
   flow,
   Hash,
+  Match,
   Order as Order_,
   pipe,
   SchemaGetter,
@@ -133,19 +134,12 @@ const decodeLocalDate = S.decodeUnknownEffect(LocalDate);
 
 const isLeapYearInternal = (year: number): boolean => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 
-const getDaysInMonth = (year: number, month: number): number => {
-  switch (month) {
-    case 2:
-      return isLeapYearInternal(year) ? 29 : 28;
-    case 4:
-    case 6:
-    case 9:
-    case 11:
-      return 30;
-    default:
-      return 31;
-  }
-};
+const getDaysInMonth = (year: number, month: number): number =>
+  Match.value(month).pipe(
+    Match.when(2, () => (isLeapYearInternal(year) ? 29 : 28)),
+    Match.whenOr(4, 6, 9, 11, () => 30),
+    Match.orElse(() => 31)
+  );
 
 const makeInvalidLocalDateError: {
   (message: string): (dateString: string) => S.SchemaError;

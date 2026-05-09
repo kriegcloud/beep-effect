@@ -7,6 +7,8 @@
 
 import { $SandboxId } from "@beep/identity";
 import { Effect, FileSystem, Path } from "effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SyncError } from "./Sandbox.errors.ts";
@@ -173,24 +175,32 @@ const syncInWithBundle = Effect.fn("SyncIn.syncInWithBundle")(function* <R>(
  * @category combinators
  * @since 0.0.0
  */
-export const syncIn: <R>(
-  hostRepoDir: string,
-  handle: IsolatedSandboxHandle<R>
-) => Effect.Effect<SyncInResult, SyncError, R | SandboxProcess | FileSystem.FileSystem | Path.Path> = Effect.fn(
-  "SyncIn.syncIn"
-)(function* <R>(hostRepoDir: string, handle: IsolatedSandboxHandle<R>) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const branch = Str.trim(yield* runHostGit(["rev-parse", "--abbrev-ref", "HEAD"], hostRepoDir));
-  const hostHead = Str.trim(yield* runHostGit(["rev-parse", "HEAD"], hostRepoDir));
-  const bundleDir = yield* fs
-    .makeTempDirectory({ prefix: "beep-sandbox-bundle-" })
-    .pipe(SyncError.mapError("Failed to create host git bundle temp directory"));
-  const bundleHostPath = path.join(bundleDir, "repo.bundle");
+export const syncIn: {
+  <R>(
+    hostRepoDir: string,
+    handle: IsolatedSandboxHandle<R>
+  ): Effect.Effect<SyncInResult, SyncError, R | SandboxProcess | FileSystem.FileSystem | Path.Path>;
+  <R>(
+    handle: IsolatedSandboxHandle<R>
+  ): (
+    hostRepoDir: string
+  ) => Effect.Effect<SyncInResult, SyncError, R | SandboxProcess | FileSystem.FileSystem | Path.Path>;
+} = dual(
+  (args) => P.isString(args[0]),
+  Effect.fn("SyncIn.syncIn")(function* <R>(hostRepoDir: string, handle: IsolatedSandboxHandle<R>) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const branch = Str.trim(yield* runHostGit(["rev-parse", "--abbrev-ref", "HEAD"], hostRepoDir));
+    const hostHead = Str.trim(yield* runHostGit(["rev-parse", "HEAD"], hostRepoDir));
+    const bundleDir = yield* fs
+      .makeTempDirectory({ prefix: "beep-sandbox-bundle-" })
+      .pipe(SyncError.mapError("Failed to create host git bundle temp directory"));
+    const bundleHostPath = path.join(bundleDir, "repo.bundle");
 
-  yield* syncInWithBundle(handle, path, hostRepoDir, bundleHostPath, branch, hostHead).pipe(
-    Effect.ensuring(fs.remove(bundleDir, { force: true, recursive: true }).pipe(Effect.ignore))
-  );
+    yield* syncInWithBundle(handle, path, hostRepoDir, bundleHostPath, branch, hostHead).pipe(
+      Effect.ensuring(fs.remove(bundleDir, { force: true, recursive: true }).pipe(Effect.ignore))
+    );
 
-  return new SyncInResult({ branch });
-});
+    return new SyncInResult({ branch });
+  })
+);

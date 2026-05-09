@@ -23,6 +23,7 @@ import {
   InitError,
   InteractiveExecResult,
   interactive,
+  LogFilenameOptions,
   MergeProviderEnvOptions,
   mergeProviderEnv,
   type NoSandboxProvider,
@@ -52,7 +53,15 @@ import { TestClock } from "effect/testing";
 
 describe("@beep/sandbox", () => {
   it("builds run helper outputs with Pascal severity values", () => {
-    expect(buildLogFilename("feature/a", "target/main", "Claude 1")).toBe("target-main-feature-a-claude-1.log");
+    expect(
+      buildLogFilename(
+        "feature/a",
+        new LogFilenameOptions({
+          name: "Claude 1",
+          targetBranch: "target/main",
+        })
+      )
+    ).toBe("target-main-feature-a-claude-1.log");
     expect(
       buildRunSummaryRows(
         new RunSummaryRowOptions({

@@ -6,7 +6,7 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Context, Effect, Layer, MutableRef, pipe, Result } from "effect";
+import { Clock, Context, Effect, Layer, Match, MutableRef, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -145,58 +145,60 @@ export class OtlpPacketLab extends Context.Service<
   }
 >()("@beep/observability/experimental/server/OtlpPacketLab") {}
 
-const contentTypeFromBody = (body: HttpBody.HttpBody): string | undefined => {
-  switch (body._tag) {
-    case "Uint8Array":
-    case "Raw":
-      return body.contentType;
-    default:
-      return undefined;
-  }
-};
+const contentTypeFromBody = (body: HttpBody.HttpBody): string | undefined =>
+  Match.value(body).pipe(
+    Match.tagsExhaustive({
+      Empty: () => undefined,
+      FormData: () => undefined,
+      Raw: (body) => body.contentType,
+      Stream: () => undefined,
+      Uint8Array: (body) => body.contentType,
+    })
+  );
 
-const previewFromBody = (body: HttpBody.HttpBody): string => {
-  switch (body._tag) {
-    case "Uint8Array": {
-      const contentType = contentTypeFromBody(body) ?? "application/octet-stream";
-      return contentType.includes("json") || contentType.startsWith("text/")
-        ? textDecoder.decode(body.body).slice(0, 400)
-        : `Uint8Array(${body.body.length})`;
-    }
-    case "Empty":
-      return "";
-    case "Raw":
-      return `Raw(${body.contentLength ?? 0})`;
-    case "FormData":
-      return "FormData";
-    case "Stream":
-      return `Stream(${body.contentLength ?? 0})`;
-  }
-};
+const previewFromBody = (body: HttpBody.HttpBody): string =>
+  Match.value(body).pipe(
+    Match.tagsExhaustive({
+      Uint8Array: (body) => {
+        const contentType = contentTypeFromBody(body) ?? "application/octet-stream";
+        return contentType.includes("json") || contentType.startsWith("text/")
+          ? textDecoder.decode(body.body).slice(0, 400)
+          : `Uint8Array(${body.body.length})`;
+      },
+      Empty: () => "",
+      Raw: (body) => `Raw(${body.contentLength ?? 0})`,
+      FormData: () => "FormData",
+      Stream: (body) => `Stream(${body.contentLength ?? 0})`,
+    })
+  );
 
-const sizeFromBody = (body: HttpBody.HttpBody): number => {
-  switch (body._tag) {
-    case "Uint8Array":
-      return body.body.length;
-    case "Raw":
-    case "Stream":
-      return body.contentLength ?? 0;
-    default:
-      return 0;
-  }
-};
+const sizeFromBody = (body: HttpBody.HttpBody): number =>
+  Match.value(body).pipe(
+    Match.tagsExhaustive({
+      Empty: () => 0,
+      FormData: () => 0,
+      Raw: (body) => body.contentLength ?? 0,
+      Stream: (body) => body.contentLength ?? 0,
+      Uint8Array: (body) => body.body.length,
+    })
+  );
 
-const makePacket = (kind: OtlpPacketKind, encoding: OtlpPacketEncoding, body: HttpBody.HttpBody): OtlpPacket =>
+const makePacket = (
+  clock: Clock.Clock,
+  kind: OtlpPacketKind,
+  encoding: OtlpPacketEncoding,
+  body: HttpBody.HttpBody
+): OtlpPacket =>
   new OtlpPacket({
     kind,
     encoding,
-    capturedAtMs: decodeNonNegativeInt(Date.now()),
+    capturedAtMs: decodeNonNegativeInt(clock.currentTimeMillisUnsafe()),
     contentType: contentTypeFromBody(body) ?? "application/octet-stream",
     size: decodeNonNegativeInt(sizeFromBody(body)),
     preview: previewFromBody(body),
   });
 
-const makePacketLabRuntime = () => {
+const makePacketLabRuntime = (clock: Clock.Clock) => {
   const packets = MutableRef.make<ReadonlyArray<OtlpPacket>>(A.empty());
 
   const snapshot = Effect.fn("OtlpPacketLab.snapshot")(() => Effect.sync(() => MutableRef.get(packets)));
@@ -218,14 +220,15 @@ const makePacketLabRuntime = () => {
       latest,
     }),
     capture: (kind: OtlpPacketKind, encoding: OtlpPacketEncoding, body: HttpBody.HttpBody) =>
-      void MutableRef.update(packets, A.append(makePacket(kind, encoding, body))),
+      void MutableRef.update(packets, A.append(makePacket(clock, kind, encoding, body))),
   };
 };
 
 const makeLayer = (encoding: OtlpPacketEncoding, baseLayer: Layer.Layer<OtlpSerialization.OtlpSerialization>) =>
   Layer.unwrap(
-    Effect.sync(() => {
-      const runtime = makePacketLabRuntime();
+    Effect.gen(function* () {
+      const clock = yield* Clock.Clock;
+      const runtime = makePacketLabRuntime(clock);
 
       return Layer.mergeAll(
         Layer.succeed(OtlpPacketLab, runtime.service),

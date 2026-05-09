@@ -8,8 +8,9 @@
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { Struct } from "@beep/utils";
-import { Effect, pipe } from "effect";
+import { Effect } from "effect";
 import * as A from "effect/Array";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -311,18 +312,21 @@ export const renderSandboxTemplateFiles: (
  * @category utilities
  * @since 0.0.0
  */
-export const sandboxTemplateNextSteps = (
-  templateName: SandboxTemplateName,
-  mainFilename: string
-): ReadonlyArray<string> =>
-  templateName === "blank"
-    ? [
-        "Set the required environment variables in .sandcastle/.env.",
-        "Edit .sandcastle/prompt.md with the task you want the agent to run.",
-        `Run the generated entrypoint with a TypeScript runner, for example: bunx tsx .sandcastle/${mainFilename}.`,
-      ]
-    : [
-        "Set the required environment variables in .sandcastle/.env.",
-        "Edit .sandcastle/prompt.md so the backlog query matches your workflow.",
-        `Run the generated entrypoint with a TypeScript runner, for example: bunx tsx .sandcastle/${mainFilename}.`,
-      ];
+export const sandboxTemplateNextSteps: {
+  (templateName: SandboxTemplateName, mainFilename: string): ReadonlyArray<string>;
+  (mainFilename: string): (templateName: SandboxTemplateName) => ReadonlyArray<string>;
+} = dual(
+  2,
+  (templateName: SandboxTemplateName, mainFilename: string): ReadonlyArray<string> =>
+    templateName === "blank"
+      ? [
+          "Set the required environment variables in .sandcastle/.env.",
+          "Edit .sandcastle/prompt.md with the task you want the agent to run.",
+          `Run the generated entrypoint with a TypeScript runner, for example: bunx tsx .sandcastle/${mainFilename}.`,
+        ]
+      : [
+          "Set the required environment variables in .sandcastle/.env.",
+          "Edit .sandcastle/prompt.md so the backlog query matches your workflow.",
+          `Run the generated entrypoint with a TypeScript runner, for example: bunx tsx .sandcastle/${mainFilename}.`,
+        ]
+);
