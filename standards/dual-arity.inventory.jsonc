@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-01",
+  "generatedOn": "2026-05-09",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -57,162 +57,6 @@
       "diagnostics": ["missing-dual"]
     },
     {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "a",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 479,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "blockquote",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 724,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "del",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 447,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "em",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 431,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "h1",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 527,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "h2",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 543,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "h3",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 559,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "h4",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 575,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "h5",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 591,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "h6",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 607,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "li",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 639,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "p",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 623,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/md/src/Md.ts",
-      "qualifiedName": "strong",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/md",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 415,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
       "file": "packages/foundation/capability/md/src/Md.utils.ts",
       "qualifiedName": "renderFencedCode",
       "kind": "exported-const-function",
@@ -243,7 +87,7 @@
       "status": "candidate",
       "owner": "@beep/sandbox",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 218,
+      "line": 224,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual", "third-param-not-object-like"]
@@ -255,7 +99,7 @@
       "status": "candidate",
       "owner": "@beep/sandbox",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 263,
+      "line": 274,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual", "third-param-not-object-like"]
@@ -267,7 +111,7 @@
       "status": "candidate",
       "owner": "@beep/sandbox",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 411,
+      "line": 412,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -279,10 +123,10 @@
       "status": "candidate",
       "owner": "@beep/sandbox",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 279,
+      "line": 280,
       "column": 14,
       "parameterCount": 3,
-      "diagnostics": ["missing-dual", "third-param-not-object-like"]
+      "diagnostics": ["missing-dual"]
     },
     {
       "file": "packages/foundation/capability/sandbox/src/Prompt.ts",
@@ -291,7 +135,7 @@
       "status": "candidate",
       "owner": "@beep/sandbox",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 381,
+      "line": 391,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -303,7 +147,7 @@
       "status": "candidate",
       "owner": "@beep/sandbox",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 245,
+      "line": 255,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -333,18 +177,6 @@
       "diagnostics": ["third-param-not-object-like"]
     },
     {
-      "file": "packages/foundation/capability/sandbox/src/Session.ts",
-      "qualifiedName": "sandboxSessionStore",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/sandbox",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 188,
-      "column": 14,
-      "parameterCount": 3,
-      "diagnostics": ["missing-dual", "third-param-not-object-like"]
-    },
-    {
       "file": "packages/foundation/capability/sandbox/src/SyncIn.ts",
       "qualifiedName": "syncIn",
       "kind": "exported-const-function",
@@ -363,10 +195,10 @@
       "status": "candidate",
       "owner": "@beep/sandbox",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 348,
+      "line": 356,
       "column": 14,
       "parameterCount": 3,
-      "diagnostics": ["missing-dual", "third-param-not-object-like"]
+      "diagnostics": ["missing-dual"]
     },
     {
       "file": "packages/foundation/capability/sandbox/src/Template.ts",
@@ -376,18 +208,6 @@
       "owner": "@beep/sandbox",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
       "line": 314,
-      "column": 14,
-      "parameterCount": 2,
-      "diagnostics": ["missing-dual"]
-    },
-    {
-      "file": "packages/foundation/capability/sandbox/src/terminalCleanup.ts",
-      "qualifiedName": "makeTerminalCleanupHandler",
-      "kind": "exported-const-function",
-      "status": "candidate",
-      "owner": "@beep/sandbox",
-      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 58,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]

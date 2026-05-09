@@ -6,6 +6,9 @@
   "additionalProperties": false,
   "required": ["version", "entries"],
   "properties": {
+    "$schema": {
+      "type": "string"
+    },
     "version": {
       "type": "integer",
       "const": 1

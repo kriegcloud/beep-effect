@@ -8,15 +8,56 @@
 import { DuckDb } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Effect, pipe } from "effect";
+import { Effect, flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { AiMetricsDeployTarget, AiMetricsOtlpEndpointSpec, AiMetricsTranscriptSource } from "./models.ts";
+import {
+  AiMetricsDeployTarget,
+  AiMetricsOtlpEndpointSpec,
+  AiMetricsSourceRole,
+  AiMetricsTranscriptSource,
+} from "./models.ts";
 
 const $I = $RepoAiMetricsId.create("otlp");
+
+/**
+ * OTLP attributes approved for redacted AI metrics span export.
+ *
+ * @example
+ * ```ts
+ * import { AI_METRICS_OTLP_ATTRIBUTE_ALLOWLIST } from "@beep/repo-ai-metrics"
+ * console.log(AI_METRICS_OTLP_ATTRIBUTE_ALLOWLIST)
+ * ```
+ * @category constants
+ * @since 0.0.0
+ */
+export const AI_METRICS_OTLP_ATTRIBUTE_ALLOWLIST = [
+  "ai_metrics.agent_nickname_hash",
+  "ai_metrics.agent_role_hash",
+  "ai_metrics.config_snapshot_id",
+  "ai_metrics.event_name",
+  "ai_metrics.forked_from_id_hash",
+  "ai_metrics.ingest_run_id",
+  "ai_metrics.line_number",
+  "ai_metrics.parent_session_id_hash",
+  "ai_metrics.parent_thread_id_hash",
+  "ai_metrics.provider",
+  "ai_metrics.raw_event_hash",
+  "ai_metrics.session_id_hash",
+  "ai_metrics.source_kind",
+  "ai_metrics.source_path_hash",
+  "ai_metrics.source_role",
+  "ai_metrics.thread_spawn",
+  "ai_metrics.timestamp",
+  "ai_metrics.tool_name",
+  "ai_metrics.turn_id",
+  "openinference.span.kind",
+  "session.id",
+  "tool.name",
+] as const;
 
 /**
  * Attribute value variants allowed on redacted AI metrics OTLP spans.
@@ -188,14 +229,22 @@ class LatestIngestRunRow extends S.Class<LatestIngestRunRow>($I`LatestIngestRunR
 
 class AiMetricsOtlpTurnExportRow extends S.Class<AiMetricsOtlpTurnExportRow>($I`AiMetricsOtlpTurnExportRow`)(
   {
+    agentNicknameHash: S.NullOr(S.String),
+    agentRoleHash: S.NullOr(S.String),
     agentSessionId: S.String,
     configSnapshotId: S.String,
     eventName: S.String,
+    forkedFromIdHash: S.NullOr(S.String),
     ingestRunId: S.String,
     lineNumber: S.Number,
+    parentSessionIdHash: S.NullOr(S.String),
+    parentThreadIdHash: S.NullOr(S.String),
     rawEventHash: S.String,
+    sessionIdHash: S.NullOr(S.String),
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
+    sourceRole: AiMetricsSourceRole,
+    threadSpawn: S.NullOr(S.Boolean),
     timestamp: S.NullOr(S.String),
     turnId: S.String,
   },
@@ -223,6 +272,12 @@ const providerFor = (row: AiMetricsOtlpTurnExportRow): string => {
 
 const toolNameFor = (row: AiMetricsOtlpTurnExportRow): O.Option<string> =>
   pipe(row.eventName, Str.toLowerCase, Str.includes("tool")) ? O.some(row.eventName) : O.none();
+
+const allowlistedAttributes: (
+  attributes: Record<string, AiMetricsOtlpAttributeValue>
+) => Record<string, AiMetricsOtlpAttributeValue> = flow(
+  R.filter((_value, key) => A.contains(AI_METRICS_OTLP_ATTRIBUTE_ALLOWLIST as ReadonlyArray<string>, key))
+);
 
 const llmEventNameFragments = [
   "assistant",
@@ -281,10 +336,18 @@ const readTurnRows = Effect.fn("AiMetrics.otlp.readTurnRows")(function* (ingestR
          t.agent_session_id AS "agentSessionId",
          t.source_kind AS "sourceKind",
          t.source_path_hash AS "sourcePathHash",
+         COALESCE(t.source_role, s.source_role, 'primary') AS "sourceRole",
          t.line_number AS "lineNumber",
          t.event_name AS "eventName",
          t.raw_event_hash AS "rawEventHash",
          t.timestamp AS "timestamp",
+         s.session_id_hash AS "sessionIdHash",
+         s.parent_session_id_hash AS "parentSessionIdHash",
+         s.parent_thread_id_hash AS "parentThreadIdHash",
+         s.forked_from_id_hash AS "forkedFromIdHash",
+         s.thread_spawn AS "threadSpawn",
+         s.agent_role_hash AS "agentRoleHash",
+         s.agent_nickname_hash AS "agentNicknameHash",
          s.config_snapshot_id AS "configSnapshotId"
        FROM ai_metrics_turns t
        JOIN ai_metrics_sessions s ON s.agent_session_id = t.agent_session_id
@@ -301,14 +364,24 @@ const readTurnRows = Effect.fn("AiMetrics.otlp.readTurnRows")(function* (ingestR
 
 const sessionProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanProjection =>
   new AiMetricsOtlpSpanProjection({
-    attributes: {
+    attributes: allowlistedAttributes({
+      ...R.getSomes({
+        "ai_metrics.agent_nickname_hash": O.fromNullishOr(row.agentNicknameHash),
+        "ai_metrics.agent_role_hash": O.fromNullishOr(row.agentRoleHash),
+        "ai_metrics.forked_from_id_hash": O.fromNullishOr(row.forkedFromIdHash),
+        "ai_metrics.parent_session_id_hash": O.fromNullishOr(row.parentSessionIdHash),
+        "ai_metrics.parent_thread_id_hash": O.fromNullishOr(row.parentThreadIdHash),
+        "ai_metrics.session_id_hash": O.fromNullishOr(row.sessionIdHash),
+      }),
+      ...(row.threadSpawn === null ? {} : { "ai_metrics.thread_spawn": row.threadSpawn }),
       "ai_metrics.config_snapshot_id": row.configSnapshotId,
       "ai_metrics.ingest_run_id": row.ingestRunId,
       "ai_metrics.source_kind": row.sourceKind,
       "ai_metrics.source_path_hash": row.sourcePathHash,
+      "ai_metrics.source_role": row.sourceRole,
       "openinference.span.kind": "AGENT",
       "session.id": row.agentSessionId,
-    },
+    }),
     spanName: "ai_metrics.agent.session",
   });
 
@@ -316,7 +389,7 @@ const turnProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanProje
   const toolName = toolNameFor(row);
 
   return new AiMetricsOtlpSpanProjection({
-    attributes: {
+    attributes: allowlistedAttributes({
       ...R.getSomes({
         "ai_metrics.timestamp": O.fromNullishOr(row.timestamp),
         "ai_metrics.tool_name": toolName,
@@ -330,10 +403,11 @@ const turnProjection = (row: AiMetricsOtlpTurnExportRow): AiMetricsOtlpSpanProje
       "ai_metrics.raw_event_hash": row.rawEventHash,
       "ai_metrics.source_kind": row.sourceKind,
       "ai_metrics.source_path_hash": row.sourcePathHash,
+      "ai_metrics.source_role": row.sourceRole,
       "ai_metrics.turn_id": row.turnId,
       "openinference.span.kind": openInferenceSpanKindFor(row),
       "session.id": row.agentSessionId,
-    },
+    }),
     spanName: "ai_metrics.agent.turn",
   });
 };

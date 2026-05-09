@@ -3,16 +3,18 @@
 ## Mission
 
 Complete the developer AI metrics stack from current scaffold to deployed
-dankserver tailnet service with one seven-day real-data config-impact
-scorecard.
+dankserver tailnet service with P6a hardening and one restarted seven-day
+real-data config-impact scorecard.
 
 ## Starting State
 
 P0 through P4 plus P5a are already credited. P5b implementation exists, the
 Phoenix backend is live on dankserver at
 `https://dankserver.tailc7c348.ts.net:8447`, and the first P6 real-data
-forwarder/export proof has reached Phoenix. Pulumi state reconciliation still
-needs the local Pulumi passphrase environment. The repo contains:
+forwarder/export proof has reached Phoenix. Fresh review moved that proof to
+baseline evidence and inserted P6a before the credited seven-day window.
+Pulumi state reconciliation still needs the local Pulumi passphrase
+environment. The repo contains:
 
 - `packages/tooling/library/ai-metrics`
 - `packages/tooling/tool/cli/src/commands/AIMetrics`
@@ -39,7 +41,8 @@ resources for Phoenix compose/systemd apply, dedicated Tailscale Serve HTTPS on
 - Config snapshots plus outcome-heavy scorecards.
 - JSONL/Parquet archive is the deploy-safe raw source of record.
 - EventLog is an internal projection proof until it earns promotion.
-- Completion requires one weekly report from seven days of real data.
+- Completion requires P6a gates plus one weekly report from a restarted seven
+  days of real data.
 
 ## Phase Instructions
 
@@ -99,10 +102,14 @@ P6 proof and hardening:
 
 - first live collection/export proof completed; see
   `history/outputs/p6-seven-day-proof-and-hardening.md`
-- continue collecting seven days of live data
-- publish first seven-day weekly scorecard
-- add outcome labels and benchmark runs for real tasks
-- verify backup, restore, retention, and failure recovery
+- paused until P6a gates pass; current evidence is baseline pre-P6a evidence
+- P6a output is `history/outputs/p6a-fresh-review-hardening.md`
+- preserve hash-only Codex subagent attribution in derived tables and OTLP
+- use source-aware forwarder coverage instead of global max-file starvation
+- render and install the workstation timer before restarting the proof
+- run the archive decrypt drill without printing transcript text
+- add outcome labels and benchmark runs before any scorecard is credited
+- verify backup, restore, retention, deletion, and failure recovery
 
 ## Stop Conditions
 

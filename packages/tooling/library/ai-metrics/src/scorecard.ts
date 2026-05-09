@@ -18,6 +18,7 @@ import {
   AiMetricsDeployTarget,
   AiMetricsQualityGateStatus,
   AiMetricsScoreWeights,
+  AiMetricsSourceRole,
   AiMetricsTranscriptSource,
   BenchmarkCase,
   BenchmarkRun,
@@ -68,6 +69,10 @@ export class AiMetricsLabelQueueItem extends S.Class<AiMetricsLabelQueueItem>($I
     createdAtEpochMillis: S.Number,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
+    sourceRole: AiMetricsSourceRole.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsSourceRole.Enum.primary)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
+    ),
     title: S.String,
     turnCount: S.Number,
   },
@@ -342,6 +347,10 @@ class LabelQueueRow extends S.Class<LabelQueueRow>($I`LabelQueueRow`)(
     createdAtEpochMillis: S.Number,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
+    sourceRole: AiMetricsSourceRole.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsSourceRole.Enum.primary)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
+    ),
     title: S.String,
     turnCount: S.Number,
   },
@@ -531,6 +540,7 @@ export const queueAiMetricsLabels: (
            t.title AS "title",
            t.source_kind AS "sourceKind",
            t.source_path_hash AS "sourcePathHash",
+           COALESCE(t.source_role, 'primary') AS "sourceRole",
            t.config_snapshot_id AS "configSnapshotId",
            t.created_at_epoch_ms::DOUBLE AS "createdAtEpochMillis",
            count(turns.turn_id)::INTEGER AS "turnCount"
@@ -546,6 +556,7 @@ export const queueAiMetricsLabels: (
            t.title,
            t.source_kind,
            t.source_path_hash,
+           t.source_role,
            t.config_snapshot_id,
            t.created_at_epoch_ms
          ORDER BY t.created_at_epoch_ms DESC
@@ -1024,11 +1035,23 @@ const coverageGapsFor = ({
       taskCount === 0 ? O.some("no_tasks") : O.none<string>(),
       labelCount === 0 ? O.some("no_labels") : O.none<string>(),
       benchmarkRunCount === 0 ? O.some("no_benchmark_runs") : O.none<string>(),
-      coverage.modelCallCount === 0 ? O.some("model_call_metrics_missing") : O.none<string>(),
-      coverage.toolInvocationCount === 0 ? O.some("tool_invocation_metrics_missing") : O.none<string>(),
+      labelCount === 0 || benchmarkRunCount === 0 ? O.some("scorecard_completion_credit_blocked") : O.none<string>(),
+      coverage.modelCallCount === 0 ? O.some("model_call_metrics_unavailable_not_scored") : O.none<string>(),
+      coverage.toolInvocationCount === 0 ? O.some("tool_invocation_metrics_unavailable_not_scored") : O.none<string>(),
+      O.some("cost_metrics_unavailable_not_scored"),
     ],
     A.getSomes
   );
+
+const scorecardCompletionReady = ({
+  benchmarkRunCount,
+  labelCount,
+  taskCount,
+}: {
+  readonly benchmarkRunCount: number;
+  readonly labelCount: number;
+  readonly taskCount: number;
+}): boolean => taskCount > 0 && labelCount > 0 && benchmarkRunCount > 0;
 
 const scorecardFor = Effect.fn("AiMetrics.scorecard.scorecardFor")(function* ({
   benchmark,
@@ -1053,9 +1076,11 @@ const scorecardFor = Effect.fn("AiMetrics.scorecard.scorecardFor")(function* ({
   const labelCount = countFromTask(task, "labelCount");
   const benchmarkRunCount = benchmarkCount(benchmark);
   const coverageGaps = coverageGapsFor({ benchmarkRunCount, coverage, labelCount, taskCount });
+  const completionReady = scorecardCompletionReady({ benchmarkRunCount, labelCount, taskCount });
 
   return new Scorecard({
     benchmarkRunCount,
+    completionReady,
     configSnapshotId,
     costScore,
     coverageGaps,
@@ -1087,6 +1112,7 @@ const writeScorecard = Effect.fn("AiMetrics.scorecard.writeScorecard")(function*
         task_count,
         label_count,
         benchmark_run_count,
+        completion_ready,
         coverage_gaps_json
       ) VALUES (
         $scorecardId,
@@ -1100,10 +1126,12 @@ const writeScorecard = Effect.fn("AiMetrics.scorecard.writeScorecard")(function*
         $taskCount,
         $labelCount,
         $benchmarkRunCount,
+        $completionReady,
         $coverageGapsJson
       )`,
       {
         benchmarkRunCount: scorecard.benchmarkRunCount,
+        completionReady: scorecard.completionReady,
         configSnapshotId: scorecard.configSnapshotId,
         costScore: scorecard.costScore,
         coverageGapsJson: yield* jsonString(scorecard.coverageGaps),
@@ -1129,7 +1157,9 @@ const renderMarkdownReport = (document: AiMetricsWeeklyReportDocument): string =
           3
         )} | ${scorecard.flowScore.toFixed(3)} | ${scorecard.costScore.toFixed(3)} | ${scorecard.taskCount} | ${
           scorecard.labelCount
-        } | ${scorecard.benchmarkRunCount} | ${pipe(scorecard.coverageGaps, A.join(", ")) || "none"} |`
+        } | ${scorecard.benchmarkRunCount} | ${scorecard.completionReady ? "yes" : "no"} | ${
+          pipe(scorecard.coverageGaps, A.join(", ")) || "none"
+        } |`
     ),
     A.join("\n")
   );
@@ -1144,9 +1174,9 @@ const renderMarkdownReport = (document: AiMetricsWeeklyReportDocument): string =
     `generatedAtEpochMillis: ${document.generatedAtEpochMillis}`,
     `coverageGaps: ${Str.isNonEmpty(coverage) ? coverage : "none"}`,
     "",
-    "| configSnapshotId | total | outcome | flow | cost | tasks | labels | benchmarks | gaps |",
-    "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
-    Str.isNonEmpty(rows) ? rows : "| none | 0.000 | 0.000 | 0.000 | 0.000 | 0 | 0 | 0 | no_data |",
+    "| configSnapshotId | total | outcome | flow | cost | tasks | labels | benchmarks | completionReady | gaps |",
+    "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+    Str.isNonEmpty(rows) ? rows : "| none | 0.000 | 0.000 | 0.000 | 0.000 | 0 | 0 | 0 | no | no_data |",
     "",
   ].join("\n")}`;
 };
@@ -1225,7 +1255,15 @@ export const generateAiMetricsWeeklyReport: (
         A.appendAll(
           A.isReadonlyArrayNonEmpty(scorecards)
             ? A.empty<string>()
-            : ["no_tasks", "no_labels", "no_benchmark_runs", "model_call_metrics_missing"]
+            : [
+                "no_tasks",
+                "no_labels",
+                "no_benchmark_runs",
+                "scorecard_completion_credit_blocked",
+                "model_call_metrics_unavailable_not_scored",
+                "tool_invocation_metrics_unavailable_not_scored",
+                "cost_metrics_unavailable_not_scored",
+              ]
         ),
         A.dedupe,
         A.sort(Order.String)

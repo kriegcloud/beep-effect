@@ -138,6 +138,18 @@ export * from "./privacy.ts";
  */
 export * from "./scorecard.ts";
 /**
+ * Shell rendering helpers for operator commands.
+ *
+ * @example
+ * ```ts
+ * import { shellQuote } from "@beep/repo-ai-metrics"
+ * console.log(shellQuote("op://vault/item/field"))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./shell.ts";
+/**
  * Local AI-agent source discovery helpers.
  *
  * @example

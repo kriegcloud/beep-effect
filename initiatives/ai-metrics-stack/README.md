@@ -13,8 +13,8 @@ and weekly scorecards that answer whether agent-facing config changes improved
 coding-agent performance.
 
 Production-complete means the dankserver tailnet stack is deployed, local smoke
-collection works, real sources are flowing, and one seven-day config-impact
-scorecard has been generated from live data.
+collection works, P6a hardening gates pass, real sources are flowing, and one
+restarted seven-day config-impact scorecard has been generated from live data.
 
 ## Read This First
 
@@ -41,6 +41,9 @@ scorecard has been generated from live data.
 - [history/outputs/p5b-real-pulumi-remote-apply.md](./history/outputs/p5b-real-pulumi-remote-apply.md)
   - Pulumi remote Phoenix apply resources, dedicated tailnet HTTPS route, and
     live deployment evidence
+- [history/outputs/p6a-fresh-review-hardening.md](./history/outputs/p6a-fresh-review-hardening.md)
+  - fresh review findings, P6a hardening decisions, implementation evidence,
+    and proof restart gates
 - [research/effect-native-observability.md](./research/effect-native-observability.md)
   - Effect v4 observability package findings
 - [research/backend-shortlist.md](./research/backend-shortlist.md) - backend
@@ -50,8 +53,9 @@ scorecard has been generated from live data.
 
 P0, P1, P2, P3, P4, P5a, and the P5b live Phoenix deployment are complete
 enough to use as the starting checkpoint. The first real collection/export
-proof is complete and P6 is underway. Pulumi state reconciliation is still gated
-on the local Pulumi passphrase environment:
+proof is baseline evidence, not the credited seven-day proof. P6 is paused for
+P6a data and ops hardening. Pulumi state reconciliation is still gated on the
+local Pulumi passphrase environment:
 
 - `@beep/repo-ai-metrics` exists with schema-first models, tolerant transcript
   ingest summaries, target-agnostic install specs, benchmark and scorecard
@@ -69,6 +73,10 @@ on the local Pulumi passphrase environment:
   envelopes, with synthetic and real local smoke evidence.
 - The durable forwarder writes AES-256-GCM encrypted raw archive objects,
   derived DuckDB tables, and per-run Parquet exports.
+- P6a adds source-aware forwarder budgets, hash-only Codex subagent parentage,
+  config snapshot diff artifacts, scorecard completion readiness, an OTLP
+  metadata allowlist, a workstation timer render path, and an archive decrypt
+  drill.
 - P3 adds install-owned OTLP/Phoenix contracts, generated local Phoenix compose
   smoke, trace-only `@beep/observability` wiring, redacted DuckDB-to-OTLP span
   export, CLI `otlp export`, and import-safe Pulumi backend outputs.
@@ -88,10 +96,11 @@ on the local Pulumi passphrase environment:
 - The first live P6 proof collected 10 Codex source files, projected 23,830
   turns, exported 23,840 redacted OTLP spans to Phoenix, generated a baseline
   weekly report, and confirmed Phoenix GraphQL has traces.
-- Current gaps are explicit in the packet: reconcile the live host mutation with
-  Pulumi from a shell with `PULUMI_CONFIG_PASSPHRASE` or
-  `PULUMI_CONFIG_PASSPHRASE_FILE`, keep live collection running for seven days,
-  add outcome labels and benchmark runs, and document backup/restore/retention.
+- Current gates are explicit in the packet: reconcile the live host mutation
+  with Pulumi from a shell with `PULUMI_CONFIG_PASSPHRASE` or
+  `PULUMI_CONFIG_PASSPHRASE_FILE`, install/run the workstation timer, run the
+  archive drill, add outcome labels and benchmark runs, document
+  backup/restore/retention/deletion, and then restart the seven-day proof.
 
 ## Completion Standard
 
@@ -100,8 +109,12 @@ This initiative is done only when all are true:
 - dankserver tailnet deployment is applied and verified
 - Phoenix is receiving real traces or derived exports
 - raw encrypted archive and redacted derived views are populated
+- P6a hardening gates pass, including subagent attribution, source-aware
+  coverage, config diffs, metadata allowlist, timer ownership, and archive
+  decrypt drill
 - Codex, Claude Code, OpenClaw, and optional gateway sources have discovery and
   ingest coverage
 - config snapshots are linked to real sessions and benchmark runs
 - CLI label review produces outcome labels for real work
-- one weekly config-impact scorecard is generated from seven days of live data
+- one weekly config-impact scorecard is generated from a restarted seven-day
+  live window and is marked completion-ready with labels plus benchmark evidence

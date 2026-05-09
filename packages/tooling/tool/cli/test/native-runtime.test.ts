@@ -91,6 +91,43 @@ describe("native runtime laws", () => {
     );
   });
 
+  it("fails strict check for switch statements outside hotspot files", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              "export const label = (status: 'ready' | 'blocked') => {",
+              "  switch (status) {",
+              "    case 'ready':",
+              "      return 'Ready';",
+              "    case 'blocked':",
+              "      return 'Blocked';",
+              "  }",
+              "};",
+            ].join("\n")
+          );
+
+          const summary = yield* runNoNativeRuntimeRules(
+            new NoNativeRuntimeRulesOptions({
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+
+          expect(summary.warningCount).toBe(0);
+          expect(summary.errorCount).toBe(1);
+          expect(summary.strictFailure).toBe(true);
+          expect(summary.affectedFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(summary.diagnostics.map((diagnostic) => diagnostic.messageId)).toEqual(["nativeSwitch"]);
+          expect(summary.diagnostics.map((diagnostic) => diagnostic.severity)).toEqual(["error"]);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+
   it("suppresses allowlisted map-set constructors by snapshot path and kind", async () => {
     await Effect.runPromise(
       withTempWorkingDirectory(

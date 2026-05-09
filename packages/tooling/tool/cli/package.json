@@ -29,6 +29,7 @@
   },
   "files": [
     "src/**/*.ts",
+    "support/**/*.ts",
     "src/commands/CreatePackage/templates/**/*.hbs",
     "dist/**/*.js",
     "dist/**/*.js.map",
@@ -63,10 +64,12 @@
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
     "beep:build": "tsc -b tsconfig.json && bun run babel",
-    "beep:check": "tsgo -b tsconfig.json",
+    "beep:check": "tsgo -b tsconfig.json && bun run beep:check:support",
+    "beep:check:support": "tsgo -p tsconfig.support.json --noEmit",
     "beep:test": "bunx --bun vitest run",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
+    "beep:jsdoc-inventory": "bun run support/generate-jsdoc-documentation-inventory.ts",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
     "audit": "bun run --if-present beep:audit"
   },
@@ -83,6 +86,7 @@
     "@beep/schema": "workspace:^",
     "@beep/test-utils": "workspace:^",
     "@effect/markdown-toc": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
     "@openai/codex-sdk": "catalog:",
     "doctrine": "catalog:",
@@ -90,6 +94,7 @@
     "fast-xml-parser": "catalog:",
     "handlebars": "catalog:",
     "image-size": "catalog:",
+    "jsonc-parser": "catalog:",
     "sharp": "catalog:",
     "ts-morph": "catalog:",
     "yaml": "catalog:"

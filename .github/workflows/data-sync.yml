@@ -38,7 +38,7 @@ jobs:
 
       - name: Append Turbo summary (check)
         if: always() && steps.focused-check.outcome != 'skipped'
-        run: node scripts/append-turbo-summary.mjs
+        run: bun run beep ci append-turbo-summary
 
       - name: Run focused unit verification
         id: focused-test
@@ -47,7 +47,7 @@ jobs:
 
       - name: Append Turbo summary (test)
         if: always() && steps.focused-test.outcome != 'skipped'
-        run: node scripts/append-turbo-summary.mjs
+        run: bun run beep ci append-turbo-summary
 
       - name: Create or update pull request
         uses: peter-evans/create-pull-request@v8

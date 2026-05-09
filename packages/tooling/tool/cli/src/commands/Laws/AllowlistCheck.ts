@@ -6,6 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
+import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/eslint/EffectLawsAllowlistSnapshotCodegen";
 import { findRepoRoot } from "@beep/repo-utils";
 import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue } from "effect";
 import * as A from "effect/Array";
@@ -13,6 +15,8 @@ import * as Eq from "effect/Equal";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { type ParseError, parse } from "jsonc-parser";
+import { Project } from "ts-morph";
+import { collectNativeRuntimeViolationKeys, NativeRuntimeViolationKeyOptions } from "./NoNativeRuntime.js";
 
 const $I = $RepoCliId.create("commands/Laws/AllowlistCheck");
 
@@ -27,6 +31,9 @@ const $I = $RepoCliId.create("commands/Laws/AllowlistCheck");
  * @since 0.0.0
  */
 export const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
+const ALLOWLIST_SNAPSHOT_PATH =
+  "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts";
+const NO_NATIVE_RUNTIME_RULE_ID = "beep-laws/no-native-runtime";
 
 const NonEmptyString = S.String.check(
   S.makeFilter((value) => value.length > 0 || "Expected non-empty string.")
@@ -167,6 +174,71 @@ const validateEntryFiles = Effect.fn(function* (cwd: string, entries: ReadonlyAr
   return diagnostics;
 });
 
+const makeAllowlistKey = (entry: EffectLawsAllowlistEntry): string => `${entry.rule}::${entry.file}::${entry.kind}`;
+
+const validateEntriesStillMatchViolations = Effect.fn(function* (
+  cwd: string,
+  entries: ReadonlyArray<EffectLawsAllowlistEntry>
+) {
+  const path = yield* Path.Path;
+  const project = new Project({ skipAddingFilesFromTsConfig: true });
+  let index = 0;
+  let diagnostics = A.empty<string>();
+
+  for (const entry of entries) {
+    if (entry.rule !== NO_NATIVE_RUNTIME_RULE_ID) {
+      index += 1;
+      continue;
+    }
+
+    const sourceFile = project.addSourceFileAtPathIfExists(path.resolve(cwd, entry.file));
+    if (P.isUndefined(sourceFile)) {
+      index += 1;
+      continue;
+    }
+
+    const violationKeys = collectNativeRuntimeViolationKeys(
+      sourceFile,
+      new NativeRuntimeViolationKeyOptions({
+        inHotspotScope: isNoNativeRuntimeExtraCheckHotspot(entry.file),
+        relativeFilePath: entry.file,
+      })
+    );
+    if (!A.contains(makeAllowlistKey(entry))(violationKeys)) {
+      diagnostics = A.append(
+        diagnostics,
+        `entries.${index}: No current violation matches allowlist key ${makeAllowlistKey(entry)}`
+      );
+    }
+
+    index += 1;
+  }
+
+  return diagnostics;
+});
+
+const validateGeneratedSnapshotSync = Effect.fn(function* (repoRoot: string, allowlistText: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const snapshotPath = path.resolve(repoRoot, ALLOWLIST_SNAPSHOT_PATH);
+  const snapshotDirectory = path.dirname(snapshotPath);
+
+  if (!(yield* fs.exists(snapshotDirectory))) {
+    return A.empty<string>();
+  }
+
+  const exists = yield* fs.exists(snapshotPath);
+  if (!exists) {
+    return A.make(`${ALLOWLIST_SNAPSHOT_PATH}: Generated allowlist snapshot is missing.`);
+  }
+
+  const expectedSnapshot = yield* buildAllowlistSnapshotModuleFromJsoncText(allowlistText);
+  const currentSnapshot = yield* fs.readFileString(snapshotPath);
+  return expectedSnapshot === currentSnapshot
+    ? A.empty<string>()
+    : A.make(`${ALLOWLIST_SNAPSHOT_PATH}: Generated allowlist snapshot is stale; run package codegen.`);
+});
+
 /**
  * Run the effect laws allowlist integrity check.
  *
@@ -213,7 +285,10 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
     });
   }
 
-  const diagnostics = yield* validateEntryFiles(repoRoot, decodedResult.success.entries);
+  const fileDiagnostics = yield* validateEntryFiles(repoRoot, decodedResult.success.entries);
+  const usageDiagnostics = yield* validateEntriesStillMatchViolations(repoRoot, decodedResult.success.entries);
+  const snapshotDiagnostics = yield* validateGeneratedSnapshotSync(repoRoot, text);
+  const diagnostics = pipe(fileDiagnostics, A.appendAll(usageDiagnostics), A.appendAll(snapshotDiagnostics));
 
   return new AllowlistCheckSummary({
     ok: pipe(A.length(diagnostics), Eq.equals(0)),

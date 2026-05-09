@@ -94,7 +94,7 @@ Baseline:
 
 ```bash
 bun run lint:fix
-bash scripts/run-github-checks.sh quality
+bun run audit:github quality
 ```
 
 Portable fallback if the repo has no all-up quality script:
@@ -109,7 +109,7 @@ bun run lint
 ```
 
 For docs/export changes, ensure the local docgen lane is included. In
-beep-effect, `bash scripts/run-github-checks.sh quality` covers build, check,
+beep-effect, `bun run audit:github quality` covers build, check,
 lint, docgen generate/aggregate, test, repo sanity, and changeset status.
 
 Warnings and policy diagnostics are actionable. Do not call the baseline green
@@ -295,7 +295,7 @@ The orchestrator merges reviewer output into one inventory.
    - docs or standards surface
    - tests/type tests
    - generated config/package metadata
-   - scripts/tooling
+   - repo-cli/tooling
 5. Assign fixer agents only to non-overlapping groups.
 6. Give each fixer:
    - owned files/packages

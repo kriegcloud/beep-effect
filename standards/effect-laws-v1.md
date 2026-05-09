@@ -19,21 +19,23 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 8. No `node:path` in runtime source; use `Path.Path` service APIs.
 9. No native `fetch` in runtime source; use `effect/unstable/http` and provide platform client layers.
 10. No native `Array.prototype.sort`; use `A.sort` with explicit `Order`.
-11. Use `Bool.match` for boolean branching in domain/runtime orchestration code.
-12. Prefer schema defaults and transformations (`S.withDecodingDefault*`, `S.decodeTo`, `SchemaTransformation`) over ad-hoc parsing/fallback logic.
-13. HTTP boundaries must be expressed with Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
-14. JSDoc is required for exported APIs in `packages/*/src` and `packages/tooling/*/*/src`; examples must pass docgen.
-15. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
-16. Named or reused domain constraints are modeled as schemas first; prefer built-in schema constructors/checks before `S.makeFilter`, and derive guards with `S.is(...)`.
-17. Reusable `S.makeFilter`, `S.makeFilterGroup`, and reusable built-in check blocks must include `identifier`, `title`, and `description`; `message` stays user-facing.
-18. Use `LiteralKit` for internal literal domains when `.is`, `.thunk`, `$match`, or annotation-bearing schema values are part of the design.
-19. Model finite variants, lifecycle states, status/result cases, and case-specific payloads as discriminated unions; keep optional/nullish bags at external boundaries only when compatibility requires them.
-20. Prefer the tersest equivalent Effect helper form when behavior is unchanged: direct helper refs over trivial wrapper lambdas, `flow(...)` for passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
+11. No native `switch` statements; use `Match`, `Match.tagsExhaustive` for `_tag` unions, and schema `.match` for tagged-union schemas.
+12. Use `Bool.match` for boolean branching in domain/runtime orchestration code.
+13. Prefer schema defaults and transformations (`S.withDecodingDefault*`, `S.decodeTo`, `SchemaTransformation`) over ad-hoc parsing/fallback logic.
+14. HTTP boundaries must be expressed with Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
+15. JSDoc is required for exported APIs in `packages/*/src` and `packages/tooling/*/*/src`; examples must pass docgen.
+16. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
+17. Named or reused domain constraints are modeled as schemas first; prefer built-in schema constructors/checks before `S.makeFilter`, and derive guards with `S.is(...)`.
+18. Reusable `S.makeFilter`, `S.makeFilterGroup`, and reusable built-in check blocks must include `identifier`, `title`, and `description`; `message` stays user-facing.
+19. Use `LiteralKit` for internal literal domains when `.is`, `.thunk`, `$match`, or annotation-bearing schema values are part of the design.
+20. Model finite variants, lifecycle states, status/result cases, and case-specific payloads as discriminated unions; keep optional/nullish bags at external boundaries only when compatibility requires them.
+21. Prefer the tersest equivalent Effect helper form when behavior is unchanged: direct helper refs over trivial wrapper lambdas, `flow(...)` for passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
 
 ## Allowlist Contract
 
 Boundary exceptions are allowed only through [effect-laws.allowlist.jsonc](./effect-laws.allowlist.jsonc).
 It is the sole supported exception registry for Effect-law and runtime-boundary exceptions, and `bun run beep laws allowlist-check` is the required integrity check that `bun run lint` runs in normal quality flows.
+Do not add entries for scanner misses or cleanup convenience. Harden the checker when a real boundary is being reported as a false positive, or remediate the module when the exception is ordinary application code.
 
 Required fields per entry:
 
@@ -47,6 +49,16 @@ Required fields per entry:
 Optional fields:
 
 - `expiresOn`: `YYYY-MM-DD`
+
+The allowlist checker verifies schema validity, duplicate keys, referenced file existence, exact live violation matches for `beep-laws/no-native-runtime`, and generated snapshot freshness. Stale entries should be removed in the same change that removes the native runtime usage.
+
+## Dual-Arity Inventory Contract
+
+[dual-arity.inventory.jsonc](./dual-arity.inventory.jsonc) tracks exported 2-3 parameter helper APIs that are not yet compliant with the dual data-first/data-last convention.
+
+Legitimate scanner exclusions belong in the checker, not in the inventory. Constructor factories documented as `@category constructors`, tagged-template identity helpers, React hooks, and React components are recognized by the scanner and should not create inventory churn.
+
+Inventory entries should remain only for real public helper APIs that need remediation or an explicit package-owner exception. Prefer options objects for third parameters; optional object-shaped third parameters are valid, but scalar third parameters are not.
 
 ## Scope
 
