@@ -7,7 +7,7 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Clock, Effect, FileSystem, Order, Path, pipe, Stream } from "effect";
+import { Clock, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -88,6 +88,7 @@ export class AiMetricsSourceDiscoveryInput extends S.Class<AiMetricsSourceDiscov
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_FILES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_FILES))
     ),
+    maxFileBytes: S.optionalKey(S.Number),
     openClawUnitPath: S.optionalKey(S.String),
     repoRoot: S.String,
     sinceEpochMillis: S.optionalKey(S.Number),
@@ -193,6 +194,7 @@ export class AiMetricsSourceDiscoveryResult extends S.Class<AiMetricsSourceDisco
     homeDirHash: S.String,
     includeAll: S.Boolean,
     maxFiles: S.Number,
+    maxFileBytes: S.optionalKey(S.Number),
     repoRootHash: S.String,
     sinceEpochMillis: S.optionalKey(S.Number),
     sources: S.Array(AiMetricsDiscoveredSource),
@@ -259,17 +261,15 @@ const fileSystemFailure = (message: string, cause: unknown): AiMetricsSourceDisc
 const normalizedRelativePath = (pathApi: Path.Path, root: string, filePath: string): string =>
   pipe(pathApi.relative(root, filePath), Str.replace(/\\/gu, "/"));
 
-const contentHasCodexSessionMetaLine = (content: string): boolean =>
-  pipe(
-    content,
-    transcriptLines,
-    A.some((line) =>
-      pipe(
-        decodeCodexTranscriptLine(line),
-        O.exists((decoded) => decoded.type === "session_meta")
-      )
+const contentHasCodexSessionMetaLine: (content: string) => boolean = flow(
+  transcriptLines,
+  A.some((line) =>
+    pipe(
+      decodeCodexTranscriptLine(line),
+      O.exists((decoded) => decoded.type === "session_meta")
     )
-  );
+  )
+);
 
 const readAttributionContent = (
   fs: FileSystem.FileSystem,
@@ -303,10 +303,16 @@ const modifiedAtMillis = (info: FileSystem.File.Info): number =>
     O.getOrElse(() => 0)
   );
 
-const shouldIncludeModifiedAt =
+const sizeBytes = (info: FileSystem.File.Info): number => globalThis.Number(info.size);
+
+const shouldIncludeFile =
   (input: AiMetricsSourceDiscoveryInput) =>
-  (info: FileSystem.File.Info): boolean =>
-    input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
+  (info: FileSystem.File.Info): boolean => {
+    const withinTimeWindow =
+      input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
+    const withinSizeWindow = input.maxFileBytes === undefined || sizeBytes(info) <= input.maxFileBytes;
+    return withinTimeWindow && withinSizeWindow;
+  };
 
 const sessionIdFromPath = (pathApi: Path.Path, sourcePath: string): string =>
   pipe(pathApi.basename(sourcePath), Str.replace(/\.jsonl$/u, ""));
@@ -392,7 +398,7 @@ const makeDiscoveredTranscriptFile = Effect.fn("AiMetrics.makeDiscoveredTranscri
     ...(attribution.parentSessionIdHash === undefined ? {} : { parentSessionIdHash: attribution.parentSessionIdHash }),
     ...(attribution.parentThreadIdHash === undefined ? {} : { parentThreadIdHash: attribution.parentThreadIdHash }),
     sessionIdHash: attribution.sessionIdHash ?? fallbackSessionIdHash,
-    sizeBytes: globalThis.Number(info.size),
+    sizeBytes: sizeBytes(info),
     sourceKind,
     sourcePathHash: yield* hashPrivateIdentifier(sourcePath, hashSalt),
     sourceRole: attribution.sourceRole,
@@ -454,7 +460,7 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
       allFiles,
       Effect.fnUntraced(function* (sourcePath) {
         const info = yield* fs.stat(sourcePath).pipe(Effect.option);
-        if (O.isNone(info) || info.value.type !== "File" || !shouldIncludeModifiedAt(input)(info.value)) {
+        if (O.isNone(info) || info.value.type !== "File" || !shouldIncludeFile(input)(info.value)) {
           return O.none<SourceCandidateFile>();
         }
 
@@ -527,7 +533,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
     });
   }
 
-  if (!shouldIncludeModifiedAt(input)(unitInfo.value)) {
+  if (!shouldIncludeFile(input)(unitInfo.value)) {
     return new AiMetricsDiscoveredSource({
       candidateFileCount: 0,
       fileCount: 0,
@@ -544,7 +550,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
   const file = new AiMetricsDiscoveredTranscriptFile({
     modifiedAtMillis: modifiedAtMillis(unitInfo.value),
     sessionIdHash: yield* hashPrivateIdentifier("openclaw-gateway.service", input.hashSalt),
-    sizeBytes: globalThis.Number(unitInfo.value.size),
+    sizeBytes: sizeBytes(unitInfo.value),
     sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
     sourcePathHash: yield* hashPrivateIdentifier(unitPath, input.hashSalt),
     sourceRole: AiMetricsSourceRole.Enum.gateway_metadata,
@@ -613,6 +619,7 @@ export const discoverAiMetricsSources = Effect.fn("AiMetrics.discoverAiMetricsSo
     homeDirHash: yield* hashPrivateIdentifier(homeDir, input.hashSalt),
     includeAll: input.includeAll,
     maxFiles: input.maxFiles,
+    ...(input.maxFileBytes === undefined ? {} : { maxFileBytes: input.maxFileBytes }),
     repoRootHash: yield* hashPrivateIdentifier(repoRoot, input.hashSalt),
     sources,
     target: input.target,

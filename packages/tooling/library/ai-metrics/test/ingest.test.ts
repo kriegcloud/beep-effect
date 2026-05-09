@@ -1468,6 +1468,53 @@ volumes:
   );
 
   it.effect(
+    "skips oversized transcript files during source discovery",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+          yield* writeText(
+            path.join(codexRoot, "small.jsonl"),
+            '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}\n'
+          );
+          yield* writeText(
+            path.join(codexRoot, "large.jsonl"),
+            `{"type":"session_meta","timestamp":"2026-05-05T10:01:00Z","payload":"${pipe("x", Str.repeat(512))}"}\n`
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "root agent guide\n");
+
+          const result = yield* discoverAiMetricsSources(
+            new AiMetricsSourceDiscoveryInput({
+              codexSessionsRoot: codexRoot,
+              hashSalt: "test-salt",
+              homeDir,
+              includeAll: true,
+              maxFileBytes: 128,
+              repoRoot,
+            })
+          );
+          const codex = pipe(
+            result.sources,
+            A.findFirst((source) => source.sourceKind === AiMetricsTranscriptSource.Enum.codex)
+          );
+
+          expect(result.maxFileBytes).toBe(128);
+          expect(O.isSome(codex)).toBe(true);
+          if (O.isNone(codex)) {
+            return;
+          }
+          expect(codex.value.candidateFileCount).toBe(1);
+          expect(codex.value.files).toHaveLength(1);
+          expect(codex.value.files[0]?.sizeBytes).toBeLessThanOrEqual(128);
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
     "streams Codex attribution until a parsed session_meta line is present",
     Effect.fn(function* () {
       yield* withTempDirectory(

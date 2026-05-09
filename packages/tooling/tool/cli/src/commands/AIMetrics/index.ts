@@ -217,6 +217,18 @@ const maxFilesFlag = Flag.integer("max-files").pipe(
   Flag.withDefault(200),
   Flag.withDescription("Maximum files to report per transcript source")
 );
+const maxFileBytesFlag = Flag.integer("max-file-bytes").pipe(
+  Flag.withDescription("Skip transcript source files larger than this byte count"),
+  Flag.optional
+);
+const timerMaxFilesFlag = Flag.integer("max-files").pipe(
+  Flag.withDefault(5),
+  Flag.withDescription("Maximum files per transcript source for each scheduled forwarder run")
+);
+const timerMaxFileBytesFlag = Flag.integer("max-file-bytes").pipe(
+  Flag.withDefault(8_388_608),
+  Flag.withDescription("Maximum source-file byte size for each scheduled forwarder run")
+);
 const hashSaltFlag = Flag.string("hash-salt").pipe(
   Flag.withDescription("Salt for hashing private paths and session identifiers"),
   Flag.optional
@@ -819,6 +831,7 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
   hashSaltSecretRef,
   homeDir,
   json,
+  maxFileBytes,
   maxFiles,
   openClawUnit,
   rawArchiveKeySecretRef,
@@ -832,6 +845,7 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
   readonly hashSaltSecretRef: O.Option<string>;
   readonly homeDir: O.Option<string>;
   readonly json: boolean;
+  readonly maxFileBytes: O.Option<number>;
   readonly maxFiles: number;
   readonly openClawUnit: O.Option<string>;
   readonly rawArchiveKeySecretRef: O.Option<string>;
@@ -846,6 +860,7 @@ const makeInstallDoctorProgram = Effect.fn("AIMetrics.makeInstallDoctorProgram")
     new AiMetricsSourceDiscoveryInput({
       homeDir: yield* resolveHomeDir(homeDir),
       includeAll: all,
+      ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
       maxFiles,
       repoRoot: yield* resolveRepoRoot(repoRoot),
       target: AiMetricsDeployTarget.Enum.local,
@@ -1026,6 +1041,7 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
   hashSalt,
   homeDir,
   json,
+  maxFileBytes,
   maxFiles,
   openClawUnit,
   repoRoot,
@@ -1036,6 +1052,7 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
   readonly hashSalt: O.Option<string>;
   readonly homeDir: O.Option<string>;
   readonly json: boolean;
+  readonly maxFileBytes: O.Option<number>;
   readonly maxFiles: number;
   readonly openClawUnit: O.Option<string>;
   readonly repoRoot: O.Option<string>;
@@ -1051,6 +1068,7 @@ const makeSourcesDiscoverProgram = Effect.fn("AIMetrics.makeSourcesDiscoverProgr
     new AiMetricsSourceDiscoveryInput({
       homeDir: yield* resolveHomeDir(homeDir),
       includeAll: all,
+      ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
       maxFiles,
       repoRoot: yield* resolveRepoRoot(repoRoot),
       target,
@@ -1142,6 +1160,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   hashSaltSecretRef,
   homeDir,
   json,
+  maxFileBytes,
   maxFiles,
   openClawUnit,
   otlp,
@@ -1157,6 +1176,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   readonly hashSaltSecretRef: O.Option<string>;
   readonly homeDir: O.Option<string>;
   readonly json: boolean;
+  readonly maxFileBytes: O.Option<number>;
   readonly maxFiles: number;
   readonly openClawUnit: O.Option<string>;
   readonly otlp: boolean;
@@ -1201,6 +1221,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
         : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
       homeDir: yield* resolveHomeDir(homeDir),
       includeAll: all,
+      ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
       maxFiles,
       ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
       rawArchiveKey: resolvedRawArchiveKey,
@@ -1250,6 +1271,8 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
   hashSaltSecretRef,
   intervalMinutes,
   json,
+  maxFileBytes,
+  maxFiles,
   otlpBaseUrl,
   rawArchiveKeySecretRef,
   repoRoot,
@@ -1259,6 +1282,8 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
   readonly hashSaltSecretRef: O.Option<string>;
   readonly intervalMinutes: number;
   readonly json: boolean;
+  readonly maxFileBytes: number;
+  readonly maxFiles: number;
   readonly otlpBaseUrl: O.Option<string>;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly repoRoot: O.Option<string>;
@@ -1289,9 +1314,12 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
       : ` --raw-archive-key-secret-ref ${shellQuote(resolvedRawArchiveKeySecretRef)}`;
   const otlpFlagText =
     target === AiMetricsDeployTarget.Enum.dankserver ? ` --otlp --otlp-base-url ${shellQuote(endpoint.baseUrl)}` : "";
+  const maxFileBytesFlagText = ` --max-file-bytes ${maxFileBytes}`;
+  const maxFilesFlagText = ` --max-files ${maxFiles}`;
+  const cliCommand = `${shellQuote(process.execPath)} packages/tooling/tool/cli/src/bin.ts --`;
   const plan = renderAiMetricsForwarderTimerPlan(
     new AiMetricsForwarderTimerInput({
-      command: `bun run beep ai-metrics forwarder run --target ${target}${dataRootFlag}${hashSaltSecretRefFlagText}${rawArchiveKeySecretRefFlagText}${otlpFlagText} --json`,
+      command: `${cliCommand} ai-metrics forwarder run --target ${target}${dataRootFlag}${hashSaltSecretRefFlagText}${rawArchiveKeySecretRefFlagText}${otlpFlagText}${maxFileBytesFlagText}${maxFilesFlagText} --json`,
       ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
       intervalMinutes,
       lockPath: "%t/beep-ai-metrics-forwarder.lock",
@@ -1821,6 +1849,7 @@ const installDoctorCommand = Command.make(
     hashSaltSecretRef: hashSaltSecretRefFlag,
     homeDir: homeDirFlag,
     json: jsonFlag,
+    maxFileBytes: maxFileBytesFlag,
     maxFiles: maxFilesFlag,
     openClawUnit: openClawUnitFlag,
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
@@ -1835,6 +1864,7 @@ const installDoctorCommand = Command.make(
     hashSaltSecretRef,
     homeDir,
     json,
+    maxFileBytes,
     maxFiles,
     openClawUnit,
     rawArchiveKeySecretRef,
@@ -1850,6 +1880,7 @@ const installDoctorCommand = Command.make(
         hashSaltSecretRef,
         homeDir,
         json,
+        maxFileBytes,
         maxFiles,
         openClawUnit,
         rawArchiveKeySecretRef,
@@ -1906,15 +1937,27 @@ const sourcesDiscoverCommand = Command.make(
     hashSalt: hashSaltFlag,
     homeDir: homeDirFlag,
     json: jsonFlag,
+    maxFileBytes: maxFileBytesFlag,
     maxFiles: maxFilesFlag,
     openClawUnit: openClawUnitFlag,
     repoRoot: repoRootFlag,
     since: sinceFlag,
     target: targetFlag,
   },
-  ({ all, hashSalt, homeDir, json, maxFiles, openClawUnit, repoRoot, since, target }) =>
+  ({ all, hashSalt, homeDir, json, maxFileBytes, maxFiles, openClawUnit, repoRoot, since, target }) =>
     runAiMetricsProgram(
-      makeSourcesDiscoverProgram({ all, hashSalt, homeDir, json, maxFiles, openClawUnit, repoRoot, since, target })
+      makeSourcesDiscoverProgram({
+        all,
+        hashSalt,
+        homeDir,
+        json,
+        maxFileBytes,
+        maxFiles,
+        openClawUnit,
+        repoRoot,
+        since,
+        target,
+      })
     )
 ).pipe(Command.withDescription("Discover Codex, Claude, and OpenClaw local metrics sources"));
 
@@ -2003,6 +2046,7 @@ const forwarderRunCommand = Command.make(
     hashSaltSecretRef: hashSaltSecretRefFlag,
     homeDir: homeDirFlag,
     json: jsonFlag,
+    maxFileBytes: maxFileBytesFlag,
     maxFiles: maxFilesFlag,
     openClawUnit: openClawUnitFlag,
     otlp: otlpFlag,
@@ -2019,6 +2063,7 @@ const forwarderRunCommand = Command.make(
     hashSaltSecretRef,
     homeDir,
     json,
+    maxFileBytes,
     maxFiles,
     openClawUnit,
     otlp,
@@ -2036,6 +2081,7 @@ const forwarderRunCommand = Command.make(
         hashSaltSecretRef,
         homeDir,
         json,
+        maxFileBytes,
         maxFiles,
         openClawUnit,
         otlp,
@@ -2057,18 +2103,33 @@ const forwarderTimerCommand = Command.make(
     hashSaltSecretRef: hashSaltSecretRefFlag,
     intervalMinutes: intervalMinutesFlag,
     json: jsonFlag,
+    maxFileBytes: timerMaxFileBytesFlag,
+    maxFiles: timerMaxFilesFlag,
     otlpBaseUrl: otlpBaseUrlFlag,
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     repoRoot: repoRootFlag,
     target: targetFlag,
   },
-  ({ dataRoot, hashSaltSecretRef, intervalMinutes, json, otlpBaseUrl, rawArchiveKeySecretRef, repoRoot, target }) =>
+  ({
+    dataRoot,
+    hashSaltSecretRef,
+    intervalMinutes,
+    json,
+    maxFileBytes,
+    maxFiles,
+    otlpBaseUrl,
+    rawArchiveKeySecretRef,
+    repoRoot,
+    target,
+  }) =>
     runAiMetricsProgram(
       makeForwarderTimerProgram({
         dataRoot,
         hashSaltSecretRef,
         intervalMinutes,
         json,
+        maxFileBytes,
+        maxFiles,
         otlpBaseUrl,
         rawArchiveKeySecretRef,
         repoRoot,

@@ -1,14 +1,12 @@
 # AI Metrics Stack Plan
 
-This plan executes [SPEC.md](./SPEC.md). The current target phase is P6a because
-the fresh review found P6 should not be treated as merely operational yet. P0
+This plan executes [SPEC.md](./SPEC.md). The current target phase is P6. P0
 bootstrap, P1 source/privacy proof, P2 durable ingest, P3 OTLP/backend
-contracts, P4 report-first scorecards, and the P5a operator contract are
-complete. P5b implementation is in place, Phoenix is live on dankserver, the AI
-metrics 1Password refs resolve, and the first real redacted forwarder plus OTLP
-export has reached Phoenix. The current proof evidence is baseline pre-P6a
-evidence; the credited seven-day proof restarts after P6a gates pass. Pulumi
-state reconciliation still needs a shell with the Pulumi passphrase environment.
+contracts, P4 report-first scorecards, P5 install/remote deployment, and P6a
+fresh-review hardening are complete. Phoenix is live on dankserver, Pulumi state
+is reconciled, the workstation timer owns live collection, and the credited
+seven-day proof restarted on May 9, 2026 02:26 America/Chicago. The earliest
+credited completion is May 16, 2026 02:26 America/Chicago.
 
 ## P0: Initiative Bootstrap And Current State
 
@@ -97,7 +95,7 @@ Status: completed
 
 ## P5: Install And Remote Deployment
 
-Status: in progress
+Status: completed
 
 - P5a completed: added typed install plan, install doctor, and dry-run apply
   contracts plus CLI workflows. Recorded evidence in
@@ -116,25 +114,25 @@ Status: in progress
 - The first live forwarder run wrote encrypted raw archive metadata, derived
   DuckDB/Parquet state, and redacted OTLP traces. Recorded evidence in
   [history/outputs/p6-seven-day-proof-and-hardening.md](./history/outputs/p6-seven-day-proof-and-hardening.md).
-- P5b Pulumi state reconciliation remains pending:
-  `pulumi preview --stack beep-ai-metrics-dankserver` currently stops before
-  provider runtime because this shell does not have
-  `PULUMI_CONFIG_PASSPHRASE` or `PULUMI_CONFIG_PASSPHRASE_FILE`.
+- P5b Pulumi state reconciliation completed on May 9, 2026:
+  `pulumi preview -s beep-ai-metrics-dankserver --non-interactive --diff` and
+  `pulumi up -s beep-ai-metrics-dankserver --yes --non-interactive` passed,
+  stack state has 6 resources, and live Phoenix reports version `15.5.0`.
 - Preserve local as the repeatable smoke target.
 
 ## P6: Seven-Day Proof And Hardening
 
-Status: paused for P6a
+Status: in progress
 
 - Preserve the first real collection/export proof as baseline evidence.
-- Restart the credited seven-day proof only after P6a hardening passes.
+- The credited seven-day proof restarted after P6a closeout gates passed.
 - During the restarted window, keep live collection owned by the workstation
-  timer and generate a completion-creditable scorecard with real labels and a
-  benchmark run.
+  timer and maintain completion-creditable scorecards with real labels and
+  benchmark runs.
 
 ## P6a: Fresh Review Data And Ops Hardening
 
-Status: in progress
+Status: completed
 
 - Preserve Codex subagent attribution through source discovery, privacy
   projection, derived DuckDB/Parquet, OTLP span attributes, and label queues
@@ -159,10 +157,12 @@ Status: in progress
 - Update install/runbook commands so 1Password refs are separate from runtime
   values: commands that need the raw archive key must export
   `BEEP_AI_METRICS_RAW_ARCHIVE_KEY="$(op read '<ref>')"`.
-- Reconcile Pulumi before restarting the credited proof: preview/apply/health
-  must be green and the live Phoenix version must match declared stack config.
-- Document retention, deletion, archive decrypt, backup, restore, and proof
-  restart policy in the P6a output.
+- Reconciled Pulumi before restarting the credited proof: preview/apply/health
+  passed and live Phoenix version matches declared stack config.
+- Documented retention, deletion, archive decrypt, backup, restore, and proof
+  restart policy in the P6a closeout output.
+- Recorded closeout and proof restart evidence in
+  [history/outputs/p6a-closeout-proof-restart.md](./history/outputs/p6a-closeout-proof-restart.md).
 
 ## Required Checks
 

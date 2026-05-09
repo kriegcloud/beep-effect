@@ -85,6 +85,7 @@ export class AiMetricsForwarderInput extends S.Class<AiMetricsForwarderInput>($I
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_FILES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_FILES))
     ),
+    maxFileBytes: S.optionalKey(S.Number),
     openClawUnitPath: S.optionalKey(S.String),
     rawArchiveKey: AiMetricsRawArchiveKey,
     rawArchiveKeySecretRef: S.optionalKey(S.String),
@@ -225,6 +226,7 @@ const encodeForwarderTimerPlanJson = S.encodeUnknownEffect(S.fromJsonString(AiMe
 type ForwarderSourceFile = {
   readonly modifiedAtMillis: number;
   readonly relativePath: string;
+  readonly sizeBytes: number;
   readonly sourceKind: AiMetricsTranscriptSource;
   readonly sourcePath: string;
 };
@@ -293,7 +295,6 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
   const serviceUnit = [
     "[Unit]",
     "Description=Beep AI metrics forwarder collection",
-    "Documentation=AGENTS.md",
     "StartLimitBurst=3",
     "StartLimitIntervalSec=30m",
     "",
@@ -366,6 +367,8 @@ const modifiedAtMillis = (info: FileSystem.File.Info): number =>
     O.getOrElse(() => 0)
   );
 
+const sizeBytes = (info: FileSystem.File.Info): number => globalThis.Number(info.size);
+
 const sourcePathHashForDiagnostics = Effect.fn("AiMetrics.forwarder.sourcePathHashForDiagnostics")(function* (
   input: AiMetricsForwarderInput,
   sourceFile: ForwarderSourceFile
@@ -382,8 +385,12 @@ const sourcePathHashForDiagnostics = Effect.fn("AiMetrics.forwarder.sourcePathHa
 
 const shouldIncludeFile =
   (input: AiMetricsForwarderInput) =>
-  (info: FileSystem.File.Info): boolean =>
-    input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
+  (info: FileSystem.File.Info): boolean => {
+    const withinTimeWindow =
+      input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
+    const withinSizeWindow = input.maxFileBytes === undefined || sizeBytes(info) <= input.maxFileBytes;
+    return withinTimeWindow && withinSizeWindow;
+  };
 
 const collectJsonlFiles = Effect.fn("AiMetrics.forwarder.collectJsonlFiles")(function* (
   root: string
@@ -443,6 +450,7 @@ const jsonlSourceFiles = Effect.fn("AiMetrics.forwarder.jsonlSourceFiles")(funct
       return O.some({
         modifiedAtMillis: modifiedAtMillis(info.value),
         relativePath: normalizedRelativePath(pathApi, root, sourcePath),
+        sizeBytes: sizeBytes(info.value),
         sourceKind,
         sourcePath,
       });
@@ -467,6 +475,7 @@ const openClawSourceFiles = Effect.fn("AiMetrics.forwarder.openClawSourceFiles")
   return A.of({
     modifiedAtMillis: modifiedAtMillis(info.value),
     relativePath: pathApi.basename(unitPath),
+    sizeBytes: sizeBytes(info.value),
     sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
     sourcePath: unitPath,
   });

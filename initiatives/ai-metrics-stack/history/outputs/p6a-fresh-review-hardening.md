@@ -2,13 +2,17 @@
 
 ## Status
 
-Implemented and review-gated on branch
-`feature/ai-metrics-p6a-hardening`.
+Completed.
 
 The fresh review found the initiative is directionally correct, but P6 should
-pause before its seven-day proof is credited. The current `.beep/ai-metrics`
-evidence is baseline pre-P6a evidence. The official seven-day window restarts
-after the P6a gates below pass.
+pause before its seven-day proof is credited. The earlier `.beep/ai-metrics`
+evidence remains baseline pre-P6a evidence; the official seven-day window now
+starts from the closeout evidence below.
+
+Closeout follow-up branch `ops/ai-metrics-p6a-closeout` passed the restart
+gates on May 9, 2026 and restarted the credited P6 proof window. Evidence is
+recorded in
+[p6a-closeout-proof-restart.md](./p6a-closeout-proof-restart.md).
 
 ## Review Findings
 
@@ -68,19 +72,21 @@ after the P6a gates below pass.
 
 ## Restart Gates
 
-- `@beep/repo-ai-metrics` check, test, lint, and docgen pass.
-- `@beep/repo-cli` check, test, and lint pass.
-- Source discovery and forwarder JSON show source-aware coverage.
+- `@beep/repo-ai-metrics` focused checks and tests passed.
+- `@beep/repo-cli` focused checks and tests passed.
+- Source discovery and forwarder JSON show source-aware coverage plus bounded
+  `--max-file-bytes` protection for scheduled runs.
 - DuckDB rows can distinguish primary and subagent sessions without raw text or
   raw local paths.
-- Weekly scorecard has `completionReady=true` for the scored config snapshot.
-- Workstation timer units are rendered, installed, and visible in the user
-  journal before the credited window starts.
-- Archive decrypt drill passes without printing transcript text.
-- Pulumi preview/apply/health pass for `beep-ai-metrics-dankserver`, and live
-  Phoenix version drift is resolved.
+- Weekly scorecard has `completionReady=true` for restarted config snapshot
+  `config-d0b05a2d64c9c40c21e0df11f8cfc611be5ce41139f52f4db79b77f73ca895bc`.
+- Workstation timer units are rendered, installed, active, and visible in the
+  user journal before the credited window starts.
+- Archive decrypt drill passed without printing transcript text.
+- Pulumi preview/apply/health passed for `beep-ai-metrics-dankserver`, and
+  live Phoenix version drift is resolved at `15.5.0`.
 - Retention, deletion, backup, restore, and archive decrypt runbook text is in
-  the initiative packet.
+  the closeout output.
 
 ## Deferred P7 Follow-Ups
 

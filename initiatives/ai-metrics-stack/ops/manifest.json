@@ -9,8 +9,8 @@
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P6a",
-  "completionEvidence": "P6a hardening gates plus dankserver deployment plus one restarted seven-day real-data config-impact scorecard",
+  "currentTargetPhase": "P6",
+  "completionEvidence": "dankserver deployment plus P6a hardening gates plus one restarted seven-day real-data config-impact scorecard",
   "targets": {
     "production": "dankserver",
     "smoke": "local",
@@ -65,7 +65,7 @@
     {
       "id": "P5",
       "name": "Install And Remote Deployment",
-      "status": "in_progress",
+      "status": "completed",
       "output": "history/outputs/p5a-operator-contract-and-dry-run-apply.md",
       "subphases": [
         {
@@ -77,7 +77,7 @@
         {
           "id": "P5b",
           "name": "Real Pulumi Remote Apply",
-          "status": "in_progress",
+          "status": "completed",
           "output": "history/outputs/p5b-real-pulumi-remote-apply.md"
         }
       ]
@@ -85,14 +85,14 @@
     {
       "id": "P6",
       "name": "Seven-Day Proof And Hardening",
-      "status": "paused",
+      "status": "in_progress",
       "output": "history/outputs/p6-seven-day-proof-and-hardening.md",
       "subphases": [
         {
           "id": "P6a",
           "name": "Fresh Review Data And Ops Hardening",
-          "status": "in_progress",
-          "output": "history/outputs/p6a-fresh-review-hardening.md"
+          "status": "completed",
+          "output": "history/outputs/p6a-closeout-proof-restart.md"
         }
       ]
     }
@@ -132,22 +132,23 @@
     },
     {
       "id": "dankserver-preview",
-      "command": "cd infra && pulumi preview --stack beep-ai-metrics-dankserver"
+      "command": "cd infra && PULUMI_CONFIG_PASSPHRASE=<resolved-secret> pulumi preview -s beep-ai-metrics-dankserver --non-interactive --diff"
     },
     {
       "id": "dankserver-apply",
-      "command": "cd infra && pulumi up --stack beep-ai-metrics-dankserver"
+      "command": "cd infra && PULUMI_CONFIG_PASSPHRASE=<resolved-secret> pulumi up -s beep-ai-metrics-dankserver --yes --non-interactive"
+    },
+    {
+      "id": "ai-metrics-proof-scorecard",
+      "command": "bun run beep ai-metrics report weekly --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt' --raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key' --json"
     }
   ],
   "knownGaps": [
-    "P5b Phoenix is live and verified on dankserver, but Pulumi state reconciliation is blocked until PULUMI_CONFIG_PASSPHRASE or PULUMI_CONFIG_PASSPHRASE_FILE is present",
-    "P6 is paused until P6a hardening gates pass; the existing collection evidence is baseline pre-P6a evidence",
-    "The credited seven-day proof must restart after P6a with workstation timer ownership",
-    "Real outcome labels and benchmark runs still need to be added before a scorecard can be completionReady",
-    "Backup, restore, retention, deletion, and failure recovery documentation remains pending",
+    "The credited seven-day proof window is in progress until at least May 16, 2026 02:26 America/Chicago",
+    "Additional outcome labels and benchmark runs should be added as more timer-collected work accumulates",
     "Optional LiteLLM deployment remains deferred beyond the Phoenix-only P5b slice",
     "xAI, Venice, LiteLLM, and gateway enrichment remain deferred beyond P2",
     "Server-owned collection remains a P7 topology target requiring transcript access/sync and privacy design"
   ],
-  "nextAction": "Finish P6a hardening checks, reconcile Pulumi state from a shell with the Pulumi passphrase environment, install the workstation timer, run the archive drill, add labels and benchmark runs, then restart the credited seven-day proof."
+  "nextAction": "Keep the workstation timer running through May 16, 2026 02:26 America/Chicago, add more labels and benchmark runs as data accumulates, then generate the final credited seven-day report."
 }
