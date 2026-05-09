@@ -643,6 +643,13 @@ const runWealthCashRequest = (input: RuntimeFixtureInput): CandidateOutputSet =>
   });
 };
 
+const fixtureRunnerForScenario: (scenarioId: string) => (input: RuntimeFixtureInput) => CandidateOutputSet =
+  Match.type<string>().pipe(
+    Match.when("law-patent-intake", () => runLawPatentIntake),
+    Match.when("wealth-cash-request", () => runWealthCashRequest),
+    Match.orElse((scenarioId) => () => failValidation(`Unknown runtime fixture scenario: ${scenarioId}`))
+  );
+
 /**
  * Run one deterministic runtime data-loop fixture.
  *
@@ -661,11 +668,7 @@ export const runRuntimeFixture = Effect.fn("RuntimeFixture.run")((input: Runtime
     try: () => {
       assertScenario(input);
 
-      return Match.value(input.email.scenarioId).pipe(
-        Match.when("law-patent-intake", () => runLawPatentIntake(input)),
-        Match.when("wealth-cash-request", () => runWealthCashRequest(input)),
-        Match.orElse(() => failValidation(`Unknown runtime fixture scenario: ${input.email.scenarioId}`))
-      );
+      return fixtureRunnerForScenario(input.email.scenarioId)(input);
     },
     catch: (error) =>
       S.is(ProfessionalRuntimeValidationError)(error)

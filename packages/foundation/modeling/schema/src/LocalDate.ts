@@ -134,12 +134,13 @@ const decodeLocalDate = S.decodeUnknownEffect(LocalDate);
 
 const isLeapYearInternal = (year: number): boolean => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 
+const daysInNonFebruaryMonth: (month: number) => number = Match.type<number>().pipe(
+  Match.whenOr(4, 6, 9, 11, () => 30),
+  Match.orElse(() => 31)
+);
+
 const getDaysInMonth = (year: number, month: number): number =>
-  Match.value(month).pipe(
-    Match.when(2, () => (isLeapYearInternal(year) ? 29 : 28)),
-    Match.whenOr(4, 6, 9, 11, () => 30),
-    Match.orElse(() => 31)
-  );
+  month === 2 ? (isLeapYearInternal(year) ? 29 : 28) : daysInNonFebruaryMonth(month);
 
 const makeInvalidLocalDateError: {
   (message: string): (dateString: string) => S.SchemaError;

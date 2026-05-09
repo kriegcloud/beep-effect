@@ -145,43 +145,40 @@ export class OtlpPacketLab extends Context.Service<
   }
 >()("@beep/observability/experimental/server/OtlpPacketLab") {}
 
-const contentTypeFromBody = (body: HttpBody.HttpBody): string | undefined =>
-  Match.value(body).pipe(
-    Match.tagsExhaustive({
-      Empty: () => undefined,
-      FormData: () => undefined,
-      Raw: (body) => body.contentType,
-      Stream: () => undefined,
-      Uint8Array: (body) => body.contentType,
-    })
-  );
+const contentTypeFromBody: (body: HttpBody.HttpBody) => string | undefined = Match.type<HttpBody.HttpBody>().pipe(
+  Match.tagsExhaustive({
+    Empty: () => undefined,
+    FormData: () => undefined,
+    Raw: (body) => body.contentType,
+    Stream: () => undefined,
+    Uint8Array: (body) => body.contentType,
+  })
+);
 
-const previewFromBody = (body: HttpBody.HttpBody): string =>
-  Match.value(body).pipe(
-    Match.tagsExhaustive({
-      Uint8Array: (body) => {
-        const contentType = contentTypeFromBody(body) ?? "application/octet-stream";
-        return contentType.includes("json") || contentType.startsWith("text/")
-          ? textDecoder.decode(body.body).slice(0, 400)
-          : `Uint8Array(${body.body.length})`;
-      },
-      Empty: () => "",
-      Raw: (body) => `Raw(${body.contentLength ?? 0})`,
-      FormData: () => "FormData",
-      Stream: (body) => `Stream(${body.contentLength ?? 0})`,
-    })
-  );
+const previewFromBody: (body: HttpBody.HttpBody) => string = Match.type<HttpBody.HttpBody>().pipe(
+  Match.tagsExhaustive({
+    Uint8Array: (body) => {
+      const contentType = contentTypeFromBody(body) ?? "application/octet-stream";
+      return contentType.includes("json") || contentType.startsWith("text/")
+        ? textDecoder.decode(body.body).slice(0, 400)
+        : `Uint8Array(${body.body.length})`;
+    },
+    Empty: () => "",
+    Raw: (body) => `Raw(${body.contentLength ?? 0})`,
+    FormData: () => "FormData",
+    Stream: (body) => `Stream(${body.contentLength ?? 0})`,
+  })
+);
 
-const sizeFromBody = (body: HttpBody.HttpBody): number =>
-  Match.value(body).pipe(
-    Match.tagsExhaustive({
-      Empty: () => 0,
-      FormData: () => 0,
-      Raw: (body) => body.contentLength ?? 0,
-      Stream: (body) => body.contentLength ?? 0,
-      Uint8Array: (body) => body.body.length,
-    })
-  );
+const sizeFromBody: (body: HttpBody.HttpBody) => number = Match.type<HttpBody.HttpBody>().pipe(
+  Match.tagsExhaustive({
+    Empty: () => 0,
+    FormData: () => 0,
+    Raw: (body) => body.contentLength ?? 0,
+    Stream: (body) => body.contentLength ?? 0,
+    Uint8Array: (body) => body.body.length,
+  })
+);
 
 const makePacket = (
   clock: Clock.Clock,
