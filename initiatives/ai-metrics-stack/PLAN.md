@@ -4,9 +4,10 @@ This plan executes [SPEC.md](./SPEC.md). The current target phase is P6. P0
 bootstrap, P1 source/privacy proof, P2 durable ingest, P3 OTLP/backend
 contracts, P4 report-first scorecards, P5 install/remote deployment, and P6a
 fresh-review hardening are complete. Phoenix is live on dankserver, Pulumi state
-is reconciled, the workstation timer owns live collection, and the credited
-seven-day proof restarted on May 9, 2026 02:26 America/Chicago. The earliest
-credited completion is May 16, 2026 02:26 America/Chicago.
+is reconciled, the workstation timer owns live collection from an isolated
+pinned proof worktree, and the credited seven-day proof restarted on May 9,
+2026 02:26 America/Chicago. The earliest credited completion is May 16, 2026
+02:26 America/Chicago.
 
 ## P0: Initiative Bootstrap And Current State
 
@@ -129,6 +130,19 @@ Status: in progress
 - During the restarted window, keep live collection owned by the workstation
   timer and maintain completion-creditable scorecards with real labels and
   benchmark runs.
+- Isolate the runner from normal repo work by running the workstation timer from
+  the locked sibling worktree
+  `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`,
+  pinned at `63c419721c735bfb860ccfa9bf1b31efbb23e33c`, while keeping the
+  proof data root at
+  `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics`.
+- Use the daily runbook in
+  [history/outputs/p6-proof-runner-isolation-and-runbook.md](./history/outputs/p6-proof-runner-isolation-and-runbook.md).
+- Track pre-closeout readiness evidence in
+  [history/outputs/p6-pre-may16-readiness-ledger.md](./history/outputs/p6-pre-may16-readiness-ledger.md).
+- Additional labels require explicit human outcome judgment. Benchmark runs may
+  be recorded for real operator workflows with deploy-safe prompt hashes and
+  redacted notes.
 
 ## P6a: Fresh Review Data And Ops Hardening
 
@@ -164,6 +178,22 @@ Status: completed
 - Recorded closeout and proof restart evidence in
   [history/outputs/p6a-closeout-proof-restart.md](./history/outputs/p6a-closeout-proof-restart.md).
 
+## P7: Topology-First Productionization
+
+Status: planned
+
+- Start only after the P6 proof is credited or explicitly abandoned.
+- Decide server-owned, workstation-owned, synced, or hybrid collection topology
+  before implementing provider/gateway enrichment.
+- Promote retention, restore, deletion, and compaction from P6 runbook notes
+  into executable operator workflows.
+- Add real model-call, tool-invocation, token, cost, and latency metrics only
+  from sources with a proven privacy and attribution contract.
+- Keep Phoenix as the default UI; add Langfuse, Opik, PostHog, or other
+  backend-specific drivers only when a real backend API need appears.
+- Planning packet:
+  [history/outputs/p7-topology-first-production-plan.md](./history/outputs/p7-topology-first-production-plan.md).
+
 ## Required Checks
 
 - `bun run check`
@@ -173,4 +203,7 @@ Status: completed
 - `@beep/infra`: `check`, `test`, `lint`
 - CLI smoke for source discovery, ingest, install plan/doctor, forwarder timer
   rendering, archive drill, labels, benchmarks, and report generation
+- Proof-runner timer verification: locked proof worktree, service
+  `WorkingDirectory`, absolute proof data root, latest status JSON, and Phoenix
+  health
 - Pulumi preview and apply for the dankserver target
