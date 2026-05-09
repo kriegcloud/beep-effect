@@ -86,6 +86,7 @@
     "services:up": "docker compose up -d",
     "graphiti:proxy": "bun run beep graphiti proxy",
     "graphiti:proxy:ensure": "bun run beep graphiti proxy ensure",
+    "kg:proxy": "bun run beep graphiti proxy kg --",
     "graphiti:recover": "bun run beep graphiti recover",
     "graphiti:recover:dry-run": "bun run beep graphiti recover --dry-run",
     "graphiti:proxy:service:install": "bun run beep graphiti proxy service install",

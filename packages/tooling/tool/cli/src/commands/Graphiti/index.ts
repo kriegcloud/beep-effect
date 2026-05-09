@@ -6,12 +6,13 @@
  */
 
 import { Console, Effect } from "effect";
-import { Command, Flag } from "effect/unstable/cli";
+import { Argument, Command, Flag } from "effect/unstable/cli";
 import {
   ensureGraphitiProxy,
   type GraphitiProxyOpsError,
   installGraphitiProxyService,
   recoverGraphitiStack,
+  runKgWithGraphitiProxy,
 } from "./internal/ProxyOps.js";
 import { runGraphitiProxy } from "./internal/ProxyRuntime.js";
 
@@ -48,6 +49,14 @@ const runProxyOpsProgram = <A, R>(program: Effect.Effect<A, GraphitiProxyOpsErro
 const graphitiProxyEnsureCommand = Command.make("ensure", {}, () => runProxyOpsProgram(ensureGraphitiProxy())).pipe(
   Command.withDescription("Ensure the Graphiti MCP queue proxy is healthy")
 );
+
+const graphitiProxyKgCommand = Command.make(
+  "kg",
+  {
+    args: Argument.string("args").pipe(Argument.variadic({ min: 1 })),
+  },
+  ({ args }) => runProxyOpsProgram(runKgWithGraphitiProxy(args))
+).pipe(Command.withDescription("Run a knowledge-graph command through the Graphiti proxy"));
 
 const graphitiProxyServiceInstallCommand = Command.make("install", {}, () =>
   runProxyOpsProgram(installGraphitiProxyService())
@@ -91,13 +100,16 @@ export const graphitiCommand = Command.make(
     yield* Console.log("Graphiti commands:");
     yield* Console.log("- bun run beep graphiti proxy");
     yield* Console.log("- bun run beep graphiti proxy ensure");
+    yield* Console.log("- bun run beep graphiti proxy kg -- verify --target both");
     yield* Console.log("- bun run beep graphiti proxy service install");
     yield* Console.log("- bun run beep graphiti recover --dry-run");
   })
 ).pipe(
   Command.withDescription("Graphiti operational commands"),
   Command.withSubcommands([
-    graphitiProxyCommand.pipe(Command.withSubcommands([graphitiProxyEnsureCommand, graphitiProxyServiceCommand])),
+    graphitiProxyCommand.pipe(
+      Command.withSubcommands([graphitiProxyEnsureCommand, graphitiProxyKgCommand, graphitiProxyServiceCommand])
+    ),
     graphitiRecoverCommand,
   ])
 );

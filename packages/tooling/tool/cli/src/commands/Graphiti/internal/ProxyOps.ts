@@ -67,6 +67,7 @@ type ProxyServiceConfig = {
   readonly systemdUserDir: string;
 };
 
+const DEFAULT_PROXY_MCP_URL = "http://127.0.0.1:8123/mcp";
 const emptyString = () => "";
 
 const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
@@ -199,6 +200,8 @@ const runInheritedStep = Effect.fn("GraphitiProxyOps.runInheritedStep")(function
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(step.command, [...step.args], {
         cwd: step.cwd,
+        env: step.env,
+        extendEnv: true,
         stdin: "inherit",
         stdout: "inherit",
         stderr: "inherit",
@@ -530,6 +533,40 @@ export const ensureGraphitiProxy = Effect.fn("GraphitiProxyOps.ensureGraphitiPro
     message: `Graphiti proxy is not healthy at ${config.healthUrl}.`,
     exitCode: 1,
   });
+});
+
+/**
+ * Run a knowledge-graph CLI command with the local Graphiti proxy ensured first.
+ *
+ * @param args - Arguments forwarded to `bun run beep kg`.
+ * @returns Effect that runs the forwarded knowledge-graph command.
+ * @example
+ * ```ts
+ * import { runKgWithGraphitiProxy } from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps"
+ * const program = runKgWithGraphitiProxy(["verify", "--target", "both"])
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runKgWithGraphitiProxy = Effect.fn("GraphitiProxyOps.runKgWithGraphitiProxy")(function* (
+  args: ReadonlyArray<string>
+): Effect.fn.Return<void, GraphitiProxyOpsError, GraphitiProxyOpsEnvironment> {
+  const repoRoot = yield* findRepoRoot().pipe(
+    Effect.mapError((cause) => new GraphitiProxyOpsError({ message: "Failed to locate repository root.", cause }))
+  );
+
+  yield* ensureGraphitiProxy();
+  yield* runInheritedStep(
+    new QualityTaskStep({
+      label: "kg:proxy",
+      command: "bun",
+      args: ["run", "beep", "kg", ...args],
+      cwd: repoRoot,
+      env: {
+        BEEP_GRAPHITI_URL: envValue("BEEP_GRAPHITI_URL", DEFAULT_PROXY_MCP_URL),
+      },
+    })
+  );
 });
 
 /**
