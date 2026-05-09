@@ -264,6 +264,7 @@ describe("ai-metrics command", () => {
           expect(output).toContain("--max-file-bytes 8388608");
           expect(output).toContain("--max-files 5");
           expect(output).toContain("OnUnitInactiveSec=30m");
+          expect(output).toContain("absolute Bun path captured at render time");
           expect(output).toContain("beep-ai-metrics-forwarder.timer");
           expect(output).not.toContain("--max-files 200");
           expect(process.exitCode ?? 0).toBe(0);
@@ -589,6 +590,7 @@ describe("ai-metrics command", () => {
           if (O.isSome(codex)) {
             expect(codex.value.fileCount).toBe(1);
             expect(codex.value.files[0]?.sizeBytes).toBeLessThanOrEqual(128);
+            expect(codex.value.sizeExcludedFileCount).toBe(1);
           }
           expect(output).toContain("gateway_metadata");
           expect(output).toContain("provided");

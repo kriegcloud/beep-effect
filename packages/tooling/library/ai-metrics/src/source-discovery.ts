@@ -12,6 +12,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { fileSizeBytes } from "./internal/file-info.ts";
 import { transcriptLines } from "./internal/transcript-utils.ts";
 import {
   AiMetricsDeployTarget,
@@ -165,6 +166,10 @@ export class AiMetricsDiscoveredSource extends S.Class<AiMetricsDiscoveredSource
     message: S.optionalKey(S.String),
     newestModifiedAtMillis: S.optionalKey(S.Number),
     rootPathHash: S.String,
+    sizeExcludedFileCount: S.Number.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
     sourceKind: AiMetricsTranscriptSource,
     status: AiMetricsSourceStatus,
   },
@@ -303,16 +308,15 @@ const modifiedAtMillis = (info: FileSystem.File.Info): number =>
     O.getOrElse(() => 0)
   );
 
-const sizeBytes = (info: FileSystem.File.Info): number => globalThis.Number(info.size);
-
-const shouldIncludeFile =
+const isWithinModifiedTimeWindow =
   (input: AiMetricsSourceDiscoveryInput) =>
-  (info: FileSystem.File.Info): boolean => {
-    const withinTimeWindow =
-      input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
-    const withinSizeWindow = input.maxFileBytes === undefined || sizeBytes(info) <= input.maxFileBytes;
-    return withinTimeWindow && withinSizeWindow;
-  };
+  (info: FileSystem.File.Info): boolean =>
+    input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
+
+const isWithinSizeWindow =
+  (input: AiMetricsSourceDiscoveryInput) =>
+  (info: FileSystem.File.Info): boolean =>
+    input.maxFileBytes === undefined || fileSizeBytes(info) <= input.maxFileBytes;
 
 const sessionIdFromPath = (pathApi: Path.Path, sourcePath: string): string =>
   pipe(pathApi.basename(sourcePath), Str.replace(/\.jsonl$/u, ""));
@@ -398,7 +402,7 @@ const makeDiscoveredTranscriptFile = Effect.fn("AiMetrics.makeDiscoveredTranscri
     ...(attribution.parentSessionIdHash === undefined ? {} : { parentSessionIdHash: attribution.parentSessionIdHash }),
     ...(attribution.parentThreadIdHash === undefined ? {} : { parentThreadIdHash: attribution.parentThreadIdHash }),
     sessionIdHash: attribution.sessionIdHash ?? fallbackSessionIdHash,
-    sizeBytes: sizeBytes(info),
+    sizeBytes: fileSizeBytes(info),
     sourceKind,
     sourcePathHash: yield* hashPrivateIdentifier(sourcePath, hashSalt),
     sourceRole: attribution.sourceRole,
@@ -455,22 +459,36 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
 
   const fs = yield* FileSystem.FileSystem;
   const allFiles = yield* collectJsonlFiles(root);
-  const candidates = pipe(
-    yield* Effect.forEach(
-      allFiles,
-      Effect.fnUntraced(function* (sourcePath) {
-        const info = yield* fs.stat(sourcePath).pipe(Effect.option);
-        if (O.isNone(info) || info.value.type !== "File" || !shouldIncludeFile(input)(info.value)) {
-          return O.none<SourceCandidateFile>();
-        }
+  const scannedFiles = yield* Effect.forEach(
+    allFiles,
+    Effect.fnUntraced(function* (sourcePath) {
+      const info = yield* fs.stat(sourcePath).pipe(Effect.option);
+      if (O.isNone(info) || info.value.type !== "File" || !isWithinModifiedTimeWindow(input)(info.value)) {
+        return { candidate: O.none<SourceCandidateFile>(), excludedByMaxFileBytes: false };
+      }
 
-        return O.some({ modifiedAtMillis: modifiedAtMillis(info.value), sourcePath });
-      }),
-      { concurrency: 16 }
-    ),
+      if (!isWithinSizeWindow(input)(info.value)) {
+        return { candidate: O.none<SourceCandidateFile>(), excludedByMaxFileBytes: true };
+      }
+
+      return {
+        candidate: O.some({ modifiedAtMillis: modifiedAtMillis(info.value), sourcePath }),
+        excludedByMaxFileBytes: false,
+      };
+    }),
+    { concurrency: 16 }
+  );
+  const candidates = pipe(
+    scannedFiles,
+    A.map((scan) => scan.candidate),
     A.getSomes,
     A.sort(byCandidatePathAscending),
     A.sort(byCandidateModifiedDescending)
+  );
+  const sizeExcludedFileCount = pipe(
+    scannedFiles,
+    A.filter((scan) => scan.excludedByMaxFileBytes),
+    A.length
   );
   const includedCandidates = A.take(candidates, input.maxFiles);
   const files = pipe(
@@ -496,6 +514,7 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
     includedFileCount: A.length(includedFiles),
     limitedByMaxFiles: A.length(candidates) > A.length(includedCandidates),
     rootPathHash,
+    sizeExcludedFileCount,
     sourceKind,
     status: AiMetricsSourceStatus.Enum.available,
     ...newestModifiedAtFields(includedFiles),
@@ -533,7 +552,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
     });
   }
 
-  if (!shouldIncludeFile(input)(unitInfo.value)) {
+  if (!isWithinModifiedTimeWindow(input)(unitInfo.value)) {
     return new AiMetricsDiscoveredSource({
       candidateFileCount: 0,
       fileCount: 0,
@@ -547,10 +566,25 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
     });
   }
 
+  if (!isWithinSizeWindow(input)(unitInfo.value)) {
+    return new AiMetricsDiscoveredSource({
+      candidateFileCount: 0,
+      fileCount: 0,
+      files: [],
+      includedFileCount: 0,
+      limitedByMaxFiles: false,
+      message: "OpenClaw user systemd gateway metadata exceeds the selected byte-size window",
+      rootPathHash,
+      sizeExcludedFileCount: 1,
+      sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
+      status: AiMetricsSourceStatus.Enum.available,
+    });
+  }
+
   const file = new AiMetricsDiscoveredTranscriptFile({
     modifiedAtMillis: modifiedAtMillis(unitInfo.value),
     sessionIdHash: yield* hashPrivateIdentifier("openclaw-gateway.service", input.hashSalt),
-    sizeBytes: sizeBytes(unitInfo.value),
+    sizeBytes: fileSizeBytes(unitInfo.value),
     sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
     sourcePathHash: yield* hashPrivateIdentifier(unitPath, input.hashSalt),
     sourceRole: AiMetricsSourceRole.Enum.gateway_metadata,
