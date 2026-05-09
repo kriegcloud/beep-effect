@@ -46,6 +46,8 @@ docs/
 # Docgen analysis artifacts
 **/JSDOC_ANALYSIS.md
 **/JSDOC_ANALYSIS.json
+**/JSDOC_QUALITY.md
+**/JSDOC_QUALITY.json
 trace
 
 # Playwright

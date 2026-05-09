@@ -28,12 +28,16 @@ extends those conventions.
    `@postcondition`, `@invariant`, `@deprecated`, `@public`/`@beta`/etc.) are
    warranted by the symbol kind and content. Add them only when they encode
    information not present in the signature.
-4. For each schema value, verify `$I.annote` or `$I.annoteSchema`.
-5. Add or fix any missing documentation.
-6. Verify TSDoc grammar — no `{type}` blobs in tags, no `@template`, no
+4. Evaluate whole-block usefulness: the description, tags, and examples should
+   help a human or coding agent use the symbol without inventing intent.
+5. For each schema value, verify `$I.annote` or `$I.annoteSchema`.
+6. Add or fix any missing documentation.
+7. Verify TSDoc grammar — no `{type}` blobs in tags, no `@template`, no
    `@module`, no hyphen on `@returns`.
-7. Run `bun run docgen` to verify every example compiles.
-8. Fix compilation failures in examples until docgen passes.
+8. Run `bun run docgen` to verify every example compiles.
+9. Run `bun run beep docgen quality -p <package>` when touching a package and
+   use the report as advisory remediation input.
+10. Fix compilation failures in examples until docgen passes.
 
 ## JSDoc Block Structure
 
@@ -49,6 +53,7 @@ Every exported symbol MUST have this minimum structure:
  * import * as S from "effect/Schema"
  *
  * const result = MyModule.myFunction(args)
+ * console.log(result)
  * ```
  *
  * @category constructors
@@ -70,8 +75,19 @@ Tag order within the block:
 10. `@see`
 11. `@deprecated` (with `{@link}` migration target)
 12. `@public` / `@beta` / `@alpha` / `@internal` / `@experimental`
-13. `@category` (required, lowercase)
+13. `@category` (required, canonical kebab-case slug)
 14. `@since` (required, `0.0.0`)
+
+## Quality Rubric
+
+The report-only `beep docgen quality` command scores the whole JSDoc block, not
+just whether tags exist. Treat `@example` as universal for exported symbols; for
+error classes, type-only helpers, constants, schemas, and re-exports, choose a
+handling, narrowing, construction, or import example that fits the symbol.
+
+A useful example is fenced TypeScript and shows an observable result: an
+assertion, returned value, decoded value, Effect execution, or visible output.
+`const result = ...; void result` is a compile trick, not documentation.
 
 ## TSDoc Grammar Hard Rules
 
@@ -192,34 +208,35 @@ const MyUnion = S.Union([SchemaA, SchemaB]).pipe(
 
 ## Category Conventions
 
-Always lowercase. Choose the most specific match:
+Use canonical kebab-case slugs. Choose the exported symbol's semantic role, not
+its package location. The code source of truth is
+`packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts`.
 
-| Category | When to use |
-|----------|-------------|
-| `constructors` | Creation: `make`, `of`, `from*`, `new`, EntityIds |
-| `combinators` | Transformation: `map`, `flatMap`, `filter`, `pipe` chains |
-| `models` | Type definitions, interfaces, schema type aliases |
-| `schemas` | Schema definitions (`S.Class`, `S.Struct`, etc.) |
-| `services` | `Effect.Service` declarations |
-| `layers` | `Layer.Layer` definitions |
-| `errors` | Tagged error classes |
-| `streams` | `Stream`-returning functions and stream constructors |
-| `utilities` | General-purpose helpers |
-| `predicates` | Boolean-returning: `is*`, `has*` |
-| `getters` | Property access |
-| `guards` | Type guards |
-| `refinements` | Type narrowing |
-| `error handling` | Error management, recovery |
-| `resource management` | Resource lifecycle, acquire/release |
-| `symbols` | TypeId, branded types |
-| `sequencing` | Sequential operations |
-| `concurrency` | Parallel operations |
-| `filtering` | Data selection |
-| `folding` | Aggregation, reduction |
-| `mapping` | Data transformation |
-| `elements` | Element-level operations on collections |
-| `interop` | Interoperability with non-Effect code |
-| `testing` | Test utilities |
+Canonical groups:
+
+- Core API roles: `models`, `schemas`, `type-level`, `constructors`,
+  `factories`, `destructors`, `combinators`, `predicates`, `guards`,
+  `refinements`, `assertions`, `getters`, `setters`, `mapping`, `filtering`,
+  `folding`, `sequencing`, `concurrency`, `resource-management`,
+  `error-handling`, `utilities`, `layers`
+- Domain roles: `aggregates`, `entities`, `value-objects`, `domain-events`,
+  `policies`, `specifications`, `identifiers`, `entity-ids`, `type-ids`,
+  `symbols`, `errors`
+- Application and ports: `use-cases`, `commands`, `queries`, `events`,
+  `workflows`, `processes`, `schedulers`, `protocols`, `ports`, `services`,
+  `handlers`, `endpoints`, `clients`, `adapters`, `repositories`,
+  `projections`, `read-models`, `tables`
+- Data boundaries: `validation`, `parsing`, `encoding`, `decoding`,
+  `serialization`, `codecs`, `formatting`, `normalization`, `dtos`, `mappers`
+- UI and client state: `components`, `hooks`, `providers`, `themes`, `tokens`,
+  `forms`, `atoms`
+- Tooling and cross-cutting: `tools`, `tool-schemas`, `cli-commands`,
+  `configuration`, `constants`, `observability`, `diagnostics`, `fixtures`,
+  `testing`, `streams`, `resources`, `interop`
+
+Legacy values such as `DomainModel`, `Utility`, `UseCase`, `PortContract`, and
+`ToolSchemas` are migration aliases only. New or touched JSDoc should use the
+canonical slug.
 
 ## Type Alias Convention
 
@@ -315,50 +332,58 @@ Run this checklist against every file before finishing:
 1. Every `export const`, `export function`, `export class`, `export interface`,
    `export type` has a JSDoc block.
 2. Every JSDoc block contains at least one `@example` with a code fence.
-3. Every JSDoc block contains `@category` (lowercase value from the standard list).
+3. Every JSDoc block contains `@category` (canonical kebab-case slug from the standard list).
 4. Every JSDoc block contains `@since 0.0.0`.
+
+### Whole-block quality
+
+5. Description explains purpose rather than restating the symbol name.
+6. `@example` shows meaningful input and an observable result.
+7. Error, type-only, schema, constant, and re-export symbols still have
+   examples suited to their shape.
 
 ### Conditional tag correctness
 
-5. `@param` / `@returns` / `@typeParam` / `@throws` are present only when they
+8. `@param` / `@returns` / `@typeParam` / `@throws` are present only when they
    add information beyond the signature; absent when they would just restate it.
-6. `@remarks` is present on combinators with non-obvious semantics, ordering
+9. `@remarks` is present on combinators with non-obvious semantics, ordering
    guarantees, or idempotency claims.
-7. `@effects` is present on functions that write, publish, or mutate state
+10. `@effects` is present on functions that write, publish, or mutate state
    beyond what the type signature reveals.
-8. `@deprecated` includes a `{@link}` migration target.
+11. `@deprecated` includes a `{@link}` migration target.
 
 ### TSDoc grammar correctness
 
-9. No `{type}` blobs appear in any `@param`, `@returns`, or `@throws` tag.
-10. No `@template` tags appear; all type parameters use `@typeParam`.
-11. No `@returns` has a hyphen separator.
-12. No `@module` tag appears; package entry points use `@packageDocumentation`.
+12. No `{type}` blobs appear in any `@param`, `@returns`, or `@throws` tag.
+13. No `@template` tags appear; all type parameters use `@typeParam`.
+14. No `@returns` has a hyphen separator.
+15. No `@module` tag appears; package entry points use `@packageDocumentation`.
 
 ### Schema annotation requirements
 
-13. Every `S.Class` / `Model.Class` call has `$I.annote(...)` as the third arg.
-14. Every `TaggedErrorClass` call has `$I.annote(...)` as the third arg.
-15. Every non-class schema value has `$I.annoteSchema(...)` in its pipe.
-16. Every `LiteralKit` value has `.annotate($I.annote(...))`.
-17. Every non-class schema export has a same-name `export type` alias.
+16. Every `S.Class` / `Model.Class` call has `$I.annote(...)` as the third arg.
+17. Every `TaggedErrorClass` call has `$I.annote(...)` as the third arg.
+18. Every non-class schema value has `$I.annoteSchema(...)` in its pipe.
+19. Every `LiteralKit` value has `.annotate($I.annote(...))`.
+20. Every non-class schema export has a same-name `export type` alias.
 
 ### Import and pattern correctness
 
-18. All `@example` code fences use correct import aliases.
-19. No empty `Effect.gen(function* () {})` bodies in examples.
-20. No forbidden patterns (`any`, type assertions, `declare`, deprecated
+21. All `@example` code fences use correct import aliases.
+22. No empty `Effect.gen(function* () {})` bodies in examples.
+23. No forbidden patterns (`any`, type assertions, `declare`, deprecated
     package imports).
 
 ### Custom tag registration
 
-21. If `@effects`, `@precondition`, `@postcondition`, or `@invariant` appear in
+24. If `@effects`, `@precondition`, `@postcondition`, or `@invariant` appear in
     any file, `tsdoc.json` registers them as block tags (verify once per
     workspace, not per file).
 
 ### Final compilation
 
-22. `bun run docgen` passes with zero errors.
+25. `bun run docgen` passes with zero errors.
+26. `bun run beep docgen quality -p <package>` produces a reviewable report.
 
 ## Grep Verification Commands
 

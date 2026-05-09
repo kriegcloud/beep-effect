@@ -2,7 +2,7 @@
  * Human-first docgen command group.
  *
  * Restores the old subtree command surface in current repo style while
- * intentionally excluding AI or agent capabilities.
+ * keeping generation deterministic and quality review advisory.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -32,6 +32,12 @@ import {
   resolveDocgenWorkspacePackage,
   runDocgenForPackage,
 } from "./internal/Operations.js";
+import {
+  analyzeDocgenQuality,
+  generateQualityJson,
+  generateQualityReport,
+  resolveDocgenQualityTargets,
+} from "./internal/Quality.js";
 
 const packageFlag = Flag.string("package").pipe(
   Flag.withAlias("p"),
@@ -52,6 +58,20 @@ const outputFlag = Flag.string("output").pipe(
   Flag.optional
 );
 const jsonFlag = Flag.boolean("json").pipe(Flag.withDescription("Emit machine-readable JSON output"));
+const allFlag = Flag.boolean("all").pipe(Flag.withDescription("Run against every configured docgen package"));
+const changedFilesFlag = Flag.boolean("changed-files").pipe(
+  Flag.withDescription("Run against packages touched by working-tree TypeScript changes only")
+);
+const qualityScoreFlag = Flag.choiceWithValue("score", [
+  ["none", "none"],
+  ["rubric", "rubric"],
+  ["codex", "codex"],
+]).pipe(
+  Flag.withDefault("rubric"),
+  Flag.withDescription(
+    "Advisory scoring mode: rubric for deterministic findings, none as a compatibility alias, codex for Codex-ready packets"
+  )
+);
 const verboseFlag = Flag.boolean("verbose").pipe(
   Flag.withAlias("v"),
   Flag.withDescription("Include extra package detail")
@@ -85,6 +105,8 @@ const renderJson: (value: unknown) => Effect.Effect<string, DomainError> = Effec
 
 const defaultAnalysisPath = (packagePath: string, json: boolean, path: Path.Path): string =>
   path.join(packagePath, json ? "JSDOC_ANALYSIS.json" : "JSDOC_ANALYSIS.md");
+const defaultQualityPath = (packagePath: string, json: boolean, path: Path.Path): string =>
+  path.join(packagePath, json ? "JSDOC_QUALITY.json" : "JSDOC_QUALITY.md");
 
 const logGenerationResults = Effect.fn(function* (results: ReadonlyArray<DocgenGenerationResult>) {
   const failures = results.filter((result) => !result.success);
@@ -605,6 +627,80 @@ const docgenCheckCommand = Command.make(
     )
 ).pipe(Command.withDescription("Fail when package exports are missing required JSDoc/docgen metadata"));
 
+const docgenQualityCommand = Command.make(
+  "quality",
+  {
+    package: packageFlag,
+    all: allFlag,
+    changedFiles: changedFilesFlag,
+    output: outputFlag,
+    json: jsonFlag,
+    score: qualityScoreFlag,
+  },
+  ({ package: packageSelector, all, changedFiles, output, json, score }) =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const { scope, targets } = yield* resolveDocgenQualityTargets({
+        all,
+        changedFiles,
+        packageSelector,
+      });
+
+      if (targets.length === 0) {
+        yield* Console.log("docgen: no packages selected for quality analysis");
+        return;
+      }
+
+      const report = yield* analyzeDocgenQuality({
+        scope,
+        scoreMode: score,
+        targets,
+      });
+      const content = json ? yield* generateQualityJson(report) : generateQualityReport(report);
+
+      if (O.isSome(output)) {
+        yield* fs.writeFileString(output.value, content);
+        yield* Console.log(`docgen: wrote ${output.value}`);
+        return;
+      }
+
+      if (O.isSome(packageSelector) && targets.length === 1) {
+        const target = A.head(targets);
+
+        if (O.isNone(target)) {
+          return;
+        }
+
+        const destination = defaultQualityPath(target.value.absolutePath, json, path);
+        yield* fs.writeFileString(destination, content);
+        yield* Console.log(`docgen: wrote ${destination}`);
+        return;
+      }
+
+      yield* Console.log(content);
+    }).pipe(
+      Effect.catchTag(
+        "DomainError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`docgen: ${error.message}`);
+        })
+      ),
+      Effect.catchTag(
+        "NoSuchFileError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`docgen: ${error.message}`);
+        })
+      )
+    )
+).pipe(
+  Command.withDescription(
+    "Produce a report-only exported-symbol JSDoc quality report with bounded advisory remediation packets"
+  )
+);
+
 const printDocgenIndex = Effect.fn(function* () {
   yield* Console.log('Run "bun run beep docgen --help" to see the available docgen commands and flags.');
 });
@@ -616,7 +712,7 @@ const printDocgenIndex = Effect.fn(function* () {
  * @since 0.0.0
  */
 export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
-  Command.withDescription("Documentation generation utilities without AI or agent workflows"),
+  Command.withDescription("Documentation generation, analysis, and report-only quality review utilities"),
   Command.withSubcommands([
     docgenStatusCommand,
     docgenInitCommand,
@@ -625,5 +721,6 @@ export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
     docgenAggregateCommand,
     docgenAnalyzeCommand,
     docgenCheckCommand,
+    docgenQualityCommand,
   ])
 );
