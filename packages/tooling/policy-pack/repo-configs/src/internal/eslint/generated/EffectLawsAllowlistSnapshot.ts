@@ -70,14 +70,6 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/drivers/acp/src/client.ts",
-      "kind": "native-switch",
-      "reason": "Existing ACP client protocol dispatch predates the stricter native switch gate and is tracked explicitly for a focused driver cleanup.",
-      "owner": "@beep/acp",
-      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts",
       "kind": "native-switch",
       "reason": "Existing experimental OTLP packet rendering dispatch predates the stricter native switch gate and is tracked explicitly for a focused observability cleanup.",

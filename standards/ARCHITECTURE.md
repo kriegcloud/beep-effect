@@ -108,6 +108,13 @@ Service contracts and type-level-only utility surfaces may stay as TypeScript
 types. Domain payloads, wire payloads, persisted rows, and config payloads
 should be schema-first whenever `Schema` can represent the shape.
 
+When a schema-modeled shape represents a finite set of variants, lifecycle
+states, status/result cases, or case-specific payloads, model it as a
+discriminated union. Do not model finite cases as one object with optional or
+nullish fields unless an external wire contract requires that shape; in those
+cases, decode or normalize the boundary value into an internal tagged model
+before case-specific behavior branches.
+
 Persisted entities follow the same law. `@beep/schema/EntitySchema` is the
 generic source-of-truth kernel: entity models are schema classes, their decoded
 side is domain language, and their encoded side is the persistence row shape.

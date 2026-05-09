@@ -288,8 +288,18 @@ export type Tenant = typeof Tenant.Type
 
 ### EF-13: Discriminated union schemas
 
-- If schema properties are a union of literal strings (for example `kind`, `state`, `category`), compose variants with `LiteralKit`, `.mapMembers`, and `Tuple.evolve`, then finalize with `S.toTaggedUnion("<field>")`.
-- Prefer `S.Class` for tagged union member schemas.
+- Model finite variants, lifecycle states, status/result cases, and
+  case-specific payloads as discriminated unions instead of optional/nullish
+  payload bags.
+- If an external wire shape forces an optional/nullish bag, decode or normalize
+  it at the boundary into an internal tagged model before case-specific
+  branching.
+- If schema properties are a union of literal strings (for example `kind`,
+  `state`, `category`, `profile`, or `family`), compose variants with
+  `LiteralKit`, `.mapMembers`, and `Tuple.evolve`, then finalize with
+  `S.toTaggedUnion("<field>")`.
+- Prefer `S.Class` for tagged union member schemas, and use the schema-derived
+  `.match` helper when branching directly on the union.
 - Use `S.TaggedUnion` only for canonical `_tag` object-union construction.
 - Reference: [Effect schema docs](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:1934).
 
@@ -1247,7 +1257,7 @@ Use this before submitting code:
 29. Expected failures use `Effect.fail`; defects are reserved for invariants.
 30. Isolation-sensitive layer provisioning uses `{ local: true }` or `Layer.fresh`.
 31. New domain data models are schema-first; plain `type` / `interface` is used only when schema is not a practical fit.
-32. Literal-string discriminant unions and internal literal domains use `LiteralKit` when `.mapMembers`, `.is`, `.thunk`, `$match`, or annotation-bearing schema values are needed.
+32. Finite variants, lifecycle states, status/result cases, and case-specific payloads are modeled as discriminated unions; literal-string discriminants and internal literal domains use `LiteralKit` when `.mapMembers`, `.is`, `.thunk`, `$match`, or annotation-bearing schema values are needed.
 33. Schema defaults use `S.withConstructorDefault` / `S.withDecodingDefault*`, not ad-hoc fallback objects in handlers/services.
 34. Named or reused domain constraints are modeled as schemas first; built-in schema constructors/checks are preferred before `S.makeFilter`.
 35. Guard helpers for domain strings/paths/tags come from branded schemas with `S.is(...)`, not ad-hoc `regex.test(...)` predicates.

@@ -21,7 +21,7 @@ import * as AiError from "effect/unstable/ai/AiError";
 import * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import * as AiModel from "effect/unstable/ai/Model";
 import type { XAiError } from "./XAi.errors.ts";
-import { XAiRequestOptions, type XAiServerSentEvent } from "./XAi.models.ts";
+import { XAiRequestOptions, XAiResponse, type XAiServerSentEvent } from "./XAi.models.ts";
 import { XAi, type XAiShape } from "./XAi.service.ts";
 
 const $I = $XaiId.create("XAiLanguageModel");
@@ -103,6 +103,14 @@ const mapXAiError =
     return makeAiError(method, new AiError.UnknownError({ description: errorDescription(error) }));
   };
 
+const nonJsonChatCompletionError = (responseTag: "Binary" | "NoBody" | "Text"): AiError.AiError =>
+  makeAiError(
+    "createChatCompletion",
+    new AiError.InvalidOutputError({
+      description: `xAI chat completion returned a ${responseTag} response instead of JSON.`,
+    })
+  );
+
 const createChatCompletion = (
   xai: XAiShape,
   request: OpenAiCompatChatCompletionRequest
@@ -111,14 +119,13 @@ const createChatCompletion = (
     xai.createChatCompletion(new XAiRequestOptions({ body: request })),
     Effect.mapError(mapXAiError("createChatCompletion")),
     Effect.flatMap((response) =>
-      response._tag === "Json"
-        ? pipe(response.body, decodeChatCompletionResponse, Effect.mapError(mapSchemaError("createChatCompletion")))
-        : Effect.fail(
-            makeAiError(
-              "createChatCompletion",
-              new AiError.InvalidOutputError({ description: "xAI chat completion did not return a JSON response." })
-            )
-          )
+      XAiResponse.match(response, {
+        Json: (json) =>
+          pipe(json.body, decodeChatCompletionResponse, Effect.mapError(mapSchemaError("createChatCompletion"))),
+        Binary: () => Effect.fail(nonJsonChatCompletionError("Binary")),
+        NoBody: () => Effect.fail(nonJsonChatCompletionError("NoBody")),
+        Text: () => Effect.fail(nonJsonChatCompletionError("Text")),
+      })
     ),
     Effect.withSpan("XAiLanguageModel.createChatCompletion", {
       attributes: {

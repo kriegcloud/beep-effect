@@ -10,6 +10,8 @@ import * as Str from "effect/String";
 /**
  * Quote a value as one POSIX shell token.
  *
+ * @param value - The raw shell argument value to quote.
+ * @returns A single POSIX shell token with embedded quotes escaped.
  * @example
  * ```ts
  * import { shellQuote } from "@beep/repo-ai-metrics"

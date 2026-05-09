@@ -79,21 +79,6 @@ export class AcpProtocolLoggingOptions extends S.Class<AcpProtocolLoggingOptions
   })
 ) {}
 
-const AcpSessionUpdateIncomingNotification = S.TaggedStruct("SessionUpdate", {
-  method: S.Literal(CLIENT_METHODS.session_update),
-  params: AcpSchema.SessionNotification,
-});
-
-const AcpElicitationCompleteIncomingNotification = S.TaggedStruct("ElicitationComplete", {
-  method: S.Literal(CLIENT_METHODS.session_elicitation_complete),
-  params: AcpSchema.ElicitationCompleteNotification,
-});
-
-const AcpExtIncomingNotification = S.TaggedStruct("ExtNotification", {
-  method: S.String,
-  params: S.Unknown,
-});
-
 /**
  * Schema for notifications decoded from the ACP peer stream.
  *
@@ -107,11 +92,20 @@ const AcpExtIncomingNotification = S.TaggedStruct("ExtNotification", {
  * @category schemas
  * @since 0.0.0
  */
-export const AcpIncomingNotification = S.Union([
-  AcpSessionUpdateIncomingNotification,
-  AcpElicitationCompleteIncomingNotification,
-  AcpExtIncomingNotification,
-]).pipe(
+export const AcpIncomingNotification = S.TaggedUnion({
+  SessionUpdate: {
+    method: S.Literal(CLIENT_METHODS.session_update),
+    params: AcpSchema.SessionNotification,
+  },
+  ElicitationComplete: {
+    method: S.Literal(CLIENT_METHODS.session_elicitation_complete),
+    params: AcpSchema.ElicitationCompleteNotification,
+  },
+  ExtNotification: {
+    method: S.String,
+    params: S.Unknown,
+  },
+}).pipe(
   $I.annoteSchema("AcpIncomingNotification", {
     description: "Schema for notifications decoded from the ACP peer stream.",
   })

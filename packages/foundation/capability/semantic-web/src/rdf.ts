@@ -479,8 +479,9 @@ export class DefaultGraph extends S.Class<DefaultGraph>($I`DefaultGraph`)(
  * @since 0.0.0
  * @category models
  */
-export const Term = S.Union([NamedNode, BlankNode, Literal, DefaultGraph]).annotate(
-  $I.annote("Term", {
+export const Term = S.Union([NamedNode, BlankNode, Literal, DefaultGraph]).pipe(
+  S.toTaggedUnion("termType"),
+  $I.annoteSchema("Term", {
     description: "RDF term union aligned with RDF/JS.",
     semanticSchemaMetadata: makeSemanticSchemaMetadata({
       kind: "rdfConstruct",
@@ -971,21 +972,16 @@ export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make
  * @since 0.0.0
  * @category utilities
  */
-export const serializeTerm = (term: Term): string => {
-  if (term.termType === "NamedNode") {
-    return `<${term.value}>`;
-  }
-  if (term.termType === "BlankNode") {
-    return `_:${term.value}`;
-  }
-  if (term.termType === "Literal") {
-    if (O.isSome(term.language)) {
-      return `"${term.value}"@${term.language.value.toLowerCase()}`;
-    }
-    return `"${term.value}"^^<${term.datatype.value}>`;
-  }
-  return "default";
-};
+export const serializeTerm = (term: Term): string =>
+  Term.match(term, {
+    NamedNode: (value) => `<${value.value}>`,
+    BlankNode: (value) => `_:${value.value}`,
+    Literal: (value) =>
+      O.isSome(value.language)
+        ? `"${value.value}"@${value.language.value.toLowerCase()}`
+        : `"${value.value}"^^<${value.datatype.value}>`,
+    DefaultGraph: () => "default",
+  });
 
 /**
  * Serialize an RDF quad to a deterministic lexical form.

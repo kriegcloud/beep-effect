@@ -189,8 +189,9 @@ export class FragmentSelector extends S.Class<FragmentSelector>($I`FragmentSelec
  * @since 0.0.0
  * @category models
  */
-export const EvidenceSelector = S.Union([TextQuoteSelector, TextPositionSelector, FragmentSelector]).annotate(
-  $I.annote("EvidenceSelector", {
+export const EvidenceSelector = S.Union([TextQuoteSelector, TextPositionSelector, FragmentSelector]).pipe(
+  S.toTaggedUnion("kind"),
+  $I.annoteSchema("EvidenceSelector", {
     description: "Evidence selector union.",
   })
 );

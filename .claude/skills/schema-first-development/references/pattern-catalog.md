@@ -88,8 +88,13 @@ surface is needed.
 
 Use this split:
 
+- Model finite variants, lifecycle states, status/result cases, and
+  case-specific payloads as discriminated unions instead of optional/nullish
+  payload bags.
+- If an external wire contract forces a bag shape, decode or normalize it into
+  an internal tagged model before branching.
 - `S.toTaggedUnion("field")` for discriminator fields such as `kind`, `type`,
-  `status`, `subtype`, or `decision`
+  `status`, `subtype`, `decision`, `profile`, or `family`
 - `S.TaggedUnion(...)` only for `_tag`
 
 Repo-preferred construction for reusable literal domains:
@@ -100,6 +105,11 @@ Repo-preferred construction for reusable literal domains:
 4. Finalize with `S.toTaggedUnion("field")`.
 
 This is the high-signal repo style for discriminator-heavy modules.
+
+When branching on the resulting schema union, prefer the schema-derived
+`.match` helper. For ordinary runtime unions that are not schema-derived,
+prefer `Match.tagsExhaustive` or `Match.tags` when they make the case set
+explicit.
 
 ## 7. Reuse Schema-Derived Runtime Helpers
 
@@ -167,6 +177,9 @@ If the check is reusable, include:
   filter
 - `S.Literals(...)` for a reusable internal domain
   Replace with `LiteralKit(...)`
+- One object with optional fields for every case payload
+  Replace with a tagged union, or decode the external bag into an internal
+  tagged model at the boundary.
 
 ## 11. Review Checklist
 
