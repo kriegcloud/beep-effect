@@ -1242,15 +1242,16 @@ const exampleIsTooTrivial = (example: string): boolean => {
   return code.length <= 1;
 };
 
+const OBSERVABLE_EXAMPLE_RESULT_PATTERN =
+  /expect\s*\(|assert|return\s+|(?:Console|console)\.|Effect\.run|S\.decode|Schema\.decode|Equal\.|\.pipe\(/;
+
 const exampleOnlyVoidsResult = (example: string): boolean => {
   const code = exampleCodeText(example);
-  return /void\s+\w+/.test(code) && !/expect\s*\(|assert|return\s+|(?:Console|console)\.|Effect\.run/.test(code);
+  return /void\s+\w+/.test(code) && !OBSERVABLE_EXAMPLE_RESULT_PATTERN.test(code);
 };
 
 const exampleHasObservableResult = (example: string): boolean =>
-  /expect\s*\(|assert|return\s+|(?:Console|console)\.|Effect\.run|S\.decode|Schema\.decode|Equal\.|\.pipe\(/.test(
-    exampleCodeText(example)
-  );
+  OBSERVABLE_EXAMPLE_RESULT_PATTERN.test(exampleCodeText(example));
 
 const addFinding = (
   findings: ReadonlyArray<DocgenQualityFinding>,
@@ -1388,7 +1389,7 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
     );
   }
 
-  if (/Effect(\.|<)/.test(subject.declarationSource) && !hasTag(subject.tags, "@effects")) {
+  if (/Effect(\.|<)/.test(subject.signature) && !hasTag(subject.tags, "@effects")) {
     findings = addFinding(
       findings,
       makeFinding({

@@ -802,6 +802,89 @@ export { parseValue };
     );
   });
 
+  it("aligns observable example and Effect signature heuristics", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Parses a value into the normalized schema fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import { Equal } from "effect"
+ * import { parseValue } from "@beep/schema"
+ * const result = parseValue(" hello ")
+ * void result
+ * Equal.equals(result, "hello")
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+
+/**
+ * Formats a value while mentioning Effect.Exit only in documentation prose.
+ *
+ * @returns Text for displaying an Effect.Exit label.
+ * @example
+ * \`\`\`ts
+ * import { formatValue } from "@beep/schema"
+ * const result = formatValue("hello")
+ * console.log(result)
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export const formatValue = (value: string): string => \`value: \${value}\`;
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzePackageQuality(target!);
+          const reviewFor = (exportName: string) => {
+            const subject = report.subjects.find((entry) => entry.exportName === exportName);
+            return report.reviews.find((entry) => entry.subjectId === subject?.stableIdentity);
+          };
+
+          const parseFindingCodes = reviewFor("parseValue")?.findings.map((finding) => finding.code) ?? [];
+          const formatFindingCodes = reviewFor("formatValue")?.findings.map((finding) => finding.code) ?? [];
+
+          expect(parseFindingCodes).not.toContain("example-only-voids-result");
+          expect(parseFindingCodes).not.toContain("example-lacks-observable-result");
+          expect(formatFindingCodes).not.toContain("missing-effects-for-effectful-symbol");
+        })
+      )
+    );
+  });
+
   it("honors docgen exclude globs during quality subject collection", async () => {
     await Effect.runPromise(
       withTempRepo(
