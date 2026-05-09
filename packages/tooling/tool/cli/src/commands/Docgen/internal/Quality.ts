@@ -651,7 +651,7 @@ const getLastJsDocText = (node: Node): string =>
     getJsDocs(node),
     A.last,
     O.map((doc) => doc.getText()),
-    O.getOrElse(() => "")
+    O.getOrElse(thunkEmptyStr)
   );
 
 const getLeadingJsDocCommentText = (node: ExportDeclaration): string =>
@@ -660,7 +660,7 @@ const getLeadingJsDocCommentText = (node: ExportDeclaration): string =>
     A.filter((range) => Str.startsWith("/**")(range.getText())),
     A.last,
     O.map((range) => range.getText()),
-    O.getOrElse(() => "")
+    O.getOrElse(thunkEmptyStr)
   );
 
 const getTopFileoverviewText = (sourceFile: SourceFile): string => {
