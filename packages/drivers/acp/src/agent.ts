@@ -328,37 +328,38 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
     ...(options.logIncoming !== undefined ? { logIncoming: options.logIncoming } : {}),
     ...(options.logOutgoing !== undefined ? { logOutgoing: options.logOutgoing } : {}),
     ...(options.logger !== undefined ? { logger: options.logger } : {}),
-    onNotification: (notification) => {
-      if (notification._tag === "ExtNotification" && notification.method === AGENT_METHODS.session_cancel) {
-        return decodeCancelNotification(notification.params).pipe(
-          Effect.mapError(
-            (error) =>
-              new AcpError.AcpProtocolParseError({
-                detail: `Invalid ${AGENT_METHODS.session_cancel} notification payload`,
-                cause: error,
+    onNotification: (notification) =>
+      AcpProtocol.AcpIncomingNotification.match(notification, {
+        SessionUpdate: () => Effect.void,
+        ElicitationComplete: () => Effect.void,
+        ExtNotification: (value) => {
+          if (value.method === AGENT_METHODS.session_cancel) {
+            return decodeCancelNotification(value.params).pipe(
+              Effect.mapError(
+                (error) =>
+                  new AcpError.AcpProtocolParseError({
+                    detail: `Invalid ${AGENT_METHODS.session_cancel} notification payload`,
+                    cause: error,
+                  })
+              ),
+              Effect.flatMap((decoded) =>
+                Effect.forEach(cancelHandlers, (handler) => handler(decoded), {
+                  discard: true,
+                })
+              )
+            );
+          }
+
+          return Ref.get(extNotificationHandlers).pipe(
+            Effect.flatMap((handlers) =>
+              O.match(HashMap.get(handlers, value.method), {
+                onNone: () => runUnknownExtNotification(value.method, value.params),
+                onSome: (handler) => handler(value.params),
               })
-          ),
-          Effect.flatMap((decoded) =>
-            Effect.forEach(cancelHandlers, (handler) => handler(decoded), {
-              discard: true,
-            })
-          )
-        );
-      }
-
-      if (notification._tag !== "ExtNotification") {
-        return Effect.void;
-      }
-
-      return Ref.get(extNotificationHandlers).pipe(
-        Effect.flatMap((handlers) =>
-          O.match(HashMap.get(handlers, notification.method), {
-            onNone: () => runUnknownExtNotification(notification.method, notification.params),
-            onSome: (handler) => handler(notification.params),
-          })
-        )
-      );
-    },
+            )
+          );
+        },
+      }),
     onExtRequest: (method, params) => {
       return Ref.get(extRequestHandlers).pipe(
         Effect.flatMap((handlers) =>

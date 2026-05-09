@@ -136,8 +136,9 @@ export class JsonLdByteChunkStream extends S.Class<JsonLdByteChunkStream>($I`Jso
  * @since 0.0.0
  * @category models
  */
-export const JsonLdStreamParseInput = S.Union([JsonLdTextChunkStream, JsonLdByteChunkStream]).annotate(
-  $I.annote("JsonLdStreamParseInput", {
+export const JsonLdStreamParseInput = S.Union([JsonLdTextChunkStream, JsonLdByteChunkStream]).pipe(
+  S.toTaggedUnion("kind"),
+  $I.annoteSchema("JsonLdStreamParseInput", {
     description: "Streaming parse input union.",
   })
 );

@@ -156,8 +156,9 @@ export class SparqlConstructResult extends S.Class<SparqlConstructResult>($I`Spa
  * @since 0.0.0
  * @category models
  */
-export const SparqlQueryResult = S.Union([SparqlSelectResult, SparqlAskResult, SparqlConstructResult]).annotate(
-  $I.annote("SparqlQueryResult", {
+export const SparqlQueryResult = S.Union([SparqlSelectResult, SparqlAskResult, SparqlConstructResult]).pipe(
+  S.toTaggedUnion("profile"),
+  $I.annoteSchema("SparqlQueryResult", {
     description: "SPARQL result union.",
   })
 );

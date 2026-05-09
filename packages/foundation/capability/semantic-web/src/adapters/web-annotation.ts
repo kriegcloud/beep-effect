@@ -12,7 +12,7 @@ import { Match } from "effect";
 import * as S from "effect/Schema";
 import {
   EvidenceAnchor,
-  type EvidenceSelector,
+  EvidenceSelector,
   EvidenceTarget,
   FragmentSelector,
   TextPositionSelector,
@@ -228,30 +228,27 @@ export class WebAnnotation extends S.Class<WebAnnotation>($I`WebAnnotation`)(
  * @category utilities
  */
 export const evidenceSelectorToWebAnnotationSelector = (selector: EvidenceSelector): WebAnnotationSelector =>
-  Match.value(selector).pipe(
-    Match.when({ kind: "text-quote" }, (value) =>
+  EvidenceSelector.match(selector, {
+    "text-quote": (value) =>
       WebAnnotationTextQuoteSelector.make({
         type: "TextQuoteSelector",
         exact: value.exact,
         prefix: value.prefix,
         suffix: value.suffix,
-      })
-    ),
-    Match.when({ kind: "text-position" }, (value) =>
+      }),
+    "text-position": (value) =>
       WebAnnotationTextPositionSelector.make({
         type: "TextPositionSelector",
         start: value.start,
         end: value.end,
-      })
-    ),
-    Match.orElse((value) =>
+      }),
+    fragment: (value) =>
       WebAnnotationFragmentSelector.make({
         type: "FragmentSelector",
         value: value.value,
         conformsTo: value.conformsTo,
-      })
-    )
-  );
+      }),
+  });
 
 /**
  * Map a Web Annotation selector DTO to an evidence selector.

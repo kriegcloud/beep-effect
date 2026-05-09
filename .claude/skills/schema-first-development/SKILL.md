@@ -16,7 +16,7 @@ Treat schema-first rules as enforced repository law, not style preference.
 The primary sources are:
 
 - `standards/effect-first-development.md`
-- `packages/tooling/policy-pack/repo-configs/src/eslint/SchemaFirstRule.ts`
+- `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts`
 - `standards/schema-first.inventory.jsonc`
 
 Keep `Schema` as the source of truth for pure data models.
@@ -54,6 +54,8 @@ Keep `Schema` as the source of truth for pure data models.
 - No schema value ends with `Schema`.
 - Non-class schemas export same-name runtime type aliases.
 - Tagged unions use the repo-preferred construction.
+- Finite variants are modeled as discriminated unions instead of optional
+  payload bags.
 - JSON boundaries use schema codecs, not native JSON helpers.
 
 ## Fast Rules
@@ -63,10 +65,17 @@ Keep `Schema` as the source of truth for pure data models.
 - Prefer `S.Class` for object models and named intermediate schemas for reused
   concepts.
 - Prefer `LiteralKit` when a literal domain needs `.is`, `.Enum`, `.thunk`,
-  `$match`, or `.mapMembers(...)`.
+  `$match`, `.mapMembers(...)`, or `.toTaggedUnion(...)`.
+- Model finite variants, lifecycle states, status/result cases, and
+  case-specific payloads as discriminated unions, not one optional/nullish
+  payload bag.
+- Decode external optional/nullish case bags into internal tagged models when
+  compatibility requires the wire shape.
 - Use `S.toTaggedUnion("<field>")` for discriminators such as `kind`,
-  `status`, `type`, or `subtype`.
+  `status`, `type`, `subtype`, `profile`, or `family`.
 - Use `S.TaggedUnion(...)` only for canonical `_tag` object unions.
+- Prefer the schema-derived `.match` helper when branching on a schema tagged
+  union.
 - Use `S.OptionFromNullOr`, `S.OptionFromNullishOr`,
   `S.OptionFromOptionalKey`, and `S.OptionFromOptional` for absence at the
   boundary.

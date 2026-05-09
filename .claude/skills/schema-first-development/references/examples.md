@@ -107,24 +107,25 @@ Why it matters:
 
 File:
 
-- `packages/ai/sdk/src/core/Schema/Mcp.ts`
+- `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts`
+- `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts`
 
 Use this file when you need:
 
-- a `type` discriminator rather than `_tag`
-- composed struct members merged into a tagged union
-- mixed optional and required fields in transport config schemas
+- a discriminator such as `category`, `mode`, `section`, or `kind`
+- `LiteralKit + mapMembers + Tuple.evolve + S.toTaggedUnion(...)`
+- schema-derived `.match` helpers for branch sites
 
 What to copy:
 
-- `McpExplicitServerConfig`
-- `McpExplicitServerConfigWithInstance`
+- `VersionCategoryReport`
+- `TsMorphMutation`
 
 Why it matters:
 
-- it demonstrates the repo's repeated use of `S.toTaggedUnion("type")`
-- it is a good model when the transport shape is better expressed as annotated
-  structs instead of class members
+- it demonstrates the repo's preferred construction for reusable literal
+  domains that become tagged unions
+- it keeps the case set anchored to the literal domain instead of a raw union
 
 ## Quick Selection Map
 
@@ -136,4 +137,4 @@ Why it matters:
   Start with `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts`
 - Need a `kind` or `type` tagged union:
   Start with `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
-  or `packages/ai/sdk/src/core/Schema/Mcp.ts`
+  or `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts`

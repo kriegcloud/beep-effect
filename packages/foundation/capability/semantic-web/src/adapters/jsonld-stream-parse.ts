@@ -20,6 +20,7 @@ import {
 } from "../services/jsonld-document.ts";
 import {
   JsonLdStreamParseError,
+  JsonLdStreamParseInput,
   JsonLdStreamParseResult,
   JsonLdStreamParseService,
   type JsonLdStreamParseServiceShape,
@@ -120,10 +121,10 @@ export const JsonLdStreamParseServiceLive = Layer.effect(
           });
         }
 
-        const sourceText =
-          request.input.kind === "text"
-            ? pipe(request.input.chunks, A.join(""))
-            : decodeUtf8Chunks(request.input.chunks);
+        const sourceText = JsonLdStreamParseInput.match(request.input, {
+          text: (input) => pipe(input.chunks, A.join("")),
+          bytes: (input) => decodeUtf8Chunks(input.chunks),
+        });
 
         const document = yield* pipe(
           decodeJsonLdDocumentFromJson(sourceText),
