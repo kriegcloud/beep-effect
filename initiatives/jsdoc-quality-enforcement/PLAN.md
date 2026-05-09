@@ -27,7 +27,8 @@ V1 is implemented as a report-only quality workflow:
 | P2 | Complete | Synthesize cross-lane findings. | `research/synthesis-and-recommendations.md` |
 | P3 | Complete | Challenge the implementation direction. | `grill-with-docs` decision plan |
 | P4 | Complete | Implement report-only V1 quality workflow. | `beep docgen quality`, tests, guidance updates |
-| P5 | Pending | Evaluate enforcement readiness. | Repo-specific evals and threshold proposal |
+| P5 | Complete | Evaluate enforcement readiness. | `research/enforcement-readiness-eval.md`, compact summary artifact |
+| P6 | Pending | Harden before any enforcement. | Runtime bounds, re-export policy, type-only example policy, opt-in warning proposal |
 
 ## V1 Implementation Changes
 
@@ -44,10 +45,14 @@ V1 is implemented as a report-only quality workflow:
 
 ## Future Work
 
-- Build repo-specific eval fixtures before proposing any blocking threshold.
+- Bound package-local report runtime before proposing any blocking threshold.
+- Decide re-export/barrel documentation policy before gating namespace export
+  findings.
+- Decide type-only example usefulness policy before gating observable-result
+  findings on type exports.
 - Decide whether advisory packets should grow into guided Codex remediation
-  execution.
+  execution after packet sizing and prioritization are improved.
 - Revisit local/Qwen workers only behind an eval-only mode with measured
   precision and cost.
-- Consider package opt-in or changed-files-only blocking after V1 reports show
-  stable signal.
+- Consider package opt-in warning mode before changed-files-only blocking after
+  P6 hardening proves stable signal.
