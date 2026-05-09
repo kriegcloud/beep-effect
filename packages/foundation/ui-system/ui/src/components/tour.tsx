@@ -18,6 +18,7 @@ import Link from "next/link";
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../lib/index.ts";
+import { requireReactContext } from "../lib/react-invariant.ts";
 
 const TourContext = React.createContext<{
   readonly start: (tourId: string) => void;
@@ -30,10 +31,7 @@ const TourContext = React.createContext<{
  */
 function useTour() {
   const context = React.useContext(TourContext);
-  if (!context) {
-    throw new Error("useTour must be used within a TourProvider");
-  }
-  return context;
+  return requireReactContext(context, { message: "useTour must be used within a TourProvider" });
 }
 
 /**

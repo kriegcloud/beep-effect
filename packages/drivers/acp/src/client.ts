@@ -6,7 +6,7 @@
  */
 
 import { $AcpId } from "@beep/identity";
-import { Context, Effect, HashMap, HashSet, Layer, Ref } from "effect";
+import { Context, Effect, HashMap, HashSet, Layer, Match, Ref } from "effect";
 import * as O from "effect/Option";
 import type * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
@@ -430,8 +430,8 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
       });
     });
 
-  const dispatchNotification = (notification: AcpProtocol.AcpIncomingNotification) =>
-    AcpProtocol.AcpIncomingNotification.match(notification, {
+  const dispatchNotification = Match.type<AcpProtocol.AcpIncomingNotification>().pipe(
+    Match.tagsExhaustive({
       SessionUpdate: (value) => {
         if (notificationHandlers.sessionUpdate.handlers.length === 0) {
           notificationHandlers.sessionUpdate.pending.push(value.params);
@@ -455,7 +455,8 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
             })
           )
         ),
-    });
+    })
+  );
 
   const dispatchExtRequest = (method: string, params: unknown) => {
     return Ref.get(extRequestHandlers).pipe(

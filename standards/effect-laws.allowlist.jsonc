@@ -20,83 +20,11 @@
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
+      "file": "packages/foundation/ui-system/ui/src/lib/react-invariant.ts",
       "kind": "native-error",
-      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
+      "reason": "React context hooks need synchronous invariant failures during render so provider misuse is surfaced immediately by React's error boundary/dev overlay path.",
       "owner": "@beep/ui",
-      "issue": "UI-SIDEBAR-CONTEXT-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-      "kind": "native-error",
-      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
-      "owner": "@beep/ui",
-      "issue": "UI-CAROUSEL-CONTEXT-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/components/speech-input.tsx",
-      "kind": "native-error",
-      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
-      "owner": "@beep/ui",
-      "issue": "UI-SPEECH-INPUT-CONTEXT-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-      "kind": "native-error",
-      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
-      "owner": "@beep/ui",
-      "issue": "UI-TOUR-CONTEXT-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts",
-      "kind": "date-static",
-      "reason": "OTLP serialization hooks are synchronous body factories, so packet capture timestamps must be recorded at that immediate runtime boundary without introducing Effect execution into the serializer contract.",
-      "owner": "@beep/observability",
-      "issue": "OBSERVABILITY-OTLP-PACKET-LAB-TIMESTAMP"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts",
-      "kind": "native-switch",
-      "reason": "Existing fixture dispatch predates the stricter native switch gate and is tracked explicitly so the repo-cli script migration does not widen into runtime refactors.",
-      "owner": "@beep/agent-capability",
-      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts",
-      "kind": "native-switch",
-      "reason": "Existing experimental OTLP packet rendering dispatch predates the stricter native switch gate and is tracked explicitly for a focused observability cleanup.",
-      "owner": "@beep/observability",
-      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
-      "kind": "native-switch",
-      "reason": "Existing schema helper dispatch predates the stricter native switch gate and is tracked explicitly for a focused schema cleanup.",
-      "owner": "@beep/schema",
-      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/modeling/schema/src/LocalDate.ts",
-      "kind": "native-switch",
-      "reason": "Existing date parsing dispatch predates the stricter native switch gate and is tracked explicitly for a focused schema cleanup.",
-      "owner": "@beep/schema",
-      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/components/notification-card.tsx",
-      "kind": "native-switch",
-      "reason": "Existing presentation variant dispatch predates the stricter native switch gate and is tracked explicitly for a focused UI cleanup.",
-      "owner": "@beep/ui",
-      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+      "issue": "UI-REACT-CONTEXT-INVARIANT"
     },
     {
       "rule": "beep-laws/no-native-runtime",

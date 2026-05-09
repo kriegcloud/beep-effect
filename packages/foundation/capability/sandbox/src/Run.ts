@@ -9,6 +9,7 @@ import { $SandboxId } from "@beep/identity";
 import { Fn, LiteralKit } from "@beep/schema";
 import { Duration, Effect, FileSystem, Path } from "effect";
 import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { AgentProvider } from "./Agent.provider.ts";
@@ -20,6 +21,7 @@ import {
   MergeToHeadOptions,
   mergeToHead,
   prepareSandboxLifecycle,
+  RunHostHooksOptions,
   runHostHooks,
   type SandboxHooks,
   SandboxLifecycleSetupOptions,
@@ -243,6 +245,22 @@ export class FileDisplayStartupOptions extends S.Class<FileDisplayStartupOptions
 ) {}
 
 /**
+ * Options for building a sandbox run log filename.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LogFilenameOptions extends S.Class<LogFilenameOptions>($I`LogFilenameOptions`)(
+  {
+    name: S.optionalKey(S.String),
+    targetBranch: S.optionalKey(S.String),
+  },
+  $I.annote("LogFilenameOptions", {
+    description: "Options for building a sandbox run log filename.",
+  })
+) {}
+
+/**
  * Result returned by {@link run}.
  *
  * @category models
@@ -307,16 +325,21 @@ export const sanitizeBranchForFilename = (branch: string): string => Str.replace
  * @since 0.0.0
  */
 export const buildLogFilename: {
-  (targetBranch?: string, name?: string): (resolvedBranch: string) => string;
-  (resolvedBranch: string, targetBranch?: string, name?: string): string;
-} = dual(3, (resolvedBranch: string, targetBranch?: string, name?: string): string => {
-  const sanitized = sanitizeBranchForFilename(resolvedBranch);
-  const nameSuffix = name === undefined ? "" : `-${Str.replace(/[^a-z0-9_.-]/gu, "-")(Str.toLowerCase(name))}`;
+  (resolvedBranch: string): string;
+  (resolvedBranch: string, options: LogFilenameOptions): string;
+  (options: LogFilenameOptions): (resolvedBranch: string) => string;
+} = dual(
+  (args) => P.isString(args[0]),
+  (resolvedBranch: string, options: LogFilenameOptions = new LogFilenameOptions({})): string => {
+    const sanitized = sanitizeBranchForFilename(resolvedBranch);
+    const nameSuffix =
+      options.name === undefined ? "" : `-${Str.replace(/[^a-z0-9_.-]/gu, "-")(Str.toLowerCase(options.name))}`;
 
-  return targetBranch === undefined
-    ? `${sanitized}${nameSuffix}.log`
-    : `${sanitizeBranchForFilename(targetBranch)}-${sanitized}${nameSuffix}.log`;
-});
+    return options.targetBranch === undefined
+      ? `${sanitized}${nameSuffix}.log`
+      : `${sanitizeBranchForFilename(options.targetBranch)}-${sanitized}${nameSuffix}.log`;
+  }
+);
 
 /**
  * Build summary rows for display output.
@@ -337,10 +360,18 @@ export const buildRunSummaryRows = (options: RunSummaryRowOptions): Record<strin
  * @category utilities
  * @since 0.0.0
  */
-export const buildCompletionMessage = (
-  completionSignal: string | undefined,
-  iterationsRun: number
-): { readonly message: string; readonly severity: Severity } =>
+export const buildCompletionMessage: {
+  (
+    completionSignal: string | undefined,
+    iterationsRun: number
+  ): { readonly message: string; readonly severity: Severity };
+  (
+    iterationsRun: number
+  ): (completionSignal: string | undefined) => {
+    readonly message: string;
+    readonly severity: Severity;
+  };
+} = dual(2, (completionSignal: string | undefined, iterationsRun: number) =>
   completionSignal === undefined
     ? {
         message: `Run complete: reached ${iterationsRun} iteration(s) without completion signal.`,
@@ -349,7 +380,8 @@ export const buildCompletionMessage = (
     : {
         message: `Run complete: agent finished after ${iterationsRun} iteration(s).`,
         severity: "Success",
-      };
+      }
+);
 
 /**
  * Format an iteration context-window size.
@@ -605,7 +637,11 @@ const runInWorktree: <R>(
     runOptions.copyToWorktree ?? [],
     options.timeouts.copyToWorktreeMs
   );
-  yield* runHostHooks(runOptions.hooks?.host?.onWorktreeReady ?? [], options.worktree.path, options.timeouts.hookMs);
+  yield* runHostHooks(
+    runOptions.hooks?.host?.onWorktreeReady ?? [],
+    options.worktree.path,
+    new RunHostHooksOptions({ defaultTimeout: options.timeouts.hookMs })
+  );
 
   const result = yield* Effect.acquireUseRelease(
     createSandboxHandle(
@@ -751,7 +787,12 @@ const runEffect: <R>(
       ? branchStrategy.branch
       : branchStrategy._tag === "Head"
         ? currentBranch
-        : buildLogFilename(currentBranch, undefined, options.name).replace(/\.log$/u, "");
+        : buildLogFilename(
+            currentBranch,
+            new LogFilenameOptions({
+              ...(options.name === undefined ? {} : { name: options.name }),
+            })
+          ).replace(/\.log$/u, "");
   const builtInArgs = {
     SOURCE_BRANCH: resolvedBranch,
     TARGET_BRANCH: currentBranch,

@@ -18,6 +18,7 @@ import {
   useRef,
 } from "react";
 import { cn } from "../lib/index.ts";
+import { requireReactContext } from "../lib/react-invariant.ts";
 
 const buttonVariants = cva("!px-0", {
   variants: {
@@ -54,10 +55,7 @@ const SpeechInputContext = createContext<SpeechInputContextValue | null>(null);
  */
 function useSpeechInput() {
   const context = useContext(SpeechInputContext);
-  if (!context) {
-    throw new Error("SpeechInput compound components must be used within a SpeechInput");
-  }
-  return context;
+  return requireReactContext(context, { message: "SpeechInput compound components must be used within a SpeechInput" });
 }
 
 // Root component

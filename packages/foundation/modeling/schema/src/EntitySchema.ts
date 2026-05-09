@@ -1168,6 +1168,18 @@ const isModelVariantKey = (key: string): key is Model.Variant => A.contains(mode
 const hasVariant = (field: EntityVariantFieldInput, variant: Model.Variant): boolean =>
   S.isSchema(field.schemas[variant]);
 
+type ServerSideValueStrategy = Extract<PersistStrategy, "providedByContext" | "derived" | "computedByService">;
+
+type ExplicitVariantCompatibility =
+  | { readonly _tag: "Compatible" }
+  | { readonly _tag: "GeneratedOnInsertConflict" }
+  | { readonly _tag: "IncrementedOnWriteConflict" }
+  | { readonly _tag: "DefaultedOnInsertConflict" }
+  | { readonly _tag: "UpdatedOnWriteConflict" }
+  | { readonly _tag: "ServerSideValueConflict"; readonly valueStrategy: ServerSideValueStrategy };
+
+const explicitVariantCompatible: ExplicitVariantCompatibility = { _tag: "Compatible" };
+
 type VariantFieldShape = VariantSchema.Field.Any & {
   readonly schemas: VariantSchema.Field.Config;
 };
@@ -1221,64 +1233,83 @@ const selectedFieldsFor = <const FieldMap extends EntityFieldInputs>(fields: Fie
   return output as SelectedFieldsOf<FieldMap>;
 };
 
+const explicitVariantCompatibilityFor = (
+  field: EntityVariantFieldInput,
+  descriptor: PersistDescriptor.Any
+): ExplicitVariantCompatibility => {
+  const insert = hasVariant(field, "insert");
+  const update = hasVariant(field, "update");
+  const jsonCreate = hasVariant(field, "jsonCreate");
+  const jsonUpdate = hasVariant(field, "jsonUpdate");
+
+  const matchValueStrategy: (valueStrategy: PersistStrategy) => ExplicitVariantCompatibility =
+    Match.type<PersistStrategy>().pipe(
+      Match.withReturnType<ExplicitVariantCompatibility>(),
+      Match.when("generatedOnInsert", () =>
+        insert ? { _tag: "GeneratedOnInsertConflict" } : explicitVariantCompatible
+      ),
+      Match.when("incrementedOnWrite", () =>
+        insert || !update ? { _tag: "IncrementedOnWriteConflict" } : explicitVariantCompatible
+      ),
+      Match.when("defaultedOnInsert", () =>
+        !insert || jsonCreate ? { _tag: "DefaultedOnInsertConflict" } : explicitVariantCompatible
+      ),
+      Match.when("updatedOnWrite", () =>
+        !insert || !update || jsonCreate || jsonUpdate ? { _tag: "UpdatedOnWriteConflict" } : explicitVariantCompatible
+      ),
+      Match.whenOr("providedByContext", "derived", "computedByService", (valueStrategy) =>
+        !insert || !update || jsonCreate || jsonUpdate
+          ? { _tag: "ServerSideValueConflict", valueStrategy }
+          : explicitVariantCompatible
+      ),
+      Match.when("provided", () => explicitVariantCompatible),
+      Match.exhaustive
+    );
+
+  return matchValueStrategy(descriptor.valueStrategy);
+};
+
+const assertExplicitVariantCompatibilityForKey = (
+  key: string
+): ((compatibility: ExplicitVariantCompatibility) => void) =>
+  Match.type<ExplicitVariantCompatibility>().pipe(
+    Match.tagsExhaustive({
+      Compatible: () => undefined,
+      GeneratedOnInsertConflict: () =>
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses valueStrategy 'generatedOnInsert' but its explicit helper defines an insert variant.`
+        ),
+      IncrementedOnWriteConflict: () =>
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses valueStrategy 'incrementedOnWrite' and must omit insert while keeping update.`
+        ),
+      DefaultedOnInsertConflict: () =>
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses valueStrategy 'defaultedOnInsert' and must define insert while omitting jsonCreate.`
+        ),
+      UpdatedOnWriteConflict: () =>
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses valueStrategy 'updatedOnWrite' and must define insert/update while omitting jsonCreate/jsonUpdate.`
+        ),
+      ServerSideValueConflict: ({ valueStrategy }) =>
+        failEntityFieldInput(
+          key,
+          `Entity field '${key}' uses server-side valueStrategy '${valueStrategy}' and must define insert/update while omitting jsonCreate/jsonUpdate.`
+        ),
+    })
+  );
+
 function assertExplicitVariantCompatible(
   key: string,
   field: unknown,
   descriptor: PersistDescriptor.Any
 ): asserts field is EntityVariantFieldInput {
   assertEntityVariantFieldInput(key, field);
-
-  const insert = hasVariant(field, "insert");
-  const update = hasVariant(field, "update");
-  const jsonCreate = hasVariant(field, "jsonCreate");
-  const jsonUpdate = hasVariant(field, "jsonUpdate");
-
-  switch (descriptor.valueStrategy) {
-    case "generatedOnInsert":
-      if (insert) {
-        failEntityFieldInput(
-          key,
-          `Entity field '${key}' uses valueStrategy 'generatedOnInsert' but its explicit helper defines an insert variant.`
-        );
-      }
-      break;
-    case "incrementedOnWrite":
-      if (insert || !update) {
-        failEntityFieldInput(
-          key,
-          `Entity field '${key}' uses valueStrategy 'incrementedOnWrite' and must omit insert while keeping update.`
-        );
-      }
-      break;
-    case "defaultedOnInsert":
-      if (!insert || jsonCreate) {
-        failEntityFieldInput(
-          key,
-          `Entity field '${key}' uses valueStrategy 'defaultedOnInsert' and must define insert while omitting jsonCreate.`
-        );
-      }
-      break;
-    case "updatedOnWrite":
-      if (!insert || !update || jsonCreate || jsonUpdate) {
-        failEntityFieldInput(
-          key,
-          `Entity field '${key}' uses valueStrategy 'updatedOnWrite' and must define insert/update while omitting jsonCreate/jsonUpdate.`
-        );
-      }
-      break;
-    case "providedByContext":
-    case "derived":
-    case "computedByService":
-      if (!insert || !update || jsonCreate || jsonUpdate) {
-        failEntityFieldInput(
-          key,
-          `Entity field '${key}' uses server-side valueStrategy '${descriptor.valueStrategy}' and must define insert/update while omitting jsonCreate/jsonUpdate.`
-        );
-      }
-      break;
-    case "provided":
-      break;
-  }
+  assertExplicitVariantCompatibilityForKey(key)(explicitVariantCompatibilityFor(field, descriptor));
 }
 
 const withDefinitionAnnotation = <
@@ -1361,11 +1392,10 @@ const attachEntityClassDefinition = <
 ): EntityClass<Self, FieldMap, Persisted, Inherited, TableName, EntityId> =>
   attachDefinition(entityClass, definition) as EntityClass<Self, FieldMap, Persisted, Inherited, TableName, EntityId>;
 
-const variantFieldFor = <const Field extends S.Top, const Descriptor extends PersistDescriptor.Any>(
-  field: Field,
-  descriptor: Descriptor
-): VariantFieldFor<Field, Descriptor> =>
-  Match.value(descriptor).pipe(
+const matchVariantFieldDescriptor = <const Field extends S.Top>(
+  field: Field
+): ((descriptor: PersistDescriptor.Any) => unknown) =>
+  Match.type<PersistDescriptor.Any>().pipe(
     Match.withReturnType<unknown>(),
     Match.when(
       (self) => self.valueStrategy === "generatedOnInsert" || self.valueStrategy === "incrementedOnWrite",
@@ -1397,7 +1427,13 @@ const variantFieldFor = <const Field extends S.Top, const Descriptor extends Per
       () => Model.GeneratedByApp(field)
     ),
     Match.orElse(() => field)
-  ) as VariantFieldFor<Field, Descriptor>;
+  );
+
+const variantFieldFor = <const Field extends S.Top, const Descriptor extends PersistDescriptor.Any>(
+  field: Field,
+  descriptor: Descriptor
+): VariantFieldFor<Field, Descriptor> =>
+  matchVariantFieldDescriptor(field)(descriptor) as VariantFieldFor<Field, Descriptor>;
 
 function variantFieldForInput<const Field extends EntityFieldInput, const Descriptor extends PersistDescriptor.Any>(
   key: string,
