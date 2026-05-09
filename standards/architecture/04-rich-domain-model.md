@@ -46,6 +46,26 @@ type from it. Plain `interface` and object type aliases remain appropriate for
 service contracts, complex type-level transforms, utility types, and overload
 surfaces that `Schema` cannot represent cleanly.
 
+## Domain States And Variant Shapes
+
+Finite domain cases are part of the model, not incidental object fields.
+
+When a data shape represents variants, lifecycle states, status/result cases, or
+case-specific payloads, model it as a discriminated union. In Effect Schema code,
+use tagged unions so the discriminator and payload shape are one executable
+contract. Prefer `S.toTaggedUnion("<field>")` for domain discriminators such as
+`kind`, `type`, `status`, `profile`, or `family`; reserve
+`S.TaggedUnion(...)` for canonical `_tag` unions.
+
+Avoid "maybe every payload" bags where one object has many optional/nullish
+fields and callers infer the case from which fields happen to exist. Optional
+fields are still correct for true absence inside a single case. They are not a
+replacement for modeling the cases themselves.
+
+External protocols may require optional/nullish case bags. Keep that shape at
+the boundary when compatibility requires it, then decode or normalize into an
+internal tagged model before branching on case-specific behavior.
+
 ## Hybrid Style
 
 Rich behavior does not mean every function must be an instance method.

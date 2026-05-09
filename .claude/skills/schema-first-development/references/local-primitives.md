@@ -42,6 +42,7 @@ What it gives you:
 - `.thunk`
 - `$match`
 - `.mapMembers(...)` for tagged-union assembly
+- `.toTaggedUnion(...)` for direct literal-to-member tagged unions
 
 Good fits:
 

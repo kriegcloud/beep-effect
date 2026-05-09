@@ -21,7 +21,7 @@ import * as AiError from "effect/unstable/ai/AiError";
 import * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import * as AiModel from "effect/unstable/ai/Model";
 import type { XAiError } from "./XAi.errors.ts";
-import { XAiRequestOptions, type XAiServerSentEvent } from "./XAi.models.ts";
+import { XAiRequestOptions, XAiResponse, type XAiServerSentEvent } from "./XAi.models.ts";
 import { XAi, type XAiShape } from "./XAi.service.ts";
 
 const $I = $XaiId.create("XAiLanguageModel");
@@ -111,14 +111,31 @@ const createChatCompletion = (
     xai.createChatCompletion(new XAiRequestOptions({ body: request })),
     Effect.mapError(mapXAiError("createChatCompletion")),
     Effect.flatMap((response) =>
-      response._tag === "Json"
-        ? pipe(response.body, decodeChatCompletionResponse, Effect.mapError(mapSchemaError("createChatCompletion")))
-        : Effect.fail(
+      XAiResponse.match(response, {
+        Json: (json) =>
+          pipe(json.body, decodeChatCompletionResponse, Effect.mapError(mapSchemaError("createChatCompletion"))),
+        Binary: () =>
+          Effect.fail(
             makeAiError(
               "createChatCompletion",
               new AiError.InvalidOutputError({ description: "xAI chat completion did not return a JSON response." })
             )
-          )
+          ),
+        NoBody: () =>
+          Effect.fail(
+            makeAiError(
+              "createChatCompletion",
+              new AiError.InvalidOutputError({ description: "xAI chat completion did not return a JSON response." })
+            )
+          ),
+        Text: () =>
+          Effect.fail(
+            makeAiError(
+              "createChatCompletion",
+              new AiError.InvalidOutputError({ description: "xAI chat completion did not return a JSON response." })
+            )
+          ),
+      })
     ),
     Effect.withSpan("XAiLanguageModel.createChatCompletion", {
       attributes: {

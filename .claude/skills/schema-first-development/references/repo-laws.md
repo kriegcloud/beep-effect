@@ -12,7 +12,7 @@ Use `Schema` for pure data models.
 - Service contracts may stay interfaces, but wire payloads, persisted rows,
   config payloads, and domain object models should be schema-first.
 
-The repo enforces this with `packages/tooling/policy-pack/repo-configs/src/eslint/SchemaFirstRule.ts`.
+The repo enforces this inventory with `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts`.
 
 ## 2. Object Models Prefer `S.Class`
 
@@ -185,9 +185,18 @@ S.makeFilter(Str.includes("/"), {
 ## 9. Literal Domains and Tagged Unions Follow Repo Style
 
 - Use `LiteralKit` for reusable literal domains.
+- Model finite variants, lifecycle states, status/result cases, and
+  case-specific payloads as discriminated unions instead of optional/nullish
+  payload bags.
+- Keep external optional/nullish case bags at the boundary only when a wire
+  shape requires them; decode or normalize to an internal tagged model before
+  case-specific branching.
 - Use `S.toTaggedUnion("<field>")` for discriminator fields such as `kind`,
-  `type`, `status`, `subtype`, or `decision`.
+  `type`, `status`, `subtype`, `decision`, `profile`, or `family`.
 - Use `S.TaggedUnion(...)` only for canonical `_tag` unions.
+- Prefer `LiteralKit + mapMembers + Tuple.evolve + S.toTaggedUnion(...)` for
+  reusable literal domains, and prefer the schema-derived `.match` helper when
+  branching directly on the tagged union.
 
 ## 10. Enforcement and Review Signals
 

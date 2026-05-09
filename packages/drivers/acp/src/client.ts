@@ -430,38 +430,32 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
       });
     });
 
-  const dispatchNotification = (notification: AcpProtocol.AcpIncomingNotification) => {
-    switch (notification._tag) {
-      case "SessionUpdate": {
+  const dispatchNotification = (notification: AcpProtocol.AcpIncomingNotification) =>
+    AcpProtocol.AcpIncomingNotification.match(notification, {
+      SessionUpdate: (value) => {
         if (notificationHandlers.sessionUpdate.handlers.length === 0) {
-          notificationHandlers.sessionUpdate.pending.push(notification.params);
+          notificationHandlers.sessionUpdate.pending.push(value.params);
           return Effect.void;
         }
-        return runNotificationHandlers(notification.method, notificationHandlers.sessionUpdate, notification.params);
-      }
-      case "ElicitationComplete": {
+        return runNotificationHandlers(value.method, notificationHandlers.sessionUpdate, value.params);
+      },
+      ElicitationComplete: (value) => {
         if (notificationHandlers.elicitationComplete.handlers.length === 0) {
-          notificationHandlers.elicitationComplete.pending.push(notification.params);
+          notificationHandlers.elicitationComplete.pending.push(value.params);
           return Effect.void;
         }
-        return runNotificationHandlers(
-          notification.method,
-          notificationHandlers.elicitationComplete,
-          notification.params
-        );
-      }
-      case "ExtNotification": {
-        return Ref.get(extNotificationHandlers).pipe(
+        return runNotificationHandlers(value.method, notificationHandlers.elicitationComplete, value.params);
+      },
+      ExtNotification: (value) =>
+        Ref.get(extNotificationHandlers).pipe(
           Effect.flatMap((handlers) =>
-            O.match(HashMap.get(handlers, notification.method), {
-              onNone: () => runUnknownExtNotification(notification.method, notification.params),
-              onSome: (handler) => handler(notification.params),
+            O.match(HashMap.get(handlers, value.method), {
+              onNone: () => runUnknownExtNotification(value.method, value.params),
+              onSome: (handler) => handler(value.params),
             })
           )
-        );
-      }
-    }
-  };
+        ),
+    });
 
   const dispatchExtRequest = (method: string, params: unknown) => {
     return Ref.get(extRequestHandlers).pipe(

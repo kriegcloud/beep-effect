@@ -29,6 +29,7 @@ actually lives here.
 - `ai-metrics-stack`
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
+- `discriminated-union-modeling`
 - `ip-law-knowledge-graph`
 - `jsdoc-quality-enforcement`
 - `law-kg-prd`

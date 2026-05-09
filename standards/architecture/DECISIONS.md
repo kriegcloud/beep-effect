@@ -706,6 +706,36 @@ architecture created extra maintenance without improving product boundaries.
 The architecture should describe durable code ownership; harness configuration
 should stay minimal, runtime-native, and easy to delete.
 
+## 2026-05-09: Model Finite Cases As Discriminated Unions
+
+- **Status:** Active
+
+Decision:
+
+Finite data cases are architecture-visible domain modeling, not incidental
+object optionality. When a shape represents variants, lifecycle states,
+status/result cases, or case-specific payloads, model it as a discriminated
+union. Effect Schema models should use tagged unions: `S.toTaggedUnion("<field>")`
+for normal discriminators such as `kind`, `type`, `status`, `profile`, or
+`family`, and `S.TaggedUnion(...)` only for canonical `_tag` unions.
+
+External wire contracts may still arrive as optional/nullish bags when
+compatibility requires that shape. Those bags should be decoded or normalized at
+the boundary into an internal tagged model before domain, use-case, driver, or
+client behavior branches on the case.
+
+This is doctrine and review guidance in the first initiative. It does not add a
+hard scanner, generated-schema migration, or broad repository sweep.
+
+Rationale:
+
+Optional/nullish bags hide invariants: they let impossible payload
+combinations typecheck, make lifecycle transitions harder to audit, and push
+case semantics into scattered branches. Tagged models make the finite set of
+cases executable, branchable, decodable, and documentable from one schema. The
+architecture already treats schemas as executable contracts; finite cases need
+the same runtime evidence as ordinary object fields.
+
 ## Known Unknowns
 
 Areas the doctrine does not yet cover and which the authors expect to revise as the architecture is load-tested:

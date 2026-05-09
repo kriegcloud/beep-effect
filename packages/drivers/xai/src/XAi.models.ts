@@ -232,6 +232,7 @@ export class XAiNoBodyResponse extends S.TaggedClass<XAiNoBodyResponse>($I`XAiNo
  * @since 0.0.0
  */
 export const XAiResponse = S.Union([XAiBinaryResponse, XAiJsonResponse, XAiNoBodyResponse, XAiTextResponse]).pipe(
+  S.toTaggedUnion("_tag"),
   $I.annoteSchema("XAiResponse", {
     description: "Response union returned by non-streaming xAI endpoint methods.",
   })

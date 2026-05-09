@@ -10,8 +10,9 @@
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import type { Exit } from "effect";
-import { Effect, Result } from "effect";
+import { Effect, Result, Tuple } from "effect";
 import * as S from "effect/Schema";
 import type { DomainError } from "../errors/index.js";
 import { jsonStringifyPretty } from "../JsonUtils.js";
@@ -143,6 +144,13 @@ const BeepToolingKind = S.Literals(["library", "tool", "policy-pack", "test-kit"
   })
 );
 
+const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling"] as const).annotate(
+  $I.annote("BeepPackageFamily", {
+    title: "Beep Package Family",
+    description: "Canonical package family discriminator for repo-local package metadata.",
+  })
+);
+
 const BeepFoundationMetadata = S.Struct({
   family: S.Literal("foundation"),
   kind: BeepFoundationKind,
@@ -172,12 +180,16 @@ const BeepToolingMetadata = S.Struct({
   })
 );
 
-const BeepPackageMetadata = S.Union([BeepFoundationMetadata, BeepDriverMetadata, BeepToolingMetadata]).annotate(
-  $I.annote("BeepPackageMetadata", {
-    title: "Beep Package Metadata",
-    description: "Machine-readable repo architecture metadata for non-slice code packages.",
-  })
-);
+const BeepPackageMetadata = BeepPackageFamily.mapMembers(
+  Tuple.evolve([() => BeepFoundationMetadata, () => BeepDriverMetadata, () => BeepToolingMetadata])
+)
+  .annotate(
+    $I.annote("BeepPackageMetadata", {
+      title: "Beep Package Metadata",
+      description: "Machine-readable repo architecture metadata for non-slice code packages.",
+    })
+  )
+  .pipe(S.toTaggedUnion("family"));
 
 const PackageTypeField = S.String.check(S.isPattern(packageTypePattern)).annotate(
   $I.annote("PackageTypeField", {
