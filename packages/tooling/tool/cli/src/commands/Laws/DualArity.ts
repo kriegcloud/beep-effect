@@ -8,14 +8,14 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { TSMorphService, TsMorphProjectInspectionRequest } from "@beep/repo-utils/TSMorph/index";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
-import { LiteralKit } from "@beep/schema";
-import { Console, DateTime, Effect, FileSystem, HashMap, MutableHashSet, Order, Path, pipe } from "effect";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { Console, DateTime, Effect, FileSystem, HashMap, Match, MutableHashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { parse } from "jsonc-parser";
+import { type ParseError, parse, printParseErrorCode } from "jsonc-parser";
 import {
   type ArrowFunction,
   type CallExpression,
@@ -25,6 +25,7 @@ import {
   Node,
   type ParameterDeclaration,
   type PropertyDeclaration,
+  type Signature,
   type SourceFile,
   SyntaxKind,
   type Type,
@@ -193,6 +194,7 @@ export class DualArityRulesSummary extends S.Class<DualArityRulesSummary>($I`Dua
     staleEntries: S.Number,
     enforcedCandidates: S.Number,
     invalidExceptions: S.Number,
+    excludedLegitimate: S.Number,
     wroteInventory: S.Boolean,
     strictFailure: S.Boolean,
     diagnostics: S.Array(S.String).pipe(
@@ -202,6 +204,18 @@ export class DualArityRulesSummary extends S.Class<DualArityRulesSummary>($I`Dua
   },
   $I.annote("DualArityRulesSummary", {
     description: "Summary of public API dual-arity inventory verification.",
+  })
+) {}
+
+class DualArityInventoryReadError extends TaggedErrorClass<DualArityInventoryReadError>(
+  $I`DualArityInventoryReadError`
+)(
+  "DualArityInventoryReadError",
+  {
+    message: S.String,
+  },
+  $I.annote("DualArityInventoryReadError", {
+    description: "Raised when the committed dual-arity inventory cannot be parsed or decoded.",
   })
 ) {}
 
@@ -235,6 +249,11 @@ type PublicApiCandidate = {
   readonly dualCall: O.Option<DualCallInfo>;
   readonly callableType: Type;
 };
+
+type DualArityScanResult = Readonly<{
+  document: DualArityInventoryDocument;
+  excludedLegitimate: number;
+}>;
 
 const decodeInventoryDocument = S.decodeUnknownEffect(DualArityInventoryDocument);
 const encodeInventoryDocument = S.encodeUnknownEffect(DualArityInventoryDocument);
@@ -279,24 +298,32 @@ const isExcludedFile = (excludePaths: MutableHashSet.MutableHashSet<string>, fil
 const isEnforcedFile = (document: DualArityInventoryDocument, filePath: string): boolean =>
   A.some(document.enforcedRoots, (root) => filePath === root || Str.startsWith(`${root}/`)(filePath));
 
-const diagnosticMessage = (diagnostic: typeof DualArityDiagnosticKind.Type): string => {
-  switch (diagnostic) {
-    case "missing-dual":
-      return "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.";
-    case "invalid-dual-source":
-      return "dual must be imported directly or as a namespace from effect/Function.";
-    case "invalid-dual-arity":
-      return "dual arity must match the public positional arity and may not exceed 3.";
-    case "missing-dual-signatures":
-      return "Public type must expose both data-first and data-last call signatures.";
-    case "too-many-positional-params":
-      return "Public helper APIs may not expose more than 3 positional parameters.";
-    case "third-param-not-object-like":
-      return "Public 3-parameter helper APIs must use a strict ObjectLike third parameter.";
-    case "obvious-wrong-first-parameter":
-      return "The first parameter appears to be configuration/status text while a later parameter is pipeable.";
-  }
-};
+const diagnosticMessage = (diagnostic: typeof DualArityDiagnosticKind.Type): string =>
+  Match.value(diagnostic).pipe(
+    Match.when(
+      "missing-dual",
+      () => "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function."
+    ),
+    Match.when("invalid-dual-source", () => "dual must be imported directly or as a namespace from effect/Function."),
+    Match.when("invalid-dual-arity", () => "dual arity must match the public positional arity and may not exceed 3."),
+    Match.when(
+      "missing-dual-signatures",
+      () => "Public type must expose both data-first and data-last call signatures."
+    ),
+    Match.when(
+      "too-many-positional-params",
+      () => "Public helper APIs may not expose more than 3 positional parameters."
+    ),
+    Match.when(
+      "third-param-not-object-like",
+      () => "Public 3-parameter helper APIs must use a strict ObjectLike third parameter."
+    ),
+    Match.when(
+      "obvious-wrong-first-parameter",
+      () => "The first parameter appears to be configuration/status text while a later parameter is pipeable."
+    ),
+    Match.exhaustive
+  );
 
 const makeReason = (diagnostics: ReadonlyArray<typeof DualArityDiagnosticKind.Type>): string =>
   A.join(A.map(diagnostics, diagnosticMessage), " ");
@@ -458,7 +485,7 @@ const isNonHelperCallableValue = (initializer: import("ts-morph").Node, callable
   isOrderValueType(callableType) || isSchemaCallableValueFactory(initializer);
 
 const getTypeSignatureParameterCount = (type: Type): O.Option<number> => {
-  const signatures = type.getCallSignatures();
+  const signatures = A.filter(type.getCallSignatures(), (signature) => !isTaggedTemplateSignature(signature));
   if (A.isReadonlyArrayEmpty(signatures)) {
     return O.none();
   }
@@ -493,6 +520,38 @@ const shouldDeferPublicParameterShape = (
   parameterCount: number
 ): boolean => hasDeferredPublicParameterShape(parameters) && !hasDualSignatures(callableType, parameterCount);
 
+const getParameterDeclaration = (signature: Signature, index: number): O.Option<ParameterDeclaration> =>
+  pipe(
+    A.get(signature.getParameters(), index),
+    O.flatMap((parameter) => O.fromNullishOr(parameter.getValueDeclaration())),
+    O.filter(Node.isParameterDeclaration)
+  );
+
+const isTaggedTemplateSignature = (signature: Signature): boolean => {
+  const firstParameter = getParameterDeclaration(signature, 0);
+  const firstParameterTypeText = pipe(
+    firstParameter,
+    O.map((parameter) => parameter.getType().getText())
+  );
+
+  return (
+    O.exists(firstParameterTypeText, (typeText) => Str.includes("TemplateStringsArray")(typeText)) &&
+    pipe(
+      A.drop(signature.getParameters(), 1),
+      A.some((parameter) =>
+        pipe(
+          O.fromNullishOr(parameter.getValueDeclaration()),
+          O.filter(Node.isParameterDeclaration),
+          O.exists((declaration) => declaration.isRestParameter())
+        )
+      )
+    )
+  );
+};
+
+const getNonTemplateCallSignatures = (type: Type): ReadonlyArray<Signature> =>
+  A.filter(type.getCallSignatures(), (signature) => !isTaggedTemplateSignature(signature));
+
 const getCallableParameterCount = (
   callableType: Type,
   parameterOwner: O.Option<ParameterOwner>,
@@ -510,7 +569,7 @@ const getCallableParameterCount = (
   );
 
 const hasDualSignatures = (callableType: Type, arity: number): boolean => {
-  const signatures = callableType.getCallSignatures();
+  const signatures = getNonTemplateCallSignatures(callableType);
   const hasDataFirst = A.some(signatures, (signature) => signature.getParameters().length === arity);
   const hasDataLast = A.some(signatures, (signature) => {
     if (signature.getParameters().length !== arity - 1) {
@@ -544,7 +603,7 @@ const getThirdParameterType = (
   }
 
   return pipe(
-    callableType.getCallSignatures(),
+    getNonTemplateCallSignatures(callableType),
     A.findFirst((signature) => signature.getParameters().length === 3),
     O.flatMap((signature) => A.get(signature.getParameters(), 2)),
     O.flatMap((parameterSymbol) => O.fromNullishOr(parameterSymbol.getValueDeclaration())),
@@ -564,6 +623,8 @@ const isPrimitiveType = (type: Type): boolean =>
   type.isNull() ||
   type.isUndefined() ||
   type.isVoid();
+
+const isOptionalTypeMarker = (type: Type): boolean => type.isUndefined() || type.isNull();
 
 const isStrictObjectLikeType = (type: Type): boolean => {
   if (type.isTypeParameter()) {
@@ -589,7 +650,9 @@ const isStrictObjectLikeType = (type: Type): boolean => {
   }
 
   if (type.isUnion()) {
-    return A.every(type.getUnionTypes(), isStrictObjectLikeType);
+    const objectLikeMembers = A.filter(type.getUnionTypes(), (member) => !isOptionalTypeMarker(member));
+
+    return !A.isReadonlyArrayEmpty(objectLikeMembers) && A.every(objectLikeMembers, isStrictObjectLikeType);
   }
 
   if (type.isIntersection()) {
@@ -602,6 +665,103 @@ const isStrictObjectLikeType = (type: Type): boolean => {
     !A.isReadonlyArrayEmpty(type.getProperties()) ||
     P.isNotUndefined(type.getStringIndexType())
   );
+};
+
+const hasJSDocCategory = (node: import("ts-morph").Node, category: string): boolean => {
+  if (!Node.isJSDocable(node)) {
+    return false;
+  }
+
+  const jsDocText = pipe(
+    node.getJsDocs(),
+    A.map((jsDoc) => jsDoc.getText()),
+    A.join("\n")
+  );
+
+  return Str.includes(`@category ${category}`)(jsDocText);
+};
+
+const isFactoryReturnType = (type: Type): boolean => {
+  const typeText = type.getText();
+  if (DIRECT_EFFECT_OR_SCHEMA_TYPE_PATTERN.test(typeText)) {
+    return false;
+  }
+
+  return (
+    A.some(type.getCallSignatures(), (signature) => signature.getParameters().length === 0) ||
+    isStrictObjectLikeType(type)
+  );
+};
+
+const hasMultiParameterCallableShape = (callableType: Type, parameterOwner: O.Option<ParameterOwner>): boolean =>
+  O.exists(getParameterOwnerCount(parameterOwner), (count) => count >= 2) ||
+  A.some(callableType.getCallSignatures(), (signature) => signature.getParameters().length >= 2);
+
+const isLegitimateConstructorFactory = (
+  docNode: import("ts-morph").Node,
+  callableType: Type,
+  parameterOwner: O.Option<ParameterOwner>
+): boolean =>
+  hasJSDocCategory(docNode, "constructors") &&
+  hasMultiParameterCallableShape(callableType, parameterOwner) &&
+  A.some(callableType.getCallSignatures(), (signature) => isFactoryReturnType(signature.getReturnType()));
+
+const isLegitimateConstructorVariableDeclaration = (
+  filePath: string,
+  declaration: VariableDeclaration,
+  bindings: DualBindingIndex
+): boolean => {
+  const nameNode = declaration.getNameNode();
+  if (!Node.isIdentifier(nameNode) || isExcludedPublicApiName(filePath, nameNode.getText())) {
+    return false;
+  }
+
+  const initializer = declaration.getInitializer();
+  const callableType = declaration.getType();
+  if (P.isUndefined(initializer) || !isFunctionExportInitializer(initializer, getDualCallInfo(initializer, bindings))) {
+    return false;
+  }
+
+  const dualCall = getDualCallInfo(initializer, bindings);
+  const parameterOwner = getInitializerParameterOwner(initializer, dualCall);
+  return pipe(
+    O.fromNullishOr(declaration.getVariableStatement()),
+    O.exists((statement) => isLegitimateConstructorFactory(statement, callableType, parameterOwner))
+  );
+};
+
+const isLegitimateConstructorFunctionDeclaration = (filePath: string, declaration: FunctionDeclaration): boolean => {
+  const name = declaration.getName();
+  if (!declaration.isExported() || P.isUndefined(declaration.getBody()) || P.isUndefined(name)) {
+    return false;
+  }
+
+  return (
+    !isExcludedPublicApiName(filePath, name) &&
+    isLegitimateConstructorFactory(declaration, declaration.getType(), O.some(declaration))
+  );
+};
+
+const isLegitimateConstructorStaticMember = (
+  filePath: string,
+  qualifiedName: string,
+  member: MethodDeclaration | PropertyDeclaration,
+  bindings: DualBindingIndex
+): boolean => {
+  if (!isPublicStaticMember(member) || isExcludedPublicApiName(filePath, qualifiedName)) {
+    return false;
+  }
+
+  if (Node.isMethodDeclaration(member)) {
+    return isLegitimateConstructorFactory(member, member.getType(), O.some(member));
+  }
+
+  const initializer = member.getInitializer();
+  const dualCall = P.isUndefined(initializer) ? O.none<DualCallInfo>() : getDualCallInfo(initializer, bindings);
+  const parameterOwner = P.isUndefined(initializer)
+    ? O.none<ParameterOwner>()
+    : getInitializerParameterOwner(initializer, dualCall);
+  return isLegitimateConstructorFactory(member, member.getType(), parameterOwner);
 };
 
 const isPipeableParameter = (parameter: ParameterDeclaration): boolean => {
@@ -729,6 +889,9 @@ const collectFunctionCandidate = (
   if (parameterCount < 2 || shouldDeferPublicParameterShape(parameters, declaration.getType(), parameterCount)) {
     return O.none();
   }
+  if (isLegitimateConstructorFactory(declaration, declaration.getType(), O.some(declaration))) {
+    return O.none();
+  }
 
   return O.some({
     file: filePath,
@@ -778,6 +941,14 @@ const collectVariableCandidate = (
   const parameterOwner = P.isUndefined(initializer)
     ? O.none<ParameterOwner>()
     : getInitializerParameterOwner(initializer, dualCall);
+  if (
+    pipe(
+      O.fromNullishOr(declaration.getVariableStatement()),
+      O.exists((statement) => isLegitimateConstructorFactory(statement, callableType, parameterOwner))
+    )
+  ) {
+    return O.none();
+  }
   const parameterCount = getCallableParameterCount(callableType, parameterOwner, dualCall);
   if (O.isNone(parameterCount) || parameterCount.value < 2) {
     return O.none();
@@ -844,6 +1015,9 @@ const collectStaticMethodCandidate = (
 
   const position = sourceFile.getLineAndColumnAtPos(method.getNameNode().getStart());
   const parameterCount = parameters.length;
+  if (isLegitimateConstructorFactory(method, method.getType(), O.some(method))) {
+    return O.none();
+  }
 
   return O.some({
     file: filePath,
@@ -892,6 +1066,9 @@ const collectStaticPropertyCandidate = (
   const parameterOwner = P.isUndefined(initializer)
     ? O.none<ParameterOwner>()
     : getInitializerParameterOwner(initializer, dualCall);
+  if (isLegitimateConstructorFactory(property, callableType, parameterOwner)) {
+    return O.none();
+  }
   const parameterCount = getCallableParameterCount(callableType, parameterOwner, dualCall);
   if (O.isNone(parameterCount) || parameterCount.value < 2) {
     return O.none();
@@ -933,14 +1110,20 @@ const collectCandidatesForSourceFile = (
   sourceFile: SourceFile,
   filePath: string,
   owner: string
-): ReadonlyArray<PublicApiCandidate> => {
+): Readonly<{
+  candidates: ReadonlyArray<PublicApiCandidate>;
+  excludedLegitimate: number;
+}> => {
   const bindings = collectDualBindings(sourceFile);
   let candidates = A.empty<PublicApiCandidate>();
+  let excludedLegitimate = 0;
 
   for (const declaration of sourceFile.getFunctions()) {
     const candidate = collectFunctionCandidate(sourceFile, filePath, owner, declaration);
     if (O.isSome(candidate)) {
       candidates = A.append(candidates, candidate.value);
+    } else if (isLegitimateConstructorFunctionDeclaration(filePath, declaration)) {
+      excludedLegitimate += 1;
     }
   }
 
@@ -953,6 +1136,8 @@ const collectCandidatesForSourceFile = (
       const candidate = collectVariableCandidate(sourceFile, filePath, owner, declaration, bindings);
       if (O.isSome(candidate)) {
         candidates = A.append(candidates, candidate.value);
+      } else if (isLegitimateConstructorVariableDeclaration(filePath, declaration, bindings)) {
+        excludedLegitimate += 1;
       }
     }
   }
@@ -969,23 +1154,29 @@ const collectCandidatesForSourceFile = (
 
     for (const member of classDeclaration.getMembers()) {
       if (Node.isMethodDeclaration(member)) {
+        const qualifiedName = `${className}.${member.getName()}`;
         const candidate = collectStaticMethodCandidate(sourceFile, filePath, owner, className, member);
         if (O.isSome(candidate)) {
           candidates = A.append(candidates, candidate.value);
+        } else if (isLegitimateConstructorStaticMember(filePath, qualifiedName, member, bindings)) {
+          excludedLegitimate += 1;
         }
         continue;
       }
 
       if (Node.isPropertyDeclaration(member)) {
+        const qualifiedName = `${className}.${member.getName()}`;
         const candidate = collectStaticPropertyCandidate(sourceFile, filePath, owner, className, member, bindings);
         if (O.isSome(candidate)) {
           candidates = A.append(candidates, candidate.value);
+        } else if (isLegitimateConstructorStaticMember(filePath, qualifiedName, member, bindings)) {
+          excludedLegitimate += 1;
         }
       }
     }
   }
 
-  return candidates;
+  return { candidates, excludedLegitimate };
 };
 
 const makeInventoryEntry = (
@@ -1022,7 +1213,24 @@ const readInventoryDocument = Effect.fn(function* () {
   }
 
   const content = yield* fs.readFileString(absolutePath);
-  return yield* decodeInventoryDocument(parse(content)).pipe(Effect.option);
+  const parseErrors = A.empty<ParseError>();
+  const parsed = parse(content, parseErrors, {
+    allowTrailingComma: true,
+    disallowComments: false,
+  });
+
+  if (!A.isReadonlyArrayEmpty(parseErrors)) {
+    return yield* new DualArityInventoryReadError({
+      message: pipe(
+        parseErrors,
+        A.map((error) => `${printParseErrorCode(error.error)}@${error.offset}:${error.length}`),
+        A.join(", "),
+        (details) => `Unable to parse ${INVENTORY_PATH}: ${details}`
+      ),
+    });
+  }
+
+  return yield* decodeInventoryDocument(parsed).pipe(Effect.map(O.some));
 });
 
 const writeInventoryDocument = Effect.fn("DualArity.writeInventoryDocument")(function* (
@@ -1059,8 +1267,9 @@ const scanDualArityInventory = Effect.fn("DualArity.scanDualArityInventory")(fun
     filePaths: A.empty(),
     sourceFileGlobs: A.fromIterable(INCLUDED_GLOBS),
   });
-  const entries = yield* service.inspectProject(request, ({ scope, sourceFiles }) => {
+  const scanResult = yield* service.inspectProject(request, ({ scope, sourceFiles }) => {
     let liveEntries = A.empty<DualArityInventoryEntry>();
+    let excludedLegitimate = 0;
 
     for (const sourceFile of sourceFiles) {
       const filePath = toPosixPath(path.relative(scope.repoRootPath, sourceFile.getFilePath()));
@@ -1069,7 +1278,9 @@ const scanDualArityInventory = Effect.fn("DualArity.scanDualArityInventory")(fun
       }
 
       const owner = ownerResolver(sourceFile.getFilePath());
-      for (const candidate of collectCandidatesForSourceFile(sourceFile, filePath, owner)) {
+      const collection = collectCandidatesForSourceFile(sourceFile, filePath, owner);
+      excludedLegitimate += collection.excludedLegitimate;
+      for (const candidate of collection.candidates) {
         const entry = makeInventoryEntry(candidate, collectCandidateDiagnostics(candidate));
         if (O.isSome(entry)) {
           liveEntries = A.append(liveEntries, entry.value);
@@ -1077,16 +1288,22 @@ const scanDualArityInventory = Effect.fn("DualArity.scanDualArityInventory")(fun
       }
     }
 
-    return sortEntries(A.dedupeWith(liveEntries, (left, right) => makeEntryKey(left) === makeEntryKey(right)));
+    return {
+      entries: sortEntries(A.dedupeWith(liveEntries, (left, right) => makeEntryKey(left) === makeEntryKey(right))),
+      excludedLegitimate,
+    };
   });
 
-  return new DualArityInventoryDocument({
-    version: 1,
-    generatedOn: todayYmd(),
-    scope: A.fromIterable(INCLUDED_GLOBS),
-    enforcedRoots: A.fromIterable(ENFORCED_ROOTS),
-    entries,
-  });
+  return {
+    document: new DualArityInventoryDocument({
+      version: 1,
+      generatedOn: todayYmd(),
+      scope: A.fromIterable(INCLUDED_GLOBS),
+      enforcedRoots: A.fromIterable(ENFORCED_ROOTS),
+      entries: scanResult.entries,
+    }),
+    excludedLegitimate: scanResult.excludedLegitimate,
+  } satisfies DualArityScanResult;
 });
 
 const mergeInventory = (
@@ -1179,7 +1396,8 @@ const makeInvalidExceptionDiagnostics = (entries: ReadonlyArray<DualArityInvento
  * @since 0.0.0
  */
 export const runDualArityRules = Effect.fn("runDualArityRules")(function* (options: DualArityRulesOptions) {
-  const liveDocument = yield* scanDualArityInventory(options);
+  const liveScan = yield* scanDualArityInventory(options);
+  const liveDocument = liveScan.document;
   const existingDocument = yield* readInventoryDocument();
   const mergedDocument = mergeInventory(liveDocument, existingDocument);
 
@@ -1235,6 +1453,7 @@ export const runDualArityRules = Effect.fn("runDualArityRules")(function* (optio
   yield* Console.log(`[dual-arity] stale_entries=${staleEntries.length}`);
   yield* Console.log(`[dual-arity] enforced_candidates=${enforcedCandidates.length}`);
   yield* Console.log(`[dual-arity] invalid_exceptions=${invalidExceptions.length}`);
+  yield* Console.log(`[dual-arity] excluded_legitimate=${liveScan.excludedLegitimate}`);
   if (options.write) {
     yield* Console.log(`[dual-arity] wrote ${INVENTORY_PATH}`);
   }
@@ -1250,6 +1469,7 @@ export const runDualArityRules = Effect.fn("runDualArityRules")(function* (optio
     staleEntries: staleEntries.length,
     enforcedCandidates: enforcedCandidates.length,
     invalidExceptions: invalidExceptions.length,
+    excludedLegitimate: liveScan.excludedLegitimate,
     wroteInventory: options.write,
     strictFailure,
     diagnostics,

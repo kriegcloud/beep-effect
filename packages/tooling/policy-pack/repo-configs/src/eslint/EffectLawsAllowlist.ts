@@ -70,6 +70,21 @@ export const resetAllowlistCache = (): void => undefined;
 export const getAllowlistDiagnostics = (): ReadonlyArray<string> => decodedAllowlistSnapshot.diagnostics;
 
 /**
+ * Retrieve normalized allowlist entries from the generated snapshot.
+ *
+ * @returns Read-only allowlist entries available to repository law checkers.
+ * @example
+ * ```ts
+ * import { getAllowlistEntries } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
+ * const entries = getAllowlistEntries()
+ * void entries
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const getAllowlistEntries = () => decodedAllowlistSnapshot.entries;
+
+/**
  * Check whether a normalized violation key appears in the effect-laws allowlist.
  *
  * @param input - Candidate violation identity payload.

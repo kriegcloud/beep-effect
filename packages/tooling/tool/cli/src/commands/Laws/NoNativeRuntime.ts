@@ -6,7 +6,11 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { getAllowlistDiagnostics, isViolationAllowlisted } from "@beep/repo-configs/eslint/EffectLawsAllowlist";
+import {
+  getAllowlistDiagnostics,
+  getAllowlistEntries,
+  isViolationAllowlisted,
+} from "@beep/repo-configs/eslint/EffectLawsAllowlist";
 import {
   isNoNativeRuntimeErrorFile,
   isNoNativeRuntimeExtraCheckHotspot,
@@ -14,6 +18,7 @@ import {
 import { TaggedErrorClass } from "@beep/schema";
 import { Effect, HashSet, Inspectable, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -26,6 +31,7 @@ import {
   Node,
   Project,
   type SourceFile,
+  type SwitchStatement,
   SyntaxKind,
 } from "ts-morph";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
@@ -171,6 +177,14 @@ export class NoNativeRuntimeRulesSummary extends S.Class<NoNativeRuntimeRulesSum
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
+    allowlistedCount: S.Number.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefault(Effect.succeed(0))
+    ),
+    unusedAllowlistEntries: S.Array(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+    ),
     diagnostics: S.Array(NoNativeRuntimeDiagnostic).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<NoNativeRuntimeDiagnostic>())),
       S.withDecodingDefault(Effect.succeed(A.empty<NoNativeRuntimeDiagnostic.Encoded>()))
@@ -178,6 +192,28 @@ export class NoNativeRuntimeRulesSummary extends S.Class<NoNativeRuntimeRulesSum
   },
   $I.annote("NoNativeRuntimeRulesSummary", {
     description: "Summary of repo-local native runtime checks.",
+  })
+) {}
+
+/**
+ * Options for collecting native-runtime allowlist lookup keys.
+ *
+ * @example
+ * ```ts
+ * console.log("NativeRuntimeViolationKeyOptions")
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class NativeRuntimeViolationKeyOptions extends S.Class<NativeRuntimeViolationKeyOptions>(
+  $I`NativeRuntimeViolationKeyOptions`
+)(
+  {
+    relativeFilePath: S.String,
+    inHotspotScope: S.Boolean,
+  },
+  $I.annote("NativeRuntimeViolationKeyOptions", {
+    description: "Options for collecting native-runtime allowlist lookup keys.",
   })
 ) {}
 
@@ -217,6 +253,9 @@ const makeViolation = (
   messageId: string,
   data?: ViolationData
 ): NativeRuntimeViolation => (P.isUndefined(data) ? { kind, messageId, node } : { kind, messageId, node, data });
+
+const makeAllowlistKey = (filePath: string, kind: string): string =>
+  `${NO_NATIVE_RUNTIME_RULE_ID}::${toPosixPath(filePath)}::${kind}`;
 
 const getMemberCall = (node: import("ts-morph").Node): O.Option<MemberCall> => {
   if (Node.isPropertyAccessExpression(node)) {
@@ -365,6 +404,9 @@ const detectBinaryExpressionViolation = (node: BinaryExpression): O.Option<Nativ
     : O.none();
 };
 
+const detectSwitchStatementViolation = (node: SwitchStatement): O.Option<NativeRuntimeViolation> =>
+  O.some(makeViolation(node, "native-switch", "nativeSwitch"));
+
 const formatViolationMessage = (violation: NativeRuntimeViolation): string => {
   const data = violation.data;
 
@@ -412,8 +454,61 @@ const formatViolationMessage = (violation: NativeRuntimeViolation): string => {
     return "Avoid native .sort in hotspot runtime code. Use A.sort with an explicit Order.";
   }
 
+  if (violation.messageId === "nativeSwitch") {
+    return "Avoid native switch statements. Use effect/Match, Match.tagsExhaustive for _tag unions, or schema .match for tagged-union schemas.";
+  }
+
   return `Avoid native string method .${data?.method ?? ""} in hotspot runtime code. Prefer effect/String and shared schema transforms.`;
 };
+
+const collectNativeRuntimeViolations = (
+  sourceFile: SourceFile,
+  inHotspotScope: boolean
+): ReadonlyArray<NativeRuntimeViolation> => {
+  let violations = A.empty<NativeRuntimeViolation>();
+
+  sourceFile.forEachDescendant((node: import("ts-morph").Node) => {
+    const violation = Node.isImportDeclaration(node)
+      ? detectImportViolation(node, inHotspotScope)
+      : Node.isNewExpression(node)
+        ? detectNewExpressionViolation(node)
+        : Node.isCallExpression(node)
+          ? detectCallExpressionViolation(node, inHotspotScope)
+          : Node.isBinaryExpression(node)
+            ? detectBinaryExpressionViolation(node)
+            : Node.isSwitchStatement(node)
+              ? detectSwitchStatementViolation(node)
+              : O.none<NativeRuntimeViolation>();
+
+    if (O.isSome(violation)) {
+      violations = A.append(violations, violation.value);
+    }
+  });
+
+  return violations;
+};
+
+/**
+ * Collect normalized native-runtime violation keys for allowlist integrity checks.
+ *
+ * @example
+ * ```ts
+ * console.log("collectNativeRuntimeViolationKeys")
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const collectNativeRuntimeViolationKeys: {
+  (sourceFile: SourceFile, options: NativeRuntimeViolationKeyOptions): ReadonlyArray<string>;
+  (options: NativeRuntimeViolationKeyOptions): (sourceFile: SourceFile) => ReadonlyArray<string>;
+} = dual(
+  2,
+  (sourceFile: SourceFile, options: NativeRuntimeViolationKeyOptions): ReadonlyArray<string> =>
+    pipe(
+      collectNativeRuntimeViolations(sourceFile, options.inHotspotScope),
+      A.map((violation) => makeAllowlistKey(options.relativeFilePath, violation.kind))
+    )
+);
 
 /**
  * Run repo-local native runtime checks.
@@ -434,6 +529,12 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
   const path = yield* Path.Path;
   const cwd = process.cwd();
   const allowlistDiagnostics = getAllowlistDiagnostics();
+  const expectedAllowlistKeys = pipe(
+    getAllowlistEntries(),
+    A.filter((entry) => entry.rule === NO_NATIVE_RUNTIME_RULE_ID),
+    A.map((entry) => makeAllowlistKey(entry.file, entry.kind))
+  );
+  let usedAllowlistKeys = HashSet.empty<string>();
 
   const isExcludedFile = (filePath: string): boolean => {
     const normalized = toPosixPath(filePath);
@@ -503,11 +604,12 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
     });
 
     if (isAllowlisted) {
+      usedAllowlistKeys = HashSet.add(usedAllowlistKeys, makeAllowlistKey(relativeFilePath, violation.kind));
       return;
     }
 
     const { line, column } = sourceFile.getLineAndColumnAtPos(violation.node.getStart());
-    const severity = baseSeverity;
+    const severity = violation.kind === "native-switch" ? "error" : baseSeverity;
 
     if (severity === "error") {
       errorCount += 1;
@@ -535,21 +637,9 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
 
     const scanSourceFile = Effect.try({
       try: () => {
-        sourceFile.forEachDescendant((node: import("ts-morph").Node) => {
-          const violation = Node.isImportDeclaration(node)
-            ? detectImportViolation(node, inHotspotScope)
-            : Node.isNewExpression(node)
-              ? detectNewExpressionViolation(node)
-              : Node.isCallExpression(node)
-                ? detectCallExpressionViolation(node, inHotspotScope)
-                : Node.isBinaryExpression(node)
-                  ? detectBinaryExpressionViolation(node)
-                  : O.none<NativeRuntimeViolation>();
-
-          if (O.isSome(violation)) {
-            appendViolation(sourceFile, relativeFilePath, baseSeverity, violation.value);
-          }
-        });
+        for (const violation of collectNativeRuntimeViolations(sourceFile, inHotspotScope)) {
+          appendViolation(sourceFile, relativeFilePath, baseSeverity, violation);
+        }
       },
       catch: (cause) =>
         new NoNativeRuntimeRulesExecutionError({
@@ -571,6 +661,8 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
     errorCount,
     strictFailure: options.strictCheck && errorCount > 0,
     affectedFiles,
+    allowlistedCount: HashSet.size(usedAllowlistKeys),
+    unusedAllowlistEntries: A.filter(expectedAllowlistKeys, (key) => !HashSet.has(usedAllowlistKeys, key)),
     diagnostics,
   });
 });

@@ -158,7 +158,7 @@ jobs:
               bun run lint -- "${turbo_args[@]}"
               ;;
             repo-sanity)
-              bash scripts/run-github-checks.sh repo-sanity
+              bun run audit:github repo-sanity
               if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
                 bun run changeset:status:since-main
               fi
@@ -188,11 +188,11 @@ jobs:
 
       - name: Append Turbo summary
         if: matrix.uses_turbo == 'true' && steps.lane-gate.outputs.should_run == 'true' && always()
-        run: node scripts/append-turbo-summary.mjs
+        run: bun run beep ci append-turbo-summary
 
       - name: Append Turbo summary (docgen affected)
         if: matrix.id == 'docgen' && steps.lane-gate.outputs.should_run == 'true' && steps.lane-gate.outputs.docgen_mode == 'affected' && always()
-        run: node scripts/append-turbo-summary.mjs
+        run: bun run beep ci append-turbo-summary
 
       - name: Skip lane
         if: steps.lane-gate.outputs.should_run != 'true'
@@ -231,7 +231,7 @@ jobs:
 
       - name: Append Turbo summary
         if: always()
-        run: node scripts/append-turbo-summary.mjs
+        run: bun run beep ci append-turbo-summary
 
   secrets:
     name: Secret Scanning
@@ -295,6 +295,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+
       - name: Install Nix
         uses: cachix/install-nix-action@v30
         with:
@@ -308,7 +314,7 @@ jobs:
         continue-on-error: true
 
       - name: Run Nix checks
-        run: bash scripts/run-github-checks.sh nix
+        run: bun run audit:github nix
 
   sast:
     name: SAST

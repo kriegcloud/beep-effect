@@ -62,11 +62,107 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
+      "file": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts",
+      "kind": "native-switch",
+      "reason": "Existing fixture dispatch predates the stricter native switch gate and is tracked explicitly so the repo-cli script migration does not widen into runtime refactors.",
+      "owner": "@beep/agent-capability",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/drivers/acp/src/client.ts",
+      "kind": "native-switch",
+      "reason": "Existing ACP client protocol dispatch predates the stricter native switch gate and is tracked explicitly for a focused driver cleanup.",
+      "owner": "@beep/acp",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts",
+      "kind": "native-switch",
+      "reason": "Existing experimental OTLP packet rendering dispatch predates the stricter native switch gate and is tracked explicitly for a focused observability cleanup.",
+      "owner": "@beep/observability",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
+      "kind": "native-switch",
+      "reason": "Existing schema helper dispatch predates the stricter native switch gate and is tracked explicitly for a focused schema cleanup.",
+      "owner": "@beep/schema",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/modeling/schema/src/LocalDate.ts",
+      "kind": "native-switch",
+      "reason": "Existing date parsing dispatch predates the stricter native switch gate and is tracked explicitly for a focused schema cleanup.",
+      "owner": "@beep/schema",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/ui-system/ui/src/components/notification-card.tsx",
+      "kind": "native-switch",
+      "reason": "Existing presentation variant dispatch predates the stricter native switch gate and is tracked explicitly for a focused UI cleanup.",
+      "owner": "@beep/ui",
+      "issue": "NATIVE-RUNTIME-SWITCH-BASELINE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts",
       "kind": "new-map-set",
       "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
       "owner": "@beep/nlp",
       "issue": "WINK-SIMILARITY-NATIVE-SET-BRIDGE"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "new-map-set",
+      "reason": "The JSDoc inventory support generator is a standalone Bun/ts-morph workspace scanner that uses native Set and Map collections to mirror parser traversal state deterministically outside package runtime code.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "native-error",
+      "reason": "The JSDoc inventory support generator is invoked as a direct CLI script and throws native Error values for malformed workspace metadata before emitting generated inventory artifacts.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "array-static",
+      "reason": "The JSDoc inventory support generator decodes untyped JSONC workspace manifests and uses native Array guards at the external data boundary before normalizing values.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "typeof-runtime",
+      "reason": "The JSDoc inventory support generator decodes untyped JSONC and ts-morph metadata in a standalone support-script boundary where simple runtime guards keep generated inventory deterministic.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "object-method",
+      "reason": "The JSDoc inventory support generator renders aggregate maps from plain JSON-compatible records and uses Object entries only at the generated-report boundary.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "kind": "new-date",
+      "reason": "The JSDoc inventory support generator stamps generated inventory metadata once during direct CLI execution outside package runtime code.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
     }
   ],
   "diagnostics": []

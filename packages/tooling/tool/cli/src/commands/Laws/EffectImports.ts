@@ -97,7 +97,12 @@ const ALIAS_RULES: Readonly<Record<string, string>> = {
   "effect/Boolean": "Bool",
 };
 
-const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
+const INCLUDED_GLOBS = [
+  "apps/**/*.{ts,tsx}",
+  "packages/**/*.{ts,tsx}",
+  "infra/**/*.ts",
+  "!packages/**/docs/**",
+] as const;
 const ROOT_IMPORT_EXCLUDED_STABLE_SUBMODULES = ["effect/Function"] as const;
 const toStableName = Str.slice("effect/".length);
 const isStableSubmodule = P.and(Str.startsWith("effect/"), P.not(Str.startsWith("effect/unstable/")));
@@ -133,9 +138,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
     skipAddingFilesFromTsConfig: true,
   });
 
-  for (const pattern of INCLUDED_GLOBS) {
-    project.addSourceFilesAtPaths(pattern);
-  }
+  project.addSourceFilesAtPaths(A.fromIterable(INCLUDED_GLOBS));
 
   const sourceFiles = A.filter(project.getSourceFiles(), (sourceFile) => !isExcludedFile(sourceFile.getFilePath()));
 
