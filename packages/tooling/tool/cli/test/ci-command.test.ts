@@ -15,16 +15,23 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       const fs = yield* FileSystem.FileSystem;
       const tmpDir = yield* fs.makeTempDirectory();
       const previousCwd = process.cwd();
+      const previousGithubStepSummary = process.env.GITHUB_STEP_SUMMARY;
 
       process.chdir(tmpDir);
+      delete process.env.GITHUB_STEP_SUMMARY;
       yield* fs.makeDirectory(".git", { recursive: true });
 
-      return { fs, previousCwd, tmpDir } as const;
+      return { fs, previousCwd, previousGithubStepSummary, tmpDir } as const;
     }),
     () => use,
-    ({ fs, previousCwd, tmpDir }) =>
+    ({ fs, previousCwd, previousGithubStepSummary, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
+        if (previousGithubStepSummary === undefined) {
+          delete process.env.GITHUB_STEP_SUMMARY;
+        } else {
+          process.env.GITHUB_STEP_SUMMARY = previousGithubStepSummary;
+        }
         yield* fs.remove(tmpDir, { recursive: true });
       })
   ).pipe(Effect.provide(TestLayer));
