@@ -652,7 +652,7 @@ describe("@beep/repo-ai-metrics", () => {
       expect(plan.serviceUnit).toContain('"status":"failed"');
       expect(plan.serviceUnit).toContain("json.dumps");
       expect(plan.serviceUnit).toContain('decode("utf-8","replace")');
-      expect(plan.serviceUnit).toContain("absolute Bun path captured at render time");
+      expect(plan.serviceUnit).toContain("capture PATH at render time");
       expect(plan.serviceUnit).toMatch(/exit_code=0; > .*latest\.json\.stderr\.tmp.*; if flock -n/su);
       expect(plan.serviceUnit).not.toContain("sed 's/");
       expect(plan.serviceUnit).toContain("StartLimitBurst=3\nStartLimitIntervalSec=30m\n\n[Service]");

@@ -264,7 +264,9 @@ describe("ai-metrics command", () => {
           expect(output).toContain("--max-file-bytes 8388608");
           expect(output).toContain("--max-files 5");
           expect(output).toContain("OnUnitInactiveSec=30m");
-          expect(output).toContain("absolute Bun path captured at render time");
+          expect(output).toContain("capture PATH at render time");
+          expect(output).toContain("/usr/bin/env PATH=");
+          expect(output).toContain(" bun packages/tooling/tool/cli/src/bin.ts -- ai-metrics forwarder run");
           expect(output).toContain("beep-ai-metrics-forwarder.timer");
           expect(output).not.toContain("--max-files 200");
           expect(process.exitCode ?? 0).toBe(0);

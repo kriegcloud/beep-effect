@@ -1316,7 +1316,7 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
     target === AiMetricsDeployTarget.Enum.dankserver ? ` --otlp --otlp-base-url ${shellQuote(endpoint.baseUrl)}` : "";
   const maxFileBytesFlagText = ` --max-file-bytes ${maxFileBytes}`;
   const maxFilesFlagText = ` --max-files ${maxFiles}`;
-  const cliCommand = `${shellQuote(process.execPath)} packages/tooling/tool/cli/src/bin.ts --`;
+  const cliCommand = `/usr/bin/env PATH=${shellQuote(process.env.PATH ?? "")} bun packages/tooling/tool/cli/src/bin.ts --`;
   const plan = renderAiMetricsForwarderTimerPlan(
     new AiMetricsForwarderTimerInput({
       command: `${cliCommand} ai-metrics forwarder run --target ${target}${dataRootFlag}${hashSaltSecretRefFlagText}${rawArchiveKeySecretRefFlagText}${otlpFlagText}${maxFileBytesFlagText}${maxFilesFlagText} --json`,

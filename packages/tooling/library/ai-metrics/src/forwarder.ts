@@ -312,7 +312,7 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
     "Type=oneshot",
     `WorkingDirectory=${input.workingDirectory}`,
     `EnvironmentFile=${envFileUnitPath}`,
-    "# The command may include an absolute Bun path captured at render time; rerender this unit after moving Bun.",
+    "# The command may capture PATH at render time so user-local Bun can be found; rerender after changing Bun install paths.",
     `ExecStart=/usr/bin/env bash -lc ${shellQuote(execCommand)}`,
     "Restart=on-failure",
     "RestartSec=5m",
