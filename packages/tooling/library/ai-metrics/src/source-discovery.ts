@@ -7,11 +7,12 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Clock, Effect, FileSystem, Order, Path, pipe, Stream } from "effect";
+import { Clock, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { fileSizeBytes } from "./internal/file-info.ts";
 import { transcriptLines } from "./internal/transcript-utils.ts";
 import {
   AiMetricsDeployTarget,
@@ -88,6 +89,7 @@ export class AiMetricsSourceDiscoveryInput extends S.Class<AiMetricsSourceDiscov
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_FILES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_FILES))
     ),
+    maxFileBytes: S.optionalKey(S.Number),
     openClawUnitPath: S.optionalKey(S.String),
     repoRoot: S.String,
     sinceEpochMillis: S.optionalKey(S.Number),
@@ -164,6 +166,10 @@ export class AiMetricsDiscoveredSource extends S.Class<AiMetricsDiscoveredSource
     message: S.optionalKey(S.String),
     newestModifiedAtMillis: S.optionalKey(S.Number),
     rootPathHash: S.String,
+    sizeExcludedFileCount: S.Number.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
     sourceKind: AiMetricsTranscriptSource,
     status: AiMetricsSourceStatus,
   },
@@ -193,6 +199,7 @@ export class AiMetricsSourceDiscoveryResult extends S.Class<AiMetricsSourceDisco
     homeDirHash: S.String,
     includeAll: S.Boolean,
     maxFiles: S.Number,
+    maxFileBytes: S.optionalKey(S.Number),
     repoRootHash: S.String,
     sinceEpochMillis: S.optionalKey(S.Number),
     sources: S.Array(AiMetricsDiscoveredSource),
@@ -259,17 +266,15 @@ const fileSystemFailure = (message: string, cause: unknown): AiMetricsSourceDisc
 const normalizedRelativePath = (pathApi: Path.Path, root: string, filePath: string): string =>
   pipe(pathApi.relative(root, filePath), Str.replace(/\\/gu, "/"));
 
-const contentHasCodexSessionMetaLine = (content: string): boolean =>
-  pipe(
-    content,
-    transcriptLines,
-    A.some((line) =>
-      pipe(
-        decodeCodexTranscriptLine(line),
-        O.exists((decoded) => decoded.type === "session_meta")
-      )
+const contentHasCodexSessionMetaLine: (content: string) => boolean = flow(
+  transcriptLines,
+  A.some((line) =>
+    pipe(
+      decodeCodexTranscriptLine(line),
+      O.exists((decoded) => decoded.type === "session_meta")
     )
-  );
+  )
+);
 
 const readAttributionContent = (
   fs: FileSystem.FileSystem,
@@ -303,10 +308,15 @@ const modifiedAtMillis = (info: FileSystem.File.Info): number =>
     O.getOrElse(() => 0)
   );
 
-const shouldIncludeModifiedAt =
+const isWithinModifiedTimeWindow =
   (input: AiMetricsSourceDiscoveryInput) =>
   (info: FileSystem.File.Info): boolean =>
     input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
+
+const isWithinSizeWindow =
+  (input: AiMetricsSourceDiscoveryInput) =>
+  (info: FileSystem.File.Info): boolean =>
+    input.maxFileBytes === undefined || fileSizeBytes(info) <= input.maxFileBytes;
 
 const sessionIdFromPath = (pathApi: Path.Path, sourcePath: string): string =>
   pipe(pathApi.basename(sourcePath), Str.replace(/\.jsonl$/u, ""));
@@ -392,7 +402,7 @@ const makeDiscoveredTranscriptFile = Effect.fn("AiMetrics.makeDiscoveredTranscri
     ...(attribution.parentSessionIdHash === undefined ? {} : { parentSessionIdHash: attribution.parentSessionIdHash }),
     ...(attribution.parentThreadIdHash === undefined ? {} : { parentThreadIdHash: attribution.parentThreadIdHash }),
     sessionIdHash: attribution.sessionIdHash ?? fallbackSessionIdHash,
-    sizeBytes: globalThis.Number(info.size),
+    sizeBytes: fileSizeBytes(info),
     sourceKind,
     sourcePathHash: yield* hashPrivateIdentifier(sourcePath, hashSalt),
     sourceRole: attribution.sourceRole,
@@ -449,22 +459,36 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
 
   const fs = yield* FileSystem.FileSystem;
   const allFiles = yield* collectJsonlFiles(root);
-  const candidates = pipe(
-    yield* Effect.forEach(
-      allFiles,
-      Effect.fnUntraced(function* (sourcePath) {
-        const info = yield* fs.stat(sourcePath).pipe(Effect.option);
-        if (O.isNone(info) || info.value.type !== "File" || !shouldIncludeModifiedAt(input)(info.value)) {
-          return O.none<SourceCandidateFile>();
-        }
+  const scannedFiles = yield* Effect.forEach(
+    allFiles,
+    Effect.fnUntraced(function* (sourcePath) {
+      const info = yield* fs.stat(sourcePath).pipe(Effect.option);
+      if (O.isNone(info) || info.value.type !== "File" || !isWithinModifiedTimeWindow(input)(info.value)) {
+        return { candidate: O.none<SourceCandidateFile>(), excludedByMaxFileBytes: false };
+      }
 
-        return O.some({ modifiedAtMillis: modifiedAtMillis(info.value), sourcePath });
-      }),
-      { concurrency: 16 }
-    ),
+      if (!isWithinSizeWindow(input)(info.value)) {
+        return { candidate: O.none<SourceCandidateFile>(), excludedByMaxFileBytes: true };
+      }
+
+      return {
+        candidate: O.some({ modifiedAtMillis: modifiedAtMillis(info.value), sourcePath }),
+        excludedByMaxFileBytes: false,
+      };
+    }),
+    { concurrency: 16 }
+  );
+  const candidates = pipe(
+    scannedFiles,
+    A.map((scan) => scan.candidate),
     A.getSomes,
     A.sort(byCandidatePathAscending),
     A.sort(byCandidateModifiedDescending)
+  );
+  const sizeExcludedFileCount = pipe(
+    scannedFiles,
+    A.filter((scan) => scan.excludedByMaxFileBytes),
+    A.length
   );
   const includedCandidates = A.take(candidates, input.maxFiles);
   const files = pipe(
@@ -490,6 +514,7 @@ const discoverJsonlSource = Effect.fn("AiMetrics.discoverJsonlSource")(function*
     includedFileCount: A.length(includedFiles),
     limitedByMaxFiles: A.length(candidates) > A.length(includedCandidates),
     rootPathHash,
+    sizeExcludedFileCount,
     sourceKind,
     status: AiMetricsSourceStatus.Enum.available,
     ...newestModifiedAtFields(includedFiles),
@@ -527,7 +552,7 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
     });
   }
 
-  if (!shouldIncludeModifiedAt(input)(unitInfo.value)) {
+  if (!isWithinModifiedTimeWindow(input)(unitInfo.value)) {
     return new AiMetricsDiscoveredSource({
       candidateFileCount: 0,
       fileCount: 0,
@@ -541,10 +566,25 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
     });
   }
 
+  if (!isWithinSizeWindow(input)(unitInfo.value)) {
+    return new AiMetricsDiscoveredSource({
+      candidateFileCount: 0,
+      fileCount: 0,
+      files: [],
+      includedFileCount: 0,
+      limitedByMaxFiles: false,
+      message: "OpenClaw user systemd gateway metadata exceeds the selected byte-size window",
+      rootPathHash,
+      sizeExcludedFileCount: 1,
+      sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
+      status: AiMetricsSourceStatus.Enum.available,
+    });
+  }
+
   const file = new AiMetricsDiscoveredTranscriptFile({
     modifiedAtMillis: modifiedAtMillis(unitInfo.value),
     sessionIdHash: yield* hashPrivateIdentifier("openclaw-gateway.service", input.hashSalt),
-    sizeBytes: globalThis.Number(unitInfo.value.size),
+    sizeBytes: fileSizeBytes(unitInfo.value),
     sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
     sourcePathHash: yield* hashPrivateIdentifier(unitPath, input.hashSalt),
     sourceRole: AiMetricsSourceRole.Enum.gateway_metadata,
@@ -613,6 +653,7 @@ export const discoverAiMetricsSources = Effect.fn("AiMetrics.discoverAiMetricsSo
     homeDirHash: yield* hashPrivateIdentifier(homeDir, input.hashSalt),
     includeAll: input.includeAll,
     maxFiles: input.maxFiles,
+    ...(input.maxFileBytes === undefined ? {} : { maxFileBytes: input.maxFileBytes }),
     repoRootHash: yield* hashPrivateIdentifier(repoRoot, input.hashSalt),
     sources,
     target: input.target,

@@ -5,6 +5,7 @@ import {
   AiMetricsInstallPlan,
   AiMetricsLabelQueueResult,
   AiMetricsOtlpExportResult,
+  AiMetricsSourceDiscoveryResult,
   AiMetricsWeeklyReportResult,
 } from "@beep/repo-ai-metrics";
 import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index";
@@ -26,6 +27,7 @@ const decodeInstallDoctor = S.decodeUnknownEffect(S.fromJsonString(AiMetricsInst
 const decodeInstallPlan = S.decodeUnknownEffect(S.fromJsonString(AiMetricsInstallPlan));
 const decodeLabelQueue = S.decodeUnknownEffect(S.fromJsonString(AiMetricsLabelQueueResult));
 const decodeOtlpExportResult = S.decodeUnknownEffect(S.fromJsonString(AiMetricsOtlpExportResult));
+const decodeSourceDiscovery = S.decodeUnknownEffect(S.fromJsonString(AiMetricsSourceDiscoveryResult));
 const decodeWeeklyReport = S.decodeUnknownEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
 const farFutureUntilEpochMs = 4_102_444_800_000;
 
@@ -234,6 +236,39 @@ describe("ai-metrics command", () => {
           expect(output).toContain("op://TBK/ai-metrics/hash-salt");
           expect(output).toContain("rawArchiveKeySecretRef");
           expect(output).toContain("op://TBK/ai-metrics/raw-archive-key");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("renders a bounded dankserver forwarder timer command", async () => {
+    await Effect.runPromise(
+      withTempDirectory(() =>
+        Effect.gen(function* () {
+          yield* runAiMetricsCommand([
+            "forwarder",
+            "timer",
+            "--target",
+            "dankserver",
+            "--data-root",
+            ".beep/ai-metrics",
+            "--hash-salt-secret-ref",
+            "op://TBK/ai-metrics/hash-salt",
+            "--raw-archive-key-secret-ref",
+            "op://TBK/ai-metrics/raw-archive-key",
+            "--json",
+          ]);
+
+          const output = yield* loggedText();
+          expect(output).toContain("--max-file-bytes 8388608");
+          expect(output).toContain("--max-files 5");
+          expect(output).toContain("OnUnitInactiveSec=30m");
+          expect(output).toContain("capture PATH at render time");
+          expect(output).toContain("/usr/bin/env PATH=");
+          expect(output).toContain(" bun packages/tooling/tool/cli/src/bin.ts -- ai-metrics forwarder run");
+          expect(output).toContain("beep-ai-metrics-forwarder.timer");
+          expect(output).not.toContain("--max-files 200");
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
@@ -520,6 +555,10 @@ describe("ai-metrics command", () => {
             '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}\n'
           );
           yield* writeText(
+            path.join(homeDir, ".codex/sessions/2026/05/05/oversized-codex-session.jsonl"),
+            `{"type":"session_meta","timestamp":"2026-05-05T10:01:00Z","payload":"${pipe("x", Str.repeat(256))}"}\n`
+          );
+          yield* writeText(
             path.join(homeDir, ".claude/projects", claudeProjectName, "claude-session.jsonl"),
             '{"sessionId":"claude-session","timestamp":"2026-05-05T11:00:00Z"}\n'
           );
@@ -537,10 +576,24 @@ describe("ai-metrics command", () => {
             "--all",
             "--hash-salt",
             "test-salt",
+            "--max-file-bytes",
+            "128",
             "--json",
           ]);
 
+          const result = yield* decodeSourceDiscovery(yield* lastLoggedLine());
+          const codex = pipe(
+            result.sources,
+            A.findFirst((source) => source.sourceKind === "codex")
+          );
           const output = yield* loggedText();
+          expect(result.maxFileBytes).toBe(128);
+          expect(O.isSome(codex)).toBe(true);
+          if (O.isSome(codex)) {
+            expect(codex.value.fileCount).toBe(1);
+            expect(codex.value.files[0]?.sizeBytes).toBeLessThanOrEqual(128);
+            expect(codex.value.sizeExcludedFileCount).toBe(1);
+          }
           expect(output).toContain("gateway_metadata");
           expect(output).toContain("provided");
           expect(output).not.toContain(tmpDir);

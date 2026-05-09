@@ -2,8 +2,8 @@
 
 Date: 2026-05-07
 
-Status: Phoenix backend deployed and verified on dankserver; Pulumi state
-reconciliation remains blocked by missing local Pulumi passphrase environment.
+Status: Phoenix backend deployed and verified on dankserver. Pulumi state
+reconciliation completed on May 9, 2026 during P6a closeout.
 
 ## Delivered
 
@@ -39,6 +39,8 @@ reconciliation remains blocked by missing local Pulumi passphrase environment.
 - Attempted to resolve the checked-in AI metrics 1Password refs for hash salt
   and raw archive key before sending real traces; they did not resolve in the
   current 1Password account, so no throwaway secret was used for live data.
+- P6a closeout later resolved the AI metrics refs, reconciled Pulumi state, and
+  verified live Phoenix version `15.5.0`.
 
 ## Boundaries
 
@@ -72,7 +74,7 @@ reconciliation remains blocked by missing local Pulumi passphrase environment.
 - 1Password metadata check for `TBK/dankserver` confirmed Tailscale fields are
   present, but not AI metrics hash/raw archive secrets.
 
-Pulumi preview did not reach the provider runtime in this shell:
+Original Pulumi preview did not reach the provider runtime in this shell:
 
 ```text
 error: getting stack configuration: get stack secrets manager: passphrase must be set with PULUMI_CONFIG_PASSPHRASE or PULUMI_CONFIG_PASSPHRASE_FILE environment variables
@@ -80,15 +82,16 @@ error: getting stack configuration: get stack secrets manager: passphrase must b
 
 ## Operator Resume
 
-Reconcile Pulumi state once the Pulumi passphrase environment is present:
+Pulumi state is now reconciled. To re-run the gate, resolve the Pulumi
+passphrase into the environment first:
 
 ```sh
 cd infra
-pulumi preview --stack beep-ai-metrics-dankserver --non-interactive
-pulumi up --stack beep-ai-metrics-dankserver --yes
+PULUMI_CONFIG_PASSPHRASE=<resolved-secret> pulumi preview -s beep-ai-metrics-dankserver --non-interactive --diff
+PULUMI_CONFIG_PASSPHRASE=<resolved-secret> pulumi up -s beep-ai-metrics-dankserver --yes --non-interactive
 ```
 
-After reconciliation, continue with real trace export:
+Real trace export uses the checked-in secret references plus runtime values:
 
 ```sh
 export BEEP_AI_METRICS_HASH_SALT_SECRET_REF="op://TBK/ai-metrics/hash-salt"
@@ -104,11 +107,7 @@ beep-cli ai-metrics report weekly --target dankserver --data-root .beep/ai-metri
 
 ## Remaining Gate
 
-- Pulumi preview and apply still need to be executed from a shell with
-  `PULUMI_CONFIG_PASSPHRASE` or `PULUMI_CONFIG_PASSPHRASE_FILE` so Pulumi state
-  matches the live host.
-- The next functional gate is sending real redacted OTLP traces to Phoenix and
-  starting the seven-day scorecard proof.
-- Real forwarder/export requires valid AI metrics hash salt and raw archive key
-  values, plus the non-local install secret refs used by report/export
-  commands.
+- Keep the P6 workstation timer running through the credited seven-day proof
+  window.
+- Generate the final seven-day scorecard after May 16, 2026 02:26
+  America/Chicago.

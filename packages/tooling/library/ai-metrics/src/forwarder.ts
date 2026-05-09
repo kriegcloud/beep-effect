@@ -25,6 +25,7 @@ import {
 } from "./derived-storage.ts";
 import { summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
+import { fileSizeBytes } from "./internal/file-info.ts";
 import { AiMetricsDeployTarget, AiMetricsTranscriptSource } from "./models.ts";
 import { hashPrivateIdentifier, makeAiMetricsPrivacyCheckResult } from "./privacy.ts";
 import { shellQuote } from "./shell.ts";
@@ -85,6 +86,7 @@ export class AiMetricsForwarderInput extends S.Class<AiMetricsForwarderInput>($I
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_FILES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_FILES))
     ),
+    maxFileBytes: S.optionalKey(S.Number),
     openClawUnitPath: S.optionalKey(S.String),
     rawArchiveKey: AiMetricsRawArchiveKey,
     rawArchiveKeySecretRef: S.optionalKey(S.String),
@@ -118,10 +120,14 @@ export class AiMetricsForwarderSourceCoverage extends S.Class<AiMetricsForwarder
     candidateFileCount: S.Number,
     includedFileCount: S.Number,
     limitedByMaxFiles: S.Boolean,
+    sizeExcludedFileCount: S.Number.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
     sourceKind: AiMetricsTranscriptSource,
   },
   $I.annote("AiMetricsForwarderSourceCoverage", {
-    description: "Source-aware file selection counts used to detect maxFiles starvation.",
+    description: "Source-aware file selection counts used to detect maxFiles and maxFileBytes starvation.",
   })
 ) {}
 
@@ -225,8 +231,14 @@ const encodeForwarderTimerPlanJson = S.encodeUnknownEffect(S.fromJsonString(AiMe
 type ForwarderSourceFile = {
   readonly modifiedAtMillis: number;
   readonly relativePath: string;
+  readonly sizeBytes: number;
   readonly sourceKind: AiMetricsTranscriptSource;
   readonly sourcePath: string;
+};
+
+type ForwarderSourceFiles = {
+  readonly files: ReadonlyArray<ForwarderSourceFile>;
+  readonly sizeExcludedFileCount: number;
 };
 
 type ForwarderSourceSelection = {
@@ -293,7 +305,6 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
   const serviceUnit = [
     "[Unit]",
     "Description=Beep AI metrics forwarder collection",
-    "Documentation=AGENTS.md",
     "StartLimitBurst=3",
     "StartLimitIntervalSec=30m",
     "",
@@ -301,6 +312,7 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
     "Type=oneshot",
     `WorkingDirectory=${input.workingDirectory}`,
     `EnvironmentFile=${envFileUnitPath}`,
+    "# The command may capture PATH at render time so user-local Bun can be found; rerender after changing Bun install paths.",
     `ExecStart=/usr/bin/env bash -lc ${shellQuote(execCommand)}`,
     "Restart=on-failure",
     "RestartSec=5m",
@@ -366,6 +378,16 @@ const modifiedAtMillis = (info: FileSystem.File.Info): number =>
     O.getOrElse(() => 0)
   );
 
+const isWithinModifiedTimeWindow =
+  (input: AiMetricsForwarderInput) =>
+  (info: FileSystem.File.Info): boolean =>
+    input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
+
+const isWithinSizeWindow =
+  (input: AiMetricsForwarderInput) =>
+  (info: FileSystem.File.Info): boolean =>
+    input.maxFileBytes === undefined || fileSizeBytes(info) <= input.maxFileBytes;
+
 const sourcePathHashForDiagnostics = Effect.fn("AiMetrics.forwarder.sourcePathHashForDiagnostics")(function* (
   input: AiMetricsForwarderInput,
   sourceFile: ForwarderSourceFile
@@ -379,11 +401,6 @@ const sourcePathHashForDiagnostics = Effect.fn("AiMetrics.forwarder.sourcePathHa
     )
   );
 });
-
-const shouldIncludeFile =
-  (input: AiMetricsForwarderInput) =>
-  (info: FileSystem.File.Info): boolean =>
-    input.includeAll || input.sinceEpochMillis === undefined || modifiedAtMillis(info) >= input.sinceEpochMillis;
 
 const collectJsonlFiles = Effect.fn("AiMetrics.forwarder.collectJsonlFiles")(function* (
   root: string
@@ -432,25 +449,44 @@ const jsonlSourceFiles = Effect.fn("AiMetrics.forwarder.jsonlSourceFiles")(funct
   const fs = yield* FileSystem.FileSystem;
   const pathApi = yield* Path.Path;
   const sourcePaths = yield* collectJsonlFiles(root);
-  const files = yield* Effect.forEach(
+  const scannedFiles = yield* Effect.forEach(
     sourcePaths,
     Effect.fnUntraced(function* (sourcePath) {
       const info = yield* fs.stat(sourcePath).pipe(Effect.option);
-      if (O.isNone(info) || info.value.type !== "File" || !shouldIncludeFile(input)(info.value)) {
-        return O.none<ForwarderSourceFile>();
+      if (O.isNone(info) || info.value.type !== "File" || !isWithinModifiedTimeWindow(input)(info.value)) {
+        return { excludedByMaxFileBytes: false, file: O.none<ForwarderSourceFile>() };
       }
 
-      return O.some({
-        modifiedAtMillis: modifiedAtMillis(info.value),
-        relativePath: normalizedRelativePath(pathApi, root, sourcePath),
-        sourceKind,
-        sourcePath,
-      });
+      if (!isWithinSizeWindow(input)(info.value)) {
+        return { excludedByMaxFileBytes: true, file: O.none<ForwarderSourceFile>() };
+      }
+
+      return {
+        excludedByMaxFileBytes: false,
+        file: O.some({
+          modifiedAtMillis: modifiedAtMillis(info.value),
+          relativePath: normalizedRelativePath(pathApi, root, sourcePath),
+          sizeBytes: fileSizeBytes(info.value),
+          sourceKind,
+          sourcePath,
+        }),
+      };
     }),
     { concurrency: 16 }
   );
 
-  return A.getSomes(files);
+  return {
+    files: pipe(
+      scannedFiles,
+      A.map((scan) => scan.file),
+      A.getSomes
+    ),
+    sizeExcludedFileCount: pipe(
+      scannedFiles,
+      A.filter((scan) => scan.excludedByMaxFileBytes),
+      A.length
+    ),
+  };
 });
 
 const openClawSourceFiles = Effect.fn("AiMetrics.forwarder.openClawSourceFiles")(function* (
@@ -460,16 +496,30 @@ const openClawSourceFiles = Effect.fn("AiMetrics.forwarder.openClawSourceFiles")
   const unitPath =
     input.openClawUnitPath ?? pathApi.join(input.homeDir, ".config/systemd/user/openclaw-gateway.service");
   const info = yield* statOption(unitPath);
-  if (O.isNone(info) || info.value.type !== "File" || !shouldIncludeFile(input)(info.value)) {
-    return A.empty<ForwarderSourceFile>();
+  if (O.isNone(info) || info.value.type !== "File" || !isWithinModifiedTimeWindow(input)(info.value)) {
+    return {
+      files: A.empty<ForwarderSourceFile>(),
+      sizeExcludedFileCount: 0,
+    };
   }
 
-  return A.of({
-    modifiedAtMillis: modifiedAtMillis(info.value),
-    relativePath: pathApi.basename(unitPath),
-    sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
-    sourcePath: unitPath,
-  });
+  if (!isWithinSizeWindow(input)(info.value)) {
+    return {
+      files: A.empty<ForwarderSourceFile>(),
+      sizeExcludedFileCount: 1,
+    };
+  }
+
+  return {
+    files: A.of({
+      modifiedAtMillis: modifiedAtMillis(info.value),
+      relativePath: pathApi.basename(unitPath),
+      sizeBytes: fileSizeBytes(info.value),
+      sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
+      sourcePath: unitPath,
+    }),
+    sizeExcludedFileCount: 0,
+  };
 });
 
 const byModifiedDescending: Order.Order<ForwarderSourceFile> = Order.mapInput(
@@ -479,10 +529,10 @@ const byModifiedDescending: Order.Order<ForwarderSourceFile> = Order.mapInput(
 
 const selectSourceFiles = (
   sourceKind: AiMetricsTranscriptSource,
-  files: ReadonlyArray<ForwarderSourceFile>,
+  sourceFiles: ForwarderSourceFiles,
   maxFiles: number
 ): ForwarderSourceSelection => {
-  const sortedFiles = pipe(files, A.sort(byModifiedDescending));
+  const sortedFiles = pipe(sourceFiles.files, A.sort(byModifiedDescending));
   const includedFiles = A.take(sortedFiles, maxFiles);
 
   return {
@@ -490,6 +540,7 @@ const selectSourceFiles = (
       candidateFileCount: A.length(sortedFiles),
       includedFileCount: A.length(includedFiles),
       limitedByMaxFiles: A.length(sortedFiles) > A.length(includedFiles),
+      sizeExcludedFileCount: sourceFiles.sizeExcludedFileCount,
       sourceKind,
     }),
     files: includedFiles,

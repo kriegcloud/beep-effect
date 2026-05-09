@@ -2,7 +2,10 @@
 
 ## Status
 
-In progress.
+Credited proof window restarted.
+
+- start: May 9, 2026 02:26 America/Chicago
+- earliest completion: May 16, 2026 02:26 America/Chicago
 
 ## Evidence Captured
 
@@ -49,12 +52,31 @@ In progress.
     `.beep/ai-metrics/reports/weekly-1777513584078-1778118384078.json`
   - expected gaps: `no_labels`, `no_benchmark_runs`,
     `model_call_metrics_missing`, `tool_invocation_metrics_missing`
+- Closed P6a restart gates on May 9, 2026:
+  - workstation user timer `beep-ai-metrics-forwarder.timer` is enabled and
+    active, with next run scheduled by systemd
+  - owned service run `forwarder-1778311344793` finished successfully with
+    `--max-file-bytes 8388608`, `--max-files 5`, and 3,516 derived turns
+  - archive decrypt drill passed for
+    `raw-e3d14757b3deade2405bd5cf8bec58678035c735be7ad148c5ddda794d8a5d15`
+  - Pulumi `preview` and `up` passed for `beep-ai-metrics-dankserver`; stack
+    state now has 6 resources
+  - live Phoenix reports `x-phoenix-server-version: 15.5.0`
+  - restarted config snapshot
+    `config-d0b05a2d64c9c40c21e0df11f8cfc611be5ce41139f52f4db79b77f73ca895bc`
+    has one outcome label, one benchmark run, and `completionReady=true`
+  - restart evidence recorded in
+    [p6a-closeout-proof-restart.md](./p6a-closeout-proof-restart.md)
 
 ## Privacy Checks
 
 - No 1Password secret values were written to checked-in files.
 - Temporary secret material was resolved into a `0700` temp directory for the
-  live forwarder run and removed by shell trap after the command exited.
+  baseline live forwarder run and removed by shell trap after the command
+  exited.
+- The workstation timer resolves runtime secret values into
+  `~/.config/beep/ai-metrics.env` with mode `0600`; checked-in docs and config
+  retain only secret references.
 - Source discovery, label queue, report output, and OTLP export evidence use
   hashes and counts rather than raw local paths, prompt text, output text, or
   archive keys.
@@ -63,8 +85,9 @@ In progress.
 
 ## Remaining Work
 
-- Keep live collection running for a full seven-day window.
-- Resume non-local collection with concealed secret loading:
+- Keep live collection running until at least May 16, 2026 02:26
+  America/Chicago.
+- Non-local manual collection remains available with concealed secret loading:
   ```sh
   export BEEP_AI_METRICS_HASH_SALT_SECRET_REF="op://TBK/ai-metrics/hash-salt"
   export BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF="op://TBK/ai-metrics/raw-archive-key"
@@ -72,9 +95,9 @@ In progress.
   beep-cli ai-metrics forwarder run --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref "$BEEP_AI_METRICS_HASH_SALT_SECRET_REF" --raw-archive-key-secret-ref "$BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF" --otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447
   beep-cli ai-metrics report weekly --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref "$BEEP_AI_METRICS_HASH_SALT_SECRET_REF" --raw-archive-key-secret-ref "$BEEP_AI_METRICS_RAW_ARCHIVE_KEY_SECRET_REF"
   ```
-- Add structured outcome labels for real queued tasks.
-- Add benchmark cases and benchmark runs linked to the live config snapshot.
-- Generate the credited seven-day weekly scorecard after the proof window.
-- Document backup, restore, retention, and failure recovery.
-- Reconcile the live dankserver deployment into Pulumi state from a shell with
-  `PULUMI_CONFIG_PASSPHRASE` or `PULUMI_CONFIG_PASSPHRASE_FILE`.
+- Add additional structured outcome labels for real queued tasks as more timer
+  runs accumulate.
+- Add additional benchmark runs linked to live config snapshots when config
+  changes or operator workflows are exercised.
+- Generate the credited seven-day weekly scorecard after the proof window and
+  verify `completionReady=true`.

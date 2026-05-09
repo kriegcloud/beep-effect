@@ -44,6 +44,8 @@ restarted seven-day config-impact scorecard has been generated from live data.
 - [history/outputs/p6a-fresh-review-hardening.md](./history/outputs/p6a-fresh-review-hardening.md)
   - fresh review findings, P6a hardening decisions, implementation evidence,
     and proof restart gates
+- [history/outputs/p6a-closeout-proof-restart.md](./history/outputs/p6a-closeout-proof-restart.md)
+  - P6a closeout evidence, timer/Pulumi proof, and restarted seven-day window
 - [research/effect-native-observability.md](./research/effect-native-observability.md)
   - Effect v4 observability package findings
 - [research/backend-shortlist.md](./research/backend-shortlist.md) - backend
@@ -51,11 +53,10 @@ restarted seven-day config-impact scorecard has been generated from live data.
 
 ## Current Progress
 
-P0, P1, P2, P3, P4, P5a, and the P5b live Phoenix deployment are complete
-enough to use as the starting checkpoint. The first real collection/export
-proof is baseline evidence, not the credited seven-day proof. P6 is paused for
-P6a data and ops hardening. Pulumi state reconciliation is still gated on the
-local Pulumi passphrase environment:
+P0, P1, P2, P3, P4, P5, and P6a are complete enough to use as the starting
+checkpoint. The first real collection/export proof remains baseline evidence;
+the credited seven-day proof restarted on May 9, 2026 02:26 America/Chicago
+after the P6a closeout gates passed:
 
 - `@beep/repo-ai-metrics` exists with schema-first models, tolerant transcript
   ingest summaries, target-agnostic install specs, benchmark and scorecard
@@ -90,17 +91,21 @@ local Pulumi passphrase environment:
   preflight, Phoenix compose/systemd apply, dedicated
   `https://dankserver.tailc7c348.ts.net:8447` Tailscale Serve routing, and
   health checks.
+- Pulumi state reconciliation has passed for `beep-ai-metrics-dankserver`;
+  stack state now has 6 resources and live Phoenix reports version `15.5.0`.
 - The AI metrics 1Password refs resolve at
   `op://TBK/ai-metrics/hash-salt` and
   `op://TBK/ai-metrics/raw-archive-key`.
 - The first live P6 proof collected 10 Codex source files, projected 23,830
   turns, exported 23,840 redacted OTLP spans to Phoenix, generated a baseline
   weekly report, and confirmed Phoenix GraphQL has traces.
-- Current gates are explicit in the packet: reconcile the live host mutation
-  with Pulumi from a shell with `PULUMI_CONFIG_PASSPHRASE` or
-  `PULUMI_CONFIG_PASSPHRASE_FILE`, install/run the workstation timer, run the
-  archive drill, add outcome labels and benchmark runs, document
-  backup/restore/retention/deletion, and then restart the seven-day proof.
+- P6a closeout installed the workstation systemd user timer, ran one owned
+  bounded forwarder pass, reran the archive drill, reconciled Pulumi, verified
+  Phoenix `15.5.0`, added one outcome label plus one benchmark run, and
+  generated a restarted scorecard with `completionReady=true`.
+- Current P6 work is to keep the timer running through May 16, 2026 02:26
+  America/Chicago, add more labels/benchmarks as data accumulates, and generate
+  the final seven-day report.
 
 ## Completion Standard
 
@@ -109,7 +114,7 @@ This initiative is done only when all are true:
 - dankserver tailnet deployment is applied and verified
 - Phoenix is receiving real traces or derived exports
 - raw encrypted archive and redacted derived views are populated
-- P6a hardening gates pass, including subagent attribution, source-aware
+- P6a hardening gates have passed, including subagent attribution, source-aware
   coverage, config diffs, metadata allowlist, timer ownership, and archive
   decrypt drill
 - Codex, Claude Code, OpenClaw, and optional gateway sources have discovery and
