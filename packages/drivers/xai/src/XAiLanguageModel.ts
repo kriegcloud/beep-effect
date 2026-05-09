@@ -103,6 +103,14 @@ const mapXAiError =
     return makeAiError(method, new AiError.UnknownError({ description: errorDescription(error) }));
   };
 
+const nonJsonChatCompletionError = (responseTag: "Binary" | "NoBody" | "Text"): AiError.AiError =>
+  makeAiError(
+    "createChatCompletion",
+    new AiError.InvalidOutputError({
+      description: `xAI chat completion returned a ${responseTag} response instead of JSON.`,
+    })
+  );
+
 const createChatCompletion = (
   xai: XAiShape,
   request: OpenAiCompatChatCompletionRequest
@@ -114,27 +122,9 @@ const createChatCompletion = (
       XAiResponse.match(response, {
         Json: (json) =>
           pipe(json.body, decodeChatCompletionResponse, Effect.mapError(mapSchemaError("createChatCompletion"))),
-        Binary: () =>
-          Effect.fail(
-            makeAiError(
-              "createChatCompletion",
-              new AiError.InvalidOutputError({ description: "xAI chat completion did not return a JSON response." })
-            )
-          ),
-        NoBody: () =>
-          Effect.fail(
-            makeAiError(
-              "createChatCompletion",
-              new AiError.InvalidOutputError({ description: "xAI chat completion did not return a JSON response." })
-            )
-          ),
-        Text: () =>
-          Effect.fail(
-            makeAiError(
-              "createChatCompletion",
-              new AiError.InvalidOutputError({ description: "xAI chat completion did not return a JSON response." })
-            )
-          ),
+        Binary: () => Effect.fail(nonJsonChatCompletionError("Binary")),
+        NoBody: () => Effect.fail(nonJsonChatCompletionError("NoBody")),
+        Text: () => Effect.fail(nonJsonChatCompletionError("Text")),
       })
     ),
     Effect.withSpan("XAiLanguageModel.createChatCompletion", {

@@ -183,13 +183,13 @@ const BeepToolingMetadata = S.Struct({
 const BeepPackageMetadata = BeepPackageFamily.mapMembers(
   Tuple.evolve([() => BeepFoundationMetadata, () => BeepDriverMetadata, () => BeepToolingMetadata])
 )
+  .pipe(S.toTaggedUnion("family"))
   .annotate(
     $I.annote("BeepPackageMetadata", {
       title: "Beep Package Metadata",
       description: "Machine-readable repo architecture metadata for non-slice code packages.",
     })
-  )
-  .pipe(S.toTaggedUnion("family"));
+  );
 
 const PackageTypeField = S.String.check(S.isPattern(packageTypePattern)).annotate(
   $I.annote("PackageTypeField", {

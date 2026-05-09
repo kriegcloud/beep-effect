@@ -455,7 +455,7 @@ describe("@beep/xai", () => {
         const error = yield* languageModel.generateText({ prompt: "hello" }).pipe(Effect.flip);
 
         expect(error.reason._tag).toBe("InvalidOutputError");
-        expect(inspect(error.reason)).toContain("xAI chat completion did not return a JSON response.");
+        expect(inspect(error.reason)).toContain("xAI chat completion returned a Text response instead of JSON.");
       })
     )
   );
