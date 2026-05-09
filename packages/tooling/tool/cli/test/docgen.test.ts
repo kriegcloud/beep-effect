@@ -728,7 +728,7 @@ export const parseValue = (value: string): string => value.trim();
     );
   });
 
-  it("collects local export-list symbols without creating fake module subjects", async () => {
+  it("collects local export-list symbols and treats lowercase console output as observable", async () => {
     await Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
@@ -787,12 +787,15 @@ export { parseValue };
 
           expect(exportNames).toEqual(["parseValue"]);
           expect(subject?.description).toContain("Parses a value");
+          expect(subject?.rawJsDoc).toContain("@example");
           expect(subject?.stableIdentity).toMatch(
             /^@beep\/schema:packages\/foundation\/modeling\/schema\/src\/index\.ts:const:parseValue:[a-f0-9]{12}$/
           );
           expect(subject?.sourceAnchor).toContain("packages/foundation/modeling/schema/src/index.ts:");
           expect(findingCodes).not.toContain("missing-example");
           expect(findingCodes).not.toContain("example-lacks-observable-result");
+          expect(findingCodes).not.toContain("example-only-voids-result");
+          expect(findingCodes).not.toContain("example-too-trivial");
           expect(review?.tier).toBe("pass");
         })
       )

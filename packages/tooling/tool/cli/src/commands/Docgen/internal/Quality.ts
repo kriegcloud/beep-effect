@@ -14,6 +14,7 @@ import { parseComment } from "@beep/repo-docgen/Parser";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { ContentHashFromSourceText } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
+import { thunkEmptyStr } from "@beep/utils";
 import { DateTime, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -424,10 +425,8 @@ const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: 
       const handle = yield* process;
       const text = yield* handle.stdout.pipe(
         Stream.decodeText(),
-        Stream.runFold(
-          (): string => "",
-          (acc: string, chunk: string) => `${acc}${chunk}`
-        )
+        // Effect v4 Stream.runFold takes a LazyArg initializer; the named thunk keeps the runtime value empty.
+        Stream.runFold(thunkEmptyStr, (acc: string, chunk: string) => `${acc}${chunk}`)
       );
       const exitCode = yield* handle.exitCode;
       if (exitCode !== 0) {
