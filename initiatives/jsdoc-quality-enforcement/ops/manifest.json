@@ -3,7 +3,7 @@
   "initiative": {
     "id": "jsdoc-quality-enforcement",
     "title": "JSDoc Quality Enforcement",
-    "status": "p6-hardened",
+    "status": "v1-complete-report-only",
     "created": "2026-05-08",
     "updated": "2026-05-09",
     "packetAnchorDocument": "SPEC.md"
@@ -41,9 +41,18 @@
       "title": "Enforcement Readiness Evaluation",
       "status": "complete",
       "output": "research/enforcement-readiness-eval.md"
+    },
+    {
+      "id": "post-p6-report-stability-eval",
+      "title": "Post-P6 Report Stability Evaluation",
+      "status": "complete",
+      "output": "research/post-p6-report-stability-eval.md"
     }
   ],
-  "evaluationOutputs": ["history/outputs/jsdoc-quality-p5-summary.json"],
+  "evaluationOutputs": [
+    "history/outputs/jsdoc-quality-p5-summary.json",
+    "history/outputs/jsdoc-quality-post-p6-summary.json"
+  ],
   "implementedSurfaces": [
     "packages/tooling/tool/cli/src/commands/Docgen/index.ts",
     "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
@@ -60,5 +69,5 @@
     "local model workers",
     "example exception categories"
   ],
-  "nextAction": "Run post-P6 report samples and consider package opt-in warnings only after the hardened report signal proves stable."
+  "nextAction": "V1 is complete as report-only. Future enforcement requires a new decision plan with measured package baselines and finding-code precision."
 }

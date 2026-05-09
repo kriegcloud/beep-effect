@@ -2,7 +2,7 @@
 
 ## Status
 
-V1 implemented; P6 hardening complete; still report-only
+V1 complete; report-only initiative closed
 
 ## Overview
 
@@ -17,7 +17,8 @@ findings, and emits bounded advisory Codex remediation packets. P6 adds schema
 v2 package status metadata, faster schema-heavy reports, re-export edge policy,
 type-only example evidence, and capped packet output. Diagnostics and
 related-symbol fields are reserved for follow-up enrichment when unavailable.
-The command is not a blocking gate.
+Post-P6 evaluation completed the architecture-stratified package sample with no
+timeouts, including `@beep/schema`. The command is not a blocking gate.
 
 ## Read This First
 
@@ -30,7 +31,9 @@ The command is not a blocking gate.
 ## Operating Rules
 
 - Treat V1 quality findings as advisory report output only.
-- Do not add blocking enforcement until post-P6 reports prove stable signal.
+- Do not add blocking enforcement in this initiative.
+- Future enforcement requires a new decision plan with measured package
+  baselines and finding-code precision.
 - Keep `@example` universal for owning exported symbols; re-export declarations
   are graph edges, not exception categories.
 - Place curated future evaluation reports in `research/`.
