@@ -15,7 +15,7 @@ import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { ContentHashFromSourceText } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
-import { DateTime, Effect, FileSystem, flow, Match, Order, Path, pipe, Stream } from "effect";
+import { DateTime, Duration, Effect, FileSystem, flow, Match, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -24,7 +24,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
-import { type Diagnostic, type ExportDeclaration, type JSDoc, Node, Project, type SourceFile } from "ts-morph";
+import { type Diagnostic, type JSDoc, Node, Project, type SourceFile } from "ts-morph";
 import { normalizeJSDocCategory } from "../../Shared/JSDocCategories.js";
 import {
   assertNoOrphanDocgenConfigPaths,
@@ -37,8 +37,11 @@ import {
 
 const $I = $RepoCliId.create("commands/Docgen/internal/Quality");
 
-const QUALITY_SCHEMA_VERSION = 1 as const;
+const QUALITY_SCHEMA_VERSION = 2 as const;
 const QUALITY_RUBRIC_VERSION = "jsdoc-quality-v1" as const;
+const DEFAULT_PACKAGE_TIMEOUT = Duration.seconds(180);
+const DEFAULT_REMEDIATION_PACKET_LIMIT = 25;
+const JSON_FORMAT_MAX_LENGTH = 500_000;
 const QUALITY_REQUIRED_EXPORT_TAGS = ["@category", "@example", "@since"] as const;
 const QUALITY_REQUIRED_MODULE_TAGS = ["@since"] as const;
 const QUALITY_TS_GLOBS = ["**/*.ts", "**/*.tsx"] as const;
@@ -169,6 +172,14 @@ export const DocgenQualityTier = LiteralKit(["pass", "warn", "fail"]).annotate(
  * @since 0.0.0
  */
 export type DocgenQualityTier = typeof DocgenQualityTier.Type;
+
+const DocgenQualityPackageStatus = LiteralKit(["completed", "partial", "failed"]).annotate(
+  $I.annote("DocgenQualityPackageStatus", {
+    description: "Completion status for a package-local docgen quality analysis.",
+  })
+);
+
+type DocgenQualityPackageStatus = typeof DocgenQualityPackageStatus.Type;
 
 /**
  * Typed finding code emitted by the v1 quality rubric.
@@ -326,6 +337,11 @@ class DocgenQualityPackageReport extends S.Class<DocgenQualityPackageReport>($I`
   {
     packageName: S.String,
     packagePath: S.String,
+    status: DocgenQualityPackageStatus,
+    durationMs: S.Number,
+    error: S.NullOr(S.String),
+    timedOut: S.Boolean,
+    omittedPacketCount: S.Number,
     subjects: S.Array(DocgenQualitySubject),
     reviews: S.Array(DocgenQualityReview),
     summary: DocgenQualitySummary,
@@ -358,7 +374,7 @@ class DocgenQualityRemediationPacket extends S.Class<DocgenQualityRemediationPac
  * ```ts
  * import type { DocgenQualityReport } from "@beep/repo-cli/commands/Docgen/internal/Quality"
  *
- * const report: Pick<DocgenQualityReport, "schemaVersion"> = { schemaVersion: 1 }
+ * const report: Pick<DocgenQualityReport, "schemaVersion"> = { schemaVersion: 2 }
  * console.log(report.schemaVersion)
  * ```
  * @category models
@@ -396,6 +412,29 @@ const bySubjectIdentityAscending: Order.Order<DocgenQualitySubject> = Order.mapI
 
 const normalizeSlashes = (value: string): string => value.replace(/\\/g, "/");
 
+type QualityRuntimeBudget = {
+  readonly startedAtMs: number;
+  readonly timeoutMs: number;
+};
+
+const makeRuntimeBudget = (timeout: Duration.Duration): QualityRuntimeBudget => ({
+  startedAtMs: globalThis.performance.now(),
+  timeoutMs: Duration.toMillis(timeout),
+});
+
+const budgetDurationMs = (budget: QualityRuntimeBudget): number =>
+  Math.max(0, Math.round(globalThis.performance.now() - budget.startedAtMs));
+
+const budgetExceeded = (budget: QualityRuntimeBudget): boolean => budgetDurationMs(budget) >= budget.timeoutMs;
+
+const packageTimeoutMessage = (target: DocgenWorkspacePackage, budget: QualityRuntimeBudget): string =>
+  `Timed out after ${budget.timeoutMs}ms while analyzing ${target.relativePath}.`;
+
+const errorMessage = (error: unknown): string =>
+  P.isObject(error) && P.hasProperty(error, "message") && P.isString(error.message)
+    ? error.message
+    : "Unknown docgen quality analysis failure.";
+
 const firstLine = (value: string): string => {
   const [line] = value.split(/\r?\n/);
   return Str.trim(line ?? value);
@@ -407,6 +446,10 @@ const renderJson = Effect.fn("DocgenQuality.renderJson")(function* (value: unkno
   const encoded = yield* encodeJson(value).pipe(
     Effect.mapError((cause) => new DomainError({ message: "Failed to encode docgen quality JSON.", cause }))
   );
+  if (encoded.length > JSON_FORMAT_MAX_LENGTH) {
+    return `${encoded}\n`;
+  }
+
   const edits = jsonc.format(encoded, undefined, {
     tabSize: 2,
     insertSpaces: true,
@@ -478,9 +521,7 @@ const selectPackagesForFiles = (
 ): ReadonlyArray<DocgenWorkspacePackage> =>
   pipe(
     packages,
-    A.filter((pkg) =>
-      A.some(files, (filePath) => filePath === pkg.relativePath || Str.startsWith(`${pkg.relativePath}/`)(filePath))
-    ),
+    A.filter((pkg) => A.some(files, (filePath) => Str.startsWith(`${pkg.relativePath}/`)(filePath))),
     A.sort(byPackagePathAscending)
   );
 
@@ -654,7 +695,7 @@ const getLastJsDocText = (node: Node): string =>
     O.getOrElse(thunkEmptyStr)
   );
 
-const getLeadingJsDocCommentText = (node: ExportDeclaration): string =>
+const getLeadingJsDocCommentText = (node: Node): string =>
   pipe(
     node.getLeadingCommentRanges(),
     A.filter((range) => Str.startsWith("/**")(range.getText())),
@@ -726,9 +767,76 @@ type ExportedDeclarationCandidate = {
   readonly exportDeclarationText?: string;
 };
 
+type LocalDeclaration = {
+  readonly name: string;
+  readonly declaration: Node;
+};
+
+const collectLocalDeclarations = (sourceFile: SourceFile): ReadonlyArray<LocalDeclaration> => {
+  let declarations = A.empty<LocalDeclaration>();
+
+  for (const statement of sourceFile.getStatements()) {
+    if (Node.isVariableStatement(statement)) {
+      for (const declaration of statement.getDeclarations()) {
+        declarations = A.append(declarations, {
+          declaration,
+          name: declaration.getName(),
+        });
+      }
+      continue;
+    }
+
+    if (
+      Node.isFunctionDeclaration(statement) ||
+      Node.isClassDeclaration(statement) ||
+      Node.isInterfaceDeclaration(statement) ||
+      Node.isTypeAliasDeclaration(statement) ||
+      Node.isEnumDeclaration(statement) ||
+      Node.isModuleDeclaration(statement)
+    ) {
+      const name = statement.getName();
+
+      if (name !== undefined) {
+        declarations = A.append(declarations, {
+          declaration: statement,
+          name,
+        });
+      }
+    }
+  }
+
+  return declarations;
+};
+
 const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyArray<ExportedDeclarationCandidate> => {
   let candidates = A.empty<ExportedDeclarationCandidate>();
-  const exportedDeclarations = sourceFile.getExportedDeclarations();
+  const localDeclarations = collectLocalDeclarations(sourceFile);
+
+  for (const exportAssignment of sourceFile.getExportAssignments()) {
+    if (exportAssignment.isExportEquals()) {
+      continue;
+    }
+
+    const rawJsDoc = getLeadingJsDocCommentText(exportAssignment);
+    const expression = exportAssignment.getExpression();
+    const declarations = Node.isIdentifier(expression)
+      ? pipe(
+          localDeclarations,
+          A.filter((entry) => entry.name === expression.getText()),
+          A.map((entry) => entry.declaration)
+        )
+      : [expression];
+
+    for (const declaration of declarations) {
+      candidates = A.append(candidates, {
+        name: "default",
+        declaration,
+        anchorNode: exportAssignment,
+        ...(Str.trim(rawJsDoc).length > 0 ? { rawJsDoc } : {}),
+        exportDeclarationText: exportAssignment.getText(),
+      });
+    }
+  }
 
   for (const exportDeclaration of sourceFile.getExportDeclarations()) {
     if (exportDeclaration.getModuleSpecifierValue() !== undefined) {
@@ -736,25 +844,22 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
     }
 
     const rawJsDoc = getLeadingJsDocCommentText(exportDeclaration);
-    if (Str.trim(rawJsDoc).length === 0) {
-      continue;
-    }
 
     for (const specifier of exportDeclaration.getNamedExports()) {
+      const localName = specifier.getName();
       const exportName = specifier.getAliasNode()?.getText() ?? specifier.getName();
-      const declarations =
-        exportedDeclarations.get(exportName) ?? exportedDeclarations.get(specifier.getName()) ?? A.empty();
+      const declarations = pipe(
+        localDeclarations,
+        A.filter((entry) => entry.name === localName),
+        A.map((entry) => entry.declaration)
+      );
 
       for (const declaration of declarations) {
-        if (declaration.getSourceFile() !== sourceFile) {
-          continue;
-        }
-
         candidates = A.append(candidates, {
           name: exportName,
           declaration,
           anchorNode: exportDeclaration,
-          rawJsDoc,
+          ...(Str.trim(rawJsDoc).length > 0 ? { rawJsDoc } : {}),
           exportDeclarationText: exportDeclaration.getText(),
         });
       }
@@ -781,7 +886,7 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
         Node.isModuleDeclaration(statement)) &&
       statement.isExported()
     ) {
-      const name = statement.getName();
+      const name = statement.isDefaultExport() ? "default" : statement.getName();
 
       if (name !== undefined) {
         candidates = A.append(candidates, {
@@ -789,19 +894,6 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
           declaration: statement,
         });
       }
-    }
-  }
-
-  for (const [name, declarations] of exportedDeclarations) {
-    for (const declaration of declarations) {
-      if (declaration.getSourceFile() !== sourceFile) {
-        continue;
-      }
-
-      candidates = A.append(candidates, {
-        name,
-        declaration,
-      });
     }
   }
 
@@ -993,67 +1085,9 @@ const collectModuleSubject = ({
   );
 };
 
-const collectReExportSubjects = ({
-  diagnostics,
-  filePath,
-  generatedDocSnippet,
-  packageName,
-  packagePath,
-  repoPath,
-  sourceFile,
-}: {
-  readonly diagnostics: ReadonlyArray<Diagnostic>;
-  readonly filePath: string;
-  readonly generatedDocSnippet: string | null;
-  readonly packageName: string;
-  readonly packagePath: string;
-  readonly repoPath: string;
-  readonly sourceFile: SourceFile;
-}): ReadonlyArray<DocgenQualitySubjectCandidate> => {
-  let subjects = A.empty<DocgenQualitySubjectCandidate>();
-
-  for (const declaration of sourceFile.getExportDeclarations()) {
-    if (declaration.getModuleSpecifierValue() === undefined) {
-      continue;
-    }
-
-    const rawJsDoc = getLeadingJsDocCommentText(declaration);
-    const line = nodeLine(declaration);
-    const name =
-      declaration.getNamedExports().length === 0
-        ? `export * from ${declaration.getModuleSpecifierValue()}`
-        : `export { ${A.join(
-            A.map(
-              declaration.getNamedExports(),
-              (specifier) => specifier.getAliasNode()?.getText() ?? specifier.getName()
-            ),
-            ", "
-          )} }`;
-
-    subjects = A.append(
-      subjects,
-      makeSubjectCandidate({
-        declarationKind: "re-export",
-        declarationSource: declaration.getText(),
-        diagnostics,
-        endLine: sourceFile.getLineAndColumnAtPos(declaration.getEnd()).line,
-        exportName: name,
-        filePath,
-        generatedDocSnippet,
-        hashSourceText: `${rawJsDoc}\n${declaration.getText()}`,
-        line,
-        packageName,
-        packagePath,
-        rawJsDoc,
-        relatedSymbols: A.empty(),
-        repoPath,
-        signature: signatureText(declaration),
-      })
-    );
-  }
-
-  return subjects;
-};
+// Re-export declarations are permanent export graph edges, not owner
+// declarations for quality scoring. The owning declaration remains the subject.
+const collectReExportSubjects = A.empty;
 
 const collectDirectExportSubjects = ({
   diagnostics,
@@ -1138,8 +1172,16 @@ const finalizeSubject = Effect.fn("DocgenQuality.finalizeSubject")(function* (
   });
 });
 
+type PackageSubjectCandidateResult = {
+  readonly candidates: ReadonlyArray<DocgenQualitySubjectCandidate>;
+  readonly error: string | null;
+  readonly status: DocgenQualityPackageStatus;
+  readonly timedOut: boolean;
+};
+
 const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageSubjectCandidates")(function* (
-  target: DocgenWorkspacePackage
+  target: DocgenWorkspacePackage,
+  budget: QualityRuntimeBudget
 ) {
   const path = yield* Path.Path;
   const config = target.hasDocgenConfig
@@ -1155,7 +1197,7 @@ const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageS
     QUALITY_TS_GLOBS,
     A.map((glob) => normalizeSlashes(path.join(target.absolutePath, srcDir, glob)))
   );
-  const candidates = yield* Effect.try({
+  return yield* Effect.try({
     try: () => {
       const project = new Project({
         skipAddingFilesFromTsConfig: true,
@@ -1165,6 +1207,15 @@ const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageS
       let subjects = A.empty<DocgenQualitySubjectCandidate>();
 
       for (const sourceFile of project.getSourceFiles()) {
+        if (budgetExceeded(budget)) {
+          return {
+            candidates: subjects,
+            error: packageTimeoutMessage(target, budget),
+            status: "partial" as const,
+            timedOut: true,
+          } satisfies PackageSubjectCandidateResult;
+        }
+
         if (!isInterestingSourceFile(target, sourceFile, srcDir, exclude, path)) {
           continue;
         }
@@ -1184,12 +1235,17 @@ const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageS
         subjects = [
           ...subjects,
           ...pipe(collectModuleSubject(payload), O.match({ onNone: A.empty, onSome: (subject) => [subject] })),
-          ...collectReExportSubjects(payload),
+          ...collectReExportSubjects(),
           ...collectDirectExportSubjects(payload),
         ];
       }
 
-      return subjects;
+      return {
+        candidates: subjects,
+        error: null,
+        status: "completed" as const,
+        timedOut: false,
+      } satisfies PackageSubjectCandidateResult;
     },
     catch: (cause) =>
       new DomainError({
@@ -1197,26 +1253,42 @@ const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectPackageS
         cause,
       }),
   });
-
-  return yield* Effect.forEach(candidates, finalizeSubject);
 });
 
 const withGeneratedDocSnippets = Effect.fn("DocgenQuality.withGeneratedDocSnippets")(function* (
   target: DocgenWorkspacePackage,
   subjects: ReadonlyArray<DocgenQualitySubject>
 ) {
-  return yield* Effect.forEach(subjects, (subject) =>
-    generatedDocSnippetForFile(target, subject.filePath).pipe(
-      Effect.map((snippet) =>
-        snippet === subject.generatedDocSnippet
-          ? subject
-          : new DocgenQualitySubject({
-              ...subject,
-              generatedDocSnippet: snippet,
-            })
-      )
-    )
+  const snippets = yield* Effect.forEach(
+    pipe(
+      subjects,
+      A.map((subject) => subject.filePath),
+      A.dedupe,
+      A.sort(Order.String)
+    ),
+    (filePath) =>
+      generatedDocSnippetForFile(target, filePath).pipe(
+        Effect.map((snippet) => ({
+          filePath,
+          snippet,
+        }))
+      ),
+    { concurrency: 4 }
   );
+  return A.map(subjects, (subject) => {
+    const snippet = pipe(
+      snippets,
+      A.findFirst((candidate) => candidate.filePath === subject.filePath),
+      O.map((candidate) => candidate.snippet),
+      O.getOrElse(() => subject.generatedDocSnippet)
+    );
+    return snippet === subject.generatedDocSnippet
+      ? subject
+      : new DocgenQualitySubject({
+          ...subject,
+          generatedDocSnippet: snippet,
+        });
+  });
 });
 
 const exampleHasFencedCode = (example: string): boolean => /```(?:ts|tsx|typescript)?\s*[\s\S]*?```/i.test(example);
@@ -1238,6 +1310,8 @@ const exampleIsTooTrivial = (example: string): boolean => {
 
 const OBSERVABLE_EXAMPLE_RESULT_PATTERN =
   /expect\s*\(|assert|return\s+|(?:Console|console)\.|Effect\.run|S\.decode|Schema\.decode|Equal\.|\.pipe\(/;
+const TYPE_EVIDENCE_EXAMPLE_PATTERN =
+  /\btype\s+[A-Z_a-z]\w*\s*=|\binterface\s+[A-Z_a-z]\w*|\bsatisfies\b|\bExpect<|\bEqual\.|expectTypeOf\s*\(/;
 
 const exampleOnlyVoidsResult = (example: string): boolean => {
   const code = exampleCodeText(example);
@@ -1246,6 +1320,18 @@ const exampleOnlyVoidsResult = (example: string): boolean => {
 
 const exampleHasObservableResult = (example: string): boolean =>
   OBSERVABLE_EXAMPLE_RESULT_PATTERN.test(exampleCodeText(example));
+
+const exampleHasTypeEvidence = (example: string): boolean =>
+  TYPE_EVIDENCE_EXAMPLE_PATTERN.test(exampleCodeText(example));
+
+const isTypeOnlySubject = (subject: DocgenQualitySubject): boolean =>
+  subject.declarationKind === "type" || subject.declarationKind === "interface";
+
+const exampleOnlyVoidsSubjectResult = (subject: DocgenQualitySubject, example: string): boolean =>
+  isTypeOnlySubject(subject) && exampleHasTypeEvidence(example) ? false : exampleOnlyVoidsResult(example);
+
+const exampleHasSubjectEvidence = (subject: DocgenQualitySubject, example: string): boolean =>
+  exampleHasObservableResult(example) || (isTypeOnlySubject(subject) && exampleHasTypeEvidence(example));
 
 const addFinding = (
   findings: ReadonlyArray<DocgenQualityFinding>,
@@ -1354,7 +1440,7 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
       );
     }
 
-    if (exampleOnlyVoidsResult(example)) {
+    if (exampleOnlyVoidsSubjectResult(subject, example)) {
       findings = addFinding(
         findings,
         makeFinding({
@@ -1369,7 +1455,10 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
     }
   }
 
-  if (subject.parsedExamples.length > 0 && !A.some(subject.parsedExamples, exampleHasObservableResult)) {
+  if (
+    subject.parsedExamples.length > 0 &&
+    !A.some(subject.parsedExamples, (example) => exampleHasSubjectEvidence(subject, example))
+  ) {
     findings = addFinding(
       findings,
       makeFinding({
@@ -1439,6 +1528,32 @@ const summarizeReviews = (
     remediationPackets,
   });
 
+const emptyPackageReport = ({
+  durationMs,
+  error,
+  status,
+  target,
+  timedOut,
+}: {
+  readonly durationMs: number;
+  readonly error: string | null;
+  readonly status: DocgenQualityPackageStatus;
+  readonly target: DocgenWorkspacePackage;
+  readonly timedOut: boolean;
+}): DocgenQualityPackageReport =>
+  new DocgenQualityPackageReport({
+    packageName: target.name,
+    packagePath: target.relativePath,
+    status,
+    durationMs,
+    error,
+    timedOut,
+    omittedPacketCount: 0,
+    subjects: A.empty(),
+    reviews: A.empty(),
+    summary: summarizeReviews(1, 0, A.empty(), 0),
+  });
+
 const remediationPrompt = (subject: DocgenQualitySubject, review: DocgenQualityReview): string =>
   [
     "Improve the JSDoc block for this exported symbol without changing runtime behavior.",
@@ -1468,35 +1583,82 @@ const makeRemediationPacket = (
     verificationArgv: ["bun", "run", "beep", "docgen", "quality", "-p", subject.packagePath, "--json"],
   });
 
-const remediationPacketsForPackage = (pkg: DocgenQualityPackageReport): ReadonlyArray<DocgenQualityRemediationPacket> =>
+type RemediationPacketCandidate = {
+  readonly impact: number;
+  readonly isFail: boolean;
+  readonly packagePath: string;
+  readonly packet: DocgenQualityRemediationPacket;
+  readonly subjectId: string;
+};
+
+const packetCandidateOrder: Order.Order<RemediationPacketCandidate> = Order.combine(
+  Order.mapInput(Order.Number, (candidate) => (candidate.isFail ? 0 : 1)),
+  Order.combine(
+    Order.flip(Order.mapInput(Order.Number, (candidate) => candidate.impact)),
+    Order.combine(
+      Order.mapInput(Order.String, (candidate) => candidate.packagePath),
+      Order.mapInput(Order.String, (candidate) => candidate.subjectId)
+    )
+  )
+);
+
+const remediationPacketCandidatesForPackage = (
+  pkg: DocgenQualityPackageReport
+): ReadonlyArray<RemediationPacketCandidate> =>
   pipe(
     pkg.reviews,
     A.filter((review) => review.tier !== "pass"),
     A.flatMap((review) => {
       const subject = A.findFirst(pkg.subjects, (candidate) => candidate.stableIdentity === review.subjectId);
       return O.isSome(subject)
-        ? [makeRemediationPacket(subject.value, review)]
-        : A.empty<DocgenQualityRemediationPacket>();
+        ? [
+            {
+              impact: A.reduce(review.findings, 0, (total, finding) => total + finding.scoreImpact),
+              isFail: review.tier === "fail",
+              packagePath: pkg.packagePath,
+              packet: makeRemediationPacket(subject.value, review),
+              subjectId: review.subjectId,
+            },
+          ]
+        : A.empty<RemediationPacketCandidate>();
     })
   );
 
+const countCandidatesForPackage = (
+  candidates: ReadonlyArray<RemediationPacketCandidate>,
+  packagePath: string
+): number => A.filter(candidates, (candidate) => candidate.packagePath === packagePath).length;
+
 const withRemediationPacketCount = (
   pkg: DocgenQualityPackageReport,
-  remediationPackets: number
+  remediationPackets: number,
+  omittedPacketCount: number
 ): DocgenQualityPackageReport =>
   new DocgenQualityPackageReport({
     ...pkg,
+    omittedPacketCount,
     summary: summarizeReviews(1, pkg.subjects.length, pkg.reviews, remediationPackets),
   });
 
 const packageReport = (
   target: DocgenWorkspacePackage,
-  subjects: ReadonlyArray<DocgenQualitySubject>
+  subjects: ReadonlyArray<DocgenQualitySubject>,
+  options: {
+    readonly durationMs: number;
+    readonly error: string | null;
+    readonly status: DocgenQualityPackageStatus;
+    readonly timedOut: boolean;
+  }
 ): DocgenQualityPackageReport => {
   const reviews = A.map(subjects, scoreSubject);
   return new DocgenQualityPackageReport({
     packageName: target.name,
     packagePath: target.relativePath,
+    status: options.status,
+    durationMs: options.durationMs,
+    error: options.error,
+    timedOut: options.timedOut,
+    omittedPacketCount: 0,
     subjects,
     reviews,
     summary: summarizeReviews(1, subjects.length, reviews, 0),
@@ -1531,18 +1693,45 @@ const packageReport = (
  * @since 0.0.0
  */
 export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQuality")(function* (
-  target: DocgenWorkspacePackage
+  target: DocgenWorkspacePackage,
+  options?: {
+    readonly packageTimeout?: Duration.Duration;
+  }
 ) {
-  const candidates = yield* collectPackageSubjectCandidates(target);
-  const subjects = yield* withGeneratedDocSnippets(
-    target,
-    pipe(
-      candidates,
-      A.dedupeWith((left, right) => left.stableIdentity === right.stableIdentity),
-      A.sort(bySubjectIdentityAscending)
+  const budget = makeRuntimeBudget(options?.packageTimeout ?? DEFAULT_PACKAGE_TIMEOUT);
+  return yield* Effect.gen(function* () {
+    const candidateResult = yield* collectPackageSubjectCandidates(target, budget);
+    const finalizedSubjects = yield* Effect.forEach(candidateResult.candidates, finalizeSubject);
+    const subjects = yield* withGeneratedDocSnippets(
+      target,
+      pipe(
+        finalizedSubjects,
+        A.dedupeWith((left, right) => left.stableIdentity === right.stableIdentity),
+        A.sort(bySubjectIdentityAscending)
+      )
+    );
+    const timedOut = candidateResult.timedOut || budgetExceeded(budget);
+    const status: DocgenQualityPackageStatus = timedOut ? "partial" : candidateResult.status;
+    const error = timedOut ? (candidateResult.error ?? packageTimeoutMessage(target, budget)) : candidateResult.error;
+    return packageReport(target, subjects, {
+      durationMs: budgetDurationMs(budget),
+      error,
+      status,
+      timedOut,
+    });
+  }).pipe(
+    Effect.catch((error) =>
+      Effect.succeed(
+        emptyPackageReport({
+          durationMs: budgetDurationMs(budget),
+          error: errorMessage(error),
+          status: "failed",
+          target,
+          timedOut: false,
+        })
+      )
     )
   );
-  return packageReport(target, subjects);
 });
 
 /**
@@ -1571,20 +1760,37 @@ export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQual
  * @since 0.0.0
  */
 export const analyzeDocgenQuality = Effect.fn("DocgenQuality.analyzeDocgenQuality")(function* ({
+  packageTimeout,
+  packetLimit,
   scope,
   scoreMode,
   targets,
 }: {
+  readonly packageTimeout?: Duration.Duration;
+  readonly packetLimit?: number;
   readonly scope: DocgenQualityScopeMode;
   readonly scoreMode: DocgenQualityScoreMode;
   readonly targets: ReadonlyArray<DocgenWorkspacePackage>;
 }) {
-  const analyzedPackages = yield* Effect.forEach(targets, analyzePackageQuality, { concurrency: 2 });
-  const packagePackets = A.map(analyzedPackages, (pkg) => ({
-    packets: scoreMode === "codex" ? remediationPacketsForPackage(pkg) : A.empty<DocgenQualityRemediationPacket>(),
-    pkg,
-  }));
-  const packages = A.map(packagePackets, ({ packets, pkg }) => withRemediationPacketCount(pkg, packets.length));
+  const packageQualityOptions = packageTimeout === undefined ? {} : { packageTimeout };
+  const analyzedPackages = yield* Effect.forEach(
+    targets,
+    (target) => analyzePackageQuality(target, packageQualityOptions),
+    {
+      concurrency: 2,
+    }
+  );
+  const packetCap = Math.max(0, packetLimit ?? DEFAULT_REMEDIATION_PACKET_LIMIT);
+  const packetCandidates =
+    scoreMode === "codex"
+      ? pipe(analyzedPackages, A.flatMap(remediationPacketCandidatesForPackage), A.sort(packetCandidateOrder))
+      : A.empty<RemediationPacketCandidate>();
+  const selectedCandidates = A.take(packetCandidates, packetCap);
+  const packages = A.map(analyzedPackages, (pkg) => {
+    const selectedCount = countCandidatesForPackage(selectedCandidates, pkg.packagePath);
+    const candidateCount = countCandidatesForPackage(packetCandidates, pkg.packagePath);
+    return withRemediationPacketCount(pkg, selectedCount, Math.max(0, candidateCount - selectedCount));
+  });
   const reviews = pipe(
     packages,
     A.flatMap((pkg) => pkg.reviews)
@@ -1593,10 +1799,7 @@ export const analyzeDocgenQuality = Effect.fn("DocgenQuality.analyzeDocgenQualit
     packages,
     A.flatMap((pkg) => pkg.subjects)
   );
-  const remediationPackets = pipe(
-    packagePackets,
-    A.flatMap(({ packets }) => packets)
-  );
+  const remediationPackets = A.map(selectedCandidates, (candidate) => candidate.packet);
 
   return new DocgenQualityReport({
     schemaVersion: QUALITY_SCHEMA_VERSION,
@@ -1703,7 +1906,19 @@ export const generateQualityReport = (report: DocgenQualityReport): string => {
   ];
 
   for (const pkg of report.packages) {
-    lines.push(`## ${pkg.packageName}`, "", `Path: \`${pkg.packagePath}\``, "");
+    lines.push(
+      `## ${pkg.packageName}`,
+      "",
+      `Path: \`${pkg.packagePath}\``,
+      `Status: \`${pkg.status}\``,
+      `Duration: ${pkg.durationMs}ms`,
+      `Omitted packets: ${pkg.omittedPacketCount}`,
+      ""
+    );
+
+    if (pkg.error !== null) {
+      lines.push(`> ${pkg.error}`, "");
+    }
 
     if (pkg.subjects.length === 0) {
       lines.push("No exported-symbol JSDoc subjects found.", "");

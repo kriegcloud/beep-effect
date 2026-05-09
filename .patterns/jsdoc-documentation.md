@@ -89,16 +89,23 @@ use the symbol without inventing intent.
 - The description says what problem the symbol solves, not just what its name
   already says.
 - `@example` is still universal for exported symbols. Error classes, type-only
-  helpers, schemas, constants, and re-exports need examples too; choose a
-  handling, narrowing, construction, or import example that fits the symbol.
+  helpers, schemas, and constants need examples too; choose a handling,
+  narrowing, construction, or import example that fits the symbol.
+- Re-export declarations are graph edges, not symbol-quality subjects. Document
+  the exported symbol at its owning declaration; do not add fake examples to a
+  barrel just to satisfy quality tooling.
 - Examples use fenced TypeScript and show an observable result, assertion,
-  decoded value, Effect execution, or returned value. `const result = ...;
-  void result` is a compile trick, not useful documentation.
+  decoded value, Effect execution, returned value, or type-level evidence. For
+  type-only exports, useful evidence includes named aliases, assignability or
+  `satisfies` checks, `Equal`/`Expect`-style assertions, or comments that show
+  inferred types. `const result = ...; void result` is a compile trick, not
+  useful documentation.
 - Conditional tags are added only when they supply information that is not
   visible in the signature.
 
 Use `bun run beep docgen quality -p <package> --json --score codex` for the
-report-only quality subject and remediation packet shape.
+report-only quality subject and capped remediation packet shape. Add
+`--packet-limit <count>` to widen or suppress Codex advisory packets.
 
 ### Conditional Tags (Present Only When They Add Information)
 
@@ -901,6 +908,8 @@ const program = Effect.gen(function* () {
 - [ ] At least one practical, compilable example
 - [ ] Examples compile with `bun run docgen`
 - [ ] Quality report is reviewable with `bun run beep docgen quality -p <package>`
+- [ ] Type-only examples use concrete type evidence instead of value-only noise
+- [ ] Re-export barrels document owning symbols rather than fake barrel examples
 - [ ] All imports use correct namespace aliases
 - [ ] No `any` types, type assertions, `declare`, or empty example bodies
 - [ ] `@category` (canonical kebab-case slug from standard list)

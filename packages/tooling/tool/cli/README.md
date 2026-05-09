@@ -40,12 +40,15 @@ Produce a report-only JSDoc quality review for exported symbols. The command
 does not block on advisory findings; use `--score codex` when you want bounded
 remediation packets for follow-up documentation work. Package-local runs write
 `JSDOC_QUALITY.md` or `JSDOC_QUALITY.json` by default; use `--output` for a
-scratch destination.
+scratch destination. Reports use schema v2 package status fields, so a
+time-bounded package can appear as `partial` without discarding the rest of the
+run. Codex packets are ranked and capped at 25 per run by default; use
+`--packet-limit` to widen the work queue or `--packet-limit 0` to suppress it.
 
 ```bash
 bun run beep docgen quality -p packages/shared/config -o /tmp/jsdoc-quality.md
 bun run beep docgen quality --changed-files --json
-bun run beep docgen quality --all --score codex -o /tmp/jsdoc-quality.json
+bun run beep docgen quality --all --score codex --packet-limit 25 -o /tmp/jsdoc-quality.json
 ```
 
 ### `files`

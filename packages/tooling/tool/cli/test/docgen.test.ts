@@ -21,7 +21,8 @@ import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Effect, Exit, FileSystem, Layer, Path } from "effect";
+import { Duration, Effect, Exit, FileSystem, Layer, Path, pipe } from "effect";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -885,6 +886,326 @@ export const formatValue = (value: string): string => \`value: \${value}\`;
     );
   });
 
+  it("accepts type-level evidence as a useful type-only example", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Extracts the element type from an array or tuple.
+ *
+ * @example
+ * \`\`\`ts
+ * import type { Elem } from "@beep/schema"
+ *
+ * type TupleElement = Elem<readonly [1, 2, 3]>
+ * // 1 | 2 | 3
+ *
+ * declare const element: TupleElement
+ * void element
+ * \`\`\`
+ * @category type-level
+ * @since 0.0.0
+ */
+export type Elem<T> = T extends readonly (infer U)[] ? U : never;
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzePackageQuality(target!);
+          const subject = report.subjects.find((entry) => entry.exportName === "Elem");
+          const review = report.reviews.find((entry) => entry.subjectId === subject?.stableIdentity);
+          const findingCodes = review?.findings.map((finding) => finding.code) ?? [];
+
+          expect(subject?.declarationKind).toBe("type");
+          expect(findingCodes).not.toContain("example-only-voids-result");
+          expect(findingCodes).not.toContain("example-lacks-observable-result");
+          expect(review?.tier).toBe("pass");
+        })
+      )
+    );
+  });
+
+  it("preserves default-export subjects in quality analysis", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "DefaultFunction.ts"),
+            `/**
+ * Normalizes a default-exported function value.
+ *
+ * @example
+ * \`\`\`ts
+ * import normalizeDefault from "@beep/schema/DefaultFunction"
+ *
+ * console.log(normalizeDefault(" hello "))
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export default function (value: string): string {
+  return value.trim();
+}
+`
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "DefaultClass.ts"),
+            `/**
+ * Default-exported value holder fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import DefaultValueHolder from "@beep/schema/DefaultClass"
+ *
+ * console.log(new DefaultValueHolder().value)
+ * \`\`\`
+ * @category models
+ * @since 0.0.0
+ */
+export default class {
+  readonly value = "class-default";
+}
+`
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "AssignedDefault.ts"),
+            `/**
+ * Trims a value before exporting it as the module default.
+ *
+ * @example
+ * \`\`\`ts
+ * import trimDefault from "@beep/schema/AssignedDefault"
+ *
+ * console.log(trimDefault(" hello "))
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+const trimDefault = (value: string): string => value.trim();
+
+export default trimDefault;
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzePackageQuality(target!);
+          const defaultSubjects = pipe(
+            report.subjects,
+            A.filter((subject) => subject.exportName === "default")
+          );
+
+          expect(defaultSubjects).toHaveLength(3);
+          expect(
+            pipe(
+              defaultSubjects,
+              A.map((subject) => subject.declarationKind)
+            )
+          ).toEqual(expect.arrayContaining(["class", "const", "function"]));
+          expect(
+            pipe(
+              defaultSubjects,
+              A.map((subject) => subject.repoPath)
+            )
+          ).toEqual(
+            expect.arrayContaining([
+              "packages/foundation/modeling/schema/src/AssignedDefault.ts",
+              "packages/foundation/modeling/schema/src/DefaultClass.ts",
+              "packages/foundation/modeling/schema/src/DefaultFunction.ts",
+            ])
+          );
+        })
+      )
+    );
+  });
+
+  it("treats module re-exports as graph edges instead of quality subjects", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "Value.ts"),
+            `/**
+ * Parses a value into the normalized schema fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import { parseValue } from "@beep/schema/Value"
+ * const result = parseValue(" hello ")
+ * console.log(result)
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * @since 0.0.0
+ * @category parsing
+ */
+export * as Value from "./Value.ts";
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzePackageQuality(target!);
+          const exportNames = report.subjects.map((subject) => subject.exportName);
+          const findingCodes = pipe(
+            report.reviews,
+            A.flatMap((review) => A.map(review.findings, (finding) => finding.code))
+          );
+
+          expect(exportNames).toEqual(["parseValue"]);
+          expect(exportNames).not.toContain("export * as Value");
+          expect(findingCodes).not.toContain("missing-example");
+          expect(findingCodes).not.toContain("missing-description");
+        })
+      )
+    );
+  });
+
+  it("emits schema v2 partial package reports when the package budget is exhausted", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(path.join(packageDir, "src", "index.ts"), `export const parseValue = "skip";\n`);
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzeDocgenQuality({
+            packageTimeout: Duration.millis(0),
+            scope: "package",
+            scoreMode: "rubric",
+            targets: [target!],
+          });
+          const json = yield* generateQualityJson(report);
+          const decoded = decodeUnknownJson(json) as {
+            readonly schemaVersion?: unknown;
+            readonly packages?: ReadonlyArray<{
+              readonly durationMs?: unknown;
+              readonly error?: unknown;
+              readonly status?: unknown;
+              readonly timedOut?: unknown;
+            }>;
+          };
+
+          expect(decoded.schemaVersion).toBe(2);
+          expect(decoded.packages?.[0]?.status).toBe("partial");
+          expect(decoded.packages?.[0]?.timedOut).toBe(true);
+          expect(decoded.packages?.[0]?.durationMs).toEqual(expect.any(Number));
+          expect(decoded.packages?.[0]?.error).toContain("Timed out");
+        })
+      )
+    );
+  });
+
   it("honors docgen exclude globs during quality subject collection", async () => {
     await Effect.runPromise(
       withTempRepo(
@@ -1120,7 +1441,213 @@ export const parseValue = (value: string): string => value.trim();
           expect(markdown).toContain("# JSDoc Quality Report");
           expect(markdown).toContain("## @beep/schema");
           expect(markdown).toContain("Improve the JSDoc block for this exported symbol");
-          expect(decoded.schemaVersion).toBe(1);
+          expect(decoded.schemaVersion).toBe(2);
+        })
+      )
+    );
+  });
+
+  it("caps and ranks Codex remediation packets for broad quality reports", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            A.join(
+              A.map(
+                A.range(1, 30),
+                (index) => `/**
+ * Missing example fixture ${index}.
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const value${index} = ${index};
+`
+              ),
+              "\n"
+            )
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const defaultReport = yield* analyzeDocgenQuality({
+            scope: "package",
+            scoreMode: "codex",
+            targets: [target!],
+          });
+          const limitedReport = yield* analyzeDocgenQuality({
+            packetLimit: 2,
+            scope: "package",
+            scoreMode: "codex",
+            targets: [target!],
+          });
+          const suppressedReport = yield* analyzeDocgenQuality({
+            packetLimit: 0,
+            scope: "package",
+            scoreMode: "codex",
+            targets: [target!],
+          });
+
+          expect(defaultReport.remediationPackets).toHaveLength(25);
+          expect(defaultReport.packages[0]?.omittedPacketCount).toBe(5);
+          expect(limitedReport.remediationPackets).toHaveLength(2);
+          expect(limitedReport.packages[0]?.summary.remediationPackets).toBe(2);
+          expect(limitedReport.packages[0]?.omittedPacketCount).toBe(28);
+          expect(suppressedReport.remediationPackets).toHaveLength(0);
+          expect(suppressedReport.packages[0]?.omittedPacketCount).toBe(30);
+        })
+      )
+    );
+  });
+
+  it("wires --packet-limit through the quality CLI", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          const outputPath = path.join(tmpDir, "quality.json");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            A.join(
+              A.map(
+                A.range(1, 5),
+                (index) => `/**
+ * Missing example CLI fixture ${index}.
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const cliValue${index} = ${index};
+`
+              ),
+              "\n"
+            )
+          );
+
+          yield* runDocgenCommand([
+            "quality",
+            "-p",
+            "packages/foundation/modeling/schema",
+            "--json",
+            "--score",
+            "codex",
+            "--packet-limit",
+            "2",
+            "--output",
+            outputPath,
+          ]);
+
+          const decoded = decodeUnknownJson(yield* fs.readFileString(outputPath)) as {
+            readonly packages?: ReadonlyArray<{
+              readonly omittedPacketCount?: unknown;
+              readonly summary?: { readonly remediationPackets?: unknown };
+            }>;
+            readonly remediationPackets?: ReadonlyArray<unknown>;
+          };
+
+          expect(decoded.remediationPackets).toHaveLength(2);
+          expect(decoded.packages?.[0]?.summary?.remediationPackets).toBe(2);
+          expect(decoded.packages?.[0]?.omittedPacketCount).toBe(3);
+        })
+      )
+    );
+  });
+
+  it("rejects negative --packet-limit values", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Parses a value into the normalized schema fixture.
+ *
+ * @example
+ * \`\`\`ts
+ * import { parseValue } from "@beep/schema"
+ *
+ * console.log(parseValue(" hello "))
+ * \`\`\`
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+
+          yield* runDocgenCommand(["quality", "-p", "packages/foundation/modeling/schema", "--packet-limit=-1"]);
+
+          expect((yield* TestConsole.errorLines).join("\n")).toContain("--packet-limit must be zero or greater");
+          expect(process.exitCode).toBe(1);
         })
       )
     );
@@ -1351,7 +1878,7 @@ export const parseValue = (value: string): string => value.trim();
           };
           const logText = (yield* TestConsole.logLines).join("\n");
 
-          expect(decoded.schemaVersion).toBe(1);
+          expect(decoded.schemaVersion).toBe(2);
           expect(decoded.scorer).toBe("codex-advisory-packet-v1");
           expect(decoded.remediationPackets?.[0]?.prompt).toContain("Keep @example mandatory");
           expect(logText).toContain("docgen: wrote");

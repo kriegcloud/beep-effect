@@ -72,6 +72,12 @@ const qualityScoreFlag = Flag.choiceWithValue("score", [
     "Advisory scoring mode: rubric for deterministic findings, none as a compatibility alias, codex for Codex-ready packets"
   )
 );
+const packetLimitFlag = Flag.integer("packet-limit").pipe(
+  Flag.withDefault(25),
+  Flag.withDescription(
+    "Maximum number of Codex advisory remediation packets to emit; use 0 to suppress packets; must be zero or greater"
+  )
+);
 const verboseFlag = Flag.boolean("verbose").pipe(
   Flag.withAlias("v"),
   Flag.withDescription("Include extra package detail")
@@ -636,8 +642,9 @@ const docgenQualityCommand = Command.make(
     output: outputFlag,
     json: jsonFlag,
     score: qualityScoreFlag,
+    packetLimit: packetLimitFlag,
   },
-  ({ package: packageSelector, all, changedFiles, output, json, score }) =>
+  ({ package: packageSelector, all, changedFiles, output, json, score, packetLimit }) =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -652,7 +659,14 @@ const docgenQualityCommand = Command.make(
         return;
       }
 
+      if (packetLimit < 0) {
+        return yield* new DomainError({
+          message: "--packet-limit must be zero or greater; use 0 to suppress packets",
+        });
+      }
+
       const report = yield* analyzeDocgenQuality({
+        packetLimit,
         scope,
         scoreMode: score,
         targets,
