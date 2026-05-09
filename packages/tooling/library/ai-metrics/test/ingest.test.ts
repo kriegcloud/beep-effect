@@ -648,6 +648,8 @@ describe("@beep/repo-ai-metrics", () => {
       const json = yield* forwarderTimerPlanToJson(plan);
 
       expect(plan.serviceUnit).toContain("flock -n");
+      expect(plan.serviceUnit).toContain('"status":"failed"');
+      expect(plan.serviceUnit).toContain("StartLimitBurst=3\nStartLimitIntervalSec=30m\n\n[Service]");
       expect(plan.serviceUnit).toContain("Restart=on-failure");
       expect(plan.timerUnit).toContain("OnUnitInactiveSec=15m");
       expect(plan.statusPath).toBe(".beep/ai-metrics/forwarder/status/latest.json");
@@ -1088,6 +1090,7 @@ volumes:
       yield* withTempDirectory(
         Effect.fn(function* (tmpDir) {
           const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
           yield* writeText(path.join(tmpDir, ".codex/config.toml"), 'model = "gpt-5"\n');
           yield* writeText(path.join(tmpDir, ".claude/settings.json"), '{"hooks":[]}\n');
           yield* writeText(path.join(tmpDir, ".aiassistant/rules/agent-instructions.md"), "agent rules\n");
@@ -1114,6 +1117,7 @@ volumes:
           expect(result.snapshot.configHash).toBe(again.snapshot.configHash);
           expect(json).not.toContain(".repos/effect-v4/AGENTS.md");
           expect(json).not.toContain("node_modules/pkg/CLAUDE.md");
+          expect(yield* fs.exists(path.join(snapshotDir, "latest.json.tmp"))).toBe(false);
 
           yield* writeText(path.join(tmpDir, ".codex/config.toml"), 'model = "gpt-5.1"\n');
           const changed = yield* makeAiMetricsConfigSnapshot(
@@ -1126,6 +1130,43 @@ volumes:
           expect(changed.snapshot.changedPaths).toEqual([".codex/config.toml"]);
           expect(changed.diff.modifiedPaths).toEqual([".codex/config.toml"]);
           expect(changed.snapshot.previousSnapshotId).toBe(result.snapshot.snapshotId);
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "reads legacy config snapshots without a diff field as previous state",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          yield* writeText(path.join(tmpDir, "AGENTS.md"), "current agent guide\n");
+          yield* writeText(
+            path.join(tmpDir, ".beep/ai-metrics/config-snapshots/latest.json"),
+            globalThis.JSON.stringify({
+              excludedDirectoryNames: [],
+              fileCount: 1,
+              files: [{ contentHash: "legacy-hash", relativePath: "AGENTS.md", sizeBytes: 18 }],
+              snapshot: {
+                changedPaths: ["AGENTS.md"],
+                configHash: "legacy-hash",
+                includedPaths: ["AGENTS.md"],
+                label: "repo-local-agent-config",
+                snapshotId: "config-legacy",
+              },
+            })
+          );
+
+          const result = yield* makeAiMetricsConfigSnapshot(
+            new AiMetricsConfigSnapshotInput({
+              previousSnapshotPath: path.join(tmpDir, ".beep/ai-metrics/config-snapshots/latest.json"),
+              repoRoot: tmpDir,
+            })
+          );
+
+          expect(result.snapshot.previousSnapshotId).toBe("config-legacy");
+          expect(result.diff.modifiedPaths).toEqual(["AGENTS.md"]);
         })
       ).pipe(Effect.provide(NodeServices.layer));
     })
@@ -1244,6 +1285,80 @@ volumes:
           expect(json).not.toContain("super-secret-token");
         })
       ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "skips transcript files that become unreadable during source discovery",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+          const readablePath = path.join(codexRoot, "readable.jsonl");
+          const unreadablePath = path.join(codexRoot, "unreadable.jsonl");
+          yield* writeText(readablePath, '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}\n');
+          yield* writeText(unreadablePath, '{"type":"session_meta","timestamp":"2026-05-05T10:01:00Z"}\n');
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "root agent guide\n");
+          yield* fs.chmod(unreadablePath, 0);
+
+          const result = yield* discoverAiMetricsSources(
+            new AiMetricsSourceDiscoveryInput({
+              codexSessionsRoot: codexRoot,
+              hashSalt: "test-salt",
+              homeDir,
+              includeAll: true,
+              repoRoot,
+            })
+          );
+          yield* fs.chmod(unreadablePath, 0o600).pipe(Effect.ignore);
+          const codex = pipe(
+            result.sources,
+            A.findFirst((source) => source.sourceKind === AiMetricsTranscriptSource.Enum.codex)
+          );
+
+          expect(O.isSome(codex)).toBe(true);
+          if (O.isNone(codex)) {
+            return;
+          }
+          expect(codex.value.candidateFileCount).toBe(2);
+          expect(codex.value.includedFileCount).toBe(1);
+          expect(codex.value.limitedByMaxFiles).toBe(false);
+          expect(result.discoveredFileCount).toBe(1);
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "uses caller-relative paths for Claude source role attribution",
+    Effect.fn(function* () {
+      const content = '{"sessionId":"claude-session","timestamp":"2026-05-05T11:00:00Z"}';
+      const primarySummary = yield* summarizeTranscriptText({
+        content,
+        hashSalt: "test-salt",
+        sourceKind: AiMetricsTranscriptSource.Enum.claude,
+        sourcePath: "/tmp/subagents/workspace/claude.jsonl",
+      });
+      const primary = yield* makeAiMetricsPrivacyCheckResult({
+        content,
+        hashSalt: "test-salt",
+        sourcePath: "/tmp/subagents/workspace/claude.jsonl",
+        summary: primarySummary,
+      });
+      const subagent = yield* makeAiMetricsPrivacyCheckResult({
+        content,
+        hashSalt: "test-salt",
+        relativePath: "subagents/claude.jsonl",
+        sourcePath: "/tmp/workspace/subagents/claude.jsonl",
+        summary: primarySummary,
+      });
+
+      expect(primary.sanitized.sourceRole).toBe("primary");
+      expect(subagent.sanitized.sourceRole).toBe("subagent");
     })
   );
 });

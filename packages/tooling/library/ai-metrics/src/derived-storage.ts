@@ -594,7 +594,12 @@ const agentTaskIdFor = Effect.fn("AiMetrics.derivedStorage.agentTaskIdFor")(func
   record: AiMetricsDerivedTranscriptRecord
 ) {
   const sanitized = record.privacy.sanitized;
-  return yield* rowId("agent-task", [input.configSnapshot.snapshotId, sanitized.sourceKind, sanitized.sourcePathHash]);
+  return yield* rowId("agent-task", [
+    input.configSnapshot.snapshotId,
+    sanitized.sourceKind,
+    sanitized.sourceRole,
+    sanitized.sourcePathHash,
+  ]);
 });
 
 const taskTitleFor = (record: AiMetricsDerivedTranscriptRecord): string => {

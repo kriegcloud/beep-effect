@@ -402,8 +402,20 @@ const firstCodexSubagentSource: (lines: ReadonlyArray<CodexSessionMetaLine>) => 
   A.head
 );
 
-const pathRoleFor = (relativePath: string): AiMetricsSourceRole =>
-  Str.includes("/subagents/")(relativePath) ? AiMetricsSourceRole.Enum.subagent : AiMetricsSourceRole.Enum.primary;
+const normalizeAttributionPath = flow(
+  Str.replace(/\\/gu, "/"),
+  Str.replace(/^[A-Za-z]:/u, ""),
+  Str.replace(/^\/+/u, "")
+);
+
+const basenameAttributionPath = flow(normalizeAttributionPath, Str.replace(/^.*\//u, ""));
+
+const pathRoleFor = (relativePath: string): AiMetricsSourceRole => {
+  const normalizedPath = normalizeAttributionPath(relativePath);
+  return Str.startsWith("subagents/")(normalizedPath) || Str.includes("/subagents/")(normalizedPath)
+    ? AiMetricsSourceRole.Enum.subagent
+    : AiMetricsSourceRole.Enum.primary;
+};
 
 /**
  * Derive privacy-safe source attribution from local transcript metadata.
@@ -589,18 +601,20 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
 export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscript")(function* ({
   content,
   hashSalt,
+  relativePath,
   sourcePath,
   summary,
 }: {
   readonly content: string;
   readonly hashSalt?: string;
+  readonly relativePath?: string;
   readonly sourcePath: string;
   readonly summary: TranscriptIngestSummary;
 }) {
   const attribution = yield* makeAiMetricsSourceAttribution({
     content,
     ...(hashSalt === undefined ? {} : { hashSalt }),
-    relativePath: sourcePath,
+    relativePath: relativePath ?? basenameAttributionPath(sourcePath),
     sourceKind: summary.sourceKind,
     sourcePath,
   });
@@ -647,11 +661,13 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
 export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetricsPrivacyCheckResult")(function* ({
   content,
   hashSalt,
+  relativePath,
   sourcePath,
   summary,
 }: {
   readonly content: string;
   readonly hashSalt?: string;
+  readonly relativePath?: string;
   readonly sourcePath: string;
   readonly summary: TranscriptIngestSummary;
 }) {
@@ -661,6 +677,7 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
     redaction: redactionResultFor(content),
     sanitized: yield* makeSanitizedTranscript({
       content,
+      ...(relativePath === undefined ? {} : { relativePath }),
       sourcePath,
       summary,
       ...(hashSalt === undefined ? {} : { hashSalt }),

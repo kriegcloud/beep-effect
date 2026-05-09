@@ -223,6 +223,7 @@ const encodeForwarderTimerPlanJson = S.encodeUnknownEffect(S.fromJsonString(AiMe
 
 type ForwarderSourceFile = {
   readonly modifiedAtMillis: number;
+  readonly relativePath: string;
   readonly sourceKind: AiMetricsTranscriptSource;
   readonly sourcePath: string;
 };
@@ -236,6 +237,9 @@ const forwarderFailure = (message: string, cause: unknown): AiMetricsForwarderEr
   new AiMetricsForwarderError({ cause, message });
 
 const repoPathToClaudeProjectName: (repoRoot: string) => string = Str.replace(/[/\\]/gu, "-");
+
+const normalizedRelativePath = (pathApi: Path.Path, root: string, filePath: string): string =>
+  pipe(pathApi.relative(root, filePath), Str.replace(/\\/gu, "/"));
 
 const shellQuote = (value: string): string => `'${Str.replace(/'/gu, "'\\''")(value)}'`;
 
@@ -272,18 +276,24 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
   const serviceUnitName = `${input.serviceName}.service`;
   const timerUnitName = `${input.serviceName}.timer`;
   const statusTmpPath = `${input.statusPath}.tmp`;
+  const stderrTmpPath = `${input.statusPath}.stderr.tmp`;
   const envFileShellPath = "~/.config/beep/ai-metrics.env";
   const envFileUnitPath = "%h/.config/beep/ai-metrics.env";
   const execCommand = [
     "set -euo pipefail",
     `mkdir -p "$(dirname ${shellQuote(input.statusPath)})" "$(dirname ${shellQuote(input.lockPath)})"`,
-    `flock -n ${shellQuote(input.lockPath)} ${input.command} > ${shellQuote(statusTmpPath)}`,
+    "exit_code=0",
+    `if flock -n ${shellQuote(input.lockPath)} ${input.command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; stderr="$(head -c 2000 ${shellQuote(stderrTmpPath)} | sed 's/\\\\/\\\\\\\\/g; s/"/\\\\"/g' | tr '\\n' ' ')"; printf '{"status":"failed","exitCode":%s,"stderr":"%s"}\\n' "$exit_code" "$stderr" > ${shellQuote(statusTmpPath)}; fi`,
+    `rm -f ${shellQuote(stderrTmpPath)}`,
     `mv ${shellQuote(statusTmpPath)} ${shellQuote(input.statusPath)}`,
+    'exit "$exit_code"',
   ].join("; ");
   const serviceUnit = [
     "[Unit]",
     "Description=Beep AI metrics forwarder collection",
     "Documentation=AGENTS.md",
+    "StartLimitBurst=3",
+    "StartLimitIntervalSec=30m",
     "",
     "[Service]",
     "Type=oneshot",
@@ -292,8 +302,6 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
     `ExecStart=/usr/bin/env bash -lc ${shellQuote(execCommand)}`,
     "Restart=on-failure",
     "RestartSec=5m",
-    "StartLimitBurst=3",
-    "StartLimitIntervalSec=30m",
     "",
   ].join("\n");
   const timerUnit = [
@@ -420,6 +428,7 @@ const jsonlSourceFiles = Effect.fn("AiMetrics.forwarder.jsonlSourceFiles")(funct
   sourceKind: AiMetricsTranscriptSource
 ) {
   const fs = yield* FileSystem.FileSystem;
+  const pathApi = yield* Path.Path;
   const sourcePaths = yield* collectJsonlFiles(root);
   const files = yield* Effect.forEach(
     sourcePaths,
@@ -431,6 +440,7 @@ const jsonlSourceFiles = Effect.fn("AiMetrics.forwarder.jsonlSourceFiles")(funct
 
       return O.some({
         modifiedAtMillis: modifiedAtMillis(info.value),
+        relativePath: normalizedRelativePath(pathApi, root, sourcePath),
         sourceKind,
         sourcePath,
       });
@@ -454,6 +464,7 @@ const openClawSourceFiles = Effect.fn("AiMetrics.forwarder.openClawSourceFiles")
 
   return A.of({
     modifiedAtMillis: modifiedAtMillis(info.value),
+    relativePath: pathApi.basename(unitPath),
     sourceKind: AiMetricsTranscriptSource.Enum.openclaw,
     sourcePath: unitPath,
   });
@@ -548,6 +559,7 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
     const privacy = yield* makeAiMetricsPrivacyCheckResult({
       content,
       ...(input.hashSalt === undefined ? {} : { hashSalt: input.hashSalt }),
+      relativePath: sourceFile.relativePath,
       sourcePath: sourceFile.sourcePath,
       summary,
     }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics privacy projection.", cause)));
