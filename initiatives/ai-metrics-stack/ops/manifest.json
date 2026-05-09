@@ -93,8 +93,26 @@
           "name": "Fresh Review Data And Ops Hardening",
           "status": "completed",
           "output": "history/outputs/p6a-closeout-proof-restart.md"
+        },
+        {
+          "id": "P6b",
+          "name": "Proof Runner Isolation And Waiting-Window Runbook",
+          "status": "completed",
+          "output": "history/outputs/p6-proof-runner-isolation-and-runbook.md"
+        },
+        {
+          "id": "P6c",
+          "name": "Pre-May-16 Readiness Ledger",
+          "status": "in_progress",
+          "output": "history/outputs/p6-pre-may16-readiness-ledger.md"
         }
       ]
+    },
+    {
+      "id": "P7",
+      "name": "Topology-First Productionization",
+      "status": "planned",
+      "output": "history/outputs/p7-topology-first-production-plan.md"
     }
   ],
   "commandGates": [
@@ -123,6 +141,10 @@
       "command": "bun run beep ai-metrics forwarder timer --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt' --raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key' --json"
     },
     {
+      "id": "ai-metrics-proof-runner-timer-smoke",
+      "command": "cd /home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof && bun run beep ai-metrics forwarder timer --target dankserver --repo-root /home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics --hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt' --raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key' --otlp-base-url 'https://dankserver.tailc7c348.ts.net:8447' --interval-minutes 15 --max-file-bytes 8388608 --max-files 5 --json"
+    },
+    {
       "id": "ai-metrics-archive-drill",
       "command": "BEEP_AI_METRICS_RAW_ARCHIVE_KEY=\"$(op read 'op://TBK/ai-metrics/raw-archive-key')\" bun run beep ai-metrics archive drill --target dankserver --data-root .beep/ai-metrics --hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt' --raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key' --json"
     },
@@ -145,10 +167,11 @@
   ],
   "knownGaps": [
     "The credited seven-day proof window is in progress until at least May 16, 2026 02:26 America/Chicago",
-    "Additional outcome labels and benchmark runs should be added as more timer-collected work accumulates",
+    "The workstation timer now runs from a locked pinned proof worktree while proof data remains under the main checkout .beep/ai-metrics root",
+    "The isolated-runner config has two benchmark runs but still requires at least one explicit human-approved outcome label",
     "Optional LiteLLM deployment remains deferred beyond the Phoenix-only P5b slice",
     "xAI, Venice, LiteLLM, and gateway enrichment remain deferred beyond P2",
     "Server-owned collection remains a P7 topology target requiring transcript access/sync and privacy design"
   ],
-  "nextAction": "Keep the workstation timer running through May 16, 2026 02:26 America/Chicago, add more labels and benchmark runs as data accumulates, then generate the final credited seven-day report."
+  "nextAction": "Keep the isolated proof-runner timer running through May 16, 2026 02:26 America/Chicago, add at least one human-approved label for the isolated-runner config, regenerate the scorecard, then generate the final credited seven-day report after the proof window elapses."
 }

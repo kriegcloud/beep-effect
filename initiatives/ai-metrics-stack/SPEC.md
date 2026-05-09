@@ -85,6 +85,8 @@ output.
 - Labeling workflow: CLI review queue.
 - Completion evidence: P6a hardening gates, deployed stack, and one restarted
   seven-day real-data scorecard.
+- P7 topology posture: decide collection ownership, sync, retention, deletion,
+  and restore before adding provider/gateway enrichment or new dashboards.
 
 ## Data Products
 
@@ -149,6 +151,10 @@ deployment mechanism.
 P6a live collection is workstation-owned because Codex and Claude raw sources
 live on the workstation. The credited proof window must use a local scheduled
 runner with a lock, retry/backoff, status artifact, and journal evidence.
+During the credited P6 window, that scheduled runner may execute from a locked,
+pinned sibling worktree as long as the proof data root, timer budgets, privacy
+contract, and source window remain stable and the isolation evidence is
+recorded.
 Server-owned collection is a P7 topology target and requires a separate
 transcript access/sync and privacy design.
 

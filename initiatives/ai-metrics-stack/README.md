@@ -46,6 +46,14 @@ restarted seven-day config-impact scorecard has been generated from live data.
     and proof restart gates
 - [history/outputs/p6a-closeout-proof-restart.md](./history/outputs/p6a-closeout-proof-restart.md)
   - P6a closeout evidence, timer/Pulumi proof, and restarted seven-day window
+- [history/outputs/p6-proof-runner-isolation-and-runbook.md](./history/outputs/p6-proof-runner-isolation-and-runbook.md)
+  - isolated proof runner evidence, daily P6 health checklist, and final
+    closeout template
+- [history/outputs/p6-pre-may16-readiness-ledger.md](./history/outputs/p6-pre-may16-readiness-ledger.md)
+  - pre-closeout readiness evidence, label candidates, benchmark/report state,
+    and the remaining completion gate before May 16
+- [history/outputs/p7-topology-first-production-plan.md](./history/outputs/p7-topology-first-production-plan.md)
+  - planned P7 topology-first production packet
 - [research/effect-native-observability.md](./research/effect-native-observability.md)
   - Effect v4 observability package findings
 - [research/backend-shortlist.md](./research/backend-shortlist.md) - backend
@@ -103,9 +111,19 @@ after the P6a closeout gates passed:
   bounded forwarder pass, reran the archive drill, reconciled Pulumi, verified
   Phoenix `15.5.0`, added one outcome label plus one benchmark run, and
   generated a restarted scorecard with `completionReady=true`.
+- P6 isolation now runs the workstation timer from locked detached worktree
+  `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
+  pinned at `63c419721c735bfb860ccfa9bf1b31efbb23e33c`, while preserving the
+  original proof data root under the main checkout.
+- Source discovery remains Codex-only in the recent proof window; `--all`
+  discovery confirms Claude Code and OpenClaw sources exist outside the active
+  proof window and are deferred to P7 topology decisions.
 - Current P6 work is to keep the timer running through May 16, 2026 02:26
-  America/Chicago, add more labels/benchmarks as data accumulates, and generate
-  the final seven-day report.
+  America/Chicago, add human-approved labels and real benchmark runs as data
+  accumulates, and generate the final seven-day report.
+- The May 9 readiness pass recorded another successful scheduled timer run and
+  a second isolation benchmark run for the isolated-runner config. That config
+  remains blocked only by the explicit human-label gate plus elapsed proof time.
 
 ## Completion Standard
 
