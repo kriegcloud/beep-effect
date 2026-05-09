@@ -348,7 +348,14 @@ const recoverGraphitiStackInternal = Effect.fn("GraphitiProxyOps.recoverGraphiti
 
   const falkor = yield* containerHealth(repoRoot, config.falkorContainer);
   const graphiti = yield* containerHealth(repoRoot, config.graphitiContainer);
-  if (!shouldRecoverGraphitiStackForTesting(config.recoverOnUnhealthy, force, falkor, graphiti)) {
+  if (
+    !shouldRecoverGraphitiStackForTesting({
+      falkor,
+      force,
+      graphiti,
+      recoverOnUnhealthy: config.recoverOnUnhealthy,
+    })
+  ) {
     yield* Console.log("[graphiti-recover] Backing containers are already healthy.");
     return;
   }
@@ -554,25 +561,28 @@ export const recoverGraphitiStack = Effect.fn("GraphitiProxyOps.recoverGraphitiS
  * Decide whether Graphiti recovery should restart the backing containers.
  *
  * @internal
- * @param recoverOnUnhealthy - Whether unhealthy backing containers should trigger recovery.
- * @param force - Whether recovery should run regardless of observed container health.
- * @param falkor - Current FalkorDB container health status.
- * @param graphiti - Current Graphiti MCP container health status.
+ * @param options - Recovery decision inputs.
  * @returns Whether the recovery routine should restart the backing containers.
  * @example
  * ```ts
  * import { shouldRecoverGraphitiStackForTesting } from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps"
- * const shouldRecover = shouldRecoverGraphitiStackForTesting(true, false, "unhealthy", "healthy")
+ * const shouldRecover = shouldRecoverGraphitiStackForTesting({
+ *   falkor: "unhealthy",
+ *   force: false,
+ *   graphiti: "healthy",
+ *   recoverOnUnhealthy: true
+ * })
  * ```
  * @category testing
  * @since 0.0.0
  */
-export const shouldRecoverGraphitiStackForTesting = (
-  recoverOnUnhealthy: boolean,
-  force: boolean,
-  falkor: string,
-  graphiti: string
-): boolean => force || (recoverOnUnhealthy && (falkor !== "healthy" || graphiti !== "healthy"));
+export const shouldRecoverGraphitiStackForTesting = (options: {
+  readonly recoverOnUnhealthy: boolean;
+  readonly force: boolean;
+  readonly falkor: string;
+  readonly graphiti: string;
+}): boolean =>
+  options.force || (options.recoverOnUnhealthy && (options.falkor !== "healthy" || options.graphiti !== "healthy"));
 
 const renderServiceUnit = (repoRoot: string, bunBin: string, config: ProxyServiceConfig): string =>
   [
