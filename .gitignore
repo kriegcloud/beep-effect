@@ -30,6 +30,7 @@ service-account*.json
 **/secrets/
 **/.secrets/
 .serena/
+.playwright-cli/
 # Client
 stats.html
 .env.tmp
