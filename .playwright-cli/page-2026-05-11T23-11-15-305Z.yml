@@ -1,0 +1,237 @@
+- generic [ref=e1]:
+  - alert [ref=e2]
+  - banner [ref=e68]:
+    - button "Connections" [ref=e69]:
+      - generic [ref=e70]: Connections
+      - img [ref=e71]
+    - generic [ref=e73]:
+      - generic [ref=e74]: "FalkorDB:"
+      - heading "v4.18.04" [level=2] [ref=e75]
+    - generic [ref=e76]:
+      - button "Memory:" [ref=e77]
+      - heading "357.62M" [level=2] [ref=e78]
+    - 'status "Deployment type: Standalone, Status: online" [ref=e80]': Single
+    - generic [ref=e82]:
+      - generic [ref=e83]: "User:"
+      - heading "default" [level=2] [ref=e84]
+    - generic [ref=e85]:
+      - button "Copy deployment info" [ref=e86]:
+        - img [ref=e87]
+      - paragraph [ref=e90]: localhost:6379
+  - generic [ref=e3]:
+    - generic [ref=e91]:
+      - generic [ref=e92]:
+        - link "FalkorDB" [ref=e93] [cursor=pointer]:
+          - /url: https://www.falkordb.com
+          - img "FalkorDB Logo" [ref=e94]
+        - generic [ref=e95]:
+          - button "View and manage your graphs" [ref=e96]:
+            - img [ref=e97]
+          - 'button "User Defined Functions: View and manage your UDFs" [ref=e102]':
+            - img [ref=e103]
+      - generic [ref=e106]:
+        - button "Adjust application settings" [ref=e107]:
+          - img [ref=e108]
+        - button "Help" [ref=e112]:
+          - img [ref=e113]
+        - 'button "Toggle theme current theme: system" [ref=e119]':
+          - img [ref=e120]
+        - button "Log Out" [ref=e123]:
+          - img [ref=e124]
+    - generic [ref=e4]:
+      - generic [ref=e129]:
+        - button "Close" [ref=e130]:
+          - img [ref=e131]
+        - generic [ref=e134]:
+          - heading "Graph Info" [level=1] [ref=e135]
+          - img [ref=e136]
+        - generic [ref=e141]:
+          - button "beep_dev" [active] [ref=e310]:
+            - img [ref=e311]
+            - paragraph [ref=e145]: beep_dev
+          - button "Create New Graph" [ref=e146]:
+            - img [ref=e147]
+        - generic [ref=e148]:
+          - heading "Memory" [level=2] [ref=e149]
+          - paragraph [ref=e313]: 20 MB
+        - generic [ref=e151]:
+          - generic [ref=e152]:
+            - heading "Nodes" [level=2] [ref=e153]
+            - paragraph [ref=e314]: 1,901
+          - list [ref=e155]:
+            - listitem [ref=e156]:
+              - button "All labels" [ref=e157]:
+                - paragraph [ref=e158]: "*"
+            - listitem [ref=e315]:
+              - 'button "Entity #: 1,728" [ref=e316] [cursor=pointer]':
+                - generic [ref=e318]: Entity
+            - listitem [ref=e319]:
+              - 'button "Topic #: 326" [ref=e320] [cursor=pointer]':
+                - generic [ref=e322]: Topic
+            - listitem [ref=e323]:
+              - 'button "Document #: 301" [ref=e324] [cursor=pointer]':
+                - generic [ref=e326]: Document
+            - listitem [ref=e327]:
+              - 'button "Organization #: 237" [ref=e328] [cursor=pointer]':
+                - generic [ref=e330]: Organization
+            - listitem [ref=e331]:
+              - 'button "Episodic #: 173" [ref=e332] [cursor=pointer]':
+                - generic [ref=e334]: Episodic
+            - listitem [ref=e335]:
+              - 'button "Requirement #: 172" [ref=e336] [cursor=pointer]':
+                - generic [ref=e338]: Requirement
+            - listitem [ref=e339]:
+              - 'button "Object #: 128" [ref=e340] [cursor=pointer]':
+                - generic [ref=e342]: Object
+            - listitem [ref=e343]:
+              - 'button "Location #: 114" [ref=e344] [cursor=pointer]':
+                - generic [ref=e346]: Location
+            - listitem [ref=e347]:
+              - 'button "Preference #: 62" [ref=e348] [cursor=pointer]':
+                - generic [ref=e350]: Preference
+            - listitem [ref=e351]:
+              - 'button "Procedure #: 29" [ref=e352] [cursor=pointer]':
+                - generic [ref=e354]: Procedure
+            - listitem [ref=e355]:
+              - 'button "Event #: 8" [ref=e356] [cursor=pointer]':
+                - generic [ref=e358]: Event
+            - listitem [ref=e359]:
+              - 'button "Community #: 0" [ref=e360] [cursor=pointer]':
+                - generic [ref=e362]: Community
+            - listitem [ref=e363]:
+              - 'button "Saga #: 0" [ref=e364] [cursor=pointer]':
+                - generic [ref=e366]: Saga
+        - generic [ref=e159]:
+          - generic [ref=e160]:
+            - heading "Edges" [level=2] [ref=e161]
+            - paragraph [ref=e367]: 4,097
+          - list [ref=e163]:
+            - listitem [ref=e164]:
+              - button "All relationships" [ref=e165]:
+                - paragraph [ref=e166]: "*"
+            - listitem [ref=e368]:
+              - 'button "MATCH p=()-[:`MENTIONS`]-() RETURN p #: 2,708" [ref=e369]':
+                - generic [ref=e371]: MENTIONS
+            - listitem [ref=e372]:
+              - 'button "MATCH p=()-[:`RELATES_TO`]-() RETURN p #: 1,389" [ref=e373]':
+                - generic [ref=e375]: RELATES_TO
+            - listitem [ref=e376]:
+              - 'button "MATCH p=()-[:`HAS_MEMBER`]-() RETURN p #: 0" [ref=e377]':
+                - generic [ref=e379]: HAS_MEMBER
+            - listitem [ref=e380]:
+              - 'button "MATCH p=()-[:`HAS_EPISODE`]-() RETURN p #: 0" [ref=e381]':
+                - generic [ref=e383]: HAS_EPISODE
+            - listitem [ref=e384]:
+              - 'button "MATCH p=()-[:`NEXT_EPISODE`]-() RETURN p #: 0" [ref=e385]':
+                - generic [ref=e387]: NEXT_EPISODE
+        - generic [ref=e167]:
+          - generic [ref=e168]:
+            - heading "Property Keys" [level=2] [ref=e169]
+            - paragraph [ref=e170]: "19"
+          - list [ref=e388]:
+            - listitem [ref=e389]:
+              - 'button "MATCH (e) WHERE e.`content` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`content` IS NOT NULL RETURN e" [ref=e390]':
+                - paragraph [ref=e391]: content,
+            - listitem [ref=e392]:
+              - 'button "MATCH (e) WHERE e.`created_at` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`created_at` IS NOT NULL RETURN e" [ref=e393]':
+                - paragraph [ref=e394]: created_at,
+            - listitem [ref=e395]:
+              - 'button "MATCH (e) WHERE e.`entity_edges` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`entity_edges` IS NOT NULL RETURN e" [ref=e396]':
+                - paragraph [ref=e397]: entity_edges,
+            - listitem [ref=e398]:
+              - 'button "MATCH (e) WHERE e.`episodes` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`episodes` IS NOT NULL RETURN e" [ref=e399]':
+                - paragraph [ref=e400]: episodes,
+            - listitem [ref=e401]:
+              - 'button "MATCH (e) WHERE e.`expired_at` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`expired_at` IS NOT NULL RETURN e" [ref=e402]':
+                - paragraph [ref=e403]: expired_at,
+            - listitem [ref=e404]:
+              - 'button "MATCH (e) WHERE e.`fact` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`fact` IS NOT NULL RETURN e" [ref=e405]':
+                - paragraph [ref=e406]: fact,
+            - listitem [ref=e407]:
+              - 'button "MATCH (e) WHERE e.`fact_embedding` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`fact_embedding` IS NOT NULL RETURN e" [ref=e408]':
+                - paragraph [ref=e409]: fact_embedding,
+            - listitem [ref=e410]:
+              - 'button "MATCH (e) WHERE e.`group_id` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`group_id` IS NOT NULL RETURN e" [ref=e411]':
+                - paragraph [ref=e412]: group_id,
+            - listitem [ref=e413]:
+              - 'button "MATCH (e) WHERE e.`invalid_at` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`invalid_at` IS NOT NULL RETURN e" [ref=e414]':
+                - paragraph [ref=e415]: invalid_at,
+            - listitem [ref=e416]:
+              - 'button "MATCH (e) WHERE e.`labels` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`labels` IS NOT NULL RETURN e" [ref=e417]':
+                - paragraph [ref=e418]: labels,
+            - listitem [ref=e419]:
+              - 'button "MATCH (e) WHERE e.`name` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`name` IS NOT NULL RETURN e" [ref=e420]':
+                - paragraph [ref=e421]: name,
+            - listitem [ref=e422]:
+              - 'button "MATCH (e) WHERE e.`name_embedding` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`name_embedding` IS NOT NULL RETURN e" [ref=e423]':
+                - paragraph [ref=e424]: name_embedding,
+            - listitem [ref=e425]:
+              - 'button "MATCH (e) WHERE e.`source` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`source` IS NOT NULL RETURN e" [ref=e426]':
+                - paragraph [ref=e427]: source,
+            - listitem [ref=e428]:
+              - 'button "MATCH (e) WHERE e.`source_description` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`source_description` IS NOT NULL RETURN e" [ref=e429]':
+                - paragraph [ref=e430]: source_description,
+            - listitem [ref=e431]:
+              - 'button "MATCH (e) WHERE e.`source_node_uuid` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`source_node_uuid` IS NOT NULL RETURN e" [ref=e432]':
+                - paragraph [ref=e433]: source_node_uuid,
+            - listitem [ref=e434]:
+              - 'button "MATCH (e) WHERE e.`summary` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`summary` IS NOT NULL RETURN e" [ref=e435]':
+                - paragraph [ref=e436]: summary,
+            - listitem [ref=e437]:
+              - 'button "MATCH (e) WHERE e.`target_node_uuid` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`target_node_uuid` IS NOT NULL RETURN e" [ref=e438]':
+                - paragraph [ref=e439]: target_node_uuid,
+            - listitem [ref=e440]:
+              - 'button "MATCH (e) WHERE e.`uuid` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`uuid` IS NOT NULL RETURN e" [ref=e441]':
+                - paragraph [ref=e442]: uuid,
+            - listitem [ref=e443]:
+              - 'button "MATCH (e) WHERE e.`valid_at` IS NOT NULL RETURN e UNION MATCH ()-[e]-() WHERE e.`valid_at` IS NOT NULL RETURN e" [ref=e444]':
+                - paragraph [ref=e445]: valid_at
+      - separator [ref=e172]:
+        - img [ref=e174]
+      - generic [ref=e181]:
+        - generic [ref=e182]:
+          - generic [ref=e183]:
+            - button "Graph info panel" [pressed] [ref=e184]:
+              - img [ref=e185]
+            - generic [ref=e192]:
+              - code [ref=e195]:
+                - generic [ref=e196]:
+                  - textbox "Editor content"
+                  - textbox [ref=e197]
+                  - generic [ref=e450]: MATCH (n) OPTIONAL MATCH (n)-[e]-(m) RETURN * LIMIT 100
+              - generic [ref=e206]:
+                - button "Clear" [ref=e451]:
+                  - img [ref=e452]
+                - button "Maximize" [ref=e207]:
+                  - img [ref=e208]
+                - generic "Keyboard shortcuts" [ref=e213]:
+                  - img [ref=e214]
+                - button "Press Enter to run the query" [ref=e455]:
+                  - paragraph [ref=e456]: RUN
+            - generic [ref=e218]:
+              - button "Query history panel" [ref=e219]:
+                - img [ref=e220]
+              - button [ref=e458]:
+                - img [ref=e459]
+            - button "Chat panel" [ref=e224]:
+              - img [ref=e225]
+          - generic [ref=e231]:
+            - tablist [ref=e232]:
+              - tab "Graph" [selected] [ref=e233]:
+                - img [ref=e234]
+              - tab "Table" [ref=e461]:
+                - img [ref=e240]
+              - tab "Metadata" [ref=e462]:
+                - img [ref=e243]
+            - tabpanel "Graph" [ref=e246]
+        - region "Notifications (F8)":
+          - list
+  - generic [ref=e275]:
+    - alert
+    - alert
+  - generic [ref=e470]:
+    - img [ref=e471]
+    - text: beep_dev
+    - tooltip "beep_dev" [ref=e473]:
+      - img [ref=e474]
+      - text: beep_dev

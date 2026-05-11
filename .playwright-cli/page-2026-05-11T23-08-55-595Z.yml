@@ -1,0 +1,59 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e6]:
+    - generic [ref=e10]:
+      - img "FalkorDB Browser Logo" [ref=e11]
+      - radiogroup [ref=e12]:
+        - generic [ref=e13]:
+          - radio "Manual Configuration" [checked] [ref=e14]:
+            - img [ref=e16]
+          - generic [ref=e18] [cursor=pointer]: Manual Configuration
+        - generic [ref=e19]:
+          - radio "FalkorDB URL" [ref=e20]
+          - generic [ref=e21] [cursor=pointer]: FalkorDB URL
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - generic [ref=e25]: "* Host"
+          - generic [ref=e26]:
+            - textbox "* Host" [ref=e27]:
+              - /placeholder: localhost
+              - text: localhost
+            - paragraph
+        - generic [ref=e28]:
+          - generic [ref=e30]: "* Port"
+          - generic [ref=e31]:
+            - textbox "* Port" [ref=e32]:
+              - /placeholder: "6379"
+              - text: "6379"
+            - paragraph
+        - generic [ref=e34]:
+          - generic [ref=e35]:
+            - generic [ref=e36]: Username
+            - img [ref=e37]
+          - generic [ref=e39]:
+            - textbox "Username" [ref=e40]:
+              - /placeholder: Default
+            - paragraph
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - generic [ref=e43]: Password
+            - img [ref=e44]
+          - generic [ref=e46]:
+            - button [ref=e47]:
+              - img [ref=e48]
+            - textbox "Password" [ref=e53]:
+              - /placeholder: Default
+            - paragraph
+        - generic [ref=e55]:
+          - checkbox [ref=e56]
+          - checkbox
+          - paragraph [ref=e57]: TLS Secured Connection
+        - paragraph [ref=e67]: Invalid credentials please recheck username and password or your connection settings
+        - button "Log in" [disabled] [ref=e60]:
+          - paragraph [ref=e68]: Log in
+      - link "API Documentation" [ref=e62] [cursor=pointer]:
+        - /url: /docs
+        - img [ref=e63]
+        - text: API Documentation
+    - region "Notifications (F8)":
+      - list
