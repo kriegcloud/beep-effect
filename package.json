@@ -259,7 +259,7 @@
     "react-day-picker": "^10.0.0",
     "@streamdown/math": "^1.0.2",
     "@streamdown/mermaid": "^1.0.2",
-    "ai": "^6.0.178",
+    "ai": "^6.0.180",
     "@effect/markdown-toc": "0.1.0",
     "image-size": "^2.0.2",
     "sharp": "^0.34.5",
