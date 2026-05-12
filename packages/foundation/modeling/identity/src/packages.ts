@@ -112,7 +112,8 @@ const composers = $I.compose(
   "venice-ai",
   "xai",
   "acp",
-  "openai-compat"
+  "openai-compat",
+  "workspace-tables"
 );
 
 // --- foundation ---
@@ -897,3 +898,10 @@ export const $AcpId: Identity.IdentityComposer<"@beep/acp"> = composers.$AcpId;
  * @category configuration
  */
 export const $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat"> = composers.$OpenaiCompatId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ * @type {Identity.IdentityComposer<"@beep/workspace-tables">}
+ */
+export const $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tables"> = composers.$WorkspaceTablesId;

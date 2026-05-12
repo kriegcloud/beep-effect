@@ -3,11 +3,11 @@
 Shared-kernel persistence boundary for cross-slice table and read-model shapes
 tied to shared product language.
 
-This package currently proves the shared Organization table metadata and the
-schema-first table projection used by that proof. It is the narrow shared-kernel
-Drizzle exception: metadata-only `pgTable` definitions and index metadata may
-live here when they encode shared product language, but live database access
-remains banned.
+This package owns shared-kernel table metadata and the shared entity table
+proofs for `Membership`, `Organization`, and `User`. It is the narrow
+shared-kernel Drizzle exception: metadata-only `pgTable` definitions and index
+metadata may live here when they encode shared product language, but live
+database access remains banned.
 
 ## Belongs Here
 
@@ -31,8 +31,10 @@ remains banned.
 | Export | Role |
 | --- | --- |
 | `@beep/shared-tables` | Entry point exposing shared concrete table namespaces. |
-| `@beep/shared-tables/*` | Package subpath access for public source modules. |
+| `Entities.Membership` | Shared Membership table metadata projected with `EntityTable.pgTableFrom(Membership.Model)`. |
 | `Entities.Organization` | Shared Organization table metadata projected with `EntityTable.pgTableFrom(Organization.Model)`. |
+| `Entities.User` | Shared User table metadata projected with `EntityTable.pgTableFrom(User.Model)`. |
+| `DbSchema` | Metadata-only aggregate for exported shared tables. |
 | `@beep/shared-tables/table/Table` | Compatibility subpath re-exporting `@beep/drizzle` `EntityTable` type helpers. |
 
 Generic table projection lives in `@beep/drizzle/EntityTable`. Shared table

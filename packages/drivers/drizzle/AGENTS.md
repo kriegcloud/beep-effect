@@ -10,6 +10,16 @@
 | entry module | Drizzle, DrizzleError | package entry point |
 | Drizzle.errors | DrizzleError | single public technical driver error with optional query context |
 | Drizzle.service | Drizzle, DrizzleClient, DrizzleShape | product-neutral execution Layer |
+| EntityTable | pgTableFrom, columns, TableFor | generic metadata-only projection from EntitySchema definitions |
+
+## Entity Table Projection
+
+- `EntityTable.pgTableFrom(entity)` projects `@beep/schema/EntitySchema`
+  definitions into typed Drizzle `pgTable` metadata.
+- Keep this package product-neutral and driver-level. Concrete product tables
+  belong in table packages, not `@beep/drizzle`.
+- Projection tests may inspect table metadata; live database execution belongs
+  behind driver/server boundaries.
 
 ## Laws
 - Follow repository laws through command discovery.

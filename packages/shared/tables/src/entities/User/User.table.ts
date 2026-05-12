@@ -1,5 +1,5 @@
 /**
- * Shared-kernel Organization table metadata.
+ * Shared-kernel User table metadata.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -9,7 +9,7 @@ import { EntityTable } from "@beep/drizzle";
 import { User } from "@beep/shared-domain/entities";
 
 /**
- * PGLite/Postgres Drizzle table for the shared Organization entity.
+ * PGLite/Postgres Drizzle table for the shared User entity.
  *
  * @example
  * ```ts

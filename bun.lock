@@ -1005,6 +1005,20 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/workspace/tables": {
+      "name": "@beep/workspace-tables",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/drizzle": "workspace:^",
+        "@beep/workspace-domain": "workspace:^",
+        "drizzle-orm": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
   },
   "overrides": {
     "@anthropic-ai/sdk": "0.81.0",
@@ -1607,6 +1621,8 @@
     "@beep/wealth-management-domain": ["@beep/wealth-management-domain@workspace:packages/wealth-management/domain"],
 
     "@beep/workspace-domain": ["@beep/workspace-domain@workspace:packages/workspace/domain"],
+
+    "@beep/workspace-tables": ["@beep/workspace-tables@workspace:packages/workspace/tables"],
 
     "@beep/xai": ["@beep/xai@workspace:packages/drivers/xai"],
 

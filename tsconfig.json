@@ -479,7 +479,17 @@
       "@beep/acp/rpc": ["./packages/drivers/acp/src/rpc.ts"],
       "@beep/acp/schema": ["./packages/drivers/acp/src/schema.ts"],
       "@beep/acp/terminal": ["./packages/drivers/acp/src/terminal.ts"],
-      "@beep/duckdb": ["./packages/drivers/duckdb/src/index.ts"]
+      "@beep/duckdb": ["./packages/drivers/duckdb/src/index.ts"],
+      "@beep/workspace-tables": ["./packages/workspace/tables/src/index.ts"],
+      "@beep/workspace-tables/entities": [
+        "./packages/workspace/tables/src/entities/index.ts"
+      ],
+      "@beep/workspace-tables/entities/CandidateDraft": [
+        "./packages/workspace/tables/src/entities/CandidateDraft/index.ts"
+      ],
+      "@beep/workspace-tables/entities/CandidateProject": [
+        "./packages/workspace/tables/src/entities/CandidateProject/index.ts"
+      ]
     }
   }
 }

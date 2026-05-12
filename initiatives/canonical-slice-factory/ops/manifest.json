@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "initiative": {
+    "id": "canonical-slice-factory",
+    "title": "Canonical Slice Factory",
+    "status": "active",
+    "created": "2026-05-12",
+    "updated": "2026-05-12",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "supersedes": ["repo-architecture-automation"],
+  "handoffPrompt": "ops/codex-handoff-prompt.md",
+  "proofTarget": {
+    "boundedContext": "architecture-lab",
+    "concept": "WorkItem",
+    "domainKind": "entities",
+    "conceptPath": "entities/WorkItem",
+    "packagePrefix": "architecture-lab-workitem",
+    "description": "Synthetic lifecycle task used to prove canonical slice creation and architecture factory operations."
+  },
+  "proofStages": [
+    {
+      "id": "core-slice",
+      "description": "Minimal legal domain/use-cases/server slice proof."
+    },
+    {
+      "id": "persistence-adapter",
+      "description": "Config, tables, repository implementation, and slice Layer proof."
+    },
+    {
+      "id": "protocol-adapters",
+      "description": "HTTP, RPC, and AI tool declarations plus server handler proof."
+    },
+    {
+      "id": "client-experience",
+      "description": "Client facade, UI surface, and synthetic app Layer proof."
+    }
+  ],
+  "commandGroup": {
+    "name": "beep architecture",
+    "owner": "packages/tooling/tool/cli",
+    "coreModel": "schema-backed architecture operation plan",
+    "writeDefault": true,
+    "requiresDryRun": true,
+    "requiresIdempotency": true,
+    "initialWrappers": [
+      "create slice",
+      "add concept",
+      "add role",
+      "plan",
+      "apply",
+      "check"
+    ]
+  },
+  "artifactHomes": {
+    "initiative": "initiatives/canonical-slice-factory",
+    "repoCliFixtures": "packages/tooling/tool/cli/test/fixtures",
+    "syntheticApp": "apps/architecture-lab-proof"
+  },
+  "verification": [
+    {
+      "id": "repo-cli-factory-tests",
+      "description": "Focused operation-plan, wrapper, writer, and idempotency tests."
+    },
+    {
+      "id": "proof-package-tests",
+      "description": "Runtime and type tests for the staged architecture-lab WorkItem proof."
+    },
+    {
+      "id": "stale-fixture-audit",
+      "description": "Search audit proving fixture-lab/Specimen is not active canonical guidance."
+    },
+    {
+      "id": "full-repo-gates",
+      "description": "Attempt check, lint, test, docgen, and full audit once the replacement is coherent."
+    }
+  ]
+}

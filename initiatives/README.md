@@ -29,15 +29,20 @@ actually lives here.
 - `ai-metrics-stack`
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
+- `canonical-slice-factory`
 - `discriminated-union-modeling`
 - `ip-law-knowledge-graph`
 - `jsdoc-quality-enforcement`
 - `law-kg-prd`
 - `repo-codegraph-jsdoc`
-- `repo-architecture-automation`
-- `schema-to-drizzle-projection`
 - `trustgraph-doc-ontology`
 - `turborepo-audit`
+
+## Reference Packets
+
+- `repo-architecture-automation` — superseded by
+  `canonical-slice-factory`; use only as historical/reference material while
+  replacing the drifted `fixture-lab/Specimen` proof.
 
 ## Needs Refresh After Lean Slate
 
@@ -46,4 +51,4 @@ actually lives here.
 
 These packets still describe pre-automation app and repo-memory surfaces. Treat
 them as paused design context until they are rewritten against the generated
-topology from `repo-architecture-automation`.
+topology from `canonical-slice-factory`.

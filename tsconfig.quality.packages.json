@@ -164,6 +164,9 @@
     },
     {
       "path": "packages/workspace/domain"
+    },
+    {
+      "path": "packages/workspace/tables"
     }
   ]
 }

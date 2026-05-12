@@ -1,0 +1,83 @@
+{
+  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/workspace/tables/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/workspace-tables": [
+        "../../../packages/workspace/tables/src/index.ts"
+      ],
+      "@beep/workspace-tables/entities": [
+        "../../../packages/workspace/tables/src/entities/index.ts"
+      ],
+      "@beep/workspace-tables/entities/CandidateDraft": [
+        "../../../packages/workspace/tables/src/entities/CandidateDraft/index.ts"
+      ],
+      "@beep/workspace-tables/entities/CandidateProject": [
+        "../../../packages/workspace/tables/src/entities/CandidateProject/index.ts"
+      ],
+      "@beep/drizzle": ["../../../packages/drivers/drizzle/src/index.ts"],
+      "@beep/workspace-domain": [
+        "../../../packages/workspace/domain/src/index.ts"
+      ],
+      "@beep/workspace-domain/entities": [
+        "../../../packages/workspace/domain/src/entities/index.ts"
+      ],
+      "@beep/workspace-domain/entities/ApprovalGate": [
+        "../../../packages/workspace/domain/src/entities/ApprovalGate/index.ts"
+      ],
+      "@beep/workspace-domain/entities/CandidateDraft": [
+        "../../../packages/workspace/domain/src/entities/CandidateDraft/index.ts"
+      ],
+      "@beep/workspace-domain/entities/CandidateProject": [
+        "../../../packages/workspace/domain/src/entities/CandidateProject/index.ts"
+      ],
+      "@beep/workspace-domain/entities/CandidateTask": [
+        "../../../packages/workspace/domain/src/entities/CandidateTask/index.ts"
+      ],
+      "@beep/workspace-domain/entities/ContextPacket": [
+        "../../../packages/workspace/domain/src/entities/ContextPacket/index.ts"
+      ],
+      "@beep/workspace-domain/entities/EmailArtifact": [
+        "../../../packages/workspace/domain/src/entities/EmailArtifact/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Workspace": [
+        "../../../packages/workspace/domain/src/entities/Workspace/index.ts"
+      ],
+      "@beep/workspace-domain/values": [
+        "../../../packages/workspace/domain/src/values/index.ts"
+      ],
+      "@beep/workspace-domain/values/ApprovalDecision": [
+        "../../../packages/workspace/domain/src/values/ApprovalDecision/index.ts"
+      ],
+      "@beep/workspace-domain/values/CandidateLifecycle": [
+        "../../../packages/workspace/domain/src/values/CandidateLifecycle/index.ts"
+      ]
+    }
+  }
+}

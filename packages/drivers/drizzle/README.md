@@ -41,6 +41,26 @@ const runnable = program.pipe(Effect.provide(Drizzle.makeLayer(client)))
 `DrizzleClient` is intentionally narrow. Runtime adapters can wrap Postgres, SQLite, PGLite, or another
 Drizzle-backed boundary as long as they expose `execute` and `withTransaction` through Effects.
 
+## Surface Map
+
+| Export | Role |
+| --- | --- |
+| `Drizzle` | Product-neutral Effect service for driver execution. |
+| `DrizzleError` | Technical driver error with optional query context. |
+| `EntityTable` | Generic metadata-only table projection for schema-first entities. |
+
+## Entity Table Projection
+
+`EntityTable.pgTableFrom(entity)` is the generic metadata-only projection from
+`@beep/schema/EntitySchema` definitions into typed Drizzle `pgTable` metadata.
+It attaches the entity definition and source entity schema to the table so
+package-local table proofs can assert the projection without executing a live
+database.
+
+`@beep/drizzle` stays product-neutral and driver-level. Concrete product tables
+belong in table packages such as `@beep/shared-tables` and
+`@beep/workspace-tables`.
+
 ## Error Normalization
 
 ```ts

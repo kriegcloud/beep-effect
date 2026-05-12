@@ -4,17 +4,19 @@
 
 - Shared-kernel persistence boundary for cross-slice table and read-model shapes
   tied to shared product language.
-- This package currently proves shared Organization table metadata plus the
-  shared entity-metadata table constructor used by that proof. New exports must
-  be product-semantic, not generic database helpers or live database access.
+- This package proves shared `Membership`, `Organization`, and `User` table
+  metadata. New exports must be product-semantic, not generic database helpers
+  or live database access.
 
 ## Surface Map
 
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | `Entities`, `Table` | Current package entry point. |
+| entry module | `Entities`, `DbSchema` | Current package entry point. |
+| `src/entities/Membership/` | `Table` | Shared Membership table metadata. |
 | `src/entities/Organization/` | `Table` | Shared Organization table metadata. |
-| `src/table/Table.ts` | `make`, `ColumnBuilderFor`, `ColumnBuilderMapFor`, `TableFor`, `Definition`, `WithDefinition` | Metadata-only table constructor plus public metadata/type aliases tied to shared entity metadata. |
+| `src/entities/User/` | `Table` | Shared User table metadata. |
+| `src/table/Table.ts` | `EntityTable` | Compatibility re-export for public `EntityTable` type helpers. |
 
 ## Add Here
 

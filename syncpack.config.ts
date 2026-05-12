@@ -39,6 +39,7 @@ const config = {
     "packages/drivers/xai/package.json",
     "packages/drivers/acp/package.json",
     "packages/drivers/openai-compat/package.json",
+    "packages/workspace/tables/package.json",
   ],
   customTypes: {
     catalog: {

@@ -39,7 +39,8 @@
     "packages/drivers/venice-ai",
     "packages/drivers/xai",
     "packages/drivers/acp",
-    "packages/drivers/openai-compat"
+    "packages/drivers/openai-compat",
+    "packages/workspace/tables"
   ],
   "repository": {
     "type": "git",
