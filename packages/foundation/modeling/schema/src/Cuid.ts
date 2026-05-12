@@ -100,7 +100,7 @@ export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/C
     return yield* Effect.succeed(nextSeed);
   }),
 }) {
-  static readonly next = Effect.flatten(CuidState.asEffect());
+  static readonly next = Effect.suspend(() => Effect.flatten(CuidState.asEffect()));
 
   static readonly Default = Layer.effect(CuidState, CuidState.make("node")).pipe(
     Layer.provideMerge([DateTimes.Default, RandomValues.Default])
