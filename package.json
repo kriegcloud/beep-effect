@@ -171,6 +171,7 @@
     "ip-address": "10.1.1",
     "lodash": "catalog:",
     "postcss": "^8.5.12",
+    "protobufjs": "7.5.8",
     "serialize-javascript": "^7.0.5",
     "smol-toml": "1.6.1",
     "uuid": "catalog:"
