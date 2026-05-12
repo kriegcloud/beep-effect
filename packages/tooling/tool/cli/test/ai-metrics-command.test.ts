@@ -85,7 +85,8 @@ const withRawArchiveKeyEnv = <A, E, R>(rawArchiveKey: string, use: Effect.Effect
   );
 
 const withOtlpSink = <A, E, R>(
-  use: (baseUrl: string, requests: ReadonlyArray<CapturedOtlpRequest>) => Effect.Effect<A, E, R>
+  use: (baseUrl: string, requests: ReadonlyArray<CapturedOtlpRequest>) => Effect.Effect<A, E, R>,
+  responseStatus = 200
 ) =>
   Effect.acquireUseRelease(
     Effect.sync(() => {
@@ -99,7 +100,7 @@ const withOtlpSink = <A, E, R>(
             contentType: request.headers.get("content-type") ?? "",
             path: new URL(request.url).pathname,
           });
-          return new Response(null, { status: 200 });
+          return new Response(null, { status: responseStatus });
         },
         hostname: "127.0.0.1",
         port: 0,
@@ -267,6 +268,7 @@ describe("ai-metrics command", () => {
           expect(output).toContain("capture PATH at render time");
           expect(output).toContain("/usr/bin/env PATH=");
           expect(output).toContain(" bun packages/tooling/tool/cli/src/bin.ts -- ai-metrics forwarder run");
+          expect(output).toContain("--otlp --otlp-base-url");
           expect(output).toContain("beep-ai-metrics-forwarder.timer");
           expect(output).not.toContain("--max-files 200");
           expect(process.exitCode ?? 0).toBe(0);
@@ -649,6 +651,150 @@ describe("ai-metrics command", () => {
           expect(output).not.toContain(rawArchiveKey);
           expect(process.exitCode ?? 0).toBe(0);
         })
+      )
+    );
+  });
+
+  it("runs forwarder with derived OTLP export status without exposing raw transcript text", async () => {
+    await Effect.runPromise(
+      withOtlpSink((otlpBaseUrl, requests) =>
+        withTempDirectory((tmpDir) =>
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const homeDir = path.join(tmpDir, "home");
+            const repoRoot = path.join(tmpDir, "repo");
+            const dataRoot = path.join(tmpDir, "metrics");
+            const rawArchiveKey = Encoding.encodeBase64(new Uint8Array(32).fill(23));
+
+            yield* writeText(
+              path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
+              [
+                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":"private-forwarder-otlp-secret"}',
+              ].join("\n")
+            );
+            yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
+
+            yield* withRawArchiveKeyEnv(
+              rawArchiveKey,
+              runAiMetricsCommand([
+                "forwarder",
+                "run",
+                "--repo-root",
+                repoRoot,
+                "--home-dir",
+                homeDir,
+                "--data-root",
+                dataRoot,
+                "--all",
+                "--hash-salt",
+                "test-salt",
+                "--otlp",
+                "--otlp-base-url",
+                otlpBaseUrl,
+                "--json",
+              ])
+            );
+
+            const resultJson = yield* lastLoggedLine();
+            const result = yield* decodeForwarderResult(resultJson);
+            const otlpExport = O.fromNullishOr(result.otlpExport);
+            const traceRequest = yield* waitForCapturedOtlpTraceRequest(requests);
+
+            expect(O.isSome(otlpExport)).toBe(true);
+            if (O.isSome(otlpExport)) {
+              expect(otlpExport.value.status).toBe("exported");
+              if (otlpExport.value.status === "exported") {
+                expect(otlpExport.value.endpointTraceUrl).toBe(`${otlpBaseUrl}/v1/traces`);
+                expect(otlpExport.value.ingestRunId).toBe(result.ingestRunId);
+                expect(otlpExport.value.spanCount).toBeGreaterThan(0);
+                expect(otlpExport.value.sessionSpanCount).toBeGreaterThan(0);
+                expect(otlpExport.value.turnSpanCount).toBeGreaterThan(0);
+              }
+            }
+            expect(traceRequest.contentType).toContain("application/x-protobuf");
+            expect(traceRequest.bodyByteLength).toBeGreaterThan(0);
+            expect(traceRequest.bodyText).not.toContain("private-forwarder-otlp-secret");
+            expect(traceRequest.bodyText).not.toContain(tmpDir);
+            expect(resultJson).not.toContain("private-forwarder-otlp-secret");
+            expect(resultJson).not.toContain(rawArchiveKey);
+            expect(process.exitCode ?? 0).toBe(0);
+          })
+        )
+      )
+    );
+  });
+
+  it("keeps forwarder successful when derived OTLP export reports a sanitized failure", async () => {
+    await Effect.runPromise(
+      withOtlpSink(
+        (otlpBaseUrl) =>
+          withTempDirectory((tmpDir) =>
+            Effect.gen(function* () {
+              const path = yield* Path.Path;
+              const homeDir = path.join(tmpDir, "home");
+              const repoRoot = path.join(tmpDir, "repo");
+              const dataRoot = path.join(tmpDir, "metrics");
+              const rawArchiveKey = Encoding.encodeBase64(new Uint8Array(32).fill(29));
+
+              yield* writeText(
+                path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
+                [
+                  '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                  '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private-forwarder-failed-otlp"}',
+                ].join("\n")
+              );
+              yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
+
+              yield* withRawArchiveKeyEnv(
+                rawArchiveKey,
+                runAiMetricsCommand([
+                  "forwarder",
+                  "run",
+                  "--repo-root",
+                  repoRoot,
+                  "--home-dir",
+                  homeDir,
+                  "--data-root",
+                  dataRoot,
+                  "--all",
+                  "--hash-salt",
+                  "test-salt",
+                  "--otlp",
+                  "--otlp-base-url",
+                  otlpBaseUrl,
+                  "--json",
+                ])
+              );
+
+              const resultJson = yield* lastLoggedLine();
+              const result = yield* decodeForwarderResult(resultJson);
+              const otlpExport = O.fromNullishOr(result.otlpExport);
+              const errorOutput = pipe(yield* TestConsole.errorLines, A.join("\n"));
+
+              expect(result.sourceFileCount).toBe(1);
+              expect(result.turnCount).toBeGreaterThan(0);
+              expect(O.isSome(otlpExport)).toBe(true);
+              if (O.isSome(otlpExport)) {
+                expect(otlpExport.value.status).toBe("failed");
+                if (otlpExport.value.status === "failed") {
+                  expect(otlpExport.value.endpointTraceUrl).toBe(`${otlpBaseUrl}/v1/traces`);
+                  expect(otlpExport.value.ingestRunId).toBe(result.ingestRunId);
+                  expect(otlpExport.value.message).toBe("OTLP export did not complete after the forwarder run.");
+                  expect(otlpExport.value.message).not.toContain("private-forwarder-failed-otlp");
+                  expect(otlpExport.value.message).not.toContain(tmpDir);
+                }
+              }
+              expect(errorOutput).toContain("OTLP export failed after forwarder run");
+              expect(errorOutput).toContain("OTLP export did not complete after the forwarder run.");
+              expect(errorOutput).not.toContain("private-forwarder-failed-otlp");
+              expect(errorOutput).not.toContain(tmpDir);
+              expect(resultJson).not.toContain("private-forwarder-failed-otlp");
+              expect(resultJson).not.toContain(rawArchiveKey);
+              expect(process.exitCode ?? 0).toBe(0);
+            })
+          ),
+        500
       )
     );
   });

@@ -1,5 +1,5 @@
 /**
- * @beep/architecture-lab-use-cases
+ * Package entry point for `@beep/architecture-lab-use-cases`.
  *
  * @since 0.0.0
  */
@@ -8,4 +8,4 @@
  * @since 0.0.0
  * @category Configuration
  */
-export const VERSION = "0.0.0" as const
+export const VERSION = "0.0.0" as const;
