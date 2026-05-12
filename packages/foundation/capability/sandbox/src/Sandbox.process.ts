@@ -7,7 +7,7 @@
 
 import { $SandboxId } from "@beep/identity";
 import { Fn } from "@beep/schema";
-import { Context, Duration, Effect, Layer, Stream } from "effect";
+import { Context, Duration, Effect, Layer, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -34,10 +34,11 @@ const collectChunk: (
   const chunkEndsLine = Str.endsWith("\n")(combined);
   const lineBuffer = chunkEndsLine ? "" : O.getOrElse(A.last(lines), () => "");
   const completeLines = chunkEndsLine ? lines : A.dropRight(lines, 1);
+  const nonEmptyCompleteLines = pipe(completeLines, A.filter(Str.isNonEmpty));
   const notifyLines =
     onLine === undefined
       ? Effect.void
-      : Effect.forEach(completeLines, (line) => Effect.sync(() => onLine(line)), { discard: true });
+      : Effect.forEach(nonEmptyCompleteLines, (line) => Effect.sync(() => onLine(line)), { discard: true });
 
   yield* notifyLines;
 

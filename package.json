@@ -47,7 +47,8 @@
     "packages/architecture-lab/tables",
     "packages/architecture-lab/client",
     "packages/architecture-lab/ui",
-    "apps/architecture-lab-proof"
+    "apps/architecture-lab-proof",
+    "packages/drivers/runpod"
   ],
   "repository": {
     "type": "git",
