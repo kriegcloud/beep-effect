@@ -30,7 +30,7 @@ export class RandomValues extends Context.Service<RandomValues>()($I`RandomValue
   ),
 }) {
   static override readonly call = <A extends Uint8Array>(length: A["length"]): Effect.Effect<A, never, RandomValues> =>
-    RandomValues.pipe(Effect.flatMap((randomValues) => randomValues(length)));
+    Effect.flatMap(Effect.service(RandomValues), (randomValues) => randomValues(length));
 
   static readonly Default = Layer.effect(RandomValues, RandomValues.make);
 

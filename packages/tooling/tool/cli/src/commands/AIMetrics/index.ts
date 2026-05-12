@@ -433,15 +433,17 @@ const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramErro
 const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalConfigString"
 )((key) =>
-  Config.option(Config.string(key)).pipe(
-    Effect.mapError(
-      (cause) =>
-        new AiMetricsCommandError({
-          cause,
-          message: `Failed to read ${key} from the Effect config provider.`,
-        })
+  Config.option(Config.string(key))
+    .asEffect()
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsCommandError({
+            cause,
+            message: `Failed to read ${key} from the Effect config provider.`,
+          })
+      )
     )
-  )
 );
 
 const readOptionalRedactedConfigString: (
@@ -449,15 +451,17 @@ const readOptionalRedactedConfigString: (
 ) => Effect.Effect<O.Option<Redacted.Redacted<string>>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalRedactedConfigString"
 )((key) =>
-  Config.option(Config.redacted(key)).pipe(
-    Effect.mapError(
-      (cause) =>
-        new AiMetricsCommandError({
-          cause,
-          message: `Failed to read ${key} from the Effect config provider.`,
-        })
+  Config.option(Config.redacted(key))
+    .asEffect()
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsCommandError({
+            cause,
+            message: `Failed to read ${key} from the Effect config provider.`,
+          })
+      )
     )
-  )
 );
 
 const resolveHomeDir = Effect.fn("AIMetrics.resolveHomeDir")(function* (homeDir: O.Option<string>) {

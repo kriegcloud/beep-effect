@@ -63,8 +63,8 @@ export class DateTimes extends Context.Service<DateTimes>()("@beep/utils/DateTim
     return Effect.succeed({ now, date });
   }),
 }) {
-  static readonly now = Effect.flatMap(DateTimes, ({ now }) => now);
-  static readonly date = Effect.flatMap(DateTimes, ({ date }) => date);
+  static readonly now = Effect.flatMap(Effect.service(DateTimes), ({ now }) => now);
+  static readonly date = Effect.flatMap(Effect.service(DateTimes), ({ date }) => date);
 
   static readonly Default = Layer.effect(DateTimes, DateTimes.make);
 
