@@ -34,6 +34,7 @@ Ergonomic wrappers write by default and expose the same JSON plan with
 
 ```bash
 bun run beep architecture create slice architecture-lab WorkItem --stage core --dry-run
+bun run beep architecture create package research-lab domain --dry-run
 bun run beep architecture add concept architecture-lab WorkItem --stage persistence --dry-run
 bun run beep architecture add role architecture-lab WorkItem server --stage full --dry-run
 bun run beep architecture add concept architecture-lab Worker --domain-kind entities --stage persistence --dry-run
@@ -43,6 +44,13 @@ bun run beep architecture add concept architecture-lab WorkPriority --domain-kin
 The factory is core-first: `create slice` defaults to domain, use-cases, and
 server. Add config, tables, protocol handlers, client, UI, proof-app, and
 db-admin targets through explicit stages or role commands.
+
+`create package` is the architecture-native package shell command for normal
+slice roles. It supports `domain`, `use-cases`, `config`, `server`, `tables`,
+`client`, and `ui`, and intentionally does not create concept modules. Use
+`add concept` or `add role` for concept-qualified files after the role package
+exists. The older top-level `create-package` command remains a compatibility
+surface for non-architecture scaffolding.
 
 Supported domain-kind archetypes are:
 
