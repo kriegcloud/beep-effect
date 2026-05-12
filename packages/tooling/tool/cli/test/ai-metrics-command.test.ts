@@ -780,11 +780,13 @@ describe("ai-metrics command", () => {
                 if (otlpExport.value.status === "failed") {
                   expect(otlpExport.value.endpointTraceUrl).toBe(`${otlpBaseUrl}/v1/traces`);
                   expect(otlpExport.value.ingestRunId).toBe(result.ingestRunId);
+                  expect(otlpExport.value.message).toBe("OTLP export did not complete after the forwarder run.");
                   expect(otlpExport.value.message).not.toContain("private-forwarder-failed-otlp");
                   expect(otlpExport.value.message).not.toContain(tmpDir);
                 }
               }
               expect(errorOutput).toContain("OTLP export failed after forwarder run");
+              expect(errorOutput).toContain("OTLP export did not complete after the forwarder run.");
               expect(errorOutput).not.toContain("private-forwarder-failed-otlp");
               expect(errorOutput).not.toContain(tmpDir);
               expect(resultJson).not.toContain("private-forwarder-failed-otlp");

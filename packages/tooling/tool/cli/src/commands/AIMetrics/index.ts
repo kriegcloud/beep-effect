@@ -1189,6 +1189,8 @@ const forwarderOtlpExported = (result: AiMetricsOtlpExportResult): AiMetricsForw
     turnSpanCount: result.turnSpanCount,
   });
 
+const forwarderOtlpExportFailureMessage = "OTLP export did not complete after the forwarder run.";
+
 const forwarderOtlpExportFailed = ({
   endpoint,
   forwarderResult,
@@ -1208,20 +1210,6 @@ const forwarderOtlpExportFailed = ({
     target,
   });
 
-const emitForwarderRuntimeSummary = Effect.fn("AIMetrics.emitForwarderRuntimeSummary")(
-  (result: AiMetricsForwarderRunResult) =>
-    Effect.void.pipe(
-      Effect.withSpan("repo_ai_metrics.forwarder.run", {
-        attributes: {
-          "ai_metrics.ingest_run_id": result.ingestRunId,
-          "ai_metrics.source_file_count": result.sourceFileCount,
-          "ai_metrics.target": result.target,
-          "ai_metrics.turn_count": result.turnCount,
-        },
-      })
-    )
-);
-
 const exportForwarderDerivedOtlp = Effect.fn("AIMetrics.exportForwarderDerivedOtlp")(function* ({
   endpoint,
   forwarderResult,
@@ -1231,7 +1219,6 @@ const exportForwarderDerivedOtlp = Effect.fn("AIMetrics.exportForwarderDerivedOt
   readonly forwarderResult: AiMetricsForwarderRunResult;
   readonly target: AiMetricsDeployTarget;
 }) {
-  yield* emitForwarderRuntimeSummary(forwarderResult);
   return yield* runAiMetricsOtlpExport(
     new AiMetricsOtlpExportInput({
       duckDbPath: forwarderResult.duckDbPath,
@@ -1241,9 +1228,16 @@ const exportForwarderDerivedOtlp = Effect.fn("AIMetrics.exportForwarderDerivedOt
     })
   ).pipe(
     Effect.matchEffect({
-      onFailure: Effect.fn(function* (error) {
-        yield* Console.error(`ai-metrics: OTLP export failed after forwarder run: ${error.message}`);
-        return forwarderOtlpExportFailed({ endpoint, forwarderResult, message: error.message, target });
+      onFailure: Effect.fn(function* () {
+        yield* Console.error(
+          `ai-metrics: OTLP export failed after forwarder run: ${forwarderOtlpExportFailureMessage}`
+        );
+        return forwarderOtlpExportFailed({
+          endpoint,
+          forwarderResult,
+          message: forwarderOtlpExportFailureMessage,
+          target,
+        });
       }),
       onSuccess: (result) => Effect.succeed(forwarderOtlpExported(result)),
     })
@@ -1340,9 +1334,15 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
         );
         const otlpExport = Exit.isFailure(otlpExit)
           ? yield* Effect.gen(function* () {
-              const message = "OTLP exporter failed while flushing spans.";
-              yield* Console.error(`ai-metrics: OTLP export failed after forwarder run: ${message}`);
-              return forwarderOtlpExportFailed({ endpoint, forwarderResult, message, target });
+              yield* Console.error(
+                `ai-metrics: OTLP export failed after forwarder run: ${forwarderOtlpExportFailureMessage}`
+              );
+              return forwarderOtlpExportFailed({
+                endpoint,
+                forwarderResult,
+                message: forwarderOtlpExportFailureMessage,
+                target,
+              });
             })
           : otlpExit.value;
 
