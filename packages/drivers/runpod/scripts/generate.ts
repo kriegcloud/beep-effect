@@ -53,7 +53,9 @@ type OpenApiOperation = {
   readonly security?: readonly Record<string, readonly string[]>[];
 };
 
-type OpenApiPathItem = Partial<Record<Lowercase<HttpMethod>, OpenApiOperation>>;
+type OpenApiPathItem = Partial<Record<Lowercase<HttpMethod>, OpenApiOperation>> & {
+  readonly parameters?: readonly OpenApiParameter[];
+};
 
 type OpenApiDocument = {
   readonly openapi: string;
@@ -154,9 +156,9 @@ const buildOperations = (document: OpenApiDocument): readonly Operation[] => {
       const methodName = disambiguated.methodName;
       const requestClassName = `${upperFirst(methodName)}Request`;
       const descriptorName = `${methodName}Operation`;
-      const parameters = operation.parameters ?? [];
+      const parameters = mergeParameters(pathItem.parameters ?? [], operation.parameters ?? []);
       const bodySchema = operation.requestBody?.content?.["application/json"]?.schema;
-      const requestFields = renderRequestFields(parameters, bodySchema);
+      const requestFields = renderRequestFields(parameters, bodySchema, operation.requestBody?.required === true);
       const response = chooseResponse(operation.responses ?? {});
 
       operations.push({
@@ -222,7 +224,8 @@ const disambiguateMethodName = (input: {
 
 const renderRequestFields = (
   parameters: readonly OpenApiParameter[],
-  bodySchema?: JsonSchema
+  bodySchema?: JsonSchema,
+  bodyRequired = false
 ): readonly RequestField[] => {
   const fields: RequestField[] = [];
 
@@ -241,13 +244,23 @@ const renderRequestFields = (
   if (bodySchema !== undefined) {
     fields.push({
       name: "body",
-      required: true,
+      required: bodyRequired,
       schemaExpression: schemaExpression(bodySchema, "body"),
     });
   }
 
   return fields;
 };
+
+const mergeParameters = (
+  pathParameters: readonly OpenApiParameter[],
+  operationParameters: readonly OpenApiParameter[]
+): readonly OpenApiParameter[] =>
+  pipe(
+    operationParameters,
+    A.appendAll(pathParameters),
+    A.dedupeWith((left, right) => left.name === right.name && left.in === right.in)
+  );
 
 const chooseResponse = (
   responses: Record<string, OpenApiResponse>
