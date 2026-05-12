@@ -1150,44 +1150,44 @@ export const RUNPOD_MIN_CUDA_VERSION_VALUES = [
 ] as const;
 
 /**
- * Status200Response schema generated from the Runpod OpenAPI document.
+ * GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document.
  *
  * @category schemas
  * @since 0.1.0
  */
-export const Status200Response = S.Record(S.String, S.Unknown).pipe(
-  $I.annoteSchema("Status200Response", {
-    description: "Status200Response schema generated from the Runpod OpenAPI document.",
+export const GetOpenAPIStatus200Response = S.Record(S.String, S.Unknown).pipe(
+  $I.annoteSchema("GetOpenAPIStatus200Response", {
+    description: "GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document.",
   })
 );
 
 /**
- * Status200Response value generated from the Runpod OpenAPI document.
+ * GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document.
  *
  * @category type-level
  * @since 0.1.0
  */
-export type Status200Response = typeof Status200Response.Type;
+export type GetOpenAPIStatus200Response = typeof GetOpenAPIStatus200Response.Type;
 
 /**
- * Status200TextResponse schema generated from the Runpod OpenAPI document.
+ * GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document.
  *
  * @category schemas
  * @since 0.1.0
  */
-export const Status200TextResponse = S.String.pipe(
-  $I.annoteSchema("Status200TextResponse", {
-    description: "Status200TextResponse schema generated from the Runpod OpenAPI document.",
+export const GetDocsStatus200TextResponse = S.String.pipe(
+  $I.annoteSchema("GetDocsStatus200TextResponse", {
+    description: "GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document.",
   })
 );
 
 /**
- * Status200TextResponse value generated from the Runpod OpenAPI document.
+ * GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document.
  *
  * @category type-level
  * @since 0.1.0
  */
-export type Status200TextResponse = typeof Status200TextResponse.Type;
+export type GetDocsStatus200TextResponse = typeof GetDocsStatus200TextResponse.Type;
 
 /**
  * Request input for GetOpenAPI.
@@ -2663,12 +2663,12 @@ export const RUNPOD_OPERATION_SPECS = {
   getOpenAPI: {
     descriptor: getOpenAPIOperation,
     request: GetOpenAPIRequest,
-    response: Status200Response,
+    response: GetOpenAPIStatus200Response,
   },
   getDocs: {
     descriptor: getDocsOperation,
     request: GetDocsRequest,
-    response: Status200TextResponse,
+    response: GetDocsStatus200TextResponse,
   },
   listPods: {
     descriptor: listPodsOperation,
@@ -2864,7 +2864,7 @@ export interface RunpodOperationsShape<E> {
   readonly getDocs: (request?: GetDocsRequest) => Effect.Effect<string, E>;
   readonly getEndpoint: (request: GetEndpointRequest) => Effect.Effect<Endpoint, E>;
   readonly getNetworkVolume: (request: GetNetworkVolumeRequest) => Effect.Effect<NetworkVolume, E>;
-  readonly getOpenAPI: (request?: GetOpenAPIRequest) => Effect.Effect<typeof Status200Response.Type, E>;
+  readonly getOpenAPI: (request?: GetOpenAPIRequest) => Effect.Effect<typeof GetOpenAPIStatus200Response.Type, E>;
   readonly getPod: (request: GetPodRequest) => Effect.Effect<Pod, E>;
   readonly getTemplate: (request: GetTemplateRequest) => Effect.Effect<Template, E>;
   readonly listContainerRegistryAuths: (

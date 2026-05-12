@@ -61,28 +61,39 @@ export class RunpodDocsIndex extends S.Class<RunpodDocsIndex>($I`RunpodDocsIndex
  * @category services
  * @since 0.1.0
  */
-type RunpodDocsShape = {
+interface RunpodDocsShape {
   readonly fetchIndex: () => Effect.Effect<RunpodDocsIndex, RunpodDocsError>;
-};
+}
 
-type ResolvedRunpodDocsConfig = {
-  readonly headers: Readonly<Record<string, string>>;
-  readonly indexUrl: string;
-};
+class ResolvedRunpodDocsConfig extends S.Class<ResolvedRunpodDocsConfig>($I`ResolvedRunpodDocsConfig`)(
+  {
+    headers: S.Record(S.String, S.String),
+    indexUrl: S.String,
+  },
+  $I.annote("ResolvedRunpodDocsConfig", {
+    description: "Resolved runtime configuration for the Runpod documentation index client.",
+  })
+) {}
 
-type DocsParseState = {
-  readonly entries: ReadonlyArray<RunpodDocsIndexEntry>;
-  readonly section: string;
-  readonly title: O.Option<string>;
-};
+class DocsParseState extends S.Class<DocsParseState>($I`DocsParseState`)(
+  {
+    entries: S.Array(RunpodDocsIndexEntry),
+    section: S.String,
+    title: S.Option(S.String),
+  },
+  $I.annote("DocsParseState", {
+    description: "Internal parser state for Runpod's llms.txt index.",
+  })
+) {}
 
 const defaultDocsSection = "Docs";
 const normalizeUrl = Str.replace(/\/+$/, "");
 
-const resolveConfig = (config: RunpodDocsConfigInput): ResolvedRunpodDocsConfig => ({
-  headers: config.headers ?? {},
-  indexUrl: config.indexUrl ?? RUNPOD_DOCS_INDEX_URL,
-});
+const resolveConfig = (config: RunpodDocsConfigInput): ResolvedRunpodDocsConfig =>
+  new ResolvedRunpodDocsConfig({
+    headers: config.headers ?? {},
+    indexUrl: config.indexUrl ?? RUNPOD_DOCS_INDEX_URL,
+  });
 
 const nonEmptyTrimmed: (value: string) => O.Option<string> = flow(Str.trim, O.liftPredicate(Str.isNonEmpty));
 
@@ -125,27 +136,28 @@ const parseLine = (state: DocsParseState, rawLine: string): DocsParseState => {
   const line = Str.trim(rawLine);
 
   if (pipe(line, Str.startsWith("# "))) {
-    return {
+    return new DocsParseState({
       ...state,
       title: O.some(Str.trim(Str.slice(2)(line))),
-    };
+    });
   }
 
   if (pipe(line, Str.startsWith("## "))) {
-    return {
+    return new DocsParseState({
       ...state,
       section: Str.trim(Str.slice(3)(line)),
-    };
+    });
   }
 
   return pipe(
     parseEntry(state.section, line),
     O.match({
       onNone: () => state,
-      onSome: (entry) => ({
-        ...state,
-        entries: A.append(state.entries, entry),
-      }),
+      onSome: (entry) =>
+        new DocsParseState({
+          ...state,
+          entries: A.append(state.entries, entry),
+        }),
     })
   );
 };
@@ -156,43 +168,41 @@ const parseLine = (state: DocsParseState, rawLine: string): DocsParseState => {
  * @category parsing
  * @since 0.1.0
  */
-export const parseRunpodDocsIndex = (text: string): Effect.Effect<RunpodDocsIndex, RunpodDocsError> =>
-  Effect.gen(function* () {
-    const state = pipe(
-      A.fromIterable(Str.linesIterator(text)),
-      A.reduce(
-        {
-          entries: A.empty<RunpodDocsIndexEntry>(),
-          section: defaultDocsSection,
-          title: O.none<string>(),
-        },
-        parseLine
-      )
-    );
-
-    if (A.isReadonlyArrayEmpty(state.entries)) {
-      return yield* RunpodDocsError.fromReason("parse");
-    }
-
-    return new RunpodDocsIndex({
-      entries: state.entries,
-      title: O.getOrElse(state.title, () => "Runpod Documentation"),
-    });
-  }).pipe(
-    Effect.withSpan("RunpodDocs.parseIndex", {
-      attributes: {
-        provider: "runpod",
-      },
-    })
+export const parseRunpodDocsIndex = Effect.fn("RunpodDocs.parseRunpodDocsIndex")(function* (
+  text: string
+): Effect.fn.Return<RunpodDocsIndex, RunpodDocsError> {
+  const state = pipe(
+    A.fromIterable(Str.linesIterator(text)),
+    A.reduce(
+      new DocsParseState({
+        entries: A.empty<RunpodDocsIndexEntry>(),
+        section: defaultDocsSection,
+        title: O.none<string>(),
+      }),
+      parseLine
+    )
   );
 
-const ensureSuccessStatus = (
+  if (A.isReadonlyArrayEmpty(state.entries)) {
+    return yield* RunpodDocsError.fromReason("parse");
+  }
+
+  return new RunpodDocsIndex({
+    entries: state.entries,
+    title: O.getOrElse(state.title, () => "Runpod Documentation"),
+  });
+});
+
+const ensureSuccessStatus = Effect.fnUntraced(function* (
   url: string,
   response: HttpClientResponse.HttpClientResponse
-): Effect.Effect<HttpClientResponse.HttpClientResponse, RunpodDocsError> =>
-  response.status >= 200 && response.status < 300
-    ? Effect.succeed(response)
-    : Effect.fail(RunpodDocsError.fromReason("response status", { status: response.status, url }));
+): Effect.fn.Return<HttpClientResponse.HttpClientResponse, RunpodDocsError> {
+  if (response.status >= 200 && response.status < 300) {
+    return response;
+  }
+
+  return yield* RunpodDocsError.fromReason("response status", { status: response.status, url });
+});
 
 const fetchIndex = Effect.fn("RunpodDocs.fetchIndex")(function* (
   client: HttpClient.HttpClient,
@@ -223,7 +233,30 @@ const fetchIndex = Effect.fn("RunpodDocs.fetchIndex")(function* (
 const makeFetchIndex = (
   client: HttpClient.HttpClient,
   config: ResolvedRunpodDocsConfig
-): RunpodDocsShape["fetchIndex"] => Effect.fn("RunpodDocs.fetchIndex")(() => fetchIndex(client, config));
+): RunpodDocsShape["fetchIndex"] =>
+  Effect.fnUntraced(function* (): Effect.fn.Return<RunpodDocsIndex, RunpodDocsError> {
+    return yield* fetchIndex(client, config);
+  });
+
+const makeRunpodDocsFromConfig = Effect.fn("RunpodDocs.makeRunpodDocsFromConfig")(function* (
+  config: ResolvedRunpodDocsConfig
+): Effect.fn.Return<RunpodDocsShape, never, HttpClient.HttpClient> {
+  const client = yield* HttpClient.HttpClient;
+  return RunpodDocs.of({
+    fetchIndex: makeFetchIndex(client, config),
+  });
+});
+
+const makeRunpodDocsFromEnvironment = Effect.fn("RunpodDocs.makeRunpodDocsFromEnvironment")(function* () {
+  const indexUrl = yield* Config.string("RUNPOD_DOCS_INDEX_URL").pipe(Config.withDefault(RUNPOD_DOCS_INDEX_URL));
+  return yield* makeRunpodDocsFromConfig(
+    resolveConfig(
+      new RunpodDocsConfigInput({
+        indexUrl,
+      })
+    )
+  );
+});
 
 /**
  * Effect service for the Runpod LLM documentation index.
@@ -241,16 +274,7 @@ export class RunpodDocs extends Context.Service<RunpodDocs, RunpodDocsShape>()($
   static readonly makeLayer = (
     config = new RunpodDocsConfigInput({})
   ): Layer.Layer<RunpodDocs, never, HttpClient.HttpClient> =>
-    Layer.effect(
-      RunpodDocs,
-      Effect.gen(function* () {
-        const client = yield* HttpClient.HttpClient;
-        const resolved = resolveConfig(config);
-        return RunpodDocs.of({
-          fetchIndex: makeFetchIndex(client, resolved),
-        });
-      })
-    );
+    Layer.effect(RunpodDocs, makeRunpodDocsFromConfig(resolveConfig(config)));
 
   /**
    * Live Runpod docs layer backed by `RUNPOD_DOCS_INDEX_URL` when provided.
@@ -260,20 +284,6 @@ export class RunpodDocs extends Context.Service<RunpodDocs, RunpodDocsShape>()($
    */
   static readonly layer: Layer.Layer<RunpodDocs, RunpodDocsError> = Layer.effect(
     RunpodDocs,
-    Effect.gen(function* () {
-      const indexUrl = yield* Config.string("RUNPOD_DOCS_INDEX_URL").pipe(Config.withDefault(RUNPOD_DOCS_INDEX_URL));
-      const client = yield* HttpClient.HttpClient;
-
-      return RunpodDocs.of({
-        fetchIndex: makeFetchIndex(
-          client,
-          resolveConfig(
-            new RunpodDocsConfigInput({
-              indexUrl,
-            })
-          )
-        ),
-      });
-    }).pipe(Effect.mapError((cause) => RunpodDocsError.fromReason("config", { cause })))
+    makeRunpodDocsFromEnvironment().pipe(Effect.mapError((cause) => RunpodDocsError.fromReason("config", { cause })))
   ).pipe(Layer.provide(FetchHttpClient.layer));
 }

@@ -159,7 +159,7 @@ const buildOperations = (document: OpenApiDocument): readonly Operation[] => {
       const parameters = mergeParameters(pathItem.parameters ?? [], operation.parameters ?? []);
       const bodySchema = operation.requestBody?.content?.["application/json"]?.schema;
       const requestFields = renderRequestFields(parameters, bodySchema, operation.requestBody?.required === true);
-      const response = chooseResponse(operation.responses ?? {});
+      const response = chooseResponse(methodName, operation.responses ?? {});
 
       operations.push({
         descriptorName,
@@ -263,6 +263,7 @@ const mergeParameters = (
   );
 
 const chooseResponse = (
+  methodName: string,
   responses: Record<string, OpenApiResponse>
 ): {
   readonly body: "json" | "none" | "text";
@@ -301,7 +302,7 @@ const chooseResponse = (
       };
     }
 
-    const schemaName = `Status${selectedStatus}Response`;
+    const schemaName = `${upperFirst(methodName)}Status${selectedStatus}Response`;
     return {
       body: "json",
       schemaExpression: schemaExpression(jsonSchema, schemaName),
@@ -315,7 +316,7 @@ const chooseResponse = (
     return {
       body: "text",
       schemaExpression: "S.String",
-      schemaName: `Status${selectedStatus}TextResponse`,
+      schemaName: `${upperFirst(methodName)}Status${selectedStatus}TextResponse`,
       status: selectedStatus,
       typeExpression: "string",
     };
