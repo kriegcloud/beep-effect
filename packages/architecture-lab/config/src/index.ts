@@ -1,11 +1,45 @@
 /**
- * @beep/architecture-lab-config
+ * Architecture lab typed configuration package.
  *
- * @since 0.0.0
+ * @packageDocumentation
+ * @category configuration
+ * @since 0.1.0
  */
 
 /**
- * @since 0.0.0
- * @category Configuration
+ * Package version for the architecture lab config role.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/architecture-lab-config"
+ *
+ * console.log(VERSION)
+ * ```
+ *
+ * @category configuration
+ * @since 0.1.0
  */
-export const VERSION = "0.0.0" as const
+export const VERSION = "0.0.0" as const;
+
+/**
+ * Browser-safe WorkItem public configuration exports.
+ *
+ * @example
+ * ```ts
+ * import {
+ *   defaultWorkItemPublicConfig,
+ *   WorkItemPublicConfig,
+ * } from "@beep/architecture-lab-config"
+ *
+ * const config = new WorkItemPublicConfig({
+ *   assignmentEnabled: defaultWorkItemPublicConfig.assignmentEnabled,
+ *   reopenCompletedEnabled: true,
+ * })
+ *
+ * console.log(config.reopenCompletedEnabled)
+ * ```
+ *
+ * @category configuration
+ * @since 0.1.0
+ */
+export { defaultWorkItemPublicConfig, WorkItemPublicConfig } from "./public.js";

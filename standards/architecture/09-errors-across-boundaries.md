@@ -2,7 +2,7 @@
 
 Each hexagonal boundary translates errors. Driver/internal errors die in the adapter; port errors die in the use-case service; public action errors die in the protocol handler. The only failures crossing a boundary are the ones declared in that boundary's signature.
 
-The executable proof target for this rule is `packages/fixture-lab/specimen`: `SpecimenRepositoryNotFound` is server-only, `SpecimenNotFound` is public, and `SpecimenUseCases` translates between them.
+The executable proof target for this rule is `packages/architecture-lab/*`: `WorkItemRepositoryNotFound` is server-only, `WorkItemNotFound` is public, and `WorkItemUseCases` translates between them.
 
 ## 1. Taxonomy
 

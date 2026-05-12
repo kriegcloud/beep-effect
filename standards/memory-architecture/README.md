@@ -8,7 +8,7 @@ Different memory problems require different architectures, and mathematical cons
 
 This means the project's deterministic-first approach -- AST-derived code facts stored at certainty=1.0, provenance-tracked, schema-validated -- is mathematically immune to the degradation that plagues every semantic memory system. Every SaaS vendor, every embedding-based knowledge graph, every LLM-inferred fact store will hit the interference wall. Deterministic code intelligence will not. This is the competitive advantage. Lean into it.
 
-The practical consequence: stop evaluating semantic memory products as potential foundations. They are useful as managed caches over a deterministic substrate, never as sources of truth. The search is over.
+The practical consequence: stop evaluating semantic memory products as potential foundations. They are useful as managed caches over a deterministic substrate, never as sources of truth. The search for semantic-memory foundations is over. A later addendum may still evaluate external systems as capability donors when the output preserves this authority boundary.
 
 ## The Three Imperatives
 
@@ -33,6 +33,7 @@ The provenance and verification layers in TrustGraph provide the "external symbo
 | `02-thread-triage.md` | Go/no-go decisions on every open memory-related thread |
 | `03-saas-landscape-assessment.md` | Condensed evaluations of external solutions (closed, not ongoing) |
 | `04-decision-log.md` | Dated decision entries as the architecture evolves |
+| `05-context-graph-capability-assessment.md` | Bounded addendum selecting feature donors for provenance, ontology graphs, context graphs, and agent recall UX |
 
 ## Relationship to Other Standards
 
@@ -44,7 +45,7 @@ The provenance and verification layers in TrustGraph provide the "external symbo
 
 ## Anti-Goals
 
-- This is **not** another SaaS evaluation. The landscape is assessed in `03-saas-landscape-assessment.md` and that assessment is closed.
+- This is **not** another SaaS foundation evaluation. The landscape is assessed in `03-saas-landscape-assessment.md` and that assessment is closed for foundation decisions. `05-context-graph-capability-assessment.md` is a bounded capability-donor addendum, not permission to make semantic memory authoritative.
 - This is **not** a research compilation. The relevant research is distilled into `00-no-escape-theorem.md` and the thesis above.
 - This is **not** a "someday maybe" exploration. Every section contains closed decisions or explicit next actions.
 - This **is** a set of closed decisions that reduce the search space so building can begin.

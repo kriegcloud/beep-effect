@@ -197,6 +197,7 @@ Bytea
 cdylib
 ctype
 Deque
+evals
 getenv
 isinstance
 isready

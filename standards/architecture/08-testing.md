@@ -6,9 +6,10 @@ The test runner is Vitest through the repo/package scripts: use `bun run test`
 from a package/root script, or `bunx --bun vitest run ...` for a targeted local
 lane. Never `bun test` — Bun's runner breaks `@effect/vitest`.
 
-The executable proof target for the architecture is `packages/fixture-lab/specimen`.
-It carries focused runtime and type tests for boundary subpaths, package shape,
-and strict port-to-action error translation.
+The executable proof target for the architecture is `packages/architecture-lab/*`
+with `apps/architecture-lab-proof`. It carries focused runtime and type tests
+for boundary subpaths, package shape, and strict port-to-action error
+translation.
 
 ## Domain In Isolation
 
@@ -95,8 +96,8 @@ control more than two methods, prefer `Layer.succeed` for clarity.
 Use-case tests must cover the boundary translator as well as the happy path: a
 stubbed port failure such as `MembershipRepositoryNotFound` should become the
 public action error promised by the use-case contract, such as
-`MembershipNotFound`. The `fixture-lab/Specimen` use-case test is the canonical
-compile-ready example.
+`MembershipNotFound`. The `architecture-lab/WorkItem` use-case test is the
+canonical compile-ready example.
 
 `MembershipService.revoke` depends on `MembershipAccess` (authorization port)
 and `MembershipRepository` (persistence port). The revoke test stubs both:

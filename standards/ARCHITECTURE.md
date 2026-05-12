@@ -11,9 +11,10 @@ The companion rationale packet lives in
 explains why these rules exist. This file states the rules and teaches the
 default way to apply them.
 
-Canonical executable examples live in `packages/fixture-lab/specimen` and are
-covered by tests. Longer membership snippets in this document are architectural
-sketches unless they explicitly reference the fixture package.
+Canonical executable examples live in `packages/architecture-lab/*` with the
+`apps/architecture-lab-proof` harness and are covered by tests. Longer
+membership snippets in this document are architectural sketches unless they
+explicitly reference the architecture lab packages.
 
 ## North Star
 
@@ -1732,8 +1733,8 @@ export const MembershipLayer = Layer.effect(
 
 The service contract exposes public action failures only. Repository, driver,
 and domain failures are translated before the use-case returns; the
-compile-ready `fixture-lab/Specimen` slice is the executable proof for that
-boundary rule.
+compile-ready `architecture-lab/WorkItem` slice is the executable proof for
+that boundary rule.
 
 Server handlers consume use-case services:
 

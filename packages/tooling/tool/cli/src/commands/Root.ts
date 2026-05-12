@@ -8,6 +8,7 @@
 
 import { Command } from "effect/unstable/cli";
 import { aiMetricsCommand } from "./AIMetrics/index.js";
+import { architectureCommand } from "./Architecture/index.js";
 import { ciCommand } from "./Ci.js";
 import { codegenCommand } from "./Codegen.js";
 import { codexCommand } from "./Codex.js";
@@ -45,6 +46,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
   Command.withSubcommands([
     topoSortCommand,
     aiMetricsCommand,
+    architectureCommand,
     ciCommand,
     codexCommand,
     docgenCommand,

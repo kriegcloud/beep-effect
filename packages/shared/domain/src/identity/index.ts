@@ -34,20 +34,6 @@ export * as AgentCapability from "./AgentCapability.ts";
  */
 export * as Epistemic from "./Epistemic.ts";
 /**
- * Fixture-lab specimen entity-id registry namespace.
- *
- * @example
- * ```ts
- * import * as FixtureLabSpecimen from "@beep/shared-domain/identity/FixtureLabSpecimen"
- *
- * console.log(FixtureLabSpecimen.SpecimenId.tableName)
- * ```
- *
- * @category entity-ids
- * @since 0.0.0
- */
-export * as FixtureLabSpecimen from "./FixtureLabSpecimen.ts";
-/**
  * Law-practice entity-id registry namespace.
  *
  * @example

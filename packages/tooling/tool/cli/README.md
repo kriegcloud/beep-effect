@@ -18,6 +18,30 @@ bunx @beep/repo-cli <command>
 
 ## Commands
 
+### `architecture`
+
+Create and verify canonical architecture parts through a schema-versioned
+operation plan.
+
+```bash
+bun run beep architecture plan > /tmp/architecture-plan.json
+bun run beep architecture check --file /tmp/architecture-plan.json
+bun run beep architecture apply --file /tmp/architecture-plan.json
+```
+
+Ergonomic wrappers write by default and expose the same JSON plan with
+`--dry-run`:
+
+```bash
+bun run beep architecture create slice architecture-lab WorkItem --stage core --dry-run
+bun run beep architecture add concept architecture-lab WorkItem --stage persistence --dry-run
+bun run beep architecture add role architecture-lab WorkItem server --stage full --dry-run
+```
+
+The factory is core-first: `create slice` defaults to domain, use-cases, and
+server. Add config, tables, protocol handlers, client, UI, proof-app, and
+db-admin targets through explicit stages or role commands.
+
 ### `create-package`
 
 Create a new package following effect-smol patterns.

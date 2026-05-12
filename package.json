@@ -10,7 +10,6 @@
     "packages/foundation/modeling/*",
     "packages/foundation/primitive/*",
     "packages/foundation/ui-system/*",
-    "packages/fixture-lab/specimen/*",
     "packages/shared/client",
     "packages/shared/domain",
     "packages/shared/server",

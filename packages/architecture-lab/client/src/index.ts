@@ -1,11 +1,30 @@
 /**
- * @beep/architecture-lab-client
+ * Architecture lab client package.
  *
- * @since 0.0.0
+ * @packageDocumentation
+ * @category clients
+ * @since 0.1.0
  */
 
 /**
- * @since 0.0.0
- * @category Configuration
+ * Package version for the architecture lab client role.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/architecture-lab-client"
+ *
+ * console.log(VERSION)
+ * ```
+ *
+ * @category clients
+ * @since 0.1.0
  */
-export const VERSION = "0.0.0" as const
+export const VERSION = "0.0.0" as const;
+
+/**
+ * Direct WorkItem client namespace export.
+ *
+ * @category clients
+ * @since 0.1.0
+ */
+export * as WorkItem from "./aggregates/WorkItem/index.js";

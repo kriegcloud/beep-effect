@@ -32,7 +32,12 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts",
+    "./public": "./src/public.ts",
+    "./server": "./src/server.ts",
+    "./secrets": "./src/secrets.ts",
+    "./layer": "./src/layer.ts",
+    "./test": "./src/test.ts",
+    "./aggregates/WorkItem": "./src/aggregates/WorkItem/index.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -49,12 +54,19 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
+      "./public": "./dist/public.js",
+      "./server": "./dist/server.js",
+      "./secrets": "./dist/secrets.js",
+      "./layer": "./dist/layer.js",
+      "./test": "./dist/test.js",
+      "./aggregates/WorkItem": "./dist/aggregates/WorkItem/index.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
+    "@beep/identity": "workspace:*",
+    "@beep/schema": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {

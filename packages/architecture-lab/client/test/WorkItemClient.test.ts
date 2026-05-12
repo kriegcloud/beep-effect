@@ -1,0 +1,30 @@
+import { makeWorkItemClient } from "@beep/architecture-lab-client/aggregates/WorkItem";
+import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
+import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
+import { describe, expect, it } from "@effect/vitest";
+import { Effect, Option as O } from "effect";
+
+describe("WorkItem client", () => {
+  it.effect("delegates through a client-safe transport", () =>
+    Effect.gen(function* () {
+      const created = DomainWorkItem.create(
+        new DomainWorkItem.CreateWorkItemInput({
+          id: "work-item-1" as DomainWorkItem.WorkItemId,
+          title: "Document topology",
+        })
+      );
+      const client = makeWorkItemClient({
+        create: () => Effect.succeed(created),
+        assign: () => Effect.succeed(created),
+        complete: () => Effect.succeed(created),
+        reopen: () => Effect.succeed(created),
+        archive: () => Effect.succeed(created),
+        get: () => Effect.succeed(created),
+        list: () => Effect.succeed([created]),
+      });
+
+      const workItem = yield* client.get(new WorkItemUseCases.GetWorkItemQuery({ id: created.id }));
+      expect(workItem.assignee).toStrictEqual(O.none());
+    })
+  );
+});

@@ -32,8 +32,20 @@
       "@beep/architecture-lab-tables": [
         "../../../packages/architecture-lab/tables/src/index.ts"
       ],
-      "@beep/architecture-lab-tables/*": [
-        "../../../packages/architecture-lab/tables/src/*.ts"
+      "@beep/architecture-lab-tables/tables": [
+        "../../../packages/architecture-lab/tables/src/tables.ts"
+      ],
+      "@beep/architecture-lab-tables/aggregates/WorkItem": [
+        "../../../packages/architecture-lab/tables/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-domain": [
+        "../../../packages/architecture-lab/domain/src/index.ts"
+      ],
+      "@beep/architecture-lab-domain/aggregates": [
+        "../../../packages/architecture-lab/domain/src/aggregates/index.ts"
+      ],
+      "@beep/architecture-lab-domain/aggregates/WorkItem": [
+        "../../../packages/architecture-lab/domain/src/aggregates/WorkItem/index.ts"
       ]
     }
   }

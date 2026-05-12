@@ -651,10 +651,10 @@ orchestration, and public action failures die in protocol handlers. Port errors
 may be declared in use-case packages, but they are server-only and do not cross
 the public use-case API.
 
-The executable proof target is `packages/fixture-lab/specimen`. It must remain
-the first place we prove boundary subpaths, package shape, and port-to-action
-error translation before broad repo automation or generator work expands the
-pattern.
+The executable proof target is `packages/architecture-lab/*` with
+`apps/architecture-lab-proof`. It must remain the first place we prove boundary
+subpaths, package shape, and port-to-action error translation before broad repo
+automation or generator work expands the pattern.
 
 The refinement also locks:
 

@@ -32,8 +32,41 @@
       "@beep/architecture-lab-use-cases": [
         "../../../packages/architecture-lab/use-cases/src/index.ts"
       ],
-      "@beep/architecture-lab-use-cases/*": [
-        "../../../packages/architecture-lab/use-cases/src/*.ts"
+      "@beep/architecture-lab-use-cases/public": [
+        "../../../packages/architecture-lab/use-cases/src/public.ts"
+      ],
+      "@beep/architecture-lab-use-cases/server": [
+        "../../../packages/architecture-lab/use-cases/src/server.ts"
+      ],
+      "@beep/architecture-lab-use-cases/aggregates/WorkItem": [
+        "../../../packages/architecture-lab/use-cases/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-use-cases/aggregates/WorkItem/server": [
+        "../../../packages/architecture-lab/use-cases/src/aggregates/WorkItem/server.ts"
+      ],
+      "@beep/architecture-lab-domain": [
+        "../../../packages/architecture-lab/domain/src/index.ts"
+      ],
+      "@beep/architecture-lab-domain/aggregates": [
+        "../../../packages/architecture-lab/domain/src/aggregates/index.ts"
+      ],
+      "@beep/architecture-lab-domain/aggregates/WorkItem": [
+        "../../../packages/architecture-lab/domain/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/foundation/modeling/schema/src/*.ts"
       ]
     }
   }
