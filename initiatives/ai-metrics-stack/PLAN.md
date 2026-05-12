@@ -1,16 +1,18 @@
 # AI Metrics Stack Plan
 
 This plan executes [SPEC.md](./SPEC.md). The credited P6 proof remains active,
-and the current implementation target is the constrained P7a/b slice that can
+and the latest implementation target was the constrained P7a/b slice that could
 ship without disturbing that proof. P0 bootstrap, P1 source/privacy proof, P2
 durable ingest, P3 OTLP/backend contracts, P4 report-first scorecards, P5
-install/remote deployment, and P6a fresh-review hardening are complete. P7a/b
-hybrid mirror and retention workflows are now implemented; P7c
-provider/gateway metrics and P7d dashboard expansion remain pending. Phoenix is
-live on dankserver, Pulumi state is reconciled, the workstation timer owns live
-collection from an isolated pinned proof worktree, and the credited seven-day
-proof restarted on May 9, 2026 02:26 America/Chicago. The earliest credited
-completion is May 16, 2026 02:26 America/Chicago.
+install/remote deployment, P6a fresh-review hardening, and P6b proof-runner
+isolation are complete. P7a/b hybrid mirror and retention workflows are now
+implemented; P7c
+provider/gateway metrics, P7d dashboard expansion, and P7e
+production-readiness closeout remain pending. Phoenix is live on dankserver,
+Pulumi state is reconciled, the workstation timer owns live collection from an
+isolated pinned proof worktree, and the credited seven-day proof restarted on
+May 9, 2026 02:26 America/Chicago. The earliest credited completion is May 16,
+2026 02:26 America/Chicago.
 
 ## P0: Initiative Bootstrap And Current State
 

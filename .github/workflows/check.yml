@@ -96,7 +96,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 100
+
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git fetch --quiet --no-tags --depth=100 origin "${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
 
       - name: Determine lane execution
         id: lane-gate
@@ -110,7 +116,7 @@ jobs:
             docgen_mode=affected
             base_ref="origin/${GITHUB_BASE_REF:-main}"
             if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
-              git fetch --no-tags origin "${GITHUB_BASE_REF:-main}" --quiet
+              git fetch --quiet --no-tags --depth=100 origin "${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
             fi
 
             changed_files="$(git diff --name-only "${base_ref}...HEAD")"

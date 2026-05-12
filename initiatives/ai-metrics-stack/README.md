@@ -53,7 +53,8 @@ restarted seven-day config-impact scorecard has been generated from live data.
   - pre-closeout readiness evidence, label candidates, benchmark/report state,
     and the remaining completion gate before May 16
 - [history/outputs/p7-topology-first-production-plan.md](./history/outputs/p7-topology-first-production-plan.md)
-  - planned P7 topology-first production packet
+  - P7 topology-first production packet, implemented P7a/b mirror and
+    retention workflows, and pending P7c/P7d/P7e work
 - [research/effect-native-observability.md](./research/effect-native-observability.md)
   - Effect v4 observability package findings
 - [research/backend-shortlist.md](./research/backend-shortlist.md) - backend
@@ -61,10 +62,10 @@ restarted seven-day config-impact scorecard has been generated from live data.
 
 ## Current Progress
 
-P0, P1, P2, P3, P4, P5, and P6a are complete enough to use as the starting
-checkpoint. The first real collection/export proof remains baseline evidence;
-the credited seven-day proof restarted on May 9, 2026 02:26 America/Chicago
-after the P6a closeout gates passed:
+P0, P1, P2, P3, P4, P5, P6a, P6b, and P7a/b are complete enough to use as the
+starting checkpoint. The first real collection/export proof remains baseline
+evidence; the credited seven-day proof restarted on May 9, 2026 02:26
+America/Chicago after the P6a closeout gates passed:
 
 - `@beep/repo-ai-metrics` exists with schema-first models, tolerant transcript
   ingest summaries, target-agnostic install specs, benchmark and scorecard
@@ -115,15 +116,23 @@ after the P6a closeout gates passed:
   `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
   pinned at `63c419721c735bfb860ccfa9bf1b31efbb23e33c`, while preserving the
   original proof data root under the main checkout.
+- P7a/b adds the hybrid derived mirror and local-first retention workflows.
+  Raw encrypted transcripts remain workstation-local; mirror bundles contain
+  only sanitized manifests, status artifacts, reports, and allowed derived
+  Parquet exports. Retention delete and compact workflows remain dry-run until
+  an explicit window plus `--confirm p7-retention-window` are supplied.
 - Source discovery remains Codex-only in the recent proof window; `--all`
   discovery confirms Claude Code and OpenClaw sources exist outside the active
-  proof window and are deferred to P7 topology decisions.
+  proof window and are deferred to P7c provider/gateway work.
 - Current P6 work is to keep the timer running through May 16, 2026 02:26
   America/Chicago, add human-approved labels and real benchmark runs as data
   accumulates, and generate the final seven-day report.
 - The May 9 readiness pass recorded another successful scheduled timer run and
   a second isolation benchmark run for the isolated-runner config. That config
   remains blocked only by the explicit human-label gate plus elapsed proof time.
+- P7c provider/gateway metrics, P7d dashboard/backend expansion, remote mirror
+  lifecycle automation beyond build/sync/status, and P7e production-readiness
+  closeout remain pending.
 
 ## Completion Standard
 

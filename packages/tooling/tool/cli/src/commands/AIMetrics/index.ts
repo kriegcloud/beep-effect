@@ -104,6 +104,7 @@ import { TaggedErrorClass } from "@beep/schema";
 import {
   Clock,
   Config,
+  ConfigProvider,
   Console,
   DateTime,
   Duration,
@@ -433,7 +434,7 @@ const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramErro
 const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalConfigString"
 )((key) =>
-  Config.option(Config.string(key)).pipe(
+  ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.string(key)).parse(provider)).pipe(
     Effect.mapError(
       (cause) =>
         new AiMetricsCommandError({
@@ -449,7 +450,7 @@ const readOptionalRedactedConfigString: (
 ) => Effect.Effect<O.Option<Redacted.Redacted<string>>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalRedactedConfigString"
 )((key) =>
-  Config.option(Config.redacted(key)).pipe(
+  ConfigProvider.ConfigProvider.use((provider) => Config.option(Config.redacted(key)).parse(provider)).pipe(
     Effect.mapError(
       (cause) =>
         new AiMetricsCommandError({
