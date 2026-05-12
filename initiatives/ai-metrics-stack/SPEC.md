@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-05
-- **Updated:** 2026-05-09
+- **Updated:** 2026-05-12
 
 ## Purpose
 
@@ -87,6 +87,9 @@ output.
   seven-day real-data scorecard.
 - P7 topology posture: decide collection ownership, sync, retention, deletion,
   and restore before adding provider/gateway enrichment or new dashboards.
+- P7 production default: hybrid derived mirror. Raw encrypted archives remain
+  workstation-local; only sanitized derived/report/status artifacts may sync to
+  dankserver.
 
 ## Data Products
 
@@ -134,6 +137,13 @@ commands consume the actual 32-byte base64 key from
 `BEEP_AI_METRICS_RAW_ARCHIVE_KEY` and do not resolve secret-manager references
 themselves.
 
+P7 remote mirrors are inside the same privacy contract. Synced bundles may
+contain only sanitized manifests, status artifacts, reports, and Parquet
+exports from an explicit allowlist of derived tables. They must exclude raw
+archive tables, transcript bodies, prompt/output text, local repo or home
+paths, source paths, archive paths, DuckDB file paths, and encryption
+material.
+
 ## Deployment Contract
 
 The local target must support repeatable smoke tests without a remote host.
@@ -157,6 +167,11 @@ contract, and source window remain stable and the isolation evidence is
 recorded.
 Server-owned collection is a P7 topology target and requires a separate
 transcript access/sync and privacy design.
+
+The current P7 default remote mirror root is
+`/srv/data/ai-metrics/p7-derived-mirror`. Before the P6 proof is credited,
+infra work for that root is preview-only and any live proof should use the CLI
+mirror workflow without modifying the active proof runner.
 
 ## Completion Criteria
 

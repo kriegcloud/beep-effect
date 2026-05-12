@@ -65,4 +65,4 @@ export const rootCommand = Command.make("beep-cli").pipe(
     tsconfigSyncCommand,
     versionSyncCommand,
   ])
-);
+) as Command.Command<"beep-cli", {}, {}, never, never>;

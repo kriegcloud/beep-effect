@@ -23,6 +23,7 @@ describe("@beep/infra AIMetrics", () => {
     expect(args.install.target).toBe("dankserver");
     expect(args.install.dataRoot).toBeUndefined();
     expect(args.remote.remoteConfigRoot).toBe("/home/elpresidank/ai-metrics");
+    expect(args.remote.remoteMirrorRoot).toBe("/srv/data/ai-metrics/p7-derived-mirror");
     expect(args.remote.phoenixTailnetHttpsPort).toBe(8447);
     expect(Effect.runSync(makeAiMetricsInstallSpec(args.install)).hashSaltSecretRef).toBe(
       "op://TBK/ai-metrics/hash-salt"
@@ -44,6 +45,7 @@ describe("@beep/infra AIMetrics", () => {
     expect(args.install.publicBaseUrl).toBe("https://dankserver.tailc7c348.ts.net:8447");
     expect(args.remote.ssh.host).toBe("dankserver");
     expect(args.remote.ssh.user).toBe("elpresidank");
+    expect(args.remote.remoteMirrorRoot).toBe("/srv/data/ai-metrics/p7-derived-mirror");
     expect(spec.target).toBe("dankserver");
     expect(spec.hashSaltSecretRef).toBe("op://TBK/ai-metrics/hash-salt");
     expect(spec.rawArchiveKeySecretRef).toBe("op://TBK/ai-metrics/raw-archive-key");
@@ -70,6 +72,7 @@ describe("@beep/infra AIMetrics", () => {
       phoenixTailnetHttpsPort: 9446,
       rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
       remoteConfigRoot: "/srv/ai-metrics",
+      remoteMirrorRoot: "/srv/ai-metrics/p7-mirror",
       sshAgentSocketPath: "/tmp/agent.sock",
       sshHost: "dankserver-yubi",
       sshUser: "deploy",
@@ -80,6 +83,7 @@ describe("@beep/infra AIMetrics", () => {
 
     expect(args.install.publicBaseUrl).toBe("https://dankserver.tail.example.ts.net:9446");
     expect(args.remote.remoteConfigRoot).toBe("/srv/ai-metrics");
+    expect(args.remote.remoteMirrorRoot).toBe("/srv/ai-metrics/p7-mirror");
     expect(args.remote.ssh.agentSocketPath).toBe("/tmp/agent.sock");
     expect(args.remote.ssh.host).toBe("dankserver-yubi");
     expect(args.remote.ssh.user).toBe("deploy");

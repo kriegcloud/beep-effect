@@ -25,6 +25,7 @@ const $I = $InfraId.create("AIMetrics");
 const defaultPhoenixImage = "arizephoenix/phoenix:latest";
 const defaultPhoenixTailnetHttpsPort = 8447;
 const defaultRemoteConfigRoot = "/home/elpresidank/ai-metrics";
+const defaultRemoteMirrorRoot = "/srv/data/ai-metrics/p7-derived-mirror";
 const defaultSshHost = "dankserver";
 const defaultSshUser = "elpresidank";
 const defaultTailnetFqdn = "dankserver.tailc7c348.ts.net";
@@ -198,6 +199,7 @@ type AIMetricsPulumiConfigValues = {
   readonly publicBaseUrl?: string | undefined;
   readonly rawArchiveKeySecretRef?: string | undefined;
   readonly remoteConfigRoot?: string | undefined;
+  readonly remoteMirrorRoot?: string | undefined;
   readonly sshAgentSocketPath?: string | undefined;
   readonly sshHost?: string | undefined;
   readonly sshUser?: string | undefined;
@@ -228,6 +230,7 @@ export const AIMetricsPulumiConfigValues = S.Class<AIMetricsPulumiConfigValues>(
     publicBaseUrl: S.String,
     rawArchiveKeySecretRef: S.String,
     remoteConfigRoot: S.String,
+    remoteMirrorRoot: S.String,
     sshAgentSocketPath: S.String,
     sshHost: S.String,
     sshUser: S.String,
@@ -291,6 +294,10 @@ export class AIMetricsRemoteDeploymentConfig extends S.Class<AIMetricsRemoteDepl
     remoteConfigRoot: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultRemoteConfigRoot)),
       S.withDecodingDefaultKey(Effect.succeed(defaultRemoteConfigRoot))
+    ),
+    remoteMirrorRoot: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed(defaultRemoteMirrorRoot)),
+      S.withDecodingDefaultKey(Effect.succeed(defaultRemoteMirrorRoot))
     ),
     ssh: AIMetricsRemoteSshConfig.pipe(
       S.withConstructorDefault(Effect.succeed(new AIMetricsRemoteSshConfig({}))),
@@ -376,6 +383,7 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
   publicBaseUrl,
   rawArchiveKeySecretRef,
   remoteConfigRoot,
+  remoteMirrorRoot,
   sshAgentSocketPath,
   sshHost,
   sshUser,
@@ -386,6 +394,7 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
   const remote = new AIMetricsRemoteDeploymentConfig({
     ...(phoenixTailnetHttpsPort === undefined ? {} : { phoenixTailnetHttpsPort }),
     ...(remoteConfigRoot === undefined ? {} : { remoteConfigRoot }),
+    ...(remoteMirrorRoot === undefined ? {} : { remoteMirrorRoot }),
     ssh: new AIMetricsRemoteSshConfig({
       ...(sshAgentSocketPath === undefined ? {} : { agentSocketPath: sshAgentSocketPath }),
       ...(sshHost === undefined ? {} : { host: sshHost }),
@@ -438,6 +447,7 @@ export const loadAIMetricsStackArgs = (): AIMetricsStackArgs => {
     publicBaseUrl: config.get("publicBaseUrl"),
     rawArchiveKeySecretRef: config.get("rawArchiveKeySecretRef"),
     remoteConfigRoot: config.get("remoteConfigRoot"),
+    remoteMirrorRoot: config.get("remoteMirrorRoot"),
     sshAgentSocketPath: config.get("sshAgentSocketPath"),
     sshHost: config.get("sshHost"),
     sshUser: config.get("sshUser"),
@@ -537,6 +547,13 @@ export class AIMetricsStack extends pulumi.ComponentResource {
    * @since 0.0.0
    */
   public readonly remoteConfigRoot: pulumi.Output<string>;
+
+  /**
+   * Remote root reserved for sanitized P7 derived mirror bundles.
+   *
+   * @since 0.0.0
+   */
+  public readonly remoteMirrorRoot: pulumi.Output<string>;
 
   /**
    * Captured stdout from the remote Phoenix preflight command.
@@ -646,6 +663,7 @@ export class AIMetricsStack extends pulumi.ComponentResource {
     this.phoenixPublicUrl = pulumi.output(defaultService.publicUrl);
     this.phoenixTailnetHttpsPort = pulumi.output(args.remote.phoenixTailnetHttpsPort);
     this.remoteConfigRoot = pulumi.output(args.remote.remoteConfigRoot);
+    this.remoteMirrorRoot = pulumi.output(args.remote.remoteMirrorRoot);
     this.remotePreflightStdout = pulumi.secret(remoteResources?.preflight.stdout ?? pulumi.output(""));
     this.remoteApplyStdout = pulumi.secret(remoteResources?.apply.stdout ?? pulumi.output(""));
     this.remoteHealthStdout = pulumi.secret(remoteResources?.health.stdout ?? pulumi.output(""));
@@ -661,6 +679,7 @@ export class AIMetricsStack extends pulumi.ComponentResource {
       rawArchiveDir: this.rawArchiveDir,
       remoteApplyStdout: this.remoteApplyStdout,
       remoteConfigRoot: this.remoteConfigRoot,
+      remoteMirrorRoot: this.remoteMirrorRoot,
       remoteHealthStdout: this.remoteHealthStdout,
       remotePreflightStdout: this.remotePreflightStdout,
       services: this.services,

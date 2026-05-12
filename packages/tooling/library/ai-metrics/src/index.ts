@@ -90,6 +90,18 @@ export * from "./ingest.ts";
  */
 export * from "./install.ts";
 /**
+ * P7 sanitized mirror bundle helpers.
+ *
+ * @example
+ * ```ts
+ * import { buildAiMetricsMirrorBundle } from "@beep/repo-ai-metrics"
+ * console.log(buildAiMetricsMirrorBundle)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./mirror.ts";
+/**
  * Canonical AI metrics models.
  *
  * @example
@@ -125,6 +137,18 @@ export * from "./otlp.ts";
  * @since 0.0.0
  */
 export * from "./privacy.ts";
+/**
+ * P7 retention, restore, delete, and compaction helpers.
+ *
+ * @example
+ * ```ts
+ * import { listAiMetricsRetentionInventory } from "@beep/repo-ai-metrics"
+ * console.log(listAiMetricsRetentionInventory)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./retention.ts";
 /**
  * Labels, benchmarks, and weekly scorecard reports.
  *

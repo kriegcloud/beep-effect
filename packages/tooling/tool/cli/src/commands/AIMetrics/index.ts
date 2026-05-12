@@ -31,6 +31,9 @@ import {
   type AiMetricsInstallPlan,
   AiMetricsInstallSpec,
   AiMetricsLabelQueueInput,
+  AiMetricsMirrorBundleInput,
+  AiMetricsMirrorBundleManifest,
+  type AiMetricsMirrorError,
   AiMetricsOtlpEndpointSpec,
   type AiMetricsOtlpExportError,
   AiMetricsOtlpExportInput,
@@ -39,6 +42,9 @@ import {
   type AiMetricsPrivacyError,
   AiMetricsPrivacyMode,
   AiMetricsQualityGateStatus,
+  type AiMetricsRetentionError,
+  AiMetricsRetentionRestoreDrillInput,
+  AiMetricsRetentionSelector,
   type AiMetricsScorecardError,
   type AiMetricsSourceDiscoveryError,
   AiMetricsSourceDiscoveryInput,
@@ -53,8 +59,13 @@ import {
   aiMetricsInstallDoctorToJson,
   aiMetricsInstallPlanToJson,
   aiMetricsLabelQueueToJson,
+  aiMetricsMirrorBundleToJson,
   aiMetricsOutcomeLabelToJson,
+  aiMetricsRetentionInventoryToJson,
+  aiMetricsRetentionMutationToJson,
+  aiMetricsRetentionRestoreDrillToJson,
   aiMetricsWeeklyReportToJson,
+  buildAiMetricsMirrorBundle,
   configSnapshotToJson,
   decryptEncryptedRawArchiveEnvelope,
   discoverAiMetricsSources,
@@ -63,6 +74,8 @@ import {
   generateAiMetricsWeeklyReport,
   hashPublicTextSha256,
   listAiMetricsBenchmarkCases,
+  listAiMetricsRetentionInventory,
+  locateLatestAiMetricsMirrorBundle,
   makeAiMetricsConfigSnapshot,
   makeAiMetricsInstallApplyDryRunResult,
   makeAiMetricsInstallDoctorResult,
@@ -78,6 +91,9 @@ import {
   renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
   runAiMetricsOtlpExport,
+  runAiMetricsRetentionCompact,
+  runAiMetricsRetentionDelete,
+  runAiMetricsRetentionRestoreDrill,
   shellQuote,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
@@ -109,8 +125,16 @@ import { Command, Flag } from "effect/unstable/cli";
 const $I = $RepoCliId.create("commands/AIMetrics");
 
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
+const decodeMirrorManifestJson = S.decodeUnknownEffect(S.fromJsonString(AiMetricsMirrorBundleManifest));
 const encodeInstallSpecJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsInstallSpec));
 const localCollectorDataRoot = ".beep/ai-metrics";
+const defaultP7MirrorRemoteRoot = "/srv/data/ai-metrics/p7-derived-mirror";
+// cspell:words yubi
+const defaultP7MirrorSshHost = "dankserver-yubi";
+const p7MirrorConfirmToken = "p7-derived-mirror";
+const p7MirrorSchemaVersion = "beep.ai_metrics.mirror_bundle.v1";
+const p7MirrorRawArchiveTable = "ai_metrics_raw_archive_objects";
+const p7RetentionConfirmToken = "p7-retention-window";
 
 /**
  * Error raised by the AI metrics CLI.
@@ -156,6 +180,10 @@ const targetFlag = Flag.choiceWithValue("target", [
   ["local", AiMetricsDeployTarget.Enum.local],
   ["dankserver", AiMetricsDeployTarget.Enum.dankserver],
 ]).pipe(Flag.withDefault(AiMetricsDeployTarget.Enum.local), Flag.withDescription("Install or forwarder target"));
+const mirrorTargetFlag = Flag.choiceWithValue("target", [
+  ["local", AiMetricsDeployTarget.Enum.local],
+  ["dankserver", AiMetricsDeployTarget.Enum.dankserver],
+]).pipe(Flag.withDefault(AiMetricsDeployTarget.Enum.dankserver), Flag.withDescription("Mirror bundle target"));
 const sourceFlag = Flag.choiceWithValue("source", [
   ["codex", AiMetricsTranscriptSource.Enum.codex],
   ["claude", AiMetricsTranscriptSource.Enum.claude],
@@ -216,6 +244,10 @@ const untilFlag = Flag.string("until").pipe(
   Flag.withDescription("Only include records before this ISO timestamp or epoch milliseconds"),
   Flag.optional
 );
+const beforeFlag = Flag.string("before").pipe(
+  Flag.withDescription("Retention upper-bound ISO timestamp or epoch milliseconds"),
+  Flag.optional
+);
 const allFlag = Flag.boolean("all").pipe(
   Flag.withDescription("Scan all matching source files instead of the default 7 days")
 );
@@ -248,6 +280,27 @@ const rawArchiveKeySecretRefFlag = Flag.string("raw-archive-key-secret-ref").pip
   Flag.optional
 );
 const dataRootFlag = Flag.string("data-root").pipe(Flag.withDescription("AI metrics data root"), Flag.optional);
+const remoteRootFlag = Flag.string("remote-root").pipe(
+  Flag.withDefault(defaultP7MirrorRemoteRoot),
+  Flag.withDescription("Remote AI metrics mirror root")
+);
+const bundleFlag = Flag.string("bundle").pipe(
+  Flag.withDefault("latest"),
+  Flag.withDescription("Mirror bundle directory, or latest")
+);
+const hostFlag = Flag.string("host").pipe(
+  Flag.withDefault(defaultP7MirrorSshHost),
+  Flag.withDescription("SSH host used for P7 mirror sync and status")
+);
+const confirmFlag = Flag.string("confirm").pipe(
+  Flag.withDescription("Confirmation token required for real P7 mirror or retention writes"),
+  Flag.optional
+);
+const restoreRootFlag = Flag.string("restore-root").pipe(Flag.withDescription("Disposable restore drill data root"));
+const maxObjectsFlag = Flag.integer("max-objects").pipe(
+  Flag.withDefault(1),
+  Flag.withDescription("Maximum retained archive objects to restore during a drill")
+);
 const openClawUnitFlag = Flag.string("openclaw-unit").pipe(
   Flag.withDescription("OpenClaw user systemd unit path"),
   Flag.optional
@@ -315,8 +368,10 @@ type AiMetricsProgramError =
   | AiMetricsForwarderError
   | AiMetricsIngestError
   | AiMetricsInstallConfigurationError
+  | AiMetricsMirrorError
   | AiMetricsOtlpExportError
   | AiMetricsPrivacyError
+  | AiMetricsRetentionError
   | AiMetricsScorecardError
   | AiMetricsSourceDiscoveryError;
 
@@ -343,6 +398,10 @@ const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramErro
         process.exitCode = 1;
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
+      AiMetricsMirrorError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`ai-metrics: ${error.message}`);
+      }),
       AiMetricsOtlpExportError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`ai-metrics: ${error.message}`);
@@ -352,6 +411,10 @@ const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramErro
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
       AiMetricsPrivacyError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`ai-metrics: ${error.message}`);
+      }),
+      AiMetricsRetentionError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`ai-metrics: ${error.message}`);
       }),
@@ -370,17 +433,15 @@ const runAiMetricsProgram = <A, R>(effect: Effect.Effect<A, AiMetricsProgramErro
 const readOptionalConfigString: (key: string) => Effect.Effect<O.Option<string>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalConfigString"
 )((key) =>
-  Config.option(Config.string(key))
-    .asEffect()
-    .pipe(
-      Effect.mapError(
-        (cause) =>
-          new AiMetricsCommandError({
-            cause,
-            message: `Failed to read ${key} from the Effect config provider.`,
-          })
-      )
+  Config.option(Config.string(key)).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AiMetricsCommandError({
+          cause,
+          message: `Failed to read ${key} from the Effect config provider.`,
+        })
     )
+  )
 );
 
 const readOptionalRedactedConfigString: (
@@ -388,17 +449,15 @@ const readOptionalRedactedConfigString: (
 ) => Effect.Effect<O.Option<Redacted.Redacted<string>>, AiMetricsCommandError> = Effect.fn(
   "AIMetrics.readOptionalRedactedConfigString"
 )((key) =>
-  Config.option(Config.redacted(key))
-    .asEffect()
-    .pipe(
-      Effect.mapError(
-        (cause) =>
-          new AiMetricsCommandError({
-            cause,
-            message: `Failed to read ${key} from the Effect config provider.`,
-          })
-      )
+  Config.option(Config.redacted(key)).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AiMetricsCommandError({
+          cause,
+          message: `Failed to read ${key} from the Effect config provider.`,
+        })
     )
+  )
 );
 
 const resolveHomeDir = Effect.fn("AIMetrics.resolveHomeDir")(function* (homeDir: O.Option<string>) {
@@ -593,6 +652,46 @@ const parseWindow = Effect.fn("AIMetrics.parseWindow")(function* ({
     message: "AI metrics report windows require --since to be before --until.",
   });
 });
+
+const parseRetentionSelector = Effect.fn("AIMetrics.parseRetentionSelector")(function* ({
+  before,
+  dataRoot,
+  since,
+  until,
+}: {
+  readonly before: O.Option<string>;
+  readonly dataRoot: O.Option<string>;
+  readonly since: O.Option<string>;
+  readonly until: O.Option<string>;
+}) {
+  const beforeEpochMillis = yield* parseOptionalEpochMillis("before", before);
+  const sinceEpochMillis = yield* parseOptionalEpochMillis("since", since);
+  const untilEpochMillis = yield* parseOptionalEpochMillis("until", until);
+
+  return new AiMetricsRetentionSelector({
+    dataRoot: O.getOrElse(dataRoot, () => localCollectorDataRoot),
+    ...(O.isSome(beforeEpochMillis) ? { beforeEpochMillis: beforeEpochMillis.value } : {}),
+    ...(O.isSome(sinceEpochMillis) ? { sinceEpochMillis: sinceEpochMillis.value } : {}),
+    ...(O.isSome(untilEpochMillis) ? { untilEpochMillis: untilEpochMillis.value } : {}),
+  });
+});
+
+const hasRetentionWindow = (selector: AiMetricsRetentionSelector): boolean =>
+  selector.beforeEpochMillis !== undefined ||
+  selector.sinceEpochMillis !== undefined ||
+  selector.untilEpochMillis !== undefined;
+
+const retentionWindowUpper = (selector: AiMetricsRetentionSelector): number | undefined =>
+  selector.beforeEpochMillis ?? selector.untilEpochMillis;
+
+const hasBoundedRetentionMutationWindow = (selector: AiMetricsRetentionSelector): boolean =>
+  selector.beforeEpochMillis !== undefined ||
+  (selector.sinceEpochMillis !== undefined && selector.untilEpochMillis !== undefined);
+
+const hasOrderedRetentionMutationWindow = (selector: AiMetricsRetentionSelector): boolean => {
+  const upper = retentionWindowUpper(selector);
+  return selector.sinceEpochMillis === undefined || upper === undefined || selector.sinceEpochMillis < upper;
+};
 
 const parseChecks = (checks: string): ReadonlyArray<string> =>
   pipe(Str.split(checks, ","), A.map(Str.trim), A.filter(Str.isNonEmpty));
@@ -1841,6 +1940,509 @@ const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(f
   yield* Console.log(`json: ${result.jsonPath}`);
 });
 
+type CapturedCommandResult = {
+  readonly args: ReadonlyArray<string>;
+  readonly command: string;
+  readonly exitCode: number;
+  readonly stderr: string;
+  readonly stdout: string;
+};
+
+const decodeBytes = (bytes: Uint8Array): string => new TextDecoder("utf-8").decode(bytes);
+
+const runCapturedCommand = Effect.fn("AIMetrics.runCapturedCommand")(function* (
+  command: string,
+  args: ReadonlyArray<string>
+) {
+  const result = yield* Effect.sync(() =>
+    Bun.spawnSync({
+      cmd: [command, ...args],
+      env: process.env,
+      stderr: "pipe",
+      stdout: "pipe",
+    })
+  );
+  const captured: CapturedCommandResult = {
+    args,
+    command,
+    exitCode: result.exitCode,
+    stderr: decodeBytes(result.stderr),
+    stdout: decodeBytes(result.stdout),
+  };
+
+  if (result.success) {
+    return captured;
+  }
+
+  return yield* new AiMetricsCommandError({
+    cause: captured,
+    message: `Failed to run ${command} for AI metrics P7 mirror workflow.`,
+  });
+});
+
+const commandText = (command: string, args: ReadonlyArray<string>): string =>
+  pipe([command, ...args], A.map(shellQuote), A.join(" "));
+
+const resolveMirrorBundleDir = Effect.fn("AIMetrics.resolveMirrorBundleDir")(function* ({
+  bundle,
+  dataRoot,
+}: {
+  readonly bundle: string;
+  readonly dataRoot: O.Option<string>;
+}) {
+  if (bundle !== "latest") {
+    return bundle;
+  }
+
+  return yield* locateLatestAiMetricsMirrorBundle(O.getOrElse(dataRoot, () => localCollectorDataRoot));
+});
+
+const readMirrorManifest = Effect.fn("AIMetrics.readMirrorManifest")(function* (manifestPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs.readFileString(manifestPath).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AiMetricsCommandError({
+          cause,
+          message: "Failed to read AI metrics mirror manifest JSON.",
+        })
+    )
+  );
+  return yield* decodeMirrorManifestJson(content).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AiMetricsCommandError({
+          cause,
+          message: "Failed to parse AI metrics mirror manifest JSON.",
+        })
+    )
+  );
+});
+
+const requireSafeMirrorManifest = Effect.fn("AIMetrics.requireSafeMirrorManifest")(function* ({
+  manifest,
+  remoteRoot,
+  target,
+}: {
+  readonly manifest: AiMetricsMirrorBundleManifest;
+  readonly remoteRoot: string;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  if (manifest.schemaVersion !== p7MirrorSchemaVersion) {
+    return yield* new AiMetricsCommandError({
+      cause: manifest.schemaVersion,
+      message: `AI metrics mirror manifest schema must be "${p7MirrorSchemaVersion}".`,
+    });
+  }
+  if (!manifest.privacyProof.safe) {
+    return yield* new AiMetricsCommandError({
+      cause: manifest.privacyProof,
+      message: "AI metrics mirror manifest privacy proof is not safe.",
+    });
+  }
+  if (!A.contains(manifest.omittedTables, p7MirrorRawArchiveTable)) {
+    return yield* new AiMetricsCommandError({
+      cause: manifest.omittedTables,
+      message: "AI metrics mirror manifest must omit raw archive objects.",
+    });
+  }
+  if (A.contains(manifest.includedTables, p7MirrorRawArchiveTable)) {
+    return yield* new AiMetricsCommandError({
+      cause: manifest.includedTables,
+      message: "AI metrics mirror manifest must not include raw archive objects.",
+    });
+  }
+  if (manifest.remoteRoot !== remoteRoot) {
+    return yield* new AiMetricsCommandError({
+      cause: manifest.remoteRoot,
+      message: "AI metrics mirror manifest remote root does not match the command target.",
+    });
+  }
+  if (manifest.target !== target) {
+    return yield* new AiMetricsCommandError({
+      cause: manifest.target,
+      message: "AI metrics mirror manifest deployment target does not match the command target.",
+    });
+  }
+});
+
+const isAllowedMirrorBundleFile = (relativePath: string): boolean =>
+  relativePath === "manifest.json" ||
+  relativePath === "status/mirror-status.json" ||
+  (Str.startsWith("parquet/")(relativePath) && Str.endsWith(".parquet")(relativePath));
+
+const listMirrorBundleFiles = Effect.fn("AIMetrics.listMirrorBundleFiles")(function* (bundleDir: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const walk = Effect.fnUntraced(function* (
+    currentPath: string
+  ): Effect.fn.Return<ReadonlyArray<string>, AiMetricsCommandError, FileSystem.FileSystem | Path.Path> {
+    const stat = yield* fs.stat(currentPath).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsCommandError({
+            cause,
+            message: "Failed to inspect AI metrics mirror bundle file inventory.",
+          })
+      )
+    );
+    if (stat.type === "File") {
+      return [pipe(path.relative(bundleDir, currentPath), Str.replace(/\\/gu, "/"))];
+    }
+    if (stat.type !== "Directory") {
+      return A.empty<string>();
+    }
+
+    const entries = yield* fs.readDirectory(currentPath).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AiMetricsCommandError({
+            cause,
+            message: "Failed to read AI metrics mirror bundle file inventory.",
+          })
+      )
+    );
+    const nested = yield* Effect.forEach(entries, (entry) => walk(path.join(currentPath, entry)), { concurrency: 8 });
+    return A.flatten(nested);
+  });
+
+  return pipe(yield* walk(bundleDir), A.sort(Order.String));
+});
+
+const validateLocalMirrorBundle = Effect.fn("AIMetrics.validateLocalMirrorBundle")(function* ({
+  bundleDir,
+  remoteRoot,
+  target,
+}: {
+  readonly bundleDir: string;
+  readonly remoteRoot: string;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const path = yield* Path.Path;
+  const files = yield* listMirrorBundleFiles(bundleDir);
+  const disallowedFiles = A.filter(files, (file) => !isAllowedMirrorBundleFile(file));
+  if (A.isReadonlyArrayNonEmpty(disallowedFiles)) {
+    return yield* new AiMetricsCommandError({
+      cause: disallowedFiles,
+      message: "AI metrics mirror bundle contains files outside the sanitized sync contract.",
+    });
+  }
+
+  const manifest = yield* readMirrorManifest(path.join(bundleDir, "manifest.json"));
+  yield* requireSafeMirrorManifest({ manifest, remoteRoot, target });
+  const expectedParquetFiles = pipe(
+    manifest.includedTables,
+    A.map((table) => `parquet/${table}.parquet`)
+  );
+  const missingParquetFiles = pipe(
+    expectedParquetFiles,
+    A.filter((file) => !A.contains(files, file))
+  );
+  if (A.isReadonlyArrayNonEmpty(missingParquetFiles)) {
+    return yield* new AiMetricsCommandError({
+      cause: missingParquetFiles,
+      message: "AI metrics mirror bundle is missing expected sanitized Parquet exports.",
+    });
+  }
+  const unexpectedParquetFiles = pipe(
+    files,
+    A.filter((file) => Str.startsWith("parquet/")(file) && !A.contains(expectedParquetFiles, file))
+  );
+  if (A.isReadonlyArrayNonEmpty(unexpectedParquetFiles)) {
+    return yield* new AiMetricsCommandError({
+      cause: unexpectedParquetFiles,
+      message: "AI metrics mirror bundle contains Parquet files not declared in the manifest.",
+    });
+  }
+
+  return manifest;
+});
+
+const makeMirrorBuildProgram = Effect.fn("AIMetrics.makeMirrorBuildProgram")(function* ({
+  dataRoot,
+  json,
+  remoteRoot,
+  target,
+}: {
+  readonly dataRoot: O.Option<string>;
+  readonly json: boolean;
+  readonly remoteRoot: string;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const result = yield* buildAiMetricsMirrorBundle(
+    new AiMetricsMirrorBundleInput({
+      dataRoot: O.getOrElse(dataRoot, () => localCollectorDataRoot),
+      remoteRoot,
+      target,
+    })
+  );
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsMirrorBundleToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics mirror build: ${result.bundleId}`);
+  yield* Console.log(`bundle: ${result.bundleDir}`);
+  yield* Console.log(`manifest: ${result.manifestPath}`);
+  yield* Console.log(`privacy proof: ${result.manifest.privacyProof.safe ? "passed" : "failed"}`);
+  yield* Console.log(`tables: ${A.length(result.tables)}`);
+});
+
+const makeMirrorSyncProgram = Effect.fn("AIMetrics.makeMirrorSyncProgram")(function* ({
+  bundle,
+  confirm,
+  dataRoot,
+  host,
+  json,
+  remoteRoot,
+  target,
+}: {
+  readonly bundle: string;
+  readonly confirm: O.Option<string>;
+  readonly dataRoot: O.Option<string>;
+  readonly host: string;
+  readonly json: boolean;
+  readonly remoteRoot: string;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const bundleDir = yield* resolveMirrorBundleDir({ bundle, dataRoot });
+  yield* validateLocalMirrorBundle({ bundleDir, remoteRoot, target });
+  const dryRun = O.isNone(confirm);
+  if (O.isSome(confirm) && confirm.value !== p7MirrorConfirmToken) {
+    return yield* new AiMetricsCommandError({
+      cause: confirm.value,
+      message: `AI metrics mirror sync confirmation must be "${p7MirrorConfirmToken}".`,
+    });
+  }
+
+  const mkdirArgs = [host, `mkdir -p ${shellQuote(remoteRoot)}`];
+  const rsyncArgs = ["-az", "--delete", `${bundleDir}/`, `${host}:${remoteRoot}/`];
+  const plannedCommands = [commandText("ssh", mkdirArgs), commandText("rsync", rsyncArgs)];
+
+  if (dryRun) {
+    const result = {
+      bundleDir,
+      confirmToken: p7MirrorConfirmToken,
+      dryRun: true,
+      plannedCommands,
+      remoteRoot,
+      status: "planned",
+    };
+    yield* Console.log(
+      json
+        ? yield* encodeCommandJson(result)
+        : `ai-metrics mirror sync: dry-run; confirm with --confirm ${p7MirrorConfirmToken}`
+    );
+    if (!json) {
+      for (const command of plannedCommands) yield* Console.log(command);
+    }
+    return;
+  }
+
+  const mkdir = yield* runCapturedCommand("ssh", mkdirArgs);
+  const rsync = yield* runCapturedCommand("rsync", rsyncArgs);
+  const result = {
+    bundleDir,
+    dryRun: false,
+    remoteRoot,
+    results: [mkdir, rsync],
+    status: "synced",
+  };
+
+  if (json) {
+    yield* Console.log(yield* encodeCommandJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics mirror sync: synced ${bundleDir} -> ${host}:${remoteRoot}`);
+});
+
+const makeMirrorStatusProgram = Effect.fn("AIMetrics.makeMirrorStatusProgram")(function* ({
+  host,
+  json,
+  remoteRoot,
+  target,
+}: {
+  readonly host: string;
+  readonly json: boolean;
+  readonly remoteRoot: string;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  const manifestPath = `${remoteRoot}/manifest.json`;
+  const captured = yield* runCapturedCommand("ssh", [host, `cat ${shellQuote(manifestPath)}`]);
+  const manifest = yield* decodeMirrorManifestJson(captured.stdout).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AiMetricsCommandError({
+          cause,
+          message: "Failed to parse remote AI metrics mirror manifest JSON.",
+        })
+    )
+  );
+  yield* requireSafeMirrorManifest({ manifest, remoteRoot, target });
+  const result = {
+    host,
+    manifest,
+    manifestPath,
+    remoteRoot,
+    status: "available",
+  };
+
+  if (json) {
+    yield* Console.log(yield* encodeCommandJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics mirror status: ${host}:${manifestPath}`);
+  yield* Console.log("status: available");
+});
+
+const confirmRetentionMutation = Effect.fn("AIMetrics.confirmRetentionMutation")(function* ({
+  confirm,
+  selector,
+}: {
+  readonly confirm: O.Option<string>;
+  readonly selector: AiMetricsRetentionSelector;
+}) {
+  if (O.isNone(confirm)) {
+    return true;
+  }
+
+  if (confirm.value !== p7RetentionConfirmToken) {
+    return yield* new AiMetricsCommandError({
+      cause: confirm.value,
+      message: `AI metrics retention confirmation must be "${p7RetentionConfirmToken}".`,
+    });
+  }
+
+  if (!hasBoundedRetentionMutationWindow(selector)) {
+    return yield* new AiMetricsCommandError({
+      cause: selector,
+      message: "AI metrics retention writes require --before or a bounded --since/--until window.",
+    });
+  }
+
+  if (!hasOrderedRetentionMutationWindow(selector)) {
+    return yield* new AiMetricsCommandError({
+      cause: selector,
+      message: "AI metrics retention write window lower bound must be before its upper bound.",
+    });
+  }
+
+  return false;
+});
+
+const makeRetentionListProgram = Effect.fn("AIMetrics.makeRetentionListProgram")(function* ({
+  before,
+  dataRoot,
+  json,
+  since,
+  until,
+}: {
+  readonly before: O.Option<string>;
+  readonly dataRoot: O.Option<string>;
+  readonly json: boolean;
+  readonly since: O.Option<string>;
+  readonly until: O.Option<string>;
+}) {
+  const selector = yield* parseRetentionSelector({ before, dataRoot, since, until });
+  const result = yield* listAiMetricsRetentionInventory(selector);
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsRetentionInventoryToJson(result));
+    return;
+  }
+
+  yield* Console.log("ai-metrics retention list");
+  yield* Console.log(`raw archive objects: ${result.selectedRawArchiveObjectCount}`);
+  yield* Console.log(`derived exports: ${result.selectedDerivedExportCount}`);
+  yield* Console.log(`reports: ${result.selectedReportCount}`);
+});
+
+const makeRetentionMutationProgram = Effect.fn("AIMetrics.makeRetentionMutationProgram")(function* ({
+  before,
+  confirm,
+  dataRoot,
+  json,
+  mode,
+  since,
+  until,
+}: {
+  readonly before: O.Option<string>;
+  readonly confirm: O.Option<string>;
+  readonly dataRoot: O.Option<string>;
+  readonly json: boolean;
+  readonly mode: "compact" | "delete";
+  readonly since: O.Option<string>;
+  readonly until: O.Option<string>;
+}) {
+  const selector = yield* parseRetentionSelector({ before, dataRoot, since, until });
+  const dryRun = yield* confirmRetentionMutation({ confirm, selector });
+  const result =
+    mode === "delete"
+      ? yield* runAiMetricsRetentionDelete(selector, dryRun)
+      : yield* runAiMetricsRetentionCompact(selector, dryRun);
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsRetentionMutationToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics retention ${mode}: dry-run=${result.dryRun}`);
+  yield* Console.log(`confirm token: ${p7RetentionConfirmToken}`);
+  yield* Console.log(`raw archive objects: ${result.deletedRawArchiveObjectCount}`);
+  yield* Console.log(`derived exports: ${result.deletedDerivedExportCount}`);
+  yield* Console.log(`reports: ${result.deletedReportCount}`);
+});
+
+const makeRetentionRestoreDrillProgram = Effect.fn("AIMetrics.makeRetentionRestoreDrillProgram")(function* ({
+  before,
+  dataRoot,
+  hashSalt,
+  json,
+  maxObjects,
+  restoreRoot,
+  since,
+  until,
+}: {
+  readonly before: O.Option<string>;
+  readonly dataRoot: O.Option<string>;
+  readonly hashSalt: O.Option<string>;
+  readonly json: boolean;
+  readonly maxObjects: number;
+  readonly restoreRoot: string;
+  readonly since: O.Option<string>;
+  readonly until: O.Option<string>;
+}) {
+  const selector = yield* parseRetentionSelector({ before, dataRoot, since, until });
+  if (!hasRetentionWindow(selector)) {
+    return yield* new AiMetricsCommandError({
+      cause: selector,
+      message: "AI metrics restore drills require --before or an explicit --since/--until window.",
+    });
+  }
+
+  const result = yield* runAiMetricsRetentionRestoreDrill(
+    new AiMetricsRetentionRestoreDrillInput({
+      ...(O.isSome(hashSalt) ? { hashSalt: hashSalt.value } : {}),
+      maxObjects,
+      rawArchiveKey: yield* resolveRawArchiveKey(),
+      restoreRoot,
+      selector,
+    })
+  );
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsRetentionRestoreDrillToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics retention restore-drill: replayed=${result.replayedObjectCount}`);
+  yield* Console.log(`hash matches: ${result.hashMatches}`);
+  yield* Console.log(`derived duckdb: ${result.derivedDuckDbPath}`);
+});
+
 const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(function* ({
   dataRoot,
   hashSaltSecretRef,
@@ -2552,6 +3154,151 @@ const reportCommand = Command.make(
   })
 ).pipe(Command.withDescription("AI metrics report workflow"), Command.withSubcommands([reportWeeklyCommand]));
 
+const mirrorBuildCommand = Command.make(
+  "build",
+  {
+    dataRoot: dataRootFlag,
+    json: jsonFlag,
+    remoteRoot: remoteRootFlag,
+    target: mirrorTargetFlag,
+  },
+  ({ dataRoot, json, remoteRoot, target }) =>
+    runAiMetricsProgram(makeMirrorBuildProgram({ dataRoot, json, remoteRoot, target }))
+).pipe(Command.withDescription("Build a sanitized P7 derived mirror bundle"));
+
+const mirrorSyncCommand = Command.make(
+  "sync",
+  {
+    bundle: bundleFlag,
+    confirm: confirmFlag,
+    dataRoot: dataRootFlag,
+    host: hostFlag,
+    json: jsonFlag,
+    remoteRoot: remoteRootFlag,
+    target: mirrorTargetFlag,
+  },
+  ({ bundle, confirm, dataRoot, host, json, remoteRoot, target }) =>
+    runAiMetricsProgram(makeMirrorSyncProgram({ bundle, confirm, dataRoot, host, json, remoteRoot, target }))
+).pipe(Command.withDescription("Preview or rsync a sanitized P7 mirror bundle to the remote mirror root"));
+
+const mirrorStatusCommand = Command.make(
+  "status",
+  {
+    host: hostFlag,
+    json: jsonFlag,
+    remoteRoot: remoteRootFlag,
+    target: mirrorTargetFlag,
+  },
+  ({ host, json, remoteRoot, target }) =>
+    runAiMetricsProgram(makeMirrorStatusProgram({ host, json, remoteRoot, target }))
+).pipe(Command.withDescription("Read the remote sanitized P7 mirror manifest"));
+
+const mirrorCommand = Command.make(
+  "mirror",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("AI metrics mirror commands:");
+    yield* Console.log("- bun run beep ai-metrics mirror build --target dankserver --data-root .beep/ai-metrics");
+    yield* Console.log("- bun run beep ai-metrics mirror sync --bundle latest");
+    yield* Console.log("- bun run beep ai-metrics mirror status");
+  })
+).pipe(
+  Command.withDescription("AI metrics P7 sanitized derived mirror workflow"),
+  Command.withSubcommands([mirrorBuildCommand, mirrorSyncCommand, mirrorStatusCommand])
+);
+
+const retentionListCommand = Command.make(
+  "list",
+  {
+    before: beforeFlag,
+    dataRoot: dataRootFlag,
+    json: jsonFlag,
+    since: sinceFlag,
+    until: untilFlag,
+  },
+  ({ before, dataRoot, json, since, until }) =>
+    runAiMetricsProgram(makeRetentionListProgram({ before, dataRoot, json, since, until }))
+).pipe(Command.withDescription("List retained AI metrics raw archive, derived, and report artifacts"));
+
+const retentionDeleteCommand = Command.make(
+  "delete",
+  {
+    before: beforeFlag,
+    confirm: confirmFlag,
+    dataRoot: dataRootFlag,
+    json: jsonFlag,
+    since: sinceFlag,
+    until: untilFlag,
+  },
+  ({ before, confirm, dataRoot, json, since, until }) =>
+    runAiMetricsProgram(makeRetentionMutationProgram({ before, confirm, dataRoot, json, mode: "delete", since, until }))
+).pipe(Command.withDescription("Dry-run or apply an explicit-window AI metrics retention delete"));
+
+const retentionCompactCommand = Command.make(
+  "compact",
+  {
+    before: beforeFlag,
+    confirm: confirmFlag,
+    dataRoot: dataRootFlag,
+    json: jsonFlag,
+    since: sinceFlag,
+    until: untilFlag,
+  },
+  ({ before, confirm, dataRoot, json, since, until }) =>
+    runAiMetricsProgram(
+      makeRetentionMutationProgram({ before, confirm, dataRoot, json, mode: "compact", since, until })
+    )
+).pipe(Command.withDescription("Dry-run or apply an explicit-window AI metrics derived/report compaction"));
+
+const retentionRestoreDrillCommand = Command.make(
+  "restore-drill",
+  {
+    before: beforeFlag,
+    dataRoot: dataRootFlag,
+    hashSalt: hashSaltFlag,
+    json: jsonFlag,
+    maxObjects: maxObjectsFlag,
+    restoreRoot: restoreRootFlag,
+    since: sinceFlag,
+    until: untilFlag,
+  },
+  ({ before, dataRoot, hashSalt, json, maxObjects, restoreRoot, since, until }) =>
+    runAiMetricsProgram(
+      makeRetentionRestoreDrillProgram({
+        before,
+        dataRoot,
+        hashSalt,
+        json,
+        maxObjects,
+        restoreRoot,
+        since,
+        until,
+      })
+    )
+).pipe(Command.withDescription("Decrypt and replay retained raw archive objects into disposable derived storage"));
+
+const retentionCommand = Command.make(
+  "retention",
+  {},
+  Effect.fn(function* () {
+    yield* Console.log("AI metrics retention commands:");
+    yield* Console.log("- bun run beep ai-metrics retention list --data-root .beep/ai-metrics");
+    yield* Console.log(
+      "- bun run beep ai-metrics retention restore-drill --restore-root /tmp/ai-metrics-restore --before <iso>"
+    );
+    yield* Console.log("- bun run beep ai-metrics retention delete --before <iso>");
+    yield* Console.log("- bun run beep ai-metrics retention compact --before <iso>");
+  })
+).pipe(
+  Command.withDescription("AI metrics P7 retention, restore, delete, and compaction workflow"),
+  Command.withSubcommands([
+    retentionListCommand,
+    retentionRestoreDrillCommand,
+    retentionDeleteCommand,
+    retentionCompactCommand,
+  ])
+);
+
 const archiveDrillCommand = Command.make(
   "drill",
   {
@@ -2608,6 +3355,8 @@ export const aiMetricsCommand = Command.make(
     yield* Console.log("- benchmark run");
     yield* Console.log("- benchmark compare");
     yield* Console.log("- report weekly");
+    yield* Console.log("- mirror build");
+    yield* Console.log("- retention list");
     yield* Console.log("- archive drill");
   })
 ).pipe(
@@ -2623,6 +3372,8 @@ export const aiMetricsCommand = Command.make(
     labelCommand,
     benchmarkCommand,
     reportCommand,
+    mirrorCommand,
+    retentionCommand,
     archiveCommand,
   ])
 );

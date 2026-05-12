@@ -1,7 +1,7 @@
 # @beep/repo-ai-metrics
 
-Schema-first metrics, transcript-ingest, scorecard, and install models for
-repo-local AI-agent analytics.
+Schema-first metrics, transcript-ingest, scorecard, install, mirror, and
+retention models for repo-local AI-agent analytics.
 
 This is a tooling library, not product runtime language. It owns developer
 operational concepts such as Codex/Claude/OpenClaw transcript ingestion,
@@ -34,3 +34,16 @@ attempts a derived OTLP export for the same ingest run. The forwarder JSON
 contains `otlpExport` only when OTLP is requested, with a tagged `exported` or
 `failed` status so local collection evidence remains readable even when the
 backend export fails.
+
+P7a keeps production mirroring deploy-safe with sanitized derived bundles. Raw
+encrypted transcript archives remain workstation-local; mirror bundles contain a
+manifest, status report, and Parquet exports from an explicit safe table
+allowlist. Raw archive object rows, local source paths, archive paths,
+transcript bodies, prompt/output text, and secret-shaped fields are omitted or
+hashed before export.
+
+P7b keeps retention workflows operator-led and local-first. Inventory and
+restore drills can prove retained encrypted archive objects without printing
+transcript text, while real delete and compact operations require an explicit
+time window and confirmation token. Provider/model/tool/token/cost enrichment
+and dashboard expansion remain later P7 slices.
