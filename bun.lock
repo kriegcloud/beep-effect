@@ -56,6 +56,17 @@
         "vitest": "catalog:",
       },
     },
+    "apps/architecture-lab-proof": {
+      "name": "@beep/architecture-lab-proof",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "apps/codedank-web": {
       "name": "@beep/codedank-web",
       "version": "0.0.0",
@@ -200,6 +211,83 @@
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/architecture-lab/client": {
+      "name": "@beep/architecture-lab-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/architecture-lab/config": {
+      "name": "@beep/architecture-lab-config",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/architecture-lab/domain": {
+      "name": "@beep/architecture-lab-domain",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/architecture-lab/server": {
+      "name": "@beep/architecture-lab-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/architecture-lab/tables": {
+      "name": "@beep/architecture-lab-tables",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/architecture-lab/ui": {
+      "name": "@beep/architecture-lab-ui",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/architecture-lab/use-cases": {
+      "name": "@beep/architecture-lab-use-cases",
+      "version": "0.0.0",
+      "dependencies": {
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1521,6 +1609,22 @@
     "@beep/agent-capability-domain": ["@beep/agent-capability-domain@workspace:packages/agent-capability/domain"],
 
     "@beep/agent-capability-use-cases": ["@beep/agent-capability-use-cases@workspace:packages/agent-capability/use-cases"],
+
+    "@beep/architecture-lab-client": ["@beep/architecture-lab-client@workspace:packages/architecture-lab/client"],
+
+    "@beep/architecture-lab-config": ["@beep/architecture-lab-config@workspace:packages/architecture-lab/config"],
+
+    "@beep/architecture-lab-domain": ["@beep/architecture-lab-domain@workspace:packages/architecture-lab/domain"],
+
+    "@beep/architecture-lab-proof": ["@beep/architecture-lab-proof@workspace:apps/architecture-lab-proof"],
+
+    "@beep/architecture-lab-server": ["@beep/architecture-lab-server@workspace:packages/architecture-lab/server"],
+
+    "@beep/architecture-lab-tables": ["@beep/architecture-lab-tables@workspace:packages/architecture-lab/tables"],
+
+    "@beep/architecture-lab-ui": ["@beep/architecture-lab-ui@workspace:packages/architecture-lab/ui"],
+
+    "@beep/architecture-lab-use-cases": ["@beep/architecture-lab-use-cases@workspace:packages/architecture-lab/use-cases"],
 
     "@beep/chalk": ["@beep/chalk@workspace:packages/foundation/capability/chalk"],
 
