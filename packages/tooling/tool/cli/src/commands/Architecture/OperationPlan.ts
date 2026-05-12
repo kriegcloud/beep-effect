@@ -7,16 +7,16 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { DomainError, findRepoRoot } from "@beep/repo-utils";
+import { DomainError, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit, normalizePath, SchemaUtils } from "@beep/schema";
-import { Str as CommonStr, Text, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, Path, pipe } from "effect";
+import { Str as CommonStr, thunkFalse } from "@beep/utils";
+import { Effect, FileSystem, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Argument, Command, Flag } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("commands/Architecture/OperationPlan");
 
@@ -89,6 +89,34 @@ export const ArchitectureSliceRole = LiteralKit([
  * @since 0.0.0
  */
 export type ArchitectureSliceRole = typeof ArchitectureSliceRole.Type;
+
+/**
+ * Slice role packages supported by `beep architecture create package`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ArchitecturePackageRole = LiteralKit([
+  "domain",
+  "use-cases",
+  "config",
+  "server",
+  "tables",
+  "client",
+  "ui",
+] as const).pipe(
+  $I.annoteSchema("ArchitecturePackageRole", {
+    description: "Normal slice role package that can be created as a shell-only architecture package.",
+  })
+);
+
+/**
+ * Slice role package supported by `beep architecture create package`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ArchitecturePackageRole = typeof ArchitecturePackageRole.Type;
 
 /**
  * Writer families selected from normalized architecture operations.
@@ -174,6 +202,30 @@ export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFile
 ) {}
 
 /**
+ * Operation that writes a structured package manifest.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class WritePackageJsonOperation extends S.Class<WritePackageJsonOperation>($I`WritePackageJsonOperation`)(
+  {
+    kind: S.Literal("write-package-json"),
+    role: ArchitecturePackageRole,
+    path: S.String,
+    packageName: S.String,
+    packageDescription: S.String,
+    repositoryDirectory: S.String,
+    exports: S.Array(S.String),
+    dependencies: S.Record(S.String, S.String),
+    devDependencies: S.Record(S.String, S.String),
+    description: S.String,
+  },
+  $I.annote("WritePackageJsonOperation", {
+    description: "Structured package.json operation selected by the architecture operation-plan factory.",
+  })
+) {}
+
+/**
  * Operation that proves a repo-relative file must exist.
  *
  * @category models
@@ -214,7 +266,12 @@ export class EnsureAbsentPathOperation extends S.Class<EnsureAbsentPathOperation
  * @category models
  * @since 0.0.0
  */
-export const ArchitectureOperation = S.Union([WriteFileOperation, EnsureFileOperation, EnsureAbsentPathOperation]);
+export const ArchitectureOperation = S.Union([
+  WriteFileOperation,
+  WritePackageJsonOperation,
+  EnsureFileOperation,
+  EnsureAbsentPathOperation,
+]);
 
 /**
  * Canonical operation-plan operation.
@@ -968,6 +1025,626 @@ const rolePlanFor = (target: ArchitecturePlanTarget, role: ArchitectureSliceRole
     exports: exportsForRole(target, role),
   });
 
+const packageShellTargetFor = (boundedContext: string): ArchitecturePlanTarget =>
+  new ArchitecturePlanTarget({
+    boundedContext,
+    concept: "PackageShell",
+    conceptPath: "aggregates/PackageShell",
+    domainKind: "aggregates",
+    stage: "core",
+  });
+
+const packageShellExportsForRole = (role: ArchitecturePackageRole): ReadonlyArray<string> => {
+  if (role === "domain") return [".", "./aggregates", "./entities", "./identity", "./values"];
+  if (role === "use-cases") return [".", "./public", "./server"];
+  if (role === "config") return [".", "./public", "./server", "./secrets", "./layer", "./test"];
+  if (role === "server") return [".", "./layer", "./test"];
+  if (role === "tables") return [".", "./tables"];
+  return ["."];
+};
+
+const packageShellRolePlanFor = (
+  target: ArchitecturePlanTarget,
+  role: ArchitecturePackageRole
+): ArchitectureSliceRolePlan =>
+  new ArchitectureSliceRolePlan({
+    role,
+    packageName: packageNameForRole(target, role),
+    path: pathForRole(target, role),
+    exports: packageShellExportsForRole(role),
+  });
+
+const packageShellDescriptionForRole = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string => {
+  const contextLabel = Str.replaceAll("-", " ")(CommonStr.kebabCase(target.boundedContext));
+  if (role === "domain") return `${contextLabel} domain package.`;
+  if (role === "use-cases") return `${contextLabel} use-case contract package.`;
+  if (role === "config") return `${contextLabel} typed configuration package.`;
+  if (role === "server") return `${contextLabel} server adapter package.`;
+  if (role === "tables") return `${contextLabel} table declaration package.`;
+  if (role === "client") return `${contextLabel} client adapter package.`;
+  return `${contextLabel} UI package.`;
+};
+
+const packageShellDependenciesForRole = (
+  target: ArchitecturePlanTarget,
+  role: ArchitecturePackageRole
+): R.ReadonlyRecord<string, string> => {
+  if (role === "domain") {
+    return {
+      "@beep/identity": "workspace:^",
+      "@beep/schema": "workspace:^",
+      "@beep/shared-domain": "workspace:^",
+      effect: "catalog:",
+    };
+  }
+  if (role === "use-cases") {
+    return {
+      [`@beep/${target.boundedContext}-domain`]: "workspace:^",
+      "@beep/identity": "workspace:^",
+      "@beep/schema": "workspace:^",
+      effect: "catalog:",
+    };
+  }
+  if (role === "config") {
+    return {
+      "@beep/identity": "workspace:^",
+      "@beep/schema": "workspace:^",
+      effect: "catalog:",
+    };
+  }
+  if (role === "server") {
+    return {
+      [`@beep/${target.boundedContext}-config`]: "workspace:^",
+      [`@beep/${target.boundedContext}-domain`]: "workspace:^",
+      [`@beep/${target.boundedContext}-tables`]: "workspace:^",
+      [`@beep/${target.boundedContext}-use-cases`]: "workspace:^",
+      "@beep/identity": "workspace:^",
+      "@beep/postgres": "workspace:^",
+      "@beep/schema": "workspace:^",
+      "drizzle-orm": "catalog:",
+      effect: "catalog:",
+    };
+  }
+  if (role === "tables") {
+    return {
+      [`@beep/${target.boundedContext}-domain`]: "workspace:^",
+      "@beep/drizzle": "workspace:^",
+      "drizzle-orm": "catalog:",
+      effect: "catalog:",
+    };
+  }
+  if (role === "client") {
+    return {
+      [`@beep/${target.boundedContext}-domain`]: "workspace:^",
+      [`@beep/${target.boundedContext}-use-cases`]: "workspace:^",
+      "@beep/identity": "workspace:^",
+      effect: "catalog:",
+    };
+  }
+  return {
+    [`@beep/${target.boundedContext}-config`]: "workspace:^",
+    [`@beep/${target.boundedContext}-domain`]: "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    effect: "catalog:",
+  };
+};
+
+const packageShellDevDependenciesForRole = (role: ArchitecturePackageRole): R.ReadonlyRecord<string, string> =>
+  role === "server"
+    ? {
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      }
+    : {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      };
+
+const shellPackageJsonOperationFor = (
+  target: ArchitecturePlanTarget,
+  role: ArchitecturePackageRole
+): WritePackageJsonOperation =>
+  new WritePackageJsonOperation({
+    kind: "write-package-json",
+    role,
+    path: `${pathForRole(target, role)}/package.json`,
+    packageName: packageNameForRole(target, role),
+    packageDescription: packageShellDescriptionForRole(target, role),
+    repositoryDirectory: pathForRole(target, role),
+    exports: packageShellExportsForRole(role),
+    dependencies: packageShellDependenciesForRole(target, role),
+    devDependencies: packageShellDevDependenciesForRole(role),
+    description: `Write structured ${role} package manifest for ${target.boundedContext}.`,
+  });
+
+const packageExportSourceFor = (role: ArchitecturePackageRole, subpath: string): string => {
+  if (subpath === ".") return "./src/index.ts";
+  if (subpath === "./layer" && role === "server") return "./src/Layer.ts";
+  if (
+    role === "domain" &&
+    (subpath === "./aggregates" || subpath === "./entities" || subpath === "./identity" || subpath === "./values")
+  ) {
+    return `./src/${Str.replace("./", "")(subpath)}/index.ts`;
+  }
+  return `./src/${Str.replace("./", "")(subpath)}.ts`;
+};
+
+const packageExportPublishSourceFor = (role: ArchitecturePackageRole, subpath: string): string => {
+  if (subpath === ".") return "./dist/index.ts";
+  if (subpath === "./layer" && role === "server") return "./dist/Layer.js";
+  if (
+    role === "domain" &&
+    (subpath === "./aggregates" || subpath === "./entities" || subpath === "./identity" || subpath === "./values")
+  ) {
+    return `./dist/${Str.replace("./", "")(subpath)}/index.js`;
+  }
+  return `./dist/${Str.replace("./", "")(subpath)}.js`;
+};
+
+const packageExportMapFor = (
+  role: ArchitecturePackageRole,
+  exports: ReadonlyArray<string>,
+  publish: boolean
+): R.ReadonlyRecord<string, string | null> =>
+  pipe(
+    exports,
+    A.map(
+      (subpath) =>
+        [
+          subpath,
+          publish ? packageExportPublishSourceFor(role, subpath) : packageExportSourceFor(role, subpath),
+        ] as const
+    ),
+    (entries) => [...entries, ["./internal/*", null] as const, ["./package.json", "./package.json"] as const],
+    R.fromEntries
+  );
+
+const renderPackageJsonOperation = Effect.fn(function* (operation: WritePackageJsonOperation) {
+  return yield* jsonStringifyPretty({
+    name: operation.packageName,
+    version: "0.0.0",
+    description: operation.packageDescription,
+    license: "MIT",
+    private: true,
+    type: "module",
+    homepage: `https://github.com/kriegcloud/beep-effect/tree/main/${operation.repositoryDirectory}`,
+    repository: {
+      type: "git",
+      url: "git@github.com:kriegcloud/beep-effect.git",
+      directory: operation.repositoryDirectory,
+    },
+    scripts: {
+      audit: "bun run --if-present beep:audit",
+      babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+      "beep:audit":
+        "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
+      "beep:build": "tsc -b tsconfig.json && bun run babel",
+      "beep:check": "tsgo -b tsconfig.json",
+      "beep:lint": "biome check .",
+      "beep:lint:fix": "biome check . --write",
+      "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+      "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
+      build: "bun run beep:build",
+      check: "bun run beep:check",
+      coverage: "bunx --bun vitest run --coverage --passWithNoTests --exclude=test/integration/**",
+      docgen: "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
+      lint: "bun run beep:lint",
+      "lint:fix": "bun run beep:lint:fix",
+      test: "bun run beep:test",
+      "test:integration": "bun run beep:test:integration",
+    },
+    exports: packageExportMapFor(operation.role, operation.exports, false),
+    files: ["src/**/*.ts", "dist/**/*.js", "dist/**/*.js.map", "dist/**/*.d.ts", "dist/**/*.d.ts.map"],
+    sideEffects: [],
+    publishConfig: {
+      access: "public",
+      provenance: true,
+      exports: packageExportMapFor(operation.role, operation.exports, true),
+    },
+    dependencies: operation.dependencies,
+    devDependencies: operation.devDependencies,
+  });
+});
+
+const packageShellAgentsContent = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string =>
+  `# ${packageNameForRole(target, role)} Agent Notes
+
+- This package is the \`${role}\` role package for the \`${target.boundedContext}\` slice.
+- Keep package-level wiring here and add concept-qualified modules through \`beep architecture add concept\` or \`beep architecture add role\`.
+`;
+
+const packageShellReadmeContent = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string =>
+  `# ${packageNameForRole(target, role)}
+
+Shell-only ${role} package for the \`${target.boundedContext}\` slice.
+
+Use \`beep architecture add concept\` or \`beep architecture add role\` to add concept-qualified modules.
+`;
+
+const packageShellDocgenContent = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string =>
+  `{
+  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/${target.boundedContext}/${role}/src/"
+}
+`;
+
+const packageShellTsconfigContent = (): string =>
+  `{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "dist",
+    "rootDir": "src"
+  }
+}
+`;
+
+const packageShellVitestContent = (): string =>
+  `import { defineConfig, mergeConfig } from "vitest/config";
+import shared from "../../../vitest.shared.ts";
+
+export default mergeConfig(
+  shared,
+  defineConfig({
+    test: {
+      // Package-specific overrides
+    },
+  })
+);
+`;
+
+const packageShellIndexContent = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string => {
+  const packageName = packageNameForRole(target, role);
+  const category =
+    role === "domain"
+      ? "aggregates"
+      : role === "use-cases"
+        ? "use-cases"
+        : role === "config"
+          ? "configuration"
+          : role === "server"
+            ? "handlers"
+            : role === "client"
+              ? "clients"
+              : role === "ui"
+                ? "models"
+                : role;
+  const extraExport =
+    role === "domain"
+      ? '\n/**\n * Aggregate namespace exports.\n *\n * @category aggregates\n * @since 0.0.0\n */\nexport * as Aggregates from "./aggregates/index.js";\n/**\n * Entity namespace exports.\n *\n * @category entities\n * @since 0.0.0\n */\nexport * as Entities from "./entities/index.js";\n/**\n * Identity namespace exports.\n *\n * @category entity-ids\n * @since 0.0.0\n */\nexport * as Identity from "./identity/index.js";\n/**\n * Value-object namespace exports.\n *\n * @category value-objects\n * @since 0.0.0\n */\nexport * as Values from "./values/index.js";\n'
+      : role === "use-cases"
+        ? '\n/**\n * Public use-case exports.\n *\n * @category use-cases\n * @since 0.0.0\n */\nexport * from "./public.js";\n'
+        : role === "config"
+          ? '\n/**\n * Browser-safe public configuration exports.\n *\n * @category configuration\n * @since 0.0.0\n */\nexport * from "./public.js";\n'
+          : role === "server"
+            ? '\n/**\n * Server layer exports.\n *\n * @category layers\n * @since 0.0.0\n */\nexport * from "./Layer.js";\n'
+            : role === "tables"
+              ? '\n/**\n * Table collection exports.\n *\n * @category tables\n * @since 0.0.0\n */\nexport * from "./tables.js";\n'
+              : "";
+
+  return `/**
+ * Package entry point for \`${packageName}\`.
+ *
+ * @packageDocumentation
+ * @category ${category}
+ * @since 0.0.0
+ */
+
+/**
+ * Package version for \`${packageName}\`.
+ *
+ * @category ${category}
+ * @since 0.0.0
+ */
+export const VERSION = "0.0.0" as const;
+${extraExport}`;
+};
+
+const packageShellEmptyModuleContent = (title: string, category: string): string =>
+  `/**
+ * ${title}.
+ *
+ * @packageDocumentation
+ * @category ${category}
+ * @since 0.0.0
+ */
+
+export {};
+`;
+
+const packageShellLayerContent = (target: ArchitecturePlanTarget, role: "config" | "server"): string => {
+  const contextPascal = CommonStr.pascalCase(target.boundedContext);
+  const exportName = role === "server" ? `${contextPascal}ServerLive` : `${contextPascal}ConfigLive`;
+  return `/**
+ * ${Str.replaceAll("-", " ")(target.boundedContext)} ${role} layer.
+ *
+ * @packageDocumentation
+ * @category layers
+ * @since 0.0.0
+ */
+
+import { Layer } from "effect";
+
+/**
+ * Shell ${role} layer for the ${target.boundedContext} slice.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const ${exportName} = Layer.empty;
+`;
+};
+
+const packageShellTestLayerContent = (target: ArchitecturePlanTarget, role: "config" | "server"): string => {
+  const contextPascal = CommonStr.pascalCase(target.boundedContext);
+  const exportName = role === "server" ? `${contextPascal}ServerTest` : `${contextPascal}ConfigTest`;
+  return `/**
+ * ${Str.replaceAll("-", " ")(target.boundedContext)} ${role} test layer.
+ *
+ * @packageDocumentation
+ * @category testing
+ * @since 0.0.0
+ */
+
+import { Layer } from "effect";
+
+/**
+ * Shell ${role} test layer for the ${target.boundedContext} slice.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const ${exportName} = Layer.empty;
+`;
+};
+
+const packageShellTablesContent = (target: ArchitecturePlanTarget): string =>
+  `/**
+ * ${Str.replaceAll("-", " ")(target.boundedContext)} table collection.
+ *
+ * @packageDocumentation
+ * @category tables
+ * @since 0.0.0
+ */
+
+/**
+ * Empty shell Drizzle schema for the ${target.boundedContext} slice.
+ *
+ * @category tables
+ * @since 0.0.0
+ */
+export const DbSchema = {};
+
+/**
+ * Empty shell Drizzle schema type.
+ *
+ * @category tables
+ * @since 0.0.0
+ */
+export type DbSchema = typeof DbSchema;
+`;
+
+const packageShellFileOperationsFor = (
+  target: ArchitecturePlanTarget,
+  role: ArchitecturePackageRole
+): ReadonlyArray<WriteFileOperation> => {
+  const basePath = pathForRole(target, role);
+  const commonFiles = [
+    new WriteFileOperation({
+      kind: "write-file",
+      role,
+      path: `${basePath}/AGENTS.md`,
+      writer: "template",
+      content: packageShellAgentsContent(target, role),
+      description: `Write ${role} package agent guidance.`,
+    }),
+    new WriteFileOperation({
+      kind: "write-file",
+      role,
+      path: `${basePath}/LICENSE`,
+      writer: "template",
+      content: "MIT\n",
+      description: `Write ${role} package license marker.`,
+    }),
+    new WriteFileOperation({
+      kind: "write-file",
+      role,
+      path: `${basePath}/README.md`,
+      writer: "template",
+      content: packageShellReadmeContent(target, role),
+      description: `Write ${role} package README.`,
+    }),
+    new WriteFileOperation({
+      kind: "write-file",
+      role,
+      path: `${basePath}/docgen.json`,
+      writer: "json",
+      content: packageShellDocgenContent(target, role),
+      description: `Write ${role} package docgen configuration.`,
+    }),
+    new WriteFileOperation({
+      kind: "write-file",
+      role,
+      path: `${basePath}/tsconfig.json`,
+      writer: "jsonc",
+      content: packageShellTsconfigContent(),
+      description: `Write ${role} package TypeScript configuration.`,
+    }),
+    new WriteFileOperation({
+      kind: "write-file",
+      role,
+      path: `${basePath}/vitest.config.ts`,
+      writer: "template",
+      content: packageShellVitestContent(),
+      description: `Write ${role} package Vitest configuration.`,
+    }),
+    new WriteFileOperation({
+      kind: "write-file",
+      role,
+      path: `${basePath}/dtslint/.gitkeep`,
+      writer: "template",
+      content: "",
+      description: `Create ${role} package dtslint directory.`,
+    }),
+    new WriteFileOperation({
+      kind: "write-file",
+      role,
+      path: `${basePath}/test/.gitkeep`,
+      writer: "template",
+      content: "",
+      description: `Create ${role} package test directory.`,
+    }),
+    new WriteFileOperation({
+      kind: "write-file",
+      role,
+      path: `${basePath}/src/index.ts`,
+      writer: "ts-morph",
+      content: packageShellIndexContent(target, role),
+      description: `Write ${role} package entry point.`,
+    }),
+  ] as const;
+
+  if (role === "domain") {
+    return [
+      ...commonFiles,
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/aggregates/index.ts`,
+        writer: "ts-morph",
+        content: packageShellEmptyModuleContent(`${target.boundedContext} aggregate exports`, "aggregates"),
+        description: "Write aggregate namespace shell.",
+      }),
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/entities/index.ts`,
+        writer: "ts-morph",
+        content: packageShellEmptyModuleContent(`${target.boundedContext} entity exports`, "entities"),
+        description: "Write entity namespace shell.",
+      }),
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/identity/index.ts`,
+        writer: "ts-morph",
+        content: packageShellEmptyModuleContent(`${target.boundedContext} identity exports`, "entity-ids"),
+        description: "Write identity namespace shell.",
+      }),
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/values/index.ts`,
+        writer: "ts-morph",
+        content: packageShellEmptyModuleContent(`${target.boundedContext} value-object exports`, "value-objects"),
+        description: "Write value namespace shell.",
+      }),
+    ];
+  }
+
+  if (role === "use-cases") {
+    return [
+      ...commonFiles,
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/public.ts`,
+        writer: "ts-morph",
+        content: packageShellEmptyModuleContent(`${target.boundedContext} public use-case exports`, "use-cases"),
+        description: "Write public use-case shell.",
+      }),
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/server.ts`,
+        writer: "ts-morph",
+        content: packageShellEmptyModuleContent(`${target.boundedContext} server use-case exports`, "repositories"),
+        description: "Write server use-case shell.",
+      }),
+    ];
+  }
+
+  if (role === "config") {
+    return [
+      ...commonFiles,
+      ...(["public", "server", "secrets"] as const).map(
+        (surface) =>
+          new WriteFileOperation({
+            kind: "write-file",
+            role,
+            path: `${basePath}/src/${surface}.ts`,
+            writer: "ts-morph",
+            content: packageShellEmptyModuleContent(
+              `${target.boundedContext} ${surface} config exports`,
+              "configuration"
+            ),
+            description: `Write ${surface} config shell.`,
+          })
+      ),
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/layer.ts`,
+        writer: "ts-morph",
+        content: packageShellLayerContent(target, "config"),
+        description: "Write config layer shell.",
+      }),
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/test.ts`,
+        writer: "ts-morph",
+        content: packageShellTestLayerContent(target, "config"),
+        description: "Write config test layer shell.",
+      }),
+    ];
+  }
+
+  if (role === "server") {
+    return [
+      ...commonFiles,
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/Layer.ts`,
+        writer: "ts-morph",
+        content: packageShellLayerContent(target, "server"),
+        description: "Write server layer shell.",
+      }),
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/test.ts`,
+        writer: "ts-morph",
+        content: packageShellTestLayerContent(target, "server"),
+        description: "Write server test layer shell.",
+      }),
+    ];
+  }
+
+  if (role === "tables") {
+    return [
+      ...commonFiles,
+      new WriteFileOperation({
+        kind: "write-file",
+        role,
+        path: `${basePath}/src/tables.ts`,
+        writer: "ts-morph",
+        content: packageShellTablesContent(target),
+        description: "Write tables collection shell.",
+      }),
+    ];
+  }
+
+  return commonFiles;
+};
+
 const isDefaultPlanTarget = (target: ArchitecturePlanTarget): boolean =>
   stringEquivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
   stringEquivalence(target.concept, defaultPlanTarget.concept) &&
@@ -1275,6 +1952,30 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
 });
 
 /**
+ * Build a shell-only slice role package operation plan.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeArchitecturePackageOperationPlan = Effect.fn(function* (input: {
+  readonly boundedContext: string;
+  readonly role: ArchitecturePackageRole;
+}) {
+  const target = packageShellTargetFor(input.boundedContext);
+  const rolePlan = packageShellRolePlanFor(target, input.role);
+
+  return new CanonicalSliceOperationPlan({
+    schemaVersion: "architecture-operation-plan/v1",
+    target,
+    roles: [rolePlan],
+    operations: [
+      shellPackageJsonOperationFor(target, input.role),
+      ...packageShellFileOperationsFor(target, input.role),
+    ],
+  });
+});
+
+/**
  * Encode an operation plan as JSON text.
  *
  * @category codecs
@@ -1294,6 +1995,13 @@ const pathExists = Effect.fn(function* (absolutePath: string) {
   const fs = yield* FileSystem.FileSystem;
   return yield* fs.exists(absolutePath).pipe(Effect.orElseSucceed(thunkFalse));
 });
+
+const renderWritableOperation = (
+  operation: WriteFileOperation | WritePackageJsonOperation
+): Effect.Effect<string, DomainError> => {
+  if (operation.kind === "write-file") return Effect.succeed(operation.content);
+  return renderPackageJsonOperation(operation);
+};
 
 const resolveOperationPath = Effect.fn(function* (rootDir: string, operationPath: string) {
   const path = yield* Path.Path;
@@ -1339,14 +2047,15 @@ export const checkCanonicalSliceOperationPlan: {
       if (operation.kind === "ensure-absent-path" && exists) {
         unexpectedPaths.push(operation.path);
       }
-      if (operation.kind === "write-file") {
+      if (operation.kind === "write-file" || operation.kind === "write-package-json") {
+        const expected = yield* renderWritableOperation(operation);
         if (!exists) {
           missingPaths.push(operation.path);
         } else {
           const current = yield* fs
             .readFileString(operationPath)
             .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${operation.path}"`)));
-          if (!stringEquivalence(current, operation.content)) {
+          if (!stringEquivalence(current, expected)) {
             differingPaths.push(operation.path);
           }
         }
@@ -1404,12 +2113,13 @@ export const applyCanonicalSliceOperationPlan: {
           skippedPaths.push(operation.path);
         }
       }
-      if (operation.kind === "write-file") {
+      if (operation.kind === "write-file" || operation.kind === "write-package-json") {
+        const expected = yield* renderWritableOperation(operation);
         if (yield* pathExists(operationPath)) {
           const current = yield* fs
             .readFileString(operationPath)
             .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${operation.path}"`)));
-          if (stringEquivalence(current, operation.content)) {
+          if (stringEquivalence(current, expected)) {
             skippedPaths.push(operation.path);
           } else {
             return yield* DomainError.newMessage(
@@ -1425,7 +2135,7 @@ export const applyCanonicalSliceOperationPlan: {
               )
             );
           yield* fs
-            .writeFileString(operationPath, operation.content)
+            .writeFileString(operationPath, expected)
             .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to write "${operation.path}"`)));
           writtenPaths.push(operation.path);
         }
@@ -1434,237 +2144,4 @@ export const applyCanonicalSliceOperationPlan: {
 
     return new OperationPlanApplyResult({ writtenPaths, skippedPaths, removedPaths });
   })
-);
-
-const planFileFlag = Flag.string("file").pipe(
-  Flag.withAlias("f"),
-  Flag.withDescription("Path to a JSON operation plan emitted by `beep architecture plan`")
-);
-
-const stageFlag = (defaultValue: ArchitecturePlanStage) =>
-  Flag.string("stage").pipe(
-    Flag.withDescription("Architecture proof stage: core, persistence, protocol, client, or full"),
-    Flag.withDefault(defaultValue)
-  );
-
-const domainKindFlag = Flag.string("domain-kind").pipe(
-  Flag.withDescription("Domain-kind archetype for the concept: aggregates, entities, or values"),
-  Flag.withDefault("aggregates")
-);
-
-const dryRunFlag = Flag.boolean("dry-run").pipe(
-  Flag.withDescription("Emit the schema-versioned JSON operation plan without writing files")
-);
-
-const planSliceFlag = Flag.string("slice").pipe(
-  Flag.withDescription("Slice or bounded-context name"),
-  Flag.withDefault(defaultPlanTarget.boundedContext)
-);
-
-const planConceptFlag = Flag.string("concept").pipe(
-  Flag.withDescription("Concept name"),
-  Flag.withDefault(defaultPlanTarget.concept)
-);
-
-const decodeStage = (value: string): Effect.Effect<ArchitecturePlanStage, DomainError> =>
-  S.decodeUnknownEffect(ArchitecturePlanStage)(value).pipe(
-    Effect.mapError((cause) => DomainError.newCause(cause, `Invalid architecture stage "${value}"`))
-  );
-
-const decodeDomainKind = (value: string): Effect.Effect<ArchitectureDomainKind, DomainError> =>
-  S.decodeUnknownEffect(ArchitectureDomainKind)(value).pipe(
-    Effect.mapError((cause) => DomainError.newCause(cause, `Invalid architecture domain kind "${value}"`))
-  );
-
-const decodeRole = (value: string): Effect.Effect<ArchitectureSliceRole, DomainError> =>
-  S.decodeUnknownEffect(ArchitectureSliceRole)(value).pipe(
-    Effect.mapError((cause) => DomainError.newCause(cause, `Invalid architecture role "${value}"`))
-  );
-
-const makePlanFromCommand = Effect.fn(function* (
-  slice: string,
-  concept: string,
-  domainKindValue: string,
-  stageValue: string,
-  roles: O.Option<ReadonlyArray<ArchitectureSliceRole>> = O.none()
-) {
-  const repoRoot = yield* findRepoRoot();
-  const domainKind = yield* decodeDomainKind(domainKindValue);
-  const stage = yield* decodeStage(stageValue);
-  return yield* makeArchitectureOperationPlan(repoRoot, { boundedContext: slice, concept, domainKind, stage }, roles);
-});
-
-const printPlanJson = Effect.fn(function* (plan: CanonicalSliceOperationPlan) {
-  const json = yield* encodeCanonicalSliceOperationPlanJson(plan);
-  yield* Console.log(json);
-});
-
-const readOperationPlanFile = Effect.fn(function* (filePath: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const content = yield* fs.readFileString(filePath);
-  return yield* decodeCanonicalSliceOperationPlanJson(content);
-});
-
-const reportCheckResult = Effect.fn(function* (result: OperationPlanCheckResult) {
-  yield* Console.log(
-    `architecture operation-plan idempotent=${result.idempotent} missing=${result.missingPaths.length} differing=${result.differingPaths.length} unexpected=${
-      result.unexpectedPaths.length
-    }`
-  );
-});
-
-const reportApplyResult = Effect.fn(function* (result: OperationPlanApplyResult) {
-  yield* Console.log(
-    `architecture operation-plan apply written=${result.writtenPaths.length} skipped=${result.skippedPaths.length} removed=${result.removedPaths.length}`
-  );
-});
-
-const ensureIdempotent = Effect.fn(function* (result: OperationPlanCheckResult) {
-  if (!result.idempotent) {
-    return yield* new DomainError({
-      message: Text.joinLines([
-        "Architecture operation plan is not idempotent.",
-        `missing=${result.missingPaths.join(",")}`,
-        `differing=${result.differingPaths.join(",")}`,
-        `unexpected=${result.unexpectedPaths.join(",")}`,
-      ]),
-    });
-  }
-});
-
-const runWriteCommand = Effect.fn(function* (plan: CanonicalSliceOperationPlan, dryRun: boolean) {
-  if (dryRun) {
-    yield* printPlanJson(plan);
-    return;
-  }
-  const rootDir = yield* findRepoRoot();
-  const result = yield* applyCanonicalSliceOperationPlan(rootDir, plan);
-  yield* reportApplyResult(result);
-});
-
-const architecturePlanCommand = Command.make(
-  "plan",
-  {
-    slice: planSliceFlag,
-    concept: planConceptFlag,
-    domainKind: domainKindFlag,
-    stage: stageFlag("full"),
-  },
-  Effect.fn(function* ({ slice, concept, domainKind, stage }) {
-    const plan = yield* makePlanFromCommand(slice, concept, domainKind, stage);
-    yield* printPlanJson(plan);
-  })
-).pipe(Command.withDescription("Emit a schema-versioned architecture operation plan as JSON"));
-
-const architectureApplyCommand = Command.make(
-  "apply",
-  {
-    file: planFileFlag,
-  },
-  Effect.fn(function* ({ file }) {
-    const rootDir = yield* findRepoRoot();
-    const plan = yield* readOperationPlanFile(file);
-    const result = yield* applyCanonicalSliceOperationPlan(rootDir, plan);
-    yield* reportApplyResult(result);
-  })
-).pipe(Command.withDescription("Consume and apply a canonical architecture operation-plan JSON document"));
-
-const architectureCheckCommand = Command.make(
-  "check",
-  {
-    file: planFileFlag,
-  },
-  Effect.fn(function* ({ file }) {
-    const rootDir = yield* findRepoRoot();
-    const plan = yield* readOperationPlanFile(file);
-    const result = yield* checkCanonicalSliceOperationPlan(rootDir, plan);
-    yield* reportCheckResult(result);
-    yield* ensureIdempotent(result);
-  })
-).pipe(Command.withDescription("Validate that a canonical architecture operation plan is idempotent"));
-
-const createSliceCommand = Command.make(
-  "slice",
-  {
-    slice: Argument.string("slice").pipe(Argument.withDescription("Slice or bounded-context name")),
-    concept: Argument.string("concept").pipe(Argument.withDescription("Concept name")),
-    domainKind: domainKindFlag,
-    stage: stageFlag("core"),
-    dryRun: dryRunFlag,
-  },
-  Effect.fn(function* ({ slice, concept, domainKind, stage, dryRun }) {
-    const plan = yield* makePlanFromCommand(slice, concept, domainKind, stage);
-    yield* runWriteCommand(plan, dryRun);
-  })
-).pipe(Command.withDescription("Create a canonical slice from the architecture operation-plan factory"));
-
-const addConceptCommand = Command.make(
-  "concept",
-  {
-    slice: Argument.string("slice").pipe(Argument.withDescription("Slice or bounded-context name")),
-    concept: Argument.string("concept").pipe(Argument.withDescription("Concept name")),
-    domainKind: domainKindFlag,
-    stage: stageFlag("core"),
-    dryRun: dryRunFlag,
-  },
-  Effect.fn(function* ({ slice, concept, domainKind, stage, dryRun }) {
-    const plan = yield* makePlanFromCommand(slice, concept, domainKind, stage);
-    yield* runWriteCommand(plan, dryRun);
-  })
-).pipe(Command.withDescription("Add a concept through the architecture operation-plan factory"));
-
-const addRoleCommand = Command.make(
-  "role",
-  {
-    slice: Argument.string("slice").pipe(Argument.withDescription("Slice or bounded-context name")),
-    concept: Argument.string("concept").pipe(Argument.withDescription("Concept name")),
-    role: Argument.string("role").pipe(Argument.withDescription("Architecture role to add")),
-    domainKind: domainKindFlag,
-    stage: stageFlag("full"),
-    dryRun: dryRunFlag,
-  },
-  Effect.fn(function* ({ slice, concept, role, domainKind, stage, dryRun }) {
-    const decodedRole = yield* decodeRole(role);
-    const plan = yield* makePlanFromCommand(slice, concept, domainKind, stage, O.some([decodedRole]));
-    yield* runWriteCommand(plan, dryRun);
-  })
-).pipe(Command.withDescription("Add a role through the architecture operation-plan factory"));
-
-const printCreateIndex = Effect.fn(function* () {
-  yield* Console.log("architecture create commands: slice");
-});
-
-const printAddIndex = Effect.fn(function* () {
-  yield* Console.log("architecture add commands: concept, role");
-});
-
-const architectureCreateCommand = Command.make("create", {}, printCreateIndex).pipe(
-  Command.withDescription("Create canonical architecture parts"),
-  Command.withSubcommands([createSliceCommand])
-);
-
-const architectureAddCommand = Command.make("add", {}, printAddIndex).pipe(
-  Command.withDescription("Add canonical architecture parts"),
-  Command.withSubcommands([addConceptCommand, addRoleCommand])
-);
-
-const printArchitectureIndex = Effect.fn(function* () {
-  yield* Console.log("architecture commands: create, add, plan, apply, check");
-});
-
-/**
- * Architecture automation command group.
- *
- * @category commands
- * @since 0.0.0
- */
-export const architectureCommand = Command.make("architecture", {}, printArchitectureIndex).pipe(
-  Command.withDescription("Schema-versioned architecture operation-plan utilities"),
-  Command.withSubcommands([
-    architectureCreateCommand,
-    architectureAddCommand,
-    architecturePlanCommand,
-    architectureApplyCommand,
-    architectureCheckCommand,
-  ])
 );
