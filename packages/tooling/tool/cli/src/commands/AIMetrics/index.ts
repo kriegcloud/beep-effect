@@ -17,6 +17,10 @@ import {
   AiMetricsDeployTarget,
   type AiMetricsForwarderError,
   AiMetricsForwarderInput,
+  type AiMetricsForwarderOtlpExport,
+  AiMetricsForwarderOtlpExported,
+  AiMetricsForwarderOtlpExportFailed,
+  AiMetricsForwarderRunResult,
   AiMetricsForwarderTimerInput,
   type AiMetricsIngestError,
   type AiMetricsInstallConfigurationError,
@@ -30,6 +34,7 @@ import {
   AiMetricsOtlpEndpointSpec,
   type AiMetricsOtlpExportError,
   AiMetricsOtlpExportInput,
+  type AiMetricsOtlpExportResult,
   AiMetricsOutcomeLabelInput,
   type AiMetricsPrivacyError,
   AiMetricsPrivacyMode,
@@ -87,6 +92,7 @@ import {
   DateTime,
   Duration,
   Effect,
+  Exit,
   FileSystem,
   Layer,
   Order,
@@ -1153,6 +1159,97 @@ const makePrivacyCheckProgram = Effect.fn("AIMetrics.makePrivacyCheckProgram")(f
   yield* Console.log(`accepted events: ${result.sanitized.acceptedEvents}`);
 });
 
+const forwarderRunResultWithOtlpExport = (
+  result: AiMetricsForwarderRunResult,
+  otlpExport: AiMetricsForwarderOtlpExport
+): AiMetricsForwarderRunResult =>
+  new AiMetricsForwarderRunResult({
+    archiveObjectCount: result.archiveObjectCount,
+    configSnapshotId: result.configSnapshotId,
+    duckDbPath: result.duckDbPath,
+    ingestRunId: result.ingestRunId,
+    otlpExport,
+    parquetExportDir: result.parquetExportDir,
+    parquetTables: result.parquetTables,
+    rawArchiveDir: result.rawArchiveDir,
+    sourceCoverage: result.sourceCoverage,
+    sourceFileCount: result.sourceFileCount,
+    target: result.target,
+    turnCount: result.turnCount,
+  });
+
+const forwarderOtlpExported = (result: AiMetricsOtlpExportResult): AiMetricsForwarderOtlpExported =>
+  new AiMetricsForwarderOtlpExported({
+    endpointTraceUrl: result.endpointTraceUrl,
+    ingestRunId: result.ingestRunId,
+    sessionSpanCount: result.sessionSpanCount,
+    spanCount: result.spanCount,
+    status: "exported",
+    target: result.target,
+    turnSpanCount: result.turnSpanCount,
+  });
+
+const forwarderOtlpExportFailed = ({
+  endpoint,
+  forwarderResult,
+  message,
+  target,
+}: {
+  readonly endpoint: AiMetricsOtlpEndpointSpec;
+  readonly forwarderResult: AiMetricsForwarderRunResult;
+  readonly message: string;
+  readonly target: AiMetricsDeployTarget;
+}): AiMetricsForwarderOtlpExportFailed =>
+  new AiMetricsForwarderOtlpExportFailed({
+    endpointTraceUrl: endpoint.traceUrl,
+    ingestRunId: forwarderResult.ingestRunId,
+    message,
+    status: "failed",
+    target,
+  });
+
+const emitForwarderRuntimeSummary = Effect.fn("AIMetrics.emitForwarderRuntimeSummary")(
+  (result: AiMetricsForwarderRunResult) =>
+    Effect.void.pipe(
+      Effect.withSpan("repo_ai_metrics.forwarder.run", {
+        attributes: {
+          "ai_metrics.ingest_run_id": result.ingestRunId,
+          "ai_metrics.source_file_count": result.sourceFileCount,
+          "ai_metrics.target": result.target,
+          "ai_metrics.turn_count": result.turnCount,
+        },
+      })
+    )
+);
+
+const exportForwarderDerivedOtlp = Effect.fn("AIMetrics.exportForwarderDerivedOtlp")(function* ({
+  endpoint,
+  forwarderResult,
+  target,
+}: {
+  readonly endpoint: AiMetricsOtlpEndpointSpec;
+  readonly forwarderResult: AiMetricsForwarderRunResult;
+  readonly target: AiMetricsDeployTarget;
+}) {
+  yield* emitForwarderRuntimeSummary(forwarderResult);
+  return yield* runAiMetricsOtlpExport(
+    new AiMetricsOtlpExportInput({
+      duckDbPath: forwarderResult.duckDbPath,
+      endpoint,
+      ingestRunId: forwarderResult.ingestRunId,
+      target,
+    })
+  ).pipe(
+    Effect.matchEffect({
+      onFailure: Effect.fn(function* (error) {
+        yield* Console.error(`ai-metrics: OTLP export failed after forwarder run: ${error.message}`);
+        return forwarderOtlpExportFailed({ endpoint, forwarderResult, message: error.message, target });
+      }),
+      onSuccess: (result) => Effect.succeed(forwarderOtlpExported(result)),
+    })
+  );
+});
+
 const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(function* ({
   all,
   dataRoot,
@@ -1211,38 +1308,47 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   );
   const resolvedRawArchiveKey = yield* resolveRawArchiveKey();
   const sinceEpochMillis = all ? undefined : yield* parseSinceEpochMillis(since);
-  const forwarderEffect = runAiMetricsForwarder(
-    new AiMetricsForwarderInput({
-      ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
-      ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
-      ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
-      ...(resolvedRawArchiveKeySecretRef === undefined
-        ? {}
-        : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
-      homeDir: yield* resolveHomeDir(homeDir),
-      includeAll: all,
-      ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
-      maxFiles,
-      ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
-      rawArchiveKey: resolvedRawArchiveKey,
-      repoRoot: yield* resolveRepoRoot(repoRoot),
-      ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
-      target,
-    })
-  ).pipe(
+  const forwarderInput = new AiMetricsForwarderInput({
+    ...(resolvedDataRoot === undefined ? {} : { dataRoot: resolvedDataRoot }),
+    ...(resolvedHashSalt === undefined ? {} : { hashSalt: resolvedHashSalt }),
+    ...(resolvedHashSaltSecretRef === undefined ? {} : { hashSaltSecretRef: resolvedHashSaltSecretRef }),
+    ...(resolvedRawArchiveKeySecretRef === undefined ? {} : { rawArchiveKeySecretRef: resolvedRawArchiveKeySecretRef }),
+    homeDir: yield* resolveHomeDir(homeDir),
+    includeAll: all,
+    ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
+    maxFiles,
+    ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
+    rawArchiveKey: resolvedRawArchiveKey,
+    repoRoot: yield* resolveRepoRoot(repoRoot),
+    ...(sinceEpochMillis === undefined ? {} : { sinceEpochMillis }),
+    target,
+  });
+  const duckDbLayer = DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }));
+  const forwarderResult = yield* runAiMetricsForwarder(forwarderInput).pipe(
     // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+    Effect.provide(duckDbLayer)
   );
   const result = otlp
-    ? yield* forwarderEffect.pipe(
-        // @effect-diagnostics-next-line strictEffectProvide:off
-        Effect.provide(
-          layerNodeSdkServerTraces(
-            serverObservabilityConfigFor(target, yield* defaultServiceEndpoint(spec, otlpBaseUrl))
-          )
-        )
-      )
-    : yield* forwarderEffect;
+    ? yield* Effect.gen(function* () {
+        const endpoint = yield* defaultServiceEndpoint(spec, otlpBaseUrl);
+        const otlpExit = yield* exportForwarderDerivedOtlp({ endpoint, forwarderResult, target }).pipe(
+          // @effect-diagnostics-next-line strictEffectProvide:off
+          Effect.provide(
+            Layer.mergeAll(duckDbLayer, layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint)))
+          ),
+          Effect.exit
+        );
+        const otlpExport = Exit.isFailure(otlpExit)
+          ? yield* Effect.gen(function* () {
+              const message = "OTLP exporter failed while flushing spans.";
+              yield* Console.error(`ai-metrics: OTLP export failed after forwarder run: ${message}`);
+              return forwarderOtlpExportFailed({ endpoint, forwarderResult, message, target });
+            })
+          : otlpExit.value;
+
+        return forwarderRunResultWithOtlpExport(forwarderResult, otlpExport);
+      })
+    : forwarderResult;
 
   if (json) {
     yield* Console.log(yield* forwarderRunResultToJson(result));
@@ -1264,6 +1370,17 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   const parquetLocation = result.parquetExportDir;
   yield* Console.log(`derived duckdb: ${duckDbLocation}`);
   yield* Console.log(`parquet export: ${parquetLocation}`);
+  const otlpExport = O.fromNullishOr(result.otlpExport);
+  if (O.isSome(otlpExport)) {
+    yield* Console.log(`otlp export: ${otlpExport.value.status}`);
+    if (otlpExport.value.status === "exported") {
+      yield* Console.log(`otlp spans: ${otlpExport.value.spanCount}`);
+      yield* Console.log(`otlp sessions: ${otlpExport.value.sessionSpanCount}`);
+      yield* Console.log(`otlp turns: ${otlpExport.value.turnSpanCount}`);
+    } else {
+      yield* Console.log(`otlp failure: ${otlpExport.value.message}`);
+    }
+  }
 });
 
 const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram")(function* ({

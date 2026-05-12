@@ -132,6 +132,94 @@ export class AiMetricsForwarderSourceCoverage extends S.Class<AiMetricsForwarder
 ) {}
 
 /**
+ * Successful derived OTLP export status attached to a forwarder run.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsForwarderOtlpExported } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsForwarderOtlpExported)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsForwarderOtlpExported extends S.Class<AiMetricsForwarderOtlpExported>(
+  $I`AiMetricsForwarderOtlpExported`
+)(
+  {
+    endpointTraceUrl: S.String,
+    ingestRunId: S.String,
+    sessionSpanCount: S.Number,
+    spanCount: S.Number,
+    status: S.Literal("exported"),
+    target: AiMetricsDeployTarget,
+    turnSpanCount: S.Number,
+  },
+  $I.annote("AiMetricsForwarderOtlpExported", {
+    description: "Safe counts recorded when a forwarder run also exports derived AI metrics spans through OTLP.",
+  })
+) {}
+
+/**
+ * Failed derived OTLP export status attached to a forwarder run.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsForwarderOtlpExportFailed } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsForwarderOtlpExportFailed)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsForwarderOtlpExportFailed extends S.Class<AiMetricsForwarderOtlpExportFailed>(
+  $I`AiMetricsForwarderOtlpExportFailed`
+)(
+  {
+    endpointTraceUrl: S.String,
+    ingestRunId: S.String,
+    message: S.String,
+    status: S.Literal("failed"),
+    target: AiMetricsDeployTarget,
+  },
+  $I.annote("AiMetricsForwarderOtlpExportFailed", {
+    description: "Sanitized failure recorded when post-forwarder derived OTLP export does not complete.",
+  })
+) {}
+
+/**
+ * Tagged derived OTLP export status attached to a forwarder run.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsForwarderOtlpExport } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsForwarderOtlpExport)
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export const AiMetricsForwarderOtlpExport = S.Union([
+  AiMetricsForwarderOtlpExported,
+  AiMetricsForwarderOtlpExportFailed,
+]).pipe(
+  $I.annoteSchema("AiMetricsForwarderOtlpExport", {
+    description: "Tagged post-forwarder derived OTLP export status for the same ingest run.",
+  })
+);
+
+/**
+ * Runtime type for {@link AiMetricsForwarderOtlpExport}.
+ *
+ * @example
+ * ```ts
+ * import type { AiMetricsForwarderOtlpExport } from "@beep/repo-ai-metrics"
+ * const status: AiMetricsForwarderOtlpExport["status"] = "exported"
+ * console.log(status)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsForwarderOtlpExport = typeof AiMetricsForwarderOtlpExport.Type;
+
+/**
  * Safe result emitted by one durable AI metrics forwarder run.
  *
  * @example
@@ -148,6 +236,7 @@ export class AiMetricsForwarderRunResult extends S.Class<AiMetricsForwarderRunRe
     configSnapshotId: S.String,
     duckDbPath: S.String,
     ingestRunId: S.String,
+    otlpExport: S.optionalKey(AiMetricsForwarderOtlpExport),
     parquetExportDir: S.String,
     parquetTables: S.Array(S.String),
     rawArchiveDir: S.String,

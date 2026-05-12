@@ -27,3 +27,10 @@ concrete deployment steps, and no local or remote mutation. P5b keeps real
 dankserver mutation in `@beep/infra`, where Pulumi remote commands deploy
 Phoenix to the dedicated tailnet URL
 `https://dankserver.tailc7c348.ts.net:8447`.
+
+P6 keeps `forwarder run --otlp` additive: the forwarder still persists
+encrypted raw archive objects plus derived DuckDB/Parquet outputs first, then
+attempts a derived OTLP export for the same ingest run. The forwarder JSON
+contains `otlpExport` only when OTLP is requested, with a tagged `exported` or
+`failed` status so local collection evidence remains readable even when the
+backend export fails.

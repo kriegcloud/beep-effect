@@ -60,6 +60,25 @@ move the proof data root.
   - HTTP status: `200`
   - `x-phoenix-server-version: 15.5.0`
 
+## Phoenix UI Interpretation
+
+The installed P6 proof runner remains pinned at the isolation commit until the
+credited proof window closes. During that window, Phoenix health should be
+interpreted alongside the local forwarder status artifact and derived DuckDB
+state.
+
+Phoenix's root-spans table can appear empty when the UI asks for root spans
+without treating orphan spans as roots. That state does not by itself prove
+collection stopped; confirm collection from `forwarder/status/latest.json`,
+derived turn counts, Parquet export paths, and Phoenix project trace counts.
+
+Phoenix sessions advance when derived agent spans carrying `session.id` are
+exported. Post-P6, the main checkout changes `forwarder run --otlp` so the
+scheduled path persists raw/derived data first and then records a tagged
+`otlpExport` status for the same ingest run. Do not update the pinned proof
+runner or re-render the installed timer with that behavior until after the
+credited proof window closes or is explicitly abandoned.
+
 ## Source Availability
 
 Recent source discovery remains Codex-only for the credited proof window:
