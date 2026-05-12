@@ -3,8 +3,10 @@
 ## Status
 
 Decision-complete and partially implemented. P7a/b landed without disturbing
-the active P6 seven-day proof. P7c provider/gateway metrics, P7d dashboard
-expansion, and final P7e production closeout remain pending.
+the active P6 seven-day proof. Final P7e production closeout remains pending
+until the proof window can be credited. P7c provider/gateway metrics and P7d
+dashboard expansion are follow-up capabilities, not V1 blockers, when their
+metrics remain explicitly unavailable and not scored.
 
 P7 must not rewrite the P6 proof while it is running. This slice turns the
 workstation-owned proof into a hybrid mirror plus retention topology with
@@ -22,9 +24,11 @@ The center of gravity is topology first:
 1. Decide where raw transcript access is owned.
 2. Decide what may sync off the workstation.
 3. Prove retention, deletion, restore, and re-derivation.
-4. Add provider/gateway usage metrics only after the raw/derived boundary is
+4. Close V1 with explicit unavailable/not-scored provider metrics if no real
+   provider source is ready.
+5. Add provider/gateway usage metrics only after the raw/derived boundary is
    explicit.
-5. Expand dashboard backends only when the backend-specific API need is real.
+6. Expand dashboard backends only when the backend-specific API need is real.
 
 ## Implemented Decision
 
@@ -156,7 +160,7 @@ Acceptance gates:
 
 ## P7c: Provider And Gateway Metrics
 
-Status: pending
+Status: follow-up, not V1-blocking
 
 Add real model-call, tool-invocation, token, cost, and latency data only from
 sources that can prove their privacy and attribution contract.
@@ -180,7 +184,7 @@ Acceptance gates:
 
 ## P7d: Dashboard And Backend Expansion
 
-Status: pending
+Status: follow-up, not V1-blocking
 
 Keep Phoenix as the default UI until a second backend has a specific job.
 
@@ -202,13 +206,17 @@ Acceptance gates:
 
 Status: pending
 
-P7 is complete when the stack can survive normal operator use without relying on
-the mutable development checkout.
+P7e is the V1 closeout pass after the credited P6 report exists. V1 is complete
+when the stack can survive normal operator use without relying on the mutable
+development checkout and when unavailable provider/gateway metrics are explicit
+rather than silently treated as measured values.
 
 Completion gates:
 
 - collection topology is implemented and documented
 - timer/scheduler ownership is explicit and observable
+- a sanitized derived mirror is built from the active data root after the final
+  report and confirmed on dankserver
 - sync or mirror failure modes are visible in status artifacts
 - retention, restore, deletion, and compaction workflows are proven
 - real provider/gateway metrics populate measured tables, or remain explicitly

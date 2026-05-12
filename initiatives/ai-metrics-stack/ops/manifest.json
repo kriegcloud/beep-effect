@@ -10,7 +10,7 @@
   },
   "currentSourceOfTruth": "SPEC.md",
   "currentTargetPhase": "P6c",
-  "completionEvidence": "dankserver deployment plus P6a hardening gates plus one restarted seven-day real-data config-impact scorecard",
+  "completionEvidence": "dankserver deployment plus P6a hardening gates plus one restarted seven-day real-data config-impact scorecard plus confirmed sanitized derived mirror",
   "targets": {
     "production": "dankserver",
     "smoke": "local",
@@ -23,6 +23,31 @@
     "rawSpine": "encrypted-jsonl-parquet-archive-with-eventlog-proof",
     "capturePosture": "passive-first-optional-litellm",
     "scoreModel": "outcome-heavy"
+  },
+  "v1Completion": {
+    "status": "in_progress",
+    "activeGate": "P6c",
+    "notBefore": "2026-05-16T02:26:00-05:00",
+    "closedGates": [
+      "dankserver Phoenix deployment",
+      "P6a hardening gates",
+      "P6b pinned proof-runner isolation",
+      "P6c human label for active isolated-runner config",
+      "P6c intermediate completion-ready scorecard"
+    ],
+    "remainingGates": [
+      "keep pinned proof runner unchanged through the credited proof window",
+      "generate the final seven-day scorecard after 2026-05-16T02:26:00-05:00",
+      "build and confirmed-sync the sanitized derived mirror to dankserver after the final report",
+      "verify remote mirror status",
+      "record P7e production-readiness closeout evidence"
+    ],
+    "nonBlockingFollowUps": [
+      "P7c provider/model/tool/token/cost enrichment",
+      "P7d dashboard/backend expansion",
+      "remote mirror lifecycle automation beyond confirmed sync/status",
+      "server-owned collection requiring transcript access/sync and privacy design"
+    ]
   },
   "owningSurfaces": {
     "developerAiAnalytics": "packages/tooling/library/ai-metrics",
@@ -130,18 +155,21 @@
           "id": "P7c",
           "name": "Provider And Gateway Metrics",
           "status": "pending",
+          "v1Blocking": false,
           "output": "history/outputs/p7-topology-first-production-plan.md"
         },
         {
           "id": "P7d",
           "name": "Dashboard And Backend Expansion",
           "status": "pending",
+          "v1Blocking": false,
           "output": "history/outputs/p7-topology-first-production-plan.md"
         },
         {
           "id": "P7e",
           "name": "Production Readiness Closeout",
           "status": "pending",
+          "v1Blocking": true,
           "output": "history/outputs/p7-topology-first-production-plan.md"
         }
       ]
@@ -197,6 +225,18 @@
       "command": "ssh -o BatchMode=yes -o ConnectTimeout=10 dankserver-yubi \"sh -lc 'if test -f /srv/data/ai-metrics/p7-derived-mirror/manifest.json; then echo present; else echo missing; fi'\""
     },
     {
+      "id": "ai-metrics-p7-final-mirror-build",
+      "command": "bun run beep ai-metrics mirror build --target dankserver --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics --remote-root /srv/data/ai-metrics/p7-derived-mirror --json"
+    },
+    {
+      "id": "ai-metrics-p7-final-mirror-sync",
+      "command": "bun run beep ai-metrics mirror sync --target dankserver --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics --bundle latest --host dankserver-yubi --remote-root /srv/data/ai-metrics/p7-derived-mirror --confirm p7-derived-mirror --json"
+    },
+    {
+      "id": "ai-metrics-p7-final-mirror-status",
+      "command": "bun run beep ai-metrics mirror status --target dankserver --host dankserver-yubi --remote-root /srv/data/ai-metrics/p7-derived-mirror --json"
+    },
+    {
       "id": "ai-metrics-p7-retention-list",
       "command": "bun run beep ai-metrics retention list --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics --json"
     },
@@ -224,12 +264,12 @@
   "knownGaps": [
     "The credited seven-day proof window is in progress until at least May 16, 2026 02:26 America/Chicago",
     "The workstation timer now runs from a locked pinned proof worktree while proof data remains under the main checkout .beep/ai-metrics root",
-    "The isolated-runner config has two benchmark runs but still requires at least one explicit human-approved outcome label",
-    "P7a/b hybrid mirror and local retention workflows are implemented, but remote mirror lifecycle automation beyond build, dry-run sync, and status remains pending",
+    "The isolated-runner config has a human-approved outcome label and intermediate completion-ready scorecard, but still requires elapsed proof time and the final seven-day report",
+    "P7a/b hybrid mirror and local retention workflows are implemented, but final confirmed mirror sync/status is deferred until after the credited proof report",
     "Optional LiteLLM deployment remains deferred beyond the Phoenix-only P5b slice",
-    "xAI, Venice, LiteLLM, and gateway enrichment remain deferred to P7c",
-    "Dashboard and backend expansion remains deferred to P7d",
+    "xAI, Venice, LiteLLM, and gateway enrichment remain deferred to non-blocking P7c follow-up",
+    "Dashboard and backend expansion remains deferred to non-blocking P7d follow-up",
     "Server-owned collection remains a future topology target requiring transcript access/sync and privacy design"
   ],
-  "nextAction": "Keep the isolated proof-runner timer running through May 16, 2026 02:26 America/Chicago, add a human-approved label for the isolated-runner config, regenerate the scorecard, and generate the final credited seven-day report after the proof window elapses; keep P7c/P7d deferred until that closeout gate is satisfied."
+  "nextAction": "Keep the isolated proof-runner timer running through May 16, 2026 02:26 America/Chicago, generate the final credited seven-day report after the proof window elapses, then run the P7e sanitized mirror build/sync/status closeout; keep P7c/P7d as non-blocking follow-up work."
 }

@@ -6,13 +6,13 @@ ship without disturbing that proof. P0 bootstrap, P1 source/privacy proof, P2
 durable ingest, P3 OTLP/backend contracts, P4 report-first scorecards, P5
 install/remote deployment, P6a fresh-review hardening, and P6b proof-runner
 isolation are complete. P7a/b hybrid mirror and retention workflows are now
-implemented; P7c
-provider/gateway metrics, P7d dashboard expansion, and P7e
-production-readiness closeout remain pending. Phoenix is live on dankserver,
-Pulumi state is reconciled, the workstation timer owns live collection from an
-isolated pinned proof worktree, and the credited seven-day proof restarted on
-May 9, 2026 02:26 America/Chicago. The earliest credited completion is May 16,
-2026 02:26 America/Chicago.
+implemented. P6c remains the active closeout gate until the credited proof can
+finish on May 16, 2026 02:26 America/Chicago. P7e is the V1 production
+readiness closeout that records the final seven-day report and confirmed
+sanitized mirror. P7c provider/gateway metrics and P7d dashboard/backend
+expansion remain follow-up capabilities, not blockers for V1 completion.
+Phoenix is live on dankserver, Pulumi state is reconciled, and the workstation
+timer owns live collection from an isolated pinned proof worktree.
 
 ## P0: Initiative Bootstrap And Current State
 
@@ -145,6 +145,12 @@ Status: in progress
   [history/outputs/p6-proof-runner-isolation-and-runbook.md](./history/outputs/p6-proof-runner-isolation-and-runbook.md).
 - Track pre-closeout readiness evidence in
   [history/outputs/p6-pre-may16-readiness-ledger.md](./history/outputs/p6-pre-may16-readiness-ledger.md).
+- The May 12 P6c label gate is closed for the active isolated-runner config:
+  the human-approved label for
+  `agent-task-f86914324ec15a092d633bbc488c0805753ffcad47f05264fe7856cc94a899fd`
+  flipped
+  `config-6c5738fd0e1932ced6043ab52c7df04e52278b1024470769243b724c265f7d52`
+  to `completionReady=true` in the intermediate report.
 - Additional labels require explicit human outcome judgment. Benchmark runs may
   be recorded for real operator workflows with deploy-safe prompt hashes and
   redacted notes.
@@ -211,9 +217,13 @@ Status: in progress
   `remoteMirrorRoot` with default `/srv/data/ai-metrics/p7-derived-mirror`.
   Before May 16, 2026 this remains preview-only infra state; live proofs can
   use the CLI mirror workflow without changing the active proof runner.
-- Still pending: P7c provider/model/tool/token/cost enrichment, P7d
-  dashboard/backend expansion, remote mirror lifecycle automation beyond
-  bundle sync/status, and the final P7e production-readiness closeout.
+- V1 pending: P7e production-readiness closeout after the P6 proof window
+  elapses. P7e must generate the final seven-day report, build a sanitized
+  derived mirror from the active data root, run confirmed `mirror sync` to
+  `/srv/data/ai-metrics/p7-derived-mirror`, and verify remote mirror status.
+- Follow-up, not V1-blocking: P7c provider/model/tool/token/cost enrichment,
+  P7d dashboard/backend expansion, and remote mirror lifecycle automation
+  beyond confirmed bundle sync/status.
 - Planning packet:
   [history/outputs/p7-topology-first-production-plan.md](./history/outputs/p7-topology-first-production-plan.md).
 

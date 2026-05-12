@@ -12,9 +12,12 @@ gateway activity into privacy-safe raw archives, derived rollups, OTLP traces,
 and weekly scorecards that answer whether agent-facing config changes improved
 coding-agent performance.
 
-Production-complete means the dankserver tailnet stack is deployed, local smoke
-collection works, P6a hardening gates pass, real sources are flowing, and one
-restarted seven-day config-impact scorecard has been generated from live data.
+Production-complete V1 means the dankserver tailnet stack is deployed, local
+smoke collection works, P6a hardening gates pass, real sources are flowing, one
+restarted seven-day config-impact scorecard has been generated from live data,
+and a sanitized derived mirror has been confirmed on dankserver. Provider and
+dashboard enrichment remain follow-up work when the scorecard explicitly marks
+those metrics unavailable and not scored.
 
 ## Read This First
 
@@ -54,7 +57,7 @@ restarted seven-day config-impact scorecard has been generated from live data.
     and the remaining completion gate before May 16
 - [history/outputs/p7-topology-first-production-plan.md](./history/outputs/p7-topology-first-production-plan.md)
   - P7 topology-first production packet, implemented P7a/b mirror and
-    retention workflows, and pending P7c/P7d/P7e work
+    retention workflows, pending P7e V1 closeout, and P7c/P7d follow-up work
 - [research/effect-native-observability.md](./research/effect-native-observability.md)
   - Effect v4 observability package findings
 - [research/backend-shortlist.md](./research/backend-shortlist.md) - backend
@@ -125,14 +128,17 @@ America/Chicago after the P6a closeout gates passed:
   discovery confirms Claude Code and OpenClaw sources exist outside the active
   proof window and are deferred to P7c provider/gateway work.
 - Current P6 work is to keep the timer running through May 16, 2026 02:26
-  America/Chicago, add human-approved labels and real benchmark runs as data
-  accumulates, and generate the final seven-day report.
-- The May 9 readiness pass recorded another successful scheduled timer run and
-  a second isolation benchmark run for the isolated-runner config. That config
-  remains blocked only by the explicit human-label gate plus elapsed proof time.
-- P7c provider/gateway metrics, P7d dashboard/backend expansion, remote mirror
-  lifecycle automation beyond build/sync/status, and P7e production-readiness
-  closeout remain pending.
+  America/Chicago and generate the final seven-day report.
+- The May 12 P6c label pass added one explicit human-approved outcome label for
+  the isolated-runner config and regenerated an intermediate report where that
+  config is `completionReady=true`. The remaining P6 blocker is elapsed proof
+  time.
+- P7e production-readiness closeout remains the V1 closeout pass after May 16.
+  It must record the final report and confirm a sanitized derived mirror on
+  dankserver.
+- P7c provider/gateway metrics, P7d dashboard/backend expansion, and remote
+  mirror lifecycle automation beyond confirmed bundle sync/status remain
+  follow-up work, not V1 blockers.
 
 ## Completion Standard
 
@@ -144,9 +150,14 @@ This initiative is done only when all are true:
 - P6a hardening gates have passed, including subagent attribution, source-aware
   coverage, config diffs, metadata allowlist, timer ownership, and archive
   decrypt drill
-- Codex, Claude Code, OpenClaw, and optional gateway sources have discovery and
-  ingest coverage
+- Codex source discovery and ingest are proven, Claude Code/OpenClaw adapter
+  visibility is explicit, and optional gateway/provider metrics either contain
+  measured rows or are explicitly unavailable and not scored
 - config snapshots are linked to real sessions and benchmark runs
 - CLI label review produces outcome labels for real work
 - one weekly config-impact scorecard is generated from a restarted seven-day
   live window and is marked completion-ready with labels plus benchmark evidence
+- a sanitized derived mirror is confirmed on dankserver after the final
+  seven-day report
+- provider/tool/cost fields either contain real measured rows or are explicitly
+  reported as unavailable and not scored

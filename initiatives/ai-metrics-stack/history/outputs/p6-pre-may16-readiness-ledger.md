@@ -323,13 +323,51 @@ Scorecard summary:
 
 ## Remaining Pre-May-16 Work
 
-- Add at least one human-approved label for
-  `config-6c5738fd0e1932ced6043ab52c7df04e52278b1024470769243b724c265f7d52`.
-- Regenerate the intermediate weekly report and confirm that the same config
-  snapshot flips to `completionReady=true`.
 - Continue daily timer/Phoenix/source/report health checks without changing the
   proof runner or source window.
+- Keep the credited proof running until May 16, 2026 02:26 America/Chicago,
+  then generate the final seven-day report.
 - Keep additional P7 work limited to P7a/b health proof and documentation until
   the credited proof window completes or is explicitly abandoned. Any P7 proof
   that writes mirror or restore artifacts must run against a disposable copy of
   the proof data root rather than the active root.
+
+## May 12, 2026 P6c Label Gate
+
+Collected at approximately May 12, 2026 10:58 America/Chicago.
+
+This pass used the explicit human clean-pass judgment from the planning session
+and did not change the proof runner, timer cadence, source window, proof data
+root, hash salt, archive key, or pinned proof worktree.
+
+### Label
+
+- Label id:
+  `label-a97eea43d276877eb5a28283a57a39cf00ece92b4b098f82d92f552815d31b84`
+- Agent task:
+  `agent-task-f86914324ec15a092d633bbc488c0805753ffcad47f05264fe7856cc94a899fd`
+- Config snapshot:
+  `config-6c5738fd0e1932ced6043ab52c7df04e52278b1024470769243b724c265f7d52`
+- Passed: `true`
+- Quality gate: `passed`
+- Rating: `5`
+- Interventions: `0`
+- Follow-up fix: `false`
+- Note: `P6c human review: clean pass; no follow-up fix required; redacted note only.`
+
+### Regenerated Intermediate Report
+
+- Markdown:
+  `.beep/ai-metrics/reports/weekly-1777996696860-1778601496860.md`
+- JSON:
+  `.beep/ai-metrics/reports/weekly-1777996696860-1778601496860.json`
+
+Scorecard summary for the active isolated-runner config:
+
+| configSnapshotId | tasks | labels | benchmarks | completionReady | gaps |
+| --- | ---: | ---: | ---: | --- | --- |
+| `config-6c5738fd0e1932ced6043ab52c7df04e52278b1024470769243b724c265f7d52` | 58 | 1 | 2 | yes | unavailable model/tool/cost metrics |
+
+The human-label gate is closed for P6c. The remaining closeout gate is elapsed
+proof time through May 16, 2026 02:26 America/Chicago, followed by the final
+seven-day report and V1 mirror closeout.

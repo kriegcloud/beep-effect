@@ -46,6 +46,8 @@ Out of scope for v1:
 - making `effect/unstable/eventlog` the only deploy-safe raw source of record
 - exposing raw prompt or transcript bodies in observability UIs
 - public internet access to the metrics stack
+- requiring measured provider/gateway token, cost, latency, or tool-call
+  metrics before the first seven-day config-impact scorecard is credited
 
 ## Architectural Boundaries
 
@@ -90,6 +92,11 @@ output.
 - P7 production default: hybrid derived mirror. Raw encrypted archives remain
   workstation-local; only sanitized derived/report/status artifacts may sync to
   dankserver.
+- V1 completion posture: the first production-complete milestone may close
+  with provider/model/tool/token/cost metrics explicitly reported as
+  unavailable and not scored. Provider/gateway enrichment and dashboard
+  expansion remain follow-up P7 work, not blockers for the credited P6
+  scorecard.
 
 ## Data Products
 
@@ -184,10 +191,13 @@ The initiative is complete only when:
 - live collection is owned by the workstation timer for the restarted seven-day
   proof and populates raw and derived storage
 - Phoenix or the selected default UI shows real data
-- source discovery covers Codex, Claude Code, OpenClaw, and optional gateway
-  logs
+- source discovery covers Codex and proves Claude Code/OpenClaw adapter
+  visibility, while optional gateway/provider measured metrics either populate
+  real rows or remain explicit unavailable/not-scored follow-up gaps
 - the CLI label queue can record real outcome labels
 - benchmark runs are linked to config snapshots
 - a restarted seven-day weekly report exists in derived storage and as a
   readable output, with labels and benchmark evidence sufficient for completion
   credit
+- a sanitized derived mirror is built and confirmed on dankserver after the
+  credited proof report, without syncing raw transcript archives
