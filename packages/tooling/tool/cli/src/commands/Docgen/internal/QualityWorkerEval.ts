@@ -809,9 +809,16 @@ const resolveCodexSdkVersion = Effect.fn("DocgenQualityWorkerEval.resolveCodexSd
 const resolveCodexSdkVersionOrUnknown: Effect.Effect<string, never, FileSystem.FileSystem | Path.Path> =
   resolveCodexSdkVersion().pipe(Effect.catch(() => Effect.succeed("unknown")));
 
-const defaultCodexRunner: DocgenQualityWorkerEvalRunner = Effect.fn("DocgenQualityWorkerEval.defaultCodexRunner")(
-  function* ({ model, prompt, provider, reasoningEffort, workingDirectory }) {
-    const sdkModule = yield* importCodexSdk();
+type CodexSdkModule = typeof import("@openai/codex-sdk");
+
+const makeCodexRunner = (sdkModule: CodexSdkModule): DocgenQualityWorkerEvalRunner =>
+  Effect.fn("DocgenQualityWorkerEval.codexRunner")(function* ({
+    model,
+    prompt,
+    provider,
+    reasoningEffort,
+    workingDirectory,
+  }) {
     const codexOptions = Match.value(provider).pipe(
       Match.when("codex", () => ({
         config: {
@@ -867,8 +874,12 @@ const defaultCodexRunner: DocgenQualityWorkerEvalRunner = Effect.fn("DocgenQuali
     return {
       finalResponse: turn.finalResponse,
     };
-  }
-);
+  });
+
+const makeDefaultCodexRunner = Effect.fn("DocgenQualityWorkerEval.makeDefaultCodexRunner")(function* () {
+  const sdkModule = yield* importCodexSdk();
+  return makeCodexRunner(sdkModule);
+});
 
 const decodeWorkerOutput = (value: string): Effect.Effect<DocgenQualityWorkerEvalWorkerOutput, DomainError> =>
   decodeWorkerOutputJson(value).pipe(
@@ -1174,7 +1185,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
     provider,
     reasoningEffort,
     report,
-    runner = defaultCodexRunner,
+    runner,
     scope,
     sourceQualityReport,
     timeout = DEFAULT_WORKER_EVAL_TIMEOUT,
@@ -1184,27 +1195,33 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
     const sdkVersion = codexSdkVersion ?? (yield* resolveCodexSdkVersionOrUnknown);
     const candidates = A.map(report.remediationPackets, (packet) => packetCandidate(report, packet));
     const selected = selectQualityWorkerEvalPackets(candidates, packetLimit);
-    const packets = yield* Effect.forEach(
-      selected,
-      (candidate) => {
-        const reasoningInput = pipe(
-          O.fromNullishOr(reasoningEffort),
-          O.map((value) => ({ reasoningEffort: value })),
-          O.getOrElse(() => ({}))
-        );
+    let packets: ReadonlyArray<DocgenQualityWorkerEvalPacketResult>;
+    if (selected.length === 0) {
+      packets = A.empty();
+    } else {
+      const resolvedRunner = runner ?? (yield* makeDefaultCodexRunner());
+      packets = yield* Effect.forEach(
+        selected,
+        (candidate) => {
+          const reasoningInput = pipe(
+            O.fromNullishOr(reasoningEffort),
+            O.map((value) => ({ reasoningEffort: value })),
+            O.getOrElse(() => ({}))
+          );
 
-        return runPacketEval({
-          candidate,
-          model,
-          provider,
-          ...reasoningInput,
-          runner,
-          timeout,
-          workingDirectory,
-        });
-      },
-      { concurrency: 1 }
-    );
+          return runPacketEval({
+            candidate,
+            model,
+            provider,
+            ...reasoningInput,
+            runner: resolvedRunner,
+            timeout,
+            workingDirectory,
+          });
+        },
+        { concurrency: 1 }
+      );
+    }
     const summary = summarizePacketResults(report, selected.length, packets);
 
     return new DocgenQualityWorkerEvalReport({

@@ -55,6 +55,7 @@ exifr
 fflate
 LiteLLM
 litellm
+lmstudio
 Opik
 opik
 piexifjs
