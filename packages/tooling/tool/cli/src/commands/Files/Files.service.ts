@@ -7,7 +7,21 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
-import { Console, Context, Effect, FileSystem, flow, HashMap, HashSet, Layer, Order, Path, pipe, Result } from "effect";
+import {
+  Console,
+  Context,
+  Effect,
+  FileSystem,
+  flow,
+  HashMap,
+  HashSet,
+  Layer,
+  Order,
+  Path,
+  pipe,
+  Result,
+  type Terminal,
+} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
@@ -16,6 +30,7 @@ import { imageSizeFromFile } from "image-size/fromFile";
 import sharp from "sharp";
 import { renderBiomeJson } from "../Shared/BiomeJson.js";
 import { FilesCommandError, failOnExtensionlessFile, formatPlatformError } from "./Files.errors.js";
+import { FilesConcurrency, runFilesProgressForEach } from "./Files.progress.js";
 import {
   ArchivedSidecarEntry,
   ArchivePoorCandidatesEntry,
@@ -118,7 +133,11 @@ import {
 
 const $I = $RepoCliId.create("commands/Files/Files.service");
 
-type FilesCommandServiceRequirements = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
+type FilesCommandServiceRequirements =
+  | FileSystem.FileSystem
+  | Path.Path
+  | Terminal.Terminal
+  | ChildProcessSpawner.ChildProcessSpawner;
 
 interface NormalizeSeenOutput {
   readonly entry: NormalizePlanEntry;
@@ -135,6 +154,26 @@ interface NormalizeApplyResult {
   readonly completedEntries: ReadonlyArray<NormalizePlanEntry>;
   readonly duplicateMoves: ReadonlyArray<NormalizeDuplicateMove>;
   readonly duplicateSkippedEntries: ReadonlyArray<NormalizeSkippedEntry>;
+}
+
+interface DetectBordersCollectedEntries {
+  readonly files: ReadonlyArray<SortableFile>;
+  readonly skipped: ReadonlyArray<DetectBordersSkippedEntry>;
+}
+
+interface SortableCollectedEntry {
+  readonly file: O.Option<SortableFile>;
+  readonly skippedCount: number;
+}
+
+interface NormalizeCollectedEntries {
+  readonly files: ReadonlyArray<SortableFile>;
+  readonly skipped: ReadonlyArray<NormalizeSkippedEntry>;
+}
+
+interface ArchiveCandidateCollectedEntries {
+  readonly files: ReadonlyArray<SortableFile>;
+  readonly skipped: ReadonlyArray<ArchivePoorCandidatesSkippedEntry>;
 }
 
 /**
@@ -688,58 +727,49 @@ const validateArchiveDirectories = Effect.fn("Files.validateArchiveDirectories")
   };
 });
 
-const collectSortableFiles = Effect.fn("Files.collectSortableFiles")(function* (
-  dir: string,
-  mediaOnly: boolean
-): Effect.fn.Return<SortableFileCollection, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+const collectSortableFile = Effect.fn("Files.collectSortableFile")(function* (
+  directory: string,
+  canonicalDir: string,
+  mediaOnly: boolean,
+  entry: string
+): Effect.fn.Return<SortableCollectedEntry, FilesCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const { canonicalDir, directory } = yield* validateDirectory(dir);
-  const entries = yield* fs
-    .readDirectory(directory)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause })));
+  const sourcePath = path.join(directory, entry);
+  const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
 
-  let files = A.empty<SortableFile>();
-  let skippedCount = 0;
+  if (O.isNone(canonicalPath)) {
+    return { file: O.none<SortableFile>(), skippedCount: 0 };
+  }
 
-  for (const entry of entries) {
-    const sourcePath = path.join(directory, entry);
-    const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
+  if (!stringEquivalence(canonicalPath.value, path.join(canonicalDir, entry))) {
+    return { file: O.none<SortableFile>(), skippedCount: 0 };
+  }
 
-    if (O.isNone(canonicalPath)) {
-      continue;
+  const stat = yield* fs
+    .stat(sourcePath)
+    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat file", sourcePath, { cause })));
+
+  if (stat.type !== "File") {
+    return { file: O.none<SortableFile>(), skippedCount: 0 };
+  }
+
+  const extension = path.extname(entry);
+  if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+    if (mediaOnly) {
+      return { file: O.none<SortableFile>(), skippedCount: 1 };
     }
 
-    if (!stringEquivalence(canonicalPath.value, path.join(canonicalDir, entry))) {
-      continue;
-    }
+    return yield* failOnExtensionlessFile(sourcePath);
+  }
 
-    const stat = yield* fs
-      .stat(sourcePath)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat file", sourcePath, { cause })));
+  const mediaKind = mediaKindFromExtension(extension);
+  if (mediaOnly && O.isNone(mediaKind)) {
+    return { file: O.none<SortableFile>(), skippedCount: 1 };
+  }
 
-    if (stat.type !== "File") {
-      continue;
-    }
-
-    const extension = path.extname(entry);
-    if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
-      if (mediaOnly) {
-        skippedCount += 1;
-        continue;
-      }
-
-      return yield* failOnExtensionlessFile(sourcePath);
-    }
-
-    const mediaKind = mediaKindFromExtension(extension);
-    if (mediaOnly && O.isNone(mediaKind)) {
-      skippedCount += 1;
-      continue;
-    }
-
-    files = A.append(
-      files,
+  return {
+    file: O.some(
       new SortableFile({
         canonicalPath: canonicalPath.value,
         extension,
@@ -748,13 +778,154 @@ const collectSortableFiles = Effect.fn("Files.collectSortableFiles")(function* (
         size: stat.size,
         sourcePath,
       })
-    );
-  }
+    ),
+    skippedCount: 0,
+  };
+});
+
+const collectSortableFiles = Effect.fn("Files.collectSortableFiles")(function* (
+  dir: string,
+  mediaOnly: boolean,
+  progressLabel: string
+): Effect.fn.Return<SortableFileCollection, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
+  const fs = yield* FileSystem.FileSystem;
+  const { canonicalDir, directory } = yield* validateDirectory(dir);
+  const entries = yield* fs
+    .readDirectory(directory)
+    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause })));
+  const collectedEntries = yield* runFilesProgressForEach(
+    entries,
+    (entry) => collectSortableFile(directory, canonicalDir, mediaOnly, entry),
+    {
+      concurrency: FilesConcurrency.scan,
+      label: progressLabel,
+    }
+  );
+  const files = A.flatMap(collectedEntries, (collected) => O.toArray(collected.file));
+  const skippedCount = A.reduce(collectedEntries, 0, (count, collected) => count + collected.skippedCount);
 
   return new SortableFileCollection({
     files: A.sort(files, bySizeDescendingThenNameAscending),
     skippedCount,
   });
+});
+
+const normalizeCollectedFile = (file: SortableFile): NormalizeCollectedEntries => ({
+  files: A.of(file),
+  skipped: A.empty(),
+});
+
+const normalizeCollectedSkipped = (skipped: NormalizeSkippedEntry): NormalizeCollectedEntries => ({
+  files: A.empty(),
+  skipped: A.of(skipped),
+});
+
+const collectNormalizeFile = Effect.fn("Files.collectNormalizeFile")(function* (
+  directory: string,
+  canonicalDirectory: string,
+  entry: string
+): Effect.fn.Return<NormalizeCollectedEntries, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const sourcePath = path.join(directory, entry);
+  const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
+
+  if (O.isNone(canonicalPath)) {
+    return normalizeCollectedSkipped(
+      makeNormalizeSkippedEntry(entry, sourcePath, O.none<string>(), "symlink", "Could not resolve source entry.")
+    );
+  }
+
+  if (!stringEquivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
+    return normalizeCollectedSkipped(
+      makeNormalizeSkippedEntry(entry, sourcePath, O.none<string>(), "symlink", "Symlink entries are not normalized.")
+    );
+  }
+
+  const stat = yield* fs
+    .stat(sourcePath)
+    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat source entry", sourcePath, { cause })));
+
+  if (stat.type === "Directory") {
+    return normalizeCollectedSkipped(
+      makeNormalizeSkippedEntry(entry, sourcePath, O.none<string>(), "directory", "Directories are not normalized.")
+    );
+  }
+
+  if (stat.type !== "File") {
+    return normalizeCollectedSkipped(
+      makeNormalizeSkippedEntry(
+        entry,
+        sourcePath,
+        O.none<string>(),
+        "non-media",
+        "Only regular image files are normalized."
+      )
+    );
+  }
+
+  const extension = path.extname(entry);
+  if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+    return normalizeCollectedSkipped(
+      makeNormalizeSkippedEntry(
+        entry,
+        sourcePath,
+        O.none<string>(),
+        "extensionless",
+        "Extensionless files are not normalized."
+      )
+    );
+  }
+
+  const bareExtension = normalizeBareExtension(extension);
+  const mediaKind = mediaKindFromExtension(extension);
+
+  if (O.isNone(mediaKind)) {
+    return normalizeCollectedSkipped(
+      makeNormalizeSkippedEntry(
+        entry,
+        sourcePath,
+        O.some(extension),
+        "non-media",
+        "Only recognized image files are normalized."
+      )
+    );
+  }
+
+  if (mediaKind.value === "video") {
+    return normalizeCollectedSkipped(
+      makeNormalizeSkippedEntry(
+        entry,
+        sourcePath,
+        O.some(extension),
+        "video",
+        "Video normalization is out of scope for this operation."
+      )
+    );
+  }
+
+  const file = new SortableFile({
+    canonicalPath: canonicalPath.value,
+    extension,
+    mediaKind,
+    name: entry,
+    size: stat.size,
+    sourcePath,
+  });
+
+  if (!isImageFileExtension(bareExtension) || !isSupportedMetadataImageFile(file)) {
+    return normalizeCollectedSkipped(
+      makeNormalizeSkippedEntry(
+        entry,
+        sourcePath,
+        O.some(extension),
+        "unsupported-image",
+        "Image extension is not supported by sharp normalization."
+      )
+    );
+  }
+
+  return normalizeCollectedFile(file);
 });
 
 const collectNormalizeFiles = Effect.fn("Files.collectNormalizeFiles")(function* (
@@ -763,134 +934,22 @@ const collectNormalizeFiles = Effect.fn("Files.collectNormalizeFiles")(function*
 ): Effect.fn.Return<
   { readonly files: ReadonlyArray<SortableFile>; readonly skipped: ReadonlyArray<NormalizeSkippedEntry> },
   FilesCommandError,
-  FileSystem.FileSystem | Path.Path
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
   const entries = yield* fs
     .readDirectory(directory)
     .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause })));
-
-  let files = A.empty<SortableFile>();
-  let skipped = A.empty<NormalizeSkippedEntry>();
-
-  for (const entry of entries) {
-    const sourcePath = path.join(directory, entry);
-    const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
-
-    if (O.isNone(canonicalPath)) {
-      skipped = A.append(
-        skipped,
-        makeNormalizeSkippedEntry(entry, sourcePath, O.none<string>(), "symlink", "Could not resolve source entry.")
-      );
-      continue;
+  const collectedEntries = yield* runFilesProgressForEach(
+    entries,
+    (entry) => collectNormalizeFile(directory, canonicalDirectory, entry),
+    {
+      concurrency: FilesConcurrency.scan,
+      label: "normalize scan",
     }
-
-    if (!stringEquivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
-      skipped = A.append(
-        skipped,
-        makeNormalizeSkippedEntry(entry, sourcePath, O.none<string>(), "symlink", "Symlink entries are not normalized.")
-      );
-      continue;
-    }
-
-    const stat = yield* fs
-      .stat(sourcePath)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat source entry", sourcePath, { cause })));
-
-    if (stat.type === "Directory") {
-      skipped = A.append(
-        skipped,
-        makeNormalizeSkippedEntry(entry, sourcePath, O.none<string>(), "directory", "Directories are not normalized.")
-      );
-      continue;
-    }
-
-    if (stat.type !== "File") {
-      skipped = A.append(
-        skipped,
-        makeNormalizeSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "non-media",
-          "Only regular image files are normalized."
-        )
-      );
-      continue;
-    }
-
-    const extension = path.extname(entry);
-    if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
-      skipped = A.append(
-        skipped,
-        makeNormalizeSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "extensionless",
-          "Extensionless files are not normalized."
-        )
-      );
-      continue;
-    }
-
-    const bareExtension = normalizeBareExtension(extension);
-    const mediaKind = mediaKindFromExtension(extension);
-
-    if (O.isNone(mediaKind)) {
-      skipped = A.append(
-        skipped,
-        makeNormalizeSkippedEntry(
-          entry,
-          sourcePath,
-          O.some(extension),
-          "non-media",
-          "Only recognized image files are normalized."
-        )
-      );
-      continue;
-    }
-
-    if (mediaKind.value === "video") {
-      skipped = A.append(
-        skipped,
-        makeNormalizeSkippedEntry(
-          entry,
-          sourcePath,
-          O.some(extension),
-          "video",
-          "Video normalization is out of scope for this operation."
-        )
-      );
-      continue;
-    }
-
-    const file = new SortableFile({
-      canonicalPath: canonicalPath.value,
-      extension,
-      mediaKind,
-      name: entry,
-      size: stat.size,
-      sourcePath,
-    });
-
-    if (!isImageFileExtension(bareExtension) || !isSupportedMetadataImageFile(file)) {
-      skipped = A.append(
-        skipped,
-        makeNormalizeSkippedEntry(
-          entry,
-          sourcePath,
-          O.some(extension),
-          "unsupported-image",
-          "Image extension is not supported by sharp normalization."
-        )
-      );
-      continue;
-    }
-
-    files = A.append(files, file);
-  }
+  );
+  const files = A.flatMap(collectedEntries, (collected) => collected.files);
+  const skipped = A.flatMap(collectedEntries, (collected) => collected.skipped);
 
   return {
     files: A.sort(files, byNameAscending),
@@ -903,7 +962,7 @@ const collectNormalizeFiles = Effect.fn("Files.collectNormalizeFiles")(function*
 
 const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan")(function* (
   options: CreateCaptionFilesOptions
-): Effect.fn.Return<CreateCaptionFilesPlan, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<CreateCaptionFilesPlan, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const { canonicalDir, directory } = yield* validateDirectory(options.dir);
@@ -916,199 +975,209 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
   let plannedCaptionNames = HashSet.empty<string>();
   let skipped = A.empty<CreateCaptionFilesSkippedEntry>();
 
-  for (const sourceName of sourceNames) {
-    const sourcePath = path.join(directory, sourceName);
-    const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
+  yield* runFilesProgressForEach(
+    sourceNames,
+    (sourceName) =>
+      Effect.gen(function* () {
+        const sourcePath = path.join(directory, sourceName);
+        const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
 
-    if (O.isNone(canonicalPath)) {
-      skipped = A.append(
-        skipped,
-        makeCreateCaptionFilesSkippedEntry(
-          sourceName,
-          sourcePath,
-          O.none<string>(),
-          O.none<string>(),
-          "symlink",
-          "Could not resolve source entry."
-        )
-      );
-      continue;
-    }
+        if (O.isNone(canonicalPath)) {
+          skipped = A.append(
+            skipped,
+            makeCreateCaptionFilesSkippedEntry(
+              sourceName,
+              sourcePath,
+              O.none<string>(),
+              O.none<string>(),
+              "symlink",
+              "Could not resolve source entry."
+            )
+          );
+          return;
+        }
 
-    if (!stringEquivalence(canonicalPath.value, path.join(canonicalDir, sourceName))) {
-      skipped = A.append(
-        skipped,
-        makeCreateCaptionFilesSkippedEntry(
-          sourceName,
-          sourcePath,
-          O.none<string>(),
-          O.none<string>(),
-          "symlink",
-          "Symlink entries are not captioned."
-        )
-      );
-      continue;
-    }
+        if (!stringEquivalence(canonicalPath.value, path.join(canonicalDir, sourceName))) {
+          skipped = A.append(
+            skipped,
+            makeCreateCaptionFilesSkippedEntry(
+              sourceName,
+              sourcePath,
+              O.none<string>(),
+              O.none<string>(),
+              "symlink",
+              "Symlink entries are not captioned."
+            )
+          );
+          return;
+        }
 
-    const stat = yield* fs
-      .stat(sourcePath)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat source entry", sourcePath, { cause })));
+        const stat = yield* fs
+          .stat(sourcePath)
+          .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat source entry", sourcePath, { cause })));
 
-    if (stat.type === "Directory") {
-      skipped = A.append(
-        skipped,
-        makeCreateCaptionFilesSkippedEntry(
-          sourceName,
-          sourcePath,
-          O.none<string>(),
-          O.none<string>(),
-          "directory",
-          "Directories are not captioned."
-        )
-      );
-      continue;
-    }
+        if (stat.type === "Directory") {
+          skipped = A.append(
+            skipped,
+            makeCreateCaptionFilesSkippedEntry(
+              sourceName,
+              sourcePath,
+              O.none<string>(),
+              O.none<string>(),
+              "directory",
+              "Directories are not captioned."
+            )
+          );
+          return;
+        }
 
-    if (stat.type !== "File") {
-      skipped = A.append(
-        skipped,
-        makeCreateCaptionFilesSkippedEntry(
-          sourceName,
-          sourcePath,
-          O.none<string>(),
-          O.none<string>(),
-          "non-media",
-          "Only regular image files receive caption sidecars."
-        )
-      );
-      continue;
-    }
+        if (stat.type !== "File") {
+          skipped = A.append(
+            skipped,
+            makeCreateCaptionFilesSkippedEntry(
+              sourceName,
+              sourcePath,
+              O.none<string>(),
+              O.none<string>(),
+              "non-media",
+              "Only regular image files receive caption sidecars."
+            )
+          );
+          return;
+        }
 
-    const extension = path.extname(sourceName);
-    if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
-      skipped = A.append(
-        skipped,
-        makeCreateCaptionFilesSkippedEntry(
-          sourceName,
-          sourcePath,
-          O.none<string>(),
-          O.none<string>(),
-          "extensionless",
-          "Extensionless files are not captioned."
-        )
-      );
-      continue;
-    }
+        const extension = path.extname(sourceName);
+        if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+          skipped = A.append(
+            skipped,
+            makeCreateCaptionFilesSkippedEntry(
+              sourceName,
+              sourcePath,
+              O.none<string>(),
+              O.none<string>(),
+              "extensionless",
+              "Extensionless files are not captioned."
+            )
+          );
+          return;
+        }
 
-    const mediaKind = mediaKindFromExtension(extension);
-    if (O.isNone(mediaKind)) {
-      skipped = A.append(
-        skipped,
-        makeCreateCaptionFilesSkippedEntry(
-          sourceName,
-          sourcePath,
-          O.some(extension),
-          O.none<string>(),
-          "non-media",
-          "Only recognized image files receive caption sidecars."
-        )
-      );
-      continue;
-    }
+        const mediaKind = mediaKindFromExtension(extension);
+        if (O.isNone(mediaKind)) {
+          skipped = A.append(
+            skipped,
+            makeCreateCaptionFilesSkippedEntry(
+              sourceName,
+              sourcePath,
+              O.some(extension),
+              O.none<string>(),
+              "non-media",
+              "Only recognized image files receive caption sidecars."
+            )
+          );
+          return;
+        }
 
-    if (mediaKind.value === "video") {
-      skipped = A.append(
-        skipped,
-        makeCreateCaptionFilesSkippedEntry(
-          sourceName,
-          sourcePath,
-          O.some(extension),
-          O.none<string>(),
-          "video",
-          "Video caption sidecars are out of scope for this operation."
-        )
-      );
-      continue;
-    }
+        if (mediaKind.value === "video") {
+          skipped = A.append(
+            skipped,
+            makeCreateCaptionFilesSkippedEntry(
+              sourceName,
+              sourcePath,
+              O.some(extension),
+              O.none<string>(),
+              "video",
+              "Video caption sidecars are out of scope for this operation."
+            )
+          );
+          return;
+        }
 
-    const captionName = `${path.basename(sourceName, extension)}.txt`;
-    const captionPath = path.join(directory, captionName);
+        const captionName = `${path.basename(sourceName, extension)}.txt`;
+        const captionPath = path.join(directory, captionName);
 
-    if (HashSet.has(plannedCaptionNames, captionName)) {
-      skipped = A.append(
-        skipped,
-        makeCreateCaptionFilesSkippedEntry(
-          sourceName,
-          sourcePath,
-          O.some(extension),
-          O.some(captionName),
-          "caption-target-collision",
-          `Another image in this run already targets "${captionName}".`
-        )
-      );
-      continue;
-    }
+        if (HashSet.has(plannedCaptionNames, captionName)) {
+          skipped = A.append(
+            skipped,
+            makeCreateCaptionFilesSkippedEntry(
+              sourceName,
+              sourcePath,
+              O.some(extension),
+              O.some(captionName),
+              "caption-target-collision",
+              `Another image in this run already targets "${captionName}".`
+            )
+          );
+          return;
+        }
 
-    const captionExists = yield* fs
-      .exists(captionPath)
-      .pipe(
-        Effect.mapError((cause) => formatPlatformError("Failed to inspect caption target", captionPath, { cause }))
-      );
-    let overwritesExisting = false;
+        const captionExists = yield* fs
+          .exists(captionPath)
+          .pipe(
+            Effect.mapError((cause) => formatPlatformError("Failed to inspect caption target", captionPath, { cause }))
+          );
+        let overwritesExisting = false;
 
-    if (captionExists) {
-      const captionStat = yield* fs
-        .stat(captionPath)
-        .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat caption target", captionPath, { cause })));
+        if (captionExists) {
+          const captionStat = yield* fs
+            .stat(captionPath)
+            .pipe(
+              Effect.mapError((cause) => formatPlatformError("Failed to stat caption target", captionPath, { cause }))
+            );
 
-      if (captionStat.type !== "File") {
-        skipped = A.append(
-          skipped,
-          makeCreateCaptionFilesSkippedEntry(
+          if (captionStat.type !== "File") {
+            skipped = A.append(
+              skipped,
+              makeCreateCaptionFilesSkippedEntry(
+                sourceName,
+                sourcePath,
+                O.some(extension),
+                O.some(captionName),
+                "caption-target-not-file",
+                `Caption target "${captionName}" already exists and is not a file.`
+              )
+            );
+            return;
+          }
+
+          if (!options.overwrite) {
+            skipped = A.append(
+              skipped,
+              makeCreateCaptionFilesSkippedEntry(
+                sourceName,
+                sourcePath,
+                O.some(extension),
+                O.some(captionName),
+                "caption-exists",
+                `Caption target "${captionName}" already exists.`
+              )
+            );
+            return;
+          }
+
+          overwritesExisting = true;
+        }
+
+        plannedCaptionNames = HashSet.add(plannedCaptionNames, captionName);
+        entries = A.append(
+          entries,
+          new CreateCaptionFilesPlanEntry({
+            captionName,
+            captionPath,
+            captionRelativePath: path.relative(directory, captionPath),
+            extension,
+            overwritesExisting,
             sourceName,
             sourcePath,
-            O.some(extension),
-            O.some(captionName),
-            "caption-target-not-file",
-            `Caption target "${captionName}" already exists and is not a file.`
-          )
+            sourceRelativePath: path.relative(directory, sourcePath),
+          })
         );
-        continue;
-      }
-
-      if (!options.overwrite) {
-        skipped = A.append(
-          skipped,
-          makeCreateCaptionFilesSkippedEntry(
-            sourceName,
-            sourcePath,
-            O.some(extension),
-            O.some(captionName),
-            "caption-exists",
-            `Caption target "${captionName}" already exists.`
-          )
-        );
-        continue;
-      }
-
-      overwritesExisting = true;
+      }),
+    {
+      concurrency: 1,
+      label: "captions plan",
     }
-
-    plannedCaptionNames = HashSet.add(plannedCaptionNames, captionName);
-    entries = A.append(
-      entries,
-      new CreateCaptionFilesPlanEntry({
-        captionName,
-        captionPath,
-        captionRelativePath: path.relative(directory, captionPath),
-        extension,
-        overwritesExisting,
-        sourceName,
-        sourcePath,
-        sourceRelativePath: path.relative(directory, sourcePath),
-      })
-    );
-  }
+  );
 
   return new CreateCaptionFilesPlan({
     caption: options.caption,
@@ -1127,20 +1196,144 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
 
 const applyCreateCaptionFilesPlan = Effect.fn("Files.applyCreateCaptionFilesPlan")(function* (
   plan: CreateCaptionFilesPlan
-): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem> {
+): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem | Terminal.Terminal> {
   const fs = yield* FileSystem.FileSystem;
+  yield* runFilesProgressForEach(
+    plan.entries,
+    (entry) =>
+      fs
+        .writeFileString(entry.captionPath, plan.caption)
+        .pipe(
+          Effect.mapError((cause) =>
+            formatPlatformError("Failed to write caption sidecar", entry.captionPath, { cause })
+          )
+        ),
+    {
+      concurrency: FilesConcurrency.scan,
+      label: "captions write",
+    }
+  );
+});
 
-  for (const entry of plan.entries) {
-    yield* fs
-      .writeFileString(entry.captionPath, plan.caption)
-      .pipe(
-        Effect.mapError((cause) => formatPlatformError("Failed to write caption sidecar", entry.captionPath, { cause }))
-      );
+const detectBordersCollectedFile = (file: SortableFile): DetectBordersCollectedEntries => ({
+  files: A.of(file),
+  skipped: A.empty(),
+});
+
+const detectBordersCollectedSkipped = (skipped: DetectBordersSkippedEntry): DetectBordersCollectedEntries => ({
+  files: A.empty(),
+  skipped: A.of(skipped),
+});
+
+const collectDetectBordersFile = Effect.fn("Files.collectDetectBordersFile")(function* (
+  directory: string,
+  canonicalDirectory: string,
+  entry: string
+): Effect.fn.Return<DetectBordersCollectedEntries, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const sourcePath = path.join(directory, entry);
+  const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
+
+  if (O.isNone(canonicalPath)) {
+    return detectBordersCollectedSkipped(
+      makeDetectBordersSkippedEntry(entry, sourcePath, O.none<string>(), "symlink", "Could not resolve source entry.")
+    );
   }
+
+  if (!stringEquivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
+    return detectBordersCollectedSkipped(
+      makeDetectBordersSkippedEntry(entry, sourcePath, O.none<string>(), "symlink", "Symlink entries are not analyzed.")
+    );
+  }
+
+  const stat = yield* fs
+    .stat(sourcePath)
+    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat source entry", sourcePath, { cause })));
+
+  if (stat.type === "Directory") {
+    return detectBordersCollectedSkipped(
+      makeDetectBordersSkippedEntry(entry, sourcePath, O.none<string>(), "directory", "Directories are not analyzed.")
+    );
+  }
+
+  if (stat.type !== "File") {
+    return detectBordersCollectedSkipped(
+      makeDetectBordersSkippedEntry(
+        entry,
+        sourcePath,
+        O.none<string>(),
+        "non-media",
+        "Only regular image files are analyzed."
+      )
+    );
+  }
+
+  const extension = path.extname(entry);
+  if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+    return detectBordersCollectedSkipped(
+      makeDetectBordersSkippedEntry(
+        entry,
+        sourcePath,
+        O.none<string>(),
+        "extensionless",
+        "Extensionless files are not analyzed."
+      )
+    );
+  }
+
+  const mediaKind = mediaKindFromExtension(extension);
+  if (O.isNone(mediaKind)) {
+    return detectBordersCollectedSkipped(
+      makeDetectBordersSkippedEntry(
+        entry,
+        sourcePath,
+        O.some(extension),
+        "non-media",
+        "Only recognized image files are analyzed."
+      )
+    );
+  }
+
+  if (mediaKind.value === "video") {
+    return detectBordersCollectedSkipped(
+      makeDetectBordersSkippedEntry(
+        entry,
+        sourcePath,
+        O.some(extension),
+        "video",
+        "Video border detection is out of scope for this operation."
+      )
+    );
+  }
+
+  const file = new SortableFile({
+    canonicalPath: canonicalPath.value,
+    extension,
+    mediaKind,
+    name: entry,
+    size: stat.size,
+    sourcePath,
+  });
+
+  if (!isSupportedMetadataImageFile(file)) {
+    return detectBordersCollectedSkipped(
+      makeDetectBordersSkippedEntry(
+        entry,
+        sourcePath,
+        O.some(extension),
+        "unsupported-image",
+        "Image extension is not supported by sharp border detection."
+      )
+    );
+  }
+
+  return detectBordersCollectedFile(file);
 });
 
 const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(function* (
-  dir: string
+  dir: string,
+  progressEnabled = true
 ): Effect.fn.Return<
   {
     readonly directory: string;
@@ -1148,139 +1341,25 @@ const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(f
     readonly skipped: ReadonlyArray<DetectBordersSkippedEntry>;
   },
   FilesCommandError,
-  FileSystem.FileSystem | Path.Path
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
   const { canonicalDir, directory } = yield* validateDirectory(dir);
   const entries = yield* fs
     .readDirectory(directory)
     .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause })));
 
-  let files = A.empty<SortableFile>();
-  let skipped = A.empty<DetectBordersSkippedEntry>();
-
-  for (const entry of entries) {
-    const sourcePath = path.join(directory, entry);
-    const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
-
-    if (O.isNone(canonicalPath)) {
-      skipped = A.append(
-        skipped,
-        makeDetectBordersSkippedEntry(entry, sourcePath, O.none<string>(), "symlink", "Could not resolve source entry.")
-      );
-      continue;
+  const collectedEntries = yield* runFilesProgressForEach(
+    entries,
+    (entry) => collectDetectBordersFile(directory, canonicalDir, entry),
+    {
+      concurrency: FilesConcurrency.scan,
+      enabled: progressEnabled,
+      label: "borders scan",
     }
-
-    if (!stringEquivalence(canonicalPath.value, path.join(canonicalDir, entry))) {
-      skipped = A.append(
-        skipped,
-        makeDetectBordersSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "symlink",
-          "Symlink entries are not analyzed."
-        )
-      );
-      continue;
-    }
-
-    const stat = yield* fs
-      .stat(sourcePath)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat source entry", sourcePath, { cause })));
-
-    if (stat.type === "Directory") {
-      skipped = A.append(
-        skipped,
-        makeDetectBordersSkippedEntry(entry, sourcePath, O.none<string>(), "directory", "Directories are not analyzed.")
-      );
-      continue;
-    }
-
-    if (stat.type !== "File") {
-      skipped = A.append(
-        skipped,
-        makeDetectBordersSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "non-media",
-          "Only regular image files are analyzed."
-        )
-      );
-      continue;
-    }
-
-    const extension = path.extname(entry);
-    if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
-      skipped = A.append(
-        skipped,
-        makeDetectBordersSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "extensionless",
-          "Extensionless files are not analyzed."
-        )
-      );
-      continue;
-    }
-
-    const mediaKind = mediaKindFromExtension(extension);
-    if (O.isNone(mediaKind)) {
-      skipped = A.append(
-        skipped,
-        makeDetectBordersSkippedEntry(
-          entry,
-          sourcePath,
-          O.some(extension),
-          "non-media",
-          "Only recognized image files are analyzed."
-        )
-      );
-      continue;
-    }
-
-    if (mediaKind.value === "video") {
-      skipped = A.append(
-        skipped,
-        makeDetectBordersSkippedEntry(
-          entry,
-          sourcePath,
-          O.some(extension),
-          "video",
-          "Video border detection is out of scope for this operation."
-        )
-      );
-      continue;
-    }
-
-    const file = new SortableFile({
-      canonicalPath: canonicalPath.value,
-      extension,
-      mediaKind,
-      name: entry,
-      size: stat.size,
-      sourcePath,
-    });
-
-    if (!isSupportedMetadataImageFile(file)) {
-      skipped = A.append(
-        skipped,
-        makeDetectBordersSkippedEntry(
-          entry,
-          sourcePath,
-          O.some(extension),
-          "unsupported-image",
-          "Image extension is not supported by sharp border detection."
-        )
-      );
-      continue;
-    }
-
-    files = A.append(files, file);
-  }
+  );
+  const files = A.flatMap(collectedEntries, (collected) => collected.files);
+  const skipped = A.flatMap(collectedEntries, (collected) => collected.skipped);
 
   return {
     directory,
@@ -1292,6 +1371,142 @@ const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(f
   };
 });
 
+const archiveCandidateCollectedFile = (file: SortableFile): ArchiveCandidateCollectedEntries => ({
+  files: A.of(file),
+  skipped: A.empty(),
+});
+
+const archiveCandidateCollectedSkipped = (
+  skipped: ArchivePoorCandidatesSkippedEntry
+): ArchiveCandidateCollectedEntries => ({
+  files: A.empty(),
+  skipped: A.of(skipped),
+});
+
+const collectArchiveCandidateFile = Effect.fn("Files.collectArchiveCandidateFile")(function* (
+  directory: string,
+  canonicalDirectory: string,
+  entry: string
+): Effect.fn.Return<ArchiveCandidateCollectedEntries, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const sourcePath = path.join(directory, entry);
+  const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
+
+  if (O.isNone(canonicalPath)) {
+    return archiveCandidateCollectedSkipped(
+      makeArchivePoorCandidatesSkippedEntry(
+        entry,
+        sourcePath,
+        O.none<string>(),
+        "symlink",
+        "Could not resolve source entry."
+      )
+    );
+  }
+
+  if (!stringEquivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
+    return archiveCandidateCollectedSkipped(
+      makeArchivePoorCandidatesSkippedEntry(
+        entry,
+        sourcePath,
+        O.none<string>(),
+        "symlink",
+        "Symlink entries are not assessed."
+      )
+    );
+  }
+
+  const stat = yield* fs
+    .stat(sourcePath)
+    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat source entry", sourcePath, { cause })));
+
+  if (stat.type === "Directory") {
+    return archiveCandidateCollectedSkipped(
+      makeArchivePoorCandidatesSkippedEntry(
+        entry,
+        sourcePath,
+        O.none<string>(),
+        "directory",
+        "Directories are not assessed."
+      )
+    );
+  }
+
+  if (stat.type !== "File") {
+    return archiveCandidateCollectedSkipped(
+      makeArchivePoorCandidatesSkippedEntry(
+        entry,
+        sourcePath,
+        O.none<string>(),
+        "non-media",
+        "Only regular image files are assessed."
+      )
+    );
+  }
+
+  const extension = path.extname(entry);
+  if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
+    return archiveCandidateCollectedSkipped(
+      makeArchivePoorCandidatesSkippedEntry(
+        entry,
+        sourcePath,
+        O.none<string>(),
+        "extensionless",
+        "Extensionless files are not assessed."
+      )
+    );
+  }
+
+  const mediaKind = mediaKindFromExtension(extension);
+  if (O.isNone(mediaKind)) {
+    return archiveCandidateCollectedSkipped(
+      makeArchivePoorCandidatesSkippedEntry(
+        entry,
+        sourcePath,
+        O.some(extension),
+        "non-media",
+        "Only recognized image files are assessed."
+      )
+    );
+  }
+
+  if (mediaKind.value === "video") {
+    return archiveCandidateCollectedSkipped(
+      makeArchivePoorCandidatesSkippedEntry(
+        entry,
+        sourcePath,
+        O.some(extension),
+        "video",
+        "Video quality archival is out of scope for this operation."
+      )
+    );
+  }
+
+  const file = new SortableFile({
+    canonicalPath: canonicalPath.value,
+    extension,
+    mediaKind,
+    name: entry,
+    size: stat.size,
+    sourcePath,
+  });
+
+  if (!isSupportedMetadataImageFile(file)) {
+    return archiveCandidateCollectedSkipped(
+      makeArchivePoorCandidatesSkippedEntry(
+        entry,
+        sourcePath,
+        O.some(extension),
+        "unsupported-image",
+        "Image extension is not supported by sharp candidate assessment."
+      )
+    );
+  }
+
+  return archiveCandidateCollectedFile(file);
+});
+
 const collectArchiveCandidateFiles = Effect.fn("Files.collectArchiveCandidateFiles")(function* (
   directory: string,
   canonicalDirectory: string
@@ -1301,150 +1516,22 @@ const collectArchiveCandidateFiles = Effect.fn("Files.collectArchiveCandidateFil
     readonly skipped: ReadonlyArray<ArchivePoorCandidatesSkippedEntry>;
   },
   FilesCommandError,
-  FileSystem.FileSystem | Path.Path
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
   const entries = yield* fs
     .readDirectory(directory)
     .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause })));
-
-  let files = A.empty<SortableFile>();
-  let skipped = A.empty<ArchivePoorCandidatesSkippedEntry>();
-
-  for (const entry of entries) {
-    const sourcePath = path.join(directory, entry);
-    const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
-
-    if (O.isNone(canonicalPath)) {
-      skipped = A.append(
-        skipped,
-        makeArchivePoorCandidatesSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "symlink",
-          "Could not resolve source entry."
-        )
-      );
-      continue;
+  const collectedEntries = yield* runFilesProgressForEach(
+    entries,
+    (entry) => collectArchiveCandidateFile(directory, canonicalDirectory, entry),
+    {
+      concurrency: FilesConcurrency.scan,
+      label: "archive scan",
     }
-
-    if (!stringEquivalence(canonicalPath.value, path.join(canonicalDirectory, entry))) {
-      skipped = A.append(
-        skipped,
-        makeArchivePoorCandidatesSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "symlink",
-          "Symlink entries are not assessed."
-        )
-      );
-      continue;
-    }
-
-    const stat = yield* fs
-      .stat(sourcePath)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat source entry", sourcePath, { cause })));
-
-    if (stat.type === "Directory") {
-      skipped = A.append(
-        skipped,
-        makeArchivePoorCandidatesSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "directory",
-          "Directories are not assessed."
-        )
-      );
-      continue;
-    }
-
-    if (stat.type !== "File") {
-      skipped = A.append(
-        skipped,
-        makeArchivePoorCandidatesSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "non-media",
-          "Only regular image files are assessed."
-        )
-      );
-      continue;
-    }
-
-    const extension = path.extname(entry);
-    if (stringEquivalence(extension, "") || stringEquivalence(extension, ".")) {
-      skipped = A.append(
-        skipped,
-        makeArchivePoorCandidatesSkippedEntry(
-          entry,
-          sourcePath,
-          O.none<string>(),
-          "extensionless",
-          "Extensionless files are not assessed."
-        )
-      );
-      continue;
-    }
-
-    const mediaKind = mediaKindFromExtension(extension);
-    if (O.isNone(mediaKind)) {
-      skipped = A.append(
-        skipped,
-        makeArchivePoorCandidatesSkippedEntry(
-          entry,
-          sourcePath,
-          O.some(extension),
-          "non-media",
-          "Only recognized image files are assessed."
-        )
-      );
-      continue;
-    }
-
-    if (mediaKind.value === "video") {
-      skipped = A.append(
-        skipped,
-        makeArchivePoorCandidatesSkippedEntry(
-          entry,
-          sourcePath,
-          O.some(extension),
-          "video",
-          "Video quality archival is out of scope for this operation."
-        )
-      );
-      continue;
-    }
-
-    const file = new SortableFile({
-      canonicalPath: canonicalPath.value,
-      extension,
-      mediaKind,
-      name: entry,
-      size: stat.size,
-      sourcePath,
-    });
-
-    if (!isSupportedMetadataImageFile(file)) {
-      skipped = A.append(
-        skipped,
-        makeArchivePoorCandidatesSkippedEntry(
-          entry,
-          sourcePath,
-          O.some(extension),
-          "unsupported-image",
-          "Image extension is not supported by sharp candidate assessment."
-        )
-      );
-      continue;
-    }
-
-    files = A.append(files, file);
-  }
+  );
+  const files = A.flatMap(collectedEntries, (collected) => collected.files);
+  const skipped = A.flatMap(collectedEntries, (collected) => collected.skipped);
 
   return {
     files: A.sort(files, byNameAscending),
@@ -1644,18 +1731,24 @@ const analyzeDetectBordersFile = Effect.fn("Files.analyzeDetectBordersFile")(fun
 
 const buildCropBordersPlan = Effect.fn("Files.buildCropBordersPlan")(function* (
   options: CropBordersOptions
-): Effect.fn.Return<CropBordersPlan, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<CropBordersPlan, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
   const validatedOptions = yield* validateCropBordersOptions(options);
   const detectionOptions = cropBordersDetectionOptions(validatedOptions);
   const collection = yield* collectDetectBordersFiles(validatedOptions.dir);
+  const detectionResults = yield* runFilesProgressForEach(
+    collection.files,
+    (file) => analyzeDetectBordersFile(file, detectionOptions).pipe(Effect.result),
+    {
+      concurrency: FilesConcurrency.image,
+      label: "crop analyze",
+    }
+  );
   let analyzedCount = 0;
   let borderedCount = 0;
   let skippedCount = A.length(collection.skipped);
   let entries = A.empty<CropBordersPlanEntry>();
 
-  for (const file of collection.files) {
-    const result = yield* analyzeDetectBordersFile(file, detectionOptions).pipe(Effect.result);
-
+  for (const result of detectionResults) {
     if (Result.isFailure(result)) {
       skippedCount += 1;
       continue;
@@ -1728,7 +1821,7 @@ const uniqueArchiveTargetName = (
 
 const buildNormalizePlan = Effect.fn("Files.buildNormalizePlan")(function* (
   options: NormalizeFilesOptions
-): Effect.fn.Return<NormalizePlan, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<NormalizePlan, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
   const path = yield* Path.Path;
   const { canonicalDirectory, directory, duplicateDirectory, outputDirectory } = yield* validateNormalizeDirectories(
     options.dir,
@@ -1746,36 +1839,53 @@ const buildNormalizePlan = Effect.fn("Files.buildNormalizePlan")(function* (
     duplicateDirectory,
     options.overwrite
   );
-  let entries = A.empty<NormalizePlanEntry>();
+  let planInputs = A.empty<{
+    readonly file: SortableFile;
+    readonly outputPath: string;
+    readonly targetName: string;
+  }>();
   let usedTargetNames = HashSet.empty<string>();
 
   for (const file of collection.files) {
     const sourceStem = path.basename(file.name, file.extension);
     const uniqueTarget = uniqueNormalizeTargetName(sourceStem, options.format, usedTargetNames);
     usedTargetNames = uniqueTarget.usedTargetNames;
-
-    const inputDimensions = yield* probeImageDimensions(file);
-    const outputDimensions = normalizeOutputDimensions(inputDimensions, options.maxLongEdge);
     const outputPath = path.join(outputDirectory, uniqueTarget.targetName);
 
-    entries = A.append(
-      entries,
-      new NormalizePlanEntry({
-        format: options.format,
-        inputDimensions,
-        outputDimensions,
-        outputName: uniqueTarget.targetName,
-        outputPath,
-        outputRelativePath: path.relative(outputDirectory, outputPath),
-        resized: mediaDimensionsChanged(inputDimensions, outputDimensions),
-        sourceExtension: file.extension,
-        sourceName: file.name,
-        sourcePath: file.sourcePath,
-        sourceRelativePath: path.relative(directory, file.sourcePath),
-        sourceSizeBytes: `${file.size}`,
-      })
-    );
+    planInputs = A.append(planInputs, {
+      file,
+      outputPath,
+      targetName: uniqueTarget.targetName,
+    });
   }
+  const entries = yield* runFilesProgressForEach(
+    planInputs,
+    ({ file, outputPath, targetName }) =>
+      probeImageDimensions(file).pipe(
+        Effect.map((inputDimensions) => {
+          const outputDimensions = normalizeOutputDimensions(inputDimensions, options.maxLongEdge);
+
+          return new NormalizePlanEntry({
+            format: options.format,
+            inputDimensions,
+            outputDimensions,
+            outputName: targetName,
+            outputPath,
+            outputRelativePath: path.relative(outputDirectory, outputPath),
+            resized: mediaDimensionsChanged(inputDimensions, outputDimensions),
+            sourceExtension: file.extension,
+            sourceName: file.name,
+            sourcePath: file.sourcePath,
+            sourceRelativePath: path.relative(directory, file.sourcePath),
+            sourceSizeBytes: `${file.size}`,
+          });
+        })
+      ),
+    {
+      concurrency: FilesConcurrency.metadata,
+      label: "normalize probe",
+    }
+  );
 
   return new NormalizePlan({
     duplicateDirectory,
@@ -1854,7 +1964,11 @@ const collectArchiveSidecars = Effect.fn("Files.collectArchiveSidecars")(functio
 const buildArchivePoorCandidatesPlan = Effect.fn("Files.buildArchivePoorCandidatesPlan")(function* (
   options: ArchivePoorCandidatesOptions,
   sidecarExtensions: ReadonlyArray<string>
-): Effect.fn.Return<ArchivePoorCandidatesPlan, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<
+  ArchivePoorCandidatesPlan,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal
+> {
   const path = yield* Path.Path;
   const { archiveDirectory, canonicalDirectory, directory } = yield* validateArchiveDirectories(
     options.dir,
@@ -1877,10 +1991,16 @@ const buildArchivePoorCandidatesPlan = Effect.fn("Files.buildArchivePoorCandidat
   let skipped = collection.skipped;
   let usedTargetNames = HashSet.empty<string>();
   let plannedSidecarSources = HashSet.empty<string>();
+  const dimensionResults = yield* runFilesProgressForEach(
+    collection.files,
+    (file) => probeImageDimensions(file).pipe(Effect.result),
+    {
+      concurrency: FilesConcurrency.metadata,
+      label: "archive probe",
+    }
+  );
 
-  for (const file of collection.files) {
-    const dimensionsResult = yield* probeImageDimensions(file).pipe(Effect.result);
-
+  for (const [file, dimensionsResult] of A.zip(collection.files, dimensionResults)) {
     if (Result.isFailure(dimensionsResult)) {
       skipped = A.append(
         skipped,
@@ -2338,7 +2458,7 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
 ): Effect.fn.Return<
   NormalizeApplyResult,
   FilesCommandError,
-  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal | ChildProcessSpawner.ChildProcessSpawner
 > {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -2393,68 +2513,78 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
         let readyTempEntries = A.empty<{ readonly entry: NormalizePlanEntry; readonly tempPath: string }>();
         let seenOutputs = HashMap.empty<FileSha256Hash, ReadonlyArray<NormalizeSeenOutput>>();
 
-        for (const { entry, tempPath } of tempEntries) {
-          yield* normalizeImageToTemp(entry, tempPath, maxLongEdge);
-          const outputStat = yield* fs
-            .stat(tempPath)
-            .pipe(
-              Effect.mapError((cause) => formatPlatformError("Failed to stat normalized image", tempPath, { cause }))
-            );
-          const outputHash = dedupe ? O.some(yield* hashFileSha256(tempPath)) : O.none<FileSha256Hash>();
-          const candidates = O.isSome(outputHash)
-            ? pipe(HashMap.get(seenOutputs, outputHash.value), O.getOrElse(A.empty<NormalizeSeenOutput>))
-            : A.empty<NormalizeSeenOutput>();
-          const duplicate = O.isSome(outputHash)
-            ? yield* findDuplicateOutput(candidates, tempPath)
-            : O.none<NormalizeSeenOutput>();
+        yield* runFilesProgressForEach(
+          tempEntries,
+          ({ entry, tempPath }) =>
+            Effect.gen(function* () {
+              yield* normalizeImageToTemp(entry, tempPath, maxLongEdge);
+              const outputStat = yield* fs
+                .stat(tempPath)
+                .pipe(
+                  Effect.mapError((cause) =>
+                    formatPlatformError("Failed to stat normalized image", tempPath, { cause })
+                  )
+                );
+              const outputHash = dedupe ? O.some(yield* hashFileSha256(tempPath)) : O.none<FileSha256Hash>();
+              const candidates = O.isSome(outputHash)
+                ? pipe(HashMap.get(seenOutputs, outputHash.value), O.getOrElse(A.empty<NormalizeSeenOutput>))
+                : A.empty<NormalizeSeenOutput>();
+              const duplicate = O.isSome(outputHash)
+                ? yield* findDuplicateOutput(candidates, tempPath)
+                : O.none<NormalizeSeenOutput>();
 
-          if (O.isSome(duplicate) && O.isSome(outputHash)) {
-            const moveTarget = O.map(plan.duplicateDirectory, (duplicateDirectory) => {
-              const targetPath = path.join(duplicateDirectory, entry.sourceName);
+              if (O.isSome(duplicate) && O.isSome(outputHash)) {
+                const moveTarget = O.map(plan.duplicateDirectory, (duplicateDirectory) => {
+                  const targetPath = path.join(duplicateDirectory, entry.sourceName);
 
-              return {
-                path: targetPath,
-                relativePath: path.relative(duplicateDirectory, targetPath),
-              };
-            });
-            const skippedEntry = makeNormalizeDuplicateSkippedEntry(
-              entry,
-              outputHash.value,
-              duplicate.value.entry,
-              moveTarget
-            );
-
-            if (O.isSome(moveTarget)) {
-              if (HashSet.has(duplicateMoveTargets, moveTarget.value.path)) {
-                return yield* new FilesCommandError({
-                  message: `Refusing duplicate normalize duplicate move target: "${moveTarget.value.path}"`,
+                  return {
+                    path: targetPath,
+                    relativePath: path.relative(duplicateDirectory, targetPath),
+                  };
                 });
+                const skippedEntry = makeNormalizeDuplicateSkippedEntry(
+                  entry,
+                  outputHash.value,
+                  duplicate.value.entry,
+                  moveTarget
+                );
+
+                if (O.isSome(moveTarget)) {
+                  if (HashSet.has(duplicateMoveTargets, moveTarget.value.path)) {
+                    return yield* new FilesCommandError({
+                      message: `Refusing duplicate normalize duplicate move target: "${moveTarget.value.path}"`,
+                    });
+                  }
+
+                  duplicateMoveTargets = HashSet.add(duplicateMoveTargets, moveTarget.value.path);
+                  yield* preflightOverwritableFile(moveTarget.value.path, overwrite, "duplicate source file");
+                  duplicateMoves = A.append(duplicateMoves, {
+                    sourcePath: entry.sourcePath,
+                    targetPath: moveTarget.value.path,
+                  });
+                }
+
+                duplicateSkippedEntries = A.append(duplicateSkippedEntries, skippedEntry);
+                return;
               }
 
-              duplicateMoveTargets = HashSet.add(duplicateMoveTargets, moveTarget.value.path);
-              yield* preflightOverwritableFile(moveTarget.value.path, overwrite, "duplicate source file");
-              duplicateMoves = A.append(duplicateMoves, {
-                sourcePath: entry.sourcePath,
-                targetPath: moveTarget.value.path,
-              });
-            }
+              const completedEntry = withOutputMetadata(entry, `${outputStat.size}`, outputHash);
+              completedEntries = A.append(completedEntries, completedEntry);
+              readyTempEntries = A.append(readyTempEntries, { entry: completedEntry, tempPath });
 
-            duplicateSkippedEntries = A.append(duplicateSkippedEntries, skippedEntry);
-            continue;
+              if (O.isSome(outputHash)) {
+                seenOutputs = HashMap.set(
+                  seenOutputs,
+                  outputHash.value,
+                  A.append(candidates, { entry: completedEntry, outputHash: outputHash.value, tempPath })
+                );
+              }
+            }),
+          {
+            concurrency: 1,
+            label: "normalize write",
           }
-
-          const completedEntry = withOutputMetadata(entry, `${outputStat.size}`, outputHash);
-          completedEntries = A.append(completedEntries, completedEntry);
-          readyTempEntries = A.append(readyTempEntries, { entry: completedEntry, tempPath });
-
-          if (O.isSome(outputHash)) {
-            seenOutputs = HashMap.set(
-              seenOutputs,
-              outputHash.value,
-              A.append(candidates, { entry: completedEntry, outputHash: outputHash.value, tempPath })
-            );
-          }
-        }
+        );
 
         const manifest = makeNormalizeManifest(plan, completedEntries, duplicateSkippedEntries);
         const manifestContent = yield* renderNormalizeManifest(plan.manifestPath, manifest);
@@ -2467,19 +2597,35 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
             )
           );
 
-        for (const { entry, tempPath } of readyTempEntries) {
-          if (overwrite) {
-            yield* fs.remove(entry.outputPath, { force: true }).pipe(Effect.ignore);
+        yield* runFilesProgressForEach(
+          readyTempEntries,
+          ({ entry, tempPath }) =>
+            Effect.gen(function* () {
+              if (overwrite) {
+                yield* fs.remove(entry.outputPath, { force: true }).pipe(Effect.ignore);
+              }
+              yield* renameOrFail(tempPath, entry.outputPath, tempDir);
+            }),
+          {
+            concurrency: FilesConcurrency.scan,
+            label: "normalize move",
           }
-          yield* renameOrFail(tempPath, entry.outputPath, tempDir);
-        }
+        );
 
-        for (const duplicateMove of duplicateMoves) {
-          if (overwrite) {
-            yield* fs.remove(duplicateMove.targetPath, { force: true }).pipe(Effect.ignore);
+        yield* runFilesProgressForEach(
+          duplicateMoves,
+          (duplicateMove) =>
+            Effect.gen(function* () {
+              if (overwrite) {
+                yield* fs.remove(duplicateMove.targetPath, { force: true }).pipe(Effect.ignore);
+              }
+              yield* renameOrFail(duplicateMove.sourcePath, duplicateMove.targetPath, tempDir);
+            }),
+          {
+            concurrency: FilesConcurrency.scan,
+            label: "duplicates move",
           }
-          yield* renameOrFail(duplicateMove.sourcePath, duplicateMove.targetPath, tempDir);
-        }
+        );
 
         if (overwrite) {
           yield* fs.remove(plan.manifestPath, { force: true }).pipe(Effect.ignore);
@@ -2498,7 +2644,7 @@ const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorCandidat
 ): Effect.fn.Return<
   void,
   FilesCommandError,
-  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal | ChildProcessSpawner.ChildProcessSpawner
 > {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -2540,27 +2686,35 @@ const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorCandidat
             )
           );
 
-        for (const entry of archivedEntries(plan.entries)) {
-          const archivePath = O.fromUndefinedOr(entry.archivePath);
+        yield* runFilesProgressForEach(
+          archivedEntries(plan.entries),
+          (entry) =>
+            Effect.gen(function* () {
+              const archivePath = O.fromUndefinedOr(entry.archivePath);
 
-          if (O.isNone(archivePath)) {
-            return yield* new FilesCommandError({
-              message: `Missing archive target for selected source: "${entry.sourcePath}"`,
-            });
-          }
+              if (O.isNone(archivePath)) {
+                return yield* new FilesCommandError({
+                  message: `Missing archive target for selected source: "${entry.sourcePath}"`,
+                });
+              }
 
-          if (overwrite) {
-            yield* fs.remove(archivePath.value, { force: true }).pipe(Effect.ignore);
-          }
-          yield* renameOrFail(entry.sourcePath, archivePath.value, tempDir);
+              if (overwrite) {
+                yield* fs.remove(archivePath.value, { force: true }).pipe(Effect.ignore);
+              }
+              yield* renameOrFail(entry.sourcePath, archivePath.value, tempDir);
 
-          for (const sidecar of entry.sidecars) {
-            if (overwrite) {
-              yield* fs.remove(sidecar.archivePath, { force: true }).pipe(Effect.ignore);
-            }
-            yield* renameOrFail(sidecar.sourcePath, sidecar.archivePath, tempDir);
+              for (const sidecar of entry.sidecars) {
+                if (overwrite) {
+                  yield* fs.remove(sidecar.archivePath, { force: true }).pipe(Effect.ignore);
+                }
+                yield* renameOrFail(sidecar.sourcePath, sidecar.archivePath, tempDir);
+              }
+            }),
+          {
+            concurrency: FilesConcurrency.scan,
+            label: "archive move",
           }
-        }
+        );
 
         if (overwrite) {
           yield* fs.remove(plan.manifestPath, { force: true }).pipe(Effect.ignore);
@@ -2578,16 +2732,21 @@ const buildRenamePlan = Effect.fn("Files.buildRenamePlan")(function* (
 ): Effect.fn.Return<
   RenamePlan,
   FilesCommandError,
-  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal | ChildProcessSpawner.ChildProcessSpawner
 > {
   const path = yield* Path.Path;
-  const collection = yield* collectSortableFiles(dir, withDimensions);
+  const collection = yield* collectSortableFiles(dir, withDimensions, "sort scan");
   const width = `${A.length(collection.files)}`.length + 1;
+  const dimensionsByFile: ReadonlyArray<O.Option<MediaDimensions>> = withDimensions
+    ? yield* runFilesProgressForEach(collection.files, (file) => probeMediaDimensions(file).pipe(Effect.map(O.some)), {
+        concurrency: FilesConcurrency.metadata,
+        label: "sort probe",
+      })
+    : A.map(collection.files, O.none<MediaDimensions>);
   let index = 0;
   let plan = A.empty<RenamePlanEntry>();
 
-  for (const file of collection.files) {
-    const dimensions = withDimensions ? O.some(yield* probeMediaDimensions(file)) : O.none<MediaDimensions>();
+  for (const [file, dimensions] of A.zip(collection.files, dimensionsByFile)) {
     const targetName = targetNameForEntry(prefix, { dimensions, file, index, width });
     plan = A.append(
       plan,
@@ -2670,7 +2829,7 @@ const renameOrFail = (
 const applyRenamePlan = Effect.fn("Files.applyRenamePlan")(function* (
   directory: string,
   plan: ReadonlyArray<RenamePlanEntry>
-): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const tempDir = yield* fs
@@ -2686,13 +2845,23 @@ const applyRenamePlan = Effect.fn("Files.applyRenamePlan")(function* (
     tempPath: path.join(tempDir, `${formatIndex(entry.index, `${A.length(plan)}`.length + 1)}-${entry.sourceName}`),
   }));
 
-  for (const { entry, tempPath } of tempEntries) {
-    yield* renameOrFail(entry.sourcePath, tempPath, tempDir);
-  }
+  yield* runFilesProgressForEach(
+    tempEntries,
+    ({ entry, tempPath }) => renameOrFail(entry.sourcePath, tempPath, tempDir),
+    {
+      concurrency: FilesConcurrency.scan,
+      label: "sort stage",
+    }
+  );
 
-  for (const { entry, tempPath } of tempEntries) {
-    yield* renameOrFail(tempPath, entry.targetPath, tempDir);
-  }
+  yield* runFilesProgressForEach(
+    tempEntries,
+    ({ entry, tempPath }) => renameOrFail(tempPath, entry.targetPath, tempDir),
+    {
+      concurrency: FilesConcurrency.scan,
+      label: "sort rename",
+    }
+  );
 
   yield* fs
     .remove(tempDir, { recursive: true, force: true })
@@ -2703,8 +2872,8 @@ const applyRenamePlan = Effect.fn("Files.applyRenamePlan")(function* (
 
 const buildStripMetadataPlan = Effect.fn("Files.buildStripMetadataPlan")(function* (
   dir: string
-): Effect.fn.Return<StripMetadataPlan, FilesCommandError, FileSystem.FileSystem | Path.Path> {
-  const collection = yield* collectSortableFiles(dir, true);
+): Effect.fn.Return<StripMetadataPlan, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
+  const collection = yield* collectSortableFiles(dir, true, "strip scan");
   let entries = A.empty<StripMetadataPlanEntry>();
   let imageCount = 0;
   let skippedCount = collection.skippedCount;
@@ -2872,7 +3041,7 @@ const applyStripMetadataPlan = Effect.fn("Files.applyStripMetadataPlan")(functio
 ): Effect.fn.Return<
   void,
   FilesCommandError,
-  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal | ChildProcessSpawner.ChildProcessSpawner
 > {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -2888,14 +3057,23 @@ const applyStripMetadataPlan = Effect.fn("Files.applyStripMetadataPlan")(functio
     (tempDir) =>
       Effect.gen(function* () {
         const tempEntries = makeStripMetadataTempEntries(tempDir, plan, path);
+        const rewriteConcurrency = A.some(plan, (entry) => entry.mediaKind === "video")
+          ? FilesConcurrency.ffmpeg
+          : FilesConcurrency.image;
 
-        for (const { entry, tempPath } of tempEntries) {
-          yield* stripMetadataToTemp(entry, tempPath);
-        }
+        yield* runFilesProgressForEach(tempEntries, ({ entry, tempPath }) => stripMetadataToTemp(entry, tempPath), {
+          concurrency: rewriteConcurrency,
+          label: "strip rewrite",
+        });
 
-        for (const { entry, tempPath } of tempEntries) {
-          yield* renameOrFail(tempPath, entry.sourcePath, tempDir);
-        }
+        yield* runFilesProgressForEach(
+          tempEntries,
+          ({ entry, tempPath }) => renameOrFail(tempPath, entry.sourcePath, tempDir),
+          {
+            concurrency: FilesConcurrency.scan,
+            label: "strip replace",
+          }
+        );
       }),
     (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
   );
@@ -2904,7 +3082,7 @@ const applyStripMetadataPlan = Effect.fn("Files.applyStripMetadataPlan")(functio
 const applyCropBordersPlan = Effect.fn("Files.applyCropBordersPlan")(function* (
   directory: string,
   plan: ReadonlyArray<CropBordersPlanEntry>
-): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
@@ -2923,13 +3101,19 @@ const applyCropBordersPlan = Effect.fn("Files.applyCropBordersPlan")(function* (
           tempPath: path.join(tempDir, `${formatIndex(index, `${A.length(plan)}`.length + 1)}-${entry.sourceName}`),
         }));
 
-        for (const { entry, tempPath } of tempEntries) {
-          yield* cropImageBordersToTemp(entry, tempPath);
-        }
+        yield* runFilesProgressForEach(tempEntries, ({ entry, tempPath }) => cropImageBordersToTemp(entry, tempPath), {
+          concurrency: FilesConcurrency.image,
+          label: "crop rewrite",
+        });
 
-        for (const { entry, tempPath } of tempEntries) {
-          yield* renameOrFail(tempPath, entry.sourcePath, tempDir);
-        }
+        yield* runFilesProgressForEach(
+          tempEntries,
+          ({ entry, tempPath }) => renameOrFail(tempPath, entry.sourcePath, tempDir),
+          {
+            concurrency: FilesConcurrency.scan,
+            label: "crop replace",
+          }
+        );
       }),
     (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
   );
@@ -3256,13 +3440,21 @@ const detectBordersFilesImpl = Effect.fn("FilesCommandService.detectBordersFiles
 ): Effect.fn.Return<DetectBordersReport, FilesCommandError, FilesCommandServiceRequirements> {
   const program = Effect.gen(function* () {
     const validatedOptions = yield* validateDetectBordersOptions(options);
-    const collection = yield* collectDetectBordersFiles(validatedOptions.dir);
+    const progressEnabled = !validatedOptions.json;
+    const collection = yield* collectDetectBordersFiles(validatedOptions.dir, progressEnabled);
+    const analysisResults = yield* runFilesProgressForEach(
+      collection.files,
+      (file) => analyzeDetectBordersFile(file, validatedOptions).pipe(Effect.result),
+      {
+        concurrency: FilesConcurrency.image,
+        enabled: progressEnabled,
+        label: "detect analyze",
+      }
+    );
     let entries = A.empty<DetectBordersEntry>();
     let skipped = collection.skipped;
 
-    for (const file of collection.files) {
-      const result = yield* analyzeDetectBordersFile(file, validatedOptions).pipe(Effect.result);
-
+    for (const [file, result] of A.zip(collection.files, analysisResults)) {
       if (Result.isFailure(result)) {
         skipped = A.append(
           skipped,

@@ -39,6 +39,12 @@
       "@beep/chalk/*": [
         "../../../../packages/foundation/capability/chalk/src/*.ts"
       ],
+      "@beep/colors": [
+        "../../../../packages/foundation/capability/colors/src/index.ts"
+      ],
+      "@beep/colors/*": [
+        "../../../../packages/foundation/capability/colors/src/*.ts"
+      ],
       "@beep/duckdb": ["../../../../packages/drivers/duckdb/src/index.ts"],
       "@beep/ffmpeg": ["../../../../packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["../../../../packages/drivers/ffmpeg/src/*.ts"],

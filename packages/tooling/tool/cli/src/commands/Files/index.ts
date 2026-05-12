@@ -21,6 +21,13 @@ export * from "./Files.command.js";
  */
 export * from "./Files.errors.js";
 /**
+ * Progress helpers for dataset file curation.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./Files.progress.js";
+/**
  * Schema models for dataset file curation.
  *
  * @category schemas

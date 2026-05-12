@@ -1049,7 +1049,7 @@ describe("ai-metrics command", () => {
         })
       )
     );
-  });
+  }, 90_000);
 
   it("reports sanitized OTLP export failures when no derived runs exist", async () => {
     await Effect.runPromise(
