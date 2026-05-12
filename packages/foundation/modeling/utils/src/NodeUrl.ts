@@ -26,7 +26,7 @@ import { Effect, PlatformError } from "effect";
  *   return path
  * })
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @example
@@ -40,11 +40,13 @@ import { Effect, PlatformError } from "effect";
  *   Effect.succeed("/tmp/fallback.txt")
  * )
  *
- * void recovered
+ * console.log(recovered)
  * ```
  *
  * @param url - The `file:` URL to convert.
  * @returns An effect that succeeds with the platform path string.
+ * @effects Defers Node URL conversion until the returned Effect is executed and
+ * maps thrown conversion errors into `PlatformError.BadArgument`.
  * @category utilities
  * @since 0.0.0
  */
@@ -75,7 +77,7 @@ export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadAr
  *   return url.href
  * })
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @example
@@ -87,11 +89,13 @@ export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadAr
  *   Effect.succeed(new URL("file:///tmp/fallback.txt"))
  * )
  *
- * void recovered
+ * console.log(recovered)
  * ```
  *
  * @param path - The platform path string to convert.
  * @returns An effect that succeeds with a `file:` URL.
+ * @effects Defers Node path conversion until the returned Effect is executed and
+ * maps thrown conversion errors into `PlatformError.BadArgument`.
  * @category utilities
  * @since 0.0.0
  */
@@ -114,7 +118,7 @@ export const toFileUrl = (path: string): Effect.Effect<URL, PlatformError.BadArg
  * import { fileURLToPath } from "@beep/utils/NodeUrl"
  *
  * const path = fileURLToPath(new URL("file:///tmp/beep.txt"))
- * void path
+ * console.log(path)
  * ```
  *
  * @category utilities

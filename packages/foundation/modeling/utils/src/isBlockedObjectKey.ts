@@ -26,8 +26,8 @@ const BlockedObjectKeys = HashSet.make("__proto__", "prototype", "constructor");
  * const blocked = isBlockedObjectKey("__proto__")
  * // true
  *
- * void safe
- * void blocked
+ * console.log(safe)
+ * console.log(blocked)
  * ```
  *
  * @category predicates

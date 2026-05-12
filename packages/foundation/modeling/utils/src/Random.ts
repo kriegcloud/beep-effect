@@ -17,7 +17,7 @@ const $I = $RepoUtilsId.create("Random");
  * ```ts
  * import { RandomValues } from "@beep/utils/Random"
  *
- * void RandomValues.Default
+ * console.log(RandomValues.Default)
  * ```
  *
  * @category constructors

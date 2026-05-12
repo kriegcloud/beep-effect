@@ -24,7 +24,7 @@ const descriptionFromOptions = (options: { readonly description: string }): stri
  * const tags = Text.splitCommaSeparatedTrimmed(" foo , bar , , baz ")
  * // ["foo", "bar", "baz"]
  *
- * void tags
+ * console.log(tags)
  * ```
  *
  * @category utilities
@@ -48,8 +48,8 @@ export const splitCommaSeparatedTrimmed = flow(Str.split(","), A.map(Str.trim), 
  * const noAlias = Text.formatNameWithAliases("rm", [], { description: "Remove files" })
  * // "rm: Remove files"
  *
- * void row
- * void noAlias
+ * console.log(row)
+ * console.log(noAlias)
  * ```
  *
  * @category utilities
@@ -80,7 +80,7 @@ export const formatNameWithAliases: {
  * const block = Text.joinLines(["hello", "world"])
  * // "hello\nworld"
  *
- * void block
+ * console.log(block)
  * ```
  *
  * @category utilities

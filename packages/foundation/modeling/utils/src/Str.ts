@@ -1,4 +1,7 @@
 /**
+ * String helpers for type-preserving prefixes, suffixes, case conversion, and
+ * predicates.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */
@@ -25,8 +28,8 @@ import * as A from "./Array.ts";
  * const piped = pipe("bar", Str.prefix("foo-"))
  * // "foo-bar"
  *
- * void prefixed
- * void piped
+ * console.log(prefixed)
+ * console.log(piped)
  * ```
  *
  * @category combinators
@@ -61,8 +64,8 @@ export const prefix: {
  * const result = piped()
  * // "foo-bar"
  *
- * void value
- * void result
+ * console.log(value)
+ * console.log(result)
  * ```
  *
  * @category combinators
@@ -96,8 +99,8 @@ export const prefixThunk: {
  * const piped = pipe("foo", Str.postfix("-bar"))
  * // "foo-bar"
  *
- * void suffixed
- * void piped
+ * console.log(suffixed)
+ * console.log(piped)
  * ```
  *
  * @category combinators
@@ -133,8 +136,8 @@ export const postfix: {
  * const result = piped()
  * // "foo-bar"
  *
- * void value
- * void result
+ * console.log(value)
+ * console.log(result)
  * ```
  *
  * @category combinators
@@ -160,7 +163,7 @@ export const postfixThunk: {
  * ```ts
  * import { pipe } from "effect"
  * import { Str } from "@beep/utils"
- * import type * as A from "effect/Array"
+ * import * as A from "effect/Array"
  *
  * const routes: A.NonEmptyReadonlyArray<string> = ["users", "posts"]
  *
@@ -170,8 +173,8 @@ export const postfixThunk: {
  * // Data-last (pipeable)
  * const piped = pipe(routes, Str.mapPrefix("/api/"))
  *
- * void prefixed
- * void piped
+ * console.log(prefixed)
+ * console.log(piped)
  * ```
  *
  * @category combinators
@@ -206,7 +209,7 @@ export const mapPrefix: {
  * ```ts
  * import { pipe } from "effect"
  * import { Str } from "@beep/utils"
- * import type * as A from "effect/Array"
+ * import * as A from "effect/Array"
  *
  * const files: A.NonEmptyReadonlyArray<string> = ["index", "main"]
  *
@@ -216,8 +219,8 @@ export const mapPrefix: {
  * // Data-last (pipeable)
  * const piped = pipe(files, Str.mapPostfix(".ts"))
  *
- * void withExt
- * void piped
+ * console.log(withExt)
+ * console.log(piped)
  * ```
  *
  * @category combinators
@@ -251,7 +254,7 @@ export const mapPostfix: {
  *
  * const value = Str.camelCase("my_cool_name")
  * // "myCoolName"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -268,7 +271,7 @@ export const camelCase = <TStr extends string>(str: TStr): TF.CamelCase<TStr> =>
  *
  * const value = Str.snakeCase("myCoolName")
  * // "my_cool_name"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -285,7 +288,7 @@ export const snakeCase = <const TStr extends string>(str: TStr): TF.SnakeCase<TS
  *
  * const value = Str.kebabCase("myCoolName")
  * // "my-cool-name"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -303,7 +306,7 @@ export const kebabCase = <const TStr extends string>(str: TStr): TF.KebabCase<TS
  *
  * const value = Str.screamingSnake("myCoolName")
  * // "MY_COOL_NAME"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -321,7 +324,7 @@ export const screamingSnake = <const TStr extends string>(str: TStr): TF.Screami
  *
  * const value = Str.pascalCase("my_cool_name")
  * // "MyCoolName"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -338,7 +341,7 @@ export const pascalCase = <const TStr extends string>(str: TStr): TF.PascalCase<
  *
  * const value = Str.pascalToSnake("MyCoolName")
  * // "my_cool_name"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -356,7 +359,7 @@ export const pascalToSnake = <const TStr extends string>(str: TF.PascalCase<TStr
  *
  * const value = Str.snakeToCamel("my_cool_name")
  * // "myCoolName"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -374,7 +377,7 @@ export const snakeToCamel = <const TStr extends string>(str: TF.SnakeCase<TStr>)
  *
  * const value = Str.snakeToKebab("my_cool_name")
  * // "my-cool-name"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -392,7 +395,7 @@ export const snakeToKebab = <const TStr extends string>(str: TF.SnakeCase<TStr>)
  *
  * const value = Str.camelToSnake("myCoolName")
  * // "my_cool_name"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -410,7 +413,7 @@ export const camelToSnake = <const TStr extends string>(str: TF.CamelCase<TStr>)
  *
  * const value = Str.snakeToPascal("my_cool_name")
  * // "MyCoolName"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -428,7 +431,7 @@ export const snakeToPascal = <const TStr extends string>(str: TF.SnakeCase<TStr>
  *
  * const value = Str.kebabToSnake("my-cool-name")
  * // "my_cool_name"
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -451,8 +454,8 @@ export const kebabToSnake = <const TStr extends string>(str: TF.KebabCase<TStr>)
  * const direct = Str.startsWith("hello-world", "hello")
  * const piped = pipe("hello-world", Str.startsWith("hello"))
  *
- * void direct
- * void piped
+ * console.log(direct)
+ * console.log(piped)
  * ```
  *
  * @category predicates
@@ -488,8 +491,8 @@ export const startsWith: {
  * const direct = Str.endsWith("hello-world", "world")
  * const piped = pipe("hello-world", Str.endsWith("world"))
  *
- * void direct
- * void piped
+ * console.log(direct)
+ * console.log(piped)
  * ```
  *
  * @category predicates
@@ -530,8 +533,8 @@ export const endsWith: {
  * const piped = pipe("hello world", Str.contains("xyz"))
  * // false
  *
- * void result
- * void piped
+ * console.log(result)
+ * console.log(piped)
  * ```
  *
  * @category predicates
@@ -571,8 +574,8 @@ export const contains: {
  * const piped = pipe("na", Str.repeat(2))
  * // "nana"
  *
- * void result
- * void piped
+ * console.log(result)
+ * console.log(piped)
  * ```
  *
  * @category combinators
@@ -591,6 +594,14 @@ export const repeat: {
 /**
  * Re-export of all helpers from `effect/String`.
  *
+ * @example
+ * ```ts
+ * import * as Str from "@beep/utils/Str"
+ *
+ * const lower = Str.toLowerCase("BEEP")
+ * console.log(lower)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -607,7 +618,7 @@ export * from "effect/String";
  * const value = lazy()
  * // "hello"
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category combinators
@@ -623,12 +634,12 @@ export const trimThunk = (s: string) => () => Str.trim(s);
  * import { Str } from "@beep/utils"
  *
  * const value = Str.fromNumber(42)
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
  * @since 0.0.0
- * @template T - Numeric literal to convert.
+ * @typeParam T - Numeric literal to convert.
  * @param num - The number to convert to a string literal type.
  * @returns The number as a string literal type.
  */
@@ -642,7 +653,7 @@ export const fromNumber = <const T extends number>(num: T): `${T}` => `${num}` a
  * import { Str } from "@beep/utils"
  *
  * const value = Str.toSlug("Hello, Beep Effect!")
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -673,8 +684,8 @@ export const toSlug = flow(
  * const piped = pipe("  beep effect  ", Str.truncate(4))
  * // "beep..."
  *
- * void direct
- * void piped
+ * console.log(direct)
+ * console.log(piped)
  * ```
  *
  * @param text - The text to trim and truncate.
