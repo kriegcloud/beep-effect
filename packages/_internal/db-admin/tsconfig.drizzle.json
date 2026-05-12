@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../../tsconfig.base.json",
+  "include": ["drizzle.config.ts"],
+  "compilerOptions": {
+    "types": ["node"],
+    "noEmit": true,
+    "rootDir": ".",
+    "tsBuildInfoFile": "../../../node_modules/.tmp/db-admin.drizzle.tsbuildinfo",
+    "rewriteRelativeImportExtensions": false,
+    "erasableSyntaxOnly": false
+  }
+}
