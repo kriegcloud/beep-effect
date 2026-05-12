@@ -14,6 +14,7 @@ import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { DateTime, Duration, Effect, FileSystem, Match, Order, Path, pipe, Result } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -706,10 +707,10 @@ const packetCandidate = (report: DocgenQualityReport, packet: QualityRemediation
  * @category utilities
  * @since 0.0.0
  */
-export const selectQualityWorkerEvalPackets = (
-  candidates: ReadonlyArray<PacketCandidate>,
-  packetLimit: number
-): ReadonlyArray<PacketCandidate> => {
+export const selectQualityWorkerEvalPackets: {
+  (candidates: ReadonlyArray<PacketCandidate>, packetLimit: number): ReadonlyArray<PacketCandidate>;
+  (packetLimit: number): (candidates: ReadonlyArray<PacketCandidate>) => ReadonlyArray<PacketCandidate>;
+} = dual(2, (candidates: ReadonlyArray<PacketCandidate>, packetLimit: number): ReadonlyArray<PacketCandidate> => {
   if (packetLimit <= 0) {
     return A.empty();
   }
@@ -743,7 +744,7 @@ export const selectQualityWorkerEvalPackets = (
     ),
     A.take(packetLimit)
   );
-};
+});
 
 const importCodexSdk = Effect.fn("DocgenQualityWorkerEval.importCodexSdk")(function* () {
   return yield* Effect.tryPromise({
