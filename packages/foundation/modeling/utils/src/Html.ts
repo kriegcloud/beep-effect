@@ -21,7 +21,7 @@ import * as Str from "effect/String";
  * import { escapeHtml } from "@beep/utils/Html"
  *
  * const value = escapeHtml(`<div class="note">it's fine</div>`)
- * void value
+ * console.log(value)
  * ```
  */
 export const escapeHtml = flow(
@@ -45,7 +45,7 @@ export const escapeHtml = flow(
  * import { escapeHtmlMultiline } from "@beep/utils/Html"
  *
  * const value = escapeHtmlMultiline("hello\n<script>alert('x')</script>")
- * void value
+ * console.log(value)
  * ```
  */
 export const escapeHtmlMultiline = flow(escapeHtml, Str.replaceAll("\n", "<br />"));

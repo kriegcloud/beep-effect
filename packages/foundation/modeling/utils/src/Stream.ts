@@ -31,7 +31,7 @@ import * as S from "effect/Schema";
  *   Stream.runCollect
  * )
  *
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  *
  * @param self - The stream of JSON lines to decode.

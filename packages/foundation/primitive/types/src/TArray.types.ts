@@ -18,12 +18,12 @@
  * type StringElement = TArray.Elem<string[]>
  * // string
  *
- * declare const elements: readonly [NumberElement, StringElement]
- * void elements
+ * const elements: readonly [NumberElement, StringElement] = [1, "name"]
+ * console.log(elements)
  * ```
  *
  * @since 0.0.0
  * @category utilities
- * @template T - The type from which the element type will be inferred.
+ * @typeParam T - The type from which the element type will be inferred.
  */
 export type Elem<T> = T extends readonly (infer U)[] ? U : never;

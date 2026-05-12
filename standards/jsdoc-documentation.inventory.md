@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-05-09T09:51:57.516Z
+Generated: 2026-05-12T02:37:00.806Z
 
 ## Scope
 
@@ -11,21 +11,21 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | Metric | Count |
 |---|---:|
 | packages | 55 |
-| cleanPackages | 24 |
+| cleanPackages | 26 |
 | packagesWithoutPublicSrcSurface | 1 |
-| packagesNeedingRemediation | 30 |
+| packagesNeedingRemediation | 28 |
 | publicModules | 837 |
 | publicExports | 5852 |
-| openModules | 123 |
-| openExports | 2457 |
-| missingExportExamples | 2251 |
+| openModules | 121 |
+| openExports | 2414 |
+| missingExportExamples | 2227 |
 | missingExportCategories | 50 |
 | missingExportSince | 48 |
-| forbiddenTagFindings | 15 |
+| forbiddenTagFindings | 7 |
 | malformedConditionalTagFindings | 0 |
-| exampleImportFindings | 22 |
-| unsafeExampleFindings | 88 |
-| schemaAnnotationFindings | 128 |
+| exampleImportFindings | 20 |
+| unsafeExampleFindings | 79 |
+| schemaAnnotationFindings | 127 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -41,9 +41,9 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Order | Package | Path | Status | Modules | Exports | Open Modules | Open Exports |
 |---:|---|---|---|---:|---:|---:|---:|
-| 1 | `@beep/types` | `packages/foundation/primitive/types` | needs-remediation | 5 | 10 | 0 | 3 |
+| 1 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
 | 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 79 | 0 | 15 |
-| 3 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 20 | 135 | 2 | 40 |
+| 3 | `@beep/utils` | `packages/foundation/modeling/utils` | clean | 20 | 135 | 0 | 0 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | clean | 7 | 39 | 0 | 0 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | needs-remediation | 2 | 6 | 0 | 1 |
 | 6 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 132 | 1283 | 7 | 1044 |
@@ -99,15 +99,6 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 ## Open Findings
 
-### @beep/types
-
-Path: `packages/foundation/primitive/types`
-
-Export findings:
-- `src/TArray.types.ts:29` `Elem` (type) - forbidden @template; 1 unsafe example violation(s)
-- `src/TString.types.ts:31` `NonEmpty` (type) - 1 unsafe example violation(s)
-- `src/TString.types.ts:53` `Chars` (type) - 1 unsafe example violation(s)
-
 ### @beep/identity
 
 Path: `packages/foundation/modeling/identity`
@@ -128,56 +119,6 @@ Export findings:
 - `src/packages.ts:855` `$OpenaiId` (const) - missing summary; missing @example
 - `src/packages.ts:861` `$VeniceAiId` (const) - missing summary; missing @example
 - `src/packages.ts:867` `$XaiId` (const) - missing summary; missing @example
-
-### @beep/utils
-
-Path: `packages/foundation/modeling/utils`
-
-Module findings:
-- `src/Predicate.ts:1` (packageDocumentation) - missing summary
-- `src/Str.ts:1` (packageDocumentation) - missing summary
-
-Export findings:
-- `src/Array.ts:258` `export * from "effect/Array";` (re-export) - missing @example
-- `src/Array.ts:61` `assertNonEmptyArray` (const) - 1 unsafe example violation(s)
-- `src/Array.ts:81` `assertNonEmptyReadonlyArray` (const) - 1 unsafe example violation(s)
-- `src/Array.ts:303` `fromIterableNonEmpty` (const) - 1 unsafe example violation(s)
-- `src/DateTime.ts:35` `export * from "effect/DateTime";` (re-export) - missing @example
-- `src/Event.ts:18` `export * from "effect/unstable/encoding/Sse";` (re-export) - missing @example
-- `src/Event.ts:72` `makeEvent` (const) - missing @example
-- `src/Function.ts:60` `tuple` (function) - forbidden @template
-- `src/Function.ts:86` `tupledCurry` (function) - forbidden @template
-- `src/Function.ts:112` `reverseCurry` (function) - forbidden @template
-- `src/Function.ts:137` `curry` (function) - forbidden @template
-- `src/Function.ts:162` `uncurry` (function) - forbidden @template
-- `src/Function.ts:192` `lazy` (function) - forbidden @template
-- `src/Glob.ts:34` `Pattern` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Number.ts:63` `export * from "effect/Number";` (re-export) - missing @example
-- `src/Option.ts:73` `export * from "effect/Option";` (re-export) - missing @example
-- `src/Option.ts:48` `propFromNullishOr` (const) - 1 unsafe example violation(s)
-- `src/Predicate.ts:16` `export * from "effect/Predicate";` (re-export) - missing @example
-- `src/Predicate.ts:43` `hasProperties` (const) - 1 unsafe example violation(s)
-- `src/Str.ts:597` `export * from "effect/String";` (re-export) - missing @example
-- `src/Str.ts:180` `mapPrefix` (const) - 1 example import violation(s)
-- `src/Str.ts:226` `mapPostfix` (const) - 1 example import violation(s)
-- `src/Str.ts:635` `fromNumber` (const) - forbidden @template
-- `src/Struct.ts:623` `export * from "effect/Struct";` (re-export) - missing @example
-- `src/Struct.ts:568` `keysNonEmpty` (const) - 1 unsafe example violation(s)
-- `src/index.ts:14` `export * as A from "./Array.ts";` (re-export) - missing @example
-- `src/index.ts:22` `export * as Bool from "./Bool.ts";` (re-export) - missing @example
-- `src/index.ts:30` `export * as DateTime from "./DateTime.ts";` (re-export) - missing @example
-- `src/index.ts:38` `export * as FileSystem from "./FileSystem.ts";` (re-export) - missing @example
-- `src/index.ts:46` `export * as Html from "./Html.ts";` (re-export) - missing @example
-- `src/index.ts:54` `export * from "./isBlockedObjectKey.ts";` (re-export) - missing @example
-- `src/index.ts:61` `export * as Num from "./Number.ts";` (re-export) - missing @example
-- `src/index.ts:68` `export * as O from "./Option.ts";` (re-export) - missing @example
-- `src/index.ts:75` `export * as P from "./Predicate.ts";` (re-export) - missing @example
-- `src/index.ts:82` `export * from "./Random.ts";` (re-export) - missing @example
-- `src/index.ts:90` `export * as Str from "./Str.ts";` (re-export) - missing @example
-- `src/index.ts:97` `export * as Stream from "./Stream.ts";` (re-export) - missing @example
-- `src/index.ts:104` `export * as Struct from "./Struct.ts";` (re-export) - missing @example
-- `src/index.ts:111` `export * as Text from "./Text.ts";` (re-export) - missing @example
-- `src/index.ts:118` `export * from "./thunk.ts";` (re-export) - missing @example
 
 ### @beep/messages
 

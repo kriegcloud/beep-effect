@@ -17,7 +17,7 @@ import { Clock, Context, DateTime, Effect, Layer } from "effect";
  * import { makeUnsafeUtc } from "@beep/utils/DateTime"
  *
  * const value = makeUnsafeUtc("2026-01-01T00:00:00.000Z")
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -28,6 +28,13 @@ export const makeUnsafeUtc = <A extends Parameters<typeof DateTime.make>[0]>(inp
 
 /**
  * Re-export of all helpers from `effect/DateTime`.
+ *
+ * @example
+ * ```ts
+ * import * as DateTime from "@beep/utils/DateTime"
+ *
+ * console.log(DateTime)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -41,7 +48,7 @@ export * from "effect/DateTime";
  * ```ts
  * import { DateTimes } from "@beep/utils/DateTime"
  *
- * void DateTimes.Default
+ * console.log(DateTimes.Default)
  * ```
  *
  * @category constructors

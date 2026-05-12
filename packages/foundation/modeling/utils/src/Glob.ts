@@ -25,13 +25,17 @@ const $I = $UtilsId.create("Glob");
  * import { Pattern } from "@beep/utils/Glob"
  *
  * const schema = Pattern
- * void schema
+ * console.log(schema)
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const Pattern = S.Union([S.String, S.Array(S.String)]);
+export const Pattern = S.Union([S.String, S.Array(S.String)]).pipe(
+  $I.annoteSchema("Pattern", {
+    description: "A glob pattern accepted as a single string or an array of strings.",
+  })
+);
 
 /**
  * A glob pattern: either a single string or an array of strings.
@@ -41,7 +45,7 @@ export const Pattern = S.Union([S.String, S.Array(S.String)]);
  * import type { Pattern } from "@beep/utils/Glob"
  *
  * const pattern: Pattern = ["src/*.ts", "test/*.ts"]
- * void pattern
+ * console.log(pattern)
  * ```
  *
  * @category models
@@ -57,7 +61,7 @@ export type Pattern = typeof Pattern.Type;
  * import { GlobOptions } from "@beep/utils/Glob"
  *
  * const opts = new GlobOptions({ absolute: true, dot: true })
- * void opts
+ * console.log(opts)
  * ```
  *
  * @category models
@@ -84,7 +88,7 @@ export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
  * import { GlobError } from "@beep/utils/Glob"
  *
  * const pattern = (value: GlobError.Encoded) => value.pattern
- * void pattern
+ * console.log(pattern)
  * ```
  *
  * @category models
@@ -99,7 +103,7 @@ export declare namespace GlobError {
    * import { GlobError } from "@beep/utils/Glob"
    *
    * const pattern = (value: GlobError.Encoded) => value.pattern
-   * void pattern
+   * console.log(pattern)
    * ```
    *
    * @category models
@@ -118,7 +122,7 @@ export declare namespace GlobError {
  * import { GlobError } from "@beep/utils/Glob"
  *
  * const error = GlobError.new("src/*.ts", undefined)
- * void error
+ * console.log(error)
  * ```
  *
  * @category models
@@ -165,7 +169,7 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
  *   return yield* service.glob("src/*.ts")
  * })
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @category services
@@ -183,7 +187,7 @@ export interface Glob {
  * import { Glob } from "@beep/utils/Glob"
  *
  * const tag = Glob
- * void tag
+ * console.log(tag)
  * ```
  *
  * @category services
@@ -460,7 +464,7 @@ const makeGlob = (pattern: Pattern, options?: undefined | GlobOptions) => {
  *   layer
  * )
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @category utilities

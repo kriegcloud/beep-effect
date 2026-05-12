@@ -12,6 +12,13 @@ import { dual } from "effect/Function";
 /**
  * Re-export of the Effect SSE encoder/decoder primitives.
  *
+ * @example
+ * ```ts
+ * import * as Sse from "@beep/utils/Event"
+ *
+ * console.log(Sse)
+ * ```
+ *
  * @category codecs
  * @since 0.0.0
  */
@@ -41,7 +48,7 @@ type EventShape<TTag extends TString.NonEmpty, TFields extends S.Struct.Fields> 
  *   _tag: "Progress",
  *   payload: { percent: 50 },
  * })
- * void decoded
+ * console.log(decoded)
  * ```
  *
  * @category models
@@ -65,6 +72,16 @@ type MakeEventSchema<TTag extends TString.NonEmpty, TFields extends S.Struct.Fie
 
 /**
  * Creates a typed server-sent event schema.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { makeEvent } from "@beep/utils/Event"
+ *
+ * const Progress = makeEvent({ percent: S.Number })("Progress")
+ * const event = new Progress({ payload: { percent: 100 } })
+ * console.log(event)
+ * ```
  *
  * @category constructors
  * @since 0.0.0

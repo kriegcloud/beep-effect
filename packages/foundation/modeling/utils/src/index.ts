@@ -8,6 +8,14 @@
 /**
  * Array utilities extending `effect/Array` with non-empty variants.
  *
+ * @example
+ * ```ts
+ * import { A } from "@beep/utils"
+ *
+ * const values = A.makeReadonly("beep")
+ * console.log(values)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -15,6 +23,13 @@ export * as A from "./Array.ts";
 
 /**
  * Boolean utilities re-exported from `effect/Boolean`.
+ *
+ * @example
+ * ```ts
+ * import { Bool } from "@beep/utils"
+ *
+ * console.log(Bool)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -24,6 +39,13 @@ export * as Bool from "./Bool.ts";
 /**
  * DateTime utilities extending `effect/DateTime`.
  *
+ * @example
+ * ```ts
+ * import { DateTime } from "@beep/utils"
+ *
+ * console.log(DateTime)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -31,6 +53,13 @@ export * as DateTime from "./DateTime.ts";
 
 /**
  * File-system watch helpers built on `effect/FileSystem`.
+ *
+ * @example
+ * ```ts
+ * import { FileSystem } from "@beep/utils"
+ *
+ * console.log(FileSystem)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -40,6 +69,14 @@ export * as FileSystem from "./FileSystem.ts";
 /**
  * HTML escaping helpers.
  *
+ * @example
+ * ```ts
+ * import { Html } from "@beep/utils"
+ *
+ * const escaped = Html.escapeHtml("<strong>beep</strong>")
+ * console.log(escaped)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -48,12 +85,28 @@ export * as Html from "./Html.ts";
 /**
  * Prototype-pollution guard.
  *
+ * @example
+ * ```ts
+ * import { isBlockedObjectKey } from "@beep/utils"
+ *
+ * const blocked = isBlockedObjectKey("__proto__")
+ * console.log(blocked)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
 export * from "./isBlockedObjectKey.ts";
 /**
  * Number utilities extending `effect/Number`.
+ *
+ * @example
+ * ```ts
+ * import { Num } from "@beep/utils"
+ *
+ * const whole = Num.isInteger(42)
+ * console.log(whole)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -62,6 +115,14 @@ export * as Num from "./Number.ts";
 /**
  * Option utilities extending `effect/Option`.
  *
+ * @example
+ * ```ts
+ * import { O } from "@beep/utils"
+ *
+ * const value = O.some("beep")
+ * console.log(value)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -69,12 +130,27 @@ export * as O from "./Option.ts";
 /**
  * Predicate utilities extending `effect/Predicate`.
  *
+ * @example
+ * ```ts
+ * import { P } from "@beep/utils"
+ *
+ * const object = P.isObject({ ok: true })
+ * console.log(object)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
 export * as P from "./Predicate.ts";
 /**
+ * Random value service helpers.
  *
+ * @example
+ * ```ts
+ * import { RandomValues } from "@beep/utils"
+ *
+ * console.log(RandomValues.Default)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -84,12 +160,27 @@ export * from "./Random.ts";
 /**
  * String utilities extending `effect/String` with typed case conversions.
  *
+ * @example
+ * ```ts
+ * import { Str } from "@beep/utils"
+ *
+ * const slug = Str.toSlug("Hello, Beep Effect!")
+ * console.log(slug)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
 export * as Str from "./Str.ts";
 /**
  * Stream utilities extending `effect/Stream`.
+ *
+ * @example
+ * ```ts
+ * import { Stream } from "@beep/utils"
+ *
+ * console.log(Stream)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -98,6 +189,14 @@ export * as Stream from "./Stream.ts";
 /**
  * Struct utilities extending `effect/Struct` with dot-path access.
  *
+ * @example
+ * ```ts
+ * import { Struct } from "@beep/utils"
+ *
+ * const keys = Struct.keys({ id: 1, name: "Ada" })
+ * console.log(keys)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -105,12 +204,28 @@ export * as Struct from "./Struct.ts";
 /**
  * Plain-text formatting helpers.
  *
+ * @example
+ * ```ts
+ * import { Text } from "@beep/utils"
+ *
+ * const text = Text.joinLines(["alpha", "beta"])
+ * console.log(text)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
 export * as Text from "./Text.ts";
 /**
  * thunk constants (`thunkTrue`, `thunkNull`, etc.).
+ *
+ * @example
+ * ```ts
+ * import { thunkTrue } from "@beep/utils"
+ *
+ * const value = thunkTrue()
+ * console.log(value)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

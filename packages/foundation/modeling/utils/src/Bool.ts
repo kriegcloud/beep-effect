@@ -8,7 +8,7 @@
  * const toggled = Bool.not(true)
  * // false
  *
- * void toggled
+ * console.log(toggled)
  * ```
  *
  * @category utilities
