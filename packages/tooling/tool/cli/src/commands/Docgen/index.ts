@@ -9,7 +9,7 @@
  */
 
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
-import { Console, Effect, FileSystem, Path } from "effect";
+import { Console, Effect, FileSystem, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -38,6 +38,14 @@ import {
   generateQualityReport,
   resolveDocgenQualityTargets,
 } from "./internal/Quality.js";
+import {
+  analyzeDocgenQualityWorkerEval,
+  decodeDocgenQualityReportForWorkerEval,
+  defaultQualityWorkerEvalPacketLimit,
+  defaultQualityWorkerEvalReasoningEffort,
+  generateQualityWorkerEvalJson,
+  qualityWorkerEvalSourcePacketLimit,
+} from "./internal/QualityWorkerEval.js";
 
 const packageFlag = Flag.string("package").pipe(
   Flag.withAlias("p"),
@@ -55,6 +63,10 @@ const requiredPackageFlag = Flag.string("package").pipe(
 const outputFlag = Flag.string("output").pipe(
   Flag.withAlias("o"),
   Flag.withDescription("Write output to a specific file path"),
+  Flag.optional
+);
+const inputFlag = Flag.string("input").pipe(
+  Flag.withDescription("Read input from a specific file path"),
   Flag.optional
 );
 const jsonFlag = Flag.boolean("json").pipe(Flag.withDescription("Emit machine-readable JSON output"));
@@ -77,6 +89,28 @@ const packetLimitFlag = Flag.integer("packet-limit").pipe(
   Flag.withDescription(
     "Maximum number of Codex advisory remediation packets to emit; use 0 to suppress packets; must be zero or greater"
   )
+);
+const qualityWorkerEvalPacketLimitFlag = Flag.integer("packet-limit").pipe(
+  Flag.withDefault(defaultQualityWorkerEvalPacketLimit()),
+  Flag.withDescription("Maximum number of remediation packets to send to the worker; must be zero or greater")
+);
+const qualityWorkerEvalProviderFlag = Flag.choiceWithValue("provider", [
+  ["codex", "codex"],
+  ["ollama", "ollama"],
+  ["lmstudio", "lmstudio"],
+]).pipe(Flag.withDescription("Codex worker provider to evaluate; choose codex, ollama, or lmstudio"));
+const qualityWorkerEvalModelFlag = Flag.string("model").pipe(
+  Flag.withDescription("Model id to pass to Codex; required to avoid provider-specific default drift")
+);
+const qualityWorkerEvalReasoningEffortFlag = Flag.choiceWithValue("reasoning-effort", [
+  ["minimal", "minimal"],
+  ["low", "low"],
+  ["medium", "medium"],
+  ["high", "high"],
+  ["xhigh", "xhigh"],
+]).pipe(
+  Flag.withDescription("Optional Codex reasoning effort; hosted codex defaults to low when omitted"),
+  Flag.optional
 );
 const verboseFlag = Flag.boolean("verbose").pipe(
   Flag.withAlias("v"),
@@ -715,6 +749,119 @@ const docgenQualityCommand = Command.make(
   )
 );
 
+const docgenQualityWorkerEvalCommand = Command.make(
+  "quality-worker-eval",
+  {
+    package: packageFlag,
+    all: allFlag,
+    input: inputFlag,
+    output: outputFlag,
+    provider: qualityWorkerEvalProviderFlag,
+    model: qualityWorkerEvalModelFlag,
+    reasoningEffort: qualityWorkerEvalReasoningEffortFlag,
+    packetLimit: qualityWorkerEvalPacketLimitFlag,
+  },
+  ({ package: packageSelector, all, input, output, provider, model, reasoningEffort, packetLimit }) =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
+      const resolvedReasoningEffort =
+        provider === "codex"
+          ? pipe(reasoningEffort, O.getOrElse(defaultQualityWorkerEvalReasoningEffort))
+          : O.getOrUndefined(reasoningEffort);
+      const reasoningOptions = pipe(
+        O.fromNullishOr(resolvedReasoningEffort),
+        O.map((value) => ({ reasoningEffort: value })),
+        O.getOrElse(() => ({}))
+      );
+
+      if (sourceCount !== 1) {
+        return yield* new DomainError({
+          message: "Choose exactly one docgen quality-worker-eval source: --input, --package, or --all.",
+        });
+      }
+
+      if (packetLimit < 0) {
+        return yield* new DomainError({
+          message: "--packet-limit must be zero or greater; use 0 to suppress worker packet turns",
+        });
+      }
+
+      if (Str.trim(model).length === 0) {
+        return yield* new DomainError({
+          message: "--model is required for docgen quality-worker-eval.",
+        });
+      }
+
+      const source = O.isSome(input)
+        ? {
+            report: yield* fs.readFileString(input.value).pipe(Effect.flatMap(decodeDocgenQualityReportForWorkerEval)),
+            scope: "input" as const,
+            sourceQualityReport: input.value,
+          }
+        : yield* Effect.gen(function* () {
+            const { scope, targets } = yield* resolveDocgenQualityTargets({
+              all,
+              changedFiles: false,
+              packageSelector,
+            });
+
+            if (targets.length === 0) {
+              return yield* new DomainError({
+                message: "No packages selected for docgen quality-worker-eval.",
+              });
+            }
+
+            return {
+              report: yield* analyzeDocgenQuality({
+                packetLimit: qualityWorkerEvalSourcePacketLimit(packetLimit),
+                scope,
+                scoreMode: "codex",
+                targets,
+              }),
+              scope: scope === "all" ? ("all" as const) : ("package" as const),
+              sourceQualityReport: `generated:${scope}`,
+            };
+          });
+
+      const report = yield* analyzeDocgenQualityWorkerEval({
+        model,
+        packetLimit,
+        provider,
+        ...reasoningOptions,
+        report: source.report,
+        scope: source.scope,
+        sourceQualityReport: source.sourceQualityReport,
+      });
+      const content = yield* generateQualityWorkerEvalJson(report);
+
+      if (O.isSome(output)) {
+        yield* fs.writeFileString(output.value, content);
+        yield* Console.log(`docgen: wrote ${output.value}`);
+        return;
+      }
+
+      yield* Console.log(content);
+    }).pipe(
+      Effect.catchTag(
+        "DomainError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`docgen: ${error.message}`);
+        })
+      ),
+      Effect.catchTag(
+        "NoSuchFileError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`docgen: ${error.message}`);
+        })
+      )
+    )
+).pipe(
+  Command.withDescription("Run read-only worker evaluation over deterministic docgen quality remediation packets")
+);
+
 const printDocgenIndex = Effect.fn(function* () {
   yield* Console.log('Run "bun run beep docgen --help" to see the available docgen commands and flags.');
 });
@@ -736,5 +883,6 @@ export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
     docgenAnalyzeCommand,
     docgenCheckCommand,
     docgenQualityCommand,
+    docgenQualityWorkerEvalCommand,
   ])
 );
