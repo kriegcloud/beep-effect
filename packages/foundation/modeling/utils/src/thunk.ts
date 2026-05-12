@@ -22,7 +22,7 @@ type LazyArg<A> = () => A;
  * const value = getFortyTwo()
  * // 42
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category constructors
@@ -43,7 +43,7 @@ export const thunk =
  * const value = thunkNull()
  * // null
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -61,7 +61,7 @@ export const thunkNull = thunk(null);
  * const value = thunkUndefined()
  * // undefined
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -79,7 +79,7 @@ export const thunkUndefined = thunk(undefined);
  * const value = thunkVoid()
  * // undefined
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -97,7 +97,7 @@ export const thunkVoid = thunk(void 0);
  * const value = thunkTrue()
  * // true
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -115,7 +115,7 @@ export const thunkTrue = thunk(true as const);
  * const value = thunkFalse()
  * // false
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -133,7 +133,7 @@ export const thunkFalse = thunk(false as const);
  * const value = thunkEmptyStr()
  * // ""
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -151,7 +151,7 @@ export const thunkEmptyStr = thunk("");
  * const value = thunk0()
  * // 0
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -169,7 +169,7 @@ export const thunk0 = thunk(0);
  * const value = thunk1()
  * // 1
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -188,7 +188,7 @@ export const thunk1 = thunk(1);
  * const arr = getArr()
  * // []
  *
- * void arr
+ * console.log(arr)
  * ```
  *
  * @category constructors
@@ -207,7 +207,7 @@ export const thunkEmptyArray = <A = never>(): LazyArg<Array<A>> => A.empty<A>;
  * const arr = getArr()
  * // []
  *
- * void arr
+ * console.log(arr)
  * ```
  *
  * @category constructors
@@ -226,7 +226,7 @@ export const thunkEmptyReadonlyArray = <A = never>(): LazyArg<ReadonlyArray<A>> 
  * const getEffect = thunkEffect(Effect.succeed(42))
  * const eff = getEffect()
  *
- * void eff
+ * console.log(eff)
  * ```
  *
  * @category constructors
@@ -243,9 +243,11 @@ export const thunkEffect = <T>(effect: T) => thunk(effect);
  *
  * const eff = thunkEffectVoid()
  *
- * void eff
+ * console.log(eff)
  * ```
  *
+ * @effects Creates a pure `Effect.void` value for callers to execute later; no
+ * services are required while constructing the thunk.
  * @category utilities
  * @since 0.0.0
  */
@@ -261,9 +263,11 @@ export const thunkEffectVoid = thunkEffect(Effect.void);
  * const getEffect = thunkEffectSucceed("hello")
  * const eff = getEffect()
  *
- * void eff
+ * console.log(eff)
  * ```
  *
+ * @effects Creates a pure `Effect.succeed` value for callers to execute later;
+ * no services are required while constructing the thunk.
  * @category constructors
  * @since 0.0.0
  */
@@ -278,7 +282,7 @@ export const thunkEffectSucceed = <A>(a: A) => thunkEffect(Effect.succeed(a));
  *
  * const eff = thunkEffectSucceedNull()
  *
- * void eff
+ * console.log(eff)
  * ```
  *
  * @category utilities
@@ -287,7 +291,7 @@ export const thunkEffectSucceed = <A>(a: A) => thunkEffect(Effect.succeed(a));
 export const thunkEffectSucceedNull = thunkEffectSucceed(null);
 
 /**
- * Returns a thunk for `Effect.succeed(Option.none())`.
+ * Returns `Effect.succeed(Option.none())`.
  *
  * @example
  * ```ts
@@ -295,9 +299,11 @@ export const thunkEffectSucceedNull = thunkEffectSucceed(null);
  *
  * const eff = thunkEffectSucceedNone<string>()
  *
- * void eff
+ * console.log(eff)
  * ```
  *
+ * @effects Creates a pure `Effect` that succeeds with `Option.none`; no
+ * services are required and execution is left to the caller.
  * @category constructors
  * @since 0.0.0
  */
@@ -312,7 +318,7 @@ export const thunkEffectSucceedNone = <A = never>() => Effect.succeed(O.none<A>(
  *
  * const rec = thunkEmptyRecord<string, number>()
  *
- * void rec
+ * console.log(rec)
  * ```
  *
  * @category constructors
@@ -331,7 +337,7 @@ export const thunkEmptyRecord = <K extends string | symbol = never, V = never>()
  * const opt = getSome()
  * // Option.some(42)
  *
- * void opt
+ * console.log(opt)
  * ```
  *
  * @category constructors
@@ -352,7 +358,7 @@ export const thunkSome =
  * const opt = thunkSomeEmptyStr()
  * // Option.some("")
  *
- * void opt
+ * console.log(opt)
  * ```
  *
  * @category utilities
@@ -370,7 +376,7 @@ export const thunkSomeEmptyStr = thunkSome("");
  * const value = thunkNegative1()
  * // -1
  *
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -388,7 +394,7 @@ export const thunkNegative1 = thunk(-1);
  * const opt = thunkSomeFalse()
  * // Option.some(false)
  *
- * void opt
+ * console.log(opt)
  * ```
  *
  * @category utilities
@@ -406,7 +412,7 @@ export const thunkSomeFalse = thunkSome(false);
  * const opt = thunkSomeTrue()
  * // Option.some(true)
  *
- * void opt
+ * console.log(opt)
  * ```
  *
  * @category utilities
@@ -424,7 +430,7 @@ export const thunkSomeTrue = thunkSome(true as const);
  * const opt = thunkSomeEmptyArray<number>()
  * // Option.some([])
  *
- * void opt
+ * console.log(opt)
  * ```
  *
  * @category constructors
@@ -442,7 +448,7 @@ export const thunkSomeEmptyArray = <A = never>() => O.some(A.empty<A>());
  * const opt = thunkSomeEmptyRecord<string, number>()
  * // Option.some({})
  *
- * void opt
+ * console.log(opt)
  * ```
  *
  * @category constructors
@@ -463,7 +469,7 @@ export const thunkSomeEmptyRecord = <K extends string | symbol = never, V = neve
  * const opt = thunkSomeNone<string>()
  * // Option.some(Option.none())
  *
- * void opt
+ * console.log(opt)
  * ```
  *
  * @category constructors

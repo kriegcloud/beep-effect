@@ -36,6 +36,8 @@ actually lives here.
 ## Reference Packets
 
 - `repo-codegraph-jsdoc` — learn-only codegraph/JSDoc research reference.
+- `jsdoc-worker-eval` — read-only worker eval reference for hosted Codex and
+  local providers; `qwen3-coder:30b` was rejected for this 8 GiB VRAM workstation.
 
 ## Needs Refresh After Lean Slate
 

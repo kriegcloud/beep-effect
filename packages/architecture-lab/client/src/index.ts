@@ -1,5 +1,5 @@
 /**
- * Architecture lab client package.
+ * Package entry point for `@beep/architecture-lab-client`.
  *
  * @packageDocumentation
  * @category clients

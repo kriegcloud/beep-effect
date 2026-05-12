@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "1.0.0",
+  "initiative": {
+    "id": "jsdoc-worker-eval",
+    "title": "JSDoc Worker Eval",
+    "status": "p0-p5-complete-hosted-baseline-candidate",
+    "created": "2026-05-12",
+    "updated": "2026-05-12",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "currentSourceOfTruth": "SPEC.md",
+  "reportDirectory": "research",
+  "rawOutputDirectory": "history/outputs",
+  "implementedCommandSurfaces": ["beep docgen quality-worker-eval"],
+  "providerPath": {
+    "supportedProviders": ["codex", "ollama", "lmstudio"],
+    "providerArgumentRequired": true,
+    "modelArgumentRequired": true,
+    "hostedCodexDefaultReasoningEffort": "low",
+    "firstLocalModelFamily": "Qwen3-Coder",
+    "rejectedHostModelPairing": "qwen3-coder:30b on RTX 3070 8GiB local workstation",
+    "recommendedNextEnvironment": "Runpod or another larger-VRAM GPU host"
+  },
+  "evidence": [
+    {
+      "id": "2026-05-12-ollama-qwen3-coder-30b-host-eval",
+      "report": "research/2026-05-12-ollama-qwen3-coder-30b-host-eval.md",
+      "raw": "history/outputs/2026-05-12-ollama-qwen3-coder-30b-host-evidence.json",
+      "result": "do-not-graduate"
+    },
+    {
+      "id": "2026-05-12-codex-gpt-5.4-mini-low-worker-eval",
+      "report": "research/2026-05-12-codex-gpt-5.4-mini-low-worker-eval.md",
+      "raw": "history/outputs/2026-05-12-codex-gpt-5.4-mini-low-worker-eval.json",
+      "result": "candidate-baseline"
+    }
+  ],
+  "phaseStatus": [
+    {
+      "id": "P0",
+      "status": "complete",
+      "title": "Bootstrap initiative packet"
+    },
+    {
+      "id": "P1",
+      "status": "complete",
+      "title": "Codex SDK and provider command feasibility"
+    },
+    {
+      "id": "P2",
+      "status": "complete",
+      "title": "Read-only eval report contract and command"
+    },
+    {
+      "id": "P3",
+      "status": "complete",
+      "title": "Provider-backed host suitability eval"
+    },
+    {
+      "id": "P4",
+      "status": "complete",
+      "title": "Graduation recommendation"
+    },
+    {
+      "id": "P5",
+      "status": "complete",
+      "title": "Hosted Codex low-reasoning baseline"
+    }
+  ],
+  "nonGoals": [
+    "source-file edits",
+    "blocking JSDoc enforcement",
+    "Qwen-specific architecture doctrine",
+    "auto-remediation write mode"
+  ],
+  "nextAction": "Keep workers read-only; compare larger hosted and remote-GPU samples before opening auto-remediation write mode."
+}

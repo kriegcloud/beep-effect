@@ -1,5 +1,5 @@
 /**
- * Architecture lab public use-case contracts.
+ * Package entry point for `@beep/architecture-lab-use-cases`.
  *
  * @packageDocumentation
  * @category use-cases

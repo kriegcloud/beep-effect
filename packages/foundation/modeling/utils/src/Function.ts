@@ -11,8 +11,8 @@
  * const render = (right: number) => (left: string) => `${left}:${right}`
  * const rendered = reverseCurry(render)("beep")(5)
  *
- * void pair
- * void rendered
+ * console.log(pair)
+ * console.log(rendered)
  * ```
  *
  * @packageDocumentation
@@ -28,7 +28,7 @@
  *
  * const doubled = pipe(2, (value) => value * 2)
  *
- * void doubled
+ * console.log(doubled)
  * ```
  *
  * @category interop
@@ -47,11 +47,11 @@ export * from "effect/Function";
  * const first = pair[0]
  * const second = pair[1]
  *
- * void first
- * void second
+ * console.log(first)
+ * console.log(second)
  * ```
  *
- * @template T - The tuple element list captured from the argument list.
+ * @typeParam T - The tuple element list captured from the argument list.
  * @param elements - The values to preserve in tuple order.
  * @returns The provided elements typed as a readonly tuple.
  * @category constructors
@@ -72,12 +72,12 @@ export function tuple<const T extends ReadonlyArray<unknown>>(...elements: T): R
  * const joinTuple = tupledCurry(join)
  * const result = joinTuple(["beep", "effect"])
  *
- * void result
+ * console.log(result)
  * ```
  *
- * @template A - The first argument type.
- * @template B - The second argument type.
- * @template C - The return type.
+ * @typeParam A - The first argument type.
+ * @typeParam B - The second argument type.
+ * @typeParam C - The return type.
  * @param fn - The curried function to call with tuple elements.
  * @returns A function that applies `[a, b]` as `fn(a)(b)`.
  * @category combinators
@@ -98,12 +98,12 @@ export function tupledCurry<A, B, C>(fn: (a: A) => (b: B) => C): (arg0: [A, B]) 
  * const appendTo = reverseCurry(append)
  * const result = appendTo("beep")("-effect")
  *
- * void result
+ * console.log(result)
  * ```
  *
- * @template A - The first argument type after reversal.
- * @template B - The second argument type after reversal.
- * @template C - The return type.
+ * @typeParam A - The first argument type after reversal.
+ * @typeParam B - The second argument type after reversal.
+ * @typeParam C - The return type.
  * @param fn - The curried function whose argument order should be reversed.
  * @returns A curried function that applies arguments as `fn(b)(a)`.
  * @category combinators
@@ -123,12 +123,12 @@ export function reverseCurry<A, B, C>(fn: (b: B) => (a: A) => C) {
  * const join = (left: string, right: string) => `${left}:${right}`
  * const result = curry(join)("beep")("effect")
  *
- * void result
+ * console.log(result)
  * ```
  *
- * @template A - The first argument type.
- * @template B - The second argument type.
- * @template C - The return type.
+ * @typeParam A - The first argument type.
+ * @typeParam B - The second argument type.
+ * @typeParam C - The return type.
  * @param fn - The two-argument function to curry.
  * @returns A curried function that applies arguments as `fn(a, b)`.
  * @category combinators
@@ -148,12 +148,12 @@ export function curry<A, B, C>(fn: (a: A, b: B) => C) {
  * const join = (left: string) => (right: string) => `${left}:${right}`
  * const result = uncurry(join)("beep", "effect")
  *
- * void result
+ * console.log(result)
  * ```
  *
- * @template A - The first argument type.
- * @template B - The second argument type.
- * @template C - The return type.
+ * @typeParam A - The first argument type.
+ * @typeParam B - The second argument type.
+ * @typeParam C - The return type.
  * @param fn - The curried function to call with two arguments.
  * @returns An uncurried function that applies arguments as `fn(a)(b)`.
  * @category combinators
@@ -179,11 +179,11 @@ export function uncurry<A, B, C>(fn: (a: A) => (b: B) => C): (arg0: A, arg1: B) 
  * const first = readOnce()
  * const second = readOnce()
  *
- * void first
- * void second
+ * console.log(first)
+ * console.log(second)
  * ```
  *
- * @template A - The value produced by the thunk.
+ * @typeParam A - The value produced by the thunk.
  * @param fn - The nullary function to evaluate at most once.
  * @returns A nullary function that returns the cached value after the first successful call.
  * @category constructors

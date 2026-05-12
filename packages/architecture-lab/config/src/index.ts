@@ -1,5 +1,5 @@
 /**
- * Architecture lab typed configuration package.
+ * Package entry point for `@beep/architecture-lab-config`.
  *
  * @packageDocumentation
  * @category configuration

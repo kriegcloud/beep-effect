@@ -1,5 +1,5 @@
 /**
- * Architecture lab server package.
+ * Package entry point for `@beep/architecture-lab-server`.
  *
  * @packageDocumentation
  * @category handlers

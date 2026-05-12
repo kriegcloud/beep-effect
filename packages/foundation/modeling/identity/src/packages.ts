@@ -889,12 +889,32 @@ export const $AcpId: Identity.IdentityComposer<"@beep/acp"> = composers.$AcpId;
 export const $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat"> = composers.$OpenaiCompatId;
 
 /**
+ * Identity composer for `@beep/workspace-tables`.
+ *
+ * @example
+ * ```typescript
+ * import { $WorkspaceTablesId } from "@beep/identity"
+ *
+ * const id = $WorkspaceTablesId.make("WorkspaceTable")
+ * void id
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
 export const $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tables"> = composers.$WorkspaceTablesId;
 
 /**
+ * Identity composer for `@beep/architecture-lab-domain`.
+ *
+ * @example
+ * ```typescript
+ * import { $ArchitectureLabDomainId } from "@beep/identity"
+ *
+ * const id = $ArchitectureLabDomainId.make("Specimen")
+ * void id
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -902,6 +922,16 @@ export const $ArchitectureLabDomainId: Identity.IdentityComposer<"@beep/architec
   composers.$ArchitectureLabDomainId;
 
 /**
+ * Identity composer for `@beep/architecture-lab-use-cases`.
+ *
+ * @example
+ * ```typescript
+ * import { $ArchitectureLabUseCasesId } from "@beep/identity"
+ *
+ * const id = $ArchitectureLabUseCasesId.make("SpecimenService")
+ * void id
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -909,6 +939,16 @@ export const $ArchitectureLabUseCasesId: Identity.IdentityComposer<"@beep/archit
   composers.$ArchitectureLabUseCasesId;
 
 /**
+ * Identity composer for `@beep/architecture-lab-config`.
+ *
+ * @example
+ * ```typescript
+ * import { $ArchitectureLabConfigId } from "@beep/identity"
+ *
+ * const id = $ArchitectureLabConfigId.make("Config")
+ * void id
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -916,6 +956,16 @@ export const $ArchitectureLabConfigId: Identity.IdentityComposer<"@beep/architec
   composers.$ArchitectureLabConfigId;
 
 /**
+ * Identity composer for `@beep/architecture-lab-server`.
+ *
+ * @example
+ * ```typescript
+ * import { $ArchitectureLabServerId } from "@beep/identity"
+ *
+ * const id = $ArchitectureLabServerId.make("Layer")
+ * void id
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -923,6 +973,16 @@ export const $ArchitectureLabServerId: Identity.IdentityComposer<"@beep/architec
   composers.$ArchitectureLabServerId;
 
 /**
+ * Identity composer for `@beep/architecture-lab-tables`.
+ *
+ * @example
+ * ```typescript
+ * import { $ArchitectureLabTablesId } from "@beep/identity"
+ *
+ * const id = $ArchitectureLabTablesId.make("SpecimenTable")
+ * void id
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -930,6 +990,16 @@ export const $ArchitectureLabTablesId: Identity.IdentityComposer<"@beep/architec
   composers.$ArchitectureLabTablesId;
 
 /**
+ * Identity composer for `@beep/architecture-lab-client`.
+ *
+ * @example
+ * ```typescript
+ * import { $ArchitectureLabClientId } from "@beep/identity"
+ *
+ * const id = $ArchitectureLabClientId.make("SpecimenClient")
+ * void id
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -937,6 +1007,16 @@ export const $ArchitectureLabClientId: Identity.IdentityComposer<"@beep/architec
   composers.$ArchitectureLabClientId;
 
 /**
+ * Identity composer for `@beep/architecture-lab-ui`.
+ *
+ * @example
+ * ```typescript
+ * import { $ArchitectureLabUiId } from "@beep/identity"
+ *
+ * const id = $ArchitectureLabUiId.make("SpecimenDetail")
+ * void id
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -944,6 +1024,16 @@ export const $ArchitectureLabUiId: Identity.IdentityComposer<"@beep/architecture
   composers.$ArchitectureLabUiId;
 
 /**
+ * Identity composer for `@beep/architecture-lab-proof`.
+ *
+ * @example
+ * ```typescript
+ * import { $ArchitectureLabProofId } from "@beep/identity"
+ *
+ * const id = $ArchitectureLabProofId.make("Proof")
+ * void id
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */

@@ -26,6 +26,9 @@ import { thunkFalse, thunkTrue } from "./thunk.ts";
  *
  * const empty = A.matchToBoolean([])
  * // false
+ *
+ * console.log(hasItems)
+ * console.log(empty)
  * ```
  *
  * @category predicates
@@ -52,7 +55,7 @@ const NonEmptyArraySchema = NonEmptyReadonlyArraySchema.pipe(S.mutable);
  *
  * const items: unknown = [1, 2, 3]
  * A.assertNonEmptyArray(items)
- * // items is now typed as NonEmptyArray<unknown>
+ * // items is now narrowed to NonEmptyArray<unknown>
  * ```
  *
  * @category guards
@@ -72,7 +75,7 @@ export const assertNonEmptyArray: (input: unknown) => asserts input is A.NonEmpt
  *
  * const items: unknown = ["a", "b"]
  * A.assertNonEmptyReadonlyArray(items)
- * // items is now typed as NonEmptyReadonlyArray<unknown>
+ * // items is now narrowed to NonEmptyReadonlyArray<unknown>
  * ```
  *
  * @category guards
@@ -110,8 +113,8 @@ function asNonEmptyReadonlyArray<T>(out: ReadonlyArray<T>): A.NonEmptyReadonlyAr
  * // Data-last (pipeable)
  * const tripled = pipe(items, A.mapNonEmpty((n) => n * 3))
  *
- * void doubled
- * void tripled
+ * console.log(doubled)
+ * console.log(tripled)
  * ```
  *
  * @category combinators
@@ -146,8 +149,8 @@ export const mapNonEmpty: {
  * // Data-last (pipeable)
  * const doubled = pipe(items, A.flatMapNonEmpty((n): A.NonEmptyReadonlyArray<number> => [n, n]))
  *
- * void expanded
- * void doubled
+ * console.log(expanded)
+ * console.log(doubled)
  * ```
  *
  * @category combinators
@@ -184,8 +187,8 @@ export const flatMapNonEmpty: {
  * // Data-last (pipeable)
  * const prefixed = pipe(items, A.mapNonEmptyReadonly((s) => `item-${s}`))
  *
- * void upper
- * void prefixed
+ * console.log(upper)
+ * console.log(prefixed)
  * ```
  *
  * @category combinators
@@ -226,8 +229,8 @@ export const mapNonEmptyReadonly: {
  *   A.flatMapNonEmptyReadonly((item): A.NonEmptyReadonlyArray<string> => [item, item])
  * )
  *
- * void expanded
- * void doubled
+ * console.log(expanded)
+ * console.log(doubled)
  * ```
  *
  * @category combinators
@@ -252,6 +255,14 @@ export const flatMapNonEmptyReadonly: {
 /**
  * Re-export of all helpers from `effect/Array`.
  *
+ * @example
+ * ```ts
+ * import * as A from "@beep/utils/Array"
+ *
+ * const values = A.makeReadonly("beep")
+ * console.log(values)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -273,8 +284,8 @@ export * from "effect/Array";
  * const multi = A.makeReadonly(["a", "b"])
  * // ["a", "b"]
  *
- * void single
- * void multi
+ * console.log(single)
+ * console.log(multi)
  * ```
  *
  * @category constructors
@@ -292,9 +303,9 @@ export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> => A.ensure(a
  * import { A } from "@beep/utils"
  *
  * const fromSet = A.fromIterableNonEmpty(new Set([1, 2, 3]))
- * // [1, 2, 3] typed as NonEmptyReadonlyArray<number>
+ * // [1, 2, 3] narrowed to NonEmptyReadonlyArray<number>
  *
- * void fromSet
+ * console.log(fromSet)
  * ```
  *
  * @category constructors

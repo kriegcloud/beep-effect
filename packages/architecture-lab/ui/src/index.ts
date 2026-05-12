@@ -1,5 +1,5 @@
 /**
- * Architecture lab UI package.
+ * Package entry point for `@beep/architecture-lab-ui`.
  *
  * @packageDocumentation
  * @category models

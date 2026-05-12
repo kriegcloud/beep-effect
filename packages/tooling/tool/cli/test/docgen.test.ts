@@ -17,6 +17,12 @@ import {
   generateQualityJson,
   generateQualityReport,
 } from "@beep/repo-cli/commands/Docgen/internal/Quality";
+import {
+  analyzeDocgenQualityWorkerEval,
+  DocgenQualityWorkerEvalReport,
+  type DocgenQualityWorkerEvalRunner,
+  generateQualityWorkerEvalJson,
+} from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -46,6 +52,7 @@ const CommandTestLayer = Layer.mergeAll(
 const runDocgenCommand = Command.runWith(docgenCommand, { version: "0.0.0" });
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 const decodeUnknownJson = S.decodeUnknownSync(S.fromJsonString(S.Unknown));
+const decodeWorkerEvalReportJson = S.decodeUnknownSync(S.fromJsonString(DocgenQualityWorkerEvalReport));
 const DOCGEN_COMMAND_TEST_TIMEOUT = 30_000;
 
 const runCommand = (command: string, args: ReadonlyArray<string>, cwd: string) =>
@@ -1526,6 +1533,152 @@ export const value${index} = ${index};
     );
   });
 
+  it("evaluates worker packets with a fake Codex runner", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const schemaDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          const typesDir = path.join(tmpDir, "packages", "foundation", "primitive", "types");
+          yield* fs.makeDirectory(path.join(schemaDir, "src"), { recursive: true });
+          yield* fs.makeDirectory(path.join(typesDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(schemaDir, "package.json"),
+            encodeJson({ name: "@beep/schema", version: "0.0.0" })
+          );
+          yield* fs.writeFileString(
+            path.join(typesDir, "package.json"),
+            encodeJson({ name: "@beep/types", version: "0.0.0" })
+          );
+          yield* fs.writeFileString(path.join(schemaDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(path.join(typesDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(schemaDir, "src", "index.ts"),
+            `/**
+ * Schema fixture without a useful example.
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+          yield* fs.writeFileString(
+            path.join(typesDir, "src", "index.ts"),
+            `/**
+ * Type fixture without a useful example.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type TypeValue = string;
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const targets = A.filter(packages, (pkg) => pkg.name === "@beep/schema" || pkg.name === "@beep/types");
+          const report = yield* analyzeDocgenQuality({
+            scope: "all",
+            scoreMode: "codex",
+            targets,
+          });
+          const runner: DocgenQualityWorkerEvalRunner = () =>
+            Effect.succeed({
+              finalResponse: encodeJson({
+                localScore: 8,
+                rationale: "The draft adds an observable example and keeps required tags.",
+                draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
+                policyViolationCodes: [],
+                reviewDisposition: "candidate",
+              }),
+            });
+
+          const workerReport = yield* analyzeDocgenQualityWorkerEval({
+            codexSdkVersion: "test-sdk",
+            model: "gpt-5.4-mini",
+            packetLimit: 2,
+            provider: "codex",
+            reasoningEffort: "low",
+            report,
+            runner,
+            scope: "input",
+            sourceQualityReport: "quality.json",
+          });
+          const json = yield* generateQualityWorkerEvalJson(workerReport);
+          const decoded = decodeWorkerEvalReportJson(json);
+          const packetPackages = pipe(
+            decoded.packets,
+            A.map((packet) => packet.packageName),
+            A.dedupe
+          );
+
+          expect(decoded.schemaVersion).toBe(1);
+          expect(decoded.provider).toBe("codex");
+          expect(decoded.model).toBe("gpt-5.4-mini");
+          expect(decoded.reasoningEffort).toBe("low");
+          expect(decoded.codexSdkVersion).toBe("test-sdk");
+          expect(decoded.summary.sourcePackets).toBeGreaterThanOrEqual(2);
+          expect(decoded.summary.selectedPackets).toBe(2);
+          expect(decoded.summary.completed).toBe(2);
+          expect(decoded.summary.candidates).toBe(2);
+          expect(packetPackages).toEqual(["@beep/schema", "@beep/types"]);
+
+          const localProviderReport = yield* analyzeDocgenQualityWorkerEval({
+            codexSdkVersion: "test-sdk",
+            model: "qwen-test",
+            packetLimit: 0,
+            provider: "ollama",
+            report,
+            runner,
+            scope: "input",
+            sourceQualityReport: "quality.json",
+          });
+
+          expect(localProviderReport.reasoningEffort).toBeNull();
+
+          const outOfRangeScoreRunner: DocgenQualityWorkerEvalRunner = () =>
+            Effect.succeed({
+              finalResponse: encodeJson({
+                localScore: 11,
+                rationale: "The worker returned an out-of-range score.",
+                draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
+                policyViolationCodes: [],
+                reviewDisposition: "candidate",
+              }),
+            });
+          const outOfRangeScoreReport = yield* analyzeDocgenQualityWorkerEval({
+            codexSdkVersion: "test-sdk",
+            model: "gpt-5.4-mini",
+            packetLimit: 1,
+            provider: "codex",
+            reasoningEffort: "low",
+            report,
+            runner: outOfRangeScoreRunner,
+            scope: "input",
+            sourceQualityReport: "quality.json",
+          });
+          const failedPacket = outOfRangeScoreReport.packets[0];
+
+          expect(outOfRangeScoreReport.summary.failed).toBe(1);
+          expect(failedPacket?.status).toBe("failed");
+          expect(failedPacket?.localScore).toBeNull();
+          expect(failedPacket?.error).toContain("Worker returned invalid eval JSON");
+        })
+      )
+    );
+  });
+
   it("wires --packet-limit through the quality CLI", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
     await Effect.runPromise(
       withTempRepoCommand(
@@ -1595,6 +1748,93 @@ export const cliValue${index} = ${index};
           expect(decoded.remediationPackets).toHaveLength(2);
           expect(decoded.packages?.[0]?.summary?.remediationPackets).toBe(2);
           expect(decoded.packages?.[0]?.omittedPacketCount).toBe(3);
+        })
+      )
+    );
+  });
+
+  it("writes worker eval JSON from a saved quality report without requiring a live provider", {
+    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+  }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          const qualityPath = path.join(tmpDir, "quality.json");
+          const evalPath = path.join(tmpDir, "worker-eval.json");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Missing example worker eval fixture.
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const workerEvalValue = 1;
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+
+          expect(target).toBeDefined();
+
+          const qualityReport = yield* analyzeDocgenQuality({
+            scope: "package",
+            scoreMode: "codex",
+            targets: [target!],
+          });
+          yield* fs.writeFileString(qualityPath, yield* generateQualityJson(qualityReport));
+
+          yield* runDocgenCommand([
+            "quality-worker-eval",
+            "--input",
+            qualityPath,
+            "--provider",
+            "codex",
+            "--model",
+            "gpt-5.4-mini",
+            "--packet-limit",
+            "0",
+            "--output",
+            evalPath,
+          ]);
+
+          const decoded = decodeWorkerEvalReportJson(yield* fs.readFileString(evalPath));
+          const logLines = yield* TestConsole.logLines;
+
+          expect(decoded.schemaVersion).toBe(1);
+          expect(decoded.scope).toBe("input");
+          expect(decoded.sourceQualityReport).toBe(qualityPath);
+          expect(decoded.provider).toBe("codex");
+          expect(decoded.model).toBe("gpt-5.4-mini");
+          expect(decoded.reasoningEffort).toBe("low");
+          expect(decoded.codexSdkVersion).toMatch(/^\d+\.\d+\.\d+/);
+          expect(decoded.summary.sourcePackets).toBeGreaterThan(0);
+          expect(decoded.summary.selectedPackets).toBe(0);
+          expect(decoded.packets).toHaveLength(0);
+          expect(logLines.join("\n")).toContain(`docgen: wrote ${evalPath}`);
         })
       )
     );

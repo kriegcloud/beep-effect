@@ -1,5 +1,5 @@
 /**
- * Architecture lab canonical WorkItem domain package.
+ * Package entry point for `@beep/architecture-lab-domain`.
  *
  * @packageDocumentation
  * @category aggregates

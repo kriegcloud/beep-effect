@@ -27,35 +27,29 @@ import { Number as Num } from "effect";
  * // Type guard usage to refine unknown input types
  * const value: unknown = 5;
  * if (isPositive(value)) {
- *
+ *   const doubled = value * 2;
+ *   console.log(doubled);
  * }
  * ```
  *
  * @see Num.isGreaterThanOrEqualTo for comparison implementation details.
- *
- * @example
- * ```typescript
- * import { Console } from "effect";
- * import { isPositive } from "@beep/utils/Number";
- *
- * const processNumber = (n: unknown) =>
- *
- *
- *
- *
- * void processNumber(10);
- * ```
- *
- * @since 0.0.0
- * @category validation
  * @param u - The value to check.
  * @returns True if the value is a number and is positive, false otherwise.
+ * @category validation
+ * @since 0.0.0
  */
 export const isPositive: (u: unknown) => u is number = (u: unknown): u is number =>
   Num.isNumber(u) && Num.isGreaterThanOrEqualTo(0)(u);
 
 /**
  * Re-export of all helpers from `effect/Number`.
+ *
+ * @example
+ * ```ts
+ * import * as Num from "@beep/utils/Number"
+ *
+ * console.log(Num)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -78,9 +72,9 @@ export * from "effect/Number";
  * const notNum = Num.isInteger("42")
  * // false
  *
- * void whole
- * void fractional
- * void notNum
+ * console.log(whole)
+ * console.log(fractional)
+ * console.log(notNum)
  * ```
  *
  * @category predicates

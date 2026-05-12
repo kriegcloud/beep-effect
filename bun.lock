@@ -258,8 +258,9 @@
       "name": "@beep/architecture-lab-domain",
       "version": "0.0.0",
       "dependencies": {
-        "@beep/identity": "workspace:*",
-        "@beep/schema": "workspace:*",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -290,7 +291,8 @@
       "name": "@beep/architecture-lab-tables",
       "version": "0.0.0",
       "dependencies": {
-        "@beep/architecture-lab-domain": "workspace:*",
+        "@beep/architecture-lab-domain": "workspace:^",
+        "@beep/drizzle": "workspace:^",
         "drizzle-orm": "catalog:",
         "effect": "catalog:",
       },

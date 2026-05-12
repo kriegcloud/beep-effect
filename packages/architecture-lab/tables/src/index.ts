@@ -1,5 +1,5 @@
 /**
- * Architecture lab WorkItem table package.
+ * Package entry point for `@beep/architecture-lab-tables`.
  *
  * @packageDocumentation
  * @category tables

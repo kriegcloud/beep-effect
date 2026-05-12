@@ -1,5 +1,5 @@
 /**
- * Architecture lab proof harness.
+ * Package entry point for `@beep/architecture-lab-proof`.
  *
  * @packageDocumentation
  * @category workflows

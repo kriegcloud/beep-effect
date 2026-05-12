@@ -1,4 +1,6 @@
 /**
+ * Predicate helpers and re-exports for structural runtime checks.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */
@@ -9,6 +11,14 @@ import * as P from "effect/Predicate";
 
 /**
  * Re-export of all helpers from `effect/Predicate`.
+ *
+ * @example
+ * ```ts
+ * import * as P from "@beep/utils/Predicate"
+ *
+ * const isObject = P.isObject({ ok: true })
+ * console.log(isObject)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -33,11 +43,12 @@ export * from "effect/Predicate";
  * // true
  *
  * // Data-first style
- * const result2 = hasProperties({ foo: 1, bar: 2 }, ["foo", "bar"] as const)
+ * const required: readonly ["foo", "bar"] = ["foo", "bar"]
+ * const result2 = hasProperties({ foo: 1, bar: 2 }, required)
  * // true
  *
- * void result1
- * void result2
+ * console.log(result1)
+ * console.log(result2)
  * ```
  */
 export const hasProperties: {

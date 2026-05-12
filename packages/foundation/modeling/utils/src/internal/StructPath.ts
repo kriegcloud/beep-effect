@@ -22,7 +22,7 @@ import * as A from "../Array.ts";
  * import { PathInput } from "@beep/utils/internal/StructPath"
  *
  * const schema = PathInput
- * void schema
+ * console.log(schema)
  * ```
  *
  * @category models
@@ -38,7 +38,7 @@ export const PathInput = S.Union([S.String, S.Array(S.String)]);
  * import type { PathInput } from "@beep/utils/internal/StructPath"
  *
  * const path: PathInput = ["profile", "name"]
- * void path
+ * console.log(path)
  * ```
  *
  * @category models
@@ -62,7 +62,7 @@ const PathLookupSchema = S.TaggedUnion({
  * import type { PathLookup } from "@beep/utils/internal/StructPath"
  *
  * const describe = (lookup: PathLookup) => lookup.found
- * void describe
+ * console.log(describe)
  * ```
  *
  * @category models
@@ -130,7 +130,7 @@ const lookupParts = (self: unknown, parts: A.NonEmptyReadonlyArray<string>): Pat
  * import { lookupAtPath } from "@beep/utils/internal/StructPath"
  *
  * const lookup = lookupAtPath({ profile: { name: "Ada" } }, "profile.name")
- * void lookup
+ * console.log(lookup)
  * ```
  *
  * @category getters
@@ -156,7 +156,7 @@ export const lookupAtPath: {
  * import { unsafeDotGet } from "@beep/utils/internal/StructPath"
  *
  * const value = unsafeDotGet({ profile: { name: "Ada" } }, "profile.name")
- * void value
+ * console.log(value)
  * ```
  *
  * @category getters

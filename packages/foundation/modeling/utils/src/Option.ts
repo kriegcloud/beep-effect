@@ -28,7 +28,10 @@ import { unsafeDotGet } from "./internal/StructPath.ts";
  * import { pipe } from "effect"
  * import { O } from "@beep/utils"
  *
- * const user = { name: "Alice", age: null as number | null }
+ * const user: { readonly name: string; readonly age: number | null } = {
+ *   name: "Alice",
+ *   age: null,
+ * }
  *
  * // Data-first -- nullish becomes none
  * const age = O.propFromNullishOr(user, "age")
@@ -38,8 +41,8 @@ import { unsafeDotGet } from "./internal/StructPath.ts";
  * const name = pipe(user, O.propFromNullishOr("name"))
  * // Option.some("Alice")
  *
- * void age
- * void name
+ * console.log(age)
+ * console.log(name)
  * ```
  *
  * @category getters
@@ -66,6 +69,14 @@ export const propFromNullishOr: {
 
 /**
  * Re-export of all helpers from `effect/Option`.
+ *
+ * @example
+ * ```ts
+ * import * as O from "@beep/utils/Option"
+ *
+ * const value = O.some("beep")
+ * console.log(value)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
