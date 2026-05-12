@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
@@ -38,7 +38,7 @@ const getStoredWorker = Effect.fn("ArchitectureLab.WorkerRepository.getStored")(
  * Build the in-memory Worker repository used by the fast architecture lab proof.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeInMemoryWorkerRepository = Effect.fn("ArchitectureLab.WorkerRepository.makeInMemory")(function* () {
   const store = yield* Ref.make(HashMap.empty<DomainWorker.WorkerId, DomainWorker.Worker>());
@@ -65,13 +65,24 @@ export const makeInMemoryWorkerRepository = Effect.fn("ArchitectureLab.WorkerRep
   });
 });
 
-const repositoryUnavailable = (operation: string) =>
-  Effect.mapError(
-    () =>
-      new WorkerUseCaseServer.Worker.WorkerRepositoryUnavailable({
-        reason: `${operation} failed against ${WORKER_TABLE_NAME}`,
-      })
-  );
+const repositoryUnavailable =
+  (operation: string) =>
+  <A, E, R>(
+    effect: Effect.Effect<A, E, R>
+  ): Effect.Effect<A, WorkerUseCaseServer.Worker.WorkerRepositoryUnavailable, R> =>
+    effect.pipe(
+      Effect.tapError((cause) =>
+        Effect.logDebug("ArchitectureLab Worker repository adapter dropped driver failure").pipe(
+          Effect.annotateLogs({ operation, table: WORKER_TABLE_NAME, cause })
+        )
+      ),
+      Effect.mapError(
+        () =>
+          new WorkerUseCaseServer.Worker.WorkerRepositoryUnavailable({
+            reason: `${operation} failed against ${WORKER_TABLE_NAME}`,
+          })
+      )
+    );
 
 const findDrizzleWorker = Effect.fn("ArchitectureLab.WorkerRepository.findDrizzle")(function* (
   db: PostgresDrizzleDatabase,
@@ -102,7 +113,7 @@ const getDrizzleWorker = Effect.fn("ArchitectureLab.WorkerRepository.getDrizzle"
  * Build a Drizzle-backed Worker repository used by live persistence tests.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeDrizzleWorkerRepository = Effect.fn("ArchitectureLab.WorkerRepository.makeDrizzle")(function* () {
   const db = yield* PostgresDrizzle;
@@ -144,6 +155,6 @@ export const makeDrizzleWorkerRepository = Effect.fn("ArchitectureLab.WorkerRepo
  * Build the default Worker repository for normal slice tests.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeWorkerRepository = makeInMemoryWorkerRepository;

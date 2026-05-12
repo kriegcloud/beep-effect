@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
@@ -18,7 +18,7 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.commands");
  * Create Worker command.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class CreateWorkerCommand extends S.Class<CreateWorkerCommand>($I`CreateWorkerCommand`)(
   {
@@ -36,7 +36,7 @@ export class CreateWorkerCommand extends S.Class<CreateWorkerCommand>($I`CreateW
  * Get Worker query.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class GetWorkerQuery extends S.Class<GetWorkerQuery>($I`GetWorkerQuery`)(
   {
@@ -52,7 +52,7 @@ export class GetWorkerQuery extends S.Class<GetWorkerQuery>($I`GetWorkerQuery`)(
  * List Workers query.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class ListWorkersQuery extends S.Class<ListWorkersQuery>($I`ListWorkersQuery`)(
   {

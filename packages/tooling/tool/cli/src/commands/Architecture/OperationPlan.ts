@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category cli-commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -24,7 +24,7 @@ const $I = $RepoCliId.create("commands/Architecture/OperationPlan");
  * Canonical architecture domain-kind folders.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const ArchitectureDomainKind = LiteralKit(["aggregates", "entities", "values"] as const).pipe(
   $I.annoteSchema("ArchitectureDomainKind", {
@@ -36,7 +36,7 @@ export const ArchitectureDomainKind = LiteralKit(["aggregates", "entities", "val
  * Canonical architecture domain-kind folder.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type ArchitectureDomainKind = typeof ArchitectureDomainKind.Type;
 
@@ -44,7 +44,7 @@ export type ArchitectureDomainKind = typeof ArchitectureDomainKind.Type;
  * Staged architecture proof targets.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const ArchitecturePlanStage = LiteralKit(["core", "persistence", "protocol", "client", "full"] as const).pipe(
   $I.annoteSchema("ArchitecturePlanStage", {
@@ -56,7 +56,7 @@ export const ArchitecturePlanStage = LiteralKit(["core", "persistence", "protoco
  * Staged architecture proof target.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type ArchitecturePlanStage = typeof ArchitecturePlanStage.Type;
 
@@ -64,7 +64,7 @@ export type ArchitecturePlanStage = typeof ArchitecturePlanStage.Type;
  * Canonical architecture slice roles.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const ArchitectureSliceRole = LiteralKit([
   "domain",
@@ -86,7 +86,7 @@ export const ArchitectureSliceRole = LiteralKit([
  * Canonical architecture slice role.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type ArchitectureSliceRole = typeof ArchitectureSliceRole.Type;
 
@@ -94,7 +94,7 @@ export type ArchitectureSliceRole = typeof ArchitectureSliceRole.Type;
  * Writer families selected from normalized architecture operations.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const ArchitectureWriterKind = LiteralKit([
   "template",
@@ -112,7 +112,7 @@ export const ArchitectureWriterKind = LiteralKit([
  * Writer family selected from normalized architecture operations.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type ArchitectureWriterKind = typeof ArchitectureWriterKind.Type;
 
@@ -120,7 +120,7 @@ export type ArchitectureWriterKind = typeof ArchitectureWriterKind.Type;
  * Role package entry in a canonical architecture slice operation plan.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class ArchitectureSliceRolePlan extends S.Class<ArchitectureSliceRolePlan>($I`ArchitectureSliceRolePlan`)(
   {
@@ -138,7 +138,7 @@ export class ArchitectureSliceRolePlan extends S.Class<ArchitectureSliceRolePlan
  * Normalized architecture creation target.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class ArchitecturePlanTarget extends S.Class<ArchitecturePlanTarget>($I`ArchitecturePlanTarget`)(
   {
@@ -157,7 +157,7 @@ export class ArchitecturePlanTarget extends S.Class<ArchitecturePlanTarget>($I`A
  * Operation that writes a repo-relative file when absent.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFileOperation`)(
   {
@@ -177,7 +177,7 @@ export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFile
  * Operation that proves a repo-relative file must exist.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureFileOperation`)(
   {
@@ -195,7 +195,7 @@ export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureF
  * Operation that proves a legacy repo-relative path must not exist.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class EnsureAbsentPathOperation extends S.Class<EnsureAbsentPathOperation>($I`EnsureAbsentPathOperation`)(
   {
@@ -212,7 +212,7 @@ export class EnsureAbsentPathOperation extends S.Class<EnsureAbsentPathOperation
  * Canonical operation-plan operation.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const ArchitectureOperation = S.Union([WriteFileOperation, EnsureFileOperation, EnsureAbsentPathOperation]);
 
@@ -220,7 +220,7 @@ export const ArchitectureOperation = S.Union([WriteFileOperation, EnsureFileOper
  * Canonical operation-plan operation.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type ArchitectureOperation = typeof ArchitectureOperation.Type;
 
@@ -228,7 +228,7 @@ export type ArchitectureOperation = typeof ArchitectureOperation.Type;
  * Schema-versioned canonical architecture slice operation plan.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperationPlan>($I`CanonicalSliceOperationPlan`)(
   {
@@ -246,7 +246,7 @@ export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperation
    *
    * @returns Legacy aggregate-oriented slice metadata derived from the plan target.
    * @category models
-   * @since 0.1.0
+   * @since 0.0.0
    */
   get slice(): {
     readonly aggregate: string;
@@ -265,7 +265,7 @@ export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperation
  * Result of validating a canonical operation plan against a checkout.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class OperationPlanCheckResult extends S.Class<OperationPlanCheckResult>($I`OperationPlanCheckResult`)(
   {
@@ -283,7 +283,7 @@ export class OperationPlanCheckResult extends S.Class<OperationPlanCheckResult>(
  * Result of applying a canonical operation plan.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class OperationPlanApplyResult extends S.Class<OperationPlanApplyResult>($I`OperationPlanApplyResult`)(
   {
@@ -531,6 +531,12 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   {
     role: "use-cases",
     stage: "core",
+    path: "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.service.ts",
+    writer: "template",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
     path: "packages/architecture-lab/use-cases/test/WorkItem.test.ts",
     writer: "template",
   },
@@ -580,6 +586,12 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.use-cases.ts",
+    writer: "template",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.service.ts",
     writer: "template",
   },
   {
@@ -1005,7 +1017,7 @@ const isPackageIndexFile = (sourcePath: string): boolean =>
 
 const proofFileMatchesDomainKind = (target: ArchitecturePlanTarget, file: AcceptedProofFile): boolean => {
   if (isDefaultPlanTarget(target)) return true;
-  if (isPackageScaffoldFile(file.path) || isPackageIndexFile(file.path)) return isDefaultPlanTarget(target);
+  if (isPackageScaffoldFile(file.path) || isPackageIndexFile(file.path)) return true;
   return pipe(
     sourceDomainKindForPath(file.path),
     O.map((domainKind) => stringEquivalence(domainKind, target.domainKind)),
@@ -1029,6 +1041,7 @@ const targetPathFor = (sourcePath: string, target: ArchitecturePlanTarget): stri
     return pipe(
       sourcePath,
       Str.replace("packages/architecture-lab/", `packages/${target.boundedContext}/`),
+      Str.replaceAll("ArchitectureLab", CommonStr.pascalCase(target.boundedContext)),
       Str.replaceAll(sourceConceptPath, target.conceptPath),
       Str.replaceAll(sourceConcept, conceptPascal)
     );
@@ -1139,7 +1152,7 @@ const decodeOperationPlanJson = S.decodeUnknownEffect(S.fromJsonString(Canonical
  *
  * @returns Schema-versioned operations for the canonical WorkItem proof slice.
  * @category constructors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =>
   new CanonicalSliceOperationPlan({
@@ -1177,7 +1190,7 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
  * Build a write-capable operation plan from the accepted WorkItem proof files.
  *
  * @category constructors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeArchitectureOperationPlan = Effect.fn(function* (
   repoRoot: string,
@@ -1230,7 +1243,7 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
  * Encode an operation plan as JSON text.
  *
  * @category codecs
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const encodeCanonicalSliceOperationPlanJson = encodeOperationPlanJson;
 
@@ -1238,7 +1251,7 @@ export const encodeCanonicalSliceOperationPlanJson = encodeOperationPlanJson;
  * Decode operation-plan JSON text.
  *
  * @category codecs
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const decodeCanonicalSliceOperationPlanJson = decodeOperationPlanJson;
 
@@ -1251,7 +1264,7 @@ const pathExists = Effect.fn(function* (absolutePath: string) {
  * Validate a decoded operation plan against a repository root.
  *
  * @category utilities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const checkCanonicalSliceOperationPlan: {
   (
@@ -1306,7 +1319,7 @@ export const checkCanonicalSliceOperationPlan: {
  * Apply a decoded operation plan with failsafe conflict behavior.
  *
  * @category utilities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const applyCanonicalSliceOperationPlan: {
   (
@@ -1596,7 +1609,7 @@ const printArchitectureIndex = Effect.fn(function* () {
  * Architecture automation command group.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const architectureCommand = Command.make("architecture", {}, printArchitectureIndex).pipe(
   Command.withDescription("Schema-versioned architecture operation-plan utilities"),

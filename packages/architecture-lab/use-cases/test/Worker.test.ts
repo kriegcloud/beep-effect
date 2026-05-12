@@ -1,4 +1,4 @@
-import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
+import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
 import { Worker } from "@beep/architecture-lab-use-cases/public";
 import * as WorkerServer from "@beep/architecture-lab-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
@@ -6,9 +6,10 @@ import { Effect, HashMap } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
-const workerId = 1 as DomainWorker.WorkerId;
-const organizationId = 1 as DomainWorker.WorkerOrganizationId;
+const decodeWorkerId = S.decodeUnknownEffect(DomainWorker.WorkerId);
+const decodeOrganizationId = S.decodeUnknownEffect(DomainWorker.WorkerOrganizationId);
 
 const makeRepository = (): WorkerServer.Worker.WorkerRepositoryShape => {
   let workers = HashMap.empty<DomainWorker.WorkerId, DomainWorker.Worker>();
@@ -40,6 +41,8 @@ const makeRepository = (): WorkerServer.Worker.WorkerRepositoryShape => {
 describe("Worker use-cases", () => {
   it.effect("creates and lists Worker entities", () =>
     Effect.gen(function* () {
+      const workerId = yield* decodeWorkerId(1);
+      const organizationId = yield* decodeOrganizationId(1);
       const useCases = WorkerServer.Worker.makeWorkerUseCases(makeRepository());
       const created = yield* useCases.create(
         new Worker.CreateWorkerCommand({
@@ -57,6 +60,7 @@ describe("Worker use-cases", () => {
 
   it.effect("translates repository not-found failures to public failures", () =>
     Effect.gen(function* () {
+      const workerId = yield* decodeWorkerId(1);
       const useCases = WorkerServer.Worker.makeWorkerUseCases(makeRepository());
       const error = yield* useCases.get(new Worker.GetWorkerQuery({ id: workerId })).pipe(Effect.flip);
 

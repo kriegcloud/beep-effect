@@ -2,28 +2,38 @@ import { defaultWorkItemPublicConfig } from "@beep/architecture-lab-config/publi
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import { toWorkItemSummaryViewModel } from "@beep/architecture-lab-ui/aggregates/WorkItem";
 import { describe, expect, it } from "@effect/vitest";
+import { Effect } from "effect";
+import * as S from "effect/Schema";
+
+const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 
 describe("WorkItem UI view model", () => {
-  it("derives status labels from the canonical status value", () => {
-    const workItem = DomainWorkItem.create(
-      new DomainWorkItem.CreateWorkItemInput({
-        id: "work-item-1" as DomainWorkItem.WorkItemId,
-        title: "Document topology",
-      })
-    );
+  it.effect("derives status labels from the canonical status value", () =>
+    Effect.gen(function* () {
+      const id = yield* decodeWorkItemId("work-item-1");
+      const workItem = DomainWorkItem.create(
+        new DomainWorkItem.CreateWorkItemInput({
+          id,
+          title: "Document topology",
+        })
+      );
 
-    expect(toWorkItemSummaryViewModel(workItem, defaultWorkItemPublicConfig).statusLabel).toBe("OPEN");
-  });
+      expect(toWorkItemSummaryViewModel(workItem, defaultWorkItemPublicConfig).statusLabel).toBe("OPEN");
+    })
+  );
 
-  it("exposes archive as terminal", () => {
-    const workItem = DomainWorkItem.create(
-      new DomainWorkItem.CreateWorkItemInput({
-        id: "work-item-1" as DomainWorkItem.WorkItemId,
-        title: "Document topology",
-      })
-    );
-    const archived = new DomainWorkItem.WorkItem({ ...workItem, status: "archived" });
+  it.effect("exposes archive as terminal", () =>
+    Effect.gen(function* () {
+      const id = yield* decodeWorkItemId("work-item-1");
+      const workItem = DomainWorkItem.create(
+        new DomainWorkItem.CreateWorkItemInput({
+          id,
+          title: "Document topology",
+        })
+      );
+      const archived = new DomainWorkItem.WorkItem({ ...workItem, status: "archived" });
 
-    expect(toWorkItemSummaryViewModel(archived, defaultWorkItemPublicConfig).visibleActions).toEqual([]);
-  });
+      expect(toWorkItemSummaryViewModel(archived, defaultWorkItemPublicConfig).visibleActions).toEqual([]);
+    })
+  );
 });

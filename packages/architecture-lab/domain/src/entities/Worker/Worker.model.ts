@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { $ArchitectureLabDomainId } from "@beep/identity/packages";
@@ -11,6 +11,7 @@ import { LiteralKit } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Shared from "@beep/shared-domain/identity/Shared";
+import { Result } from "effect";
 import * as S from "effect/Schema";
 import * as ArchitectureLab from "../../identity/ArchitectureLab.js";
 
@@ -20,7 +21,7 @@ const $I = $ArchitectureLabDomainId.create("entities/Worker/Worker.model");
  * Architecture lab Worker identifier.
  *
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkerId = ArchitectureLab.WorkerId;
 
@@ -28,7 +29,7 @@ export const WorkerId = ArchitectureLab.WorkerId;
  * Runtime type for {@link WorkerId}.
  *
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkerId = typeof WorkerId.Type;
 
@@ -36,7 +37,7 @@ export type WorkerId = typeof WorkerId.Type;
  * Organization identity used by the Worker proof entity.
  *
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkerOrganizationId = Shared.OrganizationId;
 
@@ -44,7 +45,7 @@ export const WorkerOrganizationId = Shared.OrganizationId;
  * Runtime type for {@link WorkerOrganizationId}.
  *
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkerOrganizationId = typeof WorkerOrganizationId.Type;
 
@@ -52,7 +53,7 @@ export type WorkerOrganizationId = typeof WorkerOrganizationId.Type;
  * Worker lifecycle status.
  *
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkerStatus = LiteralKit(["active", "inactive"] as const).pipe(
   $I.annoteSchema("WorkerStatus", {
@@ -65,7 +66,7 @@ export const WorkerStatus = LiteralKit(["active", "inactive"] as const).pipe(
  * Runtime type for {@link WorkerStatus}.
  *
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkerStatus = typeof WorkerStatus.Type;
 
@@ -73,7 +74,7 @@ export type WorkerStatus = typeof WorkerStatus.Type;
  * Architecture lab Worker entity.
  *
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class Worker extends BaseEntity.Class<Worker>($I`Worker`)(
   WorkerId,
@@ -97,13 +98,11 @@ export class Worker extends BaseEntity.Class<Worker>($I`Worker`)(
   })
 ) {}
 
-const decodeWorker = S.decodeUnknownSync(Worker);
-
 /**
  * Worker creation input.
  *
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class CreateWorkerInput extends S.Class<CreateWorkerInput>($I`CreateWorkerInput`)(
   {
@@ -122,24 +121,28 @@ const systemPrincipal = {
   kind: "System",
 } as const;
 
+const decodeWorker = S.decodeUnknownResult(Worker);
+
 /**
  * Create a new active Worker entity.
  *
  * @category entities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const create = (input: CreateWorkerInput): Worker =>
-  decodeWorker({
-    createdAt: 0,
-    createdByPrincipal: systemPrincipal,
-    displayName: input.displayName,
-    entityType: WorkerId.entityType,
-    id: input.id,
-    orgId: input.organizationId,
-    rowVersion: 1,
-    schemaVersion: "0.1.0",
-    source: "Application",
-    status: "active",
-    updatedAt: 0,
-    updatedByPrincipal: systemPrincipal,
-  });
+  Result.getOrThrow(
+    decodeWorker({
+      createdAt: 0,
+      createdByPrincipal: systemPrincipal,
+      displayName: input.displayName,
+      entityType: WorkerId.entityType,
+      id: input.id,
+      orgId: input.organizationId,
+      rowVersion: 1,
+      schemaVersion: "0.1.0",
+      source: "Application",
+      status: "active",
+      updatedAt: 0,
+      updatedByPrincipal: systemPrincipal,
+    })
+  );

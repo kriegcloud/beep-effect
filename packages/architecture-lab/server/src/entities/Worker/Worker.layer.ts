@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import type { Worker as WorkerUseCases } from "@beep/architecture-lab-use-cases/public";
@@ -18,7 +18,7 @@ const $I = $ArchitectureLabServerId.create("entities/Worker/Worker.layer");
  * Build the Worker server facade.
  *
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeWorkerServer = Effect.fn("ArchitectureLab.WorkerServer.make")(function* () {
   const repository = yield* makeWorkerRepository();
@@ -29,7 +29,7 @@ export const makeWorkerServer = Effect.fn("ArchitectureLab.WorkerServer.make")(f
  * Worker server facade service.
  *
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkerServer extends Context.Service<WorkerServer, WorkerUseCases.WorkerUseCasesShape>()(
   $I`WorkerServer`
@@ -39,6 +39,6 @@ export class WorkerServer extends Context.Service<WorkerServer, WorkerUseCases.W
  * Worker server layer.
  *
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkerServerLayer = Layer.effect(WorkerServer, makeWorkerServer());

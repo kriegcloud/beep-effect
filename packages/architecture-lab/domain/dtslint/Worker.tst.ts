@@ -1,10 +1,13 @@
 import * as Worker from "@beep/architecture-lab-domain/entities/Worker";
 import { expect } from "tstyche";
 
+declare const workerId: Worker.WorkerId;
+declare const organizationId: Worker.WorkerOrganizationId;
+
 const worker = Worker.create(
   new Worker.CreateWorkerInput({
-    id: 1 as Worker.WorkerId,
-    organizationId: 1 as Worker.WorkerOrganizationId,
+    id: workerId,
+    organizationId,
     displayName: "Ada Lovelace",
   })
 );

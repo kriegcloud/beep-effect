@@ -162,6 +162,11 @@ tooling can infer the intended boundary before opening the first file. `kind`
 is required only for families that intentionally declare a kind segment;
 `drivers` remains the flat family exception.
 
+`packages/_internal/db-admin` is a narrow durable internal exception for
+repository-owned database migration aggregation and generated migration SQL.
+Product apps and product slice packages must not depend on it; see
+[07-non-slice-families.md](architecture/07-non-slice-families.md).
+
 ## Package Dependency Graph
 
 The legal dependency flow is inward toward domain and outward only through

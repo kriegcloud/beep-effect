@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
@@ -18,7 +18,7 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.repository"
  * Persistence failure raised when a Worker row is absent.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkerRepositoryNotFound extends TaggedErrorClass<WorkerRepositoryNotFound>($I`WorkerRepositoryNotFound`)(
   "WorkerRepositoryNotFound",
@@ -35,7 +35,7 @@ export class WorkerRepositoryNotFound extends TaggedErrorClass<WorkerRepositoryN
  * Persistence failure raised when a Worker write conflicts.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkerRepositoryConflict extends TaggedErrorClass<WorkerRepositoryConflict>($I`WorkerRepositoryConflict`)(
   "WorkerRepositoryConflict",
@@ -53,7 +53,7 @@ export class WorkerRepositoryConflict extends TaggedErrorClass<WorkerRepositoryC
  * Persistence failure raised when the Worker repository is unavailable.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkerRepositoryUnavailable extends TaggedErrorClass<WorkerRepositoryUnavailable>(
   $I`WorkerRepositoryUnavailable`
@@ -72,7 +72,7 @@ export class WorkerRepositoryUnavailable extends TaggedErrorClass<WorkerReposito
  * Worker repository failure.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkerRepositoryError = WorkerRepositoryNotFound | WorkerRepositoryConflict | WorkerRepositoryUnavailable;
 
@@ -80,7 +80,7 @@ export type WorkerRepositoryError = WorkerRepositoryNotFound | WorkerRepositoryC
  * Worker repository contract.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export interface WorkerRepositoryShape {
   readonly create: (
@@ -96,7 +96,7 @@ export interface WorkerRepositoryShape {
  * Worker repository service.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkerRepository extends Context.Service<WorkerRepository, WorkerRepositoryShape>()(
   $I`WorkerRepository`

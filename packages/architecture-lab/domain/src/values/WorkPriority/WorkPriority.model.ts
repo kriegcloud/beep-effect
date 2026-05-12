@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category value-objects
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { $ArchitectureLabDomainId } from "@beep/identity/packages";
@@ -15,7 +15,7 @@ const $I = $ArchitectureLabDomainId.create("values/WorkPriority/WorkPriority.mod
  * Reusable WorkItem priority vocabulary.
  *
  * @category value-objects
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkPriority = LiteralKit(["low", "normal", "high"] as const).pipe(
   $I.annoteSchema("WorkPriority", {
@@ -28,6 +28,6 @@ export const WorkPriority = LiteralKit(["low", "normal", "high"] as const).pipe(
  * Runtime type for {@link WorkPriority}.
  *
  * @category value-objects
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkPriority = typeof WorkPriority.Type;

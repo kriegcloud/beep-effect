@@ -1,16 +1,18 @@
 import * as WorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
-import type * as Worker from "@beep/architecture-lab-domain/entities/Worker";
+import * as Worker from "@beep/architecture-lab-domain/entities/Worker";
 import * as WorkPriority from "@beep/architecture-lab-domain/values/WorkPriority";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
-const workerId = 1 as Worker.WorkerId;
+const decodeWorkItemId = S.decodeUnknownEffect(WorkItem.WorkItemId);
+const decodeWorkerId = S.decodeUnknownEffect(Worker.WorkerId);
 
-const makeWorkItem = () =>
+const makeWorkItem = (id: WorkItem.WorkItemId) =>
   WorkItem.create(
     new WorkItem.CreateWorkItemInput({
-      id: "work-item-1" as WorkItem.WorkItemId,
+      id,
       title: "Document topology",
       priority: O.some(WorkPriority.WorkPriority.Enum.high),
     })
@@ -19,7 +21,9 @@ const makeWorkItem = () =>
 describe("WorkItem aggregate", () => {
   it.effect("moves through assignment, completion, reopen, and archive", () =>
     Effect.gen(function* () {
-      const assigned = yield* WorkItem.assign(makeWorkItem(), workerId);
+      const workerId = yield* decodeWorkerId(1);
+      const workItemId = yield* decodeWorkItemId("work-item-1");
+      const assigned = yield* WorkItem.assign(makeWorkItem(workItemId), workerId);
       expect(assigned.status).toBe("assigned");
       expect(O.getOrThrow(assigned.assignee)).toBe(workerId);
       expect(O.getOrThrow(assigned.priority)).toBe("high");
@@ -37,7 +41,8 @@ describe("WorkItem aggregate", () => {
 
   it.effect("rejects reopening an archived WorkItem", () =>
     Effect.gen(function* () {
-      const archived = yield* WorkItem.archive(makeWorkItem());
+      const workItemId = yield* decodeWorkItemId("work-item-1");
+      const archived = yield* WorkItem.archive(makeWorkItem(workItemId));
       const exit = yield* WorkItem.reopen(archived).pipe(Effect.exit);
       expect(exit._tag).toBe("Failure");
     })

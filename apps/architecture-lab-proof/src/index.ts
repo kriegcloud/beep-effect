@@ -3,16 +3,20 @@
  *
  * @packageDocumentation
  * @category workflows
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { defaultWorkItemPublicConfig } from "@beep/architecture-lab-config/public";
-import type * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
+import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import { WorkItemServer } from "@beep/architecture-lab-server/aggregates/WorkItem";
-import { ArchitectureLabServerLive } from "@beep/architecture-lab-server/layer";
-import { toWorkItemSummaryViewModel } from "@beep/architecture-lab-ui/aggregates/WorkItem";
+import { toWorkItemSummaryViewModel, WorkItemSummaryViewModel } from "@beep/architecture-lab-ui/aggregates/WorkItem";
 import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
+import { $ArchitectureLabProofId } from "@beep/identity/packages";
 import { Effect } from "effect";
+import * as S from "effect/Schema";
+
+const $I = $ArchitectureLabProofId.create("index");
+const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 
 /**
  * Package version for the architecture lab proof harness.
@@ -25,7 +29,7 @@ import { Effect } from "effect";
  * ```
  *
  * @category workflows
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;
 
@@ -33,26 +37,24 @@ export const VERSION = "0.0.0" as const;
  * App-level WorkItem proof result.
  *
  * @category workflows
- * @since 0.1.0
+ * @since 0.0.0
  */
-export interface ArchitectureLabProofResult {
-  readonly created: DomainWorkItem.WorkItem;
-  readonly summary: ReturnType<typeof toWorkItemSummaryViewModel>;
-}
-
-/**
- * App-level layer used by the architecture lab proof harness.
- *
- * @category workflows
- * @since 0.1.0
- */
-export const ArchitectureLabProofLive: typeof ArchitectureLabServerLive = ArchitectureLabServerLive;
+export class ArchitectureLabProofResult extends S.Class<ArchitectureLabProofResult>($I`ArchitectureLabProofResult`)(
+  {
+    created: DomainWorkItem.WorkItem,
+    summary: WorkItemSummaryViewModel,
+  },
+  $I.annote("ArchitectureLabProofResult", {
+    title: "Architecture lab proof result",
+    description: "Result produced by the architecture lab app contract harness.",
+  })
+) {}
 
 /**
  * Execute the architecture lab proof harness against the composed server layer.
  *
  * @category workflows
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const runArchitectureLabProof: Effect.Effect<
   ArchitectureLabProofResult,
@@ -60,14 +62,15 @@ export const runArchitectureLabProof: Effect.Effect<
   WorkItemServer
 > = Effect.gen(function* () {
   const server = yield* WorkItemServer;
+  const id = yield* decodeWorkItemId("architecture-lab-proof-1").pipe(Effect.orDie);
   const created = yield* server.create(
     new WorkItemUseCases.CreateWorkItemCommand({
-      id: "architecture-lab-proof-1" as DomainWorkItem.WorkItemId,
+      id,
       title: "Prove canonical slice topology",
     })
   );
-  return {
+  return new ArchitectureLabProofResult({
     created,
     summary: toWorkItemSummaryViewModel(created, defaultWorkItemPublicConfig),
-  };
+  });
 });

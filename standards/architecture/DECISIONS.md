@@ -706,6 +706,41 @@ architecture created extra maintenance without improving product boundaries.
 The architecture should describe durable code ownership; harness configuration
 should stay minimal, runtime-native, and easy to delete.
 
+## 2026-05-12: Supersede Fixture-Lab With Architecture-Lab WorkItem Proof
+
+- **Status:** Active
+- **Supersedes:**
+  - [2026-05-01: Lock Strict Action Errors And Fixture-First Proof](#2026-05-01-lock-strict-action-errors-and-fixture-first-proof)
+    only for the executable proof target.
+
+Decision:
+
+The canonical executable proof target is now the normal
+`packages/architecture-lab/*` slice family with the `apps/architecture-lab-proof`
+contract harness. `WorkItem` is the full aggregate proof at
+`aggregates/WorkItem`, `Worker` is the persisted entity archetype at
+`entities/Worker`, and `WorkPriority` is the domain-only value archetype at
+`values/WorkPriority`.
+
+The old `fixture-lab/Specimen` proof and repo-architecture-automation fixture
+are retired as active topology. Retained lessons live in
+`initiatives/canonical-slice-factory/history/repo-architecture-automation-reference.md`;
+the deleted package and fixture files are available only through git history.
+
+The strict action-error doctrine from 2026-05-01 remains active: driver/internal
+failures die in adapters, port failures die in use-case orchestration, and
+public action failures die in protocol handlers. The new proof target exists to
+make that doctrine reproducible through the `beep architecture` operation-plan
+factory instead of a drifted fixture.
+
+Rationale:
+
+`fixture-lab/Specimen` no longer matched the normal slice topology the repo
+wants agents and generators to copy. A boring lifecycle aggregate inside a real
+slice family gives the factory a better oracle: domain, use-cases, config,
+server, tables, client, UI, app harness, and db-admin migration proof can all be
+checked as staged architecture parts.
+
 ## 2026-05-09: Model Finite Cases As Discriminated Unions
 
 - **Status:** Active

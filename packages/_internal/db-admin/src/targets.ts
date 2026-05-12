@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { Effect } from "effect";
@@ -14,7 +14,7 @@ import { ArchitectureLabMigrationTarget, type DbAdminMigrationTarget } from "./m
  * Architecture lab migration target export.
  *
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 export { ArchitectureLabMigrationTarget };
 
@@ -22,7 +22,7 @@ export { ArchitectureLabMigrationTarget };
  * All db-admin migration targets owned by the current repo.
  *
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const DbAdminMigrationTargets = [ArchitectureLabMigrationTarget] as const;
 
@@ -30,7 +30,7 @@ export const DbAdminMigrationTargets = [ArchitectureLabMigrationTarget] as const
  * List registered db-admin migration targets.
  *
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const listDbAdminMigrationTargets: Effect.Effect<ReadonlyArray<DbAdminMigrationTarget>> =
   Effect.succeed(DbAdminMigrationTargets);

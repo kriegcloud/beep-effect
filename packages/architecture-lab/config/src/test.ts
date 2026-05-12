@@ -2,7 +2,7 @@
  * Architecture lab configuration test exports.
  *
  * @category testing
- * @since 0.1.0
+ * @since 0.0.0
  */
 export {
   ArchitectureLabConfigTest,

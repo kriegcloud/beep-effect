@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category use-cases
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 /**
@@ -17,7 +17,7 @@
  * ```
  *
  * @category use-cases
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;
 
@@ -25,6 +25,6 @@ export const VERSION = "0.0.0" as const;
  * Public use-case exports for the architecture lab package.
  *
  * @category use-cases
- * @since 0.1.0
+ * @since 0.0.0
  */
 export * from "./public.js";

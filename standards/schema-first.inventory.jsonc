@@ -10,22 +10,6 @@
   ],
   "entries": [
     {
-      "file": "apps/architecture-lab-proof/src/index.ts",
-      "symbol": "ArchitectureLabProofResult",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/architecture-lab-proof",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/_internal/db-admin/src/migrations/ArchitectureLab.ts",
-      "symbol": "DbAdminMigrationTarget",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/db-admin",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
       "symbol": "ProfessionalRuntimeSdk",
       "kind": "exported-interface",
@@ -48,22 +32,6 @@
       "status": "exception",
       "owner": "@beep/architecture-lab-client",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
-      "symbol": "WorkItemConfigShape",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/architecture-lab-config",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.http.ts",
-      "symbol": "WorkItemHttpResponse",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/architecture-lab-server",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
     },
     {
       "file": "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.repository.ts",

@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category clients
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import type * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
@@ -17,7 +17,7 @@ const $I = $ArchitectureLabClientId.create("aggregates/WorkItem/WorkItem.client"
  * Client transport contract for WorkItem commands and queries.
  *
  * @category clients
- * @since 0.1.0
+ * @since 0.0.0
  */
 export interface WorkItemClientTransport {
   readonly archive: (
@@ -47,7 +47,7 @@ export interface WorkItemClientTransport {
  * WorkItem client facade.
  *
  * @category clients
- * @since 0.1.0
+ * @since 0.0.0
  */
 export interface WorkItemClientShape extends WorkItemClientTransport {}
 
@@ -55,7 +55,7 @@ export interface WorkItemClientShape extends WorkItemClientTransport {}
  * WorkItem client service.
  *
  * @category clients
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemClient extends Context.Service<WorkItemClient, WorkItemClientShape>()($I`WorkItemClient`) {}
 
@@ -63,7 +63,7 @@ export class WorkItemClient extends Context.Service<WorkItemClient, WorkItemClie
  * Build a client facade over a WorkItem transport.
  *
  * @category clients
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeWorkItemClient = (transport: WorkItemClientTransport): WorkItemClientShape => ({
   create: transport.create,

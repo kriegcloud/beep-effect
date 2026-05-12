@@ -3,13 +3,17 @@ import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkIt
 import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Option as O } from "effect";
+import * as S from "effect/Schema";
+
+const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 
 describe("WorkItem client", () => {
   it.effect("delegates through a client-safe transport", () =>
     Effect.gen(function* () {
+      const id = yield* decodeWorkItemId("work-item-1");
       const created = DomainWorkItem.create(
         new DomainWorkItem.CreateWorkItemInput({
-          id: "work-item-1" as DomainWorkItem.WorkItemId,
+          id,
           title: "Document topology",
         })
       );

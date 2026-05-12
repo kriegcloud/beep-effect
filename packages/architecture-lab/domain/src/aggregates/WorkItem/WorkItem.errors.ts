@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { $ArchitectureLabDomainId } from "@beep/identity/packages";
@@ -18,7 +18,7 @@ const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.errors"
  * Failure raised when a command attempts to mutate an archived WorkItem.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemAlreadyArchived extends TaggedErrorClass<WorkItemAlreadyArchived>($I`WorkItemAlreadyArchived`)(
   "WorkItemAlreadyArchived",
@@ -35,7 +35,7 @@ export class WorkItemAlreadyArchived extends TaggedErrorClass<WorkItemAlreadyArc
  * Failure raised when a command attempts an unsupported lifecycle transition.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemInvalidTransition extends TaggedErrorClass<WorkItemInvalidTransition>(
   $I`WorkItemInvalidTransition`
@@ -55,7 +55,7 @@ export class WorkItemInvalidTransition extends TaggedErrorClass<WorkItemInvalidT
    * Create a typed WorkItem transition failure from lifecycle values.
    *
    * @category errors
-   * @since 0.1.0
+   * @since 0.0.0
    */
   static fromStatus(input: {
     readonly workItemId: WorkItemId;
@@ -74,7 +74,7 @@ export class WorkItemInvalidTransition extends TaggedErrorClass<WorkItemInvalidT
  * Failure raised when an assignment command omits a valid assignee.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemAssigneeRequired extends TaggedErrorClass<WorkItemAssigneeRequired>($I`WorkItemAssigneeRequired`)(
   "WorkItemAssigneeRequired",
@@ -91,7 +91,7 @@ export class WorkItemAssigneeRequired extends TaggedErrorClass<WorkItemAssigneeR
  * WorkItem aggregate domain failure.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkItemDomainError = WorkItemAlreadyArchived | WorkItemInvalidTransition | WorkItemAssigneeRequired;
 
@@ -99,7 +99,7 @@ export type WorkItemDomainError = WorkItemAlreadyArchived | WorkItemInvalidTrans
  * WorkItem aggregate domain failure schema.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkItemDomainError = S.Union([
   WorkItemAlreadyArchived,

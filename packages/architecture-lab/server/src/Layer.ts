@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { ArchitectureLabConfigLive } from "@beep/architecture-lab-config/layer";
@@ -16,7 +16,7 @@ import { WorkerServerLayer } from "./entities/Worker/index.ts";
  * Live architecture lab server layer.
  *
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const ArchitectureLabServerLive = Layer.mergeAll(WorkItemServerLayer, WorkerServerLayer).pipe(
   Layer.provide(ArchitectureLabConfigLive)

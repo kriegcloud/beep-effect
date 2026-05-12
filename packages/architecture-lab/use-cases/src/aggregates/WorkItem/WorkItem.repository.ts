@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
@@ -18,7 +18,7 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.repos
  * Persistence failure raised when a WorkItem row is absent.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemRepositoryNotFound extends TaggedErrorClass<WorkItemRepositoryNotFound>(
   $I`WorkItemRepositoryNotFound`
@@ -37,7 +37,7 @@ export class WorkItemRepositoryNotFound extends TaggedErrorClass<WorkItemReposit
  * Persistence failure raised when a WorkItem write conflicts.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemRepositoryConflict extends TaggedErrorClass<WorkItemRepositoryConflict>(
   $I`WorkItemRepositoryConflict`
@@ -57,7 +57,7 @@ export class WorkItemRepositoryConflict extends TaggedErrorClass<WorkItemReposit
  * Persistence failure raised when the WorkItem repository is unavailable.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemRepositoryUnavailable extends TaggedErrorClass<WorkItemRepositoryUnavailable>(
   $I`WorkItemRepositoryUnavailable`
@@ -76,7 +76,7 @@ export class WorkItemRepositoryUnavailable extends TaggedErrorClass<WorkItemRepo
  * WorkItem repository failure.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkItemRepositoryError =
   | WorkItemRepositoryNotFound
@@ -87,7 +87,7 @@ export type WorkItemRepositoryError =
  * WorkItem repository contract.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export interface WorkItemRepositoryShape {
   readonly create: (
@@ -106,7 +106,7 @@ export interface WorkItemRepositoryShape {
  * WorkItem repository service.
  *
  * @category repositories
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemRepository extends Context.Service<WorkItemRepository, WorkItemRepositoryShape>()(
   $I`WorkItemRepository`

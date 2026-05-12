@@ -3,56 +3,88 @@
  *
  * @packageDocumentation
  * @category handlers
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
+import { $ArchitectureLabServerId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
+
+const $I = $ArchitectureLabServerId.create("aggregates/WorkItem/WorkItem.http");
 
 const isNotFound = S.is(WorkItemUseCases.WorkItemNotFound);
 const isConflict = S.is(WorkItemUseCases.WorkItemConflict);
 const isActionRejected = S.is(WorkItemUseCases.WorkItemActionRejected);
 
 /**
+ * HTTP status values emitted by the WorkItem proof protocol adapter.
+ *
+ * @category handlers
+ * @since 0.0.0
+ */
+export const WorkItemHttpStatus = LiteralKit([200, 201, 404, 409, 422, 503] as const).pipe(
+  $I.annoteSchema("WorkItemHttpStatus", {
+    title: "WorkItem HTTP status",
+    description: "HTTP status vocabulary emitted by the WorkItem proof protocol adapter.",
+  })
+);
+
+/**
+ * Runtime type for {@link WorkItemHttpStatus}.
+ *
+ * @category handlers
+ * @since 0.0.0
+ */
+export type WorkItemHttpStatus = typeof WorkItemHttpStatus.Type;
+
+/**
  * Minimal HTTP response envelope used by the architecture lab proof.
  *
  * @category handlers
- * @since 0.1.0
+ * @since 0.0.0
  */
-export interface WorkItemHttpResponse {
-  readonly body: unknown;
-  readonly status: 200 | 201 | 404 | 409 | 422 | 503;
-}
+export class WorkItemHttpResponse extends S.Class<WorkItemHttpResponse>($I`WorkItemHttpResponse`)(
+  {
+    body: S.Unknown,
+    status: WorkItemHttpStatus,
+  },
+  {
+    title: "WorkItem HTTP response",
+    description: "Minimal protocol response envelope used by the architecture lab proof.",
+  }
+) {}
 
 /**
  * Convert a public WorkItem failure to an HTTP response envelope.
  *
  * @category handlers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const toWorkItemHttpError = (error: WorkItemUseCases.WorkItemActionError): WorkItemHttpResponse => {
   if (isNotFound(error)) {
-    return { status: 404, body: error };
+    return new WorkItemHttpResponse({ status: 404, body: error });
   }
   if (isConflict(error)) {
-    return { status: 409, body: error };
+    return new WorkItemHttpResponse({ status: 409, body: error });
   }
   if (isActionRejected(error)) {
-    return { status: 422, body: error };
+    return new WorkItemHttpResponse({ status: 422, body: error });
   }
-  return { status: 503, body: error };
+  return new WorkItemHttpResponse({ status: 503, body: error });
 };
 
 const toSuccess =
   (status: 200 | 201) =>
-  (body: unknown): WorkItemHttpResponse => ({ status, body });
+  (body: unknown): WorkItemHttpResponse =>
+    new WorkItemHttpResponse({ status, body });
 
 /**
  * Build HTTP-style WorkItem handlers from the public use-case facade.
  *
  * @category handlers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeWorkItemHttpHandlers = (useCases: WorkItemUseCases.WorkItemUseCasesShape) => ({
   create: (command: WorkItemUseCases.CreateWorkItemCommand): Effect.Effect<WorkItemHttpResponse> =>

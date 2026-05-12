@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import type { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
@@ -19,7 +19,7 @@ const $I = $ArchitectureLabServerId.create("aggregates/WorkItem/WorkItem.layer")
  * Build the WorkItem server facade.
  *
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeWorkItemServer = Effect.fn("ArchitectureLab.WorkItemServer.make")(function* () {
   const repository = yield* makeWorkItemRepository();
@@ -30,7 +30,7 @@ export const makeWorkItemServer = Effect.fn("ArchitectureLab.WorkItemServer.make
  * WorkItem server facade service.
  *
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemServer extends Context.Service<WorkItemServer, WorkItemUseCases.WorkItemUseCasesShape>()(
   $I`WorkItemServer`
@@ -40,6 +40,6 @@ export class WorkItemServer extends Context.Service<WorkItemServer, WorkItemUseC
  * Config-dependent WorkItem server layer.
  *
  * @category layers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkItemServerLayer = Layer.effect(WorkItemServer, makeWorkItemServer());

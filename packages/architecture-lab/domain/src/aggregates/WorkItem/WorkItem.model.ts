@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category aggregates
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { $ArchitectureLabDomainId } from "@beep/identity/packages";
@@ -21,7 +21,7 @@ const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.model")
  * Architecture lab WorkItem aggregate.
  *
  * @category aggregates
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItem extends S.Class<WorkItem>($I`WorkItem`)(
   {
@@ -41,7 +41,7 @@ export class WorkItem extends S.Class<WorkItem>($I`WorkItem`)(
  * WorkItem creation input.
  *
  * @category aggregates
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class CreateWorkItemInput extends S.Class<CreateWorkItemInput>($I`CreateWorkItemInput`)(
   {
@@ -61,7 +61,7 @@ export class CreateWorkItemInput extends S.Class<CreateWorkItemInput>($I`CreateW
  * Create a new open WorkItem aggregate.
  *
  * @category aggregates
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const create = (input: CreateWorkItemInput): WorkItem =>
   new WorkItem({
@@ -79,7 +79,7 @@ const requireMutable = (workItem: WorkItem): Effect.Effect<void, WorkItemAlready
  * Assign an open WorkItem to a concrete assignee.
  *
  * @category aggregates
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const assign = Effect.fn("WorkItem.assign")(function* (workItem: WorkItem, assignee: WorkerId) {
   yield* requireMutable(workItem);
@@ -104,7 +104,7 @@ export const assign = Effect.fn("WorkItem.assign")(function* (workItem: WorkItem
  * Complete an open or assigned WorkItem.
  *
  * @category aggregates
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const complete = Effect.fn("WorkItem.complete")(function* (workItem: WorkItem) {
   yield* requireMutable(workItem);
@@ -128,7 +128,7 @@ export const complete = Effect.fn("WorkItem.complete")(function* (workItem: Work
  * Reopen a completed WorkItem.
  *
  * @category aggregates
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const reopen = Effect.fn("WorkItem.reopen")(function* (workItem: WorkItem) {
   yield* requireMutable(workItem);
@@ -146,7 +146,7 @@ export const reopen = Effect.fn("WorkItem.reopen")(function* (workItem: WorkItem
  * Archive any non-archived WorkItem.
  *
  * @category aggregates
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const archive = Effect.fn("WorkItem.archive")(function* (workItem: WorkItem) {
   yield* requireMutable(workItem);

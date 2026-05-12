@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category entity-ids
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { $ArchitectureLabDomainId } from "@beep/identity/packages";
@@ -16,7 +16,7 @@ const make = EntityId.factory("architecture_lab", $I);
  * Architecture lab Worker entity identifier.
  *
  * @category entity-ids
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkerId = make("worker", {
   description: "Identifier for an architecture lab Worker entity.",
@@ -26,6 +26,6 @@ export const WorkerId = make("worker", {
  * Runtime type for {@link WorkerId}.
  *
  * @category entity-ids
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkerId = typeof WorkerId.Type;

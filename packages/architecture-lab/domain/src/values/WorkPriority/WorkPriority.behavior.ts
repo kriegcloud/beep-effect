@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category value-objects
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { Match } from "effect";
@@ -15,7 +15,7 @@ import { WorkPriority as WorkPrioritySchema } from "./WorkPriority.model.js";
  * Default priority for newly created WorkItems.
  *
  * @category value-objects
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const defaultWorkPriority: WorkPriority = WorkPrioritySchema.Enum.normal;
 
@@ -23,7 +23,7 @@ export const defaultWorkPriority: WorkPriority = WorkPrioritySchema.Enum.normal;
  * Rank a priority from lowest to highest.
  *
  * @category value-objects
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const rank: (priority: WorkPriority) => number = Match.type<WorkPriority>().pipe(
   Match.when("low", () => 0),
@@ -36,7 +36,7 @@ export const rank: (priority: WorkPriority) => number = Match.type<WorkPriority>
  * Compare two priorities.
  *
  * @category value-objects
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const compare: {
   (left: WorkPriority, right: WorkPriority): number;

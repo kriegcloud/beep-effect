@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category testing
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { ArchitectureLabConfigTest } from "@beep/architecture-lab-config/test";
@@ -16,7 +16,7 @@ import { WorkerServerLayer } from "./entities/Worker/index.ts";
  * Test architecture lab server layer.
  *
  * @category testing
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const ArchitectureLabServerTest = Layer.mergeAll(WorkItemServerLayer, WorkerServerLayer).pipe(
   Layer.provide(ArchitectureLabConfigTest)

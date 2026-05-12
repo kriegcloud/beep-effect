@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import type { WorkItemPublicConfig } from "@beep/architecture-lab-config/public";
@@ -23,7 +23,7 @@ const $I = $ArchitectureLabUiId.create("aggregates/WorkItem/WorkItem.view-model"
  * UI action values for the WorkItem proof surface.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkItemVisibleAction = LiteralKit(["assign", "complete", "reopen", "archive"] as const).pipe(
   $I.annoteSchema("WorkItemVisibleAction", {
@@ -36,7 +36,7 @@ export const WorkItemVisibleAction = LiteralKit(["assign", "complete", "reopen",
  * UI action value for the WorkItem proof surface.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkItemVisibleAction = typeof WorkItemVisibleAction.Type;
 
@@ -44,7 +44,7 @@ export type WorkItemVisibleAction = typeof WorkItemVisibleAction.Type;
  * UI-facing WorkItem summary.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemSummaryViewModel extends S.Class<WorkItemSummaryViewModel>($I`WorkItemSummaryViewModel`)(
   {
@@ -83,7 +83,7 @@ const makeVisibleActions = (
  * Create the UI-facing WorkItem summary view model.
  *
  * @category models
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const toWorkItemSummaryViewModel: {
   (config: WorkItemPublicConfig): (workItem: DomainWorkItem.WorkItem) => WorkItemSummaryViewModel;

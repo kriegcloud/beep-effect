@@ -1,18 +1,27 @@
 import * as Worker from "@beep/architecture-lab-domain/entities/Worker";
 import { describe, expect, it } from "@effect/vitest";
+import { Effect } from "effect";
+import * as S from "effect/Schema";
+
+const decodeWorkerId = S.decodeUnknownEffect(Worker.WorkerId);
+const decodeOrganizationId = S.decodeUnknownEffect(Worker.WorkerOrganizationId);
 
 describe("Worker entity", () => {
-  it("creates a BaseEntity-backed active Worker", () => {
-    const worker = Worker.create(
-      new Worker.CreateWorkerInput({
-        id: 1 as Worker.WorkerId,
-        organizationId: 1 as Worker.WorkerOrganizationId,
-        displayName: "Ada Lovelace",
-      })
-    );
+  it.effect("creates a BaseEntity-backed active Worker", () =>
+    Effect.gen(function* () {
+      const id = yield* decodeWorkerId(1);
+      const organizationId = yield* decodeOrganizationId(1);
+      const worker = Worker.create(
+        new Worker.CreateWorkerInput({
+          id,
+          organizationId,
+          displayName: "Ada Lovelace",
+        })
+      );
 
-    expect(worker.id).toBe(1);
-    expect(worker.status).toBe("active");
-    expect(Worker.Worker.definition.tableName).toBe("architecture_lab_worker");
-  });
+      expect(worker.id).toBe(1);
+      expect(worker.status).toBe("active");
+      expect(Worker.Worker.definition.tableName).toBe("architecture_lab_worker");
+    })
+  );
 });

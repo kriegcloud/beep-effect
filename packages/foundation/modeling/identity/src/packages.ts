@@ -911,7 +911,7 @@ export const $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tabl
  * ```typescript
  * import { $ArchitectureLabDomainId } from "@beep/identity"
  *
- * const id = $ArchitectureLabDomainId.make("Specimen")
+ * const id = $ArchitectureLabDomainId.make("WorkItem")
  * void id
  * ```
  *
@@ -928,7 +928,7 @@ export const $ArchitectureLabDomainId: Identity.IdentityComposer<"@beep/architec
  * ```typescript
  * import { $ArchitectureLabUseCasesId } from "@beep/identity"
  *
- * const id = $ArchitectureLabUseCasesId.make("SpecimenService")
+ * const id = $ArchitectureLabUseCasesId.make("WorkItemService")
  * void id
  * ```
  *
@@ -979,7 +979,7 @@ export const $ArchitectureLabServerId: Identity.IdentityComposer<"@beep/architec
  * ```typescript
  * import { $ArchitectureLabTablesId } from "@beep/identity"
  *
- * const id = $ArchitectureLabTablesId.make("SpecimenTable")
+ * const id = $ArchitectureLabTablesId.make("WorkItemTable")
  * void id
  * ```
  *
@@ -996,7 +996,7 @@ export const $ArchitectureLabTablesId: Identity.IdentityComposer<"@beep/architec
  * ```typescript
  * import { $ArchitectureLabClientId } from "@beep/identity"
  *
- * const id = $ArchitectureLabClientId.make("SpecimenClient")
+ * const id = $ArchitectureLabClientId.make("WorkItemClient")
  * void id
  * ```
  *
@@ -1013,7 +1013,7 @@ export const $ArchitectureLabClientId: Identity.IdentityComposer<"@beep/architec
  * ```typescript
  * import { $ArchitectureLabUiId } from "@beep/identity"
  *
- * const id = $ArchitectureLabUiId.make("SpecimenDetail")
+ * const id = $ArchitectureLabUiId.make("WorkItemViewModel")
  * void id
  * ```
  *

@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category handlers
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import type { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
@@ -12,7 +12,7 @@ import type { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-ca
  * Build RPC-style WorkItem handlers from the public use-case facade.
  *
  * @category handlers
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeWorkItemRpcHandlers = (useCases: WorkItemUseCases.WorkItemUseCasesShape) => ({
   createWorkItem: useCases.create,

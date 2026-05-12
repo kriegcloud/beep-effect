@@ -84,6 +84,30 @@ describe("architecture operation plan", () => {
     })
   );
 
+  it.effect("generates a complete non-default aggregate slice plan with package scaffolds", () =>
+    Effect.gen(function* () {
+      const tempRoot = join(tmpdir(), `beep-architecture-demo-generated-${Date.now()}`);
+
+      const plan = yield* makeArchitectureOperationPlan(repoRoot, {
+        boundedContext: "research-lab",
+        concept: "Ticket",
+        domainKind: "aggregates",
+        stage: "core",
+      }).pipe(Effect.provide(NodeServices.layer));
+      const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+        Effect.provide(NodeServices.layer)
+      );
+      const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(Effect.provide(NodeServices.layer));
+
+      rmSync(tempRoot, { force: true, recursive: true });
+      expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/package.json");
+      expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/src/index.ts");
+      expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/src/identity/ResearchLab.ts");
+      expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/src/aggregates/Ticket/Ticket.model.ts");
+      expect(check.idempotent).toBe(true);
+    })
+  );
+
   it.effect("generates the accepted Worker entity archetype without aggregate-only roles", () =>
     Effect.gen(function* () {
       const tempRoot = join(tmpdir(), `beep-architecture-worker-generated-${Date.now()}`);

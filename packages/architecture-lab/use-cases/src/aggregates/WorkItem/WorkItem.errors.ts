@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
@@ -17,7 +17,7 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.error
  * Public failure raised when a requested WorkItem is absent.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemNotFound extends TaggedErrorClass<WorkItemNotFound>($I`WorkItemNotFound`)(
   "WorkItemNotFound",
@@ -34,7 +34,7 @@ export class WorkItemNotFound extends TaggedErrorClass<WorkItemNotFound>($I`Work
  * Public failure raised when a command conflicts with persisted state.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemConflict extends TaggedErrorClass<WorkItemConflict>($I`WorkItemConflict`)(
   "WorkItemConflict",
@@ -52,7 +52,7 @@ export class WorkItemConflict extends TaggedErrorClass<WorkItemConflict>($I`Work
  * Public failure raised when the domain rejects a WorkItem action.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemActionRejected extends TaggedErrorClass<WorkItemActionRejected>($I`WorkItemActionRejected`)(
   "WorkItemActionRejected",
@@ -70,7 +70,7 @@ export class WorkItemActionRejected extends TaggedErrorClass<WorkItemActionRejec
  * Public failure raised when an action cannot be completed.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemActionFailed extends TaggedErrorClass<WorkItemActionFailed>($I`WorkItemActionFailed`)(
   "WorkItemActionFailed",
@@ -87,7 +87,7 @@ export class WorkItemActionFailed extends TaggedErrorClass<WorkItemActionFailed>
  * Public WorkItem use-case failure.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type WorkItemActionError = WorkItemNotFound | WorkItemConflict | WorkItemActionRejected | WorkItemActionFailed;
 
@@ -95,7 +95,7 @@ export type WorkItemActionError = WorkItemNotFound | WorkItemConflict | WorkItem
  * Public WorkItem use-case failure schema.
  *
  * @category errors
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkItemActionError = S.Union([
   WorkItemNotFound,

@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import { $ArchitectureLabConfigId } from "@beep/identity/packages";
@@ -15,7 +15,7 @@ const $I = $ArchitectureLabConfigId.create("WorkItemConfig");
  * Client-safe WorkItem configuration.
  *
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemPublicConfig extends S.Class<WorkItemPublicConfig>($I`WorkItemPublicConfig`)(
   {
@@ -32,7 +32,7 @@ export class WorkItemPublicConfig extends S.Class<WorkItemPublicConfig>($I`WorkI
  * Server-only WorkItem configuration.
  *
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemServerConfig extends S.Class<WorkItemServerConfig>($I`WorkItemServerConfig`)(
   {
@@ -49,7 +49,7 @@ export class WorkItemServerConfig extends S.Class<WorkItemServerConfig>($I`WorkI
  * Secret WorkItem configuration.
  *
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class WorkItemSecretConfig extends S.Class<WorkItemSecretConfig>($I`WorkItemSecretConfig`)(
   {
@@ -65,7 +65,7 @@ export class WorkItemSecretConfig extends S.Class<WorkItemSecretConfig>($I`WorkI
  * Default client-safe WorkItem configuration.
  *
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const defaultWorkItemPublicConfig = new WorkItemPublicConfig({
   assignmentEnabled: true,
@@ -76,7 +76,7 @@ export const defaultWorkItemPublicConfig = new WorkItemPublicConfig({
  * Default server WorkItem configuration.
  *
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const defaultWorkItemServerConfig = new WorkItemServerConfig({
   repositoryName: "architecture-lab-work-items",
@@ -87,7 +87,7 @@ export const defaultWorkItemServerConfig = new WorkItemServerConfig({
  * Default secret WorkItem configuration.
  *
  * @category configuration
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const defaultWorkItemSecretConfig = new WorkItemSecretConfig({
   connectionName: "architecture-lab-proof",

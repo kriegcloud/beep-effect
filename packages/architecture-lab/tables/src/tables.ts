@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category tables
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import * as WorkItem from "./aggregates/WorkItem/index.js";
@@ -18,7 +18,7 @@ type DbSchemaShape = {
  * Architecture lab drizzle schema.
  *
  * @category tables
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const DbSchema: DbSchemaShape = {
   workItem: WorkItem.workItemTable,
@@ -29,6 +29,6 @@ export const DbSchema: DbSchemaShape = {
  * Architecture lab drizzle schema type.
  *
  * @category tables
- * @since 0.1.0
+ * @since 0.0.0
  */
 export type DbSchema = DbSchemaShape;

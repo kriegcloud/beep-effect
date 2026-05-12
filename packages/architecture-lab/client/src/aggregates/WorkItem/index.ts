@@ -2,6 +2,6 @@
  * WorkItem client exports.
  *
  * @category clients
- * @since 0.1.0
+ * @since 0.0.0
  */
 export * from "./WorkItem.client.js";

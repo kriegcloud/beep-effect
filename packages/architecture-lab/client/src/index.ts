@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category clients
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 /**
@@ -17,7 +17,7 @@
  * ```
  *
  * @category clients
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;
 
@@ -25,6 +25,6 @@ export const VERSION = "0.0.0" as const;
  * Direct WorkItem client namespace export.
  *
  * @category clients
- * @since 0.1.0
+ * @since 0.0.0
  */
 export * as WorkItem from "./aggregates/WorkItem/index.js";

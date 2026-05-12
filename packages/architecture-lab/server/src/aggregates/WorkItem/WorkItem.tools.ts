@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category tools
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import type { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
@@ -12,7 +12,7 @@ import type { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-ca
  * WorkItem tool names exposed by the architecture lab proof.
  *
  * @category tools
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const WorkItemToolNames = {
   create: "architecture_lab.work_item.create",
@@ -28,7 +28,7 @@ export const WorkItemToolNames = {
  * Build tool-style WorkItem handlers from the public use-case facade.
  *
  * @category tools
- * @since 0.1.0
+ * @since 0.0.0
  */
 export const makeWorkItemToolHandlers = (useCases: WorkItemUseCases.WorkItemUseCasesShape) => ({
   [WorkItemToolNames.create]: useCases.create,

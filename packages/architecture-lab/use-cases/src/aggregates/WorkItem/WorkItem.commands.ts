@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
@@ -20,7 +20,7 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.comma
  * Create WorkItem command.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class CreateWorkItemCommand extends S.Class<CreateWorkItemCommand>($I`CreateWorkItemCommand`)(
   {
@@ -40,7 +40,7 @@ export class CreateWorkItemCommand extends S.Class<CreateWorkItemCommand>($I`Cre
  * Assign WorkItem command.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class AssignWorkItemCommand extends S.Class<AssignWorkItemCommand>($I`AssignWorkItemCommand`)(
   {
@@ -57,7 +57,7 @@ export class AssignWorkItemCommand extends S.Class<AssignWorkItemCommand>($I`Ass
  * Complete WorkItem command.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class CompleteWorkItemCommand extends S.Class<CompleteWorkItemCommand>($I`CompleteWorkItemCommand`)(
   {
@@ -73,7 +73,7 @@ export class CompleteWorkItemCommand extends S.Class<CompleteWorkItemCommand>($I
  * Reopen WorkItem command.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class ReopenWorkItemCommand extends S.Class<ReopenWorkItemCommand>($I`ReopenWorkItemCommand`)(
   {
@@ -89,7 +89,7 @@ export class ReopenWorkItemCommand extends S.Class<ReopenWorkItemCommand>($I`Reo
  * Archive WorkItem command.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class ArchiveWorkItemCommand extends S.Class<ArchiveWorkItemCommand>($I`ArchiveWorkItemCommand`)(
   {
@@ -105,7 +105,7 @@ export class ArchiveWorkItemCommand extends S.Class<ArchiveWorkItemCommand>($I`A
  * Get WorkItem query.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class GetWorkItemQuery extends S.Class<GetWorkItemQuery>($I`GetWorkItemQuery`)(
   {
@@ -121,7 +121,7 @@ export class GetWorkItemQuery extends S.Class<GetWorkItemQuery>($I`GetWorkItemQu
  * List WorkItems query.
  *
  * @category commands
- * @since 0.1.0
+ * @since 0.0.0
  */
 export class ListWorkItemsQuery extends S.Class<ListWorkItemsQuery>($I`ListWorkItemsQuery`)(
   {
