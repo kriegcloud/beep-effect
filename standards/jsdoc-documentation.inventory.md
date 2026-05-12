@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-05-12T02:37:00.806Z
+Generated: 2026-05-12T07:00:46.275Z
 
 ## Scope
 
@@ -10,15 +10,15 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 55 |
+| packages | 64 |
 | cleanPackages | 26 |
 | packagesWithoutPublicSrcSurface | 1 |
-| packagesNeedingRemediation | 28 |
-| publicModules | 837 |
-| publicExports | 5852 |
-| openModules | 121 |
-| openExports | 2414 |
-| missingExportExamples | 2227 |
+| packagesNeedingRemediation | 37 |
+| publicModules | 853 |
+| publicExports | 5904 |
+| openModules | 129 |
+| openExports | 2433 |
+| missingExportExamples | 2246 |
 | missingExportCategories | 50 |
 | missingExportSince | 48 |
 | forbiddenTagFindings | 7 |
@@ -42,60 +42,69 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | Order | Package | Path | Status | Modules | Exports | Open Modules | Open Exports |
 |---:|---|---|---|---:|---:|---:|---:|
 | 1 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
-| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 79 | 0 | 15 |
+| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 88 | 0 | 24 |
 | 3 | `@beep/utils` | `packages/foundation/modeling/utils` | clean | 20 | 135 | 0 | 0 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | clean | 7 | 39 | 0 | 0 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | needs-remediation | 2 | 6 | 0 | 1 |
 | 6 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 132 | 1283 | 7 | 1044 |
 | 7 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 35 | 190 | 0 | 9 |
-| 8 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
-| 9 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 58 | 613 | 2 | 74 |
-| 10 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
-| 11 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
-| 12 | `@beep/fixture-lab-specimen-domain` | `packages/fixture-lab/specimen/domain` | needs-remediation | 6 | 10 | 0 | 2 |
-| 13 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 2 | 21 | 0 | 6 |
-| 14 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
-| 15 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | clean | 14 | 168 | 0 | 0 |
-| 16 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
-| 17 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 30 |
-| 18 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 24 | 130 | 0 | 5 |
-| 19 | `@beep/fixture-lab-specimen-config` | `packages/fixture-lab/specimen/config` | needs-remediation | 7 | 16 | 0 | 2 |
-| 20 | `@beep/fixture-lab-specimen-use-cases` | `packages/fixture-lab/specimen/use-cases` | needs-remediation | 10 | 24 | 0 | 4 |
-| 21 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
-| 22 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
-| 23 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 119 | 508 | 109 | 504 |
-| 24 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
-| 25 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | needs-remediation | 13 | 47 | 0 | 11 |
-| 26 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | clean | 7 | 12 | 0 | 0 |
-| 27 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
+| 8 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 2 | 21 | 0 | 6 |
+| 9 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
+| 10 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 58 | 613 | 2 | 74 |
+| 11 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
+| 12 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
+| 13 | `@beep/fixture-lab-specimen-domain` | `packages/fixture-lab/specimen/domain` | needs-remediation | 6 | 10 | 0 | 2 |
+| 14 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
+| 15 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
+| 16 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
+| 17 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | clean | 14 | 168 | 0 | 0 |
+| 18 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
+| 19 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 30 |
+| 20 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 24 | 130 | 0 | 5 |
+| 21 | `@beep/fixture-lab-specimen-config` | `packages/fixture-lab/specimen/config` | needs-remediation | 7 | 16 | 0 | 2 |
+| 22 | `@beep/fixture-lab-specimen-use-cases` | `packages/fixture-lab/specimen/use-cases` | needs-remediation | 10 | 24 | 0 | 4 |
+| 23 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
+| 24 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 119 | 508 | 109 | 504 |
+| 25 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
+| 26 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | needs-remediation | 13 | 47 | 0 | 11 |
+| 27 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | clean | 7 | 12 | 0 | 0 |
 | 28 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 21 | 0 | 0 |
 | 29 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | clean | 14 | 25 | 0 | 0 |
-| 30 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 31 | `@beep/fixture-lab-specimen-tables` | `packages/fixture-lab/specimen/tables` | clean | 6 | 12 | 0 | 0 |
-| 32 | `@beep/db-admin` | `packages/_internal/db-admin` | clean | 1 | 1 | 0 | 0 |
-| 33 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 70 | 498 | 0 | 349 |
-| 34 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
-| 35 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
-| 36 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 248 |
-| 37 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
-| 38 | `@beep/fixture-lab-specimen-server` | `packages/fixture-lab/specimen/server` | clean | 5 | 9 | 0 | 0 |
-| 39 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 11 |
-| 40 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
-| 41 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
-| 42 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
-| 43 | `@beep/op-ip-web` | `apps/op-ip-web` | needs-remediation | 5 | 6 | 0 | 5 |
-| 44 | `@beep/fixture-lab-specimen-ui` | `packages/fixture-lab/specimen/ui` | clean | 3 | 4 | 0 | 0 |
-| 45 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 4 | 0 | 0 |
-| 46 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
-| 47 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 31 |
-| 48 | `@beep/infra` | `infra` | clean | 2 | 10 | 0 | 0 |
-| 49 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
-| 50 | `@beep/fixture-lab-specimen-client` | `packages/fixture-lab/specimen/client` | needs-remediation | 5 | 19 | 0 | 9 |
-| 51 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
-| 52 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
-| 53 | `@beep/openai` | `packages/drivers/openai` | needs-remediation | 1 | 1 | 0 | 1 |
-| 54 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 35 | 0 | 5 |
-| 55 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
+| 30 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 1 | 1 | 1 | 1 |
+| 31 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 32 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 7 | 10 | 0 | 2 |
+| 33 | `@beep/fixture-lab-specimen-tables` | `packages/fixture-lab/specimen/tables` | clean | 6 | 12 | 0 | 0 |
+| 34 | `@beep/db-admin` | `packages/_internal/db-admin` | clean | 1 | 1 | 0 | 0 |
+| 35 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 1 | 1 | 1 | 1 |
+| 36 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 71 | 523 | 0 | 349 |
+| 37 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
+| 38 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
+| 39 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 248 |
+| 40 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
+| 41 | `@beep/fixture-lab-specimen-server` | `packages/fixture-lab/specimen/server` | clean | 5 | 9 | 0 | 0 |
+| 42 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 11 |
+| 43 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
+| 44 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
+| 45 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 1 | 1 | 1 | 1 |
+| 46 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
+| 47 | `@beep/op-ip-web` | `apps/op-ip-web` | needs-remediation | 5 | 6 | 0 | 5 |
+| 48 | `@beep/fixture-lab-specimen-ui` | `packages/fixture-lab/specimen/ui` | clean | 3 | 4 | 0 | 0 |
+| 49 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 1 | 1 | 1 | 1 |
+| 50 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 4 | 0 | 0 |
+| 51 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
+| 52 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 31 |
+| 53 | `@beep/infra` | `infra` | clean | 2 | 10 | 0 | 0 |
+| 54 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
+| 55 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 1 | 1 | 1 | 1 |
+| 56 | `@beep/fixture-lab-specimen-client` | `packages/fixture-lab/specimen/client` | needs-remediation | 5 | 19 | 0 | 9 |
+| 57 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
+| 58 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 1 | 1 | 1 | 1 |
+| 59 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | needs-remediation | 1 | 1 | 1 | 1 |
+| 60 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
+| 61 | `@beep/openai` | `packages/drivers/openai` | needs-remediation | 1 | 1 | 0 | 1 |
+| 62 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 35 | 0 | 5 |
+| 63 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 1 | 1 | 1 | 1 |
+| 64 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
 
 ## Open Findings
 
@@ -108,17 +117,26 @@ Export findings:
 - `src/Id.ts:150` `IdentitySegmentCountError` (class) - 1 schema annotation/type-alias gap(s)
 - `src/Id.ts:381` `IdentityString` (type) - 1 unsafe example violation(s)
 - `src/Id.ts:398` `IdentitySymbol` (type) - 1 unsafe example violation(s)
-- `src/packages.ts:650` `RepoPkgs` (const) - missing @example
-- `src/packages.ts:656` `$MdId` (const) - missing summary; missing @example
-- `src/packages.ts:662` `$CodedankWebId` (const) - missing summary; missing @example
-- `src/packages.ts:668` `$OpIpWebId` (const) - missing summary; missing @example
-- `src/packages.ts:674` `$DrizzleId` (const) - missing summary; missing @example
-- `src/packages.ts:680` `$DuckdbId` (const) - missing summary; missing @example
-- `src/packages.ts:686` `$FfmpegId` (const) - missing summary; missing @example
-- `src/packages.ts:692` `$PostgresId` (const) - missing summary; missing @example
-- `src/packages.ts:855` `$OpenaiId` (const) - missing summary; missing @example
-- `src/packages.ts:861` `$VeniceAiId` (const) - missing summary; missing @example
-- `src/packages.ts:867` `$XaiId` (const) - missing summary; missing @example
+- `src/packages.ts:651` `RepoPkgs` (const) - missing @example
+- `src/packages.ts:657` `$MdId` (const) - missing summary; missing @example
+- `src/packages.ts:663` `$CodedankWebId` (const) - missing summary; missing @example
+- `src/packages.ts:669` `$OpIpWebId` (const) - missing summary; missing @example
+- `src/packages.ts:675` `$DrizzleId` (const) - missing summary; missing @example
+- `src/packages.ts:681` `$DuckdbId` (const) - missing summary; missing @example
+- `src/packages.ts:687` `$FfmpegId` (const) - missing summary; missing @example
+- `src/packages.ts:693` `$PostgresId` (const) - missing summary; missing @example
+- `src/packages.ts:856` `$OpenaiId` (const) - missing summary; missing @example
+- `src/packages.ts:862` `$VeniceAiId` (const) - missing summary; missing @example
+- `src/packages.ts:868` `$XaiId` (const) - missing summary; missing @example
+- `src/packages.ts:907` `$WorkspaceTablesId` (const) - missing summary; missing @example
+- `src/packages.ts:914` `$ArchitectureLabDomainId` (const) - missing summary; missing @example
+- `src/packages.ts:921` `$ArchitectureLabUseCasesId` (const) - missing summary; missing @example
+- `src/packages.ts:928` `$ArchitectureLabConfigId` (const) - missing summary; missing @example
+- `src/packages.ts:935` `$ArchitectureLabServerId` (const) - missing summary; missing @example
+- `src/packages.ts:942` `$ArchitectureLabTablesId` (const) - missing summary; missing @example
+- `src/packages.ts:949` `$ArchitectureLabClientId` (const) - missing summary; missing @example
+- `src/packages.ts:956` `$ArchitectureLabUiId` (const) - missing summary; missing @example
+- `src/packages.ts:963` `$ArchitectureLabProofId` (const) - missing summary; missing @example
 
 ### @beep/messages
 
@@ -1201,6 +1219,18 @@ Export findings:
 - `src/entity/Principal.ts:113` `AgentPrincipal` (class) - 1 unsafe example violation(s)
 - `src/entity/Principal.ts:140` `ConnectorAccountPrincipal` (class) - 1 unsafe example violation(s)
 
+### @beep/test-utils
+
+Path: `packages/tooling/test-kit/test-utils`
+
+Export findings:
+- `src/SqlTest.ts:187` `PgliteTestcontainersTestDriverConfigInput` (type) - missing @example
+- `src/SqlTest.ts:240` `PgExternalTestDriverConfigInput` (type) - missing @example
+- `src/SqlTest.ts:248` `PgliteSqlTestLayerMode` (type) - missing @example
+- `src/SqlTest.ts:256` `PgliteSqlTestLayerOptions` (interface) - missing @example
+- `src/SqlTest.ts:437` `PgliteTestcontainerResource` (interface) - 1 unsafe example violation(s)
+- `src/index.ts:14` `export * from "./SqlTest.js";` (re-export) - missing @example
+
 ### @beep/repo-utils
 
 Path: `packages/tooling/library/repo-utils`
@@ -1572,17 +1602,14 @@ Export findings:
 - `src/entities/Specimen/Specimen.policy.ts:24` `observeSpecimen` (const) - 1 unsafe example violation(s)
 - `src/entities/Specimen/Specimen.policy.ts:45` `retireSpecimen` (const) - 1 unsafe example violation(s)
 
-### @beep/test-utils
+### @beep/drizzle
 
-Path: `packages/tooling/test-kit/test-utils`
+Path: `packages/drivers/drizzle`
 
 Export findings:
-- `src/SqlTest.ts:187` `PgliteTestcontainersTestDriverConfigInput` (type) - missing @example
-- `src/SqlTest.ts:240` `PgExternalTestDriverConfigInput` (type) - missing @example
-- `src/SqlTest.ts:248` `PgliteSqlTestLayerMode` (type) - missing @example
-- `src/SqlTest.ts:256` `PgliteSqlTestLayerOptions` (interface) - missing @example
-- `src/SqlTest.ts:437` `PgliteTestcontainerResource` (interface) - 1 unsafe example violation(s)
-- `src/index.ts:14` `export * from "./SqlTest.js";` (re-export) - missing @example
+- `src/index.ts:14` `export * from "./Drizzle.errors.ts";` (re-export) - missing @example
+- `src/index.ts:22` `export * from "./Drizzle.service.ts";` (re-export) - missing @example
+- `src/index.ts:30` `export * as EntityTable from "./EntityTable.ts";` (re-export) - missing @example
 
 ### @beep/repo-docgen
 
@@ -1692,15 +1719,6 @@ Export findings:
 - `src/entities/Specimen/Specimen.service.ts:28` `SpecimenUseCases` (interface) - 1 unsafe example violation(s)
 - `src/entities/Specimen/Specimen.service.ts:60` `makeSpecimenUseCases` (const) - 1 unsafe example violation(s)
 - `src/public.ts:64` `export type { SpecimenUseCases } from "./entities/Specimen/Specimen.service.js";` (re-export) - 1 unsafe example violation(s)
-
-### @beep/drizzle
-
-Path: `packages/drivers/drizzle`
-
-Export findings:
-- `src/index.ts:14` `export * from "./Drizzle.errors.ts";` (re-export) - missing @example
-- `src/index.ts:22` `export * from "./Drizzle.service.ts";` (re-export) - missing @example
-- `src/index.ts:30` `export * as EntityTable from "./EntityTable.ts";` (re-export) - missing @example
 
 ### @beep/ui
 
@@ -2340,6 +2358,34 @@ Export findings:
 - `src/processes/ProfessionalRuntime/index.ts:80` `export type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.js";` (re-export) - 1 unsafe example violation(s)
 - `src/public.ts:78` `export type { ProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/ProfessionalRuntime.service.js";` (re-export) - 1 unsafe example violation(s)
 
+### @beep/architecture-lab-ui
+
+Path: `packages/architecture-lab/ui`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
+
+### @beep/workspace-tables
+
+Path: `packages/workspace/tables`
+
+Export findings:
+- `src/Schema.ts:39` `DbSchema` (type) - missing @example
+- `src/index.ts:29` `export { DbSchema } from "./Schema.ts";` (re-export) - missing @example
+
+### @beep/architecture-lab-client
+
+Path: `packages/architecture-lab/client`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
+
 ### @beep/repo-cli
 
 Path: `packages/tooling/tool/cli`
@@ -2391,7 +2437,7 @@ Export findings:
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:234` `TsMorphIntegrationService` (class) - missing @example
 - `src/commands/CreatePackage/TsMorphIntegrationService.ts:258` `createTsMorphIntegrationService` (const) - missing @example
 - `src/commands/CreatePackage/index.ts:16` `createPackageCommand` (const) - missing @example
-- `src/commands/Docgen/index.ts:728` `docgenCommand` (const) - missing @example
+- `src/commands/Docgen/index.ts:875` `docgenCommand` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:86` `DocgenPackageStatus` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:101` `DocgenPackageStatus` (type) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:115` `DocgenConfigDocument` (class) - missing @example
@@ -3124,6 +3170,16 @@ Export findings:
 - `src/services/shacl-validation.ts:46` `ShaclSeverity` (const) - 1 schema annotation/type-alias gap(s)
 - `src/services/sparql-query.ts:42` `SparqlQueryProfile` (const) - 1 schema annotation/type-alias gap(s)
 
+### @beep/architecture-lab-tables
+
+Path: `packages/architecture-lab/tables`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
+
 ### @beep/op-ip-web
 
 Path: `apps/op-ip-web`
@@ -3134,6 +3190,16 @@ Export findings:
 - `src/app/manifest.ts:16` `default` (function) - missing @example
 - `src/app/page.tsx:17` `default` (function) - missing @example
 - `src/mdx-components.tsx:18` `useMDXComponents` (function) - missing @example
+
+### @beep/architecture-lab-use-cases
+
+Path: `packages/architecture-lab/use-cases`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
 
 ### @beep/acp
 
@@ -3190,6 +3256,16 @@ Export findings:
 - `src/app/page.tsx:17` `default` (function) - missing @example
 - `src/mdx-components.tsx:18` `useMDXComponents` (function) - missing @example
 
+### @beep/architecture-lab-config
+
+Path: `packages/architecture-lab/config`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
+
 ### @beep/fixture-lab-specimen-client
 
 Path: `packages/fixture-lab/specimen/client`
@@ -3204,6 +3280,26 @@ Export findings:
 - `src/entities/Specimen/Specimen.service.ts:75` `SpecimenClientTransport` (interface) - 1 unsafe example violation(s)
 - `src/entities/Specimen/Specimen.service.ts:96` `SpecimenClient` (interface) - 1 unsafe example violation(s)
 - `src/entities/Specimen/Specimen.service.ts:118` `makeSpecimenClient` (const) - 1 unsafe example violation(s)
+
+### @beep/architecture-lab-server
+
+Path: `packages/architecture-lab/server`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
+
+### @beep/architecture-lab-proof
+
+Path: `apps/architecture-lab-proof`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
 
 ### @beep/openai
 
@@ -3222,3 +3318,13 @@ Export findings:
 - `src/index.ts:30` `export * from "./Postgres.errors.ts";` (re-export) - missing @example
 - `src/index.ts:38` `export * from "./Postgres.format.ts";` (re-export) - missing @example
 - `src/index.ts:46` `export * from "./Postgres.sqlstate.ts";` (re-export) - missing @example
+
+### @beep/architecture-lab-domain
+
+Path: `packages/architecture-lab/domain`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example
