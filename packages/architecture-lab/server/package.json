@@ -67,6 +67,7 @@
     "@beep/architecture-lab-use-cases": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/postgres": "workspace:^",
+    "@beep/schema": "workspace:^",
     "drizzle-orm": "catalog:",
     "effect": "catalog:"
   },

@@ -136,6 +136,12 @@
       ],
       "@beep/postgres": ["../../../packages/drivers/postgres/src/index.ts"],
       "@beep/postgres/*": ["../../../packages/drivers/postgres/src/*.ts"],
+      "@beep/schema": [
+        "../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/foundation/modeling/schema/src/*.ts"
+      ],
       "@beep/test-utils": [
         "../../../packages/tooling/test-kit/test-utils/src/index.ts"
       ],

@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,6 +10,7 @@ import {
   encodeCanonicalSliceOperationPlanJson,
   makeArchitectureOperationPlan,
   makeCanonicalSliceOperationPlan,
+  WriteFileOperation,
 } from "@beep/repo-cli/commands/Architecture/index";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
@@ -105,6 +106,40 @@ describe("architecture operation plan", () => {
       expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/src/identity/ResearchLab.ts");
       expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/src/aggregates/Ticket/Ticket.model.ts");
       expect(check.idempotent).toBe(true);
+    })
+  );
+
+  it.effect("rejects operation paths that escape the repository root before writing files", () =>
+    Effect.gen(function* () {
+      const rootName = `beep-architecture-escape-${Date.now()}`;
+      const tempRoot = join(tmpdir(), rootName);
+      const outsideFileName = `${rootName}-outside.txt`;
+      const outsidePath = join(tmpdir(), outsideFileName);
+      const plan = makeCanonicalSliceOperationPlan();
+      const escapedPlan = new CanonicalSliceOperationPlan({
+        ...plan,
+        operations: [
+          new WriteFileOperation({
+            kind: "write-file",
+            role: "domain",
+            path: `../${outsideFileName}`,
+            writer: "template",
+            content: "escaped\n",
+            description: "Escaping write must be rejected.",
+          }),
+        ],
+      });
+
+      const error = yield* applyCanonicalSliceOperationPlan(tempRoot, escapedPlan).pipe(
+        Effect.provide(NodeServices.layer),
+        Effect.flip
+      );
+      const outsideExists = existsSync(outsidePath);
+
+      rmSync(tempRoot, { force: true, recursive: true });
+      rmSync(outsidePath, { force: true });
+      expect(error.message).toContain("Architecture operation path escapes repository root");
+      expect(outsideExists).toBe(false);
     })
   );
 

@@ -8,7 +8,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
-import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { LiteralKit, normalizePath, SchemaUtils } from "@beep/schema";
 import { Str as CommonStr, Text, thunkFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, Path, pipe } from "effect";
 import * as A from "effect/Array";
@@ -1295,6 +1295,19 @@ const pathExists = Effect.fn(function* (absolutePath: string) {
   return yield* fs.exists(absolutePath).pipe(Effect.orElseSucceed(thunkFalse));
 });
 
+const resolveOperationPath = Effect.fn(function* (rootDir: string, operationPath: string) {
+  const path = yield* Path.Path;
+  const resolvedRoot = path.resolve(rootDir);
+  const resolvedPath = path.resolve(resolvedRoot, operationPath);
+  const relativeFromRoot = normalizePath(path.relative(resolvedRoot, resolvedPath));
+
+  if (path.isAbsolute(operationPath) || relativeFromRoot === ".." || Str.startsWith("../")(relativeFromRoot)) {
+    return yield* DomainError.newMessage(`Architecture operation path escapes repository root: ${operationPath}`);
+  }
+
+  return resolvedPath;
+});
+
 /**
  * Validate a decoded operation plan against a repository root.
  *
@@ -1313,13 +1326,12 @@ export const checkCanonicalSliceOperationPlan: {
   2,
   Effect.fn(function* (rootDir: string, plan: CanonicalSliceOperationPlan) {
     const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
     const missingPaths: Array<string> = [];
     const differingPaths: Array<string> = [];
     const unexpectedPaths: Array<string> = [];
 
     for (const operation of plan.operations) {
-      const operationPath = path.join(rootDir, operation.path);
+      const operationPath = yield* resolveOperationPath(rootDir, operation.path);
       const exists = yield* pathExists(operationPath);
       if (operation.kind === "ensure-file" && !exists) {
         missingPaths.push(operation.path);
@@ -1374,7 +1386,7 @@ export const applyCanonicalSliceOperationPlan: {
     const removedPaths: Array<string> = [];
 
     for (const operation of plan.operations) {
-      const operationPath = path.join(rootDir, operation.path);
+      const operationPath = yield* resolveOperationPath(rootDir, operation.path);
       if (operation.kind === "ensure-file") {
         if (yield* pathExists(operationPath)) {
           skippedPaths.push(operation.path);
