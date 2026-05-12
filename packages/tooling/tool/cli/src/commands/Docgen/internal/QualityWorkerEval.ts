@@ -14,7 +14,7 @@ import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { DateTime, Duration, Effect, FileSystem, Match, Order, Path, pipe, Result } from "effect";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -658,19 +658,15 @@ const packageForPacket = (
 ): O.Option<QualityPackageReport> =>
   A.findFirst(report.packages, (pkg) => O.isSome(findSubject(pkg, packet.subjectId)));
 
-const reviewFindingCodes = (review: O.Option<QualityReview>): ReadonlyArray<DocgenQualityFindingCodeValue> =>
-  pipe(
-    review,
-    O.map((value) => A.map(value.findings, (finding) => finding.code)),
-    O.getOrElse(A.empty<DocgenQualityFindingCodeValue>)
-  );
+const reviewFindingCodes: (review: O.Option<QualityReview>) => ReadonlyArray<DocgenQualityFindingCodeValue> = flow(
+  O.map((value) => A.map(value.findings, (finding) => finding.code)),
+  O.getOrElse(A.empty<DocgenQualityFindingCodeValue>)
+);
 
-const reviewImpact = (review: O.Option<QualityReview>): number =>
-  pipe(
-    review,
-    O.map((value) => A.reduce(value.findings, 0, (total, finding) => total + finding.scoreImpact)),
-    O.getOrElse(() => 0)
-  );
+const reviewImpact: (review: O.Option<QualityReview>) => number = flow(
+  O.map((value) => A.reduce(value.findings, 0, (total, finding) => total + finding.scoreImpact)),
+  O.getOrElse(() => 0)
+);
 
 const packetCandidate = (report: DocgenQualityReport, packet: QualityRemediationPacket): PacketCandidate => {
   const pkg = packageForPacket(report, packet);
@@ -739,7 +735,7 @@ export const selectQualityWorkerEvalPackets: {
   const grouped = pipe(
     candidates,
     A.groupBy((candidate) => candidate.packagePath),
-    R.map((values) => pipe(values, A.sort(packetCandidateOrder)))
+    R.map(flow(A.sort(packetCandidateOrder)))
   );
   const packagePaths = pipe(R.keys(grouped), A.sort(Order.String));
   const maxGroupSize = pipe(
@@ -1022,15 +1018,13 @@ const summarizePacketResults = (
     rejected: A.filter(packets, (packet) => packet.reviewDisposition === "reject").length,
   });
 
-const summarizePolicyViolations = (
+const summarizePolicyViolations: (
   packets: ReadonlyArray<DocgenQualityWorkerEvalPacketResult>
-): ReadonlyArray<DocgenQualityWorkerEvalPolicyViolationCode> =>
-  pipe(
-    packets,
-    A.flatMap((packet) => packet.policyViolationCodes),
-    A.dedupe,
-    A.sort(Order.String)
-  );
+) => ReadonlyArray<DocgenQualityWorkerEvalPolicyViolationCode> = flow(
+  A.flatMap((packet) => packet.policyViolationCodes),
+  A.dedupe,
+  A.sort(Order.String)
+);
 
 const recommendationForSummary = (summary: DocgenQualityWorkerEvalSummary): string => {
   if (summary.selectedPackets === 0) {

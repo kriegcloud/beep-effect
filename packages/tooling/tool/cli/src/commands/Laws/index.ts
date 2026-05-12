@@ -385,4 +385,4 @@ export const lawsCommand = Command.make(
     lawsTerseEffectCommand,
     lawsAllowlistCheckCommand,
   ])
-);
+) as Command.Command<"laws", {}, {}, never, never>;
