@@ -161,6 +161,166 @@ Scorecard summary:
 | `config-d0b05a2d64c9c40c21e0df11f8cfc611be5ce41139f52f4db79b77f73ca895bc` | 5 | 1 | 1 | yes | unavailable model/tool/cost metrics |
 | `config-910eecbb488885f42c4caea393b4dd4512bee62869a1f0df7c9a27d42839ebf1` | 10 | 0 | 0 | no | `no_labels`, `no_benchmark_runs`, unavailable model/tool/cost metrics |
 
+## May 12, 2026 P6c/P7a-b Safe Proof
+
+Collected at approximately May 12, 2026 07:02-07:11 America/Chicago.
+
+This pass reconciled the merged P7a/b implementation with the still-running P6
+proof. It did not rerender the timer, update the pinned proof worktree, write
+outcome labels, confirm remote mirror sync, run retention delete/compact, or
+write mirror artifacts into the active proof data root.
+
+### Timer And Proof Runner
+
+- Follow-up branch:
+  `codex/ai-metrics-p6c-p7-followup`
+- Proof runner worktree:
+  `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
+- Proof runner state: detached and locked with reason
+  `AI metrics P6 proof runner pinned through 2026-05-16`
+- Proof runner commit:
+  `63c419721c735bfb860ccfa9bf1b31efbb23e33c`
+- Installed service working directory:
+  `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
+- Installed service data root:
+  `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics`
+- Timer state: enabled, active, next scheduled run May 12, 2026 07:12:14
+  America/Chicago
+- Last scheduled service run:
+  - start: May 12, 2026 06:56:36 America/Chicago
+  - exit: May 12, 2026 06:56:54 America/Chicago
+  - state: `inactive`
+  - result: `success`
+  - exit status: `0`
+
+### Latest Forwarder Status
+
+- Ingest run:
+  `forwarder-1778586999944`
+- Config snapshot:
+  `config-6c5738fd0e1932ced6043ab52c7df04e52278b1024470769243b724c265f7d52`
+- Source files: `5`
+- Derived turns: `1300`
+- Source coverage:
+  - Codex: `178` candidates, `5` included, `limitedByMaxFiles=true`,
+    `14` size-excluded
+  - Claude Code: `0` candidates, `0` included
+  - OpenClaw: `0` candidates, `0` included
+- Parquet export:
+  `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/derived/parquet/forwarder-1778586999944`
+- `otlpExport`: `null` because the pinned proof runner still predates the
+  later additive forwarder OTLP status behavior.
+
+### Phoenix Health
+
+- Endpoint: `https://dankserver.tailc7c348.ts.net:8447/`
+- HTTP status: `200`
+- Phoenix version header: `15.5.0`
+
+### Source Discovery
+
+Recent source discovery with `--max-files 50`:
+
+| sourceKind | candidates | included | limitedByMaxFiles | status |
+| --- | ---: | ---: | --- | --- |
+| `codex` | 192 | 50 | yes | available |
+| `claude` | 0 | 0 | no | missing source root |
+| `openclaw` | 0 | 0 | no | outside selected modified-time window |
+
+The active proof remains Codex-only in the recent source window.
+
+### Labels
+
+No labels were written during this pass. The isolated-runner config still needs
+at least one explicit human-approved outcome label before it can be
+completion-ready.
+
+Deploy-safe queued candidates for the isolated-runner config:
+
+| agentTaskId | sourceKind | turnCount |
+| --- | --- | ---: |
+| `agent-task-39551a738402b9c791196b3de15fa175bf769e842f3bb9ec0d1ce0bbe80eb412` | `codex` | 667 |
+| `agent-task-f86914324ec15a092d633bbc488c0805753ffcad47f05264fe7856cc94a899fd` | `codex` | 237 |
+| `agent-task-65680d514e2390632e656a50fbc3901bbf9f960922145caa48f018b7ada7b367` | `codex` | 971 |
+| `agent-task-c334eba9e05c99e900fdd45f85e862e4e0a2760aa4ca01989a87aab0747d2890` | `codex` | 674 |
+| `agent-task-48742b6c550eb989114387986a1a9240911d6e0b54f7d4c1994b5a7677bf0f82` | `codex` | 716 |
+| `agent-task-13273f8bab1d156c6d328c5aa62df35ac67517941c0d053a2e34df01c7d1002b` | `codex` | 500 |
+| `agent-task-996c5816d995a4eea270f20aa95f31f651f694bc5b4c7ac28bd29971ed706936` | `codex` | 1606 |
+| `agent-task-74e4bc43392308fde95146540c04d790132ad90c41db698ea3b6ab863f8119c2` | `codex` | 2911 |
+| `agent-task-9294bfe8f5811865405c8bb55ac3c1828251deda61d61e35e66d652fb6692221` | `codex` | 1687 |
+| `agent-task-9b229e6e7b921d951a225503edc0c85dcd8d338eeb8e04bc24ec56c11d15f1de` | `codex` | 2617 |
+
+### Benchmarks And Report State
+
+Benchmark case list returned two cases:
+
+- `ai-metrics-p6-proof-runner-isolation`
+- `ai-metrics-p6a-closeout-smoke`
+
+Latest existing weekly report inspected:
+
+- Markdown:
+  `.beep/ai-metrics/reports/weekly-1777952495719-1778557295719.md`
+- JSON:
+  `.beep/ai-metrics/reports/weekly-1777952495719-1778557295719.json`
+
+Scorecard summary:
+
+| configSnapshotId | tasks | labels | benchmarks | completionReady | gaps |
+| --- | ---: | ---: | ---: | --- | --- |
+| `config-6c5738fd0e1932ced6043ab52c7df04e52278b1024470769243b724c265f7d52` | 26 | 0 | 2 | no | `no_labels`, unavailable model/tool/cost metrics |
+| `config-910eecbb488885f42c4caea393b4dd4512bee62869a1f0df7c9a27d42839ebf1` | 10 | 0 | 0 | no | `no_labels`, `no_benchmark_runs`, unavailable model/tool/cost metrics |
+| `config-d0b05a2d64c9c40c21e0df11f8cfc611be5ce41139f52f4db79b77f73ca895bc` | 5 | 1 | 1 | yes | unavailable model/tool/cost metrics |
+
+### P7 Mirror And Retention Proof
+
+- Copied the active proof data root to disposable root
+  `/tmp/ai-metrics-p7-proof-data` for mirror build proof.
+- Disposable copy size: `3.5G`.
+- Mirror build succeeded:
+  - bundle id: `p7-mirror-1778587546832`
+  - bundle root:
+    `/tmp/ai-metrics-p7-proof-data/mirror/bundles/p7-mirror-1778587546832`
+  - privacy proof: `safe=true`, `forbiddenMatches=[]`
+  - omitted table: `ai_metrics_raw_archive_objects`
+  - mirror work DuckDB was cleaned after build
+- Mirror row counts:
+
+| table | rows |
+| --- | ---: |
+| `ai_metrics_ingest_runs` | 117 |
+| `ai_metrics_source_files` | 595 |
+| `ai_metrics_agent_tasks` | 69 |
+| `ai_metrics_sessions` | 595 |
+| `ai_metrics_turns` | 412929 |
+| `ai_metrics_model_calls` | 0 |
+| `ai_metrics_tool_invocations` | 0 |
+| `ai_metrics_outcome_labels` | 1 |
+| `ai_metrics_benchmark_cases` | 2 |
+| `ai_metrics_benchmark_runs` | 3 |
+| `ai_metrics_scorecards` | 24 |
+
+- Mirror sync stayed dry-run and planned only:
+  - `ssh dankserver-yubi mkdir -p /srv/data/ai-metrics/p7-derived-mirror`
+  - `rsync -az --delete ... dankserver-yubi:/srv/data/ai-metrics/p7-derived-mirror/`
+  - confirmation token remains `p7-derived-mirror`
+- Remote mirror status is not present yet. Direct remote check showed
+  `/srv/data/ai-metrics/p7-derived-mirror/manifest.json` is `missing`, which is
+  expected because no confirmed sync was run.
+- Retention inventory against the active root succeeded without mutation:
+  - raw archive object rows: `595`
+  - derived export directories: `122`
+  - report files: `18`
+- Restore drill first rejected the disposable copy because copied DuckDB rows
+  still point at the active raw archive layout; that path validation is
+  expected for copied data roots.
+- Restore drill then used the active root as read source and
+  `/tmp/ai-metrics-p7-restore` as disposable restore target for the bounded
+  window `2026-05-12T11:00:00Z` to `2026-05-12T13:00:00Z`:
+  - replayed objects: `1`
+  - hash matched: `true`
+  - transcript text printed: `false`
+
 ## Remaining Pre-May-16 Work
 
 - Add at least one human-approved label for
@@ -169,5 +329,7 @@ Scorecard summary:
   snapshot flips to `completionReady=true`.
 - Continue daily timer/Phoenix/source/report health checks without changing the
   proof runner or source window.
-- Keep P7 work limited to planning until the credited proof window completes or
-  is explicitly abandoned.
+- Keep additional P7 work limited to P7a/b health proof and documentation until
+  the credited proof window completes or is explicitly abandoned. Any P7 proof
+  that writes mirror or restore artifacts must run against a disposable copy of
+  the proof data root rather than the active root.
