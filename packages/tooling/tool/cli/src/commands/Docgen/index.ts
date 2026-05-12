@@ -9,7 +9,7 @@
  */
 
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
-import { Console, Effect, FileSystem, Path, pipe } from "effect";
+import { Console, Effect, FileSystem, Match, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -765,10 +765,10 @@ const docgenQualityWorkerEvalCommand = Command.make(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
-      const resolvedReasoningEffort =
-        provider === "codex"
-          ? pipe(reasoningEffort, O.getOrElse(defaultQualityWorkerEvalReasoningEffort))
-          : O.getOrUndefined(reasoningEffort);
+      const resolvedReasoningEffort = Match.value(provider).pipe(
+        Match.when("codex", () => pipe(reasoningEffort, O.getOrElse(defaultQualityWorkerEvalReasoningEffort))),
+        Match.orElse(() => O.getOrUndefined(reasoningEffort))
+      );
       const reasoningOptions = pipe(
         O.fromNullishOr(resolvedReasoningEffort),
         O.map((value) => ({ reasoningEffort: value })),

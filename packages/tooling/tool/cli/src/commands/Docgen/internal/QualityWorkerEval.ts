@@ -12,12 +12,11 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
-import { DateTime, Duration, Effect, FileSystem, Order, Path, pipe } from "effect";
+import { DateTime, Duration, Effect, FileSystem, Match, Order, Path, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import {
@@ -36,6 +35,34 @@ const JSON_FORMAT_MAX_LENGTH = 500_000;
 
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 const decodeQualityReportJson = S.decodeUnknownEffect(S.fromJsonString(DocgenQualityReport));
+
+const DocgenQualityWorkerEvalLocalScore = S.Number.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThanOrEqualTo(1, {
+        identifier: $I`DocgenQualityWorkerEvalLocalScoreMinimumCheck`,
+        title: "Docgen Quality Worker Eval Local Score Minimum",
+        description: "Worker eval local scores must be at least one.",
+        message: "Expected a worker eval local score greater than or equal to one",
+      }),
+      S.isLessThanOrEqualTo(10, {
+        identifier: $I`DocgenQualityWorkerEvalLocalScoreMaximumCheck`,
+        title: "Docgen Quality Worker Eval Local Score Maximum",
+        description: "Worker eval local scores must not exceed ten.",
+        message: "Expected a worker eval local score less than or equal to ten",
+      }),
+    ],
+    {
+      identifier: $I`DocgenQualityWorkerEvalLocalScoreChecks`,
+      title: "Docgen Quality Worker Eval Local Score",
+      description: "Inclusive one-to-ten score bounds for advisory worker eval output.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("DocgenQualityWorkerEvalLocalScore", {
+    description: "Inclusive one-to-ten advisory score emitted by a worker eval.",
+  })
+);
 
 class CodexSdkPackageMetadata extends S.Class<CodexSdkPackageMetadata>($I`CodexSdkPackageMetadata`)(
   {
@@ -285,7 +312,7 @@ export class DocgenQualityWorkerEvalWorkerOutput extends S.Class<DocgenQualityWo
   $I`DocgenQualityWorkerEvalWorkerOutput`
 )(
   {
-    localScore: S.Number,
+    localScore: DocgenQualityWorkerEvalLocalScore,
     rationale: S.String,
     draftJsDoc: S.String,
     policyViolationCodes: S.Array(DocgenQualityWorkerEvalPolicyViolationCode),
@@ -321,7 +348,7 @@ class DocgenQualityWorkerEvalPacketResult extends S.Class<DocgenQualityWorkerEva
     packagePath: S.String,
     findingCodes: S.Array(DocgenQualityFindingCode),
     status: DocgenQualityWorkerEvalPacketStatus,
-    localScore: S.NullOr(S.Number),
+    localScore: S.NullOr(DocgenQualityWorkerEvalLocalScore),
     rationale: S.String,
     draftJsDoc: S.String,
     expectedVerificationCommand: S.String,
@@ -502,11 +529,17 @@ const errorMessage = (error: unknown): string =>
 const fileUrlPath = (value: string): string => decodeURIComponent(new URL(value).pathname);
 
 const providerHint = (provider: DocgenQualityWorkerEvalProvider): string =>
-  provider === "ollama"
-    ? "Ensure Ollama is installed, the service is running, and the requested model has been pulled."
-    : provider === "lmstudio"
-      ? "Ensure LM Studio is running with an OpenAI-compatible local server and the requested model is loaded."
-      : "Ensure Codex authentication is configured for the hosted model.";
+  Match.value(provider).pipe(
+    Match.when(
+      "ollama",
+      () => "Ensure Ollama is installed, the service is running, and the requested model has been pulled."
+    ),
+    Match.when(
+      "lmstudio",
+      () => "Ensure LM Studio is running with an OpenAI-compatible local server and the requested model is loaded."
+    ),
+    Match.orElse(() => "Ensure Codex authentication is configured for the hosted model.")
+  );
 
 const renderJson = Effect.fn("DocgenQualityWorkerEval.renderJson")(function* (value: unknown) {
   const encoded = yield* encodeJson(value).pipe(
@@ -528,7 +561,7 @@ const qualityWorkerEvalWorkerOutputJsonSchema = {
   type: "object",
   additionalProperties: false,
   properties: {
-    localScore: { type: "number" },
+    localScore: { type: "number", minimum: 1, maximum: 10 },
     rationale: { type: "string" },
     draftJsDoc: { type: "string" },
     policyViolationCodes: {
@@ -757,15 +790,19 @@ const resolveCodexSdkVersionOrUnknown: Effect.Effect<string, never, FileSystem.F
 const defaultCodexRunner: DocgenQualityWorkerEvalRunner = Effect.fn("DocgenQualityWorkerEval.defaultCodexRunner")(
   function* ({ model, prompt, provider, reasoningEffort, workingDirectory }) {
     const sdkModule = yield* importCodexSdk();
-    const codexOptions =
-      provider === "codex"
-        ? {}
-        : {
-            config: {
-              model_provider: provider,
-              oss_provider: provider,
-            },
-          };
+    const codexOptions = Match.value(provider).pipe(
+      Match.when("codex", () => ({
+        config: {
+          model_provider: "openai",
+        },
+      })),
+      Match.orElse((provider) => ({
+        config: {
+          model_provider: provider,
+          oss_provider: provider,
+        },
+      }))
+    );
     const reasoningThreadOptions = pipe(
       O.fromNullishOr(reasoningEffort),
       O.map((modelReasoningEffort) => ({ modelReasoningEffort })),
@@ -989,9 +1026,23 @@ const recommendationForSummary = (summary: DocgenQualityWorkerEvalSummary): stri
  * @returns Effect that yields the decoded quality report.
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { decodeDocgenQualityReportForWorkerEval } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  *
- * console.log(decodeDocgenQualityReportForWorkerEval)
+ * const qualityReportJson = JSON.stringify({
+ *   schemaVersion: 2,
+ *   rubricVersion: "jsdoc-quality-v1",
+ *   generatedAt: "2026-05-12T00:00:00.000Z",
+ *   scope: "all",
+ *   scorer: "rubric",
+ *   summary: { packages: 0, subjects: 0, passing: 0, warnings: 0, failures: 0, remediationPackets: 0 },
+ *   packages: [],
+ *   remediationPackets: []
+ * })
+ * const subjectCount = Effect.runSync(
+ *   decodeDocgenQualityReportForWorkerEval(qualityReportJson).pipe(Effect.map((report) => report.summary.subjects))
+ * )
+ * console.log(subjectCount)
  * ```
  * @category decoding
  * @since 0.0.0
@@ -1053,13 +1104,42 @@ export const defaultQualityWorkerEvalReasoningEffort = (): DocgenQualityWorkerEv
 /**
  * Build a read-only worker eval report from a quality report.
  *
- * @effects Resolves the repository root and runs read-only Codex worker turns
- * through the configured runner.
+ * @effects
+ * - Resolves the repository root via `findRepoRoot`.
+ * - Runs read-only Codex worker turns through the configured runner; never edits source files.
  * @example
  * ```ts
- * import { analyzeDocgenQualityWorkerEval } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
+ * import { Effect } from "effect"
+ * import {
+ *   analyzeDocgenQualityWorkerEval,
+ *   decodeDocgenQualityReportForWorkerEval
+ * } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  *
- * console.log(analyzeDocgenQualityWorkerEval)
+ * const qualityReportJson = JSON.stringify({
+ *   schemaVersion: 2,
+ *   rubricVersion: "jsdoc-quality-v1",
+ *   generatedAt: "2026-05-12T00:00:00.000Z",
+ *   scope: "all",
+ *   scorer: "rubric",
+ *   summary: { packages: 0, subjects: 0, passing: 0, warnings: 0, failures: 0, remediationPackets: 0 },
+ *   packages: [],
+ *   remediationPackets: []
+ * })
+ * const selectedPacketCount = decodeDocgenQualityReportForWorkerEval(qualityReportJson).pipe(
+ *   Effect.flatMap((report) =>
+ *     analyzeDocgenQualityWorkerEval({
+ *       codexSdkVersion: "example-sdk",
+ *       model: "gpt-5.4-mini",
+ *       packetLimit: 0,
+ *       provider: "codex",
+ *       report,
+ *       scope: "input",
+ *       sourceQualityReport: "quality.json"
+ *     })
+ *   ),
+ *   Effect.map((report) => report.summary.selectedPackets)
+ * )
+ * console.log(selectedPacketCount)
  * ```
  * @category use-cases
  * @since 0.0.0
@@ -1133,9 +1213,39 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
  * @returns Effect that yields stable pretty JSON.
  * @example
  * ```ts
- * import { generateQualityWorkerEvalJson } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
+ * import { Effect } from "effect"
+ * import {
+ *   analyzeDocgenQualityWorkerEval,
+ *   decodeDocgenQualityReportForWorkerEval,
+ *   generateQualityWorkerEvalJson
+ * } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  *
- * console.log(generateQualityWorkerEvalJson)
+ * const qualityReportJson = JSON.stringify({
+ *   schemaVersion: 2,
+ *   rubricVersion: "jsdoc-quality-v1",
+ *   generatedAt: "2026-05-12T00:00:00.000Z",
+ *   scope: "all",
+ *   scorer: "rubric",
+ *   summary: { packages: 0, subjects: 0, passing: 0, warnings: 0, failures: 0, remediationPackets: 0 },
+ *   packages: [],
+ *   remediationPackets: []
+ * })
+ * const hasSchemaVersion = decodeDocgenQualityReportForWorkerEval(qualityReportJson).pipe(
+ *   Effect.flatMap((report) =>
+ *     analyzeDocgenQualityWorkerEval({
+ *       codexSdkVersion: "example-sdk",
+ *       model: "gpt-5.4-mini",
+ *       packetLimit: 0,
+ *       provider: "codex",
+ *       report,
+ *       scope: "input",
+ *       sourceQualityReport: "quality.json"
+ *     })
+ *   ),
+ *   Effect.flatMap(generateQualityWorkerEvalJson),
+ *   Effect.map((json) => json.includes("\"schemaVersion\": 1"))
+ * )
+ * console.log(hasSchemaVersion)
  * ```
  * @category formatting
  * @since 0.0.0

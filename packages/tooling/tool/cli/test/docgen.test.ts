@@ -1646,6 +1646,34 @@ export type TypeValue = string;
           });
 
           expect(localProviderReport.reasoningEffort).toBeNull();
+
+          const outOfRangeScoreRunner: DocgenQualityWorkerEvalRunner = () =>
+            Effect.succeed({
+              finalResponse: encodeJson({
+                localScore: 11,
+                rationale: "The worker returned an out-of-range score.",
+                draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
+                policyViolationCodes: [],
+                reviewDisposition: "candidate",
+              }),
+            });
+          const outOfRangeScoreReport = yield* analyzeDocgenQualityWorkerEval({
+            codexSdkVersion: "test-sdk",
+            model: "gpt-5.4-mini",
+            packetLimit: 1,
+            provider: "codex",
+            reasoningEffort: "low",
+            report,
+            runner: outOfRangeScoreRunner,
+            scope: "input",
+            sourceQualityReport: "quality.json",
+          });
+          const failedPacket = outOfRangeScoreReport.packets[0];
+
+          expect(outOfRangeScoreReport.summary.failed).toBe(1);
+          expect(failedPacket?.status).toBe("failed");
+          expect(failedPacket?.localScore).toBeNull();
+          expect(failedPacket?.error).toContain("Worker returned invalid eval JSON");
         })
       )
     );
