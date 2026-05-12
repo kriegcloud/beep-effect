@@ -30,6 +30,7 @@ type MirrorTableProjection = {
 
 type ForbiddenTokenCheck = {
   readonly label: string;
+  readonly matchMode?: "substring" | "json-string";
   readonly value: string;
 };
 
@@ -574,9 +575,13 @@ const privacyProofFor = (
   additionalForbiddenTokens: ReadonlyArray<ForbiddenTokenCheck> = A.empty<ForbiddenTokenCheck>()
 ): AiMetricsMirrorPrivacyProof => {
   const checkedTokens = [...forbiddenFieldTokens, ...additionalForbiddenTokens];
+  const tokenMatchesPayload = (token: ForbiddenTokenCheck): boolean =>
+    token.matchMode === "json-string"
+      ? Str.includes(globalThis.JSON.stringify(token.value))(payload)
+      : Str.includes(token.value)(payload);
   const forbiddenMatches = pipe(
     checkedTokens,
-    A.filter((token) => Str.includes(token.value)(payload)),
+    A.filter(tokenMatchesPayload),
     A.map((token) => token.label)
   );
 
@@ -687,12 +692,12 @@ export const buildAiMetricsMirrorBundle = Effect.fn("AiMetrics.buildAiMetricsMir
   const statusJson = yield* encodeJson(status).pipe(
     Effect.mapError((cause) => mirrorFailure("Failed to encode AI metrics mirror status JSON.", cause))
   );
-  const forbiddenLocalTokens = [
-    { label: "dataRoot", value: input.dataRoot },
-    { label: "sourceDuckDbPath", value: sourceDuckDbPath },
-    { label: "rawDir", value: path.join(input.dataRoot, "raw") },
-    { label: "derivedDir", value: path.join(input.dataRoot, "derived") },
-    { label: "configSnapshotsDir", value: path.join(input.dataRoot, "config-snapshots") },
+  const forbiddenLocalTokens: ReadonlyArray<ForbiddenTokenCheck> = [
+    { label: "dataRoot", matchMode: "json-string", value: input.dataRoot },
+    { label: "sourceDuckDbPath", matchMode: "json-string", value: sourceDuckDbPath },
+    { label: "rawDir", matchMode: "json-string", value: path.join(input.dataRoot, "raw") },
+    { label: "derivedDir", matchMode: "json-string", value: path.join(input.dataRoot, "derived") },
+    { label: "configSnapshotsDir", matchMode: "json-string", value: path.join(input.dataRoot, "config-snapshots") },
   ];
   const rowCounts = pipe(
     tables,
@@ -751,6 +756,9 @@ export const buildAiMetricsMirrorBundle = Effect.fn("AiMetrics.buildAiMetricsMir
       )
     )
     .pipe(Effect.mapError((cause) => mirrorFailure("Failed to write latest AI metrics mirror pointer.", cause)));
+  yield* fs
+    .remove(mirrorWorkDir, { force: true, recursive: true })
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to clean up AI metrics mirror working directory.", cause)));
 
   return new AiMetricsMirrorBundleResult({
     bundleDir,

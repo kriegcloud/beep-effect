@@ -7,7 +7,7 @@
 
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { Clock, Effect, FileSystem, flow, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
@@ -33,6 +33,7 @@ const defaultLocalDataRoot = ".beep/ai-metrics";
 const retentionSchemaVersion = "beep.ai_metrics.retention_inventory.v1";
 const retentionMutationSchemaVersion = "beep.ai_metrics.retention_mutation.v1";
 const restoreDrillSchemaVersion = "beep.ai_metrics.retention_restore_drill.v1";
+const AiMetricsRetentionMutationMode = LiteralKit(["delete", "compact"] as const);
 
 type RawArchivePlanItem = {
   readonly archiveObjectId: string;
@@ -253,7 +254,7 @@ export class AiMetricsRetentionMutationResult extends S.Class<AiMetricsRetention
     deletedReportCount: S.Number,
     dryRun: S.Boolean,
     explicitWindow: S.Boolean,
-    mode: S.Union([S.Literal("delete"), S.Literal("compact")]),
+    mode: AiMetricsRetentionMutationMode,
     schemaVersion: S.String,
   },
   $I.annote("AiMetricsRetentionMutationResult", {
@@ -560,7 +561,13 @@ export const listAiMetricsRetentionInventory = Effect.fn("AiMetrics.listAiMetric
 
 const deleteRowsForPlan = Effect.fn("AiMetrics.retention.deleteRowsForPlan")(function* (plan: RetentionPlan) {
   const duckdb = yield* DuckDb;
-  if (A.isReadonlyArrayEmpty(plan.ingestRunIds) && A.isReadonlyArrayEmpty(plan.rawArchiveItems)) {
+  if (
+    A.isReadonlyArrayEmpty(plan.ingestRunIds) &&
+    A.isReadonlyArrayEmpty(plan.rawArchiveItems) &&
+    A.isReadonlyArrayEmpty(plan.labelIds) &&
+    A.isReadonlyArrayEmpty(plan.benchmarkRunIds) &&
+    A.isReadonlyArrayEmpty(plan.scorecardIds)
+  ) {
     return;
   }
 
@@ -579,27 +586,25 @@ const deleteRowsForPlan = Effect.fn("AiMetrics.retention.deleteRowsForPlan")(fun
     yield* duckdb.run(`DELETE FROM ai_metrics_scorecards WHERE scorecard_id IN (${scorecardIds})`);
   }
   if (Str.isNonEmpty(runIds)) {
-    yield* duckdb.run(
-      `DELETE FROM ai_metrics_outcome_labels
-        WHERE agent_task_id IN (
-          SELECT DISTINCT agent_task_id
-            FROM ai_metrics_sessions
-           WHERE ingest_run_id IN (${runIds})
-             AND agent_task_id IS NOT NULL
-        )`
-    );
     yield* duckdb.run(`DELETE FROM ai_metrics_turns WHERE ingest_run_id IN (${runIds})`);
     yield* duckdb.run(`DELETE FROM ai_metrics_sessions WHERE ingest_run_id IN (${runIds})`);
     yield* duckdb.run(`DELETE FROM ai_metrics_source_files WHERE ingest_run_id IN (${runIds})`);
     yield* duckdb.run(`DELETE FROM ai_metrics_model_calls WHERE ingest_run_id IN (${runIds})`);
     yield* duckdb.run(`DELETE FROM ai_metrics_tool_invocations WHERE ingest_run_id IN (${runIds})`);
     yield* duckdb.run(`DELETE FROM ai_metrics_ingest_runs WHERE ingest_run_id IN (${runIds})`);
+  }
+  if (Str.isNonEmpty(runIds) || Str.isNonEmpty(labelIds)) {
     yield* duckdb.run(
       `DELETE FROM ai_metrics_agent_tasks AS task
         WHERE NOT EXISTS (
           SELECT 1
             FROM ai_metrics_sessions AS session
            WHERE session.agent_task_id = task.agent_task_id
+        )
+          AND NOT EXISTS (
+            SELECT 1
+              FROM ai_metrics_outcome_labels AS label
+             WHERE label.agent_task_id = task.agent_task_id
         )`
     );
   }
@@ -809,7 +814,21 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
   const startedAtEpochMillis = yield* Clock.currentTimeMillis;
 
   for (const item of selected) {
-    const envelope = yield* readEncryptedRawArchiveEnvelope(item.archivePath).pipe(
+    const expectedArchivePath = path.resolve(
+      input.selector.dataRoot,
+      "raw",
+      item.sourceKind,
+      `${item.archiveObjectId}.json`
+    );
+    const selectedArchivePath = path.resolve(item.archivePath);
+    if (selectedArchivePath !== expectedArchivePath) {
+      return yield* retentionFailure("AI metrics raw archive path is outside the expected storage layout.", {
+        archiveObjectId: item.archiveObjectId,
+        expectedArchivePath,
+        selectedArchivePath,
+      });
+    }
+    const envelope = yield* readEncryptedRawArchiveEnvelope(selectedArchivePath).pipe(
       Effect.mapError((cause) =>
         retentionFailure("Failed to read retained archive object during restore drill.", cause)
       )

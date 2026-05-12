@@ -2134,15 +2134,28 @@ const validateLocalMirrorBundle = Effect.fn("AIMetrics.validateLocalMirrorBundle
 
   const manifest = yield* readMirrorManifest(path.join(bundleDir, "manifest.json"));
   yield* requireSafeMirrorManifest({ manifest, remoteRoot, target });
-  const missingParquetFiles = pipe(
+  const expectedParquetFiles = pipe(
     manifest.includedTables,
-    A.map((table) => `parquet/${table}.parquet`),
+    A.map((table) => `parquet/${table}.parquet`)
+  );
+  const missingParquetFiles = pipe(
+    expectedParquetFiles,
     A.filter((file) => !A.contains(files, file))
   );
   if (A.isReadonlyArrayNonEmpty(missingParquetFiles)) {
     return yield* new AiMetricsCommandError({
       cause: missingParquetFiles,
       message: "AI metrics mirror bundle is missing expected sanitized Parquet exports.",
+    });
+  }
+  const unexpectedParquetFiles = pipe(
+    files,
+    A.filter((file) => Str.startsWith("parquet/")(file) && !A.contains(expectedParquetFiles, file))
+  );
+  if (A.isReadonlyArrayNonEmpty(unexpectedParquetFiles)) {
+    return yield* new AiMetricsCommandError({
+      cause: unexpectedParquetFiles,
+      message: "AI metrics mirror bundle contains Parquet files not declared in the manifest.",
     });
   }
 

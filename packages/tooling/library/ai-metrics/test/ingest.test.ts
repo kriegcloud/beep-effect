@@ -1673,6 +1673,7 @@ volumes:
           expect(yield* fs.exists(path.join(bundle.parquetDir, "ai_metrics_raw_archive_objects.parquet"))).toBe(false);
           expect(yield* fs.exists(path.join(bundle.bundleDir, "mirror.duckdb"))).toBe(false);
           expect(bundle.mirrorDuckDbPath).not.toContain(bundle.bundleDir);
+          expect(yield* fs.exists(bundle.mirrorDuckDbPath)).toBe(false);
           expect(sourceFileColumns).toContain("source_path_hash");
           expect(sourceFileColumns).not.toContain("archive_path");
           expect(labelColumns).toContain("note_hash");
@@ -1781,15 +1782,43 @@ volumes:
               target: AiMetricsDeployTarget.Enum.local,
             })
           ).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          const originalArchivePath = yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            const rows = yield* duckdb.query("SELECT archive_path FROM ai_metrics_raw_archive_objects LIMIT 1");
+            return globalThis.String(rows[0]?.archive_path);
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
           yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
-            yield* duckdb.run("UPDATE ai_metrics_raw_archive_objects SET plaintext_content_hash = 'mismatch'");
+            yield* duckdb.run(
+              `UPDATE ai_metrics_raw_archive_objects SET archive_path = ${sqlString(path.join(tmpDir, "outside.json"))}`
+            );
           }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
 
           const selector = new AiMetricsRetentionSelector({
             beforeEpochMillis: 4_102_444_800_000,
             dataRoot,
           });
+          const invalidPathExit = yield* Effect.exit(
+            runAiMetricsRetentionRestoreDrill(
+              new AiMetricsRetentionRestoreDrillInput({
+                hashSalt: "test-salt",
+                maxObjects: 1,
+                rawArchiveKey,
+                restoreRoot,
+                selector,
+              })
+            )
+          );
+          expect(Exit.isFailure(invalidPathExit)).toBe(true);
+
+          yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            yield* duckdb.run(
+              `UPDATE ai_metrics_raw_archive_objects
+                  SET archive_path = ${sqlString(originalArchivePath)},
+                      plaintext_content_hash = 'mismatch'`
+            );
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
           const exit = yield* Effect.exit(
             runAiMetricsRetentionRestoreDrill(
               new AiMetricsRetentionRestoreDrillInput({
@@ -1844,6 +1873,34 @@ volumes:
 
           yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
 
+          const agentTaskId = yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            const rows = yield* duckdb.query("SELECT agent_task_id FROM ai_metrics_agent_tasks LIMIT 1");
+            return globalThis.String(rows[0]?.agent_task_id);
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            yield* duckdb.run(
+              `INSERT INTO ai_metrics_outcome_labels (
+                label_id,
+                agent_task_id,
+                rating,
+                passed,
+                quality_gate,
+                intervention_count,
+                follow_up_fix,
+                note,
+                labeled_at_epoch_ms
+              ) VALUES
+                ('inside-window-label', ${sqlString(agentTaskId)}, 1, true, 'ok', 0, false, NULL, ${
+                  beforeEpochMillis - 1
+                }),
+                ('outside-window-label', ${sqlString(agentTaskId)}, 1, true, 'ok', 0, false, NULL, ${
+                  beforeEpochMillis + 1
+                })`
+            );
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+
           const selector = new AiMetricsRetentionSelector({ beforeEpochMillis, dataRoot });
           const compactResult = yield* runAiMetricsRetentionCompact(selector, false);
           expect(compactResult.dryRun).toBe(false);
@@ -1867,11 +1924,13 @@ volumes:
               "SELECT count(*) AS count FROM ai_metrics_raw_archive_objects"
             );
             const agentTasks = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_agent_tasks");
+            const labels = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_outcome_labels");
             const sessions = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_sessions");
             const turns = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_turns");
             return {
               agentTasks: globalThis.Number(agentTasks[0]?.count),
               ingestRuns: globalThis.Number(ingestRuns[0]?.count),
+              labels: globalThis.Number(labels[0]?.count),
               rawArchiveObjects: globalThis.Number(rawArchiveObjects[0]?.count),
               sessions: globalThis.Number(sessions[0]?.count),
               sourceFiles: globalThis.Number(sourceFiles[0]?.count),
@@ -1879,13 +1938,34 @@ volumes:
             };
           }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
           expect(tableCounts).toEqual({
-            agentTasks: 0,
+            agentTasks: 1,
             ingestRuns: 0,
+            labels: 1,
             rawArchiveObjects: 0,
             sessions: 0,
             sourceFiles: 0,
             turns: 0,
           });
+
+          const labelOnlySelector = new AiMetricsRetentionSelector({
+            dataRoot,
+            sinceEpochMillis: beforeEpochMillis,
+            untilEpochMillis: beforeEpochMillis + 2,
+          });
+          const labelOnlyDelete = yield* runAiMetricsRetentionDelete(labelOnlySelector, false).pipe(
+            Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })))
+          );
+          expect(labelOnlyDelete.deletedRawArchiveObjectCount).toBe(0);
+          const labelOnlyCounts = yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            const agentTasks = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_agent_tasks");
+            const labels = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_outcome_labels");
+            return {
+              agentTasks: globalThis.Number(agentTasks[0]?.count),
+              labels: globalThis.Number(labels[0]?.count),
+            };
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          expect(labelOnlyCounts).toEqual({ agentTasks: 0, labels: 0 });
         })
       ).pipe(Effect.provide(NodeServices.layer));
     })

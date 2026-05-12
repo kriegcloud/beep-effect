@@ -1275,6 +1275,46 @@ describe("ai-metrics command", () => {
     );
   });
 
+  it("rejects mirror bundles with undeclared parquet files before sync", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(17)),
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+
+            yield* runAiMetricsCommand([
+              "mirror",
+              "build",
+              "--target",
+              "dankserver",
+              "--data-root",
+              dataRoot,
+              "--json",
+            ]);
+            const buildJson = yield* decodeMirrorBundle(yield* lastLoggedLine());
+            yield* writeText(path.join(buildJson.bundleDir, "parquet/undeclared.parquet"), "extra payload");
+
+            yield* runAiMetricsCommand([
+              "mirror",
+              "sync",
+              "--bundle",
+              "latest",
+              "--data-root",
+              dataRoot,
+              "--confirm",
+              "p7-derived-mirror",
+              "--json",
+            ]);
+
+            expect(process.exitCode).toBe(1);
+          })
+        )
+      )
+    );
+  });
+
   it("runs confirmed mirror sync only after local manifest validation", async () => {
     await Effect.runPromise(
       withTempDirectory((tmpDir) =>
