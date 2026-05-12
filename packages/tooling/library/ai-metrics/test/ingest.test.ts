@@ -11,11 +11,14 @@ import {
   AiMetricsInstallDoctorInput,
   AiMetricsInstallInput,
   AiMetricsLabelQueueInput,
+  AiMetricsMirrorBundleInput,
   AiMetricsOtlpExportInput,
   AiMetricsOutcomeLabelInput,
   AiMetricsPrivacyMode,
   AiMetricsQualityGateStatus,
   AiMetricsRawArchiveObject,
+  AiMetricsRetentionRestoreDrillInput,
+  AiMetricsRetentionSelector,
   AiMetricsSourceDiscoveryInput,
   AiMetricsTool,
   AiMetricsTranscriptSource,
@@ -24,6 +27,7 @@ import {
   aiMetricsInstallApplyDryRunToJson,
   aiMetricsInstallDoctorToJson,
   aiMetricsInstallPlanToJson,
+  buildAiMetricsMirrorBundle,
   configSnapshotToJson,
   decryptEncryptedRawArchiveEnvelope,
   discoverAiMetricsSources,
@@ -33,6 +37,8 @@ import {
   generateAiMetricsWeeklyReport,
   hashPublicTextSha256,
   listAiMetricsBenchmarkCases,
+  listAiMetricsRetentionInventory,
+  locateLatestAiMetricsMirrorBundle,
   makeAiMetricsConfigSnapshot,
   makeAiMetricsInstallApplyDryRunResult,
   makeAiMetricsInstallDoctorResult,
@@ -49,6 +55,9 @@ import {
   renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
   runAiMetricsOtlpExport,
+  runAiMetricsRetentionCompact,
+  runAiMetricsRetentionDelete,
+  runAiMetricsRetentionRestoreDrill,
   sourceDiscoveryToJson,
   summarizeTranscriptText,
   upsertAiMetricsBenchmarkCase,
@@ -57,7 +66,7 @@ import {
 } from "@beep/repo-ai-metrics";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Encoding, FileSystem, Order, Path, pipe, Redacted } from "effect";
+import { Effect, Encoding, Exit, FileSystem, Order, Path, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -90,6 +99,8 @@ const relativeSnapshotPaths = (files: ReadonlyArray<{ readonly relativePath: str
     A.map((file) => file.relativePath),
     A.sort(Order.String)
   );
+
+const sqlString = (value: string): string => `'${pipe(value, Str.replace(/'/gu, "''"))}'`;
 
 const phoenixService = <A extends { readonly tool: string }>(spec: { readonly services: ReadonlyArray<A> }) =>
   pipe(
@@ -1587,6 +1598,296 @@ volumes:
 
       expect(primary.sanitized.sourceRole).toBe("primary");
       expect(subagent.sanitized.sourceRole).toBe("subagent");
+    })
+  );
+
+  it.effect(
+    "builds a sanitized P7 mirror bundle without raw archive paths",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const rawArchiveKey = Redacted.make(Encoding.encodeBase64(new Uint8Array(32).fill(5)));
+
+          yield* writeText(
+            path.join(codexRoot, "codex.jsonl"),
+            [
+              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
+              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"SECRET_TOKEN=secret-value"}}',
+            ].join("\n")
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
+
+          yield* runAiMetricsForwarder(
+            new AiMetricsForwarderInput({
+              codexSessionsRoot: codexRoot,
+              dataRoot,
+              hashSalt: "test-salt",
+              homeDir,
+              includeAll: true,
+              rawArchiveKey,
+              repoRoot,
+              target: AiMetricsDeployTarget.Enum.local,
+            })
+          ).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+
+          const bundle = yield* buildAiMetricsMirrorBundle(
+            new AiMetricsMirrorBundleInput({
+              dataRoot,
+              remoteRoot: "/srv/data/ai-metrics/p7-derived-mirror",
+              target: AiMetricsDeployTarget.Enum.dankserver,
+            })
+          );
+          const manifestText = yield* fs.readFileString(bundle.manifestPath);
+          const statusText = yield* fs.readFileString(bundle.statusPath);
+          const sourceFileColumns = yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            const rows = yield* duckdb.query(
+              `DESCRIBE SELECT * FROM read_parquet(${sqlString(
+                path.join(bundle.parquetDir, "ai_metrics_source_files.parquet")
+              )})`
+            );
+            return A.map(rows, (row) => globalThis.String(row.column_name));
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
+          const labelColumns = yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            const rows = yield* duckdb.query(
+              `DESCRIBE SELECT * FROM read_parquet(${sqlString(
+                path.join(bundle.parquetDir, "ai_metrics_outcome_labels.parquet")
+              )})`
+            );
+            return A.map(rows, (row) => globalThis.String(row.column_name));
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
+
+          expect(bundle.manifest.privacyProof.safe).toBe(true);
+          expect(bundle.manifest.omittedTables).toContain("ai_metrics_raw_archive_objects");
+          expect(bundle.manifest.includedTables).not.toContain("ai_metrics_raw_archive_objects");
+          expect(yield* locateLatestAiMetricsMirrorBundle(dataRoot)).toBe(bundle.bundleDir);
+          expect(yield* fs.exists(path.join(bundle.parquetDir, "ai_metrics_ingest_runs.parquet"))).toBe(true);
+          expect(yield* fs.exists(path.join(bundle.parquetDir, "ai_metrics_raw_archive_objects.parquet"))).toBe(false);
+          expect(yield* fs.exists(path.join(bundle.bundleDir, "mirror.duckdb"))).toBe(false);
+          expect(bundle.mirrorDuckDbPath).not.toContain(bundle.bundleDir);
+          expect(sourceFileColumns).toContain("source_path_hash");
+          expect(sourceFileColumns).not.toContain("archive_path");
+          expect(labelColumns).toContain("note_hash");
+          expect(labelColumns).not.toContain("note");
+          expect(manifestText).not.toContain(dataRoot);
+          expect(manifestText).not.toContain("secret-value");
+          expect(statusText).not.toContain(dataRoot);
+          expect(statusText).not.toContain("secret-value");
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "lists retained inventory and replays a restore drill into disposable derived storage",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const rawArchiveKey = Redacted.make(Encoding.encodeBase64(new Uint8Array(32).fill(6)));
+          const restoreRoot = path.join(tmpDir, "restore");
+
+          yield* writeText(
+            path.join(codexRoot, "codex.jsonl"),
+            '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"restore me"}}'
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
+
+          yield* runAiMetricsForwarder(
+            new AiMetricsForwarderInput({
+              codexSessionsRoot: codexRoot,
+              dataRoot,
+              hashSalt: "test-salt",
+              homeDir,
+              includeAll: true,
+              rawArchiveKey,
+              repoRoot,
+              target: AiMetricsDeployTarget.Enum.local,
+            })
+          ).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+
+          yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
+
+          const selector = new AiMetricsRetentionSelector({
+            beforeEpochMillis: 4_102_444_800_000,
+            dataRoot,
+          });
+          const inventory = yield* listAiMetricsRetentionInventory(selector);
+          const drill = yield* runAiMetricsRetentionRestoreDrill(
+            new AiMetricsRetentionRestoreDrillInput({
+              hashSalt: "test-salt",
+              maxObjects: 1,
+              rawArchiveKey,
+              restoreRoot,
+              selector,
+            })
+          );
+
+          expect(inventory.selectedRawArchiveObjectCount).toBe(1);
+          expect(inventory.selectedDerivedExportCount).toBe(1);
+          expect(inventory.selectedReportCount).toBe(1);
+          expect(drill.hashMatches).toBe(true);
+          expect(drill.replayedObjectCount).toBe(1);
+          expect(drill.transcriptTextPrinted).toBe(false);
+          expect(yield* fs.exists(drill.derivedDuckDbPath)).toBe(true);
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "fails restore drills when retained plaintext hashes do not match",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const rawArchiveKey = Redacted.make(Encoding.encodeBase64(new Uint8Array(32).fill(7)));
+          const restoreRoot = path.join(tmpDir, "restore");
+
+          yield* writeText(
+            path.join(codexRoot, "codex.jsonl"),
+            '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"verify me"}}'
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
+
+          yield* runAiMetricsForwarder(
+            new AiMetricsForwarderInput({
+              codexSessionsRoot: codexRoot,
+              dataRoot,
+              hashSalt: "test-salt",
+              homeDir,
+              includeAll: true,
+              rawArchiveKey,
+              repoRoot,
+              target: AiMetricsDeployTarget.Enum.local,
+            })
+          ).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            yield* duckdb.run("UPDATE ai_metrics_raw_archive_objects SET plaintext_content_hash = 'mismatch'");
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+
+          const selector = new AiMetricsRetentionSelector({
+            beforeEpochMillis: 4_102_444_800_000,
+            dataRoot,
+          });
+          const exit = yield* Effect.exit(
+            runAiMetricsRetentionRestoreDrill(
+              new AiMetricsRetentionRestoreDrillInput({
+                hashSalt: "test-salt",
+                maxObjects: 1,
+                rawArchiveKey,
+                restoreRoot,
+                selector,
+              })
+            )
+          );
+
+          expect(Exit.isFailure(exit)).toBe(true);
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "supports explicit-window compact and delete drills on disposable data roots",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const homeDir = path.join(tmpDir, "home");
+          const repoRoot = path.join(tmpDir, "repo");
+          const dataRoot = path.join(tmpDir, "metrics");
+          const codexRoot = path.join(homeDir, ".codex/sessions");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const rawArchiveKey = Redacted.make(Encoding.encodeBase64(new Uint8Array(32).fill(8)));
+          const beforeEpochMillis = 4_102_444_800_000;
+
+          yield* writeText(
+            path.join(codexRoot, "codex.jsonl"),
+            '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"delete me"}}'
+          );
+          yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
+
+          yield* runAiMetricsForwarder(
+            new AiMetricsForwarderInput({
+              codexSessionsRoot: codexRoot,
+              dataRoot,
+              hashSalt: "test-salt",
+              homeDir,
+              includeAll: true,
+              rawArchiveKey,
+              repoRoot,
+              target: AiMetricsDeployTarget.Enum.local,
+            })
+          ).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+
+          yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
+
+          const selector = new AiMetricsRetentionSelector({ beforeEpochMillis, dataRoot });
+          const compactResult = yield* runAiMetricsRetentionCompact(selector, false);
+          expect(compactResult.dryRun).toBe(false);
+          expect(compactResult.deletedDerivedExportCount).toBe(1);
+          expect(compactResult.deletedReportCount).toBe(1);
+          expect(yield* fs.exists(path.join(dataRoot, "derived/parquet"))).toBe(true);
+          expect(yield* fs.exists(path.join(dataRoot, "reports/weekly.md"))).toBe(false);
+
+          const deleteResult = yield* runAiMetricsRetentionDelete(selector, false).pipe(
+            Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })))
+          );
+          expect(deleteResult.dryRun).toBe(false);
+          expect(deleteResult.deletedRawArchiveObjectCount).toBe(1);
+          const rawFiles = yield* fs.readDirectory(path.join(dataRoot, "raw/codex"));
+          expect(rawFiles).toEqual([]);
+          const tableCounts = yield* Effect.gen(function* () {
+            const duckdb = yield* DuckDb;
+            const ingestRuns = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_ingest_runs");
+            const sourceFiles = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_source_files");
+            const rawArchiveObjects = yield* duckdb.query(
+              "SELECT count(*) AS count FROM ai_metrics_raw_archive_objects"
+            );
+            const agentTasks = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_agent_tasks");
+            const sessions = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_sessions");
+            const turns = yield* duckdb.query("SELECT count(*) AS count FROM ai_metrics_turns");
+            return {
+              agentTasks: globalThis.Number(agentTasks[0]?.count),
+              ingestRuns: globalThis.Number(ingestRuns[0]?.count),
+              rawArchiveObjects: globalThis.Number(rawArchiveObjects[0]?.count),
+              sessions: globalThis.Number(sessions[0]?.count),
+              sourceFiles: globalThis.Number(sourceFiles[0]?.count),
+              turns: globalThis.Number(turns[0]?.count),
+            };
+          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          expect(tableCounts).toEqual({
+            agentTasks: 0,
+            ingestRuns: 0,
+            rawArchiveObjects: 0,
+            sessions: 0,
+            sourceFiles: 0,
+            turns: 0,
+          });
+        })
+      ).pipe(Effect.provide(NodeServices.layer));
     })
   );
 });

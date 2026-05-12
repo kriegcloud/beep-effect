@@ -4,6 +4,7 @@ import {
   AiMetricsInstallDoctorResult,
   AiMetricsInstallPlan,
   AiMetricsLabelQueueResult,
+  AiMetricsMirrorBundleResult,
   AiMetricsOtlpExportResult,
   AiMetricsSourceDiscoveryResult,
   AiMetricsWeeklyReportResult,
@@ -26,9 +27,11 @@ const decodeInstallApplyDryRun = S.decodeUnknownEffect(S.fromJsonString(AiMetric
 const decodeInstallDoctor = S.decodeUnknownEffect(S.fromJsonString(AiMetricsInstallDoctorResult));
 const decodeInstallPlan = S.decodeUnknownEffect(S.fromJsonString(AiMetricsInstallPlan));
 const decodeLabelQueue = S.decodeUnknownEffect(S.fromJsonString(AiMetricsLabelQueueResult));
+const decodeMirrorBundle = S.decodeUnknownEffect(S.fromJsonString(AiMetricsMirrorBundleResult));
 const decodeOtlpExportResult = S.decodeUnknownEffect(S.fromJsonString(AiMetricsOtlpExportResult));
 const decodeSourceDiscovery = S.decodeUnknownEffect(S.fromJsonString(AiMetricsSourceDiscoveryResult));
 const decodeWeeklyReport = S.decodeUnknownEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
+const decodeUnknownJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const farFutureUntilEpochMs = 4_102_444_800_000;
 
 type CapturedOtlpRequest = {
@@ -83,6 +86,71 @@ const withRawArchiveKeyEnv = <A, E, R>(rawArchiveKey: string, use: Effect.Effect
       })
     )
   );
+
+const seedAiMetricsData = Effect.fn("AIMetricsCommandTest.seedAiMetricsData")(function* (tmpDir: string) {
+  const path = yield* Path.Path;
+  const dataRoot = path.join(tmpDir, "metrics");
+  const homeDir = path.join(tmpDir, "home");
+  const repoRoot = path.join(tmpDir, "repo");
+  const codexRoot = path.join(homeDir, ".codex/sessions");
+
+  yield* writeText(
+    path.join(codexRoot, "codex.jsonl"),
+    [
+      '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
+      '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"SECRET_TOKEN=secret-value"}}',
+    ].join("\n")
+  );
+  yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
+  yield* runAiMetricsCommand([
+    "forwarder",
+    "run",
+    "--target",
+    "local",
+    "--data-root",
+    dataRoot,
+    "--home-dir",
+    homeDir,
+    "--repo-root",
+    repoRoot,
+    "--all",
+    "--hash-salt",
+    "test-salt",
+    "--json",
+  ]);
+
+  return { dataRoot, homeDir, repoRoot };
+});
+
+const withPrependedPath = <A, E, R>(binDir: string, use: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+  Effect.acquireUseRelease(
+    Effect.sync(() => {
+      const previousPath = process.env.PATH;
+      process.env.PATH = previousPath === undefined ? binDir : `${binDir}:${previousPath}`;
+      return previousPath;
+    }),
+    () => use,
+    (previousPath) =>
+      Effect.sync(() => {
+        if (previousPath === undefined) {
+          delete process.env.PATH;
+        } else {
+          process.env.PATH = previousPath;
+        }
+      })
+  );
+
+const writeCommandShim = Effect.fn("AIMetricsCommandTest.writeCommandShim")(function* (
+  commandName: string,
+  binDir: string,
+  logPath: string
+) {
+  const path = yield* Path.Path;
+  const fs = yield* FileSystem.FileSystem;
+  const shimPath = path.join(binDir, commandName);
+  yield* writeText(shimPath, `#!/usr/bin/env bash\nprintf '%s\\n' '${commandName} '"$*" >> '${logPath}'\nexit 0\n`);
+  yield* fs.chmod(shimPath, 0o755);
+});
 
 const withOtlpSink = <A, E, R>(
   use: (baseUrl: string, requests: ReadonlyArray<CapturedOtlpRequest>) => Effect.Effect<A, E, R>,
@@ -1117,6 +1185,346 @@ describe("ai-metrics command", () => {
             expect(output).not.toContain(dataRoot);
             expect(output).not.toContain(tmpDir);
             expect(process.exitCode).toBe(1);
+          })
+        )
+      )
+    );
+  });
+
+  it("builds a sanitized mirror bundle and plans rsync by default", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(9)),
+          Effect.gen(function* () {
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+
+            yield* runAiMetricsCommand([
+              "mirror",
+              "build",
+              "--target",
+              "dankserver",
+              "--data-root",
+              dataRoot,
+              "--json",
+            ]);
+
+            const buildJson = yield* decodeMirrorBundle(yield* lastLoggedLine());
+            expect(buildJson).toEqual(
+              expect.objectContaining({
+                bundleDir: expect.any(String),
+                bundleId: expect.stringContaining("p7-mirror-"),
+              })
+            );
+
+            yield* runAiMetricsCommand(["mirror", "sync", "--bundle", "latest", "--data-root", dataRoot, "--json"]);
+
+            const syncJson = yield* decodeUnknownJson(yield* lastLoggedLine());
+            expect(syncJson).toEqual(
+              expect.objectContaining({
+                confirmToken: "p7-derived-mirror",
+                dryRun: true,
+                remoteRoot: "/srv/data/ai-metrics/p7-derived-mirror",
+                status: "planned",
+              })
+            );
+            expect(process.exitCode ?? 0).toBe(0);
+          })
+        )
+      )
+    );
+  });
+
+  it("rejects unsafe mirror bundles before confirmed sync", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(12)),
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+
+            yield* runAiMetricsCommand([
+              "mirror",
+              "build",
+              "--target",
+              "dankserver",
+              "--data-root",
+              dataRoot,
+              "--json",
+            ]);
+            const buildJson = yield* decodeMirrorBundle(yield* lastLoggedLine());
+            yield* writeText(path.join(buildJson.bundleDir, "mirror.duckdb"), "unsafe payload");
+
+            yield* runAiMetricsCommand([
+              "mirror",
+              "sync",
+              "--bundle",
+              "latest",
+              "--data-root",
+              dataRoot,
+              "--confirm",
+              "p7-derived-mirror",
+              "--json",
+            ]);
+
+            expect(process.exitCode).toBe(1);
+          })
+        )
+      )
+    );
+  });
+
+  it("runs confirmed mirror sync only after local manifest validation", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(13)),
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const fs = yield* FileSystem.FileSystem;
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+            const binDir = path.join(tmpDir, "bin");
+            const logPath = path.join(tmpDir, "commands.log");
+            yield* fs.makeDirectory(binDir, { recursive: true });
+            yield* writeCommandShim("ssh", binDir, logPath);
+            yield* writeCommandShim("rsync", binDir, logPath);
+
+            yield* runAiMetricsCommand([
+              "mirror",
+              "build",
+              "--target",
+              "dankserver",
+              "--data-root",
+              dataRoot,
+              "--json",
+            ]);
+
+            yield* withPrependedPath(
+              binDir,
+              runAiMetricsCommand([
+                "mirror",
+                "sync",
+                "--bundle",
+                "latest",
+                "--data-root",
+                dataRoot,
+                "--confirm",
+                "p7-derived-mirror",
+                "--json",
+              ])
+            );
+
+            const syncJson = yield* decodeUnknownJson(yield* lastLoggedLine());
+            expect(syncJson).toEqual(
+              expect.objectContaining({
+                dryRun: false,
+                remoteRoot: "/srv/data/ai-metrics/p7-derived-mirror",
+                status: "synced",
+              })
+            );
+            const commandLog = yield* fs.readFileString(logPath);
+            expect(commandLog).toContain("ssh dankserver-yubi mkdir -p");
+            expect(commandLog).toContain("rsync -az --delete");
+            expect(process.exitCode ?? 0).toBe(0);
+          })
+        )
+      )
+    );
+  });
+
+  it("runs a retention restore drill without printing transcript text", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(10)),
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+            const restoreRoot = path.join(tmpDir, "restore");
+
+            yield* runAiMetricsCommand([
+              "retention",
+              "restore-drill",
+              "--data-root",
+              dataRoot,
+              "--restore-root",
+              restoreRoot,
+              "--before",
+              `${farFutureUntilEpochMs}`,
+              "--hash-salt",
+              "test-salt",
+              "--json",
+            ]);
+
+            const resultJson = yield* decodeUnknownJson(yield* lastLoggedLine());
+            expect(resultJson).toEqual(
+              expect.objectContaining({
+                hashMatches: true,
+                replayedObjectCount: 1,
+                transcriptTextPrinted: false,
+              })
+            );
+
+            const output = yield* loggedText();
+            expect(output).not.toContain("secret-value");
+            expect(process.exitCode ?? 0).toBe(0);
+          })
+        )
+      )
+    );
+  });
+
+  it("keeps retention delete in dry-run mode until confirmed", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(11)),
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+            yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
+
+            yield* runAiMetricsCommand([
+              "retention",
+              "delete",
+              "--data-root",
+              dataRoot,
+              "--before",
+              `${farFutureUntilEpochMs}`,
+              "--json",
+            ]);
+
+            const resultJson = yield* decodeUnknownJson(yield* lastLoggedLine());
+            expect(resultJson).toEqual(
+              expect.objectContaining({
+                dryRun: true,
+                mode: "delete",
+              })
+            );
+            expect(process.exitCode ?? 0).toBe(0);
+          })
+        )
+      )
+    );
+  });
+
+  it("rejects invalid retention confirmations and unbounded confirmed windows", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(14)),
+          Effect.gen(function* () {
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+
+            yield* runAiMetricsCommand([
+              "retention",
+              "delete",
+              "--data-root",
+              dataRoot,
+              "--before",
+              `${farFutureUntilEpochMs}`,
+              "--confirm",
+              "wrong-token",
+              "--json",
+            ]);
+            expect(process.exitCode).toBe(1);
+
+            yield* Effect.sync(() => {
+              process.exitCode = 0;
+            });
+            yield* runAiMetricsCommand([
+              "retention",
+              "compact",
+              "--data-root",
+              dataRoot,
+              "--since",
+              "2026-05-01T00:00:00Z",
+              "--confirm",
+              "p7-retention-window",
+              "--json",
+            ]);
+            expect(process.exitCode).toBe(1);
+          })
+        )
+      )
+    );
+  });
+
+  it("runs confirmed retention compact and preserves raw archive objects", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(15)),
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const fs = yield* FileSystem.FileSystem;
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+            yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
+
+            yield* runAiMetricsCommand([
+              "retention",
+              "compact",
+              "--data-root",
+              dataRoot,
+              "--before",
+              `${farFutureUntilEpochMs}`,
+              "--confirm",
+              "p7-retention-window",
+              "--json",
+            ]);
+
+            const resultJson = yield* decodeUnknownJson(yield* lastLoggedLine());
+            expect(resultJson).toEqual(
+              expect.objectContaining({
+                dryRun: false,
+                mode: "compact",
+              })
+            );
+            expect(yield* fs.exists(path.join(dataRoot, "reports/weekly.md"))).toBe(false);
+            expect(yield* fs.readDirectory(path.join(dataRoot, "raw/codex"))).toHaveLength(1);
+            expect(process.exitCode ?? 0).toBe(0);
+          })
+        )
+      )
+    );
+  });
+
+  it("runs confirmed retention delete with an explicit bounded window", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(16)),
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const fs = yield* FileSystem.FileSystem;
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+            yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
+
+            yield* runAiMetricsCommand([
+              "retention",
+              "delete",
+              "--data-root",
+              dataRoot,
+              "--since",
+              "2026-05-01T00:00:00Z",
+              "--until",
+              `${farFutureUntilEpochMs}`,
+              "--confirm",
+              "p7-retention-window",
+              "--json",
+            ]);
+
+            const resultJson = yield* decodeUnknownJson(yield* lastLoggedLine());
+            expect(resultJson).toEqual(
+              expect.objectContaining({
+                dryRun: false,
+                mode: "delete",
+              })
+            );
+            expect(yield* fs.exists(path.join(dataRoot, "reports/weekly.md"))).toBe(false);
+            expect(yield* fs.readDirectory(path.join(dataRoot, "raw/codex"))).toEqual([]);
+            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )

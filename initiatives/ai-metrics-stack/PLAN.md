@@ -1,13 +1,16 @@
 # AI Metrics Stack Plan
 
-This plan executes [SPEC.md](./SPEC.md). The current target phase is P6. P0
-bootstrap, P1 source/privacy proof, P2 durable ingest, P3 OTLP/backend
-contracts, P4 report-first scorecards, P5 install/remote deployment, and P6a
-fresh-review hardening are complete. Phoenix is live on dankserver, Pulumi state
-is reconciled, the workstation timer owns live collection from an isolated
-pinned proof worktree, and the credited seven-day proof restarted on May 9,
-2026 02:26 America/Chicago. The earliest credited completion is May 16, 2026
-02:26 America/Chicago.
+This plan executes [SPEC.md](./SPEC.md). The credited P6 proof remains active,
+and the current implementation target is the constrained P7a/b slice that can
+ship without disturbing that proof. P0 bootstrap, P1 source/privacy proof, P2
+durable ingest, P3 OTLP/backend contracts, P4 report-first scorecards, P5
+install/remote deployment, and P6a fresh-review hardening are complete. P7a/b
+hybrid mirror and retention workflows are now implemented; P7c
+provider/gateway metrics and P7d dashboard expansion remain pending. Phoenix is
+live on dankserver, Pulumi state is reconciled, the workstation timer owns live
+collection from an isolated pinned proof worktree, and the credited seven-day
+proof restarted on May 9, 2026 02:26 America/Chicago. The earliest credited
+completion is May 16, 2026 02:26 America/Chicago.
 
 ## P0: Initiative Bootstrap And Current State
 
@@ -180,17 +183,35 @@ Status: completed
 
 ## P7: Topology-First Productionization
 
-Status: planned
+Status: in progress
 
-- Start only after the P6 proof is credited or explicitly abandoned.
-- Decide server-owned, workstation-owned, synced, or hybrid collection topology
-  before implementing provider/gateway enrichment.
-- Promote retention, restore, deletion, and compaction from P6 runbook notes
-  into executable operator workflows.
-- Add real model-call, tool-invocation, token, cost, and latency metrics only
-  from sources with a proven privacy and attribution contract.
-- Keep Phoenix as the default UI; add Langfuse, Opik, PostHog, or other
-  backend-specific drivers only when a real backend API need appears.
+- Preserve the credited P6 proof while implementing only the P7 work that does
+  not mutate the active proof runner, pinned proof worktree, timer budgets,
+  source window, or privacy contract.
+- P7a implemented: raw encrypted transcripts remain workstation-local, while a
+  sanitized derived mirror bundle can be built under
+  `<dataRoot>/mirror/bundles/<bundleId>`. The bundle contains `manifest.json`,
+  `status/mirror-status.json`, and Parquet exports from an explicit P7-safe
+  table allowlist. Raw archive tables, transcript bodies, local source paths,
+  archive paths, DuckDB paths, and encryption material are excluded from the
+  synced payload.
+- P7a implemented: added `beep ai-metrics mirror build`, `mirror sync`, and
+  `mirror status`. `mirror sync` is dry-run by default and requires
+  `--confirm p7-derived-mirror` before rsync writes to
+  `/srv/data/ai-metrics/p7-derived-mirror` over SSH.
+- P7b implemented: added `beep ai-metrics retention list`,
+  `retention restore-drill`, `retention delete`, and `retention compact`.
+  Delete and compact default to dry-run and require both an explicit time
+  window and `--confirm p7-retention-window` for real mutation. The restore
+  drill verifies decrypt plus content-hash integrity and replays into a
+  disposable derived root without printing transcript text.
+- P7b implemented: `@beep/infra` now models the remote mirror root as
+  `remoteMirrorRoot` with default `/srv/data/ai-metrics/p7-derived-mirror`.
+  Before May 16, 2026 this remains preview-only infra state; live proofs can
+  use the CLI mirror workflow without changing the active proof runner.
+- Still pending: P7c provider/model/tool/token/cost enrichment, P7d
+  dashboard/backend expansion, remote mirror lifecycle automation beyond
+  bundle sync/status, and the final P7e production-readiness closeout.
 - Planning packet:
   [history/outputs/p7-topology-first-production-plan.md](./history/outputs/p7-topology-first-production-plan.md).
 

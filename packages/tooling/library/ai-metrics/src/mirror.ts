@@ -1,0 +1,786 @@
+/**
+ * P7 sanitized mirror bundle helpers for repo AI metrics.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { DuckDb, DuckDbConnectionOptions, DuckDbParquetExport } from "@beep/duckdb";
+import { $RepoAiMetricsId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
+import { Clock, Effect, FileSystem, Path, pipe } from "effect";
+import * as A from "effect/Array";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { AiMetricsDeployTarget } from "./models.ts";
+
+const $I = $RepoAiMetricsId.create("mirror");
+
+const defaultLocalDataRoot = ".beep/ai-metrics";
+const defaultRemoteMirrorRoot = "/srv/data/ai-metrics/p7-derived-mirror";
+const mirrorSchemaVersion = "beep.ai_metrics.mirror_bundle.v1";
+const mirrorStatusSchemaVersion = "beep.ai_metrics.mirror_status.v1";
+
+type MirrorTableProjection = {
+  readonly columnNames: ReadonlyArray<string>;
+  readonly selectSql: string;
+  readonly targetTable: string;
+};
+
+type ForbiddenTokenCheck = {
+  readonly label: string;
+  readonly value: string;
+};
+
+const selectMirrorColumns = (sourceTable: string, columns: ReadonlyArray<string>): string =>
+  `SELECT
+      ${pipe(columns, A.join(",\n      "))}
+    FROM source_db.${sourceTable}`;
+
+const mirrorTableProjections = [
+  {
+    columnNames: [
+      "ingest_run_id",
+      "target",
+      "config_snapshot_id",
+      "config_hash",
+      "started_at_epoch_ms",
+      "completed_at_epoch_ms",
+      "source_file_count",
+      "archive_object_count",
+      "turn_count",
+    ],
+    selectSql: selectMirrorColumns("ai_metrics_ingest_runs", [
+      "ingest_run_id",
+      "target",
+      "config_snapshot_id",
+      "config_hash",
+      "started_at_epoch_ms",
+      "completed_at_epoch_ms",
+      "source_file_count",
+      "archive_object_count",
+      "turn_count",
+    ]),
+    targetTable: "ai_metrics_ingest_runs",
+  },
+  {
+    columnNames: [
+      "source_file_id",
+      "ingest_run_id",
+      "source_kind",
+      "source_path_hash",
+      "source_role",
+      "session_id_hash",
+      "parent_session_id_hash",
+      "parent_thread_id_hash",
+      "forked_from_id_hash",
+      "thread_spawn",
+      "agent_role_hash",
+      "agent_nickname_hash",
+      "total_lines",
+      "accepted_events",
+      "rejected_lines",
+      "first_timestamp",
+      "last_timestamp",
+      "event_names_json",
+      "redaction_safe_for_derived_ui",
+      "config_snapshot_id",
+    ],
+    selectSql: selectMirrorColumns("ai_metrics_source_files", [
+      "source_file_id",
+      "ingest_run_id",
+      "source_kind",
+      "source_path_hash",
+      "source_role",
+      "session_id_hash",
+      "parent_session_id_hash",
+      "parent_thread_id_hash",
+      "forked_from_id_hash",
+      "thread_spawn",
+      "agent_role_hash",
+      "agent_nickname_hash",
+      "total_lines",
+      "accepted_events",
+      "rejected_lines",
+      "first_timestamp",
+      "last_timestamp",
+      "event_names_json",
+      "redaction_safe_for_derived_ui",
+      "config_snapshot_id",
+    ]),
+    targetTable: "ai_metrics_source_files",
+  },
+  {
+    columnNames: [
+      "agent_task_id",
+      "title",
+      "source_kind",
+      "source_path_hash",
+      "source_role",
+      "repo_root_hash",
+      "config_snapshot_id",
+      "created_at_epoch_ms",
+      "first_seen_at",
+      "last_seen_at",
+    ],
+    selectSql: selectMirrorColumns("ai_metrics_agent_tasks", [
+      "agent_task_id",
+      "title",
+      "source_kind",
+      "source_path_hash",
+      "source_role",
+      "repo_root_hash",
+      "config_snapshot_id",
+      "created_at_epoch_ms",
+      "first_seen_at",
+      "last_seen_at",
+    ]),
+    targetTable: "ai_metrics_agent_tasks",
+  },
+  {
+    columnNames: [
+      "agent_session_id",
+      "agent_task_id",
+      "ingest_run_id",
+      "source_kind",
+      "source_path_hash",
+      "source_role",
+      "session_id_hash",
+      "parent_session_id_hash",
+      "parent_thread_id_hash",
+      "forked_from_id_hash",
+      "thread_spawn",
+      "agent_role_hash",
+      "agent_nickname_hash",
+      "started_at",
+      "config_snapshot_id",
+    ],
+    selectSql: selectMirrorColumns("ai_metrics_sessions", [
+      "agent_session_id",
+      "agent_task_id",
+      "ingest_run_id",
+      "source_kind",
+      "source_path_hash",
+      "source_role",
+      "session_id_hash",
+      "parent_session_id_hash",
+      "parent_thread_id_hash",
+      "forked_from_id_hash",
+      "thread_spawn",
+      "agent_role_hash",
+      "agent_nickname_hash",
+      "started_at",
+      "config_snapshot_id",
+    ]),
+    targetTable: "ai_metrics_sessions",
+  },
+  {
+    columnNames: [
+      "turn_id",
+      "ingest_run_id",
+      "agent_session_id",
+      "source_kind",
+      "source_path_hash",
+      "source_role",
+      "line_number",
+      "event_name",
+      "raw_event_hash",
+      "timestamp",
+    ],
+    selectSql: selectMirrorColumns("ai_metrics_turns", [
+      "turn_id",
+      "ingest_run_id",
+      "agent_session_id",
+      "source_kind",
+      "source_path_hash",
+      "source_role",
+      "line_number",
+      "event_name",
+      "raw_event_hash",
+      "timestamp",
+    ]),
+    targetTable: "ai_metrics_turns",
+  },
+  {
+    columnNames: ["call_id", "ingest_run_id", "provider", "model", "total_tokens", "latency_ms"],
+    selectSql: selectMirrorColumns("ai_metrics_model_calls", [
+      "call_id",
+      "ingest_run_id",
+      "provider",
+      "model",
+      "total_tokens",
+      "latency_ms",
+    ]),
+    targetTable: "ai_metrics_model_calls",
+  },
+  {
+    columnNames: ["tool_run_id", "ingest_run_id", "tool_name", "duration_ms", "exit_code"],
+    selectSql: selectMirrorColumns("ai_metrics_tool_invocations", [
+      "tool_run_id",
+      "ingest_run_id",
+      "tool_name",
+      "duration_ms",
+      "exit_code",
+    ]),
+    targetTable: "ai_metrics_tool_invocations",
+  },
+  {
+    columnNames: [
+      "label_id",
+      "agent_task_id",
+      "rating",
+      "passed",
+      "quality_gate",
+      "intervention_count",
+      "follow_up_fix",
+      "note_hash",
+      "labeled_at_epoch_ms",
+    ],
+    selectSql: `SELECT
+      label_id,
+      agent_task_id,
+      rating,
+      passed,
+      quality_gate,
+      intervention_count,
+      follow_up_fix,
+      CASE WHEN note IS NULL THEN NULL ELSE sha256(note) END AS note_hash,
+      labeled_at_epoch_ms
+    FROM source_db.ai_metrics_outcome_labels`,
+    targetTable: "ai_metrics_outcome_labels",
+  },
+  {
+    columnNames: [
+      "benchmark_case_id",
+      "title",
+      "prompt_hash",
+      "prompt_ref_hash",
+      "expected_checks_json",
+      "created_at_epoch_ms",
+    ],
+    selectSql: `SELECT
+      benchmark_case_id,
+      title,
+      prompt_hash,
+      CASE WHEN prompt_ref IS NULL THEN NULL ELSE sha256(prompt_ref) END AS prompt_ref_hash,
+      expected_checks_json,
+      created_at_epoch_ms
+    FROM source_db.ai_metrics_benchmark_cases`,
+    targetTable: "ai_metrics_benchmark_cases",
+  },
+  {
+    columnNames: [
+      "benchmark_run_id",
+      "benchmark_case_id",
+      "config_snapshot_id",
+      "elapsed_ms",
+      "passed",
+      "quality_gate",
+      "note_hash",
+      "recorded_at_epoch_ms",
+    ],
+    selectSql: `SELECT
+      benchmark_run_id,
+      benchmark_case_id,
+      config_snapshot_id,
+      elapsed_ms,
+      passed,
+      quality_gate,
+      CASE WHEN note IS NULL THEN NULL ELSE sha256(note) END AS note_hash,
+      recorded_at_epoch_ms
+    FROM source_db.ai_metrics_benchmark_runs`,
+    targetTable: "ai_metrics_benchmark_runs",
+  },
+  {
+    columnNames: [
+      "scorecard_id",
+      "config_snapshot_id",
+      "window_start_epoch_ms",
+      "window_end_epoch_ms",
+      "total_score",
+      "outcome_score",
+      "flow_score",
+      "cost_score",
+      "task_count",
+      "label_count",
+      "benchmark_run_count",
+      "completion_ready",
+      "coverage_gaps_json",
+    ],
+    selectSql: selectMirrorColumns("ai_metrics_scorecards", [
+      "scorecard_id",
+      "config_snapshot_id",
+      "window_start_epoch_ms",
+      "window_end_epoch_ms",
+      "total_score",
+      "outcome_score",
+      "flow_score",
+      "cost_score",
+      "task_count",
+      "label_count",
+      "benchmark_run_count",
+      "completion_ready",
+      "coverage_gaps_json",
+    ]),
+    targetTable: "ai_metrics_scorecards",
+  },
+] as const satisfies ReadonlyArray<MirrorTableProjection>;
+
+const omittedMirrorTables = ["ai_metrics_raw_archive_objects"] as const;
+
+const forbiddenFieldTokens = [
+  { label: "archivePath", value: "archivePath" },
+  { label: "rawArchiveDir", value: "rawArchiveDir" },
+  { label: "duckDbPath", value: "duckDbPath" },
+  { label: "parquetExportDir", value: "parquetExportDir" },
+  { label: "ciphertextBase64", value: "ciphertextBase64" },
+  { label: "nonceBase64", value: "nonceBase64" },
+] as const;
+
+const sqlString = (value: string): string => `'${pipe(value, Str.replace(/'/gu, "''"))}'`;
+
+const childPath = (root: string, child: string): string => `${root}/${child}`;
+
+const countFromRow = (row: Record<string, unknown> | undefined): number => {
+  const value = row?.count;
+  const parsed = globalThis.Number(value);
+  return globalThis.Number.isFinite(parsed) ? parsed : 0;
+};
+
+const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
+
+const mirrorFailure = (message: string, cause: unknown): AiMetricsMirrorError =>
+  new AiMetricsMirrorError({ cause, message });
+
+/**
+ * Error raised by the P7 AI metrics mirror bundle workflow.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsMirrorError } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsMirrorError)
+ * ```
+ * @category errors
+ * @since 0.0.0
+ */
+export class AiMetricsMirrorError extends TaggedErrorClass<AiMetricsMirrorError>($I`AiMetricsMirrorError`)(
+  "AiMetricsMirrorError",
+  {
+    cause: S.Unknown,
+    message: S.String,
+  },
+  $I.annote("AiMetricsMirrorError", {
+    description: "Typed failure raised while building or locating sanitized AI metrics mirror bundles.",
+  })
+) {}
+
+class AiMetricsMirrorLatestPointer extends S.Class<AiMetricsMirrorLatestPointer>($I`AiMetricsMirrorLatestPointer`)(
+  {
+    bundleDir: S.String,
+    bundleId: S.String,
+  },
+  $I.annote("AiMetricsMirrorLatestPointer", {
+    description: "Local pointer to the latest sanitized AI metrics mirror bundle.",
+  })
+) {}
+
+const decodeLatestPointer = S.decodeUnknownEffect(S.fromJsonString(AiMetricsMirrorLatestPointer));
+
+/**
+ * Input for building a sanitized P7 mirror bundle.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsMirrorBundleInput } from "@beep/repo-ai-metrics"
+ * console.log(new AiMetricsMirrorBundleInput({}).remoteRoot)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsMirrorBundleInput extends S.Class<AiMetricsMirrorBundleInput>($I`AiMetricsMirrorBundleInput`)(
+  {
+    bundleId: S.optionalKey(S.String),
+    bundleRoot: S.optionalKey(S.String),
+    dataRoot: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed(defaultLocalDataRoot)),
+      S.withDecodingDefaultKey(Effect.succeed(defaultLocalDataRoot))
+    ),
+    remoteRoot: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed(defaultRemoteMirrorRoot)),
+      S.withDecodingDefaultKey(Effect.succeed(defaultRemoteMirrorRoot))
+    ),
+    target: AiMetricsDeployTarget.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsDeployTarget.Enum.dankserver)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsDeployTarget.Enum.dankserver))
+    ),
+  },
+  $I.annote("AiMetricsMirrorBundleInput", {
+    description: "Local derived storage and remote target roots for one deploy-safe P7 mirror bundle build.",
+  })
+) {}
+
+/**
+ * One sanitized table exported into a P7 mirror bundle.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsMirrorTableExport } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsMirrorTableExport)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsMirrorTableExport extends S.Class<AiMetricsMirrorTableExport>($I`AiMetricsMirrorTableExport`)(
+  {
+    parquetPath: S.String,
+    rowCount: S.Number,
+    tableName: S.String,
+  },
+  $I.annote("AiMetricsMirrorTableExport", {
+    description: "Deploy-safe table and Parquet path produced by a mirror bundle build.",
+  })
+) {}
+
+/**
+ * Privacy proof summary attached to a P7 mirror bundle.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsMirrorPrivacyProof } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsMirrorPrivacyProof)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsMirrorPrivacyProof extends S.Class<AiMetricsMirrorPrivacyProof>($I`AiMetricsMirrorPrivacyProof`)(
+  {
+    checkedTokens: S.Array(S.String),
+    forbiddenMatches: S.Array(S.String),
+    omittedTables: S.Array(S.String),
+    safe: S.Boolean,
+  },
+  $I.annote("AiMetricsMirrorPrivacyProof", {
+    description: "Machine-readable proof that the manifest and status omit raw archive and local path fields.",
+  })
+) {}
+
+/**
+ * Deploy-safe manifest written into every P7 mirror bundle.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsMirrorBundleManifest } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsMirrorBundleManifest)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsMirrorBundleManifest extends S.Class<AiMetricsMirrorBundleManifest>(
+  $I`AiMetricsMirrorBundleManifest`
+)(
+  {
+    bundleId: S.String,
+    createdAtEpochMillis: S.Number,
+    includedTables: S.Array(S.String),
+    mirrorStatusSchemaVersion: S.String,
+    omittedDataClasses: S.Array(S.String),
+    omittedTables: S.Array(S.String),
+    p6ProofPreserved: S.Boolean,
+    privacyProof: AiMetricsMirrorPrivacyProof,
+    remoteRoot: S.String,
+    rowCounts: S.Record(S.String, S.Number),
+    schemaVersion: S.String,
+    sourceDataClass: S.String,
+    target: AiMetricsDeployTarget,
+  },
+  $I.annote("AiMetricsMirrorBundleManifest", {
+    description: "Deploy-safe bundle manifest for the hybrid P7 derived mirror.",
+  })
+) {}
+
+/**
+ * Result of building a sanitized P7 mirror bundle.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsMirrorBundleResult } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsMirrorBundleResult)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsMirrorBundleResult extends S.Class<AiMetricsMirrorBundleResult>($I`AiMetricsMirrorBundleResult`)(
+  {
+    bundleDir: S.String,
+    bundleId: S.String,
+    manifest: AiMetricsMirrorBundleManifest,
+    manifestPath: S.String,
+    mirrorDuckDbPath: S.String,
+    parquetDir: S.String,
+    statusPath: S.String,
+    tables: S.Array(AiMetricsMirrorTableExport),
+  },
+  $I.annote("AiMetricsMirrorBundleResult", {
+    description: "Local build result for a sanitized P7 AI metrics mirror bundle.",
+  })
+) {}
+
+/**
+ * Locate the latest local mirror bundle pointer for a data root.
+ *
+ * @example
+ * ```ts
+ * import { locateLatestAiMetricsMirrorBundle } from "@beep/repo-ai-metrics"
+ * console.log(locateLatestAiMetricsMirrorBundle)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const locateLatestAiMetricsMirrorBundle = Effect.fn("AiMetrics.locateLatestAiMetricsMirrorBundle")(function* (
+  dataRoot: string = defaultLocalDataRoot
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs
+    .readFileString(childPath(dataRoot, "mirror/latest.json"))
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to read latest AI metrics mirror bundle pointer.", cause)));
+  const pointer = yield* decodeLatestPointer(content).pipe(
+    Effect.mapError((cause) => mirrorFailure("Failed to decode latest AI metrics mirror bundle pointer.", cause))
+  );
+  return pointer.bundleDir;
+});
+
+const mirrorStatusFor = (
+  input: AiMetricsMirrorBundleInput,
+  bundleId: string,
+  createdAtEpochMillis: number,
+  tables: ReadonlyArray<AiMetricsMirrorTableExport>
+) => ({
+  bundleId,
+  createdAtEpochMillis,
+  mirrorStatusSchemaVersion,
+  remoteRoot: input.remoteRoot,
+  rowCounts: pipe(
+    tables,
+    A.map((table) => [table.tableName, table.rowCount] as const),
+    R.fromEntries
+  ),
+  syncStatus: "not_synced",
+  target: input.target,
+});
+
+const privacyProofFor = (
+  payload: string,
+  additionalForbiddenTokens: ReadonlyArray<ForbiddenTokenCheck> = A.empty<ForbiddenTokenCheck>()
+): AiMetricsMirrorPrivacyProof => {
+  const checkedTokens = [...forbiddenFieldTokens, ...additionalForbiddenTokens];
+  const forbiddenMatches = pipe(
+    checkedTokens,
+    A.filter((token) => Str.includes(token.value)(payload)),
+    A.map((token) => token.label)
+  );
+
+  return new AiMetricsMirrorPrivacyProof({
+    checkedTokens: A.map(checkedTokens, (token) => token.label),
+    forbiddenMatches,
+    omittedTables: A.fromIterable(omittedMirrorTables),
+    safe: A.isReadonlyArrayEmpty(forbiddenMatches),
+  });
+};
+
+const buildMirrorTables = Effect.fn("AiMetrics.buildMirrorTables")(function* ({
+  parquetDir,
+  sourceDuckDbPath,
+}: {
+  readonly parquetDir: string;
+  readonly sourceDuckDbPath: string;
+}) {
+  const duckdb = yield* DuckDb;
+  const path = yield* Path.Path;
+  yield* duckdb.run(`ATTACH ${sqlString(sourceDuckDbPath)} AS source_db (READ_ONLY)`);
+  const exports: Array<AiMetricsMirrorTableExport> = [];
+
+  for (const projection of mirrorTableProjections) {
+    yield* duckdb.run(`DROP TABLE IF EXISTS ${projection.targetTable}`);
+    yield* duckdb.run(`CREATE TABLE ${projection.targetTable} AS ${projection.selectSql}`);
+    const rows = yield* duckdb.query(`SELECT count(*) AS count FROM ${projection.targetTable}`);
+    const parquetPath = path.join(parquetDir, `${projection.targetTable}.parquet`);
+    yield* duckdb.copyTableToParquet(
+      new DuckDbParquetExport({ filePath: parquetPath, tableName: projection.targetTable })
+    );
+    exports.push(
+      new AiMetricsMirrorTableExport({
+        parquetPath,
+        rowCount: countFromRow(rows[0]),
+        tableName: projection.targetTable,
+      })
+    );
+  }
+
+  return exports;
+});
+
+/**
+ * Build a sanitized deploy-safe P7 mirror bundle from local derived DuckDB data.
+ *
+ * @remarks
+ * The source DuckDB database is attached read-only into a separate mirror
+ * database so the active P6 proof database is never mutated by bundle builds.
+ * @example
+ * ```ts
+ * import { buildAiMetricsMirrorBundle } from "@beep/repo-ai-metrics"
+ * console.log(buildAiMetricsMirrorBundle)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const buildAiMetricsMirrorBundle = Effect.fn("AiMetrics.buildAiMetricsMirrorBundle")(function* (
+  input: AiMetricsMirrorBundleInput
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const createdAtEpochMillis = yield* Clock.currentTimeMillis;
+  const bundleId = input.bundleId ?? `p7-mirror-${createdAtEpochMillis}`;
+  const bundleRoot = input.bundleRoot ?? path.join(input.dataRoot, "mirror/bundles");
+  const bundleDir = path.join(bundleRoot, bundleId);
+  const mirrorWorkDir = path.join(input.dataRoot, "mirror/work", bundleId);
+  const parquetDir = path.join(bundleDir, "parquet");
+  const statusDir = path.join(bundleDir, "status");
+  const manifestPath = path.join(bundleDir, "manifest.json");
+  const statusPath = path.join(statusDir, "mirror-status.json");
+  const mirrorDuckDbPath = path.join(mirrorWorkDir, "mirror.duckdb");
+  const sourceDuckDbPath = path.join(input.dataRoot, "derived/ai-metrics.duckdb");
+  const sourceExists = yield* fs
+    .exists(sourceDuckDbPath)
+    .pipe(
+      Effect.mapError((cause) => mirrorFailure("Failed to inspect AI metrics derived DuckDB for mirror build.", cause))
+    );
+
+  if (!sourceExists) {
+    return yield* mirrorFailure("AI metrics derived DuckDB does not exist for mirror bundle build.", {
+      sourceDuckDbPath,
+    });
+  }
+
+  yield* fs
+    .remove(bundleDir, { force: true, recursive: true })
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to reset AI metrics mirror bundle directory.", cause)));
+  yield* fs
+    .remove(mirrorWorkDir, { force: true, recursive: true })
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to reset AI metrics mirror working directory.", cause)));
+  yield* fs
+    .makeDirectory(parquetDir, { recursive: true })
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to create AI metrics mirror Parquet directory.", cause)));
+  yield* fs
+    .makeDirectory(statusDir, { recursive: true })
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to create AI metrics mirror status directory.", cause)));
+  yield* fs
+    .makeDirectory(mirrorWorkDir, { recursive: true })
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to create AI metrics mirror working directory.", cause)));
+
+  const tables = yield* buildMirrorTables({ parquetDir, sourceDuckDbPath }).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: mirrorDuckDbPath }))),
+    Effect.mapError((cause) => mirrorFailure("Failed to build AI metrics mirror tables.", cause))
+  );
+  const status = mirrorStatusFor(input, bundleId, createdAtEpochMillis, tables);
+  const statusJson = yield* encodeJson(status).pipe(
+    Effect.mapError((cause) => mirrorFailure("Failed to encode AI metrics mirror status JSON.", cause))
+  );
+  const forbiddenLocalTokens = [
+    { label: "dataRoot", value: input.dataRoot },
+    { label: "sourceDuckDbPath", value: sourceDuckDbPath },
+    { label: "rawDir", value: path.join(input.dataRoot, "raw") },
+    { label: "derivedDir", value: path.join(input.dataRoot, "derived") },
+    { label: "configSnapshotsDir", value: path.join(input.dataRoot, "config-snapshots") },
+  ];
+  const rowCounts = pipe(
+    tables,
+    A.map((table) => [table.tableName, table.rowCount] as const),
+    R.fromEntries
+  );
+  const manifestBase = {
+    bundleId,
+    createdAtEpochMillis,
+    includedTables: A.map(tables, (table) => table.tableName),
+    mirrorStatusSchemaVersion,
+    omittedDataClasses: [
+      "raw_transcript_bodies",
+      "encrypted_raw_archive_objects",
+      "raw_archive_paths",
+      "local_source_paths",
+      "local_storage_paths",
+      "prompt_output_text",
+      "secret_values",
+    ],
+    omittedTables: A.fromIterable(omittedMirrorTables),
+    p6ProofPreserved: true,
+    remoteRoot: input.remoteRoot,
+    rowCounts,
+    schemaVersion: mirrorSchemaVersion,
+    sourceDataClass: "workstation_local_sanitized_derived_storage",
+    target: input.target,
+  };
+  const manifestBaseJson = yield* encodeJson(manifestBase).pipe(
+    Effect.mapError((cause) => mirrorFailure("Failed to encode AI metrics mirror manifest probe JSON.", cause))
+  );
+  const privacyProof = privacyProofFor(`${statusJson}\n${manifestBaseJson}`, forbiddenLocalTokens);
+  const manifest = new AiMetricsMirrorBundleManifest({
+    ...manifestBase,
+    privacyProof,
+  });
+  const manifestJson = yield* encodeJson(manifest).pipe(
+    Effect.mapError((cause) => mirrorFailure("Failed to encode AI metrics mirror manifest JSON.", cause))
+  );
+
+  if (!privacyProof.safe) {
+    return yield* mirrorFailure("AI metrics mirror manifest failed its privacy proof.", privacyProof);
+  }
+
+  yield* fs
+    .writeFileString(statusPath, statusJson)
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to write AI metrics mirror status JSON.", cause)));
+  yield* fs
+    .writeFileString(manifestPath, manifestJson)
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to write AI metrics mirror manifest JSON.", cause)));
+  yield* fs
+    .writeFileString(
+      path.join(input.dataRoot, "mirror/latest.json"),
+      yield* encodeJson({ bundleDir, bundleId }).pipe(
+        Effect.mapError((cause) => mirrorFailure("Failed to encode AI metrics latest mirror pointer.", cause))
+      )
+    )
+    .pipe(Effect.mapError((cause) => mirrorFailure("Failed to write latest AI metrics mirror pointer.", cause)));
+
+  return new AiMetricsMirrorBundleResult({
+    bundleDir,
+    bundleId,
+    manifest,
+    manifestPath,
+    mirrorDuckDbPath,
+    parquetDir,
+    statusPath,
+    tables,
+  });
+});
+
+const encodeMirrorBundleJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsMirrorBundleResult));
+
+/**
+ * Render a mirror bundle build result as JSON.
+ *
+ * @example
+ * ```ts
+ * import { aiMetricsMirrorBundleToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsMirrorBundleToJson)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const aiMetricsMirrorBundleToJson: (
+  result: AiMetricsMirrorBundleResult
+) => Effect.Effect<string, AiMetricsMirrorError> = Effect.fn("AiMetrics.aiMetricsMirrorBundleToJson")((result) =>
+  encodeMirrorBundleJson(result).pipe(
+    Effect.mapError((cause) => mirrorFailure("Failed to encode AI metrics mirror bundle result as JSON.", cause))
+  )
+);
