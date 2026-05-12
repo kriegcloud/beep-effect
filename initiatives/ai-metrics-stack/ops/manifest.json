@@ -10,7 +10,7 @@
   },
   "currentSourceOfTruth": "SPEC.md",
   "currentTargetPhase": "P6c",
-  "completionEvidence": "dankserver deployment plus P6a hardening gates plus one restarted seven-day real-data config-impact scorecard plus confirmed sanitized derived mirror",
+  "completionEvidence": "dankserver deployment plus P6a hardening gates plus one restarted seven-day real-data config-impact scorecard; sanitized derived mirror confirmation pending final post-proof closeout",
   "targets": {
     "production": "dankserver",
     "smoke": "local",
