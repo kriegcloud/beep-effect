@@ -735,30 +735,25 @@ export const selectQualityWorkerEvalPackets: {
   const grouped = pipe(
     candidates,
     A.groupBy((candidate) => candidate.packagePath),
-    R.map(flow(A.sort(packetCandidateOrder)))
+    R.map(A.sort(packetCandidateOrder))
   );
   const packagePaths = pipe(R.keys(grouped), A.sort(Order.String));
   const maxGroupSize = pipe(
     R.values(grouped),
     A.reduce(0, (max, values) => Math.max(max, values.length))
   );
+  const packetAtIndex = (index: number) =>
+    flow(
+      (packagePath: string) => O.fromNullishOr(grouped[packagePath]?.[index]),
+      O.match({
+        onNone: A.empty<PacketCandidate>,
+        onSome: A.of,
+      })
+    );
 
   return pipe(
     A.range(0, Math.max(0, maxGroupSize - 1)),
-    A.flatMap((index) =>
-      pipe(
-        packagePaths,
-        A.flatMap((packagePath) =>
-          pipe(
-            O.fromNullishOr(grouped[packagePath]?.[index]),
-            O.match({
-              onNone: A.empty<PacketCandidate>,
-              onSome: A.of,
-            })
-          )
-        )
-      )
-    ),
+    A.flatMap((index) => A.flatMap(packagePaths, packetAtIndex(index))),
     A.take(packetLimit)
   );
 });

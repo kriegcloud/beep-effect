@@ -30,7 +30,27 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/db-admin": ["../../../packages/_internal/db-admin/src/index.ts"],
-      "@beep/db-admin/*": ["../../../packages/_internal/db-admin/src/*.ts"]
+      "@beep/db-admin/*": ["../../../packages/_internal/db-admin/src/*.ts"],
+      "@beep/architecture-lab-tables": [
+        "../../../packages/architecture-lab/tables/src/index.ts"
+      ],
+      "@beep/architecture-lab-tables/tables": [
+        "../../../packages/architecture-lab/tables/src/tables.ts"
+      ],
+      "@beep/architecture-lab-tables/aggregates/WorkItem": [
+        "../../../packages/architecture-lab/tables/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-tables/entities/Worker": [
+        "../../../packages/architecture-lab/tables/src/entities/Worker/index.ts"
+      ],
+      "@beep/postgres": ["../../../packages/drivers/postgres/src/index.ts"],
+      "@beep/postgres/*": ["../../../packages/drivers/postgres/src/*.ts"],
+      "@beep/test-utils": [
+        "../../../packages/tooling/test-kit/test-utils/src/index.ts"
+      ],
+      "@beep/test-utils/*": [
+        "../../../packages/tooling/test-kit/test-utils/src/*.ts"
+      ]
     }
   }
 }

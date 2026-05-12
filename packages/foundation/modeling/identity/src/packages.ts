@@ -58,9 +58,6 @@ const composers = $I.compose(
   "ui",
   "utils",
   "scratchpad",
-  // Synthetic architecture automation fixture packages
-  "fixture-lab-specimen",
-
   // P3 Professional Runtime Proof Packages
   "agent-capability-domain",
   "agent-capability-use-cases",
@@ -522,22 +519,6 @@ export const $InfraId: Identity.IdentityComposer<"@beep/infra"> = composers.$Inf
  */
 export const $SharedUseCasesId: Identity.IdentityComposer<"@beep/shared-use-cases"> = composers.$SharedUseCasesId;
 
-/**
- * Identity composer for the synthetic `@beep/fixture-lab-specimen-*` packages.
- *
- * @example
- * ```typescript
- * import { $FixtureLabSpecimenId } from "@beep/identity"
- *
- * const id = $FixtureLabSpecimenId.make("Specimen")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $FixtureLabSpecimenId: Identity.IdentityComposer<"@beep/fixture-lab-specimen"> =
-  composers.$FixtureLabSpecimenId;
-
 // --- p3 professional runtime proof ---
 
 /**
@@ -930,7 +911,7 @@ export const $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tabl
  * ```typescript
  * import { $ArchitectureLabDomainId } from "@beep/identity"
  *
- * const id = $ArchitectureLabDomainId.make("Specimen")
+ * const id = $ArchitectureLabDomainId.make("WorkItem")
  * void id
  * ```
  *
@@ -947,7 +928,7 @@ export const $ArchitectureLabDomainId: Identity.IdentityComposer<"@beep/architec
  * ```typescript
  * import { $ArchitectureLabUseCasesId } from "@beep/identity"
  *
- * const id = $ArchitectureLabUseCasesId.make("SpecimenService")
+ * const id = $ArchitectureLabUseCasesId.make("WorkItemService")
  * void id
  * ```
  *
@@ -998,7 +979,7 @@ export const $ArchitectureLabServerId: Identity.IdentityComposer<"@beep/architec
  * ```typescript
  * import { $ArchitectureLabTablesId } from "@beep/identity"
  *
- * const id = $ArchitectureLabTablesId.make("SpecimenTable")
+ * const id = $ArchitectureLabTablesId.make("WorkItemTable")
  * void id
  * ```
  *
@@ -1015,7 +996,7 @@ export const $ArchitectureLabTablesId: Identity.IdentityComposer<"@beep/architec
  * ```typescript
  * import { $ArchitectureLabClientId } from "@beep/identity"
  *
- * const id = $ArchitectureLabClientId.make("SpecimenClient")
+ * const id = $ArchitectureLabClientId.make("WorkItemClient")
  * void id
  * ```
  *
@@ -1032,7 +1013,7 @@ export const $ArchitectureLabClientId: Identity.IdentityComposer<"@beep/architec
  * ```typescript
  * import { $ArchitectureLabUiId } from "@beep/identity"
  *
- * const id = $ArchitectureLabUiId.make("SpecimenDetail")
+ * const id = $ArchitectureLabUiId.make("WorkItemViewModel")
  * void id
  * ```
  *

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-06",
+  "generatedOn": "2026-05-12",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -15,6 +15,54 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/agent-capability-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/architecture-lab/client/src/aggregates/WorkItem/WorkItem.client.ts",
+      "symbol": "WorkItemClientShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/architecture-lab-client",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/architecture-lab/client/src/aggregates/WorkItem/WorkItem.client.ts",
+      "symbol": "WorkItemClientTransport",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/architecture-lab-client",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.repository.ts",
+      "symbol": "WorkItemRepositoryShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/architecture-lab-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.use-cases.ts",
+      "symbol": "WorkItemUseCasesShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/architecture-lab-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/architecture-lab/use-cases/src/entities/Worker/Worker.repository.ts",
+      "symbol": "WorkerRepositoryShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/architecture-lab-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/architecture-lab/use-cases/src/entities/Worker/Worker.use-cases.ts",
+      "symbol": "WorkerUseCasesShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/architecture-lab-use-cases",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
@@ -135,86 +183,6 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/xai",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.command-client.ts",
-      "symbol": "SpecimenCommandClient",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/fixture-lab-specimen-client",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.command-client.ts",
-      "symbol": "SpecimenCommandTransport",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/fixture-lab-specimen-client",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.query-client.ts",
-      "symbol": "SpecimenQueryClient",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/fixture-lab-specimen-client",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.query-client.ts",
-      "symbol": "SpecimenQueryTransport",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/fixture-lab-specimen-client",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.service.ts",
-      "symbol": "SpecimenClient",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/fixture-lab-specimen-client",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.service.ts",
-      "symbol": "SpecimenClientTransport",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/fixture-lab-specimen-client",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/config/src/Config.ts",
-      "symbol": "SpecimenConfigShape",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/fixture-lab-specimen-config",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/ui/src/entities/Specimen/Specimen.detail.tsx",
-      "symbol": "SpecimenDetailProps",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/fixture-lab-specimen-ui",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/use-cases/src/entities/Specimen/Specimen.ports.ts",
-      "symbol": "SpecimenRepository",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/fixture-lab-specimen-use-cases",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/fixture-lab/specimen/use-cases/src/entities/Specimen/Specimen.service.ts",
-      "symbol": "SpecimenUseCases",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/fixture-lab-specimen-use-cases",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {

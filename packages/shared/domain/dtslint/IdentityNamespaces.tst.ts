@@ -10,13 +10,6 @@ describe("P3 identity namespace types", () => {
     expect<typeof Identity.AgentCapability.SkillId.tableName>().type.toBe<"agent_capability_skill">();
   });
 
-  it("preserves FixtureLabSpecimen companion aliases and literals", () => {
-    expect<Identity.FixtureLabSpecimen.SpecimenId>().type.toBe<
-      EntityId.EntityIdValueFor<"FixtureLabSpecimenSpecimenId">
-    >();
-    expect<typeof Identity.FixtureLabSpecimen.SpecimenId.tableName>().type.toBe<"fixture_lab_specimen_specimen">();
-  });
-
   it("preserves Epistemic companion aliases and literals", () => {
     expect<Identity.Epistemic.CandidateClaimId>().type.toBe<EntityId.EntityIdValueFor<"EpistemicCandidateClaimId">>();
     expect<Identity.Epistemic.EvidenceId>().type.toBe<EntityId.EntityIdValueFor<"EpistemicEvidenceId">>();

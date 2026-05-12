@@ -9,7 +9,6 @@ const config = {
     "packages/foundation/modeling/*/package.json",
     "packages/foundation/primitive/*/package.json",
     "packages/foundation/ui-system/*/package.json",
-    "packages/fixture-lab/specimen/*/package.json",
     "packages/shared/client/package.json",
     "packages/shared/domain/package.json",
     "packages/shared/server/package.json",

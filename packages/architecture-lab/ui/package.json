@@ -32,7 +32,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts",
+    "./aggregates/WorkItem": "./src/aggregates/WorkItem/index.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -49,12 +49,17 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
+      "./aggregates/WorkItem": "./dist/aggregates/WorkItem/index.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
+    "@beep/architecture-lab-config": "workspace:^",
+    "@beep/architecture-lab-domain": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {

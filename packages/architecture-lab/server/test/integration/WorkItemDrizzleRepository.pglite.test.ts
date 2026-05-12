@@ -1,0 +1,138 @@
+import { fileURLToPath } from "node:url";
+import { ArchitectureLabConfigTest } from "@beep/architecture-lab-config/test";
+import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
+import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
+import * as WorkPriority from "@beep/architecture-lab-domain/values/WorkPriority";
+import { makeDrizzleWorkItemRepository } from "@beep/architecture-lab-server/aggregates/WorkItem";
+import { makeDrizzleWorkerRepository } from "@beep/architecture-lab-server/entities/Worker";
+import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
+import { makePgliteSqlTestLayer, type SqlTestHooks, TestDatabaseInfo } from "@beep/test-utils";
+import { describe, expect, layer } from "@effect/vitest";
+import { Effect, Layer, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+
+const sharedConnectionUri = pipe(process.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
+const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const shouldUseTestcontainers = process.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";
+const shouldRunPgliteIntegration = O.isSome(sharedConnectionUri) || shouldUseTestcontainers;
+const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
+const decodeWorkItemTitle = S.decodeUnknownEffect(DomainWorkItem.WorkItemTitle);
+const decodeWorkerId = S.decodeUnknownEffect(DomainWorker.WorkerId);
+const decodeOrganizationId = S.decodeUnknownEffect(DomainWorker.WorkerOrganizationId);
+
+const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
+  pipe(
+    sharedConnectionUri,
+    O.match({
+      onNone: () =>
+        hooks === undefined
+          ? Layer.fresh(makePgliteSqlTestLayer({ mode: "testcontainers" }))
+          : Layer.fresh(makePgliteSqlTestLayer({ hooks, mode: "testcontainers" })),
+      onSome: (connectionUri) =>
+        hooks === undefined
+          ? Layer.fresh(
+              makePgliteSqlTestLayer({
+                external: { connectionUri },
+                mode: "external",
+              })
+            )
+          : Layer.fresh(
+              makePgliteSqlTestLayer({
+                external: { connectionUri },
+                hooks,
+                mode: "external",
+              })
+            ),
+    })
+  );
+
+const migrateArchitectureLab = Effect.fnUntraced(function* () {
+  const info = yield* TestDatabaseInfo;
+  const db = yield* makeDrizzle();
+  const migrationsSchema = pipe(
+    info.schema,
+    O.getOrElse(() => "drizzle")
+  );
+
+  yield* migrate(db, { migrationsFolder, migrationsSchema });
+});
+
+const WorkItemDrizzleRepositoryLayer = Layer.mergeAll(ArchitectureLabConfigTest, makeDrizzleLayer()).pipe(
+  Layer.provideMerge(makePgliteLayer())
+);
+
+if (!shouldRunPgliteIntegration) {
+  describe.skip("ArchitectureLab Drizzle repository PgLite integration", () => {});
+} else {
+  describe.sequential("ArchitectureLab Drizzle repository PgLite integration", () => {
+    layer(WorkItemDrizzleRepositoryLayer, { timeout: "2 minutes" })((it) => {
+      it.effect(
+        "persists WorkItem lifecycle changes through Drizzle",
+        Effect.fnUntraced(function* () {
+          yield* migrateArchitectureLab();
+          const repository = yield* makeDrizzleWorkItemRepository();
+          const workerId = yield* decodeWorkerId(1);
+          const id = yield* decodeWorkItemId("drizzle-work-item-1");
+          const title = yield* decodeWorkItemTitle("Prove Drizzle repository");
+          const created = DomainWorkItem.create(
+            new DomainWorkItem.CreateWorkItemInput({
+              id,
+              title,
+              priority: O.some(WorkPriority.WorkPriority.Enum.high),
+            })
+          );
+
+          const inserted = yield* repository.create(created);
+          const assigned = yield* DomainWorkItem.assign(inserted, workerId);
+          const saved = yield* repository.save(assigned);
+          const found = yield* repository.get(saved.id);
+          const all = yield* repository.list();
+
+          expect(found.status).toBe("assigned");
+          expect(O.getOrThrow(found.assignee)).toBe(workerId);
+          expect(O.getOrThrow(found.priority)).toBe("high");
+          expect(
+            pipe(
+              all,
+              A.map((workItem) => workItem.id)
+            )
+          ).toEqual([saved.id]);
+        }),
+        120_000
+      );
+
+      it.effect(
+        "persists Worker entities through Drizzle",
+        Effect.fnUntraced(function* () {
+          yield* migrateArchitectureLab();
+          const repository = yield* makeDrizzleWorkerRepository();
+          const id = yield* decodeWorkerId(1);
+          const organizationId = yield* decodeOrganizationId(1);
+          const created = DomainWorker.create(
+            new DomainWorker.CreateWorkerInput({
+              id,
+              organizationId,
+              displayName: "Ada Lovelace",
+            })
+          );
+
+          const inserted = yield* repository.create(created);
+          const found = yield* repository.get(inserted.id);
+          const all = yield* repository.list();
+
+          expect(found.displayName).toBe("Ada Lovelace");
+          expect(
+            pipe(
+              all,
+              A.map((worker) => worker.id)
+            )
+          ).toEqual([inserted.id]);
+        }),
+        120_000
+      );
+    });
+  });
+}

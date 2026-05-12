@@ -32,7 +32,6 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -49,12 +48,16 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
+    "@beep/architecture-lab-config": "workspace:^",
+    "@beep/architecture-lab-domain": "workspace:^",
+    "@beep/architecture-lab-server": "workspace:^",
+    "@beep/architecture-lab-ui": "workspace:^",
+    "@beep/architecture-lab-use-cases": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {

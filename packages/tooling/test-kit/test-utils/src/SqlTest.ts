@@ -17,6 +17,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
+import { ConnectionError, SqlError } from "effect/unstable/sql/SqlError";
 import type { GenericContainer, StartedTestContainer } from "testcontainers";
 
 const $I = $TestUtilsId.create("SqlTest");
@@ -548,6 +549,11 @@ const loadPgClientModule = (driver: Extract<typeof TestDatabaseDriver.Type, "pgl
       toHarnessError(driver, "provision", "Failed to load PostgreSQL client support for SQL tests.", cause),
   }).pipe(Effect.withSpan(`SqlTest.${driver}.loadPgClient`));
 
+const loadPgModule = Effect.tryPromise({
+  try: () => import("pg"),
+  catch: (cause) => toHarnessError("pg-external", "provision", "Failed to load pg support for SQL tests.", cause),
+}).pipe(Effect.withSpan("SqlTest.PgExternalTestDriver.loadPg"));
+
 const PgConnectRetryPolicy = Schedule.both(Schedule.spaced(Duration.millis(250)), Schedule.recurs(20));
 
 const decodePgliteTestcontainersTestDriverConfig = S.decodeUnknownEffect(PgliteTestcontainersTestDriverConfig);
@@ -829,16 +835,38 @@ const buildPgExternalLayer = Effect.fn("SqlTest.PgExternalTestDriver.build")(
     const config = yield* makePgExternalConfig(configInput);
     const parsed = yield* parsePgExternalConnectionUri(config.connectionUri);
     const Pg = yield* loadPgClientModule("pg-external");
+    const PgNative = yield* loadPgModule;
 
     return Layer.effectContext(
       Effect.gen(function* () {
         const reactivityContext = yield* Layer.build(Reactivity.layer);
         const reactivity = Context.get(reactivityContext, Reactivity.Reactivity);
-        const client = yield* Pg.PgClient.make({
-          connectTimeout: Duration.millis(config.connectTimeoutMs),
-          maxConnections: config.maxConnections,
-          ssl: config.ssl,
-          url: Redacted.make(config.connectionUri),
+        const client = yield* Pg.PgClient.fromClient({
+          acquire: Effect.acquireRelease(
+            Effect.tryPromise({
+              try: async () => {
+                const client = new PgNative.Client({
+                  connectionString: config.connectionUri,
+                  connectionTimeoutMillis: config.connectTimeoutMs,
+                  ssl: config.ssl,
+                });
+                await client.connect();
+                await client.query("SELECT 1");
+                return client;
+              },
+              catch: (cause) =>
+                new SqlError({
+                  reason: new ConnectionError({
+                    cause,
+                    message: "PgExternalTestDriver: Failed to connect",
+                    operation: "connect",
+                  }),
+                }),
+            }),
+            (client) =>
+              Effect.promise(() => client.end()).pipe(Effect.timeoutOption(Duration.seconds(1)), Effect.asVoid)
+          ),
+          acquireForStream: false,
         }).pipe(
           Effect.retry(PgConnectRetryPolicy),
           Effect.provideService(Reactivity.Reactivity, reactivity),

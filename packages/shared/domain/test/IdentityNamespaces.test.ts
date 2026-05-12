@@ -41,17 +41,6 @@ const specs = [
     tableName: "agent_capability_skill",
   },
   {
-    brand: "FixtureLabSpecimenSpecimenId",
-    description: "Identifier for a fixture-lab specimen entity.",
-    entityType: "FixtureLabSpecimenSpecimen",
-    label: "FixtureLabSpecimen.SpecimenId",
-    name: "specimen",
-    resource: "fixture_lab_specimen.specimen",
-    schema: Identity.FixtureLabSpecimen.SpecimenId,
-    slice: "fixture_lab_specimen",
-    tableName: "fixture_lab_specimen_specimen",
-  },
-  {
     brand: "EpistemicCandidateClaimId",
     description: "Identifier for a candidate claim entity.",
     entityType: "EpistemicCandidateClaim",

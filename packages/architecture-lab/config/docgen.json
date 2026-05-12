@@ -32,8 +32,38 @@
       "@beep/architecture-lab-config": [
         "../../../packages/architecture-lab/config/src/index.ts"
       ],
-      "@beep/architecture-lab-config/*": [
-        "../../../packages/architecture-lab/config/src/*.ts"
+      "@beep/architecture-lab-config/public": [
+        "../../../packages/architecture-lab/config/src/public.ts"
+      ],
+      "@beep/architecture-lab-config/server": [
+        "../../../packages/architecture-lab/config/src/server.ts"
+      ],
+      "@beep/architecture-lab-config/secrets": [
+        "../../../packages/architecture-lab/config/src/secrets.ts"
+      ],
+      "@beep/architecture-lab-config/layer": [
+        "../../../packages/architecture-lab/config/src/layer.ts"
+      ],
+      "@beep/architecture-lab-config/test": [
+        "../../../packages/architecture-lab/config/src/test.ts"
+      ],
+      "@beep/architecture-lab-config/aggregates/WorkItem": [
+        "../../../packages/architecture-lab/config/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/foundation/modeling/schema/src/*.ts"
       ]
     }
   }

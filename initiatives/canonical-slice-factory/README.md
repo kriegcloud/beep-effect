@@ -22,7 +22,11 @@ optional canonical parts through the same modular factory model that future
   executable architecture proof.
 - `architecture-lab` is a normal slice package family:
   `@beep/architecture-lab-*`, with `WorkItem` at `aggregates/WorkItem`.
-- `beep architecture` is the future command group for slice and architecture
+- The active proof now includes three domain-kind archetypes:
+  `aggregates/WorkItem` for full slice topology, `entities/Worker` for
+  persisted domain entities, and `values/WorkPriority` for domain-only value
+  objects.
+- `beep architecture` is the command group for slice and architecture
   part creation.
 - The CLI must use one schema-backed operation-plan core with ergonomic
   wrappers, not independent one-off scaffold scripts.
@@ -48,8 +52,7 @@ optional canonical parts through the same modular factory model that future
 
 - [history/repo-architecture-automation-reference.md](./history/repo-architecture-automation-reference.md) -
   compact retained lessons from the deleted prior packet
-- `packages/tooling/tool/cli/test/fixtures/repo-architecture-automation` -
-  prior registry/check shape to replace
-- `packages/fixture-lab/specimen` - drifted live proof workspaces to replace
+- Deleted `repo-architecture-automation` fixtures and `packages/fixture-lab/specimen`
+  remain available through git history only
 - `~/YeeBois/projects/beep-effect4/packages/_internal/db-admin` - Effect v3
   db-admin capability reference for drizzle-kit migration aggregation

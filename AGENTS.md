@@ -14,6 +14,11 @@ Build and maintain features with effect first development.
 - In `packages/**/{test,dtslint}/**/*.{ts,tsx}`, import package source through `@beep/*` package aliases instead of relative paths into any workspace `src/`; keep relatives only for local helpers, fixtures, snapshots, and other non-`src` test files.
 - Keep service boundaries explicit.
 - Keep repo quality commands green.
+- Use `bun run beep architecture` for canonical slice, concept, role, and
+  architecture proof generation instead of hand-authoring boilerplate.
+- For architecture concepts, use the canonical `--domain-kind` archetypes:
+  `aggregates` for full slice concepts, `entities` for persisted domain
+  entities, and `values` for domain-only value objects.
 - `graphiti-memory` is the primary durable repository knowledge base for this repo.
 - Prefer the repo-local helpers when useful:
   - `bun run graphiti:proxy`

@@ -6,5 +6,16 @@
     "types": ["node"],
     "outDir": "dist",
     "rootDir": "src"
-  }
+  },
+  "references": [
+    {
+      "path": "../../architecture-lab/tables/tsconfig.json"
+    },
+    {
+      "path": "../../drivers/postgres/tsconfig.json"
+    },
+    {
+      "path": "../../tooling/test-kit/test-utils/tsconfig.json"
+    }
+  ]
 }

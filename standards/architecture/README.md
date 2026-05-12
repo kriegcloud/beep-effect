@@ -51,9 +51,10 @@ Work`, and `Pending Automation/Generator Support`. Cleanup-on-touch is scoped
 to the boundary being edited; it is not a default instruction to sweep whole
 package families.
 
-Compile-ready proof lives in `packages/fixture-lab/specimen`. The numbered
-docs may use short membership sketches to explain the rule, but the fixture is
-the canonical executable example for package shape, boundary subpaths, and
+Compile-ready proof lives in `packages/architecture-lab/*` with
+`apps/architecture-lab-proof`. The numbered docs may use short membership
+sketches to explain the rule, but the architecture lab WorkItem slice is the
+canonical executable example for package shape, boundary subpaths, and
 port-to-action error translation.
 
 ## Start here

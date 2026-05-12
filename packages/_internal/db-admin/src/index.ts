@@ -1,6 +1,7 @@
 /**
  * \@beep/db-admin
  *
+ * @category configuration
  * @since 0.0.0
  */
 
@@ -14,7 +15,15 @@
  * console.log(VERSION)
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;
+
+/**
+ * Migration target exports.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export * from "./targets.js";

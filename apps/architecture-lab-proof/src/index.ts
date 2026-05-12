@@ -1,11 +1,76 @@
 /**
  * Package entry point for `@beep/architecture-lab-proof`.
  *
+ * @packageDocumentation
+ * @category workflows
  * @since 0.0.0
  */
 
+import { defaultWorkItemPublicConfig } from "@beep/architecture-lab-config/public";
+import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
+import { WorkItemServer } from "@beep/architecture-lab-server/aggregates/WorkItem";
+import { toWorkItemSummaryViewModel, WorkItemSummaryViewModel } from "@beep/architecture-lab-ui/aggregates/WorkItem";
+import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
+import { $ArchitectureLabProofId } from "@beep/identity/packages";
+import { Effect } from "effect";
+import * as S from "effect/Schema";
+
+const $I = $ArchitectureLabProofId.create("index");
+const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
+
 /**
+ * Package version for the architecture lab proof harness.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/architecture-lab-proof"
+ *
+ * console.log(VERSION)
+ * ```
+ *
+ * @category workflows
  * @since 0.0.0
- * @category Configuration
  */
 export const VERSION = "0.0.0" as const;
+
+/**
+ * App-level WorkItem proof result.
+ *
+ * @category workflows
+ * @since 0.0.0
+ */
+export class ArchitectureLabProofResult extends S.Class<ArchitectureLabProofResult>($I`ArchitectureLabProofResult`)(
+  {
+    created: DomainWorkItem.WorkItem,
+    summary: WorkItemSummaryViewModel,
+  },
+  $I.annote("ArchitectureLabProofResult", {
+    title: "Architecture lab proof result",
+    description: "Result produced by the architecture lab app contract harness.",
+  })
+) {}
+
+/**
+ * Execute the architecture lab proof harness against the composed server layer.
+ *
+ * @category workflows
+ * @since 0.0.0
+ */
+export const runArchitectureLabProof: Effect.Effect<
+  ArchitectureLabProofResult,
+  WorkItemUseCases.WorkItemActionError,
+  WorkItemServer
+> = Effect.gen(function* () {
+  const server = yield* WorkItemServer;
+  const id = yield* decodeWorkItemId("architecture-lab-proof-1").pipe(Effect.orDie);
+  const created = yield* server.create(
+    new WorkItemUseCases.CreateWorkItemCommand({
+      id,
+      title: "Prove canonical slice topology",
+    })
+  );
+  return new ArchitectureLabProofResult({
+    created,
+    summary: toWorkItemSummaryViewModel(created, defaultWorkItemPublicConfig),
+  });
+});

@@ -11,9 +11,10 @@ The companion rationale packet lives in
 explains why these rules exist. This file states the rules and teaches the
 default way to apply them.
 
-Canonical executable examples live in `packages/fixture-lab/specimen` and are
-covered by tests. Longer membership snippets in this document are architectural
-sketches unless they explicitly reference the fixture package.
+Canonical executable examples live in `packages/architecture-lab/*` with the
+`apps/architecture-lab-proof` harness and are covered by tests. Longer
+membership snippets in this document are architectural sketches unless they
+explicitly reference the architecture lab packages.
 
 ## North Star
 
@@ -160,6 +161,11 @@ Every non-slice artifact declares exactly one family so readers, reviewers, and
 tooling can infer the intended boundary before opening the first file. `kind`
 is required only for families that intentionally declare a kind segment;
 `drivers` remains the flat family exception.
+
+`packages/_internal/db-admin` is a narrow durable internal exception for
+repository-owned database migration aggregation and generated migration SQL.
+Product apps and product slice packages must not depend on it; see
+[07-non-slice-families.md](architecture/07-non-slice-families.md).
 
 ## Package Dependency Graph
 
@@ -1732,8 +1738,8 @@ export const MembershipLayer = Layer.effect(
 
 The service contract exposes public action failures only. Repository, driver,
 and domain failures are translated before the use-case returns; the
-compile-ready `fixture-lab/Specimen` slice is the executable proof for that
-boundary rule.
+compile-ready `architecture-lab/WorkItem` slice is the executable proof for
+that boundary rule.
 
 Server handlers consume use-case services:
 

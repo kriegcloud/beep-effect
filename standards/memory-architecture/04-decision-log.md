@@ -4,6 +4,61 @@ Dated decision log for the memory architecture standard. Records decisions as th
 
 ---
 
+## 2026-05-12: Context Graph Capability Portfolio
+
+**Context:** TrustGraph, Cognee, Graphiti/Zep, Microsoft GraphRAG, LangGraph,
+Letta, mem0, LlamaIndex, Neo4j GenAI, FalkorDB, Mastra, GraphZep, and the local
+TrustGraph TypeScript port were reassessed for features that could support
+`ip-law-knowledge-graph`, `knowledge-workspace`,
+`agentic-professional-runtime`, and the memory architecture standard. The user
+clarified that "base implementation on" means feature and capability influence,
+not adopting another project's runtime topology. Provenance core is the primary
+selection axis, and ontology graph capability is required.
+
+**Decision:** Adopt a capability portfolio:
+
+1. Keep repo-native authority as the foundation: Effect services,
+   schema-first claims, deterministic IDs, source spans, provenance records,
+   replayable events, and rebuildable graph projections.
+2. Use TrustGraph and the local TrustGraph TypeScript port as the primary
+   provenance/context-graph references.
+3. Use Cognee as the primary memory-control-plane and ontology-UX reference.
+4. Use Graphiti/Zep and GraphZep as temporal/session-memory references.
+5. Use Microsoft GraphRAG and LlamaIndex as corpus graph-derivation references.
+6. Keep FalkorDB as the preferred graph projection engine.
+7. Treat all LLM/embedding/GraphRAG output as candidate memory until it is
+   linked to source evidence and accepted by the relevant product or policy
+   boundary.
+
+**Rationale:**
+
+- The April 2026 memory standard remains correct that semantic memory systems
+  are not durable truth foundations.
+- The newer assessment still found valuable capabilities in external systems:
+  TrustGraph's persistent source/retrieval traces, Cognee's DataPoint and
+  ontology UX, Graphiti's validity windows and episode lineage, and
+  GraphRAG-style corpus derivation.
+- Choosing one external project would either import Python/service topology or
+  overfit the repo to a semantic-memory architecture. A portfolio lets the repo
+  port the useful parts into Effect-native boundaries.
+- The professional-runtime and IP-law initiatives need provenance and ontology
+  capabilities, but accepted legal/financial facts must remain evidence-backed
+  and approval-gated.
+
+**Consequences:**
+
+- `05-context-graph-capability-assessment.md` becomes the current reference for
+  context graph, ontology graph, and agent recall feature selection.
+- External projects may be used as feature donors, references, or cache
+  sidecars, but not as authoritative memory stores.
+- Future implementation work must classify each feature as authority, candidate
+  producer, semantic cache, graph projection, or agent UX before choosing a
+  package home.
+- Any runtime integration with a foreign service must go through repo-level
+  `drivers/*` wrappers and must not own product semantics.
+
+---
+
 ## 2026-04-15: Memory Architecture Standard Established
 
 **Context:** After extensive exploration of agent memory systems -- including knowledge graphs (Graphiti, TrustGraph), SaaS solutions (Supermemory, Greptile, FalkorDB), research papers ("The Price of Meaning", arXiv:2603.27116), and multiple internal specs (expert-memory-big-picture, repo-codegraph-jsdoc, repo-expert-memory-local-first-v0) -- the project had accumulated too many open threads without clear prioritization. The "AI Knowledge Base" wave triggered by Andrej Karpathy's X post amplified the noise.

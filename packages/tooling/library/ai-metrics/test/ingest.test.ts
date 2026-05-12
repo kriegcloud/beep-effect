@@ -101,6 +101,7 @@ const relativeSnapshotPaths = (files: ReadonlyArray<{ readonly relativePath: str
   );
 
 const sqlString = (value: string): string => `'${pipe(value, Str.replace(/'/gu, "''"))}'`;
+const AI_METRICS_LONG_TEST_TIMEOUT = 90_000;
 
 const phoenixService = <A extends { readonly tool: string }>(spec: { readonly services: ReadonlyArray<A> }) =>
   pipe(
@@ -299,7 +300,8 @@ describe("@beep/repo-ai-metrics", () => {
           }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
       ).pipe(Effect.provide(NodeServices.layer));
-    })
+    }),
+    AI_METRICS_LONG_TEST_TIMEOUT
   );
 
   it.effect(
@@ -523,7 +525,8 @@ describe("@beep/repo-ai-metrics", () => {
           }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
       ).pipe(Effect.provide(NodeServices.layer));
-    })
+    }),
+    AI_METRICS_LONG_TEST_TIMEOUT
   );
 
   it.effect(

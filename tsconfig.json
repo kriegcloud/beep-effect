@@ -128,69 +128,6 @@
       "@beep/repo-docgen/schema.json": [
         "./packages/tooling/tool/docgen/schema.json"
       ],
-      "@beep/fixture-lab-specimen-client": [
-        "./packages/fixture-lab/specimen/client/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-client/entities/Specimen": [
-        "./packages/fixture-lab/specimen/client/src/entities/Specimen/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-config": [
-        "./packages/fixture-lab/specimen/config/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-config/layer": [
-        "./packages/fixture-lab/specimen/config/src/Layer.ts"
-      ],
-      "@beep/fixture-lab-specimen-config/public": [
-        "./packages/fixture-lab/specimen/config/src/PublicConfig.ts"
-      ],
-      "@beep/fixture-lab-specimen-config/secrets": [
-        "./packages/fixture-lab/specimen/config/src/Secrets.ts"
-      ],
-      "@beep/fixture-lab-specimen-config/server": [
-        "./packages/fixture-lab/specimen/config/src/ServerConfig.ts"
-      ],
-      "@beep/fixture-lab-specimen-config/test": [
-        "./packages/fixture-lab/specimen/config/src/TestLayer.ts"
-      ],
-      "@beep/fixture-lab-specimen-domain": [
-        "./packages/fixture-lab/specimen/domain/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-domain/entities/Specimen": [
-        "./packages/fixture-lab/specimen/domain/src/entities/Specimen/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-server": [
-        "./packages/fixture-lab/specimen/server/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-server/layer": [
-        "./packages/fixture-lab/specimen/server/src/Layer.ts"
-      ],
-      "@beep/fixture-lab-specimen-tables": [
-        "./packages/fixture-lab/specimen/tables/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-tables/read-models": [
-        "./packages/fixture-lab/specimen/tables/src/ReadModels.ts"
-      ],
-      "@beep/fixture-lab-specimen-tables/tables": [
-        "./packages/fixture-lab/specimen/tables/src/Tables.ts"
-      ],
-      "@beep/fixture-lab-specimen-ui": [
-        "./packages/fixture-lab/specimen/ui/src/index.tsx"
-      ],
-      "@beep/fixture-lab-specimen-ui/entities/Specimen": [
-        "./packages/fixture-lab/specimen/ui/src/entities/Specimen/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-use-cases": [
-        "./packages/fixture-lab/specimen/use-cases/src/index.ts"
-      ],
-      "@beep/fixture-lab-specimen-use-cases/public": [
-        "./packages/fixture-lab/specimen/use-cases/src/public.ts"
-      ],
-      "@beep/fixture-lab-specimen-use-cases/server": [
-        "./packages/fixture-lab/specimen/use-cases/src/server.ts"
-      ],
-      "@beep/fixture-lab-specimen-use-cases/test": [
-        "./packages/fixture-lab/specimen/use-cases/src/test.ts"
-      ],
       "@beep/identity/packages": [
         "./packages/foundation/modeling/identity/src/packages.ts"
       ],
@@ -426,9 +363,6 @@
       "@beep/shared-domain/identity/Epistemic": [
         "./packages/shared/domain/src/identity/Epistemic.ts"
       ],
-      "@beep/shared-domain/identity/FixtureLabSpecimen": [
-        "./packages/shared/domain/src/identity/FixtureLabSpecimen.ts"
-      ],
       "@beep/shared-domain/identity/LawPractice": [
         "./packages/shared/domain/src/identity/LawPractice.ts"
       ],
@@ -443,9 +377,6 @@
       ],
       "@beep/agent-capability-use-cases/proof": [
         "./packages/agent-capability/use-cases/src/proof.ts"
-      ],
-      "@beep/fixture-lab-specimen-domain/entities": [
-        "./packages/fixture-lab/specimen/domain/src/entities/index.ts"
       ],
       "@beep/sandbox": [
         "./packages/foundation/capability/sandbox/src/index.ts"
@@ -493,50 +424,113 @@
       "@beep/architecture-lab-domain": [
         "./packages/architecture-lab/domain/src/index.ts"
       ],
-      "@beep/architecture-lab-domain/*": [
-        "./packages/architecture-lab/domain/src/*"
-      ],
       "@beep/architecture-lab-use-cases": [
         "./packages/architecture-lab/use-cases/src/index.ts"
-      ],
-      "@beep/architecture-lab-use-cases/*": [
-        "./packages/architecture-lab/use-cases/src/*"
       ],
       "@beep/architecture-lab-config": [
         "./packages/architecture-lab/config/src/index.ts"
       ],
-      "@beep/architecture-lab-config/*": [
-        "./packages/architecture-lab/config/src/*"
-      ],
       "@beep/architecture-lab-server": [
         "./packages/architecture-lab/server/src/index.ts"
-      ],
-      "@beep/architecture-lab-server/*": [
-        "./packages/architecture-lab/server/src/*"
       ],
       "@beep/architecture-lab-tables": [
         "./packages/architecture-lab/tables/src/index.ts"
       ],
-      "@beep/architecture-lab-tables/*": [
-        "./packages/architecture-lab/tables/src/*"
-      ],
       "@beep/architecture-lab-client": [
         "./packages/architecture-lab/client/src/index.ts"
-      ],
-      "@beep/architecture-lab-client/*": [
-        "./packages/architecture-lab/client/src/*"
       ],
       "@beep/architecture-lab-ui": [
         "./packages/architecture-lab/ui/src/index.ts"
       ],
-      "@beep/architecture-lab-ui/*": [
-        "./packages/architecture-lab/ui/src/*"
-      ],
       "@beep/architecture-lab-proof": [
         "./apps/architecture-lab-proof/src/index.ts"
       ],
-      "@beep/architecture-lab-proof/*": [
-        "./apps/architecture-lab-proof/src/*"
+      "@beep/architecture-lab-client/aggregates/WorkItem": [
+        "./packages/architecture-lab/client/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-config/aggregates/WorkItem": [
+        "./packages/architecture-lab/config/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-config/layer": [
+        "./packages/architecture-lab/config/src/layer.ts"
+      ],
+      "@beep/architecture-lab-config/public": [
+        "./packages/architecture-lab/config/src/public.ts"
+      ],
+      "@beep/architecture-lab-config/secrets": [
+        "./packages/architecture-lab/config/src/secrets.ts"
+      ],
+      "@beep/architecture-lab-config/server": [
+        "./packages/architecture-lab/config/src/server.ts"
+      ],
+      "@beep/architecture-lab-config/test": [
+        "./packages/architecture-lab/config/src/test.ts"
+      ],
+      "@beep/architecture-lab-domain/aggregates": [
+        "./packages/architecture-lab/domain/src/aggregates/index.ts"
+      ],
+      "@beep/architecture-lab-domain/aggregates/WorkItem": [
+        "./packages/architecture-lab/domain/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-server/aggregates/WorkItem": [
+        "./packages/architecture-lab/server/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-server/layer": [
+        "./packages/architecture-lab/server/src/Layer.ts"
+      ],
+      "@beep/architecture-lab-server/test": [
+        "./packages/architecture-lab/server/src/test.ts"
+      ],
+      "@beep/architecture-lab-tables/aggregates/WorkItem": [
+        "./packages/architecture-lab/tables/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-tables/tables": [
+        "./packages/architecture-lab/tables/src/tables.ts"
+      ],
+      "@beep/architecture-lab-ui/aggregates/WorkItem": [
+        "./packages/architecture-lab/ui/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-use-cases/aggregates/WorkItem": [
+        "./packages/architecture-lab/use-cases/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-use-cases/aggregates/WorkItem/server": [
+        "./packages/architecture-lab/use-cases/src/aggregates/WorkItem/server.ts"
+      ],
+      "@beep/architecture-lab-use-cases/public": [
+        "./packages/architecture-lab/use-cases/src/public.ts"
+      ],
+      "@beep/architecture-lab-use-cases/server": [
+        "./packages/architecture-lab/use-cases/src/server.ts"
+      ],
+      "@beep/architecture-lab-domain/entities": [
+        "./packages/architecture-lab/domain/src/entities/index.ts"
+      ],
+      "@beep/architecture-lab-domain/entities/Worker": [
+        "./packages/architecture-lab/domain/src/entities/Worker/index.ts"
+      ],
+      "@beep/architecture-lab-domain/identity": [
+        "./packages/architecture-lab/domain/src/identity/index.ts"
+      ],
+      "@beep/architecture-lab-domain/identity/ArchitectureLab": [
+        "./packages/architecture-lab/domain/src/identity/ArchitectureLab.ts"
+      ],
+      "@beep/architecture-lab-domain/values": [
+        "./packages/architecture-lab/domain/src/values/index.ts"
+      ],
+      "@beep/architecture-lab-domain/values/WorkPriority": [
+        "./packages/architecture-lab/domain/src/values/WorkPriority/index.ts"
+      ],
+      "@beep/architecture-lab-server/entities/Worker": [
+        "./packages/architecture-lab/server/src/entities/Worker/index.ts"
+      ],
+      "@beep/architecture-lab-tables/entities/Worker": [
+        "./packages/architecture-lab/tables/src/entities/Worker/index.ts"
+      ],
+      "@beep/architecture-lab-use-cases/entities/Worker": [
+        "./packages/architecture-lab/use-cases/src/entities/Worker/index.ts"
+      ],
+      "@beep/architecture-lab-use-cases/entities/Worker/server": [
+        "./packages/architecture-lab/use-cases/src/entities/Worker/server.ts"
       ]
     }
   }

@@ -112,6 +112,19 @@ fact from metadata.
 `drivers` is the explicit flat-family exception. It records family metadata,
 omits `kind` in manifest metadata, and does not add a second `<kind>` segment.
 
+## Internal Admin Packages
+
+`packages/_internal/db-admin` is the durable internal migration aggregation home
+for repository-owned database administration proof and generated migration SQL.
+It is not a product slice, shared kernel, foundation package, driver, or public
+runtime API. Product apps and product slice packages must not depend on it.
+
+The package may import slice table packages to aggregate Drizzle schema and may
+own generated migration artifacts, migration target metadata, and live migration
+tests. That exception is intentionally narrower than a general `_internal`
+package family: new durable internal packages still need an explicit
+architecture decision or a canonical `tooling`/`drivers`/`foundation` home.
+
 ## `shared` Is Not `foundation`
 
 `shared` remains the DDD shared kernel.

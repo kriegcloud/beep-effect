@@ -32,7 +32,12 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts",
+    "./public": "./src/public.ts",
+    "./server": "./src/server.ts",
+    "./aggregates/WorkItem": "./src/aggregates/WorkItem/index.ts",
+    "./aggregates/WorkItem/server": "./src/aggregates/WorkItem/server.ts",
+    "./entities/Worker": "./src/entities/Worker/index.ts",
+    "./entities/Worker/server": "./src/entities/Worker/server.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -49,12 +54,20 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.ts",
-      "./*": "./dist/*.js",
+      "./public": "./dist/public.js",
+      "./server": "./dist/server.js",
+      "./aggregates/WorkItem": "./dist/aggregates/WorkItem/index.js",
+      "./aggregates/WorkItem/server": "./dist/aggregates/WorkItem/server.js",
+      "./entities/Worker": "./dist/entities/Worker/index.js",
+      "./entities/Worker/server": "./dist/entities/Worker/server.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
+    "@beep/architecture-lab-domain": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {

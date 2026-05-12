@@ -1,11 +1,44 @@
 /**
  * Package entry point for `@beep/architecture-lab-server`.
  *
+ * @packageDocumentation
+ * @category handlers
  * @since 0.0.0
  */
 
 /**
+ * Package version for the architecture lab server role.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/architecture-lab-server"
+ *
+ * console.log(VERSION)
+ * ```
+ *
+ * @category handlers
  * @since 0.0.0
- * @category Configuration
  */
 export const VERSION = "0.0.0" as const;
+
+/**
+ * Direct WorkItem server namespace export.
+ *
+ * @category handlers
+ * @since 0.0.0
+ */
+export * as WorkItem from "./aggregates/WorkItem/index.js";
+/**
+ * Direct Worker server namespace export.
+ *
+ * @category handlers
+ * @since 0.0.0
+ */
+export * as Worker from "./entities/Worker/index.js";
+/**
+ * Architecture lab server layer export.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./Layer.js";

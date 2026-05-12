@@ -55,12 +55,14 @@
     "@effect/sql-sqlite-bun": "catalog:",
     "@effect/sql-sqlite-node": "catalog:",
     "effect": "catalog:",
+    "pg": "^8.20.0",
     "testcontainers": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "@types/bun": "catalog:",
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "@types/pg": "^8.20.0"
   },
   "private": true,
   "publishConfig": {
