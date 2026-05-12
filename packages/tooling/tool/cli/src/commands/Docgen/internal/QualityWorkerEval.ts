@@ -640,7 +640,7 @@ const reviewFindingCodes = (review: O.Option<QualityReview>): ReadonlyArray<Docg
   pipe(
     review,
     O.map((value) => A.map(value.findings, (finding) => finding.code)),
-    O.getOrElse(() => A.empty<DocgenQualityFindingCodeValue>())
+    O.getOrElse(A.empty<DocgenQualityFindingCodeValue>)
   );
 
 const reviewImpact = (review: O.Option<QualityReview>): number =>
@@ -734,7 +734,7 @@ export const selectQualityWorkerEvalPackets = (
           pipe(
             O.fromNullishOr(grouped[packagePath]?.[index]),
             O.match({
-              onNone: () => A.empty<PacketCandidate>(),
+              onNone: A.empty<PacketCandidate>,
               onSome: A.of,
             })
           )
