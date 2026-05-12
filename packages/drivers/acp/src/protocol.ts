@@ -6,6 +6,7 @@
  */
 
 import { $AcpId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
 import { Deferred, Effect, HashMap, HashSet, Inspectable, Match, Queue, Ref, Stream } from "effect";
 import type * as Cause from "effect/Cause";
 import * as O from "effect/Option";
@@ -46,9 +47,9 @@ const isAcpRequestError = S.is(AcpError.AcpRequestError);
  */
 export class AcpProtocolLogEvent extends S.Class<AcpProtocolLogEvent>($I`AcpProtocolLogEvent`)(
   {
-    direction: S.Union([S.Literal("incoming"), S.Literal("outgoing")]),
+    direction: LiteralKit(["incoming", "outgoing"] as const),
     payload: S.Unknown,
-    stage: S.Union([S.Literal("raw"), S.Literal("decoded"), S.Literal("decode_failed")]),
+    stage: LiteralKit(["raw", "decoded", "decode_failed"] as const),
   },
   $I.annote("AcpProtocolLogEvent", {
     description: "Structured log event emitted by the ACP protocol adapter.",

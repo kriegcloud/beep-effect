@@ -19,7 +19,7 @@ import { LegalClient } from "@beep/law-practice-domain/entities/LegalClient";
 import { LegalContact } from "@beep/law-practice-domain/entities/LegalContact";
 import { Matter } from "@beep/law-practice-domain/entities/Matter";
 import { PatentAsset } from "@beep/law-practice-domain/entities/PatentAsset";
-import { UnknownRecord } from "@beep/schema";
+import { LiteralKit, UnknownRecord } from "@beep/schema";
 import { Model as Membership } from "@beep/shared-domain/entities/Membership";
 import { Model as Organization } from "@beep/shared-domain/entities/Organization";
 import { Model as User } from "@beep/shared-domain/entities/User";
@@ -76,7 +76,7 @@ class SeedMembershipFixture extends S.Class<SeedMembershipFixture>("SeedMembersh
 }) {}
 
 class SeedOrganizationFixture extends S.Class<SeedOrganizationFixture>("SeedOrganizationFixture")({
-  kind: S.Union([S.Literal("solo_practice"), S.Literal("wealth_firm")]),
+  kind: LiteralKit(["solo_practice", "wealth_firm"] as const),
   licenseTier: S.String,
   name: S.String,
   organizationId: S.String,

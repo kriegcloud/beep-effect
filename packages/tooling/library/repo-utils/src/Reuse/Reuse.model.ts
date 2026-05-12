@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { NonNegativeInt } from "@beep/schema";
+import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 
@@ -62,7 +62,7 @@ export type ReuseCatalogOrigin = typeof ReuseCatalogOrigin.Type;
  * @category models
  * @since 0.0.0
  */
-export const ReuseWorkUnitKind = S.Union([S.Literal("scout"), S.Literal("specialist")]).pipe(
+export const ReuseWorkUnitKind = LiteralKit(["scout", "specialist"] as const).pipe(
   S.annotate(
     $I.annote("ReuseWorkUnitKind", {
       description: "Kind of reuse-analysis work unit emitted for future orchestration.",

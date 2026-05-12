@@ -15,7 +15,7 @@ import {
   isNoNativeRuntimeErrorFile,
   isNoNativeRuntimeExtraCheckHotspot,
 } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
-import { TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { Effect, HashSet, Inspectable, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
@@ -106,7 +106,7 @@ export class NoNativeRuntimeRulesOptions extends S.Class<NoNativeRuntimeRulesOpt
   })
 ) {}
 
-const NoNativeRuntimeSeverity = S.Union([S.Literal("warn"), S.Literal("error")]);
+const NoNativeRuntimeSeverity = LiteralKit(["warn", "error"] as const);
 
 /**
  * Single repo-local native runtime diagnostic.
