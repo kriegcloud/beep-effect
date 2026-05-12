@@ -431,9 +431,16 @@ export class DocgenQualityWorkerEvalReport extends S.Class<DocgenQualityWorkerEv
  * @category models
  * @since 0.0.0
  */
-export type DocgenQualityWorkerEvalRunnerResult = {
-  readonly finalResponse: string;
-};
+export class DocgenQualityWorkerEvalRunnerResult extends S.Class<DocgenQualityWorkerEvalRunnerResult>(
+  $I`DocgenQualityWorkerEvalRunnerResult`
+)(
+  {
+    finalResponse: S.String,
+  },
+  $I.annote("DocgenQualityWorkerEvalRunnerResult", {
+    description: "Completed worker turn returned by the Codex runner.",
+  })
+) {}
 
 /**
  * Inputs passed to the Codex runner for one remediation packet.
@@ -448,13 +455,20 @@ export type DocgenQualityWorkerEvalRunnerResult = {
  * @category models
  * @since 0.0.0
  */
-export type DocgenQualityWorkerEvalRunnerInput = {
-  readonly model: string;
-  readonly provider: DocgenQualityWorkerEvalProvider;
-  readonly reasoningEffort?: DocgenQualityWorkerEvalReasoningEffort;
-  readonly prompt: string;
-  readonly workingDirectory: string;
-};
+export class DocgenQualityWorkerEvalRunnerInput extends S.Class<DocgenQualityWorkerEvalRunnerInput>(
+  $I`DocgenQualityWorkerEvalRunnerInput`
+)(
+  {
+    model: S.String,
+    provider: DocgenQualityWorkerEvalProvider,
+    reasoningEffort: S.optional(DocgenQualityWorkerEvalReasoningEffort),
+    prompt: S.String,
+    workingDirectory: S.String,
+  },
+  $I.annote("DocgenQualityWorkerEvalRunnerInput", {
+    description: "Inputs passed to the Codex runner for one remediation packet.",
+  })
+) {}
 
 /**
  * Runner used to execute one Codex eval turn.
@@ -504,18 +518,25 @@ type PacketCandidate = {
  * @category models
  * @since 0.0.0
  */
-export type AnalyzeDocgenQualityWorkerEvalOptions = {
-  readonly codexSdkVersion?: string;
-  readonly model: string;
-  readonly packetLimit?: number;
-  readonly provider: DocgenQualityWorkerEvalProvider;
-  readonly reasoningEffort?: DocgenQualityWorkerEvalReasoningEffort;
-  readonly report: DocgenQualityReport;
-  readonly runner?: DocgenQualityWorkerEvalRunner;
-  readonly scope: DocgenQualityWorkerEvalScope;
-  readonly sourceQualityReport: string;
-  readonly timeout?: Duration.Duration;
-};
+export class AnalyzeDocgenQualityWorkerEvalOptions extends S.Class<AnalyzeDocgenQualityWorkerEvalOptions>(
+  $I`AnalyzeDocgenQualityWorkerEvalOptions`
+)(
+  {
+    codexSdkVersion: S.optional(S.String),
+    model: S.String,
+    packetLimit: S.optional(S.Number),
+    provider: DocgenQualityWorkerEvalProvider,
+    reasoningEffort: S.optional(DocgenQualityWorkerEvalReasoningEffort),
+    report: DocgenQualityReport,
+    runner: S.optional(S.Any),
+    scope: DocgenQualityWorkerEvalScope,
+    sourceQualityReport: S.String,
+    timeout: S.optional(S.Any),
+  },
+  $I.annote("AnalyzeDocgenQualityWorkerEvalOptions", {
+    description: "Options for one worker eval run.",
+  })
+) {}
 
 const timestampIso = (): string => DateTime.formatIso(DateTime.nowUnsafe());
 
