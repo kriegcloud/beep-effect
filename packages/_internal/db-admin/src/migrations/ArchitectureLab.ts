@@ -7,6 +7,7 @@
  */
 
 import { WORK_ITEM_TABLE_NAME } from "@beep/architecture-lab-tables/aggregates/WorkItem";
+import { WORKER_TABLE_NAME } from "@beep/architecture-lab-tables/entities/Worker";
 import { DbSchema } from "@beep/architecture-lab-tables/tables";
 
 /**
@@ -31,6 +32,6 @@ export interface DbAdminMigrationTarget {
 export const ArchitectureLabMigrationTarget: DbAdminMigrationTarget = {
   name: "architecture-lab",
   schemaName: "architecture_lab",
-  tables: [WORK_ITEM_TABLE_NAME],
+  tables: [WORK_ITEM_TABLE_NAME, WORKER_TABLE_NAME],
   drizzleSchema: DbSchema,
 };

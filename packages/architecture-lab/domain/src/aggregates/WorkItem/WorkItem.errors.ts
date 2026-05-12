@@ -71,7 +71,7 @@ export class WorkItemInvalidTransition extends TaggedErrorClass<WorkItemInvalidT
 }
 
 /**
- * Failure raised when an assignment command omits the assignee.
+ * Failure raised when an assignment command omits a valid assignee.
  *
  * @category errors
  * @since 0.1.0
@@ -83,7 +83,7 @@ export class WorkItemAssigneeRequired extends TaggedErrorClass<WorkItemAssigneeR
   },
   $I.annote("WorkItemAssigneeRequired", {
     title: "WorkItem assignee required",
-    description: "Assigning a WorkItem requires a non-empty assignee value.",
+    description: "Assigning a WorkItem requires a valid Worker identity.",
   })
 ) {}
 

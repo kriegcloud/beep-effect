@@ -10,6 +10,8 @@ import { $ArchitectureLabDomainId } from "@beep/identity/packages";
 import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { WorkerId } from "../../entities/Worker/index.js";
+import { defaultWorkPriority, WorkPriority } from "../../values/WorkPriority/index.js";
 import { WorkItemAlreadyArchived, WorkItemAssigneeRequired, WorkItemInvalidTransition } from "./WorkItem.errors.js";
 import { WorkItemId, WorkItemStatus, WorkItemTitle } from "./WorkItem.values.js";
 
@@ -26,7 +28,8 @@ export class WorkItem extends S.Class<WorkItem>($I`WorkItem`)(
     id: WorkItemId,
     title: WorkItemTitle,
     status: WorkItemStatus,
-    assignee: S.OptionFromOptionalKey(S.String),
+    assignee: S.OptionFromOptionalKey(WorkerId),
+    priority: S.OptionFromOptionalKey(WorkPriority),
   },
   $I.annote("WorkItem", {
     title: "WorkItem",
@@ -44,6 +47,9 @@ export class CreateWorkItemInput extends S.Class<CreateWorkItemInput>($I`CreateW
   {
     id: WorkItemId,
     title: WorkItemTitle,
+    priority: S.OptionFromOptionalKey(WorkPriority).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<WorkPriority>()))
+    ),
   },
   $I.annote("CreateWorkItemInput", {
     title: "Create WorkItem input",
@@ -63,6 +69,7 @@ export const create = (input: CreateWorkItemInput): WorkItem =>
     title: input.title,
     status: "open",
     assignee: O.none(),
+    priority: O.some(O.getOrElse(input.priority, () => defaultWorkPriority)),
   });
 
 const requireMutable = (workItem: WorkItem): Effect.Effect<void, WorkItemAlreadyArchived> =>
@@ -74,9 +81,9 @@ const requireMutable = (workItem: WorkItem): Effect.Effect<void, WorkItemAlready
  * @category aggregates
  * @since 0.1.0
  */
-export const assign = Effect.fn("WorkItem.assign")(function* (workItem: WorkItem, assignee: string) {
+export const assign = Effect.fn("WorkItem.assign")(function* (workItem: WorkItem, assignee: WorkerId) {
   yield* requireMutable(workItem);
-  if (assignee.length === 0) {
+  if (assignee <= 0) {
     return yield* new WorkItemAssigneeRequired({ workItemId: workItem.id });
   }
   if (workItem.status !== "open" && workItem.status !== "assigned") {

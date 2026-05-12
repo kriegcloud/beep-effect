@@ -26,15 +26,15 @@
     "audit": "bun run --if-present beep:audit"
   },
   "dependencies": {
-    "@beep/architecture-lab-tables": "workspace:*",
+    "@beep/architecture-lab-tables": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/postgres": "workspace:*",
-    "@beep/test-utils": "workspace:*",
+    "@beep/postgres": "workspace:^",
+    "@beep/test-utils": "workspace:^",
     "@effect/vitest": "catalog:",
-    "drizzle-kit": "catalog:",
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "drizzle-kit": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",

@@ -55,9 +55,9 @@
     }
   },
   "dependencies": {
-    "@beep/architecture-lab-domain": "workspace:*",
-    "@beep/architecture-lab-use-cases": "workspace:*",
-    "@beep/identity": "workspace:*",
+    "@beep/architecture-lab-domain": "workspace:^",
+    "@beep/architecture-lab-use-cases": "workspace:^",
+    "@beep/identity": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {

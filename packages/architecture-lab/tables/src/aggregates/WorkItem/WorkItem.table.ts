@@ -7,7 +7,9 @@
  */
 
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
+import type * as DomainWorkPriority from "@beep/architecture-lab-domain/values/WorkPriority";
+import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { pipe } from "effect";
 import * as O from "effect/Option";
 
@@ -29,7 +31,8 @@ export const workItemTable = pgTable(WORK_ITEM_TABLE_NAME, {
   id: text("id").primaryKey().$type<DomainWorkItem.WorkItemId>(),
   title: text("title").notNull().$type<DomainWorkItem.WorkItemTitle>(),
   status: text("status").notNull().$type<DomainWorkItem.WorkItemStatus>(),
-  assignee: text("assignee"),
+  assigneeId: integer("assignee_id").$type<DomainWorker.WorkerId>(),
+  priority: text("priority").$type<DomainWorkPriority.WorkPriority>(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -60,7 +63,8 @@ export const toWorkItemInsert = (workItem: DomainWorkItem.WorkItem): WorkItemIns
   id: workItem.id,
   title: workItem.title,
   status: workItem.status,
-  assignee: pipe(workItem.assignee, O.getOrNull),
+  assigneeId: pipe(workItem.assignee, O.getOrNull),
+  priority: pipe(workItem.priority, O.getOrNull),
 });
 
 /**
@@ -74,5 +78,6 @@ export const fromWorkItemRow = (row: WorkItemRow): DomainWorkItem.WorkItem =>
     id: row.id,
     title: row.title,
     status: row.status,
-    assignee: O.fromNullishOr(row.assignee),
+    assignee: O.fromNullishOr(row.assigneeId),
+    priority: O.fromNullishOr(row.priority),
   });

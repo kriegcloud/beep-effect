@@ -34,6 +34,7 @@
     ".": "./src/index.ts",
     "./tables": "./src/tables.ts",
     "./aggregates/WorkItem": "./src/aggregates/WorkItem/index.ts",
+    "./entities/Worker": "./src/entities/Worker/index.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -52,12 +53,14 @@
       ".": "./dist/index.ts",
       "./tables": "./dist/tables.js",
       "./aggregates/WorkItem": "./dist/aggregates/WorkItem/index.js",
+      "./entities/Worker": "./dist/entities/Worker/index.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
-    "@beep/architecture-lab-domain": "workspace:*",
+    "@beep/architecture-lab-domain": "workspace:^",
+    "@beep/drizzle": "workspace:^",
     "drizzle-orm": "catalog:",
     "effect": "catalog:"
   },

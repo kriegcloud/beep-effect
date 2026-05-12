@@ -58,11 +58,44 @@ if (!shouldRunPgliteIntegration) {
 
           const sql = (yield* SqlClient.SqlClient).withoutTransforms();
           yield* sql`
-            INSERT INTO architecture_lab_work_item (id, title, status)
-            VALUES ('migration-proof-1', 'Prove db-admin migration', 'open')
+            INSERT INTO architecture_lab_worker (
+              created_at,
+              created_by_principal,
+              org_id,
+              row_version,
+              schema_version,
+              source,
+              updated_at,
+              updated_by_principal,
+              display_name,
+              status,
+              entity_type,
+              id
+            )
+            VALUES (
+              0,
+              '{"kind":"System","component":"ArchitectureLab"}'::jsonb,
+              1,
+              1,
+              '0.1.0',
+              'Application',
+              0,
+              '{"kind":"System","component":"ArchitectureLab"}'::jsonb,
+              'Ada Lovelace',
+              'active',
+              'ArchitectureLabWorker',
+              1
+            )
+          `;
+          yield* sql`
+            INSERT INTO architecture_lab_work_item (id, title, status, assignee_id, priority)
+            VALUES ('migration-proof-1', 'Prove db-admin migration', 'assigned', 1, 'high')
           `;
           const rows = yield* sql<{ readonly id: string }>`
             SELECT id FROM architecture_lab_work_item ORDER BY id ASC
+          `;
+          const workerRows = yield* sql<{ readonly display_name: string }>`
+            SELECT display_name FROM architecture_lab_worker ORDER BY id ASC
           `;
 
           expect(
@@ -71,6 +104,12 @@ if (!shouldRunPgliteIntegration) {
               A.map((row) => row.id)
             )
           ).toEqual(["migration-proof-1"]);
+          expect(
+            pipe(
+              workerRows,
+              A.map((row) => row.display_name)
+            )
+          ).toEqual(["Ada Lovelace"]);
         }),
         120_000
       );

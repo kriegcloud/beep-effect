@@ -6,7 +6,13 @@
  * @since 0.1.0
  */
 
-import { workItemTable } from "./aggregates/WorkItem/index.js";
+import * as WorkItem from "./aggregates/WorkItem/index.js";
+import * as Worker from "./entities/Worker/index.js";
+
+type DbSchemaShape = {
+  readonly workItem: typeof WorkItem.workItemTable;
+  readonly worker: typeof Worker.workerTable;
+};
 
 /**
  * Architecture lab drizzle schema.
@@ -14,9 +20,10 @@ import { workItemTable } from "./aggregates/WorkItem/index.js";
  * @category tables
  * @since 0.1.0
  */
-export const DbSchema = {
-  workItem: workItemTable,
-} as const;
+export const DbSchema: DbSchemaShape = {
+  workItem: WorkItem.workItemTable,
+  worker: Worker.workerTable,
+};
 
 /**
  * Architecture lab drizzle schema type.
@@ -24,4 +31,4 @@ export const DbSchema = {
  * @category tables
  * @since 0.1.0
  */
-export type DbSchema = typeof DbSchema;
+export type DbSchema = DbSchemaShape;

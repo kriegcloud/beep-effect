@@ -16,6 +16,9 @@ Build and maintain features with effect first development.
 - Keep repo quality commands green.
 - Use `bun run beep architecture` for canonical slice, concept, role, and
   architecture proof generation instead of hand-authoring boilerplate.
+- For architecture concepts, use the canonical `--domain-kind` archetypes:
+  `aggregates` for full slice concepts, `entities` for persisted domain
+  entities, and `values` for domain-only value objects.
 - `graphiti-memory` is the primary durable repository knowledge base for this repo.
 - Prefer the repo-local helpers when useful:
   - `bun run graphiti:proxy`

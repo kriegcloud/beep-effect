@@ -40,6 +40,9 @@
       "@beep/architecture-lab-tables/aggregates/WorkItem": [
         "../../../packages/architecture-lab/tables/src/aggregates/WorkItem/index.ts"
       ],
+      "@beep/architecture-lab-tables/entities/Worker": [
+        "../../../packages/architecture-lab/tables/src/entities/Worker/index.ts"
+      ],
       "@beep/postgres": ["../../../packages/drivers/postgres/src/index.ts"],
       "@beep/postgres/*": ["../../../packages/drivers/postgres/src/*.ts"],
       "@beep/test-utils": [

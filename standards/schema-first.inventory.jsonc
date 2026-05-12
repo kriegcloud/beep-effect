@@ -1,11 +1,7 @@
 {
   "version": 1,
   "generatedOn": "2026-05-12",
-  "scope": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
-    "infra/**/*.ts"
-  ],
+  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
     "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -80,6 +76,22 @@
     {
       "file": "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.use-cases.ts",
       "symbol": "WorkItemUseCasesShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/architecture-lab-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/architecture-lab/use-cases/src/entities/Worker/Worker.repository.ts",
+      "symbol": "WorkerRepositoryShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/architecture-lab-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/architecture-lab/use-cases/src/entities/Worker/Worker.use-cases.ts",
+      "symbol": "WorkerUseCasesShape",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/architecture-lab-use-cases",

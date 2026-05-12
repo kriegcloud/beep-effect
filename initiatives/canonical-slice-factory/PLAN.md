@@ -49,8 +49,13 @@ proof target, then systemizes the creation path through `@beep/repo-cli`.
 
 - Support whole-slice creation for the staged `architecture-lab` packages.
 - Support adding the `aggregates/WorkItem` concept and canonical role modules.
+- Support domain-kind archetypes beyond aggregates:
+  `entities/Worker` proves persisted entity topology and `values/WorkPriority`
+  proves domain-only value-object topology.
 - Generate every role used by the WorkItem proof, including tables, protocol
   declarations, server handlers, client, UI, app harness, and db-admin target.
+- Reject role requests that do not belong to the selected domain kind, such as
+  server/UI/db-admin requests for a `values` concept.
 - Leave standalone foundation package and driver package creation as explicit
   operation-plan extension points.
 - Add a round-trip fixture lane: accepted proof shape, generated temp shape,

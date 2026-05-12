@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   applyCanonicalSliceOperationPlan,
   CanonicalSliceOperationPlan,
@@ -13,6 +14,9 @@ import {
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
+import * as O from "effect/Option";
+
+const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
 
 describe("architecture operation plan", () => {
   it.effect("round-trips as schema-decoded JSON", () =>
@@ -56,7 +60,6 @@ describe("architecture operation plan", () => {
 
   it.effect("generates the accepted WorkItem proof into a temp fixture and second apply is a no-op", () =>
     Effect.gen(function* () {
-      const repoRoot = process.cwd();
       const tempRoot = join(tmpdir(), `beep-architecture-generated-${Date.now()}`);
       const acceptedPath = "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.model.ts";
 
@@ -78,6 +81,84 @@ describe("architecture operation plan", () => {
       expect(check.idempotent).toBe(true);
       expect(secondApply.writtenPaths).toEqual([]);
       expect(secondApply.skippedPaths.length).toBeGreaterThan(0);
+    })
+  );
+
+  it.effect("generates the accepted Worker entity archetype without aggregate-only roles", () =>
+    Effect.gen(function* () {
+      const tempRoot = join(tmpdir(), `beep-architecture-worker-generated-${Date.now()}`);
+      const acceptedPath = "packages/architecture-lab/domain/src/entities/Worker/Worker.model.ts";
+
+      const plan = yield* makeArchitectureOperationPlan(
+        repoRoot,
+        {
+          boundedContext: "architecture-lab",
+          concept: "Worker",
+          domainKind: "entities",
+          stage: "full",
+        },
+        O.none()
+      ).pipe(Effect.provide(NodeServices.layer));
+      const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+        Effect.provide(NodeServices.layer)
+      );
+
+      const generated = readFileSync(join(tempRoot, acceptedPath), "utf8");
+      const accepted = readFileSync(join(repoRoot, acceptedPath), "utf8");
+      const plannedRoles = plan.roles.map((role) => role.role);
+
+      rmSync(tempRoot, { force: true, recursive: true });
+      expect(firstApply.writtenPaths).toContain(acceptedPath);
+      expect(generated).toBe(accepted);
+      expect(plannedRoles).toEqual(["domain", "use-cases", "server", "tables", "db-admin"]);
+      expect(plan.operations.map((operation) => operation.path)).not.toContain(
+        "packages/architecture-lab/ui/src/aggregates/WorkItem/WorkItem.view-model.ts"
+      );
+    })
+  );
+
+  it.effect("generates the accepted WorkPriority value archetype as domain-only", () =>
+    Effect.gen(function* () {
+      const tempRoot = join(tmpdir(), `beep-architecture-priority-generated-${Date.now()}`);
+      const acceptedPath = "packages/architecture-lab/domain/src/values/WorkPriority/WorkPriority.model.ts";
+
+      const plan = yield* makeArchitectureOperationPlan(repoRoot, {
+        boundedContext: "architecture-lab",
+        concept: "WorkPriority",
+        domainKind: "values",
+        stage: "full",
+      }).pipe(Effect.provide(NodeServices.layer));
+      const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+        Effect.provide(NodeServices.layer)
+      );
+
+      const generated = readFileSync(join(tempRoot, acceptedPath), "utf8");
+      const accepted = readFileSync(join(repoRoot, acceptedPath), "utf8");
+
+      rmSync(tempRoot, { force: true, recursive: true });
+      expect(firstApply.writtenPaths).toContain(acceptedPath);
+      expect(generated).toBe(accepted);
+      expect(plan.roles.map((role) => role.role)).toEqual(["domain"]);
+      expect(plan.operations.every((operation) => operation.kind !== "write-file" || operation.role === "domain")).toBe(
+        true
+      );
+    })
+  );
+
+  it.effect("rejects roles that are outside the selected domain-kind archetype", () =>
+    Effect.gen(function* () {
+      const error = yield* makeArchitectureOperationPlan(
+        repoRoot,
+        {
+          boundedContext: "architecture-lab",
+          concept: "WorkPriority",
+          domainKind: "values",
+          stage: "full",
+        },
+        O.some(["server"])
+      ).pipe(Effect.provide(NodeServices.layer), Effect.flip);
+
+      expect(error.message).toContain("values concepts do not support role(s): server");
     })
   );
 });

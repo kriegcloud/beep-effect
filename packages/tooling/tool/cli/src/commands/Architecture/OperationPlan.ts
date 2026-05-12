@@ -26,7 +26,7 @@ const $I = $RepoCliId.create("commands/Architecture/OperationPlan");
  * @category models
  * @since 0.1.0
  */
-export const ArchitectureDomainKind = LiteralKit(["aggregates"] as const).pipe(
+export const ArchitectureDomainKind = LiteralKit(["aggregates", "entities", "values"] as const).pipe(
   $I.annoteSchema("ArchitectureDomainKind", {
     description: "Domain-kind folder used by canonical architecture operation plans.",
   })
@@ -322,6 +322,29 @@ const stageRank = (stage: ArchitecturePlanStage): number =>
 const isStageIncluded = (requested: ArchitecturePlanStage, fileStage: ArchitecturePlanStage): boolean =>
   stringEquivalence(requested, "full") || stageRank(fileStage) <= stageRank(requested);
 
+const aggregateRoles: ReadonlyArray<ArchitectureSliceRole> = [
+  "domain",
+  "use-cases",
+  "config",
+  "server",
+  "tables",
+  "client",
+  "ui",
+  "proof-app",
+  "db-admin",
+] as const;
+const entityRoles: ReadonlyArray<ArchitectureSliceRole> = ["domain", "use-cases", "server", "tables", "db-admin"];
+const valueRoles: ReadonlyArray<ArchitectureSliceRole> = ["domain"];
+
+const rolesForDomainKind = (domainKind: ArchitectureDomainKind): ReadonlyArray<ArchitectureSliceRole> => {
+  if (domainKind === "entities") return entityRoles;
+  if (domainKind === "values") return valueRoles;
+  return aggregateRoles;
+};
+
+const roleAllowedForDomainKind = (domainKind: ArchitectureDomainKind, role: ArchitectureSliceRole): boolean =>
+  pipe(rolesForDomainKind(domainKind), A.contains(role));
+
 const roleBasePath = (role: ArchitectureSliceRole): O.Option<string> => {
   if (role === "proof-app") return O.some("apps/architecture-lab-proof");
   if (role === "db-admin") return O.some("packages/_internal/db-admin");
@@ -391,6 +414,79 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
     path: "packages/architecture-lab/domain/dtslint/WorkItem.tst.ts",
     writer: "template",
   },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/src/identity/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/src/identity/ArchitectureLab.ts",
+    writer: "template",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/src/entities/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/src/entities/Worker/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/src/entities/Worker/Worker.model.ts",
+    writer: "template",
+  },
+  { role: "domain", stage: "core", path: "packages/architecture-lab/domain/test/Worker.test.ts", writer: "template" },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/dtslint/Worker.tst.ts",
+    writer: "template",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/src/values/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/src/values/WorkPriority/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/src/values/WorkPriority/WorkPriority.model.ts",
+    writer: "template",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/src/values/WorkPriority/WorkPriority.behavior.ts",
+    writer: "template",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/test/WorkPriority.test.ts",
+    writer: "template",
+  },
+  {
+    role: "domain",
+    stage: "core",
+    path: "packages/architecture-lab/domain/dtslint/WorkPriority.tst.ts",
+    writer: "template",
+  },
 
   ...rolePackageFiles("use-cases", "core"),
   { role: "use-cases", stage: "core", path: "packages/architecture-lab/use-cases/src/index.ts", writer: "ts-morph" },
@@ -442,6 +538,60 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
     role: "use-cases",
     stage: "core",
     path: "packages/architecture-lab/use-cases/dtslint/WorkItem.tst.ts",
+    writer: "template",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/src/entities/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/src/entities/Worker/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/src/entities/Worker/server.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.commands.ts",
+    writer: "template",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.errors.ts",
+    writer: "template",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.repository.ts",
+    writer: "template",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/src/entities/Worker/Worker.use-cases.ts",
+    writer: "template",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/test/Worker.test.ts",
+    writer: "template",
+  },
+  {
+    role: "use-cases",
+    stage: "core",
+    path: "packages/architecture-lab/use-cases/dtslint/Worker.tst.ts",
     writer: "template",
   },
 
@@ -501,6 +651,42 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
     role: "server",
     stage: "protocol",
     path: "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.tools.ts",
+    writer: "template",
+  },
+  {
+    role: "server",
+    stage: "core",
+    path: "packages/architecture-lab/server/src/entities/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "server",
+    stage: "core",
+    path: "packages/architecture-lab/server/src/entities/Worker/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "server",
+    stage: "core",
+    path: "packages/architecture-lab/server/src/entities/Worker/Worker.layer.ts",
+    writer: "template",
+  },
+  {
+    role: "server",
+    stage: "core",
+    path: "packages/architecture-lab/server/src/entities/Worker/Worker.repo.ts",
+    writer: "template",
+  },
+  {
+    role: "server",
+    stage: "core",
+    path: "packages/architecture-lab/server/test/WorkerServer.test.ts",
+    writer: "template",
+  },
+  {
+    role: "server",
+    stage: "core",
+    path: "packages/architecture-lab/server/dtslint/WorkerServer.tst.ts",
     writer: "template",
   },
 
@@ -567,6 +753,36 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
     role: "tables",
     stage: "persistence",
     path: "packages/architecture-lab/tables/dtslint/WorkItemTable.tst.ts",
+    writer: "template",
+  },
+  {
+    role: "tables",
+    stage: "persistence",
+    path: "packages/architecture-lab/tables/src/entities/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "tables",
+    stage: "persistence",
+    path: "packages/architecture-lab/tables/src/entities/Worker/index.ts",
+    writer: "ts-morph",
+  },
+  {
+    role: "tables",
+    stage: "persistence",
+    path: "packages/architecture-lab/tables/src/entities/Worker/Worker.table.ts",
+    writer: "template",
+  },
+  {
+    role: "tables",
+    stage: "persistence",
+    path: "packages/architecture-lab/tables/test/WorkerTable.test.ts",
+    writer: "template",
+  },
+  {
+    role: "tables",
+    stage: "persistence",
+    path: "packages/architecture-lab/tables/dtslint/WorkerTable.tst.ts",
     writer: "template",
   },
 
@@ -659,6 +875,12 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   {
     role: "db-admin",
     stage: "persistence",
+    path: "packages/_internal/db-admin/drizzle/20260512001000_architecture_lab_worker_archetype/migration.sql",
+    writer: "template",
+  },
+  {
+    role: "db-admin",
+    stage: "persistence",
     path: "packages/_internal/db-admin/test/ArchitectureLabMigrationTarget.test.ts",
     writer: "template",
   },
@@ -726,30 +948,114 @@ const rolePlanFor = (target: ArchitecturePlanTarget, role: ArchitectureSliceRole
     exports: exportsForRole(target, role),
   });
 
+const isDefaultPlanTarget = (target: ArchitecturePlanTarget): boolean =>
+  stringEquivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
+  stringEquivalence(target.concept, defaultPlanTarget.concept) &&
+  stringEquivalence(target.domainKind, defaultPlanTarget.domainKind);
+
+const sourceConceptForPath = (sourcePath: string): string => {
+  const lowerPath = Str.toLowerCase(sourcePath);
+  if (Str.includes("WorkPriority")(sourcePath) || Str.includes("work_priority")(lowerPath)) return "WorkPriority";
+  if (Str.includes("WorkItem")(sourcePath) || Str.includes("work_item")(lowerPath)) return "WorkItem";
+  if (Str.includes("Worker")(sourcePath) || Str.includes("worker")(lowerPath)) return "Worker";
+  return "WorkItem";
+};
+
+const sourceDomainKindForPath = (sourcePath: string): O.Option<ArchitectureDomainKind> => {
+  const sourceConcept = sourceConceptForPath(sourcePath);
+  if (Str.includes("/values/")(sourcePath) || stringEquivalence(sourceConcept, "WorkPriority")) return O.some("values");
+  if (Str.includes("/entities/")(sourcePath) || stringEquivalence(sourceConcept, "Worker")) return O.some("entities");
+  if (Str.includes("/aggregates/")(sourcePath) || stringEquivalence(sourceConcept, "WorkItem"))
+    return O.some("aggregates");
+  return O.none();
+};
+
+const isPackageScaffoldFile = (sourcePath: string): boolean =>
+  pipe(
+    [
+      "AGENTS.md",
+      "LICENSE",
+      "README.md",
+      "docgen.json",
+      "package.json",
+      "tsconfig.json",
+      "vitest.config.ts",
+      "dtslint/.gitkeep",
+      "test/.gitkeep",
+    ] as const,
+    A.some((suffix) => Str.endsWith(suffix)(sourcePath))
+  );
+
+const isPackageIndexFile = (sourcePath: string): boolean =>
+  pipe(
+    [
+      "/src/index.ts",
+      "/src/public.ts",
+      "/src/server.ts",
+      "/src/Layer.ts",
+      "/src/test.ts",
+      "/src/tables.ts",
+      "/src/schema.ts",
+      "/src/targets.ts",
+      "/src/migrations/ArchitectureLab.ts",
+      "/drizzle.config.ts",
+    ] as const,
+    A.some((suffix) => Str.endsWith(suffix)(sourcePath))
+  );
+
+const proofFileMatchesDomainKind = (target: ArchitecturePlanTarget, file: AcceptedProofFile): boolean => {
+  if (isDefaultPlanTarget(target)) return true;
+  if (isPackageScaffoldFile(file.path) || isPackageIndexFile(file.path)) return isDefaultPlanTarget(target);
+  return pipe(
+    sourceDomainKindForPath(file.path),
+    O.map((domainKind) => stringEquivalence(domainKind, target.domainKind)),
+    O.getOrElse(thunkFalse)
+  );
+};
+
+const sourceConceptPathFor = (sourcePath: string): string =>
+  pipe(
+    sourceDomainKindForPath(sourcePath),
+    O.map((domainKind) => `${domainKind}/${sourceConceptForPath(sourcePath)}`),
+    O.getOrElse(() => "aggregates/WorkItem")
+  );
+
 const targetPathFor = (sourcePath: string, target: ArchitecturePlanTarget): string => {
+  if (isDefaultPlanTarget(target)) return sourcePath;
+  const sourceConcept = sourceConceptForPath(sourcePath);
+  const sourceConceptPath = sourceConceptPathFor(sourcePath);
+  const conceptPascal = CommonStr.pascalCase(target.concept);
   if (Str.startsWith("packages/architecture-lab/")(sourcePath)) {
     return pipe(
       sourcePath,
       Str.replace("packages/architecture-lab/", `packages/${target.boundedContext}/`),
-      Str.replaceAll("aggregates/WorkItem", target.conceptPath),
-      Str.replaceAll("WorkItem", CommonStr.pascalCase(target.concept))
+      Str.replaceAll(sourceConceptPath, target.conceptPath),
+      Str.replaceAll(sourceConcept, conceptPascal)
     );
   }
   if (Str.startsWith("apps/architecture-lab-proof/")(sourcePath)) {
     return pipe(
       sourcePath,
       Str.replace("apps/architecture-lab-proof/", `apps/${target.boundedContext}-proof/`),
-      Str.replaceAll("WorkItem", CommonStr.pascalCase(target.concept))
+      Str.replaceAll(sourceConcept, conceptPascal)
     );
   }
   return pipe(
     sourcePath,
     Str.replaceAll("ArchitectureLab", CommonStr.pascalCase(target.boundedContext)),
-    Str.replaceAll("WorkItem", CommonStr.pascalCase(target.concept))
+    Str.replaceAll(sourceConcept, conceptPascal)
   );
 };
 
-const replacementPairs = (target: ArchitecturePlanTarget): ReadonlyArray<readonly [string, string]> => {
+const replacementPairs = (
+  target: ArchitecturePlanTarget,
+  sourcePath: string
+): ReadonlyArray<readonly [string, string]> => {
+  const sourceConcept = sourceConceptForPath(sourcePath);
+  const sourceConceptPascal = CommonStr.pascalCase(sourceConcept);
+  const sourceConceptCamel = CommonStr.camelCase(sourceConcept);
+  const sourceConceptKebab = CommonStr.kebabCase(sourceConcept);
+  const sourceConceptSnake = CommonStr.snakeCase(sourceConcept);
   const conceptPascal = CommonStr.pascalCase(target.concept);
   const conceptCamel = CommonStr.camelCase(target.concept);
   const conceptKebab = CommonStr.kebabCase(target.concept);
@@ -760,23 +1066,25 @@ const replacementPairs = (target: ArchitecturePlanTarget): ReadonlyArray<readonl
 
   return [
     ["ARCHITECTURE_LAB", CommonStr.toUpperCase(contextSnake)],
-    ["WORK_ITEM", CommonStr.toUpperCase(conceptSnake)],
+    [CommonStr.toUpperCase(sourceConceptSnake), CommonStr.toUpperCase(conceptSnake)],
     ["ArchitectureLab", contextPascal],
     ["architecture-lab", contextKebab],
     ["architecture_lab", contextSnake],
     ["architecture lab", Str.replaceAll("-", " ")(contextKebab)],
-    ["WorkItem", conceptPascal],
-    ["workItem", conceptCamel],
-    ["work-item", conceptKebab],
-    ["work_item", conceptSnake],
+    [sourceConceptPascal, conceptPascal],
+    [sourceConceptCamel, conceptCamel],
+    [sourceConceptKebab, conceptKebab],
+    [sourceConceptSnake, conceptSnake],
   ];
 };
 
-const renderAcceptedTemplate = (content: string, target: ArchitecturePlanTarget): string =>
-  pipe(
-    replacementPairs(target),
-    A.reduce(content, (rendered, [from, to]) => Str.replaceAll(from, to)(rendered))
-  );
+const renderAcceptedTemplate = (content: string, target: ArchitecturePlanTarget, sourcePath: string): string =>
+  isDefaultPlanTarget(target)
+    ? content
+    : pipe(
+        replacementPairs(target, sourcePath),
+        A.reduce(content, (rendered, [from, to]) => Str.replaceAll(from, to)(rendered))
+      );
 
 const selectFiles = (
   target: ArchitecturePlanTarget,
@@ -784,7 +1092,9 @@ const selectFiles = (
 ): ReadonlyArray<AcceptedProofFile> =>
   pipe(
     acceptedProofFiles,
+    A.filter((file) => roleAllowedForDomainKind(target.domainKind, file.role)),
     A.filter((file) => isStageIncluded(target.stage, file.stage)),
+    A.filter((file) => proofFileMatchesDomainKind(target, file)),
     A.filter((file) =>
       pipe(
         roles,
@@ -804,6 +1114,22 @@ const rolePlansForFiles = (
     A.dedupe,
     A.map((role) => rolePlanFor(target, role))
   );
+
+const validateRequestedRoles = Effect.fn(function* (
+  target: ArchitecturePlanTarget,
+  roles: O.Option<ReadonlyArray<ArchitectureSliceRole>>
+) {
+  if (O.isNone(roles)) return;
+  const disallowedRoles = pipe(
+    roles.value,
+    A.filter((role) => !roleAllowedForDomainKind(target.domainKind, role))
+  );
+  if (disallowedRoles.length > 0) {
+    return yield* DomainError.newMessage(
+      `Architecture ${target.domainKind} concepts do not support role(s): ${disallowedRoles.join(", ")}`
+    );
+  }
+});
 
 const encodeOperationPlanJson = S.encodeUnknownEffect(S.fromJsonString(CanonicalSliceOperationPlan));
 const decodeOperationPlanJson = S.decodeUnknownEffect(S.fromJsonString(CanonicalSliceOperationPlan));
@@ -861,6 +1187,7 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const target = normalizeInput(input);
+  yield* validateRequestedRoles(target, roles);
   const selectedFiles = selectFiles(target, roles);
 
   const writeOperations = yield* Effect.forEach(selectedFiles, (file) =>
@@ -874,7 +1201,7 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
             role: file.role,
             path: targetPathFor(file.path, target),
             writer: file.writer,
-            content: renderAcceptedTemplate(content, target),
+            content: renderAcceptedTemplate(content, target, file.path),
             description: `Write ${file.role} ${target.concept} file from the accepted architecture proof.`,
           })
       )
@@ -1061,7 +1388,7 @@ const stageFlag = (defaultValue: ArchitecturePlanStage) =>
   );
 
 const domainKindFlag = Flag.string("domain-kind").pipe(
-  Flag.withDescription("Domain-kind folder for the concept"),
+  Flag.withDescription("Domain-kind archetype for the concept: aggregates, entities, or values"),
   Flag.withDefault("aggregates")
 );
 

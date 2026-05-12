@@ -7,7 +7,11 @@
  */
 
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
+import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
+import * as DomainWorkPriority from "@beep/architecture-lab-domain/values/WorkPriority";
 import { $ArchitectureLabUseCasesId } from "@beep/identity/packages";
+import { Effect } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.commands");
@@ -22,6 +26,9 @@ export class CreateWorkItemCommand extends S.Class<CreateWorkItemCommand>($I`Cre
   {
     id: DomainWorkItem.WorkItemId,
     title: DomainWorkItem.WorkItemTitle,
+    priority: S.OptionFromOptionalKey(DomainWorkPriority.WorkPriority).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<DomainWorkPriority.WorkPriority>()))
+    ),
   },
   $I.annote("CreateWorkItemCommand", {
     title: "Create WorkItem command",
@@ -38,7 +45,7 @@ export class CreateWorkItemCommand extends S.Class<CreateWorkItemCommand>($I`Cre
 export class AssignWorkItemCommand extends S.Class<AssignWorkItemCommand>($I`AssignWorkItemCommand`)(
   {
     id: DomainWorkItem.WorkItemId,
-    assignee: S.String,
+    assignee: DomainWorker.WorkerId,
   },
   $I.annote("AssignWorkItemCommand", {
     title: "Assign WorkItem command",
@@ -118,7 +125,9 @@ export class GetWorkItemQuery extends S.Class<GetWorkItemQuery>($I`GetWorkItemQu
  */
 export class ListWorkItemsQuery extends S.Class<ListWorkItemsQuery>($I`ListWorkItemsQuery`)(
   {
-    status: S.OptionFromOptionalKey(DomainWorkItem.WorkItemStatus),
+    status: S.OptionFromOptionalKey(DomainWorkItem.WorkItemStatus).pipe(
+      S.withConstructorDefault(Effect.succeed(O.none<DomainWorkItem.WorkItemStatus>()))
+    ),
   },
   $I.annote("ListWorkItemsQuery", {
     title: "List WorkItems query",

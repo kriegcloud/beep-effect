@@ -46,7 +46,7 @@ export interface ArchitectureLabProofResult {
  * @category workflows
  * @since 0.1.0
  */
-export const ArchitectureLabProofLive = ArchitectureLabServerLive;
+export const ArchitectureLabProofLive: typeof ArchitectureLabServerLive = ArchitectureLabServerLive;
 
 /**
  * Execute the architecture lab proof harness against the composed server layer.

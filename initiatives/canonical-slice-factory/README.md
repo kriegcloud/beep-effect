@@ -22,6 +22,10 @@ optional canonical parts through the same modular factory model that future
   executable architecture proof.
 - `architecture-lab` is a normal slice package family:
   `@beep/architecture-lab-*`, with `WorkItem` at `aggregates/WorkItem`.
+- The active proof now includes three domain-kind archetypes:
+  `aggregates/WorkItem` for full slice topology, `entities/Worker` for
+  persisted domain entities, and `values/WorkPriority` for domain-only value
+  objects.
 - `beep architecture` is the future command group for slice and architecture
   part creation.
 - The CLI must use one schema-backed operation-plan core with ergonomic

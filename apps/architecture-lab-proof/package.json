@@ -53,11 +53,11 @@
     }
   },
   "dependencies": {
-    "@beep/architecture-lab-config": "workspace:*",
-    "@beep/architecture-lab-domain": "workspace:*",
-    "@beep/architecture-lab-server": "workspace:*",
-    "@beep/architecture-lab-ui": "workspace:*",
-    "@beep/architecture-lab-use-cases": "workspace:*",
+    "@beep/architecture-lab-config": "workspace:^",
+    "@beep/architecture-lab-domain": "workspace:^",
+    "@beep/architecture-lab-server": "workspace:^",
+    "@beep/architecture-lab-ui": "workspace:^",
+    "@beep/architecture-lab-use-cases": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {

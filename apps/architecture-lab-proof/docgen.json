@@ -62,6 +62,24 @@
       "@beep/architecture-lab-domain/aggregates/WorkItem": [
         "../../packages/architecture-lab/domain/src/aggregates/WorkItem/index.ts"
       ],
+      "@beep/architecture-lab-domain/entities": [
+        "../../packages/architecture-lab/domain/src/entities/index.ts"
+      ],
+      "@beep/architecture-lab-domain/entities/Worker": [
+        "../../packages/architecture-lab/domain/src/entities/Worker/index.ts"
+      ],
+      "@beep/architecture-lab-domain/identity": [
+        "../../packages/architecture-lab/domain/src/identity/index.ts"
+      ],
+      "@beep/architecture-lab-domain/identity/ArchitectureLab": [
+        "../../packages/architecture-lab/domain/src/identity/ArchitectureLab.ts"
+      ],
+      "@beep/architecture-lab-domain/values": [
+        "../../packages/architecture-lab/domain/src/values/index.ts"
+      ],
+      "@beep/architecture-lab-domain/values/WorkPriority": [
+        "../../packages/architecture-lab/domain/src/values/WorkPriority/index.ts"
+      ],
       "@beep/architecture-lab-server": [
         "../../packages/architecture-lab/server/src/index.ts"
       ],
@@ -73,6 +91,9 @@
       ],
       "@beep/architecture-lab-server/aggregates/WorkItem": [
         "../../packages/architecture-lab/server/src/aggregates/WorkItem/index.ts"
+      ],
+      "@beep/architecture-lab-server/entities/Worker": [
+        "../../packages/architecture-lab/server/src/entities/Worker/index.ts"
       ],
       "@beep/architecture-lab-ui": [
         "../../packages/architecture-lab/ui/src/index.ts"
@@ -94,6 +115,12 @@
       ],
       "@beep/architecture-lab-use-cases/aggregates/WorkItem/server": [
         "../../packages/architecture-lab/use-cases/src/aggregates/WorkItem/server.ts"
+      ],
+      "@beep/architecture-lab-use-cases/entities/Worker": [
+        "../../packages/architecture-lab/use-cases/src/entities/Worker/index.ts"
+      ],
+      "@beep/architecture-lab-use-cases/entities/Worker/server": [
+        "../../packages/architecture-lab/use-cases/src/entities/Worker/server.ts"
       ]
     }
   }
