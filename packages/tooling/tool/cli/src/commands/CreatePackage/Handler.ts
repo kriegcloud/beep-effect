@@ -686,8 +686,9 @@ export const createPackageCommand = Command.make(
 
     // ── Resolve parent directory ───────────────────────────────────────
     if (O.isSome(requestedPackageFamily) && Str.isNonEmpty(parentDirOverride)) {
+      const kindHint = O.isSome(packageKind) ? ` --kind ${packageKind.value}` : "";
       return yield* new DomainError({
-        message: `${requestedPackageFamily.value} package paths are derived from --family ${requestedPackageFamily.value}; omit --parent-dir.`,
+        message: `${requestedPackageFamily.value} package paths are derived from --family ${requestedPackageFamily.value}${kindHint}; omit --parent-dir.`,
       });
     }
 

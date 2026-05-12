@@ -50,7 +50,7 @@ export class Pod extends S.Class<Pod>($I`Pod`)(
     containerRegistryAuthId: S.String.pipe(S.optionalKey),
     costPerHr: S.Number.pipe(S.optionalKey),
     cpuFlavorId: S.String.pipe(S.optionalKey),
-    desiredStatus: S.String.pipe(S.optionalKey),
+    desiredStatus: LiteralKit(["RUNNING", "EXITED", "TERMINATED"]).pipe(S.optionalKey),
     dockerEntrypoint: S.String.pipe(S.Array, S.optionalKey),
     dockerStartCmd: S.String.pipe(S.Array, S.optionalKey),
     endpointId: S.String.pipe(S.optionalKey),
@@ -191,8 +191,8 @@ export class PodUpdateInput extends S.Class<PodUpdateInput>($I`PodUpdateInput`)(
 export class PodCreateInput extends S.Class<PodCreateInput>($I`PodCreateInput`)(
   {
     allowedCudaVersions: S.String.pipe(S.Array, S.optionalKey),
-    cloudType: S.String.pipe(S.optionalKey),
-    computeType: S.String.pipe(S.optionalKey),
+    cloudType: LiteralKit(["SECURE", "COMMUNITY"]).pipe(S.optionalKey),
+    computeType: LiteralKit(["GPU", "CPU"]).pipe(S.optionalKey),
     containerDiskInGb: S.Number.pipe(S.NullOr, S.optionalKey),
     containerRegistryAuthId: S.String.pipe(S.optionalKey),
     countryCodes: S.String.pipe(S.Array, S.optionalKey),
@@ -368,7 +368,7 @@ export class Template extends S.Class<Template>($I`Template`)(
  */
 export class TemplateCreateInput extends S.Class<TemplateCreateInput>($I`TemplateCreateInput`)(
   {
-    category: S.String.pipe(S.optionalKey),
+    category: LiteralKit(["NVIDIA", "AMD", "CPU"]).pipe(S.optionalKey),
     containerDiskInGb: S.Number.pipe(S.optionalKey),
     containerRegistryAuthId: S.String.pipe(S.optionalKey),
     dockerEntrypoint: S.String.pipe(S.Array, S.optionalKey),
@@ -463,7 +463,7 @@ export type Endpoints = typeof Endpoints.Type;
 export class Endpoint extends S.Class<Endpoint>($I`Endpoint`)(
   {
     allowedCudaVersions: S.String.pipe(S.Array, S.optionalKey),
-    computeType: S.String.pipe(S.optionalKey),
+    computeType: LiteralKit(["CPU", "GPU"]).pipe(S.optionalKey),
     createdAt: S.String.pipe(S.optionalKey),
     dataCenterIds: S.String.pipe(S.Array, S.optionalKey),
     env: S.Record(S.String, S.Unknown).pipe(S.optionalKey),
@@ -477,7 +477,7 @@ export class Endpoint extends S.Class<Endpoint>($I`Endpoint`)(
     name: S.String.pipe(S.optionalKey),
     networkVolumeId: S.String.pipe(S.optionalKey),
     networkVolumeIds: S.String.pipe(S.Array, S.optionalKey),
-    scalerType: S.String.pipe(S.optionalKey),
+    scalerType: LiteralKit(["QUEUE_DELAY", "REQUEST_COUNT"]).pipe(S.optionalKey),
     scalerValue: S.Number.pipe(S.optionalKey),
     template: S.suspend(() => Template).pipe(S.optionalKey),
     templateId: S.String.pipe(S.optionalKey),
@@ -504,7 +504,7 @@ export class EndpointUpdateInPlaceInput extends S.Class<EndpointUpdateInPlaceInp
     flashboot: S.Boolean.pipe(S.optionalKey),
     idleTimeout: S.Number.pipe(S.optionalKey),
     name: S.String.pipe(S.optionalKey),
-    scalerType: S.String.pipe(S.optionalKey),
+    scalerType: LiteralKit(["QUEUE_DELAY", "REQUEST_COUNT"]).pipe(S.optionalKey),
     scalerValue: S.Number.pipe(S.optionalKey),
     workersMax: S.Number.pipe(S.optionalKey),
     workersMin: S.Number.pipe(S.optionalKey),
@@ -534,7 +534,7 @@ export class EndpointUpdateInput extends S.Class<EndpointUpdateInput>($I`Endpoin
     name: S.String.pipe(S.optionalKey),
     networkVolumeId: S.String.pipe(S.optionalKey),
     networkVolumeIds: S.String.pipe(S.Array, S.optionalKey),
-    scalerType: S.String.pipe(S.optionalKey),
+    scalerType: LiteralKit(["QUEUE_DELAY", "REQUEST_COUNT"]).pipe(S.optionalKey),
     scalerValue: S.Number.pipe(S.optionalKey),
     templateId: S.String.pipe(S.optionalKey),
     vcpuCount: S.Number.pipe(S.optionalKey),
@@ -555,7 +555,7 @@ export class EndpointUpdateInput extends S.Class<EndpointUpdateInput>($I`Endpoin
 export class EndpointCreateInput extends S.Class<EndpointCreateInput>($I`EndpointCreateInput`)(
   {
     allowedCudaVersions: S.String.pipe(S.Array, S.optionalKey),
-    computeType: S.String.pipe(S.optionalKey),
+    computeType: LiteralKit(["GPU", "CPU"]).pipe(S.optionalKey),
     cpuFlavorIds: S.String.pipe(S.Array, S.optionalKey),
     dataCenterIds: S.String.pipe(S.Array, S.optionalKey),
     executionTimeoutMs: S.Number.pipe(S.optionalKey),
@@ -567,7 +567,7 @@ export class EndpointCreateInput extends S.Class<EndpointCreateInput>($I`Endpoin
     name: S.String.pipe(S.optionalKey),
     networkVolumeId: S.String.pipe(S.optionalKey),
     networkVolumeIds: S.String.pipe(S.Array, S.optionalKey),
-    scalerType: S.String.pipe(S.optionalKey),
+    scalerType: LiteralKit(["QUEUE_DELAY", "REQUEST_COUNT"]).pipe(S.optionalKey),
     scalerValue: S.Number.pipe(S.optionalKey),
     templateId: S.String,
     vcpuCount: S.Number.pipe(S.optionalKey),
@@ -1223,10 +1223,10 @@ export class GetDocsRequest extends S.Class<GetDocsRequest>($I`GetDocsRequest`)(
  */
 export class ListPodsRequest extends S.Class<ListPodsRequest>($I`ListPodsRequest`)(
   {
-    computeType: S.String.pipe(S.optionalKey),
+    computeType: LiteralKit(["GPU", "CPU"]).pipe(S.optionalKey),
     cpuFlavorId: S.String.pipe(S.Array, S.optionalKey),
     dataCenterId: S.String.pipe(S.Array, S.optionalKey),
-    desiredStatus: S.String.pipe(S.optionalKey),
+    desiredStatus: LiteralKit(["RUNNING", "EXITED", "TERMINATED"]).pipe(S.optionalKey),
     endpointId: S.String.pipe(S.optionalKey),
     gpuTypeId: S.String.pipe(S.Array, S.optionalKey),
     id: S.String.pipe(S.optionalKey),
@@ -1749,10 +1749,10 @@ export class DeleteContainerRegistryAuthRequest extends S.Class<DeleteContainerR
  */
 export class PodBillingRequest extends S.Class<PodBillingRequest>($I`PodBillingRequest`)(
   {
-    bucketSize: S.String.pipe(S.optionalKey),
+    bucketSize: LiteralKit(["hour", "day", "week", "month", "year"]).pipe(S.optionalKey),
     endTime: S.String.pipe(S.optionalKey),
     gpuTypeId: S.String.pipe(S.optionalKey),
-    grouping: S.String.pipe(S.optionalKey),
+    grouping: LiteralKit(["podId", "gpuTypeId"]).pipe(S.optionalKey),
     podId: S.String.pipe(S.optionalKey),
     startTime: S.String.pipe(S.optionalKey),
   },
@@ -1769,12 +1769,12 @@ export class PodBillingRequest extends S.Class<PodBillingRequest>($I`PodBillingR
  */
 export class EndpointBillingRequest extends S.Class<EndpointBillingRequest>($I`EndpointBillingRequest`)(
   {
-    bucketSize: S.String.pipe(S.optionalKey),
+    bucketSize: LiteralKit(["hour", "day", "week", "month", "year"]).pipe(S.optionalKey),
     dataCenterId: S.String.pipe(S.Array, S.optionalKey),
     endpointId: S.String.pipe(S.optionalKey),
     endTime: S.String.pipe(S.optionalKey),
     gpuTypeId: S.String.pipe(S.Array, S.optionalKey),
-    grouping: S.String.pipe(S.optionalKey),
+    grouping: LiteralKit(["endpointId", "podId", "gpuTypeId"]).pipe(S.optionalKey),
     imageName: S.String.pipe(S.optionalKey),
     startTime: S.String.pipe(S.optionalKey),
     templateId: S.String.pipe(S.optionalKey),
@@ -1792,7 +1792,7 @@ export class EndpointBillingRequest extends S.Class<EndpointBillingRequest>($I`E
  */
 export class NetworkVolumeBillingRequest extends S.Class<NetworkVolumeBillingRequest>($I`NetworkVolumeBillingRequest`)(
   {
-    bucketSize: S.String.pipe(S.optionalKey),
+    bucketSize: LiteralKit(["hour", "day", "week", "month", "year"]).pipe(S.optionalKey),
     endTime: S.String.pipe(S.optionalKey),
     startTime: S.String.pipe(S.optionalKey),
   },

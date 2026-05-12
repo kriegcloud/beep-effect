@@ -248,6 +248,30 @@ describe("@beep/runpod", () => {
   );
 
   layer(makeRunpodUnitLayer())((it) =>
+    it.effect("enforces generated OpenAPI enum schemas while leaving dynamic ids flexible", () =>
+      Effect.gen(function* () {
+        const decodePodCreateInput = S.decodeUnknownEffect(PodCreateInput);
+
+        const decoded = yield* decodePodCreateInput({
+          cloudType: "SECURE",
+          computeType: "GPU",
+          gpuTypeIds: ["dynamic-gpu-id"],
+        });
+        const error = yield* decodePodCreateInput({
+          cloudType: "LOCAL",
+        }).pipe(Effect.flip);
+
+        expect(decoded).toMatchObject({
+          cloudType: "SECURE",
+          computeType: "GPU",
+          gpuTypeIds: ["dynamic-gpu-id"],
+        });
+        expect(error).toBeDefined();
+      })
+    )
+  );
+
+  layer(makeRunpodUnitLayer())((it) =>
     it.effect("maps status and transport failures into typed errors", () =>
       Effect.gen(function* () {
         const testHttp = yield* RunpodTestHttp;
@@ -289,7 +313,7 @@ describe("@beep/runpod", () => {
           new RunpodRawRequest({
             authenticated: false,
             method: "GET",
-            path: "/future",
+            path: "future",
             query: {
               limit: 1,
             },

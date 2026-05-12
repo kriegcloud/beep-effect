@@ -264,6 +264,7 @@ const selectToken = (
 
 const defaultAcceptHeader = (descriptor: G.RunpodOperationDescriptor): string => {
   if (descriptor.responseBody === "text") {
+    // Runpod currently marks only `/docs` as text and serves rendered HTML there.
     return "text/html";
   }
 
@@ -506,6 +507,8 @@ const rawUrlParams = (request: RunpodRawRequest): UrlParams =>
     R.fromEntries
   );
 
+const normalizeRawPath = (path: string): string => (Str.startsWith("/")(path) ? path : `/${path}`);
+
 const addRawBody = (
   request: HttpClientRequest.HttpClientRequest,
   rawRequest: RunpodRawRequest
@@ -614,8 +617,9 @@ const executeRawRequest = Effect.fn("Runpod.raw")(function* (
     })
   );
   const token = yield* rawToken(config, decodedRequest);
+  const path = normalizeRawPath(decodedRequest.path);
   const requestWithHeaders = pipe(
-    HttpClientRequest.make(decodedRequest.method)(`${config.apiUrl}${decodedRequest.path}`, {
+    HttpClientRequest.make(decodedRequest.method)(`${config.apiUrl}${path}`, {
       urlParams: rawUrlParams(decodedRequest),
     }),
     HttpClientRequest.setHeaders(config.headers),

@@ -693,8 +693,14 @@ const schemaExpression = (schema: JsonSchema, hint: string): string => {
 
   if (schema.enum !== undefined) {
     const values = pipe(schema.enum, A.filter(P.isString));
-    if (A.isReadonlyArrayNonEmpty(values) && shouldTrackAdvisoryEnum(hint)) {
-      advisoryEnums = R.set(advisoryEnums, BeepStr.camelCase(hint), values);
+    if (A.isReadonlyArrayNonEmpty(values)) {
+      if (shouldTrackAdvisoryEnum(hint)) {
+        advisoryEnums = R.set(advisoryEnums, BeepStr.camelCase(hint), values);
+
+        return wrapNullable(schema, "S.String");
+      }
+
+      return wrapNullable(schema, `LiteralKit(${JSON.stringify(values)})`);
     }
 
     return wrapNullable(schema, "S.String");
