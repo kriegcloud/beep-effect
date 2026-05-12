@@ -15,12 +15,12 @@ file conflicts with `SPEC.md`, the spec wins.
 | `standards/architecture/10-cross-slice-coordination.md` | Cross-slice event and process ownership rules. |
 | `standards/architecture/12-observability.md` | Span, logging, and usage-boundary guidance. |
 | `standards/architecture/13-onboarding-the-minimum-viable-slice.md` | Minimum legal slice shape. |
-| `initiatives/repo-architecture-automation` | Lean-slate posture, archive branch, fixture-first topology proof. |
+| `initiatives/canonical-slice-factory` | Current architecture automation and fixture replacement contract; earlier lean-slate posture remains recoverable from git history and the archive branch. |
 | `history/decision-log.md` | Initiative-local record of locked grilling decisions. |
 | `fixtures/runtime-data-loop` | Synthetic proof inputs and expected output snapshots. |
 | `initiatives/knowledge-workspace` | Prior event-sourced workspace and graph design context; marked as needing refresh. |
 | `initiatives/ip-law-knowledge-graph` | IP law ontology and graph grounding reference. |
-| `initiatives/law-kg-prd` | Earlier lawyer-facing product seed. |
+| Archived early law KG product seed | Earlier lawyer-facing local-first product prompt, now absorbed into APR product/runtime docs and recoverable from git history. |
 
 ## Archived Branch Sources
 

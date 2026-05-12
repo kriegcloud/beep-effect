@@ -13,10 +13,34 @@
   "proofTarget": {
     "boundedContext": "architecture-lab",
     "concept": "WorkItem",
-    "domainKind": "entities",
-    "conceptPath": "entities/WorkItem",
-    "packagePrefix": "architecture-lab-workitem",
-    "description": "Synthetic lifecycle task used to prove canonical slice creation and architecture factory operations."
+    "domainKind": "aggregates",
+    "conceptPath": "aggregates/WorkItem",
+    "packagePrefix": "architecture-lab",
+    "packagePaths": [
+      "packages/architecture-lab/domain",
+      "packages/architecture-lab/use-cases",
+      "packages/architecture-lab/config",
+      "packages/architecture-lab/server",
+      "packages/architecture-lab/tables",
+      "packages/architecture-lab/client",
+      "packages/architecture-lab/ui"
+    ],
+    "description": "Synthetic lifecycle task aggregate used to prove canonical slice creation and architecture factory operations."
+  },
+  "dbAdminReference": {
+    "sourceRepoPath": "~/YeeBois/projects/beep-effect4/packages/_internal/db-admin",
+    "purpose": "Capability reference for drizzle-kit migration aggregation, generated migration artifacts, admin DB access, and live repository integration tests.",
+    "inspect": [
+      "drizzle.config.ts",
+      "src/schema.ts",
+      "src/tables.ts",
+      "src/db/AdminDb.ts",
+      "test/container.ts",
+      "src/scripts/inject-extensions.ts",
+      "drizzle/**",
+      "AGENTS.md",
+      "README.md"
+    ]
   },
   "proofStages": [
     {
@@ -25,7 +49,7 @@
     },
     {
       "id": "persistence-adapter",
-      "description": "Config, tables, repository implementation, and slice Layer proof."
+      "description": "Config, tables, db-admin migration target, live Drizzle repository implementation, and slice Layer proof."
     },
     {
       "id": "protocol-adapters",
@@ -33,7 +57,7 @@
     },
     {
       "id": "client-experience",
-      "description": "Client facade, UI surface, and synthetic app Layer proof."
+      "description": "Client facade, UI surface, and synthetic app contract harness proof."
     }
   ],
   "commandGroup": {
@@ -43,6 +67,8 @@
     "writeDefault": true,
     "requiresDryRun": true,
     "requiresIdempotency": true,
+    "planFormat": "schema-versioned JSON operation plan",
+    "conflictPolicy": "skip identical targets, apply structured idempotent updates, fail on differing existing source files",
     "initialWrappers": [
       "create slice",
       "add concept",
@@ -55,7 +81,8 @@
   "artifactHomes": {
     "initiative": "initiatives/canonical-slice-factory",
     "repoCliFixtures": "packages/tooling/tool/cli/test/fixtures",
-    "syntheticApp": "apps/architecture-lab-proof"
+    "syntheticApp": "apps/architecture-lab-proof",
+    "dbAdmin": "packages/_internal/db-admin"
   },
   "verification": [
     {
@@ -65,6 +92,14 @@
     {
       "id": "proof-package-tests",
       "description": "Runtime and type tests for the staged architecture-lab WorkItem proof."
+    },
+    {
+      "id": "round-trip-generation-tests",
+      "description": "Generate the staged proof shape into a temp fixture, compare it to the accepted shape, and prove repeat apply is a no-op."
+    },
+    {
+      "id": "db-admin-migration-tests",
+      "description": "Drizzle-kit migration generation/execution proof and live WorkItem repository tests, skipped cleanly unless test database settings are enabled."
     },
     {
       "id": "stale-fixture-audit",

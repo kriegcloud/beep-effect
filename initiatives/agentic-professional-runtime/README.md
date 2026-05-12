@@ -97,8 +97,7 @@ This initiative references existing packets without merging them:
 
 - `initiatives/knowledge-workspace`
 - `initiatives/ip-law-knowledge-graph`
-- `initiatives/law-kg-prd`
-- `initiatives/repo-architecture-automation`
+- `initiatives/canonical-slice-factory`
 
 Those packets remain source context and evidence. This packet is the active
 authority for the professional runtime product direction.

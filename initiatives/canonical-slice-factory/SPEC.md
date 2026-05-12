@@ -25,34 +25,77 @@ architecture units without duplicating generation logic.
 
 ## Non-Negotiable Contract
 
-- This initiative supersedes `initiatives/repo-architecture-automation`.
-- `fixture-lab/Specimen` is reference material only and must not remain the
-  canonical proof after implementation.
-- The new proof target is `architecture-lab/WorkItem`.
-- `WorkItem` is a synthetic lifecycle task, not product roadmap code.
+- This initiative supersedes the prior repo architecture automation packet.
+  Retained lessons live in
+  `history/repo-architecture-automation-reference.md`, and git history is the
+  archive.
+- `fixture-lab/Specimen` is reference material only and must not remain an
+  executable or documented canonical proof after implementation.
+- The new proof target is a normal `architecture-lab` slice with `WorkItem` as
+  the concept inside it:
+  `packages/architecture-lab/{domain,use-cases,config,server,tables,client,ui}`
+  and package names `@beep/architecture-lab-*`.
+- `WorkItem` lives at `aggregates/WorkItem` and is a synthetic lifecycle task,
+  not product roadmap code.
 - The first proof must start from the smallest legal slice and add optional
   parts through explicit stages.
 - `beep architecture` owns the future CLI command group.
 - Every ergonomic command must compile to one schema-backed architecture
   operation plan before writing files.
-- Commands write by default, support `--dry-run`, emit or expose the planned
-  operations, and are idempotent on repeat.
+- Commands write by default, support `--dry-run`, and expose schema-versioned
+  JSON operation plans.
+- `beep architecture plan` emits JSON; `beep architecture apply` consumes JSON;
+  `beep architecture check` validates the plan and idempotency.
+- Idempotency is failsafe: skip identical files, perform structured
+  idempotent config or TypeScript updates, and fail on differing existing
+  source files unless a future explicit overwrite mode is added.
 - `create-package` should remain compatible but route future package creation
   rules through the shared operation planner.
+- The persistence proof must include db-admin migration generation and live
+  Drizzle-backed repository tests when test database settings are available.
 
 ## Proof Matrix
 
 The `architecture-lab/WorkItem` proof is staged:
 
 1. **Core slice:** minimal legal domain, use-cases, and server package set.
-2. **Persistence adapter:** config, tables, server repository, and slice Layer.
+2. **Persistence adapter:** config, tables, db-admin migration target, live
+   Drizzle-backed server repository, and slice Layer.
 3. **Protocol adapters:** driver-neutral HTTP/RPC/AI declarations in
-   use-cases plus server handlers.
+   use-cases plus server handlers and tests.
 4. **Client experience:** client facade, UI surface, and dedicated synthetic app
-   harness for app-local Layer composition.
+   contract harness for app-local Layer composition.
 
 Each stage must be a valid target state. Optional packages or role files are
 created only when the stage requires meaningful behavior.
+
+`WorkItem` should stay boring and useful: title, status, optional assignee,
+create/assign/complete/reopen/archive commands, one get/list query path, domain
+transition failures, server-only repository failures, public action failures,
+and protocol translation tests.
+
+The protocol stage proves contracts and handlers, not live transports:
+driver-neutral `.http.ts`, `.rpc.ts`, `.tools.ts`, package composers, server
+handler modules, and tests are in scope; a runnable HTTP/RPC server and real AI
+provider are out of scope.
+
+The synthetic app is a contract harness like `apps/professional-runtime-proof`.
+It proves app-local Layer composition and package imports over public slice
+boundaries, not a browser product.
+
+## Factory Proof Loop
+
+The factory must prove it can reproduce the canonical shape:
+
+1. Hand-shape the accepted staged `architecture-lab/WorkItem` slice.
+2. Teach `beep architecture` to produce the same staged operation plan.
+3. Generate the staged shape into a temp fixture.
+4. Compare the generated shape against the accepted proof shape.
+5. Apply the same plan twice and prove the second apply is a no-op.
+
+V1 generation must cover every package and role used by the WorkItem proof.
+Foundation-package and driver-package creation remain explicit operation-plan
+extension points unless the WorkItem proof itself needs them.
 
 ## CLI Architecture
 
@@ -70,6 +113,43 @@ path normalizes into a decoded operation plan, then flows through writer
 selection, template rendering, structured writers, and semantic TypeScript
 writers when required.
 
+The plan model should include action identity, target path, write mode,
+conflict status, operation source, and enough metadata for dry-run output,
+fixture comparison, and idempotency checks.
+
+Use Handlebars for reviewable source/docs leaves, structured writers for JSON,
+JSONC, package metadata, docgen, and manifests, and ts-morph only for semantic
+TypeScript mutations such as identity composers, imports, exports, and stable
+generated indexes.
+
+## Db-Admin Reference
+
+The Effect v3 repo contains the richer db-admin precedent at
+`~/YeeBois/projects/beep-effect4/packages/_internal/db-admin`. Treat it as a
+capability reference, not a topology template. Inspect these files before
+designing the current package:
+
+- `drizzle.config.ts`;
+- `src/schema.ts`;
+- `src/tables.ts`;
+- `src/db/AdminDb.ts`;
+- `test/container.ts`;
+- `src/scripts/inject-extensions.ts`;
+- `drizzle/**`;
+- `AGENTS.md` and `README.md`.
+
+Port the concepts that fit current doctrine:
+
+- db-admin owns migration aggregation and generated migration artifacts;
+- a schema barrel feeds drizzle-kit;
+- migration scripts live with db-admin;
+- admin DB access is internal tooling/test infrastructure, not app runtime API;
+- live repository tests can run against migrated test databases.
+
+Do not copy Effect v3 APIs, old slice names, old shared-server `DbClient`
+shapes, broad RLS/extension policy, or production app dependencies on
+`_internal/db-admin` unless the current repo independently requires them.
+
 ## Artifact Homes
 
 - Human initiative contract: `initiatives/canonical-slice-factory`.
@@ -78,8 +158,10 @@ writers when required.
   `initiatives/canonical-slice-factory/ops/manifest.json`.
 - Executable repo-cli fixtures: repo-cli test fixtures under
   `packages/tooling/tool/cli/test/fixtures`.
-- Runtime proof app: a dedicated synthetic app such as
-  `apps/architecture-lab-proof`, not `apps/professional-runtime-proof`.
+- Runtime proof app: `apps/architecture-lab-proof`, not
+  `apps/professional-runtime-proof`.
+- Migration aggregation and generated SQL:
+  `packages/_internal/db-admin`.
 
 ## Documentation And Agent Guidance
 
@@ -88,6 +170,13 @@ commands instead of hand-authoring canonical architecture parts. Root guidance,
 relevant architecture standards, and repo-cli docs should describe the command
 group once it exists.
 
+Implementation must also add a `standards/architecture/DECISIONS.md` entry that
+supersedes the old fixture-proof target while preserving the strict action-error
+doctrine. Binding proof references in `standards/ARCHITECTURE.md`,
+`standards/architecture/README.md`, `08-testing.md`,
+`09-errors-across-boundaries.md`, and related onboarding guidance must point to
+the new proof once it exists.
+
 ## Required Verification
 
 Use targeted tests while building and full gates when the replacement is
@@ -95,11 +184,16 @@ coherent:
 
 - focused repo-cli factory tests;
 - proof-package runtime and type tests;
-- fixture/reference search audits proving `fixture-lab/Specimen` is no longer
-  active canonical guidance;
+- round-trip generation and idempotency tests;
+- live database tests for WorkItem repository behavior when
+  `BEEP_TEST_DATABASE_URL` or
+  `BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers` is set, with clean skips
+  otherwise;
+- fixture/reference search audits proving `fixture-lab/Specimen` is deleted or
+  no longer active canonical guidance;
 - package/config sync checks required by generated packages;
 - final attempts of `bun run check`, `bun run lint`, `bun run test`,
-  `bun run docgen`, and the repo full audit command.
+  `bun run docgen`, and `bun run audit:full`.
 
 If a full gate is blocked by unrelated existing repo state, record the exact
 command, failure, and follow-up.
@@ -111,6 +205,9 @@ command, failure, and follow-up.
 - Keeping `fixture-lab/Specimen` as a parallel canonical proof.
 - Making `@turbo/gen` the generator core; it can become a later wrapper only.
 - Moving app-level Layer composition into a monorepo runtime package.
+- Building a full db-admin product CLI beyond the migration generation and
+  execution surface needed for the proof.
+- Requiring Docker or an external database for normal test runs.
 
 ## Source-Of-Truth Order
 
@@ -121,4 +218,5 @@ When sources disagree, use this order:
 3. `ops/manifest.json`;
 4. `PLAN.md`;
 5. `ops/codex-handoff-prompt.md`;
-6. old `repo-architecture-automation` design notes as historical reference.
+6. the Effect v3 db-admin reference for migration capability shape;
+7. `history/repo-architecture-automation-reference.md` as historical reference.

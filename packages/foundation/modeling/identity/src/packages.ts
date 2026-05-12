@@ -113,7 +113,7 @@ const composers = $I.compose(
   "xai",
   "acp",
   "openai-compat",
-  "workspace-tables"
+  "workspace-tables", "architecture-lab-domain", "architecture-lab-use-cases", "architecture-lab-config", "architecture-lab-server", "architecture-lab-tables", "architecture-lab-client", "architecture-lab-ui", "architecture-lab-proof"
 );
 
 // --- foundation ---
@@ -905,3 +905,59 @@ export const $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat"> =
  * @type {Identity.IdentityComposer<"@beep/workspace-tables">}
  */
 export const $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tables"> = composers.$WorkspaceTablesId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ * @type {Identity.IdentityComposer<"@beep/architecture-lab-domain">}
+ */
+export const $ArchitectureLabDomainId: Identity.IdentityComposer<"@beep/architecture-lab-domain"> = composers.$ArchitectureLabDomainId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ * @type {Identity.IdentityComposer<"@beep/architecture-lab-use-cases">}
+ */
+export const $ArchitectureLabUseCasesId: Identity.IdentityComposer<"@beep/architecture-lab-use-cases"> = composers.$ArchitectureLabUseCasesId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ * @type {Identity.IdentityComposer<"@beep/architecture-lab-config">}
+ */
+export const $ArchitectureLabConfigId: Identity.IdentityComposer<"@beep/architecture-lab-config"> = composers.$ArchitectureLabConfigId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ * @type {Identity.IdentityComposer<"@beep/architecture-lab-server">}
+ */
+export const $ArchitectureLabServerId: Identity.IdentityComposer<"@beep/architecture-lab-server"> = composers.$ArchitectureLabServerId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ * @type {Identity.IdentityComposer<"@beep/architecture-lab-tables">}
+ */
+export const $ArchitectureLabTablesId: Identity.IdentityComposer<"@beep/architecture-lab-tables"> = composers.$ArchitectureLabTablesId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ * @type {Identity.IdentityComposer<"@beep/architecture-lab-client">}
+ */
+export const $ArchitectureLabClientId: Identity.IdentityComposer<"@beep/architecture-lab-client"> = composers.$ArchitectureLabClientId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ * @type {Identity.IdentityComposer<"@beep/architecture-lab-ui">}
+ */
+export const $ArchitectureLabUiId: Identity.IdentityComposer<"@beep/architecture-lab-ui"> = composers.$ArchitectureLabUiId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ * @type {Identity.IdentityComposer<"@beep/architecture-lab-proof">}
+ */
+export const $ArchitectureLabProofId: Identity.IdentityComposer<"@beep/architecture-lab-proof"> = composers.$ArchitectureLabProofId;

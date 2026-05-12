@@ -36,7 +36,15 @@
     "packages/drivers/xai/dtslint/**/*.tst.*",
     "packages/drivers/acp/dtslint/**/*.tst.*",
     "packages/drivers/openai-compat/dtslint/**/*.tst.*",
-    "packages/workspace/tables/dtslint/**/*.tst.*"
+    "packages/workspace/tables/dtslint/**/*.tst.*",
+    "packages/architecture-lab/domain/dtslint/**/*.tst.*",
+    "packages/architecture-lab/use-cases/dtslint/**/*.tst.*",
+    "packages/architecture-lab/config/dtslint/**/*.tst.*",
+    "packages/architecture-lab/server/dtslint/**/*.tst.*",
+    "packages/architecture-lab/tables/dtslint/**/*.tst.*",
+    "packages/architecture-lab/client/dtslint/**/*.tst.*",
+    "packages/architecture-lab/ui/dtslint/**/*.tst.*",
+    "apps/architecture-lab-proof/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }

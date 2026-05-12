@@ -489,6 +489,54 @@
       ],
       "@beep/workspace-tables/entities/CandidateProject": [
         "./packages/workspace/tables/src/entities/CandidateProject/index.ts"
+      ],
+      "@beep/architecture-lab-domain": [
+        "./packages/architecture-lab/domain/src/index.ts"
+      ],
+      "@beep/architecture-lab-domain/*": [
+        "./packages/architecture-lab/domain/src/*"
+      ],
+      "@beep/architecture-lab-use-cases": [
+        "./packages/architecture-lab/use-cases/src/index.ts"
+      ],
+      "@beep/architecture-lab-use-cases/*": [
+        "./packages/architecture-lab/use-cases/src/*"
+      ],
+      "@beep/architecture-lab-config": [
+        "./packages/architecture-lab/config/src/index.ts"
+      ],
+      "@beep/architecture-lab-config/*": [
+        "./packages/architecture-lab/config/src/*"
+      ],
+      "@beep/architecture-lab-server": [
+        "./packages/architecture-lab/server/src/index.ts"
+      ],
+      "@beep/architecture-lab-server/*": [
+        "./packages/architecture-lab/server/src/*"
+      ],
+      "@beep/architecture-lab-tables": [
+        "./packages/architecture-lab/tables/src/index.ts"
+      ],
+      "@beep/architecture-lab-tables/*": [
+        "./packages/architecture-lab/tables/src/*"
+      ],
+      "@beep/architecture-lab-client": [
+        "./packages/architecture-lab/client/src/index.ts"
+      ],
+      "@beep/architecture-lab-client/*": [
+        "./packages/architecture-lab/client/src/*"
+      ],
+      "@beep/architecture-lab-ui": [
+        "./packages/architecture-lab/ui/src/index.ts"
+      ],
+      "@beep/architecture-lab-ui/*": [
+        "./packages/architecture-lab/ui/src/*"
+      ],
+      "@beep/architecture-lab-proof": [
+        "./apps/architecture-lab-proof/src/index.ts"
+      ],
+      "@beep/architecture-lab-proof/*": [
+        "./apps/architecture-lab-proof/src/*"
       ]
     }
   }

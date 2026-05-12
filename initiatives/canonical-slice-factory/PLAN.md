@@ -5,45 +5,66 @@ proof target, then systemizes the creation path through `@beep/repo-cli`.
 
 ## A. Audit Current Drift
 
-- Read the architecture standards, this initiative packet, and the old
-  `repo-architecture-automation` packet.
+- Read the architecture standards, this initiative packet, and the retained
+  automation reference note in `history/repo-architecture-automation-reference.md`.
+- Inspect the Effect v3 db-admin reference at
+  `~/YeeBois/projects/beep-effect4/packages/_internal/db-admin`, especially
+  `drizzle.config.ts`, `src/schema.ts`, `src/tables.ts`,
+  `src/db/AdminDb.ts`, `test/container.ts`,
+  `src/scripts/inject-extensions.ts`, and `drizzle/**`.
 - Inventory all active references to `fixture-lab/Specimen`,
   `@beep/fixture-lab-specimen-*`, and `$FixtureLabSpecimenId`.
 - Classify references as old proof implementation, generated inventory, docs
   guidance, identity/config wiring, or unrelated historical evidence.
+- Inventory current db-admin, postgres, drizzle, and test-utils surfaces before
+  adapting any Effect v3 pattern.
 
 ## B. Replace The Proof Target
 
-- Create the staged `architecture-lab/WorkItem` proof as synthetic workspaces.
+- Create the staged `architecture-lab` proof as normal slice workspaces:
+  `domain`, `use-cases`, `config`, `server`, `tables`, `client`, and `ui`.
+- Put the synthetic lifecycle concept at `aggregates/WorkItem`.
 - Start with the smallest legal slice and add optional package roles only when
   a stage needs meaningful behavior.
-- Add a dedicated synthetic app harness for app-local Layer composition.
-- Remove or rewrite active canonical references to `fixture-lab/Specimen`.
+- Add `apps/architecture-lab-proof` as a contract harness for app-local Layer
+  composition.
+- Add a db-admin migration target for `architecture-lab` and prove a live
+  Drizzle-backed WorkItem repository when database test settings are enabled.
+- Remove active canonical references to `fixture-lab/Specimen`, delete the old
+  live proof packages/fixture registry after replacement, and use the retained
+  automation note instead of the deleted prior packet.
 
 ## C. Build The Factory Core
 
 - Add the `beep architecture` command group in `@beep/repo-cli`.
-- Model architecture creation as decoded operation plans.
+- Model architecture creation as decoded schema-versioned JSON operation plans.
 - Implement writer selection over the shared plan model.
 - Route ergonomic wrappers through that planner.
+- Implement `plan` output, `apply` input, `check` validation, dry-run output,
+  and failsafe conflict reporting.
 - Keep `create-package` compatible while moving future package-creation rules
   toward the same planner.
 
 ## D. Prove Granular Creation
 
-- Support whole-slice creation.
-- Support adding a domain concept or domain-kind folder.
-- Support adding canonical role modules through the shared planner.
-- Leave tables, protocol modules, foundation packages, and drivers as explicit
-  extension points unless the staged proof requires their first implementation.
+- Support whole-slice creation for the staged `architecture-lab` packages.
+- Support adding the `aggregates/WorkItem` concept and canonical role modules.
+- Generate every role used by the WorkItem proof, including tables, protocol
+  declarations, server handlers, client, UI, app harness, and db-admin target.
+- Leave standalone foundation package and driver package creation as explicit
+  operation-plan extension points.
+- Add a round-trip fixture lane: accepted proof shape, generated temp shape,
+  comparison, and second-apply no-op check.
 
 ## E. Update Guidance
 
 - Update root agent guidance and repo-cli docs so agents discover and prefer
   the architecture commands.
-- Update architecture docs only where canonical proof references or generated
+- Add a decision-log entry superseding the old fixture proof target while
+  preserving strict action-error doctrine.
+- Update architecture docs where canonical proof references or generated
   defaults changed.
-- Keep old automation notes only as historical reference until deleted.
+- Update db-admin agent guidance with the current migration aggregation role.
 
 ## Required Checks
 
@@ -51,6 +72,10 @@ Run targeted checks first:
 
 - repo-cli tests for operation planning and idempotency;
 - proof package tests and type tests;
+- db-admin migration generation/execution tests or documented clean skips;
+- WorkItem live database tests gated by `BEEP_TEST_DATABASE_URL` or
+  `BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers`;
+- round-trip generation comparison and second-apply no-op proof;
 - search audits for stale canonical `fixture-lab/Specimen` references.
 
 Then attempt the coherent repo gates:
@@ -59,6 +84,6 @@ Then attempt the coherent repo gates:
 - `bun run lint`
 - `bun run test`
 - `bun run docgen`
-- repo full audit command
+- `bun run audit:full`
 
 Record exact unrelated blockers instead of hiding them.

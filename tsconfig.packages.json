@@ -7,6 +7,9 @@
   "include": [],
   "references": [
     {
+      "path": "apps/architecture-lab-proof"
+    },
+    {
       "path": "apps/codedank-web"
     },
     {
@@ -26,6 +29,27 @@
     },
     {
       "path": "packages/agent-capability/use-cases"
+    },
+    {
+      "path": "packages/architecture-lab/client"
+    },
+    {
+      "path": "packages/architecture-lab/config"
+    },
+    {
+      "path": "packages/architecture-lab/domain"
+    },
+    {
+      "path": "packages/architecture-lab/server"
+    },
+    {
+      "path": "packages/architecture-lab/tables"
+    },
+    {
+      "path": "packages/architecture-lab/ui"
+    },
+    {
+      "path": "packages/architecture-lab/use-cases"
     },
     {
       "path": "packages/drivers/acp"

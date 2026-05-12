@@ -30,19 +30,12 @@ actually lives here.
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
 - `canonical-slice-factory`
-- `discriminated-union-modeling`
 - `ip-law-knowledge-graph`
-- `jsdoc-quality-enforcement`
-- `law-kg-prd`
-- `repo-codegraph-jsdoc`
 - `trustgraph-doc-ontology`
-- `turborepo-audit`
 
 ## Reference Packets
 
-- `repo-architecture-automation` — superseded by
-  `canonical-slice-factory`; use only as historical/reference material while
-  replacing the drifted `fixture-lab/Specimen` proof.
+- `repo-codegraph-jsdoc` — learn-only codegraph/JSDoc research reference.
 
 ## Needs Refresh After Lean Slate
 

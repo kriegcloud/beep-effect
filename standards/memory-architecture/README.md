@@ -40,7 +40,7 @@ The provenance and verification layers in TrustGraph provide the "external symbo
 |---|---|
 | `standards/effect-first-development.md` | Effect patterns govern all memory service implementation |
 | `standards/effect-laws-v1.md` | Effect laws constrain all memory service code |
-| `initiatives/repo-architecture-automation/` | Current architecture automation path; the pre-automation memory packets live only in git history and the archive branch |
+| `initiatives/canonical-slice-factory/` | Current architecture automation path; the pre-automation memory packets live only in git history and the archive branch |
 
 ## Anti-Goals
 

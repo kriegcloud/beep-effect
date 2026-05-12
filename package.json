@@ -40,7 +40,15 @@
     "packages/drivers/xai",
     "packages/drivers/acp",
     "packages/drivers/openai-compat",
-    "packages/workspace/tables"
+    "packages/workspace/tables",
+    "packages/architecture-lab/domain",
+    "packages/architecture-lab/use-cases",
+    "packages/architecture-lab/config",
+    "packages/architecture-lab/server",
+    "packages/architecture-lab/tables",
+    "packages/architecture-lab/client",
+    "packages/architecture-lab/ui",
+    "apps/architecture-lab-proof"
   ],
   "repository": {
     "type": "git",

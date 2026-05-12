@@ -40,6 +40,14 @@ const config = {
     "packages/drivers/acp/package.json",
     "packages/drivers/openai-compat/package.json",
     "packages/workspace/tables/package.json",
+    "packages/architecture-lab/domain/package.json",
+    "packages/architecture-lab/use-cases/package.json",
+    "packages/architecture-lab/config/package.json",
+    "packages/architecture-lab/server/package.json",
+    "packages/architecture-lab/tables/package.json",
+    "packages/architecture-lab/client/package.json",
+    "packages/architecture-lab/ui/package.json",
+    "apps/architecture-lab-proof/package.json",
   ],
   customTypes: {
     catalog: {
