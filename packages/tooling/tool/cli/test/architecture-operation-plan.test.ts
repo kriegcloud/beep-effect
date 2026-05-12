@@ -18,6 +18,7 @@ import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
 
@@ -283,8 +284,8 @@ describe("architecture operation plan", () => {
       const json = yield* encodeCanonicalSliceOperationPlanJson(plan);
       const decoded = yield* decodeCanonicalSliceOperationPlanJson(json);
       const plannedPaths = decoded.operations.map((operation) => operation.path);
-      const packageJsonOperation = decoded.operations.find(
-        (operation): operation is WritePackageJsonOperation => operation instanceof WritePackageJsonOperation
+      const packageJsonOperation = decoded.operations.find((operation): operation is WritePackageJsonOperation =>
+        S.is(WritePackageJsonOperation)(operation)
       );
 
       expect(decoded.roles.map((role) => role.role)).toEqual(["use-cases"]);
