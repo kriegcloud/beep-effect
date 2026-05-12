@@ -21,6 +21,7 @@ import {
   type CanonicalSliceOperationPlan,
   checkCanonicalSliceOperationPlan,
   decodeCanonicalSliceOperationPlanJson,
+  defaultArchitecturePlanTarget,
   encodeCanonicalSliceOperationPlanJson,
   makeArchitectureOperationPlan,
   makeArchitecturePackageOperationPlan,
@@ -41,7 +42,7 @@ const stageFlag = (defaultValue: ArchitecturePlanStage) =>
 
 const domainKindFlag = Flag.string("domain-kind").pipe(
   Flag.withDescription("Domain-kind archetype for the concept: aggregates, entities, or values"),
-  Flag.withDefault("aggregates")
+  Flag.withDefault(defaultArchitecturePlanTarget.domainKind)
 );
 
 const dryRunFlag = Flag.boolean("dry-run").pipe(
@@ -50,10 +51,13 @@ const dryRunFlag = Flag.boolean("dry-run").pipe(
 
 const planSliceFlag = Flag.string("slice").pipe(
   Flag.withDescription("Slice or bounded-context name"),
-  Flag.withDefault("architecture-lab")
+  Flag.withDefault(defaultArchitecturePlanTarget.boundedContext)
 );
 
-const planConceptFlag = Flag.string("concept").pipe(Flag.withDescription("Concept name"), Flag.withDefault("WorkItem"));
+const planConceptFlag = Flag.string("concept").pipe(
+  Flag.withDescription("Concept name"),
+  Flag.withDefault(defaultArchitecturePlanTarget.concept)
+);
 
 const decodeStage = (value: string): Effect.Effect<ArchitecturePlanStage, DomainError> =>
   S.decodeUnknownEffect(ArchitecturePlanStage)(value).pipe(
@@ -152,7 +156,7 @@ const architecturePlanCommand = Command.make(
     slice: planSliceFlag,
     concept: planConceptFlag,
     domainKind: domainKindFlag,
-    stage: stageFlag("full"),
+    stage: stageFlag(defaultArchitecturePlanTarget.stage),
   },
   Effect.fn(function* ({ slice, concept, domainKind, stage }) {
     const plan = yield* makePlanFromCommand(slice, concept, domainKind, stage);
@@ -237,7 +241,7 @@ const addRoleCommand = Command.make(
     concept: Argument.string("concept").pipe(Argument.withDescription("Concept name")),
     role: Argument.string("role").pipe(Argument.withDescription("Architecture role to add")),
     domainKind: domainKindFlag,
-    stage: stageFlag("full"),
+    stage: stageFlag(defaultArchitecturePlanTarget.stage),
     dryRun: dryRunFlag,
   },
   Effect.fn(function* ({ slice, concept, role, domainKind, stage, dryRun }) {
@@ -272,6 +276,12 @@ const printArchitectureIndex = Effect.fn(function* () {
 /**
  * Architecture automation command group.
  *
+ * @example
+ * ```ts
+ * import { architectureCommand } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * console.log(architectureCommand)
+ * ```
  * @category commands
  * @since 0.0.0
  */

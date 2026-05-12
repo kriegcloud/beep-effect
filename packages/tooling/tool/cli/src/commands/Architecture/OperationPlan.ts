@@ -93,6 +93,13 @@ export type ArchitectureSliceRole = typeof ArchitectureSliceRole.Type;
 /**
  * Slice role packages supported by `beep architecture create package`.
  *
+ * @example
+ * ```ts
+ * import { ArchitecturePackageRole } from "@beep/repo-cli/commands/Architecture/index"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitecturePackageRole)("domain"))
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -113,6 +120,13 @@ export const ArchitecturePackageRole = LiteralKit([
 /**
  * Slice role package supported by `beep architecture create package`.
  *
+ * @example
+ * ```ts
+ * import type { ArchitecturePackageRole } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * const role: ArchitecturePackageRole = "domain"
+ * console.log(role)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -204,6 +218,24 @@ export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFile
 /**
  * Operation that writes a structured package manifest.
  *
+ * @example
+ * ```ts
+ * import { WritePackageJsonOperation } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * const operation = new WritePackageJsonOperation({
+ *   kind: "write-package-json",
+ *   role: "domain",
+ *   path: "packages/research-lab/domain/package.json",
+ *   packageName: "@beep/research-lab-domain",
+ *   packageDescription: "Research lab domain package.",
+ *   repositoryDirectory: "packages/research-lab/domain",
+ *   exports: ["."],
+ *   dependencies: {},
+ *   devDependencies: {},
+ *   description: "Write the research-lab domain package manifest.",
+ * })
+ * console.log(operation.packageName)
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -360,13 +392,26 @@ type AcceptedProofFile = {
   readonly writer: ArchitectureWriterKind;
 };
 
-const defaultPlanTarget = new ArchitecturePlanTarget({
+/**
+ * Default architecture target shared by command defaults and plan factories.
+ *
+ * @example
+ * ```ts
+ * import { defaultArchitecturePlanTarget } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * console.log(defaultArchitecturePlanTarget.boundedContext)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const defaultArchitecturePlanTarget = new ArchitecturePlanTarget({
   boundedContext: "architecture-lab",
   concept: "WorkItem",
   conceptPath: "aggregates/WorkItem",
   domainKind: "aggregates",
   stage: "full",
 });
+const defaultPlanTarget = defaultArchitecturePlanTarget;
 
 const stageOrder: ReadonlyArray<ArchitecturePlanStage> = ["core", "persistence", "protocol", "client", "full"];
 const stringEquivalence = S.toEquivalence(S.String);
@@ -1173,7 +1218,7 @@ const packageExportSourceFor = (role: ArchitecturePackageRole, subpath: string):
 };
 
 const packageExportPublishSourceFor = (role: ArchitecturePackageRole, subpath: string): string => {
-  if (subpath === ".") return "./dist/index.ts";
+  if (subpath === ".") return "./dist/index.js";
   if (subpath === "./layer" && role === "server") return "./dist/Layer.js";
   if (
     role === "domain" &&
@@ -1954,6 +1999,17 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
 /**
  * Build a shell-only slice role package operation plan.
  *
+ * @example
+ * ```ts
+ * import { makeArchitecturePackageOperationPlan } from "@beep/repo-cli/commands/Architecture/index"
+ * import { Effect } from "effect"
+ *
+ * const program = Effect.map(
+ *   makeArchitecturePackageOperationPlan({ boundedContext: "research-lab", role: "domain" }),
+ *   (plan) => plan.operations.length,
+ * )
+ * console.log(program)
+ * ```
  * @category constructors
  * @since 0.0.0
  */

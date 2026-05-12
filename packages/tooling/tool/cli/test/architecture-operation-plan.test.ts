@@ -21,6 +21,12 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
+const PackageJsonPublishConfig = S.Struct({
+  publishConfig: S.Struct({
+    exports: S.Record(S.String, S.NullOr(S.String)),
+  }),
+});
+const decodePackageJsonPublishConfig = S.decodeUnknownEffect(S.fromJsonString(PackageJsonPublishConfig));
 
 describe("architecture operation plan", () => {
   it.effect("round-trips as schema-decoded JSON", () =>
@@ -320,6 +326,7 @@ describe("architecture operation plan", () => {
         Effect.provide(NodeServices.layer)
       );
       const packageJson = readFileSync(join(tempRoot, "packages/research-lab/domain/package.json"), "utf8");
+      const parsedPackageJson = yield* decodePackageJsonPublishConfig(packageJson);
       const index = readFileSync(join(tempRoot, "packages/research-lab/domain/src/index.ts"), "utf8");
 
       rmSync(tempRoot, { force: true, recursive: true });
@@ -329,6 +336,7 @@ describe("architecture operation plan", () => {
       expect(packageJson).toContain('"name": "@beep/research-lab-domain"');
       expect(packageJson).toContain('"@beep/shared-domain": "workspace:^"');
       expect(packageJson).toContain('"./aggregates": "./src/aggregates/index.ts"');
+      expect(parsedPackageJson.publishConfig?.exports?.["."]).toBe("./dist/index.js");
       expect(index).toContain('export * as Aggregates from "./aggregates/index.js";');
       expect(index).toContain('export * as Values from "./values/index.js";');
       expect(check.idempotent).toBe(true);
