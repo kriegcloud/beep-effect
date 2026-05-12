@@ -9,15 +9,25 @@ import {
   decodeCanonicalSliceOperationPlanJson,
   encodeCanonicalSliceOperationPlanJson,
   makeArchitectureOperationPlan,
+  makeArchitecturePackageOperationPlan,
   makeCanonicalSliceOperationPlan,
   WriteFileOperation,
+  WritePackageJsonOperation,
 } from "@beep/repo-cli/commands/Architecture/index";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
+const PackageJsonPublishConfig = S.Struct({
+  exports: S.Record(S.String, S.NullOr(S.String)),
+  publishConfig: S.Struct({
+    exports: S.Record(S.String, S.NullOr(S.String)),
+  }),
+});
+const decodePackageJsonPublishConfig = S.decodeUnknownEffect(S.fromJsonString(PackageJsonPublishConfig));
 
 describe("architecture operation plan", () => {
   it.effect("round-trips as schema-decoded JSON", () =>
@@ -269,6 +279,81 @@ describe("architecture operation plan", () => {
       ).pipe(Effect.provide(NodeServices.layer), Effect.flip);
 
       expect(error.message).toContain("values concepts do not support role(s): server");
+    })
+  );
+
+  it.effect("creates a shell-only slice role package operation plan", () =>
+    Effect.gen(function* () {
+      const plan = yield* makeArchitecturePackageOperationPlan({
+        boundedContext: "research-lab",
+        role: "use-cases",
+      });
+      const json = yield* encodeCanonicalSliceOperationPlanJson(plan);
+      const decoded = yield* decodeCanonicalSliceOperationPlanJson(json);
+      const plannedPaths = decoded.operations.map((operation) => operation.path);
+      const packageJsonOperation = decoded.operations.find((operation): operation is WritePackageJsonOperation =>
+        S.is(WritePackageJsonOperation)(operation)
+      );
+
+      expect(decoded.roles.map((role) => role.role)).toEqual(["use-cases"]);
+      expect(decoded.roles[0]?.exports).toEqual([
+        ".",
+        "./public",
+        "./server",
+        "./aggregates/*",
+        "./aggregates/*/server",
+        "./entities/*",
+        "./entities/*/server",
+      ]);
+      expect(packageJsonOperation?.dependencies).toMatchObject({
+        "@beep/research-lab-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+      });
+      expect(packageJsonOperation?.exports).toContain("./aggregates/*/server");
+      expect(plannedPaths).toContain("packages/research-lab/use-cases/package.json");
+      expect(plannedPaths).toContain("packages/research-lab/use-cases/src/index.ts");
+      expect(plannedPaths).toContain("packages/research-lab/use-cases/src/public.ts");
+      expect(plannedPaths).toContain("packages/research-lab/use-cases/src/server.ts");
+      expect(plannedPaths.some((operationPath) => operationPath.includes("/WorkItem/"))).toBe(false);
+      expect(plannedPaths.some((operationPath) => operationPath.includes("/PackageShell/"))).toBe(false);
+    })
+  );
+
+  it.effect("applies a shell-only slice role package twice with a no-op second apply", () =>
+    Effect.gen(function* () {
+      const tempRoot = join(tmpdir(), `beep-architecture-package-shell-${Date.now()}`);
+      const plan = yield* makeArchitecturePackageOperationPlan({
+        boundedContext: "research-lab",
+        role: "domain",
+      });
+
+      const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+        Effect.provide(NodeServices.layer)
+      );
+      const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(Effect.provide(NodeServices.layer));
+      const secondApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+        Effect.provide(NodeServices.layer)
+      );
+      const packageJson = readFileSync(join(tempRoot, "packages/research-lab/domain/package.json"), "utf8");
+      const parsedPackageJson = yield* decodePackageJsonPublishConfig(packageJson);
+      const index = readFileSync(join(tempRoot, "packages/research-lab/domain/src/index.ts"), "utf8");
+
+      rmSync(tempRoot, { force: true, recursive: true });
+      expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/package.json");
+      expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/src/aggregates/index.ts");
+      expect(firstApply.writtenPaths).not.toContain("packages/research-lab/domain/src/aggregates/WorkItem/index.ts");
+      expect(packageJson).toContain('"name": "@beep/research-lab-domain"');
+      expect(packageJson).toContain('"@beep/shared-domain": "workspace:^"');
+      expect(packageJson).toContain('"./aggregates": "./src/aggregates/index.ts"');
+      expect(parsedPackageJson.exports["./aggregates/*"]).toBe("./src/aggregates/*/index.ts");
+      expect(parsedPackageJson.publishConfig?.exports?.["."]).toBe("./dist/index.js");
+      expect(parsedPackageJson.publishConfig?.exports?.["./aggregates/*"]).toBe("./dist/aggregates/*/index.js");
+      expect(index).toContain('export * as Aggregates from "./aggregates/index.js";');
+      expect(index).toContain('export * as Values from "./values/index.js";');
+      expect(check.idempotent).toBe(true);
+      expect(secondApply.writtenPaths).toEqual([]);
+      expect(secondApply.skippedPaths.length).toBeGreaterThan(0);
     })
   );
 });
