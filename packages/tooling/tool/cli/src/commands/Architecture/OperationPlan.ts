@@ -1080,11 +1080,31 @@ const packageShellTargetFor = (boundedContext: string): ArchitecturePlanTarget =
   });
 
 const packageShellExportsForRole = (role: ArchitecturePackageRole): ReadonlyArray<string> => {
-  if (role === "domain") return [".", "./aggregates", "./entities", "./identity", "./values"];
-  if (role === "use-cases") return [".", "./public", "./server"];
-  if (role === "config") return [".", "./public", "./server", "./secrets", "./layer", "./test"];
-  if (role === "server") return [".", "./layer", "./test"];
-  if (role === "tables") return [".", "./tables"];
+  if (role === "domain")
+    return [
+      ".",
+      "./aggregates",
+      "./aggregates/*",
+      "./entities",
+      "./entities/*",
+      "./identity",
+      "./values",
+      "./values/*",
+    ];
+  if (role === "use-cases")
+    return [
+      ".",
+      "./public",
+      "./server",
+      "./aggregates/*",
+      "./aggregates/*/server",
+      "./entities/*",
+      "./entities/*/server",
+    ];
+  if (role === "config") return [".", "./public", "./server", "./secrets", "./layer", "./test", "./aggregates/*"];
+  if (role === "server") return [".", "./layer", "./test", "./aggregates/*", "./entities/*"];
+  if (role === "tables") return [".", "./tables", "./aggregates/*", "./entities/*"];
+  if (role === "client" || role === "ui") return [".", "./aggregates/*"];
   return ["."];
 };
 
@@ -1208,6 +1228,7 @@ const shellPackageJsonOperationFor = (
 const packageExportSourceFor = (role: ArchitecturePackageRole, subpath: string): string => {
   if (subpath === ".") return "./src/index.ts";
   if (subpath === "./layer" && role === "server") return "./src/Layer.ts";
+  if (Str.endsWith("/*")(subpath)) return `./src/${Str.replace("/*", "/*/index.ts")(Str.replace("./", "")(subpath))}`;
   if (
     role === "domain" &&
     (subpath === "./aggregates" || subpath === "./entities" || subpath === "./identity" || subpath === "./values")
@@ -1220,6 +1241,7 @@ const packageExportSourceFor = (role: ArchitecturePackageRole, subpath: string):
 const packageExportPublishSourceFor = (role: ArchitecturePackageRole, subpath: string): string => {
   if (subpath === ".") return "./dist/index.js";
   if (subpath === "./layer" && role === "server") return "./dist/Layer.js";
+  if (Str.endsWith("/*")(subpath)) return `./dist/${Str.replace("/*", "/*/index.js")(Str.replace("./", "")(subpath))}`;
   if (
     role === "domain" &&
     (subpath === "./aggregates" || subpath === "./entities" || subpath === "./identity" || subpath === "./values")

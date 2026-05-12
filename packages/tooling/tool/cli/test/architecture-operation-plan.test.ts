@@ -22,6 +22,7 @@ import * as S from "effect/Schema";
 
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
 const PackageJsonPublishConfig = S.Struct({
+  exports: S.Record(S.String, S.NullOr(S.String)),
   publishConfig: S.Struct({
     exports: S.Record(S.String, S.NullOr(S.String)),
   }),
@@ -295,12 +296,21 @@ describe("architecture operation plan", () => {
       );
 
       expect(decoded.roles.map((role) => role.role)).toEqual(["use-cases"]);
-      expect(decoded.roles[0]?.exports).toEqual([".", "./public", "./server"]);
+      expect(decoded.roles[0]?.exports).toEqual([
+        ".",
+        "./public",
+        "./server",
+        "./aggregates/*",
+        "./aggregates/*/server",
+        "./entities/*",
+        "./entities/*/server",
+      ]);
       expect(packageJsonOperation?.dependencies).toMatchObject({
         "@beep/research-lab-domain": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
       });
+      expect(packageJsonOperation?.exports).toContain("./aggregates/*/server");
       expect(plannedPaths).toContain("packages/research-lab/use-cases/package.json");
       expect(plannedPaths).toContain("packages/research-lab/use-cases/src/index.ts");
       expect(plannedPaths).toContain("packages/research-lab/use-cases/src/public.ts");
@@ -336,7 +346,9 @@ describe("architecture operation plan", () => {
       expect(packageJson).toContain('"name": "@beep/research-lab-domain"');
       expect(packageJson).toContain('"@beep/shared-domain": "workspace:^"');
       expect(packageJson).toContain('"./aggregates": "./src/aggregates/index.ts"');
+      expect(parsedPackageJson.exports["./aggregates/*"]).toBe("./src/aggregates/*/index.ts");
       expect(parsedPackageJson.publishConfig?.exports?.["."]).toBe("./dist/index.js");
+      expect(parsedPackageJson.publishConfig?.exports?.["./aggregates/*"]).toBe("./dist/aggregates/*/index.js");
       expect(index).toContain('export * as Aggregates from "./aggregates/index.js";');
       expect(index).toContain('export * as Values from "./values/index.js";');
       expect(check.idempotent).toBe(true);
