@@ -1,8 +1,11 @@
+import { Chalk } from "@beep/chalk";
+import { createColors } from "@beep/colors";
 import { filesCommand } from "@beep/repo-cli";
 import {
   ArchivePoorCandidatesManifest,
   DetectBordersReport,
   NormalizeManifest,
+  renderFilesProgressBar,
 } from "@beep/repo-cli/commands/Files/index";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Data, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
@@ -355,6 +358,19 @@ const fileSize = Effect.fn("FilesTest.fileSize")(function* (filePath: string) {
 });
 
 describe.sequential("files command", () => {
+  it("renders a plain ascii files progress bar when colors are disabled", () => {
+    const rendered = renderFilesProgressBar({
+      chalk: new Chalk({ level: 0 }),
+      colors: createColors(false),
+      completed: 3,
+      label: "normalize write",
+      total: 6,
+      width: 10,
+    });
+
+    expect(rendered).toBe("files normalize write <#####-----> 3/6 50.0%");
+  });
+
   it("detects black pillarbox borders", async () => {
     await Effect.runPromise(
       withTempDirectory((tmpDir) =>

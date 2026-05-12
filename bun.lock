@@ -947,6 +947,7 @@
       },
       "dependencies": {
         "@beep/chalk": "workspace:^",
+        "@beep/colors": "workspace:^",
         "@beep/duckdb": "workspace:^",
         "@beep/ffmpeg": "workspace:^",
         "@beep/identity": "workspace:^",
