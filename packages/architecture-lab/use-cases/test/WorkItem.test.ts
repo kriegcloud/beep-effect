@@ -33,6 +33,50 @@ const makeRepository = (workItemId: DomainWorkItem.WorkItemId): WorkItemServer.W
 };
 
 describe("WorkItem use-cases", () => {
+  it.effect("redacts repository unavailable details at the public action boundary", () =>
+    Effect.gen(function* () {
+      const workItemId = yield* decodeWorkItemId("work-item-1");
+      const useCases = WorkItemServer.WorkItem.makeWorkItemUseCases({
+        create: () =>
+          Effect.fail(
+            new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
+              reason: "insert WorkItem failed against architecture_lab_work_item",
+            })
+          ),
+        get: () =>
+          Effect.fail(
+            new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
+              reason: "select WorkItem failed against architecture_lab_work_item",
+            })
+          ),
+        list: () =>
+          Effect.fail(
+            new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
+              reason: "list WorkItem failed against architecture_lab_work_item",
+            })
+          ),
+        save: () =>
+          Effect.fail(
+            new WorkItemServer.WorkItem.WorkItemRepositoryUnavailable({
+              reason: "update WorkItem failed against architecture_lab_work_item",
+            })
+          ),
+      });
+
+      const error = yield* useCases
+        .create(
+          new WorkItem.CreateWorkItemCommand({
+            id: workItemId,
+            title: "Document topology",
+          })
+        )
+        .pipe(Effect.flip);
+
+      expect(error._tag).toBe("WorkItemActionFailed");
+      expect(error.reason).toBe(WorkItem.WORK_ITEM_ACTION_UNAVAILABLE_REASON);
+    })
+  );
+
   it.effect("translates repository not-found failures to public failures", () =>
     Effect.gen(function* () {
       const workItemId = yield* decodeWorkItemId("work-item-1");

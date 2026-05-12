@@ -108,6 +108,31 @@ describe("architecture operation plan", () => {
     })
   );
 
+  it.effect("keeps global db-admin state out of non-default persistence slice plans", () =>
+    Effect.gen(function* () {
+      const tempRoot = join(tmpdir(), `beep-architecture-persistence-generated-${Date.now()}`);
+
+      const plan = yield* makeArchitectureOperationPlan(repoRoot, {
+        boundedContext: "research-lab",
+        concept: "Ticket",
+        domainKind: "aggregates",
+        stage: "persistence",
+      }).pipe(Effect.provide(NodeServices.layer));
+      const checkAfterApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+        Effect.flatMap(() => checkCanonicalSliceOperationPlan(tempRoot, plan)),
+        Effect.provide(NodeServices.layer)
+      );
+      const plannedPaths = plan.operations.map((operation) => operation.path);
+
+      rmSync(tempRoot, { force: true, recursive: true });
+      expect(plannedPaths.every((operationPath) => !operationPath.startsWith("packages/_internal/db-admin/"))).toBe(
+        true
+      );
+      expect(plannedPaths.every((operationPath) => !operationPath.includes("architecture_lab_work_item"))).toBe(true);
+      expect(checkAfterApply.idempotent).toBe(true);
+    })
+  );
+
   it.effect("generates the accepted Worker entity archetype without aggregate-only roles", () =>
     Effect.gen(function* () {
       const tempRoot = join(tmpdir(), `beep-architecture-worker-generated-${Date.now()}`);
@@ -138,6 +163,32 @@ describe("architecture operation plan", () => {
       expect(plan.operations.map((operation) => operation.path)).not.toContain(
         "packages/architecture-lab/ui/src/aggregates/WorkItem/WorkItem.view-model.ts"
       );
+    })
+  );
+
+  it.effect("keeps existing entity and value archetype plans idempotent against the accepted checkout", () =>
+    Effect.gen(function* () {
+      const workerPlan = yield* makeArchitectureOperationPlan(repoRoot, {
+        boundedContext: "architecture-lab",
+        concept: "Worker",
+        domainKind: "entities",
+        stage: "full",
+      }).pipe(Effect.provide(NodeServices.layer));
+      const priorityPlan = yield* makeArchitectureOperationPlan(repoRoot, {
+        boundedContext: "architecture-lab",
+        concept: "WorkPriority",
+        domainKind: "values",
+        stage: "full",
+      }).pipe(Effect.provide(NodeServices.layer));
+      const workerCheck = yield* checkCanonicalSliceOperationPlan(repoRoot, workerPlan).pipe(
+        Effect.provide(NodeServices.layer)
+      );
+      const priorityCheck = yield* checkCanonicalSliceOperationPlan(repoRoot, priorityPlan).pipe(
+        Effect.provide(NodeServices.layer)
+      );
+
+      expect(workerCheck.idempotent).toBe(true);
+      expect(priorityCheck.idempotent).toBe(true);
     })
   );
 

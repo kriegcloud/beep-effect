@@ -14,6 +14,14 @@ import * as S from "effect/Schema";
 const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.errors");
 
 /**
+ * Generic public reason used when internal WorkItem repository details are redacted.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const WORK_ITEM_ACTION_UNAVAILABLE_REASON = "WorkItem service is unavailable." as const;
+
+/**
  * Public failure raised when a requested WorkItem is absent.
  *
  * @category errors

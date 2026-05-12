@@ -21,6 +21,7 @@ import type {
   ReopenWorkItemCommand,
 } from "./WorkItem.commands.js";
 import {
+  WORK_ITEM_ACTION_UNAVAILABLE_REASON,
   type WorkItemActionError,
   WorkItemActionFailed,
   WorkItemActionRejected,
@@ -56,7 +57,7 @@ export const toWorkItemActionError = (
     return new WorkItemConflict({ workItemId: error.workItemId, reason: error.reason });
   }
   if (isRepositoryUnavailable(error)) {
-    return new WorkItemActionFailed({ reason: error.reason });
+    return new WorkItemActionFailed({ reason: WORK_ITEM_ACTION_UNAVAILABLE_REASON });
   }
   return new WorkItemActionRejected({
     workItemId: error.workItemId,

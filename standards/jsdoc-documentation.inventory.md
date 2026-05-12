@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-05-12T12:02:14.799Z
+Generated: 2026-05-12T13:07:00.338Z
 
 ## Scope
 
@@ -15,10 +15,10 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | packagesWithoutPublicSrcSurface | 1 |
 | packagesNeedingRemediation | 34 |
 | publicModules | 876 |
-| publicExports | 6039 |
+| publicExports | 6041 |
 | openModules | 121 |
-| openExports | 2627 |
-| missingExportExamples | 2457 |
+| openExports | 2629 |
+| missingExportExamples | 2459 |
 | missingExportCategories | 50 |
 | missingExportSince | 48 |
 | forbiddenTagFindings | 7 |
@@ -57,7 +57,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 14 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
 | 15 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 19 |
 | 16 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 20 |
-| 17 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 60 | 0 | 59 |
+| 17 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 61 |
 | 18 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 35 | 0 | 5 |
 | 19 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
 | 20 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
@@ -1716,20 +1716,21 @@ Export findings:
 - `src/aggregates/WorkItem/WorkItem.commands.ts:94` `ArchiveWorkItemCommand` (class) - missing @example
 - `src/aggregates/WorkItem/WorkItem.commands.ts:110` `GetWorkItemQuery` (class) - missing @example
 - `src/aggregates/WorkItem/WorkItem.commands.ts:126` `ListWorkItemsQuery` (class) - missing @example
-- `src/aggregates/WorkItem/WorkItem.errors.ts:22` `WorkItemNotFound` (class) - missing @example
-- `src/aggregates/WorkItem/WorkItem.errors.ts:39` `WorkItemConflict` (class) - missing @example
-- `src/aggregates/WorkItem/WorkItem.errors.ts:57` `WorkItemActionRejected` (class) - missing @example
-- `src/aggregates/WorkItem/WorkItem.errors.ts:75` `WorkItemActionFailed` (class) - missing @example
-- `src/aggregates/WorkItem/WorkItem.errors.ts:92` `WorkItemActionError` (type) - missing @example
-- `src/aggregates/WorkItem/WorkItem.errors.ts:100` `WorkItemActionError` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/aggregates/WorkItem/WorkItem.errors.ts:22` `WORK_ITEM_ACTION_UNAVAILABLE_REASON` (const) - missing @example
+- `src/aggregates/WorkItem/WorkItem.errors.ts:30` `WorkItemNotFound` (class) - missing @example
+- `src/aggregates/WorkItem/WorkItem.errors.ts:47` `WorkItemConflict` (class) - missing @example
+- `src/aggregates/WorkItem/WorkItem.errors.ts:65` `WorkItemActionRejected` (class) - missing @example
+- `src/aggregates/WorkItem/WorkItem.errors.ts:83` `WorkItemActionFailed` (class) - missing @example
+- `src/aggregates/WorkItem/WorkItem.errors.ts:100` `WorkItemActionError` (type) - missing @example
+- `src/aggregates/WorkItem/WorkItem.errors.ts:108` `WorkItemActionError` (const) - missing @example; 1 schema annotation/type-alias gap(s)
 - `src/aggregates/WorkItem/WorkItem.repository.ts:23` `WorkItemRepositoryNotFound` (class) - missing @example
 - `src/aggregates/WorkItem/WorkItem.repository.ts:42` `WorkItemRepositoryConflict` (class) - missing @example
 - `src/aggregates/WorkItem/WorkItem.repository.ts:62` `WorkItemRepositoryUnavailable` (class) - missing @example
 - `src/aggregates/WorkItem/WorkItem.repository.ts:81` `WorkItemRepositoryError` (type) - missing @example
 - `src/aggregates/WorkItem/WorkItem.repository.ts:92` `WorkItemRepositoryShape` (interface) - missing @example
 - `src/aggregates/WorkItem/WorkItem.repository.ts:111` `WorkItemRepository` (class) - missing @example
-- `src/aggregates/WorkItem/WorkItem.service.ts:49` `toWorkItemActionError` (const) - missing @example
-- `src/aggregates/WorkItem/WorkItem.service.ts:87` `makeWorkItemUseCases` (const) - missing @example
+- `src/aggregates/WorkItem/WorkItem.service.ts:50` `toWorkItemActionError` (const) - missing @example
+- `src/aggregates/WorkItem/WorkItem.service.ts:88` `makeWorkItemUseCases` (const) - missing @example
 - `src/aggregates/WorkItem/WorkItem.use-cases.ts:31` `WorkItemUseCasesShape` (interface) - missing @example
 - `src/aggregates/WorkItem/WorkItem.use-cases.ts:49` `WorkItemUseCases` (class) - missing @example
 - `src/aggregates/WorkItem/index.ts:7` `export * from "./WorkItem.commands.js";` (re-export) - missing @example
@@ -1741,19 +1742,20 @@ Export findings:
 - `src/entities/Worker/Worker.commands.ts:23` `CreateWorkerCommand` (class) - missing @example
 - `src/entities/Worker/Worker.commands.ts:41` `GetWorkerQuery` (class) - missing @example
 - `src/entities/Worker/Worker.commands.ts:57` `ListWorkersQuery` (class) - missing @example
-- `src/entities/Worker/Worker.errors.ts:22` `WorkerNotFound` (class) - missing @example
-- `src/entities/Worker/Worker.errors.ts:39` `WorkerConflict` (class) - missing @example
-- `src/entities/Worker/Worker.errors.ts:57` `WorkerActionFailed` (class) - missing @example
-- `src/entities/Worker/Worker.errors.ts:74` `WorkerActionError` (type) - missing @example
-- `src/entities/Worker/Worker.errors.ts:82` `WorkerActionError` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/entities/Worker/Worker.errors.ts:22` `WORKER_ACTION_UNAVAILABLE_REASON` (const) - missing @example
+- `src/entities/Worker/Worker.errors.ts:30` `WorkerNotFound` (class) - missing @example
+- `src/entities/Worker/Worker.errors.ts:47` `WorkerConflict` (class) - missing @example
+- `src/entities/Worker/Worker.errors.ts:65` `WorkerActionFailed` (class) - missing @example
+- `src/entities/Worker/Worker.errors.ts:82` `WorkerActionError` (type) - missing @example
+- `src/entities/Worker/Worker.errors.ts:90` `WorkerActionError` (const) - missing @example; 1 schema annotation/type-alias gap(s)
 - `src/entities/Worker/Worker.repository.ts:23` `WorkerRepositoryNotFound` (class) - missing @example
 - `src/entities/Worker/Worker.repository.ts:40` `WorkerRepositoryConflict` (class) - missing @example
 - `src/entities/Worker/Worker.repository.ts:58` `WorkerRepositoryUnavailable` (class) - missing @example
 - `src/entities/Worker/Worker.repository.ts:77` `WorkerRepositoryError` (type) - missing @example
 - `src/entities/Worker/Worker.repository.ts:85` `WorkerRepositoryShape` (interface) - missing @example
 - `src/entities/Worker/Worker.repository.ts:101` `WorkerRepository` (class) - missing @example
-- `src/entities/Worker/Worker.service.ts:35` `toWorkerActionError` (const) - missing @example
-- `src/entities/Worker/Worker.service.ts:54` `makeWorkerUseCases` (const) - missing @example
+- `src/entities/Worker/Worker.service.ts:41` `toWorkerActionError` (const) - missing @example
+- `src/entities/Worker/Worker.service.ts:60` `makeWorkerUseCases` (const) - missing @example
 - `src/entities/Worker/Worker.use-cases.ts:23` `WorkerUseCasesShape` (interface) - missing @example
 - `src/entities/Worker/Worker.use-cases.ts:35` `WorkerUseCases` (class) - missing @example
 - `src/entities/Worker/index.ts:7` `export * from "./Worker.commands.js";` (re-export) - missing @example
@@ -2527,11 +2529,11 @@ Path: `packages/architecture-lab/server`
 
 Export findings:
 - `src/Layer.ts:21` `ArchitectureLabServerLive` (const) - missing @example
-- `src/aggregates/WorkItem/WorkItem.http.ts:27` `WorkItemHttpStatus` (const) - missing @example
-- `src/aggregates/WorkItem/WorkItem.http.ts:40` `WorkItemHttpStatus` (type) - missing @example
-- `src/aggregates/WorkItem/WorkItem.http.ts:48` `WorkItemHttpResponse` (class) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/aggregates/WorkItem/WorkItem.http.ts:65` `toWorkItemHttpError` (const) - missing @example
-- `src/aggregates/WorkItem/WorkItem.http.ts:89` `makeWorkItemHttpHandlers` (const) - missing @example
+- `src/aggregates/WorkItem/WorkItem.http.ts:30` `WorkItemHttpStatus` (const) - missing @example
+- `src/aggregates/WorkItem/WorkItem.http.ts:43` `WorkItemHttpStatus` (type) - missing @example
+- `src/aggregates/WorkItem/WorkItem.http.ts:51` `WorkItemHttpResponse` (class) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/aggregates/WorkItem/WorkItem.http.ts:68` `toWorkItemHttpError` (const) - missing @example
+- `src/aggregates/WorkItem/WorkItem.http.ts:92` `makeWorkItemHttpHandlers` (const) - missing @example
 - `src/aggregates/WorkItem/WorkItem.layer.ts:24` `makeWorkItemServer` (const) - missing @example
 - `src/aggregates/WorkItem/WorkItem.layer.ts:35` `WorkItemServer` (class) - missing @example
 - `src/aggregates/WorkItem/WorkItem.layer.ts:45` `WorkItemServerLayer` (const) - missing @example
@@ -2618,13 +2620,13 @@ Export findings:
 - `src/commands/Architecture/OperationPlan.ts:233` `CanonicalSliceOperationPlan` (class) - missing @example
 - `src/commands/Architecture/OperationPlan.ts:270` `OperationPlanCheckResult` (class) - missing @example
 - `src/commands/Architecture/OperationPlan.ts:288` `OperationPlanApplyResult` (class) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1157` `makeCanonicalSliceOperationPlan` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1195` `makeArchitectureOperationPlan` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1248` `encodeCanonicalSliceOperationPlanJson` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1256` `decodeCanonicalSliceOperationPlanJson` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1269` `checkCanonicalSliceOperationPlan` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1324` `applyCanonicalSliceOperationPlan` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1614` `architectureCommand` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:1184` `makeCanonicalSliceOperationPlan` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:1222` `makeArchitectureOperationPlan` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:1283` `encodeCanonicalSliceOperationPlanJson` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:1291` `decodeCanonicalSliceOperationPlanJson` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:1304` `checkCanonicalSliceOperationPlan` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:1359` `applyCanonicalSliceOperationPlan` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:1649` `architectureCommand` (const) - missing @example
 - `src/commands/Architecture/index.ts:7` `export * from "./OperationPlan.js";` (re-export) - missing @example
 - `src/commands/CreatePackage/ConfigUpdater.ts:41` `ConfigUpdateResult` (class) - missing @example
 - `src/commands/CreatePackage/ConfigUpdater.ts:58` `ConfigUpdateTarget` (class) - missing @example

@@ -12,7 +12,13 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { CreateWorkerCommand, GetWorkerQuery, ListWorkersQuery } from "./Worker.commands.js";
-import { type WorkerActionError, WorkerActionFailed, WorkerConflict, WorkerNotFound } from "./Worker.errors.js";
+import {
+  WORKER_ACTION_UNAVAILABLE_REASON,
+  type WorkerActionError,
+  WorkerActionFailed,
+  WorkerConflict,
+  WorkerNotFound,
+} from "./Worker.errors.js";
 import {
   WorkerRepositoryConflict,
   type WorkerRepositoryError,
@@ -40,7 +46,7 @@ export const toWorkerActionError = (error: WorkerRepositoryError): WorkerActionE
     return new WorkerConflict({ workerId: error.workerId, reason: error.reason });
   }
   if (isRepositoryUnavailable(error)) {
-    return new WorkerActionFailed({ reason: error.reason });
+    return new WorkerActionFailed({ reason: WORKER_ACTION_UNAVAILABLE_REASON });
   }
   return new WorkerActionFailed({ reason: "Unknown Worker repository failure." });
 };

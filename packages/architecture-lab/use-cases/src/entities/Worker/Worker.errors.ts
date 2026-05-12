@@ -14,6 +14,14 @@ import * as S from "effect/Schema";
 const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.errors");
 
 /**
+ * Generic public reason used when internal Worker repository details are redacted.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const WORKER_ACTION_UNAVAILABLE_REASON = "Worker service is unavailable." as const;
+
+/**
  * Public failure raised when a requested Worker is absent.
  *
  * @category errors

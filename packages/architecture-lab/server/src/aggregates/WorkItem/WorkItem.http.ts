@@ -17,6 +17,9 @@ const $I = $ArchitectureLabServerId.create("aggregates/WorkItem/WorkItem.http");
 const isNotFound = S.is(WorkItemUseCases.WorkItemNotFound);
 const isConflict = S.is(WorkItemUseCases.WorkItemConflict);
 const isActionRejected = S.is(WorkItemUseCases.WorkItemActionRejected);
+const serviceUnavailableBody = new WorkItemUseCases.WorkItemActionFailed({
+  reason: WorkItemUseCases.WORK_ITEM_ACTION_UNAVAILABLE_REASON,
+});
 
 /**
  * HTTP status values emitted by the WorkItem proof protocol adapter.
@@ -72,7 +75,7 @@ export const toWorkItemHttpError = (error: WorkItemUseCases.WorkItemActionError)
   if (isActionRejected(error)) {
     return new WorkItemHttpResponse({ status: 422, body: error });
   }
-  return new WorkItemHttpResponse({ status: 503, body: error });
+  return new WorkItemHttpResponse({ status: 503, body: serviceUnavailableBody });
 };
 
 const toSuccess =

@@ -345,6 +345,14 @@ const rolesForDomainKind = (domainKind: ArchitectureDomainKind): ReadonlyArray<A
 const roleAllowedForDomainKind = (domainKind: ArchitectureDomainKind, role: ArchitectureSliceRole): boolean =>
   pipe(rolesForDomainKind(domainKind), A.contains(role));
 
+const dbAdminProofTargetAllowed = (target: ArchitecturePlanTarget): boolean =>
+  stringEquivalence(target.boundedContext, defaultPlanTarget.boundedContext) &&
+  ((stringEquivalence(target.domainKind, "aggregates") && stringEquivalence(target.concept, "WorkItem")) ||
+    (stringEquivalence(target.domainKind, "entities") && stringEquivalence(target.concept, "Worker")));
+
+const roleAllowedForTarget = (target: ArchitecturePlanTarget, role: ArchitectureSliceRole): boolean =>
+  roleAllowedForDomainKind(target.domainKind, role) && (role !== "db-admin" || dbAdminProofTargetAllowed(target));
+
 const roleBasePath = (role: ArchitectureSliceRole): O.Option<string> => {
   if (role === "proof-app") return O.some("apps/architecture-lab-proof");
   if (role === "db-admin") return O.some("packages/_internal/db-admin");
@@ -1015,9 +1023,12 @@ const isPackageIndexFile = (sourcePath: string): boolean =>
     A.some((suffix) => Str.endsWith(suffix)(sourcePath))
   );
 
+const isPackageLevelFile = (sourcePath: string): boolean =>
+  isPackageScaffoldFile(sourcePath) || isPackageIndexFile(sourcePath);
+
 const proofFileMatchesDomainKind = (target: ArchitecturePlanTarget, file: AcceptedProofFile): boolean => {
   if (isDefaultPlanTarget(target)) return true;
-  if (isPackageScaffoldFile(file.path) || isPackageIndexFile(file.path)) return true;
+  if (isPackageLevelFile(file.path)) return true;
   return pipe(
     sourceDomainKindForPath(file.path),
     O.map((domainKind) => stringEquivalence(domainKind, target.domainKind)),
@@ -1037,26 +1048,42 @@ const targetPathFor = (sourcePath: string, target: ArchitecturePlanTarget): stri
   const sourceConcept = sourceConceptForPath(sourcePath);
   const sourceConceptPath = sourceConceptPathFor(sourcePath);
   const conceptPascal = CommonStr.pascalCase(target.concept);
+  const conceptKebab = CommonStr.kebabCase(target.concept);
+  const conceptSnake = CommonStr.snakeCase(target.concept);
+  const sourceConceptKebab = CommonStr.kebabCase(sourceConcept);
+  const sourceConceptSnake = CommonStr.snakeCase(sourceConcept);
+  const contextKebab = CommonStr.kebabCase(target.boundedContext);
+  const contextSnake = CommonStr.snakeCase(target.boundedContext);
   if (Str.startsWith("packages/architecture-lab/")(sourcePath)) {
     return pipe(
       sourcePath,
       Str.replace("packages/architecture-lab/", `packages/${target.boundedContext}/`),
       Str.replaceAll("ArchitectureLab", CommonStr.pascalCase(target.boundedContext)),
+      Str.replaceAll("architecture_lab", contextSnake),
       Str.replaceAll(sourceConceptPath, target.conceptPath),
-      Str.replaceAll(sourceConcept, conceptPascal)
+      Str.replaceAll(sourceConcept, conceptPascal),
+      Str.replaceAll(sourceConceptKebab, conceptKebab),
+      Str.replaceAll(sourceConceptSnake, conceptSnake)
     );
   }
   if (Str.startsWith("apps/architecture-lab-proof/")(sourcePath)) {
     return pipe(
       sourcePath,
       Str.replace("apps/architecture-lab-proof/", `apps/${target.boundedContext}-proof/`),
-      Str.replaceAll(sourceConcept, conceptPascal)
+      Str.replaceAll("ArchitectureLab", CommonStr.pascalCase(target.boundedContext)),
+      Str.replaceAll(sourceConcept, conceptPascal),
+      Str.replaceAll(sourceConceptKebab, conceptKebab),
+      Str.replaceAll(sourceConceptSnake, conceptSnake)
     );
   }
   return pipe(
     sourcePath,
     Str.replaceAll("ArchitectureLab", CommonStr.pascalCase(target.boundedContext)),
-    Str.replaceAll(sourceConcept, conceptPascal)
+    Str.replaceAll("architecture-lab", contextKebab),
+    Str.replaceAll("architecture_lab", contextSnake),
+    Str.replaceAll(sourceConcept, conceptPascal),
+    Str.replaceAll(sourceConceptKebab, conceptKebab),
+    Str.replaceAll(sourceConceptSnake, conceptSnake)
   );
 };
 
@@ -1105,7 +1132,7 @@ const selectFiles = (
 ): ReadonlyArray<AcceptedProofFile> =>
   pipe(
     acceptedProofFiles,
-    A.filter((file) => roleAllowedForDomainKind(target.domainKind, file.role)),
+    A.filter((file) => roleAllowedForTarget(target, file.role)),
     A.filter((file) => isStageIncluded(target.stage, file.stage)),
     A.filter((file) => proofFileMatchesDomainKind(target, file)),
     A.filter((file) =>
@@ -1135,7 +1162,7 @@ const validateRequestedRoles = Effect.fn(function* (
   if (O.isNone(roles)) return;
   const disallowedRoles = pipe(
     roles.value,
-    A.filter((role) => !roleAllowedForDomainKind(target.domainKind, role))
+    A.filter((role) => !roleAllowedForTarget(target, role))
   );
   if (disallowedRoles.length > 0) {
     return yield* DomainError.newMessage(
@@ -1204,21 +1231,29 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
   const selectedFiles = selectFiles(target, roles);
 
   const writeOperations = yield* Effect.forEach(selectedFiles, (file) =>
-    pipe(
-      fs.readFileString(path.join(repoRoot, file.path)),
-      Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read accepted proof file "${file.path}"`)),
-      Effect.map(
-        (content) =>
-          new WriteFileOperation({
-            kind: "write-file",
-            role: file.role,
-            path: targetPathFor(file.path, target),
-            writer: file.writer,
-            content: renderAcceptedTemplate(content, target, file.path),
-            description: `Write ${file.role} ${target.concept} file from the accepted architecture proof.`,
-          })
-      )
-    )
+    Effect.gen(function* () {
+      const operationPath = targetPathFor(file.path, target);
+      const targetFileExists = isPackageLevelFile(file.path)
+        ? yield* fs.exists(path.join(repoRoot, operationPath)).pipe(Effect.orElseSucceed(thunkFalse))
+        : false;
+      const contentPath = targetFileExists ? operationPath : file.path;
+      const content = yield* fs
+        .readFileString(path.join(repoRoot, contentPath))
+        .pipe(
+          Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read architecture file "${contentPath}"`))
+        );
+
+      return new WriteFileOperation({
+        kind: "write-file",
+        role: file.role,
+        path: operationPath,
+        writer: file.writer,
+        content: targetFileExists ? content : renderAcceptedTemplate(content, target, file.path),
+        description: targetFileExists
+          ? `Preserve existing ${file.role} package-level file while planning ${target.concept}.`
+          : `Write ${file.role} ${target.concept} file from the accepted architecture proof.`,
+      });
+    })
   );
 
   return new CanonicalSliceOperationPlan({
