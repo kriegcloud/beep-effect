@@ -2,12 +2,14 @@
 
 ## Status
 
-Planned. P7 starts after the P6 seven-day proof is credited or intentionally
-abandoned.
+Decision-complete and partially implemented. P7a/b landed without disturbing
+the active P6 seven-day proof. P7c provider/gateway metrics, P7d dashboard
+expansion, and final P7e production closeout remain pending.
 
-P7 must not rewrite the P6 proof while it is running. Its job is to turn the
-workstation-owned proof into a production topology with explicit ownership,
-privacy boundaries, retention, and real provider or gateway metrics.
+P7 must not rewrite the P6 proof while it is running. This slice turns the
+workstation-owned proof into a hybrid mirror plus retention topology with
+explicit ownership and privacy boundaries, while deferring provider or gateway
+enrichment.
 
 ## Goal
 
@@ -23,6 +25,43 @@ The center of gravity is topology first:
 4. Add provider/gateway usage metrics only after the raw/derived boundary is
    explicit.
 5. Expand dashboard backends only when the backend-specific API need is real.
+
+## Implemented Decision
+
+Chosen topology: hybrid derived mirror.
+
+- Raw encrypted transcripts remain workstation-local in the existing AI metrics
+  raw archive.
+- Derived/report/status artifacts may sync to dankserver only after a P7-safe
+  allowlist export step.
+- The default remote mirror root is
+  `/srv/data/ai-metrics/p7-derived-mirror`.
+- `mirror sync` is dry-run by default and requires
+  `--confirm p7-derived-mirror` before rsync writes.
+- P7 retention mutations remain local-root workflows in this slice; remote
+  mirror pruning is still an operator-managed follow-up.
+
+## Trust Boundary
+
+Data classes for this slice:
+
+- raw: encrypted transcript archive objects and decrypt-only restore inputs;
+  workstation-local only
+- derived: sanitized DuckDB tables and P7-safe Parquet exports
+- status: mirror manifests, status JSON, retention inventory, and operator
+  drill results
+- reports: weekly Markdown or JSON reports that already satisfy the derived
+  privacy contract
+- dashboards: Phoenix OTLP traces plus any mirror-fed derived inspection
+
+Explicit exclusions from the remote mirror:
+
+- `ai_metrics_raw_archive_objects`
+- transcript bodies, prompt text, and output text
+- `archive_path`, `rawArchiveDir`, `duckDbPath`, and other local filesystem
+  paths
+- repo root, home dir, and source file paths
+- ciphertext, nonce, and raw archive key material
 
 ## Doctrine Fit
 
@@ -42,7 +81,9 @@ tooling, infra, driver, and observability boundaries.
 
 ## P7a: Collection Topology Decision
 
-Decide one production topology before implementation:
+Status: implemented
+
+Considered topologies:
 
 - workstation scheduled collection with redacted sync to dankserver
 - workstation raw archive with remote derived mirror
@@ -50,22 +91,40 @@ Decide one production topology before implementation:
 - hybrid collection where raw remains local and only derived DuckDB/Parquet plus
   OTLP spans leave the workstation
 
-The recommended default is hybrid collection: raw encrypted archives remain
+Chosen topology: hybrid collection. Raw encrypted archives remain
 workstation-local unless a transcript-sync design earns explicit privacy
-approval; derived DuckDB/Parquet and OTLP spans may sync to dankserver after
-the metadata allowlist is re-verified.
+approval; only sanitized derived DuckDB/Parquet, report, and status artifacts
+may sync to dankserver after the metadata allowlist is re-verified.
+
+Implemented workflows:
+
+- `beep ai-metrics mirror build --target dankserver --data-root <root> --json`
+- `beep ai-metrics mirror sync --bundle latest --host dankserver-yubi --remote-root /srv/data/ai-metrics/p7-derived-mirror --json`
+- `beep ai-metrics mirror status --host dankserver-yubi --remote-root /srv/data/ai-metrics/p7-derived-mirror --json`
+
+`mirror build` creates a sanitized bundle rooted at
+`<dataRoot>/mirror/bundles/<bundleId>` with:
+
+- `manifest.json`
+- `status/mirror-status.json`
+- `parquet/*.parquet` exports from the P7-safe table allowlist
+
+`mirror sync` uses rsync over SSH, prints planned commands in dry-run mode, and
+requires `--confirm p7-derived-mirror` for a real sync.
 
 Acceptance gates:
 
-- topology diagram and trust boundary written in the initiative packet
-- explicit raw, derived, OTLP, report, and dashboard data classes
-- failure policy for missed syncs, partial runs, and duplicate ingest ids
-- proof that local source paths and transcript bodies do not leave the
-  workstation
+- topology decision and trust boundary written in the initiative packet
+- explicit raw, derived, status, report, and dashboard data classes
+- dry-run plus explicit-confirmation sync semantics
+- proofed exclusion of local source paths, transcript bodies, archive paths,
+  DuckDB paths, and encryption material from the synced bundle
 
 ## P7b: Retention, Restore, And Deletion
 
-Promote P6 runbook notes into executable operator workflows.
+Status: implemented for local-root operator workflows
+
+Promoted P6 runbook notes into executable operator workflows.
 
 Required capabilities:
 
@@ -75,14 +134,29 @@ Required capabilities:
 - delete a proof window from raw, derived, report, and optional remote mirrors
 - compact or prune old Parquet/report outputs after the retention window
 
+Implemented workflows:
+
+- `beep ai-metrics retention list --data-root <root> --json`
+- `beep ai-metrics retention restore-drill --data-root <root> --restore-root <disposable-root> --before/--since/--until ... --json`
+- `beep ai-metrics retention delete --data-root <root> --before/--since/--until ... --json`
+- `beep ai-metrics retention compact --data-root <root> --before/--since/--until ... --json`
+
+`delete` and `compact` default to dry-run, require an explicit time window, and
+require `--confirm p7-retention-window` for real mutation. The restore drill
+verifies raw archive decrypt plus content-hash integrity, then replays into a
+disposable derived root without mutating the active P6 data root.
+
 Acceptance gates:
 
-- restore drill from retained raw archive to derived report
-- deletion drill against a disposable local target
-- clear distinction between ignored local evidence and tracked initiative
-  documentation
+- restore drill from retained raw archive to disposable derived report storage
+- deletion and compaction drills against disposable local targets
+- transcript text never printed during restore proof
+- clear distinction between local-root retention automation and remote mirror
+  follow-up work
 
 ## P7c: Provider And Gateway Metrics
+
+Status: pending
 
 Add real model-call, tool-invocation, token, cost, and latency data only from
 sources that can prove their privacy and attribution contract.
@@ -106,6 +180,8 @@ Acceptance gates:
 
 ## P7d: Dashboard And Backend Expansion
 
+Status: pending
+
 Keep Phoenix as the default UI until a second backend has a specific job.
 
 Backend expansion rules:
@@ -124,6 +200,8 @@ Acceptance gates:
 
 ## P7e: Production Readiness
 
+Status: pending
+
 P7 is complete when the stack can survive normal operator use without relying on
 the mutable development checkout.
 
@@ -137,4 +215,3 @@ Completion gates:
   unavailable and not scored
 - final scorecard explains which data came from raw archive, derived storage,
   OTLP traces, labels, benchmarks, and provider/gateway enrichment
-
