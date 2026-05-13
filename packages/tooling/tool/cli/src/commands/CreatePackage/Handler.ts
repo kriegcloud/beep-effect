@@ -102,7 +102,7 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (
  * @since 0.0.0
  */
 const VALID_TYPES = ["library", "tool", "app"] as const;
-const VALID_FAMILIES = ["foundation", "tooling"] as const;
+const VALID_FAMILIES = ["drivers", "foundation", "tooling"] as const;
 const VALID_FOUNDATION_KINDS = ["primitive", "modeling", "capability", "ui-system"] as const;
 const VALID_TOOLING_KINDS = ["library", "tool", "policy-pack", "test-kit"] as const;
 const PACKAGE_NAME_PATTERN = /^[a-z_][a-z0-9._-]*$/;
@@ -178,7 +178,7 @@ type PackageKind = typeof PackageKind.Type;
 
 type BeepPackageMetadata = {
   readonly family: PackageFamily;
-  readonly kind: PackageKind;
+  readonly kind?: PackageKind;
 };
 
 const ParentDir = S.String.check(S.isPattern(PARENT_DIR_PATTERN)).pipe(
@@ -470,12 +470,22 @@ const toIdentityAccessorName = (packageName: string): string => `$${CommonStr.pa
 
 const typedIdentityExportBlock = (packageName: string): string => {
   const accessorName = toIdentityAccessorName(packageName);
+  const exampleName = CommonStr.pascalCase(packageName);
   return Text.joinLines([
     "",
     "/**",
+    ` * Identity composer for \`@beep/${packageName}\`.`,
+    " *",
+    " * @example",
+    " * ```typescript",
+    ` * import { ${accessorName} } from "@beep/identity"`,
+    " *",
+    ` * const id = ${accessorName}.make("${exampleName}")`,
+    " * void id",
+    " * ```",
+    " *",
     " * @since 0.0.0",
     " * @category configuration",
-    ` * @type {Identity.IdentityComposer<"@beep/${packageName}">}`,
     " */",
     `export const ${accessorName}: Identity.IdentityComposer<"@beep/${packageName}"> = composers.${accessorName};`,
   ]);
@@ -554,7 +564,7 @@ export const createPackageCommand = Command.make(
       Flag.withDefault("")
     ),
     family: Flag.string("family").pipe(
-      Flag.withDescription("Optional canonical package family. Supports: foundation or tooling"),
+      Flag.withDescription("Optional canonical package family. Supports: drivers, foundation, or tooling"),
       Flag.withDefault("")
     ),
     kind: Flag.string("kind").pipe(
@@ -634,6 +644,15 @@ export const createPackageCommand = Command.make(
       O.isSome(requestedPackageFamily) && packageFamilyEquivalence(requestedPackageFamily.value, "tooling")
         ? O.some(yield* decodeToolingKindEffect(kindOption))
         : O.none<ToolingKind>();
+    if (
+      O.isSome(requestedPackageFamily) &&
+      packageFamilyEquivalence(requestedPackageFamily.value, "drivers") &&
+      Str.isNonEmpty(kindOption)
+    ) {
+      return yield* new DomainError({
+        message: `Drivers packages are a flat family and do not accept --kind.`,
+      });
+    }
     const inferredToolingKind =
       O.isNone(requestedPackageFamily) && Str.isEmpty(parentDirOverride) && !packageTypeEquivalence(packageType, "app")
         ? O.some<ToolingKind>(packageTypeEquivalence(packageType, "tool") ? "tool" : "library")
@@ -666,9 +685,10 @@ export const createPackageCommand = Command.make(
     }
 
     // ── Resolve parent directory ───────────────────────────────────────
-    if (O.isSome(requestedPackageFamily) && O.isSome(packageKind) && Str.isNonEmpty(parentDirOverride)) {
+    if (O.isSome(requestedPackageFamily) && Str.isNonEmpty(parentDirOverride)) {
+      const kindHint = O.isSome(packageKind) ? ` --kind ${packageKind.value}` : "";
       return yield* new DomainError({
-        message: `${requestedPackageFamily.value} package paths are derived from --family ${requestedPackageFamily.value} --kind ${packageKind.value}; omit --parent-dir.`,
+        message: `${requestedPackageFamily.value} package paths are derived from --family ${requestedPackageFamily.value}${kindHint}; omit --parent-dir.`,
       });
     }
 
@@ -676,9 +696,11 @@ export const createPackageCommand = Command.make(
       ? `packages/foundation/${foundationKind.value}`
       : O.isSome(toolingKind)
         ? `packages/tooling/${toolingKind.value}`
-        : packageTypeEquivalence(packageType, "app")
-          ? "apps"
-          : "packages/tooling/library";
+        : O.isSome(requestedPackageFamily) && packageFamilyEquivalence(requestedPackageFamily.value, "drivers")
+          ? "packages/drivers"
+          : packageTypeEquivalence(packageType, "app")
+            ? "apps"
+            : "packages/tooling/library";
     const parentDir = Str.isNonEmpty(parentDirOverride) ? parentDirOverride : defaultParentDir;
     if (!isParentDir(parentDir)) {
       return yield* new DomainError({
@@ -773,10 +795,12 @@ export const createPackageCommand = Command.make(
       })
     );
 
-    const packageMetadata =
-      O.isSome(packageFamily) && O.isSome(packageKind)
-        ? O.some<BeepPackageMetadata>({ family: packageFamily.value, kind: packageKind.value })
-        : O.none<BeepPackageMetadata>();
+    const packageMetadata = O.isSome(packageFamily)
+      ? O.some<BeepPackageMetadata>({
+          family: packageFamily.value,
+          ...(O.isSome(packageKind) ? { kind: packageKind.value } : {}),
+        })
+      : O.none<BeepPackageMetadata>();
     const packageJson = yield* generatePackageJson(name, packageType, description, packagePath, packageMetadata);
 
     const plan = fileGenerationPlanService.createPlan(

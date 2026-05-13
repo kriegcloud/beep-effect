@@ -56,6 +56,12 @@ const ToolingPackageMetadata = S.Struct({
   }),
   scripts: S.Record(S.String, S.String),
 });
+const DriverPackageMetadata = S.Struct({
+  beep: S.Struct({
+    family: S.Literal("drivers"),
+  }),
+  scripts: S.Record(S.String, S.String),
+});
 
 const decodeRootPackage = S.decodeUnknownSync(RootPackage);
 const decodeTsconfigReferences = S.decodeUnknownSync(TsconfigReferences);
@@ -64,6 +70,7 @@ const decodeTstycheConfig = S.decodeUnknownSync(TstycheConfig);
 const decodePackageScripts = S.decodeUnknownSync(PackageScripts);
 const decodeFoundationPackageMetadata = S.decodeUnknownSync(FoundationPackageMetadata);
 const decodeToolingPackageMetadata = S.decodeUnknownSync(ToolingPackageMetadata);
+const decodeDriverPackageMetadata = S.decodeUnknownSync(DriverPackageMetadata);
 const ExpectedGeneratedQualityScripts = {
   audit: "bun run --if-present beep:audit",
   babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -602,6 +609,77 @@ describe.sequential("create-package", () => {
             const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
             expect(syncpackConfig).toContain(`"packages/tooling/library/repo-utils/package.json"`);
             expect(syncpackConfig).not.toContain(`"packages/tooling/*/*/package.json"`);
+          })
+        )
+      );
+    },
+    CreatePackageTestTimeoutMs
+  );
+
+  it(
+    "creates canonical driver packages with flat family metadata",
+    async () => {
+      await Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
+
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: ["packages/foundation/*/*", "packages/drivers/*"],
+              references: ["packages/foundation/modeling/identity"],
+              paths: {
+                "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+                "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
+              },
+              testFileMatch: [
+                "packages/drivers/*/dtslint/**/*.tst.*",
+                "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
+              ],
+              syncpackSources: [
+                "package.json",
+                "packages/foundation/*/*/package.json",
+                "packages/drivers/*/package.json",
+              ],
+            });
+            yield* bootstrapIdentityWorkspace(rootDir);
+
+            yield* runCreatePackageCommand([
+              "runpod",
+              "--family",
+              "drivers",
+              "--description",
+              "Runpod API driver package",
+            ]);
+
+            const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
+            expect(rootPackage.workspaces).toEqual(["packages/foundation/*/*", "packages/drivers/*"]);
+
+            const generatedPackage = decodeDriverPackageMetadata(
+              yield* readJsonFile(path.join(rootDir, "packages", "drivers", "runpod", "package.json"))
+            );
+            expect(generatedPackage.beep).toEqual({
+              family: "drivers",
+            });
+            expect(generatedPackage.scripts).toMatchObject(ExpectedGeneratedQualityScripts);
+            expect(generatedPackage.scripts.docgen).toBe("bun run ../../../packages/tooling/tool/docgen/src/bin.ts");
+
+            const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
+            expect(rootTsconfig.compilerOptions.paths).toMatchObject({
+              "@beep/runpod": ["./packages/drivers/runpod/src/index.ts"],
+              "@beep/runpod/*": ["./packages/drivers/runpod/src/*"],
+            });
+
+            const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
+            expect(syncpackConfig).toContain(`"packages/drivers/*/package.json"`);
+            expect(syncpackConfig).not.toContain(`"packages/drivers/runpod/package.json"`);
+
+            const identityPackages = yield* fs.readFileString(
+              path.join(rootDir, "packages", "foundation", "modeling", "identity", "src", "packages.ts")
+            );
+            expect(identityPackages).toContain(`"runpod"`);
+            expect(identityPackages).toContain(`export const $RunpodId`);
           })
         )
       );

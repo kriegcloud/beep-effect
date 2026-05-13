@@ -118,7 +118,8 @@ const composers = $I.compose(
   "architecture-lab-tables",
   "architecture-lab-client",
   "architecture-lab-ui",
-  "architecture-lab-proof"
+  "architecture-lab-proof",
+  "runpod"
 );
 
 // --- foundation ---
@@ -1039,3 +1040,19 @@ export const $ArchitectureLabUiId: Identity.IdentityComposer<"@beep/architecture
  */
 export const $ArchitectureLabProofId: Identity.IdentityComposer<"@beep/architecture-lab-proof"> =
   composers.$ArchitectureLabProofId;
+
+/**
+ * Identity composer for `@beep/runpod`.
+ *
+ * @example
+ * ```typescript
+ * import { $RunpodId } from "@beep/identity"
+ *
+ * const id = $RunpodId.make("Runpod")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $RunpodId: Identity.IdentityComposer<"@beep/runpod"> = composers.$RunpodId;

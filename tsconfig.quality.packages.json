@@ -70,6 +70,9 @@
       "path": "packages/drivers/postgres"
     },
     {
+      "path": "packages/drivers/runpod"
+    },
+    {
       "path": "packages/drivers/venice-ai"
     },
     {

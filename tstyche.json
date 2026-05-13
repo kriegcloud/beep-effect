@@ -43,7 +43,8 @@
     "packages/architecture-lab/tables/dtslint/**/*.tst.*",
     "packages/architecture-lab/client/dtslint/**/*.tst.*",
     "packages/architecture-lab/ui/dtslint/**/*.tst.*",
-    "apps/architecture-lab-proof/dtslint/**/*.tst.*"
+    "apps/architecture-lab-proof/dtslint/**/*.tst.*",
+    "packages/drivers/runpod/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }

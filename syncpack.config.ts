@@ -47,6 +47,7 @@ const config = {
     "packages/architecture-lab/client/package.json",
     "packages/architecture-lab/ui/package.json",
     "apps/architecture-lab-proof/package.json",
+    "packages/drivers/runpod/package.json",
   ],
   customTypes: {
     catalog: {
