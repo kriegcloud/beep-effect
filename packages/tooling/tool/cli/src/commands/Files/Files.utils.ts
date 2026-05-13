@@ -29,6 +29,8 @@ import {
   DetectBorderSideMeasurement,
   type DetectBordersEntry,
   type DetectBordersSkippedEntry,
+  type DetectFacesEntry,
+  type DetectFacesSkippedEntry,
   decodeRotationNumber,
   type FfprobeStream,
   MediaDimensions,
@@ -763,6 +765,40 @@ export const renderDetectBordersEntry = (entry: DetectBordersEntry): string => {
  * @since 0.0.0
  */
 export const renderDetectBordersSkippedEntry = (entry: DetectBordersSkippedEntry): string =>
+  `${entry.sourceName} [${entry.reason}] ${entry.message}`;
+
+/**
+ * Render a face-detection report entry.
+ *
+ * @param entry - Analyzed image entry.
+ * @returns Human-readable report line.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const renderDetectFacesEntry = (entry: DetectFacesEntry): string => {
+  const flags = A.isReadonlyArrayNonEmpty(entry.flags) ? A.join(", ")(entry.flags) : "none";
+  const area = pipe(
+    O.fromUndefinedOr(entry.primaryFaceAreaPct),
+    O.map((value) => ` area=${value.toFixed(2)}%`),
+    O.getOrElse(() => "")
+  );
+  const moved = pipe(
+    O.fromUndefinedOr(entry.movedNoFaceRelativePath),
+    O.map((value) => ` moved=${value}`),
+    O.getOrElse(() => "")
+  );
+  return `${entry.sourceName} [${flags}] faces=${entry.faceCount}${area}${moved}`;
+};
+
+/**
+ * Render a skipped face-detection source entry.
+ *
+ * @param entry - Source file excluded from face detection with its reason.
+ * @returns Human-readable skipped line.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const renderDetectFacesSkippedEntry = (entry: DetectFacesSkippedEntry): string =>
   `${entry.sourceName} [${entry.reason}] ${entry.message}`;
 
 const borderWidthForSide = (entry: DetectBordersEntry, side: BorderSide): number =>

@@ -1,0 +1,575 @@
+/**
+ * ONNX face detection driver service.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $FaceDetectionId } from "@beep/identity/packages";
+import { Context, Effect, Layer, Order, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import sharp from "sharp";
+import { FaceDetectionError } from "./FaceDetection.errors.ts";
+import {
+  decodeFaceDetectionImageRequest,
+  decodeFaceDetectionModelConfig,
+  FaceDetection,
+  FaceDetectionBox,
+  type FaceDetectionImageRequest,
+  FaceDetectionLandmarks,
+  type FaceDetectionModelConfig,
+  FaceDetectionPoint,
+  FaceDetectionResult,
+  PositivePixelDimension,
+} from "./FaceDetection.models.ts";
+
+const $I = $FaceDetectionId.create("FaceDetection.service");
+const divisor = 32;
+const strides = [8, 16, 32] as const;
+const outputNames = [
+  "cls_8",
+  "cls_16",
+  "cls_32",
+  "obj_8",
+  "obj_16",
+  "obj_32",
+  "bbox_8",
+  "bbox_16",
+  "bbox_32",
+  "kps_8",
+  "kps_16",
+  "kps_32",
+] as const;
+
+class PreprocessedImage extends S.Class<PreprocessedImage>($I`PreprocessedImage`)(
+  {
+    height: S.Int,
+    offsetX: S.Number,
+    offsetY: S.Number,
+    padHeight: S.Int,
+    padWidth: S.Int,
+    scale: S.Number,
+    tensorData: S.Uint8Array,
+    width: S.Int,
+  },
+  $I.annote("PreprocessedImage", {
+    description: "Internal BGR image tensor input for YuNet-compatible face detection.",
+  })
+) {}
+
+class ModelInputDimensions extends S.Class<ModelInputDimensions>($I`ModelInputDimensions`)(
+  {
+    height: PositivePixelDimension,
+    width: PositivePixelDimension,
+  },
+  $I.annote("ModelInputDimensions", {
+    description: "Fixed tensor dimensions expected by a loaded face detection model.",
+  })
+) {}
+
+type Ort = typeof import("onnxruntime-node");
+type OrtSession = import("onnxruntime-node").InferenceSession;
+type OrtTensor = import("onnxruntime-node").Tensor;
+
+/**
+ * Loaded face detector bound to one model session.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export interface LoadedFaceDetector {
+  readonly detect: (request: FaceDetectionImageRequest) => Effect.Effect<FaceDetectionResult, FaceDetectionError>;
+}
+
+/**
+ * Runtime shape exposed by the {@link FaceDetectionService}.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export interface FaceDetectionServiceShape {
+  readonly withDetector: <A, E, R>(
+    config: FaceDetectionModelConfig,
+    use: (detector: LoadedFaceDetector) => Effect.Effect<A, E, R>
+  ) => Effect.Effect<A, E | FaceDetectionError, R>;
+}
+
+/**
+ * Service tag for ONNX face detection.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class FaceDetectionService extends Context.Service<FaceDetectionService, FaceDetectionServiceShape>()(
+  $I`FaceDetectionService`
+) {
+  /**
+   * Live ONNX Runtime service layer.
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayer = (): Layer.Layer<FaceDetectionService> =>
+    Layer.succeed(FaceDetectionService, makeFaceDetectionService());
+}
+
+const loadOnnxRuntime = Effect.fn("FaceDetection.loadOnnxRuntime")(function* (): Effect.fn.Return<
+  Ort,
+  FaceDetectionError
+> {
+  return yield* Effect.tryPromise({
+    try: () => import("onnxruntime-node"),
+    catch: (cause) => FaceDetectionError.fromUnknown("loadOnnxRuntime", "Failed to load onnxruntime-node.", { cause }),
+  });
+});
+
+const loadSession = Effect.fn("FaceDetection.loadSession")(function* (
+  ort: Ort,
+  config: FaceDetectionModelConfig
+): Effect.fn.Return<OrtSession, FaceDetectionError> {
+  return yield* Effect.tryPromise({
+    try: () => ort.InferenceSession.create(config.modelPath, { executionProviders: ["cpu"] }),
+    catch: (cause) =>
+      FaceDetectionError.fromUnknown("loadSession", `Failed to load ONNX face detection model: "${config.modelPath}"`, {
+        cause,
+        modelPath: config.modelPath,
+      }),
+  });
+});
+
+const releaseSession = (session: OrtSession): Effect.Effect<void, never> =>
+  Effect.tryPromise({
+    try: () => session.release(),
+    catch: () => undefined,
+  }).pipe(Effect.ignore);
+
+const toPaddedDimension = (value: number): number => Math.ceil(value / divisor) * divisor;
+
+const fixedInputDimensions = (
+  session: OrtSession,
+  inputName: string
+): Effect.Effect<O.Option<ModelInputDimensions>, FaceDetectionError> => {
+  const inputMetadata = pipe(
+    session.inputMetadata,
+    A.findFirst((metadata) => metadata.name === inputName)
+  );
+
+  if (O.isNone(inputMetadata)) {
+    return Effect.succeed(O.none());
+  }
+
+  const metadata = inputMetadata.value;
+
+  if (!metadata.isTensor) {
+    return Effect.fail(
+      new FaceDetectionError({
+        message: `YuNet model input "${inputName}" is not a tensor.`,
+        operation: "detect",
+      })
+    );
+  }
+
+  const height = metadata.shape[2];
+  const width = metadata.shape[3];
+
+  if (!P.isNumber(height) || !P.isNumber(width) || height < 1 || width < 1) {
+    return Effect.succeed(O.none());
+  }
+
+  return Effect.succeed(O.some(new ModelInputDimensions({ height, width })));
+};
+
+const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
+  imagePath: string,
+  inputDimensions: O.Option<ModelInputDimensions>
+): Effect.fn.Return<PreprocessedImage, FaceDetectionError> {
+  const metadata = yield* Effect.tryPromise({
+    try: () => sharp(imagePath).metadata(),
+    catch: (cause) =>
+      FaceDetectionError.fromUnknown("preprocessImage", `Failed to read image metadata: "${imagePath}"`, {
+        cause,
+        imagePath,
+      }),
+  });
+
+  const width = metadata.width ?? 0;
+  const height = metadata.height ?? 0;
+
+  if (width < 1 || height < 1) {
+    return yield* new FaceDetectionError({
+      imagePath,
+      message: `Image metadata did not return usable dimensions for "${imagePath}"`,
+      operation: "preprocessImage",
+    });
+  }
+
+  const scale = pipe(
+    inputDimensions,
+    O.map((dimensions) => Math.min(dimensions.width / width, dimensions.height / height)),
+    O.getOrElse(() => 1)
+  );
+  const padWidth = pipe(
+    inputDimensions,
+    O.map((dimensions) => dimensions.width),
+    O.getOrElse(() => toPaddedDimension(width))
+  );
+  const padHeight = pipe(
+    inputDimensions,
+    O.map((dimensions) => dimensions.height),
+    O.getOrElse(() => toPaddedDimension(height))
+  );
+  const resizedWidth = Math.round(width * scale);
+  const resizedHeight = Math.round(height * scale);
+  const offsetX = O.isSome(inputDimensions) ? (padWidth - resizedWidth) / 2 : 0;
+  const offsetY = O.isSome(inputDimensions) ? (padHeight - resizedHeight) / 2 : 0;
+  const decoded = yield* Effect.tryPromise({
+    try: () => {
+      let image = sharp(imagePath)
+        .rotate()
+        .flatten({ background: { b: 0, g: 0, r: 0 } })
+        .toColorspace("srgb");
+
+      if (O.isSome(inputDimensions)) {
+        image = image.resize({
+          background: { b: 0, g: 0, r: 0 },
+          fit: "contain",
+          height: inputDimensions.value.height,
+          width: inputDimensions.value.width,
+        });
+      }
+
+      return image.raw().toBuffer({ resolveWithObject: true });
+    },
+    catch: (cause) =>
+      FaceDetectionError.fromUnknown("preprocessImage", `Failed to decode image pixels: "${imagePath}"`, {
+        cause,
+        imagePath,
+      }),
+  });
+
+  const channels = decoded.info.channels;
+
+  if (decoded.info.width < 1 || decoded.info.height < 1 || channels < 3) {
+    return yield* new FaceDetectionError({
+      imagePath,
+      message: `Image decode did not return usable RGB pixels for "${imagePath}"`,
+      operation: "preprocessImage",
+    });
+  }
+
+  const tensorData = new Uint8Array(3 * padWidth * padHeight);
+
+  for (let y = 0; y < decoded.info.height; y += 1) {
+    for (let x = 0; x < decoded.info.width; x += 1) {
+      const sourceOffset = (y * decoded.info.width + x) * channels;
+      const targetOffset = y * padWidth + x;
+      tensorData[targetOffset] = decoded.data[sourceOffset + 2] ?? 0;
+      tensorData[padWidth * padHeight + targetOffset] = decoded.data[sourceOffset + 1] ?? 0;
+      tensorData[2 * padWidth * padHeight + targetOffset] = decoded.data[sourceOffset] ?? 0;
+    }
+  }
+
+  return new PreprocessedImage({
+    height,
+    offsetX,
+    offsetY,
+    padHeight,
+    padWidth,
+    scale,
+    tensorData,
+    width,
+  });
+});
+
+const makeInputTensor = (ort: Ort, image: PreprocessedImage): OrtTensor =>
+  new ort.Tensor("float32", Float32Array.from(image.tensorData), [1, 3, image.padHeight, image.padWidth]);
+
+const tensorData = (tensor: OrtTensor, name: string): Effect.Effect<Float32Array, FaceDetectionError> => {
+  if (tensor.data instanceof Float32Array) {
+    return Effect.succeed(tensor.data);
+  }
+
+  return Effect.fail(
+    new FaceDetectionError({
+      message: `YuNet output "${name}" did not return Float32 tensor data.`,
+      operation: "postprocess",
+    })
+  );
+};
+
+const outputTensor = (
+  outputs: Awaited<ReturnType<OrtSession["run"]>>,
+  name: (typeof outputNames)[number]
+): Effect.Effect<OrtTensor, FaceDetectionError> =>
+  pipe(
+    O.fromUndefinedOr(outputs[name]),
+    O.match({
+      onNone: () =>
+        Effect.fail(
+          new FaceDetectionError({
+            message: `YuNet model output "${name}" was not returned.`,
+            operation: "postprocess",
+          })
+        ),
+      onSome: Effect.succeed,
+    })
+  );
+
+const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
+
+const faceByConfidenceDescending: Order.Order<FaceDetection> = Order.mapInput(
+  Order.Number,
+  (face: FaceDetection) => -face.confidence
+);
+
+const intersectionOverUnion = (left: FaceDetectionBox, right: FaceDetectionBox): number => {
+  const leftRight = left.x + left.width;
+  const leftBottom = left.y + left.height;
+  const rightRight = right.x + right.width;
+  const rightBottom = right.y + right.height;
+  const x1 = Math.max(left.x, right.x);
+  const y1 = Math.max(left.y, right.y);
+  const x2 = Math.min(leftRight, rightRight);
+  const y2 = Math.min(leftBottom, rightBottom);
+  const width = Math.max(0, x2 - x1);
+  const height = Math.max(0, y2 - y1);
+  const intersection = width * height;
+  const union = left.width * left.height + right.width * right.height - intersection;
+
+  return union <= 0 ? 0 : intersection / union;
+};
+
+const suppressOverlappingFaces = (
+  faces: ReadonlyArray<FaceDetection>,
+  nmsThreshold: number,
+  topK: number
+): ReadonlyArray<FaceDetection> => {
+  const candidates = pipe(faces, A.sort(faceByConfidenceDescending), A.take(topK));
+  let kept = A.empty<FaceDetection>();
+
+  for (const candidate of candidates) {
+    if (A.every(kept, (face) => intersectionOverUnion(candidate.box, face.box) < nmsThreshold)) {
+      kept = A.append(kept, candidate);
+    }
+  }
+
+  return kept;
+};
+
+const point = (x: number, y: number): FaceDetectionPoint => new FaceDetectionPoint({ x, y });
+
+const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
+
+const scalePointToOriginal = (value: FaceDetectionPoint, image: PreprocessedImage): FaceDetectionPoint =>
+  new FaceDetectionPoint({
+    x: clamp((value.x - image.offsetX) / image.scale, 0, image.width),
+    y: clamp((value.y - image.offsetY) / image.scale, 0, image.height),
+  });
+
+const scaleFaceToOriginal = (face: FaceDetection, image: PreprocessedImage): FaceDetection => {
+  const left = clamp((face.box.x - image.offsetX) / image.scale, 0, image.width);
+  const top = clamp((face.box.y - image.offsetY) / image.scale, 0, image.height);
+  const right = clamp((face.box.x + face.box.width - image.offsetX) / image.scale, 0, image.width);
+  const bottom = clamp((face.box.y + face.box.height - image.offsetY) / image.scale, 0, image.height);
+
+  return new FaceDetection({
+    box: new FaceDetectionBox({
+      height: Math.max(0, bottom - top),
+      width: Math.max(0, right - left),
+      x: left,
+      y: top,
+    }),
+    confidence: face.confidence,
+    landmarks: new FaceDetectionLandmarks({
+      leftEye: scalePointToOriginal(face.landmarks.leftEye, image),
+      leftMouth: scalePointToOriginal(face.landmarks.leftMouth, image),
+      nose: scalePointToOriginal(face.landmarks.nose, image),
+      rightEye: scalePointToOriginal(face.landmarks.rightEye, image),
+      rightMouth: scalePointToOriginal(face.landmarks.rightMouth, image),
+    }),
+  });
+};
+
+const decodeStrideFaces = Effect.fn("FaceDetection.decodeStrideFaces")(function* (
+  outputs: Awaited<ReturnType<OrtSession["run"]>>,
+  strideIndex: number,
+  image: PreprocessedImage,
+  request: FaceDetectionImageRequest
+): Effect.fn.Return<ReadonlyArray<FaceDetection>, FaceDetectionError> {
+  const stride = strides[strideIndex];
+  const cols = image.padWidth / stride;
+  const rows = image.padHeight / stride;
+  const cls = yield* outputTensor(outputs, outputNames[strideIndex]).pipe(
+    Effect.flatMap((tensor) => tensorData(tensor, outputNames[strideIndex]))
+  );
+  const objName = outputNames[strideIndex + strides.length];
+  const obj = yield* outputTensor(outputs, objName).pipe(Effect.flatMap((tensor) => tensorData(tensor, objName)));
+  const bboxName = outputNames[strideIndex + strides.length * 2];
+  const bbox = yield* outputTensor(outputs, bboxName).pipe(Effect.flatMap((tensor) => tensorData(tensor, bboxName)));
+  const kpsName = outputNames[strideIndex + strides.length * 3];
+  const kps = yield* outputTensor(outputs, kpsName).pipe(Effect.flatMap((tensor) => tensorData(tensor, kpsName)));
+  let faces = A.empty<FaceDetection>();
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const index = row * cols + col;
+      const confidence = Math.sqrt(clamp01(cls[index] ?? 0) * clamp01(obj[index] ?? 0));
+
+      if (confidence < request.minConfidence) {
+        continue;
+      }
+
+      const boxOffset = index * 4;
+      const centerX = (col + (bbox[boxOffset] ?? 0)) * stride;
+      const centerY = (row + (bbox[boxOffset + 1] ?? 0)) * stride;
+      const width = Math.exp(bbox[boxOffset + 2] ?? 0) * stride;
+      const height = Math.exp(bbox[boxOffset + 3] ?? 0) * stride;
+      const keypointOffset = index * 10;
+
+      faces = A.append(
+        faces,
+        new FaceDetection({
+          box: new FaceDetectionBox({
+            height,
+            width,
+            x: centerX - width / 2,
+            y: centerY - height / 2,
+          }),
+          confidence,
+          landmarks: new FaceDetectionLandmarks({
+            leftEye: point((kps[keypointOffset + 2] ?? 0) + col, (kps[keypointOffset + 3] ?? 0) + row),
+            leftMouth: point((kps[keypointOffset + 8] ?? 0) + col, (kps[keypointOffset + 9] ?? 0) + row),
+            nose: point((kps[keypointOffset + 4] ?? 0) + col, (kps[keypointOffset + 5] ?? 0) + row),
+            rightEye: point((kps[keypointOffset] ?? 0) + col, (kps[keypointOffset + 1] ?? 0) + row),
+            rightMouth: point((kps[keypointOffset + 6] ?? 0) + col, (kps[keypointOffset + 7] ?? 0) + row),
+          }),
+        })
+      );
+    }
+  }
+
+  return A.map(faces, (face) => {
+    const scalePoint = (value: FaceDetectionPoint): FaceDetectionPoint =>
+      new FaceDetectionPoint({ x: value.x * stride, y: value.y * stride });
+
+    return new FaceDetection({
+      box: face.box,
+      confidence: face.confidence,
+      landmarks: new FaceDetectionLandmarks({
+        leftEye: scalePoint(face.landmarks.leftEye),
+        leftMouth: scalePoint(face.landmarks.leftMouth),
+        nose: scalePoint(face.landmarks.nose),
+        rightEye: scalePoint(face.landmarks.rightEye),
+        rightMouth: scalePoint(face.landmarks.rightMouth),
+      }),
+    });
+  });
+});
+
+const postprocess = Effect.fn("FaceDetection.postprocess")(function* (
+  outputs: Awaited<ReturnType<OrtSession["run"]>>,
+  image: PreprocessedImage,
+  request: FaceDetectionImageRequest
+): Effect.fn.Return<ReadonlyArray<FaceDetection>, FaceDetectionError> {
+  const decoded = yield* Effect.forEach([0, 1, 2], (index) => decodeStrideFaces(outputs, index, image, request), {
+    concurrency: 1,
+  });
+  return pipe(
+    suppressOverlappingFaces(A.flatten(decoded), request.nmsThreshold, request.topK),
+    A.map((face) => scaleFaceToOriginal(face, image))
+  );
+});
+
+const makeLoadedDetector = (ort: Ort, session: OrtSession): LoadedFaceDetector => ({
+  detect: Effect.fn("LoadedFaceDetector.detect")(function* (request) {
+    const validatedRequest = yield* decodeFaceDetectionImageRequest(request).pipe(
+      Effect.mapError(
+        () =>
+          new FaceDetectionError({
+            imagePath: request.imagePath,
+            message: "Invalid face detection image request.",
+            operation: "detect",
+          })
+      )
+    );
+    const inputName = yield* pipe(
+      A.head(session.inputNames),
+      O.match({
+        onNone: () =>
+          Effect.fail(
+            new FaceDetectionError({
+              message: "YuNet model did not expose an input tensor name.",
+              operation: "detect",
+            })
+          ),
+        onSome: Effect.succeed,
+      })
+    );
+    const inputDimensions = yield* fixedInputDimensions(session, inputName);
+    const image = yield* preprocessImage(validatedRequest.imagePath, inputDimensions);
+    const input = makeInputTensor(ort, image);
+    const outputs = yield* Effect.tryPromise({
+      try: () => session.run({ [inputName]: input }, outputNames),
+      catch: (cause) =>
+        FaceDetectionError.fromUnknown("detect", `Failed to run ONNX face detection for "${request.imagePath}"`, {
+          cause,
+          imagePath: request.imagePath,
+        }),
+    });
+    const faces = yield* postprocess(outputs, image, validatedRequest);
+
+    return new FaceDetectionResult({
+      faces,
+      height: image.height,
+      imagePath: validatedRequest.imagePath,
+      width: image.width,
+    });
+  }),
+});
+
+/**
+ * Construct the live ONNX Runtime service implementation.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export const makeFaceDetectionService = (): FaceDetectionServiceShape =>
+  FaceDetectionService.of({
+    withDetector: Effect.fn("FaceDetectionService.withDetector")(function* (config, use) {
+      const validatedConfig = yield* decodeFaceDetectionModelConfig(config).pipe(
+        Effect.mapError(
+          () =>
+            new FaceDetectionError({
+              message: "Invalid face detection model config.",
+              operation: "withDetector",
+            })
+        )
+      );
+      const ort = yield* loadOnnxRuntime();
+      return yield* Effect.acquireUseRelease(
+        loadSession(ort, validatedConfig),
+        (session) => use(makeLoadedDetector(ort, session)),
+        releaseSession
+      );
+    }),
+  });
+
+/**
+ * Run a workflow with a loaded face detector.
+ *
+ * @param config - Model configuration.
+ * @param use - Workflow to run with the loaded detector.
+ * @returns The workflow result.
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const withDetector = Effect.fn("FaceDetection.withDetector")(function* <A, E, R>(
+  config: FaceDetectionModelConfig,
+  use: (detector: LoadedFaceDetector) => Effect.Effect<A, E, R>
+): Effect.fn.Return<A, E | FaceDetectionError, R | FaceDetectionService> {
+  const service = yield* FaceDetectionService;
+  return yield* service.withDetector(config, use);
+});

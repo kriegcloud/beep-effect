@@ -58,7 +58,10 @@ litellm
 lmstudio
 Opik
 opik
+onnxruntime
 piexifjs
 rustls
 serde
 starlette
+YuNet
+yunet

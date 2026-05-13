@@ -12,6 +12,9 @@
       "path": "../../../drivers/duckdb/tsconfig.json"
     },
     {
+      "path": "../../../drivers/face-detection/tsconfig.json"
+    },
+    {
       "path": "../../../drivers/ffmpeg/tsconfig.json"
     },
     {

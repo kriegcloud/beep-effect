@@ -14,6 +14,7 @@ import {
   CreateCaptionFilesOptions,
   CropBordersOptions,
   DetectBordersOptions,
+  DetectFacesOptions,
   NormalizeFilesOptions,
 } from "./Files.schemas.js";
 import {
@@ -21,6 +22,7 @@ import {
   createCaptionFiles,
   cropBordersFiles,
   detectBordersFiles,
+  detectFacesFiles,
   type FilesCommandService,
   FilesCommandServiceLive,
   normalizeFiles,
@@ -58,6 +60,12 @@ const createCaptionsDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
 const detectBordersDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
   Flag.withDescription("Directory whose direct image files should be scanned for solid borders")
 );
+const detectFacesDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
+  Flag.withDescription("Directory whose direct image files should be scanned for human faces")
+);
+const detectFacesModelFlag = Flag.file("model", { mustExist: true }).pipe(
+  Flag.withDescription("YuNet-compatible ONNX face detection model file")
+);
 const cropBordersDirFlag = Flag.directory("dir", { mustExist: true }).pipe(
   Flag.withDescription("Directory whose direct image files should be cropped when solid borders are detected")
 );
@@ -86,6 +94,14 @@ const manifestFlag = Flag.path("manifest", { pathType: "file" }).pipe(
 );
 const archiveManifestFlag = Flag.path("manifest", { pathType: "file" }).pipe(
   Flag.withDescription("Manifest output path; defaults to --archive-dir/archive-poor-candidates-manifest.json"),
+  Flag.optional
+);
+const detectFacesManifestFlag = Flag.path("manifest", { pathType: "file" }).pipe(
+  Flag.withDescription("Manifest output path; defaults to --dir/detect-faces-manifest.json"),
+  Flag.optional
+);
+const detectFacesMoveNoFaceToFlag = Flag.directory("move-no-face-to").pipe(
+  Flag.withDescription("Move images with no detected faces to this directory"),
   Flag.optional
 );
 const prefixFlag = Flag.string("prefix").pipe(
@@ -158,7 +174,7 @@ const sidecarsFlag = Flag.string("sidecars").pipe(
   Flag.withDefault("txt"),
   Flag.withDescription("Same-stem sidecars to move with archived images: none or a comma-separated extension list")
 );
-const jsonFlag = Flag.boolean("json").pipe(Flag.withDescription("Emit a machine-readable JSON border report"));
+const jsonFlag = Flag.boolean("json").pipe(Flag.withDescription("Emit a machine-readable JSON report"));
 const borderToleranceFlag = Flag.float("tolerance").pipe(
   Flag.withDefault(12),
   Flag.withDescription("Maximum RGB channel distance for near-solid border pixels")
@@ -174,6 +190,18 @@ const minWidthPctFlag = Flag.float("min-width-pct").pipe(
 const maxScanPctFlag = Flag.float("max-scan-pct").pipe(
   Flag.withDefault(45),
   Flag.withDescription("Maximum percent of each image dimension to scan inward from an edge")
+);
+const minFaceConfidenceFlag = Flag.float("min-confidence").pipe(
+  Flag.withDefault(0.75),
+  Flag.withDescription("Minimum face detection confidence between 0 and 1")
+);
+const minFaceAreaPctFlag = Flag.float("min-face-area-pct").pipe(
+  Flag.withDefault(1),
+  Flag.withDescription("Flag detected faces whose primary face box area is below this image percentage")
+);
+const faceEdgeMarginPctFlag = Flag.float("edge-margin-pct").pipe(
+  Flag.withDefault(2),
+  Flag.withDescription("Flag detected faces whose primary face box is within this percent of an image edge")
 );
 
 const filesCreateCaptionsCommand = Command.make(
@@ -310,6 +338,39 @@ const filesCropBordersCommand = Command.make(
   Command.provide(FilesCommandServiceLive)
 );
 
+const filesDetectFacesCommand = Command.make(
+  "detect-faces",
+  {
+    dir: detectFacesDirFlag,
+    edgeMarginPct: faceEdgeMarginPctFlag,
+    json: jsonFlag,
+    manifest: detectFacesManifestFlag,
+    minConfidence: minFaceConfidenceFlag,
+    minFaceAreaPct: minFaceAreaPctFlag,
+    modelPath: detectFacesModelFlag,
+    moveNoFaceTo: detectFacesMoveNoFaceToFlag,
+  },
+  Effect.fn(function* ({ dir, edgeMarginPct, json, manifest, minConfidence, minFaceAreaPct, modelPath, moveNoFaceTo }) {
+    yield* runFilesProgram(
+      detectFacesFiles(
+        new DetectFacesOptions({
+          dir,
+          edgeMarginPct,
+          json,
+          manifest,
+          minConfidence,
+          minFaceAreaPct,
+          modelPath,
+          moveNoFaceTo,
+        })
+      )
+    );
+  })
+).pipe(
+  Command.withDescription("Detect human faces in direct image files and write a triage manifest"),
+  Command.provide(FilesCommandServiceLive)
+);
+
 const filesNormalizeCommand = Command.make(
   "normalize",
   {
@@ -390,6 +451,7 @@ export const filesCommand = Command.make("files", {}, printFilesIndex).pipe(
     filesCreateCaptionsCommand,
     filesCropBordersCommand,
     filesDetectBordersCommand,
+    filesDetectFacesCommand,
     filesNormalizeCommand,
     filesSortAndRenameCommand,
     filesStripMetadataCommand,

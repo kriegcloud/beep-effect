@@ -58,6 +58,9 @@
       "path": "packages/drivers/duckdb"
     },
     {
+      "path": "packages/drivers/face-detection"
+    },
+    {
       "path": "packages/drivers/ffmpeg"
     },
     {

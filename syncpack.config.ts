@@ -31,6 +31,7 @@ const config = {
     "packages/shared/config/package.json",
     "packages/drivers/drizzle/package.json",
     "packages/drivers/duckdb/package.json",
+    "packages/drivers/face-detection/package.json",
     "packages/drivers/ffmpeg/package.json",
     "packages/drivers/postgres/package.json",
     "packages/drivers/openai/package.json",

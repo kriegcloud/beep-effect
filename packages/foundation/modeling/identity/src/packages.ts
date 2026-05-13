@@ -91,6 +91,7 @@ const composers = $I.compose(
   "op-ip-web",
   "drizzle",
   "duckdb",
+  "face-detection",
   "ffmpeg",
   "postgres",
 
@@ -669,6 +670,12 @@ export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.
  * @category configuration
  */
 export const $DuckdbId: Identity.IdentityComposer<"@beep/duckdb"> = composers.$DuckdbId;
+
+/**
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $FaceDetectionId: Identity.IdentityComposer<"@beep/face-detection"> = composers.$FaceDetectionId;
 
 /**
  * @since 0.0.0

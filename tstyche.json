@@ -28,6 +28,7 @@
     "packages/shared/config/dtslint/**/*.tst.*",
     "packages/drivers/drizzle/dtslint/**/*.tst.*",
     "packages/drivers/duckdb/dtslint/**/*.tst.*",
+    "packages/drivers/face-detection/dtslint/**/*.tst.*",
     "packages/drivers/ffmpeg/dtslint/**/*.tst.*",
     "packages/drivers/postgres/dtslint/**/*.tst.*",
     "packages/drivers/openai/dtslint/**/*.tst.*",

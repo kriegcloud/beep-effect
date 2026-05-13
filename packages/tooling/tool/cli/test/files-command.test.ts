@@ -4,6 +4,7 @@ import { filesCommand } from "@beep/repo-cli";
 import {
   ArchivePoorCandidatesManifest,
   DetectBordersReport,
+  DetectFacesReport,
   NormalizeManifest,
   renderFilesProgressBar,
 } from "@beep/repo-cli/commands/Files/index";
@@ -25,6 +26,7 @@ const testLayer = Layer.mergeAll(
 const runFilesCommand = Command.runWith(filesCommand, { version: "0.0.0" });
 const decodeArchivePoorCandidatesManifest = S.decodeUnknownSync(S.fromJsonString(ArchivePoorCandidatesManifest));
 const decodeDetectBordersReport = S.decodeUnknownSync(S.fromJsonString(DetectBordersReport));
+const decodeDetectFacesReport = S.decodeUnknownEffect(S.fromJsonString(DetectFacesReport));
 const decodeNormalizeManifest = S.decodeUnknownSync(S.fromJsonString(NormalizeManifest));
 
 class FilesTestError extends Data.TaggedError("FilesTestError")<{ readonly cause: unknown }> {}
@@ -158,6 +160,17 @@ const readArchivePoorCandidatesManifest = Effect.fn("FilesTest.readArchivePoorCa
 const readDetectBordersJsonLog = Effect.fn("FilesTest.readDetectBordersJsonLog")(function* () {
   const lines = yield* TestConsole.logLines;
   return decodeDetectBordersReport(A.join("\n")(lines));
+});
+
+const readDetectFacesJsonLog = Effect.fn("FilesTest.readDetectFacesJsonLog")(function* () {
+  const lines = yield* TestConsole.logLines;
+  return yield* decodeDetectFacesReport(A.join("\n")(lines)).pipe(Effect.mapError(filesTestError));
+});
+
+const readDetectFacesManifest = Effect.fn("FilesTest.readDetectFacesManifest")(function* (filePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs.readFileString(filePath);
+  return yield* decodeDetectFacesReport(content).pipe(Effect.mapError(filesTestError));
 });
 
 const writeInsetCanvasImage = Effect.fn("FilesTest.writeInsetCanvasImage")(function* (
@@ -396,6 +409,68 @@ describe.sequential("files command", () => {
           expect(entry?.classification).toBe("pillarbox");
           expect(entry?.sides.find((side) => side.side === "left")?.widthPx).toBe(20);
           expect(entry?.sides.find((side) => side.side === "right")?.widthPx).toBe(20);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("writes an empty face detection manifest without loading the model", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const modelPath = path.join(tmpDir, "face_detection_yunet.onnx");
+          const manifestPath = path.join(datasetDir, "detect-faces-manifest.json");
+
+          yield* fs.writeFileString(modelPath, "not a real model");
+          yield* runFilesCommand(["detect-faces", "--dir", datasetDir, "--model", modelPath, "--json"]);
+
+          const report = yield* readDetectFacesJsonLog();
+          const manifest = yield* readDetectFacesManifest(manifestPath);
+
+          expect(report.summary.analyzedCount).toBe(0);
+          expect(report.summary.movedNoFaceCount).toBe(0);
+          expect(report.summary.skippedCount).toBe(0);
+          expect(report.manifestWritten).toBe(true);
+          expect(manifest.schemaVersion).toBe("beep.files.detect-faces.v1");
+          expect(manifest.manifestWritten).toBe(true);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("creates an empty no-face move directory without loading the model", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const modelPath = path.join(tmpDir, "face_detection_yunet.onnx");
+          const noFaceDir = path.join(tmpDir, "no-face");
+
+          yield* fs.writeFileString(modelPath, "not a real model");
+          yield* runFilesCommand([
+            "detect-faces",
+            "--dir",
+            datasetDir,
+            "--model",
+            modelPath,
+            "--move-no-face-to",
+            noFaceDir,
+            "--json",
+          ]);
+
+          const report = yield* readDetectFacesJsonLog();
+          const noFaceDirExists = yield* fs.exists(noFaceDir);
+
+          expect(report.options.moveNoFaceTo).toBe(noFaceDir);
+          expect(report.summary.movedNoFaceCount).toBe(0);
+          expect(noFaceDirExists).toBe(true);
           expect(process.exitCode ?? 0).toBe(0);
         })
       )

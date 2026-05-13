@@ -207,6 +207,10 @@
         "./packages/foundation/ui-system/ui/src/themes/index.ts"
       ],
       "@beep/drizzle": ["./packages/drivers/drizzle/src/index.ts"],
+      "@beep/face-detection": [
+        "./packages/drivers/face-detection/src/index.ts"
+      ],
+      "@beep/face-detection/*": ["./packages/drivers/face-detection/src/*"],
       "@beep/ffmpeg": ["./packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["./packages/drivers/ffmpeg/src/*"],
       "@beep/postgres": ["./packages/drivers/postgres/src/index.ts"],
