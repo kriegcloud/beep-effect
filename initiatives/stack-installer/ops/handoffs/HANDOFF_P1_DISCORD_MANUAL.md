@@ -270,8 +270,8 @@ For a Windows zip bundle received on the coordinator checkout:
 
 ```bash
 mkdir -p output/stack-installer/p1-live
-bsdtar -xf output/stack-installer/p1-live/stack-installer-p1-windows.zip \
-  -C output/stack-installer/p1-live
+unzip -o output/stack-installer/p1-live/stack-installer-p1-windows.zip \
+  -d output/stack-installer/p1-live
 ```
 
 After extraction, these directories must exist:
