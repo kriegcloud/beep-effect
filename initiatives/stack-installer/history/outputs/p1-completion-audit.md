@@ -25,7 +25,15 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Latest branch evidence includes `d93e83320b chore: merge origin main into
+- Latest branch evidence includes `76e62e1d0c docs(stack-installer): add proof
+  watch starter`, which adds the detached coordinator watch starter at
+  `initiatives/stack-installer/ops/start-proof-watch-window.mjs` and documents
+  its private `proof-watch.log`, `proof-watch.pid`, and
+  `proof-watch-command.txt` outputs under the ignored proof inbox.
+- Earlier branch evidence includes `91fa8041a5 docs(stack-installer):
+  advertise upload aliases`, which lets the upload-window starter emit both
+  raw tailnet and MagicDNS operator URLs without rotating the live upload token.
+- Earlier branch evidence includes `d93e83320b chore: merge origin main into
   stack installer p1`, which syncs the branch with `origin/main` at
   `97636ab4ff`, keeps both the `opip-web-launch` and `stack-installer`
   initiative index entries, and keeps both the Stack Installer TypeScript path
@@ -49,7 +57,7 @@ without stopping until:
   `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md`, and this completion audit
   output.
 - Base evidence after `git fetch origin main`: `origin/main` at `97636ab4ff`
-  and current branch `HEAD` at `d93e83320b`.
+  and current branch `HEAD` at `76e62e1d0c`.
 - Worktree status before this audit update: clean and even with
   `origin/feat/stack-installer-p1-live`.
 - Latest post-main-sync verification:
@@ -83,6 +91,14 @@ without stopping until:
   fails as expected against the empty output root, printing the same missing
   macOS and Windows directory status. The watch helper is a bounded polling
   convenience for transfer windows, not a proof substitute.
+- Current detached proof-watch state:
+  `node initiatives/stack-installer/ops/start-proof-watch-window.mjs
+  --output-root output/stack-installer/p1-live --watch-attempts 1440
+  --watch-interval-ms 5000 --replace-existing` starts a detached
+  coordinator-side `p1:proof:watch` process with private `0600`
+  `proof-watch.log`, `proof-watch.pid`, and `proof-watch-command.txt` files.
+  The current detached watcher is alive and polling the proof inbox, but has
+  not found any returned bundles or platform artifact directories.
 - Latest coordinator wait:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 6 --watch-interval-ms 5000`
   exhausted all attempts without finding returned bundles and ended with the
@@ -186,7 +202,7 @@ without stopping until:
 | Both-platform artifact audit implemented | `p1:proof:audit-all` checks macOS and Windows directories and target-platform parity | complete |
 | Read-only artifact status implemented | `7923a2387a feat(stack-installer): report p1 proof artifact status`; `p1:proof:status` reports missing or incomplete macOS/Windows artifact directories without accepting them as proof | complete |
 | Coordinator bundle intake implemented | `p1:proof:intake` extracts returned `stack-installer-p1-macos.tgz` and `stack-installer-p1-windows.zip` bundles when the corresponding platform directory is missing, then reports status without accepting missing proof as complete | complete |
-| Coordinator watch implemented | `p1:proof:watch` runs bounded coordinator-side intake plus `p1:proof:audit-all` polling during transfer windows; the empty-inbox one-attempt check fails with missing artifact status instead of accepting incomplete proof | complete |
+| Coordinator watch implemented | `p1:proof:watch` runs bounded coordinator-side intake plus `p1:proof:audit-all` polling during transfer windows; the empty-inbox one-attempt check fails with missing artifact status instead of accepting incomplete proof. `start-proof-watch-window.mjs` starts the same watch as a detached private-log helper for longer transfer windows | complete |
 | Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest post-audit refresh on 2026-05-14 re-ran the P1 live-harness turbo gate: `bun run turbo run check test lint --filter=@beep/stack-installer --filter=@beep/onepassword-cli --filter=@beep/discord --filter=@beep/ai-provider-cli --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases`, with 66 tasks successful. The same evidence set includes `@beep/stack-installer` `check`, `lint`, `test`, `coverage`, and `build`, with 12 tests passing and coverage at 98.16% statements / 90.47% branches; `cargo check` in `apps/stack-installer/src-tauri`; `bun run config-sync:check`; `git diff --check`; manifest JSON validation; `p1:proof:status`; empty-inbox `p1:proof:intake`; empty-inbox one-attempt `p1:proof:watch` refusal; and a temporary `.tgz` plus `.zip` intake extraction smoke. Latest post-main-sync refresh after merging `origin/main` at `97636ab4ff` re-ran `bun run config-sync:check`, `@beep/stack-installer` `check`, `test`, `lint`, and `build`; `cargo check` in `apps/stack-installer/src-tauri`; and `git diff --check`, all passing. A later post-main-sync refresh re-ran the full P1 live-harness turbo gate across `@beep/stack-installer`, `@beep/onepassword-cli`, `@beep/discord`, `@beep/ai-provider-cli`, and the installer security/provider/channel/dependency/workspace packages with 66 successful tasks out of 66 | complete for implemented local surfaces |
 | macOS fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/macos/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Windows fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/windows/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
