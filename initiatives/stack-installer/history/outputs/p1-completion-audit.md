@@ -86,6 +86,12 @@ without stopping until:
   permissions, and the ignored command file no longer embeds a token. Health
   checks pass, invalid-token requests return `403`, and upload logs redact
   tokens. No operator upload has hit the endpoint yet.
+- Current upload-window starter:
+  committed `initiatives/stack-installer/ops/start-proof-upload-window.mjs`
+  now performs the coordinator setup: token rotation, `0600` token/command/PID
+  files, detached server start, and endpoint/log path reporting without
+  printing the token. The live endpoint was restarted through this helper and
+  remains healthy.
 - Latest post-rotation upload-window wait:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 36 --watch-interval-ms 5000`
   exhausted after the bearer-token endpoint was live. No returned bundles were
