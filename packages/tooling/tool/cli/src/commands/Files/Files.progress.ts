@@ -123,7 +123,7 @@ export const runFilesProgressAll: {
       return Effect.all(effects, { concurrency });
     }
 
-    return Effect.gen(function* () {
+    return Effect.fnUntraced(function* () {
       const terminal = yield* Terminal.Terminal;
       const completedRef = yield* Ref.make(0);
       const finishedRef = yield* Ref.make(false);
@@ -152,10 +152,10 @@ export const runFilesProgressAll: {
       yield* renderLocked(0, false);
       return yield* Effect.all(trackedEffects, { concurrency }).pipe(
         Effect.tap(() =>
-          Effect.gen(function* () {
+          Effect.fnUntraced(function* () {
             yield* Ref.set(finishedRef, true);
             yield* renderLocked(total, true);
-          })
+          })()
         ),
         Effect.ensuring(
           Ref.get(finishedRef).pipe(
@@ -163,7 +163,7 @@ export const runFilesProgressAll: {
           )
         )
       );
-    });
+    })();
   }
 );
 

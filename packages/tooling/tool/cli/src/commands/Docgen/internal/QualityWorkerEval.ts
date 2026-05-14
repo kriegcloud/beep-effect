@@ -797,8 +797,8 @@ const resolveCodexSdkVersion = Effect.fn("DocgenQualityWorkerEval.resolveCodexSd
   return metadata.version;
 });
 
-const resolveCodexSdkVersionOrUnknown: Effect.Effect<string, never, FileSystem.FileSystem | Path.Path> =
-  resolveCodexSdkVersion().pipe(Effect.catch(() => Effect.succeed("unknown")));
+const resolveCodexSdkVersionOrUnknown: Effect.Effect<string, string, FileSystem.FileSystem | Path.Path> =
+  resolveCodexSdkVersion().pipe(Effect.mapError(() => "unknown"));
 
 type CodexSdkModule = typeof import("@openai/codex-sdk");
 

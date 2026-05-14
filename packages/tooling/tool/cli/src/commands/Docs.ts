@@ -217,13 +217,12 @@ const docsFindCommand = Command.make(
       onNonEmpty: Effect.fn(function* (sections) {
         yield* Effect.forEach(
           sections,
-          (section, index) =>
-            Effect.gen(function* () {
-              if (index > 0) {
-                yield* Console.log("");
-              }
-              yield* printSection(section);
-            }),
+          Effect.fnUntraced(function* (section, index) {
+            if (index > 0) {
+              yield* Console.log("");
+            }
+            yield* printSection(section);
+          }),
           { discard: true }
         );
       }),

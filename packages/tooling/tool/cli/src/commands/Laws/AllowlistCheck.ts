@@ -275,7 +275,7 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
 
   const decodedResult = yield* decodeEffectLawsAllowlist(parsedResult.success).pipe(
     Effect.map(Result.succeed),
-    Effect.catch((error) => Effect.succeed(Result.fail(formatSchemaDiagnostics(error.issue))))
+    Effect.mapError((error) => Result.fail(formatSchemaDiagnostics(error.issue)))
   );
 
   if (Result.isFailure(decodedResult)) {

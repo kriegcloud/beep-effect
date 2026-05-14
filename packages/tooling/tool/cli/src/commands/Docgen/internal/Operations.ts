@@ -1026,14 +1026,15 @@ const expectedCanonicalDocgenPath = (
     : path.join(canonicalSourceRoot, ...Str.split("/")(relativeFromSourceRoot));
 };
 
-const copyDocsTree = (
+const copyDocsTree: (
   sourceDir: string,
   destinationDir: string,
   packageName: string,
   sourceRoot: string,
   canonicalSourceRoot: string
-): Effect.Effect<number, DomainError, FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
+) => Effect.Effect<number, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
+  "DocgenOperations.copyDocsTree"
+)(function* (sourceDir, destinationDir, packageName, sourceRoot, canonicalSourceRoot) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
@@ -1114,7 +1115,7 @@ const copyDocsTree = (
     }
 
     return copiedFiles;
-  });
+});
 
 /**
  * Normalize a workspace-relative package path to the current root docs output layout.
@@ -1218,22 +1219,21 @@ export const discoverDocgenWorkspacePackages: (
   const workspaceDirs = yield* resolveWorkspaceDirs(repoRoot);
   const packages = yield* Effect.forEach(
     HashMap.toEntries(workspaceDirs),
-    ([name, absolutePath]) =>
-      Effect.gen(function* () {
-        const relativePath = normalizeSlashes(path.relative(repoRoot, absolutePath));
-        const hasDocgenConfig = yield* packageHasDocgenConfig(absolutePath);
-        const hasGeneratedDocs = yield* packageHasGeneratedDocs(absolutePath);
+    Effect.fnUntraced(function* ([name, absolutePath]) {
+      const relativePath = normalizeSlashes(path.relative(repoRoot, absolutePath));
+      const hasDocgenConfig = yield* packageHasDocgenConfig(absolutePath);
+      const hasGeneratedDocs = yield* packageHasGeneratedDocs(absolutePath);
 
-        return new DocgenWorkspacePackage({
-          name,
-          relativePath,
-          absolutePath,
-          docsOutputPath: normalizeDocsOutputPath(relativePath),
-          hasDocgenConfig,
-          hasGeneratedDocs,
-          status: computePackageStatus(hasDocgenConfig, hasGeneratedDocs),
-        });
-      }),
+      return new DocgenWorkspacePackage({
+        name,
+        relativePath,
+        absolutePath,
+        docsOutputPath: normalizeDocsOutputPath(relativePath),
+        hasDocgenConfig,
+        hasGeneratedDocs,
+        status: computePackageStatus(hasDocgenConfig, hasGeneratedDocs),
+      });
+    }),
     { concurrency: "unbounded" }
   );
 
@@ -1473,15 +1473,17 @@ export const generateAnalysisJson = (analysis: DocgenPackageAnalysis): string =>
  * @category models
  * @since 0.0.0
  */
-export const aggregateGeneratedDocs = (options?: {
+export const aggregateGeneratedDocs: (options?: {
   readonly clean?: boolean | undefined;
   readonly package?: string | undefined;
-}): Effect.Effect<
+}) => Effect.Effect<
   ReadonlyArray<DocgenAggregateResult>,
   DomainError | NoSuchFileError,
   FileSystem.FileSystem | Path.Path | FsUtils
-> =>
-  Effect.gen(function* () {
+> = Effect.fn("DocgenOperations.aggregateGeneratedDocs")(function* (options?: {
+  readonly clean?: boolean | undefined;
+  readonly package?: string | undefined;
+}) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot();
@@ -1556,61 +1558,60 @@ export const aggregateGeneratedDocs = (options?: {
     const sortedPackages = A.sort(packages, byDocsOutputPathAscending);
     return yield* Effect.forEach(
       sortedPackages,
-      (pkg, index) =>
-        Effect.gen(function* () {
-          const sourceDir = path.join(pkg.absolutePath, ...DOCS_MODULES_SEGMENTS);
-          const destinationDir = path.join(docsRoot, pkg.docsOutputPath);
-          const hasDocs = yield* fs.exists(sourceDir).pipe(Effect.orElseSucceed(thunkFalse));
+      Effect.fnUntraced(function* (pkg, index) {
+        const sourceDir = path.join(pkg.absolutePath, ...DOCS_MODULES_SEGMENTS);
+        const destinationDir = path.join(docsRoot, pkg.docsOutputPath);
+        const hasDocs = yield* fs.exists(sourceDir).pipe(Effect.orElseSucceed(thunkFalse));
 
-          if (!hasDocs) {
-            return yield* new DomainError({
-              message: `Package "${pkg.name}" does not have generated docs. Run "bun run beep docgen generate -p ${pkg.relativePath}" first.`,
-            });
-          }
-
-          const canonicalPackageDir = yield* fs
-            .realPath(pkg.absolutePath)
-            .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve "${pkg.absolutePath}"`)));
-          const canonicalSourceDir = yield* fs
-            .realPath(sourceDir)
-            .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve "${sourceDir}"`)));
-          const expectedCanonicalSourceDir = path.join(canonicalPackageDir, ...DOCS_MODULES_SEGMENTS);
-
-          if (canonicalSourceDir !== expectedCanonicalSourceDir) {
-            return yield* new DomainError({
-              message: `Refusing to aggregate docs for package "${pkg.name}" because "${sourceDir}" resolves outside the package docs/modules tree.`,
-            });
-          }
-
-          yield* fs
-            .remove(destinationDir, {
-              recursive: true,
-              force: true,
-            })
-            .pipe(
-              Effect.mapError(
-                (cause) =>
-                  new DomainError({
-                    message: `Failed to reset "${destinationDir}"`,
-                    cause,
-                  })
-              )
-            );
-          const fileCount = yield* copyDocsTree(sourceDir, destinationDir, pkg.name, sourceDir, canonicalSourceDir);
-          yield* fs
-            .writeFileString(
-              path.join(destinationDir, "index.md"),
-              generateDocsIndexContent(pkg.name, pkg.docsOutputPath, index + 2)
-            )
-            .pipe(Effect.mapError(DomainError.newCause(`Failed to write docs index for "${pkg.name}"`)));
-
-          return new DocgenAggregateResult({
-            packageName: pkg.name,
-            packagePath: pkg.relativePath,
-            docsOutputPath: pkg.docsOutputPath,
-            fileCount,
+        if (!hasDocs) {
+          return yield* new DomainError({
+            message: `Package "${pkg.name}" does not have generated docs. Run "bun run beep docgen generate -p ${pkg.relativePath}" first.`,
           });
-        }),
+        }
+
+        const canonicalPackageDir = yield* fs
+          .realPath(pkg.absolutePath)
+          .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve "${pkg.absolutePath}"`)));
+        const canonicalSourceDir = yield* fs
+          .realPath(sourceDir)
+          .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve "${sourceDir}"`)));
+        const expectedCanonicalSourceDir = path.join(canonicalPackageDir, ...DOCS_MODULES_SEGMENTS);
+
+        if (canonicalSourceDir !== expectedCanonicalSourceDir) {
+          return yield* new DomainError({
+            message: `Refusing to aggregate docs for package "${pkg.name}" because "${sourceDir}" resolves outside the package docs/modules tree.`,
+          });
+        }
+
+        yield* fs
+          .remove(destinationDir, {
+            recursive: true,
+            force: true,
+          })
+          .pipe(
+            Effect.mapError(
+              (cause) =>
+                new DomainError({
+                  message: `Failed to reset "${destinationDir}"`,
+                  cause,
+                })
+            )
+          );
+        const fileCount = yield* copyDocsTree(sourceDir, destinationDir, pkg.name, sourceDir, canonicalSourceDir);
+        yield* fs
+          .writeFileString(
+            path.join(destinationDir, "index.md"),
+            generateDocsIndexContent(pkg.name, pkg.docsOutputPath, index + 2)
+          )
+          .pipe(Effect.mapError(DomainError.newCause(`Failed to write docs index for "${pkg.name}"`)));
+
+        return new DocgenAggregateResult({
+          packageName: pkg.name,
+          packagePath: pkg.relativePath,
+          docsOutputPath: pkg.docsOutputPath,
+          fileCount,
+        });
+      }),
       { concurrency: "unbounded" }
     );
   });
@@ -1625,10 +1626,11 @@ export const aggregateGeneratedDocs = (options?: {
  */
 export const runDocgenForPackage: (
   targetPackage: DocgenWorkspacePackage
-) => Effect.Effect<DocgenGenerationResult, never, FileSystem.FileSystem | Path.Path | ChildProcessSpawner> = (
-  targetPackage
-) => {
-  return Effect.gen(function* () {
+) => Effect.Effect<
+  DocgenGenerationResult,
+  DocgenGenerationResult,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner
+> = Effect.fn("DocgenOperations.runDocgenForPackage")(function* (targetPackage) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot(targetPackage.absolutePath);
@@ -1640,7 +1642,7 @@ export const runDocgenForPackage: (
       stderr: "pipe",
     });
     const result = yield* Effect.scoped(
-      Effect.gen(function* () {
+      Effect.fnUntraced(function* () {
         const handle = yield* command;
         const output = yield* handle.all.pipe(
           Stream.decodeText(),
@@ -1651,10 +1653,9 @@ export const runDocgenForPackage: (
           output: Str.trim(output),
           exitCode,
         };
-      })
+      })()
     ).pipe(
-      Effect.catch((cause) =>
-        Effect.succeed({
+      Effect.mapError((cause) => ({
           output: pipe(cause, stringFromUnknown, Str.trim),
           exitCode: 1,
         })
@@ -1692,17 +1693,15 @@ export const runDocgenForPackage: (
       moduleCount,
       ...(result.output.length === 0 ? {} : { output: result.output }),
     });
-  }).pipe(
-    Effect.catch((cause) =>
-      Effect.succeed(
-        new DocgenGenerationResult({
-          packageName: targetPackage.name,
-          packagePath: targetPackage.relativePath,
-          success: false,
-          error: "docgen execution failed before completion",
-          output: pipe(cause, stringFromUnknown, Str.trim),
-        })
-      )
-    )
-  );
-};
+  },
+  Effect.mapError(
+    (cause) =>
+      new DocgenGenerationResult({
+        packageName: targetPackage.name,
+        packagePath: targetPackage.relativePath,
+        success: false,
+        error: "docgen execution failed before completion",
+        output: pipe(cause, stringFromUnknown, Str.trim),
+      })
+  )
+);

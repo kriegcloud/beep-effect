@@ -1098,8 +1098,7 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
 
   yield* runFilesProgressForEach(
     sourceNames,
-    (sourceName) =>
-      Effect.gen(function* () {
+    Effect.fnUntraced(function* (sourceName) {
         const sourcePath = path.join(directory, sourceName);
         const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
 
@@ -1293,7 +1292,7 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
             sourceRelativePath: path.relative(directory, sourcePath),
           })
         );
-      }),
+    }),
     {
       concurrency: 1,
       label: "captions plan",
@@ -1754,14 +1753,14 @@ const runFfprobe = Effect.fn("Files.runFfprobe")(function* (
     }
   );
   const result = yield* Effect.scoped(
-    Effect.gen(function* () {
+    Effect.fnUntraced(function* () {
       const handle = yield* command;
       const [stdout, stderr, exitCode] = yield* Effect.all(
         [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
         { concurrency: "unbounded" }
       );
       return { exitCode, stderr, stdout };
-    })
+    })()
   ).pipe(
     Effect.mapError(
       (cause) =>
@@ -2813,8 +2812,7 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
           formatPlatformError("Failed to create temporary normalize directory", plan.outputDirectory, { cause })
         )
       ),
-    (tempDir) =>
-      Effect.gen(function* () {
+    Effect.fnUntraced(function* (tempDir) {
         const tempEntries = A.map(plan.entries, (entry, index) => ({
           entry,
           tempPath: path.join(
@@ -2831,8 +2829,7 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
 
         yield* runFilesProgressForEach(
           tempEntries,
-          ({ entry, tempPath }) =>
-            Effect.gen(function* () {
+          Effect.fnUntraced(function* ({ entry, tempPath }) {
               yield* normalizeImageToTemp(entry, tempPath, maxLongEdge);
               const outputStat = yield* fs
                 .stat(tempPath)
@@ -2915,8 +2912,7 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
 
         yield* runFilesProgressForEach(
           readyTempEntries,
-          ({ entry, tempPath }) =>
-            Effect.gen(function* () {
+          Effect.fnUntraced(function* ({ entry, tempPath }) {
               if (overwrite) {
                 yield* fs.remove(entry.outputPath, { force: true }).pipe(Effect.ignore);
               }
@@ -2930,8 +2926,7 @@ const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
 
         yield* runFilesProgressForEach(
           duplicateMoves,
-          (duplicateMove) =>
-            Effect.gen(function* () {
+          Effect.fnUntraced(function* (duplicateMove) {
               if (overwrite) {
                 yield* fs.remove(duplicateMove.targetPath, { force: true }).pipe(Effect.ignore);
               }
@@ -2988,8 +2983,7 @@ const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorCandidat
           formatPlatformError("Failed to create temporary archive directory", plan.archiveDirectory, { cause })
         )
       ),
-    (tempDir) =>
-      Effect.gen(function* () {
+    Effect.fnUntraced(function* (tempDir) {
         const manifest = makeArchivePoorCandidatesManifest(plan);
         const manifestContent = yield* renderArchivePoorCandidatesManifest(plan.manifestPath, manifest);
         const tempManifestPath = path.join(tempDir, "archive-poor-candidates-manifest.json");
@@ -3004,8 +2998,7 @@ const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorCandidat
 
         yield* runFilesProgressForEach(
           archivedEntries(plan.entries),
-          (entry) =>
-            Effect.gen(function* () {
+          Effect.fnUntraced(function* (entry) {
               const archivePath = O.fromUndefinedOr(entry.archivePath);
 
               if (O.isNone(archivePath)) {
@@ -3124,14 +3117,17 @@ const logRenamePlan = Effect.fn("Files.logRenamePlan")(function* (plan: Readonly
   });
 });
 
-const renameOrFail = (
+const renameOrFail: (
   sourcePath: string,
   targetPath: string,
   tempDir: string
-): Effect.Effect<void, FilesCommandError, FileSystem.FileSystem> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    yield* fs.rename(sourcePath, targetPath).pipe(
+) => Effect.Effect<void, FilesCommandError, FileSystem.FileSystem> = Effect.fn("Files.renameOrFail")(function* (
+  sourcePath,
+  targetPath,
+  tempDir
+) {
+  const fs = yield* FileSystem.FileSystem;
+  yield* fs.rename(sourcePath, targetPath).pipe(
       Effect.mapError(
         (cause) =>
           new FilesCommandError({
@@ -3140,7 +3136,7 @@ const renameOrFail = (
           })
       )
     );
-  });
+});
 
 const withDetectFacesMovedNoFaceTarget = (
   entry: DetectFacesEntry,
@@ -3399,14 +3395,14 @@ const runFfmpegStripMetadata = Effect.fn("Files.runFfmpegStripMetadata")(functio
     }
   );
   const result = yield* Effect.scoped(
-    Effect.gen(function* () {
+    Effect.fnUntraced(function* () {
       const handle = yield* command;
       const [stdout, stderr, exitCode] = yield* Effect.all(
         [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
         { concurrency: "unbounded" }
       );
       return { exitCode, stderr, stdout };
-    })
+    })()
   ).pipe(
     Effect.mapError(
       (cause) =>
@@ -3465,8 +3461,7 @@ const applyStripMetadataPlan = Effect.fn("Files.applyStripMetadataPlan")(functio
           formatPlatformError("Failed to create temporary strip directory", directory, { cause })
         )
       ),
-    (tempDir) =>
-      Effect.gen(function* () {
+    Effect.fnUntraced(function* (tempDir) {
         const tempEntries = makeStripMetadataTempEntries(tempDir, plan, path);
         const rewriteConcurrency = A.some(plan, (entry) => entry.mediaKind === "video")
           ? FilesConcurrency.ffmpeg
@@ -3505,8 +3500,7 @@ const applyCropBordersPlan = Effect.fn("Files.applyCropBordersPlan")(function* (
           formatPlatformError("Failed to create temporary crop-borders directory", directory, { cause })
         )
       ),
-    (tempDir) =>
-      Effect.gen(function* () {
+    Effect.fnUntraced(function* (tempDir) {
         const tempEntries = A.map(plan, (entry, index) => ({
           entry,
           tempPath: path.join(tempDir, `${formatIndex(index, `${A.length(plan)}`.length + 1)}-${entry.sourceName}`),
@@ -3619,7 +3613,7 @@ export const printFilesIndex = Effect.fn("Files.printFilesIndex")(function* () {
 const createCaptionFilesImpl = Effect.fn("FilesCommandService.createCaptionFiles")(function* (
   options: CreateCaptionFilesOptions
 ): Effect.fn.Return<CreateCaptionFilesSummary, FilesCommandError, FilesCommandServiceRequirements> {
-  const program = Effect.gen(function* () {
+  const program = Effect.fnUntraced(function* () {
     const validatedOptions = yield* validateCreateCaptionFilesOptions(options);
     const plan = yield* buildCreateCaptionFilesPlan(validatedOptions);
     const plannedCount = A.length(plan.entries);
@@ -3675,7 +3669,7 @@ const createCaptionFilesImpl = Effect.fn("FilesCommandService.createCaptionFiles
       plannedCount,
       skippedCount,
     });
-  });
+  })();
 
   return yield* profilePhase(program, {
     phase: "files.create-captions",
@@ -3689,7 +3683,7 @@ const createCaptionFilesImpl = Effect.fn("FilesCommandService.createCaptionFiles
 const archivePoorCandidatesImpl = Effect.fn("FilesCommandService.archivePoorCandidates")(function* (
   options: ArchivePoorCandidatesOptions
 ): Effect.fn.Return<ArchivePoorCandidatesSummary, FilesCommandError, FilesCommandServiceRequirements> {
-  const program = Effect.gen(function* () {
+  const program = Effect.fnUntraced(function* () {
     const validatedOptions = yield* validateArchivePoorCandidatesOptions(options);
     const sidecarExtensions = yield* parseSidecarExtensions(validatedOptions.sidecars);
     const plan = yield* buildArchivePoorCandidatesPlan(validatedOptions, sidecarExtensions);
@@ -3764,7 +3758,7 @@ const archivePoorCandidatesImpl = Effect.fn("FilesCommandService.archivePoorCand
       movedSidecarCount,
       skippedCount,
     });
-  });
+  })();
 
   return yield* profilePhase(program, {
     phase: "files.archive-poor-candidates",
@@ -3782,7 +3776,7 @@ const archivePoorCandidatesImpl = Effect.fn("FilesCommandService.archivePoorCand
 const cropBordersFilesImpl = Effect.fn("FilesCommandService.cropBordersFiles")(function* (
   options: CropBordersOptions
 ): Effect.fn.Return<CropBordersSummary, FilesCommandError, FilesCommandServiceRequirements> {
-  const program = Effect.gen(function* () {
+  const program = Effect.fnUntraced(function* () {
     const plan = yield* buildCropBordersPlan(options);
     const plannedCount = A.length(plan.entries);
 
@@ -3845,7 +3839,7 @@ const cropBordersFilesImpl = Effect.fn("FilesCommandService.cropBordersFiles")(f
       plannedCount,
       skippedCount: plan.skippedCount,
     });
-  });
+  })();
 
   return yield* profilePhase(program, {
     phase: "files.crop-borders",
@@ -3862,7 +3856,7 @@ const cropBordersFilesImpl = Effect.fn("FilesCommandService.cropBordersFiles")(f
 const detectBordersFilesImpl = Effect.fn("FilesCommandService.detectBordersFiles")(function* (
   options: DetectBordersOptions
 ): Effect.fn.Return<DetectBordersReport, FilesCommandError, FilesCommandServiceRequirements> {
-  const program = Effect.gen(function* () {
+  const program = Effect.fnUntraced(function* () {
     const validatedOptions = yield* validateDetectBordersOptions(options);
     const progressEnabled = !validatedOptions.json;
     const collection = yield* collectDetectBordersFiles(validatedOptions.dir, progressEnabled);
@@ -3937,7 +3931,7 @@ const detectBordersFilesImpl = Effect.fn("FilesCommandService.detectBordersFiles
     yield* logDetectBordersEntries(entries);
 
     return report;
-  });
+  })();
 
   if (options.json) {
     return yield* program;
@@ -3962,7 +3956,7 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
   FilesCommandError,
   FileSystem.FileSystem | Path.Path | Terminal.Terminal | ChildProcessSpawner.ChildProcessSpawner
 > {
-  const program = Effect.gen(function* () {
+  const program = Effect.fnUntraced(function* () {
     const path = yield* Path.Path;
     const validatedOptions = yield* validateDetectFacesOptions(options);
     const progressEnabled = !validatedOptions.json;
@@ -3979,7 +3973,7 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
 
     if (A.isReadonlyArrayNonEmpty(collection.files)) {
       yield* withDetector(new FaceDetectionModelConfig({ modelPath: validatedOptions.modelPath }), (detector) =>
-        Effect.gen(function* () {
+        Effect.fnUntraced(function* () {
           const analysisResults = yield* runFilesProgressForEach(
             collection.files,
             (file) => analyzeDetectFacesFile(detector, file, validatedOptions).pipe(Effect.result),
@@ -4007,7 +4001,7 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
 
             entries = A.append(entries, result.success);
           }
-        })
+        })()
       ).pipe(
         Effect.provideService(FaceDetectionService, makeFaceDetectionService()),
         Effect.mapError(
@@ -4076,7 +4070,7 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
     yield* logDetectFacesEntries(entries, sortedSkipped);
 
     return report;
-  });
+  })();
 
   if (options.json) {
     return yield* program;
@@ -4096,7 +4090,7 @@ const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(f
 const normalizeFilesImpl = Effect.fn("FilesCommandService.normalizeFiles")(function* (
   options: NormalizeFilesOptions
 ): Effect.fn.Return<NormalizeSummary, FilesCommandError, FilesCommandServiceRequirements> {
-  const program = Effect.gen(function* () {
+  const program = Effect.fnUntraced(function* () {
     const maxLongEdge = yield* validateNormalizeMaxLongEdge(options.maxLongEdge);
     const dedupe = options.dedupe || O.isSome(options.moveDuplicatesTo);
     const validatedOptions = new NormalizeFilesOptions({
@@ -4189,7 +4183,7 @@ const normalizeFilesImpl = Effect.fn("FilesCommandService.normalizeFiles")(funct
       resizedCount: completedResizedCount,
       skippedCount: skippedCount + duplicateCount,
     });
-  });
+  })();
 
   return yield* profilePhase(program, {
     phase: "files.normalize",

@@ -379,8 +379,8 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
   const path = yield* Path.Path;
   const root = path.resolve(repoRoot);
 
-  const findPackageDir = (current: string): Effect.Effect<O.Option<string>, QualityTaskConfigurationError> =>
-    Effect.gen(function* () {
+  const findPackageDir: (current: string) => Effect.Effect<O.Option<string>, QualityTaskConfigurationError> =
+    Effect.fn("QualityTasks.findPackageDir")(function* (current) {
       const packageJsonPath = path.join(current, "package.json");
       const exists = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
 
@@ -466,17 +466,18 @@ const turboEnvOverrides = (command: string, args: ReadonlyArray<string>): Record
   };
 };
 
-const runExitCode = (command: string, args: ReadonlyArray<string>, cwd: string) =>
-  Effect.scoped(
-    Effect.gen(function* () {
+const runExitCode = Effect.fn("QualityTasks.runExitCode")(function* (command: string, args: ReadonlyArray<string>, cwd: string) {
+  return yield* Effect.scoped(
+    Effect.fnUntraced(function* () {
       const handle = yield* ChildProcess.make(command, [...args], {
         cwd,
         stdout: "ignore",
         stderr: "ignore",
       });
       return yield* handle.exitCode;
-    })
+    })()
   );
+});
 
 const canUseLocalEnv = Effect.fn("QualityTasks.canUseLocalEnv")(function* (
   repoRoot: string
@@ -517,7 +518,7 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
   const resolved = yield* withLocalEnv(step);
   yield* Console.log(`[beep-cli] ${resolved.label}: ${commandText(resolved.command, resolved.args)}`);
   const exitCode = yield* Effect.scoped(
-    Effect.gen(function* () {
+    Effect.fnUntraced(function* () {
       const handle = yield* ChildProcess.make(resolved.command, [...resolved.args], {
         cwd: resolved.cwd,
         env: {
@@ -530,7 +531,7 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
         stderr: "inherit",
       });
       return yield* handle.exitCode;
-    })
+    })()
   ).pipe(
     Effect.mapError(
       (cause) =>
@@ -669,10 +670,10 @@ const runSqlIntegrationTestLane = Effect.fn("QualityTasks.runSqlIntegrationTestL
   options: SqlIntegrationLaneOptions
 ) {
   yield* Effect.scoped(
-    Effect.gen(function* () {
+    Effect.fnUntraced(function* () {
       const resource = yield* options.acquireResource;
       yield* runStep(sqlIntegrationStep(options.repoRoot, options.args, resource, options.childCommand));
-    })
+    })()
   );
 });
 
@@ -1078,7 +1079,7 @@ export const runQualityTaskIfRequested: (
  */
 export const collectStepOutput = (step: QualityTaskStep) =>
   Effect.scoped(
-    Effect.gen(function* () {
+    Effect.fnUntraced(function* () {
       const handle = yield* ChildProcess.make(step.command, [...step.args], {
         cwd: step.cwd,
         stdout: "pipe",
@@ -1093,5 +1094,5 @@ export const collectStepOutput = (step: QualityTaskStep) =>
         output: Str.trim(output),
         exitCode,
       };
-    })
+    })()
   );

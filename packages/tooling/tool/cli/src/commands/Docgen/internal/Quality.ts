@@ -464,7 +464,7 @@ const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: 
     stdout: "pipe",
   });
   const output = yield* Effect.scoped(
-    Effect.gen(function* () {
+    Effect.fnUntraced(function* () {
       const handle = yield* process;
       const text = yield* handle.stdout.pipe(
         Stream.decodeText(),
@@ -476,7 +476,7 @@ const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: 
         return yield* new DomainError({ message: `git ${A.join(args, " ")} failed with exit code ${exitCode}.` });
       }
       return text;
-    })
+    })()
   );
   return pipe(output.split(/\r?\n/), A.map(Str.trim), A.filter(Str.isNonEmpty));
 });
@@ -486,7 +486,7 @@ const collectWorkingTreeChangedFiles = Effect.fn("DocgenQuality.collectWorkingTr
 ) {
   const files = yield* Effect.forEach(
     WORKING_TREE_CHANGED_FILE_COMMANDS,
-    (args) => runGitLines(repoRoot, args).pipe(Effect.catch(() => Effect.succeed(A.empty<string>()))),
+    (args) => runGitLines(repoRoot, args).pipe(Effect.mapError(() => A.empty<string>())),
     { concurrency: "unbounded" }
   );
   return pipe(A.flatten(files), A.map(normalizeSlashes), A.dedupe);
@@ -1699,7 +1699,7 @@ export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQual
   }
 ) {
   const budget = makeRuntimeBudget(options?.packageTimeout ?? DEFAULT_PACKAGE_TIMEOUT);
-  return yield* Effect.gen(function* () {
+  return yield* Effect.fnUntraced(function* () {
     const candidateResult = yield* collectPackageSubjectCandidates(target, budget);
     const finalizedSubjects = yield* Effect.forEach(candidateResult.candidates, finalizeSubject);
     const subjects = yield* withGeneratedDocSnippets(
@@ -1719,17 +1719,15 @@ export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQual
       status,
       timedOut,
     });
-  }).pipe(
-    Effect.catch((error) =>
-      Effect.succeed(
-        emptyPackageReport({
-          durationMs: budgetDurationMs(budget),
-          error: errorMessage(error),
-          status: "failed",
-          target,
-          timedOut: false,
-        })
-      )
+  })().pipe(
+    Effect.mapError((error) =>
+      emptyPackageReport({
+        durationMs: budgetDurationMs(budget),
+        error: errorMessage(error),
+        status: "failed",
+        target,
+        timedOut: false,
+      })
     )
   );
 });

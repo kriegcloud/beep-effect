@@ -175,8 +175,9 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
     Effect.fn(function* (dir, prefix) {
       const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(A.empty<string>));
 
-      const discovered = yield* Effect.forEach(entries, (entry) =>
-        Effect.gen(function* () {
+      const discovered = yield* Effect.forEach(
+        entries,
+        Effect.fnUntraced(function* (entry) {
           const fullPath = path.join(dir, entry);
 
           // Check if this entry is a directory
@@ -284,7 +285,7 @@ export const codegenCommand = Command.make(
 
     // Read package.json to extract the package name for the header
     const packageJsonPath = pathSvc.join(packageDir, "package.json");
-    const packageName = yield* Effect.gen(function* () {
+    const packageName = yield* Effect.fnUntraced(function* () {
       const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(O.none));
       if (
         O.isSome(json) &&
@@ -298,7 +299,7 @@ export const codegenCommand = Command.make(
         return json.value.name;
       }
       return pathSvc.basename(packageDir);
-    });
+    })();
 
     yield* Console.log(`Scanning ${srcDir} for modules...`);
 
