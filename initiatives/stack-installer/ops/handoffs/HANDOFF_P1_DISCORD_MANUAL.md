@@ -255,6 +255,16 @@ tokenized URL supplied by the coordinator for this proof window. Keep the token
 out of chat, commits, shell history captures, and screencasts. Upload only the
 approved bundle file for the current platform:
 
+Coordinator start template:
+
+```bash
+export STACK_INSTALLER_PROOF_UPLOAD_TOKEN='<one-time-token>'
+node initiatives/stack-installer/ops/proof-upload-server.mjs \
+  --host '<coordinator-tailscale-ip>' \
+  --port 8765 \
+  --output-root output/stack-installer/p1-live
+```
+
 ```bash
 curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
   'http://<coordinator-tailscale-ip>:<port>/upload/stack-installer-p1-macos.tgz?token=<one-time-token>'
