@@ -34,6 +34,11 @@
       "output": "history/outputs/p1-pr-readiness-review.md",
       "summary": "Run the post-proof quality-review-fix-loop across the implemented P1 initiative surface and code paths before declaring the branch PR ready."
     },
+    "p1CompletionAudit": {
+      "status": "blocked",
+      "output": "history/outputs/p1-completion-audit.md",
+      "summary": "Prompt-to-artifact completion audit shows P1 remains blocked on fresh macOS and Windows proof artifacts plus post-proof review."
+    },
     "v1": {
       "status": "in_progress",
       "activeGate": "P1",
@@ -272,6 +277,7 @@
       "evidenceArtifacts": [
         "history/outputs/p1-discord-vertical-manual.md",
         "history/outputs/p1a-runnable-spine.md",
+        "history/outputs/p1-completion-audit.md",
         "history/outputs/p1-pr-readiness-review.md",
         "ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md",
         "research/1password-cli-integration.md",

@@ -39,6 +39,8 @@ still required before P1 can close.
   - P1A dry-run package/app proof
 - [history/outputs/p1-discord-vertical-manual.md](./history/outputs/p1-discord-vertical-manual.md)
   - P1 live harness status and remaining fresh-machine proof
+- [history/outputs/p1-completion-audit.md](./history/outputs/p1-completion-audit.md)
+  - current prompt-to-artifact completion audit for the active P1 goal
 - [history/outputs/p1-pr-readiness-review.md](./history/outputs/p1-pr-readiness-review.md)
   - pending post-proof quality review and fix-loop record
 - [ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md](./ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md)
