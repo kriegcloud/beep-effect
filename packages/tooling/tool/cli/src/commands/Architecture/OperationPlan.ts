@@ -1316,7 +1316,8 @@ const legacyFixturePaths = [
 
 const operationIdFor = (kind: ArchitectureOperationKind, operationPath: string): string => `${kind}:${operationPath}`;
 
-// Keep these derived defaults aligned with the per-operation schema defaults above.
+// Keep these derived defaults aligned with the operation kind literal domain,
+// per-operation schema defaults, and withOperationMetadata dispatch below.
 const writeModeForKind = (kind: ArchitectureOperationKind): ArchitectureOperationWriteMode => {
   if (kind === "ensure-file") return "ensure-present";
   if (kind === "ensure-absent-path") return "remove-if-present";

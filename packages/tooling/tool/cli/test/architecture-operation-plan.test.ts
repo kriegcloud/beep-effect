@@ -240,40 +240,42 @@ describe("architecture operation plan", () => {
       const tempRoot = join(tmpdir(), `beep-architecture-generated-${Date.now()}`);
       const acceptedFiles = yield* collectAcceptedArchitectureProofFiles();
 
-      const plan = yield* makeArchitectureOperationPlan(repoRoot).pipe(Effect.provide(NodeServices.layer));
-      const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-        Effect.provide(NodeServices.layer)
-      );
-      const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(Effect.provide(NodeServices.layer));
-      const secondApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-        Effect.provide(NodeServices.layer)
-      );
-      const plannedWritePaths = pipe(
-        plan.operations,
-        A.filter((operation) => operation.kind === "write-file" || operation.kind === "write-package-json"),
-        A.map((operation) => operation.path),
-        A.sort(Order.String)
-      );
+      const proof = yield* Effect.gen(function* () {
+        const plan = yield* makeArchitectureOperationPlan(repoRoot).pipe(Effect.provide(NodeServices.layer));
+        const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+          Effect.provide(NodeServices.layer)
+        );
+        const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(Effect.provide(NodeServices.layer));
+        const secondApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+          Effect.provide(NodeServices.layer)
+        );
+        const plannedWritePaths = pipe(
+          plan.operations,
+          A.filter((operation) => operation.kind === "write-file" || operation.kind === "write-package-json"),
+          A.map((operation) => operation.path),
+          A.sort(Order.String)
+        );
+        const generatedComparisons = pipe(
+          acceptedFiles,
+          A.map((acceptedPath) => ({
+            accepted: readFileSync(join(repoRoot, acceptedPath), "utf8"),
+            acceptedPath,
+            generated: readFileSync(join(tempRoot, acceptedPath), "utf8"),
+          }))
+        );
 
-      const generatedComparisons = pipe(
-        acceptedFiles,
-        A.map((acceptedPath) => ({
-          accepted: readFileSync(join(repoRoot, acceptedPath), "utf8"),
-          acceptedPath,
-          generated: readFileSync(join(tempRoot, acceptedPath), "utf8"),
-        }))
-      );
+        return { check, firstApply, generatedComparisons, plan, plannedWritePaths, secondApply };
+      }).pipe(Effect.ensuring(Effect.sync(() => rmSync(tempRoot, { force: true, recursive: true }))));
 
-      rmSync(tempRoot, { force: true, recursive: true });
-      for (const { accepted, acceptedPath, generated } of generatedComparisons) {
+      for (const { accepted, acceptedPath, generated } of proof.generatedComparisons) {
         expect(generated, acceptedPath).toBe(accepted);
       }
-      expect(plannedWritePaths).toEqual(acceptedFiles);
-      expect(pipe(firstApply.writtenPaths, A.sort(Order.String))).toEqual(acceptedFiles);
-      expect(check.idempotent).toBe(true);
-      expect(check.operationStatuses.length).toBe(plan.operations.length);
-      expect(secondApply.writtenPaths).toEqual([]);
-      expect(secondApply.skippedPaths.length).toBeGreaterThan(0);
+      expect(proof.plannedWritePaths).toEqual(acceptedFiles);
+      expect(pipe(proof.firstApply.writtenPaths, A.sort(Order.String))).toEqual(acceptedFiles);
+      expect(proof.check.idempotent).toBe(true);
+      expect(proof.check.operationStatuses.length).toBe(proof.plan.operations.length);
+      expect(proof.secondApply.writtenPaths).toEqual([]);
+      expect(proof.secondApply.skippedPaths.length).toBeGreaterThan(0);
     })
   );
 
