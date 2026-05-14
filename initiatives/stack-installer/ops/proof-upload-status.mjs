@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -144,6 +145,47 @@ const formatUploadActivity = (activity) => {
   return `${activity.attempts} attempts; ${activity.stored} stored; ${activity.rejected} rejected; remotes: ${remoteText}`;
 };
 
+const watcherProcesses = (root) => {
+  const result = spawnSync("ps", ["-eo", "pid=,ppid=,stat=,command="], {
+    encoding: "utf8",
+  });
+
+  if (result.status !== 0) {
+    return {
+      available: false,
+      detail: (result.stderr || result.stdout || "ps unavailable").trim(),
+      pids: [],
+    };
+  }
+
+  const processes = result.stdout
+    .split(/\r?\n/)
+    .filter(
+      (line) => line.includes(root) && (line.includes("p1:proof:watch") || line.includes("capture-p1-manual-proof.ts"))
+    )
+    .flatMap((line) => {
+      const match = line.trim().match(/^(\d+)\s+(\d+)\s+(\S+)\s+(.+)$/);
+
+      return match
+        ? [
+            {
+              command: match[4],
+              pid: Number.parseInt(match[1], 10),
+              ppid: Number.parseInt(match[2], 10),
+              stat: match[3],
+            },
+          ]
+        : [];
+    });
+
+  return {
+    available: true,
+    detail:
+      processes.length > 0 ? processes.map((entry) => `${entry.pid}/${entry.ppid}/${entry.stat}`).join(", ") : "none",
+    pids: processes.map((entry) => entry.pid),
+  };
+};
+
 const processExists = (pid) => {
   try {
     process.kill(pid, 0);
@@ -278,6 +320,7 @@ const hasTokenLikeText = tokenLikePattern.test(leakScanText);
 const hasWatcherTokenLikeText = tokenLikePattern.test(watchLeakScanText);
 const uploadActivity = parseUploadActivity(logText);
 const watcherProgress = parseWatcherProgress(watchLogText);
+const watcherProcessStatus = watcherProcesses(outputRoot);
 const statusResponse = statusWithToken ? parseJson(statusWithToken.text) : undefined;
 const statusResponseHasExpectedShape =
   statusResponse?.outputRoot === outputRoot &&
@@ -305,12 +348,14 @@ const watcherStarted =
   watchPidFileMode !== "missing" || watchLogFileMode !== "missing" || watchCommandFileMode !== "missing";
 const watcherRunning = Number.isInteger(watchPid) && processExists(watchPid);
 const watcherPassed = watcherProgress?.state === "passed" || watchLogText.includes("P1 proof watch passed");
+const watcherProcessOk = !watcherProcessStatus.available || watcherProcessStatus.pids.length <= 2;
 const watcherWindowOk =
   !watcherStarted ||
   ((watcherRunning || watcherPassed) &&
     watchPidFileMode === "600" &&
     watchLogFileMode === "600" &&
     watchCommandFileMode === "600" &&
+    watcherProcessOk &&
     !hasWatcherTokenLikeText);
 const uploadWindowOk =
   health.ok &&
@@ -375,6 +420,10 @@ console.log(
 );
 console.log(`- progress: ${formatWatcherProgress(watcherProgress)}`);
 console.log(`- completed: ${watcherPassed ? "yes" : "no"}`);
+console.log(
+  `- active processes: ${watcherProcessStatus.available ? watcherProcessStatus.detail : `unknown (${watcherProcessStatus.detail})`}`
+);
+console.log(`- stale process check: ${watcherProcessOk ? "ok" : "too-many-watchers"}`);
 console.log(`- pid file mode: ${watchPidFileMode}`);
 console.log(`- log file mode: ${watchLogFileMode}`);
 console.log(`- command file mode: ${watchCommandFileMode}`);
