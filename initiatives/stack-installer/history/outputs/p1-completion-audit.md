@@ -58,7 +58,10 @@ without stopping until:
   remains a user-side setup step before the coordinator can receive bundles.
   The Windows peer `desktop-m5ap41u.tailc7c348.ts.net` is reachable and exposes
   SMB port `445`, but anonymous `smbclient -L` share listing fails with
-  `NT_STATUS_ACCESS_DENIED`; no SMB credential was available or guessed.
+  `NT_STATUS_ACCESS_DENIED`; no SMB credential was available or guessed. The
+  coordinator has no active SMB/CIFS mount, no obvious user-local Samba
+  credential config, and no Tailscale SSH host keys advertised for the Windows
+  peer. The current tailnet view does not show a macOS proof peer.
 
 ## Prompt-To-Artifact Checklist
 
