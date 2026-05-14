@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
+import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import { spawn } from "node:child_process";
 
 const args = process.argv.slice(2);
 
@@ -46,7 +46,9 @@ const stopExisting = async () => {
   }
 
   if (!replaceExisting) {
-    throw new Error(`Upload server already appears to be running with pid ${pid}; pass --replace-existing to restart it.`);
+    throw new Error(
+      `Upload server already appears to be running with pid ${pid}; pass --replace-existing to restart it.`
+    );
   }
 
   process.kill(pid);
@@ -70,6 +72,9 @@ const buildCommandsText = () =>
     "",
     "Before upload health check:",
     `curl -f 'http://${host}:${port}/health'`,
+    "",
+    "Remote status check:",
+    `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" 'http://${host}:${port}/status'`,
     "",
     "macOS upload command:",
     'export STACK_INSTALLER_PROOF_UPLOAD_TOKEN="<copy token from coordinator-local token file>"',

@@ -19,6 +19,8 @@ const outputRoot = path.resolve(argAfter("--output-root", process.cwd()));
 const token = process.env.STACK_INSTALLER_PROOF_UPLOAD_TOKEN ?? "";
 const maxBytes = Number.parseInt(argAfter("--max-bytes", `${2 * 1024 * 1024 * 1024}`), 10);
 const allowedFileNames = new Set(["stack-installer-p1-macos.tgz", "stack-installer-p1-windows.zip"]);
+const requiredPlatforms = ["macos", "windows"];
+const requiredArtifactFiles = ["proof.json", "commands.txt", "sha256sums.txt"];
 
 if (!token) {
   throw new Error("Missing STACK_INSTALLER_PROOF_UPLOAD_TOKEN.");
@@ -40,6 +42,11 @@ const send = (response, statusCode, body) => {
   response.end(`${body}\n`);
 };
 
+const sendJson = (response, statusCode, body) => {
+  response.writeHead(statusCode, { "content-type": "application/json; charset=utf-8" });
+  response.end(`${JSON.stringify(body, null, 2)}\n`);
+};
+
 const requestToken = (request, requestUrl) => {
   const authorization = request.headers.authorization ?? "";
 
@@ -50,6 +57,47 @@ const requestToken = (request, requestUrl) => {
   return requestUrl.searchParams.get("token") ?? "";
 };
 
+const fileExists = async (filePath) =>
+  fs.promises
+    .access(filePath)
+    .then(() => true)
+    .catch(() => false);
+
+const platformArtifactStatus = async (platform) => {
+  const platformDir = path.join(outputRoot, platform);
+  const exists = await fileExists(platformDir);
+
+  if (!exists) {
+    return {
+      exists,
+      missing: ["directory"],
+    };
+  }
+
+  const entries = await fs.promises.readdir(platformDir).catch(() => []);
+  const missing = requiredArtifactFiles.filter((fileName) => !entries.includes(fileName));
+
+  if (!entries.some((entry) => entry.startsWith("screencast."))) {
+    missing.push("screencast.*");
+  }
+
+  return {
+    exists,
+    missing,
+  };
+};
+
+const uploadStatus = async () => ({
+  bundles: {
+    macos: await fileExists(path.join(outputRoot, "stack-installer-p1-macos.tgz")),
+    windows: await fileExists(path.join(outputRoot, "stack-installer-p1-windows.zip")),
+  },
+  outputRoot,
+  platforms: Object.fromEntries(
+    await Promise.all(requiredPlatforms.map(async (platform) => [platform, await platformArtifactStatus(platform)]))
+  ),
+});
+
 const server = http.createServer(async (request, response) => {
   try {
     const requestUrl = new URL(request.url ?? "/", `http://${request.headers.host ?? `${host}:${port}`}`);
@@ -57,6 +105,18 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "GET" && requestUrl.pathname === "/health") {
       logRequest(request, 200, "health");
       send(response, 200, "ok");
+      return;
+    }
+
+    if (request.method === "GET" && requestUrl.pathname === "/status") {
+      if (requestToken(request, requestUrl) !== token) {
+        logRequest(request, 403, "invalid-token");
+        send(response, 403, "Invalid upload token.");
+        return;
+      }
+
+      logRequest(request, 200, "status");
+      sendJson(response, 200, await uploadStatus());
       return;
     }
 

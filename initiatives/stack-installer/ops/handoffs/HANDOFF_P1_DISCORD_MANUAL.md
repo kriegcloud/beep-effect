@@ -287,6 +287,24 @@ Native Windows PowerShell:
 Invoke-WebRequest -Method Get -Uri 'http://<coordinator-tailscale-ip>:<port>/health'
 ```
 
+To inspect what the coordinator has received from a proof machine, use the
+token-protected remote status endpoint:
+
+```bash
+curl -f \
+  -H "Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" \
+  'http://<coordinator-tailscale-ip>:<port>/status'
+```
+
+Native Windows PowerShell:
+
+```powershell
+Invoke-WebRequest `
+  -Method Get `
+  -Headers @{ Authorization = "Bearer $env:STACK_INSTALLER_PROOF_UPLOAD_TOKEN" } `
+  -Uri 'http://<coordinator-tailscale-ip>:<port>/status'
+```
+
 ```bash
 curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
   -H "Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" \
