@@ -7,7 +7,7 @@
 "use client";
 
 import { Button } from "@beep/ui/components/ui/button";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type OpipThemeMode = "light" | "dark";
 
@@ -17,18 +17,34 @@ const MUI_COLOR_SCHEME_STORAGE_KEY = "mui-color-scheme";
 
 const isThemeMode = (value: null | string): value is OpipThemeMode => value === "light" || value === "dark";
 
+const getLocalStorageItem = (key: string): null | string => {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const setLocalStorageItem = (key: string, value: string) => {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Theme selection still applies for the current page when storage is unavailable.
+  }
+};
+
 const readStoredThemeMode = (): OpipThemeMode => {
   if (globalThis.window === undefined) {
     return "light";
   }
 
-  const storedMode = window.localStorage.getItem(OPIP_THEME_STORAGE_KEY);
+  const storedMode = getLocalStorageItem(OPIP_THEME_STORAGE_KEY);
 
   if (isThemeMode(storedMode)) {
     return storedMode;
   }
 
-  const muiMode = window.localStorage.getItem(MUI_MODE_STORAGE_KEY);
+  const muiMode = getLocalStorageItem(MUI_MODE_STORAGE_KEY);
 
   if (isThemeMode(muiMode)) {
     return muiMode;
@@ -41,10 +57,10 @@ const applyThemeMode = (mode: OpipThemeMode) => {
   document.documentElement.classList.remove("light", "dark");
   document.documentElement.classList.add(mode);
   document.documentElement.style.colorScheme = mode;
-  window.localStorage.setItem(OPIP_THEME_STORAGE_KEY, mode);
-  window.localStorage.setItem(MUI_MODE_STORAGE_KEY, mode);
-  window.localStorage.setItem(`${MUI_COLOR_SCHEME_STORAGE_KEY}-light`, "light");
-  window.localStorage.setItem(`${MUI_COLOR_SCHEME_STORAGE_KEY}-dark`, "dark");
+  setLocalStorageItem(OPIP_THEME_STORAGE_KEY, mode);
+  setLocalStorageItem(MUI_MODE_STORAGE_KEY, mode);
+  setLocalStorageItem(`${MUI_COLOR_SCHEME_STORAGE_KEY}-light`, "light");
+  setLocalStorageItem(`${MUI_COLOR_SCHEME_STORAGE_KEY}-dark`, "dark");
 };
 
 const syncToggleButton = (button: HTMLButtonElement, mode: OpipThemeMode) => {
@@ -62,32 +78,40 @@ const syncToggleButton = (button: HTMLButtonElement, mode: OpipThemeMode) => {
  */
 export function ThemeModeToggle() {
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const [mode, setMode] = useState<OpipThemeMode>(readStoredThemeMode);
+  const isDarkMode = mode === "dark";
 
   useEffect(() => {
     const initialMode = readStoredThemeMode();
     applyThemeMode(initialMode);
+    setMode(initialMode);
     if (buttonRef.current !== null) {
       syncToggleButton(buttonRef.current, initialMode);
     }
   }, []);
 
   const toggleMode = useCallback(() => {
-    const nextMode = document.documentElement.classList.contains("dark") ? "light" : "dark";
-    applyThemeMode(nextMode);
-    if (buttonRef.current !== null) {
-      syncToggleButton(buttonRef.current, nextMode);
-    }
+    setMode((currentMode) => {
+      const nextMode = currentMode === "dark" ? "light" : "dark";
+      applyThemeMode(nextMode);
+      if (buttonRef.current !== null) {
+        syncToggleButton(buttonRef.current, nextMode);
+      }
+
+      return nextMode;
+    });
   }, []);
 
   return (
     <Button
-      aria-label="Switch to dark mode"
-      aria-pressed={false}
+      aria-label={`Switch to ${isDarkMode ? "light" : "dark"} mode`}
+      aria-pressed={isDarkMode}
       className="group/theme h-9 rounded-full border border-[color-mix(in_oklab,var(--opip-on-soil)_24%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_72%,transparent)] px-2 text-[var(--opip-on-soil)] shadow-none hover:bg-[color-mix(in_oklab,var(--opip-on-soil)_14%,transparent)] hover:text-[var(--opip-on-soil)]"
-      data-theme-mode="light"
+      data-theme-mode={mode}
       onClick={toggleMode}
       ref={buttonRef}
       size="sm"
+      suppressHydrationWarning
       type="button"
       variant="ghost"
     >

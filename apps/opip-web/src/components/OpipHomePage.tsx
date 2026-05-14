@@ -20,18 +20,10 @@ const displayClass = "font-[family-name:var(--font-opip-display)]";
 const ctaClass =
   "inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--opip-gold)]";
 
-function Lockup({
-  className = "",
-  reverse = false,
-  width = 176,
-}: {
-  readonly className?: string;
-  readonly reverse?: boolean;
-  readonly width?: number;
-}) {
+function Lockup({ className = "", width = 176 }: { readonly className?: string; readonly width?: number }) {
   return (
     <Image
-      src={reverse ? "/opip/opip-lockup-horizontal.svg" : "/opip/opip-lockup-horizontal.svg"}
+      src="/opip/opip-lockup-horizontal.svg"
       alt="opip.law"
       width={width}
       height={Math.round(width * (100 / 320))}

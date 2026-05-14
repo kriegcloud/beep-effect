@@ -37,6 +37,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 const { metadata: siteMetadata } = opipSiteContent;
+const REACT_GRAB_VERSION = "0.1.34";
 const shouldLoadReactGrab = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_REACT_GRAB === "1";
 
 /**
@@ -163,7 +164,7 @@ export default function RootLayout({
         <AppThemeInitScript attribute="class" defaultMode="light" modeStorageKey="mui-mode" />
         {shouldLoadReactGrab && (
           <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
+            src={`https://unpkg.com/react-grab@${REACT_GRAB_VERSION}/dist/index.global.js`}
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
