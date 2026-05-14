@@ -94,6 +94,10 @@ Current local command evidence from 2026-05-14:
 - After adding deterministic tests for the injected desktop proof runner and
   proof artifact helper branches, `bun run --filter @beep/stack-installer
   coverage` passed with package branch coverage above the repo threshold.
+- A latest P1 live-harness refresh ran
+  `bun run turbo run check test lint` across `@beep/stack-installer`, the live
+  P1 driver packages, and installer use-case/server packages. It completed 66
+  tasks successfully.
 
 Remaining full-P1 evidence:
 
