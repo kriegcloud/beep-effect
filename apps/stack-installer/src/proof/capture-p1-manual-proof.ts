@@ -21,6 +21,7 @@ import * as Rx from "effect/RegExp";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { P1ManualProofSliceLayer, runP1ManualProof } from "./P1ManualProof.js";
+import { buildP1ProofCommandsText } from "./P1ProofCommands.js";
 
 const PROOF_FILE_NAME = "proof.json";
 const COMMANDS_FILE_NAME = "commands.txt";
@@ -58,8 +59,6 @@ const hasArg = (name: string): boolean =>
     A.findFirstIndex((value) => value === name),
     O.isSome
   );
-
-const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 
 const resolveDefaultOutputDir = Effect.fn("StackInstaller.resolveDefaultOutputDir")(function* (
   request: P1ManualProofRequest
@@ -112,45 +111,6 @@ const resolveArtifactModeTarget = Effect.fn("StackInstaller.resolveArtifactModeT
     outputDir: resolvedOutputDir,
   };
 });
-
-/**
- * Build the operator command transcript stored as `commands.txt`.
- *
- * @internal
- * @category proof
- * @since 0.0.0
- */
-export const buildP1ProofCommandsText = (
-  request: P1ManualProofRequest,
-  requestJson: string,
-  outputDir: string
-): string =>
-  A.join("\n")([
-    "# Stack Installer P1 Manual Mode proof commands",
-    "# This transcript records the commands required for the fresh-machine proof.",
-    "# Inputs must contain only 1Password references, never plaintext secrets.",
-    `targetPlatform=${request.targetPlatform}`,
-    `operatorLabel=${request.operatorLabel}`,
-    `outputDir=${outputDir}`,
-    "",
-    "git status --short --branch",
-    "bun install",
-    "bun run config-sync:check",
-    "(cd apps/stack-installer && bun run build)",
-    "(cd apps/stack-installer/src-tauri && cargo check)",
-    "command -v op",
-    "command -v claude",
-    "command -v codex",
-    "op whoami",
-    "claude auth status",
-    "codex login status",
-    `(cd apps/stack-installer && bun run p1:proof:capture -- --request-json ${shellQuote(requestJson)} --output-dir ${shellQuote(outputDir)})`,
-    "",
-    "# After recording screencast.*, refresh checksums without re-sending the Discord proof message:",
-    `(cd apps/stack-installer && bun run p1:proof:checksums -- --output-dir ${shellQuote(outputDir)})`,
-    `(cd apps/stack-installer && bun run p1:proof:audit -- --output-dir ${shellQuote(outputDir)})`,
-    "",
-  ]);
 
 const isEvidenceFileName = (name: string): boolean =>
   name === PROOF_FILE_NAME || name === COMMANDS_FILE_NAME || Str.startsWith("screencast.")(name);

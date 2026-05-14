@@ -41,6 +41,9 @@ Completed P1 live harness evidence:
   entrypoint audits required files, checksum freshness, all validation events,
   configured Claude/Codex providers, redacted credential references, Discord
   message evidence, and both required platform directories.
+- `apps/stack-installer/src/proof/P1ProofCommands.ts` keeps the generated
+  `commands.txt` transcript platform-specific: Bash-compatible commands for
+  macOS/Git Bash/WSL and PowerShell commands for native Windows.
 - `apps/stack-installer/src-tauri/src/lib.rs` exposes the Tauri command
   `run_p1_manual_proof` and keeps the app-local runtime composition under
   `apps/stack-installer`.

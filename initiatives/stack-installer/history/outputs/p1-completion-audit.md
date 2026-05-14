@@ -48,7 +48,7 @@ without stopping until:
 | P1A committed | `6a8655542f feat(stack-installer): add p1a runnable spine` | complete |
 | P1 live validators implemented | `073e7deab8 feat(stack-installer): add p1 live proof harness`; live drivers under `packages/drivers/onepassword-cli`, `packages/drivers/ai-provider-cli`, and `packages/drivers/discord`; slice live contracts under installer dependency/security/provider/channel packages | complete |
 | Tauri proof flow implemented | `apps/stack-installer/src-tauri/src/lib.rs` exposes `run_p1_manual_proof`; `apps/stack-installer/src/proof/run-p1-manual-proof.ts` exposes the Bun proof entrypoint | complete |
-| Operator artifact capture implemented | `6ae84ddf99 feat(stack-installer): add p1 artifact capture`; `p1:proof:capture` writes `proof.json`, `commands.txt`, and `sha256sums.txt` | complete |
+| Operator artifact capture implemented | `6ae84ddf99 feat(stack-installer): add p1 artifact capture`; `p1:proof:capture` writes `proof.json`, platform-specific `commands.txt`, and `sha256sums.txt` | complete |
 | Operator handoff commands current | `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md` includes Bash-compatible and native Windows PowerShell proof commands, artifact packaging commands, and coordinator-side extraction commands | complete |
 | Per-platform artifact audit implemented | `p1:proof:audit` checks required files, checksum freshness, likely plaintext Discord token leaks in text artifacts, all validation events, configured providers, redacted credential references, and Discord message evidence | complete |
 | Both-platform artifact audit implemented | `p1:proof:audit-all` checks macOS and Windows directories and target-platform parity | complete |

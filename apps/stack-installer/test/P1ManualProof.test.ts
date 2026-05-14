@@ -16,6 +16,7 @@ import * as S from "effect/Schema";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { runP1ManualProof } from "../src/proof/P1ManualProof.js";
+import { buildP1ProofCommandsText } from "../src/proof/P1ProofCommands.js";
 
 const encodeProofResult = S.encodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
 const decodeOnePasswordReference = S.decodeUnknownEffect(OnePasswordReference);
@@ -118,6 +119,56 @@ describe("P1 Manual Mode proof harness", () => {
         expect(encoded).not.toContain("claude-raw-provider-status-output");
         expect(encoded).not.toContain("codex-raw-provider-status-output");
         expect(encoded).toContain("message-1");
+      })
+    );
+
+    it.effect("records Bash commands for macOS proof artifacts", () =>
+      Effect.gen(function* () {
+        const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
+        const commands = buildP1ProofCommandsText(
+          new P1ManualProofRequest({
+            discordBotTokenReference,
+            discordChannelDisplayName: "proof-channel",
+            discordChannelId: "channel-1",
+            discordGuildId: "guild-1",
+            operatorLabel: "operator-macos-001",
+            targetPlatform: "macos",
+            testMessageContent: "Stack Installer P1 macOS proof",
+          }),
+          '{"targetPlatform":"macos"}',
+          "/repo/output/stack-installer/p1-live/macos"
+        );
+
+        expect(commands).toContain("command -v op");
+        expect(commands).toContain("(cd apps/stack-installer && bun run p1:proof:capture");
+        expect(commands).toContain("--output-dir '/repo/output/stack-installer/p1-live/macos'");
+        expect(commands).not.toContain("Get-Command op");
+      })
+    );
+
+    it.effect("records PowerShell commands for Windows proof artifacts", () =>
+      Effect.gen(function* () {
+        const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
+        const commands = buildP1ProofCommandsText(
+          new P1ManualProofRequest({
+            discordBotTokenReference,
+            discordChannelDisplayName: "proof-channel",
+            discordChannelId: "channel-1",
+            discordGuildId: "guild-1",
+            operatorLabel: "operator-windows-001",
+            targetPlatform: "windows",
+            testMessageContent: "Stack Installer P1 Windows proof",
+          }),
+          '{"targetPlatform":"windows"}',
+          "C:\\repo\\output\\stack-installer\\p1-live\\windows"
+        );
+
+        expect(commands).toContain("Get-Command op");
+        expect(commands).toContain("Push-Location apps/stack-installer");
+        expect(commands).toContain("$stackInstallerOutputDir = 'C:\\repo\\output\\stack-installer\\p1-live\\windows'");
+        expect(commands).toContain("--output-dir $stackInstallerOutputDir");
+        expect(commands).not.toContain("command -v op");
+        expect(commands).not.toContain("(cd apps/stack-installer");
       })
     );
   });
