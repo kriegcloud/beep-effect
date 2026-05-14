@@ -65,6 +65,10 @@ const fileExists = async (filePath) =>
     .then(() => true)
     .catch(() => false);
 
+const removeIfExists = async (filePath) => {
+  await fs.promises.rm(filePath, { force: true }).catch(() => undefined);
+};
+
 const platformArtifactStatus = async (platform) => {
   const platformDir = path.join(outputRoot, platform);
   const exists = await fileExists(platformDir);
@@ -222,6 +226,8 @@ const server = http.createServer(async (request, response) => {
     const temporaryPath = path.join(outputRoot, `.${fileName}.uploading`);
     let receivedBytes = 0;
 
+    await removeIfExists(temporaryPath);
+
     request.on("data", (chunk) => {
       receivedBytes += chunk.length;
 
@@ -231,7 +237,9 @@ const server = http.createServer(async (request, response) => {
     });
 
     await pipeline(request, fs.createWriteStream(temporaryPath, { flags: "w", mode: 0o600 }));
+    await fs.promises.chmod(temporaryPath, 0o600);
     await fs.promises.rename(temporaryPath, destinationPath);
+    await fs.promises.chmod(destinationPath, 0o600);
 
     logRequest(request, 201, "stored", `${fileName} ${receivedBytes} bytes`);
     send(response, 201, `stored ${fileName} (${receivedBytes} bytes)`);

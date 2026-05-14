@@ -82,6 +82,21 @@ const endpoint = async (url, pathname, token) => {
   };
 };
 
+const upload = async (url, pathname, token, body, method = "PUT") => {
+  const response = await fetch(`${url}${pathname}`, {
+    body,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    method,
+  });
+  const text = await response.text();
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    text,
+  };
+};
+
 const startWindow = (outputRoot, port, args = []) => {
   const result = spawnSync(
     process.execPath,
@@ -197,6 +212,36 @@ try {
   assert(
     !tokenLikePattern.test(nextActionsWithToken.text),
     "Expected /next-actions response to avoid token-like text."
+  );
+
+  const invalidUpload = await upload(url, "/upload/stack-installer-p1-macos.tgz", undefined, "macos-smoke");
+  const unsupportedUpload = await upload(url, "/upload/not-approved.tgz", token, "unsupported-smoke");
+  const macosUpload = await upload(url, "/upload/stack-installer-p1-macos.tgz", token, "macos-smoke");
+  const windowsUpload = await upload(url, "/upload/stack-installer-p1-windows.zip", token, "windows-smoke", "POST");
+  const statusAfterUpload = await endpoint(url, "/status", token);
+  const statusAfterUploadJson = JSON.parse(statusAfterUpload.text);
+
+  assert(invalidUpload.status === 403, "Expected upload without token to return 403.");
+  assert(unsupportedUpload.status === 400, "Expected unsupported upload file name to return 400.");
+  assert(macosUpload.status === 201, "Expected approved macOS upload to return 201.");
+  assert(windowsUpload.status === 201, "Expected approved Windows upload to return 201.");
+  assert(statusAfterUploadJson.bundles.macos === true, "Expected /status to report uploaded macOS bundle.");
+  assert(statusAfterUploadJson.bundles.windows === true, "Expected /status to report uploaded Windows bundle.");
+  assert(
+    (await readText(path.join(outputRoot, "stack-installer-p1-macos.tgz"))) === "macos-smoke",
+    "Expected stored macOS smoke bundle content."
+  );
+  assert(
+    (await readText(path.join(outputRoot, "stack-installer-p1-windows.zip"))) === "windows-smoke",
+    "Expected stored Windows smoke bundle content."
+  );
+  assert(
+    (await fileMode(path.join(outputRoot, "stack-installer-p1-macos.tgz"))) === "600",
+    "Stored macOS bundle must be 0600."
+  );
+  assert(
+    (await fileMode(path.join(outputRoot, "stack-installer-p1-windows.zip"))) === "600",
+    "Stored Windows bundle must be 0600."
   );
 
   console.log("Stack Installer proof upload smoke passed.");
