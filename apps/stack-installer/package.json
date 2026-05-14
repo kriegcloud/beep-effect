@@ -21,6 +21,7 @@
     "p1:proof:audit": "bun run src/proof/capture-p1-manual-proof.ts -- --audit-only",
     "p1:proof:capture": "bun run src/proof/capture-p1-manual-proof.ts",
     "p1:proof:checksums": "bun run src/proof/capture-p1-manual-proof.ts -- --checksums-only",
+    "p1:proof:status": "bun run src/proof/capture-p1-manual-proof.ts -- --status",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
     "beep:build": "vite build",
     "beep:check": "tsgo -b tsconfig.json",

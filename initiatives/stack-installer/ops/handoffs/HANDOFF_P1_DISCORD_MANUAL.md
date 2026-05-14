@@ -203,6 +203,7 @@ credentials are not `op://...` references.
 After both platform directories are present, run the combined P1 audit:
 
 ```bash
+bun run p1:proof:status -- --output-root ../../output/stack-installer/p1-live
 bun run p1:proof:audit-all -- --output-root ../../output/stack-installer/p1-live
 ```
 

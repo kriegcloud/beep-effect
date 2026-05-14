@@ -115,6 +115,8 @@ const resolveArtifactModeTarget = Effect.fn("StackInstaller.resolveArtifactModeT
 const isEvidenceFileName = (name: string): boolean =>
   name === PROOF_FILE_NAME || name === COMMANDS_FILE_NAME || Str.startsWith("screencast.")(name);
 
+const isArtifactStatusFileName = (name: string): boolean => isEvidenceFileName(name) || name === CHECKSUMS_FILE_NAME;
+
 const hasFileName = (fileNames: ReadonlyArray<string>, fileName: string): boolean =>
   pipe(
     fileNames,
@@ -187,6 +189,44 @@ const missingRequiredPlatformDirectories = Effect.fn("StackInstaller.missingRequ
   );
 
   return A.getSomes(missing);
+});
+
+const platformArtifactStatus = Effect.fn("StackInstaller.platformArtifactStatus")(function* (
+  outputRoot: string,
+  platform: P1RequiredPlatform
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const outputDir = path.join(outputRoot, platform);
+  const outputDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+
+  if (!outputDirExists) {
+    return `- ${platform}: missing directory\n  dir: ${outputDir}`;
+  }
+
+  const fileNames = pipe(yield* fs.readDirectory(outputDir), A.sort(Order.String));
+  const missingFileNames = missingRequiredArtifactFiles(fileNames);
+  const status = A.isReadonlyArrayNonEmpty(missingFileNames)
+    ? `incomplete; missing ${A.join(", ")(missingFileNames)}`
+    : "required files present";
+  const statusFileNames = pipe(fileNames, A.filter(isArtifactStatusFileName));
+  const visibleFiles = A.isReadonlyArrayNonEmpty(statusFileNames) ? A.join(", ")(statusFileNames) : "none";
+
+  return `- ${platform}: ${status}\n  dir: ${outputDir}\n  files: ${visibleFiles}`;
+});
+
+const proofArtifactStatus = Effect.fn("StackInstaller.proofArtifactStatus")(function* (outputRoot: string) {
+  const platformMessages = yield* Effect.forEach(
+    P1_REQUIRED_PLATFORMS,
+    (platform) => platformArtifactStatus(outputRoot, platform),
+    { concurrency: A.length(P1_REQUIRED_PLATFORMS) }
+  );
+
+  return A.join("\n")([
+    `P1 proof artifact status for ${outputRoot}`,
+    ...platformMessages,
+    "Next required gate: bun run p1:proof:audit-all after both platform directories contain proof.json, commands.txt, sha256sums.txt, and screencast.*.",
+  ]);
 });
 
 const sha256File = Effect.fn("StackInstaller.sha256File")(function* (filePath: string) {
@@ -374,14 +414,26 @@ const auditAllMode = Effect.gen(function* () {
   return yield* auditAllProofArtifacts(outputRoot);
 });
 
+const statusMode = Effect.gen(function* () {
+  const defaultOutputRoot = yield* resolveDefaultOutputRoot;
+  const outputRoot = pipe(
+    argAfter("--output-root"),
+    O.getOrElse(() => defaultOutputRoot)
+  );
+
+  return yield* proofArtifactStatus(outputRoot);
+});
+
 const program = pipe(
   hasArg("--audit-all")
     ? auditAllMode
-    : hasArg("--audit-only")
-      ? auditOnlyMode
-      : hasArg("--checksums-only")
-        ? checksumOnlyMode
-        : captureMode,
+    : hasArg("--status")
+      ? statusMode
+      : hasArg("--audit-only")
+        ? auditOnlyMode
+        : hasArg("--checksums-only")
+          ? checksumOnlyMode
+          : captureMode,
   Effect.tap((message) =>
     Effect.sync(() => {
       console.log(message);
