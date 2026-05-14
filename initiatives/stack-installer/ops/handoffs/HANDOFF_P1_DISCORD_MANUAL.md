@@ -92,6 +92,13 @@ Use this template on each fresh machine. Change `STACK_INSTALLER_PLATFORM`,
 target run. Keep `STACK_INSTALLER_DISCORD_BOT_TOKEN_REFERENCE` as an
 `op://...` reference, never a token value.
 
+Use these platform values:
+
+| Target | `STACK_INSTALLER_PLATFORM` | `STACK_INSTALLER_OPERATOR_LABEL` | `STACK_INSTALLER_TEST_MESSAGE` |
+| --- | --- | --- | --- |
+| macOS | `macos` | `operator-macos-001` | `Stack Installer P1 macOS proof` |
+| Windows | `windows` | `operator-windows-001` | `Stack Installer P1 Windows proof` |
+
 ```bash
 export STACK_INSTALLER_PLATFORM=macos
 export STACK_INSTALLER_OPERATOR_LABEL=operator-macos-001
