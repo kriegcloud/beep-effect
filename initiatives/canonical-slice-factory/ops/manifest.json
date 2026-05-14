@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "initiative-manifest/v1",
   "initiative": {
     "id": "canonical-slice-factory",
     "title": "Canonical Slice Factory",
-    "status": "active",
+    "status": "v1-closed",
     "created": "2026-05-12",
-    "updated": "2026-05-12",
+    "updated": "2026-05-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "supersedes": ["repo-architecture-automation"],
@@ -109,5 +109,23 @@
       "id": "full-repo-gates",
       "description": "Attempt check, lint, test, docgen, and full audit once the replacement is coherent."
     }
-  ]
+  ],
+  "v1Closure": {
+    "status": "complete",
+    "preserveCommandGrammar": true,
+    "preservePlanSchema": "architecture-operation-plan/v1",
+    "noNewDomainKindArchetypes": true,
+    "closureScope": [
+      "modularize current repo-cli architecture operation-plan internals",
+      "run comprehensive quality review fix loop over initiative docs and touched code paths",
+      "merge closure PR into main",
+      "sync local main after merge"
+    ],
+    "futureExtensionPoints": [
+      "additional domain-kind archetypes",
+      "foundation package public wrappers",
+      "driver package public wrappers",
+      "richer structured and semantic writer primitives"
+    ]
+  }
 }

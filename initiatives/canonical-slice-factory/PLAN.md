@@ -3,6 +3,24 @@
 This plan executes [SPEC.md](./SPEC.md). It starts by replacing the drifted
 proof target, then systemizes the creation path through `@beep/repo-cli`.
 
+## V1 Closure Update
+
+As of 2026-05-14, the V1 closure scope is fixed to the implemented
+`architecture-lab` proof and current public `beep architecture` grammar. The
+closure does not add more domain-kind archetypes. It hardens and modularizes
+the current operation-plan implementation, runs the comprehensive
+quality/review loop over the initiative surface and touched code paths, merges
+the closure PR into `main`, and syncs local `main`.
+
+Future work after V1:
+
+- add new domain-kind archetypes only when a real architecture rule needs a new
+  proof shape;
+- promote foundation-package and driver-package factories from extension
+  points to public wrappers only after their ownership rules are proven;
+- replace accepted-proof copy rendering with richer structured/semantic writer
+  primitives where doing so removes duplication or drift risk.
+
 ## A. Audit Current Drift
 
 - Read the architecture standards, this initiative packet, and the retained

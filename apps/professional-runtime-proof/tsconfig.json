@@ -19,6 +19,9 @@
       "@beep/agent-capability-use-cases/public": [
         "../../packages/agent-capability/use-cases/src/public.ts"
       ],
+      "@beep/agent-capability-use-cases/proof": [
+        "../../packages/agent-capability/use-cases/src/proof.ts"
+      ],
       "@beep/agent-capability-use-cases/test": [
         "../../packages/agent-capability/use-cases/src/test.ts"
       ],
@@ -61,6 +64,42 @@
       ],
       "@beep/shared-domain/entities/User": [
         "../../packages/shared/domain/src/entities/User/index.ts"
+      ],
+      "@beep/shared-domain/entity/BaseEntity": [
+        "../../packages/shared/domain/src/entity/BaseEntity.ts"
+      ],
+      "@beep/shared-domain/entity/EntityId": [
+        "../../packages/shared/domain/src/entity/EntityId.ts"
+      ],
+      "@beep/shared-domain/entity/EntityRef": [
+        "../../packages/shared/domain/src/entity/EntityRef.ts"
+      ],
+      "@beep/shared-domain/entity/Principal": [
+        "../../packages/shared/domain/src/entity/Principal.ts"
+      ],
+      "@beep/shared-domain/entity/SourceKind": [
+        "../../packages/shared/domain/src/entity/SourceKind.ts"
+      ],
+      "@beep/shared-domain/entity/primitives": [
+        "../../packages/shared/domain/src/entity/primitives.ts"
+      ],
+      "@beep/shared-domain/identity/AgentCapability": [
+        "../../packages/shared/domain/src/identity/AgentCapability.ts"
+      ],
+      "@beep/shared-domain/identity/Epistemic": [
+        "../../packages/shared/domain/src/identity/Epistemic.ts"
+      ],
+      "@beep/shared-domain/identity/LawPractice": [
+        "../../packages/shared/domain/src/identity/LawPractice.ts"
+      ],
+      "@beep/shared-domain/identity/Shared": [
+        "../../packages/shared/domain/src/identity/Shared.ts"
+      ],
+      "@beep/shared-domain/identity/WealthManagement": [
+        "../../packages/shared/domain/src/identity/WealthManagement.ts"
+      ],
+      "@beep/shared-domain/identity/Workspace": [
+        "../../packages/shared/domain/src/identity/Workspace.ts"
       ],
       "@beep/utils": ["../../packages/foundation/modeling/utils/src/index.ts"],
       "@beep/utils/*": ["../../packages/foundation/modeling/utils/src/*"],
