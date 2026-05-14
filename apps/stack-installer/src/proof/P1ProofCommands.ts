@@ -14,6 +14,16 @@ const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")
 
 const powerShellQuote = (value: string): string => `'${Str.replaceAll("'", "''")(value)}'`;
 
+const hasBashProofCommandMarkers = (commandsText: string): boolean =>
+  Str.includes("command -v op")(commandsText) &&
+  Str.includes("(cd apps/stack-installer && bun run p1:proof:capture")(commandsText);
+
+const hasPowerShellProofCommandMarkers = (commandsText: string): boolean =>
+  Str.includes("Get-Command op")(commandsText) &&
+  Str.includes(
+    'bun run p1:proof:capture -- --request-json "$stackInstallerRequestJson" --output-dir "$stackInstallerOutputDir"'
+  )(commandsText);
+
 const buildBashP1ProofCommandsText = (request: P1ManualProofRequest, requestJson: string, outputDir: string): string =>
   A.join("\n")([
     "# Stack Installer P1 Manual Mode proof commands",
@@ -97,3 +107,17 @@ export const buildP1ProofCommandsText = (
   request.targetPlatform === "windows"
     ? buildPowerShellP1ProofCommandsText(request, requestJson, outputDir)
     : buildBashP1ProofCommandsText(request, requestJson, outputDir);
+
+/**
+ * Check whether `commands.txt` contains the expected platform transcript.
+ *
+ * @category proof
+ * @since 0.0.0
+ */
+export const p1ProofCommandsTextMatchesPlatform = (
+  platform: P1ManualProofRequest["targetPlatform"],
+  commandsText: string
+): boolean =>
+  platform === "windows"
+    ? hasPowerShellProofCommandMarkers(commandsText) && !hasBashProofCommandMarkers(commandsText)
+    : hasBashProofCommandMarkers(commandsText) && !hasPowerShellProofCommandMarkers(commandsText);

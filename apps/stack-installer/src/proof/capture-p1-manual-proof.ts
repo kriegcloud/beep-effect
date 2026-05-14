@@ -21,7 +21,7 @@ import * as Rx from "effect/RegExp";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { P1ManualProofSliceLayer, runP1ManualProof } from "./P1ManualProof.js";
-import { buildP1ProofCommandsText } from "./P1ProofCommands.js";
+import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "./P1ProofCommands.js";
 
 const PROOF_FILE_NAME = "proof.json";
 const COMMANDS_FILE_NAME = "commands.txt";
@@ -254,6 +254,10 @@ const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(func
   );
 
   yield* requireAudit(recordedChecksums === expectedChecksums, "sha256sums.txt is stale or incomplete");
+  yield* requireAudit(
+    p1ProofCommandsTextMatchesPlatform(proof.snapshot.manifest.targetPlatform, commandsText),
+    `commands.txt must contain platform-specific proof commands for ${proof.snapshot.manifest.targetPlatform}`
+  );
   yield* requireAudit(proof.snapshot.manifest.dryRunOnly === false, "Proof manifest must not be dry-run-only");
   yield* requireAudit(pipe(proof.snapshot.validationEvents, A.length) > 0, "Proof must contain validation events");
   yield* requireAudit(

@@ -16,7 +16,7 @@ import * as S from "effect/Schema";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { runP1ManualProof } from "../src/proof/P1ManualProof.js";
-import { buildP1ProofCommandsText } from "../src/proof/P1ProofCommands.js";
+import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "../src/proof/P1ProofCommands.js";
 
 const encodeProofResult = S.encodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
 const decodeOnePasswordReference = S.decodeUnknownEffect(OnePasswordReference);
@@ -143,6 +143,8 @@ describe("P1 Manual Mode proof harness", () => {
         expect(commands).toContain("(cd apps/stack-installer && bun run p1:proof:capture");
         expect(commands).toContain("--output-dir '/repo/output/stack-installer/p1-live/macos'");
         expect(commands).not.toContain("Get-Command op");
+        expect(p1ProofCommandsTextMatchesPlatform("macos", commands)).toBe(true);
+        expect(p1ProofCommandsTextMatchesPlatform("windows", commands)).toBe(false);
       })
     );
 
@@ -169,6 +171,8 @@ describe("P1 Manual Mode proof harness", () => {
         expect(commands).toContain('--output-dir "$stackInstallerOutputDir"');
         expect(commands).not.toContain("command -v op");
         expect(commands).not.toContain("(cd apps/stack-installer");
+        expect(p1ProofCommandsTextMatchesPlatform("windows", commands)).toBe(true);
+        expect(p1ProofCommandsTextMatchesPlatform("macos", commands)).toBe(false);
       })
     );
   });
