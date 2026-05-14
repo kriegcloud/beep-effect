@@ -33,8 +33,9 @@ optional canonical parts through the same modular factory model that future
 - The first ergonomic wrappers should prove whole-slice creation, concept or
   domain-kind creation, role/module creation, JSON plan/apply/check flow, and
   round-trip idempotency.
-- Existing `create-package` behavior should become a compatibility wrapper over
-  the shared planner rather than a parallel scaffolder.
+- Top-level `create-package` remains a separate compatibility surface for
+  non-architecture scaffolding. Architecture-native slice role packages are
+  created through `beep architecture create package`.
 - `packages/_internal/db-admin` should own the migration aggregation proof for
   `architecture-lab`, using the Effect v3 db-admin package as reference
   material only.
