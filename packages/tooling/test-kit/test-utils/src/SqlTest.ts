@@ -26,6 +26,8 @@ const PgliteDockerContextUrl = new URL("../docker/pglite", import.meta.url);
 const PgliteHealthCheckCommand =
   "node -e \"const { Client } = require('pg'); const client = new Client({ host: '127.0.0.1', port: Number(process.env.PGPORT || '5432'), database: process.env.PGDATABASE, user: process.env.PGUSER, password: process.env.PGPASSWORD, ssl: false }); client.connect().then(() => client.query('select 1')).then(() => client.end()).catch((cause) => { console.error(cause); process.exit(1); });\"";
 const PgliteHealthCheckIntervalMs = 1_000;
+const PgExternalClientEndTimeout = Duration.seconds(1);
+const PgExternalSchemaDropTimeout = Duration.seconds(10);
 let pgliteImageBuild = O.none<Promise<GenericContainer>>();
 
 const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardown"]).annotate(
@@ -768,11 +770,30 @@ const createPgExternalSchema = Effect.fn("SqlTest.PgExternalTestDriver.createSch
   );
 });
 
+const resetPgExternalSearchPath = Effect.fn("SqlTest.PgExternalTestDriver.resetSearchPath")(function* (
+  sql: SqlClient.SqlClient
+) {
+  yield* sql`SET search_path TO public`.pipe(
+    Effect.catch(() => Effect.logWarning("Failed to reset external PostgreSQL search_path before schema teardown.")),
+    Effect.asVoid
+  );
+});
+
 const dropPgExternalSchema = Effect.fn("SqlTest.PgExternalTestDriver.dropSchema")(function* (
   sql: SqlClient.SqlClient,
   schemaName: string
 ) {
-  yield* sql`DROP SCHEMA IF EXISTS ${sql(schemaName)} CASCADE`.pipe(
+  yield* Effect.gen(function* () {
+    yield* resetPgExternalSearchPath(sql);
+    yield* sql`DROP SCHEMA IF EXISTS ${sql(schemaName)} CASCADE`;
+  }).pipe(
+    Effect.timeoutOption(PgExternalSchemaDropTimeout),
+    Effect.flatMap(
+      O.match({
+        onNone: () => Effect.logWarning(`Timed out dropping external PostgreSQL test schema ${schemaName}.`),
+        onSome: () => Effect.void,
+      })
+    ),
     Effect.catch(() => Effect.logWarning(`Failed to drop external PostgreSQL test schema ${schemaName}.`)),
     Effect.asVoid
   );
@@ -864,7 +885,7 @@ const buildPgExternalLayer = Effect.fn("SqlTest.PgExternalTestDriver.build")(
                 }),
             }),
             (client) =>
-              Effect.promise(() => client.end()).pipe(Effect.timeoutOption(Duration.seconds(1)), Effect.asVoid)
+              Effect.promise(() => client.end()).pipe(Effect.timeoutOption(PgExternalClientEndTimeout), Effect.asVoid)
           ),
           acquireForStream: false,
         }).pipe(

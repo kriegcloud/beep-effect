@@ -2,6 +2,7 @@ import { EffectFnRulesOptions, runEffectFnRules } from "@beep/repo-cli/commands/
 import { TSMorphServiceLive } from "@beep/repo-utils/TSMorph/index";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path, Stream } from "effect";
+import * as Chunk from "effect/Chunk";
 import { ChildProcess } from "effect/unstable/process";
 import { describe, expect, it } from "vitest";
 
@@ -11,7 +12,6 @@ const testLayer = Layer.mergeAll(
   TSMorphServiceLive.pipe(Layer.provideMerge(NodeServices.layer))
 );
 const CLI_ENTRYPOINT = new URL("../src/bin.ts", import.meta.url).pathname;
-const emptyString = () => "";
 
 const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -68,10 +68,7 @@ const runCliCommand = Effect.fn("effect-fn.test.runCliCommand")(function* (...ar
         stdout: "pipe",
         stderr: "pipe",
       });
-      const output = yield* handle.all.pipe(
-        Stream.decodeText(),
-        Stream.runFold(emptyString, (accumulator, chunk) => `${accumulator}${chunk}`)
-      );
+      const output = yield* handle.all.pipe(Stream.decodeText(), Stream.runCollect, Effect.map(Chunk.join("")));
       const exitCode = yield* handle.exitCode;
       return { exitCode, output } as const;
     })
