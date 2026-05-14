@@ -56,6 +56,9 @@ without stopping until:
   denied, and non-interactive `sudo -n tailscale set --operator=$USER` fails
   because sudo requires a password. Artifact intake via Taildrop therefore
   remains a user-side setup step before the coordinator can receive bundles.
+  The Windows peer `desktop-m5ap41u.tailc7c348.ts.net` is reachable and exposes
+  SMB port `445`, but anonymous `smbclient -L` share listing fails with
+  `NT_STATUS_ACCESS_DENIED`; no SMB credential was available or guessed.
 
 ## Prompt-To-Artifact Checklist
 
