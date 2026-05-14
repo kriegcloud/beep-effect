@@ -57,6 +57,8 @@ extend-exclude = [
   "scratchpad/**",
   "outputs/agent-reliability/**",
   "initiatives/**",
+  "standards/repo-exports.catalog.jsonc",
+  "standards/repo-exports.catalog.md",
   "**/internal/data/**",
   "packages/drivers/venice-ai/swagger.yaml",
 ]

@@ -89,6 +89,8 @@
     "docgen": "bunx turbo run docgen && bun run docs:aggregate",
     "docgen:affected": "bunx turbo run docgen --affected && bun run docs:aggregate",
     "jsdoc:inventory": "bun run beep quality jsdoc-inventory",
+    "repo-exports:catalog": "bun run beep quality repo-exports-catalog",
+    "repo-exports:catalog:check": "bun run beep quality repo-exports-catalog --check",
     "docs:aggregate": "beep-cli docgen aggregate",
     "ui-add": "bunx --bun shadcn@latest add --cwd packages/foundation/ui-system/ui",
     "release": "bun run build && bun run test && bun run lint && bun run audit:full && changeset publish",

@@ -33,6 +33,11 @@ The V1 closure preserves the current public command grammar and
 foundation-package factories, and driver-package factories are future
 extension work, not V1 blockers.
 
+`architecture-operation-plan/v1` is treated as a replay contract. Compatible
+additions are allowed only when existing v1 fixtures still decode and replay
+identically; breaking structural or semantic changes require v2 alongside v1
+under the repo's evolution/deprecation discipline.
+
 ## Current Contract
 
 - `architecture-lab/WorkItem` replaces `fixture-lab/Specimen` as the intended

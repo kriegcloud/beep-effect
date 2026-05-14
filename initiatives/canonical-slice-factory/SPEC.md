@@ -36,6 +36,25 @@ updates are in scope. New domain-kind archetypes, standalone foundation
 package factories, and standalone driver package factories remain future
 operation-plan extension points.
 
+## Operation Plan V1 Replay Contract
+
+`architecture-operation-plan/v1` is a real replay contract, not an informal
+label. The plan output is version-tagged, decoded through the schema before
+apply/check, and rejected before execution when the schema version is not
+supported.
+
+V1 permits additive optional fields and compatible new architecture operation
+variants only when existing v1 fixtures still decode and replay identically.
+Breaking structural changes, required fields, renamed fields, removed fields,
+or semantic changes that alter replay behavior require
+`architecture-operation-plan/v2` alongside v1. V1 removal follows the
+deprecation discipline in `standards/architecture/11-evolution-and-deprecation.md`.
+
+The intended future extraction path is therefore a topology move, not a plan
+migration: a later repo-operation-plan kernel can republish or alias the stable
+v1 substrate while keeping architecture operation variants intact until a real
+second producer proves a broader vocabulary.
+
 ## Non-Negotiable Contract
 
 - This initiative supersedes the prior repo architecture automation packet.
