@@ -87,7 +87,8 @@ mkdir -p output/stack-installer/p1-live/macos
 mkdir -p output/stack-installer/p1-live/windows
 ```
 
-Use this template on each fresh machine. Change `STACK_INSTALLER_PLATFORM`,
+Use the Bash-compatible template on macOS, Git Bash, or WSL. Use the
+PowerShell template on native Windows. Change `STACK_INSTALLER_PLATFORM`,
 `STACK_INSTALLER_OPERATOR_LABEL`, and `STACK_INSTALLER_TEST_MESSAGE` for the
 target run. Keep `STACK_INSTALLER_DISCORD_BOT_TOKEN_REFERENCE` as an
 `op://...` reference, never a token value.
@@ -124,6 +125,31 @@ cd apps/stack-installer
 bun run p1:proof:capture -- --request-json "$STACK_INSTALLER_REQUEST_JSON"
 ```
 
+Native Windows PowerShell template:
+
+```powershell
+$env:STACK_INSTALLER_PLATFORM = "windows"
+$env:STACK_INSTALLER_OPERATOR_LABEL = "operator-windows-001"
+$env:STACK_INSTALLER_DISCORD_GUILD_ID = "000000000000000000"
+$env:STACK_INSTALLER_DISCORD_CHANNEL_ID = "000000000000000000"
+$env:STACK_INSTALLER_DISCORD_CHANNEL_DISPLAY_NAME = "ai-stack-installer"
+$env:STACK_INSTALLER_DISCORD_BOT_TOKEN_REFERENCE = "op://Private/Discord Bot/token"
+$env:STACK_INSTALLER_TEST_MESSAGE = "Stack Installer P1 Windows proof"
+
+$stackInstallerRequestJson = @{
+  targetPlatform = $env:STACK_INSTALLER_PLATFORM
+  operatorLabel = $env:STACK_INSTALLER_OPERATOR_LABEL
+  discordGuildId = $env:STACK_INSTALLER_DISCORD_GUILD_ID
+  discordChannelId = $env:STACK_INSTALLER_DISCORD_CHANNEL_ID
+  discordChannelDisplayName = $env:STACK_INSTALLER_DISCORD_CHANNEL_DISPLAY_NAME
+  discordBotTokenReference = $env:STACK_INSTALLER_DISCORD_BOT_TOKEN_REFERENCE
+  testMessageContent = $env:STACK_INSTALLER_TEST_MESSAGE
+} | ConvertTo-Json -Compress
+
+Set-Location apps/stack-installer
+bun run p1:proof:capture -- --request-json "$stackInstallerRequestJson"
+```
+
 Run the capture wrapper from `apps/stack-installer` with a request like:
 
 ```bash
@@ -147,10 +173,22 @@ without sending another Discord proof message:
 bun run p1:proof:checksums -- --platform "$STACK_INSTALLER_PLATFORM"
 ```
 
+On native Windows PowerShell:
+
+```powershell
+bun run p1:proof:checksums -- --platform $env:STACK_INSTALLER_PLATFORM
+```
+
 Then audit the artifact directory locally:
 
 ```bash
 bun run p1:proof:audit -- --platform "$STACK_INSTALLER_PLATFORM"
+```
+
+On native Windows PowerShell:
+
+```powershell
+bun run p1:proof:audit -- --platform $env:STACK_INSTALLER_PLATFORM
 ```
 
 Use `--output-dir` instead of `--platform` only when the capture command
