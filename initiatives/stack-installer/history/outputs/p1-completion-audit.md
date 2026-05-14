@@ -106,7 +106,9 @@ without stopping until:
   command. Latest status reports health `200 ok`, PID `1007771` running,
   token/commands/PID file modes `600`, no token-like text in logs or commands,
   both returned bundles missing, and both `macos` and `windows` platform
-  directories missing.
+  directories missing. With `--fail-on-missing`, the same helper exits `1` for
+  the current state, which gives coordinator polling a machine-readable
+  incomplete-proof gate.
 - Latest post-rotation upload-window wait:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 36 --watch-interval-ms 5000`
   exhausted after the bearer-token endpoint was live. No returned bundles were
@@ -204,6 +206,8 @@ Blocking requirements:
 - Latest ten-minute upload-window watch found no returned proof bundles.
 - Latest upload status helper reports no returned bundles and missing platform
   directories.
+- Latest upload status helper `--fail-on-missing` gate exits nonzero for the
+  current incomplete proof state.
 - `p1:proof:audit-all` has not run against real macOS and Windows artifacts.
 - P1C `$quality-review-fix-loop` has not run after proof artifacts.
 
