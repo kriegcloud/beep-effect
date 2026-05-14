@@ -569,6 +569,16 @@ const renderMarkdown = (catalog) => {
   lines.push("");
   lines.push("Generated deterministically from package export maps, TypeScript exported declarations, and JSDoc.");
   lines.push("");
+  lines.push("## Authority");
+  lines.push("");
+  lines.push(
+    "This catalog is descriptive current-state metadata. It lists legal public export facts; it does not decide whether an import path, package root, wildcard export, or symbol is the canonical architecture surface for new code."
+  );
+  lines.push("");
+  lines.push(
+    "Use `standards/ARCHITECTURE.md`, the numbered architecture doctrine, and package-local policy for canonical boundary choices."
+  );
+  lines.push("");
   lines.push("## Scope");
   lines.push("");
   lines.push(
@@ -639,6 +649,12 @@ const buildCatalog = () => {
     standard: "repo-exports-catalog",
     schemaVersion: "repo-exports-catalog/v1",
     deterministic: true,
+    authority: {
+      posture: "descriptive-current-state",
+      canonicalStatus: "not-evaluated",
+      boundaryDoctrine: ["standards/ARCHITECTURE.md", "standards/architecture/README.md", "package-local policy"],
+      note: "This catalog lists legal public export facts. It does not decide whether an import path, package root, wildcard export, or symbol is the canonical architecture surface for new code.",
+    },
     source: {
       packageUniverseCommand: "bun run topo-sort",
       generator: "bun run beep quality repo-exports-catalog",

@@ -343,6 +343,9 @@ const runQuality = Effect.fn("QualityScriptCommands.runQuality")(function* (
   yield* runBun(repoRoot, "quality:docgen-generate", ["beep", "--", "docgen", "generate"]);
   yield* runBun(repoRoot, "quality:docgen-aggregate", ["beep", "--", "docgen", "aggregate"]);
 
+  yield* Console.log("[github-checks] quality: repo export catalog");
+  yield* runBun(repoRoot, "quality:repo-exports-catalog-check", ["repo-exports:catalog:check"]);
+
   yield* Console.log("[github-checks] quality: test");
   yield* runBun(repoRoot, "quality:test", ["test"]);
 
@@ -1067,6 +1070,7 @@ export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInvent
 /**
  * Run the repo export catalog generator now owned by repo-cli.
  *
+ * @param check - When `true`, fail if tracked catalog artifacts are stale; when `false`, refresh them.
  * @returns Effect that writes or checks the tracked export catalog artifacts.
  * @example
  * ```ts

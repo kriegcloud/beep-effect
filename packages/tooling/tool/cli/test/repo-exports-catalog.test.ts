@@ -19,6 +19,20 @@ const readCatalog = () => {
 };
 
 describe("repo export catalog", () => {
+  it("marks the catalog as descriptive export metadata instead of architecture authority", () => {
+    const catalog = readCatalog();
+
+    expect(catalog.authority).toEqual(
+      expect.objectContaining({
+        posture: "descriptive-current-state",
+        canonicalStatus: "not-evaluated",
+      })
+    );
+    expect(catalog.authority.boundaryDoctrine).toEqual(
+      expect.arrayContaining(["standards/ARCHITECTURE.md", "standards/architecture/README.md"])
+    );
+  });
+
   it("exposes UnknownRecord from the @beep/schema root import", () => {
     const catalog = readCatalog();
     const schemaPackage = catalog.packages.find((entry) => entry.packageName === "@beep/schema");

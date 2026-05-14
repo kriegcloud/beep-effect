@@ -43,12 +43,15 @@ label. The plan output is version-tagged, decoded through the schema before
 apply/check, and rejected before execution when the schema version is not
 supported.
 
-V1 permits additive optional fields and compatible new architecture operation
-variants only when existing v1 fixtures still decode and replay identically.
-Breaking structural changes, required fields, renamed fields, removed fields,
-or semantic changes that alter replay behavior require
-`architecture-operation-plan/v2` alongside v1. V1 removal follows the
-deprecation discipline in `standards/architecture/11-evolution-and-deprecation.md`.
+V1 permits additive optional metadata and behavior already accepted or ignored
+by the v1 executor only when existing v1 fixtures still decode and replay
+identically. New actionable architecture operation variants require
+`architecture-operation-plan/v2` unless a documented v1 capability-extension
+rule proves both old-plan replay and new-plan compatibility across supported
+executors. Breaking structural changes, required fields, renamed fields,
+removed fields, or semantic changes that alter replay behavior require v2
+alongside v1. V1 removal follows the deprecation discipline in
+`standards/architecture/11-evolution-and-deprecation.md`.
 
 The intended future extraction path is therefore a topology move, not a plan
 migration: a later repo-operation-plan kernel can republish or alias the stable

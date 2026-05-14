@@ -16,12 +16,19 @@
 ## Mission
 
 Compress repository context into executable topology and generated metadata so
-coding agents choose canonical repo surfaces before inventing local substitutes.
+coding agents discover existing repo surfaces before inventing local
+substitutes.
 
 The initiative is not a replacement for `AGENTS.md`, skills, MCP, or Graphiti.
 It makes those systems easier to route by giving them deterministic repo facts
 to cite: package names, legal import specifiers, public symbols, source paths,
 JSDoc summaries, categories, and version tags.
+
+The export catalog is descriptive current-state metadata. It does not decide
+whether an import path, package root, wildcard export, or public symbol is the
+canonical architecture surface for new code. Canonical boundary choices still
+come from `standards/ARCHITECTURE.md`, the numbered architecture doctrine, and
+package-local policy.
 
 ## Phase 1 Contract
 
@@ -44,6 +51,9 @@ specifier, export subpath, exported-from path, symbol name, export kind, source
 path, source line, JSDoc summary, categories, since tags, raw tags, and a
 normalized `searchText` field.
 
+The catalog MUST also record authority metadata that marks the artifact as
+descriptive current-state export facts with canonicality not evaluated.
+
 The catalog MUST be deterministic. Re-running check mode against a clean tree
 must not fail because of timestamps or nondeterministic ordering.
 
@@ -64,7 +74,9 @@ its JSDoc summary and source line.
 
 The export catalog is a generated discovery layer, not a new API authority. If
 the catalog disagrees with package exports or source declarations, the catalog
-is stale.
+is stale. If the catalog appears to disagree with architecture doctrine, use the
+doctrine to choose the canonical boundary and treat the catalog as current export
+evidence only.
 
 The first phase intentionally does not add an MCP server, semantic embedding
 index, or curated intent registry. Those are follow-up surfaces once the
@@ -73,7 +85,8 @@ tracked catalog shape has proved stable.
 ## Future Extension Points
 
 - CLI lookup over the catalog, for example symbol and intent search commands.
-- MCP tool wrapping the catalog for agent-facing canonical symbol lookup.
+- MCP tool wrapping the catalog for agent-facing symbol lookup with doctrine
+  pointers.
 - Curated failure-mode registry for repeated duplicate-symbol mistakes.
 - Graphiti/FalkorDB projection that enriches deterministic export facts with
   semantic intent tags and cross-symbol relationships.
@@ -86,4 +99,4 @@ tracked catalog shape has proved stable.
 - Check mode fails when artifacts are missing or stale.
 - Repo-cli tests verify the `UnknownRecord` seed proof.
 - Package check covers support-script typechecking.
-- Root quality commands can include catalog check once the artifact is stable.
+- Root GitHub quality checks include catalog drift checks.
