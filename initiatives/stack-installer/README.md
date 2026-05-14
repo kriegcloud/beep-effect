@@ -23,7 +23,8 @@ package contracts, deterministic manifest snapshot, `@beep/ui` web shell, and
 a minimal Tauri 2 bridge. The P1 live Manual Mode harness is now implemented:
 driver packages validate 1Password, provider auth, host commands, and Discord
 liveness, and the app exposes a Tauri proof command. Fresh-OS macOS and
-Windows proof artifacts are still required before P1 can close.
+Windows proof artifacts plus a post-proof PR readiness review are still
+required before P1 can close.
 
 ## Read This First
 
@@ -38,6 +39,8 @@ Windows proof artifacts are still required before P1 can close.
   - P1A dry-run package/app proof
 - [history/outputs/p1-discord-vertical-manual.md](./history/outputs/p1-discord-vertical-manual.md)
   - P1 live harness status and remaining fresh-machine proof
+- [history/outputs/p1-pr-readiness-review.md](./history/outputs/p1-pr-readiness-review.md)
+  - pending post-proof quality review and fix-loop record
 - [ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md](./ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md)
   - user-operated macOS and Windows proof runbook
 - [research/README.md](./research/README.md) - research index
@@ -55,7 +58,8 @@ Windows proof artifacts are still required before P1 can close.
   contracts, and render a deterministic manifest preview.
 - P1 live harness is implemented: app-local proof composition, Tauri command,
   and live driver-backed validators exist. P1 remains open until fresh-OS proof
-  on macOS and Windows is recorded.
+  on macOS and Windows is recorded and the PR readiness review/fix loop returns
+  zero required blockers or explicit waivers.
 - P2 is pending: AI Mode parity across Claude and Codex with byte-identical
   manifest output modulo timestamps.
 - P3 is pending: recovery proof from salted-broken-state machines.
@@ -70,6 +74,8 @@ This initiative is done only when all are true:
 
 - [ ] P1 Discord Manual Mode fresh-OS macOS proof is recorded.
 - [ ] P1 Discord Manual Mode fresh-OS Windows proof is recorded.
+- [ ] P1 PR readiness review/fix loop is recorded with zero required blockers
+  or explicit waivers.
 - [ ] P2 AI Mode parity is recorded for Claude and Codex with a
   byte-identical-manifest gate modulo timestamps.
 - [ ] P3 recovery scenarios prove repair for wrong Node version, invalid

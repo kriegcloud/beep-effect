@@ -127,6 +127,31 @@ Only commit documentation summaries and sanitized evidence paths. Do not commit
 raw screencasts unless they have been reviewed for secrets, personal account
 details, and tokens.
 
+## Post-Proof PR Readiness Review
+
+After both fresh-machine proof artifact sets exist and have been audited for
+secret safety, run `$quality-review-fix-loop` before calling the branch PR
+ready.
+
+Review scope:
+
+- `initiatives/stack-installer/**`
+- `apps/stack-installer/**`
+- P1 live drivers under `packages/drivers`
+- installer slices for dependencies, security, providers, channels, and
+  workspace
+- package manifests, tests, public exports, generated config references, and
+  Tauri proof flow directly affected by P1
+
+The review must additionally look for reuse opportunities and structural
+improvements that make the modules flatter, more idiomatic, and cleaner while
+following repo laws and patterns exactly. Reuse findings must name the existing
+module or package being reused, or explain why package-local code remains the
+correct home. Do not create vague `common`, `core`, `utils`, or `lib` homes.
+
+P1 is PR ready only when the review loop records zero required blockers or
+explicit waivers in `history/outputs/p1-pr-readiness-review.md`.
+
 ## Stop Conditions
 
 - Stop if a verb would accept a plaintext credential.

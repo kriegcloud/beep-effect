@@ -5,7 +5,9 @@ Status: in progress; live harness implemented, fresh-OS proof pending.
 P1A dry-run runnable spine is complete and recorded in
 [`p1a-runnable-spine.md`](./p1a-runnable-spine.md). Full P1 remains pending
 because fresh-OS macOS and Windows Manual Mode Discord proofs have not been
-run.
+run. After those artifacts exist, P1 also requires a PR readiness review/fix
+loop over the full implemented initiative surface before the branch is called
+ready for review.
 
 Completed P1A evidence:
 
@@ -60,7 +62,10 @@ Remaining full-P1 evidence:
 - sanitized Windows proof JSON from `P1ManualProofResult`
 - Discord test message proof on each target
 - CI or reviewer-visible command output for implemented vertical packages
+- post-proof `$quality-review-fix-loop` record with zero required blockers or
+  explicit waivers
 
 Full P1 is not complete until both user-operated fresh-machine runs produce
-those artifacts. P2 AI Mode, MCP execution, recovery, portability, signing,
-and distribution remain untouched by this phase.
+those artifacts and the post-proof PR readiness review closes. P2 AI Mode, MCP
+execution, recovery, portability, signing, and distribution remain untouched by
+this phase.

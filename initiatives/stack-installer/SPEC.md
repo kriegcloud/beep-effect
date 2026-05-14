@@ -246,7 +246,9 @@ corrected slice topology is named, and the manifest targets P1.
 
 P1 is complete when fresh-OS macOS and Windows Manual Mode runs complete
 provider auth, 1Password setup, Discord setup, and an end-to-end test message,
-with screencasts, sanitized manifest, and CI green for the vertical verbs.
+with screencasts, sanitized manifest, CI green for the vertical verbs, and a
+post-proof PR readiness review/fix loop with zero required blockers or explicit
+waivers.
 Local harness implementation alone is not sufficient to close P1.
 
 P2 is complete when the same flow runs in AI Mode for Claude and Codex, with

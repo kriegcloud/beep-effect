@@ -8,7 +8,8 @@ initiative.
 - [HANDOFF_P0_BOOTSTRAP.md](./HANDOFF_P0_BOOTSTRAP.md) - archived bootstrap
   prompt that created the packet.
 - [HANDOFF_P1_DISCORD_MANUAL.md](./HANDOFF_P1_DISCORD_MANUAL.md) - P1
-  Discord vertical, Manual Mode stub.
+  Discord vertical, Manual Mode runbook plus post-proof PR readiness review
+  gate.
 - [HANDOFF_P2_AI_MODE.md](./HANDOFF_P2_AI_MODE.md) - P2 AI Mode parity stub.
 - [HANDOFF_P3_RECOVERY.md](./HANDOFF_P3_RECOVERY.md) - P3 recovery proof
   stub.

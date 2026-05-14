@@ -3,7 +3,8 @@
 This plan executes [SPEC.md](./SPEC.md). P0 is complete. P1 is the active
 target: Discord vertical, Manual Mode. P1A is complete as a runnable dry-run
 checkpoint. The P1 live harness is implemented; full P1 still requires
-fresh-OS macOS and Windows proof artifacts.
+fresh-OS macOS and Windows proof artifacts plus the post-proof PR readiness
+review/fix loop.
 
 ## P0: Initiative Bootstrap
 
@@ -43,7 +44,7 @@ Stop Conditions:
 ## P1: Discord Vertical, Manual Mode
 
 Status: in progress; P1A dry-run runnable spine complete, P1 live harness
-implemented, fresh-OS live Discord proof pending
+implemented, fresh-OS live Discord proof and PR readiness review pending
 
 Goal: Prove the smallest end-to-end v1 path without AI Mode: provider auth,
 1Password, Discord bot/channel setup, manifest creation, validation, and a
@@ -129,6 +130,56 @@ Stop Conditions:
   signing, or distribution.
 - Do not accept or record plaintext credentials.
 
+### P1C: PR Readiness Review And Fix Loop
+
+Status: pending; run after fresh-machine proof artifacts exist
+
+Goal: review the whole implemented P1 initiative surface and directly affected
+code paths before the PR is called ready. The review uses
+`$quality-review-fix-loop` and includes the changed initiative packet, app,
+drivers, installer slice contracts, tests, package manifests, and Tauri proof
+flow.
+
+Exit Criteria:
+
+- [ ] Fresh macOS and Windows proof artifacts have been produced and audited
+  for secret safety before the review starts.
+- [ ] Baseline quality commands are green on the current branch.
+- [ ] Reviewer panel covers quality gates, architecture boundaries, schema and
+  domain models, Effect laws, error boundaries, tests, observability,
+  documentation/API, reuse/duplication, and evolution/deprecation.
+- [ ] Reuse opportunities are checked against existing repo modules before new
+  abstractions are introduced.
+- [ ] Any structural improvements keep modules flat, idiomatic, and aligned
+  with repo laws and package boundaries.
+- [ ] Required blockers are fixed, or every remaining blocker has an explicit
+  waiver record.
+- [ ] Final review round reports zero required blockers or only accepted
+  waivers.
+
+Required Outputs:
+
+- `history/outputs/p1-pr-readiness-review.md`
+- local closure commits for any fixes produced by the loop
+
+Required Checks:
+
+- `bun run audit:github quality`
+- targeted package/app commands for any review fixes
+- fresh `git diff --name-status origin/main...HEAD`
+- reviewer inventory with blocker, waiver, and backlog disposition
+
+Stop Conditions:
+
+- Do not start P1C before the macOS and Windows fresh-machine proof artifacts
+  exist.
+- Do not route vague reuse findings into generic `common`, `core`, `utils`, or
+  `lib` packages.
+- Do not call the PR ready while baseline quality is red or required blockers
+  remain unwaived.
+- Do not use P1C as an entry point for P2 AI Mode, MCP runtime, recovery,
+  portability, signing, or distribution.
+
 Full P1 Exit Criteria:
 
 - [ ] macOS fresh-OS screencast recorded.
@@ -136,11 +187,14 @@ Full P1 Exit Criteria:
 - [ ] Sanitized manifest captured.
 - [ ] Discord test message evidence captured.
 - [ ] CI green for every implemented vertical verb package.
+- [ ] P1 PR readiness review/fix loop completed with zero required blockers or
+  explicit waivers.
 
 Required Outputs:
 
 - `history/outputs/p1-discord-vertical-manual.md`
 - `history/outputs/p1a-runnable-spine.md` for the completed dry-run checkpoint
+- `history/outputs/p1-pr-readiness-review.md`
 
 Required Checks:
 
@@ -152,10 +206,12 @@ Required Checks:
 - P1B: `cd apps/stack-installer/src-tauri && cargo check`
 - placeholder: fresh-OS smoke wrapper for macOS and Windows
 - placeholder: live Discord test message proof
+- placeholder: post-proof `$quality-review-fix-loop` closure record
 
 Stop Conditions:
 
 - Do not credit P1 without both OS proofs.
+- Do not credit P1 without the post-proof PR readiness review/fix loop.
 - Do not include AI Mode evidence as a substitute for Manual Mode.
 - Do not accept any verb that handles plaintext credentials.
 

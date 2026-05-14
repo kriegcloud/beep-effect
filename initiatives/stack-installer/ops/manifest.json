@@ -3,7 +3,7 @@
   "initiative": {
     "id": "stack-installer",
     "title": "Stack Installer",
-    "status": "active-p1-live-harness-ready-fresh-proof-pending",
+    "status": "active-p1-live-harness-ready-fresh-proof-and-review-pending",
     "created": "2026-05-14",
     "updated": "2026-05-14",
     "packetAnchorDocument": "SPEC.md"
@@ -29,6 +29,11 @@
       "output": "history/outputs/p1-discord-vertical-manual.md",
       "summary": "Live Manual Mode proof harness, driver packages, Tauri command, and app UI are implemented. Full P1 remains blocked on user-operated fresh macOS and Windows proof artifacts."
     },
+    "p1PrReadinessReview": {
+      "status": "pending",
+      "output": "history/outputs/p1-pr-readiness-review.md",
+      "summary": "Run the post-proof quality-review-fix-loop across the implemented P1 initiative surface and code paths before declaring the branch PR ready."
+    },
     "v1": {
       "status": "in_progress",
       "activeGate": "P1",
@@ -39,6 +44,7 @@
       ],
       "remainingGates": [
         "P1 Discord vertical, Manual Mode fresh-OS macOS and Windows proof",
+        "P1 PR readiness quality-review-fix-loop",
         "P2 AI Mode parity",
         "P3 Recovery",
         "P4 Portability",
@@ -90,6 +96,7 @@
     ],
     "remainingGates": [
       "P1 Discord vertical, Manual Mode fresh-OS macOS and Windows proof",
+      "P1 PR readiness quality-review-fix-loop",
       "P2 AI Mode parity across Claude and Codex",
       "P3 salted recovery proof",
       "P4 cross-OS manifest portability proof",
@@ -211,7 +218,7 @@
       "name": "Discord Vertical, Manual Mode",
       "status": "in_progress",
       "output": "history/outputs/p1-discord-vertical-manual.md",
-      "exitCriteriaSummary": "P1A dry-run spine and P1 live harness are implemented; full P1 still needs fresh-OS macOS and Windows manual runs that complete provider auth, 1Password, Discord setup, sanitized proof JSON, screencasts, and test messages."
+      "exitCriteriaSummary": "P1A dry-run spine and P1 live harness are implemented; full P1 still needs fresh-OS macOS and Windows manual runs that complete provider auth, 1Password, Discord setup, sanitized proof JSON, screencasts, test messages, and a post-proof PR readiness review/fix loop."
     },
     {
       "id": "P2",
@@ -263,6 +270,7 @@
       "evidenceArtifacts": [
         "history/outputs/p1-discord-vertical-manual.md",
         "history/outputs/p1a-runnable-spine.md",
+        "history/outputs/p1-pr-readiness-review.md",
         "ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md",
         "research/1password-cli-integration.md",
         "research/discord-oauth-and-bot-setup.md",
@@ -283,7 +291,8 @@
         "future evidence: macOS screencast",
         "future evidence: Windows screencast",
         "future evidence: sanitized manifest",
-        "future evidence: Discord test message"
+        "future evidence: Discord test message",
+        "future evidence: P1 PR readiness review inventory"
       ]
     },
     {
@@ -362,6 +371,12 @@
       "future: macOS and Windows screencasts plus sanitized proof JSON",
       "future: verify proof JSON contains no plaintext secrets"
     ],
+    "p1PrReadinessReview": [
+      "future: bun run audit:github quality",
+      "future: git diff --name-status origin/main...HEAD",
+      "future: quality-review-fix-loop reviewer inventory covering quality, architecture, schema/domain, Effect laws, error boundaries, tests, observability, docs/API, reuse/duplication, and evolution/deprecation",
+      "future: verify zero required blockers or explicit waivers before PR-ready status"
+    ],
     "repoWidePlaceholders": [
       "bun run check",
       "bun run lint",
@@ -389,6 +404,7 @@
   },
   "knownGaps": [
     "fresh-OS macOS and Windows proof not run",
+    "post-proof quality-review-fix-loop not run",
     "live proof harness validates existing state only and does not install or provision dependencies",
     "MCP executor adapter not built beyond minimal app-local Tauri bridge",
     "skill and instruction bundle generation not built",
@@ -411,5 +427,5 @@
     "P1 live drivers live under packages/drivers and are consumed by slice server packages",
     "P1 live proof remains app-local runtime composition, not a tooling God Layer"
   ],
-  "nextAction": "Run full P1 live Manual Mode proof on fresh macOS and Windows using ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md: 1Password validation, provider auth validation, Discord liveness, sanitized proof JSON, screencasts, and test messages."
+  "nextAction": "Run full P1 live Manual Mode proof on fresh macOS and Windows using ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md: 1Password validation, provider auth validation, Discord liveness, sanitized proof JSON, screencasts, and test messages. After proof artifacts are audited, run the P1 PR readiness quality-review-fix-loop before declaring the branch PR ready."
 }
