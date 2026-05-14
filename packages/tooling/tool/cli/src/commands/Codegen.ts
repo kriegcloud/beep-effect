@@ -285,7 +285,7 @@ export const codegenCommand = Command.make(
 
     // Read package.json to extract the package name for the header
     const packageJsonPath = pathSvc.join(packageDir, "package.json");
-    const packageName = yield* Effect.fnUntraced(function* () {
+    const packageName = yield* Effect.gen(function* () {
       const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(O.none));
       if (
         O.isSome(json) &&
@@ -299,7 +299,7 @@ export const codegenCommand = Command.make(
         return json.value.name;
       }
       return pathSvc.basename(packageDir);
-    })();
+    });
 
     yield* Console.log(`Scanning ${srcDir} for modules...`);
 

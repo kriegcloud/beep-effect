@@ -379,27 +379,28 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
   const path = yield* Path.Path;
   const root = path.resolve(repoRoot);
 
-  const findPackageDir: (current: string) => Effect.Effect<O.Option<string>, QualityTaskConfigurationError> =
-    Effect.fn("QualityTasks.findPackageDir")(function* (current) {
-      const packageJsonPath = path.join(current, "package.json");
-      const exists = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
+  const findPackageDir: (current: string) => Effect.Effect<O.Option<string>, QualityTaskConfigurationError> = Effect.fn(
+    "QualityTasks.findPackageDir"
+  )(function* (current) {
+    const packageJsonPath = path.join(current, "package.json");
+    const exists = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
 
-      if (exists) {
-        return current === root ? O.none() : O.some(current);
-      }
+    if (exists) {
+      return current === root ? O.none() : O.some(current);
+    }
 
-      if (current === root) {
-        return O.none();
-      }
+    if (current === root) {
+      return O.none();
+    }
 
-      const parent = path.dirname(current);
-      if (parent === current) {
-        return yield* new QualityTaskConfigurationError({
-          message: `Could not find package.json between ${cwd} and ${repoRoot}.`,
-        });
-      }
-      return yield* findPackageDir(parent);
-    });
+    const parent = path.dirname(current);
+    if (parent === current) {
+      return yield* new QualityTaskConfigurationError({
+        message: `Could not find package.json between ${cwd} and ${repoRoot}.`,
+      });
+    }
+    return yield* findPackageDir(parent);
+  });
 
   return yield* findPackageDir(path.resolve(cwd));
 });
@@ -466,16 +467,20 @@ const turboEnvOverrides = (command: string, args: ReadonlyArray<string>): Record
   };
 };
 
-const runExitCode = Effect.fn("QualityTasks.runExitCode")(function* (command: string, args: ReadonlyArray<string>, cwd: string) {
+const runExitCode = Effect.fn("QualityTasks.runExitCode")(function* (
+  command: string,
+  args: ReadonlyArray<string>,
+  cwd: string
+) {
   return yield* Effect.scoped(
-    Effect.fnUntraced(function* () {
+    Effect.gen(function* () {
       const handle = yield* ChildProcess.make(command, [...args], {
         cwd,
         stdout: "ignore",
         stderr: "ignore",
       });
       return yield* handle.exitCode;
-    })()
+    })
   );
 });
 
@@ -518,7 +523,7 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
   const resolved = yield* withLocalEnv(step);
   yield* Console.log(`[beep-cli] ${resolved.label}: ${commandText(resolved.command, resolved.args)}`);
   const exitCode = yield* Effect.scoped(
-    Effect.fnUntraced(function* () {
+    Effect.gen(function* () {
       const handle = yield* ChildProcess.make(resolved.command, [...resolved.args], {
         cwd: resolved.cwd,
         env: {
@@ -531,7 +536,7 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
         stderr: "inherit",
       });
       return yield* handle.exitCode;
-    })()
+    })
   ).pipe(
     Effect.mapError(
       (cause) =>
@@ -670,10 +675,10 @@ const runSqlIntegrationTestLane = Effect.fn("QualityTasks.runSqlIntegrationTestL
   options: SqlIntegrationLaneOptions
 ) {
   yield* Effect.scoped(
-    Effect.fnUntraced(function* () {
+    Effect.gen(function* () {
       const resource = yield* options.acquireResource;
       yield* runStep(sqlIntegrationStep(options.repoRoot, options.args, resource, options.childCommand));
-    })()
+    })
   );
 });
 
@@ -775,6 +780,7 @@ const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
 const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskStep> => [
   repoCliStep(repoRoot, "lint:effect-imports", ["laws", "effect-imports", "--check"]),
   repoCliStep(repoRoot, "lint:terse-effect", ["laws", "terse-effect", "--check"]),
+  repoCliStep(repoRoot, "lint:effect-fn", ["laws", "effect-fn", "--check"]),
   repoCliStep(repoRoot, "lint:native-runtime", ["laws", "native-runtime", "--check"]),
   repoCliStep(repoRoot, "lint:dual-arity", ["laws", "dual-arity", "--check"]),
   repoCliStep(repoRoot, "lint:allowlist", ["laws", "allowlist-check"]),
@@ -1079,7 +1085,7 @@ export const runQualityTaskIfRequested: (
  */
 export const collectStepOutput = (step: QualityTaskStep) =>
   Effect.scoped(
-    Effect.fnUntraced(function* () {
+    Effect.gen(function* () {
       const handle = yield* ChildProcess.make(step.command, [...step.args], {
         cwd: step.cwd,
         stdout: "pipe",
@@ -1094,5 +1100,5 @@ export const collectStepOutput = (step: QualityTaskStep) =>
         output: Str.trim(output),
         exitCode,
       };
-    })()
+    })
   );

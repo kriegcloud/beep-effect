@@ -836,7 +836,8 @@ const collectCandidateDiagnostics = (
 
 const makeOwnerResolver = Effect.fn("DualArity.makeOwnerResolver")(function* () {
   const workspaces = yield* resolveWorkspaceDirs(process.cwd()).pipe(
-    Effect.mapError(() => HashMap.empty<string, string>())
+    Effect.option,
+    Effect.map(O.getOrElse(() => HashMap.empty<string, string>()))
   );
   const workspaceEntries = pipe(
     HashMap.toEntries(workspaces),

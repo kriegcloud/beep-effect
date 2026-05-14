@@ -551,8 +551,9 @@ const getModuleMarkdownOutputPath = Effect.fn("getModuleMarkdownOutputPath")(fun
 });
 
 const getModuleMarkdownFiles = (modules: ReadonlyArray<Domain.Module>) =>
-  Effect.forEach(modules, (module, index) =>
-    Effect.gen(function* () {
+  Effect.forEach(
+    modules,
+    Effect.fnUntraced(function* (module, index) {
       const outputPath = yield* getModuleMarkdownOutputPath(module);
       const moduleContent = yield* Printer.printModule(module);
       const toc = markdownToc(moduleContent, { bullets: "-" }).content;

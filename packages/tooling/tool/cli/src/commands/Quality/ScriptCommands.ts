@@ -113,7 +113,7 @@ const runStep = Effect.fn("QualityScriptCommands.runStep")(function* (
 ): Effect.fn.Return<void, QualityScriptCommandError, ChildProcessSpawner.ChildProcessSpawner> {
   yield* Console.log(`[beep-cli] ${step.label}: ${commandText(step.command, step.args)}`);
   const exitCode = yield* Effect.scoped(
-    Effect.fnUntraced(function* () {
+    Effect.gen(function* () {
       const handle = yield* ChildProcess.make(step.command, [...step.args], {
         cwd: step.cwd,
         env: step.env,
@@ -123,7 +123,7 @@ const runStep = Effect.fn("QualityScriptCommands.runStep")(function* (
         stderr: "inherit",
       });
       return yield* handle.exitCode;
-    })()
+    })
   ).pipe(
     Effect.mapError(
       (cause) =>
@@ -157,7 +157,7 @@ const collectOutput = Effect.fn("QualityScriptCommands.collectOutput")(function*
   ChildProcessSpawner.ChildProcessSpawner
 > {
   return yield* Effect.scoped(
-    Effect.fnUntraced(function* () {
+    Effect.gen(function* () {
       const handle = yield* ChildProcess.make(step.command, [...step.args], {
         cwd: step.cwd,
         env: step.env,
@@ -177,7 +177,7 @@ const collectOutput = Effect.fn("QualityScriptCommands.collectOutput")(function*
         output: Str.trim(output),
         exitCode,
       };
-    })()
+    })
   ).pipe(
     Effect.mapError(
       (cause) =>

@@ -15,7 +15,7 @@ import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { ContentHashFromSourceText } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
-import { DateTime, Duration, Effect, FileSystem, flow, Match, Order, Path, pipe, Stream } from "effect";
+import { DateTime, Duration, Effect, FileSystem, flow, Match, Order, Path, pipe, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -464,7 +464,7 @@ const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: 
     stdout: "pipe",
   });
   const output = yield* Effect.scoped(
-    Effect.fnUntraced(function* () {
+    Effect.gen(function* () {
       const handle = yield* process;
       const text = yield* handle.stdout.pipe(
         Stream.decodeText(),
@@ -476,7 +476,7 @@ const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: 
         return yield* new DomainError({ message: `git ${A.join(args, " ")} failed with exit code ${exitCode}.` });
       }
       return text;
-    })()
+    })
   );
   return pipe(output.split(/\r?\n/), A.map(Str.trim), A.filter(Str.isNonEmpty));
 });
@@ -486,7 +486,7 @@ const collectWorkingTreeChangedFiles = Effect.fn("DocgenQuality.collectWorkingTr
 ) {
   const files = yield* Effect.forEach(
     WORKING_TREE_CHANGED_FILE_COMMANDS,
-    (args) => runGitLines(repoRoot, args).pipe(Effect.mapError(() => A.empty<string>())),
+    (args) => runGitLines(repoRoot, args).pipe(Effect.option, Effect.map(O.getOrElse(A.empty<string>))),
     { concurrency: "unbounded" }
   );
   return pipe(A.flatten(files), A.map(normalizeSlashes), A.dedupe);
@@ -1699,7 +1699,7 @@ export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQual
   }
 ) {
   const budget = makeRuntimeBudget(options?.packageTimeout ?? DEFAULT_PACKAGE_TIMEOUT);
-  return yield* Effect.fnUntraced(function* () {
+  return yield* Effect.gen(function* () {
     const candidateResult = yield* collectPackageSubjectCandidates(target, budget);
     const finalizedSubjects = yield* Effect.forEach(candidateResult.candidates, finalizeSubject);
     const subjects = yield* withGeneratedDocSnippets(
@@ -1719,14 +1719,19 @@ export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQual
       status,
       timedOut,
     });
-  })().pipe(
-    Effect.mapError((error) =>
-      emptyPackageReport({
-        durationMs: budgetDurationMs(budget),
-        error: errorMessage(error),
-        status: "failed",
-        target,
-        timedOut: false,
+  }).pipe(
+    Effect.result,
+    Effect.map(
+      Result.match({
+        onFailure: (error) =>
+          emptyPackageReport({
+            durationMs: budgetDurationMs(budget),
+            error: errorMessage(error),
+            status: "failed",
+            target,
+            timedOut: false,
+          }),
+        onSuccess: (report) => report,
       })
     )
   );

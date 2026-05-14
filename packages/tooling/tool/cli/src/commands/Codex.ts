@@ -76,7 +76,7 @@ export const runCodexQualityReviewFixLoop = Effect.fn("Codex.runCodexQualityRevi
   const initiativeSummary = A.isReadonlyArrayEmpty(summaryParts) ? defaultInitiativeSummary : A.join(summaryParts, " ");
   const prompt = qualityReviewPrompt(initiativeSummary);
   const exitCode = yield* Effect.scoped(
-    Effect.fnUntraced(function* () {
+    Effect.gen(function* () {
       const handle = yield* ChildProcess.make("codex", ["exec", "--cd", repoRoot, "-"], {
         cwd: repoRoot,
         stdin: Stream.make(textEncoder.encode(prompt)),
@@ -85,7 +85,7 @@ export const runCodexQualityReviewFixLoop = Effect.fn("Codex.runCodexQualityRevi
       });
 
       return yield* handle.exitCode;
-    })()
+    })
   ).pipe(
     Effect.mapError(
       (cause) =>

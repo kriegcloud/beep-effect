@@ -522,34 +522,33 @@ const createContentSecurityPolicyValue = (
       }),
   }).pipe(Effect.map((value) => (P.isUndefined(value) || Str.isEmpty(value) ? O.none<string>() : O.some(value))));
 
-const decodeContentSecurityPolicyHeader = (
+const decodeContentSecurityPolicyHeader = Effect.fn("Csp.decodeContentSecurityPolicyHeader")(function* (
   input: ContentSecurityPolicyOption | undefined
-): Effect.Effect<ContentSecurityPolicyResponseHeaderEncoded, SchemaIssue.Issue> =>
-  Effect.gen(function* () {
-    if (P.isUndefined(input) || input === false) {
-      return {
-        name: headerName,
-        value: undefined,
-      } as const;
-    }
-
-    const value = yield* createContentSecurityPolicyValue(input).pipe(
-      Effect.mapError((error) => new SchemaIssue.InvalidValue(O.some(error), { message: error.message }))
-    );
-
-    if (O.isNone(value)) {
-      return yield* Effect.fail(
-        new SchemaIssue.InvalidValue(O.some(input), {
-          message: "Invalid Content-Security-Policy configuration",
-        })
-      );
-    }
-
+): Effect.fn.Return<ContentSecurityPolicyResponseHeaderEncoded, SchemaIssue.Issue> {
+  if (P.isUndefined(input) || input === false) {
     return {
-      name: getProperHeaderName(Boolean(input.reportOnly)),
-      value: value.value,
+      name: headerName,
+      value: undefined,
     } as const;
-  });
+  }
+
+  const value = yield* createContentSecurityPolicyValue(input).pipe(
+    Effect.mapError((error) => new SchemaIssue.InvalidValue(O.some(error), { message: error.message }))
+  );
+
+  if (O.isNone(value)) {
+    return yield* Effect.fail(
+      new SchemaIssue.InvalidValue(O.some(input), {
+        message: "Invalid Content-Security-Policy configuration",
+      })
+    );
+  }
+
+  return {
+    name: getProperHeaderName(Boolean(input.reportOnly)),
+    value: value.value,
+  } as const;
+});
 
 /**
  * @category formatting

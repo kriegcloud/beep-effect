@@ -104,9 +104,11 @@ const DocsSections: ReadonlyArray<DocsSection> = [
     summary: "Effect-first quality law summary and validation entry points.",
     lines: [
       "Use Effect-first APIs and aliases defined by repository law.",
+      "Reusable functions that directly return Effect.gen must use Effect.fn or Effect.fnUntraced.",
       "Reject unsafe typing escapes and untyped runtime errors.",
       "Keep domain logic free of native mutable runtime containers.",
       "Finish only when check, lint, test, and docgen pass.",
+      "Run: bun run beep laws effect-fn --check",
       "Run: bun run check",
       "Run: bun run lint",
       "Run: bun run test",

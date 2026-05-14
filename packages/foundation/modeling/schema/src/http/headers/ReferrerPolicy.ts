@@ -96,28 +96,27 @@ export class ReferrerPolicyResponseHeader extends S.Class<ReferrerPolicyResponse
 
 type ReferrerPolicyResponseHeaderEncoded = typeof ReferrerPolicyResponseHeader.Encoded;
 
-const formatReferrerPolicyValue = (
+const formatReferrerPolicyValue = Effect.fn("ReferrerPolicy.formatReferrerPolicyValue")(function* (
   option: ReferrerPolicyValue | ReferrerPolicyValueList
-): Effect.Effect<string, ReferrerPolicyError> =>
-  Effect.gen(function* () {
-    const values = internal.wrapArray(option);
+): Effect.fn.Return<string, ReferrerPolicyError> {
+  const values = internal.wrapArray(option);
 
-    if (A.some(values, (value) => value === ("unsafe-url" as never))) {
-      return yield* new ReferrerPolicyError({
-        message: `Cannot specify a dangerous value for ${headerName}: unsafe-url`,
-        cause: O.none(),
-      });
-    }
-
-    if (A.every(values, S.is(ReferrerPolicyValue))) {
-      return A.join(values, ", ");
-    }
-
+  if (A.some(values, (value) => value === ("unsafe-url" as never))) {
     return yield* new ReferrerPolicyError({
-      message: `Invalid value for ${headerName}: ${String(option)}`,
+      message: `Cannot specify a dangerous value for ${headerName}: unsafe-url`,
       cause: O.none(),
     });
+  }
+
+  if (A.every(values, S.is(ReferrerPolicyValue))) {
+    return A.join(values, ", ");
+  }
+
+  return yield* new ReferrerPolicyError({
+    message: `Invalid value for ${headerName}: ${String(option)}`,
+    cause: O.none(),
   });
+});
 
 /**
  * @category schemas
@@ -127,24 +126,26 @@ export const ReferrerPolicyHeader = S.Union([ReferrerPolicyOption, S.Undefined])
   S.decodeTo(
     ReferrerPolicyResponseHeader,
     SchemaTransformation.transformOrFail({
-      decode: (input): Effect.Effect<ReferrerPolicyResponseHeaderEncoded, SchemaIssue.Issue> =>
-        Effect.gen(function* () {
-          if (P.isUndefined(input) || input === false) {
-            return {
-              name: headerName,
-              value: undefined,
-            } as const;
-          }
-
-          const value = yield* formatReferrerPolicyValue(input).pipe(
-            Effect.mapError((error) => new SchemaIssue.InvalidValue(O.some(error), { message: error.message }))
-          );
-
+      decode: Effect.fn("ReferrerPolicy.decode")(function* (input): Effect.fn.Return<
+        ReferrerPolicyResponseHeaderEncoded,
+        SchemaIssue.Issue
+      > {
+        if (P.isUndefined(input) || input === false) {
           return {
             name: headerName,
-            value,
+            value: undefined,
           } as const;
-        }),
+        }
+
+        const value = yield* formatReferrerPolicyValue(input).pipe(
+          Effect.mapError((error) => new SchemaIssue.InvalidValue(O.some(error), { message: error.message }))
+        );
+
+        return {
+          name: headerName,
+          value,
+        } as const;
+      }),
       encode: internal.makeHeaderEncodeForbidden("ReferrerPolicyHeader"),
     })
   ),

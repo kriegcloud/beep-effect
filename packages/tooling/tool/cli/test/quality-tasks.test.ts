@@ -308,11 +308,18 @@ describe("quality task adapter", () => {
   it("delegates affected root lint to the aggregate repo lint lane and repo-wide policy checks", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]));
 
-    expect(steps).toHaveLength(16);
+    expect(steps).toHaveLength(17);
     expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--affected", "--summarize"]));
+    expect(steps[3]).toMatchObject({
+      label: "lint:effect-fn",
+      command: "bun",
+      args: ["run", "beep", "laws", "effect-fn", "--check"],
+      cwd: "/repo",
+    });
     expect(steps.slice(1).map((step) => step.label)).toEqual([
       "lint:effect-imports",
       "lint:terse-effect",
+      "lint:effect-fn",
       "lint:native-runtime",
       "lint:dual-arity",
       "lint:allowlist",

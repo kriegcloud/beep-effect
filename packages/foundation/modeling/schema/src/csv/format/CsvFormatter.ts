@@ -84,14 +84,13 @@ const formatField = (value: string, fieldIndex: number, options: CsvCodecOptions
   );
 };
 
-const formatCsvHeaderRowEffect = (
+const formatCsvHeaderRowEffect = Effect.fn("CsvFormatter.formatCsvHeaderRowEffect")(function* (
   headers: ReadonlyArray<string>,
   options: CsvCodecOptions
-): Effect.Effect<string, CsvError> =>
-  Effect.gen(function* () {
-    const fields = yield* Effect.forEach(headers, (header, index) => formatField(header, index, options));
-    return A.join(fields, options.delimiter);
-  });
+): Effect.fn.Return<string, CsvError> {
+  const fields = yield* Effect.forEach(headers, (header, index) => formatField(header, index, options));
+  return A.join(fields, options.delimiter);
+});
 
 /**
  * Format a CSV header row.
@@ -110,14 +109,13 @@ export const formatCsvHeaderRow: {
  * @category utilities
  * @since 0.0.0
  */
-const formatCsvDataRowEffect = (
+const formatCsvDataRowEffect = Effect.fn("CsvFormatter.formatCsvDataRowEffect")(function* (
   fields: ReadonlyArray<string>,
   options: CsvCodecOptions
-): Effect.Effect<string, CsvError> =>
-  Effect.gen(function* () {
-    const encodedFields = yield* Effect.forEach(fields, (field, index) => formatField(field, index, options));
-    return A.join(encodedFields, options.delimiter);
-  });
+): Effect.fn.Return<string, CsvError> {
+  const encodedFields = yield* Effect.forEach(fields, (field, index) => formatField(field, index, options));
+  return A.join(encodedFields, options.delimiter);
+});
 
 /**
  * Format a CSV data row.
@@ -136,16 +134,15 @@ export const formatCsvDataRow: {
  * @category utilities
  * @since 0.0.0
  */
-const formatCsvDocumentEffect = (
+const formatCsvDocumentEffect = Effect.fn("CsvFormatter.formatCsvDocumentEffect")(function* (
   headers: ReadonlyArray<string>,
   rows: ReadonlyArray<ReadonlyArray<string>>,
   options: CsvCodecOptions
-): Effect.Effect<string, CsvError> =>
-  Effect.gen(function* () {
-    const header = yield* formatCsvHeaderRow(headers, options);
-    const dataRows = yield* Effect.forEach(rows, (row) => formatCsvDataRow(row, options));
-    return pipe([header, ...dataRows], A.join(rowDelimiter));
-  });
+): Effect.fn.Return<string, CsvError> {
+  const header = yield* formatCsvHeaderRow(headers, options);
+  const dataRows = yield* Effect.forEach(rows, (row) => formatCsvDataRow(row, options));
+  return pipe([header, ...dataRows], A.join(rowDelimiter));
+});
 
 /**
  * Format a whole CSV document.

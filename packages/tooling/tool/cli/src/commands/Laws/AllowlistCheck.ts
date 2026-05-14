@@ -274,8 +274,13 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
   }
 
   const decodedResult = yield* decodeEffectLawsAllowlist(parsedResult.success).pipe(
-    Effect.map(Result.succeed),
-    Effect.mapError((error) => Result.fail(formatSchemaDiagnostics(error.issue)))
+    Effect.result,
+    Effect.map(
+      Result.match({
+        onFailure: (error) => Result.fail(formatSchemaDiagnostics(error.issue)),
+        onSuccess: Result.succeed,
+      })
+    )
   );
 
   if (Result.isFailure(decodedResult)) {

@@ -799,7 +799,7 @@ const docgenQualityWorkerEvalCommand = Command.make(
             scope: "input" as const,
             sourceQualityReport: input.value,
           }
-        : yield* Effect.fnUntraced(function* () {
+        : yield* Effect.gen(function* () {
             const { scope, targets } = yield* resolveDocgenQualityTargets({
               all,
               changedFiles: false,
@@ -822,7 +822,7 @@ const docgenQualityWorkerEvalCommand = Command.make(
               scope: scope === "all" ? ("all" as const) : ("package" as const),
               sourceQualityReport: `generated:${scope}`,
             };
-          })();
+          });
 
       const report = yield* analyzeDocgenQualityWorkerEval({
         model,
