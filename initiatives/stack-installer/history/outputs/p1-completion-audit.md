@@ -32,6 +32,10 @@ without stopping until:
   `origin/feat/stack-installer-p1-live`.
 - Local artifact scan before this audit update:
   `output/stack-installer/p1-live` contains no files.
+- Current verifier result:
+  `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
+  fails with `NotFound: FileSystem.readDirectory
+  (output/stack-installer/p1-live/macos)`.
 
 ## Prompt-To-Artifact Checklist
 
