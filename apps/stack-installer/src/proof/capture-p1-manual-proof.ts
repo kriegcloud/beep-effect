@@ -17,6 +17,7 @@ import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "
 import { Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as Rx from "effect/RegExp";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { P1ManualProofSliceLayer, runP1ManualProof } from "./P1ManualProof.js";
@@ -25,6 +26,10 @@ const PROOF_FILE_NAME = "proof.json";
 const COMMANDS_FILE_NAME = "commands.txt";
 const CHECKSUMS_FILE_NAME = "sha256sums.txt";
 const P1_REQUIRED_PLATFORMS = ["macos", "windows"] as const;
+const DISCORD_TOKEN_PATTERNS = [
+  Rx.RegExp("mfa\\.[A-Za-z0-9_-]{80,}"),
+  Rx.RegExp("[A-Za-z0-9_-]{23,28}\\.[A-Za-z0-9_-]{6,10}\\.[A-Za-z0-9_-]{27,}"),
+] as const;
 
 type P1RequiredPlatform = (typeof P1_REQUIRED_PLATFORMS)[number];
 
@@ -138,6 +143,12 @@ const hasConfiguredProvider = (proof: P1ManualProofResult, providerName: "claude
 const requireAudit = (condition: boolean, message: string): Effect.Effect<void> =>
   condition ? Effect.void : Effect.die(message);
 
+const containsLikelyDiscordToken = (value: string): boolean =>
+  pipe(
+    DISCORD_TOKEN_PATTERNS,
+    A.some((pattern) => pattern.test(value))
+  );
+
 const artifactFileNames = Effect.fn("StackInstaller.artifactFileNames")(function* (outputDir: string) {
   const fs = yield* FileSystem.FileSystem;
   const outputDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
@@ -228,6 +239,14 @@ const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(func
   );
 
   const proofJson = yield* fs.readFileString(path.join(outputDir, PROOF_FILE_NAME));
+  const commandsText = yield* fs.readFileString(path.join(outputDir, COMMANDS_FILE_NAME));
+
+  yield* requireAudit(!containsLikelyDiscordToken(proofJson), "proof.json contains a likely plaintext Discord token");
+  yield* requireAudit(
+    !containsLikelyDiscordToken(commandsText),
+    "commands.txt contains a likely plaintext Discord token"
+  );
+
   const proof = yield* decodeProofJson(proofJson);
   const recordedChecksums = yield* fs.readFileString(path.join(outputDir, CHECKSUMS_FILE_NAME));
   const expectedChecksums = yield* buildSha256SumsText(outputDir);

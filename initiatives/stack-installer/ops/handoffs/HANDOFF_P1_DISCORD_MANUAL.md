@@ -156,7 +156,8 @@ bun run p1:proof:audit -- --output-dir ../../output/stack-installer/p1-live/maco
 The audit fails if required files are missing, checksums are stale, any
 validation event is not `passed`, Claude/Codex are not configured, the
 1Password token-reference event is missing, the Discord message ID is missing,
-or manifest credentials are not `op://...` references.
+text artifacts contain a likely plaintext Discord token, or manifest
+credentials are not `op://...` references.
 
 After both platform directories are present, run the combined P1 audit:
 
