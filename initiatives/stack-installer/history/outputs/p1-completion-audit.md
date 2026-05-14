@@ -25,6 +25,8 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
+- Current pushed head:
+  `7923a2387a feat(stack-installer): report p1 proof artifact status`
 - Relevant audit evidence lives on the pushed branch in
   `apps/stack-installer/src/proof/capture-p1-manual-proof.ts`,
   `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md`, and this completion audit
@@ -35,6 +37,9 @@ without stopping until:
 - Local artifact scan before this audit update:
   `output/stack-installer/p1-live` exists, but the required `macos` and
   `windows` platform directories are missing.
+- Current read-only artifact status:
+  `bun run --filter @beep/stack-installer p1:proof:status` exits successfully
+  and reports the `macos` and `windows` platform directories as missing.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:
@@ -52,7 +57,8 @@ without stopping until:
 | Operator handoff commands current | `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md` includes Bash-compatible and native Windows PowerShell proof commands, artifact packaging commands, and coordinator-side extraction commands | complete |
 | Per-platform artifact audit implemented | `p1:proof:audit` checks required files, checksum freshness, likely plaintext Discord token leaks in text artifacts, all validation events, configured providers, redacted credential references, and Discord message evidence | complete |
 | Both-platform artifact audit implemented | `p1:proof:audit-all` checks macOS and Windows directories and target-platform parity | complete |
-| Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest local helper verification included `bun run turbo run check test lint --filter=@beep/stack-installer` with 53 successful tasks after the latest handoff docs commits, plus earlier `bun run config-sync:check`, app build, temp macOS/Windows fixture checksum/audit/audit-all for the tightened artifact rules, `jq` manifest, and `git diff --check` | complete for implemented local surfaces |
+| Read-only artifact status implemented | `7923a2387a feat(stack-installer): report p1 proof artifact status`; `p1:proof:status` reports missing or incomplete macOS/Windows artifact directories without accepting them as proof | complete |
+| Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest local helper verification included `bun run --filter @beep/stack-installer check`, `lint`, `test`, `bun run config-sync:check`, `jq` manifest validation, `git diff --check`, and `p1:proof:status`; earlier full P1 harness verification included the targeted turbo check/test/lint set, app build, Tauri `cargo check`, and temp macOS/Windows fixture checksum/audit/audit-all for the tightened artifact rules | complete for implemented local surfaces |
 | macOS fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/macos/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Windows fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/windows/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Sanitized proof JSON captured | Must be produced by each fresh-machine `p1:proof:capture` run and pass `p1:proof:audit-all`; no real fresh-machine proof JSON is present | missing |
@@ -69,6 +75,7 @@ After operators produce both platform directories:
 
 ```bash
 cd apps/stack-installer
+bun run p1:proof:status -- --output-root ../../output/stack-installer/p1-live
 bun run p1:proof:audit-all -- --output-root ../../output/stack-installer/p1-live
 ```
 

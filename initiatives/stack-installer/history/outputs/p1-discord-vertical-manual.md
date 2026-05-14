@@ -38,9 +38,10 @@ Completed P1 live harness evidence:
 - `apps/stack-installer/src/proof/capture-p1-manual-proof.ts` wraps the proof
   harness for operators and writes `proof.json`, `commands.txt`, and
   `sha256sums.txt` into the fresh-machine artifact directory. The same
-  entrypoint audits required files, checksum freshness, all validation events,
-  configured Claude/Codex providers, redacted credential references, Discord
-  message evidence, and both required platform directories.
+  entrypoint reports read-only artifact status and audits required files,
+  checksum freshness, all validation events, configured Claude/Codex providers,
+  redacted credential references, Discord message evidence, and both required
+  platform directories.
 - `apps/stack-installer/src/proof/P1ProofCommands.ts` keeps the generated
   `commands.txt` transcript platform-specific: Bash-compatible commands for
   macOS/Git Bash/WSL and PowerShell commands for native Windows.
@@ -68,6 +69,13 @@ Current local command evidence from 2026-05-14:
 - After the operator-handoff docs were made platform-specific,
   `bun run turbo run check test lint --filter=@beep/stack-installer`
   completed 53 tasks successfully.
+- After adding the read-only proof artifact status helper,
+  `bun run --filter @beep/stack-installer check`, `lint`, `test`,
+  `bun run config-sync:check`, `jq . initiatives/stack-installer/ops/manifest.json`,
+  `git diff --check`, and
+  `bun run --filter @beep/stack-installer p1:proof:status` passed. The status
+  helper correctly reports the macOS and Windows artifact directories as
+  missing until real fresh-machine artifacts are returned.
 
 Remaining full-P1 evidence:
 
