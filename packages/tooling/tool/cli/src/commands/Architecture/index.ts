@@ -12,3 +12,10 @@ export * from "./Command.js";
  * @since 0.0.0
  */
 export * from "./OperationPlan.js";
+/**
+ * Architecture operation-plan execution exports.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./OperationPlanExecution.js";

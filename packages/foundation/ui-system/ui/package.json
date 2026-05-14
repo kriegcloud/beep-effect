@@ -27,10 +27,10 @@
   "dependencies": {
     "@base-ui/react": "catalog:",
     "@effect/atom-react": "catalog:",
+    "@elevenlabs/client": "catalog:",
     "@emotion/cache": "catalog:",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
-    "@elevenlabs/client": "catalog:",
     "@lexical/react": "catalog:",
     "@lexical/rich-text": "catalog:",
     "@mui/material": "catalog:",
