@@ -383,6 +383,7 @@
       "cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>",
       "node initiatives/stack-installer/ops/start-proof-upload-window.mjs --host <coordinator-tailscale-ip> --port 8765 --output-root output/stack-installer/p1-live --advertised-url http://<coordinator-magic-dns-name>:8765 --replace-existing",
       "node initiatives/stack-installer/ops/start-proof-upload-window.mjs --host <coordinator-tailscale-ip> --port 8765 --output-root output/stack-installer/p1-live --advertised-url http://<coordinator-magic-dns-name>:8765 --replace-existing --reuse-token",
+      "node initiatives/stack-installer/ops/proof-upload-smoke.mjs",
       "curl -f http://<coordinator-magic-dns-name>:8765/health",
       "curl -f -H \"Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}\" http://<coordinator-magic-dns-name>:8765/commands",
       "curl -f -H \"Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}\" http://<coordinator-magic-dns-name>:8765/next-actions",

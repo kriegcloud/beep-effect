@@ -47,3 +47,6 @@ not let generated notes accumulate at the initiative root.
   platform artifact directories, detached watcher state, public landing page,
   token-protected status/command/next-actions endpoint behavior, and token-leak
   indicators.
+- [../proof-upload-smoke.mjs](../proof-upload-smoke.mjs) - temporary local
+  smoke harness for upload-window endpoint auth, generated operator notes,
+  file modes, and `--reuse-token` behavior.
