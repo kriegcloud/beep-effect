@@ -131,17 +131,19 @@ without stopping until:
   `p1:proof:audit-all`, and pending post-proof review.
 - Latest proof upload status verification:
   `node initiatives/stack-installer/ops/proof-upload-status.mjs --host
-  100.117.213.114 --port 8765 --output-root output/stack-installer/p1-live
-  --fail-on-missing` exits `1` as expected because returned bundles and
-  platform artifact directories are still missing. The same run verifies
-  upload-window health, private file modes, token-protected status, commands,
-  and next-actions endpoints, token-leak indicators, and detached watcher
-  progress. It also reports `upload activity: 0 attempts; 0 stored; 0 rejected;
-  remotes: none`, confirming no proof machine has attempted a `PUT` or `POST`
-  upload yet. The same status command now checks the local process table for
-  watchers tied to the proof output root; current active processes are the
-  expected watcher parent/child pair only, and the stale-process check reports
-  `ok`.
+  100.117.213.114 --port 8765 --alternate-url-base
+  http://dankputer.tailc7c348.ts.net:8765 --output-root
+  output/stack-installer/p1-live --fail-on-missing` exits `1` as expected
+  because returned bundles and platform artifact directories are still missing.
+  The same run verifies upload-window health, private file modes,
+  token-protected status, commands, and next-actions endpoints, token-leak
+  indicators, detached watcher progress, and MagicDNS alternate endpoint
+  health/landing/status/commands/next-actions responses. It also reports
+  `upload activity: 0 attempts; 0 stored; 0 rejected; remotes: none`,
+  confirming no proof machine has attempted a `PUT` or `POST` upload yet. The
+  same status command now checks the local process table for watchers tied to
+  the proof output root; current active processes are the expected watcher
+  parent/child pair only, and the stale-process check reports `ok`.
 - Latest upload-window operator-routing hardening:
   `proof-upload-server.mjs` now makes the public landing page spell out the
   non-secret proof-operator path for users who only have the endpoint URL:

@@ -388,7 +388,7 @@
       "curl -f http://<coordinator-magic-dns-name>:8765/health",
       "curl -f -H \"Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}\" http://<coordinator-magic-dns-name>:8765/commands",
       "curl -f -H \"Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}\" http://<coordinator-magic-dns-name>:8765/next-actions",
-      "node initiatives/stack-installer/ops/proof-upload-status.mjs --host <coordinator-tailscale-ip> --port 8765 --output-root output/stack-installer/p1-live --fail-on-missing"
+      "node initiatives/stack-installer/ops/proof-upload-status.mjs --host <coordinator-tailscale-ip> --port 8765 --alternate-url-base http://<coordinator-magic-dns-name>:8765 --output-root output/stack-installer/p1-live --fail-on-missing"
     ],
     "p1FreshMachineProof": [
       "future: macOS user-operated bun run p1:proof:capture -- --request-json '<sanitized request>'",

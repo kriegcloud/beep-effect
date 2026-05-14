@@ -289,13 +289,16 @@ Coordinator status template:
 node initiatives/stack-installer/ops/proof-upload-status.mjs \
   --host '<coordinator-tailscale-ip>' \
   --port 8765 \
+  --alternate-url-base 'http://<coordinator-magic-dns-name>:8765' \
   --output-root output/stack-installer/p1-live \
   --fail-on-missing
 ```
 
 This status command reports upload server health, returned bundle presence,
 platform artifact directories, private upload files, and the detached proof
-watcher files/state when the detached watcher has been started.
+watcher files/state when the detached watcher has been started. When
+`--alternate-url-base` is provided, it also verifies the MagicDNS health,
+landing, status, commands, and next-actions paths without printing the token.
 
 Before uploading from a proof machine, verify the endpoint is reachable:
 

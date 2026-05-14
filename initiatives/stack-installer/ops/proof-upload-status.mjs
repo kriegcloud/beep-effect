@@ -18,6 +18,8 @@ const hasArg = (name) => args.includes(name);
 const host = argAfter("--host", "127.0.0.1");
 const port = Number.parseInt(argAfter("--port", "8765"), 10);
 const outputRoot = path.resolve(argAfter("--output-root", "output/stack-installer/p1-live"));
+const primaryUrlBase = `http://${host}:${port}`;
+const alternateUrlBase = argAfter("--alternate-url-base", "").replace(/\/+$/, "");
 const failOnMissing = hasArg("--fail-on-missing");
 
 const requiredPlatforms = ["macos", "windows"];
@@ -195,9 +197,9 @@ const processExists = (pid) => {
   }
 };
 
-const healthStatus = async () => {
+const healthStatus = async (urlBase = primaryUrlBase) => {
   try {
-    const response = await fetch(`http://${host}:${port}/health`);
+    const response = await fetch(`${urlBase}/health`);
     return {
       ok: response.ok,
       text: `${response.status} ${response.ok ? "ok" : "not-ok"}`,
@@ -210,9 +212,9 @@ const healthStatus = async () => {
   }
 };
 
-const endpointStatus = async (pathname, options = {}) => {
+const endpointStatus = async (pathname, options = {}, urlBase = primaryUrlBase) => {
   try {
-    const response = await fetch(`http://${host}:${port}${pathname}`, {
+    const response = await fetch(`${urlBase}${pathname}`, {
       headers: options.token ? { Authorization: `Bearer ${options.token}` } : undefined,
     });
     const text = await response.text();
@@ -310,6 +312,16 @@ const commandsWithoutToken = await endpointStatus("/commands", { expectStatus: 4
 const commandsWithToken = tokenText ? await endpointStatus("/commands", { token: tokenText }) : undefined;
 const nextActionsWithoutToken = await endpointStatus("/next-actions", { expectStatus: 403 });
 const nextActionsWithToken = tokenText ? await endpointStatus("/next-actions", { token: tokenText }) : undefined;
+const alternateHealth = alternateUrlBase ? await healthStatus(alternateUrlBase) : undefined;
+const alternateLanding = alternateUrlBase ? await endpointStatus("/", {}, alternateUrlBase) : undefined;
+const alternateStatusWithToken =
+  alternateUrlBase && tokenText ? await endpointStatus("/status", { token: tokenText }, alternateUrlBase) : undefined;
+const alternateCommandsWithToken =
+  alternateUrlBase && tokenText ? await endpointStatus("/commands", { token: tokenText }, alternateUrlBase) : undefined;
+const alternateNextActionsWithToken =
+  alternateUrlBase && tokenText
+    ? await endpointStatus("/next-actions", { token: tokenText }, alternateUrlBase)
+    : undefined;
 const tokenFileMode = await fileMode(tokenPath);
 const commandsFileMode = await fileMode(commandsPath);
 const pidFileMode = await fileMode(pidPath);
@@ -342,6 +354,44 @@ const nextActionsResponseHasExpectedProofSteps = nextActionsWithToken
     nextActionsWithToken.text.includes("/commands") &&
     nextActionsWithToken.text.includes("p1:proof:audit")
   : false;
+const alternateLandingHasExpectedUrl = alternateLanding
+  ? alternateLanding.text.includes(`${alternateUrlBase}/next-actions`)
+  : false;
+const alternateStatusHasExpectedShape =
+  !alternateUrlBase ||
+  (parseJson(alternateStatusWithToken?.text ?? "")?.outputRoot === outputRoot &&
+    typeof parseJson(alternateStatusWithToken?.text ?? "")?.bundles?.macos === "boolean" &&
+    typeof parseJson(alternateStatusWithToken?.text ?? "")?.bundles?.windows === "boolean");
+const alternateCommandsHaveUploadRoutes =
+  !alternateUrlBase ||
+  Boolean(
+    alternateCommandsWithToken?.text.includes("/upload/stack-installer-p1-macos.tgz") &&
+      alternateCommandsWithToken.text.includes("/upload/stack-installer-p1-windows.zip")
+  );
+const alternateNextActionsHaveProofSteps =
+  !alternateUrlBase ||
+  Boolean(
+    alternateNextActionsWithToken?.text.includes("git checkout feat/stack-installer-p1-live") &&
+      alternateNextActionsWithToken.text.includes("/commands") &&
+      alternateNextActionsWithToken.text.includes("p1:proof:audit")
+  );
+const alternateHasTokenLikeText =
+  Boolean(alternateLanding && tokenLikePattern.test(alternateLanding.text)) ||
+  Boolean(alternateStatusWithToken && tokenLikePattern.test(alternateStatusWithToken.text)) ||
+  Boolean(alternateCommandsWithToken && tokenLikePattern.test(alternateCommandsWithToken.text)) ||
+  Boolean(alternateNextActionsWithToken && tokenLikePattern.test(alternateNextActionsWithToken.text));
+const alternateUrlOk =
+  !alternateUrlBase ||
+  (alternateHealth?.ok === true &&
+    alternateLanding?.ok === true &&
+    alternateLandingHasExpectedUrl &&
+    alternateStatusWithToken?.ok === true &&
+    alternateStatusHasExpectedShape &&
+    alternateCommandsWithToken?.ok === true &&
+    alternateCommandsHaveUploadRoutes &&
+    alternateNextActionsWithToken?.ok === true &&
+    alternateNextActionsHaveProofSteps &&
+    !alternateHasTokenLikeText);
 const bundles = await bundleStatus();
 const platforms = await Promise.all(requiredPlatforms.map(platformStatus));
 const watcherStarted =
@@ -377,12 +427,16 @@ const uploadWindowOk =
   !hasStatusResponseTokenLikeText &&
   !hasCommandResponseTokenLikeText &&
   !hasNextActionsResponseTokenLikeText &&
+  alternateUrlOk &&
   watcherWindowOk &&
   bundles.ok &&
   platforms.every((platform) => platform.ok);
 
 console.log(`Stack Installer P1 proof upload status for ${outputRoot}`);
-console.log(`endpoint: http://${host}:${port}`);
+console.log(`endpoint: ${primaryUrlBase}`);
+if (alternateUrlBase) {
+  console.log(`alternate endpoint: ${alternateUrlBase}`);
+}
 console.log(`health: ${health.text}`);
 console.log(`landing page: ${landing.status} ${landing.ok ? "ok" : "not-ok"}`);
 console.log(`status endpoint without token: ${statusWithoutToken.status} ${statusWithoutToken.ok ? "ok" : "not-ok"}`);
@@ -407,6 +461,24 @@ console.log(
 );
 console.log(`next-actions endpoint has proof steps: ${nextActionsResponseHasExpectedProofSteps ? "yes" : "no"}`);
 console.log(`token-like text in next-actions endpoint response: ${hasNextActionsResponseTokenLikeText ? "yes" : "no"}`);
+if (alternateUrlBase) {
+  console.log(`alternate health: ${alternateHealth?.text ?? "not-checked"}`);
+  console.log(`alternate landing page: ${alternateLanding?.status ?? 0} ${alternateLanding?.ok ? "ok" : "not-ok"}`);
+  console.log(`alternate landing has rendered URL: ${alternateLandingHasExpectedUrl ? "yes" : "no"}`);
+  console.log(
+    `alternate status endpoint with token: ${alternateStatusWithToken ? `${alternateStatusWithToken.status} ${alternateStatusWithToken.ok ? "ok" : "not-ok"}` : "missing-token"}`
+  );
+  console.log(`alternate status endpoint has expected shape: ${alternateStatusHasExpectedShape ? "yes" : "no"}`);
+  console.log(
+    `alternate commands endpoint with token: ${alternateCommandsWithToken ? `${alternateCommandsWithToken.status} ${alternateCommandsWithToken.ok ? "ok" : "not-ok"}` : "missing-token"}`
+  );
+  console.log(`alternate commands endpoint has upload routes: ${alternateCommandsHaveUploadRoutes ? "yes" : "no"}`);
+  console.log(
+    `alternate next-actions endpoint with token: ${alternateNextActionsWithToken ? `${alternateNextActionsWithToken.status} ${alternateNextActionsWithToken.ok ? "ok" : "not-ok"}` : "missing-token"}`
+  );
+  console.log(`alternate next-actions endpoint has proof steps: ${alternateNextActionsHaveProofSteps ? "yes" : "no"}`);
+  console.log(`token-like text in alternate endpoint responses: ${alternateHasTokenLikeText ? "yes" : "no"}`);
+}
 console.log(`pid: ${Number.isInteger(pid) ? `${pid} (${processExists(pid) ? "running" : "not running"})` : "missing"}`);
 console.log(`token file mode: ${tokenFileMode}`);
 console.log(`commands file mode: ${commandsFileMode}`);
