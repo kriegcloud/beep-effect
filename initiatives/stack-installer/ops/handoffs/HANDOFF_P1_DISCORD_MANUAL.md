@@ -257,7 +257,24 @@ Compress-Archive `
   -Force
 ```
 
-On the coordinator checkout, expand the bundle so these directories exist:
+On the coordinator checkout, copy the received bundle into
+`output/stack-installer/p1-live/`, then expand it from the repository root:
+
+```bash
+mkdir -p output/stack-installer/p1-live
+tar -xzf output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
+  -C output/stack-installer/p1-live
+```
+
+For a Windows zip bundle received on the coordinator checkout:
+
+```bash
+mkdir -p output/stack-installer/p1-live
+bsdtar -xf output/stack-installer/p1-live/stack-installer-p1-windows.zip \
+  -C output/stack-installer/p1-live
+```
+
+After extraction, these directories must exist:
 
 ```text
 output/stack-installer/p1-live/macos/
