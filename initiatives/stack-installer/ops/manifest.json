@@ -373,8 +373,8 @@
       "bun run config-sync:check",
       "cd apps/stack-installer && bun run build",
       "cd apps/stack-installer/src-tauri && cargo check",
-      "cd apps/stack-installer && bun run p1:proof:checksums -- --output-dir <artifact-dir>",
-      "cd apps/stack-installer && bun run p1:proof:audit -- --output-dir <artifact-dir>",
+      "cd apps/stack-installer && bun run p1:proof:checksums -- --platform <macos|windows>",
+      "cd apps/stack-installer && bun run p1:proof:audit -- --platform <macos|windows>",
       "cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>"
     ],
     "p1FreshMachineProof": [

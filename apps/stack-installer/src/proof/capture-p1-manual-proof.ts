@@ -64,16 +64,53 @@ const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")
 const resolveDefaultOutputDir = Effect.fn("StackInstaller.resolveDefaultOutputDir")(function* (
   request: P1ManualProofRequest
 ) {
-  const path = yield* Path.Path;
-  const outputRoot = yield* resolveDefaultOutputRoot;
-
-  return path.join(outputRoot, request.targetPlatform);
+  return yield* resolvePlatformOutputDir(request.targetPlatform);
 });
 
 const resolveDefaultOutputRoot = Effect.gen(function* () {
   const path = yield* Path.Path;
 
   return path.resolve(import.meta.dirname, "..", "..", "..", "..", "output", "stack-installer", "p1-live");
+});
+
+const resolvePlatformOutputDir = Effect.fn("StackInstaller.resolvePlatformOutputDir")(function* (platform: string) {
+  const path = yield* Path.Path;
+  const outputRoot = yield* resolveDefaultOutputRoot;
+
+  return path.join(outputRoot, platform);
+});
+
+const requiredPlatformFromArg = (rawPlatform: string): O.Option<P1RequiredPlatform> =>
+  pipe(
+    P1_REQUIRED_PLATFORMS,
+    A.findFirst((platform) => platform === rawPlatform)
+  );
+
+const resolveArtifactModeTarget = Effect.fn("StackInstaller.resolveArtifactModeTarget")(function* (modeName: string) {
+  const outputDir = argAfter("--output-dir");
+  const platform = argAfter("--platform");
+
+  if (O.isSome(outputDir)) {
+    return {
+      expectedPlatform: O.none<P1RequiredPlatform>(),
+      outputDir: outputDir.value,
+    };
+  }
+
+  const rawPlatform = yield* O.match(platform, {
+    onNone: () => Effect.die(`Missing --output-dir or --platform for ${modeName}`),
+    onSome: Effect.succeed,
+  });
+  const requiredPlatform = yield* O.match(requiredPlatformFromArg(rawPlatform), {
+    onNone: () => Effect.die(`Invalid --platform for ${modeName}: ${rawPlatform}`),
+    onSome: Effect.succeed,
+  });
+  const resolvedOutputDir = yield* resolvePlatformOutputDir(requiredPlatform);
+
+  return {
+    expectedPlatform: O.some(requiredPlatform),
+    outputDir: resolvedOutputDir,
+  };
 });
 
 /**
@@ -350,23 +387,17 @@ const captureMode = Effect.gen(function* () {
 });
 
 const checksumOnlyMode = Effect.gen(function* () {
-  const outputDir = yield* O.match(argAfter("--output-dir"), {
-    onNone: () => Effect.die("Missing --output-dir for --checksums-only"),
-    onSome: Effect.succeed,
-  });
+  const target = yield* resolveArtifactModeTarget("--checksums-only");
 
-  yield* refreshChecksums(outputDir);
+  yield* refreshChecksums(target.outputDir);
 
-  return `P1 proof checksums refreshed in ${outputDir}`;
+  return `P1 proof checksums refreshed in ${target.outputDir}`;
 });
 
 const auditOnlyMode = Effect.gen(function* () {
-  const outputDir = yield* O.match(argAfter("--output-dir"), {
-    onNone: () => Effect.die("Missing --output-dir for --audit-only"),
-    onSome: Effect.succeed,
-  });
+  const target = yield* resolveArtifactModeTarget("--audit-only");
 
-  return yield* auditProofArtifacts(outputDir, O.none());
+  return yield* auditProofArtifacts(target.outputDir, target.expectedPlatform);
 });
 
 const auditAllMode = Effect.gen(function* () {

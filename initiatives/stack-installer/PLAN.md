@@ -210,8 +210,8 @@ Required Checks:
 - P1B: `bun run config-sync:check`
 - P1B: `cd apps/stack-installer && bun run build`
 - P1B: `cd apps/stack-installer/src-tauri && cargo check`
-- P1B: `cd apps/stack-installer && bun run p1:proof:checksums -- --output-dir <artifact-dir>`
-- P1B: `cd apps/stack-installer && bun run p1:proof:audit -- --output-dir <artifact-dir>`
+- P1B: `cd apps/stack-installer && bun run p1:proof:checksums -- --platform <macos|windows>`
+- P1B: `cd apps/stack-installer && bun run p1:proof:audit -- --platform <macos|windows>`
 - P1B: `cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>`
 - placeholder: fresh-OS smoke wrapper for macOS and Windows
 - placeholder: live Discord test message proof

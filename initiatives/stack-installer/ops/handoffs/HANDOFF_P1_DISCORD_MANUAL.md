@@ -144,14 +144,17 @@ After adding `screencast.*` to the same output directory, refresh checksums
 without sending another Discord proof message:
 
 ```bash
-bun run p1:proof:checksums -- --output-dir ../../output/stack-installer/p1-live/macos
+bun run p1:proof:checksums -- --platform "$STACK_INSTALLER_PLATFORM"
 ```
 
 Then audit the artifact directory locally:
 
 ```bash
-bun run p1:proof:audit -- --output-dir ../../output/stack-installer/p1-live/macos
+bun run p1:proof:audit -- --platform "$STACK_INSTALLER_PLATFORM"
 ```
+
+Use `--output-dir` instead of `--platform` only when the capture command
+intentionally wrote to a non-default artifact directory.
 
 The audit fails if required files are missing, checksums are stale, any
 validation event is not `passed`, Claude/Codex are not configured, the
