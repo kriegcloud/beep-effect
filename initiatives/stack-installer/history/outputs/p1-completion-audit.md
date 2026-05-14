@@ -188,10 +188,13 @@ without stopping until:
   --watch-interval-ms 5000 --replace-existing --preserve-log` starts or
   extends a detached coordinator-side `p1:proof:watch` process with private
   `0600` `proof-watch.log`, `proof-watch.pid`, and
-  `proof-watch-command.txt` files. The current detached watcher was extended
-  with preserved private log evidence and is alive as PID `1182943`, polling
-  the proof inbox for roughly four more hours, but has not found any returned
-  bundles or platform artifact directories.
+  `proof-watch-command.txt` files. The watcher starter now stops the existing
+  detached process group on replacement so a stale Bun child does not continue
+  writing to the same private log. After stopping stale watcher children and
+  restarting with preserved private log evidence, the current detached watcher
+  is alive as PID `1188608`, with one expected Bun child, polling the proof
+  inbox for roughly four more hours, but has not found any returned bundles or
+  platform artifact directories.
 - Latest coordinator wait:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 6 --watch-interval-ms 5000`
   exhausted all attempts without finding returned bundles and ended with the

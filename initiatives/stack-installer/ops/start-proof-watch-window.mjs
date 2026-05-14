@@ -34,6 +34,17 @@ const processExists = (pid) => {
   }
 };
 
+const stopProcessGroup = (pid) => {
+  try {
+    process.kill(-pid);
+    return;
+  } catch {
+    // Fall back to the parent PID for platforms/shells without process-group signaling.
+  }
+
+  process.kill(pid);
+};
+
 const stopExisting = async () => {
   const rawPid = await fs.promises.readFile(pidPath, "utf8").catch(() => "");
   const pid = Number.parseInt(rawPid.trim(), 10);
@@ -48,7 +59,7 @@ const stopExisting = async () => {
     );
   }
 
-  process.kill(pid);
+  stopProcessGroup(pid);
   await new Promise((resolve) => setTimeout(resolve, 500));
 };
 

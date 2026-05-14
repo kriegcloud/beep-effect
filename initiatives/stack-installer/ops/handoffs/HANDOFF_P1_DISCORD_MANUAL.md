@@ -450,7 +450,9 @@ The detached helper writes private `proof-watch.log`, `proof-watch.pid`, and
 status command above includes those watcher files and recent watcher log lines
 so a long proof window can be checked without opening the private files by hand.
 Use `--preserve-log` when extending an active transfer window so earlier
-watcher evidence stays in the private log.
+watcher evidence stays in the private log. With `--replace-existing`, the
+starter stops the existing detached watcher process group before launching the
+new watcher so stale child processes do not keep writing to the same log.
 
 The intake helper safely extracts `stack-installer-p1-macos.tgz` and
 `stack-installer-p1-windows.zip` only when the corresponding platform directory
