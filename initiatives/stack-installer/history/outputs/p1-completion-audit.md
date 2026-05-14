@@ -101,7 +101,7 @@ without stopping until:
 | Initiative manifest updated | `ops/manifest.json` records P1 live harness, capture/audit commands, missing fresh proof, and pending P1C review | complete, still open |
 | Initiative history updated | `p1-discord-vertical-manual.md` records P1A, live harness, capture/audit, current operator handoff commands, and remaining evidence; this audit records the current completion state | complete, still open |
 | P1C quality review/fix loop completed | `p1-pr-readiness-review.md` exists but is pending; by design it must not start until macOS and Windows proof artifacts exist and are audited | missing |
-| P2 AI Mode untouched | `p2-ai-mode-parity.md` remains a pending output; no P2 implementation surfaces are credited as part of P1 | complete |
+| P2 AI Mode untouched | `p2-ai-mode-parity.md` and `HANDOFF_P2_AI_MODE.md` are pending stubs only. A latest `origin/main...HEAD` diff audit found no P2 runtime, AI Mode, MCP executor, or skill-bundle implementation beyond those planned packet stubs | complete |
 | MCP/runtime work untouched beyond P1 Tauri bridge | Manifest still records MCP executor/skill generation as not built beyond minimal app-local Tauri bridge | complete |
 
 ## Required Commands For Final P1 Close
