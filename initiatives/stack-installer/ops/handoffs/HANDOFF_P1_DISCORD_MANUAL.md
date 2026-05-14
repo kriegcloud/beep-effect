@@ -110,6 +110,12 @@ without sending another Discord proof message:
 bun run p1:proof:checksums -- --output-dir ../../output/stack-installer/p1-live/macos
 ```
 
+Then audit the artifact directory locally:
+
+```bash
+bun run p1:proof:audit -- --output-dir ../../output/stack-installer/p1-live/macos
+```
+
 ## Desktop Proof Path
 
 Run the desktop shell:

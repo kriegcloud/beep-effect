@@ -26,6 +26,7 @@ const COMMANDS_FILE_NAME = "commands.txt";
 const CHECKSUMS_FILE_NAME = "sha256sums.txt";
 
 const decodeRequestJson = S.decodeUnknownEffect(S.fromJsonString(P1ManualProofRequest));
+const decodeProofJson = S.decodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
 const encodeProofResult = S.encodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
 const decodeSha256HexFromBytes = S.decodeUnknownEffect(Sha256HexFromBytes);
 
@@ -111,6 +112,13 @@ export const buildP1ProofCommandsText = (
 const isEvidenceFileName = (name: string): boolean =>
   name === PROOF_FILE_NAME || name === COMMANDS_FILE_NAME || Str.startsWith("screencast.")(name);
 
+const hasEvidenceFile = (fileNames: ReadonlyArray<string>, fileName: string): boolean =>
+  pipe(
+    fileNames,
+    A.findFirst((name) => name === fileName),
+    O.isSome
+  );
+
 const evidenceFileNames = Effect.fn("StackInstaller.evidenceFileNames")(function* (outputDir: string) {
   const fs = yield* FileSystem.FileSystem;
 
@@ -140,12 +148,49 @@ const buildSha256SumsText = Effect.fn("StackInstaller.buildSha256SumsText")(func
   return `${A.join("\n")(rows)}\n`;
 });
 
+const requireAudit = (condition: boolean, message: string): Effect.Effect<void> =>
+  condition ? Effect.void : Effect.die(message);
+
 const refreshChecksums = Effect.fn("StackInstaller.refreshChecksums")(function* (outputDir: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const checksums = yield* buildSha256SumsText(outputDir);
 
   yield* fs.writeFileString(path.join(outputDir, CHECKSUMS_FILE_NAME), checksums);
+});
+
+const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(function* (outputDir: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const fileNames = yield* evidenceFileNames(outputDir);
+
+  yield* requireAudit(hasEvidenceFile(fileNames, PROOF_FILE_NAME), "Missing proof.json");
+  yield* requireAudit(hasEvidenceFile(fileNames, COMMANDS_FILE_NAME), "Missing commands.txt");
+  yield* requireAudit(pipe(fileNames, A.some(Str.startsWith("screencast."))), "Missing screencast.* artifact");
+
+  const proofJson = yield* fs.readFileString(path.join(outputDir, PROOF_FILE_NAME));
+  const proof = yield* decodeProofJson(proofJson);
+  const recordedChecksums = yield* fs.readFileString(path.join(outputDir, CHECKSUMS_FILE_NAME));
+  const expectedChecksums = yield* buildSha256SumsText(outputDir);
+
+  yield* requireAudit(recordedChecksums === expectedChecksums, "sha256sums.txt is stale or incomplete");
+  yield* requireAudit(proof.snapshot.manifest.dryRunOnly === false, "Proof manifest must not be dry-run-only");
+  yield* requireAudit(
+    pipe(proof.snapshot.manifest.credentialReferences, A.every(Str.startsWith("op://"))),
+    "Proof manifest credential references must all be 1Password references"
+  );
+  yield* requireAudit(
+    pipe(
+      proof.snapshot.validationEvents,
+      A.some(
+        (event) =>
+          event.id === "discord-test-message" && event.status === "passed" && Str.includes("Message ID:")(event.message)
+      )
+    ),
+    "Proof must include a passed Discord test-message event with a message ID"
+  );
+
+  return `P1 proof artifact audit passed for ${proof.snapshot.manifest.targetPlatform} with ${A.length(fileNames)} evidence files.`;
 });
 
 const captureProofArtifacts = Effect.fn("StackInstaller.captureProofArtifacts")(function* (
@@ -164,7 +209,7 @@ const captureProofArtifacts = Effect.fn("StackInstaller.captureProofArtifacts")(
   yield* fs.writeFileString(path.join(outputDir, COMMANDS_FILE_NAME), commandsText);
   yield* refreshChecksums(outputDir);
 
-  return outputDir;
+  return `P1 proof artifacts captured in ${outputDir}`;
 });
 
 const captureMode = Effect.gen(function* () {
@@ -190,14 +235,23 @@ const checksumOnlyMode = Effect.gen(function* () {
 
   yield* refreshChecksums(outputDir);
 
-  return outputDir;
+  return `P1 proof checksums refreshed in ${outputDir}`;
+});
+
+const auditOnlyMode = Effect.gen(function* () {
+  const outputDir = yield* O.match(argAfter("--output-dir"), {
+    onNone: () => Effect.die("Missing --output-dir for --audit-only"),
+    onSome: Effect.succeed,
+  });
+
+  return yield* auditProofArtifacts(outputDir);
 });
 
 const program = pipe(
-  hasArg("--checksums-only") ? checksumOnlyMode : captureMode,
-  Effect.tap((outputDir) =>
+  hasArg("--audit-only") ? auditOnlyMode : hasArg("--checksums-only") ? checksumOnlyMode : captureMode,
+  Effect.tap((message) =>
     Effect.sync(() => {
-      console.log(`P1 proof artifacts captured in ${outputDir}`);
+      console.log(message);
     })
   ),
   // @effect-diagnostics-next-line strictEffectProvide:off

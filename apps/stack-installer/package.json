@@ -17,6 +17,7 @@
     "dev": "vite --host 0.0.0.0",
     "dev:tauri": "tauri dev",
     "p1:proof": "bun run src/proof/run-p1-manual-proof.ts",
+    "p1:proof:audit": "bun run src/proof/capture-p1-manual-proof.ts -- --audit-only",
     "p1:proof:capture": "bun run src/proof/capture-p1-manual-proof.ts",
     "p1:proof:checksums": "bun run src/proof/capture-p1-manual-proof.ts -- --checksums-only",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",

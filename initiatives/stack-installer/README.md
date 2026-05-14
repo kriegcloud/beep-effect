@@ -57,9 +57,10 @@ still required before P1 can close.
   exist, validate 1Password-reference-only inputs, compose slice-owned verb
   contracts, and render a deterministic manifest preview.
 - P1 live harness is implemented: app-local proof composition, Tauri command,
-  CLI artifact capture, and live driver-backed validators exist. P1 remains
-  open until fresh-OS proof on macOS and Windows is recorded and the PR
-  readiness review/fix loop returns zero required blockers or explicit waivers.
+  CLI artifact capture/audit, and live driver-backed validators exist. P1
+  remains open until fresh-OS proof on macOS and Windows is recorded and the
+  PR readiness review/fix loop returns zero required blockers or explicit
+  waivers.
 - P2 is pending: AI Mode parity across Claude and Codex with byte-identical
   manifest output modulo timestamps.
 - P3 is pending: recovery proof from salted-broken-state machines.

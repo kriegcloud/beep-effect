@@ -131,6 +131,7 @@
       "p1LiveImplemented": [
         "app-local P1 Manual Mode proof harness",
         "operator artifact capture wrapper for proof JSON, command transcript, and SHA-256 sums",
+        "local proof artifact audit for required files, checksum freshness, 1Password references, and Discord message evidence",
         "Tauri run_p1_manual_proof command",
         "live proof form with 1Password-reference-only token input",
         "sanitized P1ManualProofResult rendering"
@@ -366,13 +367,15 @@
       "bun run config-sync:check",
       "cd apps/stack-installer && bun run build",
       "cd apps/stack-installer/src-tauri && cargo check",
-      "cd apps/stack-installer && bun run p1:proof:checksums -- --output-dir <artifact-dir>"
+      "cd apps/stack-installer && bun run p1:proof:checksums -- --output-dir <artifact-dir>",
+      "cd apps/stack-installer && bun run p1:proof:audit -- --output-dir <artifact-dir>"
     ],
     "p1FreshMachineProof": [
       "future: macOS user-operated bun run p1:proof:capture -- --request-json '<sanitized request>'",
       "future: Windows user-operated bun run p1:proof:capture -- --request-json '<sanitized request>'",
       "future: macOS and Windows screencasts plus sanitized proof JSON",
       "future: refresh sha256sums.txt after adding screencast artifacts",
+      "future: audit macOS and Windows artifact directories with p1:proof:audit",
       "future: verify proof JSON contains no plaintext secrets"
     ],
     "p1PrReadinessReview": [
