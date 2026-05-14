@@ -20,7 +20,7 @@ const $I = $InstallerProvidersUseCasesId.create("server");
  * @category repositories
  * @since 0.0.0
  */
-export interface InstallerProvidersUseCasesShape {
+interface InstallerProvidersUseCasesShape {
   readonly previewProviderAccounts: () => Effect.Effect<ProviderAccountPlan, S.SchemaError>;
   readonly validateProviderAuths: () => Effect.Effect<ReadonlyArray<ProviderAuthValidationResult>, S.SchemaError>;
 }

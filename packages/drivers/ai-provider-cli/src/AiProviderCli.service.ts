@@ -45,7 +45,7 @@ export type AiProviderCliRunner = (
  * @category services
  * @since 0.0.0
  */
-export interface AiProviderCliShape {
+interface AiProviderCliShape {
   readonly checkAuth: (provider: AiProviderCliProvider) => Effect.Effect<AiProviderCliAuthProbe, AiProviderCliError>;
 }
 
@@ -55,7 +55,7 @@ export interface AiProviderCliShape {
  * @category models
  * @since 0.0.0
  */
-export type AiProviderCliPaths = {
+type AiProviderCliPaths = {
   readonly claudePath?: string | undefined;
   readonly codexPath?: string | undefined;
 };

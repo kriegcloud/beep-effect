@@ -2,7 +2,7 @@
  * App-local registry composition for Stack Installer P1A.
  *
  * @packageDocumentation
- * @category app
+ * @category configuration
  * @since 0.0.0
  */
 
@@ -15,7 +15,7 @@ import { P1A_DRY_RUN_SNAPSHOT_INPUT, P1A_WORKSPACE_VERB_INPUTS } from "@beep/ins
 /**
  * Slice-owned dry-run verbs composed by the app.
  *
- * @category app
+ * @category configuration
  * @since 0.0.0
  */
 export const p1aDryRunRegistry = [
@@ -29,7 +29,7 @@ export const p1aDryRunRegistry = [
 /**
  * Deterministic manifest snapshot shown by the app shell.
  *
- * @category app
+ * @category fixtures
  * @since 0.0.0
  */
 export const p1aDryRunSnapshot = P1A_DRY_RUN_SNAPSHOT_INPUT;

@@ -20,7 +20,7 @@ const $I = $InstallerDependenciesUseCasesId.create("server");
  * @category repositories
  * @since 0.0.0
  */
-export interface InstallerDependenciesUseCasesShape {
+interface InstallerDependenciesUseCasesShape {
   readonly previewHostDependencies: () => Effect.Effect<HostDependencyPlan, S.SchemaError>;
   readonly validateRequiredCommands: () => Effect.Effect<ReadonlyArray<HostDependencyValidationResult>, S.SchemaError>;
 }

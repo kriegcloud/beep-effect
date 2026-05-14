@@ -14,10 +14,9 @@ import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-works
 import { OnePasswordCli } from "@beep/onepassword-cli";
 import { Sha256HexFromBytes } from "@beep/schema/Sha256";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
-import { Duration, Effect, Exit, FileSystem, Layer, Order, Path, pipe, Stream } from "effect";
+import { Duration, Effect, Exit, FileSystem, Layer, Order, Path, pipe, RegExp as Rx, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as Rx from "effect/RegExp";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
@@ -212,7 +211,7 @@ const platformArtifactStatus = Effect.fn("StackInstaller.platformArtifactStatus"
   const outputDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
   const bundleExists = yield* fs.exists(bundlePath).pipe(Effect.orElseSucceed(() => false));
   const bundleMessage = bundleExists
-    ? `\n  bundle: ${bundlePath}\n  extract: ${p1ProofBundleExtractionCommand(platform, bundlePath, outputRoot)}`
+    ? `\n  bundle: ${bundlePath}\n  extract: ${p1ProofBundleExtractionCommand(platform, { bundlePath, outputRoot })}`
     : "";
 
   if (!outputDirExists) {
@@ -249,7 +248,7 @@ const runExtractionProcess = Effect.fn("StackInstaller.runExtractionProcess")(fu
   bundlePath: string,
   outputRoot: string
 ) {
-  const process = p1ProofBundleExtractionProcess(platform, bundlePath, outputRoot);
+  const process = p1ProofBundleExtractionProcess(platform, { bundlePath, outputRoot });
 
   const [stdout, stderr, exitCode] = yield* Effect.scoped(
     Effect.gen(function* () {
@@ -392,7 +391,7 @@ const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(func
 
   yield* requireAudit(recordedChecksums === expectedChecksums, "sha256sums.txt is stale or incomplete");
   yield* requireAudit(
-    p1ProofCommandsTextMatchesPlatform(proof.snapshot.manifest.targetPlatform, commandsText),
+    p1ProofCommandsTextMatchesPlatform(commandsText, proof.snapshot.manifest.targetPlatform),
     `commands.txt must contain platform-specific proof commands for ${proof.snapshot.manifest.targetPlatform}`
   );
   yield* requireAudit(proof.snapshot.manifest.dryRunOnly === false, "Proof manifest must not be dry-run-only");
@@ -462,7 +461,7 @@ const captureProofArtifacts = Effect.fn("StackInstaller.captureProofArtifacts")(
   const path = yield* Path.Path;
   const result = yield* runP1ManualProof(request);
   const proofJson = yield* encodeProofResult(result);
-  const commandsText = buildP1ProofCommandsText(request, requestJson, outputDir);
+  const commandsText = buildP1ProofCommandsText(request, { outputDir, requestJson });
 
   yield* fs.makeDirectory(outputDir, { recursive: true });
   yield* fs.writeFileString(path.join(outputDir, PROOF_FILE_NAME), `${proofJson}\n`);

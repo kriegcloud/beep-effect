@@ -2,7 +2,7 @@
  * App-local P1 Manual Mode proof harness.
  *
  * @packageDocumentation
- * @category proof
+ * @category workflows
  * @since 0.0.0
  */
 
@@ -36,7 +36,7 @@ const decodeP1ManualProofRequest = S.decodeUnknownEffect(P1ManualProofRequest);
 /**
  * Layer that composes the live P1 installer slice services.
  *
- * @category proof
+ * @category layers
  * @since 0.0.0
  */
 export const P1ManualProofSliceLayer = Layer.mergeAll(
@@ -64,7 +64,7 @@ const validationEvent = (
 /**
  * Run the live Manual Mode P1 proof and return only sanitized evidence.
  *
- * @category proof
+ * @category workflows
  * @since 0.0.0
  */
 export const runP1ManualProof = Effect.fn("StackInstaller.runP1ManualProof")(function* (

@@ -63,7 +63,7 @@ const decodeRawMessage = S.decodeUnknownEffect(DiscordRawMessage);
  * @category services
  * @since 0.0.0
  */
-export interface DiscordShape {
+interface DiscordShape {
   readonly createMessage: (
     request: DiscordCreateMessageRequest,
     botToken: Redacted.Redacted<string>

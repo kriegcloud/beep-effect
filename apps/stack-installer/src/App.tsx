@@ -1,3 +1,11 @@
+/**
+ * Stack Installer React workbench shell.
+ *
+ * @packageDocumentation
+ * @category components
+ * @since 0.0.0
+ */
+
 import { isOnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import { Badge } from "@beep/ui/components/badge";
 import { Button } from "@beep/ui/components/button";
@@ -384,6 +392,12 @@ function LiveProofPanel({ runP1ManualProof }: { readonly runP1ManualProof: RunP1
   );
 }
 
+/**
+ * Render the Stack Installer P1 workbench.
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export function App({ runP1ManualProof = runTauriP1ManualProof }: { readonly runP1ManualProof?: RunP1ManualProof }) {
   return (
     <main className="min-h-screen bg-background text-foreground">

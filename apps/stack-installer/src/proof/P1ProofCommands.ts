@@ -2,13 +2,25 @@
  * P1 Manual Mode operator command transcript helpers.
  *
  * @packageDocumentation
- * @category proof
+ * @category formatting
  * @since 0.0.0
  */
 
 import type { P1ManualProofRequest } from "@beep/installer-workspace-use-cases";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as Str from "effect/String";
+
+/**
+ * Inputs used to build a proof command transcript.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+type P1ProofCommandsTextOptions = {
+  readonly requestJson: string;
+  readonly outputDir: string;
+};
 
 const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 
@@ -96,28 +108,29 @@ const buildPowerShellP1ProofCommandsText = (
 /**
  * Build the operator command transcript stored as `commands.txt`.
  *
- * @category proof
+ * @category formatting
  * @since 0.0.0
  */
-export const buildP1ProofCommandsText = (
-  request: P1ManualProofRequest,
-  requestJson: string,
-  outputDir: string
-): string =>
+export const buildP1ProofCommandsText: {
+  (request: P1ManualProofRequest, options: P1ProofCommandsTextOptions): string;
+  (options: P1ProofCommandsTextOptions): (request: P1ManualProofRequest) => string;
+} = dual(2, (request: P1ManualProofRequest, options: P1ProofCommandsTextOptions): string =>
   request.targetPlatform === "windows"
-    ? buildPowerShellP1ProofCommandsText(request, requestJson, outputDir)
-    : buildBashP1ProofCommandsText(request, requestJson, outputDir);
+    ? buildPowerShellP1ProofCommandsText(request, options.requestJson, options.outputDir)
+    : buildBashP1ProofCommandsText(request, options.requestJson, options.outputDir)
+);
 
 /**
  * Check whether `commands.txt` contains the expected platform transcript.
  *
- * @category proof
+ * @category predicates
  * @since 0.0.0
  */
-export const p1ProofCommandsTextMatchesPlatform = (
-  platform: P1ManualProofRequest["targetPlatform"],
-  commandsText: string
-): boolean =>
+export const p1ProofCommandsTextMatchesPlatform: {
+  (commandsText: string, platform: P1ManualProofRequest["targetPlatform"]): boolean;
+  (platform: P1ManualProofRequest["targetPlatform"]): (commandsText: string) => boolean;
+} = dual(2, (commandsText: string, platform: P1ManualProofRequest["targetPlatform"]): boolean =>
   platform === "windows"
     ? hasPowerShellProofCommandMarkers(commandsText) && !hasBashProofCommandMarkers(commandsText)
-    : hasBashProofCommandMarkers(commandsText) && !hasPowerShellProofCommandMarkers(commandsText);
+    : hasBashProofCommandMarkers(commandsText) && !hasPowerShellProofCommandMarkers(commandsText)
+);

@@ -143,16 +143,18 @@ describe("P1 Manual Mode proof harness", () => {
             targetPlatform: "macos",
             testMessageContent: "Stack Installer P1 macOS proof",
           }),
-          '{"targetPlatform":"macos"}',
-          "/repo/output/stack-installer/p1-live/macos"
+          {
+            outputDir: "/repo/output/stack-installer/p1-live/macos",
+            requestJson: '{"targetPlatform":"macos"}',
+          }
         );
 
         expect(commands).toContain("command -v op");
         expect(commands).toContain("(cd apps/stack-installer && bun run p1:proof:capture");
         expect(commands).toContain("--output-dir '/repo/output/stack-installer/p1-live/macos'");
         expect(commands).not.toContain("Get-Command op");
-        expect(p1ProofCommandsTextMatchesPlatform("macos", commands)).toBe(true);
-        expect(p1ProofCommandsTextMatchesPlatform("windows", commands)).toBe(false);
+        expect(p1ProofCommandsTextMatchesPlatform(commands, "macos")).toBe(true);
+        expect(p1ProofCommandsTextMatchesPlatform(commands, "windows")).toBe(false);
       })
     );
 
@@ -169,8 +171,10 @@ describe("P1 Manual Mode proof harness", () => {
             targetPlatform: "windows",
             testMessageContent: "Stack Installer P1 Windows proof",
           }),
-          '{"targetPlatform":"windows"}',
-          "C:\\repo\\output\\stack-installer\\p1-live\\windows"
+          {
+            outputDir: "C:\\repo\\output\\stack-installer\\p1-live\\windows",
+            requestJson: '{"targetPlatform":"windows"}',
+          }
         );
 
         expect(commands).toContain("Get-Command op");
@@ -179,8 +183,8 @@ describe("P1 Manual Mode proof harness", () => {
         expect(commands).toContain('--output-dir "$stackInstallerOutputDir"');
         expect(commands).not.toContain("command -v op");
         expect(commands).not.toContain("(cd apps/stack-installer");
-        expect(p1ProofCommandsTextMatchesPlatform("windows", commands)).toBe(true);
-        expect(p1ProofCommandsTextMatchesPlatform("macos", commands)).toBe(false);
+        expect(p1ProofCommandsTextMatchesPlatform(commands, "windows")).toBe(true);
+        expect(p1ProofCommandsTextMatchesPlatform(commands, "macos")).toBe(false);
       })
     );
   });
@@ -199,18 +203,32 @@ describe("P1 proof artifact helpers", () => {
   it("names returned platform bundles and extraction commands", () => {
     expect(p1ProofBundleFileNameForPlatform("macos")).toBe("stack-installer-p1-macos.tgz");
     expect(p1ProofBundleFileNameForPlatform("windows")).toBe("stack-installer-p1-windows.zip");
-    expect(p1ProofBundleExtractionCommand("macos", "/proof root/stack-installer-p1-macos.tgz", "/proof root")).toBe(
-      "tar -xzf '/proof root/stack-installer-p1-macos.tgz' -C '/proof root'"
-    );
-    expect(p1ProofBundleExtractionCommand("windows", "/proof root/stack-installer-p1-windows.zip", "/proof root")).toBe(
-      "unzip -o '/proof root/stack-installer-p1-windows.zip' -d '/proof root'"
-    );
-    expect(p1ProofBundleExtractionProcess("macos", "/proof root/stack-installer-p1-macos.tgz", "/proof root")).toEqual({
+    expect(
+      p1ProofBundleExtractionCommand("macos", {
+        bundlePath: "/proof root/stack-installer-p1-macos.tgz",
+        outputRoot: "/proof root",
+      })
+    ).toBe("tar -xzf '/proof root/stack-installer-p1-macos.tgz' -C '/proof root'");
+    expect(
+      p1ProofBundleExtractionCommand("windows", {
+        bundlePath: "/proof root/stack-installer-p1-windows.zip",
+        outputRoot: "/proof root",
+      })
+    ).toBe("unzip -o '/proof root/stack-installer-p1-windows.zip' -d '/proof root'");
+    expect(
+      p1ProofBundleExtractionProcess("macos", {
+        bundlePath: "/proof root/stack-installer-p1-macos.tgz",
+        outputRoot: "/proof root",
+      })
+    ).toEqual({
       args: ["-xzf", "/proof root/stack-installer-p1-macos.tgz", "-C", "/proof root"],
       command: "tar",
     });
     expect(
-      p1ProofBundleExtractionProcess("windows", "/proof root/stack-installer-p1-windows.zip", "/proof root")
+      p1ProofBundleExtractionProcess("windows", {
+        bundlePath: "/proof root/stack-installer-p1-windows.zip",
+        outputRoot: "/proof root",
+      })
     ).toEqual({
       args: ["-o", "/proof root/stack-installer-p1-windows.zip", "-d", "/proof root"],
       command: "unzip",

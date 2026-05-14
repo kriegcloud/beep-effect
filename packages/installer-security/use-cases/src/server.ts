@@ -25,7 +25,7 @@ const $I = $InstallerSecurityUseCasesId.create("server");
  * @category repositories
  * @since 0.0.0
  */
-export interface InstallerSecurityUseCasesShape {
+interface InstallerSecurityUseCasesShape {
   readonly previewSecretReferences: () => Effect.Effect<SecretReferencePlan, S.SchemaError>;
   readonly readSecretReference: (
     reference: OnePasswordReference

@@ -19,7 +19,7 @@ const $I = $InstallerChannelsUseCasesId.create("server");
  * @category repositories
  * @since 0.0.0
  */
-export interface InstallerChannelsUseCasesShape {
+interface InstallerChannelsUseCasesShape {
   readonly previewDiscordChannels: () => Effect.Effect<DiscordChannelPlan, S.SchemaError>;
   readonly validateDiscordChannel: (
     request: DiscordLiveValidationRequest,

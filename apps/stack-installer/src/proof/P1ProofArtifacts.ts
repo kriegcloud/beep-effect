@@ -2,19 +2,19 @@
  * P1 Manual Mode proof artifact naming and status helpers.
  *
  * @packageDocumentation
- * @category proof
+ * @category utilities
  * @since 0.0.0
  */
 
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 
 /**
  * Proof JSON artifact file name.
  *
- * @category proof
+ * @category constants
  * @since 0.0.0
  */
 export const PROOF_FILE_NAME = "proof.json";
@@ -22,7 +22,7 @@ export const PROOF_FILE_NAME = "proof.json";
 /**
  * Operator command transcript artifact file name.
  *
- * @category proof
+ * @category constants
  * @since 0.0.0
  */
 export const COMMANDS_FILE_NAME = "commands.txt";
@@ -30,7 +30,7 @@ export const COMMANDS_FILE_NAME = "commands.txt";
 /**
  * SHA-256 checksum artifact file name.
  *
- * @category proof
+ * @category constants
  * @since 0.0.0
  */
 export const CHECKSUMS_FILE_NAME = "sha256sums.txt";
@@ -38,7 +38,7 @@ export const CHECKSUMS_FILE_NAME = "sha256sums.txt";
 /**
  * Required P1 fresh-machine proof platforms.
  *
- * @category proof
+ * @category constants
  * @since 0.0.0
  */
 export const P1_REQUIRED_PLATFORMS = ["macos", "windows"] as const;
@@ -46,7 +46,7 @@ export const P1_REQUIRED_PLATFORMS = ["macos", "windows"] as const;
 /**
  * Required P1 fresh-machine proof platform.
  *
- * @category proof
+ * @category type-level
  * @since 0.0.0
  */
 export type P1RequiredPlatform = (typeof P1_REQUIRED_PLATFORMS)[number];
@@ -57,12 +57,23 @@ const WINDOWS_BUNDLE_FILE_NAME = "stack-installer-p1-windows.zip";
 /**
  * Native extraction process for a returned proof bundle.
  *
- * @category proof
+ * @category models
  * @since 0.0.0
  */
-export type P1ProofBundleExtractionProcess = {
+type P1ProofBundleExtractionProcess = {
   readonly command: string;
   readonly args: ReadonlyArray<string>;
+};
+
+/**
+ * Paths used to extract a returned proof bundle.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+type P1ProofBundleExtractionOptions = {
+  readonly bundlePath: string;
+  readonly outputRoot: string;
 };
 
 const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
@@ -77,7 +88,7 @@ const hasFileName = (fileNames: ReadonlyArray<string>, fileName: string): boolea
 /**
  * Check whether an artifact name is included in proof checksums.
  *
- * @category proof
+ * @category predicates
  * @since 0.0.0
  */
 export const isP1ProofEvidenceFileName = (name: string): boolean =>
@@ -86,7 +97,7 @@ export const isP1ProofEvidenceFileName = (name: string): boolean =>
 /**
  * Check whether an artifact name should appear in status output.
  *
- * @category proof
+ * @category predicates
  * @since 0.0.0
  */
 export const isP1ProofArtifactStatusFileName = (name: string): boolean =>
@@ -95,7 +106,7 @@ export const isP1ProofArtifactStatusFileName = (name: string): boolean =>
 /**
  * Return the required files missing from a platform proof directory.
  *
- * @category proof
+ * @category utilities
  * @since 0.0.0
  */
 export const p1ProofMissingRequiredArtifactFiles = (fileNames: ReadonlyArray<string>): ReadonlyArray<string> =>
@@ -109,7 +120,7 @@ export const p1ProofMissingRequiredArtifactFiles = (fileNames: ReadonlyArray<str
 /**
  * Return the coordinator bundle file name for a required platform.
  *
- * @category proof
+ * @category getters
  * @since 0.0.0
  */
 export const p1ProofBundleFileNameForPlatform = (platform: P1RequiredPlatform): string =>
@@ -118,29 +129,31 @@ export const p1ProofBundleFileNameForPlatform = (platform: P1RequiredPlatform): 
 /**
  * Build the coordinator extraction command for a returned proof bundle.
  *
- * @category proof
+ * @category formatting
  * @since 0.0.0
  */
-export const p1ProofBundleExtractionCommand = (
-  platform: P1RequiredPlatform,
-  bundlePath: string,
-  outputRoot: string
-): string =>
+export const p1ProofBundleExtractionCommand: {
+  (platform: P1RequiredPlatform, options: P1ProofBundleExtractionOptions): string;
+  (options: P1ProofBundleExtractionOptions): (platform: P1RequiredPlatform) => string;
+} = dual(2, (platform: P1RequiredPlatform, options: P1ProofBundleExtractionOptions): string =>
   platform === "macos"
-    ? `tar -xzf ${shellQuote(bundlePath)} -C ${shellQuote(outputRoot)}`
-    : `unzip -o ${shellQuote(bundlePath)} -d ${shellQuote(outputRoot)}`;
+    ? `tar -xzf ${shellQuote(options.bundlePath)} -C ${shellQuote(options.outputRoot)}`
+    : `unzip -o ${shellQuote(options.bundlePath)} -d ${shellQuote(options.outputRoot)}`
+);
 
 /**
  * Build the native extraction process for a returned proof bundle.
  *
- * @category proof
+ * @category factories
  * @since 0.0.0
  */
-export const p1ProofBundleExtractionProcess = (
-  platform: P1RequiredPlatform,
-  bundlePath: string,
-  outputRoot: string
-): P1ProofBundleExtractionProcess =>
-  platform === "macos"
-    ? { args: ["-xzf", bundlePath, "-C", outputRoot], command: "tar" }
-    : { args: ["-o", bundlePath, "-d", outputRoot], command: "unzip" };
+export const p1ProofBundleExtractionProcess: {
+  (platform: P1RequiredPlatform, options: P1ProofBundleExtractionOptions): P1ProofBundleExtractionProcess;
+  (options: P1ProofBundleExtractionOptions): (platform: P1RequiredPlatform) => P1ProofBundleExtractionProcess;
+} = dual(
+  2,
+  (platform: P1RequiredPlatform, options: P1ProofBundleExtractionOptions): P1ProofBundleExtractionProcess =>
+    platform === "macos"
+      ? { args: ["-xzf", options.bundlePath, "-C", options.outputRoot], command: "tar" }
+      : { args: ["-o", options.bundlePath, "-d", options.outputRoot], command: "unzip" }
+);

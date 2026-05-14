@@ -34,7 +34,9 @@ type DiscordTestHttpShape = {
   readonly reset: Effect.Effect<void>;
 };
 
-class DiscordTestHttp extends Context.Service<DiscordTestHttp, DiscordTestHttpShape>()("DiscordTestHttp") {}
+class DiscordTestHttp extends Context.Service<DiscordTestHttp, DiscordTestHttpShape>()(
+  "@beep/discord/test/Discord.service.test/DiscordTestHttp"
+) {}
 
 const decodeMessageBody = S.decodeUnknownEffect(CapturedDiscordMessageBody);
 
@@ -57,6 +59,7 @@ const DiscordTestHttpLayer = Layer.effect(
           O.map(HttpClientRequest.toUrl(request), (value) => value.toString()),
           () => request.url
         );
+        const bodyText = bodyTextFor(request);
         yield* Ref.update(
           capturesRef,
           A.append(
@@ -65,7 +68,7 @@ const DiscordTestHttpLayer = Layer.effect(
               method: request.method,
               url,
               ...R.getSomes({
-                bodyText: O.fromUndefinedOr(bodyTextFor(request)),
+                bodyText: O.fromUndefinedOr(bodyText),
               }),
             })
           )

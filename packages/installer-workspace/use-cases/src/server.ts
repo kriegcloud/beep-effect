@@ -20,7 +20,7 @@ const $I = $InstallerWorkspaceUseCasesId.create("server");
  * @category repositories
  * @since 0.0.0
  */
-export interface InstallerWorkspaceUseCasesShape {
+interface InstallerWorkspaceUseCasesShape {
   readonly previewWorkspace: () => Effect.Effect<WorkspaceDryRunPlan, S.SchemaError>;
 }
 

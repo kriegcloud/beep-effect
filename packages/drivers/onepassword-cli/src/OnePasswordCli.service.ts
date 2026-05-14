@@ -45,7 +45,7 @@ export type OnePasswordCliRunner = (
  * @category services
  * @since 0.0.0
  */
-export interface OnePasswordCliShape {
+interface OnePasswordCliShape {
   readonly probeReference: (reference: string) => Effect.Effect<OnePasswordReferenceProbe, OnePasswordCliError>;
   readonly read: (reference: string) => Effect.Effect<Redacted.Redacted<string>, OnePasswordCliError>;
   readonly whoami: () => Effect.Effect<OnePasswordCliAccount, OnePasswordCliError>;
