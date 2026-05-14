@@ -265,6 +265,18 @@ node initiatives/stack-installer/ops/proof-upload-server.mjs \
   --output-root output/stack-installer/p1-live
 ```
 
+Before uploading from a proof machine, verify the endpoint is reachable:
+
+```bash
+curl -f 'http://<coordinator-tailscale-ip>:<port>/health'
+```
+
+Native Windows PowerShell:
+
+```powershell
+Invoke-WebRequest -Method Get -Uri 'http://<coordinator-tailscale-ip>:<port>/health'
+```
+
 ```bash
 curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
   'http://<coordinator-tailscale-ip>:<port>/upload/stack-installer-p1-macos.tgz?token=<one-time-token>'
@@ -281,7 +293,9 @@ Invoke-WebRequest `
 
 The coordinator must still run `p1:proof:intake` and `p1:proof:audit-all`
 after upload. A successful upload is only a transfer event; it is not proof
-completion.
+completion. If upload fails, inspect the upload server log for redacted
+request outcomes; it should never contain the one-time token or artifact
+contents.
 
 From `apps/stack-installer` on macOS, Git Bash, or WSL:
 
