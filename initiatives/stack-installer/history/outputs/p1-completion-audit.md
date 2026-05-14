@@ -92,6 +92,15 @@ without stopping until:
   files, detached server start, and endpoint/log path reporting without
   printing the token. The live endpoint was restarted through this helper and
   remains healthy.
+- Current upload-window status helper:
+  committed `initiatives/stack-installer/ops/proof-upload-status.mjs` reports
+  upload endpoint health, PID/running state, private file modes,
+  token-like-text indicators in logs/commands, returned bundle presence,
+  platform artifact status, and recent redacted upload log lines in one
+  command. Latest status reports health `200 ok`, PID `1001166` running,
+  token/commands/PID file modes `600`, no token-like text in logs or commands,
+  both returned bundles missing, and both `macos` and `windows` platform
+  directories missing.
 - Latest post-rotation upload-window wait:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 36 --watch-interval-ms 5000`
   exhausted after the bearer-token endpoint was live. No returned bundles were
@@ -187,6 +196,8 @@ Blocking requirements:
 - Latest tailnet upload-window watch found no returned proof bundles.
 - Latest post-token-rotation watch found no returned proof bundles.
 - Latest ten-minute upload-window watch found no returned proof bundles.
+- Latest upload status helper reports no returned bundles and missing platform
+  directories.
 - `p1:proof:audit-all` has not run against real macOS and Windows artifacts.
 - P1C `$quality-review-fix-loop` has not run after proof artifacts.
 
