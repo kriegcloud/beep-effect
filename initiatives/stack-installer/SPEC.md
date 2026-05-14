@@ -53,7 +53,7 @@ Out of scope for v1:
 
 - The installer is an AI Stack manager, not a workspace app.
 - The app shell lives at `apps/stack-installer` and publishes
-  `@beep/stack-installer` when implemented.
+  `@beep/stack-installer`.
 - The app shell uses Tauri 2 + React, imports
   `@beep/ui/styles/globals.css`, and wraps UI in `AppThemeProvider`.
 - The UI baseline is `packages/foundation/ui-system/ui` / `@beep/ui`:
@@ -75,8 +75,9 @@ runtime adapters, and the MCP executor adapter. The MCP executor is app-local
 runtime composition, not a repo-wide tooling package and not a God Layer.
 
 Installer capabilities use sibling slices with doctrine-native slugs. P1A
-implements dependencies, security, providers, channels, and workspace as
-dry-run role packages; runtime remains deferred.
+implemented dependencies, security, providers, channels, and workspace as
+dry-run role packages. P1 live harness work adds driver-backed validation
+contracts to those slices; runtime remains deferred.
 
 | Category | Slice slug | Example domain package |
 | --- | --- | --- |
@@ -104,6 +105,11 @@ they become product-agnostic primitives.
 does not require them by default; local manifest/state storage should start
 with a schema-first local file and event-log shape unless a later phase proves
 a database boundary is necessary.
+
+P1 live external boundaries are driver packages under `packages/drivers/*`:
+`@beep/onepassword-cli`, `@beep/ai-provider-cli`, and `@beep/discord`.
+Installer slice server packages consume those drivers; app/tooling code does
+not inline external CLI or HTTP behavior.
 
 `@beep/repo-cli` and `packages/tooling/tool/cli` may host repo automation,
 scaffold generation, or validation helpers. They do not own the runtime MCP
@@ -241,6 +247,7 @@ corrected slice topology is named, and the manifest targets P1.
 P1 is complete when fresh-OS macOS and Windows Manual Mode runs complete
 provider auth, 1Password setup, Discord setup, and an end-to-end test message,
 with screencasts, sanitized manifest, and CI green for the vertical verbs.
+Local harness implementation alone is not sufficient to close P1.
 
 P2 is complete when the same flow runs in AI Mode for Claude and Codex, with
 screencasts, structured action logs, and a byte-identical-manifest gate modulo

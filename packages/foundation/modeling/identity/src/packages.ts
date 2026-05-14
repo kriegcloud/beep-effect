@@ -136,7 +136,10 @@ const composers = $I.compose(
   "installer-workspace-domain",
   "installer-workspace-use-cases",
   "installer-workspace-server",
-  "runpod"
+  "runpod",
+  "onepassword-cli",
+  "discord",
+  "ai-provider-cli"
 );
 
 // --- foundation ---
@@ -1232,3 +1235,51 @@ export const $InstallerWorkspaceServerId: Identity.IdentityComposer<"@beep/insta
  * @category configuration
  */
 export const $RunpodId: Identity.IdentityComposer<"@beep/runpod"> = composers.$RunpodId;
+
+/**
+ * Identity composer for `@beep/onepassword-cli`.
+ *
+ * @example
+ * ```typescript
+ * import { $OnepasswordCliId } from "@beep/identity"
+ *
+ * const id = $OnepasswordCliId.make("OnepasswordCli")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $OnepasswordCliId: Identity.IdentityComposer<"@beep/onepassword-cli"> = composers.$OnepasswordCliId;
+
+/**
+ * Identity composer for `@beep/discord`.
+ *
+ * @example
+ * ```typescript
+ * import { $DiscordId } from "@beep/identity"
+ *
+ * const id = $DiscordId.make("Discord")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $DiscordId: Identity.IdentityComposer<"@beep/discord"> = composers.$DiscordId;
+
+/**
+ * Identity composer for `@beep/ai-provider-cli`.
+ *
+ * @example
+ * ```typescript
+ * import { $AiProviderCliId } from "@beep/identity"
+ *
+ * const id = $AiProviderCliId.make("AiProviderCli")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $AiProviderCliId: Identity.IdentityComposer<"@beep/ai-provider-cli"> = composers.$AiProviderCliId;

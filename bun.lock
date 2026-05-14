@@ -380,6 +380,32 @@
         "ts-morph": "catalog:",
       },
     },
+    "packages/drivers/ai-provider-cli": {
+      "name": "@beep/ai-provider-cli",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/discord": {
+      "name": "@beep/discord",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/drizzle": {
       "name": "@beep/drizzle",
       "version": "0.0.0",
@@ -438,6 +464,19 @@
       },
       "devDependencies": {
         "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/onepassword-cli": {
+      "name": "@beep/onepassword-cli",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -839,6 +878,7 @@
       "name": "@beep/installer-channels-server",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/discord": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/installer-channels-domain": "workspace:^",
         "@beep/installer-channels-use-cases": "workspace:^",
@@ -925,6 +965,7 @@
       "name": "@beep/installer-providers-server",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/ai-provider-cli": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/installer-providers-domain": "workspace:^",
         "@beep/installer-providers-use-cases": "workspace:^",
@@ -971,6 +1012,7 @@
         "@beep/identity": "workspace:^",
         "@beep/installer-security-domain": "workspace:^",
         "@beep/installer-security-use-cases": "workspace:^",
+        "@beep/onepassword-cli": "workspace:^",
         "@beep/schema": "workspace:^",
         "effect": "catalog:",
       },
@@ -1844,6 +1886,8 @@
 
     "@beep/agent-capability-use-cases": ["@beep/agent-capability-use-cases@workspace:packages/agent-capability/use-cases"],
 
+    "@beep/ai-provider-cli": ["@beep/ai-provider-cli@workspace:packages/drivers/ai-provider-cli"],
+
     "@beep/architecture-lab-client": ["@beep/architecture-lab-client@workspace:packages/architecture-lab/client"],
 
     "@beep/architecture-lab-config": ["@beep/architecture-lab-config@workspace:packages/architecture-lab/config"],
@@ -1869,6 +1913,8 @@
     "@beep/data": ["@beep/data@workspace:packages/foundation/primitive/data"],
 
     "@beep/db-admin": ["@beep/db-admin@workspace:packages/_internal/db-admin"],
+
+    "@beep/discord": ["@beep/discord@workspace:packages/drivers/discord"],
 
     "@beep/drizzle": ["@beep/drizzle@workspace:packages/drivers/drizzle"],
 
@@ -1923,6 +1969,8 @@
     "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/capability/nlp"],
 
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
+
+    "@beep/onepassword-cli": ["@beep/onepassword-cli@workspace:packages/drivers/onepassword-cli"],
 
     "@beep/openai": ["@beep/openai@workspace:packages/drivers/openai"],
 

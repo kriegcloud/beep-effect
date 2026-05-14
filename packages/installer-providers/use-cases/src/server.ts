@@ -10,7 +10,7 @@ import { $InstallerProvidersUseCasesId } from "@beep/identity/packages";
 import type { Effect } from "effect";
 import { Context } from "effect";
 import type * as S from "effect/Schema";
-import type { ProviderAccountPlan } from "./public.js";
+import type { ProviderAccountPlan, ProviderAuthValidationResult } from "./public.js";
 
 const $I = $InstallerProvidersUseCasesId.create("server");
 
@@ -22,6 +22,7 @@ const $I = $InstallerProvidersUseCasesId.create("server");
  */
 export interface InstallerProvidersUseCasesShape {
   readonly previewProviderAccounts: () => Effect.Effect<ProviderAccountPlan, S.SchemaError>;
+  readonly validateProviderAuths: () => Effect.Effect<ReadonlyArray<ProviderAuthValidationResult>, S.SchemaError>;
 }
 
 /**

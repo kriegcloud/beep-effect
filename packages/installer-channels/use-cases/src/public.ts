@@ -7,7 +7,7 @@
  */
 
 import { $InstallerChannelsUseCasesId } from "@beep/identity/packages";
-import { DiscordChannel } from "@beep/installer-channels-domain/aggregates/DiscordChannel";
+import { DiscordChannel, DiscordChannelStatus } from "@beep/installer-channels-domain/aggregates/DiscordChannel";
 import * as S from "effect/Schema";
 
 const $I = $InstallerChannelsUseCasesId.create("public");
@@ -47,6 +47,44 @@ export class DiscordChannelPlan extends S.Class<DiscordChannelPlan>($I`DiscordCh
   $I.annote("DiscordChannelPlan", {
     title: "Discord channel plan",
     description: "Deterministic preview of Discord routing without sending messages or mutating a guild.",
+  })
+) {}
+
+/**
+ * Live Discord validation request.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export class DiscordLiveValidationRequest extends S.Class<DiscordLiveValidationRequest>(
+  $I`DiscordLiveValidationRequest`
+)(
+  {
+    channel: DiscordChannel,
+    testMessageContent: S.NonEmptyString,
+  },
+  $I.annote("DiscordLiveValidationRequest", {
+    title: "Discord live validation request",
+    description: "Manual Mode Discord channel validation plus deterministic test-message request.",
+  })
+) {}
+
+/**
+ * Live Discord validation result.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export class DiscordLiveValidationResult extends S.Class<DiscordLiveValidationResult>($I`DiscordLiveValidationResult`)(
+  {
+    channel: DiscordChannel,
+    message: S.NonEmptyString,
+    messageId: S.optionalKey(S.String),
+    status: DiscordChannelStatus,
+  },
+  $I.annote("DiscordLiveValidationResult", {
+    title: "Discord live validation result",
+    description: "Sanitized Discord liveness and test-message proof metadata.",
   })
 ) {}
 

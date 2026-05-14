@@ -6,12 +6,20 @@
  * @since 0.0.0
  */
 
-import { DiscordChannelPlan, P1A_DISCORD_CHANNEL_VERB_INPUTS } from "@beep/installer-channels-use-cases/public";
+import { Discord, DiscordChannelRequest, DiscordCreateMessageRequest } from "@beep/discord";
+import {
+  DiscordChannelPlan,
+  DiscordLiveValidationRequest,
+  DiscordLiveValidationResult,
+  P1A_DISCORD_CHANNEL_VERB_INPUTS,
+} from "@beep/installer-channels-use-cases/public";
 import { InstallerChannelsUseCases } from "@beep/installer-channels-use-cases/server";
 import { Effect, Layer } from "effect";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const decodeDiscordChannelPlan = S.decodeUnknownEffect(DiscordChannelPlan);
+const decodeDiscordLiveValidationRequest = S.decodeUnknownEffect(DiscordLiveValidationRequest);
 
 const p1aDiscordChannelPlanInput = {
   channels: [
@@ -37,9 +45,51 @@ const p1aDiscordChannelPlanInput = {
  */
 export const makeInstallerChannelsServer = Effect.fn("InstallerChannelsServer.make")(function* () {
   const plan = yield* decodeDiscordChannelPlan(p1aDiscordChannelPlanInput);
+  const discord = yield* Discord;
 
   return {
     previewDiscordChannels: () => Effect.succeed(plan),
+    validateDiscordChannel: Effect.fn("InstallerChannelsServer.validateDiscordChannel")(
+      function* (rawRequest, botToken) {
+        const request = yield* decodeDiscordLiveValidationRequest(rawRequest);
+
+        return yield* Effect.gen(function* () {
+          yield* discord.getChannel(new DiscordChannelRequest({ channelId: request.channel.channelId }), botToken);
+          const message = yield* discord.createMessage(
+            new DiscordCreateMessageRequest({
+              channelId: request.channel.channelId,
+              content: request.testMessageContent,
+            }),
+            botToken
+          );
+
+          return new DiscordLiveValidationResult({
+            channel: {
+              ...request.channel,
+              status: "configured",
+            },
+            message: "Discord channel is live and accepted the P1 test message.",
+            status: "configured",
+            ...R.getSomes({
+              messageId: S.decodeUnknownOption(S.String)(message.messageId),
+            }),
+          });
+        }).pipe(
+          Effect.match({
+            onFailure: () =>
+              new DiscordLiveValidationResult({
+                channel: {
+                  ...request.channel,
+                  status: "missing",
+                },
+                message: "Discord channel liveness or test-message proof failed.",
+                status: "missing",
+              }),
+            onSuccess: (result) => result,
+          })
+        );
+      }
+    ),
   };
 });
 

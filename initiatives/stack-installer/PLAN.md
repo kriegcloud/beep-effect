@@ -2,7 +2,8 @@
 
 This plan executes [SPEC.md](./SPEC.md). P0 is complete. P1 is the active
 target: Discord vertical, Manual Mode. P1A is complete as a runnable dry-run
-checkpoint; full P1 still requires fresh-OS live proof.
+checkpoint. The P1 live harness is implemented; full P1 still requires
+fresh-OS macOS and Windows proof artifacts.
 
 ## P0: Initiative Bootstrap
 
@@ -41,8 +42,8 @@ Stop Conditions:
 
 ## P1: Discord Vertical, Manual Mode
 
-Status: in progress; P1A dry-run runnable spine complete, fresh-OS live
-Discord proof pending
+Status: in progress; P1A dry-run runnable spine complete, P1 live harness
+implemented, fresh-OS live Discord proof pending
 
 Goal: Prove the smallest end-to-end v1 path without AI Mode: provider auth,
 1Password, Discord bot/channel setup, manifest creation, validation, and a
@@ -89,7 +90,46 @@ Stop Conditions:
 - Do not credit full P1 until fresh macOS and Windows Manual Mode Discord
   proofs exist.
 
+### P1B: Live Manual Proof Harness
+
+Status: implemented; fresh-machine operation pending
+
+Goal: compose live validators for host commands, 1Password references, Claude
+and Codex auth status, and Discord channel liveness without implementing AI
+Mode or automatic installers.
+
 Exit Criteria:
+
+- [x] `@beep/onepassword-cli` validates and reads 1Password references without
+  exposing plaintext secrets.
+- [x] `@beep/ai-provider-cli` validates local Claude and Codex auth status.
+- [x] `@beep/discord` validates the Discord channel and sends the proof
+  message.
+- [x] Installer slices expose live validation contracts owned by their
+  respective packages.
+- [x] `apps/stack-installer` composes live validation contracts in app-local
+  runtime code.
+- [x] Tauri exposes `run_p1_manual_proof`.
+- [x] App UI rejects plaintext Discord bot tokens before invoking Tauri.
+- [x] Focused package/app check, test, lint, app build, config-sync check, and
+  Tauri `cargo check` pass locally.
+
+Required Outputs:
+
+- `history/outputs/p1-discord-vertical-manual.md`
+- `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md`
+- `research/1password-cli-integration.md`
+- `research/discord-oauth-and-bot-setup.md`
+- `research/claude-code-codex-capability-matrix.md`
+
+Stop Conditions:
+
+- Do not credit full P1 without both fresh-machine proof artifacts.
+- Do not broaden this phase into AI Mode, MCP execution, recovery, portability,
+  signing, or distribution.
+- Do not accept or record plaintext credentials.
+
+Full P1 Exit Criteria:
 
 - [ ] macOS fresh-OS screencast recorded.
 - [ ] Windows fresh-OS screencast recorded.
@@ -105,6 +145,11 @@ Required Outputs:
 Required Checks:
 
 - P1A: targeted installer/app `check`, `test`, `lint`, and web build
+- P1B: targeted app, driver, and installer package `check`, `test`, and
+  `lint`
+- P1B: `bun run config-sync:check`
+- P1B: `cd apps/stack-installer && bun run build`
+- P1B: `cd apps/stack-installer/src-tauri && cargo check`
 - placeholder: fresh-OS smoke wrapper for macOS and Windows
 - placeholder: live Discord test message proof
 

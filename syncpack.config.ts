@@ -51,6 +51,9 @@ const config = {
     "packages/architecture-lab/ui/package.json",
     "apps/architecture-lab-proof/package.json",
     "packages/drivers/runpod/package.json",
+    "packages/drivers/onepassword-cli/package.json",
+    "packages/drivers/discord/package.json",
+    "packages/drivers/ai-provider-cli/package.json",
   ],
   customTypes: {
     catalog: {

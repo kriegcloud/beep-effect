@@ -9,6 +9,9 @@
   },
   "references": [
     {
+      "path": "../../drivers/discord/tsconfig.json"
+    },
+    {
       "path": "../../foundation/modeling/identity/tsconfig.json"
     },
     {

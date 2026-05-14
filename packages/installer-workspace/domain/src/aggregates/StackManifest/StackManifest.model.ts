@@ -213,3 +213,21 @@ export class P1aDryRunSnapshot extends S.Class<P1aDryRunSnapshot>($I`P1aDryRunSn
     description: "Deterministic package-level output consumed by the stack installer web shell.",
   })
 ) {}
+
+/**
+ * P1 live proof snapshot containing only sanitized validation evidence.
+ *
+ * @category aggregates
+ * @since 0.0.0
+ */
+export class P1LiveProofSnapshot extends S.Class<P1LiveProofSnapshot>($I`P1LiveProofSnapshot`)(
+  {
+    generatedBy: S.NonEmptyString,
+    manifest: AIStackManifest,
+    validationEvents: S.Array(ValidationEvent),
+  },
+  $I.annote("P1LiveProofSnapshot", {
+    title: "P1 live proof snapshot",
+    description: "Sanitized Manual Mode proof output for the Discord vertical.",
+  })
+) {}

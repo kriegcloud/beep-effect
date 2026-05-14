@@ -18,10 +18,12 @@ and an approval-first UI. The terminal remains plumbing; the daily-driver
 surface is Claude Desktop or Codex Desktop plus one OpenClaw channel as a
 secondary path.
 
-P0 created the initiative packet only. P1A has now added the runnable dry-run
-spine: package contracts, deterministic manifest snapshot, `@beep/ui` web
-shell, and a minimal Tauri 2 bridge. Live installers, Discord mutation, MCP
-execution, skill generation, and fresh-OS proof remain later work.
+P0 created the initiative packet only. P1A added the runnable dry-run spine:
+package contracts, deterministic manifest snapshot, `@beep/ui` web shell, and
+a minimal Tauri 2 bridge. The P1 live Manual Mode harness is now implemented:
+driver packages validate 1Password, provider auth, host commands, and Discord
+liveness, and the app exposes a Tauri proof command. Fresh-OS macOS and
+Windows proof artifacts are still required before P1 can close.
 
 ## Read This First
 
@@ -34,6 +36,10 @@ execution, skill generation, and fresh-OS proof remain later work.
   - completed P0 decision record and dependency inventory
 - [history/outputs/p1a-runnable-spine.md](./history/outputs/p1a-runnable-spine.md)
   - P1A dry-run package/app proof
+- [history/outputs/p1-discord-vertical-manual.md](./history/outputs/p1-discord-vertical-manual.md)
+  - P1 live harness status and remaining fresh-machine proof
+- [ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md](./ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md)
+  - user-operated macOS and Windows proof runbook
 - [research/README.md](./research/README.md) - research index
 - [research/verb-registry-schema-sketch.md](./research/verb-registry-schema-sketch.md)
   - future registry schema questions
@@ -47,8 +53,9 @@ execution, skill generation, and fresh-OS proof remain later work.
 - P1A is complete: the dry-run package spine and Stack Installer web shell
   exist, validate 1Password-reference-only inputs, compose slice-owned verb
   contracts, and render a deterministic manifest preview.
-- P1 is pending: Discord vertical, Manual Mode, with fresh-OS proof on macOS
-  and Windows.
+- P1 live harness is implemented: app-local proof composition, Tauri command,
+  and live driver-backed validators exist. P1 remains open until fresh-OS proof
+  on macOS and Windows is recorded.
 - P2 is pending: AI Mode parity across Claude and Codex with byte-identical
   manifest output modulo timestamps.
 - P3 is pending: recovery proof from salted-broken-state machines.

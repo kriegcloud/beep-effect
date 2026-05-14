@@ -64,6 +64,7 @@
     "@beep/installer-security-domain": "workspace:^",
     "@beep/installer-security-use-cases": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/onepassword-cli": "workspace:^",
     "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },

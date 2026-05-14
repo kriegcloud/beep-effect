@@ -1,8 +1,10 @@
+import { isOnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import { Badge } from "@beep/ui/components/badge";
 import { Button } from "@beep/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/ui/components/card";
 import { Progress } from "@beep/ui/components/progress";
 import { Separator } from "@beep/ui/components/separator";
+import { useAtom } from "@effect/atom-react";
 import {
   CheckCircle,
   ClipboardText,
@@ -12,7 +14,11 @@ import {
   ShieldCheck,
   TerminalWindow,
 } from "@phosphor-icons/react";
+import { invoke } from "@tauri-apps/api/core";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import { Atom } from "effect/unstable/reactivity";
+import type { FormEvent } from "react";
 import { p1aDryRunRegistry, p1aDryRunSnapshot } from "./dry-run-registry.js";
 
 const workbenchSteps = [
@@ -38,6 +44,73 @@ const workbenchSteps = [
   },
 ] as const;
 
+type ProofState =
+  | {
+      readonly _tag: "idle";
+    }
+  | {
+      readonly _tag: "running";
+    }
+  | {
+      readonly _tag: "failed";
+      readonly message: string;
+    }
+  | {
+      readonly _tag: "completed";
+      readonly output: string;
+    };
+
+const proofStateAtom = Atom.make<ProofState>({ _tag: "idle" });
+
+const valueFor = (formData: FormData, name: string): string => {
+  const value = formData.get(name);
+  return P.isString(value) ? value : "";
+};
+
+const errorMessage = (error: unknown): string => {
+  if (P.isString(error)) {
+    return error;
+  }
+  if (P.isObject(error) && P.hasProperty(error, "message") && P.isString(error.message)) {
+    return error.message;
+  }
+  return "P1 proof failed before sanitized output was returned.";
+};
+
+const submitProof = async (event: FormEvent<HTMLFormElement>, setProofState: (state: ProofState) => void) => {
+  event.preventDefault();
+  const formData = new FormData(event.currentTarget);
+  const discordBotTokenReference = valueFor(formData, "discordBotTokenReference");
+
+  if (!isOnePasswordReference(discordBotTokenReference)) {
+    setProofState({
+      _tag: "failed",
+      message: "Discord bot token must be a 1Password reference.",
+    });
+    return;
+  }
+
+  setProofState({ _tag: "running" });
+
+  try {
+    const output = await invoke<string>("run_p1_manual_proof", {
+      request: {
+        discordBotTokenReference,
+        discordChannelDisplayName: valueFor(formData, "discordChannelDisplayName"),
+        discordChannelId: valueFor(formData, "discordChannelId"),
+        discordGuildId: valueFor(formData, "discordGuildId"),
+        operatorLabel: valueFor(formData, "operatorLabel"),
+        targetPlatform: valueFor(formData, "targetPlatform"),
+        testMessageContent: valueFor(formData, "testMessageContent"),
+      },
+    });
+
+    setProofState({ _tag: "completed", output });
+  } catch (error) {
+    setProofState({ _tag: "failed", message: errorMessage(error) });
+  }
+};
+
 function AppHeader() {
   return (
     <header className="border-b bg-background">
@@ -47,8 +120,8 @@ function AppHeader() {
           <h1 className="text-2xl font-semibold tracking-normal text-foreground">Install Workbench</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">P1A</Badge>
-          <Badge variant="secondary">Dry-run only</Badge>
+          <Badge variant="outline">P1</Badge>
+          <Badge variant="secondary">Live proof ready</Badge>
           <Button variant="outline" size="sm">
             <ClipboardText weight="bold" />
             Manifest
@@ -69,7 +142,7 @@ function ChecklistPanel() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold">Checklist</h2>
-          <p className="text-sm text-muted-foreground">Manual-mode P1A readiness gates</p>
+          <p className="text-sm text-muted-foreground">Manual-mode proof gates</p>
         </div>
         <Badge variant="outline">4 / 4</Badge>
       </div>
@@ -101,7 +174,9 @@ function ApprovalPanel() {
     <Card className="rounded-lg">
       <CardHeader>
         <CardTitle>Approval Queue</CardTitle>
-        <CardDescription>Actions remain previews until later phases add live adapters.</CardDescription>
+        <CardDescription>
+          Install actions remain previews; validation runs through the P1 proof harness.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Progress value={80} />
@@ -203,6 +278,96 @@ function ManifestPreview() {
   );
 }
 
+function LiveProofPanel() {
+  const [proofState, setProofState] = useAtom(proofStateAtom);
+
+  return (
+    <Card className="rounded-lg">
+      <CardHeader>
+        <CardTitle>P1 Live Proof</CardTitle>
+        <CardDescription>Manual Mode desktop validation for Discord, Claude, Codex, and 1Password.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          className="grid gap-3"
+          onSubmit={(event) => {
+            void submitProof(event, setProofState);
+          }}
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1 text-sm font-medium">
+              Platform
+              <select
+                className="h-10 rounded-md border bg-background px-3 text-sm"
+                defaultValue="macos"
+                name="targetPlatform"
+              >
+                <option value="macos">macOS</option>
+                <option value="windows">Windows</option>
+                <option value="linux">Linux</option>
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm font-medium">
+              Operator
+              <input
+                className="h-10 rounded-md border bg-background px-3 text-sm"
+                defaultValue="manual"
+                name="operatorLabel"
+              />
+            </label>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1 text-sm font-medium">
+              Guild ID
+              <input className="h-10 rounded-md border bg-background px-3 text-sm" name="discordGuildId" />
+            </label>
+            <label className="grid gap-1 text-sm font-medium">
+              Channel ID
+              <input className="h-10 rounded-md border bg-background px-3 text-sm" name="discordChannelId" />
+            </label>
+          </div>
+          <label className="grid gap-1 text-sm font-medium">
+            Channel Name
+            <input
+              className="h-10 rounded-md border bg-background px-3 text-sm"
+              defaultValue="ai-stack-installer"
+              name="discordChannelDisplayName"
+            />
+          </label>
+          <label className="grid gap-1 text-sm font-medium">
+            Bot Token Reference
+            <input
+              className="h-10 rounded-md border bg-background px-3 text-sm"
+              defaultValue="op://Private/Discord Bot/token"
+              name="discordBotTokenReference"
+            />
+          </label>
+          <label className="grid gap-1 text-sm font-medium">
+            Test Message
+            <input
+              className="h-10 rounded-md border bg-background px-3 text-sm"
+              defaultValue="Stack Installer P1 Manual Mode proof"
+              name="testMessageContent"
+            />
+          </label>
+          <Button className="w-fit" disabled={proofState._tag === "running"} type="submit">
+            <Play weight="fill" />
+            {proofState._tag === "running" ? "Running" : "Run Proof"}
+          </Button>
+          {proofState._tag === "failed" ? (
+            <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+              {proofState.message}
+            </div>
+          ) : null}
+          {proofState._tag === "completed" ? (
+            <pre className="max-h-72 overflow-auto rounded-md border bg-muted p-3 text-xs">{proofState.output}</pre>
+          ) : null}
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function App() {
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -210,6 +375,7 @@ export function App() {
       <div className="mx-auto grid max-w-7xl gap-5 px-5 py-5 lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
         <div className="space-y-5">
           <ChecklistPanel />
+          <LiveProofPanel />
           <ApprovalPanel />
         </div>
         <div className="space-y-5">

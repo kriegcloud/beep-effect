@@ -10,7 +10,7 @@ import { $InstallerDependenciesUseCasesId } from "@beep/identity/packages";
 import type { Effect } from "effect";
 import { Context } from "effect";
 import type * as S from "effect/Schema";
-import type { HostDependencyPlan } from "./public.js";
+import type { HostDependencyPlan, HostDependencyValidationResult } from "./public.js";
 
 const $I = $InstallerDependenciesUseCasesId.create("server");
 
@@ -22,6 +22,7 @@ const $I = $InstallerDependenciesUseCasesId.create("server");
  */
 export interface InstallerDependenciesUseCasesShape {
   readonly previewHostDependencies: () => Effect.Effect<HostDependencyPlan, S.SchemaError>;
+  readonly validateRequiredCommands: () => Effect.Effect<ReadonlyArray<HostDependencyValidationResult>, S.SchemaError>;
 }
 
 /**

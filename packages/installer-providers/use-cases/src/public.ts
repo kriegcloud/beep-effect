@@ -7,7 +7,12 @@
  */
 
 import { $InstallerProvidersUseCasesId } from "@beep/identity/packages";
-import { ProviderAccount } from "@beep/installer-providers-domain/aggregates/ProviderAccount";
+import {
+  ProviderAccount,
+  ProviderAccountStatus,
+  ProviderAuthMode,
+  ProviderKind,
+} from "@beep/installer-providers-domain/aggregates/ProviderAccount";
 import * as S from "effect/Schema";
 
 const $I = $InstallerProvidersUseCasesId.create("public");
@@ -47,6 +52,28 @@ export class ProviderAccountPlan extends S.Class<ProviderAccountPlan>($I`Provide
   $I.annote("ProviderAccountPlan", {
     title: "Provider account plan",
     description: "Deterministic preview of provider configuration without logging in or mutating state.",
+  })
+) {}
+
+/**
+ * Live provider authentication validation result.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export class ProviderAuthValidationResult extends S.Class<ProviderAuthValidationResult>(
+  $I`ProviderAuthValidationResult`
+)(
+  {
+    authMode: ProviderAuthMode,
+    command: S.NonEmptyString,
+    message: S.NonEmptyString,
+    provider: ProviderKind,
+    status: ProviderAccountStatus,
+  },
+  $I.annote("ProviderAuthValidationResult", {
+    title: "Provider auth validation result",
+    description: "Sanitized Claude or Codex local-session status for P1 Manual Mode.",
   })
 ) {}
 

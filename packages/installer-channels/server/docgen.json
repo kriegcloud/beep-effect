@@ -38,6 +38,8 @@
       "@beep/installer-channels-server/test": [
         "../../../packages/installer-channels/server/src/test.ts"
       ],
+      "@beep/discord": ["../../../packages/drivers/discord/src/index.ts"],
+      "@beep/discord/*": ["../../../packages/drivers/discord/src/*.ts"],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],

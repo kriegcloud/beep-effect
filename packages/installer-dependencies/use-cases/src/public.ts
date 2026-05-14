@@ -51,6 +51,25 @@ export class HostDependencyPlan extends S.Class<HostDependencyPlan>($I`HostDepen
 ) {}
 
 /**
+ * Live host dependency validation result.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export class HostDependencyValidationResult extends S.Class<HostDependencyValidationResult>(
+  $I`HostDependencyValidationResult`
+)(
+  {
+    dependency: HostDependency,
+    message: S.NonEmptyString,
+  },
+  $I.annote("HostDependencyValidationResult", {
+    title: "Host dependency validation result",
+    description: "Sanitized live command-existence and version probe result.",
+  })
+) {}
+
+/**
  * Static P1A verb contracts owned by the dependency slice.
  *
  * @category use-cases

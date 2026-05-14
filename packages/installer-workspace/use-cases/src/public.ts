@@ -7,7 +7,12 @@
  */
 
 import { $InstallerWorkspaceUseCasesId } from "@beep/identity/packages";
-import { P1aDryRunSnapshot } from "@beep/installer-workspace-domain/aggregates/StackManifest";
+import {
+  P1aDryRunSnapshot,
+  P1LiveProofSnapshot,
+  StackInstallerPlatform,
+} from "@beep/installer-workspace-domain/aggregates/StackManifest";
+import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import * as S from "effect/Schema";
 
 const $I = $InstallerWorkspaceUseCasesId.create("public");
@@ -47,6 +52,44 @@ export class WorkspaceDryRunPlan extends S.Class<WorkspaceDryRunPlan>($I`Workspa
   $I.annote("WorkspaceDryRunPlan", {
     title: "Workspace dry-run plan",
     description: "Deterministic stack manifest snapshot plus workspace-owned dry-run verbs.",
+  })
+) {}
+
+/**
+ * App-local P1 Manual Mode proof request.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export class P1ManualProofRequest extends S.Class<P1ManualProofRequest>($I`P1ManualProofRequest`)(
+  {
+    discordBotTokenReference: OnePasswordReference,
+    discordChannelDisplayName: S.NonEmptyString,
+    discordChannelId: S.NonEmptyString,
+    discordGuildId: S.NonEmptyString,
+    operatorLabel: S.NonEmptyString,
+    targetPlatform: StackInstallerPlatform,
+    testMessageContent: S.NonEmptyString,
+  },
+  $I.annote("P1ManualProofRequest", {
+    title: "P1 Manual Mode proof request",
+    description: "User-entered Manual Mode inputs for live P1 validation.",
+  })
+) {}
+
+/**
+ * P1 Manual Mode proof result.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export class P1ManualProofResult extends S.Class<P1ManualProofResult>($I`P1ManualProofResult`)(
+  {
+    snapshot: P1LiveProofSnapshot,
+  },
+  $I.annote("P1ManualProofResult", {
+    title: "P1 Manual Mode proof result",
+    description: "Sanitized output returned to the app after live Manual Mode validation.",
   })
 ) {}
 

@@ -61,6 +61,7 @@
     }
   },
   "dependencies": {
+    "@beep/ai-provider-cli": "workspace:^",
     "@beep/installer-providers-domain": "workspace:^",
     "@beep/installer-providers-use-cases": "workspace:^",
     "@beep/identity": "workspace:^",

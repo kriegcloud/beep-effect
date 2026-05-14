@@ -59,6 +59,10 @@ test-results/
 # Storybook build output
 storybook-static/
 
+# Rust/Tauri local build output
+**/src-tauri/target/
+**/src-tauri/gen/
+
 # Lost Pixel
 .lostpixel/current/
 .lostpixel/difference/

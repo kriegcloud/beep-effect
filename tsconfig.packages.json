@@ -58,6 +58,12 @@
       "path": "packages/drivers/acp"
     },
     {
+      "path": "packages/drivers/ai-provider-cli"
+    },
+    {
+      "path": "packages/drivers/discord"
+    },
+    {
       "path": "packages/drivers/drizzle"
     },
     {
@@ -68,6 +74,9 @@
     },
     {
       "path": "packages/drivers/ffmpeg"
+    },
+    {
+      "path": "packages/drivers/onepassword-cli"
     },
     {
       "path": "packages/drivers/openai"

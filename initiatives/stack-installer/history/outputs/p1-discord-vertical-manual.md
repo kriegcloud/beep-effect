@@ -1,6 +1,6 @@
 # P1 Discord Vertical, Manual Mode
 
-Status: in progress.
+Status: in progress; live harness implemented, fresh-OS proof pending.
 
 P1A dry-run runnable spine is complete and recorded in
 [`p1a-runnable-spine.md`](./p1a-runnable-spine.md). Full P1 remains pending
@@ -18,10 +18,49 @@ Completed P1A evidence:
 - slice-owned dry-run verb contracts composed by the app
 - web-shell screenshot at `output/playwright/stack-installer-p1a/workbench.png`
 
+Completed P1 live harness evidence:
+
+- `@beep/onepassword-cli` driver validates and reads only `op://...`
+  references, returning resolved values as `Redacted<string>`.
+- `@beep/ai-provider-cli` driver probes local Claude and Codex subscription
+  session status with non-interactive CLI status commands.
+- `@beep/discord` driver validates a Discord channel and sends the P1 test
+  message using a redacted bot token.
+- Installer slice use-cases expose live validation contracts for required
+  host commands, secret references, provider auth, and Discord channel
+  liveness.
+- `apps/stack-installer/src/proof/P1ManualProof.ts` composes the slice-owned
+  live contracts into an app-local Manual Mode proof harness.
+- `apps/stack-installer/src/proof/run-p1-manual-proof.ts` exposes the proof
+  harness as `bun run p1:proof -- --request-json ...`.
+- `apps/stack-installer/src-tauri/src/lib.rs` exposes the Tauri command
+  `run_p1_manual_proof` and keeps the app-local runtime composition under
+  `apps/stack-installer`.
+- The React workbench has a P1 live form and rejects plaintext Discord bot
+  tokens before invoking the desktop proof command.
+- Tauri compile prerequisites are present: `Cargo.lock` and
+  `src-tauri/icons/icon.png`.
+
+Current local command evidence from 2026-05-14:
+
+- `bun run turbo run check test lint --filter=@beep/stack-installer ...`
+  completed 66 tasks successfully across the app, live drivers, and touched
+  installer slices.
+- `bun run config-sync:check` reported no drift after generated package
+  references and docgen metadata were applied.
+- `cd apps/stack-installer && bun run build` passed. Vite emitted only the
+  existing large-chunk warning.
+- `cd apps/stack-installer/src-tauri && cargo check` passed.
+
 Remaining full-P1 evidence:
 
 - macOS fresh-OS screencast
 - Windows fresh-OS screencast
-- sanitized manifest
-- Discord test message proof
-- CI output for implemented vertical verbs
+- sanitized macOS proof JSON from `P1ManualProofResult`
+- sanitized Windows proof JSON from `P1ManualProofResult`
+- Discord test message proof on each target
+- CI or reviewer-visible command output for implemented vertical packages
+
+Full P1 is not complete until both user-operated fresh-machine runs produce
+those artifacts. P2 AI Mode, MCP execution, recovery, portability, signing,
+and distribution remain untouched by this phase.

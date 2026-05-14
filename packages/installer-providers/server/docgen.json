@@ -38,6 +38,12 @@
       "@beep/installer-providers-server/test": [
         "../../../packages/installer-providers/server/src/test.ts"
       ],
+      "@beep/ai-provider-cli": [
+        "../../../packages/drivers/ai-provider-cli/src/index.ts"
+      ],
+      "@beep/ai-provider-cli/*": [
+        "../../../packages/drivers/ai-provider-cli/src/*.ts"
+      ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],

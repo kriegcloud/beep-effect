@@ -706,7 +706,17 @@
       "@beep/stack-installer": ["./apps/stack-installer/src/index.ts"],
       "@beep/shared-domain/values/OnePasswordReference": [
         "./packages/shared/domain/src/values/OnePasswordReference/index.ts"
-      ]
+      ],
+      "@beep/onepassword-cli": [
+        "./packages/drivers/onepassword-cli/src/index.ts"
+      ],
+      "@beep/onepassword-cli/*": ["./packages/drivers/onepassword-cli/src/*"],
+      "@beep/discord": ["./packages/drivers/discord/src/index.ts"],
+      "@beep/discord/*": ["./packages/drivers/discord/src/*"],
+      "@beep/ai-provider-cli": [
+        "./packages/drivers/ai-provider-cli/src/index.ts"
+      ],
+      "@beep/ai-provider-cli/*": ["./packages/drivers/ai-provider-cli/src/*"]
     }
   }
 }

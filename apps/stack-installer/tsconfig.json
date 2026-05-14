@@ -24,6 +24,15 @@
   },
   "references": [
     {
+      "path": "../../packages/drivers/ai-provider-cli/tsconfig.json"
+    },
+    {
+      "path": "../../packages/drivers/discord/tsconfig.json"
+    },
+    {
+      "path": "../../packages/drivers/onepassword-cli/tsconfig.json"
+    },
+    {
       "path": "../../packages/foundation/modeling/identity/tsconfig.json"
     },
     {
@@ -33,19 +42,40 @@
       "path": "../../packages/foundation/ui-system/ui/tsconfig.json"
     },
     {
+      "path": "../../packages/installer-channels/domain/tsconfig.json"
+    },
+    {
+      "path": "../../packages/installer-channels/server/tsconfig.json"
+    },
+    {
       "path": "../../packages/installer-channels/use-cases/tsconfig.json"
+    },
+    {
+      "path": "../../packages/installer-dependencies/server/tsconfig.json"
     },
     {
       "path": "../../packages/installer-dependencies/use-cases/tsconfig.json"
     },
     {
+      "path": "../../packages/installer-providers/server/tsconfig.json"
+    },
+    {
       "path": "../../packages/installer-providers/use-cases/tsconfig.json"
+    },
+    {
+      "path": "../../packages/installer-security/server/tsconfig.json"
     },
     {
       "path": "../../packages/installer-security/use-cases/tsconfig.json"
     },
     {
+      "path": "../../packages/installer-workspace/domain/tsconfig.json"
+    },
+    {
       "path": "../../packages/installer-workspace/use-cases/tsconfig.json"
+    },
+    {
+      "path": "../../packages/shared/domain/tsconfig.json"
     }
   ]
 }

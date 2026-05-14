@@ -3,7 +3,7 @@
   "initiative": {
     "id": "stack-installer",
     "title": "Stack Installer",
-    "status": "active-p1a-complete-p1-live-pending",
+    "status": "active-p1-live-harness-ready-fresh-proof-pending",
     "created": "2026-05-14",
     "updated": "2026-05-14",
     "packetAnchorDocument": "SPEC.md"
@@ -24,12 +24,21 @@
       "output": "history/outputs/p1a-runnable-spine.md",
       "summary": "Dry-run package spine, shared 1Password reference value, deterministic manifest snapshot, Stack Installer web shell, and browser proof completed without live install behavior."
     },
+    "p1LiveHarness": {
+      "status": "implemented",
+      "output": "history/outputs/p1-discord-vertical-manual.md",
+      "summary": "Live Manual Mode proof harness, driver packages, Tauri command, and app UI are implemented. Full P1 remains blocked on user-operated fresh macOS and Windows proof artifacts."
+    },
     "v1": {
       "status": "in_progress",
       "activeGate": "P1",
-      "closedGates": ["P0 packet bootstrap", "P1A runnable dry-run spine"],
+      "closedGates": [
+        "P0 packet bootstrap",
+        "P1A runnable dry-run spine",
+        "P1 live proof harness implementation"
+      ],
       "remainingGates": [
-        "P1 Discord vertical, Manual Mode fresh-OS live proof",
+        "P1 Discord vertical, Manual Mode fresh-OS macOS and Windows proof",
         "P2 AI Mode parity",
         "P3 Recovery",
         "P4 Portability",
@@ -74,7 +83,11 @@
   "v1Completion": {
     "status": "in_progress",
     "activeGate": "P1",
-    "closedGates": ["P0 packet bootstrap", "P1A runnable dry-run spine"],
+    "closedGates": [
+      "P0 packet bootstrap",
+      "P1A runnable dry-run spine",
+      "P1 live proof harness implementation"
+    ],
     "remainingGates": [
       "P1 Discord vertical, Manual Mode fresh-OS macOS and Windows proof",
       "P2 AI Mode parity across Claude and Codex",
@@ -107,6 +120,12 @@
         "minimal Tauri 2 health bridge",
         "app-local dry-run registry composition",
         "deterministic manifest preview"
+      ],
+      "p1LiveImplemented": [
+        "app-local P1 Manual Mode proof harness",
+        "Tauri run_p1_manual_proof command",
+        "live proof form with 1Password-reference-only token input",
+        "sanitized P1ManualProofResult rendering"
       ],
       "uiBaseline": {
         "path": "packages/foundation/ui-system/ui",
@@ -164,6 +183,19 @@
         "architecture creation commands",
         "future generated registry artifact composition"
       ]
+    },
+    "drivers": {
+      "pathPattern": "packages/drivers/<name>",
+      "owns": [
+        "external CLI and HTTP adapters",
+        "secret-redacted process and API boundaries",
+        "testable adapters consumed by installer slice servers"
+      ],
+      "p1LiveImplementedPackages": [
+        "@beep/onepassword-cli",
+        "@beep/ai-provider-cli",
+        "@beep/discord"
+      ]
     }
   },
   "phases": [
@@ -179,7 +211,7 @@
       "name": "Discord Vertical, Manual Mode",
       "status": "in_progress",
       "output": "history/outputs/p1-discord-vertical-manual.md",
-      "exitCriteriaSummary": "P1A dry-run spine complete; full P1 still needs fresh-OS macOS and Windows manual runs that complete provider auth, 1Password, Discord setup, and test message."
+      "exitCriteriaSummary": "P1A dry-run spine and P1 live harness are implemented; full P1 still needs fresh-OS macOS and Windows manual runs that complete provider auth, 1Password, Discord setup, sanitized proof JSON, screencasts, and test messages."
     },
     {
       "id": "P2",
@@ -231,7 +263,17 @@
       "evidenceArtifacts": [
         "history/outputs/p1-discord-vertical-manual.md",
         "history/outputs/p1a-runnable-spine.md",
+        "ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md",
+        "research/1password-cli-integration.md",
+        "research/discord-oauth-and-bot-setup.md",
+        "research/claude-code-codex-capability-matrix.md",
         "apps/stack-installer",
+        "apps/stack-installer/src/proof/P1ManualProof.ts",
+        "apps/stack-installer/src/proof/run-p1-manual-proof.ts",
+        "apps/stack-installer/src-tauri/src/lib.rs",
+        "packages/drivers/onepassword-cli",
+        "packages/drivers/ai-provider-cli",
+        "packages/drivers/discord",
         "packages/installer-dependencies",
         "packages/installer-security",
         "packages/installer-providers",
@@ -308,6 +350,18 @@
       "cd apps/stack-installer && bun run build",
       "Playwright snapshot and screenshot against http://127.0.0.1:4177/"
     ],
+    "p1LiveHarness": [
+      "bun run turbo run check test lint --filter=@beep/stack-installer --filter=@beep/onepassword-cli --filter=@beep/discord --filter=@beep/ai-provider-cli --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases",
+      "bun run config-sync:check",
+      "cd apps/stack-installer && bun run build",
+      "cd apps/stack-installer/src-tauri && cargo check"
+    ],
+    "p1FreshMachineProof": [
+      "future: macOS user-operated bun run p1:proof -- --request-json '<sanitized request>'",
+      "future: Windows user-operated bun run p1:proof -- --request-json '<sanitized request>'",
+      "future: macOS and Windows screencasts plus sanitized proof JSON",
+      "future: verify proof JSON contains no plaintext secrets"
+    ],
     "repoWidePlaceholders": [
       "bun run check",
       "bun run lint",
@@ -334,15 +388,14 @@
     ]
   },
   "knownGaps": [
-    "Tauri desktop compile not yet proven",
-    "live verb execution not built",
+    "fresh-OS macOS and Windows proof not run",
+    "live proof harness validates existing state only and does not install or provision dependencies",
     "MCP executor adapter not built beyond minimal app-local Tauri bridge",
     "skill and instruction bundle generation not built",
-    "Claude provider adapter not built beyond dry-run fixture",
-    "Codex provider adapter not built beyond dry-run fixture",
-    "Discord vertical not built beyond dry-run fixture",
+    "AI Mode Claude provider adapter not built",
+    "AI Mode Codex provider adapter not built",
+    "Discord app/bot/channel provisioning not automated",
     "local event log not implemented",
-    "fresh-OS macOS and Windows proof not run",
     "distribution and signing pipeline not built"
   ],
   "keyDecisions": [
@@ -354,7 +407,9 @@
     "MCP executor is app-local runtime adapter code under apps/stack-installer",
     "credential parameters are typed 1Password references only",
     "Discord is the only v1 channel",
-    "macOS and Windows are v1 parity targets"
+    "macOS and Windows are v1 parity targets",
+    "P1 live drivers live under packages/drivers and are consumed by slice server packages",
+    "P1 live proof remains app-local runtime composition, not a tooling God Layer"
   ],
-  "nextAction": "Run full P1 live Manual Mode proof on fresh macOS and Windows: 1Password validation, provider auth validation, Discord liveness, sanitized manifest, and test message."
+  "nextAction": "Run full P1 live Manual Mode proof on fresh macOS and Windows using ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md: 1Password validation, provider auth validation, Discord liveness, sanitized proof JSON, screencasts, and test messages."
 }

@@ -1,6 +1,6 @@
 # Handoff P1 - Discord Vertical, Manual Mode
 
-Status: stub.
+Status: ready for user-operated fresh-machine proof.
 
 ## Mission
 
@@ -13,8 +13,119 @@ Windows. Do not implement AI Mode in this phase.
 - Read `../../PLAN.md`.
 - Read `../manifest.json`.
 - Read `../../history/outputs/p0-current-state.md`.
-- Read the relevant research stubs and replace them with evidence-backed notes
-  before coding.
+- Read `../../history/outputs/p1-discord-vertical-manual.md`.
+- Read the relevant research notes before running live proof.
+
+## Implemented Surfaces
+
+- App package: `apps/stack-installer` / `@beep/stack-installer`
+- Live app-local proof harness:
+  `apps/stack-installer/src/proof/P1ManualProof.ts`
+- Bun proof entrypoint:
+  `apps/stack-installer/src/proof/run-p1-manual-proof.ts`
+- Tauri command: `run_p1_manual_proof`
+- Live drivers:
+  - `packages/drivers/onepassword-cli`
+  - `packages/drivers/ai-provider-cli`
+  - `packages/drivers/discord`
+- Slice-owned live validation contracts:
+  - `@beep/installer-dependencies-use-cases`
+  - `@beep/installer-security-use-cases`
+  - `@beep/installer-providers-use-cases`
+  - `@beep/installer-channels-use-cases`
+  - `@beep/installer-workspace-use-cases`
+
+## Fresh-Machine Inputs
+
+Each macOS and Windows run needs:
+
+- target platform: `macos` or `windows`
+- operator label for the proof manifest
+- Discord guild ID
+- Discord channel ID
+- Discord channel display name
+- Discord bot token stored in 1Password
+- 1Password reference shaped like `op://vault/item/field`
+- deterministic test message content
+
+Never paste a plaintext Discord bot token into the app, CLI request, manifest,
+screen recording notes, issue comments, or commit messages.
+
+## Preflight
+
+Run these from the checkout:
+
+```bash
+git status --short --branch
+bun install
+bun run config-sync:check
+cd apps/stack-installer && bun run build
+cd apps/stack-installer/src-tauri && cargo check
+```
+
+Then verify local operator state without recording secret values:
+
+```bash
+command -v op
+command -v claude
+command -v codex
+op whoami
+claude auth status
+codex login status
+```
+
+The current P1 driver probes exactly those provider status commands. If either
+provider command returns a non-zero exit code, P1 should record a failed
+provider validation instead of treating the machine as complete.
+
+## CLI Proof Path
+
+Create an ignored local output directory per target:
+
+```bash
+mkdir -p output/stack-installer/p1-live/macos
+mkdir -p output/stack-installer/p1-live/windows
+```
+
+Run the proof from `apps/stack-installer` with a request like:
+
+```bash
+bun run p1:proof -- --request-json '{"targetPlatform":"macos","operatorLabel":"operator-macos-001","discordGuildId":"000000000000000000","discordChannelId":"000000000000000000","discordChannelDisplayName":"ai-stack-installer","discordBotTokenReference":"op://Private/Discord Bot/token","testMessageContent":"Stack Installer P1 macOS proof"}'
+```
+
+Write the resulting sanitized JSON to:
+
+- `output/stack-installer/p1-live/macos/proof.json`
+- `output/stack-installer/p1-live/windows/proof.json`
+
+The proof JSON must contain the 1Password reference and Discord message ID,
+but must not contain the resolved bot token or any other plaintext secret.
+
+## Desktop Proof Path
+
+Run the desktop shell:
+
+```bash
+cd apps/stack-installer
+bun run dev:tauri
+```
+
+Use the P1 live form, enter only the 1Password reference for the bot token,
+run the proof, and capture the sanitized result shown by the app.
+
+## Required Artifacts
+
+Store raw artifacts under ignored `output/stack-installer/p1-live/<platform>/`
+until they are reviewed and sanitized:
+
+- `proof.json`
+- `screencast.*`
+- `commands.txt`
+- `sha256sums.txt`
+
+Only commit documentation summaries and sanitized evidence paths. Do not commit
+raw screencasts unless they have been reviewed for secrets, personal account
+details, and tokens.
 
 ## Stop Conditions
 
@@ -22,5 +133,4 @@ Windows. Do not implement AI Mode in this phase.
 - Stop if either macOS or Windows proof cannot be produced.
 - Stop if implementation starts AI Mode before Manual Mode closes.
 - Stop if the slice topology drifts from `installer-<category>/<role>`.
-
-Full prompt to be authored when P0 closes.
+- Stop if the proof result contains any plaintext secret.

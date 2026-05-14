@@ -1,0 +1,171 @@
+/**
+ * Effect service for the native 1Password CLI.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $OnepasswordCliId } from "@beep/identity";
+import { Context, Effect, Layer, Redacted, Stream } from "effect";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
+import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import { OnePasswordCliError } from "./OnePasswordCli.errors.ts";
+import {
+  OnePasswordCliAccount,
+  OnePasswordCliProcessResult,
+  OnePasswordReferenceProbe,
+} from "./OnePasswordCli.models.ts";
+
+const $I = $OnepasswordCliId.create("OnePasswordCli.service");
+
+const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runFold(
+      () => "",
+      (acc, chunk) => `${acc}${chunk}`
+    )
+  );
+
+/**
+ * Product-neutral process runner used by the 1Password CLI driver.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export type OnePasswordCliRunner = (
+  command: string,
+  args: ReadonlyArray<string>
+) => Effect.Effect<OnePasswordCliProcessResult, OnePasswordCliError>;
+
+/**
+ * Runtime shape exposed by the 1Password CLI driver service.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export interface OnePasswordCliShape {
+  readonly probeReference: (reference: string) => Effect.Effect<OnePasswordReferenceProbe, OnePasswordCliError>;
+  readonly read: (reference: string) => Effect.Effect<Redacted.Redacted<string>, OnePasswordCliError>;
+  readonly whoami: () => Effect.Effect<OnePasswordCliAccount, OnePasswordCliError>;
+}
+
+const runNative = (
+  spawner: ChildProcessSpawner.ChildProcessSpawner["Service"],
+  commandPath: string,
+  args: ReadonlyArray<string>
+): Effect.Effect<OnePasswordCliProcessResult, OnePasswordCliError> => {
+  const command = ChildProcess.make(commandPath, A.fromIterable(args), {
+    stdin: "ignore",
+    stderr: "pipe",
+    stdout: "pipe",
+  });
+
+  return Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* spawner.spawn(command);
+      const [stdout, stderr, exitCode] = yield* Effect.all(
+        [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
+        { concurrency: "unbounded" }
+      );
+
+      return new OnePasswordCliProcessResult({ exitCode, stderr, stdout });
+    })
+  ).pipe(
+    Effect.mapError((cause) =>
+      OnePasswordCliError.fromUnknown("run", "Failed to execute the 1Password CLI.", { cause, command: commandPath })
+    )
+  );
+};
+
+const failExit = (
+  operation: string,
+  command: string,
+  result: OnePasswordCliProcessResult,
+  message: string
+): Effect.Effect<never, OnePasswordCliError> =>
+  Effect.fail(
+    new OnePasswordCliError({
+      command,
+      exitCode: result.exitCode,
+      message,
+      operation,
+      stderr: Str.trim(result.stderr),
+      stdout: Str.trim(result.stdout),
+    })
+  );
+
+const makeService = (commandPath: string, runner: OnePasswordCliRunner): OnePasswordCliShape => {
+  const whoami = Effect.fn("OnePasswordCli.whoami")(function* () {
+    const result = yield* runner(commandPath, ["whoami"]);
+    if (result.exitCode !== 0) {
+      return yield* failExit("whoami", commandPath, result, "1Password CLI is not signed in.");
+    }
+
+    return new OnePasswordCliAccount({
+      account: Str.trim(result.stdout),
+      signedIn: true,
+    });
+  });
+
+  const read = Effect.fn("OnePasswordCli.read")(function* (reference: string) {
+    const result = yield* runner(commandPath, ["read", reference, "--no-newline"]);
+    if (result.exitCode !== 0) {
+      return yield* failExit("read", commandPath, result, "1Password CLI could not resolve the secret reference.");
+    }
+
+    return Redacted.make(result.stdout);
+  });
+
+  const probeReference = Effect.fn("OnePasswordCli.probeReference")(function* (reference: string) {
+    const value = yield* read(reference);
+    return new OnePasswordReferenceProbe({
+      byteLength: new TextEncoder().encode(Redacted.value(value)).byteLength,
+      reference,
+      status: "resolved",
+    });
+  });
+
+  return {
+    probeReference,
+    read,
+    whoami,
+  };
+};
+
+/**
+ * Effect service for native `op` execution.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class OnePasswordCli extends Context.Service<OnePasswordCli, OnePasswordCliShape>()($I`OnePasswordCli`) {
+  /**
+   * Build a live 1Password CLI layer.
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayer = (
+    commandPath = "op"
+  ): Layer.Layer<OnePasswordCli, never, ChildProcessSpawner.ChildProcessSpawner> =>
+    Layer.effect(
+      OnePasswordCli,
+      Effect.gen(function* () {
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        return OnePasswordCli.of(makeService(commandPath, (command, args) => runNative(spawner, command, args)));
+      })
+    );
+
+  /**
+   * Build a deterministic test layer from an injected command runner.
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayerFromRunner = (
+    runner: OnePasswordCliRunner,
+    commandPath = "op"
+  ): Layer.Layer<OnePasswordCli> => Layer.succeed(OnePasswordCli, OnePasswordCli.of(makeService(commandPath, runner)));
+}

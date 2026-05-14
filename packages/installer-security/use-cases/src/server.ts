@@ -7,10 +7,15 @@
  */
 
 import { $InstallerSecurityUseCasesId } from "@beep/identity/packages";
-import type { Effect } from "effect";
-import { Context } from "effect";
+import type { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
+import { Context, type Effect, type Redacted } from "effect";
 import type * as S from "effect/Schema";
-import type { SecretReferencePlan } from "./public.js";
+import type {
+  SecretReferencePlan,
+  SecretReferenceReadError,
+  SecretReferenceValidationRequest,
+  SecretReferenceValidationResult,
+} from "./public.js";
 
 const $I = $InstallerSecurityUseCasesId.create("server");
 
@@ -22,6 +27,12 @@ const $I = $InstallerSecurityUseCasesId.create("server");
  */
 export interface InstallerSecurityUseCasesShape {
   readonly previewSecretReferences: () => Effect.Effect<SecretReferencePlan, S.SchemaError>;
+  readonly readSecretReference: (
+    reference: OnePasswordReference
+  ) => Effect.Effect<Redacted.Redacted<string>, S.SchemaError | SecretReferenceReadError>;
+  readonly validateSecretReference: (
+    request: SecretReferenceValidationRequest
+  ) => Effect.Effect<SecretReferenceValidationResult, S.SchemaError>;
 }
 
 /**

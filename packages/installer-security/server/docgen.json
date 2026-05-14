@@ -71,6 +71,12 @@
       "@beep/installer-security-use-cases/server": [
         "../../../packages/installer-security/use-cases/src/server.ts"
       ],
+      "@beep/onepassword-cli": [
+        "../../../packages/drivers/onepassword-cli/src/index.ts"
+      ],
+      "@beep/onepassword-cli/*": [
+        "../../../packages/drivers/onepassword-cli/src/*.ts"
+      ],
       "@beep/schema": [
         "../../../packages/foundation/modeling/schema/src/index.ts"
       ],

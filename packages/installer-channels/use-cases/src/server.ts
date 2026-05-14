@@ -7,10 +7,9 @@
  */
 
 import { $InstallerChannelsUseCasesId } from "@beep/identity/packages";
-import type { Effect } from "effect";
-import { Context } from "effect";
+import { Context, type Effect, type Redacted } from "effect";
 import type * as S from "effect/Schema";
-import type { DiscordChannelPlan } from "./public.js";
+import type { DiscordChannelPlan, DiscordLiveValidationRequest, DiscordLiveValidationResult } from "./public.js";
 
 const $I = $InstallerChannelsUseCasesId.create("server");
 
@@ -22,6 +21,10 @@ const $I = $InstallerChannelsUseCasesId.create("server");
  */
 export interface InstallerChannelsUseCasesShape {
   readonly previewDiscordChannels: () => Effect.Effect<DiscordChannelPlan, S.SchemaError>;
+  readonly validateDiscordChannel: (
+    request: DiscordLiveValidationRequest,
+    botToken: Redacted.Redacted<string>
+  ) => Effect.Effect<DiscordLiveValidationResult, S.SchemaError>;
 }
 
 /**
