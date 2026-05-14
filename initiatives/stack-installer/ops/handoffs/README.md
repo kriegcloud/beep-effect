@@ -32,8 +32,8 @@ not let generated notes accumulate at the initiative root.
   token-gated tailnet upload receiver for P1 proof bundles when Taildrop is
   unavailable. It accepts only the approved macOS and Windows bundle names and
   logs upload outcomes with tokens redacted. It also serves token-protected
-  status and command endpoints for proof machines without coordinator shell
-  access.
+  status, command, and next-actions endpoints for proof machines without
+  coordinator shell access.
 - [../start-proof-upload-window.mjs](../start-proof-upload-window.mjs) -
   coordinator helper that rotates a private upload token, writes ignored
   operator commands plus local inbox handoff notes, and starts the proof upload
@@ -45,4 +45,5 @@ not let generated notes accumulate at the initiative root.
 - [../proof-upload-status.mjs](../proof-upload-status.mjs) - coordinator
   status helper for upload server health, file permissions, returned bundles,
   platform artifact directories, detached watcher state, public landing page,
-  token-protected status/command endpoint behavior, and token-leak indicators.
+  token-protected status/command/next-actions endpoint behavior, and token-leak
+  indicators.

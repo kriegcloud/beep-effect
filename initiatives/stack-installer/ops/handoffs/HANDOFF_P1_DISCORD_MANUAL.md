@@ -347,6 +347,24 @@ Invoke-WebRequest `
   -Uri 'http://<coordinator-tailscale-ip>:<port>/commands'
 ```
 
+To fetch the full current operator next-actions note from a proof machine, use
+the token-protected next-actions endpoint:
+
+```bash
+curl -f \
+  -H "Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" \
+  'http://<coordinator-tailscale-ip>:<port>/next-actions'
+```
+
+Native Windows PowerShell:
+
+```powershell
+Invoke-WebRequest `
+  -Method Get `
+  -Headers @{ Authorization = "Bearer $env:STACK_INSTALLER_PROOF_UPLOAD_TOKEN" } `
+  -Uri 'http://<coordinator-tailscale-ip>:<port>/next-actions'
+```
+
 ```bash
 curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
   -H "Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" \

@@ -161,6 +161,8 @@ const statusWithoutToken = await endpointStatus("/status", { expectStatus: 403 }
 const statusWithToken = tokenText ? await endpointStatus("/status", { token: tokenText }) : undefined;
 const commandsWithoutToken = await endpointStatus("/commands", { expectStatus: 403 });
 const commandsWithToken = tokenText ? await endpointStatus("/commands", { token: tokenText }) : undefined;
+const nextActionsWithoutToken = await endpointStatus("/next-actions", { expectStatus: 403 });
+const nextActionsWithToken = tokenText ? await endpointStatus("/next-actions", { token: tokenText }) : undefined;
 const tokenFileMode = await fileMode(tokenPath);
 const commandsFileMode = await fileMode(commandsPath);
 const pidFileMode = await fileMode(pidPath);
@@ -181,6 +183,14 @@ const hasCommandResponseTokenLikeText = commandsWithToken ? tokenLikePattern.tes
 const commandResponseHasExpectedRoutes = commandsWithToken
   ? commandsWithToken.text.includes("/upload/stack-installer-p1-macos.tgz") &&
     commandsWithToken.text.includes("/upload/stack-installer-p1-windows.zip")
+  : false;
+const hasNextActionsResponseTokenLikeText = nextActionsWithToken
+  ? tokenLikePattern.test(nextActionsWithToken.text)
+  : true;
+const nextActionsResponseHasExpectedProofSteps = nextActionsWithToken
+  ? nextActionsWithToken.text.includes("git checkout feat/stack-installer-p1-live") &&
+    nextActionsWithToken.text.includes("/commands") &&
+    nextActionsWithToken.text.includes("p1:proof:audit")
   : false;
 const bundles = await bundleStatus();
 const platforms = await Promise.all(requiredPlatforms.map(platformStatus));
@@ -205,12 +215,16 @@ const uploadWindowOk =
   commandsWithoutToken.ok &&
   commandsWithToken?.ok === true &&
   commandResponseHasExpectedRoutes &&
+  nextActionsWithoutToken.ok &&
+  nextActionsWithToken?.ok === true &&
+  nextActionsResponseHasExpectedProofSteps &&
   tokenFileMode === "600" &&
   commandsFileMode === "600" &&
   pidFileMode === "600" &&
   !hasTokenLikeText &&
   !hasStatusResponseTokenLikeText &&
   !hasCommandResponseTokenLikeText &&
+  !hasNextActionsResponseTokenLikeText &&
   watcherWindowOk &&
   bundles.ok &&
   platforms.every((platform) => platform.ok);
@@ -233,6 +247,14 @@ console.log(
 );
 console.log(`commands endpoint has upload routes: ${commandResponseHasExpectedRoutes ? "yes" : "no"}`);
 console.log(`token-like text in commands endpoint response: ${hasCommandResponseTokenLikeText ? "yes" : "no"}`);
+console.log(
+  `next-actions endpoint without token: ${nextActionsWithoutToken.status} ${nextActionsWithoutToken.ok ? "ok" : "not-ok"}`
+);
+console.log(
+  `next-actions endpoint with token: ${nextActionsWithToken ? `${nextActionsWithToken.status} ${nextActionsWithToken.ok ? "ok" : "not-ok"}` : "missing-token"}`
+);
+console.log(`next-actions endpoint has proof steps: ${nextActionsResponseHasExpectedProofSteps ? "yes" : "no"}`);
+console.log(`token-like text in next-actions endpoint response: ${hasNextActionsResponseTokenLikeText ? "yes" : "no"}`);
 console.log(`pid: ${Number.isInteger(pid) ? `${pid} (${processExists(pid) ? "running" : "not running"})` : "missing"}`);
 console.log(`token file mode: ${tokenFileMode}`);
 console.log(`commands file mode: ${commandsFileMode}`);

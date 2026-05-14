@@ -25,7 +25,11 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Latest branch evidence includes the upload-window operator inbox generation
+- Latest branch evidence includes the remote operator next-actions endpoint
+  update, which exposes generated `OPERATOR_NEXT_ACTIONS.md` through
+  token-protected `GET /next-actions` so proof machines with the bearer token
+  can fetch the full current runbook without coordinator file sharing.
+- Earlier branch evidence includes the upload-window operator inbox generation
   update, which makes `start-proof-upload-window.mjs` regenerate ignored
   `README.operator-inbox.md` and `OPERATOR_NEXT_ACTIONS.md` files alongside
   `proof-upload-commands.txt` so local proof-window notes do not drift from the
@@ -147,10 +151,13 @@ without stopping until:
   upload routes without exposing proof state or tokens. It also exposes
   token-protected `GET /commands`, which returns the coordinator-generated
   upload command file for proof machines that have the current token but no
-  coordinator shell or file-sharing access. No operator upload has hit the
-  endpoint yet. The same live endpoint has also been verified through MagicDNS
-  at `http://dankputer.tailc7c348.ts.net:8765/health`, the MagicDNS public
-  landing page, and MagicDNS `GET /commands` with bearer token.
+  coordinator shell or file-sharing access, plus token-protected
+  `GET /next-actions`, which returns the generated full operator next-actions
+  note. No operator upload has hit the endpoint yet. The same live endpoint has
+  also been verified through MagicDNS at
+  `http://dankputer.tailc7c348.ts.net:8765/health`, the MagicDNS public landing
+  page, MagicDNS `GET /commands` with bearer token, and MagicDNS
+  `GET /next-actions` with bearer token.
 - Current upload-window starter:
   committed `initiatives/stack-installer/ops/start-proof-upload-window.mjs`
   now performs the coordinator setup: token rotation, `0600` token/command/PID
@@ -175,6 +182,13 @@ without stopping until:
   upload commands without SSH access. Latest raw-tailnet and MagicDNS checks
   return `403` without a bearer token and return the coordinator-generated
   command file with the active bearer token.
+- Current remote operator next-actions endpoint:
+  committed `initiatives/stack-installer/ops/proof-upload-server.mjs` exposes a
+  token-protected `GET /next-actions` endpoint for proof machines to fetch the
+  generated full operator runbook without SSH access. Latest raw-tailnet and
+  MagicDNS checks return `403` without a bearer token and return a runbook with
+  branch sync, `/commands`, and `p1:proof:audit` steps with the active bearer
+  token.
 - Current upload-window status helper:
   committed `initiatives/stack-installer/ops/proof-upload-status.mjs` reports
   upload endpoint health, PID/running state, private file modes,
@@ -186,19 +200,23 @@ without stopping until:
   `403` without a token, `GET /status` as `200` with the active bearer token,
   expected `/status` JSON shape, `GET /commands` as `403` without a token,
   `GET /commands` as `200` with the active bearer token, the presence of both
-  approved upload routes in the command response, and absence of token-like text
-  in the status and command responses. Latest status reports health `200 ok`,
-  landing page `200 ok`, status without token `403 ok`, status with token
-  `200 ok`, expected status shape present, commands without token `403 ok`,
-  commands with token `200 ok`, expected upload routes present, upload PID
-  `1127896` running, token/commands/PID file modes `600`, no token-like text in
-  upload logs, commands, status response, or command response, detached watcher
-  PID `1078319` running, detached watcher file modes `600`, no token-like text
-  in watcher logs or command file, both returned bundles missing, and both
-  `macos` and `windows` platform directories missing. With `--fail-on-missing`,
-  the same helper exits `1` for the current state, which gives coordinator
-  polling a machine-readable incomplete-proof gate while still proving the
-  proof window itself is alive and operator-fetchable.
+  approved upload routes in the command response, `GET /next-actions` as `403`
+  without a token, `GET /next-actions` as `200` with the active bearer token,
+  expected proof-run steps in the next-actions response, and absence of
+  token-like text in the status, command, and next-actions responses. Latest
+  status reports health `200 ok`, landing page `200 ok`, status without token
+  `403 ok`, status with token `200 ok`, expected status shape present, commands
+  without token `403 ok`, commands with token `200 ok`, expected upload routes
+  present, next-actions without token `403 ok`, next-actions with token
+  `200 ok`, expected proof steps present, upload PID `1132361` running,
+  token/commands/PID file modes `600`, no token-like text in upload logs,
+  commands, status response, command response, or next-actions response,
+  detached watcher PID `1078319` running, detached watcher file modes `600`, no
+  token-like text in watcher logs or command file, both returned bundles
+  missing, and both `macos` and `windows` platform directories missing. With
+  `--fail-on-missing`, the same helper exits `1` for the current state, which
+  gives coordinator polling a machine-readable incomplete-proof gate while
+  still proving the proof window itself is alive and operator-fetchable.
 - Latest post-rotation upload-window wait:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 36 --watch-interval-ms 5000`
   exhausted after the bearer-token endpoint was live. No returned bundles were

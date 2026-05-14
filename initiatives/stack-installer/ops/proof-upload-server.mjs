@@ -22,6 +22,7 @@ const allowedFileNames = new Set(["stack-installer-p1-macos.tgz", "stack-install
 const requiredPlatforms = ["macos", "windows"];
 const requiredArtifactFiles = ["proof.json", "commands.txt", "sha256sums.txt"];
 const uploadCommandsPath = path.join(outputRoot, "proof-upload-commands.txt");
+const nextActionsPath = path.join(outputRoot, "OPERATOR_NEXT_ACTIONS.md");
 
 if (!token) {
   throw new Error("Missing STACK_INSTALLER_PROOF_UPLOAD_TOKEN.");
@@ -109,12 +110,13 @@ const landingPage = () =>
     "Token-protected checks:",
     "- GET /status",
     "- GET /commands",
+    "- GET /next-actions",
     "",
     "Allowed uploads:",
     "- PUT or POST /upload/stack-installer-p1-macos.tgz",
     "- PUT or POST /upload/stack-installer-p1-windows.zip",
     "",
-    "Use an Authorization: Bearer token header for /status and /upload requests.",
+    "Use an Authorization: Bearer token header for /status, /commands, /next-actions, and /upload requests.",
     "Do not put the proof upload token in URLs, chat, commits, screencasts, or command transcripts.",
   ].join("\n");
 
@@ -125,6 +127,26 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "GET" && requestUrl.pathname === "/") {
       logRequest(request, 200, "landing");
       send(response, 200, landingPage());
+      return;
+    }
+
+    if (request.method === "GET" && requestUrl.pathname === "/next-actions") {
+      if (requestToken(request, requestUrl) !== token) {
+        logRequest(request, 403, "invalid-token");
+        send(response, 403, "Invalid upload token.");
+        return;
+      }
+
+      const nextActions = await fs.promises.readFile(nextActionsPath, "utf8").catch(() => "");
+
+      if (!nextActions) {
+        logRequest(request, 404, "next-actions-missing");
+        send(response, 404, "Operator next-actions file is missing.");
+        return;
+      }
+
+      logRequest(request, 200, "next-actions");
+      send(response, 200, nextActions.trimEnd());
       return;
     }
 
