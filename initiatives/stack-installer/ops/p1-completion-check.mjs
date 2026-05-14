@@ -16,8 +16,26 @@ const argAfter = (name, fallback) => {
 const repoRoot = path.resolve(import.meta.dirname, "..", "..", "..");
 const initiativeRoot = path.join(repoRoot, "initiatives", "stack-installer");
 const outputRoot = path.resolve(argAfter("--output-root", path.join(repoRoot, "output", "stack-installer", "p1-live")));
+const baseRef = argAfter("--base-ref", "origin/main");
 const requiredPlatforms = ["macos", "windows"];
 const requiredFiles = ["proof.json", "commands.txt", "sha256sums.txt"];
+const allowedFuturePhaseStubs = new Set([
+  "initiatives/stack-installer/history/outputs/p2-ai-mode-parity.md",
+  "initiatives/stack-installer/history/outputs/p3-recovery.md",
+  "initiatives/stack-installer/history/outputs/p4-portability.md",
+  "initiatives/stack-installer/history/outputs/p5-distribution-readiness.md",
+  "initiatives/stack-installer/ops/handoffs/HANDOFF_P2_AI_MODE.md",
+  "initiatives/stack-installer/ops/handoffs/HANDOFF_P3_RECOVERY.md",
+  "initiatives/stack-installer/ops/handoffs/HANDOFF_P4_PORTABILITY.md",
+  "initiatives/stack-installer/ops/handoffs/HANDOFF_V1_RELEASE.md",
+]);
+const forbiddenP2ImplementationPathPatterns = [
+  /^apps\/stack-installer\/src\/(?:ai-mode|ai_mode|mcp|runtime|skills?|skill-bundles?|executors?)\//i,
+  /^apps\/stack-installer\/src-tauri\/src\/(?:ai-mode|ai_mode|mcp|runtime|skills?|skill-bundles?|executors?)\//i,
+  /^packages\/installer-runtime\//i,
+  /^packages\/[^/]+\/(?:mcp|ai-mode|ai_mode|runtime|skills?|skill-bundles?|executors?)\//i,
+  /^tooling\/.*(?:mcp|ai-mode|ai_mode|skill-bundle|executor)/i,
+];
 
 const rel = (filePath) => path.relative(repoRoot, filePath) || ".";
 
@@ -47,6 +65,54 @@ const p1ReviewStatus = (reviewText) => {
   }
 
   return "unknown";
+};
+
+const changedPathsSinceBase = () => {
+  const result = spawnSync("git", ["diff", "--name-status", `${baseRef}...HEAD`], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  });
+
+  if (result.status !== 0) {
+    return {
+      error: `${result.stderr || result.stdout}`.trim() || `git diff exited ${result.status}`,
+      paths: [],
+    };
+  }
+
+  return {
+    error: undefined,
+    paths: result.stdout
+      .trim()
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .flatMap((line) => line.split("\t").slice(1)),
+  };
+};
+
+const p2ImplementationStatus = () => {
+  const changed = changedPathsSinceBase();
+
+  if (changed.error) {
+    return {
+      detail: `could not inspect diff against ${baseRef}: ${changed.error}`,
+      ok: false,
+    };
+  }
+
+  const flaggedPaths = changed.paths.filter(
+    (filePath) =>
+      !allowedFuturePhaseStubs.has(filePath) &&
+      forbiddenP2ImplementationPathPatterns.some((pattern) => pattern.test(filePath))
+  );
+
+  return {
+    detail:
+      flaggedPaths.length > 0
+        ? `forbidden P2 implementation paths changed: ${flaggedPaths.join(", ")}`
+        : `no forbidden P2 AI Mode/MCP/runtime implementation paths changed since ${baseRef}`,
+    ok: flaggedPaths.length === 0,
+  };
 };
 
 const platformArtifactStatus = async (platform) => {
@@ -105,6 +171,10 @@ addCheck(
   `manifest currentTargetPhase=${manifest.currentTargetPhase}`
 );
 addCheck(p2Phase?.status === "pending", "P2 remains pending", `manifest P2 status=${p2Phase?.status ?? "missing"}`);
+
+const p2DiffStatus = p2ImplementationStatus();
+
+addCheck(p2DiffStatus.ok, "P2 implementation remains untouched", p2DiffStatus.detail);
 
 for (const [fileName, label] of [
   ["stack-installer-p1-macos.tgz", "Returned macOS bundle"],
