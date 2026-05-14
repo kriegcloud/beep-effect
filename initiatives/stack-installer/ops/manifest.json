@@ -3,7 +3,7 @@
   "initiative": {
     "id": "stack-installer",
     "title": "Stack Installer",
-    "status": "active-p0-complete-p1-pending",
+    "status": "active-p1a-complete-p1-live-pending",
     "created": "2026-05-14",
     "updated": "2026-05-14",
     "packetAnchorDocument": "SPEC.md"
@@ -19,12 +19,17 @@
       "handoffArchive": "ops/handoffs/HANDOFF_P0_BOOTSTRAP.md",
       "summary": "Initiative packet created, decisions captured, corrected slice topology named, manifest targets P1."
     },
+    "p1a": {
+      "status": "completed",
+      "output": "history/outputs/p1a-runnable-spine.md",
+      "summary": "Dry-run package spine, shared 1Password reference value, deterministic manifest snapshot, Stack Installer web shell, and browser proof completed without live install behavior."
+    },
     "v1": {
       "status": "in_progress",
       "activeGate": "P1",
-      "closedGates": ["P0 packet bootstrap"],
+      "closedGates": ["P0 packet bootstrap", "P1A runnable dry-run spine"],
       "remainingGates": [
-        "P1 Discord vertical, Manual Mode",
+        "P1 Discord vertical, Manual Mode fresh-OS live proof",
         "P2 AI Mode parity",
         "P3 Recovery",
         "P4 Portability",
@@ -45,10 +50,17 @@
     "uiBaseline": "@beep/ui"
   },
   "publicContracts": {
-    "futureAppPackage": "@beep/stack-installer",
-    "futureAppPath": "apps/stack-installer",
-    "futureInstallerSlicePackagePattern": "@beep/installer-<category>-<role>",
-    "futureInstallerSlicePathPattern": "packages/installer-<category>/<role>",
+    "appPackage": "@beep/stack-installer",
+    "appPath": "apps/stack-installer",
+    "installerSlicePackagePattern": "@beep/installer-<category>-<role>",
+    "installerSlicePathPattern": "packages/installer-<category>/<role>",
+    "implementedP1aCategories": [
+      "dependencies",
+      "providers",
+      "channels",
+      "security",
+      "workspace"
+    ],
     "futureCategories": [
       "dependencies",
       "providers",
@@ -62,7 +74,7 @@
   "v1Completion": {
     "status": "in_progress",
     "activeGate": "P1",
-    "closedGates": ["P0 packet bootstrap"],
+    "closedGates": ["P0 packet bootstrap", "P1A runnable dry-run spine"],
     "remainingGates": [
       "P1 Discord vertical, Manual Mode fresh-OS macOS and Windows proof",
       "P2 AI Mode parity across Claude and Codex",
@@ -89,6 +101,12 @@
         "provider selection",
         "app-local MCP executor adapter",
         "provider native-event-to-UI translation"
+      ],
+      "p1aImplemented": [
+        "Vite React web shell",
+        "minimal Tauri 2 health bridge",
+        "app-local dry-run registry composition",
+        "deterministic manifest preview"
       ],
       "uiBaseline": {
         "path": "packages/foundation/ui-system/ui",
@@ -159,9 +177,9 @@
     {
       "id": "P1",
       "name": "Discord Vertical, Manual Mode",
-      "status": "pending",
+      "status": "in_progress",
       "output": "history/outputs/p1-discord-vertical-manual.md",
-      "exitCriteriaSummary": "Fresh-OS macOS and Windows manual runs complete provider auth, 1Password, Discord setup, and test message."
+      "exitCriteriaSummary": "P1A dry-run spine complete; full P1 still needs fresh-OS macOS and Windows manual runs that complete provider auth, 1Password, Discord setup, and test message."
     },
     {
       "id": "P2",
@@ -209,9 +227,17 @@
     {
       "phase": "P1",
       "proof": "Discord Vertical, Manual Mode",
-      "status": "pending",
+      "status": "in_progress",
       "evidenceArtifacts": [
         "history/outputs/p1-discord-vertical-manual.md",
+        "history/outputs/p1a-runnable-spine.md",
+        "apps/stack-installer",
+        "packages/installer-dependencies",
+        "packages/installer-security",
+        "packages/installer-providers",
+        "packages/installer-channels",
+        "packages/installer-workspace",
+        "output/playwright/stack-installer-p1a/workbench.png",
         "future evidence: macOS screencast",
         "future evidence: Windows screencast",
         "future evidence: sanitized manifest",
@@ -270,6 +296,18 @@
       "jq . initiatives/stack-installer/ops/manifest.json",
       "rg -n \"P0|P1|P2|P3|P4|P5\" initiatives/stack-installer"
     ],
+    "p1a": [
+      "bun install",
+      "bun run config-sync",
+      "bunx turbo run check --filter=@beep/shared-domain --filter=@beep/identity --filter=@beep/installer-dependencies-domain --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-security-domain --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-domain --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-domain --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases --filter=@beep/installer-workspace-server --filter=@beep/stack-installer",
+      "bunx turbo run test --filter=@beep/shared-domain --filter=@beep/identity --filter=@beep/installer-dependencies-domain --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-security-domain --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-domain --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-domain --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases --filter=@beep/installer-workspace-server --filter=@beep/stack-installer",
+      "bunx turbo run lint --filter=@beep/shared-domain --filter=@beep/identity --filter=@beep/installer-dependencies-domain --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-security-domain --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-domain --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-domain --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases --filter=@beep/installer-workspace-server --filter=@beep/stack-installer",
+      "bunx tstyche OnePasswordReference --config tstyche.json --tsconfig tsconfig.dtslint.json",
+      "bunx tstyche Identity --config tstyche.json --tsconfig tsconfig.dtslint.json",
+      "bun run config-sync:check",
+      "cd apps/stack-installer && bun run build",
+      "Playwright snapshot and screenshot against http://127.0.0.1:4177/"
+    ],
     "repoWidePlaceholders": [
       "bun run check",
       "bun run lint",
@@ -296,16 +334,15 @@
     ]
   },
   "knownGaps": [
-    "Tauri app not built",
-    "verb registry not built",
-    "installer slice packages not built",
-    "MCP executor adapter not built",
+    "Tauri desktop compile not yet proven",
+    "live verb execution not built",
+    "MCP executor adapter not built beyond minimal app-local Tauri bridge",
     "skill and instruction bundle generation not built",
-    "Claude provider adapter not built",
-    "Codex provider adapter not built",
-    "Discord vertical not built",
-    "manifest schema not implemented",
+    "Claude provider adapter not built beyond dry-run fixture",
+    "Codex provider adapter not built beyond dry-run fixture",
+    "Discord vertical not built beyond dry-run fixture",
     "local event log not implemented",
+    "fresh-OS macOS and Windows proof not run",
     "distribution and signing pipeline not built"
   ],
   "keyDecisions": [
@@ -319,5 +356,5 @@
     "Discord is the only v1 channel",
     "macOS and Windows are v1 parity targets"
   ],
-  "nextAction": "Kick off P1: Discord vertical, Manual Mode, without implementing AI Mode first."
+  "nextAction": "Run full P1 live Manual Mode proof on fresh macOS and Windows: 1Password validation, provider auth validation, Discord liveness, sanitized manifest, and test message."
 }

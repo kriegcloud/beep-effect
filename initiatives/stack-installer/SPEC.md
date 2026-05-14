@@ -26,7 +26,7 @@ is broken, and what needs human approval.
 
 In scope:
 
-- `apps/stack-installer` as the future Tauri 2 + React app package
+- `apps/stack-installer` as the Tauri 2 + React app package
   `@beep/stack-installer`
 - macOS and Windows v1 parity, with Linux best-effort
 - Discord as the only v1 channel
@@ -74,7 +74,9 @@ provider selection, approval modals, action streaming, scoped chat, local
 runtime adapters, and the MCP executor adapter. The MCP executor is app-local
 runtime composition, not a repo-wide tooling package and not a God Layer.
 
-Installer capabilities are future sibling slices with doctrine-native slugs:
+Installer capabilities use sibling slices with doctrine-native slugs. P1A
+implements dependencies, security, providers, channels, and workspace as
+dry-run role packages; runtime remains deferred.
 
 | Category | Slice slug | Example domain package |
 | --- | --- | --- |

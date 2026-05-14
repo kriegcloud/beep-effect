@@ -91,6 +91,19 @@ language and the encoded side is the persistence row shape.
 - **Coupling acceptors:** Architecture grilling session accepted shared-kernel ownership; PR review sign-off pending.
 - **Removal trigger:** retire if membership authority moves behind a different promoted shared contract and direct entity references are migrated away.
 
+### Promotion record: OnePasswordReference
+
+- **Date promoted:** 2026-05-14
+- **Shared product semantics:** A credential input in installer flows is a reference to a 1Password item field, never a plaintext secret.
+- **Current consumers:** `@beep/installer-security-domain`, `@beep/installer-providers-domain`, `@beep/installer-channels-domain`, `@beep/installer-workspace-domain`.
+- **Rejected homes:**
+  - Owning slice - `installer-security` owns validation and resolution behavior, but provider, channel, and workspace contracts also need the same credential-reference meaning without importing the security slice directly.
+  - Foundation - this is product security language for the Stack Installer, not a domain-agnostic string primitive.
+- **Surface:** `@beep/shared-domain/values`, `@beep/shared-domain/values/OnePasswordReference`, `Values.OnePasswordReference.OnePasswordReference`.
+- **Runtime limits:** no live Layers.
+- **Coupling acceptors:** Stack Installer P1A planning accepted shared-domain ownership; PR review sign-off pending.
+- **Removal trigger:** retire if installer credential references move behind a different promoted shared contract that preserves the no-plaintext-secret boundary.
+
 ## Development
 
 ```bash

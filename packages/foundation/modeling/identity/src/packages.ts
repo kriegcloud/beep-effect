@@ -120,6 +120,22 @@ const composers = $I.compose(
   "architecture-lab-client",
   "architecture-lab-ui",
   "architecture-lab-proof",
+  "stack-installer",
+  "installer-dependencies-domain",
+  "installer-dependencies-use-cases",
+  "installer-dependencies-server",
+  "installer-security-domain",
+  "installer-security-use-cases",
+  "installer-security-server",
+  "installer-providers-domain",
+  "installer-providers-use-cases",
+  "installer-providers-server",
+  "installer-channels-domain",
+  "installer-channels-use-cases",
+  "installer-channels-server",
+  "installer-workspace-domain",
+  "installer-workspace-use-cases",
+  "installer-workspace-server",
   "runpod"
 );
 
@@ -1047,6 +1063,159 @@ export const $ArchitectureLabUiId: Identity.IdentityComposer<"@beep/architecture
  */
 export const $ArchitectureLabProofId: Identity.IdentityComposer<"@beep/architecture-lab-proof"> =
   composers.$ArchitectureLabProofId;
+
+// --- stack installer ---
+
+/**
+ * Identity composer for `@beep/stack-installer`.
+ *
+ * @example
+ * ```typescript
+ * import { $StackInstallerId } from "@beep/identity"
+ *
+ * const id = $StackInstallerId.make("Workbench")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $StackInstallerId: Identity.IdentityComposer<"@beep/stack-installer"> = composers.$StackInstallerId;
+
+/**
+ * Identity composer for `@beep/installer-dependencies-domain`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerDependenciesDomainId: Identity.IdentityComposer<"@beep/installer-dependencies-domain"> =
+  composers.$InstallerDependenciesDomainId;
+
+/**
+ * Identity composer for `@beep/installer-dependencies-use-cases`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerDependenciesUseCasesId: Identity.IdentityComposer<"@beep/installer-dependencies-use-cases"> =
+  composers.$InstallerDependenciesUseCasesId;
+
+/**
+ * Identity composer for `@beep/installer-dependencies-server`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerDependenciesServerId: Identity.IdentityComposer<"@beep/installer-dependencies-server"> =
+  composers.$InstallerDependenciesServerId;
+
+/**
+ * Identity composer for `@beep/installer-security-domain`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerSecurityDomainId: Identity.IdentityComposer<"@beep/installer-security-domain"> =
+  composers.$InstallerSecurityDomainId;
+
+/**
+ * Identity composer for `@beep/installer-security-use-cases`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerSecurityUseCasesId: Identity.IdentityComposer<"@beep/installer-security-use-cases"> =
+  composers.$InstallerSecurityUseCasesId;
+
+/**
+ * Identity composer for `@beep/installer-security-server`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerSecurityServerId: Identity.IdentityComposer<"@beep/installer-security-server"> =
+  composers.$InstallerSecurityServerId;
+
+/**
+ * Identity composer for `@beep/installer-providers-domain`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerProvidersDomainId: Identity.IdentityComposer<"@beep/installer-providers-domain"> =
+  composers.$InstallerProvidersDomainId;
+
+/**
+ * Identity composer for `@beep/installer-providers-use-cases`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerProvidersUseCasesId: Identity.IdentityComposer<"@beep/installer-providers-use-cases"> =
+  composers.$InstallerProvidersUseCasesId;
+
+/**
+ * Identity composer for `@beep/installer-providers-server`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerProvidersServerId: Identity.IdentityComposer<"@beep/installer-providers-server"> =
+  composers.$InstallerProvidersServerId;
+
+/**
+ * Identity composer for `@beep/installer-channels-domain`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerChannelsDomainId: Identity.IdentityComposer<"@beep/installer-channels-domain"> =
+  composers.$InstallerChannelsDomainId;
+
+/**
+ * Identity composer for `@beep/installer-channels-use-cases`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerChannelsUseCasesId: Identity.IdentityComposer<"@beep/installer-channels-use-cases"> =
+  composers.$InstallerChannelsUseCasesId;
+
+/**
+ * Identity composer for `@beep/installer-channels-server`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerChannelsServerId: Identity.IdentityComposer<"@beep/installer-channels-server"> =
+  composers.$InstallerChannelsServerId;
+
+/**
+ * Identity composer for `@beep/installer-workspace-domain`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerWorkspaceDomainId: Identity.IdentityComposer<"@beep/installer-workspace-domain"> =
+  composers.$InstallerWorkspaceDomainId;
+
+/**
+ * Identity composer for `@beep/installer-workspace-use-cases`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerWorkspaceUseCasesId: Identity.IdentityComposer<"@beep/installer-workspace-use-cases"> =
+  composers.$InstallerWorkspaceUseCasesId;
+
+/**
+ * Identity composer for `@beep/installer-workspace-server`.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $InstallerWorkspaceServerId: Identity.IdentityComposer<"@beep/installer-workspace-server"> =
+  composers.$InstallerWorkspaceServerId;
 
 /**
  * Identity composer for `@beep/runpod`.

@@ -1,0 +1,74 @@
+{
+  "name": "@beep/stack-installer",
+  "version": "0.0.0",
+  "description": "Tauri and React shell for the dry-run AI stack installer spine.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/apps/stack-installer",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "apps/stack-installer"
+  },
+  "scripts": {
+    "audit": "bun run --if-present beep:audit",
+    "codegen": "echo 'no codegen needed'",
+    "dev": "vite --host 0.0.0.0",
+    "dev:tauri": "tauri dev",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+    "beep:build": "vite build",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "beep:test": "bunx --bun vitest run",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "coverage": "bunx --bun vitest run --coverage",
+    "docgen": "bun run ../../packages/tooling/tool/docgen/src/bin.ts",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.css",
+    "src-tauri/**/*"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/installer-channels-use-cases": "workspace:^",
+    "@beep/installer-dependencies-use-cases": "workspace:^",
+    "@beep/installer-providers-use-cases": "workspace:^",
+    "@beep/installer-security-use-cases": "workspace:^",
+    "@beep/installer-workspace-use-cases": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@phosphor-icons/react": "catalog:",
+    "@tauri-apps/api": "catalog:",
+    "effect": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@tauri-apps/cli": "catalog:",
+    "@testing-library/dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "jsdom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

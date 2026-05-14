@@ -18,9 +18,10 @@ and an approval-first UI. The terminal remains plumbing; the daily-driver
 surface is Claude Desktop or Codex Desktop plus one OpenClaw channel as a
 secondary path.
 
-P0 creates the initiative packet only. Tauri code, installer slice packages,
-verb registry implementation, MCP execution, skill generation, and product UI
-remain future phase work.
+P0 created the initiative packet only. P1A has now added the runnable dry-run
+spine: package contracts, deterministic manifest snapshot, `@beep/ui` web
+shell, and a minimal Tauri 2 bridge. Live installers, Discord mutation, MCP
+execution, skill generation, and fresh-OS proof remain later work.
 
 ## Read This First
 
@@ -31,6 +32,8 @@ remain future phase work.
 - [ops/handoffs](./ops/handoffs) - agent-operable handoffs
 - [history/outputs/p0-current-state.md](./history/outputs/p0-current-state.md)
   - completed P0 decision record and dependency inventory
+- [history/outputs/p1a-runnable-spine.md](./history/outputs/p1a-runnable-spine.md)
+  - P1A dry-run package/app proof
 - [research/README.md](./research/README.md) - research index
 - [research/verb-registry-schema-sketch.md](./research/verb-registry-schema-sketch.md)
   - future registry schema questions
@@ -41,6 +44,9 @@ remain future phase work.
 
 - P0 is complete: the packet exists, locked decisions are recorded, the
   corrected installer slice topology is named, and the manifest points to P1.
+- P1A is complete: the dry-run package spine and Stack Installer web shell
+  exist, validate 1Password-reference-only inputs, compose slice-owned verb
+  contracts, and render a deterministic manifest preview.
 - P1 is pending: Discord vertical, Manual Mode, with fresh-OS proof on macOS
   and Windows.
 - P2 is pending: AI Mode parity across Claude and Codex with byte-identical

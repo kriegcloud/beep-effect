@@ -1,8 +1,8 @@
 # Stack Installer Plan
 
-This plan executes [SPEC.md](./SPEC.md). P0 is complete because this session
-creates the packet only. P1 is the next active target: Discord vertical,
-Manual Mode.
+This plan executes [SPEC.md](./SPEC.md). P0 is complete. P1 is the active
+target: Discord vertical, Manual Mode. P1A is complete as a runnable dry-run
+checkpoint; full P1 still requires fresh-OS live proof.
 
 ## P0: Initiative Bootstrap
 
@@ -41,11 +41,53 @@ Stop Conditions:
 
 ## P1: Discord Vertical, Manual Mode
 
-Status: pending
+Status: in progress; P1A dry-run runnable spine complete, fresh-OS live
+Discord proof pending
 
 Goal: Prove the smallest end-to-end v1 path without AI Mode: provider auth,
 1Password, Discord bot/channel setup, manifest creation, validation, and a
 test message on fresh macOS and Windows machines.
+
+### P1A: Runnable Dry-Run Spine
+
+Status: completed
+
+Goal: prove the package and app spine before live installers exist. This is a
+P1 checkpoint, not the full P1 exit.
+
+Exit Criteria:
+
+- [x] Shared `OnePasswordReference` value object exists in `@beep/shared-domain`.
+- [x] P1 installer slices exist for dependencies, security, providers,
+  channels, and workspace with domain/use-cases/server role packages.
+- [x] Slice-owned dry-run verb contracts exist and are composed by
+  `apps/stack-installer`, not by a God Layer.
+- [x] `installer-workspace` owns `AIStackManifest`, validation events, and the
+  deterministic P1A dry-run snapshot.
+- [x] `apps/stack-installer` exists as a Tauri 2 + React shell using
+  `@beep/ui/styles/globals.css` and `AppThemeProvider`.
+- [x] Web-shell proof captured with Playwright.
+
+Required Outputs:
+
+- `history/outputs/p1a-runnable-spine.md`
+- `output/playwright/stack-installer-p1a/workbench.png`
+
+Required Checks:
+
+- targeted `turbo run check` over `@beep/shared-domain`, `@beep/identity`,
+  installer packages, and `@beep/stack-installer`
+- targeted `turbo run test` over the same package set
+- targeted `turbo run lint` over the same package set
+- `bun run build` in `apps/stack-installer`
+- Playwright snapshot and screenshot against the Vite web shell
+
+Stop Conditions:
+
+- Do not credit P1A if any dry-run path executes live install commands.
+- Do not credit P1A if any credential surface accepts plaintext secrets.
+- Do not credit full P1 until fresh macOS and Windows Manual Mode Discord
+  proofs exist.
 
 Exit Criteria:
 
@@ -58,14 +100,13 @@ Exit Criteria:
 Required Outputs:
 
 - `history/outputs/p1-discord-vertical-manual.md`
+- `history/outputs/p1a-runnable-spine.md` for the completed dry-run checkpoint
 
 Required Checks:
 
-- placeholder: `bun run check`
-- placeholder: `bun run lint`
-- placeholder: `bun run test`
-- placeholder: installer slice package checks once packages exist
+- P1A: targeted installer/app `check`, `test`, `lint`, and web build
 - placeholder: fresh-OS smoke wrapper for macOS and Windows
+- placeholder: live Discord test message proof
 
 Stop Conditions:
 
