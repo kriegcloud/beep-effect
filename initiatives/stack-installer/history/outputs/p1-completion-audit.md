@@ -46,6 +46,14 @@ without stopping until:
   returned `stack-installer-p1-*.tgz` or `.zip` bundles are present at the
   output root, the same status command prints the extraction command before the
   final audit gate.
+- Current artifact intake status:
+  `bun run --filter @beep/stack-installer p1:proof:intake` exits successfully
+  against the empty output root, reports that no returned bundles are present,
+  and prints the same missing-directory status. When returned platform bundles
+  are present, this command extracts them before the final audit gate. A
+  temporary coordinator smoke verified extraction of both
+  `stack-installer-p1-macos.tgz` and `stack-installer-p1-windows.zip` into the
+  required platform directories.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:
@@ -75,7 +83,8 @@ without stopping until:
 | Per-platform artifact audit implemented | `p1:proof:audit` checks required files, checksum freshness, likely plaintext Discord token leaks in text artifacts, all validation events, configured providers, redacted credential references, and Discord message evidence | complete |
 | Both-platform artifact audit implemented | `p1:proof:audit-all` checks macOS and Windows directories and target-platform parity | complete |
 | Read-only artifact status implemented | `7923a2387a feat(stack-installer): report p1 proof artifact status`; `p1:proof:status` reports missing or incomplete macOS/Windows artifact directories without accepting them as proof | complete |
-| Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest post-audit refresh on 2026-05-14 re-ran `bun run --filter @beep/stack-installer check`, `lint`, `test`, and `coverage` successfully, with 12 tests passing and coverage at 98.13% statements / 90.16% branches. The same refresh passed `git diff --check`, manifest JSON validation, and `p1:proof:status`; earlier full P1 harness verification included the targeted turbo check/test/lint set, app build, Tauri `cargo check`, `bun run config-sync:check`, and temp macOS/Windows fixture checksum/audit/audit-all for the tightened artifact rules | complete for implemented local surfaces |
+| Coordinator bundle intake implemented | `p1:proof:intake` extracts returned `stack-installer-p1-macos.tgz` and `stack-installer-p1-windows.zip` bundles when the corresponding platform directory is missing, then reports status without accepting missing proof as complete | complete |
+| Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest post-audit refresh on 2026-05-14 re-ran `bun run --filter @beep/stack-installer check`, `lint`, `test`, and `coverage` successfully, with 12 tests passing and coverage at 98.16% statements / 90.47% branches. The same refresh passed `git diff --check`, manifest JSON validation, `p1:proof:status`, the empty-inbox `p1:proof:intake` path, and a temporary `.tgz` plus `.zip` intake extraction smoke; earlier full P1 harness verification included the targeted turbo check/test/lint set, app build, Tauri `cargo check`, `bun run config-sync:check`, and temp macOS/Windows fixture checksum/audit/audit-all for the tightened artifact rules | complete for implemented local surfaces |
 | macOS fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/macos/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Windows fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/windows/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Sanitized proof JSON captured | Must be produced by each fresh-machine `p1:proof:capture` run and pass `p1:proof:audit-all`; no real fresh-machine proof JSON is present | missing |
@@ -93,6 +102,7 @@ After operators produce both platform directories:
 ```bash
 cd apps/stack-installer
 bun run p1:proof:status -- --output-root ../../output/stack-installer/p1-live
+bun run p1:proof:intake -- --output-root ../../output/stack-installer/p1-live
 bun run p1:proof:audit-all -- --output-root ../../output/stack-installer/p1-live
 ```
 

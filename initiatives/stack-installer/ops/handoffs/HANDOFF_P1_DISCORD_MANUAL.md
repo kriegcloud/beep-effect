@@ -274,26 +274,22 @@ Keep the `-Path` value pointed at the platform directory itself. Do not append
 coordinator-side extraction creates `output/stack-installer/p1-live/windows/`.
 
 On the coordinator checkout, copy the received bundle into
-`output/stack-installer/p1-live/`, then expand it from the repository root:
+`output/stack-installer/p1-live/`, then run the intake helper:
 
 ```bash
 cd apps/stack-installer
-bun run p1:proof:status -- --output-root ../../output/stack-installer/p1-live
-cd ../..
+bun run p1:proof:intake -- --output-root ../../output/stack-installer/p1-live
+```
 
+The intake helper safely extracts `stack-installer-p1-macos.tgz` and
+`stack-installer-p1-windows.zip` only when the corresponding platform directory
+is missing, then prints the current status. Manual extraction remains available
+when needed:
+
+```bash
 mkdir -p output/stack-installer/p1-live
 tar -xzf output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
   -C output/stack-installer/p1-live
-```
-
-For a Windows zip bundle received on the coordinator checkout:
-
-```bash
-cd apps/stack-installer
-bun run p1:proof:status -- --output-root ../../output/stack-installer/p1-live
-cd ../..
-
-mkdir -p output/stack-installer/p1-live
 unzip -o output/stack-installer/p1-live/stack-installer-p1-windows.zip \
   -d output/stack-installer/p1-live
 ```

@@ -14,12 +14,13 @@ import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-works
 import { OnePasswordCli } from "@beep/onepassword-cli";
 import { Sha256HexFromBytes } from "@beep/schema/Sha256";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
-import { Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
+import { Effect, FileSystem, Layer, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Rx from "effect/RegExp";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { P1ManualProofSliceLayer, runP1ManualProof } from "./P1ManualProof.js";
 import {
   CHECKSUMS_FILE_NAME,
@@ -30,6 +31,7 @@ import {
   type P1RequiredPlatform,
   PROOF_FILE_NAME,
   p1ProofBundleExtractionCommand,
+  p1ProofBundleExtractionProcess,
   p1ProofBundleFileNameForPlatform,
   p1ProofMissingRequiredArtifactFiles,
 } from "./P1ProofArtifacts.js";
@@ -50,7 +52,18 @@ const DriverLayer = Layer.mergeAll(OnePasswordCli.makeLayer(), AiProviderCli.mak
   Layer.provideMerge(BunChildProcessSpawner.layer),
   Layer.provideMerge(BaseLayer)
 );
-const RuntimeLayer = Layer.mergeAll(BaseLayer, P1ManualProofSliceLayer.pipe(Layer.provideMerge(DriverLayer)));
+const ProcessLayer = BunChildProcessSpawner.layer.pipe(Layer.provideMerge(BaseLayer));
+const SliceRuntimeLayer = P1ManualProofSliceLayer.pipe(Layer.provideMerge(DriverLayer), Layer.provideMerge(BaseLayer));
+const RuntimeLayer = Layer.mergeAll(ProcessLayer, SliceRuntimeLayer);
+
+const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runFold(
+      () => "",
+      (acc, chunk) => `${acc}${chunk}`
+    )
+  );
 
 const argAfter = (name: string): O.Option<string> =>
   pipe(
@@ -218,6 +231,88 @@ const proofArtifactStatus = Effect.fn("StackInstaller.proofArtifactStatus")(func
     ...platformMessages,
     "Next required gate: bun run p1:proof:audit-all after both platform directories contain proof.json, commands.txt, sha256sums.txt, and screencast.*.",
   ]);
+});
+
+const runExtractionProcess = Effect.fn("StackInstaller.runExtractionProcess")(function* (
+  platform: P1RequiredPlatform,
+  bundlePath: string,
+  outputRoot: string
+) {
+  const process = p1ProofBundleExtractionProcess(platform, bundlePath, outputRoot);
+
+  const [stdout, stderr, exitCode] = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const handle = yield* spawner.spawn(
+        ChildProcess.make(process.command, A.fromIterable(process.args), {
+          stderr: "pipe",
+          stdin: "ignore",
+          stdout: "pipe",
+        })
+      );
+
+      return yield* Effect.all([collectText(handle.stdout), collectText(handle.stderr), handle.exitCode], {
+        concurrency: "unbounded",
+      });
+    })
+  );
+
+  yield* requireAudit(
+    exitCode === 0,
+    `Failed to extract ${bundlePath} with ${process.command}; exitCode=${exitCode}; stderr=${stderr}; stdout=${stdout}`
+  );
+});
+
+const intakePlatformBundle = Effect.fn("StackInstaller.intakePlatformBundle")(function* (
+  outputRoot: string,
+  platform: P1RequiredPlatform
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const outputDir = path.join(outputRoot, platform);
+  const bundlePath = path.join(outputRoot, p1ProofBundleFileNameForPlatform(platform));
+  const bundleExists = yield* fs.exists(bundlePath).pipe(Effect.orElseSucceed(() => false));
+
+  if (!bundleExists) {
+    return O.none<string>();
+  }
+
+  const outputDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+
+  if (outputDirExists) {
+    return O.some(
+      `- ${platform}: skipped; proof directory already exists\n  dir: ${outputDir}\n  bundle: ${bundlePath}`
+    );
+  }
+
+  yield* runExtractionProcess(platform, bundlePath, outputRoot);
+
+  const extractedDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+
+  yield* requireAudit(extractedDirExists, `Extracted bundle did not create expected proof directory: ${outputDir}`);
+
+  return O.some(`- ${platform}: extracted returned proof bundle\n  dir: ${outputDir}\n  bundle: ${bundlePath}`);
+});
+
+const intakeReturnedBundles = Effect.fn("StackInstaller.intakeReturnedBundles")(function* (outputRoot: string) {
+  const fs = yield* FileSystem.FileSystem;
+
+  yield* fs.makeDirectory(outputRoot, { recursive: true });
+
+  const intakeMessages = yield* Effect.forEach(
+    P1_REQUIRED_PLATFORMS,
+    (platform) => intakePlatformBundle(outputRoot, platform),
+    { concurrency: 1 }
+  );
+  const status = yield* proofArtifactStatus(outputRoot);
+  const summary = pipe(
+    A.getSomes(intakeMessages),
+    O.liftPredicate(A.isReadonlyArrayNonEmpty),
+    O.map(A.join("\n")),
+    O.getOrElse(() => `No returned P1 proof bundles found in ${outputRoot}.`)
+  );
+
+  return `${summary}\n\n${status}`;
 });
 
 const sha256File = Effect.fn("StackInstaller.sha256File")(function* (filePath: string) {
@@ -415,21 +510,39 @@ const statusMode = Effect.gen(function* () {
   return yield* proofArtifactStatus(outputRoot);
 });
 
+const intakeMode = Effect.gen(function* () {
+  const defaultOutputRoot = yield* resolveDefaultOutputRoot;
+  const outputRoot = pipe(
+    argAfter("--output-root"),
+    O.getOrElse(() => defaultOutputRoot)
+  );
+
+  return yield* intakeReturnedBundles(outputRoot);
+});
+
+const selectedMode = Effect.gen(function* () {
+  if (hasArg("--audit-all")) {
+    return yield* auditAllMode;
+  }
+  if (hasArg("--intake")) {
+    return yield* intakeMode;
+  }
+  if (hasArg("--status")) {
+    return yield* statusMode;
+  }
+  if (hasArg("--audit-only")) {
+    return yield* auditOnlyMode;
+  }
+  if (hasArg("--checksums-only")) {
+    return yield* checksumOnlyMode;
+  }
+
+  return yield* captureMode;
+});
+
 const program = pipe(
-  hasArg("--audit-all")
-    ? auditAllMode
-    : hasArg("--status")
-      ? statusMode
-      : hasArg("--audit-only")
-        ? auditOnlyMode
-        : hasArg("--checksums-only")
-          ? checksumOnlyMode
-          : captureMode,
-  Effect.tap((message) =>
-    Effect.sync(() => {
-      console.log(message);
-    })
-  ),
+  selectedMode,
+  Effect.tap((message) => Effect.sync(() => console.log(message))),
   // @effect-diagnostics-next-line strictEffectProvide:off
   Effect.provide(RuntimeLayer)
 );

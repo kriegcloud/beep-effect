@@ -54,6 +54,17 @@ export type P1RequiredPlatform = (typeof P1_REQUIRED_PLATFORMS)[number];
 const MACOS_BUNDLE_FILE_NAME = "stack-installer-p1-macos.tgz";
 const WINDOWS_BUNDLE_FILE_NAME = "stack-installer-p1-windows.zip";
 
+/**
+ * Native extraction process for a returned proof bundle.
+ *
+ * @category proof
+ * @since 0.0.0
+ */
+export type P1ProofBundleExtractionProcess = {
+  readonly command: string;
+  readonly args: ReadonlyArray<string>;
+};
+
 const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 
 const hasFileName = (fileNames: ReadonlyArray<string>, fileName: string): boolean =>
@@ -118,3 +129,18 @@ export const p1ProofBundleExtractionCommand = (
   platform === "macos"
     ? `tar -xzf ${shellQuote(bundlePath)} -C ${shellQuote(outputRoot)}`
     : `unzip -o ${shellQuote(bundlePath)} -d ${shellQuote(outputRoot)}`;
+
+/**
+ * Build the native extraction process for a returned proof bundle.
+ *
+ * @category proof
+ * @since 0.0.0
+ */
+export const p1ProofBundleExtractionProcess = (
+  platform: P1RequiredPlatform,
+  bundlePath: string,
+  outputRoot: string
+): P1ProofBundleExtractionProcess =>
+  platform === "macos"
+    ? { args: ["-xzf", bundlePath, "-C", outputRoot], command: "tar" }
+    : { args: ["-o", bundlePath, "-d", outputRoot], command: "unzip" };

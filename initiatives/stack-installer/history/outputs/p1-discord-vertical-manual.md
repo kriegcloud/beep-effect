@@ -78,6 +78,13 @@ Current local command evidence from 2026-05-14:
   missing until real fresh-machine artifacts are returned, and prints the
   coordinator-side `tar` or `unzip` extraction command when returned platform
   bundles are present at the proof output root.
+- After adding the coordinator-side proof bundle intake helper,
+  `bun run --filter @beep/stack-installer check`, `lint`, `test`, and
+  `p1:proof:intake` passed. The intake helper reports an empty inbox without
+  accepting it as proof, and extracts returned macOS and Windows bundles before
+  the final `p1:proof:audit-all` gate. A temporary coordinator smoke verified
+  extraction of both returned bundle formats into the required platform
+  directories.
 - After adding deterministic tests for the injected desktop proof runner and
   proof artifact helper branches, `bun run --filter @beep/stack-installer
   coverage` passed with package branch coverage above the repo threshold.

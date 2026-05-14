@@ -20,6 +20,7 @@ import {
   isP1ProofArtifactStatusFileName,
   isP1ProofEvidenceFileName,
   p1ProofBundleExtractionCommand,
+  p1ProofBundleExtractionProcess,
   p1ProofBundleFileNameForPlatform,
   p1ProofMissingRequiredArtifactFiles,
 } from "../src/proof/P1ProofArtifacts.js";
@@ -204,6 +205,16 @@ describe("P1 proof artifact helpers", () => {
     expect(p1ProofBundleExtractionCommand("windows", "/proof root/stack-installer-p1-windows.zip", "/proof root")).toBe(
       "unzip -o '/proof root/stack-installer-p1-windows.zip' -d '/proof root'"
     );
+    expect(p1ProofBundleExtractionProcess("macos", "/proof root/stack-installer-p1-macos.tgz", "/proof root")).toEqual({
+      args: ["-xzf", "/proof root/stack-installer-p1-macos.tgz", "-C", "/proof root"],
+      command: "tar",
+    });
+    expect(
+      p1ProofBundleExtractionProcess("windows", "/proof root/stack-installer-p1-windows.zip", "/proof root")
+    ).toEqual({
+      args: ["-o", "/proof root/stack-installer-p1-windows.zip", "-d", "/proof root"],
+      command: "unzip",
+    });
   });
 
   it("reports the missing required artifact files for a platform directory", () => {
