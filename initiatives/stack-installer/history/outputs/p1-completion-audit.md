@@ -64,6 +64,10 @@ without stopping until:
   fails as expected against the empty output root, printing the same missing
   macOS and Windows directory status. The watch helper is a bounded polling
   convenience for transfer windows, not a proof substitute.
+- Latest coordinator wait:
+  `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 6 --watch-interval-ms 5000`
+  exhausted all attempts without finding returned bundles and ended with the
+  same missing `macos` and `windows` platform directories.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:
@@ -145,6 +149,7 @@ Blocking requirements:
 
 - macOS fresh-machine proof artifact directory is missing.
 - Windows fresh-machine proof artifact directory is missing.
+- Latest bounded coordinator watch found no returned proof bundles.
 - `p1:proof:audit-all` has not run against real macOS and Windows artifacts.
 - P1C `$quality-review-fix-loop` has not run after proof artifacts.
 
