@@ -30,6 +30,11 @@ without stopping until:
   temporary-local check for upload-window endpoint authentication, generated
   operator notes, file modes, token-leak indicators, and `--reuse-token`
   behavior without touching live proof artifacts.
+- Latest branch evidence also includes
+  `initiatives/stack-installer/ops/p1-completion-check.mjs`, a conservative
+  prompt-to-artifact completion checklist that exits nonzero until the fresh
+  macOS and Windows artifacts exist, `p1:proof:audit-all` passes, and the
+  post-proof review is complete.
 - Earlier branch evidence includes the remote operator next-actions endpoint
   update, which exposes generated `OPERATOR_NEXT_ACTIONS.md` through
   token-protected `GET /next-actions` so proof machines with the bearer token
@@ -108,6 +113,12 @@ without stopping until:
   macOS `PUT` and Windows `POST` bundle storage, `/status` bundle reporting
   after upload, stored bundle content, stored bundle `0600` file modes, and
   absence of token-like text in generated notes and endpoint responses.
+- Latest completion check verification:
+  `node initiatives/stack-installer/ops/p1-completion-check.mjs --output-root
+  output/stack-installer/p1-live` exits `1` as expected. It passes manifest
+  evidence for P1A, the P1 live harness, active P1 target, and pending P2, then
+  blocks on missing macOS and Windows returned bundles, missing platform proof
+  directories, skipped `p1:proof:audit-all`, and pending post-proof review.
 - Local artifact scan before this audit update:
   `output/stack-installer/p1-live` exists, but the required `macos` and
   `windows` platform directories are missing.
@@ -291,6 +302,7 @@ without stopping until:
 | Coordinator bundle intake implemented | `p1:proof:intake` extracts returned `stack-installer-p1-macos.tgz` and `stack-installer-p1-windows.zip` bundles when the corresponding platform directory is missing, then reports status without accepting missing proof as complete | complete |
 | Coordinator watch implemented | `p1:proof:watch` runs bounded coordinator-side intake plus `p1:proof:audit-all` polling during transfer windows; the empty-inbox one-attempt check fails with missing artifact status instead of accepting incomplete proof. `start-proof-watch-window.mjs` starts the same watch as a detached private-log helper for longer transfer windows | complete |
 | Upload-window smoke implemented | `initiatives/stack-installer/ops/proof-upload-smoke.mjs` spins up a temporary local upload window, verifies endpoint authentication, generated operator notes, file modes, token-reuse behavior, approved routes, invalid-token upload rejection, unsupported file-name rejection, approved macOS `PUT` and Windows `POST` storage, `/status` bundle reporting after upload, stored bundle file modes, and token-leak indicators, then cleans up | complete |
+| Completion check implemented | `initiatives/stack-installer/ops/p1-completion-check.mjs` maps P1A evidence, P1 live harness evidence, active P1 target, P2 pending state, returned bundles, platform proof directories, `p1:proof:audit-all`, and post-proof review status into a prompt-to-artifact checklist; current run exits nonzero because fresh artifacts and post-proof review are missing | complete, currently blocked |
 | Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest post-audit refresh on 2026-05-14 re-ran the P1 live-harness turbo gate: `bun run turbo run check test lint --filter=@beep/stack-installer --filter=@beep/onepassword-cli --filter=@beep/discord --filter=@beep/ai-provider-cli --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases`, with 66 tasks successful. The same evidence set includes `@beep/stack-installer` `check`, `lint`, `test`, `coverage`, and `build`, with 12 tests passing and coverage at 98.16% statements / 90.47% branches; `cargo check` in `apps/stack-installer/src-tauri`; `bun run config-sync:check`; `git diff --check`; manifest JSON validation; `p1:proof:status`; empty-inbox `p1:proof:intake`; empty-inbox one-attempt `p1:proof:watch` refusal; and a temporary `.tgz` plus `.zip` intake extraction smoke. Latest post-main-sync refresh after merging `origin/main` at `97636ab4ff` re-ran `bun run config-sync:check`, `@beep/stack-installer` `check`, `test`, `lint`, and `build`; `cargo check` in `apps/stack-installer/src-tauri`; and `git diff --check`, all passing. A later post-main-sync refresh re-ran the full P1 live-harness turbo gate across `@beep/stack-installer`, `@beep/onepassword-cli`, `@beep/discord`, `@beep/ai-provider-cli`, and the installer security/provider/channel/dependency/workspace packages with 66 successful tasks out of 66 | complete for implemented local surfaces |
 | macOS fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/macos/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Windows fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/windows/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |

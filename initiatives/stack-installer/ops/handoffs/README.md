@@ -50,3 +50,6 @@ not let generated notes accumulate at the initiative root.
 - [../proof-upload-smoke.mjs](../proof-upload-smoke.mjs) - temporary local
   smoke harness for upload-window endpoint auth, generated operator notes,
   file modes, and `--reuse-token` behavior.
+- [../p1-completion-check.mjs](../p1-completion-check.mjs) - conservative P1
+  prompt-to-artifact checklist that exits nonzero until fresh macOS and Windows
+  proof artifacts, `p1:proof:audit-all`, and the post-proof review are complete.
