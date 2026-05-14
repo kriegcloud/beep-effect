@@ -25,8 +25,6 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Current pushed head for this audit pass:
-  `d23a4cfaa0 docs(stack-installer): add p1 artifact extract commands`
 - Relevant audit evidence lives on the pushed branch in
   `apps/stack-installer/src/proof/capture-p1-manual-proof.ts`,
   `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md`, and this completion audit

@@ -62,7 +62,7 @@ Current local command evidence from 2026-05-14:
 - `cd apps/stack-installer && bun run build` passed. Vite emitted only the
   existing large-chunk warning.
 - `cd apps/stack-installer/src-tauri && cargo check` passed.
-- After the latest operator-handoff docs commits through `d23a4cfaa0`,
+- After the operator-handoff docs were made platform-specific,
   `bun run turbo run check test lint --filter=@beep/stack-installer`
   completed 53 tasks successfully.
 
