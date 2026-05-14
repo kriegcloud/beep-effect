@@ -332,42 +332,40 @@ const literalLexicalForm = (value: string | number | boolean): string =>
     Match.orElse((scalar) => `${scalar}`)
   );
 
-const literalFromValue = (
+const literalFromValue = Effect.fn("JsonLdDocument.literalFromValue")(function* (
   value: JsonLdLiteralValue,
   context: ContextOption,
   base: O.Option<string>
-): Effect.Effect<ObjectTerm, JsonLdDocumentError> =>
-  Effect.gen(function* () {
-    const scalar = value["@value"];
-    const datatype = O.isSome(value["@type"])
-      ? resolveJsonLdIdentifier(value["@type"].value, context, base)
-      : datatypeFromScalar(scalar);
-    const language = O.isSome(value["@language"]) ? value["@language"].value : undefined;
-    const datatypeNode = yield* makeNamedNodeEffect(datatype, "invalidNodeReference", datatype);
-    return yield* makeLiteralEffect({
-      datatype: datatypeNode,
-      language,
-      reason: "bridgingFailure",
-      subject: datatype,
-      value: literalLexicalForm(scalar),
-    });
+): Effect.fn.Return<ObjectTerm, JsonLdDocumentError> {
+  const scalar = value["@value"];
+  const datatype = O.isSome(value["@type"])
+    ? resolveJsonLdIdentifier(value["@type"].value, context, base)
+    : datatypeFromScalar(scalar);
+  const language = O.isSome(value["@language"]) ? value["@language"].value : undefined;
+  const datatypeNode = yield* makeNamedNodeEffect(datatype, "invalidNodeReference", datatype);
+  return yield* makeLiteralEffect({
+    datatype: datatypeNode,
+    language,
+    reason: "bridgingFailure",
+    subject: datatype,
+    value: literalLexicalForm(scalar),
   });
+});
 
-const compactLiteralValue = (
+const compactLiteralValue = Effect.fn("JsonLdDocument.compactLiteralValue")(function* (
   value: JsonLdLiteralValue,
   context: ContextOption
-): Effect.Effect<JsonLdLiteralValue, JsonLdDocumentError> =>
-  Effect.gen(function* () {
-    const type = yield* mapOptionEffect(value["@type"], (identifier) =>
-      decodeIriReference(compactIdentifier(context, identifier), "bridgingFailure", identifier)
-    );
+): Effect.fn.Return<JsonLdLiteralValue, JsonLdDocumentError> {
+  const type = yield* mapOptionEffect(value["@type"], (identifier) =>
+    decodeIriReference(compactIdentifier(context, identifier), "bridgingFailure", identifier)
+  );
 
-    return JsonLdLiteralValue.make({
-      "@value": value["@value"],
-      "@type": type,
-      "@language": value["@language"],
-    });
+  return JsonLdLiteralValue.make({
+    "@value": value["@value"],
+    "@type": type,
+    "@language": value["@language"],
   });
+});
 
 const compactPropertyValues = (
   values: ReadonlyArray<JsonLdPropertyValue>,
@@ -397,23 +395,22 @@ const compactPropertyEntry = (
     (compactedValues) => [compactIdentifier(O.some(context), key), compactedValues] as const
   );
 
-const compactNode = (
+const compactNode = Effect.fn("JsonLdDocument.compactNode")(function* (
   node: JsonLdNodeObject,
   context: JsonLdContext
-): Effect.Effect<JsonLdNodeObject, JsonLdDocumentError> =>
-  Effect.gen(function* () {
-    const id = yield* mapOptionEffect(node["@id"], compactNodeIdentifier(O.some(context), "bridgingFailure"));
-    const type = yield* mapOptionEffect(node["@type"], compactIriReferenceValues(O.some(context), "bridgingFailure"));
-    const properties = yield* Effect.forEach(pipe(node.properties, R.toEntries), ([key, values]) =>
-      compactPropertyEntry(key, values, context)
-    );
+): Effect.fn.Return<JsonLdNodeObject, JsonLdDocumentError> {
+  const id = yield* mapOptionEffect(node["@id"], compactNodeIdentifier(O.some(context), "bridgingFailure"));
+  const type = yield* mapOptionEffect(node["@type"], compactIriReferenceValues(O.some(context), "bridgingFailure"));
+  const properties = yield* Effect.forEach(pipe(node.properties, R.toEntries), ([key, values]) =>
+    compactPropertyEntry(key, values, context)
+  );
 
-    return JsonLdNodeObject.make({
-      "@id": id,
-      "@type": type,
-      properties: R.fromEntries(properties),
-    });
+  return JsonLdNodeObject.make({
+    "@id": id,
+    "@type": type,
+    properties: R.fromEntries(properties),
   });
+});
 
 const byStringAscending: Order.Order<string> = Order.String;
 const byRecordEntryKeyAscending = <Value>(): Order.Order<readonly [string, Value]> =>
@@ -507,22 +504,21 @@ const validateLoaderPolicy = (
       )
     : Effect.succeed(loaderPolicy);
 
-const expandLiteralValue = (
+const expandLiteralValue = Effect.fn("JsonLdDocument.expandLiteralValue")(function* (
   value: JsonLdLiteralValue,
   context: ContextOption,
   base: O.Option<string>
-): Effect.Effect<JsonLdLiteralValue, JsonLdDocumentError> =>
-  Effect.gen(function* () {
-    const type = yield* mapOptionEffect(value["@type"], (identifier) =>
-      decodeIriReference(resolveJsonLdIdentifier(identifier, context, base), "invalidNodeReference", identifier)
-    );
+): Effect.fn.Return<JsonLdLiteralValue, JsonLdDocumentError> {
+  const type = yield* mapOptionEffect(value["@type"], (identifier) =>
+    decodeIriReference(resolveJsonLdIdentifier(identifier, context, base), "invalidNodeReference", identifier)
+  );
 
-    return JsonLdLiteralValue.make({
-      "@value": value["@value"],
-      "@type": type,
-      "@language": value["@language"],
-    });
+  return JsonLdLiteralValue.make({
+    "@value": value["@value"],
+    "@type": type,
+    "@language": value["@language"],
   });
+});
 
 const expandJsonLdPropertyValue = (
   value: JsonLdPropertyValue,
@@ -543,59 +539,56 @@ const expandJsonLdPropertyValue = (
       )
     : expandLiteralValue(value, context, base);
 
-const expandJsonLdNode = (
+const expandJsonLdNode = Effect.fn("JsonLdDocument.expandJsonLdNode")(function* (
   node: JsonLdNodeObject,
   context: ContextOption,
   base: O.Option<string>
-): Effect.Effect<JsonLdNodeObject, JsonLdDocumentError> =>
-  Effect.gen(function* () {
-    const propertyEntries = pipe(node.properties, R.toEntries, A.sort(byRecordEntryKeyAscending()));
-    const expandedProperties = yield* Effect.forEach(propertyEntries, ([key, values]) => {
+): Effect.fn.Return<JsonLdNodeObject, JsonLdDocumentError> {
+  const propertyEntries = pipe(node.properties, R.toEntries, A.sort(byRecordEntryKeyAscending()));
+  const expandedProperties = yield* Effect.forEach(
+    propertyEntries,
+    Effect.fnUntraced(function* ([key, values]) {
       const predicateIri = resolveJsonLdIdentifier(key, context, base);
       if (!schemePrefix.test(predicateIri)) {
-        return Effect.fail(makeDocumentError("unknownPredicate", `Unable to expand JSON-LD property key: ${key}`, key));
+        return yield* makeDocumentError("unknownPredicate", `Unable to expand JSON-LD property key: ${key}`, key);
       }
 
-      return Effect.gen(function* () {
-        const expandedValues = yield* Effect.forEach(values, (value) =>
-          expandJsonLdPropertyValue(value, context, base)
-        );
+      const expandedValues = yield* Effect.forEach(values, (value) => expandJsonLdPropertyValue(value, context, base));
 
-        return [predicateIri, expandedValues] as const;
-      });
-    });
-    const id = yield* mapOptionEffect(node["@id"], (identifier) =>
-      decodeJsonLdNodeIdentifier(resolveJsonLdIdentifier(identifier, context, base), "invalidNodeReference", identifier)
-    );
-    const type = yield* mapOptionEffect(node["@type"], (values) =>
-      Effect.forEach(values, (value) =>
-        decodeIriReference(resolveJsonLdIdentifier(value, context, base), "invalidNodeReference", value)
-      )
-    );
+      return [predicateIri, expandedValues] as const;
+    })
+  );
+  const id = yield* mapOptionEffect(node["@id"], (identifier) =>
+    decodeJsonLdNodeIdentifier(resolveJsonLdIdentifier(identifier, context, base), "invalidNodeReference", identifier)
+  );
+  const type = yield* mapOptionEffect(node["@type"], (values) =>
+    Effect.forEach(values, (value) =>
+      decodeIriReference(resolveJsonLdIdentifier(value, context, base), "invalidNodeReference", value)
+    )
+  );
 
-    return JsonLdNodeObject.make({
-      "@id": id,
-      "@type": type,
-      properties: R.fromEntries(expandedProperties),
-    });
+  return JsonLdNodeObject.make({
+    "@id": id,
+    "@type": type,
+    properties: R.fromEntries(expandedProperties),
   });
+});
 
-const expandJsonLdDocument = (
+const expandJsonLdDocument = Effect.fn("JsonLdDocument.expandJsonLdDocument")(function* (
   document: JsonLdDocument,
   loaderPolicy: O.Option<typeof JsonLdDocumentLoaderPolicy.Type>
-): Effect.Effect<JsonLdDocument, JsonLdDocumentError> =>
-  Effect.gen(function* () {
-    yield* validateLoaderPolicy(loaderPolicy);
-    const context = document["@context"];
-    const base = resolveDocumentBase(loaderPolicy, context);
-    const graph = yield* Effect.forEach(document["@graph"], (node) => expandJsonLdNode(node, context, base));
-    return normalizeJsonLdDocumentStructure(
-      JsonLdDocument.make({
-        "@context": O.none(),
-        "@graph": graph,
-      })
-    );
-  });
+): Effect.fn.Return<JsonLdDocument, JsonLdDocumentError> {
+  yield* validateLoaderPolicy(loaderPolicy);
+  const context = document["@context"];
+  const base = resolveDocumentBase(loaderPolicy, context);
+  const graph = yield* Effect.forEach(document["@graph"], (node) => expandJsonLdNode(node, context, base));
+  return normalizeJsonLdDocumentStructure(
+    JsonLdDocument.make({
+      "@context": O.none(),
+      "@graph": graph,
+    })
+  );
+});
 
 const hasAnonymousJsonLdNode = (document: JsonLdDocument): boolean =>
   pipe(
@@ -603,28 +596,27 @@ const hasAnonymousJsonLdNode = (document: JsonLdDocument): boolean =>
     A.some((node) => O.isNone(node["@id"]))
   );
 
-const normalizeJsonLdDocument = (
+const normalizeJsonLdDocument = Effect.fn("JsonLdDocument.normalizeJsonLdDocument")(function* (
   request: NormalizeJsonLdDocumentRequest
-): Effect.Effect<JsonLdDocument, JsonLdDocumentError> =>
-  Effect.gen(function* () {
-    const safeMode = pipe(
-      request.safeMode,
-      O.getOrElse(() => false)
+): Effect.fn.Return<JsonLdDocument, JsonLdDocumentError> {
+  const safeMode = pipe(
+    request.safeMode,
+    O.getOrElse(() => false)
+  );
+  if (safeMode && hasAnonymousJsonLdNode(request.document)) {
+    return yield* makeDocumentError(
+      "normalizationFailure",
+      "Safe-mode normalization requires explicit @id values for every JSON-LD node."
     );
-    if (safeMode && hasAnonymousJsonLdNode(request.document)) {
-      return yield* makeDocumentError(
-        "normalizationFailure",
-        "Safe-mode normalization requires explicit @id values for every JSON-LD node."
-      );
-    }
+  }
 
-    if (request.profile === "expanded-v1") {
-      return yield* expandJsonLdDocument(request.document, request.loaderPolicy);
-    }
+  if (request.profile === "expanded-v1") {
+    return yield* expandJsonLdDocument(request.document, request.loaderPolicy);
+  }
 
-    yield* validateLoaderPolicy(request.loaderPolicy);
-    return normalizeJsonLdDocumentStructure(request.document);
-  });
+  yield* validateLoaderPolicy(request.loaderPolicy);
+  return normalizeJsonLdDocumentStructure(request.document);
+});
 
 const matchesFrameType = (node: JsonLdNodeObject, frameType: string, context: ContextOption): boolean =>
   pipe(
@@ -707,20 +699,18 @@ const identifierFromSubject = (subject: Subject): string =>
 const identifierFromObject = (object: Extract<ObjectTerm, { readonly termType: "NamedNode" | "BlankNode" }>): string =>
   object.termType === "BlankNode" ? `_:${object.value}` : object.value;
 
-const literalValueFromRdf = (
+const literalValueFromRdf = Effect.fn("JsonLdDocument.literalValueFromRdf")(function* (
   quad: Quad,
   context: ContextOption
-): Effect.Effect<JsonLdLiteralValue, JsonLdDocumentError> => {
+): Effect.fn.Return<JsonLdLiteralValue, JsonLdDocumentError> {
   const object = quad.object;
 
   if (object.termType !== "Literal") {
-    return Effect.succeed(
-      JsonLdLiteralValue.make({
-        "@value": "",
-        "@type": O.none(),
-        "@language": O.none(),
-      })
-    );
+    return JsonLdLiteralValue.make({
+      "@value": "",
+      "@type": O.none(),
+      "@language": O.none(),
+    });
   }
 
   const scalar =
@@ -730,25 +720,23 @@ const literalValueFromRdf = (
         ? Number(object.value)
         : object.value;
 
-  return Effect.gen(function* () {
-    const type =
-      object.datatype.value === XSD_STRING.value
-        ? O.none<typeof IRIReference.Type>()
-        : O.some(
-            yield* decodeIriReference(
-              compactIdentifier(context, object.datatype.value),
-              "bridgingFailure",
-              object.datatype.value
-            )
-          );
+  const type =
+    object.datatype.value === XSD_STRING.value
+      ? O.none<typeof IRIReference.Type>()
+      : O.some(
+          yield* decodeIriReference(
+            compactIdentifier(context, object.datatype.value),
+            "bridgingFailure",
+            object.datatype.value
+          )
+        );
 
-    return JsonLdLiteralValue.make({
-      "@value": scalar,
-      "@type": type,
-      "@language": O.isSome(object.language) ? O.some(object.language.value) : O.none(),
-    });
+  return JsonLdLiteralValue.make({
+    "@value": scalar,
+    "@type": type,
+    "@language": O.isSome(object.language) ? O.some(object.language.value) : O.none(),
   });
-};
+});
 
 /**
  * JSON-LD document service live layer.
@@ -904,8 +892,8 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
         nodes,
         R.values,
         A.sort(byMutableNodeIdAscending),
-        Effect.forEach((node) =>
-          Effect.gen(function* () {
+        Effect.forEach(
+          Effect.fnUntraced(function* (node) {
             const type = yield* pipe(
               node.types,
               A.match({

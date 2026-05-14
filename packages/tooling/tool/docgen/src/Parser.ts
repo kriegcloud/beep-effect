@@ -166,13 +166,14 @@ const parseDoc = (text: string) => {
 
 const shouldIgnore = (doc: Domain.Doc): boolean => R.has(doc.tags, "internal") || R.has(doc.tags, "ignore");
 
-const parsePosition = (node: ast.Node): Effect.Effect<Domain.Position, never, Source> =>
-  Effect.gen(function* () {
-    const source = yield* Source;
-    const startPos = node.getStart();
-    const position = source.sourceFile.getLineAndColumnAtPos(startPos);
-    return Domain.Position.new(position.line, position.column);
-  });
+const parsePosition = Effect.fn("parsePosition")(function* (
+  node: ast.Node
+): Effect.fn.Return<Domain.Position, never, Source> {
+  const source = yield* Source;
+  const startPos = node.getStart();
+  const position = source.sourceFile.getLineAndColumnAtPos(startPos);
+  return Domain.Position.new(position.line, position.column);
+});
 
 const parseInterfaceDeclaration = Effect.fn("parseInterfaceDeclaration")(function* (id: ast.InterfaceDeclaration) {
   const doc = parseDoc(getJSDocText(id.getJsDocs()));
@@ -450,20 +451,20 @@ export const parseExports = Effect.gen(function* () {
   return A.flatten(exports);
 });
 
-const parseModuleDeclaration = (md: ast.ModuleDeclaration): Effect.Effect<Array<Domain.Namespace>, never, Source> => {
+const parseModuleDeclaration = Effect.fn("parseModuleDeclaration")(function* (
+  md: ast.ModuleDeclaration
+): Effect.fn.Return<Array<Domain.Namespace>, never, Source> {
   const doc = parseDoc(getJSDocText(md.getJsDocs()));
   if (shouldIgnore(doc)) {
-    return Effect.succeed([]);
+    return [];
   }
 
-  return Effect.gen(function* () {
-    const interfaces = yield* parseInterfaceDeclarations(md.getInterfaces());
-    const typeAliases = yield* parseTypeAliasDeclarations(md.getTypeAliases());
-    const namespaces = yield* parseModuleDeclarations(md.getModules());
-    const position = yield* parsePosition(md);
-    return [Domain.Namespace.new(md.getName(), doc, { position, interfaces, typeAliases, namespaces })];
-  });
-};
+  const interfaces = yield* parseInterfaceDeclarations(md.getInterfaces());
+  const typeAliases = yield* parseTypeAliasDeclarations(md.getTypeAliases());
+  const namespaces = yield* parseModuleDeclarations(md.getModules());
+  const position = yield* parsePosition(md);
+  return [Domain.Namespace.new(md.getName(), doc, { position, interfaces, typeAliases, namespaces })];
+});
 
 const parseModuleDeclarations = (namespaces: ReadonlyArray<ast.ModuleDeclaration>) =>
   Effect.forEach(
@@ -694,20 +695,18 @@ export const parseModule = Effect.gen(function* () {
  * @category parsing
  * @since 0.0.0
  */
-export const parseFile =
-  (project: ast.Project) =>
-  (file: Domain.File): Effect.Effect<Domain.Module, Array<string>, Path.Path> =>
-    Effect.gen(function* () {
-      const path = yield* Path.Path;
-      const sourceFile = project.getSourceFile(file.path);
-      const filePath = Str.split(path.sep)(file.path);
+export const parseFile = (project: ast.Project) =>
+  Effect.fnUntraced(function* (file: Domain.File): Effect.fn.Return<Domain.Module, Array<string>, Path.Path> {
+    const path = yield* Path.Path;
+    const sourceFile = project.getSourceFile(file.path);
+    const filePath = Str.split(path.sep)(file.path);
 
-      if (sourceFile !== undefined && filePath.length > 0) {
-        return yield* withSource(SourceShape.new(filePath, sourceFile), parseModule);
-      }
+    if (sourceFile !== undefined && filePath.length > 0) {
+      return yield* withSource(SourceShape.new(filePath, sourceFile), parseModule);
+    }
 
-      return yield* Effect.fail([`Unable to locate file: ${file.path}`]);
-    });
+    return yield* Effect.fail([`Unable to locate file: ${file.path}`]);
+  });
 
 const createProject = Effect.fn("createProject")(function* (files: ReadonlyArray<Domain.File>) {
   const config = yield* Configuration.Configuration;

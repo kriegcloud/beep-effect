@@ -112,61 +112,58 @@ export const runFilesProgressAll: {
   ): Effect.Effect<ReadonlyArray<A2>, E, R | Terminal.Terminal>;
 } = dual(
   2,
-  <A2, E, R>(
+  Effect.fnUntraced(function* <A2, E, R>(
     effects: ReadonlyArray<Effect.Effect<A2, E, R>>,
     options: FilesProgressRunOptions
-  ): Effect.Effect<ReadonlyArray<A2>, E, R | Terminal.Terminal> => {
+  ): Effect.fn.Return<ReadonlyArray<A2>, E, R | Terminal.Terminal> {
     const total = A.length(effects);
     const concurrency = progressConcurrency(total, options.concurrency);
 
     if (!isFilesProgressEnabled(options.enabled) || total === 0) {
-      return Effect.all(effects, { concurrency });
+      return yield* Effect.all(effects, { concurrency });
     }
 
-    return Effect.gen(function* () {
-      const terminal = yield* Terminal.Terminal;
-      const completedRef = yield* Ref.make(0);
-      const finishedRef = yield* Ref.make(false);
-      const renderAt = (completed: number, newline: boolean) =>
-        terminal
-          .display(
-            `${clearCurrentLine}${renderFilesProgressBar({
-              completed,
-              label: options.label,
-              total,
-            })}${newline ? "\n" : ""}`
-          )
-          .pipe(Effect.ignore);
-      const renderLock = yield* Semaphore.make(1);
-      const renderLocked = (completed: number, newline: boolean) => renderLock.withPermit(renderAt(completed, newline));
-      const trackedEffects = A.map(effects, (effect) =>
-        effect.pipe(
-          Effect.tap(() =>
-            Ref.updateAndGet(completedRef, (value) => Math.min(total, value + 1)).pipe(
-              Effect.flatMap((completed) => renderLocked(completed, false))
-            )
-          )
+    const terminal = yield* Terminal.Terminal;
+    const completedRef = yield* Ref.make(0);
+    const finishedRef = yield* Ref.make(false);
+    const renderAt = (completed: number, newline: boolean) =>
+      terminal
+        .display(
+          `${clearCurrentLine}${renderFilesProgressBar({
+            completed,
+            label: options.label,
+            total,
+          })}${newline ? "\n" : ""}`
         )
-      );
-
-      yield* renderLocked(0, false);
-      return yield* Effect.all(trackedEffects, { concurrency }).pipe(
+        .pipe(Effect.ignore);
+    const renderLock = yield* Semaphore.make(1);
+    const renderLocked = (completed: number, newline: boolean) => renderLock.withPermit(renderAt(completed, newline));
+    const trackedEffects = A.map(effects, (effect) =>
+      effect.pipe(
         Effect.tap(() =>
-          Effect.gen(function* () {
-            yield* Ref.set(finishedRef, true);
-            yield* renderLocked(total, true);
-          })
-        ),
-        Effect.ensuring(
-          Ref.get(finishedRef).pipe(
-            Effect.flatMap((finished) => (finished ? Effect.void : terminal.display("\n").pipe(Effect.ignore)))
+          Ref.updateAndGet(completedRef, (value) => Math.min(total, value + 1)).pipe(
+            Effect.flatMap((completed) => renderLocked(completed, false))
           )
         )
-      );
-    });
-  }
-);
+      )
+    );
 
+    yield* renderLocked(0, false);
+    return yield* Effect.all(trackedEffects, { concurrency }).pipe(
+      Effect.tap(
+        Effect.fnUntraced(function* () {
+          yield* Ref.set(finishedRef, true);
+          yield* renderLocked(total, true);
+        })
+      ),
+      Effect.ensuring(
+        Ref.get(finishedRef).pipe(
+          Effect.flatMap((finished) => (finished ? Effect.void : terminal.display("\n").pipe(Effect.ignore)))
+        )
+      )
+    );
+  })
+);
 /**
  * Map items to effects, then run them with bounded concurrency and optional TTY progress.
  *

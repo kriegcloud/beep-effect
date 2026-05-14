@@ -2212,8 +2212,9 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
   yield* validateRequestedRoles(target, roles);
   const selectedFiles = selectFiles(target, roles);
 
-  const writeOperations = yield* Effect.forEach(selectedFiles, (file) =>
-    Effect.gen(function* () {
+  const writeOperations = yield* Effect.forEach(
+    selectedFiles,
+    Effect.fnUntraced(function* (file) {
       const operationPath = targetPathFor(file.path, target);
       const targetFileExists = isPackageLevelFile(file.path)
         ? yield* fs.exists(path.join(repoRoot, operationPath)).pipe(Effect.orElseSucceed(thunkFalse))

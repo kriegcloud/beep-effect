@@ -15,7 +15,7 @@ import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { ContentHashFromSourceText } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
-import { DateTime, Duration, Effect, FileSystem, flow, Match, Order, Path, pipe, Stream } from "effect";
+import { DateTime, Duration, Effect, FileSystem, flow, Match, Order, Path, pipe, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -486,7 +486,7 @@ const collectWorkingTreeChangedFiles = Effect.fn("DocgenQuality.collectWorkingTr
 ) {
   const files = yield* Effect.forEach(
     WORKING_TREE_CHANGED_FILE_COMMANDS,
-    (args) => runGitLines(repoRoot, args).pipe(Effect.catch(() => Effect.succeed(A.empty<string>()))),
+    (args) => runGitLines(repoRoot, args).pipe(Effect.option, Effect.map(O.getOrElse(A.empty<string>))),
     { concurrency: "unbounded" }
   );
   return pipe(A.flatten(files), A.map(normalizeSlashes), A.dedupe);
@@ -1720,16 +1720,19 @@ export const analyzePackageQuality = Effect.fn("DocgenQuality.analyzePackageQual
       timedOut,
     });
   }).pipe(
-    Effect.catch((error) =>
-      Effect.succeed(
-        emptyPackageReport({
-          durationMs: budgetDurationMs(budget),
-          error: errorMessage(error),
-          status: "failed",
-          target,
-          timedOut: false,
-        })
-      )
+    Effect.result,
+    Effect.map(
+      Result.match({
+        onFailure: (error) =>
+          emptyPackageReport({
+            durationMs: budgetDurationMs(budget),
+            error: errorMessage(error),
+            status: "failed",
+            target,
+            timedOut: false,
+          }),
+        onSuccess: (report) => report,
+      })
     )
   );
 });

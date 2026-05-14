@@ -489,54 +489,53 @@ const consumeProgressLine = (
 const emitEvent = (sink: FFmpegEventSink | undefined, event: FFmpegEvent): Effect.Effect<void, never> =>
   sink === undefined ? Effect.void : sink(event);
 
-const collectProgressText = (
+const collectProgressText = Effect.fn("FFmpeg.collectProgressText")(function* (
   stream: Stream.Stream<Uint8Array, PlatformError.PlatformError>,
   expected: number,
   sink: FFmpegEventSink | undefined
-): Effect.Effect<string, PlatformError.PlatformError> =>
-  Effect.gen(function* () {
-    const state = yield* Ref.make<ProgressState>({
-      block: {},
-      buffer: "",
-      stdout: "",
-    });
-
-    yield* stream.pipe(
-      Stream.decodeText(),
-      Stream.runForEach((chunk) =>
-        Effect.gen(function* () {
-          const current = yield* Ref.get(state);
-          const combined = `${current.buffer}${chunk}`;
-          const hasTrailingLineBreak = Str.endsWith("\n")(combined);
-          const lines = Str.split(/\r?\n/)(combined);
-          const completeLines = hasTrailingLineBreak ? lines : A.dropRight(lines, 1);
-          const buffer = hasTrailingLineBreak
-            ? ""
-            : pipe(
-                A.last(lines),
-                O.getOrElse(() => "")
-              );
-          let nextState: ProgressState = {
-            ...current,
-            buffer,
-            stdout: `${current.stdout}${chunk}`,
-          };
-
-          for (const line of completeLines) {
-            const [updated, event] = consumeProgressLine(nextState, line, expected);
-            nextState = updated;
-            if (O.isSome(event)) {
-              yield* emitEvent(sink, event.value);
-            }
-          }
-
-          yield* Ref.set(state, nextState);
-        })
-      )
-    );
-
-    return (yield* Ref.get(state)).stdout;
+): Effect.fn.Return<string, PlatformError.PlatformError> {
+  const state = yield* Ref.make<ProgressState>({
+    block: {},
+    buffer: "",
+    stdout: "",
   });
+
+  yield* stream.pipe(
+    Stream.decodeText(),
+    Stream.runForEach(
+      Effect.fnUntraced(function* (chunk) {
+        const current = yield* Ref.get(state);
+        const combined = `${current.buffer}${chunk}`;
+        const hasTrailingLineBreak = Str.endsWith("\n")(combined);
+        const lines = Str.split(/\r?\n/)(combined);
+        const completeLines = hasTrailingLineBreak ? lines : A.dropRight(lines, 1);
+        const buffer = hasTrailingLineBreak
+          ? ""
+          : pipe(
+              A.last(lines),
+              O.getOrElse(() => "")
+            );
+        let nextState: ProgressState = {
+          ...current,
+          buffer,
+          stdout: `${current.stdout}${chunk}`,
+        };
+
+        for (const line of completeLines) {
+          const [updated, event] = consumeProgressLine(nextState, line, expected);
+          nextState = updated;
+          if (O.isSome(event)) {
+            yield* emitEvent(sink, event.value);
+          }
+        }
+
+        yield* Ref.set(state, nextState);
+      })
+    )
+  );
+
+  return (yield* Ref.get(state)).stdout;
+});
 
 const runExtractProcess = (
   spawner: ChildProcessSpawner.ChildProcessSpawner["Service"],
@@ -561,79 +560,84 @@ const runExtractProcess = (
     )
   );
 
-const ensureFile = (fs: FileSystem.FileSystem, filePath: string, label: string): Effect.Effect<void, FFmpegError> =>
-  Effect.gen(function* () {
-    const stat = yield* fs
-      .stat(filePath)
+const ensureFile = Effect.fn("FFmpeg.ensureFile")(function* (
+  fs: FileSystem.FileSystem,
+  filePath: string,
+  label: string
+): Effect.fn.Return<void, FFmpegError> {
+  const stat = yield* fs
+    .stat(filePath)
+    .pipe(
+      Effect.mapError((cause) =>
+        FFmpegError.fromUnknown("extractFrames", `Failed to stat ${label}: "${filePath}"`, { cause })
+      )
+    );
+  if (stat.type !== "File") {
+    return yield* new FFmpegError({
+      message: `Expected ${label} to be a file: "${filePath}"`,
+      operation: "extractFrames",
+    });
+  }
+});
+
+const ensureDirectory = Effect.fn("FFmpeg.ensureDirectory")(function* (
+  fs: FileSystem.FileSystem,
+  dirPath: string,
+  label: string
+): Effect.fn.Return<void, FFmpegError> {
+  const exists = yield* fs
+    .exists(dirPath)
+    .pipe(
+      Effect.mapError((cause) =>
+        FFmpegError.fromUnknown("extractFrames", `Failed to inspect ${label}: "${dirPath}"`, { cause })
+      )
+    );
+  if (!exists) {
+    yield* fs
+      .makeDirectory(dirPath, { recursive: true })
       .pipe(
         Effect.mapError((cause) =>
-          FFmpegError.fromUnknown("extractFrames", `Failed to stat ${label}: "${filePath}"`, { cause })
+          FFmpegError.fromUnknown("extractFrames", `Failed to create ${label}: "${dirPath}"`, { cause })
         )
       );
-    if (stat.type !== "File") {
-      return yield* new FFmpegError({
-        message: `Expected ${label} to be a file: "${filePath}"`,
-        operation: "extractFrames",
-      });
-    }
-  });
+    return;
+  }
 
-const ensureDirectory = (fs: FileSystem.FileSystem, dirPath: string, label: string): Effect.Effect<void, FFmpegError> =>
-  Effect.gen(function* () {
-    const exists = yield* fs
-      .exists(dirPath)
-      .pipe(
-        Effect.mapError((cause) =>
-          FFmpegError.fromUnknown("extractFrames", `Failed to inspect ${label}: "${dirPath}"`, { cause })
-        )
-      );
-    if (!exists) {
-      yield* fs
-        .makeDirectory(dirPath, { recursive: true })
-        .pipe(
-          Effect.mapError((cause) =>
-            FFmpegError.fromUnknown("extractFrames", `Failed to create ${label}: "${dirPath}"`, { cause })
-          )
-        );
-      return;
-    }
+  const stat = yield* fs
+    .stat(dirPath)
+    .pipe(
+      Effect.mapError((cause) =>
+        FFmpegError.fromUnknown("extractFrames", `Failed to stat ${label}: "${dirPath}"`, { cause })
+      )
+    );
+  if (stat.type !== "Directory") {
+    return yield* new FFmpegError({
+      message: `Expected ${label} to be a directory: "${dirPath}"`,
+      operation: "extractFrames",
+    });
+  }
+});
 
-    const stat = yield* fs
-      .stat(dirPath)
-      .pipe(
-        Effect.mapError((cause) =>
-          FFmpegError.fromUnknown("extractFrames", `Failed to stat ${label}: "${dirPath}"`, { cause })
-        )
-      );
-    if (stat.type !== "Directory") {
-      return yield* new FFmpegError({
-        message: `Expected ${label} to be a directory: "${dirPath}"`,
-        operation: "extractFrames",
-      });
-    }
-  });
-
-const preflightWritable = (
+const preflightWritable = Effect.fn("FFmpeg.preflightWritable")(function* (
   fs: FileSystem.FileSystem,
   filePath: string,
   overwrite: boolean,
   label: string
-): Effect.Effect<void, FFmpegError> =>
-  Effect.gen(function* () {
-    const exists = yield* fs
-      .exists(filePath)
-      .pipe(
-        Effect.mapError((cause) =>
-          FFmpegError.fromUnknown("extractFrames", `Failed to inspect ${label}: "${filePath}"`, { cause })
-        )
-      );
-    if (exists && !overwrite) {
-      return yield* new FFmpegError({
-        message: `Refusing to overwrite existing ${label}: "${filePath}"`,
-        operation: "extractFrames",
-      });
-    }
-  });
+): Effect.fn.Return<void, FFmpegError> {
+  const exists = yield* fs
+    .exists(filePath)
+    .pipe(
+      Effect.mapError((cause) =>
+        FFmpegError.fromUnknown("extractFrames", `Failed to inspect ${label}: "${filePath}"`, { cause })
+      )
+    );
+  if (exists && !overwrite) {
+    return yield* new FFmpegError({
+      message: `Refusing to overwrite existing ${label}: "${filePath}"`,
+      operation: "extractFrames",
+    });
+  }
+});
 
 const makeExtractContext = Effect.fn("FFmpeg.makeExtractContext")(function* (
   path: Path.Path,
@@ -919,64 +923,63 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
             )
           )
         ),
-      (tempDir) =>
-        Effect.gen(function* () {
-          const tempPattern = path.join(tempDir, `${context.prefix}_%0${context.padding}d.png`);
-          const args = buildExtractFramesArgs({
-            fps: context.fpsText,
-            outputPattern: tempPattern,
-            videoPath: context.videoPath,
-          });
-          const command = ChildProcess.make(config.ffmpegPath, args, {
-            forceKillAfter: `${config.forceKillAfterMillis} millis`,
-            stdin: "ignore",
-            stderr: "pipe",
-            stdout: "pipe",
-          });
+      Effect.fnUntraced(function* (tempDir) {
+        const tempPattern = path.join(tempDir, `${context.prefix}_%0${context.padding}d.png`);
+        const args = buildExtractFramesArgs({
+          fps: context.fpsText,
+          outputPattern: tempPattern,
+          videoPath: context.videoPath,
+        });
+        const command = ChildProcess.make(config.ffmpegPath, args, {
+          forceKillAfter: `${config.forceKillAfterMillis} millis`,
+          stdin: "ignore",
+          stderr: "pipe",
+          stdout: "pipe",
+        });
 
-          yield* emitEvent(
-            onEvent,
-            new FFmpegStartedEvent({
-              args,
-              command: config.ffmpegPath,
-              kind: "started",
-              outDir: context.outDir,
-              videoPath: context.videoPath,
-            })
-          );
-
-          const result = yield* runExtractProcess(spawner, command, context.expectedFrameCount, onEvent);
-          if (result.exitCode !== 0) {
-            return yield* new FFmpegError({
-              command: config.ffmpegPath,
-              exitCode: result.exitCode,
-              message: `ffmpeg could not extract frames for "${context.videoPath}".`,
-              operation: "extractFrames",
-              stderr: Str.trim(result.stderr),
-              stdout: Str.trim(result.stdout),
-            });
-          }
-
-          const tempFrames = yield* readTempFrames(fs, path, tempDir, context.prefix);
-          const frames = yield* commitFrames(fs, path, context, tempDir, tempFrames).pipe(Effect.uninterruptible);
-          const resultValue = new ExtractFramesResult({
-            frameCount: A.length(frames),
-            frames,
-            manifestPath: context.manifestPath,
+        yield* emitEvent(
+          onEvent,
+          new FFmpegStartedEvent({
+            args,
+            command: config.ffmpegPath,
+            kind: "started",
             outDir: context.outDir,
             videoPath: context.videoPath,
+          })
+        );
+
+        const result = yield* runExtractProcess(spawner, command, context.expectedFrameCount, onEvent);
+        if (result.exitCode !== 0) {
+          return yield* new FFmpegError({
+            command: config.ffmpegPath,
+            exitCode: result.exitCode,
+            message: `ffmpeg could not extract frames for "${context.videoPath}".`,
+            operation: "extractFrames",
+            stderr: Str.trim(result.stderr),
+            stdout: Str.trim(result.stdout),
           });
-          yield* emitEvent(
-            onEvent,
-            new FFmpegCompletedEvent({
-              frameCount: resultValue.frameCount,
-              kind: "completed",
-              manifestPath: resultValue.manifestPath,
-              outDir: resultValue.outDir,
-            })
-          );
-          return resultValue;
-        }),
+        }
+
+        const tempFrames = yield* readTempFrames(fs, path, tempDir, context.prefix);
+        const frames = yield* commitFrames(fs, path, context, tempDir, tempFrames).pipe(Effect.uninterruptible);
+        const resultValue = new ExtractFramesResult({
+          frameCount: A.length(frames),
+          frames,
+          manifestPath: context.manifestPath,
+          outDir: context.outDir,
+          videoPath: context.videoPath,
+        });
+        yield* emitEvent(
+          onEvent,
+          new FFmpegCompletedEvent({
+            frameCount: resultValue.frameCount,
+            kind: "completed",
+            manifestPath: resultValue.manifestPath,
+            outDir: resultValue.outDir,
+          })
+        );
+        return resultValue;
+      }),
       (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
     );
   });

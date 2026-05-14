@@ -12,6 +12,7 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { AllowlistCheckOptions, reportAllowlistCheckSummary, runAllowlistCheck } from "./AllowlistCheck.js";
 import { DualArityRulesOptions, runDualArityRules } from "./DualArity.js";
+import { EffectFnRulesOptions, runEffectFnRules } from "./EffectFn.js";
 import { EffectImportRulesOptions, runEffectImportRules } from "./EffectImports.js";
 import { NoNativeRuntimeRulesOptions, runNoNativeRuntimeRules } from "./NoNativeRuntime.js";
 import { runTerseEffectRules, TerseEffectRulesOptions } from "./TerseEffect.js";
@@ -96,6 +97,29 @@ class DualArityCommandOptions extends S.Class<DualArityCommandOptions>($I`DualAr
   },
   $I.annote("DualArityCommandOptions", {
     description: "CLI options for public API dual-arity command.",
+  })
+) {}
+
+/**
+ * CLI options for the Effect.fn supplemental law.
+ *
+ * @example
+ * ```ts
+ * console.log("EffectFnCommandOptions")
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+class EffectFnCommandOptions extends S.Class<EffectFnCommandOptions>($I`EffectFnCommandOptions`)(
+  {
+    check: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
+    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+  },
+  $I.annote("EffectFnCommandOptions", {
+    description: "CLI options for the Effect.fn supplemental law.",
   })
 ) {}
 
@@ -275,6 +299,51 @@ const lawsDualArityCommand = Command.make(
 ).pipe(Command.withDescription("Check or refresh public helper dual-arity inventory"));
 
 /**
+ * CLI command for the Effect.fn supplemental law.
+ *
+ * @example
+ * ```ts
+ * console.log("lawsEffectFnCommand")
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+const lawsEffectFnCommand = Command.make(
+  "effect-fn",
+  {
+    check: Flag.boolean("check").pipe(Flag.withDescription("Fail when reusable functions directly return Effect.gen")),
+    exclude: Flag.string("exclude").pipe(
+      Flag.withDescription("Comma-separated list of file paths to exclude"),
+      Flag.withDefault("")
+    ),
+  },
+  Effect.fn(function* ({ check, exclude }) {
+    const options = new EffectFnCommandOptions({ check, exclude });
+    const summary = yield* runEffectFnRules(
+      new EffectFnRulesOptions({
+        strictCheck: options.check,
+        excludePaths: parseExcludePaths(options.exclude),
+      })
+    );
+
+    yield* Console.log(`[effect-governance-effect-fn] mode=${options.check ? "check" : "report"}`);
+    yield* Console.log(`[effect-governance-effect-fn] scanned_files=${summary.scannedFiles}`);
+    yield* Console.log(`[effect-governance-effect-fn] touched_files=${summary.touchedFiles}`);
+    yield* Console.log(`[effect-governance-effect-fn] violations=${summary.violationCount}`);
+
+    for (const diagnostic of summary.diagnostics) {
+      yield* Console.log(
+        `- ${diagnostic.file}:${diagnostic.line}:${diagnostic.column} [${diagnostic.ruleId}] ${diagnostic.message}`
+      );
+    }
+
+    if (summary.strictFailure) {
+      process.exitCode = 1;
+    }
+  })
+).pipe(Command.withDescription("Check reusable Effect.gen-returning functions use Effect.fn or Effect.fnUntraced"));
+
+/**
  * CLI command for repo-local native runtime governance checks.
  *
  * @example
@@ -372,6 +441,7 @@ export const lawsCommand = Command.make(
     yield* Console.log("- bun run beep laws native-runtime --check");
     yield* Console.log("- bun run beep laws dual-arity --check");
     yield* Console.log("- bun run beep laws dual-arity --write");
+    yield* Console.log("- bun run beep laws effect-fn --check");
     yield* Console.log("- bun run beep laws terse-effect --check");
     yield* Console.log("- bun run beep laws terse-effect --write");
     yield* Console.log("- bun run beep laws allowlist-check");
@@ -382,6 +452,7 @@ export const lawsCommand = Command.make(
     lawsEffectImportsCommand,
     lawsNativeRuntimeCommand,
     lawsDualArityCommand,
+    lawsEffectFnCommand,
     lawsTerseEffectCommand,
     lawsAllowlistCheckCommand,
   ])

@@ -907,161 +907,160 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     return yield* buildResolvedScope(resolvedRepoRootPath, resolvedTsConfigPath, mode, referencePolicy);
   });
 
-  const resolveScopeById = (scopeId: string): Effect.Effect<TsMorphProjectScope, TSMorphServiceError> =>
-    Effect.gen(function* () {
-      const cachedScope = MutableHashMap.get(resolvedScopes, scopeId);
-      if (O.isSome(cachedScope)) {
-        return cachedScope.value;
-      }
+  const resolveScopeById = Effect.fnUntraced(function* (
+    scopeId: string
+  ): Effect.fn.Return<TsMorphProjectScope, TSMorphServiceError> {
+    const cachedScope = MutableHashMap.get(resolvedScopes, scopeId);
+    if (O.isSome(cachedScope)) {
+      return cachedScope.value;
+    }
 
-      const [tsConfigPath, _scopeSeparator, mode, _policySeparator, referencePolicy] = yield* decodeOrFail(
-        decodeProjectScopeIdParts,
-        scopeId,
-        (message) =>
-          new TsMorphScopeResolutionError({
-            entrypoint: scopeId,
-            message: `Failed to parse scope id "${scopeId}": ${message}`,
-          })
-      );
+    const [tsConfigPath, _scopeSeparator, mode, _policySeparator, referencePolicy] = yield* decodeOrFail(
+      decodeProjectScopeIdParts,
+      scopeId,
+      (message) =>
+        new TsMorphScopeResolutionError({
+          entrypoint: scopeId,
+          message: `Failed to parse scope id "${scopeId}": ${message}`,
+        })
+    );
 
-      const repoRootPath = yield* resolveRepoRoot(O.none());
-      const resolvedTsConfigPath = yield* resolveTsConfigPath(repoRootPath, tsConfigPath);
-      return yield* buildResolvedScope(repoRootPath, resolvedTsConfigPath, mode, referencePolicy);
-    });
+    const repoRootPath = yield* resolveRepoRoot(O.none());
+    const resolvedTsConfigPath = yield* resolveTsConfigPath(repoRootPath, tsConfigPath);
+    return yield* buildResolvedScope(repoRootPath, resolvedTsConfigPath, mode, referencePolicy);
+  });
 
-  const loadSourceFile = (
+  const loadSourceFile = Effect.fnUntraced(function* (
     scope: TsMorphProjectScope,
     filePath: TypeScriptFilePath
-  ): Effect.Effect<
+  ): Effect.fn.Return<
     {
       readonly sourceFile: SourceFile;
       readonly filePath: TypeScriptFilePath;
     },
     TSMorphServiceError
-  > =>
-    Effect.gen(function* () {
-      const { absoluteFilePath, filePath: normalizedFilePath } = yield* resolveScopedFilePath(
-        scope.repoRootPath,
-        filePath
-      );
+  > {
+    const { absoluteFilePath, filePath: normalizedFilePath } = yield* resolveScopedFilePath(
+      scope.repoRootPath,
+      filePath
+    );
 
+    if (
+      scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
+      isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
+    ) {
+      return yield* new TsMorphSourceFileError({
+        scopeId: O.some(scope.scopeId),
+        filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
+        message: `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
+      });
+    }
+
+    const project = yield* projectPool.getOrCreate(scope);
+    const existingSourceFile = project.getSourceFile(absoluteFilePath);
+    const sourceFile = existingSourceFile ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
+
+    if (sourceFile === undefined) {
+      return yield* new TsMorphSourceFileError({
+        scopeId: O.some(scope.scopeId),
+        filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
+        message: `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
+      });
+    }
+
+    if (existingSourceFile === undefined) {
+      MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
+    }
+
+    return {
+      sourceFile,
+      filePath: normalizedFilePath,
+    };
+  });
+
+  const collectScopeSymbolIndex = Effect.fnUntraced(function* (
+    scope: TsMorphProjectScope
+  ): Effect.fn.Return<ScopeSymbolIndex, TSMorphServiceError> {
+    const project = yield* projectPool.getOrCreate(scope);
+    const entries = A.empty<ScopeSymbolEntry>();
+
+    for (const sourceFile of project.getSourceFiles()) {
+      const absoluteFilePath = pathApi.normalize(sourceFile.getFilePath());
       if (
         scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
         isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
       ) {
-        return yield* new TsMorphSourceFileError({
-          scopeId: O.some(scope.scopeId),
-          filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
-          message: `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
-        });
+        continue;
       }
 
-      const project = yield* projectPool.getOrCreate(scope);
-      const existingSourceFile = project.getSourceFile(absoluteFilePath);
-      const sourceFile = existingSourceFile ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
-
-      if (sourceFile === undefined) {
-        return yield* new TsMorphSourceFileError({
-          scopeId: O.some(scope.scopeId),
-          filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
-          message: `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
-        });
+      const repoRelativeFilePath = pathApi.normalize(pathApi.relative(scope.repoRootPath, absoluteFilePath));
+      if (
+        repoRelativeFilePath.length === 0 ||
+        pathApi.isAbsolute(repoRelativeFilePath) ||
+        Str.startsWith("..")(repoRelativeFilePath)
+      ) {
+        continue;
       }
 
-      if (existingSourceFile === undefined) {
-        MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
+      const implementationFilePath = decodeTypeScriptImplementationFilePathOption(repoRelativeFilePath);
+      if (O.isSome(implementationFilePath)) {
+        const sourceEntries = yield* collectOutlineEntries(implementationFilePath.value, sourceFile);
+        entries.push(...sourceEntries);
       }
+    }
 
-      return {
-        sourceFile,
-        filePath: normalizedFilePath,
-      };
-    });
+    const sortedEntries = A.sort(entries, byScopeSymbolEntryAscending);
+    const entriesById = MutableHashMap.empty<string, ScopeSymbolEntry>();
+    const entriesByFilePath = MutableHashMap.empty<string, ReadonlyArray<ScopeSymbolEntry>>();
 
-  const collectScopeSymbolIndex = (scope: TsMorphProjectScope): Effect.Effect<ScopeSymbolIndex, TSMorphServiceError> =>
-    Effect.gen(function* () {
-      const project = yield* projectPool.getOrCreate(scope);
-      const entries = A.empty<ScopeSymbolEntry>();
+    for (const entry of entries) {
+      const fileEntries = O.getOrElse(
+        MutableHashMap.get(entriesByFilePath, entry.symbol.filePath),
+        A.empty<ScopeSymbolEntry>
+      );
+      MutableHashMap.set(entriesByFilePath, entry.symbol.filePath, A.append(fileEntries, entry));
+    }
 
-      for (const sourceFile of project.getSourceFiles()) {
-        const absoluteFilePath = pathApi.normalize(sourceFile.getFilePath());
-        if (
-          scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
-          isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
-        ) {
-          continue;
-        }
+    for (const entry of sortedEntries) {
+      MutableHashMap.set(entriesById, entry.symbol.id, entry);
+    }
 
-        const repoRelativeFilePath = pathApi.normalize(pathApi.relative(scope.repoRootPath, absoluteFilePath));
-        if (
-          repoRelativeFilePath.length === 0 ||
-          pathApi.isAbsolute(repoRelativeFilePath) ||
-          Str.startsWith("..")(repoRelativeFilePath)
-        ) {
-          continue;
-        }
+    return {
+      entries: sortedEntries,
+      entriesById,
+      entriesByFilePath,
+    } satisfies ScopeSymbolIndex;
+  });
 
-        const implementationFilePath = decodeTypeScriptImplementationFilePathOption(repoRelativeFilePath);
-        if (O.isSome(implementationFilePath)) {
-          const sourceEntries = yield* collectOutlineEntries(implementationFilePath.value, sourceFile);
-          entries.push(...sourceEntries);
-        }
-      }
-
-      const sortedEntries = A.sort(entries, byScopeSymbolEntryAscending);
-      const entriesById = MutableHashMap.empty<string, ScopeSymbolEntry>();
-      const entriesByFilePath = MutableHashMap.empty<string, ReadonlyArray<ScopeSymbolEntry>>();
-
-      for (const entry of entries) {
-        const fileEntries = O.getOrElse(
-          MutableHashMap.get(entriesByFilePath, entry.symbol.filePath),
-          A.empty<ScopeSymbolEntry>
-        );
-        MutableHashMap.set(entriesByFilePath, entry.symbol.filePath, A.append(fileEntries, entry));
-      }
-
-      for (const entry of sortedEntries) {
-        MutableHashMap.set(entriesById, entry.symbol.id, entry);
-      }
-
-      return {
-        entries: sortedEntries,
-        entriesById,
-        entriesByFilePath,
-      } satisfies ScopeSymbolIndex;
-    });
-
-  const getOrCreateScopeSymbolIndex = (
+  const getOrCreateScopeSymbolIndex = Effect.fnUntraced(function* (
     scope: TsMorphProjectScope
-  ): Effect.Effect<ScopeSymbolIndex, TSMorphServiceError> =>
-    Effect.gen(function* () {
-      const cachedSymbolIndex = MutableHashMap.get(symbolIndexPool, scope.cacheKey);
-      if (O.isSome(cachedSymbolIndex)) {
-        return cachedSymbolIndex.value;
-      }
+  ): Effect.fn.Return<ScopeSymbolIndex, TSMorphServiceError> {
+    const cachedSymbolIndex = MutableHashMap.get(symbolIndexPool, scope.cacheKey);
+    if (O.isSome(cachedSymbolIndex)) {
+      return cachedSymbolIndex.value;
+    }
 
-      const symbolIndex = yield* collectScopeSymbolIndex(scope);
-      MutableHashMap.set(symbolIndexPool, scope.cacheKey, symbolIndex);
-      return symbolIndex;
-    });
+    const symbolIndex = yield* collectScopeSymbolIndex(scope);
+    MutableHashMap.set(symbolIndexPool, scope.cacheKey, symbolIndex);
+    return symbolIndex;
+  });
 
-  const findScopeSymbolEntry = (
+  const findScopeSymbolEntry = Effect.fnUntraced(function* (
     scope: TsMorphProjectScope,
     symbolId: SymbolId
-  ): Effect.Effect<ScopeSymbolEntry, TSMorphServiceError> =>
-    Effect.gen(function* () {
-      const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
-      const entry = MutableHashMap.get(symbolIndex.entriesById, symbolId);
-      if (O.isSome(entry)) {
-        return entry.value;
-      }
+  ): Effect.fn.Return<ScopeSymbolEntry, TSMorphServiceError> {
+    const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
+    const entry = MutableHashMap.get(symbolIndex.entriesById, symbolId);
+    if (O.isSome(entry)) {
+      return entry.value;
+    }
 
-      return yield* new TsMorphSymbolNotFoundError({
-        scopeId: scope.scopeId,
-        symbolId,
-        message: `Symbol "${symbolId}" could not be resolved within scope "${scope.scopeId}".`,
-      });
+    return yield* new TsMorphSymbolNotFoundError({
+      scopeId: scope.scopeId,
+      symbolId,
+      message: `Symbol "${symbolId}" could not be resolved within scope "${scope.scopeId}".`,
     });
+  });
 
   const resolveProjectScope: TSMorphServiceShape["resolveProjectScope"] = Effect.fn(function* (request) {
     return yield* resolveScopeFromEntrypoint(

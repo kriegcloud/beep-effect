@@ -168,19 +168,20 @@ const streamChatCompletion = (
  * @category constructors
  * @since 0.0.0
  */
-export const make = (options: XAiLanguageModelOptions): Effect.Effect<LanguageModel.Service, never, XAi> =>
-  Effect.gen(function* () {
-    const xai = yield* XAi;
-    return yield* makeFromProvider({
-      ...(options.config === undefined ? {} : { config: options.config }),
-      model: options.model,
-      moduleName,
-      provider: {
-        createChatCompletion: (request) => createChatCompletion(xai, request),
-        streamChatCompletion: (request) => streamChatCompletion(xai, request),
-      },
-    });
+export const make: (options: XAiLanguageModelOptions) => Effect.Effect<LanguageModel.Service, never, XAi> = Effect.fn(
+  "XAiLanguageModel.make"
+)(function* (options) {
+  const xai = yield* XAi;
+  return yield* makeFromProvider({
+    ...(options.config === undefined ? {} : { config: options.config }),
+    model: options.model,
+    moduleName,
+    provider: {
+      createChatCompletion: (request) => createChatCompletion(xai, request),
+      streamChatCompletion: (request) => streamChatCompletion(xai, request),
+    },
   });
+});
 
 /**
  * Builds an xAI Effect AI language-model layer.

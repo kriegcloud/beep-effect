@@ -250,79 +250,78 @@ export class ParsedRow extends S.Class<ParsedRow>($I`ParsedRow`)(
   })
 ) {}
 
-const parseRowAt = (
+const parseRowAt = Effect.fn("CsvParser.parseRowAt")(function* (
   input: string,
   cursor: number,
   parserOptions: ParserOptions
-): Effect.Effect<ParsedRow, CsvError, never> =>
-  Effect.gen(function* () {
-    let currentCursor = cursor;
-    let row = A.empty<string>();
+): Effect.fn.Return<ParsedRow, CsvError> {
+  let currentCursor = cursor;
+  let row = A.empty<string>();
 
-    while (true) {
-      const rowDelimiterLength = getRowDelimiterLength(input, currentCursor);
+  while (true) {
+    const rowDelimiterLength = getRowDelimiterLength(input, currentCursor);
 
-      if (rowDelimiterLength > 0) {
-        return {
-          cursor: currentCursor + rowDelimiterLength,
-          row,
-        };
-      }
-
-      if (currentCursor >= input.length) {
-        return {
-          cursor: currentCursor,
-          row,
-        };
-      }
-
-      const field = yield* parseField(input, currentCursor, parserOptions);
-      row = A.append(row, field.value);
-      currentCursor = field.cursor;
-
-      const nextRowDelimiterLength = getRowDelimiterLength(input, currentCursor);
-
-      if (nextRowDelimiterLength > 0) {
-        return {
-          cursor: currentCursor + nextRowDelimiterLength,
-          row,
-        };
-      }
-
-      if (currentCursor >= input.length) {
-        return {
-          cursor: currentCursor,
-          row,
-        };
-      }
-
-      if (input.at(currentCursor) === parserOptions.delimiter) {
-        currentCursor += 1;
-
-        if (currentCursor >= input.length) {
-          row = A.append(row, "");
-          return {
-            cursor: currentCursor,
-            row,
-          };
-        }
-
-        const trailingDelimiterLength = getRowDelimiterLength(input, currentCursor);
-
-        if (trailingDelimiterLength > 0) {
-          row = A.append(row, "");
-          return {
-            cursor: currentCursor + trailingDelimiterLength,
-            row,
-          };
-        }
-
-        continue;
-      }
-
-      return yield* csvError("Parse Error: parser cursor did not terminate on a delimiter or newline.", currentCursor);
+    if (rowDelimiterLength > 0) {
+      return {
+        cursor: currentCursor + rowDelimiterLength,
+        row,
+      };
     }
-  });
+
+    if (currentCursor >= input.length) {
+      return {
+        cursor: currentCursor,
+        row,
+      };
+    }
+
+    const field = yield* parseField(input, currentCursor, parserOptions);
+    row = A.append(row, field.value);
+    currentCursor = field.cursor;
+
+    const nextRowDelimiterLength = getRowDelimiterLength(input, currentCursor);
+
+    if (nextRowDelimiterLength > 0) {
+      return {
+        cursor: currentCursor + nextRowDelimiterLength,
+        row,
+      };
+    }
+
+    if (currentCursor >= input.length) {
+      return {
+        cursor: currentCursor,
+        row,
+      };
+    }
+
+    if (input.at(currentCursor) === parserOptions.delimiter) {
+      currentCursor += 1;
+
+      if (currentCursor >= input.length) {
+        row = A.append(row, "");
+        return {
+          cursor: currentCursor,
+          row,
+        };
+      }
+
+      const trailingDelimiterLength = getRowDelimiterLength(input, currentCursor);
+
+      if (trailingDelimiterLength > 0) {
+        row = A.append(row, "");
+        return {
+          cursor: currentCursor + trailingDelimiterLength,
+          row,
+        };
+      }
+
+      continue;
+    }
+
+    return yield* csvError("Parse Error: parser cursor did not terminate on a delimiter or newline.", currentCursor);
+  }
+});
 
 const advancePastComment = (input: string, cursor: number): number => {
   let currentCursor = cursor;
@@ -346,31 +345,30 @@ const isCommentStart = (input: string, cursor: number, parserOptions: ParserOpti
     onSome: (comment) => input.at(cursor) === comment,
   });
 
-const parseCsvRowsEffect = (
+const parseCsvRowsEffect = Effect.fn("CsvParser.parseCsvRowsEffect")(function* (
   input: string,
   parserOptions: ParserOptions
-): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError, never> =>
-  Effect.gen(function* () {
-    const source = removeBom(input);
-    let cursor = 0;
-    let rows = A.empty<ReadonlyArray<string>>();
+): Effect.fn.Return<ReadonlyArray<ReadonlyArray<string>>, CsvError> {
+  const source = removeBom(input);
+  let cursor = 0;
+  let rows = A.empty<ReadonlyArray<string>>();
 
-    while (cursor < source.length) {
-      if (isCommentStart(source, cursor, parserOptions)) {
-        cursor = advancePastComment(source, cursor);
-        continue;
-      }
-
-      const parsedRow = yield* parseRowAt(source, cursor, parserOptions);
-      cursor = parsedRow.cursor;
-
-      if (!(parserOptions.ignoreEmpty && isEmptyRow(parsedRow.row))) {
-        rows = A.append(rows, parsedRow.row);
-      }
+  while (cursor < source.length) {
+    if (isCommentStart(source, cursor, parserOptions)) {
+      cursor = advancePastComment(source, cursor);
+      continue;
     }
 
-    return rows;
-  });
+    const parsedRow = yield* parseRowAt(source, cursor, parserOptions);
+    cursor = parsedRow.cursor;
+
+    if (!(parserOptions.ignoreEmpty && isEmptyRow(parsedRow.row))) {
+      rows = A.append(rows, parsedRow.row);
+    }
+  }
+
+  return rows;
+});
 
 /**
  * Parse full CSV text into raw row arrays using low-level parser options.

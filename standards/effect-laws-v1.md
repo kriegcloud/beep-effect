@@ -30,6 +30,7 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 19. Use `LiteralKit` for internal literal domains when `.is`, `.thunk`, `$match`, or annotation-bearing schema values are part of the design.
 20. Model finite variants, lifecycle states, status/result cases, and case-specific payloads as discriminated unions; keep optional/nullish bags at external boundaries only when compatibility requires them.
 21. Prefer the tersest equivalent Effect helper form when behavior is unchanged: direct helper refs over trivial wrapper lambdas, `flow(...)` for passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
+22. Reusable functions that directly return `Effect.gen(function*)` must use `Effect.fn` or `Effect.fnUntraced`; zero-arg one-off effect values may stay as `Effect.gen`.
 
 ## Allowlist Contract
 

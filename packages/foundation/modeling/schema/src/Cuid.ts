@@ -145,25 +145,32 @@ function hash(input: string): Effect.Effect<string> {
   });
 }
 
-function cuidFromSeed({ counter, fingerprint, random, timestamp }: CuidSeed): Effect.Effect<Cuid> {
-  return Effect.gen(function* () {
-    // First letter is always a random lowercase letter from the seed
-    const firstLetter = String.fromCharCode((random[0] % ALPHABET_LENGTH) + ALPHABET_START_CODE);
-
-    // Convert components to base36
-    const time = timestamp.toString(36);
-    const count = counter.toString(36);
-
-    // Create entropy from remaining random bytes
-    const salt = createEntropy(4, random.slice(1));
-
-    // Hash all components together
-    const hashInput = `${time}${salt}${count}${fingerprint}`;
-    const hashed = yield* hash(hashInput);
-
-    // Construct the final CUID
-    const id = `${firstLetter}${hashed.substring(0, DEFAULT_LENGTH - 1)}`;
-
-    return Cuid.make(id);
-  });
+function cuidFromSeed(seed: CuidSeed): Effect.Effect<Cuid> {
+  return makeCuidFromSeed(seed);
 }
+
+const makeCuidFromSeed = Effect.fn("Schema.Cuid.cuidFromSeed")(function* ({
+  counter,
+  fingerprint,
+  random,
+  timestamp,
+}: CuidSeed) {
+  // First letter is always a random lowercase letter from the seed
+  const firstLetter = String.fromCharCode((random[0] % ALPHABET_LENGTH) + ALPHABET_START_CODE);
+
+  // Convert components to base36
+  const time = timestamp.toString(36);
+  const count = counter.toString(36);
+
+  // Create entropy from remaining random bytes
+  const salt = createEntropy(4, random.slice(1));
+
+  // Hash all components together
+  const hashInput = `${time}${salt}${count}${fingerprint}`;
+  const hashed = yield* hash(hashInput);
+
+  // Construct the final CUID
+  const id = `${firstLetter}${hashed.substring(0, DEFAULT_LENGTH - 1)}`;
+
+  return Cuid.make(id);
+});

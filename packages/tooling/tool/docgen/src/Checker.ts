@@ -189,17 +189,15 @@ export function checkTypeAliases(models: ReadonlyArray<Domain.TypeAlias>) {
   return Effect.forEach(models, checkTypeAlias).pipe(Effect.map(A.flatten));
 }
 
-function checkNamespace(
+const checkNamespace = Effect.fn("checkNamespace")(function* (
   model: Domain.Namespace
-): Effect.Effect<Array<string>, never, Parser.Source | Configuration.Configuration> {
-  return Effect.gen(function* () {
-    const docErrors = yield* checkEntry(model, { enforceVersion: true });
-    const interfacesErrors = yield* checkInterfaces(model.interfaces);
-    const typeAliasesErrors = yield* checkTypeAliases(model.typeAliases);
-    const namespacesErrors = yield* checkNamespaces(model.namespaces);
-    return A.flatten([docErrors, interfacesErrors, typeAliasesErrors, namespacesErrors]);
-  });
-}
+): Effect.fn.Return<Array<string>, never, Parser.Source | Configuration.Configuration> {
+  const docErrors = yield* checkEntry(model, { enforceVersion: true });
+  const interfacesErrors = yield* checkInterfaces(model.interfaces);
+  const typeAliasesErrors = yield* checkTypeAliases(model.typeAliases);
+  const namespacesErrors = yield* checkNamespaces(model.namespaces);
+  return A.flatten([docErrors, interfacesErrors, typeAliasesErrors, namespacesErrors]);
+});
 
 /**
  * Checks documented namespaces and their nested members for required docgen annotations.

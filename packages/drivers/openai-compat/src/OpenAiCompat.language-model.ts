@@ -559,37 +559,36 @@ const prepareResponseFormat = (
   });
 };
 
-const makeRequest = (
+const makeRequest = Effect.fn("OpenAiCompatLanguageModel.makeRequest")(function* (
   moduleName: string,
   model: string,
   config: OpenAiCompatLanguageModelConfig,
   options: LanguageModel.ProviderOptions,
   toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
   stream: boolean
-): Effect.Effect<OpenAiCompatChatCompletionRequest, AiError.AiError> =>
-  Effect.gen(function* () {
-    const messages = yield* prepareMessages(moduleName, toolNameMapper, options.prompt);
-    const tools = yield* prepareTools(moduleName, config, options);
-    const responseFormat = yield* prepareResponseFormat(moduleName, config, options.responseFormat);
-    return new OpenAiCompatChatCompletionRequest({
-      messages,
-      model,
-      ...R.getSomes({
-        max_completion_tokens: O.fromUndefinedOr(config.maxCompletionTokens),
-        max_tokens: O.fromUndefinedOr(config.maxTokens),
-        parallel_tool_calls: O.fromUndefinedOr(config.parallelToolCalls),
-        response_format: responseFormat,
-        seed: O.fromUndefinedOr(config.seed),
-        stream: stream ? O.some(true) : O.none(),
-        stream_options: stream ? O.some({ include_usage: true }) : O.none(),
-        temperature: O.fromUndefinedOr(config.temperature),
-        tool_choice: prepareToolChoice(toolNameMapper, options.toolChoice),
-        tools,
-        top_p: O.fromUndefinedOr(config.topP),
-        user: O.fromUndefinedOr(config.user),
-      }),
-    });
+): Effect.fn.Return<OpenAiCompatChatCompletionRequest, AiError.AiError> {
+  const messages = yield* prepareMessages(moduleName, toolNameMapper, options.prompt);
+  const tools = yield* prepareTools(moduleName, config, options);
+  const responseFormat = yield* prepareResponseFormat(moduleName, config, options.responseFormat);
+  return new OpenAiCompatChatCompletionRequest({
+    messages,
+    model,
+    ...R.getSomes({
+      max_completion_tokens: O.fromUndefinedOr(config.maxCompletionTokens),
+      max_tokens: O.fromUndefinedOr(config.maxTokens),
+      parallel_tool_calls: O.fromUndefinedOr(config.parallelToolCalls),
+      response_format: responseFormat,
+      seed: O.fromUndefinedOr(config.seed),
+      stream: stream ? O.some(true) : O.none(),
+      stream_options: stream ? O.some({ include_usage: true }) : O.none(),
+      temperature: O.fromUndefinedOr(config.temperature),
+      tool_choice: prepareToolChoice(toolNameMapper, options.toolChoice),
+      tools,
+      top_p: O.fromUndefinedOr(config.topP),
+      user: O.fromUndefinedOr(config.user),
+    }),
   });
+});
 
 const makeToolCallPart = (
   moduleName: string,
@@ -682,46 +681,45 @@ const makeCompletedStreamToolCallsParts = (
     Effect.map(A.flatten)
   );
 
-const makeChoiceParts = (
+const makeChoiceParts = Effect.fn("OpenAiCompatLanguageModel.makeChoiceParts")(function* (
   moduleName: string,
   toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
   response: OpenAiCompatChatCompletionResponse
-): Effect.Effect<Array<Response.PartEncoded>, AiError.AiError> =>
-  Effect.gen(function* () {
-    if (A.length(response.choices) > 1) {
-      yield* Effect.logDebug({
-        choiceCount: A.length(response.choices),
-        component: moduleName,
-        event: "additional-choices-ignored",
-        method: "makeResponse",
-      });
-    }
-    const choice = yield* pipe(
-      response.choices,
-      A.head,
-      O.match({
-        onNone: () =>
-          Effect.fail(makeInvalidOutput(moduleName, "makeResponse", "Provider response did not include a choice.")),
-        onSome: Effect.succeed,
-      })
-    );
-    const textParts = pipe(
-      choice.message,
-      O.flatMap((message) => message.content),
-      O.flatMap(nonEmptyStringOption),
-      O.match({
-        onNone: A.empty<Response.PartEncoded>,
-        onSome: (text) => [Response.makePart("text", { text })],
-      })
-    );
-    const toolParts = yield* pipe(
-      choice.message,
-      O.flatMap((message) => message.tool_calls),
-      O.getOrElse(A.empty<OpenAiCompatToolCall>),
-      Effect.forEach((toolCall) => makeToolCallPart(moduleName, toolNameMapper, toolCall))
-    );
-    return [...textParts, ...toolParts, makeFinishPart(response.usage, choice.finish_reason)];
-  });
+): Effect.fn.Return<Array<Response.PartEncoded>, AiError.AiError> {
+  if (A.length(response.choices) > 1) {
+    yield* Effect.logDebug({
+      choiceCount: A.length(response.choices),
+      component: moduleName,
+      event: "additional-choices-ignored",
+      method: "makeResponse",
+    });
+  }
+  const choice = yield* pipe(
+    response.choices,
+    A.head,
+    O.match({
+      onNone: () =>
+        Effect.fail(makeInvalidOutput(moduleName, "makeResponse", "Provider response did not include a choice.")),
+      onSome: Effect.succeed,
+    })
+  );
+  const textParts = pipe(
+    choice.message,
+    O.flatMap((message) => message.content),
+    O.flatMap(nonEmptyStringOption),
+    O.match({
+      onNone: A.empty<Response.PartEncoded>,
+      onSome: (text) => [Response.makePart("text", { text })],
+    })
+  );
+  const toolParts = yield* pipe(
+    choice.message,
+    O.flatMap((message) => message.tool_calls),
+    O.getOrElse(A.empty<OpenAiCompatToolCall>),
+    Effect.forEach((toolCall) => makeToolCallPart(moduleName, toolNameMapper, toolCall))
+  );
+  return [...textParts, ...toolParts, makeFinishPart(response.usage, choice.finish_reason)];
+});
 
 const finishStreamParts = (state: StreamState): ReadonlyArray<Response.StreamPartEncoded> =>
   state.finished
@@ -731,93 +729,92 @@ const finishStreamParts = (state: StreamState): ReadonlyArray<Response.StreamPar
         makeFinishPart(state.usage, state.finishReason),
       ];
 
-const makeStreamChoiceParts = (
+const makeStreamChoiceParts = Effect.fn("OpenAiCompatLanguageModel.makeStreamChoiceParts")(function* (
   moduleName: string,
   toolNameMapper: Tool.NameMapper<ReadonlyArray<Tool.Any>>,
   state: StreamState,
   chunk: OpenAiCompatChatCompletionChunk
-): Effect.Effect<readonly [StreamState, ReadonlyArray<Response.StreamPartEncoded>], AiError.AiError> =>
-  Effect.gen(function* () {
-    let activeToolCalls = state.activeToolCalls;
-    let finishReason = state.finishReason;
-    const usage = O.isSome(chunk.usage) ? chunk.usage : state.usage;
-    const choiceParts = yield* pipe(
-      chunk.choices,
-      Effect.forEach((choice) =>
-        Effect.gen(function* () {
-          const textParts = pipe(
-            choice.delta,
-            O.flatMap((delta) => delta.content),
-            O.flatMap(nonEmptyStringOption),
-            O.match({
-              onNone: A.empty<Response.StreamPartEncoded>,
-              onSome: (delta) => [
-                ...(state.textStarted ? [] : [Response.makePart("text-start", { id: "0" })]),
-                Response.makePart("text-delta", { delta, id: "0" }),
-              ],
-            })
-          );
-          const [nextActiveToolCalls, toolDeltaParts] = pipe(
-            choice.delta,
-            O.flatMap((delta) => delta.tool_calls),
-            O.getOrElse(A.empty<OpenAiCompatToolCallDelta>),
-            A.reduce(
-              Tuple.make(activeToolCalls, A.empty<Response.StreamPartEncoded>()),
-              ([currentActiveToolCalls, currentParts], toolCall, indexInChunk) => {
-                const [updatedActiveToolCalls, deltaParts] = makeToolCallDeltaParts(
-                  toolNameMapper,
-                  chunk,
-                  currentActiveToolCalls,
-                  toolCall,
-                  indexInChunk
-                );
-                return Tuple.make(updatedActiveToolCalls, [...currentParts, ...deltaParts]);
-              }
-            )
-          );
-          activeToolCalls = nextActiveToolCalls;
-          const hasFinish = O.isSome(choice.finish_reason);
-          if (hasFinish) {
-            finishReason = choice.finish_reason;
-          }
-          const completedToolParts = hasFinish
-            ? yield* makeCompletedStreamToolCallsParts(moduleName, activeToolCalls)
-            : [];
-          if (hasFinish) {
-            activeToolCalls = {};
-          }
-          const parts: ReadonlyArray<Response.StreamPartEncoded> = [
-            ...textParts,
-            ...toolDeltaParts,
-            ...completedToolParts,
-            ...(hasFinish && (state.textStarted || A.isReadonlyArrayNonEmpty(textParts))
-              ? [Response.makePart("text-end", { id: "0" })]
-              : []),
-          ];
-          return parts;
-        })
-      )
+): Effect.fn.Return<readonly [StreamState, ReadonlyArray<Response.StreamPartEncoded>], AiError.AiError> {
+  let activeToolCalls = state.activeToolCalls;
+  let finishReason = state.finishReason;
+  const usage = O.isSome(chunk.usage) ? chunk.usage : state.usage;
+  const choiceParts = yield* pipe(
+    chunk.choices,
+    Effect.forEach(
+      Effect.fnUntraced(function* (choice) {
+        const textParts = pipe(
+          choice.delta,
+          O.flatMap((delta) => delta.content),
+          O.flatMap(nonEmptyStringOption),
+          O.match({
+            onNone: A.empty<Response.StreamPartEncoded>,
+            onSome: (delta) => [
+              ...(state.textStarted ? [] : [Response.makePart("text-start", { id: "0" })]),
+              Response.makePart("text-delta", { delta, id: "0" }),
+            ],
+          })
+        );
+        const [nextActiveToolCalls, toolDeltaParts] = pipe(
+          choice.delta,
+          O.flatMap((delta) => delta.tool_calls),
+          O.getOrElse(A.empty<OpenAiCompatToolCallDelta>),
+          A.reduce(
+            Tuple.make(activeToolCalls, A.empty<Response.StreamPartEncoded>()),
+            ([currentActiveToolCalls, currentParts], toolCall, indexInChunk) => {
+              const [updatedActiveToolCalls, deltaParts] = makeToolCallDeltaParts(
+                toolNameMapper,
+                chunk,
+                currentActiveToolCalls,
+                toolCall,
+                indexInChunk
+              );
+              return Tuple.make(updatedActiveToolCalls, [...currentParts, ...deltaParts]);
+            }
+          )
+        );
+        activeToolCalls = nextActiveToolCalls;
+        const hasFinish = O.isSome(choice.finish_reason);
+        if (hasFinish) {
+          finishReason = choice.finish_reason;
+        }
+        const completedToolParts = hasFinish
+          ? yield* makeCompletedStreamToolCallsParts(moduleName, activeToolCalls)
+          : [];
+        if (hasFinish) {
+          activeToolCalls = {};
+        }
+        const parts: ReadonlyArray<Response.StreamPartEncoded> = [
+          ...textParts,
+          ...toolDeltaParts,
+          ...completedToolParts,
+          ...(hasFinish && (state.textStarted || A.isReadonlyArrayNonEmpty(textParts))
+            ? [Response.makePart("text-end", { id: "0" })]
+            : []),
+        ];
+        return parts;
+      })
+    )
+  );
+  const shouldFinish =
+    !state.finished && O.isSome(usage) && (O.isSome(finishReason) || !A.isReadonlyArrayNonEmpty(chunk.choices));
+  const parts: Array<Response.StreamPartEncoded> = pipe(choiceParts, A.flatten);
+  const finishedParts = shouldFinish ? [makeFinishPart(usage, finishReason)] : [];
+  const allParts = [...parts, ...finishedParts];
+  const textStarted =
+    state.textStarted ||
+    pipe(
+      allParts,
+      A.some((part) => part.type === "text-start")
     );
-    const shouldFinish =
-      !state.finished && O.isSome(usage) && (O.isSome(finishReason) || !A.isReadonlyArrayNonEmpty(chunk.choices));
-    const parts: Array<Response.StreamPartEncoded> = pipe(choiceParts, A.flatten);
-    const finishedParts = shouldFinish ? [makeFinishPart(usage, finishReason)] : [];
-    const allParts = [...parts, ...finishedParts];
-    const textStarted =
-      state.textStarted ||
-      pipe(
-        allParts,
-        A.some((part) => part.type === "text-start")
-      );
-    const textEnded =
-      state.textEnded ||
-      pipe(
-        allParts,
-        A.some((part) => part.type === "text-end")
-      );
-    const finished = state.finished || shouldFinish;
-    return Tuple.make({ activeToolCalls, finishReason, finished, textEnded, textStarted, usage }, allParts);
-  });
+  const textEnded =
+    state.textEnded ||
+    pipe(
+      allParts,
+      A.some((part) => part.type === "text-end")
+    );
+  const finished = state.finished || shouldFinish;
+  return Tuple.make({ activeToolCalls, finishReason, finished, textEnded, textStarted, usage }, allParts);
+});
 
 const makeStreamResponse = (
   moduleName: string,

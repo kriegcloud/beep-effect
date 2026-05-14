@@ -291,43 +291,40 @@ const printTypeAlias = (model: Domain.TypeAlias, indentation: number) =>
     postfix: "(type alias)",
   });
 
-const printNamespace = (
+const printNamespace = Effect.fn("printNamespace")(function* (
   model: Domain.Namespace,
   indentation: number
-): Effect.Effect<string, never, Configuration.Configuration | Parser.Source> =>
-  Effect.gen(function* () {
-    const header = yield* printModel(model.name, model.doc, {
-      position: model.position,
-      indentation,
-      postfix: "(namespace)",
-    });
-    const interfaces = yield* Effect.forEach(model.interfaces, (inter) => printInterface(inter, indentation + 1));
-    const typeAliases = yield* Effect.forEach(model.typeAliases, (typeAlias) =>
-      printTypeAlias(typeAlias, indentation + 1)
-    );
-    const namespaces = yield* Effect.forEach(model.namespaces, (namespace) =>
-      printNamespace(namespace, indentation + 1)
-    );
-
-    return (
-      header +
-      pipe(
-        interfaces,
-        A.map((value) => `\n\n${value}`),
-        A.join("")
-      ) +
-      pipe(
-        typeAliases,
-        A.map((value) => `\n\n${value}`),
-        A.join("")
-      ) +
-      pipe(
-        namespaces,
-        A.map((value) => `\n\n${value}`),
-        A.join("")
-      )
-    );
+): Effect.fn.Return<string, never, Configuration.Configuration | Parser.Source> {
+  const header = yield* printModel(model.name, model.doc, {
+    position: model.position,
+    indentation,
+    postfix: "(namespace)",
   });
+  const interfaces = yield* Effect.forEach(model.interfaces, (inter) => printInterface(inter, indentation + 1));
+  const typeAliases = yield* Effect.forEach(model.typeAliases, (typeAlias) =>
+    printTypeAlias(typeAlias, indentation + 1)
+  );
+  const namespaces = yield* Effect.forEach(model.namespaces, (namespace) => printNamespace(namespace, indentation + 1));
+
+  return (
+    header +
+    pipe(
+      interfaces,
+      A.map((value) => `\n\n${value}`),
+      A.join("")
+    ) +
+    pipe(
+      typeAliases,
+      A.map((value) => `\n\n${value}`),
+      A.join("")
+    ) +
+    pipe(
+      namespaces,
+      A.map((value) => `\n\n${value}`),
+      A.join("")
+    )
+  );
+});
 
 /**
  * Renders a single documented entity into markdown.
@@ -400,8 +397,9 @@ export const printModule = (module: Domain.Module) =>
             );
             const printables = A.sort(byCategory)(R.toEntries(grouped) as Array<[string, Array<Printable>]>);
 
-            const strings = yield* Effect.forEach(printables, ([category, categoryPrintables]) =>
-              Effect.gen(function* () {
+            const strings = yield* Effect.forEach(
+              printables,
+              Effect.fnUntraced(function* ([category, categoryPrintables]) {
                 const values = yield* Effect.forEach(sortByName(categoryPrintables), print);
                 return `\n\n# ${category}${pipe(
                   values,
