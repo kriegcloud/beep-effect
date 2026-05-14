@@ -25,8 +25,11 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Recent branch evidence includes:
-  `7923a2387a feat(stack-installer): report p1 proof artifact status`
+- Recent branch evidence includes `0e95b717ce test(stack-installer): cover
+  desktop proof flow`, `7c8ccac126 test(stack-installer): cover p1 proof
+  artifact helpers`, `61c9a94f1c feat(stack-installer): surface proof bundle
+  extraction`, and `7923a2387a feat(stack-installer): report p1 proof artifact
+  status`.
 - Relevant audit evidence lives on the pushed branch in
   `apps/stack-installer/src/proof/capture-p1-manual-proof.ts`,
   `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md`, and this completion audit
@@ -48,6 +51,11 @@ without stopping until:
   fails with `Missing P1 proof artifact directories:
   output/stack-installer/p1-live/macos,
   output/stack-installer/p1-live/windows`.
+- Current transfer-route evidence:
+  `tailscale file get output/stack-installer/p1-live` fails with file access
+  denied, and non-interactive `sudo -n tailscale set --operator=$USER` fails
+  because sudo requires a password. Artifact intake via Taildrop therefore
+  remains a user-side setup step before the coordinator can receive bundles.
 
 ## Prompt-To-Artifact Checklist
 
