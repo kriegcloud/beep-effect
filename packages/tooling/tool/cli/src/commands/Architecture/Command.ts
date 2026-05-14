@@ -115,9 +115,9 @@ const readOperationPlanFile = Effect.fn(function* (filePath: string) {
 
 const reportCheckResult = Effect.fn(function* (result: OperationPlanCheckResult) {
   yield* Console.log(
-    `architecture operation-plan idempotent=${result.idempotent} missing=${result.missingPaths.length} differing=${result.differingPaths.length} unexpected=${
-      result.unexpectedPaths.length
-    }`
+    `architecture operation-plan idempotent=${result.idempotent} operations=${result.operationStatuses.length} missing=${
+      result.missingPaths.length
+    } differing=${result.differingPaths.length} unexpected=${result.unexpectedPaths.length}`
   );
 });
 

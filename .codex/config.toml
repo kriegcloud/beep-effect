@@ -19,6 +19,10 @@ name = "atom-reactivity-specialist"
 enabled = true
 
 [[skills.config]]
+name = "claude-frontend-lane"
+enabled = true
+
+[[skills.config]]
 name = "effect-data"
 enabled = true
 

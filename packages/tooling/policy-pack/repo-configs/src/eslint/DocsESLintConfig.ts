@@ -18,23 +18,6 @@ const beepJsdoc = {
   },
 };
 
-// Keep this list aligned with packages/foundation/ui-system/ui/tsconfig.json excludes so
-// type-aware lint does not parse files the UI project service excludes.
-const uiTsconfigExcludedTypeAwareFiles = [
-  "packages/foundation/ui-system/ui/src/components/calendar.tsx",
-  "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-  "packages/foundation/ui-system/ui/src/components/command.tsx",
-  "packages/foundation/ui-system/ui/src/components/drawer.tsx",
-  "packages/foundation/ui-system/ui/src/components/field.tsx",
-  "packages/foundation/ui-system/ui/src/components/input-otp.tsx",
-  "packages/foundation/ui-system/ui/src/components/orb.tsx",
-  "packages/foundation/ui-system/ui/src/components/resizable.tsx",
-  "packages/foundation/ui-system/ui/src/components/sonner.tsx",
-  "packages/foundation/ui-system/ui/src/components/speech-input.tsx",
-  "packages/foundation/ui-system/ui/src/components/toaster.tsx",
-  "packages/foundation/ui-system/ui/src/components/tour.tsx",
-] as const;
-
 const repoRootDirectory = fileURLToPath(new URL("../../../../../../", import.meta.url));
 
 /**
@@ -262,7 +245,6 @@ export const DocsESLintConfig: DocsESLintConfigShape = [
       "**/vitest.storybook.config.ts",
       "packages/tooling/*/*/scripts/**",
       "packages/tooling/*/*/src/internal/**",
-      ...uiTsconfigExcludedTypeAwareFiles,
     ],
     plugins: {
       "eslint-plugin-tsdoc": tsdoc,

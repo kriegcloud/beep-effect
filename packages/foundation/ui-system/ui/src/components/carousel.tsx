@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@beep/ui/components/button";
-import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
 import * as React from "react";
@@ -68,7 +68,7 @@ function Carousel({
   const [canScrollNext, setCanScrollNext] = React.useState(false);
 
   const onSelect = React.useCallback((api: CarouselApi) => {
-    if (!api) return;
+    if (api === undefined) return;
     setCanScrollPrev(api.canScrollPrev());
     setCanScrollNext(api.canScrollNext());
   }, A.empty());
@@ -96,7 +96,7 @@ function Carousel({
 
   React.useEffect(
     () => {
-      if (!api || !setApi) return;
+      if (api === undefined || setApi === undefined) return;
       setApi(api);
     },
     A.make(api, setApi)
@@ -104,7 +104,7 @@ function Carousel({
 
   React.useEffect(
     () => {
-      if (!api) return;
+      if (api === undefined) return;
       onSelect(api);
       api.on("reInit", onSelect);
       api.on("select", onSelect);
@@ -203,7 +203,7 @@ function CarouselPrevious({
       onClick={scrollPrev}
       {...props}
     >
-      <CaretLeft />
+      <CaretLeftIcon />
       <span className="sr-only">Previous slide</span>
     </Button>
   );
@@ -237,7 +237,7 @@ function CarouselNext({
       onClick={scrollNext}
       {...props}
     >
-      <CaretRight />
+      <CaretRightIcon />
       <span className="sr-only">Next slide</span>
     </Button>
   );

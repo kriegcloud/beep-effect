@@ -10,6 +10,9 @@ import type React from "react";
 import { useMemo } from "react";
 import { cn } from "../lib/index.ts";
 
+const hasRenderableNode = (node: React.ReactNode): boolean =>
+  node !== undefined && node !== null && node !== false && node !== "" && node !== 0 && node !== 0n;
+
 /**
  * @category components
  * @since 0.0.0
@@ -177,15 +180,16 @@ function FieldSeparator({
 }: React.ComponentProps<"div"> & {
   readonly children?: undefined | React.ReactNode;
 }) {
+  const hasChildren = hasRenderableNode(children);
   return (
     <div
       data-slot="field-separator"
-      data-content={!!children}
+      data-content={hasChildren}
       className={cn("-my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2 relative", className)}
       {...props}
     >
       <Separator className="absolute inset-0 top-1/2" />
-      {children && (
+      {hasChildren && (
         <span
           className="text-muted-foreground px-2 bg-background relative mx-auto block w-fit"
           data-slot="field-separator-content"
@@ -210,12 +214,12 @@ function FieldError({
   readonly errors?: undefined | Array<{ readonly message?: undefined | string } | undefined>;
 }) {
   const content = useMemo(() => {
-    if (children) {
+    if (hasRenderableNode(children)) {
       return children;
     }
 
     const errorsOption = O.fromNullishOr(errors);
-    if (O.isNone(errorsOption) || A.isEmptyArray(errorsOption.value)) {
+    if (O.isNone(errorsOption) || A.isReadonlyArrayEmpty(errorsOption.value)) {
       return null;
     }
 
@@ -237,19 +241,14 @@ function FieldError({
       <ul className="ml-4 flex list-disc flex-col gap-1">
         {pipe(
           uniqueErrors,
-          A.filterMap((error) =>
-            pipe(
-              O.fromNullishOr(error.message),
-              O.map((message) => message)
-            )
-          ),
+          A.flatMapNullishOr((error) => error.message),
           A.map((message, index) => <li key={index}>{message}</li>)
         )}
       </ul>
     );
   }, [children, errors]);
 
-  if (!content) {
+  if (!hasRenderableNode(content)) {
     return null;
   }
 

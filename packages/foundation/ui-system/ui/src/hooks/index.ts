@@ -10,4 +10,9 @@
  * @since 0.0.0
  * @category hooks
  */
+export * from "./use-scribe.ts";
+/**
+ * @since 0.0.0
+ * @category hooks
+ */
 export * from "./useNumberInput.ts";

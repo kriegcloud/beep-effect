@@ -135,9 +135,9 @@ Do not build separate one-off scaffold scripts for each command. The point is a
 modular factory that can later create tables, protocol modules, foundation
 packages, drivers, and other architecture parts through the same plan model.
 
-Keep `create-package` compatible, but route future package-creation rules
-toward the shared architecture planner rather than preserving a parallel
-package scaffolder forever.
+Keep top-level `create-package` compatible as non-architecture scaffolding.
+Architecture-native slice role package creation lives under
+`beep architecture create package`.
 
 ## Proof Target
 

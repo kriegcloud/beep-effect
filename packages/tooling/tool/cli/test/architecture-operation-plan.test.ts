@@ -1,9 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   applyCanonicalSliceOperationPlan,
+  architectureCommand,
   CanonicalSliceOperationPlan,
   checkCanonicalSliceOperationPlan,
   decodeCanonicalSliceOperationPlanJson,
@@ -16,11 +17,71 @@ import {
 } from "@beep/repo-cli/commands/Architecture/index";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect } from "effect";
+import { Effect, Layer, Order, pipe } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import * as TestConsole from "effect/testing/TestConsole";
+import { Command } from "effect/unstable/cli";
 
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
+const architectureFixtureManifestPath = join(
+  repoRoot,
+  "packages/tooling/tool/cli/test/fixtures/architecture-operation-plan/accepted-work-item-manifest.json"
+);
+const architectureProofRoots = [
+  "packages/architecture-lab",
+  "apps/architecture-lab-proof",
+  "packages/_internal/db-admin",
+] as const;
+const architectureGeneratedSurfaceSegments = ["/dist/", "/docs/", "/.turbo/", "/node_modules/"] as const;
+const architectureManifestIncludedSurfaceEntries = [
+  "packages/architecture-lab/*/AGENTS.md",
+  "packages/architecture-lab/*/LICENSE",
+  "packages/architecture-lab/*/README.md",
+  "packages/architecture-lab/*/docgen.json",
+  "packages/architecture-lab/*/package.json",
+  "packages/architecture-lab/*/tsconfig.json",
+  "packages/architecture-lab/*/vitest.config.ts",
+  "packages/architecture-lab/*/src/**",
+  "packages/architecture-lab/*/test/**",
+  "packages/architecture-lab/*/dtslint/**",
+  "apps/architecture-lab-proof/{AGENTS.md,LICENSE,README.md,docgen.json,package.json,tsconfig.json,vitest.config.ts,src/**,test/**,dtslint/**}",
+  "packages/_internal/db-admin/{AGENTS.md,LICENSE,README.md,docgen.json,drizzle.config.ts,package.json,tsconfig.json,tsconfig.drizzle.json,vitest.config.ts,src/**,test/**,dtslint/**}",
+  "packages/_internal/db-admin/drizzle/**",
+] as const;
+const architectureManifestExcludedSurfaceEntries = [
+  "dist/**",
+  "docs/**",
+  ".turbo/**",
+  "node_modules/**",
+  "node_modules/.tmp/**",
+  "JSDOC_ANALYSIS.md",
+] as const;
+const sliceTopLevelManifestFiles = [
+  "AGENTS.md",
+  "LICENSE",
+  "README.md",
+  "docgen.json",
+  "package.json",
+  "tsconfig.json",
+  "vitest.config.ts",
+] as const;
+const dbAdminTopLevelManifestFiles = [
+  "AGENTS.md",
+  "LICENSE",
+  "README.md",
+  "docgen.json",
+  "drizzle.config.ts",
+  "package.json",
+  "tsconfig.json",
+  "tsconfig.drizzle.json",
+  "vitest.config.ts",
+] as const;
+const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
+const runArchitectureCommand = Command.runWith(architectureCommand, { version: "0.0.0" });
+
 const PackageJsonPublishConfig = S.Struct({
   exports: S.Record(S.String, S.NullOr(S.String)),
   publishConfig: S.Struct({
@@ -28,6 +89,85 @@ const PackageJsonPublishConfig = S.Struct({
   }),
 });
 const decodePackageJsonPublishConfig = S.decodeUnknownEffect(S.fromJsonString(PackageJsonPublishConfig));
+const ArchitectureFixtureManifest = S.Struct({
+  schemaVersion: S.Literal("architecture-fixture-manifest/v1"),
+  acceptedOracle: S.String,
+  includedSurfaces: S.Array(S.String),
+  excludedSurfaces: S.Array(S.String),
+});
+const decodeArchitectureFixtureManifest = S.decodeUnknownEffect(S.fromJsonString(ArchitectureFixtureManifest));
+
+const isGeneratedArchitectureSurface = (repoPath: string): boolean =>
+  pipe(
+    architectureGeneratedSurfaceSegments,
+    A.some((segment) => Str.includes(segment)(repoPath))
+  ) || Str.endsWith("JSDOC_ANALYSIS.md")(repoPath);
+
+const isManifestIncludedRelativeFile = (
+  repoPath: string,
+  topLevelFiles: ReadonlyArray<string>,
+  includeDrizzle = false
+): boolean =>
+  pipe(topLevelFiles, A.contains(repoPath)) ||
+  Str.startsWith("src/")(repoPath) ||
+  Str.startsWith("test/")(repoPath) ||
+  Str.startsWith("dtslint/")(repoPath) ||
+  (includeDrizzle && Str.startsWith("drizzle/")(repoPath));
+
+const isManifestIncludedArchitectureProofFile = (repoPath: string): boolean => {
+  if (Str.startsWith("packages/architecture-lab/")(repoPath)) {
+    const relativePath = pipe(
+      Str.replace("packages/architecture-lab/", "")(repoPath),
+      Str.split("/"),
+      A.drop(1),
+      A.join("/")
+    );
+    return isManifestIncludedRelativeFile(relativePath, sliceTopLevelManifestFiles);
+  }
+  if (Str.startsWith("apps/architecture-lab-proof/")(repoPath)) {
+    return isManifestIncludedRelativeFile(
+      Str.replace("apps/architecture-lab-proof/", "")(repoPath),
+      sliceTopLevelManifestFiles
+    );
+  }
+  if (Str.startsWith("packages/_internal/db-admin/")(repoPath)) {
+    return isManifestIncludedRelativeFile(
+      Str.replace("packages/_internal/db-admin/", "")(repoPath),
+      dbAdminTopLevelManifestFiles,
+      true
+    );
+  }
+  return false;
+};
+
+const collectFiles = (rootDir: string, repoPath: string): ReadonlyArray<string> => {
+  const absolutePath = join(rootDir, repoPath);
+  if (!existsSync(absolutePath)) return [];
+  const entries = readdirSync(absolutePath, { withFileTypes: true });
+  const files: Array<string> = [];
+  for (const entry of entries) {
+    const childRepoPath = `${repoPath}/${entry.name}`;
+    if (isGeneratedArchitectureSurface(childRepoPath)) continue;
+    if (entry.isDirectory()) {
+      files.push(...collectFiles(rootDir, childRepoPath));
+    } else if (isManifestIncludedArchitectureProofFile(childRepoPath)) {
+      files.push(childRepoPath);
+    }
+  }
+  return files;
+};
+
+const collectAcceptedArchitectureProofFiles = Effect.fn(function* () {
+  const manifest = yield* decodeArchitectureFixtureManifest(readFileSync(architectureFixtureManifestPath, "utf8"));
+  expect(manifest.acceptedOracle).toBe("live architecture-lab WorkItem proof");
+  expect(manifest.includedSurfaces).toEqual([...architectureManifestIncludedSurfaceEntries]);
+  expect(manifest.excludedSurfaces).toEqual([...architectureManifestExcludedSurfaceEntries]);
+  return pipe(
+    architectureProofRoots,
+    A.flatMap((proofRoot) => collectFiles(repoRoot, proofRoot)),
+    A.sort(Order.String)
+  );
+});
 
 describe("architecture operation plan", () => {
   it.effect("round-trips as schema-decoded JSON", () =>
@@ -45,6 +185,57 @@ describe("architecture operation plan", () => {
       expect(decoded.operations.map((operation) => operation.path)).toContain(
         "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.model.ts"
       );
+      expect(decoded.operations[0]?.operationId).toContain(":");
+      expect(decoded.operations[0]?.operationSource).toBe("accepted-proof");
+    })
+  );
+
+  it.effect("decodes older v1 operation JSON with metadata defaults", () =>
+    Effect.gen(function* () {
+      const rootDir = join(tmpdir(), `beep-architecture-legacy-plan-${Date.now()}`);
+      const operationPath = "packages/architecture-lab/domain/src/index.ts";
+      const legacyJson = `{
+  "schemaVersion": "architecture-operation-plan/v1",
+  "target": {
+    "boundedContext": "architecture-lab",
+    "concept": "WorkItem",
+    "domainKind": "aggregates",
+    "conceptPath": "aggregates/WorkItem",
+    "stage": "full"
+  },
+  "roles": [
+    {
+      "role": "domain",
+      "packageName": "@beep/architecture-lab-domain",
+      "path": "packages/architecture-lab/domain",
+      "exports": ["."]
+    }
+  ],
+  "operations": [
+    {
+      "kind": "write-file",
+      "role": "domain",
+      "path": "${operationPath}",
+      "writer": "template",
+      "content": "export {}\\n",
+      "description": "Legacy v1 write."
+    }
+  ]
+}`;
+      mkdirSync(join(rootDir, "packages/architecture-lab/domain/src"), { recursive: true });
+      writeFileSync(join(rootDir, operationPath), "export {}\n");
+
+      const decoded = yield* decodeCanonicalSliceOperationPlanJson(legacyJson);
+      const result = yield* checkCanonicalSliceOperationPlan(rootDir, decoded).pipe(Effect.provide(NodeServices.layer));
+
+      rmSync(rootDir, { force: true, recursive: true });
+      expect(decoded.operations[0]?.operationId).toBe("legacy-operation");
+      expect(decoded.operations[0]?.operationSource).toBe("legacy-plan");
+      expect(decoded.operations[0]?.writeMode).toBe("write-if-missing");
+      expect(result.operationStatuses[0]).toMatchObject({
+        operationId: `write-file:${operationPath}`,
+        status: "matching",
+      });
     })
   );
 
@@ -69,29 +260,47 @@ describe("architecture operation plan", () => {
     })
   );
 
-  it.effect("generates the accepted WorkItem proof into a temp fixture and second apply is a no-op", () =>
+  it.effect("generates every manifest-included WorkItem proof file and second apply is a no-op", () =>
     Effect.gen(function* () {
       const tempRoot = join(tmpdir(), `beep-architecture-generated-${Date.now()}`);
-      const acceptedPath = "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.model.ts";
+      const acceptedFiles = yield* collectAcceptedArchitectureProofFiles();
 
-      const plan = yield* makeArchitectureOperationPlan(repoRoot).pipe(Effect.provide(NodeServices.layer));
-      const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-        Effect.provide(NodeServices.layer)
-      );
-      const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(Effect.provide(NodeServices.layer));
-      const secondApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-        Effect.provide(NodeServices.layer)
-      );
+      const proof = yield* Effect.gen(function* () {
+        const plan = yield* makeArchitectureOperationPlan(repoRoot).pipe(Effect.provide(NodeServices.layer));
+        const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+          Effect.provide(NodeServices.layer)
+        );
+        const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(Effect.provide(NodeServices.layer));
+        const secondApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+          Effect.provide(NodeServices.layer)
+        );
+        const plannedWritePaths = pipe(
+          plan.operations,
+          A.filter((operation) => operation.kind === "write-file" || operation.kind === "write-package-json"),
+          A.map((operation) => operation.path),
+          A.sort(Order.String)
+        );
+        const generatedComparisons = pipe(
+          acceptedFiles,
+          A.map((acceptedPath) => ({
+            accepted: readFileSync(join(repoRoot, acceptedPath), "utf8"),
+            acceptedPath,
+            generated: readFileSync(join(tempRoot, acceptedPath), "utf8"),
+          }))
+        );
 
-      const generated = readFileSync(join(tempRoot, acceptedPath), "utf8");
-      const accepted = readFileSync(join(repoRoot, acceptedPath), "utf8");
+        return { check, firstApply, generatedComparisons, plan, plannedWritePaths, secondApply };
+      }).pipe(Effect.ensuring(Effect.sync(() => rmSync(tempRoot, { force: true, recursive: true }))));
 
-      rmSync(tempRoot, { force: true, recursive: true });
-      expect(firstApply.writtenPaths).toContain(acceptedPath);
-      expect(generated).toBe(accepted);
-      expect(check.idempotent).toBe(true);
-      expect(secondApply.writtenPaths).toEqual([]);
-      expect(secondApply.skippedPaths.length).toBeGreaterThan(0);
+      for (const { accepted, acceptedPath, generated } of proof.generatedComparisons) {
+        expect(generated, acceptedPath).toBe(accepted);
+      }
+      expect(proof.plannedWritePaths).toEqual(acceptedFiles);
+      expect(pipe(proof.firstApply.writtenPaths, A.sort(Order.String))).toEqual(acceptedFiles);
+      expect(proof.check.idempotent).toBe(true);
+      expect(proof.check.operationStatuses.length).toBe(proof.plan.operations.length);
+      expect(proof.secondApply.writtenPaths).toEqual([]);
+      expect(proof.secondApply.skippedPaths.length).toBeGreaterThan(0);
     })
   );
 
@@ -354,6 +563,55 @@ describe("architecture operation plan", () => {
       expect(check.idempotent).toBe(true);
       expect(secondApply.writtenPaths).toEqual([]);
       expect(secondApply.skippedPaths.length).toBeGreaterThan(0);
+    })
+  );
+
+  it.effect("architecture plan command emits decoded JSON with operation metadata", () =>
+    Effect.gen(function* () {
+      yield* runArchitectureCommand(["plan", "--stage", "core"]).pipe(Effect.provide(CommandTestLayer));
+      const output = pipe(yield* TestConsole.logLines, A.join("\n"));
+      const decoded = yield* decodeCanonicalSliceOperationPlanJson(output);
+
+      expect(decoded.target.stage).toBe("core");
+      expect(decoded.operations[0]?.operationId).toContain(":");
+      expect(decoded.operations[0]?.operationSource).toBe("accepted-proof");
+    })
+  );
+
+  it.effect("architecture create package dry-run prints a plan without writing files", () =>
+    Effect.gen(function* () {
+      const sliceName = `dry-run-lab-${Date.now()}`;
+      const targetDir = join(repoRoot, "packages", sliceName);
+      expect(existsSync(targetDir)).toBe(false);
+
+      yield* runArchitectureCommand(["create", "package", sliceName, "domain", "--dry-run"]).pipe(
+        Effect.provide(CommandTestLayer)
+      );
+      const output = pipe(yield* TestConsole.logLines, A.join("\n"));
+      const decoded = yield* decodeCanonicalSliceOperationPlanJson(output);
+
+      expect(decoded.target.boundedContext).toBe(sliceName);
+      expect(decoded.operations[0]?.operationSource).toBe("package-shell");
+      expect(decoded.operations.map((operation) => operation.path)).toContain(
+        `packages/${sliceName}/domain/src/index.ts`
+      );
+      expect(existsSync(targetDir)).toBe(false);
+    })
+  );
+
+  it.effect("architecture check command validates an operation-plan file", () =>
+    Effect.gen(function* () {
+      const planPath = join(tmpdir(), `beep-architecture-check-${Date.now()}.json`);
+      const plan = makeCanonicalSliceOperationPlan();
+      const json = yield* encodeCanonicalSliceOperationPlanJson(plan);
+      writeFileSync(planPath, json);
+
+      yield* runArchitectureCommand(["check", "--file", planPath]).pipe(Effect.provide(CommandTestLayer));
+      const output = pipe(yield* TestConsole.logLines, A.join("\n"));
+
+      rmSync(planPath, { force: true });
+      expect(output).toContain("idempotent=true");
+      expect(output).toContain(`operations=${plan.operations.length}`);
     })
   );
 });

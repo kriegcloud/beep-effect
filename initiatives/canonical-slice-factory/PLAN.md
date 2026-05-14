@@ -42,8 +42,9 @@ proof target, then systemizes the creation path through `@beep/repo-cli`.
 - Route ergonomic wrappers through that planner.
 - Implement `plan` output, `apply` input, `check` validation, dry-run output,
   and failsafe conflict reporting.
-- Keep `create-package` compatible while moving future package-creation rules
-  toward the same planner.
+- Keep top-level `create-package` compatible as non-architecture scaffolding
+  while moving architecture-native slice package creation to
+  `beep architecture create package`.
 
 ## D. Prove Granular Creation
 

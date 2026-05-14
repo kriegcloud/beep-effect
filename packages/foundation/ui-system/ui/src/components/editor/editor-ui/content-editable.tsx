@@ -1,11 +1,15 @@
+import { $UiId } from "@beep/identity";
 import { ContentEditable as LexicalContentEditable } from "@lexical/react/LexicalContentEditable";
+import * as S from "effect/Schema";
 import type { JSX } from "react";
 
-type Props = {
-  placeholder: string;
-  className?: string;
-  placeholderClassName?: string;
-};
+const $I = $UiId.create("components/editor/content-editable");
+
+class Props extends S.Class<Props>($I`Props`)({
+  placeholder: S.String,
+  className: S.optionalKey(S.String),
+  placeholderClassName: S.optionalKey(S.String),
+}) {}
 
 /**
  * Shared Lexical content-editable surface with package theme defaults.

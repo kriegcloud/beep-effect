@@ -14,6 +14,7 @@ import { Popover, PopoverContent } from "@beep/ui/components/popover";
 import { XIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import Link from "next/link";
 import * as React from "react";
 import { createPortal } from "react-dom";
@@ -98,7 +99,7 @@ function TourProvider({ tours, children }: { readonly tours: Tour[]; readonly ch
 
   function start(tourId: string) {
     const tour = tours.find((tour) => tour.id === tourId);
-    if (tour) {
+    if (tour !== undefined) {
       if (tour.steps.length > 0) {
         setActiveTourId(tourId);
         setIsOpen(true);
@@ -242,7 +243,8 @@ function TourOverlay({
     };
   }, []);
 
-  if (!document) return null;
+  const portalDocument = (globalThis as { readonly document?: Document }).document;
+  if (P.isUndefined(portalDocument)) return null;
   if (targets.length === 0) return null;
 
   return createPortal(
@@ -358,7 +360,7 @@ function TourOverlay({
         </Popover>
       )}
     </div>,
-    document.body
+    portalDocument.body
   );
 }
 
