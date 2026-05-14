@@ -145,10 +145,11 @@ function Scene({
 
   useEffect(() => {
     const apply = () => {
-      if (!circleRef.current) return;
+      if (circleRef.current === null) return;
       const isDark = document.documentElement.classList.contains("dark");
-      if (circleRef.current.material.uniforms.uInverted) {
-        circleRef.current.material.uniforms.uInverted.value = isDark ? 1 : 0;
+      const invertedUniform = circleRef.current.material.uniforms.uInverted;
+      if (P.isNotNullish(invertedUniform)) {
+        invertedUniform.value = isDark ? 1 : 0;
       }
       return;
     };
@@ -165,7 +166,7 @@ function Scene({
 
   useFrame((_, delta: number) => {
     const mat = circleRef.current?.material;
-    if (!mat) return;
+    if (mat === undefined) return;
     const live = colorsRef?.current;
     const liveOpt = F.pipe(
       live,

@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@beep/ui/components/dialog";
 import { InputGroup, InputGroupAddon } from "@beep/ui/components/input-group";
-import { CheckIcon, MagnifyingGlass } from "@phosphor-icons/react";
+import { CheckIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Command as CommandPrimitive } from "cmdk";
 import type * as React from "react";
 import { cn } from "../lib/index.ts";
@@ -69,7 +69,7 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
           {...props}
         />
         <InputGroupAddon>
-          <MagnifyingGlass className="size-4 shrink-0 opacity-50" />
+          <MagnifyingGlassIcon className="size-4 shrink-0 opacity-50" />
         </InputGroupAddon>
       </InputGroup>
     </div>

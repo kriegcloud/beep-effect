@@ -10,8 +10,8 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@beep/ui/components/toast";
-import { globalToastManager } from "@beep/ui/services/toaster.service";
 import { cn } from "../lib/index.ts";
+import { globalToastManager } from "../lib/toaster.ts";
 
 /**
  * @category components

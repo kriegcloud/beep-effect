@@ -117,10 +117,10 @@ const buildTranscript = ({
   const committed = Str.trim(A.join(committedTranscripts, " "));
   const partial = Str.trim(partialTranscript);
 
-  if (committed && partial) {
+  if (committed !== "" && partial !== "") {
     return `${committed} ${partial}`;
   }
-  return committed || partial;
+  return committed !== "" ? committed : partial;
 };
 
 const buildEvent = ({
@@ -196,7 +196,7 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
       transcriptsRef.current.partialTranscript = "";
       onChange?.(buildEvent(transcriptsRef.current));
     },
-    ...(onError ? { onError } : {}),
+    ...(onError === undefined ? {} : { onError }),
     onAuthError,
     onQuotaExceededError,
   });
@@ -358,8 +358,13 @@ const SpeechInputPreview = forwardRef<HTMLDivElement, SpeechInputPreviewProps>(f
 ) {
   const speechInput = useSpeechInput();
 
-  const displayText = speechInput.transcript || speechInput.partialTranscript || placeholder;
-  const showPlaceholder = !Str.trim(speechInput.transcript);
+  const displayText =
+    speechInput.transcript !== ""
+      ? speechInput.transcript
+      : speechInput.partialTranscript !== ""
+        ? speechInput.partialTranscript
+        : placeholder;
+  const showPlaceholder = Str.trim(speechInput.transcript) === "";
 
   return (
     <div

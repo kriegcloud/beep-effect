@@ -73,7 +73,7 @@ function Calendar({
             : "cn-calendar-caption-label rounded-(--cell-radius) flex items-center gap-1 text-sm  [&>svg]:text-muted-foreground [&>svg]:size-3.5",
           defaultClassNames.caption_label
         ),
-        table: "w-full border-collapse",
+        month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
           "text-muted-foreground rounded-(--cell-radius) flex-1 font-normal text-[0.8rem] select-none",
@@ -84,7 +84,7 @@ function Calendar({
         week_number: cn("text-[0.8rem] select-none text-muted-foreground", defaultClassNames.week_number),
         day: cn(
           "relative w-full rounded-(--cell-radius) h-full p-0 text-center [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius) group/day aspect-square select-none",
-          props.showWeekNumber
+          props.showWeekNumber === true
             ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-(--cell-radius)"
             : "[&:first-child[data-selected=true]_button]:rounded-l-(--cell-radius)",
           defaultClassNames.day
@@ -149,7 +149,7 @@ function CalendarDayButton({ className, day, modifiers, style, ...props }: React
 
   return (
     <Button
-      {...(style ? { style } : {})}
+      {...(style === undefined ? {} : { style })}
       variant="ghost"
       size="icon"
       data-day={day.date.toLocaleDateString()}
