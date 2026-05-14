@@ -160,7 +160,10 @@ without stopping until:
   none`, and missing macOS/Windows bundles. The public landing page now renders
   request-host-specific `/health`, `/status`, `/commands`, `/next-actions`, and
   approved `/upload/*` URLs so an operator who receives only the endpoint URL
-  sees copy-ready, non-secret command shapes.
+  sees copy-ready, non-secret command shapes. The MagicDNS landing page was
+  verified at `http://dankputer.tailc7c348.ts.net:8765/`, and the upload smoke
+  harness now asserts request-host-specific landing URLs plus absence of
+  token-like text in the public landing response.
 - Latest coordinator-side Taildrop unblock attempt:
   `sudo -n tailscale set --operator=$USER` fails with `sudo: a password is
   required`, so Taildrop still requires an interactive coordinator-side sudo

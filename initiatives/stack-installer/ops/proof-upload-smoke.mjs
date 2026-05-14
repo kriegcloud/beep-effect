@@ -191,6 +191,11 @@ try {
 
   assert(health.status === 200, "Expected /health to return 200.");
   assert(landing.status === 200 && landing.text.includes("/next-actions"), "Expected / to advertise /next-actions.");
+  assert(
+    landing.text.includes(`http://127.0.0.1:${port}/next-actions`),
+    "Expected / to render request-host-specific next-actions URL."
+  );
+  assert(!tokenLikePattern.test(landing.text), "Expected / response to avoid token-like text.");
   assert(statusWithoutToken.status === 403, "Expected /status without token to return 403.");
   assert(statusWithToken.status === 200, "Expected /status with token to return 200.");
   assert(commandsWithoutToken.status === 403, "Expected /commands without token to return 403.");
