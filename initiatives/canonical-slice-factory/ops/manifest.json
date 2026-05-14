@@ -114,6 +114,7 @@
     "status": "complete",
     "preserveCommandGrammar": true,
     "preservePlanSchema": "architecture-operation-plan/v1",
+    "planSchemaEvolutionPolicy": "v1 permits additive optional metadata and behavior already accepted or ignored by the v1 executor only when existing v1 fixtures still decode and replay identically; new actionable architecture operation variants require architecture-operation-plan/v2 unless a documented v1 capability-extension rule proves both old-plan replay and new-plan compatibility across supported executors; breaking structural or semantic changes require v2 alongside v1 with the repo deprecation window.",
     "noNewDomainKindArchetypes": true,
     "closureScope": [
       "modularize current repo-cli architecture operation-plan internals",
