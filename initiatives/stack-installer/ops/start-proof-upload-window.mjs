@@ -84,6 +84,12 @@ const buildCommandsText = () =>
       ? [`curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${advertisedUrl}/status'`]
       : []),
     "",
+    "Fetch current upload commands from a proof machine:",
+    `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${urlBase}/commands'`,
+    ...(advertisedUrl
+      ? [`curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${advertisedUrl}/commands'`]
+      : []),
+    "",
     "macOS upload command:",
     'export STACK_INSTALLER_PROOF_UPLOAD_TOKEN="<copy token from coordinator-local token file>"',
     `curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${urlBase}/upload/stack-installer-p1-macos.tgz'`,

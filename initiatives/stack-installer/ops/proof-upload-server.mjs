@@ -21,6 +21,7 @@ const maxBytes = Number.parseInt(argAfter("--max-bytes", `${2 * 1024 * 1024 * 10
 const allowedFileNames = new Set(["stack-installer-p1-macos.tgz", "stack-installer-p1-windows.zip"]);
 const requiredPlatforms = ["macos", "windows"];
 const requiredArtifactFiles = ["proof.json", "commands.txt", "sha256sums.txt"];
+const uploadCommandsPath = path.join(outputRoot, "proof-upload-commands.txt");
 
 if (!token) {
   throw new Error("Missing STACK_INSTALLER_PROOF_UPLOAD_TOKEN.");
@@ -107,6 +108,7 @@ const landingPage = () =>
     "",
     "Token-protected checks:",
     "- GET /status",
+    "- GET /commands",
     "",
     "Allowed uploads:",
     "- PUT or POST /upload/stack-installer-p1-macos.tgz",
@@ -141,6 +143,26 @@ const server = http.createServer(async (request, response) => {
 
       logRequest(request, 200, "status");
       sendJson(response, 200, await uploadStatus());
+      return;
+    }
+
+    if (request.method === "GET" && requestUrl.pathname === "/commands") {
+      if (requestToken(request, requestUrl) !== token) {
+        logRequest(request, 403, "invalid-token");
+        send(response, 403, "Invalid upload token.");
+        return;
+      }
+
+      const commands = await fs.promises.readFile(uploadCommandsPath, "utf8").catch(() => "");
+
+      if (!commands) {
+        logRequest(request, 404, "commands-missing");
+        send(response, 404, "Upload command file is missing.");
+        return;
+      }
+
+      logRequest(request, 200, "commands");
+      send(response, 200, commands.trimEnd());
       return;
     }
 

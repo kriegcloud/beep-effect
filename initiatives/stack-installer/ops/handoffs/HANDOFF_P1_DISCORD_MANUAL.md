@@ -329,6 +329,24 @@ Invoke-WebRequest `
   -Uri 'http://<coordinator-tailscale-ip>:<port>/status'
 ```
 
+To fetch the current coordinator-generated upload commands from a proof
+machine, use the token-protected command endpoint:
+
+```bash
+curl -f \
+  -H "Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" \
+  'http://<coordinator-tailscale-ip>:<port>/commands'
+```
+
+Native Windows PowerShell:
+
+```powershell
+Invoke-WebRequest `
+  -Method Get `
+  -Headers @{ Authorization = "Bearer $env:STACK_INSTALLER_PROOF_UPLOAD_TOKEN" } `
+  -Uri 'http://<coordinator-tailscale-ip>:<port>/commands'
+```
+
 ```bash
 curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
   -H "Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" \

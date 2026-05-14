@@ -31,7 +31,9 @@ not let generated notes accumulate at the initiative root.
 - [../proof-upload-server.mjs](../proof-upload-server.mjs) - temporary
   token-gated tailnet upload receiver for P1 proof bundles when Taildrop is
   unavailable. It accepts only the approved macOS and Windows bundle names and
-  logs upload outcomes with tokens redacted.
+  logs upload outcomes with tokens redacted. It also serves token-protected
+  status and command endpoints for proof machines without coordinator shell
+  access.
 - [../start-proof-upload-window.mjs](../start-proof-upload-window.mjs) -
   coordinator helper that rotates a private upload token, writes ignored
   operator commands, and starts the proof upload server. Use `--reuse-token`
