@@ -136,7 +136,25 @@ without stopping until:
   platform artifact directories are still missing. The same run verifies
   upload-window health, private file modes, token-protected status, commands,
   and next-actions endpoints, token-leak indicators, and detached watcher
-  progress.
+  progress. It also reports `upload activity: 0 attempts; 0 stored; 0 rejected;
+  remotes: none`, confirming no proof machine has attempted a `PUT` or `POST`
+  upload yet.
+- Latest upload-window operator-routing hardening:
+  `proof-upload-server.mjs` now makes the public landing page spell out the
+  non-secret proof-operator path for users who only have the endpoint URL:
+  get the private token out-of-band, set `STACK_INSTALLER_PROOF_UPLOAD_TOKEN`,
+  fetch token-protected `/next-actions`, then upload only an approved bundle
+  name. `proof-upload-status.mjs` summarizes upload attempts, stored uploads,
+  rejected uploads, and upload remotes from the private log. The upload-window
+  starter supports `--preserve-log` so a `--reuse-token` restart can refresh
+  server code without erasing active transfer-window evidence.
+- Latest live upload-window refresh:
+  `start-proof-upload-window.mjs --replace-existing --reuse-token
+  --preserve-log` restarted the live upload server with the existing token,
+  preserved the private transfer log, and made the clearer public landing page
+  visible at the active endpoint. The refreshed status command reports upload
+  PID `1179635`, `upload activity: 0 attempts; 0 stored; 0 rejected; remotes:
+  none`, and missing macOS/Windows bundles.
 - Latest coordinator-side Taildrop unblock attempt:
   `sudo -n tailscale set --operator=$USER` fails with `sudo: a password is
   required`, so Taildrop still requires an interactive coordinator-side sudo

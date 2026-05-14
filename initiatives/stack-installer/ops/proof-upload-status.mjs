@@ -101,6 +101,27 @@ const parseWatcherProgress = (text) => {
   return progress;
 };
 
+const parseUploadActivity = (text) => {
+  const lines = text.trim() ? text.trim().split(/\r?\n/) : [];
+  const attempts = lines.filter((line) => /\s(?:PUT|POST)\s\/upload\//.test(line));
+  const stored = attempts.filter((line) => /\s201\s/.test(line) && line.includes(" stored"));
+  const rejected = attempts.filter((line) => !/\s201\s/.test(line));
+  const remoteAddresses = new Set(
+    attempts.flatMap((line) => {
+      const match = line.match(/^\S+\s+\S+\s+\S+\s+\d+\s+(\S+)\s+/);
+
+      return match ? [match[1]] : [];
+    })
+  );
+
+  return {
+    attempts: attempts.length,
+    rejected: rejected.length,
+    remoteAddresses: Array.from(remoteAddresses).sort(),
+    stored: stored.length,
+  };
+};
+
 const formatWatcherProgress = (progress) => {
   if (!progress) {
     return "unknown";
@@ -115,6 +136,12 @@ const formatWatcherProgress = (progress) => {
   }
 
   return `${progress.attempt}/${progress.attempts} ${progress.state}`;
+};
+
+const formatUploadActivity = (activity) => {
+  const remoteText = activity.remoteAddresses.length > 0 ? activity.remoteAddresses.join(", ") : "none";
+
+  return `${activity.attempts} attempts; ${activity.stored} stored; ${activity.rejected} rejected; remotes: ${remoteText}`;
 };
 
 const processExists = (pid) => {
@@ -249,6 +276,7 @@ const watchLogFileMode = await fileMode(watchLogPath);
 const watchCommandFileMode = await fileMode(watchCommandPath);
 const hasTokenLikeText = tokenLikePattern.test(leakScanText);
 const hasWatcherTokenLikeText = tokenLikePattern.test(watchLeakScanText);
+const uploadActivity = parseUploadActivity(logText);
 const watcherProgress = parseWatcherProgress(watchLogText);
 const statusResponse = statusWithToken ? parseJson(statusWithToken.text) : undefined;
 const statusResponseHasExpectedShape =
@@ -340,6 +368,7 @@ console.log(`commands file mode: ${commandsFileMode}`);
 console.log(`pid file mode: ${pidFileMode}`);
 console.log(`log file present: ${await fileExists(logPath)}`);
 console.log(`token-like text in logs/commands: ${hasTokenLikeText ? "yes" : "no"}`);
+console.log(`upload activity: ${formatUploadActivity(uploadActivity)}`);
 console.log("detached proof watcher:");
 console.log(
   `- pid: ${Number.isInteger(watchPid) ? `${watchPid} (${watcherRunning ? "running" : "not running"})` : "missing"}`

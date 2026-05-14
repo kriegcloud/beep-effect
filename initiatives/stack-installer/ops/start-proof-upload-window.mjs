@@ -23,6 +23,7 @@ const advertisedUrl = argAfter("--advertised-url", "").replace(/\/+$/, "");
 const tokenBytes = Number.parseInt(argAfter("--token-bytes", "24"), 10);
 const replaceExisting = hasArg("--replace-existing");
 const reuseToken = hasArg("--reuse-token");
+const preserveLog = hasArg("--preserve-log");
 const serverScript = path.resolve("initiatives/stack-installer/ops/proof-upload-server.mjs");
 const urlBase = `http://${host}:${port}`;
 
@@ -62,6 +63,11 @@ const stopExisting = async () => {
 
 const writePrivateFile = async (filePath, content) => {
   await fs.promises.writeFile(filePath, content, { mode: 0o600 });
+  await fs.promises.chmod(filePath, 0o600);
+};
+
+const ensurePrivateFile = async (filePath) => {
+  await fs.promises.appendFile(filePath, "", { mode: 0o600 });
   await fs.promises.chmod(filePath, 0o600);
 };
 
@@ -284,7 +290,11 @@ await writePrivateFile(tokenPath, `${token}\n`);
 await writePrivateFile(commandsPath, `${buildCommandsText()}\n`);
 await writePublicFile(inboxReadmePath, `${buildInboxReadmeText()}\n`);
 await writePublicFile(nextActionsPath, `${buildNextActionsText()}\n`);
-await writePrivateFile(logPath, "");
+if (preserveLog) {
+  await ensurePrivateFile(logPath);
+} else {
+  await writePrivateFile(logPath, "");
+}
 
 const logHandle = await fs.promises.open(logPath, "a");
 const child = spawn(
@@ -307,6 +317,7 @@ await writePrivateFile(pidPath, `${child.pid}\n`);
 console.log(`Stack Installer proof upload window started on http://${host}:${port}`);
 console.log(`pid: ${child.pid}`);
 console.log(`token: ${reuseToken && existingToken ? "reused existing token" : "rotated token"}`);
+console.log(`log: ${preserveLog ? "preserved existing log" : "rotated log"}`);
 console.log(`token file: ${tokenPath}`);
 console.log(`commands file: ${commandsPath}`);
 console.log(`operator inbox readme: ${inboxReadmePath}`);
