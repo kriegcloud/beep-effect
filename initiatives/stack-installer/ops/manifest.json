@@ -285,6 +285,7 @@
         "research/claude-code-codex-capability-matrix.md",
         "apps/stack-installer",
         "apps/stack-installer/src/proof/P1ManualProof.ts",
+        "apps/stack-installer/src/proof/P1ProofCommands.ts",
         "apps/stack-installer/src/proof/run-p1-manual-proof.ts",
         "apps/stack-installer/src/proof/capture-p1-manual-proof.ts",
         "apps/stack-installer/src-tauri/src/lib.rs",
