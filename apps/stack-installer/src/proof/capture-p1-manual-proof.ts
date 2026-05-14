@@ -113,7 +113,7 @@ export const buildP1ProofCommandsText = (
 const isEvidenceFileName = (name: string): boolean =>
   name === PROOF_FILE_NAME || name === COMMANDS_FILE_NAME || Str.startsWith("screencast.")(name);
 
-const hasEvidenceFile = (fileNames: ReadonlyArray<string>, fileName: string): boolean =>
+const hasFileName = (fileNames: ReadonlyArray<string>, fileName: string): boolean =>
   pipe(
     fileNames,
     A.findFirst((name) => name === fileName),
@@ -138,14 +138,26 @@ const hasConfiguredProvider = (proof: P1ManualProofResult, providerName: "claude
 const requireAudit = (condition: boolean, message: string): Effect.Effect<void> =>
   condition ? Effect.void : Effect.die(message);
 
-const evidenceFileNames = Effect.fn("StackInstaller.evidenceFileNames")(function* (outputDir: string) {
+const artifactFileNames = Effect.fn("StackInstaller.artifactFileNames")(function* (outputDir: string) {
   const fs = yield* FileSystem.FileSystem;
   const outputDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
 
   yield* requireAudit(outputDirExists, `Missing P1 proof artifact directory: ${outputDir}`);
 
-  return pipe(yield* fs.readDirectory(outputDir), A.filter(isEvidenceFileName), A.sort(Order.String));
+  return pipe(yield* fs.readDirectory(outputDir), A.sort(Order.String));
 });
+
+const evidenceFileNames = Effect.fn("StackInstaller.evidenceFileNames")(function* (outputDir: string) {
+  return pipe(yield* artifactFileNames(outputDir), A.filter(isEvidenceFileName));
+});
+
+const missingRequiredArtifactFiles = (fileNames: ReadonlyArray<string>): ReadonlyArray<string> =>
+  A.getSomes([
+    hasFileName(fileNames, PROOF_FILE_NAME) ? O.none() : O.some(PROOF_FILE_NAME),
+    hasFileName(fileNames, COMMANDS_FILE_NAME) ? O.none() : O.some(COMMANDS_FILE_NAME),
+    hasFileName(fileNames, CHECKSUMS_FILE_NAME) ? O.none() : O.some(CHECKSUMS_FILE_NAME),
+    pipe(fileNames, A.some(Str.startsWith("screencast."))) ? O.none() : O.some("screencast.*"),
+  ]);
 
 const missingRequiredPlatformDirectories = Effect.fn("StackInstaller.missingRequiredPlatformDirectories")(function* (
   outputRoot: string
@@ -206,11 +218,14 @@ const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(func
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const fileNames = yield* evidenceFileNames(outputDir);
+  const allFileNames = yield* artifactFileNames(outputDir);
+  const missingFileNames = missingRequiredArtifactFiles(allFileNames);
+  const fileNames = pipe(allFileNames, A.filter(isEvidenceFileName));
 
-  yield* requireAudit(hasEvidenceFile(fileNames, PROOF_FILE_NAME), "Missing proof.json");
-  yield* requireAudit(hasEvidenceFile(fileNames, COMMANDS_FILE_NAME), "Missing commands.txt");
-  yield* requireAudit(pipe(fileNames, A.some(Str.startsWith("screencast."))), "Missing screencast.* artifact");
+  yield* requireAudit(
+    !A.isReadonlyArrayNonEmpty(missingFileNames),
+    `Missing P1 proof artifact files in ${outputDir}: ${A.join(", ")(missingFileNames)}`
+  );
 
   const proofJson = yield* fs.readFileString(path.join(outputDir, PROOF_FILE_NAME));
   const proof = yield* decodeProofJson(proofJson);

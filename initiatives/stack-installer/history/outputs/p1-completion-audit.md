@@ -25,9 +25,9 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Relevant pushed audit commits:
-  `de73882660 feat(stack-installer): tighten p1 artifact audit`,
-  `1b630e51e8 docs(stack-installer): record missing p1 proof artifacts`
+- Relevant audit evidence lives on the pushed branch in
+  `apps/stack-installer/src/proof/capture-p1-manual-proof.ts` and this
+  completion audit output.
 - Base evidence after `git fetch origin main`: `origin/main` at `910a1f3659`
 - Worktree status before this audit update: clean and even with
   `origin/feat/stack-installer-p1-live`.
@@ -47,8 +47,8 @@ without stopping until:
 | P1 live validators implemented | `073e7deab8 feat(stack-installer): add p1 live proof harness`; live drivers under `packages/drivers/onepassword-cli`, `packages/drivers/ai-provider-cli`, and `packages/drivers/discord`; slice live contracts under installer dependency/security/provider/channel packages | complete |
 | Tauri proof flow implemented | `apps/stack-installer/src-tauri/src/lib.rs` exposes `run_p1_manual_proof`; `apps/stack-installer/src/proof/run-p1-manual-proof.ts` exposes the Bun proof entrypoint | complete |
 | Operator artifact capture implemented | `6ae84ddf99 feat(stack-installer): add p1 artifact capture`; `p1:proof:capture` writes `proof.json`, `commands.txt`, and `sha256sums.txt` | complete |
-| Per-platform artifact audit implemented | `33f6a5ff61 feat(stack-installer): add p1 artifact audit`; `de73882660 feat(stack-installer): tighten p1 artifact audit`; `p1:proof:audit` checks required files, checksum freshness, all validation events, configured providers, redacted credential references, and Discord message evidence | complete |
-| Both-platform artifact audit implemented | `411fc31620 feat(stack-installer): add p1 platform audit gate`; `p1:proof:audit-all` checks macOS and Windows directories and target-platform parity | complete |
+| Per-platform artifact audit implemented | `p1:proof:audit` checks required files, checksum freshness, all validation events, configured providers, redacted credential references, and Discord message evidence | complete |
+| Both-platform artifact audit implemented | `p1:proof:audit-all` checks macOS and Windows directories and target-platform parity | complete |
 | Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest local helper verification included `bun run turbo run check test lint --filter=@beep/stack-installer`, `bun run config-sync:check`, app build, temp macOS/Windows fixture checksum/audit/audit-all for the tightened artifact rules, `jq` manifest, and `git diff --check` | complete for implemented local surfaces |
 | macOS fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/macos/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Windows fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/windows/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
