@@ -9,7 +9,7 @@
 import { DomainError } from "@beep/repo-utils";
 import { normalizePath } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Path } from "effect";
+import { Effect, FileSystem, Match, Path } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -104,37 +104,52 @@ export const checkCanonicalSliceOperationPlan: {
     for (const operation of plan.operations) {
       const operationPath = yield* resolveOperationPath(rootDir, operation.path);
       const exists = yield* pathExists(operationPath);
-      if (operation.kind === "ensure-file" && !exists) {
-        missingPaths.push(operation.path);
-        operationStatuses.push(checkStatusFor(operation, "missing"));
-      }
-      if (operation.kind === "ensure-file" && exists) {
-        operationStatuses.push(checkStatusFor(operation, "matching"));
-      }
-      if (operation.kind === "ensure-absent-path" && exists) {
-        unexpectedPaths.push(operation.path);
-        operationStatuses.push(checkStatusFor(operation, "unexpected"));
-      }
-      if (operation.kind === "ensure-absent-path" && !exists) {
-        operationStatuses.push(checkStatusFor(operation, "absent"));
-      }
-      if (operation.kind === "write-file" || operation.kind === "write-package-json") {
-        const expected = yield* renderWritableOperation(operation);
+      const checkWritableOperation = Effect.fn("checkWritableOperation")(function* (
+        writableOperation: WriteFileOperation | WritePackageJsonOperation
+      ) {
+        const expected = yield* renderWritableOperation(writableOperation);
         if (!exists) {
-          missingPaths.push(operation.path);
-          operationStatuses.push(checkStatusFor(operation, "missing"));
-        } else {
-          const current = yield* fs
-            .readFileString(operationPath)
-            .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${operation.path}"`)));
-          if (!stringEquivalence(current, expected)) {
-            differingPaths.push(operation.path);
-            operationStatuses.push(checkStatusFor(operation, "differing"));
-          } else {
-            operationStatuses.push(checkStatusFor(operation, "matching"));
-          }
+          missingPaths.push(writableOperation.path);
+          operationStatuses.push(checkStatusFor(writableOperation, "missing"));
+          return;
         }
-      }
+
+        const current = yield* fs
+          .readFileString(operationPath)
+          .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${writableOperation.path}"`)));
+        if (!stringEquivalence(current, expected)) {
+          differingPaths.push(writableOperation.path);
+          operationStatuses.push(checkStatusFor(writableOperation, "differing"));
+        } else {
+          operationStatuses.push(checkStatusFor(writableOperation, "matching"));
+        }
+      });
+
+      yield* Match.value(operation).pipe(
+        Match.withReturnType<Effect.Effect<void, DomainError>>(),
+        Match.discriminatorsExhaustive("kind")({
+          "ensure-file": (ensureFileOperation) =>
+            Effect.sync(() => {
+              if (!exists) {
+                missingPaths.push(ensureFileOperation.path);
+                operationStatuses.push(checkStatusFor(ensureFileOperation, "missing"));
+              } else {
+                operationStatuses.push(checkStatusFor(ensureFileOperation, "matching"));
+              }
+            }),
+          "ensure-absent-path": (ensureAbsentPathOperation) =>
+            Effect.sync(() => {
+              if (exists) {
+                unexpectedPaths.push(ensureAbsentPathOperation.path);
+                operationStatuses.push(checkStatusFor(ensureAbsentPathOperation, "unexpected"));
+              } else {
+                operationStatuses.push(checkStatusFor(ensureAbsentPathOperation, "absent"));
+              }
+            }),
+          "write-file": checkWritableOperation,
+          "write-package-json": checkWritableOperation,
+        })
+      );
     }
 
     return new OperationPlanCheckResult({
@@ -182,50 +197,70 @@ export const applyCanonicalSliceOperationPlan: {
 
     for (const operation of plan.operations) {
       const operationPath = yield* resolveOperationPath(rootDir, operation.path);
-      if (operation.kind === "ensure-file") {
-        if (yield* pathExists(operationPath)) {
-          skippedPaths.push(operation.path);
-        } else {
-          return yield* DomainError.newMessage(`Required architecture file is missing: ${operation.path}`);
-        }
-      }
-      if (operation.kind === "ensure-absent-path") {
-        if (yield* pathExists(operationPath)) {
-          yield* fs
-            .remove(operationPath, { force: true, recursive: true })
-            .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to remove "${operation.path}"`)));
-          removedPaths.push(operation.path);
-        } else {
-          skippedPaths.push(operation.path);
-        }
-      }
-      if (operation.kind === "write-file" || operation.kind === "write-package-json") {
-        const expected = yield* renderWritableOperation(operation);
-        if (yield* pathExists(operationPath)) {
+      const exists = yield* pathExists(operationPath);
+      const applyWritableOperation = Effect.fn("applyWritableOperation")(function* (
+        writableOperation: WriteFileOperation | WritePackageJsonOperation
+      ) {
+        const expected = yield* renderWritableOperation(writableOperation);
+        if (exists) {
           const current = yield* fs
             .readFileString(operationPath)
-            .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${operation.path}"`)));
+            .pipe(
+              Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${writableOperation.path}"`))
+            );
           if (stringEquivalence(current, expected)) {
-            skippedPaths.push(operation.path);
+            skippedPaths.push(writableOperation.path);
           } else {
             return yield* DomainError.newMessage(
-              `Architecture operation would overwrite a differing file: ${operation.path}`
+              `Architecture operation would overwrite a differing file: ${writableOperation.path}`
             );
           }
-        } else {
-          yield* fs
-            .makeDirectory(path.dirname(operationPath), { recursive: true })
-            .pipe(
-              Effect.mapError((cause) =>
-                DomainError.newCause(cause, `Failed to create parent directory for "${operation.path}"`)
-              )
-            );
-          yield* fs
-            .writeFileString(operationPath, expected)
-            .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to write "${operation.path}"`)));
-          writtenPaths.push(operation.path);
+          return;
         }
-      }
+
+        yield* fs
+          .makeDirectory(path.dirname(operationPath), { recursive: true })
+          .pipe(
+            Effect.mapError((cause) =>
+              DomainError.newCause(cause, `Failed to create parent directory for "${writableOperation.path}"`)
+            )
+          );
+        yield* fs
+          .writeFileString(operationPath, expected)
+          .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to write "${writableOperation.path}"`)));
+        writtenPaths.push(writableOperation.path);
+      });
+
+      yield* Match.value(operation).pipe(
+        Match.withReturnType<Effect.Effect<void, DomainError>>(),
+        Match.discriminatorsExhaustive("kind")({
+          "ensure-file": Effect.fn("applyEnsureFileOperation")(function* (ensureFileOperation) {
+            if (exists) {
+              skippedPaths.push(ensureFileOperation.path);
+            } else {
+              return yield* DomainError.newMessage(
+                `Required architecture file is missing: ${ensureFileOperation.path}`
+              );
+            }
+          }),
+          "ensure-absent-path": Effect.fn("applyEnsureAbsentPathOperation")(function* (ensureAbsentPathOperation) {
+            if (exists) {
+              yield* fs
+                .remove(operationPath, { force: true, recursive: true })
+                .pipe(
+                  Effect.mapError((cause) =>
+                    DomainError.newCause(cause, `Failed to remove "${ensureAbsentPathOperation.path}"`)
+                  )
+                );
+              removedPaths.push(ensureAbsentPathOperation.path);
+            } else {
+              skippedPaths.push(ensureAbsentPathOperation.path);
+            }
+          }),
+          "write-file": applyWritableOperation,
+          "write-package-json": applyWritableOperation,
+        })
+      );
     }
 
     return new OperationPlanApplyResult({ writtenPaths, skippedPaths, removedPaths });

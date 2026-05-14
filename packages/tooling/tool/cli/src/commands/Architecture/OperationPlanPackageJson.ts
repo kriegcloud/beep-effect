@@ -13,30 +13,26 @@ import * as R from "effect/Record";
 import * as Str from "effect/String";
 import type { ArchitecturePackageRole, WritePackageJsonOperation } from "./OperationPlan.js";
 
-const packageExportSourceFor = (role: ArchitecturePackageRole, subpath: string): string => {
-  if (subpath === ".") return "./src/index.ts";
-  if (subpath === "./layer" && role === "server") return "./src/Layer.ts";
-  if (Str.endsWith("/*")(subpath)) return `./src/${Str.replace("/*", "/*/index.ts")(Str.replace("./", "")(subpath))}`;
-  if (
-    role === "domain" &&
-    (subpath === "./aggregates" || subpath === "./entities" || subpath === "./identity" || subpath === "./values")
-  ) {
-    return `./src/${Str.replace("./", "")(subpath)}/index.ts`;
-  }
-  return `./src/${Str.replace("./", "")(subpath)}.ts`;
-};
+const packageExportEntrypointFor = (
+  role: ArchitecturePackageRole,
+  subpath: string,
+  outDir: "src" | "dist",
+  extension: "ts" | "js"
+): string => {
+  const strippedSubpath = Str.replace("./", "")(subpath);
 
-const packageExportPublishSourceFor = (role: ArchitecturePackageRole, subpath: string): string => {
-  if (subpath === ".") return "./dist/index.js";
-  if (subpath === "./layer" && role === "server") return "./dist/Layer.js";
-  if (Str.endsWith("/*")(subpath)) return `./dist/${Str.replace("/*", "/*/index.js")(Str.replace("./", "")(subpath))}`;
+  if (subpath === ".") return `./${outDir}/index.${extension}`;
+  if (subpath === "./layer" && role === "server") return `./${outDir}/Layer.${extension}`;
+  if (Str.endsWith("/*")(subpath)) {
+    return `./${outDir}/${Str.replace("/*", `/*/index.${extension}`)(strippedSubpath)}`;
+  }
   if (
     role === "domain" &&
     (subpath === "./aggregates" || subpath === "./entities" || subpath === "./identity" || subpath === "./values")
   ) {
-    return `./dist/${Str.replace("./", "")(subpath)}/index.js`;
+    return `./${outDir}/${strippedSubpath}/index.${extension}`;
   }
-  return `./dist/${Str.replace("./", "")(subpath)}.js`;
+  return `./${outDir}/${strippedSubpath}.${extension}`;
 };
 
 const packageExportMapFor = (
@@ -50,7 +46,9 @@ const packageExportMapFor = (
       (subpath) =>
         [
           subpath,
-          publish ? packageExportPublishSourceFor(role, subpath) : packageExportSourceFor(role, subpath),
+          publish
+            ? packageExportEntrypointFor(role, subpath, "dist", "js")
+            : packageExportEntrypointFor(role, subpath, "src", "ts"),
         ] as const
     ),
     (entries) => [...entries, ["./internal/*", null] as const, ["./package.json", "./package.json"] as const],
