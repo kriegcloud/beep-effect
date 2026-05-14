@@ -78,6 +78,9 @@ Current local command evidence from 2026-05-14:
   missing until real fresh-machine artifacts are returned, and prints the
   coordinator-side `tar` or `unzip` extraction command when returned platform
   bundles are present at the proof output root.
+- After adding deterministic tests for the injected desktop proof runner and
+  proof artifact helper branches, `bun run --filter @beep/stack-installer
+  coverage` passed with package branch coverage above the repo threshold.
 
 Remaining full-P1 evidence:
 

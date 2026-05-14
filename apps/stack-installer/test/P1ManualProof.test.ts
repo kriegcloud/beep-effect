@@ -17,6 +17,8 @@ import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { runP1ManualProof } from "../src/proof/P1ManualProof.js";
 import {
+  isP1ProofArtifactStatusFileName,
+  isP1ProofEvidenceFileName,
   p1ProofBundleExtractionCommand,
   p1ProofBundleFileNameForPlatform,
   p1ProofMissingRequiredArtifactFiles,
@@ -184,6 +186,15 @@ describe("P1 Manual Mode proof harness", () => {
 });
 
 describe("P1 proof artifact helpers", () => {
+  it("classifies evidence and status artifact file names", () => {
+    expect(isP1ProofEvidenceFileName("proof.json")).toBe(true);
+    expect(isP1ProofEvidenceFileName("commands.txt")).toBe(true);
+    expect(isP1ProofEvidenceFileName("screencast.webm")).toBe(true);
+    expect(isP1ProofEvidenceFileName("sha256sums.txt")).toBe(false);
+    expect(isP1ProofArtifactStatusFileName("sha256sums.txt")).toBe(true);
+    expect(isP1ProofArtifactStatusFileName("notes.txt")).toBe(false);
+  });
+
   it("names returned platform bundles and extraction commands", () => {
     expect(p1ProofBundleFileNameForPlatform("macos")).toBe("stack-installer-p1-macos.tgz");
     expect(p1ProofBundleFileNameForPlatform("windows")).toBe("stack-installer-p1-windows.zip");
@@ -196,6 +207,12 @@ describe("P1 proof artifact helpers", () => {
   });
 
   it("reports the missing required artifact files for a platform directory", () => {
+    expect(p1ProofMissingRequiredArtifactFiles([])).toEqual([
+      "proof.json",
+      "commands.txt",
+      "sha256sums.txt",
+      "screencast.*",
+    ]);
     expect(p1ProofMissingRequiredArtifactFiles(["commands.txt", "proof.json", "screencast.mp4"])).toEqual([
       "sha256sums.txt",
     ]);

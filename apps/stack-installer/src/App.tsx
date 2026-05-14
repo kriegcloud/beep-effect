@@ -60,7 +60,21 @@ type ProofState =
       readonly output: string;
     };
 
+type P1ManualProofFormRequest = {
+  readonly discordBotTokenReference: string;
+  readonly discordChannelDisplayName: string;
+  readonly discordChannelId: string;
+  readonly discordGuildId: string;
+  readonly operatorLabel: string;
+  readonly targetPlatform: string;
+  readonly testMessageContent: string;
+};
+
+type RunP1ManualProof = (request: P1ManualProofFormRequest) => Promise<string>;
+
 const proofStateAtom = Atom.make<ProofState>({ _tag: "idle" });
+
+const runTauriP1ManualProof: RunP1ManualProof = (request) => invoke<string>("run_p1_manual_proof", { request });
 
 const valueFor = (formData: FormData, name: string): string => {
   const value = formData.get(name);
@@ -77,7 +91,11 @@ const errorMessage = (error: unknown): string => {
   return "P1 proof failed before sanitized output was returned.";
 };
 
-const submitProof = async (event: FormEvent<HTMLFormElement>, setProofState: (state: ProofState) => void) => {
+const submitProof = async (
+  event: FormEvent<HTMLFormElement>,
+  setProofState: (state: ProofState) => void,
+  runP1ManualProof: RunP1ManualProof
+) => {
   event.preventDefault();
   const formData = new FormData(event.currentTarget);
   const discordBotTokenReference = valueFor(formData, "discordBotTokenReference");
@@ -93,16 +111,14 @@ const submitProof = async (event: FormEvent<HTMLFormElement>, setProofState: (st
   setProofState({ _tag: "running" });
 
   try {
-    const output = await invoke<string>("run_p1_manual_proof", {
-      request: {
-        discordBotTokenReference,
-        discordChannelDisplayName: valueFor(formData, "discordChannelDisplayName"),
-        discordChannelId: valueFor(formData, "discordChannelId"),
-        discordGuildId: valueFor(formData, "discordGuildId"),
-        operatorLabel: valueFor(formData, "operatorLabel"),
-        targetPlatform: valueFor(formData, "targetPlatform"),
-        testMessageContent: valueFor(formData, "testMessageContent"),
-      },
+    const output = await runP1ManualProof({
+      discordBotTokenReference,
+      discordChannelDisplayName: valueFor(formData, "discordChannelDisplayName"),
+      discordChannelId: valueFor(formData, "discordChannelId"),
+      discordGuildId: valueFor(formData, "discordGuildId"),
+      operatorLabel: valueFor(formData, "operatorLabel"),
+      targetPlatform: valueFor(formData, "targetPlatform"),
+      testMessageContent: valueFor(formData, "testMessageContent"),
     });
 
     setProofState({ _tag: "completed", output });
@@ -278,7 +294,7 @@ function ManifestPreview() {
   );
 }
 
-function LiveProofPanel() {
+function LiveProofPanel({ runP1ManualProof }: { readonly runP1ManualProof: RunP1ManualProof }) {
   const [proofState, setProofState] = useAtom(proofStateAtom);
 
   return (
@@ -291,7 +307,7 @@ function LiveProofPanel() {
         <form
           className="grid gap-3"
           onSubmit={(event) => {
-            void submitProof(event, setProofState);
+            void submitProof(event, setProofState, runP1ManualProof);
           }}
         >
           <div className="grid gap-3 sm:grid-cols-2">
@@ -368,14 +384,14 @@ function LiveProofPanel() {
   );
 }
 
-export function App() {
+export function App({ runP1ManualProof = runTauriP1ManualProof }: { readonly runP1ManualProof?: RunP1ManualProof }) {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <AppHeader />
       <div className="mx-auto grid max-w-7xl gap-5 px-5 py-5 lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
         <div className="space-y-5">
           <ChecklistPanel />
-          <LiveProofPanel />
+          <LiveProofPanel runP1ManualProof={runP1ManualProof} />
           <ApprovalPanel />
         </div>
         <div className="space-y-5">
