@@ -87,6 +87,36 @@ mkdir -p output/stack-installer/p1-live/macos
 mkdir -p output/stack-installer/p1-live/windows
 ```
 
+Use this template on each fresh machine. Change `STACK_INSTALLER_PLATFORM`,
+`STACK_INSTALLER_OPERATOR_LABEL`, and `STACK_INSTALLER_TEST_MESSAGE` for the
+target run. Keep `STACK_INSTALLER_DISCORD_BOT_TOKEN_REFERENCE` as an
+`op://...` reference, never a token value.
+
+```bash
+export STACK_INSTALLER_PLATFORM=macos
+export STACK_INSTALLER_OPERATOR_LABEL=operator-macos-001
+export STACK_INSTALLER_DISCORD_GUILD_ID=000000000000000000
+export STACK_INSTALLER_DISCORD_CHANNEL_ID=000000000000000000
+export STACK_INSTALLER_DISCORD_CHANNEL_DISPLAY_NAME=ai-stack-installer
+export STACK_INSTALLER_DISCORD_BOT_TOKEN_REFERENCE='op://Private/Discord Bot/token'
+export STACK_INSTALLER_TEST_MESSAGE='Stack Installer P1 macOS proof'
+
+export STACK_INSTALLER_REQUEST_JSON="$(bun --print '
+JSON.stringify({
+  targetPlatform: process.env.STACK_INSTALLER_PLATFORM,
+  operatorLabel: process.env.STACK_INSTALLER_OPERATOR_LABEL,
+  discordGuildId: process.env.STACK_INSTALLER_DISCORD_GUILD_ID,
+  discordChannelId: process.env.STACK_INSTALLER_DISCORD_CHANNEL_ID,
+  discordChannelDisplayName: process.env.STACK_INSTALLER_DISCORD_CHANNEL_DISPLAY_NAME,
+  discordBotTokenReference: process.env.STACK_INSTALLER_DISCORD_BOT_TOKEN_REFERENCE,
+  testMessageContent: process.env.STACK_INSTALLER_TEST_MESSAGE
+})
+')"
+
+cd apps/stack-installer
+bun run p1:proof:capture -- --request-json "$STACK_INSTALLER_REQUEST_JSON"
+```
+
 Run the capture wrapper from `apps/stack-installer` with a request like:
 
 ```bash
