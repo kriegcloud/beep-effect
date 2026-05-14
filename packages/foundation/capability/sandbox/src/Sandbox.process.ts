@@ -34,10 +34,11 @@ const collectChunk: (
   const chunkEndsLine = Str.endsWith("\n")(combined);
   const lineBuffer = chunkEndsLine ? "" : O.getOrElse(A.last(lines), () => "");
   const completeLines = chunkEndsLine ? lines : A.dropRight(lines, 1);
+  const notifyCompleteLines = chunkEndsLine ? A.dropRight(completeLines, 1) : completeLines;
   const notifyLines =
     onLine === undefined
       ? Effect.void
-      : Effect.forEach(completeLines, (line) => Effect.sync(() => onLine(line)), { discard: true });
+      : Effect.forEach(notifyCompleteLines, (line) => Effect.sync(() => onLine(line)), { discard: true });
 
   yield* notifyLines;
 

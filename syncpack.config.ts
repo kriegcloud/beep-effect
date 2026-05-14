@@ -31,6 +31,7 @@ const config = {
     "packages/shared/config/package.json",
     "packages/drivers/drizzle/package.json",
     "packages/drivers/duckdb/package.json",
+    "packages/drivers/face-detection/package.json",
     "packages/drivers/ffmpeg/package.json",
     "packages/drivers/postgres/package.json",
     "packages/drivers/openai/package.json",
@@ -47,6 +48,7 @@ const config = {
     "packages/architecture-lab/client/package.json",
     "packages/architecture-lab/ui/package.json",
     "apps/architecture-lab-proof/package.json",
+    "packages/drivers/runpod/package.json",
   ],
   customTypes: {
     catalog: {

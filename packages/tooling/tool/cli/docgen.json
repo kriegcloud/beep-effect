@@ -46,6 +46,12 @@
         "../../../../packages/foundation/capability/colors/src/*.ts"
       ],
       "@beep/duckdb": ["../../../../packages/drivers/duckdb/src/index.ts"],
+      "@beep/face-detection": [
+        "../../../../packages/drivers/face-detection/src/index.ts"
+      ],
+      "@beep/face-detection/*": [
+        "../../../../packages/drivers/face-detection/src/*.ts"
+      ],
       "@beep/ffmpeg": ["../../../../packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["../../../../packages/drivers/ffmpeg/src/*.ts"],
       "@beep/identity": [

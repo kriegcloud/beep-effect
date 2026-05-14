@@ -28,6 +28,7 @@
     "packages/shared/config/dtslint/**/*.tst.*",
     "packages/drivers/drizzle/dtslint/**/*.tst.*",
     "packages/drivers/duckdb/dtslint/**/*.tst.*",
+    "packages/drivers/face-detection/dtslint/**/*.tst.*",
     "packages/drivers/ffmpeg/dtslint/**/*.tst.*",
     "packages/drivers/postgres/dtslint/**/*.tst.*",
     "packages/drivers/openai/dtslint/**/*.tst.*",
@@ -43,7 +44,8 @@
     "packages/architecture-lab/tables/dtslint/**/*.tst.*",
     "packages/architecture-lab/client/dtslint/**/*.tst.*",
     "packages/architecture-lab/ui/dtslint/**/*.tst.*",
-    "apps/architecture-lab-proof/dtslint/**/*.tst.*"
+    "apps/architecture-lab-proof/dtslint/**/*.tst.*",
+    "packages/drivers/runpod/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }

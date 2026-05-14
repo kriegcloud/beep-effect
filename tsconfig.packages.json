@@ -61,6 +61,9 @@
       "path": "packages/drivers/duckdb"
     },
     {
+      "path": "packages/drivers/face-detection"
+    },
+    {
       "path": "packages/drivers/ffmpeg"
     },
     {
@@ -71,6 +74,9 @@
     },
     {
       "path": "packages/drivers/postgres"
+    },
+    {
+      "path": "packages/drivers/runpod"
     },
     {
       "path": "packages/drivers/venice-ai"

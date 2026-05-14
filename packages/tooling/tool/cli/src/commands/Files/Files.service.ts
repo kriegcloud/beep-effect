@@ -5,6 +5,15 @@
  * @since 0.0.0
  */
 
+import {
+  type FaceDetection as DetectedFace,
+  FaceDetectionImageRequest,
+  FaceDetectionModelConfig,
+  FaceDetectionService,
+  type LoadedFaceDetector,
+  makeFaceDetectionService,
+  withDetector,
+} from "@beep/face-detection";
 import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
 import {
@@ -58,16 +67,26 @@ import {
   DetectBordersSkippedEntry,
   type DetectBordersSkippedReason,
   DetectBordersSummary,
+  DetectFacesEntry,
+  type DetectFacesFlag,
+  type DetectFacesOptions,
+  DetectFacesReport,
+  DetectFacesReportOptions,
+  DetectFacesSkippedEntry,
+  type DetectFacesSkippedReason,
+  DetectFacesSummary,
   decodeArchivePoorCandidatesOptions,
   decodeCreateCaptionFilesOptions,
   decodeCropBordersOptions,
   decodeDetectBordersOptions,
+  decodeDetectFacesOptions,
   decodeFfprobeOutputJson,
   decodeImageSizeMetadata,
   decodeNormalizeMaxLongEdge,
   decodeSafeFilePrefix,
   encodeArchivePoorCandidatesManifest,
   encodeDetectBordersReport,
+  encodeDetectFacesReport,
   encodeNormalizeManifest,
   type FileSha256Hash,
   MediaDimensions,
@@ -120,11 +139,14 @@ import {
   renderCreateCaptionFilesSkippedEntry,
   renderCropBordersPlanEntry,
   renderDetectBordersEntry,
+  renderDetectFacesEntry,
+  renderDetectFacesSkippedEntry,
   renderNormalizePlanEntry,
   renderNormalizeSkippedEntry,
   renderPlanEntry,
   renderStripMetadataPlanEntry,
   rotationFromStream,
+  roundCandidateMetric,
   selectedCanonicalPathSet,
   sharpFormatForNormalize,
   stringEquivalence,
@@ -214,6 +236,13 @@ export interface FilesCommandServiceShape {
    * @since 0.0.0
    */
   readonly detectBordersFiles: (options: DetectBordersOptions) => Effect.Effect<DetectBordersReport, FilesCommandError>;
+
+  /**
+   * Detect human faces in direct image files.
+   *
+   * @since 0.0.0
+   */
+  readonly detectFacesFiles: (options: DetectFacesOptions) => Effect.Effect<DetectFacesReport, FilesCommandError>;
 
   /**
    * Normalize direct image files into a reversible output directory.
@@ -345,6 +374,87 @@ const validateDetectBordersOptions = (
     })
   );
 
+const validateDetectFacesOptions = (
+  options: DetectFacesOptions
+): Effect.Effect<DetectFacesOptions, FilesCommandError> =>
+  decodeDetectFacesOptions(options).pipe(
+    Effect.mapError(
+      (cause) =>
+        new FilesCommandError({
+          message:
+            "Invalid detect-faces options. Expected --model to point at a YuNet ONNX file, --min-confidence between 0 and 1, and face area/margin percentages between 0 and 100.",
+          cause,
+        })
+    )
+  );
+
+const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateDetectFacesMoveNoFaceDirectory")(function* (
+  moveNoFaceTo: O.Option<string>,
+  directory: string
+): Effect.fn.Return<O.Option<string>, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  if (O.isNone(moveNoFaceTo)) {
+    return O.none<string>();
+  }
+
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const sourceDirectory = path.resolve(directory);
+  const noFaceDirectory = path.resolve(moveNoFaceTo.value);
+
+  if (stringEquivalence(sourceDirectory, noFaceDirectory)) {
+    return yield* new FilesCommandError({
+      message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
+    });
+  }
+
+  const exists = yield* fs
+    .exists(noFaceDirectory)
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to inspect no-face image move directory", noFaceDirectory, { cause })
+      )
+    );
+
+  if (!exists) {
+    return O.some(noFaceDirectory);
+  }
+
+  const stat = yield* fs
+    .stat(noFaceDirectory)
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stat no-face image move directory", noFaceDirectory, { cause })
+      )
+    );
+
+  if (stat.type !== "Directory") {
+    return yield* new FilesCommandError({
+      message: `Expected --move-no-face-to to be a directory or missing path: "${noFaceDirectory}"`,
+    });
+  }
+
+  const canonicalSource = yield* fs
+    .realPath(sourceDirectory)
+    .pipe(
+      Effect.mapError((cause) => formatPlatformError("Failed to resolve source directory", sourceDirectory, { cause }))
+    );
+  const canonicalNoFace = yield* fs
+    .realPath(noFaceDirectory)
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to resolve no-face image move directory", noFaceDirectory, { cause })
+      )
+    );
+
+  if (stringEquivalence(canonicalSource, canonicalNoFace)) {
+    return yield* new FilesCommandError({
+      message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
+    });
+  }
+
+  return O.some(noFaceDirectory);
+});
+
 const validateCropBordersOptions = (
   options: CropBordersOptions
 ): Effect.Effect<CropBordersOptions, FilesCommandError> =>
@@ -453,6 +563,17 @@ const makeDetectBordersSkippedEntry = (
   O.isSome(extension)
     ? new DetectBordersSkippedEntry({ extension: extension.value, message, reason, sourceName, sourcePath })
     : new DetectBordersSkippedEntry({ message, reason, sourceName, sourcePath });
+
+const makeDetectFacesSkippedEntry = (
+  sourceName: string,
+  sourcePath: string,
+  extension: O.Option<string>,
+  reason: DetectFacesSkippedReason,
+  message: string
+): DetectFacesSkippedEntry =>
+  O.isSome(extension)
+    ? new DetectFacesSkippedEntry({ extension: extension.value, message, reason, sourceName, sourcePath })
+    : new DetectFacesSkippedEntry({ message, reason, sourceName, sourcePath });
 
 const makeArchivePoorCandidatesSkippedEntry = (
   sourceName: string,
@@ -1333,7 +1454,8 @@ const collectDetectBordersFile = Effect.fn("Files.collectDetectBordersFile")(fun
 
 const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(function* (
   dir: string,
-  progressEnabled = true
+  progressEnabled = true,
+  label = "borders scan"
 ): Effect.fn.Return<
   {
     readonly directory: string;
@@ -1355,7 +1477,7 @@ const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(f
     {
       concurrency: FilesConcurrency.scan,
       enabled: progressEnabled,
-      label: "borders scan",
+      label,
     }
   );
   const files = A.flatMap(collectedEntries, (collected) => collected.files);
@@ -1370,6 +1492,54 @@ const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(f
     ),
   };
 });
+
+const detectFacesSkippedFromBorders = (entry: DetectBordersSkippedEntry): DetectFacesSkippedEntry =>
+  makeDetectFacesSkippedEntry(
+    entry.sourceName,
+    entry.sourcePath,
+    O.fromUndefinedOr(entry.extension),
+    entry.reason,
+    entry.message
+  );
+
+const collectDetectFacesFiles = Effect.fn("Files.collectDetectFacesFiles")(function* (
+  dir: string,
+  progressEnabled = true
+): Effect.fn.Return<
+  {
+    readonly directory: string;
+    readonly files: ReadonlyArray<SortableFile>;
+    readonly skipped: ReadonlyArray<DetectFacesSkippedEntry>;
+  },
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal
+> {
+  const collection = yield* collectDetectBordersFiles(dir, progressEnabled, "faces scan");
+
+  return {
+    directory: collection.directory,
+    files: collection.files,
+    skipped: pipe(
+      collection.skipped,
+      A.map(detectFacesSkippedFromBorders),
+      A.sort(Order.mapInput(Order.String, (entry: DetectFacesSkippedEntry) => entry.sourceName))
+    ),
+  };
+});
+
+const makeDetectFacesReportOptions = (
+  options: DetectFacesOptions,
+  moveNoFaceDirectory: O.Option<string>
+): DetectFacesReportOptions =>
+  new DetectFacesReportOptions({
+    edgeMarginPct: options.edgeMarginPct,
+    json: options.json,
+    ...(O.isSome(options.manifest) ? { manifest: options.manifest.value } : {}),
+    minConfidence: options.minConfidence,
+    minFaceAreaPct: options.minFaceAreaPct,
+    modelPath: options.modelPath,
+    ...(O.isSome(moveNoFaceDirectory) ? { moveNoFaceTo: moveNoFaceDirectory.value } : {}),
+  });
 
 const archiveCandidateCollectedFile = (file: SortableFile): ArchiveCandidateCollectedEntries => ({
   files: A.of(file),
@@ -1726,6 +1896,100 @@ const analyzeDetectBordersFile = Effect.fn("Files.analyzeDetectBordersFile")(fun
     sourceName: file.name,
     sourcePath: file.sourcePath,
     width: pixels.width,
+  });
+});
+
+const faceAreaPct = (face: DetectedFace, width: number, height: number): number =>
+  roundCandidateMetric((face.box.width * face.box.height * 100) / (width * height));
+
+const faceAtEdge = (face: DetectedFace, width: number, height: number, edgeMarginPct: number): boolean => {
+  const xMargin = (width * edgeMarginPct) / 100;
+  const yMargin = (height * edgeMarginPct) / 100;
+  return (
+    face.box.x <= xMargin ||
+    face.box.y <= yMargin ||
+    face.box.x + face.box.width >= width - xMargin ||
+    face.box.y + face.box.height >= height - yMargin
+  );
+};
+
+const detectFacesFlags = (
+  faces: ReadonlyArray<DetectedFace>,
+  width: number,
+  height: number,
+  options: DetectFacesOptions
+): ReadonlyArray<DetectFacesFlag> => {
+  const primary = A.head(faces);
+
+  if (O.isNone(primary)) {
+    return A.of("no-face");
+  }
+
+  let flags: ReadonlyArray<DetectFacesFlag> = A.of("has-face");
+  const primaryFaceAreaPct = faceAreaPct(primary.value, width, height);
+
+  if (A.length(faces) > 1) {
+    flags = A.append(flags, "multiple-faces");
+  }
+
+  if (primaryFaceAreaPct < options.minFaceAreaPct) {
+    flags = A.append(flags, "face-too-small");
+  }
+
+  if (faceAtEdge(primary.value, width, height, options.edgeMarginPct)) {
+    flags = A.append(flags, "face-at-edge");
+  }
+
+  return flags;
+};
+
+const analyzeDetectFacesFile = Effect.fn("Files.analyzeDetectFacesFile")(function* (
+  detector: LoadedFaceDetector,
+  file: SortableFile,
+  options: DetectFacesOptions
+): Effect.fn.Return<DetectFacesEntry, FilesCommandError> {
+  const result = yield* detector
+    .detect(
+      new FaceDetectionImageRequest({
+        imagePath: file.sourcePath,
+        minConfidence: options.minConfidence,
+      })
+    )
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new FilesCommandError({
+            message: cause.message,
+            cause,
+          })
+      )
+    );
+  const primaryFace = A.head(result.faces);
+  const primaryFaceAreaPct = O.map(primaryFace, (face) => faceAreaPct(face, result.width, result.height));
+  const primaryFaceFields = pipe(
+    primaryFace,
+    O.map((value) => ({ primaryFace: value })),
+    O.getOrElse(() => ({}))
+  );
+  const primaryFaceAreaFields = pipe(
+    primaryFaceAreaPct,
+    O.map((value) => ({ primaryFaceAreaPct: value })),
+    O.getOrElse(() => ({}))
+  );
+  const flags = detectFacesFlags(result.faces, result.width, result.height, options);
+
+  return new DetectFacesEntry({
+    extension: file.extension,
+    faceCount: A.length(result.faces),
+    faces: result.faces,
+    flags,
+    hasFace: O.isSome(primaryFace),
+    height: result.height,
+    ...primaryFaceFields,
+    ...primaryFaceAreaFields,
+    sourceName: file.name,
+    sourcePath: file.sourcePath,
+    width: result.width,
   });
 });
 
@@ -2450,6 +2714,58 @@ const renderDetectBordersReportJson = Effect.fn("Files.renderDetectBordersReport
   );
 });
 
+const renderDetectFacesReportJson = Effect.fn("Files.renderDetectFacesReportJson")(function* (
+  report: DetectFacesReport,
+  outputPath: string
+): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+  const encoded = yield* encodeDetectFacesReport(report).pipe(
+    Effect.mapError(
+      (cause) =>
+        new FilesCommandError({
+          message: `Failed to encode detect-faces report for "${outputPath}"`,
+          cause,
+        })
+    )
+  );
+
+  return yield* renderBiomeJson(outputPath, encoded).pipe(
+    Effect.mapError(
+      (cause) =>
+        new FilesCommandError({
+          message: `Failed to render detect-faces report for "${outputPath}"`,
+          cause,
+        })
+    )
+  );
+});
+
+const writeDetectFacesManifest = Effect.fn("Files.writeDetectFacesManifest")(function* (
+  report: DetectFacesReport
+): Effect.fn.Return<
+  void,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const content = yield* renderDetectFacesReportJson(report, report.manifestPath);
+
+  yield* fs
+    .makeDirectory(path.dirname(report.manifestPath), { recursive: true })
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to create detect-faces manifest directory", report.manifestPath, { cause })
+      )
+    );
+  yield* fs
+    .writeFileString(report.manifestPath, content)
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to write detect-faces manifest", report.manifestPath, { cause })
+      )
+    );
+});
+
 const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function* (
   plan: NormalizePlan,
   maxLongEdge: O.Option<PositiveMediaDimension>,
@@ -2826,6 +3142,101 @@ const renameOrFail = (
     );
   });
 
+const withDetectFacesMovedNoFaceTarget = (
+  entry: DetectFacesEntry,
+  targetName: string,
+  targetPath: string,
+  targetRelativePath: string
+): DetectFacesEntry => {
+  const primaryFace = O.fromUndefinedOr(entry.primaryFace);
+  const primaryFaceAreaPct = O.fromUndefinedOr(entry.primaryFaceAreaPct);
+
+  return new DetectFacesEntry({
+    extension: entry.extension,
+    faceCount: entry.faceCount,
+    faces: entry.faces,
+    flags: entry.flags,
+    hasFace: entry.hasFace,
+    height: entry.height,
+    movedNoFaceName: targetName,
+    movedNoFacePath: targetPath,
+    movedNoFaceRelativePath: targetRelativePath,
+    ...(O.isSome(primaryFace) ? { primaryFace: primaryFace.value } : {}),
+    ...(O.isSome(primaryFaceAreaPct) ? { primaryFaceAreaPct: primaryFaceAreaPct.value } : {}),
+    sourceName: entry.sourceName,
+    sourcePath: entry.sourcePath,
+    width: entry.width,
+  });
+};
+
+const moveDetectFacesNoFaceEntries = Effect.fn("Files.moveDetectFacesNoFaceEntries")(function* (
+  entries: ReadonlyArray<DetectFacesEntry>,
+  moveNoFaceDirectory: O.Option<string>,
+  progressEnabled: boolean
+): Effect.fn.Return<
+  ReadonlyArray<DetectFacesEntry>,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal
+> {
+  if (O.isNone(moveNoFaceDirectory)) {
+    return entries;
+  }
+
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const targetDirectory = moveNoFaceDirectory.value;
+
+  yield* fs
+    .makeDirectory(targetDirectory, { recursive: true })
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to create no-face image move directory", targetDirectory, { cause })
+      )
+    );
+
+  let usedTargetNames = HashSet.empty<string>();
+  let movePlans = A.empty<{
+    readonly entry: DetectFacesEntry;
+    readonly targetPath: string;
+  }>();
+  let nextEntries = A.empty<DetectFacesEntry>();
+
+  for (const entry of entries) {
+    if (entry.hasFace) {
+      nextEntries = A.append(nextEntries, entry);
+      continue;
+    }
+
+    const sourceStem = path.basename(entry.sourceName, entry.extension);
+    const uniqueTarget = uniqueArchiveTargetName(sourceStem, entry.extension, usedTargetNames);
+    usedTargetNames = uniqueTarget.usedTargetNames;
+
+    const targetPath = path.join(targetDirectory, uniqueTarget.targetName);
+    const targetRelativePath = path.relative(targetDirectory, targetPath);
+    nextEntries = A.append(
+      nextEntries,
+      withDetectFacesMovedNoFaceTarget(entry, uniqueTarget.targetName, targetPath, targetRelativePath)
+    );
+    movePlans = A.append(movePlans, { entry, targetPath });
+  }
+
+  for (const plan of movePlans) {
+    yield* preflightOverwritableFile(plan.targetPath, false, "no-face image target");
+  }
+
+  yield* runFilesProgressForEach(
+    movePlans,
+    ({ entry, targetPath }) => renameOrFail(entry.sourcePath, targetPath, targetDirectory),
+    {
+      concurrency: FilesConcurrency.scan,
+      enabled: progressEnabled,
+      label: "faces move",
+    }
+  );
+
+  return nextEntries;
+});
+
 const applyRenamePlan = Effect.fn("Files.applyRenamePlan")(function* (
   directory: string,
   plan: ReadonlyArray<RenamePlanEntry>
@@ -3167,6 +3578,18 @@ const logDetectBordersEntries = Effect.fn("Files.logDetectBordersEntries")(funct
   });
 });
 
+const logDetectFacesEntries = Effect.fn("Files.logDetectFacesEntries")(function* (
+  entries: ReadonlyArray<DetectFacesEntry>,
+  skipped: ReadonlyArray<DetectFacesSkippedEntry>
+) {
+  yield* Effect.forEach(entries, (entry) => Console.log(renderDetectFacesEntry(entry)), {
+    discard: true,
+  });
+  yield* Effect.forEach(skipped, (entry) => Console.log(renderDetectFacesSkippedEntry(entry)), {
+    discard: true,
+  });
+});
+
 const logCropBordersPlan = Effect.fn("Files.logCropBordersPlan")(function* (plan: ReadonlyArray<CropBordersPlanEntry>) {
   yield* Effect.forEach(plan, (entry) => Console.log(renderCropBordersPlanEntry(entry)), {
     discard: true,
@@ -3189,6 +3612,7 @@ export const printFilesIndex = Effect.fn("Files.printFilesIndex")(function* () {
   yield* Console.log("- bun run files create-captions --dir ./dataset/images");
   yield* Console.log("- bun run files archive-poor-candidates --dir ./dataset/images --archive-dir ./dataset/rejected");
   yield* Console.log("- bun run files detect-borders --dir ./tmp");
+  yield* Console.log("- bun run files detect-faces --dir ./dataset/images --model ./face_detection_yunet.onnx");
   yield* Console.log("- bun run files crop-borders --dir ./tmp --dry-run");
 });
 
@@ -3531,6 +3955,144 @@ const detectBordersFilesImpl = Effect.fn("FilesCommandService.detectBordersFiles
   });
 });
 
+const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(function* (
+  options: DetectFacesOptions
+): Effect.fn.Return<
+  DetectFacesReport,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const program = Effect.gen(function* () {
+    const path = yield* Path.Path;
+    const validatedOptions = yield* validateDetectFacesOptions(options);
+    const progressEnabled = !validatedOptions.json;
+    const collection = yield* collectDetectFacesFiles(validatedOptions.dir, progressEnabled);
+    const moveNoFaceDirectory = yield* validateDetectFacesMoveNoFaceDirectory(
+      validatedOptions.moveNoFaceTo,
+      collection.directory
+    );
+    const manifestPath = path.resolve(
+      O.getOrElse(validatedOptions.manifest, () => path.join(collection.directory, "detect-faces-manifest.json"))
+    );
+    let entries: ReadonlyArray<DetectFacesEntry> = A.empty();
+    let skipped = collection.skipped;
+
+    if (A.isReadonlyArrayNonEmpty(collection.files)) {
+      yield* withDetector(new FaceDetectionModelConfig({ modelPath: validatedOptions.modelPath }), (detector) =>
+        Effect.gen(function* () {
+          const analysisResults = yield* runFilesProgressForEach(
+            collection.files,
+            (file) => analyzeDetectFacesFile(detector, file, validatedOptions).pipe(Effect.result),
+            {
+              concurrency: FilesConcurrency.image,
+              enabled: progressEnabled,
+              label: "faces analyze",
+            }
+          );
+
+          for (const [file, result] of A.zip(collection.files, analysisResults)) {
+            if (Result.isFailure(result)) {
+              skipped = A.append(
+                skipped,
+                makeDetectFacesSkippedEntry(
+                  file.name,
+                  file.sourcePath,
+                  O.some(file.extension),
+                  "detection-failed",
+                  result.failure.message
+                )
+              );
+              continue;
+            }
+
+            entries = A.append(entries, result.success);
+          }
+        })
+      ).pipe(
+        Effect.provideService(FaceDetectionService, makeFaceDetectionService()),
+        Effect.mapError(
+          (cause) =>
+            new FilesCommandError({
+              message: cause.message,
+              cause,
+            })
+        )
+      );
+    }
+
+    entries = yield* moveDetectFacesNoFaceEntries(entries, moveNoFaceDirectory, progressEnabled);
+
+    const faceImageCount = A.length(A.filter(entries, (entry) => entry.hasFace));
+    const noFaceImageCount = A.length(A.filter(entries, (entry) => !entry.hasFace));
+    const movedNoFaceCount = A.length(A.filter(entries, (entry) => O.isSome(O.fromUndefinedOr(entry.movedNoFacePath))));
+    const reviewImageCount = A.length(A.filter(entries, (entry) => A.some(entry.flags, (flag) => flag !== "has-face")));
+    const skippedCount = A.length(skipped);
+    const summary = new DetectFacesSummary({
+      analyzedCount: A.length(entries),
+      directory: collection.directory,
+      faceImageCount,
+      movedNoFaceCount,
+      noFaceImageCount,
+      reviewImageCount,
+      skippedCount,
+      totalCount: A.length(entries) + skippedCount,
+    });
+    const sortedSkipped = A.sort(
+      skipped,
+      Order.mapInput(Order.String, (entry: DetectFacesSkippedEntry) => entry.sourceName)
+    );
+    const report = new DetectFacesReport({
+      directory: collection.directory,
+      entries,
+      manifestPath,
+      manifestWritten: true,
+      options: makeDetectFacesReportOptions(validatedOptions, moveNoFaceDirectory),
+      schemaVersion: "beep.files.detect-faces.v1",
+      skipped: sortedSkipped,
+      summary,
+    });
+    yield* writeDetectFacesManifest(report);
+
+    if (validatedOptions.json) {
+      const rendered = yield* renderDetectFacesReportJson(report, "detect-faces-report.json");
+      yield* Console.log(Str.trimEnd(rendered));
+      return report;
+    }
+
+    yield* Effect.logInfo({
+      message: "files detect-faces completed",
+      analyzedCount: summary.analyzedCount,
+      faceImageCount: summary.faceImageCount,
+      movedNoFaceCount: summary.movedNoFaceCount,
+      skippedCount: summary.skippedCount,
+      directory: collection.directory,
+    });
+
+    const movedText = summary.movedNoFaceCount > 0 ? `, moved ${summary.movedNoFaceCount} no-face image(s)` : "";
+
+    yield* Console.log(
+      `files detect-faces: ${summary.faceImageCount} image(s) with face(s), ${summary.noFaceImageCount} image(s) without face(s), ${summary.reviewImageCount} image(s) flagged for review${movedText} in "${collection.directory}" (${summary.analyzedCount} analyzed, ${summary.skippedCount} skipped). manifest written to "${report.manifestPath}".`
+    );
+    yield* logDetectFacesEntries(entries, sortedSkipped);
+
+    return report;
+  });
+
+  if (options.json) {
+    return yield* program;
+  }
+
+  return yield* profilePhase(program, {
+    phase: "files.detect-faces",
+    attributes: {
+      edgeMarginPct: `${options.edgeMarginPct}`,
+      json: `${options.json}`,
+      minConfidence: `${options.minConfidence}`,
+      minFaceAreaPct: `${options.minFaceAreaPct}`,
+    },
+  });
+});
+
 const normalizeFilesImpl = Effect.fn("FilesCommandService.normalizeFiles")(function* (
   options: NormalizeFilesOptions
 ): Effect.fn.Return<NormalizeSummary, FilesCommandError, FilesCommandServiceRequirements> {
@@ -3777,6 +4339,9 @@ const makeFilesCommandService = Effect.fn("FilesCommandService.make")(function* 
     detectBordersFiles: Effect.fn("FilesCommandService.detectBordersFiles")((options) =>
       detectBordersFilesImpl(options).pipe(Effect.provide(runtimeContext))
     ),
+    detectFacesFiles: Effect.fn("FilesCommandService.detectFacesFiles")((options) =>
+      detectFacesFilesImpl(options).pipe(Effect.provide(runtimeContext))
+    ),
     normalizeFiles: Effect.fn("FilesCommandService.normalizeFiles")((options) =>
       normalizeFilesImpl(options).pipe(Effect.provide(runtimeContext))
     ),
@@ -3857,6 +4422,21 @@ export const detectBordersFiles = Effect.fn("Files.detectBordersFiles")(function
 ): Effect.fn.Return<DetectBordersReport, FilesCommandError, FilesCommandService> {
   const files = yield* FilesCommandService;
   return yield* files.detectBordersFiles(options);
+});
+
+/**
+ * Detect human faces in direct image files.
+ *
+ * @param options - Face detection options.
+ * @returns JSON-safe face detection report.
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const detectFacesFiles = Effect.fn("Files.detectFacesFiles")(function* (
+  options: DetectFacesOptions
+): Effect.fn.Return<DetectFacesReport, FilesCommandError, FilesCommandService> {
+  const files = yield* FilesCommandService;
+  return yield* files.detectFacesFiles(options);
 });
 
 /**

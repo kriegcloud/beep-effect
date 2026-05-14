@@ -557,6 +557,35 @@ describe("@beep/sandbox", () => {
   );
 
   it.effect(
+    "preserves intentional blank stdout lines without emitting trailing split artifacts",
+    Effect.fnUntraced(function* () {
+      const ProcessLayer = SandboxProcessLive.pipe(
+        Layer.provide(NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer)))
+      );
+      const result = yield* Effect.gen(function* () {
+        const tempDir = yield* Effect.promise(() => mkdtemp(join(tmpdir(), "beep-sandbox-stream-")));
+        const lines: Array<string> = [];
+        const sandbox = yield* noSandbox().create({ env: {}, worktreePath: tempDir });
+        const execResult = yield* sandbox.exec(
+          "printf 'section1\\n\\nsection2\\n'",
+          new SandboxExecOptions({
+            onLine: (line) => {
+              lines.push(line);
+            },
+          })
+        );
+
+        yield* Effect.promise(() => rm(tempDir, { force: true, recursive: true }));
+
+        return { lines, result: execResult };
+      }).pipe(Effect.provide(ProcessLayer));
+
+      expect(result.result.stdout).toBe("section1\n\nsection2\n");
+      expect(result.lines).toEqual(["section1", "", "section2"]);
+    })
+  );
+
+  it.effect(
     "fails silent agent iterations with AgentIdleTimeoutError",
     Effect.fnUntraced(function* () {
       const displayRef = yield* Ref.make<ReadonlyArray<DisplayEntry>>([]);
