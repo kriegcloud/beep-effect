@@ -91,6 +91,11 @@ without stopping until:
   exhausted after the bearer-token endpoint was live. No returned bundles were
   found, and the artifact status still reported missing `macos` and `windows`
   platform directories.
+- Latest long upload-window wait:
+  `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 120 --watch-interval-ms 5000`
+  exhausted after a ten-minute coordinator polling window. The live upload
+  endpoint stayed healthy, the upload log showed only health checks plus local
+  invalid-token smoke tests, and no returned proof bundles were found.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:
@@ -175,6 +180,7 @@ Blocking requirements:
 - Latest bounded coordinator watch found no returned proof bundles.
 - Latest tailnet upload-window watch found no returned proof bundles.
 - Latest post-token-rotation watch found no returned proof bundles.
+- Latest ten-minute upload-window watch found no returned proof bundles.
 - `p1:proof:audit-all` has not run against real macOS and Windows artifacts.
 - P1C `$quality-review-fix-loop` has not run after proof artifacts.
 
