@@ -156,8 +156,11 @@ without stopping until:
   --preserve-log` restarted the live upload server with the existing token,
   preserved the private transfer log, and made the clearer public landing page
   visible at the active endpoint. The refreshed status command reports upload
-  PID `1179635`, `upload activity: 0 attempts; 0 stored; 0 rejected; remotes:
-  none`, and missing macOS/Windows bundles.
+  PID `1199734`, `upload activity: 0 attempts; 0 stored; 0 rejected; remotes:
+  none`, and missing macOS/Windows bundles. The public landing page now renders
+  request-host-specific `/health`, `/status`, `/commands`, `/next-actions`, and
+  approved `/upload/*` URLs so an operator who receives only the endpoint URL
+  sees copy-ready, non-secret command shapes.
 - Latest coordinator-side Taildrop unblock attempt:
   `sudo -n tailscale set --operator=$USER` fails with `sudo: a password is
   required`, so Taildrop still requires an interactive coordinator-side sudo

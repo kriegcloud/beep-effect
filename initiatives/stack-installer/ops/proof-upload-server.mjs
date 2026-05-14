@@ -104,8 +104,10 @@ const uploadStatus = async () => ({
   ),
 });
 
-const landingPage = () =>
-  [
+const landingPage = (requestHost) => {
+  const requestUrlBase = requestHost ? `http://${requestHost}` : `http://${host}:${port}`;
+
+  return [
     "Stack Installer P1 proof upload endpoint",
     "",
     "If you are a proof operator and only have this URL:",
@@ -115,23 +117,24 @@ const landingPage = () =>
     "4. Run the platform proof, package the artifact, and upload only the approved bundle name.",
     "",
     "Public checks:",
-    "- GET /health",
+    `- GET ${requestUrlBase}/health`,
     "",
     "Token-protected checks:",
-    "- GET /status",
-    "- GET /commands",
-    "- GET /next-actions",
+    `- GET ${requestUrlBase}/status`,
+    `- GET ${requestUrlBase}/commands`,
+    `- GET ${requestUrlBase}/next-actions`,
     "",
     "Allowed uploads:",
-    "- PUT or POST /upload/stack-installer-p1-macos.tgz",
-    "- PUT or POST /upload/stack-installer-p1-windows.zip",
+    `- PUT or POST ${requestUrlBase}/upload/stack-installer-p1-macos.tgz`,
+    `- PUT or POST ${requestUrlBase}/upload/stack-installer-p1-windows.zip`,
     "",
     "Fetch next actions from a proof machine:",
-    'curl -f -H "Authorization: Bearer ${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" http://<this-host>/next-actions',
+    `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${requestUrlBase}/next-actions'`,
     "",
     "Use an Authorization: Bearer token header for /status, /commands, /next-actions, and /upload requests.",
     "Do not put the proof upload token in URLs, chat, commits, screencasts, or command transcripts.",
   ].join("\n");
+};
 
 const server = http.createServer(async (request, response) => {
   try {
@@ -139,7 +142,7 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "GET" && requestUrl.pathname === "/") {
       logRequest(request, 200, "landing");
-      send(response, 200, landingPage());
+      send(response, 200, landingPage(request.headers.host));
       return;
     }
 
