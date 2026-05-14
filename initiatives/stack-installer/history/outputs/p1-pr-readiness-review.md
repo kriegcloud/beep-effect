@@ -7,6 +7,9 @@ This output records the post-proof `$quality-review-fix-loop` closure pass for
 Stack Installer P1. It must not start until the fresh-machine Manual Mode proof
 artifacts have been produced and audited for secret safety.
 
+This is a comprehensive review of the whole P1 initiative surface and directly
+affected code paths as a system, not a narrow final lint pass.
+
 ## Scope
 
 - `initiatives/stack-installer/**`
@@ -32,7 +35,8 @@ artifacts have been produced and audited for secret safety.
 - runtime, contract, type, and UI tests
 - observability, spans, logs, and no-secret attributes
 - documentation, public exports, and package metadata
-- reuse and duplication opportunities without generic shared-package gravity
+- reuse, duplication, and structural simplification opportunities without
+  generic shared-package gravity
 - evolution/deprecation notes and future-phase boundaries
 
 ## Reuse And Structure Rules
@@ -40,6 +44,8 @@ artifacts have been produced and audited for secret safety.
 - Prefer existing repo modules before introducing new abstractions.
 - Keep new modules flat, explicit, and package-local unless the
   specific-home-first routing test proves a shared home.
+- Prefer small local reshapes that make modules flatter, more idiomatic, and
+  easier to scan before adding a new abstraction.
 - Reject vague `common`, `core`, `utils`, or `lib` destinations.
 - Promote only when at least two named consumers need the same stable contract.
 - Keep P2 AI Mode, MCP runtime, recovery, portability, signing, and

@@ -394,6 +394,7 @@
       "future: bun run audit:github quality",
       "future: git diff --name-status origin/main...HEAD",
       "future: quality-review-fix-loop reviewer inventory covering quality, architecture, schema/domain, Effect laws, error boundaries, tests, observability, docs/API, reuse/duplication, and evolution/deprecation",
+      "future: comprehensive review of the whole implemented P1 initiative surface and directly affected code paths for reuse opportunities, structural simplification, flat idiomatic modules, and repo-law alignment",
       "future: verify zero required blockers or explicit waivers before PR-ready status"
     ],
     "repoWidePlaceholders": [
