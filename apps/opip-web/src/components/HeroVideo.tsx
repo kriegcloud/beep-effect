@@ -7,6 +7,7 @@
 
 "use client";
 
+import * as P from "effect/Predicate";
 import { useEffect, useRef } from "react";
 
 /**
@@ -22,8 +23,9 @@ export function HeroVideo({ poster, src }: { readonly poster: string; readonly s
     const video = videoRef.current;
     if (video === null) return;
 
-    const reducedMotion =
-      typeof window.matchMedia === "function" ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false;
+    const reducedMotion = P.isFunction(window.matchMedia)
+      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      : false;
     if (reducedMotion) {
       video.pause();
       return;

@@ -537,7 +537,10 @@
         "./packages/architecture-lab/use-cases/src/entities/Worker/server.ts"
       ],
       "@beep/runpod": ["./packages/drivers/runpod/src/index.ts"],
-      "@beep/runpod/*": ["./packages/drivers/runpod/src/*"]
+      "@beep/runpod/*": ["./packages/drivers/runpod/src/*"],
+      "@beep/ui/themes/theme-init-script": [
+        "./packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
+      ]
     }
   }
 }

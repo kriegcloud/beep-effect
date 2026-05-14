@@ -1,3 +1,10 @@
+/**
+ * Home route for the OPIP public website.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { OpipHomePage } from "../components/OpipHomePage";
 
 /**

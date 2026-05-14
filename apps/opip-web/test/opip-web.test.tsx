@@ -1,13 +1,21 @@
 import { Button } from "@beep/ui/components/ui/button";
-import { render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import * as Result from "effect/Result";
 import * as React from "react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import Home from "../src/app/page.tsx";
+import { OpipThemeProvider } from "../src/components/OpipThemeProvider.tsx";
 import { decodeOpipSiteContentResult, launchReviewGates, opipSiteContent, ReviewStatus } from "../src/content/index.ts";
 import { VERSION } from "../src/index.ts";
 
 describe("@beep/opip-web", () => {
+  beforeEach(() => {
+    cleanup();
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.style.colorScheme = "";
+    window.localStorage.clear();
+  });
+
   it("exposes the package version constant", () => {
     expect(VERSION).toBe("0.0.0");
   });
@@ -33,6 +41,28 @@ describe("@beep/opip-web", () => {
 
     expect(screen.getByRole("heading", { name: /thirty years between a planter row/i })).toBeDefined();
     expect(screen.getByRole("link", { name: opipSiteContent.contact.email })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Switch to dark mode" })).toBeDefined();
+  });
+
+  it("toggles the app theme without depending on MUI color-scheme context updates", () => {
+    const { container } = render(<Home />);
+
+    fireEvent.click(within(container).getByRole("button", { name: "Switch to dark mode" }));
+
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(document.documentElement.style.colorScheme).toBe("dark");
+    expect(window.localStorage.getItem("opip-theme-mode")).toBe("dark");
+    expect(window.localStorage.getItem("mui-mode")).toBe("dark");
+  });
+
+  it("provides an optional OPIP MUI theme override provider", () => {
+    render(
+      <OpipThemeProvider>
+        <Button>OPIP themed child</Button>
+      </OpipThemeProvider>
+    );
+
+    expect(screen.getByRole("button", { name: "OPIP themed child" })).toBeDefined();
   });
 
   it("keeps launch-risk content review-gated", () => {

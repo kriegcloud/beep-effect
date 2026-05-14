@@ -23,6 +23,13 @@ bun run build:pwa
 
 `bun run dev` serves the app at `https://opip-web.localhost:1355`.
 
+## React Grab
+
+React Grab is opt-in during development so normal theme and console QA stays
+quiet. Start with `NEXT_PUBLIC_REACT_GRAB=1 bun run dev`, hover an element, then
+press `Cmd+C` on macOS or `Ctrl+C` on Linux/Windows to copy source context for
+refinement work.
+
 ## Launch Initiative
 
 The launch packet lives at `../../initiatives/opip-web-launch`.

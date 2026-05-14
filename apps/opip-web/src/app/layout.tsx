@@ -5,6 +5,7 @@
  * @packageDocumentation
  */
 
+import { AppThemeInitScript } from "@beep/ui/themes/theme-init-script";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter, Newsreader } from "next/font/google";
 import Script from "next/script";
@@ -36,6 +37,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 const { metadata: siteMetadata } = opipSiteContent;
+const shouldLoadReactGrab = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_REACT_GRAB === "1";
 
 /**
  * Static metadata for the opip web app shell.
@@ -155,8 +157,18 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${newsreader.variable} ${inter.variable} ${plexMono.variable} h-full antialiased`}
-      style={{ colorScheme: "light" }}
+      suppressHydrationWarning
     >
+      <head>
+        <AppThemeInitScript attribute="class" defaultMode="light" modeStorageKey="mui-mode" />
+        {shouldLoadReactGrab && (
+          <Script
+            src="//unpkg.com/react-grab/dist/index.global.js"
+            crossOrigin="anonymous"
+            strategy="beforeInteractive"
+          />
+        )}
+      </head>
       <body className="min-h-full flex flex-col">
         <Script id="opip-person-json-ld" type="application/ld+json" strategy="beforeInteractive">
           {JSON.stringify(personJsonLd)}

@@ -1,11 +1,11 @@
 /**
- * Static launch content for the OPIP public website.
+ * Launch content for the OPIP public website.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
-import * as Result from "effect/Result";
+import { Result } from "effect";
 import { decodeOpipSiteContentResult, type OpipSiteContent, ReviewStatus } from "./OpipContent.model";
 
 const needsReview = (note: string) => ({
@@ -91,10 +91,10 @@ const rawOpipSiteContent = {
       kicker: "Iowa and Minnesota Bars - 1997 to present",
       title: "The law",
       image: {
-        src: "/opip/about/law.jpg",
+        src: "/opip/about/tom-portrait.png",
         alt: "Portrait of Thomas J. Oppold.",
-        width: 1200,
-        height: 800,
+        width: 645,
+        height: 505,
         credit: "Portrait - Thomas J. Oppold",
       },
       body: "Tom reads claims the way an engineer reads drawings: looking for what is load-bearing and what is decoration. A planter row, a steel detail, a claim limitation: each is a small unit of intent doing more work than it appears to.",
@@ -305,10 +305,7 @@ const rawOpipSiteContent = {
  * @category models
  * @since 0.0.0
  */
-export const opipSiteContent = Result.getOrThrowWith(
-  decodeOpipSiteContentResult(rawOpipSiteContent),
-  (issue) => new Error(String(issue))
-);
+export const opipSiteContent = Result.getOrThrow(decodeOpipSiteContentResult(rawOpipSiteContent));
 
 /**
  * Review gate statuses that must be closed before public launch.

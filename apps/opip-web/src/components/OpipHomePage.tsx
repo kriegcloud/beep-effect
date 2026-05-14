@@ -5,11 +5,14 @@
  * @since 0.0.0
  */
 
+import { cn } from "@beep/ui/lib/utils";
+import * as P from "effect/Predicate";
 import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
 import { opipSiteContent } from "../content";
 import { CtaLink } from "./CtaLink";
 import { HeroVideo } from "./HeroVideo";
+import { ThemeModeToggle } from "./ThemeModeToggle";
 
 const sectionShell = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
 const monoLabel = "font-[family-name:var(--font-opip-mono)] text-xs font-medium uppercase tracking-[0.16em]";
@@ -58,18 +61,24 @@ function Nav() {
   return (
     <>
       <a
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-[var(--opip-paper)] focus:px-4 focus:py-2 focus:text-[var(--opip-soil)]"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-[var(--opip-paper)] focus:px-4 focus:py-2 focus:text-[var(--opip-heading)]"
         href="#main-content"
       >
         Skip to main content
       </a>
-      <nav className="fixed inset-x-0 top-0 z-40 border-b border-[color-mix(in_oklab,var(--opip-paper)_20%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_82%,transparent)] backdrop-blur-md">
-        <div className={`${sectionShell} flex h-14 items-center justify-center`}>
-          <ul className="flex items-center gap-1 sm:gap-3" aria-label="Primary navigation">
+      <nav className="fixed inset-x-0 top-0 z-40 border-b border-[color-mix(in_oklab,var(--opip-on-soil)_20%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_82%,transparent)] backdrop-blur-md">
+        <div className={`${sectionShell} relative flex h-14 items-center justify-end sm:justify-center`}>
+          <div className="absolute left-5 sm:left-8 lg:left-12">
+            <ThemeModeToggle />
+          </div>
+          <ul
+            className="flex max-w-[calc(100%-4.5rem)] items-center gap-1 overflow-x-auto sm:max-w-none sm:gap-3"
+            aria-label="Primary navigation"
+          >
             {opipSiteContent.nav.map((item) => (
               <li key={item.href}>
                 <a
-                  className="block px-2 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] font-medium uppercase tracking-[0.14em] text-[var(--opip-paper)] opacity-80 transition-opacity hover:opacity-100 sm:px-3"
+                  className="block px-2 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] font-medium uppercase tracking-[0.14em] text-[var(--opip-on-soil)] opacity-80 transition-opacity hover:opacity-100 sm:px-3"
                   href={item.href}
                 >
                   {item.label}
@@ -88,7 +97,7 @@ function Hero() {
 
   return (
     <section
-      className="relative isolate grid min-h-[720px] overflow-hidden bg-[var(--opip-soil)] pt-14 text-[var(--opip-paper)] lg:grid-cols-[1.08fr_0.92fr]"
+      className="relative isolate grid min-h-[720px] overflow-hidden bg-[var(--opip-soil)] pt-14 text-[var(--opip-on-soil)] lg:grid-cols-[1.08fr_0.92fr]"
       aria-labelledby="hero-title"
     >
       <div className="relative z-10 flex min-h-[650px] flex-col justify-between px-5 py-10 sm:px-8 sm:py-14 lg:px-14">
@@ -146,28 +155,47 @@ function About() {
           About Thomas J. Oppold's practice
         </h2>
         <div className="grid gap-7 lg:grid-cols-3">
-          {opipSiteContent.about.map((panel) => (
-            <article key={panel.id} className="grid gap-5">
-              <figure className="overflow-hidden rounded-lg border border-[var(--opip-rule)] bg-white">
-                <Image
-                  className="aspect-[4/3] size-full object-cover"
-                  src={panel.image.src}
-                  alt={panel.image.alt}
-                  width={panel.image.width ?? 1200}
-                  height={panel.image.height ?? 800}
-                  loading="eager"
-                />
-                <figcaption className="px-4 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--opip-muted)]">
-                  {panel.image.credit}
-                </figcaption>
-              </figure>
-              <div>
-                <p className={`${monoLabel} text-[var(--opip-burgundy)]`}>{panel.kicker}</p>
-                <h3 className={`${displayClass} mt-3 text-4xl leading-tight text-[var(--opip-soil)]`}>{panel.title}</h3>
-                <p className="mt-4 text-base leading-7 text-[var(--opip-body)]">{panel.body}</p>
-              </div>
-            </article>
-          ))}
+          {opipSiteContent.about.map((panel) => {
+            const isPortraitPanel = panel.id === "law";
+
+            return (
+              <article key={panel.id} className="grid gap-5">
+                <figure
+                  className={cn(
+                    "overflow-hidden rounded-lg border border-[var(--opip-rule)]",
+                    isPortraitPanel ? "bg-[var(--opip-portrait-ground)]" : "bg-[var(--opip-figure-ground)]"
+                  )}
+                >
+                  <Image
+                    className={cn(
+                      "aspect-[4/3] size-full",
+                      isPortraitPanel ? "object-contain object-bottom px-7 pt-7" : "object-cover"
+                    )}
+                    src={panel.image.src}
+                    alt={panel.image.alt}
+                    width={panel.image.width ?? 1200}
+                    height={panel.image.height ?? 800}
+                    loading="eager"
+                  />
+                  <figcaption
+                    className={cn(
+                      "px-4 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] uppercase tracking-[0.12em]",
+                      isPortraitPanel ? "text-[var(--opip-cream-muted)]" : "text-[var(--opip-figure-caption)]"
+                    )}
+                  >
+                    {panel.image.credit}
+                  </figcaption>
+                </figure>
+                <div>
+                  <p className={`${monoLabel} text-[var(--opip-burgundy)]`}>{panel.kicker}</p>
+                  <h3 className={`${displayClass} mt-3 text-4xl leading-tight text-[var(--opip-heading)]`}>
+                    {panel.title}
+                  </h3>
+                  <p className="mt-4 text-base leading-7 text-[var(--opip-body)]">{panel.body}</p>
+                </div>
+              </article>
+            );
+          })}
         </div>
         <div className="mt-14 border-t border-[var(--opip-rule)] pt-6 text-center">
           <p className={`${displayClass} text-xl italic text-[var(--opip-walnut)]`}>
@@ -189,7 +217,7 @@ function Practice() {
       <div className={sectionShell}>
         <header className="max-w-3xl">
           <p className={`${monoLabel} text-[var(--opip-burgundy)]`}>Practice</p>
-          <h2 id="practice-title" className={`${displayClass} mt-4 text-5xl leading-tight text-[var(--opip-soil)]`}>
+          <h2 id="practice-title" className={`${displayClass} mt-4 text-5xl leading-tight text-[var(--opip-heading)]`}>
             Five areas, one docket.
           </h2>
         </header>
@@ -197,10 +225,10 @@ function Practice() {
           {opipSiteContent.practices.map((practice) => (
             <article
               key={practice.id}
-              className="rounded-lg border border-[var(--opip-rule)] bg-[color-mix(in_oklab,var(--opip-paper)_86%,white)] p-5"
+              className="rounded-lg border border-[var(--opip-rule)] bg-[var(--opip-card)] p-5"
             >
               <p className={`${monoLabel} text-[var(--opip-gold)]`}>{practice.id}</p>
-              <h3 className={`${displayClass} mt-4 text-2xl leading-8 text-[var(--opip-soil)]`}>{practice.title}</h3>
+              <h3 className={`${displayClass} mt-4 text-2xl leading-8 text-[var(--opip-heading)]`}>{practice.title}</h3>
               <p className="mt-4 text-sm leading-7 text-[var(--opip-body)]">{practice.body}</p>
             </article>
           ))}
@@ -213,7 +241,7 @@ function Practice() {
 function Matters() {
   return (
     <section
-      className="bg-[var(--opip-soil)] py-20 text-[var(--opip-paper)]"
+      className="bg-[var(--opip-soil)] py-20 text-[var(--opip-on-soil)]"
       id="matters"
       aria-labelledby="matters-title"
     >
@@ -229,9 +257,9 @@ function Matters() {
             <ExternalAnchor
               key={matter.id}
               href={matter.source.href}
-              className="group grid min-h-[36rem] w-[min(84vw,26rem)] content-start overflow-hidden rounded-lg border border-[color-mix(in_oklab,var(--opip-paper)_18%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_80%,black)] text-[var(--opip-paper)] transition-transform hover:-translate-y-1 lg:w-auto"
+              className="group grid min-h-[36rem] w-[min(84vw,26rem)] content-start overflow-hidden rounded-lg border border-[color-mix(in_oklab,var(--opip-on-soil)_18%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_80%,black)] text-[var(--opip-on-soil)] transition-transform hover:-translate-y-1 lg:w-auto"
             >
-              <figure className="border-b border-[color-mix(in_oklab,var(--opip-paper)_18%,transparent)] bg-[var(--opip-paper)]">
+              <figure className="border-b border-[color-mix(in_oklab,var(--opip-on-soil)_18%,transparent)] bg-[var(--opip-figure-ground)]">
                 <Image
                   className="aspect-[3/2] size-full object-contain p-5"
                   src={matter.figure.src}
@@ -239,7 +267,7 @@ function Matters() {
                   width={matter.figure.width ?? 900}
                   height={matter.figure.height ?? 600}
                 />
-                <figcaption className="border-t border-[var(--opip-rule)] px-4 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--opip-walnut)]">
+                <figcaption className="border-t border-[var(--opip-rule)] px-4 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--opip-figure-caption)]">
                   {matter.figure.credit}
                 </figcaption>
               </figure>
@@ -248,7 +276,7 @@ function Matters() {
                 <p className={`${monoLabel} text-[var(--opip-cream-muted)]`}>{matter.caption}</p>
                 <h3 className={`${displayClass} text-3xl leading-tight`}>{matter.title}</h3>
                 <p className="text-sm leading-7 text-[var(--opip-cream-muted)]">{matter.body}</p>
-                {typeof matter.citation === "string" ? (
+                {P.isString(matter.citation) ? (
                   <p className="font-[family-name:var(--font-opip-mono)] text-xs leading-6 text-[var(--opip-gold)]">
                     {matter.citation}
                   </p>
@@ -282,8 +310,13 @@ function Clients() {
                 alt={client.logo.alt}
                 loading="lazy"
                 decoding="async"
-                className="max-h-12 w-full max-w-40 object-contain opacity-75 grayscale transition-opacity hover:opacity-100"
-                style={{ aspectRatio: client.aspectRatio } satisfies CSSProperties}
+                className="max-h-12 w-full max-w-40 object-contain opacity-[0.86] transition-opacity hover:opacity-100"
+                style={
+                  {
+                    aspectRatio: client.aspectRatio,
+                    filter: "var(--opip-client-logo-filter)",
+                  } satisfies CSSProperties
+                }
               />
             </li>
           ))}
@@ -302,7 +335,7 @@ function Press() {
       <div className={sectionShell}>
         <header className="max-w-3xl">
           <p className={`${monoLabel} text-[var(--opip-burgundy)]`}>Selected press</p>
-          <h2 id="press-title" className={`${displayClass} mt-4 text-5xl leading-tight text-[var(--opip-soil)]`}>
+          <h2 id="press-title" className={`${displayClass} mt-4 text-5xl leading-tight text-[var(--opip-heading)]`}>
             In the trade and legal press.
           </h2>
         </header>
@@ -316,7 +349,7 @@ function Press() {
                   {item.publication}
                 </p>
                 <div>
-                  <h3 className={`${displayClass} text-3xl leading-tight text-[var(--opip-soil)]`}>
+                  <h3 className={`${displayClass} text-3xl leading-tight text-[var(--opip-heading)]`}>
                     <ExternalAnchor className="hover:text-[var(--opip-burgundy)]" href={item.source.href}>
                       {item.headline}
                     </ExternalAnchor>
@@ -344,7 +377,7 @@ function Contact() {
 
   return (
     <section
-      className="bg-[var(--opip-burgundy)] py-20 text-[var(--opip-paper)]"
+      className="bg-[var(--opip-burgundy)] py-20 text-[var(--opip-on-soil)]"
       id="contact"
       aria-labelledby="contact-title"
     >
@@ -354,12 +387,12 @@ function Contact() {
           <h2 id="contact-title" className={`${displayClass} mt-4 text-5xl leading-tight`}>
             {contact.title}
           </h2>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-[color-mix(in_oklab,var(--opip-paper)_88%,transparent)]">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-[color-mix(in_oklab,var(--opip-on-soil)_88%,transparent)]">
             {contact.lede}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <CtaLink
-              className={`${ctaClass} border-[var(--opip-paper)] bg-[var(--opip-paper)] text-[var(--opip-burgundy)] hover:border-white hover:bg-white`}
+              className={`${ctaClass} border-[var(--opip-on-soil)] bg-[var(--opip-on-soil)] text-[var(--opip-burgundy)] hover:border-white hover:bg-white`}
               href={mailto}
             >
               {contact.email}
@@ -367,9 +400,9 @@ function Contact() {
             <span className={`${monoLabel} text-[var(--opip-gold)]`}>Iowa and Minnesota Bars</span>
           </div>
         </div>
-        <aside className="rounded-lg border border-[color-mix(in_oklab,var(--opip-paper)_22%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_22%,transparent)] p-6">
+        <aside className="rounded-lg border border-[color-mix(in_oklab,var(--opip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_22%,transparent)] p-6">
           <p className={`${monoLabel} text-[var(--opip-gold)]`}>Notice</p>
-          <div className="mt-4 grid gap-4 text-sm leading-7 text-[color-mix(in_oklab,var(--opip-paper)_88%,transparent)]">
+          <div className="mt-4 grid gap-4 text-sm leading-7 text-[color-mix(in_oklab,var(--opip-on-soil)_88%,transparent)]">
             {contact.notice.map((line) => (
               <p key={line}>{line}</p>
             ))}
@@ -384,7 +417,7 @@ function Footer() {
   const { metadata } = opipSiteContent;
 
   return (
-    <footer className="bg-[var(--opip-soil)] py-10 text-[var(--opip-paper)]">
+    <footer className="bg-[var(--opip-soil)] py-10 text-[var(--opip-on-soil)]">
       <div className={`${sectionShell} grid gap-8 md:grid-cols-[1fr_auto] md:items-end`}>
         <div>
           <h2 id="footer-title" className="sr-only">

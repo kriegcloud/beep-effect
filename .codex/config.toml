@@ -11,6 +11,10 @@ url = "https://docs.x.ai/api/mcp"
 command = "npx"
 args = ["shadcn@latest", "mcp"]
 
+[mcp_servers.next-devtools]
+command = "npx"
+args = ["-y", "next-devtools-mcp@latest"]
+
 [skills]
 include_instructions = true
 
