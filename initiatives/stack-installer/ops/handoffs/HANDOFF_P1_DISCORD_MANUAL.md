@@ -239,6 +239,17 @@ After the per-platform audit passes on the fresh machine, transfer only the
 audited platform directory back to the coordinator checkout. Keep the artifacts
 out of commits; `output/` is the working evidence inbox for final audit.
 
+If using Taildrop on the coordinator machine, ensure the local Tailscale
+operator is configured before receiving files:
+
+```bash
+sudo tailscale set --operator=$USER
+tailscale file get output/stack-installer/p1-live
+```
+
+If Taildrop is unavailable, use another approved private transfer channel and
+place the received bundles under `output/stack-installer/p1-live/`.
+
 From `apps/stack-installer` on macOS, Git Bash, or WSL:
 
 ```bash
