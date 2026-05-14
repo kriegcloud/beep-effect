@@ -79,10 +79,18 @@ without stopping until:
 - Current upload fallback state:
   the live upload endpoint now runs from committed
   `initiatives/stack-installer/ops/proof-upload-server.mjs` on
-  `http://100.117.213.114:8765`, using a private one-time token stored only in
-  ignored local output. Health checks pass, invalid-token requests return
-  `403`, and upload logs redact tokens. No operator upload has hit the endpoint
-  yet.
+  `http://100.117.213.114:8765`. The helper now prefers
+  `Authorization: Bearer ...` upload tokens so the token does not need to
+  appear in upload URLs. The current private one-time token is rotated into
+  ignored `output/stack-installer/p1-live/proof-upload-token.txt` with `0600`
+  permissions, and the ignored command file no longer embeds a token. Health
+  checks pass, invalid-token requests return `403`, and upload logs redact
+  tokens. No operator upload has hit the endpoint yet.
+- Latest post-rotation upload-window wait:
+  `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 36 --watch-interval-ms 5000`
+  exhausted after the bearer-token endpoint was live. No returned bundles were
+  found, and the artifact status still reported missing `macos` and `windows`
+  platform directories.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:
@@ -166,6 +174,7 @@ Blocking requirements:
 - Windows fresh-machine proof artifact directory is missing.
 - Latest bounded coordinator watch found no returned proof bundles.
 - Latest tailnet upload-window watch found no returned proof bundles.
+- Latest post-token-rotation watch found no returned proof bundles.
 - `p1:proof:audit-all` has not run against real macOS and Windows artifacts.
 - P1C `$quality-review-fix-loop` has not run after proof artifacts.
 
