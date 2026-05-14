@@ -14,6 +14,7 @@ const outputMarkdownPath = path.join(rootDir, "standards", "repo-exports.catalog
 const sourceExtensions = new Set([".ts", ".tsx"]);
 const ignoredSourceSuffixes = [".d.ts"];
 const conditionPreference = ["types", "import", "default", "require"];
+const conditionNames = new Set(conditionPreference);
 const checkMode = process.argv.includes("--check");
 
 const readText = (filePath) => readFileSync(filePath, "utf8");
@@ -55,8 +56,6 @@ const markdownCell = (value) =>
   String(value ?? "")
     .replace(/\r?\n/g, " ")
     .replace(/\|/g, "\\|");
-
-const stripTrailingExtension = (value) => value.replace(/\.(?:ts|tsx)$/u, "");
 
 const readRootPackage = () => readJsonc(path.join(rootDir, "package.json"));
 
@@ -138,7 +137,7 @@ const topoSortPackageNames = () => {
   return result.stdout
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => line.startsWith("@"));
+    .filter((line) => line.length > 0);
 };
 
 const listSourceFiles = (directory) => {
@@ -272,6 +271,9 @@ const declarationKind = (node) => {
   return node.getKindName();
 };
 
+const isIgnoredSourceTarget = (target) =>
+  typeof target === "string" && ignoredSourceSuffixes.some((suffix) => target.endsWith(suffix));
+
 const exportTargetFrom = (value) => {
   if (value === null || value === undefined) {
     return undefined;
@@ -283,22 +285,44 @@ const exportTargetFrom = (value) => {
     return undefined;
   }
 
+  let ignoredSourceFallback: string | undefined;
+  const selectTarget = (target) => {
+    if (target === undefined) {
+      return undefined;
+    }
+    if (isIgnoredSourceTarget(target)) {
+      ignoredSourceFallback ??= target;
+      return undefined;
+    }
+    return target;
+  };
+
   for (const condition of conditionPreference) {
     const target = exportTargetFrom(value[condition]);
-    if (target !== undefined) {
-      return target;
+    const selected = selectTarget(target);
+    if (selected !== undefined) {
+      return selected;
     }
   }
 
-  for (const nested of Object.values(value)) {
+  for (const [key, nested] of Object.entries(value)) {
+    if (conditionNames.has(key)) {
+      continue;
+    }
     const target = exportTargetFrom(nested);
-    if (target !== undefined) {
-      return target;
+    const selected = selectTarget(target);
+    if (selected !== undefined) {
+      return selected;
     }
   }
 
-  return undefined;
+  return ignoredSourceFallback;
 };
+
+const hasExportSubpathKeys = (value) => Object.keys(value).some((key) => key === "." || key.startsWith("./"));
+
+const isRootConditionalExportMap = (value) =>
+  !Array.isArray(value) && !hasExportSubpathKeys(value) && Object.keys(value).some((key) => conditionNames.has(key));
 
 const exportMapEntriesFrom = (packageJson) => {
   const exportsField = packageJson.exports;
@@ -318,6 +342,16 @@ const exportMapEntriesFrom = (packageJson) => {
 
   if (typeof exportsField !== "object" || Array.isArray(exportsField)) {
     return [];
+  }
+
+  if (isRootConditionalExportMap(exportsField)) {
+    return [
+      {
+        subpath: ".",
+        target: exportTargetFrom(exportsField),
+        denied: false,
+      },
+    ];
   }
 
   return Object.entries(exportsField).map(([subpath, value]) => ({

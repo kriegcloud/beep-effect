@@ -1087,10 +1087,10 @@ export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExp
     Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
   );
 
-  yield* runBun(repoRoot, check ? "quality:repo-exports-catalog-check" : "quality:repo-exports-catalog", [
-    "--filter=@beep/repo-cli",
-    check ? "beep:repo-exports-catalog:check" : "beep:repo-exports-catalog",
-  ]);
+  const label = check ? "quality:repo-exports-catalog-check" : "quality:repo-exports-catalog";
+  const script = check ? "beep:repo-exports-catalog:check" : "beep:repo-exports-catalog";
+
+  yield* runBun(repoRoot, label, ["--filter=@beep/repo-cli", script]);
 });
 
 const runQualityProgram = <A, R>(
