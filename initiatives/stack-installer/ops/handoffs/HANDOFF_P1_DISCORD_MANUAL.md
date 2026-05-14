@@ -116,6 +116,12 @@ Then audit the artifact directory locally:
 bun run p1:proof:audit -- --output-dir ../../output/stack-installer/p1-live/macos
 ```
 
+After both platform directories are present, run the combined P1 audit:
+
+```bash
+bun run p1:proof:audit-all -- --output-root ../../output/stack-installer/p1-live
+```
+
 ## Desktop Proof Path
 
 Run the desktop shell:

@@ -24,6 +24,9 @@ import { P1ManualProofSliceLayer, runP1ManualProof } from "./P1ManualProof.js";
 const PROOF_FILE_NAME = "proof.json";
 const COMMANDS_FILE_NAME = "commands.txt";
 const CHECKSUMS_FILE_NAME = "sha256sums.txt";
+const P1_REQUIRED_PLATFORMS = ["macos", "windows"] as const;
+
+type P1RequiredPlatform = (typeof P1_REQUIRED_PLATFORMS)[number];
 
 const decodeRequestJson = S.decodeUnknownEffect(S.fromJsonString(P1ManualProofRequest));
 const decodeProofJson = S.decodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
@@ -57,18 +60,15 @@ const resolveDefaultOutputDir = Effect.fn("StackInstaller.resolveDefaultOutputDi
   request: P1ManualProofRequest
 ) {
   const path = yield* Path.Path;
+  const outputRoot = yield* resolveDefaultOutputRoot;
 
-  return path.resolve(
-    import.meta.dirname,
-    "..",
-    "..",
-    "..",
-    "..",
-    "output",
-    "stack-installer",
-    "p1-live",
-    request.targetPlatform
-  );
+  return path.join(outputRoot, request.targetPlatform);
+});
+
+const resolveDefaultOutputRoot = Effect.gen(function* () {
+  const path = yield* Path.Path;
+
+  return path.resolve(import.meta.dirname, "..", "..", "..", "..", "output", "stack-installer", "p1-live");
 });
 
 /**
@@ -106,6 +106,7 @@ export const buildP1ProofCommandsText = (
     "",
     "# After recording screencast.*, refresh checksums without re-sending the Discord proof message:",
     `(cd apps/stack-installer && bun run p1:proof:checksums -- --output-dir ${shellQuote(outputDir)})`,
+    `(cd apps/stack-installer && bun run p1:proof:audit -- --output-dir ${shellQuote(outputDir)})`,
     "",
   ]);
 
@@ -159,7 +160,10 @@ const refreshChecksums = Effect.fn("StackInstaller.refreshChecksums")(function* 
   yield* fs.writeFileString(path.join(outputDir, CHECKSUMS_FILE_NAME), checksums);
 });
 
-const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(function* (outputDir: string) {
+const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(function* (
+  outputDir: string,
+  expectedPlatform: O.Option<P1RequiredPlatform>
+) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const fileNames = yield* evidenceFileNames(outputDir);
@@ -172,9 +176,21 @@ const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(func
   const proof = yield* decodeProofJson(proofJson);
   const recordedChecksums = yield* fs.readFileString(path.join(outputDir, CHECKSUMS_FILE_NAME));
   const expectedChecksums = yield* buildSha256SumsText(outputDir);
+  const expectedPlatformMessage = pipe(
+    expectedPlatform,
+    O.map((platform) => `Proof target platform must be ${platform}`),
+    O.getOrElse(() => "Proof target platform must match requested platform")
+  );
 
   yield* requireAudit(recordedChecksums === expectedChecksums, "sha256sums.txt is stale or incomplete");
   yield* requireAudit(proof.snapshot.manifest.dryRunOnly === false, "Proof manifest must not be dry-run-only");
+  yield* pipe(
+    expectedPlatform,
+    O.match({
+      onNone: () => Effect.void,
+      onSome: (platform) => requireAudit(proof.snapshot.manifest.targetPlatform === platform, expectedPlatformMessage),
+    })
+  );
   yield* requireAudit(
     pipe(proof.snapshot.manifest.credentialReferences, A.every(Str.startsWith("op://"))),
     "Proof manifest credential references must all be 1Password references"
@@ -191,6 +207,17 @@ const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(func
   );
 
   return `P1 proof artifact audit passed for ${proof.snapshot.manifest.targetPlatform} with ${A.length(fileNames)} evidence files.`;
+});
+
+const auditAllProofArtifacts = Effect.fn("StackInstaller.auditAllProofArtifacts")(function* (outputRoot: string) {
+  const path = yield* Path.Path;
+  const messages = yield* Effect.forEach(
+    P1_REQUIRED_PLATFORMS,
+    (platform) => auditProofArtifacts(path.join(outputRoot, platform), O.some(platform)),
+    { concurrency: A.length(P1_REQUIRED_PLATFORMS) }
+  );
+
+  return A.join("\n")([...messages, `P1 proof artifact audit passed for all required platforms in ${outputRoot}.`]);
 });
 
 const captureProofArtifacts = Effect.fn("StackInstaller.captureProofArtifacts")(function* (
@@ -244,11 +271,27 @@ const auditOnlyMode = Effect.gen(function* () {
     onSome: Effect.succeed,
   });
 
-  return yield* auditProofArtifacts(outputDir);
+  return yield* auditProofArtifacts(outputDir, O.none());
+});
+
+const auditAllMode = Effect.gen(function* () {
+  const defaultOutputRoot = yield* resolveDefaultOutputRoot;
+  const outputRoot = pipe(
+    argAfter("--output-root"),
+    O.getOrElse(() => defaultOutputRoot)
+  );
+
+  return yield* auditAllProofArtifacts(outputRoot);
 });
 
 const program = pipe(
-  hasArg("--audit-only") ? auditOnlyMode : hasArg("--checksums-only") ? checksumOnlyMode : captureMode,
+  hasArg("--audit-all")
+    ? auditAllMode
+    : hasArg("--audit-only")
+      ? auditOnlyMode
+      : hasArg("--checksums-only")
+        ? checksumOnlyMode
+        : captureMode,
   Effect.tap((message) =>
     Effect.sync(() => {
       console.log(message);

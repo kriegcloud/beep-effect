@@ -368,7 +368,8 @@
       "cd apps/stack-installer && bun run build",
       "cd apps/stack-installer/src-tauri && cargo check",
       "cd apps/stack-installer && bun run p1:proof:checksums -- --output-dir <artifact-dir>",
-      "cd apps/stack-installer && bun run p1:proof:audit -- --output-dir <artifact-dir>"
+      "cd apps/stack-installer && bun run p1:proof:audit -- --output-dir <artifact-dir>",
+      "cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>"
     ],
     "p1FreshMachineProof": [
       "future: macOS user-operated bun run p1:proof:capture -- --request-json '<sanitized request>'",
@@ -376,6 +377,7 @@
       "future: macOS and Windows screencasts plus sanitized proof JSON",
       "future: refresh sha256sums.txt after adding screencast artifacts",
       "future: audit macOS and Windows artifact directories with p1:proof:audit",
+      "future: audit both required platform directories with p1:proof:audit-all",
       "future: verify proof JSON contains no plaintext secrets"
     ],
     "p1PrReadinessReview": [

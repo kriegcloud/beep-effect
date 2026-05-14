@@ -115,6 +115,8 @@ Exit Criteria:
   `p1:proof:checksums` for fresh-machine artifact capture.
 - [x] `apps/stack-installer` exposes `p1:proof:audit` for local proof artifact
   completeness and checksum validation.
+- [x] `apps/stack-installer` exposes `p1:proof:audit-all` for both required
+  P1 platform artifact directories.
 - [x] App UI rejects plaintext Discord bot tokens before invoking Tauri.
 - [x] Focused package/app check, test, lint, app build, config-sync check, and
   Tauri `cargo check` pass locally.
@@ -210,6 +212,7 @@ Required Checks:
 - P1B: `cd apps/stack-installer/src-tauri && cargo check`
 - P1B: `cd apps/stack-installer && bun run p1:proof:checksums -- --output-dir <artifact-dir>`
 - P1B: `cd apps/stack-installer && bun run p1:proof:audit -- --output-dir <artifact-dir>`
+- P1B: `cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>`
 - placeholder: fresh-OS smoke wrapper for macOS and Windows
 - placeholder: live Discord test message proof
 - placeholder: post-proof `$quality-review-fix-loop` closure record
