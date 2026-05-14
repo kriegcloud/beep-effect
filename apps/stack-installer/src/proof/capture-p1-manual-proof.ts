@@ -21,20 +21,24 @@ import * as Rx from "effect/RegExp";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { P1ManualProofSliceLayer, runP1ManualProof } from "./P1ManualProof.js";
+import {
+  CHECKSUMS_FILE_NAME,
+  COMMANDS_FILE_NAME,
+  isP1ProofArtifactStatusFileName,
+  isP1ProofEvidenceFileName,
+  P1_REQUIRED_PLATFORMS,
+  type P1RequiredPlatform,
+  PROOF_FILE_NAME,
+  p1ProofBundleExtractionCommand,
+  p1ProofBundleFileNameForPlatform,
+  p1ProofMissingRequiredArtifactFiles,
+} from "./P1ProofArtifacts.js";
 import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "./P1ProofCommands.js";
 
-const PROOF_FILE_NAME = "proof.json";
-const COMMANDS_FILE_NAME = "commands.txt";
-const CHECKSUMS_FILE_NAME = "sha256sums.txt";
-const MACOS_BUNDLE_FILE_NAME = "stack-installer-p1-macos.tgz";
-const WINDOWS_BUNDLE_FILE_NAME = "stack-installer-p1-windows.zip";
-const P1_REQUIRED_PLATFORMS = ["macos", "windows"] as const;
 const DISCORD_TOKEN_PATTERNS = [
   Rx.RegExp("mfa\\.[A-Za-z0-9_-]{80,}"),
   Rx.RegExp("[A-Za-z0-9_-]{23,28}\\.[A-Za-z0-9_-]{6,10}\\.[A-Za-z0-9_-]{27,}"),
 ] as const;
-
-type P1RequiredPlatform = (typeof P1_REQUIRED_PLATFORMS)[number];
 
 const decodeRequestJson = S.decodeUnknownEffect(S.fromJsonString(P1ManualProofRequest));
 const decodeProofJson = S.decodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
@@ -114,28 +118,6 @@ const resolveArtifactModeTarget = Effect.fn("StackInstaller.resolveArtifactModeT
   };
 });
 
-const isEvidenceFileName = (name: string): boolean =>
-  name === PROOF_FILE_NAME || name === COMMANDS_FILE_NAME || Str.startsWith("screencast.")(name);
-
-const isArtifactStatusFileName = (name: string): boolean => isEvidenceFileName(name) || name === CHECKSUMS_FILE_NAME;
-
-const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
-
-const bundleFileNameForPlatform = (platform: P1RequiredPlatform): string =>
-  platform === "macos" ? MACOS_BUNDLE_FILE_NAME : WINDOWS_BUNDLE_FILE_NAME;
-
-const bundleExtractionCommand = (platform: P1RequiredPlatform, bundlePath: string, outputRoot: string): string =>
-  platform === "macos"
-    ? `tar -xzf ${shellQuote(bundlePath)} -C ${shellQuote(outputRoot)}`
-    : `unzip -o ${shellQuote(bundlePath)} -d ${shellQuote(outputRoot)}`;
-
-const hasFileName = (fileNames: ReadonlyArray<string>, fileName: string): boolean =>
-  pipe(
-    fileNames,
-    A.findFirst((name) => name === fileName),
-    O.isSome
-  );
-
 const hasPassedValidationEvent = (
   events: ReadonlyArray<P1ManualProofResult["snapshot"]["validationEvents"][number]>,
   id: string
@@ -170,16 +152,8 @@ const artifactFileNames = Effect.fn("StackInstaller.artifactFileNames")(function
 });
 
 const evidenceFileNames = Effect.fn("StackInstaller.evidenceFileNames")(function* (outputDir: string) {
-  return pipe(yield* artifactFileNames(outputDir), A.filter(isEvidenceFileName));
+  return pipe(yield* artifactFileNames(outputDir), A.filter(isP1ProofEvidenceFileName));
 });
-
-const missingRequiredArtifactFiles = (fileNames: ReadonlyArray<string>): ReadonlyArray<string> =>
-  A.getSomes([
-    hasFileName(fileNames, PROOF_FILE_NAME) ? O.none() : O.some(PROOF_FILE_NAME),
-    hasFileName(fileNames, COMMANDS_FILE_NAME) ? O.none() : O.some(COMMANDS_FILE_NAME),
-    hasFileName(fileNames, CHECKSUMS_FILE_NAME) ? O.none() : O.some(CHECKSUMS_FILE_NAME),
-    pipe(fileNames, A.some(Str.startsWith("screencast."))) ? O.none() : O.some("screencast.*"),
-  ]);
 
 const missingRequiredPlatformDirectories = Effect.fn("StackInstaller.missingRequiredPlatformDirectories")(function* (
   outputRoot: string
@@ -210,11 +184,11 @@ const platformArtifactStatus = Effect.fn("StackInstaller.platformArtifactStatus"
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const outputDir = path.join(outputRoot, platform);
-  const bundlePath = path.join(outputRoot, bundleFileNameForPlatform(platform));
+  const bundlePath = path.join(outputRoot, p1ProofBundleFileNameForPlatform(platform));
   const outputDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
   const bundleExists = yield* fs.exists(bundlePath).pipe(Effect.orElseSucceed(() => false));
   const bundleMessage = bundleExists
-    ? `\n  bundle: ${bundlePath}\n  extract: ${bundleExtractionCommand(platform, bundlePath, outputRoot)}`
+    ? `\n  bundle: ${bundlePath}\n  extract: ${p1ProofBundleExtractionCommand(platform, bundlePath, outputRoot)}`
     : "";
 
   if (!outputDirExists) {
@@ -222,11 +196,11 @@ const platformArtifactStatus = Effect.fn("StackInstaller.platformArtifactStatus"
   }
 
   const fileNames = pipe(yield* fs.readDirectory(outputDir), A.sort(Order.String));
-  const missingFileNames = missingRequiredArtifactFiles(fileNames);
+  const missingFileNames = p1ProofMissingRequiredArtifactFiles(fileNames);
   const status = A.isReadonlyArrayNonEmpty(missingFileNames)
     ? `incomplete; missing ${A.join(", ")(missingFileNames)}`
     : "required files present";
-  const statusFileNames = pipe(fileNames, A.filter(isArtifactStatusFileName));
+  const statusFileNames = pipe(fileNames, A.filter(isP1ProofArtifactStatusFileName));
   const visibleFiles = A.isReadonlyArrayNonEmpty(statusFileNames) ? A.join(", ")(statusFileNames) : "none";
 
   return `- ${platform}: ${status}\n  dir: ${outputDir}\n  files: ${visibleFiles}${bundleMessage}`;
@@ -284,8 +258,8 @@ const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(func
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const allFileNames = yield* artifactFileNames(outputDir);
-  const missingFileNames = missingRequiredArtifactFiles(allFileNames);
-  const fileNames = pipe(allFileNames, A.filter(isEvidenceFileName));
+  const missingFileNames = p1ProofMissingRequiredArtifactFiles(allFileNames);
+  const fileNames = pipe(allFileNames, A.filter(isP1ProofEvidenceFileName));
 
   yield* requireAudit(
     !A.isReadonlyArrayNonEmpty(missingFileNames),

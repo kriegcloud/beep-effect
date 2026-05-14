@@ -8,7 +8,7 @@ import { InstallerSecurityServerLive } from "@beep/installer-security-server";
 import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-workspace-use-cases";
 import { OnePasswordCli, OnePasswordCliProcessResult } from "@beep/onepassword-cli";
 import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
-import { describe, expect, layer } from "@effect/vitest";
+import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -16,6 +16,11 @@ import * as S from "effect/Schema";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { runP1ManualProof } from "../src/proof/P1ManualProof.js";
+import {
+  p1ProofBundleExtractionCommand,
+  p1ProofBundleFileNameForPlatform,
+  p1ProofMissingRequiredArtifactFiles,
+} from "../src/proof/P1ProofArtifacts.js";
 import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "../src/proof/P1ProofCommands.js";
 
 const encodeProofResult = S.encodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
@@ -175,5 +180,27 @@ describe("P1 Manual Mode proof harness", () => {
         expect(p1ProofCommandsTextMatchesPlatform("macos", commands)).toBe(false);
       })
     );
+  });
+});
+
+describe("P1 proof artifact helpers", () => {
+  it("names returned platform bundles and extraction commands", () => {
+    expect(p1ProofBundleFileNameForPlatform("macos")).toBe("stack-installer-p1-macos.tgz");
+    expect(p1ProofBundleFileNameForPlatform("windows")).toBe("stack-installer-p1-windows.zip");
+    expect(p1ProofBundleExtractionCommand("macos", "/proof root/stack-installer-p1-macos.tgz", "/proof root")).toBe(
+      "tar -xzf '/proof root/stack-installer-p1-macos.tgz' -C '/proof root'"
+    );
+    expect(p1ProofBundleExtractionCommand("windows", "/proof root/stack-installer-p1-windows.zip", "/proof root")).toBe(
+      "unzip -o '/proof root/stack-installer-p1-windows.zip' -d '/proof root'"
+    );
+  });
+
+  it("reports the missing required artifact files for a platform directory", () => {
+    expect(p1ProofMissingRequiredArtifactFiles(["commands.txt", "proof.json", "screencast.mp4"])).toEqual([
+      "sha256sums.txt",
+    ]);
+    expect(
+      p1ProofMissingRequiredArtifactFiles(["commands.txt", "proof.json", "screencast.mp4", "sha256sums.txt"])
+    ).toEqual([]);
   });
 });
