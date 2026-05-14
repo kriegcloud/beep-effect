@@ -76,6 +76,13 @@ without stopping until:
   watch exhausted without returned bundles. The tokenized operator commands
   live only in ignored `output/stack-installer/p1-live/proof-upload-commands.txt`
   and are not committed.
+- Current upload fallback state:
+  the live upload endpoint now runs from committed
+  `initiatives/stack-installer/ops/proof-upload-server.mjs` on
+  `http://100.117.213.114:8765`, using a private one-time token stored only in
+  ignored local output. Health checks pass, invalid-token requests return
+  `403`, and upload logs redact tokens. No operator upload has hit the endpoint
+  yet.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:
