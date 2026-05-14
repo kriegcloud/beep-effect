@@ -1,1 +1,32 @@
 @import "@beep/ui/styles/globals.css";
+
+@theme inline {
+  --font-opip-display: var(--next-font-display), ui-serif, Georgia, serif;
+  --font-opip-body: var(--next-font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-opip-mono: var(--next-font-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  --opip-soil: #1f1d1a;
+  --opip-paper: #f4ede0;
+  --opip-burgundy: #5b1a1a;
+  --opip-gold: #c9a24b;
+  --opip-gold-bright: #dcb85a;
+  --opip-cyan: #2ee6d6;
+  --opip-walnut: #3a2a1b;
+  --opip-body: #2a2a2a;
+  --opip-muted: #6f675c;
+  --opip-cream-muted: #bfb8ab;
+  --opip-rule: color-mix(in oklab, var(--opip-soil) 18%, transparent);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--opip-paper);
+  color: var(--opip-body);
+  font-family: var(--font-opip-body);
+  text-rendering: optimizeLegibility;
+}

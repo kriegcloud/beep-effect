@@ -1,0 +1,9 @@
+<svg viewBox="0 0 320 100" width="640" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="lockup horizontal">
+          <g>
+            <circle cx="50" cy="50" r="44" fill="#1F1D1A"/>
+            <circle cx="50" cy="50" r="39" fill="none" stroke="#F4EDE0" stroke-width="1.4"/>
+            <circle cx="50" cy="50" r="33" fill="none" stroke="#F4EDE0" stroke-width=".7"/>
+            <text x="50" y="58" text-anchor="middle" font-family="Newsreader,serif" font-weight="700" font-size="22" letter-spacing="-.6" fill="#F4EDE0">OPIP</text>
+          </g>
+          <text x="110" y="66" font-family="Newsreader,serif" font-style="italic" font-weight="500" font-size="52" letter-spacing="-1" fill="#1F1D1A">opip.law</text>
+        </svg>

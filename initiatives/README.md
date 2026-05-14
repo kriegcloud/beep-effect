@@ -31,6 +31,7 @@ actually lives here.
 - `agent-governance-control-plane`
 - `canonical-slice-factory`
 - `ip-law-knowledge-graph`
+- `opip-web-launch` — implementation complete; launch review pending.
 - `trustgraph-doc-ontology`
 
 ## Reference Packets
