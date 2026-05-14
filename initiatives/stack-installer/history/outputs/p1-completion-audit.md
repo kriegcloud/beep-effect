@@ -25,7 +25,16 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Latest branch evidence includes `2475433ad0 docs(stack-installer): tighten
+- Latest branch evidence includes `d93e83320b chore: merge origin main into
+  stack installer p1`, which syncs the branch with `origin/main` at
+  `97636ab4ff`, keeps both the `opip-web-launch` and `stack-installer`
+  initiative index entries, and keeps both the Stack Installer TypeScript path
+  aliases plus main's `@beep/ui/themes/theme-init-script` alias.
+- Earlier branch evidence includes `57d518069f docs(stack-installer): record
+  upload route blockers`, which records the verified MagicDNS upload endpoint,
+  the absence of `PUT` or `POST` upload attempts, and the Taildrop peer
+  ownership blocker for coordinator-side sends to the Windows peer.
+- Earlier branch evidence includes `2475433ad0 docs(stack-installer): tighten
   pr readiness review gate`, which records the stricter post-proof requirement
   to run `$quality-review-fix-loop` across the whole implemented P1 initiative
   surface and directly affected code paths, including reuse opportunities,
@@ -39,9 +48,19 @@ without stopping until:
   `apps/stack-installer/src/proof/capture-p1-manual-proof.ts`,
   `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md`, and this completion audit
   output.
-- Base evidence after `git fetch origin main`: `origin/main` at `910a1f3659`
+- Base evidence after `git fetch origin main`: `origin/main` at `97636ab4ff`
+  and current branch `HEAD` at `d93e83320b`.
 - Worktree status before this audit update: clean and even with
   `origin/feat/stack-installer-p1-live`.
+- Latest post-main-sync verification:
+  `bun run config-sync:check`, `bun run --filter @beep/stack-installer check`,
+  `bun run --filter @beep/stack-installer test`,
+  `bun run --filter @beep/stack-installer lint`,
+  `bun run --filter @beep/stack-installer build`, `cargo check` in
+  `apps/stack-installer/src-tauri`, and `git diff --check` all pass after the
+  merge. `bun run --filter @beep/stack-installer p1:proof:audit-all --
+  --output-root output/stack-installer/p1-live` still fails only because the
+  real `macos` and `windows` proof artifact directories are missing.
 - Local artifact scan before this audit update:
   `output/stack-installer/p1-live` exists, but the required `macos` and
   `windows` platform directories are missing.
@@ -168,7 +187,7 @@ without stopping until:
 | Read-only artifact status implemented | `7923a2387a feat(stack-installer): report p1 proof artifact status`; `p1:proof:status` reports missing or incomplete macOS/Windows artifact directories without accepting them as proof | complete |
 | Coordinator bundle intake implemented | `p1:proof:intake` extracts returned `stack-installer-p1-macos.tgz` and `stack-installer-p1-windows.zip` bundles when the corresponding platform directory is missing, then reports status without accepting missing proof as complete | complete |
 | Coordinator watch implemented | `p1:proof:watch` runs bounded coordinator-side intake plus `p1:proof:audit-all` polling during transfer windows; the empty-inbox one-attempt check fails with missing artifact status instead of accepting incomplete proof | complete |
-| Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest post-audit refresh on 2026-05-14 re-ran the P1 live-harness turbo gate: `bun run turbo run check test lint --filter=@beep/stack-installer --filter=@beep/onepassword-cli --filter=@beep/discord --filter=@beep/ai-provider-cli --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases`, with 66 tasks successful. The same evidence set includes `@beep/stack-installer` `check`, `lint`, `test`, `coverage`, and `build`, with 12 tests passing and coverage at 98.16% statements / 90.47% branches; `cargo check` in `apps/stack-installer/src-tauri`; `bun run config-sync:check`; `git diff --check`; manifest JSON validation; `p1:proof:status`; empty-inbox `p1:proof:intake`; empty-inbox one-attempt `p1:proof:watch` refusal; and a temporary `.tgz` plus `.zip` intake extraction smoke | complete for implemented local surfaces |
+| Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest post-audit refresh on 2026-05-14 re-ran the P1 live-harness turbo gate: `bun run turbo run check test lint --filter=@beep/stack-installer --filter=@beep/onepassword-cli --filter=@beep/discord --filter=@beep/ai-provider-cli --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases`, with 66 tasks successful. The same evidence set includes `@beep/stack-installer` `check`, `lint`, `test`, `coverage`, and `build`, with 12 tests passing and coverage at 98.16% statements / 90.47% branches; `cargo check` in `apps/stack-installer/src-tauri`; `bun run config-sync:check`; `git diff --check`; manifest JSON validation; `p1:proof:status`; empty-inbox `p1:proof:intake`; empty-inbox one-attempt `p1:proof:watch` refusal; and a temporary `.tgz` plus `.zip` intake extraction smoke. Latest post-main-sync refresh after merging `origin/main` at `97636ab4ff` re-ran `bun run config-sync:check`, `@beep/stack-installer` `check`, `test`, `lint`, and `build`; `cargo check` in `apps/stack-installer/src-tauri`; and `git diff --check`, all passing | complete for implemented local surfaces |
 | macOS fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/macos/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Windows fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/windows/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Sanitized proof JSON captured | Must be produced by each fresh-machine `p1:proof:capture` run and pass `p1:proof:audit-all`; no real fresh-machine proof JSON is present | missing |
