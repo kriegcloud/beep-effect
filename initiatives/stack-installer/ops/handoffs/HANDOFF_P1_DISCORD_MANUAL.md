@@ -288,6 +288,10 @@ node initiatives/stack-installer/ops/proof-upload-status.mjs \
   --fail-on-missing
 ```
 
+This status command reports upload server health, returned bundle presence,
+platform artifact directories, private upload files, and the detached proof
+watcher files/state when the detached watcher has been started.
+
 Before uploading from a proof machine, verify the endpoint is reachable:
 
 ```bash
@@ -397,7 +401,9 @@ node initiatives/stack-installer/ops/start-proof-watch-window.mjs \
 ```
 
 The detached helper writes private `proof-watch.log`, `proof-watch.pid`, and
-`proof-watch-command.txt` files under the ignored output root.
+`proof-watch-command.txt` files under the ignored output root. The coordinator
+status command above includes those watcher files and recent watcher log lines
+so a long proof window can be checked without opening the private files by hand.
 
 The intake helper safely extracts `stack-installer-p1-macos.tgz` and
 `stack-installer-p1-windows.zip` only when the corresponding platform directory

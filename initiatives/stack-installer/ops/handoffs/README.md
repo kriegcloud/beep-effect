@@ -35,6 +35,10 @@ not let generated notes accumulate at the initiative root.
 - [../start-proof-upload-window.mjs](../start-proof-upload-window.mjs) -
   coordinator helper that rotates a private upload token, writes ignored
   operator commands, and starts the proof upload server.
+- [../start-proof-watch-window.mjs](../start-proof-watch-window.mjs) -
+  coordinator helper that starts a detached private-log `p1:proof:watch`
+  process for long transfer windows.
 - [../proof-upload-status.mjs](../proof-upload-status.mjs) - coordinator
   status helper for upload server health, file permissions, returned bundles,
-  platform artifact directories, and token-leak indicators.
+  platform artifact directories, detached watcher state, and token-leak
+  indicators.

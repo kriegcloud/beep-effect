@@ -25,8 +25,13 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Latest branch evidence includes `76e62e1d0c docs(stack-installer): add proof
-  watch starter`, which adds the detached coordinator watch starter at
+- Latest branch evidence includes the detached proof-window status update,
+  which keeps `initiatives/stack-installer/ops/proof-upload-status.mjs` as the
+  single coordinator command for upload server health, private-file modes,
+  returned bundle presence, platform artifact status, and detached watcher
+  state.
+- Earlier branch evidence includes `76e62e1d0c docs(stack-installer): add
+  proof watch starter`, which adds the detached coordinator watch starter at
   `initiatives/stack-installer/ops/start-proof-watch-window.mjs` and documents
   its private `proof-watch.log`, `proof-watch.pid`, and
   `proof-watch-command.txt` outputs under the ignored proof inbox.
@@ -139,13 +144,17 @@ without stopping until:
   committed `initiatives/stack-installer/ops/proof-upload-status.mjs` reports
   upload endpoint health, PID/running state, private file modes,
   token-like-text indicators in logs/commands, returned bundle presence,
-  platform artifact status, and recent redacted upload log lines in one
-  command. Latest status reports health `200 ok`, PID `1007771` running,
-  token/commands/PID file modes `600`, no token-like text in logs or commands,
+  platform artifact status, recent redacted upload log lines, detached watcher
+  PID/running state, detached watcher file modes, detached watcher completion
+  indicator, detached watcher token-like-text indicator, and recent watcher log
+  lines in one command. Latest status reports health `200 ok`, upload PID
+  `1007771` running, token/commands/PID file modes `600`, no token-like text in
+  upload logs or commands, detached watcher PID `1078319` running, detached
+  watcher file modes `600`, no token-like text in watcher logs or command file,
   both returned bundles missing, and both `macos` and `windows` platform
   directories missing. With `--fail-on-missing`, the same helper exits `1` for
   the current state, which gives coordinator polling a machine-readable
-  incomplete-proof gate.
+  incomplete-proof gate while still proving the proof window itself is alive.
 - Latest post-rotation upload-window wait:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 36 --watch-interval-ms 5000`
   exhausted after the bearer-token endpoint was live. No returned bundles were
@@ -252,6 +261,8 @@ Blocking requirements:
   directories.
 - Latest upload status helper `--fail-on-missing` gate exits nonzero for the
   current incomplete proof state.
+- Latest upload status helper confirms the detached watcher is alive, private,
+  and still polling, but it has not found any returned proof bundles.
 - Latest targeted local artifact sweep found no returned proof bundles; recent
   `proof.json` hits were temp fixtures only.
 - `p1:proof:audit-all` has not run against real macOS and Windows artifacts.

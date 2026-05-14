@@ -37,6 +37,8 @@ const fileMode = async (filePath) => {
 
 const readText = async (filePath) => fs.promises.readFile(filePath, "utf8").catch(() => "");
 
+const recentLines = (text, count = 12) => (text.trim() ? text.trim().split(/\r?\n/).slice(-count) : []);
+
 const processExists = (pid) => {
   try {
     process.kill(pid, 0);
@@ -108,19 +110,43 @@ const pidPath = path.join(outputRoot, "proof-upload-server.pid");
 const tokenPath = path.join(outputRoot, "proof-upload-token.txt");
 const commandsPath = path.join(outputRoot, "proof-upload-commands.txt");
 const logPath = path.join(outputRoot, "proof-upload-server.log");
+const watchPidPath = path.join(outputRoot, "proof-watch.pid");
+const watchLogPath = path.join(outputRoot, "proof-watch.log");
+const watchCommandPath = path.join(outputRoot, "proof-watch-command.txt");
 const pidText = await readText(pidPath);
 const pid = Number.parseInt(pidText.trim(), 10);
 const logText = await readText(logPath);
 const commandsText = await readText(commandsPath);
 const leakScanText = `${logText}\n${commandsText}`;
-const logLines = logText.trim() ? logText.trim().split(/\r?\n/).slice(-12) : [];
+const logLines = recentLines(logText);
+const watchPidText = await readText(watchPidPath);
+const watchPid = Number.parseInt(watchPidText.trim(), 10);
+const watchLogText = await readText(watchLogPath);
+const watchCommandText = await readText(watchCommandPath);
+const watchLeakScanText = `${watchLogText}\n${watchCommandText}`;
+const watchLogLines = recentLines(watchLogText);
 const health = await healthStatus();
 const tokenFileMode = await fileMode(tokenPath);
 const commandsFileMode = await fileMode(commandsPath);
 const pidFileMode = await fileMode(pidPath);
+const watchPidFileMode = await fileMode(watchPidPath);
+const watchLogFileMode = await fileMode(watchLogPath);
+const watchCommandFileMode = await fileMode(watchCommandPath);
 const hasTokenLikeText = tokenLikePattern.test(leakScanText);
+const hasWatcherTokenLikeText = tokenLikePattern.test(watchLeakScanText);
 const bundles = await bundleStatus();
 const platforms = await Promise.all(requiredPlatforms.map(platformStatus));
+const watcherStarted =
+  watchPidFileMode !== "missing" || watchLogFileMode !== "missing" || watchCommandFileMode !== "missing";
+const watcherRunning = Number.isInteger(watchPid) && processExists(watchPid);
+const watcherPassed = watchLogText.includes("P1 proof watch passed");
+const watcherWindowOk =
+  !watcherStarted ||
+  ((watcherRunning || watcherPassed) &&
+    watchPidFileMode === "600" &&
+    watchLogFileMode === "600" &&
+    watchCommandFileMode === "600" &&
+    !hasWatcherTokenLikeText);
 const uploadWindowOk =
   health.ok &&
   processExists(pid) &&
@@ -128,6 +154,7 @@ const uploadWindowOk =
   commandsFileMode === "600" &&
   pidFileMode === "600" &&
   !hasTokenLikeText &&
+  watcherWindowOk &&
   bundles.ok &&
   platforms.every((platform) => platform.ok);
 
@@ -140,12 +167,23 @@ console.log(`commands file mode: ${commandsFileMode}`);
 console.log(`pid file mode: ${pidFileMode}`);
 console.log(`log file present: ${await fileExists(logPath)}`);
 console.log(`token-like text in logs/commands: ${hasTokenLikeText ? "yes" : "no"}`);
+console.log("detached proof watcher:");
+console.log(
+  `- pid: ${Number.isInteger(watchPid) ? `${watchPid} (${watcherRunning ? "running" : "not running"})` : "missing"}`
+);
+console.log(`- completed: ${watcherPassed ? "yes" : "no"}`);
+console.log(`- pid file mode: ${watchPidFileMode}`);
+console.log(`- log file mode: ${watchLogFileMode}`);
+console.log(`- command file mode: ${watchCommandFileMode}`);
+console.log(`- token-like text in watcher log/command: ${hasWatcherTokenLikeText ? "yes" : "no"}`);
 console.log("returned bundles:");
 console.log(bundles.messages.join("\n"));
 console.log("platform artifacts:");
 console.log(platforms.map((platform) => platform.message).join("\n"));
 console.log("recent upload log:");
 console.log(logLines.length > 0 ? logLines.join("\n") : "- none");
+console.log("recent watcher log:");
+console.log(watchLogLines.length > 0 ? watchLogLines.join("\n") : "- none");
 
 if (failOnMissing && !uploadWindowOk) {
   process.exitCode = 1;
