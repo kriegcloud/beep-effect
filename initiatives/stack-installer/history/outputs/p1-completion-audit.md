@@ -25,7 +25,11 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Latest branch evidence includes the upload command endpoint update, which
+- Latest branch evidence includes the upload-window endpoint status update,
+  which makes `proof-upload-status.mjs` validate the public landing page and
+  token-protected `/commands` behavior without printing the token or command
+  body.
+- Earlier branch evidence includes the upload command endpoint update, which
   lets a proof machine fetch the current coordinator-generated upload commands
   through token-protected `GET /commands` without SSH or file sharing.
 - Earlier branch evidence includes the upload restart and landing-page update,
@@ -169,14 +173,20 @@ without stopping until:
   platform artifact status, recent redacted upload log lines, detached watcher
   PID/running state, detached watcher file modes, detached watcher completion
   indicator, detached watcher token-like-text indicator, and recent watcher log
-  lines in one command. Latest status reports health `200 ok`, upload PID
+  lines in one command. It also validates `GET /` as public, `GET /commands`
+  as `403` without a token, `GET /commands` as `200` with the active bearer
+  token, the presence of both approved upload routes in the command response,
+  and absence of token-like text in the command response. Latest status reports
+  health `200 ok`, landing page `200 ok`, commands without token `403 ok`,
+  commands with token `200 ok`, expected upload routes present, upload PID
   `1113095` running, token/commands/PID file modes `600`, no token-like text in
-  upload logs or commands, detached watcher PID `1078319` running, detached
-  watcher file modes `600`, no token-like text in watcher logs or command file,
-  both returned bundles missing, and both `macos` and `windows` platform
-  directories missing. With `--fail-on-missing`, the same helper exits `1` for
-  the current state, which gives coordinator polling a machine-readable
-  incomplete-proof gate while still proving the proof window itself is alive.
+  upload logs, commands, or command response, detached watcher PID `1078319`
+  running, detached watcher file modes `600`, no token-like text in watcher
+  logs or command file, both returned bundles missing, and both `macos` and
+  `windows` platform directories missing. With `--fail-on-missing`, the same
+  helper exits `1` for the current state, which gives coordinator polling a
+  machine-readable incomplete-proof gate while still proving the proof window
+  itself is alive and operator-fetchable.
 - Latest post-rotation upload-window wait:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 36 --watch-interval-ms 5000`
   exhausted after the bearer-token endpoint was live. No returned bundles were

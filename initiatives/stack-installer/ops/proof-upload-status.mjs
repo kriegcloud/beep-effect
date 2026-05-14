@@ -63,6 +63,27 @@ const healthStatus = async () => {
   }
 };
 
+const endpointStatus = async (pathname, options = {}) => {
+  try {
+    const response = await fetch(`http://${host}:${port}${pathname}`, {
+      headers: options.token ? { Authorization: `Bearer ${options.token}` } : undefined,
+    });
+    const text = await response.text();
+
+    return {
+      ok: options.expectStatus ? response.status === options.expectStatus : response.ok,
+      status: response.status,
+      text,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      status: 0,
+      text: `unreachable: ${error instanceof Error ? error.message : String(error)}`,
+    };
+  }
+};
+
 const platformStatus = async (platform) => {
   const platformDir = path.join(outputRoot, platform);
   const exists = await fileExists(platformDir);
@@ -115,6 +136,7 @@ const watchLogPath = path.join(outputRoot, "proof-watch.log");
 const watchCommandPath = path.join(outputRoot, "proof-watch-command.txt");
 const pidText = await readText(pidPath);
 const pid = Number.parseInt(pidText.trim(), 10);
+const tokenText = (await readText(tokenPath)).trim();
 const logText = await readText(logPath);
 const commandsText = await readText(commandsPath);
 const leakScanText = `${logText}\n${commandsText}`;
@@ -126,6 +148,9 @@ const watchCommandText = await readText(watchCommandPath);
 const watchLeakScanText = `${watchLogText}\n${watchCommandText}`;
 const watchLogLines = recentLines(watchLogText);
 const health = await healthStatus();
+const landing = await endpointStatus("/");
+const commandsWithoutToken = await endpointStatus("/commands", { expectStatus: 403 });
+const commandsWithToken = tokenText ? await endpointStatus("/commands", { token: tokenText }) : undefined;
 const tokenFileMode = await fileMode(tokenPath);
 const commandsFileMode = await fileMode(commandsPath);
 const pidFileMode = await fileMode(pidPath);
@@ -134,6 +159,11 @@ const watchLogFileMode = await fileMode(watchLogPath);
 const watchCommandFileMode = await fileMode(watchCommandPath);
 const hasTokenLikeText = tokenLikePattern.test(leakScanText);
 const hasWatcherTokenLikeText = tokenLikePattern.test(watchLeakScanText);
+const hasCommandResponseTokenLikeText = commandsWithToken ? tokenLikePattern.test(commandsWithToken.text) : true;
+const commandResponseHasExpectedRoutes = commandsWithToken
+  ? commandsWithToken.text.includes("/upload/stack-installer-p1-macos.tgz") &&
+    commandsWithToken.text.includes("/upload/stack-installer-p1-windows.zip")
+  : false;
 const bundles = await bundleStatus();
 const platforms = await Promise.all(requiredPlatforms.map(platformStatus));
 const watcherStarted =
@@ -150,10 +180,15 @@ const watcherWindowOk =
 const uploadWindowOk =
   health.ok &&
   processExists(pid) &&
+  landing.ok &&
+  commandsWithoutToken.ok &&
+  commandsWithToken?.ok === true &&
+  commandResponseHasExpectedRoutes &&
   tokenFileMode === "600" &&
   commandsFileMode === "600" &&
   pidFileMode === "600" &&
   !hasTokenLikeText &&
+  !hasCommandResponseTokenLikeText &&
   watcherWindowOk &&
   bundles.ok &&
   platforms.every((platform) => platform.ok);
@@ -161,6 +196,15 @@ const uploadWindowOk =
 console.log(`Stack Installer P1 proof upload status for ${outputRoot}`);
 console.log(`endpoint: http://${host}:${port}`);
 console.log(`health: ${health.text}`);
+console.log(`landing page: ${landing.status} ${landing.ok ? "ok" : "not-ok"}`);
+console.log(
+  `commands endpoint without token: ${commandsWithoutToken.status} ${commandsWithoutToken.ok ? "ok" : "not-ok"}`
+);
+console.log(
+  `commands endpoint with token: ${commandsWithToken ? `${commandsWithToken.status} ${commandsWithToken.ok ? "ok" : "not-ok"}` : "missing-token"}`
+);
+console.log(`commands endpoint has upload routes: ${commandResponseHasExpectedRoutes ? "yes" : "no"}`);
+console.log(`token-like text in commands endpoint response: ${hasCommandResponseTokenLikeText ? "yes" : "no"}`);
 console.log(`pid: ${Number.isInteger(pid) ? `${pid} (${processExists(pid) ? "running" : "not running"})` : "missing"}`);
 console.log(`token file mode: ${tokenFileMode}`);
 console.log(`commands file mode: ${commandsFileMode}`);
