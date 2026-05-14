@@ -44,6 +44,9 @@ Completed P1 live harness evidence:
 - `apps/stack-installer/src-tauri/src/lib.rs` exposes the Tauri command
   `run_p1_manual_proof` and keeps the app-local runtime composition under
   `apps/stack-installer`.
+- `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md` includes Bash-compatible and
+  native Windows PowerShell operator commands, plus artifact packaging and
+  coordinator-side extraction commands for the P1 evidence inbox.
 - The React workbench has a P1 live form and rejects plaintext Discord bot
   tokens before invoking the desktop proof command.
 - Tauri compile prerequisites are present: `Cargo.lock` and
@@ -59,6 +62,9 @@ Current local command evidence from 2026-05-14:
 - `cd apps/stack-installer && bun run build` passed. Vite emitted only the
   existing large-chunk warning.
 - `cd apps/stack-installer/src-tauri && cargo check` passed.
+- After the latest operator-handoff docs commits through `d23a4cfaa0`,
+  `bun run turbo run check test lint --filter=@beep/stack-installer`
+  completed 53 tasks successfully.
 
 Remaining full-P1 evidence:
 

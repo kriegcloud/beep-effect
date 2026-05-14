@@ -25,14 +25,18 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
+- Current pushed head for this audit pass:
+  `d23a4cfaa0 docs(stack-installer): add p1 artifact extract commands`
 - Relevant audit evidence lives on the pushed branch in
-  `apps/stack-installer/src/proof/capture-p1-manual-proof.ts` and this
-  completion audit output.
+  `apps/stack-installer/src/proof/capture-p1-manual-proof.ts`,
+  `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md`, and this completion audit
+  output.
 - Base evidence after `git fetch origin main`: `origin/main` at `910a1f3659`
 - Worktree status before this audit update: clean and even with
   `origin/feat/stack-installer-p1-live`.
 - Local artifact scan before this audit update:
-  `output/stack-installer/p1-live` contains no files.
+  `output/stack-installer/p1-live` exists, but the required `macos` and
+  `windows` platform directories are missing.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:
@@ -47,15 +51,16 @@ without stopping until:
 | P1 live validators implemented | `073e7deab8 feat(stack-installer): add p1 live proof harness`; live drivers under `packages/drivers/onepassword-cli`, `packages/drivers/ai-provider-cli`, and `packages/drivers/discord`; slice live contracts under installer dependency/security/provider/channel packages | complete |
 | Tauri proof flow implemented | `apps/stack-installer/src-tauri/src/lib.rs` exposes `run_p1_manual_proof`; `apps/stack-installer/src/proof/run-p1-manual-proof.ts` exposes the Bun proof entrypoint | complete |
 | Operator artifact capture implemented | `6ae84ddf99 feat(stack-installer): add p1 artifact capture`; `p1:proof:capture` writes `proof.json`, `commands.txt`, and `sha256sums.txt` | complete |
+| Operator handoff commands current | `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md` includes Bash-compatible and native Windows PowerShell proof commands, artifact packaging commands, and coordinator-side extraction commands | complete |
 | Per-platform artifact audit implemented | `p1:proof:audit` checks required files, checksum freshness, likely plaintext Discord token leaks in text artifacts, all validation events, configured providers, redacted credential references, and Discord message evidence | complete |
 | Both-platform artifact audit implemented | `p1:proof:audit-all` checks macOS and Windows directories and target-platform parity | complete |
-| Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest local helper verification included `bun run turbo run check test lint --filter=@beep/stack-installer`, `bun run config-sync:check`, app build, temp macOS/Windows fixture checksum/audit/audit-all for the tightened artifact rules, `jq` manifest, and `git diff --check` | complete for implemented local surfaces |
+| Targeted repo checks passed | Recorded in `p1-discord-vertical-manual.md`; latest local helper verification included `bun run turbo run check test lint --filter=@beep/stack-installer` with 53 successful tasks after the latest handoff docs commits, plus earlier `bun run config-sync:check`, app build, temp macOS/Windows fixture checksum/audit/audit-all for the tightened artifact rules, `jq` manifest, and `git diff --check` | complete for implemented local surfaces |
 | macOS fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/macos/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Windows fresh-machine proof artifacts recorded | Required files are `output/stack-installer/p1-live/windows/proof.json`, `screencast.*`, `commands.txt`, and `sha256sums.txt`; no files are currently present | missing |
 | Sanitized proof JSON captured | Must be produced by each fresh-machine `p1:proof:capture` run and pass `p1:proof:audit-all`; no real fresh-machine proof JSON is present | missing |
 | Discord test message evidence captured | Must appear in each proof JSON as a passed `discord-test-message` event with a message ID; no real fresh-machine proof JSON is present | missing |
 | Initiative manifest updated | `ops/manifest.json` records P1 live harness, capture/audit commands, missing fresh proof, and pending P1C review | complete, still open |
-| Initiative history updated | `p1-discord-vertical-manual.md` records P1A, live harness, capture/audit, and remaining evidence; this audit records the current completion state | complete, still open |
+| Initiative history updated | `p1-discord-vertical-manual.md` records P1A, live harness, capture/audit, current operator handoff commands, and remaining evidence; this audit records the current completion state | complete, still open |
 | P1C quality review/fix loop completed | `p1-pr-readiness-review.md` exists but is pending; by design it must not start until macOS and Windows proof artifacts exist and are audited | missing |
 | P2 AI Mode untouched | `p2-ai-mode-parity.md` remains a pending output; no P2 implementation surfaces are credited as part of P1 | complete |
 | MCP/runtime work untouched beyond P1 Tauri bridge | Manifest still records MCP executor/skill generation as not built beyond minimal app-local Tauri bridge | complete |
