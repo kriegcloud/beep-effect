@@ -274,6 +274,7 @@ node initiatives/stack-installer/ops/start-proof-upload-window.mjs \
   --host '<coordinator-tailscale-ip>' \
   --port 8765 \
   --output-root output/stack-installer/p1-live \
+  --advertised-url 'http://<coordinator-magic-dns-name>:8765' \
   --replace-existing
 ```
 

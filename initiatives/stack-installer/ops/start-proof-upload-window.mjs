@@ -19,9 +19,11 @@ const hasArg = (name) => args.includes(name);
 const host = argAfter("--host", "127.0.0.1");
 const port = Number.parseInt(argAfter("--port", "8765"), 10);
 const outputRoot = path.resolve(argAfter("--output-root", "output/stack-installer/p1-live"));
+const advertisedUrl = argAfter("--advertised-url", "").replace(/\/+$/, "");
 const tokenBytes = Number.parseInt(argAfter("--token-bytes", "24"), 10);
 const replaceExisting = hasArg("--replace-existing");
 const serverScript = path.resolve("initiatives/stack-installer/ops/proof-upload-server.mjs");
+const urlBase = `http://${host}:${port}`;
 
 const tokenPath = path.join(outputRoot, "proof-upload-token.txt");
 const commandsPath = path.join(outputRoot, "proof-upload-commands.txt");
@@ -65,24 +67,47 @@ const buildCommandsText = () =>
     "Stack Installer P1 proof upload endpoint",
     "",
     "Coordinator URL base:",
-    `http://${host}:${port}`,
+    urlBase,
+    ...(advertisedUrl
+      ? [
+          "",
+          "Alternate operator URL base:",
+          advertisedUrl,
+        ]
+      : []),
     "",
     "Coordinator-local token file, do not commit or paste in public channels:",
     tokenPath,
     "",
     "Before upload health check:",
-    `curl -f 'http://${host}:${port}/health'`,
+    `curl -f '${urlBase}/health'`,
+    ...(advertisedUrl ? [`curl -f '${advertisedUrl}/health'`] : []),
     "",
     "Remote status check:",
-    `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" 'http://${host}:${port}/status'`,
+    `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${urlBase}/status'`,
+    ...(advertisedUrl
+      ? [
+          `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${advertisedUrl}/status'`,
+        ]
+      : []),
     "",
     "macOS upload command:",
     'export STACK_INSTALLER_PROOF_UPLOAD_TOKEN="<copy token from coordinator-local token file>"',
-    `curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" 'http://${host}:${port}/upload/stack-installer-p1-macos.tgz'`,
+    `curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${urlBase}/upload/stack-installer-p1-macos.tgz'`,
+    ...(advertisedUrl
+      ? [
+          `curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${advertisedUrl}/upload/stack-installer-p1-macos.tgz'`,
+        ]
+      : []),
     "",
     "Windows PowerShell upload command:",
     '$env:STACK_INSTALLER_PROOF_UPLOAD_TOKEN = "<copy token from coordinator-local token file>"',
-    `Invoke-WebRequest -Method Put -InFile 'output\\stack-installer\\p1-live\\stack-installer-p1-windows.zip' -Headers @{ Authorization = "Bearer $env:STACK_INSTALLER_PROOF_UPLOAD_TOKEN" } -Uri 'http://${host}:${port}/upload/stack-installer-p1-windows.zip'`,
+    `Invoke-WebRequest -Method Put -InFile 'output\\stack-installer\\p1-live\\stack-installer-p1-windows.zip' -Headers @{ Authorization = "Bearer $env:STACK_INSTALLER_PROOF_UPLOAD_TOKEN" } -Uri '${urlBase}/upload/stack-installer-p1-windows.zip'`,
+    ...(advertisedUrl
+      ? [
+          `Invoke-WebRequest -Method Put -InFile 'output\\stack-installer\\p1-live\\stack-installer-p1-windows.zip' -Headers @{ Authorization = "Bearer $env:STACK_INSTALLER_PROOF_UPLOAD_TOKEN" } -Uri '${advertisedUrl}/upload/stack-installer-p1-windows.zip'`,
+        ]
+      : []),
     "",
     "Coordinator intake after upload:",
     "cd apps/stack-installer",
