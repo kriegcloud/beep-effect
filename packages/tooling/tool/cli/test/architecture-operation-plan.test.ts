@@ -36,6 +36,29 @@ const architectureProofRoots = [
   "packages/_internal/db-admin",
 ] as const;
 const architectureGeneratedSurfaceSegments = ["/dist/", "/docs/", "/.turbo/", "/node_modules/"] as const;
+const architectureManifestIncludedSurfaceEntries = [
+  "packages/architecture-lab/*/AGENTS.md",
+  "packages/architecture-lab/*/LICENSE",
+  "packages/architecture-lab/*/README.md",
+  "packages/architecture-lab/*/docgen.json",
+  "packages/architecture-lab/*/package.json",
+  "packages/architecture-lab/*/tsconfig.json",
+  "packages/architecture-lab/*/vitest.config.ts",
+  "packages/architecture-lab/*/src/**",
+  "packages/architecture-lab/*/test/**",
+  "packages/architecture-lab/*/dtslint/**",
+  "apps/architecture-lab-proof/{AGENTS.md,LICENSE,README.md,docgen.json,package.json,tsconfig.json,vitest.config.ts,src/**,test/**,dtslint/**}",
+  "packages/_internal/db-admin/{AGENTS.md,LICENSE,README.md,docgen.json,drizzle.config.ts,package.json,tsconfig.json,tsconfig.drizzle.json,vitest.config.ts,src/**,test/**,dtslint/**}",
+  "packages/_internal/db-admin/drizzle/**",
+] as const;
+const architectureManifestExcludedSurfaceEntries = [
+  "dist/**",
+  "docs/**",
+  ".turbo/**",
+  "node_modules/**",
+  "node_modules/.tmp/**",
+  "JSDOC_ANALYSIS.md",
+] as const;
 const sliceTopLevelManifestFiles = [
   "AGENTS.md",
   "LICENSE",
@@ -137,6 +160,8 @@ const collectFiles = (rootDir: string, repoPath: string): ReadonlyArray<string> 
 const collectAcceptedArchitectureProofFiles = Effect.fn(function* () {
   const manifest = yield* decodeArchitectureFixtureManifest(readFileSync(architectureFixtureManifestPath, "utf8"));
   expect(manifest.acceptedOracle).toBe("live architecture-lab WorkItem proof");
+  expect(manifest.includedSurfaces).toEqual([...architectureManifestIncludedSurfaceEntries]);
+  expect(manifest.excludedSurfaces).toEqual([...architectureManifestExcludedSurfaceEntries]);
   return pipe(
     architectureProofRoots,
     A.flatMap((proofRoot) => collectFiles(repoRoot, proofRoot)),
