@@ -166,7 +166,7 @@ describe("P1 Manual Mode proof harness", () => {
         expect(commands).toContain("Get-Command op");
         expect(commands).toContain("Push-Location apps/stack-installer");
         expect(commands).toContain("$stackInstallerOutputDir = 'C:\\repo\\output\\stack-installer\\p1-live\\windows'");
-        expect(commands).toContain("--output-dir $stackInstallerOutputDir");
+        expect(commands).toContain('--output-dir "$stackInstallerOutputDir"');
         expect(commands).not.toContain("command -v op");
         expect(commands).not.toContain("(cd apps/stack-installer");
       })
