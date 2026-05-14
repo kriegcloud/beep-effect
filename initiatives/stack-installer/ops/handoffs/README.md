@@ -45,4 +45,4 @@ not let generated notes accumulate at the initiative root.
 - [../proof-upload-status.mjs](../proof-upload-status.mjs) - coordinator
   status helper for upload server health, file permissions, returned bundles,
   platform artifact directories, detached watcher state, public landing page,
-  token-protected command endpoint behavior, and token-leak indicators.
+  token-protected status/command endpoint behavior, and token-leak indicators.

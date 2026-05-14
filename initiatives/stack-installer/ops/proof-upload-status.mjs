@@ -84,6 +84,14 @@ const endpointStatus = async (pathname, options = {}) => {
   }
 };
 
+const parseJson = (text) => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+};
+
 const platformStatus = async (platform) => {
   const platformDir = path.join(outputRoot, platform);
   const exists = await fileExists(platformDir);
@@ -149,6 +157,8 @@ const watchLeakScanText = `${watchLogText}\n${watchCommandText}`;
 const watchLogLines = recentLines(watchLogText);
 const health = await healthStatus();
 const landing = await endpointStatus("/");
+const statusWithoutToken = await endpointStatus("/status", { expectStatus: 403 });
+const statusWithToken = tokenText ? await endpointStatus("/status", { token: tokenText }) : undefined;
 const commandsWithoutToken = await endpointStatus("/commands", { expectStatus: 403 });
 const commandsWithToken = tokenText ? await endpointStatus("/commands", { token: tokenText }) : undefined;
 const tokenFileMode = await fileMode(tokenPath);
@@ -159,6 +169,14 @@ const watchLogFileMode = await fileMode(watchLogPath);
 const watchCommandFileMode = await fileMode(watchCommandPath);
 const hasTokenLikeText = tokenLikePattern.test(leakScanText);
 const hasWatcherTokenLikeText = tokenLikePattern.test(watchLeakScanText);
+const statusResponse = statusWithToken ? parseJson(statusWithToken.text) : undefined;
+const statusResponseHasExpectedShape =
+  statusResponse?.outputRoot === outputRoot &&
+  typeof statusResponse?.bundles?.macos === "boolean" &&
+  typeof statusResponse?.bundles?.windows === "boolean" &&
+  Array.isArray(statusResponse?.platforms?.macos?.missing) &&
+  Array.isArray(statusResponse?.platforms?.windows?.missing);
+const hasStatusResponseTokenLikeText = statusWithToken ? tokenLikePattern.test(statusWithToken.text) : true;
 const hasCommandResponseTokenLikeText = commandsWithToken ? tokenLikePattern.test(commandsWithToken.text) : true;
 const commandResponseHasExpectedRoutes = commandsWithToken
   ? commandsWithToken.text.includes("/upload/stack-installer-p1-macos.tgz") &&
@@ -181,6 +199,9 @@ const uploadWindowOk =
   health.ok &&
   processExists(pid) &&
   landing.ok &&
+  statusWithoutToken.ok &&
+  statusWithToken?.ok === true &&
+  statusResponseHasExpectedShape &&
   commandsWithoutToken.ok &&
   commandsWithToken?.ok === true &&
   commandResponseHasExpectedRoutes &&
@@ -188,6 +209,7 @@ const uploadWindowOk =
   commandsFileMode === "600" &&
   pidFileMode === "600" &&
   !hasTokenLikeText &&
+  !hasStatusResponseTokenLikeText &&
   !hasCommandResponseTokenLikeText &&
   watcherWindowOk &&
   bundles.ok &&
@@ -197,6 +219,12 @@ console.log(`Stack Installer P1 proof upload status for ${outputRoot}`);
 console.log(`endpoint: http://${host}:${port}`);
 console.log(`health: ${health.text}`);
 console.log(`landing page: ${landing.status} ${landing.ok ? "ok" : "not-ok"}`);
+console.log(`status endpoint without token: ${statusWithoutToken.status} ${statusWithoutToken.ok ? "ok" : "not-ok"}`);
+console.log(
+  `status endpoint with token: ${statusWithToken ? `${statusWithToken.status} ${statusWithToken.ok ? "ok" : "not-ok"}` : "missing-token"}`
+);
+console.log(`status endpoint has expected shape: ${statusResponseHasExpectedShape ? "yes" : "no"}`);
+console.log(`token-like text in status endpoint response: ${hasStatusResponseTokenLikeText ? "yes" : "no"}`);
 console.log(
   `commands endpoint without token: ${commandsWithoutToken.status} ${commandsWithoutToken.ok ? "ok" : "not-ok"}`
 );
