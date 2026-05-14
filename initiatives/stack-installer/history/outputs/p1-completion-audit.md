@@ -85,7 +85,9 @@ without stopping until:
   ignored `output/stack-installer/p1-live/proof-upload-token.txt` with `0600`
   permissions, and the ignored command file no longer embeds a token. Health
   checks pass, invalid-token requests return `403`, and upload logs redact
-  tokens. No operator upload has hit the endpoint yet.
+  tokens. No operator upload has hit the endpoint yet. The same live endpoint
+  has also been verified through MagicDNS at
+  `http://dankputer.tailc7c348.ts.net:8765/health`.
 - Current upload-window starter:
   committed `initiatives/stack-installer/ops/start-proof-upload-window.mjs`
   now performs the coordinator setup: token rotation, `0600` token/command/PID
@@ -119,6 +121,10 @@ without stopping until:
   exhausted after a ten-minute coordinator polling window. The live upload
   endpoint stayed healthy, the upload log showed only health checks plus local
   invalid-token smoke tests, and no returned proof bundles were found.
+- Latest upload log inspection:
+  `output/stack-installer/p1-live/proof-upload-server.log` shows only
+  `GET /health` and `GET /status` requests; no `PUT` or `POST` upload attempts
+  have reached the coordinator.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:
@@ -139,7 +145,9 @@ without stopping until:
   transfer-related Windows, SMB, CIFS, Taildrop, proof, stack-installer, macOS,
   and peer-host terms found no obvious Windows or SMB transfer credential; no
   secret fields were read. The current tailnet view does not show a macOS proof
-  peer.
+  peer. Coordinator-side `tailscale file cp` cannot send the non-secret
+  operator checklist to the Windows peer because Tailscale reports the peer is
+  owned by a different user.
 - Latest local transfer scan found no returned `stack-installer-p1-macos.tgz`
   or `stack-installer-p1-windows.zip` under Downloads, Desktop, Documents,
   Public, `/tmp`, YeeBois, mount, media, or GVFS paths. Recent `proof.json`

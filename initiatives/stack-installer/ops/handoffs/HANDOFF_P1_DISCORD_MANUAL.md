@@ -256,6 +256,17 @@ Pass the token in an `Authorization: Bearer ...` header, not in the URL. Keep
 the token out of chat, commits, shell history captures, and screencasts. Upload
 only the approved bundle file for the current platform:
 
+For the current proof window, the coordinator has verified the upload endpoint
+through both the raw tailnet address and MagicDNS:
+
+```text
+http://100.117.213.114:8765
+http://dankputer.tailc7c348.ts.net:8765
+```
+
+If a future proof window restarts the upload endpoint, prefer the values in the
+coordinator-local `output/stack-installer/p1-live/proof-upload-commands.txt`.
+
 Coordinator start template:
 
 ```bash
@@ -280,12 +291,14 @@ Before uploading from a proof machine, verify the endpoint is reachable:
 
 ```bash
 curl -f 'http://<coordinator-tailscale-ip>:<port>/health'
+curl -f 'http://<coordinator-magic-dns-name>:<port>/health'
 ```
 
 Native Windows PowerShell:
 
 ```powershell
 Invoke-WebRequest -Method Get -Uri 'http://<coordinator-tailscale-ip>:<port>/health'
+Invoke-WebRequest -Method Get -Uri 'http://<coordinator-magic-dns-name>:<port>/health'
 ```
 
 To inspect what the coordinator has received from a proof machine, use the

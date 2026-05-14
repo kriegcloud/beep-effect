@@ -381,6 +381,7 @@
       "cd apps/stack-installer && bun run p1:proof:status -- --output-root <artifact-root>",
       "cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>",
       "node initiatives/stack-installer/ops/start-proof-upload-window.mjs --host <coordinator-tailscale-ip> --port 8765 --output-root output/stack-installer/p1-live --replace-existing",
+      "curl -f http://<coordinator-magic-dns-name>:8765/health",
       "node initiatives/stack-installer/ops/proof-upload-status.mjs --host <coordinator-tailscale-ip> --port 8765 --output-root output/stack-installer/p1-live --fail-on-missing"
     ],
     "p1FreshMachineProof": [
@@ -427,6 +428,8 @@
   "knownGaps": [
     "fresh-OS macOS and Windows proof not run",
     "artifact intake via Taildrop is blocked until the coordinator runs sudo tailscale set --operator=$USER or uses another approved private transfer channel; tokenized temporary tailnet upload is documented as a fallback, but no proof bundles have arrived",
+    "coordinator-side Taildrop send to the online Windows peer is blocked because Tailscale reports the peer is owned by a different user",
+    "live upload endpoint is reachable through raw tailnet IP and MagicDNS, but upload logs show no PUT or POST artifact upload attempts",
     "post-proof quality-review-fix-loop not run",
     "live proof harness validates existing state only and does not install or provision dependencies",
     "MCP executor adapter not built beyond minimal app-local Tauri bridge",
