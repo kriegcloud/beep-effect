@@ -25,7 +25,12 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Recent branch evidence includes `0e95b717ce test(stack-installer): cover
+- Latest branch evidence includes `2475433ad0 docs(stack-installer): tighten
+  pr readiness review gate`, which records the stricter post-proof requirement
+  to run `$quality-review-fix-loop` across the whole implemented P1 initiative
+  surface and directly affected code paths, including reuse opportunities,
+  structural simplification, flat idiomatic modules, and repo-law alignment.
+- Earlier branch evidence includes `0e95b717ce test(stack-installer): cover
   desktop proof flow`, `7c8ccac126 test(stack-installer): cover p1 proof
   artifact helpers`, `61c9a94f1c feat(stack-installer): surface proof bundle
   extraction`, and `7923a2387a feat(stack-installer): report p1 proof artifact
@@ -80,6 +85,10 @@ without stopping until:
   and peer-host terms found no obvious Windows or SMB transfer credential; no
   secret fields were read. The current tailnet view does not show a macOS proof
   peer.
+- Latest local transfer scan found no `stack-installer-p1-macos.tgz`,
+  `stack-installer-p1-windows.zip`, or plausible returned `proof.json` under
+  the usual Downloads, Desktop, Documents, Public, YeeBois, mount, media, or
+  GVFS paths.
 
 ## Prompt-To-Artifact Checklist
 
