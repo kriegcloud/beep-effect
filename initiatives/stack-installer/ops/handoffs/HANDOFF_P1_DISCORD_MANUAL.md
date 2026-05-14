@@ -266,6 +266,10 @@ On the coordinator checkout, copy the received bundle into
 `output/stack-installer/p1-live/`, then expand it from the repository root:
 
 ```bash
+cd apps/stack-installer
+bun run p1:proof:status -- --output-root ../../output/stack-installer/p1-live
+cd ../..
+
 mkdir -p output/stack-installer/p1-live
 tar -xzf output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
   -C output/stack-installer/p1-live
@@ -274,10 +278,17 @@ tar -xzf output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
 For a Windows zip bundle received on the coordinator checkout:
 
 ```bash
+cd apps/stack-installer
+bun run p1:proof:status -- --output-root ../../output/stack-installer/p1-live
+cd ../..
+
 mkdir -p output/stack-installer/p1-live
 unzip -o output/stack-installer/p1-live/stack-installer-p1-windows.zip \
   -d output/stack-installer/p1-live
 ```
+
+If a platform bundle is present but the extracted platform directory is still
+missing, `p1:proof:status` prints the exact extraction command for that bundle.
 
 After extraction, these directories must exist:
 

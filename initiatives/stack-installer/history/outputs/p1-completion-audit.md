@@ -25,7 +25,7 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Current pushed head:
+- Recent branch evidence includes:
   `7923a2387a feat(stack-installer): report p1 proof artifact status`
 - Relevant audit evidence lives on the pushed branch in
   `apps/stack-installer/src/proof/capture-p1-manual-proof.ts`,
@@ -39,7 +39,10 @@ without stopping until:
   `windows` platform directories are missing.
 - Current read-only artifact status:
   `bun run --filter @beep/stack-installer p1:proof:status` exits successfully
-  and reports the `macos` and `windows` platform directories as missing.
+  and reports the `macos` and `windows` platform directories as missing. When
+  returned `stack-installer-p1-*.tgz` or `.zip` bundles are present at the
+  output root, the same status command prints the extraction command before the
+  final audit gate.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:

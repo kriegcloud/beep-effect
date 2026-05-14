@@ -75,7 +75,9 @@ Current local command evidence from 2026-05-14:
   `git diff --check`, and
   `bun run --filter @beep/stack-installer p1:proof:status` passed. The status
   helper correctly reports the macOS and Windows artifact directories as
-  missing until real fresh-machine artifacts are returned.
+  missing until real fresh-machine artifacts are returned, and prints the
+  coordinator-side `tar` or `unzip` extraction command when returned platform
+  bundles are present at the proof output root.
 
 Remaining full-P1 evidence:
 
