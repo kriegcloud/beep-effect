@@ -377,6 +377,7 @@
       "cd apps/stack-installer && bun run p1:proof:checksums -- --platform <macos|windows>",
       "cd apps/stack-installer && bun run p1:proof:audit -- --platform <macos|windows>",
       "cd apps/stack-installer && bun run p1:proof:intake -- --output-root <artifact-root>",
+      "cd apps/stack-installer && bun run p1:proof:watch -- --output-root <artifact-root>",
       "cd apps/stack-installer && bun run p1:proof:status -- --output-root <artifact-root>",
       "cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>"
     ],

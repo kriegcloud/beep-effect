@@ -86,6 +86,11 @@ Current local command evidence from 2026-05-14:
   bundles before the final `p1:proof:audit-all` gate. A temporary coordinator
   smoke verified extraction of both returned bundle formats into the required
   platform directories.
+- After adding the bounded coordinator-side proof watch helper,
+  `bun run --filter @beep/stack-installer check`, `lint`, and a one-attempt
+  `p1:proof:watch` refusal check passed. The watch helper repeats intake plus
+  `p1:proof:audit-all` during transfer windows, but still fails while platform
+  artifact directories are missing.
 - After adding deterministic tests for the injected desktop proof runner and
   proof artifact helper branches, `bun run --filter @beep/stack-installer
   coverage` passed with package branch coverage above the repo threshold.

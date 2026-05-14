@@ -14,7 +14,7 @@ import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-works
 import { OnePasswordCli } from "@beep/onepassword-cli";
 import { Sha256HexFromBytes } from "@beep/schema/Sha256";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
-import { Effect, FileSystem, Layer, Order, Path, pipe, Stream } from "effect";
+import { Duration, Effect, Exit, FileSystem, Layer, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Rx from "effect/RegExp";
@@ -77,6 +77,17 @@ const hasArg = (name: string): boolean =>
     Bun.argv,
     A.findFirstIndex((value) => value === name),
     O.isSome
+  );
+
+const positiveIntegerArg = (name: string, fallback: number): number =>
+  pipe(
+    argAfter(name),
+    O.flatMap((value) => {
+      const parsed = Number.parseInt(value, 10);
+
+      return Number.isInteger(parsed) && parsed > 0 ? O.some(parsed) : O.none();
+    }),
+    O.getOrElse(() => fallback)
   );
 
 const resolveDefaultOutputDir = Effect.fn("StackInstaller.resolveDefaultOutputDir")(function* (
@@ -520,9 +531,51 @@ const intakeMode = Effect.gen(function* () {
   return yield* intakeReturnedBundles(outputRoot);
 });
 
+const watchProofArtifacts = Effect.fn("StackInstaller.watchProofArtifacts")(function* (
+  outputRoot: string,
+  attempts: number,
+  intervalMs: number
+) {
+  let lastStatus = "";
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    lastStatus = yield* intakeReturnedBundles(outputRoot);
+
+    const auditExit = yield* Effect.exit(auditAllProofArtifacts(outputRoot));
+
+    if (Exit.isSuccess(auditExit)) {
+      return `${lastStatus}\n\n${auditExit.value}\nP1 proof watch passed on attempt ${attempt}/${attempts}.`;
+    }
+
+    if (attempt < attempts) {
+      yield* Effect.sync(() => {
+        console.log(`P1 proof watch attempt ${attempt}/${attempts} pending; sleeping ${intervalMs}ms.`);
+      });
+      yield* Effect.sleep(Duration.millis(intervalMs));
+    }
+  }
+
+  return yield* Effect.die(`P1 proof watch exhausted ${attempts} attempts without passing audit-all.\n\n${lastStatus}`);
+});
+
+const watchMode = Effect.gen(function* () {
+  const defaultOutputRoot = yield* resolveDefaultOutputRoot;
+  const outputRoot = pipe(
+    argAfter("--output-root"),
+    O.getOrElse(() => defaultOutputRoot)
+  );
+  const attempts = positiveIntegerArg("--watch-attempts", 120);
+  const intervalMs = positiveIntegerArg("--watch-interval-ms", 5_000);
+
+  return yield* watchProofArtifacts(outputRoot, attempts, intervalMs);
+});
+
 const selectedMode = Effect.gen(function* () {
   if (hasArg("--audit-all")) {
     return yield* auditAllMode;
+  }
+  if (hasArg("--watch")) {
+    return yield* watchMode;
   }
   if (hasArg("--intake")) {
     return yield* intakeMode;

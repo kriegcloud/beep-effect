@@ -119,6 +119,8 @@ Exit Criteria:
   P1 platform artifact directories.
 - [x] `apps/stack-installer` exposes `p1:proof:intake` for coordinator-side
   extraction of returned platform bundles before final audit.
+- [x] `apps/stack-installer` exposes `p1:proof:watch` for bounded coordinator
+  polling during artifact transfer windows.
 - [x] App UI rejects plaintext Discord bot tokens before invoking Tauri.
 - [x] Focused package/app check, test, lint, app build, config-sync check, and
   Tauri `cargo check` pass locally.
@@ -215,6 +217,7 @@ Required Checks:
 - P1B: `cd apps/stack-installer && bun run p1:proof:checksums -- --platform <macos|windows>`
 - P1B: `cd apps/stack-installer && bun run p1:proof:audit -- --platform <macos|windows>`
 - P1B: `cd apps/stack-installer && bun run p1:proof:intake -- --output-root <artifact-root>`
+- P1B: `cd apps/stack-installer && bun run p1:proof:watch -- --output-root <artifact-root>`
 - P1B: `cd apps/stack-installer && bun run p1:proof:status -- --output-root <artifact-root>`
 - P1B: `cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>`
 - placeholder: fresh-OS smoke wrapper for macOS and Windows

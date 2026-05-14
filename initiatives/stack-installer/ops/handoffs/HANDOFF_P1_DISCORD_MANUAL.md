@@ -281,6 +281,17 @@ cd apps/stack-installer
 bun run p1:proof:intake -- --output-root ../../output/stack-installer/p1-live
 ```
 
+When an operator is about to transfer bundles, the coordinator can run a bounded
+watch instead of manually polling:
+
+```bash
+cd apps/stack-installer
+bun run p1:proof:watch -- --output-root ../../output/stack-installer/p1-live --watch-attempts 120 --watch-interval-ms 5000
+```
+
+The watch command repeats intake plus `p1:proof:audit-all` until both platform
+artifact directories pass audit, or until the attempt limit is exhausted.
+
 The intake helper safely extracts `stack-installer-p1-macos.tgz` and
 `stack-installer-p1-windows.zip` only when the corresponding platform directory
 is missing, then prints the current status. Manual extraction remains available
