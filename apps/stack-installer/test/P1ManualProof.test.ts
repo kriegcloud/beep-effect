@@ -34,7 +34,7 @@ const providerRunner = (provider: AiProviderCliProvider) =>
     new AiProviderCliProcessResult({
       exitCode: 0,
       stderr: "",
-      stdout: `${provider} authenticated`,
+      stdout: `${provider}-raw-provider-status-output`,
     })
   );
 
@@ -96,7 +96,7 @@ const TestLayer = TestSliceLayer.pipe(Layer.provideMerge(DriverLayer));
 
 describe("P1 Manual Mode proof harness", () => {
   layer(TestLayer)((it) => {
-    it.effect("returns a sanitized live proof snapshot without exposing the Discord token", () =>
+    it.effect("returns a sanitized live proof snapshot without exposing raw secret or provider CLI output", () =>
       Effect.gen(function* () {
         const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
         const result = yield* runP1ManualProof(
@@ -115,6 +115,8 @@ describe("P1 Manual Mode proof harness", () => {
         expect(result.snapshot.manifest.dryRunOnly).toBe(false);
         expect(A.every(result.snapshot.validationEvents, (event) => event.status === "passed")).toBe(true);
         expect(encoded).not.toContain("raw-secret-value");
+        expect(encoded).not.toContain("claude-raw-provider-status-output");
+        expect(encoded).not.toContain("codex-raw-provider-status-output");
         expect(encoded).toContain("message-1");
       })
     );
