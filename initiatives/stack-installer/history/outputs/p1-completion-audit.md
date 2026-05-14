@@ -137,6 +137,11 @@ without stopping until:
   upload-window health, private file modes, token-protected status, commands,
   and next-actions endpoints, token-leak indicators, and detached watcher
   progress.
+- Latest coordinator-side Taildrop unblock attempt:
+  `sudo -n tailscale set --operator=$USER` fails with `sudo: a password is
+  required`, so Taildrop still requires an interactive coordinator-side sudo
+  step. Until that is done, the tokenized temporary tailnet upload window
+  remains the active private transfer path.
 - Local artifact scan before this audit update:
   `output/stack-installer/p1-live` exists, but the required `macos` and
   `windows` platform directories are missing.
