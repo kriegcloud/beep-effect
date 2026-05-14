@@ -216,8 +216,8 @@ export const layerDevToolsRelayServer: Layer.Layer<
   Layer.tap((services) => {
     const relay = Context.get(services, DevToolsRelayService);
 
-    return DevToolsServer.run((client) =>
-      Effect.gen(function* () {
+    return DevToolsServer.run(
+      Effect.fnUntraced(function* (client) {
         yield* client.send({ _tag: "MetricsRequest" });
 
         while (true) {

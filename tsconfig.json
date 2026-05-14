@@ -716,7 +716,10 @@
       "@beep/ai-provider-cli": [
         "./packages/drivers/ai-provider-cli/src/index.ts"
       ],
-      "@beep/ai-provider-cli/*": ["./packages/drivers/ai-provider-cli/src/*"]
+      "@beep/ai-provider-cli/*": ["./packages/drivers/ai-provider-cli/src/*"],
+      "@beep/ui/themes/theme-init-script": [
+        "./packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
+      ]
     }
   }
 }

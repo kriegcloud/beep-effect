@@ -10,11 +10,11 @@
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import CssBaseline from "@mui/material/CssBaseline";
-import { ThemeProvider as MuiThemeProvider, useColorScheme } from "@mui/material/styles";
+import { ThemeProvider as MuiThemeProvider, type Theme, useColorScheme } from "@mui/material/styles";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import type * as React from "react";
-import { theme } from "./theme.ts";
+import { theme as defaultTheme } from "./theme.ts";
 
 const $I = $UiId.create("themes/theme-provider");
 /**
@@ -60,6 +60,7 @@ export type ResolvedThemeMode = typeof ResolvedThemeMode.Type;
 interface AppThemeProviderProps {
   readonly children: React.ReactNode;
   readonly defaultMode?: undefined | ThemeMode;
+  readonly theme?: undefined | Theme;
 }
 
 interface ThemeModeControls {
@@ -93,7 +94,11 @@ export const resolveThemeMode: {
  * @since 0.0.0
  * @category components
  */
-export function AppThemeProvider({ children, defaultMode = ThemeMode.Enum.system }: AppThemeProviderProps) {
+export function AppThemeProvider({
+  children,
+  defaultMode = ThemeMode.Enum.system,
+  theme = defaultTheme,
+}: AppThemeProviderProps) {
   return (
     <MuiThemeProvider theme={theme} defaultMode={defaultMode} disableTransitionOnChange>
       <CssBaseline enableColorScheme />

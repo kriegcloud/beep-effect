@@ -29,13 +29,16 @@ actually lives here.
 - `ai-metrics-stack`
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
-- `canonical-slice-factory`
 - `ip-law-knowledge-graph`
+- `opip-web-launch` — implementation complete; launch review pending.
 - `stack-installer`
 - `trustgraph-doc-ontology`
 
 ## Reference Packets
 
+- `canonical-slice-factory` — V1-closed architecture automation proof for
+  `architecture-lab` and `beep architecture`; future factory extensions branch
+  from this packet.
 - `repo-codegraph-jsdoc` — learn-only codegraph/JSDoc research reference.
 - `jsdoc-worker-eval` — read-only worker eval reference for hosted Codex and
   local providers; `qwen3-coder:30b` was rejected for this 8 GiB VRAM workstation.

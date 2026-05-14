@@ -2,7 +2,7 @@
 
 ## Status
 
-**ACTIVE**
+**V1 CLOSED**
 
 ## Owner
 
@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-12
-- **Updated:** 2026-05-12
+- **Updated:** 2026-05-14
 
 ## Mission
 
@@ -22,6 +22,19 @@ The goal is not only to create new slices from scratch. The factory must also
 support granular creation of architecture parts: domain kinds, concepts, role
 modules, tables, protocol modules, foundation packages, drivers, and future
 architecture units without duplicating generation logic.
+
+## V1 Closure Scope
+
+V1 closes around the implemented `architecture-lab` proof, not an expanding
+archetype catalog. The sufficient V1 archetypes are `aggregates/WorkItem`,
+`entities/Worker`, and `values/WorkPriority`.
+
+The V1 closure preserves the public `beep architecture` command grammar
+and `architecture-operation-plan/v1` schema. Internal modularization,
+operation execution hardening, review-loop fixes, and documentation/status
+updates are in scope. New domain-kind archetypes, standalone foundation
+package factories, and standalone driver package factories remain future
+operation-plan extension points.
 
 ## Non-Negotiable Contract
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-Active
+V1 closed
 
 ## Mission
 
@@ -15,6 +15,23 @@ The new proof target is the synthetic `architecture-lab` slice with a
 `WorkItem` aggregate. It must prove the smallest legal slice first, then add
 optional canonical parts through the same modular factory model that future
 `beep architecture` commands will use.
+
+## V1 Closure State
+
+The V1 proof surface is fixed for closure:
+
+- `aggregates/WorkItem` proves full slice topology.
+- `entities/Worker` proves persisted domain entity topology.
+- `values/WorkPriority` proves domain-only value-object topology.
+- `packages/_internal/db-admin` proves migration aggregation for the
+  architecture-lab table packages.
+- `beep architecture` owns the schema-backed plan/apply/check path plus the
+  first ergonomic wrappers.
+
+The V1 closure preserves the current public command grammar and
+`architecture-operation-plan/v1` schema. New domain-kind archetypes,
+foundation-package factories, and driver-package factories are future
+extension work, not V1 blockers.
 
 ## Current Contract
 

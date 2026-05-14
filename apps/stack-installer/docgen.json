@@ -240,6 +240,9 @@
       "@beep/ui/themes": [
         "../../packages/foundation/ui-system/ui/src/themes/index.ts"
       ],
+      "@beep/ui/themes/theme-init-script": [
+        "../../packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
+      ],
       "@beep/ui/styles/globals.css": [
         "../../packages/foundation/ui-system/ui/src/styles/globals.css"
       ],

@@ -82,65 +82,65 @@ export class ExpectCTResponseHeader extends S.Class<ExpectCTResponseHeader>($I`E
 
 type ExpectCTResponseHeaderEncoded = typeof ExpectCTResponseHeader.Encoded;
 
-const formatExpectCTValue = (config: ExpectCTConfig): Effect.Effect<string, SecureHeaderError> =>
-  Effect.gen(function* () {
-    const reportUriValue = config.reportURI;
+const formatExpectCTValue = Effect.fn("ExpectCT.formatExpectCTValue")(function* (
+  config: ExpectCTConfig
+): Effect.fn.Return<string, SecureHeaderError> {
+  const reportUriValue = config.reportURI;
 
-    const reportURI: O.Option<string> = P.isUndefined(reportUriValue)
-      ? O.none<string>()
-      : O.some(
-          yield* Effect.try({
-            try: () => String(internal.encodeStrictURI(reportUriValue)),
-            catch: () =>
-              new ExpectCtError({
-                message: `Invalid value for "reportURI" option in ${headerName}: ${String(reportUriValue)}`,
-                cause: O.none(),
-              }),
-          })
-        );
+  const reportURI: O.Option<string> = P.isUndefined(reportUriValue)
+    ? O.none<string>()
+    : O.some(
+        yield* Effect.try({
+          try: () => String(internal.encodeStrictURI(reportUriValue)),
+          catch: () =>
+            new ExpectCtError({
+              message: `Invalid value for "reportURI" option in ${headerName}: ${String(reportUriValue)}`,
+              cause: O.none(),
+            }),
+        })
+      );
 
-    return pipe(
-      A.make(
-        `max-age=${config.maxAge ?? defaultMaxAge}`,
-        config.enforce === true ? "enforce" : undefined,
-        pipe(
-          reportURI,
-          O.map((value) => `report-uri=${value}`),
-          O.getOrUndefined
-        )
-      ),
-      A.filter(P.isNotUndefined),
-      A.join(", ")
-    );
-  });
+  return pipe(
+    A.make(
+      `max-age=${config.maxAge ?? defaultMaxAge}`,
+      config.enforce === true ? "enforce" : undefined,
+      pipe(
+        reportURI,
+        O.map((value) => `report-uri=${value}`),
+        O.getOrUndefined
+      )
+    ),
+    A.filter(P.isNotUndefined),
+    A.join(", ")
+  );
+});
 
-const decodeExpectCTValue = (
+const decodeExpectCTValue = Effect.fn("ExpectCT.decodeExpectCTValue")(function* (
   input: ExpectCTOption | undefined
-): Effect.Effect<ExpectCTResponseHeaderEncoded, SchemaIssue.Issue> =>
-  Effect.gen(function* () {
-    if (P.isUndefined(input) || input === false) {
-      return {
-        name: headerName,
-        value: undefined,
-      } as const;
-    }
-
-    if (input === true) {
-      return {
-        name: headerName,
-        value: `max-age=${defaultMaxAge}`,
-      } as const;
-    }
-
-    const value = yield* formatExpectCTValue(input[1]).pipe(
-      Effect.mapError((error) => new SchemaIssue.InvalidValue(O.some(error), { message: error.message }))
-    );
-
+): Effect.fn.Return<ExpectCTResponseHeaderEncoded, SchemaIssue.Issue> {
+  if (P.isUndefined(input) || input === false) {
     return {
       name: headerName,
-      value,
+      value: undefined,
     } as const;
-  });
+  }
+
+  if (input === true) {
+    return {
+      name: headerName,
+      value: `max-age=${defaultMaxAge}`,
+    } as const;
+  }
+
+  const value = yield* formatExpectCTValue(input[1]).pipe(
+    Effect.mapError((error) => new SchemaIssue.InvalidValue(O.some(error), { message: error.message }))
+  );
+
+  return {
+    name: headerName,
+    value,
+  } as const;
+});
 
 /**
  * @category schemas

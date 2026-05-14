@@ -230,8 +230,8 @@ const docgenInitCommand = Command.make(
     dryRun: dryRunFlag,
     force: forceFlag,
   },
-  ({ package: selector, dryRun, force }) =>
-    Effect.gen(function* () {
+  Effect.fn(
+    function* ({ package: selector, dryRun, force }) {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const repoRoot = yield* findRepoRoot();
@@ -257,22 +257,22 @@ const docgenInitCommand = Command.make(
 
       yield* fs.writeFileString(configPath, content);
       yield* Console.log(`docgen: wrote ${configPath}`);
-    }).pipe(
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      )
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
     )
+  )
 ).pipe(Command.withDescription("Create or refresh docgen.json for a workspace package"));
 
 const docgenStatusCommand = Command.make(
@@ -281,8 +281,8 @@ const docgenStatusCommand = Command.make(
     verbose: verboseFlag,
     json: jsonFlag,
   },
-  ({ verbose, json }) =>
-    Effect.gen(function* () {
+  Effect.fn(
+    function* ({ verbose, json }) {
       const packages = yield* discoverDocgenWorkspacePackages();
       const configuredAndGenerated = packages.filter((pkg) => pkg.status === "configured-and-generated");
       const configuredNotGenerated = packages.filter((pkg) => pkg.status === "configured-not-generated");
@@ -329,22 +329,22 @@ const docgenStatusCommand = Command.make(
           }
         }
       }
-    }).pipe(
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      )
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
     )
+  )
 ).pipe(Command.withDescription("Show docgen configuration and generation status across the workspace"));
 
 const docgenGenerateCommand = Command.make(
@@ -356,8 +356,8 @@ const docgenGenerateCommand = Command.make(
     parallel: parallelFlag,
     json: jsonFlag,
   },
-  ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, json }) =>
-    Effect.gen(function* () {
+  Effect.fn(
+    function* ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, json }) {
       void validateExamples;
       const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const targets = yield* resolveGenerateTargets(selector);
@@ -380,22 +380,22 @@ const docgenGenerateCommand = Command.make(
       }
 
       yield* logGenerationResults(results);
-    }).pipe(
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      )
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
     )
+  )
 ).pipe(
   Command.withDescription(
     "Run the repo-local @beep/repo-docgen implementation for one package or every configured package"
@@ -411,8 +411,8 @@ const docgenRunCommand = Command.make(
     parallel: parallelFlag,
     clean: cleanFlag,
   },
-  ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, clean }) =>
-    Effect.gen(function* () {
+  Effect.fn(
+    function* ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, clean }) {
       void validateExamples;
       const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const targets = yield* resolveGenerateTargets(selector);
@@ -438,22 +438,22 @@ const docgenRunCommand = Command.make(
         ...R.getSomes({ package: selector }),
       });
       yield* logAggregateResults(aggregateResults);
-    }).pipe(
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      )
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
     )
+  )
 ).pipe(
   Command.withDescription(
     "Run generation and aggregation together using a single package selector so both phases stay in scope"
@@ -467,30 +467,30 @@ const docgenAggregateCommand = Command.make(
     filter: filterFlag,
     clean: cleanFlag,
   },
-  ({ package: packageSelector, filter: filterSelector, clean }) =>
-    Effect.gen(function* () {
+  Effect.fn(
+    function* ({ package: packageSelector, filter: filterSelector, clean }) {
       const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const results = yield* aggregateGeneratedDocs({
         clean,
         ...R.getSomes({ package: selector }),
       });
       yield* logAggregateResults(results);
-    }).pipe(
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      )
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
     )
+  )
 ).pipe(Command.withDescription("Copy generated package docs into the current root docs layout"));
 
 const docgenAnalyzeCommand = Command.make(
@@ -501,8 +501,8 @@ const docgenAnalyzeCommand = Command.make(
     json: jsonFlag,
     fixMode: fixModeFlag,
   },
-  ({ package: selector, output, json, fixMode }) =>
-    Effect.gen(function* () {
+  Effect.fn(
+    function* ({ package: selector, output, json, fixMode }) {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const targets = yield* resolveAnalyzeTargets(selector);
@@ -558,22 +558,22 @@ const docgenAnalyzeCommand = Command.make(
         yield* fs.writeFileString(destination, generateAnalysisReport(analysis, fixMode));
         yield* Console.log(`docgen: wrote ${destination}`);
       }
-    }).pipe(
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      )
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
     )
+  )
 ).pipe(Command.withDescription("Analyze JSDoc coverage and write a human-first report"));
 
 const docgenCheckCommand = Command.make(
@@ -583,8 +583,8 @@ const docgenCheckCommand = Command.make(
     parallel: parallelFlag,
     json: jsonFlag,
   },
-  ({ package: selector, parallel, json }) =>
-    Effect.gen(function* () {
+  Effect.fn(
+    function* ({ package: selector, parallel, json }) {
       const targets = yield* resolveAnalyzeTargets(selector);
 
       if (targets.length === 0) {
@@ -649,22 +649,22 @@ const docgenCheckCommand = Command.make(
       if (failures.length > 0) {
         process.exitCode = 1;
       }
-    }).pipe(
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      )
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
     )
+  )
 ).pipe(Command.withDescription("Fail when package exports are missing required JSDoc/docgen metadata"));
 
 const docgenQualityCommand = Command.make(
@@ -678,8 +678,8 @@ const docgenQualityCommand = Command.make(
     score: qualityScoreFlag,
     packetLimit: packetLimitFlag,
   },
-  ({ package: packageSelector, all, changedFiles, output, json, score, packetLimit }) =>
-    Effect.gen(function* () {
+  Effect.fn(
+    function* ({ package: packageSelector, all, changedFiles, output, json, score, packetLimit }) {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const { scope, targets } = yield* resolveDocgenQualityTargets({
@@ -727,22 +727,22 @@ const docgenQualityCommand = Command.make(
       }
 
       yield* Console.log(content);
-    }).pipe(
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      )
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
     )
+  )
 ).pipe(
   Command.withDescription(
     "Produce a report-only exported-symbol JSDoc quality report with bounded advisory remediation packets"
@@ -761,8 +761,8 @@ const docgenQualityWorkerEvalCommand = Command.make(
     reasoningEffort: qualityWorkerEvalReasoningEffortFlag,
     packetLimit: qualityWorkerEvalPacketLimitFlag,
   },
-  ({ package: packageSelector, all, input, output, provider, model, reasoningEffort, packetLimit }) =>
-    Effect.gen(function* () {
+  Effect.fn(
+    function* ({ package: packageSelector, all, input, output, provider, model, reasoningEffort, packetLimit }) {
       const fs = yield* FileSystem.FileSystem;
       const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
       const resolvedReasoningEffort = Match.value(provider).pipe(
@@ -842,22 +842,22 @@ const docgenQualityWorkerEvalCommand = Command.make(
       }
 
       yield* Console.log(content);
-    }).pipe(
-      Effect.catchTag(
-        "DomainError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      ),
-      Effect.catchTag(
-        "NoSuchFileError",
-        Effect.fn(function* (error) {
-          process.exitCode = 1;
-          yield* Console.error(`docgen: ${error.message}`);
-        })
-      )
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
     )
+  )
 ).pipe(
   Command.withDescription("Run read-only worker evaluation over deterministic docgen quality remediation packets")
 );

@@ -123,10 +123,11 @@ const isContainerInspectable = Effect.fn("SqlTestIntegration.isContainerInspecta
       return true;
     },
     catch: () => false,
-  }).pipe(Effect.catch(Effect.succeed), Effect.timeoutOption(ContainerInspectTimeout));
+  }).pipe(Effect.option, Effect.timeoutOption(ContainerInspectTimeout));
 
   return pipe(
     inspected,
+    O.flatten,
     O.getOrElse(() => false)
   );
 });

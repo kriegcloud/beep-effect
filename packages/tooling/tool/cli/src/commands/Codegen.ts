@@ -175,8 +175,9 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
     Effect.fn(function* (dir, prefix) {
       const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(A.empty<string>));
 
-      const discovered = yield* Effect.forEach(entries, (entry) =>
-        Effect.gen(function* () {
+      const discovered = yield* Effect.forEach(
+        entries,
+        Effect.fnUntraced(function* (entry) {
           const fullPath = path.join(dir, entry);
 
           // Check if this entry is a directory

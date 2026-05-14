@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-05-12T13:07:00.338Z
+Generated: 2026-05-14T17:40:17.140Z
 
 ## Scope
 
@@ -10,22 +10,22 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 57 |
+| packages | 59 |
 | cleanPackages | 22 |
 | packagesWithoutPublicSrcSurface | 1 |
-| packagesNeedingRemediation | 34 |
-| publicModules | 876 |
-| publicExports | 6041 |
-| openModules | 121 |
-| openExports | 2629 |
-| missingExportExamples | 2459 |
+| packagesNeedingRemediation | 36 |
+| publicModules | 888 |
+| publicExports | 6292 |
+| openModules | 116 |
+| openExports | 2828 |
+| missingExportExamples | 2658 |
 | missingExportCategories | 50 |
 | missingExportSince | 48 |
 | forbiddenTagFindings | 7 |
 | malformedConditionalTagFindings | 0 |
 | exampleImportFindings | 20 |
 | unsafeExampleFindings | 62 |
-| schemaAnnotationFindings | 132 |
+| schemaAnnotationFindings | 130 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -42,7 +42,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | Order | Package | Path | Status | Modules | Exports | Open Modules | Open Exports |
 |---:|---|---|---|---:|---:|---:|---:|
 | 1 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
-| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 87 | 0 | 15 |
+| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 89 | 0 | 16 |
 | 3 | `@beep/utils` | `packages/foundation/modeling/utils` | clean | 20 | 135 | 0 | 0 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | clean | 7 | 39 | 0 | 0 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | needs-remediation | 2 | 6 | 0 | 1 |
@@ -60,44 +60,46 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 17 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 61 |
 | 18 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 35 | 0 | 5 |
 | 19 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
-| 20 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
-| 21 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | clean | 14 | 172 | 0 | 0 |
-| 22 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
-| 23 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 30 |
-| 24 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 24 | 130 | 0 | 5 |
-| 25 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
-| 26 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 119 | 508 | 109 | 504 |
+| 20 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 23 |
+| 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
+| 22 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | clean | 16 | 198 | 0 | 0 |
+| 23 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
+| 24 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 30 |
+| 25 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 24 | 130 | 0 | 5 |
+| 26 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
 | 27 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
 | 28 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | needs-remediation | 13 | 47 | 0 | 11 |
 | 29 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | clean | 7 | 12 | 0 | 0 |
 | 30 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 21 | 0 | 0 |
 | 31 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | clean | 14 | 25 | 0 | 0 |
-| 32 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 6 |
-| 33 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 33 |
-| 34 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 35 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 7 | 10 | 0 | 2 |
-| 36 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 4 | 7 | 0 | 6 |
-| 37 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 6 |
-| 38 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 73 | 549 | 0 | 375 |
-| 39 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
-| 40 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
-| 41 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 248 |
-| 42 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
-| 43 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 11 |
-| 44 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
-| 45 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
-| 46 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
-| 47 | `@beep/opip-web` | `apps/opip-web` | needs-remediation | 5 | 6 | 0 | 5 |
+| 32 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 116 | 488 | 104 | 484 |
+| 33 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 6 |
+| 34 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 33 |
+| 35 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 36 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 7 | 10 | 0 | 2 |
+| 37 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 4 | 7 | 0 | 6 |
+| 38 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 6 |
+| 39 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 76 | 591 | 0 | 396 |
+| 40 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
+| 41 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
+| 42 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 248 |
+| 43 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
+| 44 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 11 |
+| 45 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
+| 46 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
+| 47 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
 | 48 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 4 | 0 | 0 |
 | 49 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
 | 50 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 31 |
 | 51 | `@beep/infra` | `infra` | clean | 2 | 10 | 0 | 0 |
-| 52 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
-| 53 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
-| 54 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | needs-remediation | 1 | 3 | 0 | 2 |
-| 55 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
-| 56 | `@beep/openai` | `packages/drivers/openai` | needs-remediation | 1 | 1 | 0 | 1 |
-| 57 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
+| 52 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 174 |
+| 53 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
+| 54 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
+| 55 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | needs-remediation | 1 | 3 | 0 | 2 |
+| 56 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
+| 57 | `@beep/openai` | `packages/drivers/openai` | needs-remediation | 1 | 1 | 0 | 1 |
+| 58 | `@beep/opip-web` | `apps/opip-web` | needs-remediation | 5 | 6 | 0 | 5 |
+| 59 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
 
 ## Open Findings
 
@@ -110,17 +112,18 @@ Export findings:
 - `src/Id.ts:150` `IdentitySegmentCountError` (class) - 1 schema annotation/type-alias gap(s)
 - `src/Id.ts:381` `IdentityString` (type) - 1 unsafe example violation(s)
 - `src/Id.ts:398` `IdentitySymbol` (type) - 1 unsafe example violation(s)
-- `src/packages.ts:640` `RepoPkgs` (const) - missing @example
-- `src/packages.ts:646` `$MdId` (const) - missing summary; missing @example
-- `src/packages.ts:652` `$CodedankWebId` (const) - missing summary; missing @example
-- `src/packages.ts:658` `$OpipWebId` (const) - missing summary; missing @example
-- `src/packages.ts:664` `$DrizzleId` (const) - missing summary; missing @example
-- `src/packages.ts:670` `$DuckdbId` (const) - missing summary; missing @example
-- `src/packages.ts:676` `$FfmpegId` (const) - missing summary; missing @example
-- `src/packages.ts:682` `$PostgresId` (const) - missing summary; missing @example
-- `src/packages.ts:845` `$OpenaiId` (const) - missing summary; missing @example
-- `src/packages.ts:851` `$VeniceAiId` (const) - missing summary; missing @example
-- `src/packages.ts:857` `$XaiId` (const) - missing summary; missing @example
+- `src/packages.ts:642` `RepoPkgs` (const) - missing @example
+- `src/packages.ts:648` `$MdId` (const) - missing summary; missing @example
+- `src/packages.ts:654` `$CodedankWebId` (const) - missing summary; missing @example
+- `src/packages.ts:660` `$OpipWebId` (const) - missing summary; missing @example
+- `src/packages.ts:666` `$DrizzleId` (const) - missing summary; missing @example
+- `src/packages.ts:672` `$DuckdbId` (const) - missing summary; missing @example
+- `src/packages.ts:678` `$FaceDetectionId` (const) - missing summary; missing @example
+- `src/packages.ts:684` `$FfmpegId` (const) - missing summary; missing @example
+- `src/packages.ts:690` `$PostgresId` (const) - missing summary; missing @example
+- `src/packages.ts:853` `$OpenaiId` (const) - missing summary; missing @example
+- `src/packages.ts:859` `$VeniceAiId` (const) - missing summary; missing @example
+- `src/packages.ts:865` `$XaiId` (const) - missing summary; missing @example
 
 ### @beep/messages
 
@@ -309,44 +312,44 @@ Export findings:
 - `src/Fn.ts:229` `FnSchemaStatics` (type) - missing @example
 - `src/Fn.ts:426` `AnyFn` (type) - missing @example
 - `src/Glob.ts:121` `Glob` (type) - missing @example
-- `src/Graph.ts:279` `NodeIndex` (type) - missing @example
-- `src/Graph.ts:311` `EdgeIndex` (const) - missing @example
-- `src/Graph.ts:324` `EdgeIndex` (type) - missing @example
-- `src/Graph.ts:332` `EdgeIndexFromString` (const) - missing @example
-- `src/Graph.ts:345` `GraphKind` (const) - missing @example
-- `src/Graph.ts:357` `GraphKind` (type) - missing @example
-- `src/Graph.ts:365` `EdgeEncoded` (type) - missing @example
-- `src/Graph.ts:473` `EdgeEncoded` (const) - missing @example
-- `src/Graph.ts:377` `GraphEncoded` (type) - missing @example
-- `src/Graph.ts:675` `GraphEncoded` (const) - missing @example
-- `src/Graph.ts:413` `EdgeEncodedSchema` (interface) - missing @example
-- `src/Graph.ts:430` `GraphEncodedSchema` (interface) - missing @example
-- `src/Graph.ts:450` `isEdge` (const) - missing @example
-- `src/Graph.ts:460` `isGraph` (const) - missing @example
-- `src/Graph.ts:493` `EdgeFromSelf` (interface) - missing @example
-- `src/Graph.ts:533` `EdgeFromSelf` (const) - missing @example
-- `src/Graph.ts:510` `EdgeTransform` (interface) - missing @example
-- `src/Graph.ts:596` `EdgeTransform` (const) - missing @example
-- `src/Graph.ts:522` `Edge` (interface) - missing @example
-- `src/Graph.ts:705` `GraphFromSelf` (interface) - missing @example
-- `src/Graph.ts:923` `GraphFromSelf` (const) - missing @example
-- `src/Graph.ts:723` `DirectedGraphFromSelf` (interface) - missing @example
-- `src/Graph.ts:941` `DirectedGraphFromSelf` (const) - missing @example
-- `src/Graph.ts:741` `UndirectedGraphFromSelf` (interface) - missing @example
-- `src/Graph.ts:962` `UndirectedGraphFromSelf` (const) - missing @example
-- `src/Graph.ts:759` `MutableGraphFromSelf` (interface) - missing @example
-- `src/Graph.ts:983` `MutableGraphFromSelf` (const) - missing @example
-- `src/Graph.ts:777` `MutableDirectedGraphFromSelf` (interface) - missing @example
-- `src/Graph.ts:1001` `MutableDirectedGraphFromSelf` (const) - missing @example
-- `src/Graph.ts:795` `MutableUndirectedGraphFromSelf` (interface) - missing @example
-- `src/Graph.ts:1022` `MutableUndirectedGraphFromSelf` (const) - missing @example
-- `src/Graph.ts:1041` `DirectedGraph` (interface) - missing @example
-- `src/Graph.ts:1054` `UndirectedGraph` (interface) - missing @example
-- `src/Graph.ts:1198` `UndirectedGraph` (const) - missing @example
-- `src/Graph.ts:1067` `MutableDirectedGraph` (interface) - missing @example
-- `src/Graph.ts:1222` `MutableDirectedGraph` (const) - missing @example
-- `src/Graph.ts:1080` `MutableUndirectedGraph` (interface) - missing @example
-- `src/Graph.ts:1246` `MutableUndirectedGraph` (const) - missing @example
+- `src/Graph.ts:282` `NodeIndex` (type) - missing @example
+- `src/Graph.ts:314` `EdgeIndex` (const) - missing @example
+- `src/Graph.ts:327` `EdgeIndex` (type) - missing @example
+- `src/Graph.ts:335` `EdgeIndexFromString` (const) - missing @example
+- `src/Graph.ts:348` `GraphKind` (const) - missing @example
+- `src/Graph.ts:360` `GraphKind` (type) - missing @example
+- `src/Graph.ts:368` `EdgeEncoded` (type) - missing @example
+- `src/Graph.ts:476` `EdgeEncoded` (const) - missing @example
+- `src/Graph.ts:380` `GraphEncoded` (type) - missing @example
+- `src/Graph.ts:678` `GraphEncoded` (const) - missing @example
+- `src/Graph.ts:416` `EdgeEncodedSchema` (interface) - missing @example
+- `src/Graph.ts:433` `GraphEncodedSchema` (interface) - missing @example
+- `src/Graph.ts:453` `isEdge` (const) - missing @example
+- `src/Graph.ts:463` `isGraph` (const) - missing @example
+- `src/Graph.ts:496` `EdgeFromSelf` (interface) - missing @example
+- `src/Graph.ts:536` `EdgeFromSelf` (const) - missing @example
+- `src/Graph.ts:513` `EdgeTransform` (interface) - missing @example
+- `src/Graph.ts:599` `EdgeTransform` (const) - missing @example
+- `src/Graph.ts:525` `Edge` (interface) - missing @example
+- `src/Graph.ts:708` `GraphFromSelf` (interface) - missing @example
+- `src/Graph.ts:926` `GraphFromSelf` (const) - missing @example
+- `src/Graph.ts:726` `DirectedGraphFromSelf` (interface) - missing @example
+- `src/Graph.ts:944` `DirectedGraphFromSelf` (const) - missing @example
+- `src/Graph.ts:744` `UndirectedGraphFromSelf` (interface) - missing @example
+- `src/Graph.ts:965` `UndirectedGraphFromSelf` (const) - missing @example
+- `src/Graph.ts:762` `MutableGraphFromSelf` (interface) - missing @example
+- `src/Graph.ts:986` `MutableGraphFromSelf` (const) - missing @example
+- `src/Graph.ts:780` `MutableDirectedGraphFromSelf` (interface) - missing @example
+- `src/Graph.ts:1004` `MutableDirectedGraphFromSelf` (const) - missing @example
+- `src/Graph.ts:798` `MutableUndirectedGraphFromSelf` (interface) - missing @example
+- `src/Graph.ts:1025` `MutableUndirectedGraphFromSelf` (const) - missing @example
+- `src/Graph.ts:1044` `DirectedGraph` (interface) - missing @example
+- `src/Graph.ts:1057` `UndirectedGraph` (interface) - missing @example
+- `src/Graph.ts:1201` `UndirectedGraph` (const) - missing @example
+- `src/Graph.ts:1070` `MutableDirectedGraph` (interface) - missing @example
+- `src/Graph.ts:1225` `MutableDirectedGraph` (const) - missing @example
+- `src/Graph.ts:1083` `MutableUndirectedGraph` (interface) - missing @example
+- `src/Graph.ts:1249` `MutableUndirectedGraph` (const) - missing @example
 - `src/Int.ts:98` `PosInt` (type) - 1 unsafe example violation(s)
 - `src/Int.ts:137` `PostgresSerialInt` (type) - 1 unsafe example violation(s)
 - `src/Int.ts:180` `NegInt` (type) - 1 unsafe example violation(s)
@@ -698,9 +701,9 @@ Export findings:
 - `src/csv/CsvCodecOptions.ts:113` `CsvCodecOptionsParseOptions` (const) - missing @example
 - `src/csv/CsvError.ts:34` `CsvError` (class) - missing @example
 - `src/csv/CsvError.ts:42` `csvError` (const) - missing @example
-- `src/csv/format/CsvFormatter.ts:102` `formatCsvHeaderRow` (const) - missing @example
-- `src/csv/format/CsvFormatter.ts:128` `formatCsvDataRow` (const) - missing @example
-- `src/csv/format/CsvFormatter.ts:156` `formatCsvDocument` (const) - missing @example
+- `src/csv/format/CsvFormatter.ts:101` `formatCsvHeaderRow` (const) - missing @example
+- `src/csv/format/CsvFormatter.ts:126` `formatCsvDataRow` (const) - missing @example
+- `src/csv/format/CsvFormatter.ts:153` `formatCsvDocument` (const) - missing @example
 - `src/csv/format/index.ts:14` `export * from "./CsvFormatter.ts";` (re-export) - missing @example
 - `src/csv/index.ts:304` `export * from "./CsvCodecOptions.ts";` (re-export) - missing @example
 - `src/csv/index.ts:309` `export * from "./CsvError.ts";` (re-export) - missing @example
@@ -709,7 +712,7 @@ Export findings:
 - `src/csv/index.ts:298` `CsvText` (type) - missing @example
 - `src/csv/parse/CsvParser.ts:98` `ParsedField` (class) - missing summary; missing @example
 - `src/csv/parse/CsvParser.ts:243` `ParsedRow` (class) - missing summary; missing @example
-- `src/csv/parse/CsvParser.ts:381` `parseCsvRows` (const) - missing @example
+- `src/csv/parse/CsvParser.ts:379` `parseCsvRows` (const) - missing @example
 - `src/csv/parse/ParserOptions.ts:60` `HeaderValueInput` (const) - missing @example
 - `src/csv/parse/ParserOptions.ts:72` `HeaderValueInput` (type) - missing @example
 - `src/csv/parse/ParserOptions.ts:80` `ParserOptionsError` (class) - missing @example
@@ -955,9 +958,9 @@ Export findings:
 - `src/http/headers/Csp.ts:483` `ContentSecurityPolicyOption` (const) - missing summary; missing @example
 - `src/http/headers/Csp.ts:493` `ContentSecurityPolicyOption` (type) - missing summary; missing @example
 - `src/http/headers/Csp.ts:499` `ContentSecurityPolicyResponseHeader` (class) - missing summary; missing @example
-- `src/http/headers/Csp.ts:558` `createContentSecurityPolicyOptionHeaderValue` (const) - missing summary; missing @example
-- `src/http/headers/Csp.ts:584` `ContentSecurityPolicyHeader` (const) - missing summary; missing @example
-- `src/http/headers/Csp.ts:652` `ContentSecurityPolicyHeader` (type) - missing summary; missing @example
+- `src/http/headers/Csp.ts:557` `createContentSecurityPolicyOptionHeaderValue` (const) - missing summary; missing @example
+- `src/http/headers/Csp.ts:583` `ContentSecurityPolicyHeader` (const) - missing summary; missing @example
+- `src/http/headers/Csp.ts:651` `ContentSecurityPolicyHeader` (type) - missing summary; missing @example
 - `src/http/headers/ExpectCT.ts:26` `ExpectCTConfig` (class) - missing summary; missing @example
 - `src/http/headers/ExpectCT.ts:41` `ExpectCTEnabled` (const) - missing summary; missing @example
 - `src/http/headers/ExpectCT.ts:51` `ExpectCTEnabled` (type) - missing summary; missing @example
@@ -982,8 +985,8 @@ Export findings:
 - `src/http/headers/FrameGuard.ts:75` `FrameGuardOption` (const) - missing summary; missing @example
 - `src/http/headers/FrameGuard.ts:85` `FrameGuardOption` (type) - missing summary; missing @example
 - `src/http/headers/FrameGuard.ts:91` `FrameGuardResponseHeader` (class) - missing summary; missing @example
-- `src/http/headers/FrameGuard.ts:135` `FrameGuardHeader` (const) - missing summary; missing @example
-- `src/http/headers/FrameGuard.ts:207` `FrameGuardHeader` (type) - missing summary; missing @example
+- `src/http/headers/FrameGuard.ts:136` `FrameGuardHeader` (const) - missing summary; missing @example
+- `src/http/headers/FrameGuard.ts:210` `FrameGuardHeader` (type) - missing summary; missing @example
 - `src/http/headers/NoOpen.ts:28` `NoOpenValue` (const) - missing summary; missing @example
 - `src/http/headers/NoOpen.ts:39` `NoOpenValue` (type) - missing summary; missing @example
 - `src/http/headers/NoOpen.ts:47` `NoOpenOption` (const) - missing summary; missing @example
@@ -1029,8 +1032,8 @@ Export findings:
 - `src/http/headers/ReferrerPolicy.ts:69` `ReferrerPolicyOption` (const) - missing summary; missing @example
 - `src/http/headers/ReferrerPolicy.ts:79` `ReferrerPolicyOption` (type) - missing summary; missing @example
 - `src/http/headers/ReferrerPolicy.ts:85` `ReferrerPolicyResponseHeader` (class) - missing summary; missing @example
-- `src/http/headers/ReferrerPolicy.ts:126` `ReferrerPolicyHeader` (const) - missing summary; missing @example
-- `src/http/headers/ReferrerPolicy.ts:190` `ReferrerPolicyHeader` (type) - missing summary; missing @example
+- `src/http/headers/ReferrerPolicy.ts:125` `ReferrerPolicyHeader` (const) - missing summary; missing @example
+- `src/http/headers/ReferrerPolicy.ts:191` `ReferrerPolicyHeader` (type) - missing summary; missing @example
 - `src/http/headers/SecureHeader.ts:33` `SecureHeader` (const) - missing summary; missing @example
 - `src/http/headers/SecureHeader.ts:44` `SecureHeader` (type) - missing summary; missing @example
 - `src/http/headers/SecureHeaderError.ts:109` `CspError` (class) - missing summary; missing @example
@@ -1057,8 +1060,8 @@ Export findings:
 - `src/http/headers/XSSProtection.ts:74` `XSSProtectionOption` (const) - missing summary; missing @example
 - `src/http/headers/XSSProtection.ts:84` `XSSProtectionOption` (type) - missing summary; missing @example
 - `src/http/headers/XSSProtection.ts:90` `XSSProtectionResponseHeader` (class) - missing summary; missing @example
-- `src/http/headers/XSSProtection.ts:142` `XSSProtectionHeader` (const) - missing summary; missing @example
-- `src/http/headers/XSSProtection.ts:193` `XSSProtectionHeader` (type) - missing summary; missing @example
+- `src/http/headers/XSSProtection.ts:143` `XSSProtectionHeader` (const) - missing summary; missing @example
+- `src/http/headers/XSSProtection.ts:194` `XSSProtectionHeader` (type) - missing summary; missing @example
 - `src/http/headers/_internal/helpers.ts:22` `ArrayOfStrOrStr` (const) - missing summary; missing @example
 - `src/http/headers/_internal/helpers.ts:32` `ArrayOfStrOrStr` (type) - missing summary; missing @example
 - `src/http/headers/_internal/helpers.ts:38` `StringOrUrl` (const) - missing summary; missing @example
@@ -1782,6 +1785,35 @@ Export findings:
 - `src/index.ts:38` `export * from "./Postgres.format.ts";` (re-export) - missing @example
 - `src/index.ts:46` `export * from "./Postgres.sqlstate.ts";` (re-export) - missing @example
 
+### @beep/face-detection
+
+Path: `packages/drivers/face-detection`
+
+Export findings:
+- `src/FaceDetection.models.ts:20` `PositivePixelDimension` (const) - missing @example
+- `src/FaceDetection.models.ts:39` `PositivePixelDimension` (type) - missing @example
+- `src/FaceDetection.models.ts:47` `FaceDetectionConfidence` (const) - missing @example
+- `src/FaceDetection.models.ts:81` `FaceDetectionConfidence` (type) - missing @example
+- `src/FaceDetection.models.ts:89` `FaceDetectionPercentage` (const) - missing @example
+- `src/FaceDetection.models.ts:123` `FaceDetectionPercentage` (type) - missing @example
+- `src/FaceDetection.models.ts:131` `FaceDetectionTopK` (const) - missing @example
+- `src/FaceDetection.models.ts:150` `FaceDetectionTopK` (type) - missing @example
+- `src/FaceDetection.models.ts:216` `FaceDetectionPoint` (class) - missing @example
+- `src/FaceDetection.models.ts:232` `FaceDetectionBox` (class) - missing @example
+- `src/FaceDetection.models.ts:250` `FaceDetectionLandmarks` (class) - missing @example
+- `src/FaceDetection.models.ts:269` `FaceDetection` (class) - missing @example
+- `src/FaceDetection.models.ts:286` `FaceDetectionResult` (class) - missing @example
+- `src/FaceDetection.models.ts:304` `decodeFaceDetectionModelConfig` (const) - missing @example
+- `src/FaceDetection.models.ts:312` `decodeFaceDetectionImageRequest` (const) - missing @example
+- `src/FaceDetection.service.ts:83` `LoadedFaceDetector` (interface) - missing @example
+- `src/FaceDetection.service.ts:93` `FaceDetectionServiceShape` (interface) - missing @example
+- `src/FaceDetection.service.ts:106` `FaceDetectionService` (class) - missing @example
+- `src/FaceDetection.service.ts:539` `makeFaceDetectionService` (const) - missing @example
+- `src/FaceDetection.service.ts:569` `withDetector` (const) - missing @example
+- `src/index.ts:14` `export * from "./FaceDetection.errors.ts";` (re-export) - missing @example
+- `src/index.ts:22` `export * from "./FaceDetection.models.ts";` (re-export) - missing @example
+- `src/index.ts:30` `export * from "./FaceDetection.service.ts";` (re-export) - missing @example
+
 ### @beep/repo-docgen
 
 Path: `packages/tooling/tool/docgen`
@@ -1873,6 +1905,23 @@ Export findings:
 - `src/next/models/AllowedDevOrigin.schema.ts:57` `AllowedDevOrigin` (type) - 1 unsafe example violation(s)
 - `src/next/models/ImageConfig.schema.ts:28` `LoaderValue` (const) - 1 schema annotation/type-alias gap(s)
 
+### @beep/agent-capability-use-cases
+
+Path: `packages/agent-capability/use-cases`
+
+Export findings:
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:55` `RuntimeFixtureInput` (class) - 1 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` `ProfessionalRuntimeSdk` (interface) - 1 unsafe example violation(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` `RuntimeCandidateLifecycle` (const) - 2 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` `RuntimeClaimConfidence` (const) - 2 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` `RuntimeApprovalDecision` (const) - 2 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` `RuntimeRequestKind` (const) - 2 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` `RuntimeSourceKind` (const) - 2 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` `RuntimeActivityType` (const) - 2 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` `RuntimeUsageMode` (const) - 2 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/index.ts:80` `export type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.js";` (re-export) - 1 unsafe example violation(s)
+- `src/public.ts:78` `export type { ProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/ProfessionalRuntime.service.js";` (re-export) - 1 unsafe example violation(s)
+
 ### @beep/ui
 
 Path: `packages/foundation/ui-system/ui`
@@ -1896,11 +1945,6 @@ Module findings:
 - `src/components/card.tsx:1` (none) - missing summary; missing @since
 - `src/components/carousel.tsx:1` (none) - missing summary; missing @since
 - `src/components/checkbox.tsx:1` (none) - missing summary; missing @since
-- `src/components/codegraph/components/SearchBar.tsx:1` (none) - missing summary; missing @since
-- `src/components/codegraph/components/StatsPanel.tsx:1` (none) - missing summary; missing @since
-- `src/components/codegraph/neo4j.ts:1` (none) - missing summary; missing @since
-- `src/components/codegraph/styles/graph-layout.tsx:1` (none) - missing summary; missing @since
-- `src/components/codegraph/styles/graph-styles.tsx:1` (none) - missing summary; missing @since
 - `src/components/collapsible.tsx:1` (none) - missing summary; missing @since
 - `src/components/combobox.tsx:1` (none) - missing summary; missing @since
 - `src/components/command.tsx:1` (none) - missing summary; missing @since
@@ -2055,30 +2099,6 @@ Export findings:
 - `src/components/carousel.tsx:182` `CarouselPrevious` (function) - missing summary; missing @example
 - `src/components/carousel.tsx:42` `useCarousel` (function) - missing summary; missing @example
 - `src/components/checkbox.tsx:11` `Checkbox` (function) - missing summary; missing @example
-- `src/components/codegraph/components/SearchBar.tsx:15` `SearchMode` (const) - missing summary; missing @example
-- `src/components/codegraph/components/SearchBar.tsx:25` `SearchMode` (type) - missing summary; missing @example
-- `src/components/codegraph/components/SearchBar.tsx:31` `SearchBarProps` (class) - missing summary; missing @example; 1 schema annotation/type-alias gap(s)
-- `src/components/codegraph/components/StatsPanel.tsx:32` `StatsPanel` (function) - missing summary; missing @example
-- `src/components/codegraph/neo4j.ts:11` `DeadCodeItem` (class) - missing summary; missing @example
-- `src/components/codegraph/neo4j.ts:25` `GodObjectItem` (class) - missing summary; missing @example
-- `src/components/codegraph/neo4j.ts:40` `GodFileItem` (class) - missing summary; missing @example
-- `src/components/codegraph/neo4j.ts:53` `DuplicateGroupFunction` (class) - missing summary; missing @example; 1 schema annotation/type-alias gap(s)
-- `src/components/codegraph/neo4j.ts:62` `DuplicateGroup` (class) - missing summary; missing @example; 1 schema annotation/type-alias gap(s)
-- `src/components/codegraph/neo4j.ts:72` `HealthStats` (class) - missing summary; missing @example; 1 schema annotation/type-alias gap(s)
-- `src/components/codegraph/neo4j.ts:100` `ViewMode` (const) - missing summary; missing @example
-- `src/components/codegraph/neo4j.ts:110` `ViewMode` (type) - missing summary; missing @example
-- `src/components/codegraph/neo4j.ts:116` `CacheKey` (const) - missing summary; missing @example
-- `src/components/codegraph/neo4j.ts:126` `CacheKey` (type) - missing summary; missing @example
-- `src/components/codegraph/styles/graph-layout.tsx:13` `LayoutName` (const) - missing summary; missing @example
-- `src/components/codegraph/styles/graph-layout.tsx:23` `LayoutName` (type) - missing summary; missing @example
-- `src/components/codegraph/styles/graph-layout.tsx:29` `LayoutBase` (class) - missing summary; missing @example; 1 schema annotation/type-alias gap(s)
-- `src/components/codegraph/styles/graph-layout.tsx:42` `CircleLayout` (class) - missing summary; missing @example
-- `src/components/codegraph/styles/graph-layout.tsx:56` `ConcentricLayout` (class) - missing summary; missing @example
-- `src/components/codegraph/styles/graph-layout.tsx:73` `BreadthFirstLayout` (class) - missing summary; missing @example
-- `src/components/codegraph/styles/graph-layout.tsx:92` `CoseLayout` (class) - missing summary; missing @example
-- `src/components/codegraph/styles/graph-layout.tsx:116` `GraphLayout` (const) - missing summary; missing @example; 1 schema annotation/type-alias gap(s)
-- `src/components/codegraph/styles/graph-styles.tsx:10` `graphStyles` (const) - missing summary; missing @example
-- `src/components/codegraph/styles/graph-styles.tsx:520` `graphStylesFast` (const) - missing @example
 - `src/components/collapsible.tsx:10` `Collapsible` (function) - missing summary; missing @example
 - `src/components/collapsible.tsx:26` `CollapsibleContent` (function) - missing summary; missing @example
 - `src/components/collapsible.tsx:18` `CollapsibleTrigger` (function) - missing summary; missing @example
@@ -2188,7 +2208,7 @@ Export findings:
 - `src/components/dropdown-menu.tsx:163` `DropdownMenuSubContent` (function) - missing summary; missing @example
 - `src/components/dropdown-menu.tsx:135` `DropdownMenuSubTrigger` (function) - missing summary; missing @example
 - `src/components/dropdown-menu.tsx:29` `DropdownMenuTrigger` (function) - missing summary; missing @example
-- `src/components/editor/editor-ui/content-editable.tsx:16` `ContentEditable` (function) - missing @example
+- `src/components/editor/editor-ui/content-editable.tsx:20` `ContentEditable` (function) - missing @example
 - `src/components/editor/themes/editor-theme.ts:13` `editorTheme` (const) - missing @example
 - `src/components/empty.tsx:10` `Empty` (function) - missing summary; missing @example
 - `src/components/empty.tsx:100` `EmptyContent` (function) - missing summary; missing @example
@@ -2196,16 +2216,16 @@ Export findings:
 - `src/components/empty.tsx:27` `EmptyHeader` (function) - missing summary; missing @example
 - `src/components/empty.tsx:56` `EmptyMedia` (function) - missing summary; missing @example
 - `src/components/empty.tsx:75` `EmptyTitle` (function) - missing summary; missing @example
-- `src/components/field.tsx:85` `Field` (function) - missing summary; missing @example
-- `src/components/field.tsx:105` `FieldContent` (function) - missing summary; missing @example
-- `src/components/field.tsx:154` `FieldDescription` (function) - missing summary; missing @example
-- `src/components/field.tsx:204` `FieldError` (function) - missing summary; missing @example
-- `src/components/field.tsx:53` `FieldGroup` (function) - missing summary; missing @example
-- `src/components/field.tsx:119` `FieldLabel` (function) - missing summary; missing @example
-- `src/components/field.tsx:34` `FieldLegend` (function) - missing summary; missing @example
-- `src/components/field.tsx:173` `FieldSeparator` (function) - missing summary; missing @example
-- `src/components/field.tsx:17` `FieldSet` (function) - missing summary; missing @example
-- `src/components/field.tsx:137` `FieldTitle` (function) - missing summary; missing @example
+- `src/components/field.tsx:88` `Field` (function) - missing summary; missing @example
+- `src/components/field.tsx:108` `FieldContent` (function) - missing summary; missing @example
+- `src/components/field.tsx:157` `FieldDescription` (function) - missing summary; missing @example
+- `src/components/field.tsx:208` `FieldError` (function) - missing summary; missing @example
+- `src/components/field.tsx:56` `FieldGroup` (function) - missing summary; missing @example
+- `src/components/field.tsx:122` `FieldLabel` (function) - missing summary; missing @example
+- `src/components/field.tsx:37` `FieldLegend` (function) - missing summary; missing @example
+- `src/components/field.tsx:176` `FieldSeparator` (function) - missing summary; missing @example
+- `src/components/field.tsx:20` `FieldSet` (function) - missing summary; missing @example
+- `src/components/field.tsx:140` `FieldTitle` (function) - missing summary; missing @example
 - `src/components/hover-card.tsx:11` `HoverCard` (function) - missing summary; missing @example
 - `src/components/hover-card.tsx:27` `HoverCardContent` (function) - missing summary; missing @example
 - `src/components/hover-card.tsx:19` `HoverCardTrigger` (function) - missing summary; missing @example
@@ -2348,7 +2368,7 @@ Export findings:
 - `src/components/slider.tsx:13` `Slider` (function) - missing summary; missing @example
 - `src/components/sonner.tsx:12` `Toaster` (const) - missing summary; missing @example
 - `src/components/speech-input.tsx:142` `SpeechInput` (const) - missing summary; missing @example
-- `src/components/speech-input.tsx:399` `SpeechInputCancelButton` (const) - missing summary; missing @example
+- `src/components/speech-input.tsx:404` `SpeechInputCancelButton` (const) - missing summary; missing @example
 - `src/components/speech-input.tsx:355` `SpeechInputPreview` (const) - missing summary; missing @example
 - `src/components/speech-input.tsx:298` `SpeechInputRecordButton` (const) - missing summary; missing @example
 - `src/components/speech-input.tsx:56` `useSpeechInput` (function) - missing summary; missing @example
@@ -2407,10 +2427,10 @@ Export findings:
 - `src/components/tooltip.tsx:34` `TooltipContent` (function) - missing summary; missing @example
 - `src/components/tooltip.tsx:10` `TooltipProvider` (function) - missing summary; missing @example
 - `src/components/tooltip.tsx:26` `TooltipTrigger` (function) - missing summary; missing @example
-- `src/components/tour.tsx:41` `Step` (interface) - missing summary; missing @example
-- `src/components/tour.tsx:60` `Tour` (interface) - missing summary; missing @example
-- `src/components/tour.tsx:69` `TourProvider` (function) - missing summary; missing @example
-- `src/components/tour.tsx:32` `useTour` (function) - missing summary; missing @example
+- `src/components/tour.tsx:42` `Step` (interface) - missing summary; missing @example
+- `src/components/tour.tsx:61` `Tour` (interface) - missing summary; missing @example
+- `src/components/tour.tsx:70` `TourProvider` (function) - missing summary; missing @example
+- `src/components/tour.tsx:33` `useTour` (function) - missing summary; missing @example
 - `src/components/ui/button.stories.tsx:9` `default` (const) - missing summary; missing @example
 - `src/components/ui/button.stories.tsx:39` `Default` (const) - missing summary; missing @example
 - `src/components/ui/button.stories.tsx:54` `Outline` (const) - missing summary; missing @example
@@ -2427,7 +2447,10 @@ Export findings:
 - `src/components/ui/tooltip.tsx:37` `TooltipContent` (function) - missing summary; missing @example
 - `src/components/ui/tooltip.tsx:13` `TooltipProvider` (function) - missing @example
 - `src/components/ui/tooltip.tsx:29` `TooltipTrigger` (function) - missing summary; missing @example
-- `src/hooks/index.ts:13` `export * from "./useNumberInput.ts";` (re-export) - missing @example
+- `src/hooks/index.ts:13` `export * from "./use-scribe.ts";` (re-export) - missing @example
+- `src/hooks/index.ts:18` `export * from "./useNumberInput.ts";` (re-export) - missing @example
+- `src/hooks/use-scribe.ts:140` `useScribe` (function) - missing @example
+- `src/hooks/use-scribe.ts:41` `ScribeStatus` (type) - missing @example
 - `src/hooks/useMobile.ts:32` `useIsMobile` (function) - missing @example
 - `src/hooks/useMobile.ts:24` `resolveIsMobile` (const) - missing @example
 - `src/hooks/useNumberInput.ts:213` `minSafeInteger` (const) - missing @example
@@ -2447,6 +2470,7 @@ Export findings:
 - `src/lib/index.ts:5` `export * from "./url.ts";` (re-export) - missing @example
 - `src/lib/index.ts:10` `export * from "./utils.ts";` (re-export) - missing @example
 - `src/lib/react-invariant.ts:20` `ReactContextInvariantOptions` (class) - missing @example
+- `src/lib/toaster.ts:16` `globalToastManager` (const) - missing @example
 - `src/lib/url.ts:77` `sanitizeAnchorHref` (const) - missing @example
 - `src/lib/utils.ts:20` `cn` (function) - missing @example
 - `src/themes/colors.ts:30` `colors` (const) - missing @example
@@ -2493,23 +2517,6 @@ Export findings:
 - `src/types/component.ts:18` `OverridableComponent` (type) - missing summary; missing @example
 - `src/types/component.ts:33` `ForwardStyledProps` (type) - missing summary; missing @example
 - `src/types/index.ts:5` `export * from "./component";` (re-export) - missing @example
-
-### @beep/agent-capability-use-cases
-
-Path: `packages/agent-capability/use-cases`
-
-Export findings:
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:55` `RuntimeFixtureInput` (class) - 1 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` `ProfessionalRuntimeSdk` (interface) - 1 unsafe example violation(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` `RuntimeCandidateLifecycle` (const) - 2 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` `RuntimeClaimConfidence` (const) - 2 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` `RuntimeApprovalDecision` (const) - 2 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` `RuntimeRequestKind` (const) - 2 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` `RuntimeSourceKind` (const) - 2 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` `RuntimeActivityType` (const) - 2 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` `RuntimeUsageMode` (const) - 2 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/index.ts:80` `export type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.js";` (re-export) - 1 unsafe example violation(s)
-- `src/public.ts:78` `export type { ProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/ProfessionalRuntime.service.js";` (re-export) - 1 unsafe example violation(s)
 
 ### @beep/architecture-lab-ui
 
@@ -2608,26 +2615,26 @@ Export findings:
 - `src/commands/Architecture/OperationPlan.ts:61` `ArchitecturePlanStage` (type) - missing @example
 - `src/commands/Architecture/OperationPlan.ts:69` `ArchitectureSliceRole` (const) - missing @example
 - `src/commands/Architecture/OperationPlan.ts:91` `ArchitectureSliceRole` (type) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:99` `ArchitectureWriterKind` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:117` `ArchitectureWriterKind` (type) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:125` `ArchitectureSliceRolePlan` (class) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:143` `ArchitecturePlanTarget` (class) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:162` `WriteFileOperation` (class) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:182` `EnsureFileOperation` (class) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:200` `EnsureAbsentPathOperation` (class) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:217` `ArchitectureOperation` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/commands/Architecture/OperationPlan.ts:225` `ArchitectureOperation` (type) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:233` `CanonicalSliceOperationPlan` (class) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:270` `OperationPlanCheckResult` (class) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:288` `OperationPlanApplyResult` (class) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1184` `makeCanonicalSliceOperationPlan` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1222` `makeArchitectureOperationPlan` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1283` `encodeCanonicalSliceOperationPlanJson` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1291` `decodeCanonicalSliceOperationPlanJson` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1304` `checkCanonicalSliceOperationPlan` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1359` `applyCanonicalSliceOperationPlan` (const) - missing @example
-- `src/commands/Architecture/OperationPlan.ts:1649` `architectureCommand` (const) - missing @example
-- `src/commands/Architecture/index.ts:7` `export * from "./OperationPlan.js";` (re-export) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:180` `ArchitectureWriterKind` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:198` `ArchitectureWriterKind` (type) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:394` `ArchitectureSliceRolePlan` (class) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:412` `ArchitecturePlanTarget` (class) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:431` `WriteFileOperation` (class) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:501` `EnsureFileOperation` (class) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:523` `EnsureAbsentPathOperation` (class) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:544` `ArchitectureOperation` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/commands/Architecture/OperationPlan.ts:557` `ArchitectureOperation` (type) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:595` `CanonicalSliceOperationPlan` (class) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:632` `OperationPlanCheckResult` (class) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:653` `OperationPlanApplyResult` (class) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:2251` `makeCanonicalSliceOperationPlan` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:2296` `makeArchitectureOperationPlan` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:2404` `encodeCanonicalSliceOperationPlanJson` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:2412` `decodeCanonicalSliceOperationPlanJson` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:2458` `checkCanonicalSliceOperationPlan` (const) - missing @example
+- `src/commands/Architecture/OperationPlan.ts:2527` `applyCanonicalSliceOperationPlan` (const) - missing @example
+- `src/commands/Architecture/index.ts:7` `export * from "./Command.js";` (re-export) - missing @example
+- `src/commands/Architecture/index.ts:14` `export * from "./OperationPlan.js";` (re-export) - missing @example
 - `src/commands/CreatePackage/ConfigUpdater.ts:41` `ConfigUpdateResult` (class) - missing @example
 - `src/commands/CreatePackage/ConfigUpdater.ts:58` `ConfigUpdateTarget` (class) - missing @example
 - `src/commands/CreatePackage/ConfigUpdater.ts:76` `ConfigUpdateTargetResult` (class) - missing @example
@@ -2653,7 +2660,7 @@ Export findings:
 - `src/commands/CreatePackage/FileGenerationPlanService.ts:468` `createFileGenerationPlanService` (const) - missing @example
 - `src/commands/CreatePackage/Handler.ts:77` `resolveCreatePackageTemplateDir` (const) - missing @example
 - `src/commands/CreatePackage/Handler.ts:267` `TemplateContext` (class) - missing @example
-- `src/commands/CreatePackage/Handler.ts:544` `createPackageCommand` (const) - missing @example
+- `src/commands/CreatePackage/Handler.ts:554` `createPackageCommand` (const) - missing @example
 - `src/commands/CreatePackage/TemplateService.ts:24` `TemplateSpec` (class) - missing @example
 - `src/commands/CreatePackage/TemplateService.ts:40` `RenderedTemplate` (class) - missing @example
 - `src/commands/CreatePackage/TemplateService.ts:56` `TemplateRenderRequest` (class) - missing @example
@@ -2685,180 +2692,201 @@ Export findings:
 - `src/commands/Docgen/internal/Operations.ts:260` `DocgenPackageAnalysis` (class) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:279` `DocgenGenerationResult` (class) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:299` `DocgenAggregateResult` (class) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1127` `normalizeDocsOutputPath` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1138` `loadDocgenConfigDocument` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1166` `createDocgenConfigDocument` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1209` `discoverDocgenWorkspacePackages` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1128` `normalizeDocsOutputPath` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1139` `loadDocgenConfigDocument` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1167` `createDocgenConfigDocument` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1210` `discoverDocgenWorkspacePackages` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:1252` `resolveDocgenWorkspacePackage` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:1304` `analyzePackageDocumentation` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:1348` `generateAnalysisReport` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:1466` `generateAnalysisJson` (const) - missing @example
 - `src/commands/Docgen/internal/Operations.ts:1476` `aggregateGeneratedDocs` (const) - missing @example
-- `src/commands/Docgen/internal/Operations.ts:1626` `runDocgenForPackage` (const) - missing @example
-- `src/commands/Files/Files.command.ts:386` `filesCommand` (const) - missing @example
+- `src/commands/Docgen/internal/Operations.ts:1627` `runDocgenForPackage` (const) - missing @example
+- `src/commands/Files/Files.command.ts:447` `filesCommand` (const) - missing @example
 - `src/commands/Files/Files.errors.ts:54` `formatPlatformError` (const) - missing @example
 - `src/commands/Files/Files.errors.ts:74` `failOnExtensionlessFile` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:24` `PositiveMediaDimension` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:52` `PositiveMediaDimension` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:60` `FileSha256Hash` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:79` `FileSha256Hash` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:87` `NonNegativePixelOffset` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:115` `NonNegativePixelOffset` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:123` `MediaKind` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:135` `MediaKind` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:143` `SupportedMetadataImageExtension` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:163` `SupportedMetadataImageExtension` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:171` `NormalizeImageFormatInput` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:183` `NormalizeImageFormatInput` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:191` `NormalizeImageFormat` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:203` `NormalizeImageFormat` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:211` `NormalizeSkippedReason` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:231` `NormalizeSkippedReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:239` `CreateCaptionFilesSkippedReason` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:260` `CreateCaptionFilesSkippedReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:268` `BorderSide` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:280` `BorderSide` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:288` `BorderDetectionKind` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:307` `BorderDetectionKind` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:315` `DetectBordersSkippedReason` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:335` `DetectBordersSkippedReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:343` `CandidateAssessmentProfile` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:355` `CandidateAssessmentProfile` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:363` `CandidateAssessmentDecision` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:375` `CandidateAssessmentDecision` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:383` `CandidateAssessmentReason` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:399` `CandidateAssessmentReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:407` `ArchivePoorCandidatesSkippedReason` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:427` `ArchivePoorCandidatesSkippedReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:435` `CandidateRatioThreshold` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:454` `CandidateRatioThreshold` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:462` `BorderDetectionPercentage` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:496` `BorderDetectionPercentage` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:504` `BorderDetectionMaxScanPercentage` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:538` `BorderDetectionMaxScanPercentage` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:546` `BorderDetectionTolerance` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:580` `BorderDetectionTolerance` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:588` `RgbChannel` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:622` `RgbChannel` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:630` `ImageSizeMetadata` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:647` `FfprobeSideData` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:662` `FfprobeStream` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:680` `FfprobeOutput` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:695` `SafeFilePrefix` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:741` `SafeFilePrefix` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:782` `RenamePlanEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:807` `SortAndRenameSummary` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:859` `StripMetadataSummary` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:903` `CreateCaptionFilesOptions` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:921` `CreateCaptionFilesPlanEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:943` `CreateCaptionFilesSkippedEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:965` `CreateCaptionFilesPlan` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:984` `CreateCaptionFilesSummary` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1004` `NormalizeFilesOptions` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1029` `NormalizeManifestOptions` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1048` `NormalizePlanEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1076` `NormalizeSkippedEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1100` `NormalizePlan` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1121` `NormalizeSummary` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1150` `NormalizeManifestSummary` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1170` `NormalizeManifest` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1192` `ArchivePoorCandidatesOptions` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1219` `ArchivePoorCandidatesManifestOptions` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1242` `CandidateAssessmentMetrics` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1260` `ArchivedSidecarEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1279` `ArchivePoorCandidatesEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1306` `ArchivePoorCandidatesSkippedEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1327` `ArchivePoorCandidatesPlan` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1347` `ArchivePoorCandidatesSummary` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1373` `ArchivePoorCandidatesManifestSummary` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1394` `ArchivePoorCandidatesManifest` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1418` `DetectBordersOptions` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1438` `CropBordersOptions` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1458` `RgbColor` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1475` `DetectBorderSideMeasurement` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1496` `DetectBordersEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1519` `DetectBordersSkippedEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1538` `DetectBordersSummary` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1557` `DetectBordersReport` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1577` `CropBordersPlanEntry` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1603` `CropBordersPlan` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1622` `CropBordersSummary` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1643` `SortableFileCollection` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1659` `RenamePlan` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1675` `StripMetadataPlan` (class) - missing @example
-- `src/commands/Files/Files.schemas.ts:1693` `decodeImageSizeMetadata` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1701` `decodeFfprobeOutputJson` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1709` `decodeRotationNumber` (const) - missing @example; 2 schema annotation/type-alias gap(s)
-- `src/commands/Files/Files.schemas.ts:1717` `decodeSafeFilePrefix` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1725` `decodeNormalizeMaxLongEdge` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1733` `decodeArchivePoorCandidatesOptions` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1741` `decodeCreateCaptionFilesOptions` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1749` `decodeDetectBordersOptions` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1757` `decodeCropBordersOptions` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1765` `encodeNormalizeManifest` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1773` `encodeArchivePoorCandidatesManifest` (const) - missing @example
-- `src/commands/Files/Files.schemas.ts:1781` `encodeDetectBordersReport` (const) - missing @example
-- `src/commands/Files/Files.service.ts:146` `FilesCommandServiceShape` (interface) - missing @example
-- `src/commands/Files/Files.service.ts:212` `FilesCommandService` (class) - missing @example
-- `src/commands/Files/Files.service.ts:2998` `printFilesIndex` (const) - missing @example
-- `src/commands/Files/Files.service.ts:3607` `FilesCommandServiceLive` (const) - missing @example
-- `src/commands/Files/Files.service.ts:3618` `archivePoorCandidates` (const) - missing @example
-- `src/commands/Files/Files.service.ts:3633` `createCaptionFiles` (const) - missing @example
-- `src/commands/Files/Files.service.ts:3648` `cropBordersFiles` (const) - missing @example
-- `src/commands/Files/Files.service.ts:3663` `detectBordersFiles` (const) - missing @example
-- `src/commands/Files/Files.service.ts:3678` `normalizeFiles` (const) - missing @example
-- `src/commands/Files/Files.service.ts:3696` `sortAndRenameFiles` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:220` `stringEquivalence` (const) - missing @example; 2 schema annotation/type-alias gap(s)
-- `src/commands/Files/Files.utils.ts:228` `isImageFileExtension` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:236` `isVideoFileExtension` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:244` `isSupportedMetadataImageExtension` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:252` `bySizeDescendingThenNameAscending` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:263` `byNameAscending` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:276` `normalizeBareExtension` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:286` `mediaKindFromExtension` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:309` `formatIndex` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:322` `collectText` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:340` `isExifOrientationRotated` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:350` `isQuarterTurnRotation` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:364` `maybeSwapDimensions` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:386` `rotationFromStream` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:407` `targetNameForEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:431` `hasSkippedFiles` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:441` `selectedCanonicalPathSet` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:457` `renderPlanEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:467` `renderStripMetadataPlanEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:478` `renderCreateCaptionFilesPlanEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:489` `renderCreateCaptionFilesSkippedEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:500` `renderNormalizePlanEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:511` `renderNormalizeSkippedEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:522` `normalizeOutputExtension` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:532` `sharpFormatForNormalize` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:544` `normalizeOutputDimensions` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:573` `mediaDimensionsChanged` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:589` `roundCandidateMetric` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:600` `assessImageCandidate` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:644` `renderArchivePoorCandidatesEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:661` `renderArchivePoorCandidatesSkippedEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:672` `rgbToHex` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:683` `classifyBorderSides` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:729` `analyzeSolidBorders` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:746` `renderDetectBordersEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:765` `renderDetectBordersSkippedEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:785` `cropBordersPlanEntryFromDetection` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:823` `renderCropBordersPlanEntry` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:836` `makeStripMetadataTempEntries` (const) - missing @example
-- `src/commands/Files/Files.utils.ts:861` `isSupportedMetadataImageFile` (const) - missing @example
+- `src/commands/Files/Files.progress.ts:24` `FilesConcurrency` (const) - missing @example
+- `src/commands/Files/Files.progress.ts:74` `isFilesProgressEnabled` (const) - missing @example
+- `src/commands/Files/Files.progress.ts:84` `renderFilesProgressBar` (const) - missing @example
+- `src/commands/Files/Files.progress.ts:105` `runFilesProgressAll` (const) - missing @example
+- `src/commands/Files/Files.progress.ts:173` `runFilesProgressForEach` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:25` `PositiveMediaDimension` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:53` `PositiveMediaDimension` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:61` `FileSha256Hash` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:80` `FileSha256Hash` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:88` `NonNegativePixelOffset` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:116` `NonNegativePixelOffset` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:124` `MediaKind` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:136` `MediaKind` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:144` `SupportedMetadataImageExtension` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:164` `SupportedMetadataImageExtension` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:172` `NormalizeImageFormatInput` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:184` `NormalizeImageFormatInput` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:192` `NormalizeImageFormat` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:204` `NormalizeImageFormat` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:212` `NormalizeSkippedReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:232` `NormalizeSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:240` `CreateCaptionFilesSkippedReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:261` `CreateCaptionFilesSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:269` `BorderSide` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:281` `BorderSide` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:289` `BorderDetectionKind` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:308` `BorderDetectionKind` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:316` `DetectBordersSkippedReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:336` `DetectBordersSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:344` `DetectFacesSkippedReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:365` `DetectFacesSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:373` `DetectFacesFlag` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:391` `DetectFacesFlag` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:399` `CandidateAssessmentProfile` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:411` `CandidateAssessmentProfile` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:419` `CandidateAssessmentDecision` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:431` `CandidateAssessmentDecision` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:439` `CandidateAssessmentReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:455` `CandidateAssessmentReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:463` `ArchivePoorCandidatesSkippedReason` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:483` `ArchivePoorCandidatesSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:491` `CandidateRatioThreshold` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:510` `CandidateRatioThreshold` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:518` `BorderDetectionPercentage` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:552` `BorderDetectionPercentage` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:560` `BorderDetectionMaxScanPercentage` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:594` `BorderDetectionMaxScanPercentage` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:602` `BorderDetectionTolerance` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:636` `BorderDetectionTolerance` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:644` `RgbChannel` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:678` `RgbChannel` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:686` `ImageSizeMetadata` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:703` `FfprobeSideData` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:718` `FfprobeStream` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:736` `FfprobeOutput` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:751` `SafeFilePrefix` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:797` `SafeFilePrefix` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:838` `RenamePlanEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:863` `SortAndRenameSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:915` `StripMetadataSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:959` `CreateCaptionFilesOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:977` `CreateCaptionFilesPlanEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:999` `CreateCaptionFilesSkippedEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1021` `CreateCaptionFilesPlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1040` `CreateCaptionFilesSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1060` `NormalizeFilesOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1085` `NormalizeManifestOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1104` `NormalizePlanEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1132` `NormalizeSkippedEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1156` `NormalizePlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1177` `NormalizeSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1206` `NormalizeManifestSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1226` `NormalizeManifest` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1248` `ArchivePoorCandidatesOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1275` `ArchivePoorCandidatesManifestOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1298` `CandidateAssessmentMetrics` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1316` `ArchivedSidecarEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1335` `ArchivePoorCandidatesEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1362` `ArchivePoorCandidatesSkippedEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1383` `ArchivePoorCandidatesPlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1403` `ArchivePoorCandidatesSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1429` `ArchivePoorCandidatesManifestSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1450` `ArchivePoorCandidatesManifest` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1474` `DetectBordersOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1494` `DetectFacesOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1516` `DetectFacesReportOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1537` `CropBordersOptions` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1557` `RgbColor` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1574` `DetectBorderSideMeasurement` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1595` `DetectBordersEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1618` `DetectBordersSkippedEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1637` `DetectBordersSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1656` `DetectBordersReport` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1676` `DetectFacesEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1704` `DetectFacesSkippedEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1723` `DetectFacesSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1745` `DetectFacesReport` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1767` `CropBordersPlanEntry` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1793` `CropBordersPlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1812` `CropBordersSummary` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1833` `SortableFileCollection` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1849` `RenamePlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1865` `StripMetadataPlan` (class) - missing @example
+- `src/commands/Files/Files.schemas.ts:1883` `decodeImageSizeMetadata` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1891` `decodeFfprobeOutputJson` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1899` `decodeRotationNumber` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/commands/Files/Files.schemas.ts:1907` `decodeSafeFilePrefix` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1915` `decodeNormalizeMaxLongEdge` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1923` `decodeArchivePoorCandidatesOptions` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1931` `decodeCreateCaptionFilesOptions` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1939` `decodeDetectBordersOptions` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1946` `decodeDetectFacesOptions` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1954` `decodeCropBordersOptions` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1962` `encodeNormalizeManifest` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1970` `encodeArchivePoorCandidatesManifest` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1978` `encodeDetectBordersReport` (const) - missing @example
+- `src/commands/Files/Files.schemas.ts:1985` `encodeDetectFacesReport` (const) - missing @example
+- `src/commands/Files/Files.service.ts:207` `FilesCommandServiceShape` (interface) - missing @example
+- `src/commands/Files/Files.service.ts:280` `FilesCommandService` (class) - missing @example
+- `src/commands/Files/Files.service.ts:3595` `printFilesIndex` (const) - missing @example
+- `src/commands/Files/Files.service.ts:4355` `FilesCommandServiceLive` (const) - missing @example
+- `src/commands/Files/Files.service.ts:4366` `archivePoorCandidates` (const) - missing @example
+- `src/commands/Files/Files.service.ts:4381` `createCaptionFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:4396` `cropBordersFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:4411` `detectBordersFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:4426` `detectFacesFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:4441` `normalizeFiles` (const) - missing @example
+- `src/commands/Files/Files.service.ts:4459` `sortAndRenameFiles` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:222` `stringEquivalence` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/commands/Files/Files.utils.ts:230` `isImageFileExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:238` `isVideoFileExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:246` `isSupportedMetadataImageExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:254` `bySizeDescendingThenNameAscending` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:265` `byNameAscending` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:278` `normalizeBareExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:288` `mediaKindFromExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:311` `formatIndex` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:324` `collectText` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:342` `isExifOrientationRotated` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:352` `isQuarterTurnRotation` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:366` `maybeSwapDimensions` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:388` `rotationFromStream` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:409` `targetNameForEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:433` `hasSkippedFiles` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:443` `selectedCanonicalPathSet` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:459` `renderPlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:469` `renderStripMetadataPlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:480` `renderCreateCaptionFilesPlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:491` `renderCreateCaptionFilesSkippedEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:502` `renderNormalizePlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:513` `renderNormalizeSkippedEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:524` `normalizeOutputExtension` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:534` `sharpFormatForNormalize` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:546` `normalizeOutputDimensions` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:575` `mediaDimensionsChanged` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:591` `roundCandidateMetric` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:602` `assessImageCandidate` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:646` `renderArchivePoorCandidatesEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:663` `renderArchivePoorCandidatesSkippedEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:674` `rgbToHex` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:685` `classifyBorderSides` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:731` `analyzeSolidBorders` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:748` `renderDetectBordersEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:767` `renderDetectBordersSkippedEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:778` `renderDetectFacesEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:801` `renderDetectFacesSkippedEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:821` `cropBordersPlanEntryFromDetection` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:859` `renderCropBordersPlanEntry` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:872` `makeStripMetadataTempEntries` (const) - missing @example
+- `src/commands/Files/Files.utils.ts:897` `isSupportedMetadataImageFile` (const) - missing @example
 - `src/commands/Files/index.ts:15` `export * from "./Files.command.js";` (re-export) - missing @example
 - `src/commands/Files/index.ts:22` `export * from "./Files.errors.js";` (re-export) - missing @example
-- `src/commands/Files/index.ts:29` `export * from "./Files.schemas.js";` (re-export) - missing @example
-- `src/commands/Files/index.ts:36` `export * from "./Files.service.js";` (re-export) - missing @example
-- `src/commands/Files/index.ts:43` `export * from "./Files.utils.js";` (re-export) - missing @example
+- `src/commands/Files/index.ts:29` `export * from "./Files.progress.js";` (re-export) - missing @example
+- `src/commands/Files/index.ts:36` `export * from "./Files.schemas.js";` (re-export) - missing @example
+- `src/commands/Files/index.ts:43` `export * from "./Files.service.js";` (re-export) - missing @example
+- `src/commands/Files/index.ts:50` `export * from "./Files.utils.js";` (re-export) - missing @example
 - `src/commands/Graphiti/internal/ProxyServices.ts:56` `ContainerHealthState` (const) - 1 schema annotation/type-alias gap(s)
 - `src/commands/Graphiti/internal/ProxyServices.ts:72` `DependencyHealthState` (const) - 1 schema annotation/type-alias gap(s)
-- `src/commands/Quality/Tasks.ts:693` `sqlIntegrationStepForTesting` (const) - missing @example
-- `src/commands/Quality/Tasks.ts:707` `runSqlIntegrationTestLaneForTesting` (const) - missing @example
-- `src/commands/Quality/Tasks.ts:716` `sqlIntegrationConnectionUriFromEnvForTesting` (const) - missing @example
-- `src/commands/Quality/Tasks.ts:850` `rootQualityStepsForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:699` `sqlIntegrationStepForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:713` `runSqlIntegrationTestLaneForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:722` `sqlIntegrationConnectionUriFromEnvForTesting` (const) - missing @example
+- `src/commands/Quality/Tasks.ts:857` `rootQualityStepsForTesting` (const) - missing @example
 - `src/commands/Reuse/index.ts:361` `reuseCommand` (const) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:23` `CodexRunnerStage` (const) - missing @example
 - `src/commands/Reuse/internal/CodexRunner.ts:37` `CodexRunnerStage` (type) - missing @example
@@ -3265,8 +3293,8 @@ Export findings:
 - `src/Sandbox.errors.ts:498` `SandboxError` (namespace) - missing @example
 - `src/Sandbox.observability.ts:138` `SandboxPhaseAttributes` (const) - missing @example
 - `src/Sandbox.observability.ts:150` `SandboxPhaseAttributes` (type) - missing @example
-- `src/Sandbox.process.ts:140` `SandboxProcessShape` (interface) - missing @example
-- `src/Sandbox.process.ts:242` `SandboxProcessLive` (const) - missing @example
+- `src/Sandbox.process.ts:141` `SandboxProcessShape` (interface) - missing @example
+- `src/Sandbox.process.ts:243` `SandboxProcessLive` (const) - missing @example
 - `src/Sandbox.provider.ts:23` `SandboxProviderKind` (const) - missing @example
 - `src/Sandbox.provider.ts:35` `SandboxProviderKind` (type) - missing @example
 - `src/Sandbox.provider.ts:43` `ExecResult` (class) - missing @example
@@ -3404,17 +3432,6 @@ Export findings:
 - `src/services/shacl-validation.ts:46` `ShaclSeverity` (const) - 1 schema annotation/type-alias gap(s)
 - `src/services/sparql-query.ts:42` `SparqlQueryProfile` (const) - 1 schema annotation/type-alias gap(s)
 
-### @beep/opip-web
-
-Path: `apps/opip-web`
-
-Export findings:
-- `src/app/layout.tsx:41` `default` (function) - missing @example
-- `src/app/layout.tsx:29` `metadata` (const) - missing @example
-- `src/app/manifest.ts:16` `default` (function) - missing @example
-- `src/app/page.tsx:17` `default` (function) - missing @example
-- `src/mdx-components.tsx:18` `useMDXComponents` (function) - missing @example
-
 ### @beep/acp
 
 Path: `packages/drivers/acp`
@@ -3459,6 +3476,186 @@ Export findings:
 - `src/Wink/index.ts:92` `export * from "./WinkUtils.ts";` (re-export) - missing @example
 - `src/Wink/index.ts:97` `export * from "./WinkVectorizer.ts";` (re-export) - missing @example
 
+### @beep/runpod
+
+Path: `packages/drivers/runpod`
+
+Export findings:
+- `src/Runpod.config.ts:19` `RUNPOD_API_URL` (const) - missing @example
+- `src/Runpod.config.ts:27` `RUNPOD_DOCS_INDEX_URL` (const) - missing @example
+- `src/Runpod.config.ts:35` `RunpodConfigInput` (class) - missing @example
+- `src/Runpod.config.ts:52` `RunpodDocsConfigInput` (class) - missing @example
+- `src/Runpod.docs.ts:30` `RunpodDocsIndexEntry` (class) - missing @example
+- `src/Runpod.docs.ts:48` `RunpodDocsIndex` (class) - missing @example
+- `src/Runpod.docs.ts:171` `parseRunpodDocsIndex` (const) - missing @example
+- `src/Runpod.docs.ts:267` `RunpodDocs` (class) - missing @example
+- `src/Runpod.errors.ts:27` `RunpodErrorReason` (const) - missing @example
+- `src/Runpod.errors.ts:45` `RunpodErrorReason` (type) - missing @example
+- `src/Runpod.errors.ts:53` `RunpodDocsErrorReason` (const) - missing @example
+- `src/Runpod.errors.ts:71` `RunpodDocsErrorReason` (type) - missing @example
+- `src/Runpod.errors.ts:81` `RunpodError` (class) - missing @example
+- `src/Runpod.errors.ts:163` `RunpodDocsError` (class) - missing @example
+- `src/Runpod.errors.ts:202` `RunpodErrorOptions` (class) - missing @example
+- `src/Runpod.errors.ts:218` `RunpodRawErrorOptions` (class) - missing @example
+- `src/Runpod.errors.ts:237` `RunpodDocsErrorOptions` (class) - missing @example
+- `src/Runpod.service.ts:32` `RunpodQueryScalar` (const) - missing @example
+- `src/Runpod.service.ts:44` `RunpodQueryScalar` (type) - missing @example
+- `src/Runpod.service.ts:55` `RunpodQueryValue` (const) - missing @example
+- `src/Runpod.service.ts:67` `RunpodQueryValue` (type) - missing @example
+- `src/Runpod.service.ts:75` `RunpodRawRequest` (class) - missing @example
+- `src/Runpod.service.ts:95` `RunpodRawResponse` (class) - missing @example
+- `src/Runpod.service.ts:113` `RunpodShape` (interface) - missing @example
+- `src/Runpod.service.ts:805` `Runpod` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:23` `Pods` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:36` `Pods` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:44` `Pod` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:149` `PodUpdateInPlaceInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:165` `PodUpdateInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:191` `PodCreateInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:238` `NetworkVolumes` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:257` `NetworkVolumes` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:265` `NetworkVolume` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:283` `NetworkVolumeCreateInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:300` `NetworkVolumeUpdateInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:316` `Templates` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:329` `Templates` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:337` `Template` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:369` `TemplateCreateInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:397` `TemplateUpdateInPlaceInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:416` `TemplateUpdateInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:442` `Endpoints` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:455` `Endpoints` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:463` `Endpoint` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:501` `EndpointUpdateInPlaceInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:523` `EndpointUpdateInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:555` `EndpointCreateInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:588` `User` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:600` `User` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:608` `SavingsPlan` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:628` `Machine` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:681` `DataCenter` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:696` `UnauthorizedError` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:711` `CudaVersions` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:723` `CudaVersions` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:731` `GPUTypeId` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:743` `GPUTypeId` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:751` `ContainerRegistryAuth` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:767` `ContainerRegistryAuths` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:780` `ContainerRegistryAuths` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:788` `ContainerRegistryAuthCreateInput` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:807` `BillingRecord` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:828` `BillingRecords` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:850` `BillingRecords` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:858` `NetworkVolumeBillingRecord` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:877` `NetworkVolumeBillingRecords` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:897` `NetworkVolumeBillingRecords` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:905` `RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:926` `RUNPOD_CPU_FLAVOR_IDS_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:934` `RUNPOD_CPU_FLAVOR_PRIORITY_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:942` `RUNPOD_CUDA_VERSIONS_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:950` `RUNPOD_DATA_CENTER_ID_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:985` `RUNPOD_DATA_CENTER_IDS_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1020` `RUNPOD_DATA_CENTER_PRIORITY_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1028` `RUNPOD_GPU_TYPE_ID_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1071` `RUNPOD_GPU_TYPE_IDS_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1129` `RUNPOD_GPU_TYPE_PRIORITY_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1137` `RUNPOD_MIN_CUDA_VERSION_VALUES` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1158` `GetOpenAPIStatus200Response` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1170` `GetOpenAPIStatus200Response` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:1178` `GetDocsStatus200TextResponse` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1190` `GetDocsStatus200TextResponse` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:1198` `GetOpenAPIRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1211` `GetDocsRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1224` `ListPodsRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1254` `CreatePodRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1269` `GetPodRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1289` `UpdatePodRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1305` `DeletePodRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1320` `UpdatePodViaPostRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1336` `StartPodRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1351` `StopPodRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1366` `ResetPodRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1381` `RestartPodRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1396` `ListEndpointsRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1412` `CreateEndpointRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1427` `GetEndpointRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1444` `UpdateEndpointRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1460` `DeleteEndpointRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1475` `UpdateEndpointViaPostRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1493` `ListTemplatesRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1510` `CreateTemplateRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1525` `GetTemplateRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1543` `UpdateTemplateRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1559` `DeleteTemplateRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1574` `UpdateTemplateViaPostRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1592` `ListNetworkVolumesRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1605` `CreateNetworkVolumeRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1620` `GetNetworkVolumeRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1635` `UpdateNetworkVolumeRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1651` `DeleteNetworkVolumeRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1666` `UpdateNetworkVolumeViaPostRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1684` `ListContainerRegistryAuthsRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1699` `CreateContainerRegistryAuthRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1716` `GetContainerRegistryAuthRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1733` `DeleteContainerRegistryAuthRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1750` `PodBillingRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1770` `EndpointBillingRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1793` `NetworkVolumeBillingRequest` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1810` `RunpodHttpMethod` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/_generated/Runpod.generated.ts:1818` `RunpodHttpMethod` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:1826` `RunpodOperationId` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/_generated/Runpod.generated.ts:1868` `RunpodOperationId` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:1876` `RunpodRequestBodyKind` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/_generated/Runpod.generated.ts:1884` `RunpodRequestBodyKind` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:1892` `RunpodResponseBodyKind` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/_generated/Runpod.generated.ts:1900` `RunpodResponseBodyKind` (type) - missing @example
+- `src/_generated/Runpod.generated.ts:1908` `RunpodOperationDescriptor` (class) - missing @example
+- `src/_generated/Runpod.generated.ts:1932` `getOpenAPIOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1951` `getDocsOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:1970` `listPodsOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2006` `createPodOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2025` `getPodOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2044` `updatePodOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2063` `deletePodOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2082` `updatePodViaPostOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2101` `startPodOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2120` `stopPodOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2139` `resetPodOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2158` `restartPodOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2177` `listEndpointsOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2196` `createEndpointOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2215` `getEndpointOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2234` `updateEndpointOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2253` `deleteEndpointOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2272` `updateEndpointViaPostOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2291` `listTemplatesOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2310` `createTemplateOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2329` `getTemplateOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2348` `updateTemplateOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2367` `deleteTemplateOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2386` `updateTemplateViaPostOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2405` `listNetworkVolumesOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2424` `createNetworkVolumeOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2443` `getNetworkVolumeOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2462` `updateNetworkVolumeOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2481` `deleteNetworkVolumeOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2500` `updateNetworkVolumeViaPostOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2519` `listContainerRegistryAuthsOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2538` `createContainerRegistryAuthOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2557` `getContainerRegistryAuthOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2576` `deleteContainerRegistryAuthOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2595` `podBillingOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2614` `endpointBillingOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2643` `networkVolumeBillingOperation` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2662` `RUNPOD_OPERATION_SPECS` (const) - missing @example
+- `src/_generated/Runpod.generated.ts:2847` `RunpodOperationsShape` (interface) - missing @example
+- `src/index.ts:14` `export * from "./_generated/Runpod.generated.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * from "./Runpod.config.ts";` (re-export) - missing @example
+- `src/index.ts:28` `export * from "./Runpod.docs.ts";` (re-export) - missing @example
+- `src/index.ts:35` `export * from "./Runpod.errors.ts";` (re-export) - missing @example
+- `src/index.ts:42` `export * from "./Runpod.service.ts";` (re-export) - missing @example
+- `src/index.ts:50` `VERSION` (const) - missing @example
+
 ### @beep/codedank-web
 
 Path: `apps/codedank-web`
@@ -3484,3 +3681,14 @@ Path: `packages/drivers/openai`
 
 Export findings:
 - `src/index.ts:12` `VERSION` (const) - missing summary; missing @example
+
+### @beep/opip-web
+
+Path: `apps/opip-web`
+
+Export findings:
+- `src/app/layout.tsx:41` `default` (function) - missing @example
+- `src/app/layout.tsx:29` `metadata` (const) - missing @example
+- `src/app/manifest.ts:16` `default` (function) - missing @example
+- `src/app/page.tsx:17` `default` (function) - missing @example
+- `src/mdx-components.tsx:18` `useMDXComponents` (function) - missing @example

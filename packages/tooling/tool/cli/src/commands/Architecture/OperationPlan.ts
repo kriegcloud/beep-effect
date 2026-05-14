@@ -7,14 +7,13 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { DomainError, jsonStringifyPretty } from "@beep/repo-utils";
-import { LiteralKit, normalizePath, SchemaUtils } from "@beep/schema";
+import { DomainError } from "@beep/repo-utils";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
 import { Str as CommonStr, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, Path, pipe } from "effect";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import * as R from "effect/Record";
+import type * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -1548,97 +1547,6 @@ const shellPackageJsonOperationFor = (
     description: `Write structured ${role} package manifest for ${target.boundedContext}.`,
   });
 
-const packageExportSourceFor = (role: ArchitecturePackageRole, subpath: string): string => {
-  if (subpath === ".") return "./src/index.ts";
-  if (subpath === "./layer" && role === "server") return "./src/Layer.ts";
-  if (Str.endsWith("/*")(subpath)) return `./src/${Str.replace("/*", "/*/index.ts")(Str.replace("./", "")(subpath))}`;
-  if (
-    role === "domain" &&
-    (subpath === "./aggregates" || subpath === "./entities" || subpath === "./identity" || subpath === "./values")
-  ) {
-    return `./src/${Str.replace("./", "")(subpath)}/index.ts`;
-  }
-  return `./src/${Str.replace("./", "")(subpath)}.ts`;
-};
-
-const packageExportPublishSourceFor = (role: ArchitecturePackageRole, subpath: string): string => {
-  if (subpath === ".") return "./dist/index.js";
-  if (subpath === "./layer" && role === "server") return "./dist/Layer.js";
-  if (Str.endsWith("/*")(subpath)) return `./dist/${Str.replace("/*", "/*/index.js")(Str.replace("./", "")(subpath))}`;
-  if (
-    role === "domain" &&
-    (subpath === "./aggregates" || subpath === "./entities" || subpath === "./identity" || subpath === "./values")
-  ) {
-    return `./dist/${Str.replace("./", "")(subpath)}/index.js`;
-  }
-  return `./dist/${Str.replace("./", "")(subpath)}.js`;
-};
-
-const packageExportMapFor = (
-  role: ArchitecturePackageRole,
-  exports: ReadonlyArray<string>,
-  publish: boolean
-): R.ReadonlyRecord<string, string | null> =>
-  pipe(
-    exports,
-    A.map(
-      (subpath) =>
-        [
-          subpath,
-          publish ? packageExportPublishSourceFor(role, subpath) : packageExportSourceFor(role, subpath),
-        ] as const
-    ),
-    (entries) => [...entries, ["./internal/*", null] as const, ["./package.json", "./package.json"] as const],
-    R.fromEntries
-  );
-
-const renderPackageJsonOperation = Effect.fn(function* (operation: WritePackageJsonOperation) {
-  return yield* jsonStringifyPretty({
-    name: operation.packageName,
-    version: "0.0.0",
-    description: operation.packageDescription,
-    license: "MIT",
-    private: true,
-    type: "module",
-    homepage: `https://github.com/kriegcloud/beep-effect/tree/main/${operation.repositoryDirectory}`,
-    repository: {
-      type: "git",
-      url: "git@github.com:kriegcloud/beep-effect.git",
-      directory: operation.repositoryDirectory,
-    },
-    scripts: {
-      audit: "bun run --if-present beep:audit",
-      babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-      "beep:audit":
-        "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
-      "beep:build": "tsc -b tsconfig.json && bun run babel",
-      "beep:check": "tsgo -b tsconfig.json",
-      "beep:lint": "biome check .",
-      "beep:lint:fix": "biome check . --write",
-      "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
-      "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
-      build: "bun run beep:build",
-      check: "bun run beep:check",
-      coverage: "bunx --bun vitest run --coverage --passWithNoTests --exclude=test/integration/**",
-      docgen: "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
-      lint: "bun run beep:lint",
-      "lint:fix": "bun run beep:lint:fix",
-      test: "bun run beep:test",
-      "test:integration": "bun run beep:test:integration",
-    },
-    exports: packageExportMapFor(operation.role, operation.exports, false),
-    files: ["src/**/*.ts", "dist/**/*.js", "dist/**/*.js.map", "dist/**/*.d.ts", "dist/**/*.d.ts.map"],
-    sideEffects: [],
-    publishConfig: {
-      access: "public",
-      provenance: true,
-      exports: packageExportMapFor(operation.role, operation.exports, true),
-    },
-    dependencies: operation.dependencies,
-    devDependencies: operation.devDependencies,
-  });
-});
-
 const packageShellAgentsContent = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string =>
   `# ${packageNameForRole(target, role)} Agent Notes
 
@@ -2304,8 +2212,9 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
   yield* validateRequestedRoles(target, roles);
   const selectedFiles = selectFiles(target, roles);
 
-  const writeOperations = yield* Effect.forEach(selectedFiles, (file) =>
-    Effect.gen(function* () {
+  const writeOperations = yield* Effect.forEach(
+    selectedFiles,
+    Effect.fnUntraced(function* (file) {
       const operationPath = targetPathFor(file.path, target);
       const targetFileExists = isPackageLevelFile(file.path)
         ? yield* fs.exists(path.join(repoRoot, operationPath)).pipe(Effect.orElseSucceed(thunkFalse))
@@ -2409,185 +2318,3 @@ export const encodeCanonicalSliceOperationPlanJson = encodeOperationPlanJson;
  * @since 0.0.0
  */
 export const decodeCanonicalSliceOperationPlanJson = decodeOperationPlanJson;
-
-const pathExists = Effect.fn(function* (absolutePath: string) {
-  const fs = yield* FileSystem.FileSystem;
-  return yield* fs.exists(absolutePath).pipe(Effect.orElseSucceed(thunkFalse));
-});
-
-const renderWritableOperation = (
-  operation: WriteFileOperation | WritePackageJsonOperation
-): Effect.Effect<string, DomainError> => {
-  if (operation.kind === "write-file") return Effect.succeed(operation.content);
-  return renderPackageJsonOperation(operation);
-};
-
-const resolveOperationPath = Effect.fn(function* (rootDir: string, operationPath: string) {
-  const path = yield* Path.Path;
-  const resolvedRoot = path.resolve(rootDir);
-  const resolvedPath = path.resolve(resolvedRoot, operationPath);
-  const relativeFromRoot = normalizePath(path.relative(resolvedRoot, resolvedPath));
-
-  if (path.isAbsolute(operationPath) || relativeFromRoot === ".." || Str.startsWith("../")(relativeFromRoot)) {
-    return yield* DomainError.newMessage(`Architecture operation path escapes repository root: ${operationPath}`);
-  }
-
-  return resolvedPath;
-});
-
-const checkStatusFor = (
-  operation: ArchitectureOperation,
-  status: ArchitectureOperationCheckStatus
-): ArchitectureOperationCheck =>
-  new ArchitectureOperationCheck({
-    operationId: stringEquivalence(operation.operationId, "legacy-operation")
-      ? operationIdFor(operation.kind, operation.path)
-      : operation.operationId,
-    kind: operation.kind,
-    path: operation.path,
-    status,
-  });
-
-/**
- * Validate a decoded operation plan against a repository root.
- *
- * @category utilities
- * @since 0.0.0
- */
-export const checkCanonicalSliceOperationPlan: {
-  (
-    plan: CanonicalSliceOperationPlan
-  ): (rootDir: string) => Effect.Effect<OperationPlanCheckResult, DomainError, FileSystem.FileSystem | Path.Path>;
-  (
-    rootDir: string,
-    plan: CanonicalSliceOperationPlan
-  ): Effect.Effect<OperationPlanCheckResult, DomainError, FileSystem.FileSystem | Path.Path>;
-} = dual(
-  2,
-  Effect.fn(function* (rootDir: string, plan: CanonicalSliceOperationPlan) {
-    const fs = yield* FileSystem.FileSystem;
-    const missingPaths: Array<string> = [];
-    const differingPaths: Array<string> = [];
-    const unexpectedPaths: Array<string> = [];
-    const operationStatuses: Array<ArchitectureOperationCheck> = [];
-
-    for (const operation of plan.operations) {
-      const operationPath = yield* resolveOperationPath(rootDir, operation.path);
-      const exists = yield* pathExists(operationPath);
-      if (operation.kind === "ensure-file" && !exists) {
-        missingPaths.push(operation.path);
-        operationStatuses.push(checkStatusFor(operation, "missing"));
-      }
-      if (operation.kind === "ensure-file" && exists) {
-        operationStatuses.push(checkStatusFor(operation, "matching"));
-      }
-      if (operation.kind === "ensure-absent-path" && exists) {
-        unexpectedPaths.push(operation.path);
-        operationStatuses.push(checkStatusFor(operation, "unexpected"));
-      }
-      if (operation.kind === "ensure-absent-path" && !exists) {
-        operationStatuses.push(checkStatusFor(operation, "absent"));
-      }
-      if (operation.kind === "write-file" || operation.kind === "write-package-json") {
-        const expected = yield* renderWritableOperation(operation);
-        if (!exists) {
-          missingPaths.push(operation.path);
-          operationStatuses.push(checkStatusFor(operation, "missing"));
-        } else {
-          const current = yield* fs
-            .readFileString(operationPath)
-            .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${operation.path}"`)));
-          if (!stringEquivalence(current, expected)) {
-            differingPaths.push(operation.path);
-            operationStatuses.push(checkStatusFor(operation, "differing"));
-          } else {
-            operationStatuses.push(checkStatusFor(operation, "matching"));
-          }
-        }
-      }
-    }
-
-    return new OperationPlanCheckResult({
-      idempotent: missingPaths.length === 0 && differingPaths.length === 0 && unexpectedPaths.length === 0,
-      operationStatuses,
-      missingPaths,
-      differingPaths,
-      unexpectedPaths,
-    });
-  })
-);
-
-/**
- * Apply a decoded operation plan with failsafe conflict behavior.
- *
- * @category utilities
- * @since 0.0.0
- */
-export const applyCanonicalSliceOperationPlan: {
-  (
-    plan: CanonicalSliceOperationPlan
-  ): (rootDir: string) => Effect.Effect<OperationPlanApplyResult, DomainError, FileSystem.FileSystem | Path.Path>;
-  (
-    rootDir: string,
-    plan: CanonicalSliceOperationPlan
-  ): Effect.Effect<OperationPlanApplyResult, DomainError, FileSystem.FileSystem | Path.Path>;
-} = dual(
-  2,
-  Effect.fn(function* (rootDir: string, plan: CanonicalSliceOperationPlan) {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const writtenPaths: Array<string> = [];
-    const skippedPaths: Array<string> = [];
-    const removedPaths: Array<string> = [];
-
-    for (const operation of plan.operations) {
-      const operationPath = yield* resolveOperationPath(rootDir, operation.path);
-      if (operation.kind === "ensure-file") {
-        if (yield* pathExists(operationPath)) {
-          skippedPaths.push(operation.path);
-        } else {
-          return yield* DomainError.newMessage(`Required architecture file is missing: ${operation.path}`);
-        }
-      }
-      if (operation.kind === "ensure-absent-path") {
-        if (yield* pathExists(operationPath)) {
-          yield* fs
-            .remove(operationPath, { force: true, recursive: true })
-            .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to remove "${operation.path}"`)));
-          removedPaths.push(operation.path);
-        } else {
-          skippedPaths.push(operation.path);
-        }
-      }
-      if (operation.kind === "write-file" || operation.kind === "write-package-json") {
-        const expected = yield* renderWritableOperation(operation);
-        if (yield* pathExists(operationPath)) {
-          const current = yield* fs
-            .readFileString(operationPath)
-            .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${operation.path}"`)));
-          if (stringEquivalence(current, expected)) {
-            skippedPaths.push(operation.path);
-          } else {
-            return yield* DomainError.newMessage(
-              `Architecture operation would overwrite a differing file: ${operation.path}`
-            );
-          }
-        } else {
-          yield* fs
-            .makeDirectory(path.dirname(operationPath), { recursive: true })
-            .pipe(
-              Effect.mapError((cause) =>
-                DomainError.newCause(cause, `Failed to create parent directory for "${operation.path}"`)
-              )
-            );
-          yield* fs
-            .writeFileString(operationPath, expected)
-            .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to write "${operation.path}"`)));
-          writtenPaths.push(operation.path);
-        }
-      }
-    }
-
-    return new OperationPlanApplyResult({ writtenPaths, skippedPaths, removedPaths });
-  })
-);

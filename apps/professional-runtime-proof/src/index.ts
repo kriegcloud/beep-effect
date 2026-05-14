@@ -60,6 +60,12 @@ class MissingRuntimeAgentPrincipalError extends S.TaggedErrorClass<MissingRuntim
   scenarioId: S.String,
 }) {}
 
+class MissingRuntimeEntityModelMetadataError extends S.TaggedErrorClass<MissingRuntimeEntityModelMetadataError>(
+  "MissingRuntimeEntityModelMetadataError"
+)("MissingRuntimeEntityModelMetadataError", {
+  message: S.String,
+}) {}
+
 class SeedAgentFixture extends S.Class<SeedAgentFixture>("SeedAgentFixture")({
   agentId: S.String,
   mode: S.Literal("deterministic_fixture"),
@@ -160,7 +166,7 @@ const ExpectedContextPacket = UnknownRecord;
 export type ScenarioId = "law-patent-intake" | "wealth-cash-request";
 interface EntityModel {
   readonly definition: {
-    readonly entityId: {
+    readonly entityId?: {
       readonly entityType: string;
     };
   };
@@ -219,7 +225,17 @@ const decodeContextPacket = decodeFixtureModel(ContextPacket);
 const decodeActivity = decodeFixtureModel(Activity);
 const decodeUsageRecord = decodeFixtureModel(UsageRecord);
 const decodeCandidateOutputSet = S.decodeUnknownSync(CandidateOutputSet);
-const entityTypeOf = (model: EntityModel): string => model.definition.entityId.entityType;
+const entityTypeOf = (model: EntityModel): string => {
+  const entityId = model.definition.entityId;
+
+  if (entityId === undefined) {
+    throw new MissingRuntimeEntityModelMetadataError({
+      message: "Runtime proof entity model is missing entity-id metadata.",
+    });
+  }
+
+  return entityId.entityType;
+};
 const runtimeSystemPrincipal = {
   component: "Runtime",
   kind: "System",

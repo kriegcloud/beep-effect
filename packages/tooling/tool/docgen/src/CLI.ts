@@ -132,8 +132,10 @@ const options = {
  * @category cli-commands
  * @since 0.0.0
  */
-export const docgenCommand = Command.make("docgen", options, (input) =>
-  Effect.gen(function* () {
+export const docgenCommand = Command.make(
+  "docgen",
+  options,
+  Effect.fnUntraced(function* (input) {
     const parseCompilerOptions = yield* resolveCompilerOptionsInput(
       input.parseTsconfigFile,
       input.parseCompilerOptionsText

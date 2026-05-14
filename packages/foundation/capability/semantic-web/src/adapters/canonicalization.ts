@@ -55,35 +55,34 @@ const semanticCanonicalizationBudgetFailureFragments = [
 ] as const;
 const semanticCanonicalizationBudgetMessage = `Semantic canonicalization exceeded the configured resource budget (maxWorkFactor=${SemanticCanonicalizationMaxWorkFactor}, timeout=${SemanticCanonicalizationTimeoutMs}ms).`;
 
-const hashCanonicalText = (canonicalText: string): Effect.Effect<typeof Sha256Hex.Type, CanonicalizationError> =>
-  Effect.gen(function* () {
-    const hex = yield* Effect.tryPromise({
-      try: async () => {
-        const bytes = new TextEncoder().encode(canonicalText);
-        const digest = await crypto.subtle.digest("SHA-256", bytes);
-        return pipe(
-          A.fromIterable(new Uint8Array(digest)),
-          A.map((value) => Str.padStart(2, "0")(value.toString(16))),
-          A.join("")
-        );
-      },
-      catch: () =>
+const hashCanonicalText = Effect.fn("SemanticWeb.hashCanonicalText")(function* (canonicalText: string) {
+  const hex = yield* Effect.tryPromise({
+    try: async () => {
+      const bytes = new TextEncoder().encode(canonicalText);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return pipe(
+        A.fromIterable(new Uint8Array(digest)),
+        A.map((value) => Str.padStart(2, "0")(value.toString(16))),
+        A.join("")
+      );
+    },
+    catch: () =>
+      new CanonicalizationError({
+        reason: "fingerprintFailure",
+        message: "Failed to hash canonical dataset text.",
+      }),
+  });
+
+  return yield* S.decodeUnknownEffect(Sha256Hex)(hex).pipe(
+    Effect.mapError(
+      () =>
         new CanonicalizationError({
           reason: "fingerprintFailure",
-          message: "Failed to hash canonical dataset text.",
-        }),
-    });
-
-    return yield* S.decodeUnknownEffect(Sha256Hex)(hex).pipe(
-      Effect.mapError(
-        () =>
-          new CanonicalizationError({
-            reason: "fingerprintFailure",
-            message: "Failed to decode SHA-256 dataset fingerprint.",
-          })
-      )
-    );
-  });
+          message: "Failed to decode SHA-256 dataset fingerprint.",
+        })
+    )
+  );
+});
 
 const enforceWorkLimit = (
   quads: ReadonlyArray<Quad>,
@@ -192,35 +191,31 @@ const mapCanonizeFailure = (error: unknown): CanonicalizationError => {
       });
 };
 
-const canonicalizeSemantically = (
+const canonicalizeSemantically = Effect.fn("SemanticWeb.canonicalizeSemantically")(function* (
   quads: ReadonlyArray<Quad>
-): Effect.Effect<
-  { readonly canonicalText: string; readonly dataset: ReturnType<typeof makeDataset> },
-  CanonicalizationError
-> =>
-  Effect.gen(function* () {
-    const canonicalText = yield* Effect.tryPromise<string, CanonicalizationError>({
-      try: () =>
-        // Keep the semantic path on an explicit CPU budget instead of relying on upstream defaults.
-        canonize(toCanonizeDataset(quads), {
-          algorithm: "RDFC-1.0",
-          format: "application/n-quads",
-          maxWorkFactor: SemanticCanonicalizationMaxWorkFactor,
-          signal: AbortSignal.timeout(SemanticCanonicalizationTimeoutMs),
-        }),
-      catch: mapCanonizeFailure,
-    });
-
-    const parsed = yield* Effect.try({
-      try: () => NQuads.parse(canonicalText),
-      catch: mapCanonizeFailure,
-    });
-
-    return {
-      canonicalText: canonicalText.trimEnd(),
-      dataset: makeDataset(pipe(parsed, A.map(fromCanonizeQuad))),
-    };
+) {
+  const canonicalText = yield* Effect.tryPromise<string, CanonicalizationError>({
+    try: () =>
+      // Keep the semantic path on an explicit CPU budget instead of relying on upstream defaults.
+      canonize(toCanonizeDataset(quads), {
+        algorithm: "RDFC-1.0",
+        format: "application/n-quads",
+        maxWorkFactor: SemanticCanonicalizationMaxWorkFactor,
+        signal: AbortSignal.timeout(SemanticCanonicalizationTimeoutMs),
+      }),
+    catch: mapCanonizeFailure,
   });
+
+  const parsed = yield* Effect.try({
+    try: () => NQuads.parse(canonicalText),
+    catch: mapCanonizeFailure,
+  });
+
+  return {
+    canonicalText: canonicalText.trimEnd(),
+    dataset: makeDataset(pipe(parsed, A.map(fromCanonizeQuad))),
+  };
+});
 
 const canonicalizeLexically = (quads: ReadonlyArray<Quad>) => {
   const sorted = sortDatasetQuads(makeDataset(quads));

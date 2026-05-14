@@ -1,4 +1,4 @@
-# Repository-local Codex configuration for beep-effect3.
+# Repository-local Codex configuration for beep-effect.
 #
 # Claude remains the source of truth for the skill bodies in `.claude/skills`.
 # Codex discovers the mirrored repo skill root through `.agents/skills`, which is
@@ -6,6 +6,14 @@
 
 [mcp_servers.xai-docs]
 url = "https://docs.x.ai/api/mcp"
+
+[mcp_servers.shadcn]
+command = "npx"
+args = ["shadcn@latest", "mcp"]
+
+[mcp_servers.next-devtools]
+command = "npx"
+args = ["-y", "next-devtools-mcp@latest"]
 
 [skills]
 include_instructions = true

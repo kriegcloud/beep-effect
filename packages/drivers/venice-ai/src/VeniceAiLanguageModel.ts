@@ -169,8 +169,8 @@ const streamChatCompletion = (
  * @category constructors
  * @since 0.0.0
  */
-export const make = (options: VeniceAiLanguageModelOptions): Effect.Effect<LanguageModel.Service, never, VeniceAI> =>
-  Effect.gen(function* () {
+export const make: (options: VeniceAiLanguageModelOptions) => Effect.Effect<LanguageModel.Service, never, VeniceAI> =
+  Effect.fn("VeniceAiLanguageModel.make")(function* (options) {
     const venice = yield* VeniceAI;
     return yield* makeFromProvider({
       ...(options.config === undefined ? {} : { config: options.config }),

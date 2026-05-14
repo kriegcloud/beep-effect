@@ -221,24 +221,21 @@ const decodeTermScorePairs = (
   return Effect.fail(CorpusManagerError.fromMessage(`Invalid ${context}: expected [string, number][]`, corpusId));
 };
 
-const readNormalizedTokensFromWink = (
+const readNormalizedTokensFromWink = Effect.fn("Nlp.Wink.WinkCorpusManager.readNormalizedTokensFromWink")(function* (
   engine: WinkEngineService,
   document: Document,
   corpusId: string
-): Effect.Effect<ReadonlyArray<string>, CorpusManagerError> =>
-  Effect.gen(function* () {
-    const its = yield* engine.its.pipe(
-      Effect.mapError((cause) => CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId }))
+): Effect.fn.Return<ReadonlyArray<string>, CorpusManagerError> {
+  const its = yield* engine.its.pipe(
+    Effect.mapError((cause) => CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId }))
+  );
+  const winkDoc = yield* engine
+    .getWinkDoc(document.text)
+    .pipe(
+      Effect.mapError((cause) => CorpusManagerError.fromCause(cause, "Failed to tokenize document text", { corpusId }))
     );
-    const winkDoc = yield* engine
-      .getWinkDoc(document.text)
-      .pipe(
-        Effect.mapError((cause) =>
-          CorpusManagerError.fromCause(cause, "Failed to tokenize document text", { corpusId })
-        )
-      );
-    return yield* decodeStringArray(winkDoc.tokens().out(its.normal), "normalized token output", corpusId);
-  });
+  return yield* decodeStringArray(winkDoc.tokens().out(its.normal), "normalized token output", corpusId);
+});
 
 const removeCorpusSession = (
   sessions: HashMap.HashMap<string, CorpusSessionState>,
@@ -353,60 +350,61 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       onTrue: () => Effect.succeed(pipe(Chunk.toReadonlyArray(document.tokens), A.map(normalizeTokenText))),
     });
 
-  const compileState = (state: CorpusSessionState): Effect.Effect<CompiledCorpus, CorpusManagerError> =>
-    Effect.gen(function* () {
-      const its = yield* engine.its.pipe(
-        Effect.mapError((cause) =>
-          CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId: state.corpusId })
-        )
-      );
-      const vectorizer = bm25(state.config);
+  const compileState = Effect.fnUntraced(function* (
+    state: CorpusSessionState
+  ): Effect.fn.Return<CompiledCorpus, CorpusManagerError> {
+    const its = yield* engine.its.pipe(
+      Effect.mapError((cause) =>
+        CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId: state.corpusId })
+      )
+    );
+    const vectorizer = bm25(state.config);
 
-      for (const document of state.documents) {
-        const tokens = yield* readNormalizedTokens(document, state.corpusId);
-        yield* Effect.try({
-          try: () => {
-            vectorizer.learn(A.fromIterable(tokens));
-          },
-          catch: (cause) =>
-            CorpusManagerError.fromCause(cause, "Failed to learn a document into the compiled corpus", {
-              corpusId: state.corpusId,
-            }),
-        });
-      }
-
-      const terms = yield* Effect.try({
-        try: () => vectorizer.out(its.terms),
+    for (const document of state.documents) {
+      const tokens = yield* readNormalizedTokens(document, state.corpusId);
+      yield* Effect.try({
+        try: () => {
+          vectorizer.learn(A.fromIterable(tokens));
+        },
         catch: (cause) =>
-          CorpusManagerError.fromCause(cause, "Failed to compute corpus terms", { corpusId: state.corpusId }),
+          CorpusManagerError.fromCause(cause, "Failed to learn a document into the compiled corpus", {
+            corpusId: state.corpusId,
+          }),
+      });
+    }
+
+    const terms = yield* Effect.try({
+      try: () => vectorizer.out(its.terms),
+      catch: (cause) =>
+        CorpusManagerError.fromCause(cause, "Failed to compute corpus terms", { corpusId: state.corpusId }),
+    }).pipe(
+      Effect.flatMap(
+        Effect.fnUntraced(function* (raw) {
+          return yield* decodeStringArray(raw, "corpus term output", state.corpusId);
+        })
+      )
+    );
+
+    const documentVectors = yield* Effect.forEach(state.documents, (_document, index) =>
+      Effect.try({
+        try: () => vectorizer.doc(index).out(its.vector),
+        catch: (cause) =>
+          CorpusManagerError.fromCause(cause, "Failed to compute document vector", { corpusId: state.corpusId }),
       }).pipe(
         Effect.flatMap(
           Effect.fnUntraced(function* (raw) {
-            return yield* decodeStringArray(raw, "corpus term output", state.corpusId);
+            return yield* decodeNumberArray(raw, "document vector output", state.corpusId);
           })
         )
-      );
+      )
+    );
 
-      const documentVectors = yield* Effect.forEach(state.documents, (_document, index) =>
-        Effect.try({
-          try: () => vectorizer.doc(index).out(its.vector),
-          catch: (cause) =>
-            CorpusManagerError.fromCause(cause, "Failed to compute document vector", { corpusId: state.corpusId }),
-        }).pipe(
-          Effect.flatMap(
-            Effect.fnUntraced(function* (raw) {
-              return yield* decodeNumberArray(raw, "document vector output", state.corpusId);
-            })
-          )
-        )
-      );
-
-      return {
-        documentVectors,
-        terms,
-        vectorizer,
-      };
-    });
+    return {
+      documentVectors,
+      terms,
+      vectorizer,
+    };
+  });
 
   const ensureCompiled = (
     state: CorpusSessionState
@@ -657,8 +655,9 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         vector: compiled.vectorizer.vectorOf(A.fromIterable(queryTokens)),
       });
 
-      const scored = yield* Effect.forEach(compiledState.documents, (document, index) =>
-        Effect.gen(function* () {
+      const scored = yield* Effect.forEach(
+        compiledState.documents,
+        Effect.fnUntraced(function* (document, index) {
           const candidateVector = DocumentVector.make({
             documentId: document.id,
             terms: compiled.terms,

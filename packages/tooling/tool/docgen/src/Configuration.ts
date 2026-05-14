@@ -228,70 +228,68 @@ const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
 
 const readPackageJson = (filePath: string) => readJsoncFile(filePath, PackageJsonSchema);
 
-const readDocgenConfig = (
+const readDocgenConfig = Effect.fn("Configuration.readDocgenConfig")(function* (
   filePath: string
-): Effect.Effect<O.Option<ConfigurationDocument>, Domain.DocgenError, FileSystem.FileSystem> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const exists = yield* fs.exists(filePath).pipe(
-      Effect.mapError(
-        (cause) =>
-          new Domain.DocgenError({
-            message: `[Configuration.readDocgenConfig] Failed to check '${filePath}'\n${String(cause)}`,
-          })
-      )
-    );
+): Effect.fn.Return<O.Option<ConfigurationDocument>, Domain.DocgenError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const exists = yield* fs.exists(filePath).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Domain.DocgenError({
+          message: `[Configuration.readDocgenConfig] Failed to check '${filePath}'\n${String(cause)}`,
+        })
+    )
+  );
 
-    if (!exists) {
-      return O.none();
-    }
+  if (!exists) {
+    return O.none();
+  }
 
-    const config = yield* readJsoncFile(filePath, ConfigurationSchema);
-    return O.some(config);
-  });
+  const config = yield* readJsoncFile(filePath, ConfigurationSchema);
+  return O.some(config);
+});
 
-const readTSConfig = (
+const readTSConfig = Effect.fn("Configuration.readTSConfig")(function* (
   fileName: string
-): Effect.Effect<
+): Effect.fn.Return<
   S.Schema.Type<typeof CompilerOptionsShape>,
   Domain.DocgenError,
   FileSystem.FileSystem | Path.Path | Domain.Process
-> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const process = yield* Domain.Process;
-    const cwd = yield* process.cwd;
-    const resolved = path.resolve(cwd, fileName);
-    const content = yield* fs.readFileString(resolved).pipe(
-      Effect.mapError(
-        (cause) =>
-          new Domain.DocgenError({
-            message: `[Configuration.readTSConfig] Failed to read TSConfig file '${resolved}'\n${String(cause)}`,
-          })
-      )
-    );
-    const tsconfig = yield* decodeTSConfigFromJsoncTextEffect(content).pipe(
-      Effect.mapError(
-        (cause) =>
-          new Domain.DocgenError({
-            message: `[Configuration.readTSConfig] Failed to decode TSConfig file '${resolved}'\n${cause.message}`,
-          })
-      )
-    );
-    if (O.isNone(tsconfig.compilerOptions)) {
-      return defaultCompilerOptions;
-    }
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const process = yield* Domain.Process;
+  const cwd = yield* process.cwd;
+  const resolved = path.resolve(cwd, fileName);
+  const content = yield* fs.readFileString(resolved).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Domain.DocgenError({
+          message: `[Configuration.readTSConfig] Failed to read TSConfig file '${resolved}'\n${String(cause)}`,
+        })
+    )
+  );
+  const tsconfig = yield* decodeTSConfigFromJsoncTextEffect(content).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Domain.DocgenError({
+          message: `[Configuration.readTSConfig] Failed to decode TSConfig file '${resolved}'\n${cause.message}`,
+        })
+    )
+  );
+  if (O.isNone(tsconfig.compilerOptions)) {
+    return defaultCompilerOptions;
+  }
 
-    return yield* encodeCompilerOptions(tsconfig.compilerOptions.value).pipe(
-      Effect.mapError(
-        (cause) =>
-          new Domain.DocgenError({
-            message: `[Configuration.readTSConfig] Failed to encode compiler options from '${resolved}'\n${cause.message}`,
-          })
-      )
-    );
-  });
+  return yield* encodeCompilerOptions(tsconfig.compilerOptions.value).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Domain.DocgenError({
+          message: `[Configuration.readTSConfig] Failed to encode compiler options from '${resolved}'\n${cause.message}`,
+        })
+    )
+  );
+});
 
 const resolveCompilerOptions = (
   fromCLI: O.Option<CompilerOptionsInput>,

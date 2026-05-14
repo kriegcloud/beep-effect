@@ -110,23 +110,24 @@ const encodeAllowFromUri = (value: internal.StringOrUrl, message: string): Effec
       }),
   });
 
-const formatFrameGuardValue = (option: FrameGuardMode | FrameGuardAllowFrom): Effect.Effect<string, FrameGuardError> =>
-  Effect.gen(function* () {
-    if (option === "deny" || option === "sameorigin") {
-      return option;
-    }
+const formatFrameGuardValue = Effect.fn("FrameGuard.formatFrameGuardValue")(function* (
+  option: FrameGuardMode | FrameGuardAllowFrom
+): Effect.fn.Return<string, FrameGuardError> {
+  if (option === "deny" || option === "sameorigin") {
+    return option;
+  }
 
-    if (A.isArray(option) && option[0] === "allow-from") {
-      const uri = yield* encodeAllowFromUri(option[1].uri, `Invalid value for ${headerName}: ${String(option[1].uri)}`);
+  if (A.isArray(option) && option[0] === "allow-from") {
+    const uri = yield* encodeAllowFromUri(option[1].uri, `Invalid value for ${headerName}: ${String(option[1].uri)}`);
 
-      return `${option[0]} ${uri}`;
-    }
+    return `${option[0]} ${uri}`;
+  }
 
-    return yield* new FrameGuardError({
-      message: `Invalid value for ${headerName}: ${option}`,
-      cause: O.none(),
-    });
+  return yield* new FrameGuardError({
+    message: `Invalid value for ${headerName}: ${option}`,
+    cause: O.none(),
   });
+});
 
 /**
  * @category schemas
@@ -136,31 +137,33 @@ export const FrameGuardHeader = S.Union([FrameGuardOption, S.Undefined]).pipe(
   S.decodeTo(
     FrameGuardResponseHeader,
     SchemaTransformation.transformOrFail({
-      decode: (input): Effect.Effect<FrameGuardResponseHeaderEncoded, SchemaIssue.Issue> =>
-        Effect.gen(function* () {
-          if (P.isUndefined(input)) {
-            return {
-              name: headerName,
-              value: defaultValue,
-            } as const;
-          }
-
-          if (input === false) {
-            return {
-              name: headerName,
-              value: undefined,
-            } as const;
-          }
-
-          const value = yield* formatFrameGuardValue(input).pipe(
-            Effect.mapError((error) => new SchemaIssue.InvalidValue(O.some(error), { message: error.message }))
-          );
-
+      decode: Effect.fn("FrameGuard.decode")(function* (input): Effect.fn.Return<
+        FrameGuardResponseHeaderEncoded,
+        SchemaIssue.Issue
+      > {
+        if (P.isUndefined(input)) {
           return {
             name: headerName,
-            value,
+            value: defaultValue,
           } as const;
-        }),
+        }
+
+        if (input === false) {
+          return {
+            name: headerName,
+            value: undefined,
+          } as const;
+        }
+
+        const value = yield* formatFrameGuardValue(input).pipe(
+          Effect.mapError((error) => new SchemaIssue.InvalidValue(O.some(error), { message: error.message }))
+        );
+
+        return {
+          name: headerName,
+          value,
+        } as const;
+      }),
       encode: internal.makeHeaderEncodeForbidden("FrameGuardHeader"),
     })
   ),

@@ -109,31 +109,32 @@ const encodeReportUri = (value: internal.StringOrUrl): Effect.Effect<string, Xss
       }),
   });
 
-const formatXSSProtectionValue = (option: undefined | XSSProtectionOption): Effect.Effect<string, XssProtectionError> =>
-  Effect.gen(function* () {
-    if (P.isUndefined(option) || option === "sanitize") {
-      return "1";
-    }
+const formatXSSProtectionValue = Effect.fn("XSSProtection.formatXSSProtectionValue")(function* (
+  option: undefined | XSSProtectionOption
+): Effect.fn.Return<string, XssProtectionError> {
+  if (P.isUndefined(option) || option === "sanitize") {
+    return "1";
+  }
 
-    if (option === false) {
-      return "0";
-    }
+  if (option === false) {
+    return "0";
+  }
 
-    if (option === "block-rendering") {
-      return "1; mode=block";
-    }
+  if (option === "block-rendering") {
+    return "1; mode=block";
+  }
 
-    if (A.isArray(option) && option[0] === "report") {
-      const uri = yield* encodeReportUri(option[1].uri);
+  if (A.isArray(option) && option[0] === "report") {
+    const uri = yield* encodeReportUri(option[1].uri);
 
-      return `1; report=${uri}`;
-    }
+    return `1; report=${uri}`;
+  }
 
-    return yield* new XssProtectionError({
-      message: `Invalid value for ${headerName}: ${option}`,
-      cause: O.none(),
-    });
+  return yield* new XssProtectionError({
+    message: `Invalid value for ${headerName}: ${option}`,
+    cause: O.none(),
   });
+});
 
 /**
  * @category schemas
