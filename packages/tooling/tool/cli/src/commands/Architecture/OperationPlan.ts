@@ -133,6 +133,45 @@ export const ArchitecturePackageRole = LiteralKit([
 export type ArchitecturePackageRole = typeof ArchitecturePackageRole.Type;
 
 /**
+ * Operation kinds supported by canonical architecture operation plans.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureOperationKind } from "@beep/repo-cli/commands/Architecture/index"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitectureOperationKind)("write-file"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const ArchitectureOperationKind = LiteralKit([
+  "write-file",
+  "write-package-json",
+  "ensure-file",
+  "ensure-absent-path",
+] as const).pipe(
+  $I.annoteSchema("ArchitectureOperationKind", {
+    description: "Operation discriminator emitted by schema-versioned architecture operation plans.",
+  })
+);
+
+/**
+ * Operation kind supported by canonical architecture operation plans.
+ *
+ * @example
+ * ```ts
+ * import type { ArchitectureOperationKind } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * const kind: ArchitectureOperationKind = "ensure-file"
+ * console.log(kind)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type ArchitectureOperationKind = typeof ArchitectureOperationKind.Type;
+
+/**
  * Writer families selected from normalized architecture operations.
  *
  * @category models
@@ -157,6 +196,194 @@ export const ArchitectureWriterKind = LiteralKit([
  * @since 0.0.0
  */
 export type ArchitectureWriterKind = typeof ArchitectureWriterKind.Type;
+
+/**
+ * Write-mode metadata for architecture operations.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureOperationWriteMode } from "@beep/repo-cli/commands/Architecture/index"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitectureOperationWriteMode)("write-if-missing"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const ArchitectureOperationWriteMode = LiteralKit([
+  "write-if-missing",
+  "ensure-present",
+  "remove-if-present",
+] as const).pipe(
+  $I.annoteSchema("ArchitectureOperationWriteMode", {
+    description: "Filesystem write mode used by architecture operation-plan dry-run and check output.",
+  })
+);
+
+/**
+ * Write-mode metadata for an architecture operation.
+ *
+ * @example
+ * ```ts
+ * import type { ArchitectureOperationWriteMode } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * const mode: ArchitectureOperationWriteMode = "ensure-present"
+ * console.log(mode)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type ArchitectureOperationWriteMode = typeof ArchitectureOperationWriteMode.Type;
+
+/**
+ * Conflict policy metadata for architecture operations.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureOperationConflictPolicy } from "@beep/repo-cli/commands/Architecture/index"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitectureOperationConflictPolicy)("skip-identical-fail-different"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const ArchitectureOperationConflictPolicy = LiteralKit([
+  "skip-identical-fail-different",
+  "require-present",
+  "remove-existing",
+] as const).pipe(
+  $I.annoteSchema("ArchitectureOperationConflictPolicy", {
+    description: "Conflict behavior declared by an architecture operation before it touches the filesystem.",
+  })
+);
+
+/**
+ * Conflict policy metadata for an architecture operation.
+ *
+ * @example
+ * ```ts
+ * import type { ArchitectureOperationConflictPolicy } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * const policy: ArchitectureOperationConflictPolicy = "require-present"
+ * console.log(policy)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type ArchitectureOperationConflictPolicy = typeof ArchitectureOperationConflictPolicy.Type;
+
+/**
+ * Source metadata for architecture operations.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureOperationSource } from "@beep/repo-cli/commands/Architecture/index"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitectureOperationSource)("accepted-proof"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const ArchitectureOperationSource = LiteralKit([
+  "accepted-proof",
+  "package-shell",
+  "legacy-cleanup",
+  "legacy-plan",
+] as const).pipe(
+  $I.annoteSchema("ArchitectureOperationSource", {
+    description: "Origin of an architecture operation within the normalized plan factory.",
+  })
+);
+
+/**
+ * Source metadata for an architecture operation.
+ *
+ * @example
+ * ```ts
+ * import type { ArchitectureOperationSource } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * const source: ArchitectureOperationSource = "package-shell"
+ * console.log(source)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type ArchitectureOperationSource = typeof ArchitectureOperationSource.Type;
+
+/**
+ * Per-operation idempotency status.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureOperationCheckStatus } from "@beep/repo-cli/commands/Architecture/index"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitectureOperationCheckStatus)("matching"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const ArchitectureOperationCheckStatus = LiteralKit([
+  "matching",
+  "missing",
+  "differing",
+  "unexpected",
+  "absent",
+] as const).pipe(
+  $I.annoteSchema("ArchitectureOperationCheckStatus", {
+    description: "Result assigned to one architecture operation during idempotency validation.",
+  })
+);
+
+/**
+ * Per-operation idempotency status.
+ *
+ * @example
+ * ```ts
+ * import type { ArchitectureOperationCheckStatus } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * const status: ArchitectureOperationCheckStatus = "absent"
+ * console.log(status)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type ArchitectureOperationCheckStatus = typeof ArchitectureOperationCheckStatus.Type;
+
+const OperationId = S.String.pipe(
+  S.withConstructorDefault(Effect.succeed("legacy-operation")),
+  S.withDecodingDefault(Effect.succeed("legacy-operation"))
+);
+const WriteIfMissing = ArchitectureOperationWriteMode.pipe(
+  S.withConstructorDefault(Effect.succeed("write-if-missing" as const)),
+  S.withDecodingDefault(Effect.succeed("write-if-missing" as const))
+);
+const EnsurePresent = ArchitectureOperationWriteMode.pipe(
+  S.withConstructorDefault(Effect.succeed("ensure-present" as const)),
+  S.withDecodingDefault(Effect.succeed("ensure-present" as const))
+);
+const RemoveIfPresent = ArchitectureOperationWriteMode.pipe(
+  S.withConstructorDefault(Effect.succeed("remove-if-present" as const)),
+  S.withDecodingDefault(Effect.succeed("remove-if-present" as const))
+);
+const SkipIdenticalFailDifferent = ArchitectureOperationConflictPolicy.pipe(
+  S.withConstructorDefault(Effect.succeed("skip-identical-fail-different" as const)),
+  S.withDecodingDefault(Effect.succeed("skip-identical-fail-different" as const))
+);
+const RequirePresent = ArchitectureOperationConflictPolicy.pipe(
+  S.withConstructorDefault(Effect.succeed("require-present" as const)),
+  S.withDecodingDefault(Effect.succeed("require-present" as const))
+);
+const RemoveExisting = ArchitectureOperationConflictPolicy.pipe(
+  S.withConstructorDefault(Effect.succeed("remove-existing" as const)),
+  S.withDecodingDefault(Effect.succeed("remove-existing" as const))
+);
+const OperationSource = ArchitectureOperationSource.pipe(
+  S.withConstructorDefault(Effect.succeed("legacy-plan" as const)),
+  S.withDecodingDefault(Effect.succeed("legacy-plan" as const))
+);
 
 /**
  * Role package entry in a canonical architecture slice operation plan.
@@ -204,8 +431,12 @@ export class ArchitecturePlanTarget extends S.Class<ArchitecturePlanTarget>($I`A
 export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFileOperation`)(
   {
     kind: S.Literal("write-file"),
+    operationId: OperationId,
     role: ArchitectureSliceRole,
     path: S.String,
+    writeMode: WriteIfMissing,
+    conflictPolicy: SkipIdenticalFailDifferent,
+    operationSource: OperationSource,
     writer: ArchitectureWriterKind,
     content: S.String,
     description: S.String,
@@ -242,8 +473,12 @@ export class WriteFileOperation extends S.Class<WriteFileOperation>($I`WriteFile
 export class WritePackageJsonOperation extends S.Class<WritePackageJsonOperation>($I`WritePackageJsonOperation`)(
   {
     kind: S.Literal("write-package-json"),
+    operationId: OperationId,
     role: ArchitecturePackageRole,
     path: S.String,
+    writeMode: WriteIfMissing,
+    conflictPolicy: SkipIdenticalFailDifferent,
+    operationSource: OperationSource,
     packageName: S.String,
     packageDescription: S.String,
     repositoryDirectory: S.String,
@@ -266,8 +501,12 @@ export class WritePackageJsonOperation extends S.Class<WritePackageJsonOperation
 export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureFileOperation`)(
   {
     kind: S.Literal("ensure-file"),
+    operationId: OperationId,
     role: ArchitectureSliceRole,
     path: S.String,
+    writeMode: EnsurePresent,
+    conflictPolicy: RequirePresent,
+    operationSource: OperationSource,
     description: S.String,
   },
   $I.annote("EnsureFileOperation", {
@@ -284,7 +523,11 @@ export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureF
 export class EnsureAbsentPathOperation extends S.Class<EnsureAbsentPathOperation>($I`EnsureAbsentPathOperation`)(
   {
     kind: S.Literal("ensure-absent-path"),
+    operationId: OperationId,
     path: S.String,
+    writeMode: RemoveIfPresent,
+    conflictPolicy: RemoveExisting,
+    operationSource: OperationSource,
     description: S.String,
   },
   $I.annote("EnsureAbsentPathOperation", {
@@ -312,6 +555,36 @@ export const ArchitectureOperation = S.Union([
  * @since 0.0.0
  */
 export type ArchitectureOperation = typeof ArchitectureOperation.Type;
+
+/**
+ * Idempotency status for one checked operation.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureOperationCheck } from "@beep/repo-cli/commands/Architecture/index"
+ *
+ * const status = new ArchitectureOperationCheck({
+ *   operationId: "ensure-file:packages/architecture-lab/domain/src/index.ts",
+ *   kind: "ensure-file",
+ *   path: "packages/architecture-lab/domain/src/index.ts",
+ *   status: "matching",
+ * })
+ * console.log(status.status)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchitectureOperationCheck extends S.Class<ArchitectureOperationCheck>($I`ArchitectureOperationCheck`)(
+  {
+    operationId: S.String,
+    kind: ArchitectureOperationKind,
+    path: S.String,
+    status: ArchitectureOperationCheckStatus,
+  },
+  $I.annote("ArchitectureOperationCheck", {
+    description: "Per-operation idempotency result returned by architecture operation-plan checks.",
+  })
+) {}
 
 /**
  * Schema-versioned canonical architecture slice operation plan.
@@ -359,6 +632,9 @@ export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperation
 export class OperationPlanCheckResult extends S.Class<OperationPlanCheckResult>($I`OperationPlanCheckResult`)(
   {
     idempotent: S.Boolean,
+    operationStatuses: S.Array(ArchitectureOperationCheck).pipe(
+      SchemaUtils.withEmptyArrayDefaults<ArchitectureOperationCheck>()
+    ),
     missingPaths: S.Array(S.String),
     differingPaths: S.Array(S.String).pipe(SchemaUtils.withEmptyArrayDefaults<string>()),
     unexpectedPaths: S.Array(S.String),
@@ -979,6 +1255,12 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
 
   ...rolePackageFiles("db-admin", "persistence"),
   { role: "db-admin", stage: "persistence", path: "packages/_internal/db-admin/drizzle.config.ts", writer: "template" },
+  {
+    role: "db-admin",
+    stage: "persistence",
+    path: "packages/_internal/db-admin/tsconfig.drizzle.json",
+    writer: "jsonc",
+  },
   { role: "db-admin", stage: "persistence", path: "packages/_internal/db-admin/src/index.ts", writer: "ts-morph" },
   { role: "db-admin", stage: "persistence", path: "packages/_internal/db-admin/src/schema.ts", writer: "ts-morph" },
   { role: "db-admin", stage: "persistence", path: "packages/_internal/db-admin/src/targets.ts", writer: "template" },
@@ -1009,6 +1291,12 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   {
     role: "db-admin",
     stage: "persistence",
+    path: "packages/_internal/db-admin/test/index.test.ts",
+    writer: "template",
+  },
+  {
+    role: "db-admin",
+    stage: "persistence",
     path: "packages/_internal/db-admin/test/integration/ArchitectureLabMigration.pglite.test.ts",
     writer: "template",
   },
@@ -1025,6 +1313,41 @@ const legacyFixturePaths = [
   "packages/tooling/tool/cli/test/fixtures/repo-architecture-automation",
   "packages/tooling/tool/cli/test/repo-architecture-automation-fixture.test.ts",
 ] as const;
+
+const operationIdFor = (kind: ArchitectureOperationKind, operationPath: string): string => `${kind}:${operationPath}`;
+
+// Keep these derived defaults aligned with the operation kind literal domain,
+// per-operation schema defaults, and withOperationMetadata dispatch below.
+const writeModeForKind = (kind: ArchitectureOperationKind): ArchitectureOperationWriteMode => {
+  if (kind === "ensure-file") return "ensure-present";
+  if (kind === "ensure-absent-path") return "remove-if-present";
+  return "write-if-missing";
+};
+
+const conflictPolicyForKind = (kind: ArchitectureOperationKind): ArchitectureOperationConflictPolicy => {
+  if (kind === "ensure-file") return "require-present";
+  if (kind === "ensure-absent-path") return "remove-existing";
+  return "skip-identical-fail-different";
+};
+
+const withOperationMetadata = (
+  operation: ArchitectureOperation,
+  operationSource: ArchitectureOperationSource
+): ArchitectureOperation => {
+  const operationId = operationIdFor(operation.kind, operation.path);
+  const writeMode = writeModeForKind(operation.kind);
+  const conflictPolicy = conflictPolicyForKind(operation.kind);
+  if (operation.kind === "write-file") {
+    return new WriteFileOperation({ ...operation, operationId, writeMode, conflictPolicy, operationSource });
+  }
+  if (operation.kind === "write-package-json") {
+    return new WritePackageJsonOperation({ ...operation, operationId, writeMode, conflictPolicy, operationSource });
+  }
+  if (operation.kind === "ensure-file") {
+    return new EnsureFileOperation({ ...operation, operationId, writeMode, conflictPolicy, operationSource });
+  }
+  return new EnsureAbsentPathOperation({ ...operation, operationId, writeMode, conflictPolicy, operationSource });
+};
 
 const normalizeInput = (input: Partial<typeof ArchitecturePlanTarget.Type> = {}): ArchitecturePlanTarget => {
   const boundedContext = input.boundedContext ?? defaultPlanTarget.boundedContext;
@@ -1936,23 +2259,30 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
     operations: [
       ...pipe(
         acceptedProofFiles,
-        A.map(
-          (file) =>
+        A.map((file) =>
+          withOperationMetadata(
             new EnsureFileOperation({
               kind: "ensure-file",
               role: file.role,
               path: file.path,
               description: `Ensure ${file.role} ${defaultPlanTarget.concept} topology file exists.`,
-            })
+            }),
+            "accepted-proof"
+          )
         )
       ),
-      ...legacyFixturePaths.map(
-        (path) =>
-          new EnsureAbsentPathOperation({
-            kind: "ensure-absent-path",
-            path,
-            description: "Remove the legacy fixture-lab Specimen proof surface.",
-          })
+      ...pipe(
+        legacyFixturePaths,
+        A.map((path) =>
+          withOperationMetadata(
+            new EnsureAbsentPathOperation({
+              kind: "ensure-absent-path",
+              path,
+              description: "Remove the legacy fixture-lab Specimen proof surface.",
+            }),
+            "legacy-cleanup"
+          )
+        )
       ),
     ],
   });
@@ -1988,16 +2318,19 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
           Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read architecture file "${contentPath}"`))
         );
 
-      return new WriteFileOperation({
-        kind: "write-file",
-        role: file.role,
-        path: operationPath,
-        writer: file.writer,
-        content: targetFileExists ? content : renderAcceptedTemplate(content, target, file.path),
-        description: targetFileExists
-          ? `Preserve existing ${file.role} package-level file while planning ${target.concept}.`
-          : `Write ${file.role} ${target.concept} file from the accepted architecture proof.`,
-      });
+      return withOperationMetadata(
+        new WriteFileOperation({
+          kind: "write-file",
+          role: file.role,
+          path: operationPath,
+          writer: file.writer,
+          content: targetFileExists ? content : renderAcceptedTemplate(content, target, file.path),
+          description: targetFileExists
+            ? `Preserve existing ${file.role} package-level file while planning ${target.concept}.`
+            : `Write ${file.role} ${target.concept} file from the accepted architecture proof.`,
+        }),
+        "accepted-proof"
+      );
     })
   );
 
@@ -2007,13 +2340,18 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
     roles: rolePlansForFiles(target, selectedFiles),
     operations: [
       ...writeOperations,
-      ...legacyFixturePaths.map(
-        (path) =>
-          new EnsureAbsentPathOperation({
-            kind: "ensure-absent-path",
-            path,
-            description: "Remove the legacy fixture-lab Specimen proof surface.",
-          })
+      ...pipe(
+        legacyFixturePaths,
+        A.map((path) =>
+          withOperationMetadata(
+            new EnsureAbsentPathOperation({
+              kind: "ensure-absent-path",
+              path,
+              description: "Remove the legacy fixture-lab Specimen proof surface.",
+            }),
+            "legacy-cleanup"
+          )
+        )
       ),
     ],
   });
@@ -2048,8 +2386,11 @@ export const makeArchitecturePackageOperationPlan = Effect.fn(function* (input: 
     target,
     roles: [rolePlan],
     operations: [
-      shellPackageJsonOperationFor(target, input.role),
-      ...packageShellFileOperationsFor(target, input.role),
+      withOperationMetadata(shellPackageJsonOperationFor(target, input.role), "package-shell"),
+      ...pipe(
+        packageShellFileOperationsFor(target, input.role),
+        A.map((operation) => withOperationMetadata(operation, "package-shell"))
+      ),
     ],
   });
 });
@@ -2095,6 +2436,19 @@ const resolveOperationPath = Effect.fn(function* (rootDir: string, operationPath
   return resolvedPath;
 });
 
+const checkStatusFor = (
+  operation: ArchitectureOperation,
+  status: ArchitectureOperationCheckStatus
+): ArchitectureOperationCheck =>
+  new ArchitectureOperationCheck({
+    operationId: stringEquivalence(operation.operationId, "legacy-operation")
+      ? operationIdFor(operation.kind, operation.path)
+      : operation.operationId,
+    kind: operation.kind,
+    path: operation.path,
+    status,
+  });
+
 /**
  * Validate a decoded operation plan against a repository root.
  *
@@ -2116,26 +2470,39 @@ export const checkCanonicalSliceOperationPlan: {
     const missingPaths: Array<string> = [];
     const differingPaths: Array<string> = [];
     const unexpectedPaths: Array<string> = [];
+    const operationStatuses: Array<ArchitectureOperationCheck> = [];
 
     for (const operation of plan.operations) {
       const operationPath = yield* resolveOperationPath(rootDir, operation.path);
       const exists = yield* pathExists(operationPath);
       if (operation.kind === "ensure-file" && !exists) {
         missingPaths.push(operation.path);
+        operationStatuses.push(checkStatusFor(operation, "missing"));
+      }
+      if (operation.kind === "ensure-file" && exists) {
+        operationStatuses.push(checkStatusFor(operation, "matching"));
       }
       if (operation.kind === "ensure-absent-path" && exists) {
         unexpectedPaths.push(operation.path);
+        operationStatuses.push(checkStatusFor(operation, "unexpected"));
+      }
+      if (operation.kind === "ensure-absent-path" && !exists) {
+        operationStatuses.push(checkStatusFor(operation, "absent"));
       }
       if (operation.kind === "write-file" || operation.kind === "write-package-json") {
         const expected = yield* renderWritableOperation(operation);
         if (!exists) {
           missingPaths.push(operation.path);
+          operationStatuses.push(checkStatusFor(operation, "missing"));
         } else {
           const current = yield* fs
             .readFileString(operationPath)
             .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${operation.path}"`)));
           if (!stringEquivalence(current, expected)) {
             differingPaths.push(operation.path);
+            operationStatuses.push(checkStatusFor(operation, "differing"));
+          } else {
+            operationStatuses.push(checkStatusFor(operation, "matching"));
           }
         }
       }
@@ -2143,6 +2510,7 @@ export const checkCanonicalSliceOperationPlan: {
 
     return new OperationPlanCheckResult({
       idempotent: missingPaths.length === 0 && differingPaths.length === 0 && unexpectedPaths.length === 0,
+      operationStatuses,
       missingPaths,
       differingPaths,
       unexpectedPaths,

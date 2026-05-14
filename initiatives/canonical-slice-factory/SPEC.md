@@ -49,8 +49,9 @@ architecture units without duplicating generation logic.
 - Idempotency is failsafe: skip identical files, perform structured
   idempotent config or TypeScript updates, and fail on differing existing
   source files unless a future explicit overwrite mode is added.
-- `create-package` should remain compatible but route future package creation
-  rules through the shared operation planner.
+- Top-level `create-package` remains compatible as a separate
+  non-architecture scaffolding surface. Architecture-native slice role package
+  creation lives under `beep architecture create package`.
 - The persistence proof must include db-admin migration generation and live
   Drizzle-backed repository tests when test database settings are available.
 
@@ -109,9 +110,9 @@ The command group should use this shape:
 - `beep architecture check`
 
 The public command grammar may evolve, but the internal model must not: every
-path normalizes into a decoded operation plan, then flows through writer
-selection, template rendering, structured writers, and semantic TypeScript
-writers when required.
+`beep architecture` path normalizes into a decoded operation plan, then flows
+through writer selection, template rendering, structured writers, and semantic
+TypeScript writers when required.
 
 The plan model should include action identity, target path, write mode,
 conflict status, operation source, and enough metadata for dry-run output,
