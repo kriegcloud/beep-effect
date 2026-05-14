@@ -385,6 +385,20 @@ bun run p1:proof:watch -- --output-root ../../output/stack-installer/p1-live --w
 The watch command repeats intake plus `p1:proof:audit-all` until both platform
 artifact directories pass audit, or until the attempt limit is exhausted.
 
+For longer transfer windows, the coordinator can start the same watch as a
+detached local helper from repo root:
+
+```bash
+node initiatives/stack-installer/ops/start-proof-watch-window.mjs \
+  --output-root output/stack-installer/p1-live \
+  --watch-attempts 1440 \
+  --watch-interval-ms 5000 \
+  --replace-existing
+```
+
+The detached helper writes private `proof-watch.log`, `proof-watch.pid`, and
+`proof-watch-command.txt` files under the ignored output root.
+
 The intake helper safely extracts `stack-installer-p1-macos.tgz` and
 `stack-installer-p1-windows.zip` only when the corresponding platform directory
 is missing, then prints the current status. Manual extraction remains available

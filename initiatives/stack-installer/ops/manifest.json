@@ -378,6 +378,7 @@
       "cd apps/stack-installer && bun run p1:proof:audit -- --platform <macos|windows>",
       "cd apps/stack-installer && bun run p1:proof:intake -- --output-root <artifact-root>",
       "cd apps/stack-installer && bun run p1:proof:watch -- --output-root <artifact-root>",
+      "node initiatives/stack-installer/ops/start-proof-watch-window.mjs --output-root output/stack-installer/p1-live --watch-attempts 1440 --watch-interval-ms 5000 --replace-existing",
       "cd apps/stack-installer && bun run p1:proof:status -- --output-root <artifact-root>",
       "cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>",
       "node initiatives/stack-installer/ops/start-proof-upload-window.mjs --host <coordinator-tailscale-ip> --port 8765 --output-root output/stack-installer/p1-live --advertised-url http://<coordinator-magic-dns-name>:8765 --replace-existing",
