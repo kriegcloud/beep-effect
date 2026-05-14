@@ -1,0 +1,323 @@
+{
+  "schemaVersion": "1.0.0",
+  "initiative": {
+    "id": "stack-installer",
+    "title": "Stack Installer",
+    "status": "active-p0-complete-p1-pending",
+    "created": "2026-05-14",
+    "updated": "2026-05-14",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "currentSourceOfTruth": "SPEC.md",
+  "currentTargetPhase": "P1",
+  "reportDirectory": "research",
+  "rawOutputDirectory": "history/outputs",
+  "completionEvidence": {
+    "p0": {
+      "status": "completed",
+      "output": "history/outputs/p0-current-state.md",
+      "handoffArchive": "ops/handoffs/HANDOFF_P0_BOOTSTRAP.md",
+      "summary": "Initiative packet created, decisions captured, corrected slice topology named, manifest targets P1."
+    },
+    "v1": {
+      "status": "in_progress",
+      "activeGate": "P1",
+      "closedGates": ["P0 packet bootstrap"],
+      "remainingGates": [
+        "P1 Discord vertical, Manual Mode",
+        "P2 AI Mode parity",
+        "P3 Recovery",
+        "P4 Portability",
+        "P5 Distribution readiness"
+      ]
+    }
+  },
+  "targets": {
+    "primary": ["macos", "windows"],
+    "bestEffort": ["linux"]
+  },
+  "defaults": {
+    "providerAuthMode": "subscription",
+    "credentialBus": "1password",
+    "aiModeDefault": "preference-not-install-scoped",
+    "channelV1": "discord-only",
+    "windowsRuntime": "wsl2-default-native-fallback",
+    "uiBaseline": "@beep/ui"
+  },
+  "publicContracts": {
+    "futureAppPackage": "@beep/stack-installer",
+    "futureAppPath": "apps/stack-installer",
+    "futureInstallerSlicePackagePattern": "@beep/installer-<category>-<role>",
+    "futureInstallerSlicePathPattern": "packages/installer-<category>/<role>",
+    "futureCategories": [
+      "dependencies",
+      "providers",
+      "channels",
+      "security",
+      "runtime",
+      "workspace"
+    ],
+    "credentialParameterShape": "1Password references only"
+  },
+  "v1Completion": {
+    "status": "in_progress",
+    "activeGate": "P1",
+    "closedGates": ["P0 packet bootstrap"],
+    "remainingGates": [
+      "P1 Discord vertical, Manual Mode fresh-OS macOS and Windows proof",
+      "P2 AI Mode parity across Claude and Codex",
+      "P3 salted recovery proof",
+      "P4 cross-OS manifest portability proof",
+      "P5 signed distribution readiness"
+    ],
+    "nonBlockingFollowUps": [
+      "iMessage channel",
+      "Teams channel",
+      "Slack/Signal/Telegram/WhatsApp/Google Chat channels",
+      "APR runtime app handoff",
+      "additional MCP server integrations"
+    ]
+  },
+  "owningSurfaces": {
+    "app": {
+      "path": "apps/stack-installer",
+      "package": "@beep/stack-installer",
+      "owns": [
+        "Tauri 2 app shell",
+        "React app composition",
+        "approval-first workflow UI",
+        "provider selection",
+        "app-local MCP executor adapter",
+        "provider native-event-to-UI translation"
+      ],
+      "uiBaseline": {
+        "path": "packages/foundation/ui-system/ui",
+        "package": "@beep/ui",
+        "imports": [
+          "@beep/ui",
+          "@beep/ui/themes",
+          "@beep/ui/styles/globals.css"
+        ]
+      }
+    },
+    "installer-dependencies": {
+      "rolePackagePattern": "packages/installer-dependencies/<role>",
+      "packageNamePattern": "@beep/installer-dependencies-<role>",
+      "owns": ["OS dependencies", "build chains", "package managers", "CLIs"]
+    },
+    "installer-providers": {
+      "rolePackagePattern": "packages/installer-providers/<role>",
+      "packageNamePattern": "@beep/installer-providers-<role>",
+      "owns": ["AI provider auth", "credential modes", "provider validation"]
+    },
+    "installer-channels": {
+      "rolePackagePattern": "packages/installer-channels/<role>",
+      "packageNamePattern": "@beep/installer-channels-<role>",
+      "owns": ["Discord v1", "future channel contracts", "channel validators"]
+    },
+    "installer-security": {
+      "rolePackagePattern": "packages/installer-security/<role>",
+      "packageNamePattern": "@beep/installer-security-<role>",
+      "owns": ["1Password", "SSH agent", "commit signing", "secret bus"]
+    },
+    "installer-runtime": {
+      "rolePackagePattern": "packages/installer-runtime/<role>",
+      "packageNamePattern": "@beep/installer-runtime-<role>",
+      "owns": [
+        "Claude Desktop config",
+        "Codex Desktop config",
+        "MCP wiring",
+        "skill and instruction bundle contracts"
+      ]
+    },
+    "installer-workspace": {
+      "rolePackagePattern": "packages/installer-workspace/<role>",
+      "packageNamePattern": "@beep/installer-workspace-<role>",
+      "owns": [
+        "first-session experience",
+        "end-to-end gate",
+        "manifest-level workspace intent"
+      ]
+    },
+    "tooling": {
+      "path": "packages/tooling/tool/cli",
+      "package": "@beep/repo-cli",
+      "owns": [
+        "architecture creation commands",
+        "future generated registry artifact composition"
+      ]
+    }
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Initiative Bootstrap",
+      "status": "completed",
+      "output": "history/outputs/p0-current-state.md",
+      "exitCriteriaSummary": "Packet created, decisions captured, corrected slice topology named, manifest targets P1."
+    },
+    {
+      "id": "P1",
+      "name": "Discord Vertical, Manual Mode",
+      "status": "pending",
+      "output": "history/outputs/p1-discord-vertical-manual.md",
+      "exitCriteriaSummary": "Fresh-OS macOS and Windows manual runs complete provider auth, 1Password, Discord setup, and test message."
+    },
+    {
+      "id": "P2",
+      "name": "AI Mode Parity",
+      "status": "pending",
+      "output": "history/outputs/p2-ai-mode-parity.md",
+      "exitCriteriaSummary": "Claude and Codex AI Mode runs share one manifest and pass byte-identical-manifest gate modulo timestamps."
+    },
+    {
+      "id": "P3",
+      "name": "Recovery",
+      "status": "pending",
+      "output": "history/outputs/p3-recovery.md",
+      "exitCriteriaSummary": "AI Mode repairs wrong Node version, invalid Discord token, and missing 1Password reference."
+    },
+    {
+      "id": "P4",
+      "name": "Portability",
+      "status": "pending",
+      "output": "history/outputs/p4-portability.md",
+      "exitCriteriaSummary": "Manifest export/import works across macOS to Windows-WSL with validators green on the target."
+    },
+    {
+      "id": "P5",
+      "name": "Distribution Readiness",
+      "status": "pending",
+      "output": "history/outputs/p5-distribution-readiness.md",
+      "exitCriteriaSummary": "Signed macOS and Windows binaries, updates, opt-in telemetry, crash reporting, feedback, and CI builds are proven."
+    }
+  ],
+  "proofMatrix": [
+    {
+      "phase": "P0",
+      "proof": "Initiative Bootstrap",
+      "status": "completed",
+      "evidenceArtifacts": [
+        "README.md",
+        "SPEC.md",
+        "PLAN.md",
+        "ops/manifest.json",
+        "history/outputs/p0-current-state.md",
+        "ops/handoffs/HANDOFF_P0_BOOTSTRAP.md"
+      ]
+    },
+    {
+      "phase": "P1",
+      "proof": "Discord Vertical, Manual Mode",
+      "status": "pending",
+      "evidenceArtifacts": [
+        "history/outputs/p1-discord-vertical-manual.md",
+        "future evidence: macOS screencast",
+        "future evidence: Windows screencast",
+        "future evidence: sanitized manifest",
+        "future evidence: Discord test message"
+      ]
+    },
+    {
+      "phase": "P2",
+      "proof": "AI Mode Parity",
+      "status": "pending",
+      "evidenceArtifacts": [
+        "history/outputs/p2-ai-mode-parity.md",
+        "future evidence: Claude screencast",
+        "future evidence: Codex screencast",
+        "future evidence: structured action logs",
+        "future evidence: byte-identical manifest diff"
+      ]
+    },
+    {
+      "phase": "P3",
+      "proof": "Recovery",
+      "status": "pending",
+      "evidenceArtifacts": [
+        "history/outputs/p3-recovery.md",
+        "future evidence: scenario screencasts",
+        "future evidence: before/after validator output"
+      ]
+    },
+    {
+      "phase": "P4",
+      "proof": "Portability",
+      "status": "pending",
+      "evidenceArtifacts": [
+        "history/outputs/p4-portability.md",
+        "future evidence: Machine A manifest",
+        "future evidence: Machine B manifest",
+        "future evidence: paired validator logs"
+      ]
+    },
+    {
+      "phase": "P5",
+      "proof": "Distribution Readiness",
+      "status": "pending",
+      "evidenceArtifacts": [
+        "history/outputs/p5-distribution-readiness.md",
+        "future evidence: macOS notarization proof",
+        "future evidence: Windows code-signing proof",
+        "future evidence: auto-update smoke",
+        "future evidence: telemetry/crash/feedback smoke",
+        "future evidence: target CI matrix"
+      ]
+    }
+  ],
+  "commandGates": {
+    "p0": [
+      "jq . initiatives/stack-installer/ops/manifest.json",
+      "rg -n \"P0|P1|P2|P3|P4|P5\" initiatives/stack-installer"
+    ],
+    "repoWidePlaceholders": [
+      "bun run check",
+      "bun run lint",
+      "bun run test",
+      "bun run docgen",
+      "bun run config-sync"
+    ],
+    "futureSlicePackagePlaceholders": [
+      "bun run --filter @beep/installer-dependencies-domain check",
+      "bun run --filter @beep/installer-providers-domain check",
+      "bun run --filter @beep/installer-channels-domain check",
+      "bun run --filter @beep/installer-security-domain check",
+      "bun run --filter @beep/installer-runtime-domain check",
+      "bun run --filter @beep/installer-workspace-domain check"
+    ],
+    "phaseSpecificPlaceholders": [
+      "future: fresh-OS smoke wrapper for macOS",
+      "future: fresh-OS smoke wrapper for Windows",
+      "future: manifest parity diff gate modulo timestamps",
+      "future: salted-machine recovery validator snapshots",
+      "future: manifest export/import portability validator suite",
+      "future: macOS signing and notarization verification",
+      "future: Windows code-signing verification"
+    ]
+  },
+  "knownGaps": [
+    "Tauri app not built",
+    "verb registry not built",
+    "installer slice packages not built",
+    "MCP executor adapter not built",
+    "skill and instruction bundle generation not built",
+    "Claude provider adapter not built",
+    "Codex provider adapter not built",
+    "Discord vertical not built",
+    "manifest schema not implemented",
+    "local event log not implemented",
+    "distribution and signing pipeline not built"
+  ],
+  "keyDecisions": [
+    "P0 creates documentation and manifest only",
+    "future app package is @beep/stack-installer under apps/stack-installer",
+    "UI baseline is @beep/ui from packages/foundation/ui-system/ui",
+    "installer category packages use sibling slice slugs such as installer-dependencies",
+    "verb registry contracts are slice-owned and composed by app/tooling",
+    "MCP executor is app-local runtime adapter code under apps/stack-installer",
+    "credential parameters are typed 1Password references only",
+    "Discord is the only v1 channel",
+    "macOS and Windows are v1 parity targets"
+  ],
+  "nextAction": "Kick off P1: Discord vertical, Manual Mode, without implementing AI Mode first."
+}
