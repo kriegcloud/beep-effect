@@ -135,8 +135,14 @@ const hasConfiguredProvider = (proof: P1ManualProofResult, providerName: "claude
     A.some((provider) => provider.provider === providerName && provider.status === "configured")
   );
 
+const requireAudit = (condition: boolean, message: string): Effect.Effect<void> =>
+  condition ? Effect.void : Effect.die(message);
+
 const evidenceFileNames = Effect.fn("StackInstaller.evidenceFileNames")(function* (outputDir: string) {
   const fs = yield* FileSystem.FileSystem;
+  const outputDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+
+  yield* requireAudit(outputDirExists, `Missing P1 proof artifact directory: ${outputDir}`);
 
   return pipe(yield* fs.readDirectory(outputDir), A.filter(isEvidenceFileName), A.sort(Order.String));
 });
@@ -163,9 +169,6 @@ const buildSha256SumsText = Effect.fn("StackInstaller.buildSha256SumsText")(func
 
   return `${A.join("\n")(rows)}\n`;
 });
-
-const requireAudit = (condition: boolean, message: string): Effect.Effect<void> =>
-  condition ? Effect.void : Effect.die(message);
 
 const refreshChecksums = Effect.fn("StackInstaller.refreshChecksums")(function* (outputDir: string) {
   const fs = yield* FileSystem.FileSystem;

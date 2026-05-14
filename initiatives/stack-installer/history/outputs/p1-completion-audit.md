@@ -25,8 +25,9 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Latest pushed branch commit at this audit:
-  `de73882660 feat(stack-installer): tighten p1 artifact audit`
+- Relevant pushed audit commits:
+  `de73882660 feat(stack-installer): tighten p1 artifact audit`,
+  `1b630e51e8 docs(stack-installer): record missing p1 proof artifacts`
 - Base evidence after `git fetch origin main`: `origin/main` at `910a1f3659`
 - Worktree status before this audit update: clean and even with
   `origin/feat/stack-installer-p1-live`.
@@ -34,8 +35,8 @@ without stopping until:
   `output/stack-installer/p1-live` contains no files.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
-  fails with `NotFound: FileSystem.readDirectory
-  (output/stack-installer/p1-live/macos)`.
+  fails with `Missing P1 proof artifact directory:
+  output/stack-installer/p1-live/macos`.
 
 ## Prompt-To-Artifact Checklist
 
