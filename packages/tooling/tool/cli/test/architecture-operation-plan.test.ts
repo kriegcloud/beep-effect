@@ -255,13 +255,19 @@ describe("architecture operation plan", () => {
         A.sort(Order.String)
       );
 
-      for (const acceptedPath of acceptedFiles) {
-        const generated = readFileSync(join(tempRoot, acceptedPath), "utf8");
-        const accepted = readFileSync(join(repoRoot, acceptedPath), "utf8");
-        expect(generated, acceptedPath).toBe(accepted);
-      }
+      const generatedComparisons = pipe(
+        acceptedFiles,
+        A.map((acceptedPath) => ({
+          accepted: readFileSync(join(repoRoot, acceptedPath), "utf8"),
+          acceptedPath,
+          generated: readFileSync(join(tempRoot, acceptedPath), "utf8"),
+        }))
+      );
 
       rmSync(tempRoot, { force: true, recursive: true });
+      for (const { accepted, acceptedPath, generated } of generatedComparisons) {
+        expect(generated, acceptedPath).toBe(accepted);
+      }
       expect(plannedWritePaths).toEqual(acceptedFiles);
       expect(pipe(firstApply.writtenPaths, A.sort(Order.String))).toEqual(acceptedFiles);
       expect(check.idempotent).toBe(true);
