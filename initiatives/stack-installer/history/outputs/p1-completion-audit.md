@@ -25,7 +25,11 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Latest branch evidence includes the detached proof-window status update,
+- Latest branch evidence includes the upload restart and landing-page update,
+  which lets the coordinator restart the live upload helper with
+  `--reuse-token` and exposes a non-secret `GET /` operator landing page while
+  keeping `/status` and `/upload/*` token-protected.
+- Earlier branch evidence includes the detached proof-window status update,
   which keeps `initiatives/stack-installer/ops/proof-upload-status.mjs` as the
   single coordinator command for upload server health, private-file modes,
   returned bundle presence, platform artifact status, and detached watcher
@@ -121,19 +125,25 @@ without stopping until:
   `initiatives/stack-installer/ops/proof-upload-server.mjs` on
   `http://100.117.213.114:8765`. The helper now prefers
   `Authorization: Bearer ...` upload tokens so the token does not need to
-  appear in upload URLs. The current private one-time token is rotated into
-  ignored `output/stack-installer/p1-live/proof-upload-token.txt` with `0600`
-  permissions, and the ignored command file no longer embeds a token. Health
-  checks pass, invalid-token requests return `403`, and upload logs redact
-  tokens. No operator upload has hit the endpoint yet. The same live endpoint
-  has also been verified through MagicDNS at
-  `http://dankputer.tailc7c348.ts.net:8765/health`.
+  appear in upload URLs. The current private one-time token is stored in ignored
+  `output/stack-installer/p1-live/proof-upload-token.txt` with `0600`
+  permissions, and the ignored command file does not embed a token. The latest
+  restart used `--reuse-token`, preserving the active operator token while
+  loading the updated server. Health checks pass, invalid-token requests return
+  `403`, and upload logs redact tokens. The server now exposes a non-secret
+  public `GET /` landing page that lists health, status, and allowed upload
+  routes without exposing proof state or tokens. No operator upload has hit the
+  endpoint yet. The same live endpoint has also been verified through MagicDNS
+  at `http://dankputer.tailc7c348.ts.net:8765/health` and the MagicDNS public
+  landing page.
 - Current upload-window starter:
   committed `initiatives/stack-installer/ops/start-proof-upload-window.mjs`
   now performs the coordinator setup: token rotation, `0600` token/command/PID
   files, detached server start, and endpoint/log path reporting without
-  printing the token. The live endpoint was restarted through this helper and
-  remains healthy.
+  printing the token. It also supports `--reuse-token` for coordinator-side
+  helper restarts that must not invalidate an operator-held token. The live
+  endpoint was restarted through this helper with `--reuse-token` and remains
+  healthy.
 - Current remote upload status endpoint:
   committed `initiatives/stack-installer/ops/proof-upload-server.mjs` exposes a
   token-protected `GET /status` endpoint for proof machines to confirm what the
@@ -148,7 +158,7 @@ without stopping until:
   PID/running state, detached watcher file modes, detached watcher completion
   indicator, detached watcher token-like-text indicator, and recent watcher log
   lines in one command. Latest status reports health `200 ok`, upload PID
-  `1007771` running, token/commands/PID file modes `600`, no token-like text in
+  `1105988` running, token/commands/PID file modes `600`, no token-like text in
   upload logs or commands, detached watcher PID `1078319` running, detached
   watcher file modes `600`, no token-like text in watcher logs or command file,
   both returned bundles missing, and both `macos` and `windows` platform

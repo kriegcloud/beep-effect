@@ -22,6 +22,7 @@ const outputRoot = path.resolve(argAfter("--output-root", "output/stack-installe
 const advertisedUrl = argAfter("--advertised-url", "").replace(/\/+$/, "");
 const tokenBytes = Number.parseInt(argAfter("--token-bytes", "24"), 10);
 const replaceExisting = hasArg("--replace-existing");
+const reuseToken = hasArg("--reuse-token");
 const serverScript = path.resolve("initiatives/stack-installer/ops/proof-upload-server.mjs");
 const urlBase = `http://${host}:${port}`;
 
@@ -68,13 +69,7 @@ const buildCommandsText = () =>
     "",
     "Coordinator URL base:",
     urlBase,
-    ...(advertisedUrl
-      ? [
-          "",
-          "Alternate operator URL base:",
-          advertisedUrl,
-        ]
-      : []),
+    ...(advertisedUrl ? ["", "Alternate operator URL base:", advertisedUrl] : []),
     "",
     "Coordinator-local token file, do not commit or paste in public channels:",
     tokenPath,
@@ -86,9 +81,7 @@ const buildCommandsText = () =>
     "Remote status check:",
     `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${urlBase}/status'`,
     ...(advertisedUrl
-      ? [
-          `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${advertisedUrl}/status'`,
-        ]
+      ? [`curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${advertisedUrl}/status'`]
       : []),
     "",
     "macOS upload command:",
@@ -119,7 +112,8 @@ const buildCommandsText = () =>
 await fs.promises.mkdir(outputRoot, { recursive: true });
 await stopExisting();
 
-const token = crypto.randomBytes(tokenBytes).toString("hex");
+const existingToken = (await fs.promises.readFile(tokenPath, "utf8").catch(() => "")).trim();
+const token = reuseToken && existingToken ? existingToken : crypto.randomBytes(tokenBytes).toString("hex");
 await writePrivateFile(tokenPath, `${token}\n`);
 await writePrivateFile(commandsPath, `${buildCommandsText()}\n`);
 await writePrivateFile(logPath, "");
@@ -144,6 +138,7 @@ await writePrivateFile(pidPath, `${child.pid}\n`);
 
 console.log(`Stack Installer proof upload window started on http://${host}:${port}`);
 console.log(`pid: ${child.pid}`);
+console.log(`token: ${reuseToken && existingToken ? "reused existing token" : "rotated token"}`);
 console.log(`token file: ${tokenPath}`);
 console.log(`commands file: ${commandsPath}`);
 console.log(`log file: ${logPath}`);

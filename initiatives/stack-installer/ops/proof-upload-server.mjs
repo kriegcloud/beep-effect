@@ -98,9 +98,33 @@ const uploadStatus = async () => ({
   ),
 });
 
+const landingPage = () =>
+  [
+    "Stack Installer P1 proof upload endpoint",
+    "",
+    "Public checks:",
+    "- GET /health",
+    "",
+    "Token-protected checks:",
+    "- GET /status",
+    "",
+    "Allowed uploads:",
+    "- PUT or POST /upload/stack-installer-p1-macos.tgz",
+    "- PUT or POST /upload/stack-installer-p1-windows.zip",
+    "",
+    "Use an Authorization: Bearer token header for /status and /upload requests.",
+    "Do not put the proof upload token in URLs, chat, commits, screencasts, or command transcripts.",
+  ].join("\n");
+
 const server = http.createServer(async (request, response) => {
   try {
     const requestUrl = new URL(request.url ?? "/", `http://${request.headers.host ?? `${host}:${port}`}`);
+
+    if (request.method === "GET" && requestUrl.pathname === "/") {
+      logRequest(request, 200, "landing");
+      send(response, 200, landingPage());
+      return;
+    }
 
     if (request.method === "GET" && requestUrl.pathname === "/health") {
       logRequest(request, 200, "health");

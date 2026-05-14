@@ -278,6 +278,11 @@ node initiatives/stack-installer/ops/start-proof-upload-window.mjs \
   --replace-existing
 ```
 
+Use `--reuse-token` with `--replace-existing` when restarting the upload
+server for a coordinator-side helper update while an operator may already have
+the current token. Omit `--reuse-token` when intentionally rotating the proof
+window token.
+
 Coordinator status template:
 
 ```bash
