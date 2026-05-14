@@ -92,12 +92,18 @@ without stopping until:
   files, detached server start, and endpoint/log path reporting without
   printing the token. The live endpoint was restarted through this helper and
   remains healthy.
+- Current remote upload status endpoint:
+  committed `initiatives/stack-installer/ops/proof-upload-server.mjs` exposes a
+  token-protected `GET /status` endpoint for proof machines to confirm what the
+  coordinator has received without SSH access. Latest authenticated `/status`
+  reports both returned bundles as `false` and both platform directories as
+  missing.
 - Current upload-window status helper:
   committed `initiatives/stack-installer/ops/proof-upload-status.mjs` reports
   upload endpoint health, PID/running state, private file modes,
   token-like-text indicators in logs/commands, returned bundle presence,
   platform artifact status, and recent redacted upload log lines in one
-  command. Latest status reports health `200 ok`, PID `1001166` running,
+  command. Latest status reports health `200 ok`, PID `1007771` running,
   token/commands/PID file modes `600`, no token-like text in logs or commands,
   both returned bundles missing, and both `macos` and `windows` platform
   directories missing.
