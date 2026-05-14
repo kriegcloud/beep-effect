@@ -136,7 +136,7 @@
       "p1LiveImplemented": [
         "app-local P1 Manual Mode proof harness",
         "operator artifact capture wrapper for proof JSON, command transcript, and SHA-256 sums",
-        "local proof artifact audit for required files, checksum freshness, 1Password references, and Discord message evidence",
+        "local proof artifact audit for required files, checksum freshness, all validation events, configured providers, 1Password references, and Discord message evidence",
         "Tauri run_p1_manual_proof command",
         "live proof form with 1Password-reference-only token input",
         "sanitized P1ManualProofResult rendering"

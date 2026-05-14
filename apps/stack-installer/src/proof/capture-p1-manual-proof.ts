@@ -120,6 +120,21 @@ const hasEvidenceFile = (fileNames: ReadonlyArray<string>, fileName: string): bo
     O.isSome
   );
 
+const hasPassedValidationEvent = (
+  events: ReadonlyArray<P1ManualProofResult["snapshot"]["validationEvents"][number]>,
+  id: string
+): boolean =>
+  pipe(
+    events,
+    A.some((event) => event.id === id && event.status === "passed")
+  );
+
+const hasConfiguredProvider = (proof: P1ManualProofResult, providerName: "claude" | "codex"): boolean =>
+  pipe(
+    proof.snapshot.manifest.providers,
+    A.some((provider) => provider.provider === providerName && provider.status === "configured")
+  );
+
 const evidenceFileNames = Effect.fn("StackInstaller.evidenceFileNames")(function* (outputDir: string) {
   const fs = yield* FileSystem.FileSystem;
 
@@ -184,6 +199,20 @@ const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(func
 
   yield* requireAudit(recordedChecksums === expectedChecksums, "sha256sums.txt is stale or incomplete");
   yield* requireAudit(proof.snapshot.manifest.dryRunOnly === false, "Proof manifest must not be dry-run-only");
+  yield* requireAudit(pipe(proof.snapshot.validationEvents, A.length) > 0, "Proof must contain validation events");
+  yield* requireAudit(
+    pipe(
+      proof.snapshot.validationEvents,
+      A.every((event) => event.status === "passed")
+    ),
+    "All proof validation events must pass"
+  );
+  yield* requireAudit(hasConfiguredProvider(proof, "claude"), "Claude provider must be configured");
+  yield* requireAudit(hasConfiguredProvider(proof, "codex"), "Codex provider must be configured");
+  yield* requireAudit(
+    hasPassedValidationEvent(proof.snapshot.validationEvents, "onepassword-discord-token-reference"),
+    "1Password Discord token reference validation must pass"
+  );
   yield* pipe(
     expectedPlatform,
     O.match({

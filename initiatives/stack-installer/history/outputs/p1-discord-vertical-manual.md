@@ -38,8 +38,9 @@ Completed P1 live harness evidence:
 - `apps/stack-installer/src/proof/capture-p1-manual-proof.ts` wraps the proof
   harness for operators and writes `proof.json`, `commands.txt`, and
   `sha256sums.txt` into the fresh-machine artifact directory. The same
-  entrypoint audits required files, checksum freshness, redacted credential
-  references, Discord message evidence, and both required platform directories.
+  entrypoint audits required files, checksum freshness, all validation events,
+  configured Claude/Codex providers, redacted credential references, Discord
+  message evidence, and both required platform directories.
 - `apps/stack-installer/src-tauri/src/lib.rs` exposes the Tauri command
   `run_p1_manual_proof` and keeps the app-local runtime composition under
   `apps/stack-installer`.
