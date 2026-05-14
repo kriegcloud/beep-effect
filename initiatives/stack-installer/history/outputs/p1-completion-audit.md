@@ -140,10 +140,11 @@ without stopping until:
   and peer-host terms found no obvious Windows or SMB transfer credential; no
   secret fields were read. The current tailnet view does not show a macOS proof
   peer.
-- Latest local transfer scan found no `stack-installer-p1-macos.tgz`,
-  `stack-installer-p1-windows.zip`, or plausible returned `proof.json` under
-  the usual Downloads, Desktop, Documents, Public, YeeBois, mount, media, or
-  GVFS paths.
+- Latest local transfer scan found no returned `stack-installer-p1-macos.tgz`
+  or `stack-installer-p1-windows.zip` under Downloads, Desktop, Documents,
+  Public, `/tmp`, YeeBois, mount, media, or GVFS paths. Recent `proof.json`
+  hits were only temporary fixture paths under `/tmp`, not usable
+  fresh-machine proof artifacts.
 
 ## Prompt-To-Artifact Checklist
 
@@ -208,6 +209,8 @@ Blocking requirements:
   directories.
 - Latest upload status helper `--fail-on-missing` gate exits nonzero for the
   current incomplete proof state.
+- Latest targeted local artifact sweep found no returned proof bundles; recent
+  `proof.json` hits were temp fixtures only.
 - `p1:proof:audit-all` has not run against real macOS and Windows artifacts.
 - P1C `$quality-review-fix-loop` has not run after proof artifacts.
 
