@@ -189,6 +189,7 @@ webglcontextlost
 wordprocessingml
 worktree
 worktrees
+xlink
 xhigh
 keccak
 ACMR

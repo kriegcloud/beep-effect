@@ -1,5 +1,5 @@
 "use client";
-import { createTheme } from "@mui/material/styles";
+import { createTheme, type Theme } from "@mui/material/styles";
 import type {} from "@mui/material/themeCssVarsAugmentation";
 import { colors } from "./colors.ts";
 import { alertTheme } from "./components/alert.ts";
@@ -22,15 +22,16 @@ import { tableTheme } from "./components/table.ts";
 import { textFieldTheme } from "./components/text-field.ts";
 import { treeViewTheme } from "./components/tree-view.ts";
 import { shadows } from "./shadows.ts";
+import type { ThemeOptions } from "./types.ts";
 import { typography, typographyTheme } from "./typography.ts";
 
 /**
- * The shared MUI theme used by `@beep/ui`.
+ * Base theme options shared by `@beep/ui`.
  *
  * @since 0.0.0
  * @category themes
  */
-export const theme = createTheme({
+export const themeOptions: ThemeOptions = {
   cssVariables: {
     colorSchemeSelector: "class",
   },
@@ -62,4 +63,20 @@ export const theme = createTheme({
   },
   typography,
   shadows,
-});
+};
+
+/**
+ * Creates a shared `@beep/ui` theme with optional app-level overrides.
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const createAppTheme = (overrides: ThemeOptions = {}): Theme => createTheme(themeOptions, overrides);
+
+/**
+ * The shared MUI theme used by `@beep/ui`.
+ *
+ * @since 0.0.0
+ * @category themes
+ */
+export const theme = createAppTheme();

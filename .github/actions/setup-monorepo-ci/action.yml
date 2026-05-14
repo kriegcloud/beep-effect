@@ -31,6 +31,7 @@ runs:
 
     - name: Restore Bun dependencies cache
       id: bun-cache-restore
+      continue-on-error: true
       uses: actions/cache/restore@v4
       with:
         path: ~/.bun/install/cache
@@ -40,6 +41,7 @@ runs:
     - name: Restore Turbo cache (local fallback only)
       if: ${{ inputs.cache-turbo == 'true' && (env.TURBO_TOKEN == '' || env.TURBO_TEAM == '') }}
       id: turbo-cache-restore
+      continue-on-error: true
       uses: actions/cache/restore@v4
       with:
         path: .turbo/cache
@@ -54,6 +56,7 @@ runs:
 
     - name: Save Bun dependencies cache
       if: ${{ inputs.cache-write == 'true' && steps.bun-cache-restore.outputs.cache-hit != 'true' }}
+      continue-on-error: true
       uses: actions/cache/save@v4
       with:
         path: ~/.bun/install/cache
@@ -61,6 +64,7 @@ runs:
 
     - name: Save Turbo cache (local fallback only)
       if: ${{ inputs.cache-write == 'true' && inputs.cache-turbo == 'true' && (env.TURBO_TOKEN == '' || env.TURBO_TEAM == '') && steps.turbo-cache-restore.outputs.cache-hit != 'true' }}
+      continue-on-error: true
       uses: actions/cache/save@v4
       with:
         path: .turbo/cache

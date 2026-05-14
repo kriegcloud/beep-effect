@@ -30,6 +30,7 @@ actually lives here.
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
 - `ip-law-knowledge-graph`
+- `opip-web-launch` — implementation complete; launch review pending.
 - `trustgraph-doc-ontology`
 
 ## Reference Packets

@@ -15,18 +15,23 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "opip-web",
-    short_name: "opip-web",
-    description: "OP/IP web application shell.",
+    name: "opip.law",
+    short_name: "opip.law",
+    description: "Patent counsel for the people who build the machines.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#ffffff",
+    background_color: "#F4EDE0",
+    theme_color: "#1F1D1A",
     icons: [
       {
         src: "/favicon.ico",
         sizes: "any",
         type: "image/x-icon",
+      },
+      {
+        src: "/opip/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
       },
     ],
   };

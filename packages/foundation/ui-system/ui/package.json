@@ -90,6 +90,7 @@
     "./package.json": "./package.json",
     ".": "./src/index.ts",
     "./themes": "./src/themes/index.ts",
+    "./themes/theme-init-script": "./src/themes/theme-init-script.tsx",
     "./themes/*": "./src/themes/*.ts",
     "./styles/globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
