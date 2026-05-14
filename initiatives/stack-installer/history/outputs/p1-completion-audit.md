@@ -139,11 +139,13 @@ without stopping until:
   token-protected status, commands, and next-actions endpoints, token-leak
   indicators, detached watcher progress, and MagicDNS alternate endpoint
   health/landing/status/commands/next-actions responses. It also reports
-  `upload activity: 0 attempts; 0 stored; 0 rejected; remotes: none`,
-  confirming no proof machine has attempted a `PUT` or `POST` upload yet. The
-  same status command now checks the local process table for watchers tied to
-  the proof output root; current active processes are the expected watcher
-  parent/child pair only, and the stale-process check reports `ok`.
+  `runbook activity: landing 54; commands 51; next-actions 51; remotes:
+  100.117.213.114` and `upload activity: 0 attempts; 0 stored; 0 rejected;
+  remotes: none`, confirming no non-coordinator proof machine has fetched the
+  runbook endpoints or attempted a `PUT` or `POST` upload yet. The same status
+  command now checks the local process table for watchers tied to the proof
+  output root; current active processes are the expected watcher parent/child
+  pair only, and the stale-process check reports `ok`.
 - Latest upload-window operator-routing hardening:
   `proof-upload-server.mjs` now makes the public landing page spell out the
   non-secret proof-operator path for users who only have the endpoint URL:

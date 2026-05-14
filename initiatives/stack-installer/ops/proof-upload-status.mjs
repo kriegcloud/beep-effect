@@ -125,6 +125,45 @@ const parseUploadActivity = (text) => {
   };
 };
 
+const parseRunbookActivity = (text) => {
+  const lines = text.trim() ? text.trim().split(/\r?\n/) : [];
+  const activity = {
+    commands: 0,
+    landing: 0,
+    nextActions: 0,
+    remotes: new Set(),
+  };
+
+  for (const line of lines) {
+    const match = line.match(/^\S+\s+GET\s+(\/|\/commands|\/next-actions)\s+200\s+(\S+)\s+/);
+
+    if (!match) {
+      continue;
+    }
+
+    if (match[1] === "/") {
+      activity.landing += 1;
+    }
+
+    if (match[1] === "/commands") {
+      activity.commands += 1;
+    }
+
+    if (match[1] === "/next-actions") {
+      activity.nextActions += 1;
+    }
+
+    activity.remotes.add(match[2]);
+  }
+
+  return {
+    commands: activity.commands,
+    landing: activity.landing,
+    nextActions: activity.nextActions,
+    remotes: Array.from(activity.remotes).sort(),
+  };
+};
+
 const formatWatcherProgress = (progress) => {
   if (!progress) {
     return "unknown";
@@ -145,6 +184,12 @@ const formatUploadActivity = (activity) => {
   const remoteText = activity.remoteAddresses.length > 0 ? activity.remoteAddresses.join(", ") : "none";
 
   return `${activity.attempts} attempts; ${activity.stored} stored; ${activity.rejected} rejected; remotes: ${remoteText}`;
+};
+
+const formatRunbookActivity = (activity) => {
+  const remoteText = activity.remotes.length > 0 ? activity.remotes.join(", ") : "none";
+
+  return `landing ${activity.landing}; commands ${activity.commands}; next-actions ${activity.nextActions}; remotes: ${remoteText}`;
 };
 
 const watcherProcesses = (root) => {
@@ -331,6 +376,7 @@ const watchCommandFileMode = await fileMode(watchCommandPath);
 const hasTokenLikeText = tokenLikePattern.test(leakScanText);
 const hasWatcherTokenLikeText = tokenLikePattern.test(watchLeakScanText);
 const uploadActivity = parseUploadActivity(logText);
+const runbookActivity = parseRunbookActivity(logText);
 const watcherProgress = parseWatcherProgress(watchLogText);
 const watcherProcessStatus = watcherProcesses(outputRoot);
 const statusResponse = statusWithToken ? parseJson(statusWithToken.text) : undefined;
@@ -485,6 +531,7 @@ console.log(`commands file mode: ${commandsFileMode}`);
 console.log(`pid file mode: ${pidFileMode}`);
 console.log(`log file present: ${await fileExists(logPath)}`);
 console.log(`token-like text in logs/commands: ${hasTokenLikeText ? "yes" : "no"}`);
+console.log(`runbook activity: ${formatRunbookActivity(runbookActivity)}`);
 console.log(`upload activity: ${formatUploadActivity(uploadActivity)}`);
 console.log("detached proof watcher:");
 console.log(
