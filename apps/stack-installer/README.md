@@ -1,5 +1,9 @@
 # `@beep/stack-installer`
 
-Dry-run Tauri and React shell for the Stack Installer P1A spine.
+Tauri and React shell for the Stack Installer P1 proof flow.
 
-P1A proves the app surface, slice-owned verb contracts, deterministic manifest snapshot, and UI baseline. It does not run live installers, mutate Discord, resolve 1Password references, or persist host configuration.
+P1A proved the dry-run app surface, slice-owned verb contracts, deterministic
+manifest snapshot, and UI baseline. P1 live now adds Manual Mode validators,
+the Tauri proof command, and CLI artifact capture for fresh-machine proof
+runs. It still does not run live installers, provision Discord, accept
+plaintext credentials, implement AI Mode, or persist host configuration.

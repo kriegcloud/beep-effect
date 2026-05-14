@@ -22,9 +22,9 @@ P0 created the initiative packet only. P1A added the runnable dry-run spine:
 package contracts, deterministic manifest snapshot, `@beep/ui` web shell, and
 a minimal Tauri 2 bridge. The P1 live Manual Mode harness is now implemented:
 driver packages validate 1Password, provider auth, host commands, and Discord
-liveness, and the app exposes a Tauri proof command. Fresh-OS macOS and
-Windows proof artifacts plus a post-proof PR readiness review are still
-required before P1 can close.
+liveness, and the app exposes Tauri and CLI proof capture commands. Fresh-OS
+macOS and Windows proof artifacts plus a post-proof PR readiness review are
+still required before P1 can close.
 
 ## Read This First
 
@@ -57,9 +57,9 @@ required before P1 can close.
   exist, validate 1Password-reference-only inputs, compose slice-owned verb
   contracts, and render a deterministic manifest preview.
 - P1 live harness is implemented: app-local proof composition, Tauri command,
-  and live driver-backed validators exist. P1 remains open until fresh-OS proof
-  on macOS and Windows is recorded and the PR readiness review/fix loop returns
-  zero required blockers or explicit waivers.
+  CLI artifact capture, and live driver-backed validators exist. P1 remains
+  open until fresh-OS proof on macOS and Windows is recorded and the PR
+  readiness review/fix loop returns zero required blockers or explicit waivers.
 - P2 is pending: AI Mode parity across Claude and Codex with byte-identical
   manifest output modulo timestamps.
 - P3 is pending: recovery proof from salted-broken-state machines.

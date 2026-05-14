@@ -59,8 +59,8 @@ Run these from the checkout:
 git status --short --branch
 bun install
 bun run config-sync:check
-cd apps/stack-installer && bun run build
-cd apps/stack-installer/src-tauri && cargo check
+(cd apps/stack-installer && bun run build)
+(cd apps/stack-installer/src-tauri && cargo check)
 ```
 
 Then verify local operator state without recording secret values:
@@ -87,19 +87,28 @@ mkdir -p output/stack-installer/p1-live/macos
 mkdir -p output/stack-installer/p1-live/windows
 ```
 
-Run the proof from `apps/stack-installer` with a request like:
+Run the capture wrapper from `apps/stack-installer` with a request like:
 
 ```bash
-bun run p1:proof -- --request-json '{"targetPlatform":"macos","operatorLabel":"operator-macos-001","discordGuildId":"000000000000000000","discordChannelId":"000000000000000000","discordChannelDisplayName":"ai-stack-installer","discordBotTokenReference":"op://Private/Discord Bot/token","testMessageContent":"Stack Installer P1 macOS proof"}'
+bun run p1:proof:capture -- --request-json '{"targetPlatform":"macos","operatorLabel":"operator-macos-001","discordGuildId":"000000000000000000","discordChannelId":"000000000000000000","discordChannelDisplayName":"ai-stack-installer","discordBotTokenReference":"op://Private/Discord Bot/token","testMessageContent":"Stack Installer P1 macOS proof"}'
 ```
 
-Write the resulting sanitized JSON to:
+The capture wrapper writes:
 
 - `output/stack-installer/p1-live/macos/proof.json`
 - `output/stack-installer/p1-live/windows/proof.json`
+- `output/stack-installer/p1-live/<platform>/commands.txt`
+- `output/stack-installer/p1-live/<platform>/sha256sums.txt`
 
 The proof JSON must contain the 1Password reference and Discord message ID,
 but must not contain the resolved bot token or any other plaintext secret.
+
+After adding `screencast.*` to the same output directory, refresh checksums
+without sending another Discord proof message:
+
+```bash
+bun run p1:proof:checksums -- --output-dir ../../output/stack-installer/p1-live/macos
+```
 
 ## Desktop Proof Path
 
