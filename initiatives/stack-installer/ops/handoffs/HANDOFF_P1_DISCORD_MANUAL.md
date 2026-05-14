@@ -257,6 +257,10 @@ Compress-Archive `
   -Force
 ```
 
+Keep the `-Path` value pointed at the platform directory itself. Do not append
+`\*`; the archive must preserve the top-level `windows` directory so
+coordinator-side extraction creates `output/stack-installer/p1-live/windows/`.
+
 On the coordinator checkout, copy the received bundle into
 `output/stack-installer/p1-live/`, then expand it from the repository root:
 
