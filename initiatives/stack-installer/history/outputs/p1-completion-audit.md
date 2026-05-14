@@ -184,12 +184,14 @@ without stopping until:
   convenience for transfer windows, not a proof substitute.
 - Current detached proof-watch state:
   `node initiatives/stack-installer/ops/start-proof-watch-window.mjs
-  --output-root output/stack-installer/p1-live --watch-attempts 1440
-  --watch-interval-ms 5000 --replace-existing` starts a detached
-  coordinator-side `p1:proof:watch` process with private `0600`
-  `proof-watch.log`, `proof-watch.pid`, and `proof-watch-command.txt` files.
-  The current detached watcher is alive and polling the proof inbox, but has
-  not found any returned bundles or platform artifact directories.
+  --output-root output/stack-installer/p1-live --watch-attempts 2880
+  --watch-interval-ms 5000 --replace-existing --preserve-log` starts or
+  extends a detached coordinator-side `p1:proof:watch` process with private
+  `0600` `proof-watch.log`, `proof-watch.pid`, and
+  `proof-watch-command.txt` files. The current detached watcher was extended
+  with preserved private log evidence and is alive as PID `1182943`, polling
+  the proof inbox for roughly four more hours, but has not found any returned
+  bundles or platform artifact directories.
 - Latest coordinator wait:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 6 --watch-interval-ms 5000`
   exhausted all attempts without finding returned bundles and ended with the

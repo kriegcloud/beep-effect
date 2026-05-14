@@ -19,6 +19,7 @@ const outputRoot = path.resolve(argAfter("--output-root", "output/stack-installe
 const attempts = Number.parseInt(argAfter("--watch-attempts", "1440"), 10);
 const intervalMs = Number.parseInt(argAfter("--watch-interval-ms", "5000"), 10);
 const replaceExisting = hasArg("--replace-existing");
+const preserveLog = hasArg("--preserve-log");
 
 const pidPath = path.join(outputRoot, "proof-watch.pid");
 const logPath = path.join(outputRoot, "proof-watch.log");
@@ -56,6 +57,11 @@ const writePrivateFile = async (filePath, content) => {
   await fs.promises.chmod(filePath, 0o600);
 };
 
+const ensurePrivateFile = async (filePath) => {
+  await fs.promises.appendFile(filePath, "", { mode: 0o600 });
+  await fs.promises.chmod(filePath, 0o600);
+};
+
 await fs.promises.mkdir(outputRoot, { recursive: true });
 await stopExisting();
 
@@ -82,7 +88,16 @@ await writePrivateFile(
     "",
   ].join("\n")
 );
-await writePrivateFile(logPath, "");
+if (preserveLog) {
+  await ensurePrivateFile(logPath);
+  await fs.promises.appendFile(
+    logPath,
+    `${new Date().toISOString()} coordinator restarted proof watcher with ${attempts} attempts and ${intervalMs}ms interval.\n`
+  );
+  await fs.promises.chmod(logPath, 0o600);
+} else {
+  await writePrivateFile(logPath, "");
+}
 
 const logHandle = await fs.promises.open(logPath, "a");
 const child = spawn("bun", watchArgs, {
@@ -96,5 +111,6 @@ await writePrivateFile(pidPath, `${child.pid}\n`);
 
 console.log(`Stack Installer proof watcher started for ${outputRoot}`);
 console.log(`pid: ${child.pid}`);
+console.log(`log: ${preserveLog ? "preserved existing log" : "rotated log"}`);
 console.log(`log file: ${logPath}`);
 console.log(`command file: ${commandPath}`);

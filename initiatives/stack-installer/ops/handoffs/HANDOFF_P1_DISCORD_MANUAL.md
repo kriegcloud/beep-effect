@@ -439,15 +439,18 @@ detached local helper from repo root:
 ```bash
 node initiatives/stack-installer/ops/start-proof-watch-window.mjs \
   --output-root output/stack-installer/p1-live \
-  --watch-attempts 1440 \
+  --watch-attempts 2880 \
   --watch-interval-ms 5000 \
-  --replace-existing
+  --replace-existing \
+  --preserve-log
 ```
 
 The detached helper writes private `proof-watch.log`, `proof-watch.pid`, and
 `proof-watch-command.txt` files under the ignored output root. The coordinator
 status command above includes those watcher files and recent watcher log lines
 so a long proof window can be checked without opening the private files by hand.
+Use `--preserve-log` when extending an active transfer window so earlier
+watcher evidence stays in the private log.
 
 The intake helper safely extracts `stack-installer-p1-macos.tgz` and
 `stack-installer-p1-windows.zip` only when the corresponding platform directory
