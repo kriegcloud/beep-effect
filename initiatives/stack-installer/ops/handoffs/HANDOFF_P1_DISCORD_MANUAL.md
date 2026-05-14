@@ -259,11 +259,11 @@ only the approved bundle file for the current platform:
 Coordinator start template:
 
 ```bash
-export STACK_INSTALLER_PROOF_UPLOAD_TOKEN='<one-time-token>'
-node initiatives/stack-installer/ops/proof-upload-server.mjs \
+node initiatives/stack-installer/ops/start-proof-upload-window.mjs \
   --host '<coordinator-tailscale-ip>' \
   --port 8765 \
-  --output-root output/stack-installer/p1-live
+  --output-root output/stack-installer/p1-live \
+  --replace-existing
 ```
 
 Before uploading from a proof machine, verify the endpoint is reachable:
@@ -298,7 +298,8 @@ The coordinator must still run `p1:proof:intake` and `p1:proof:audit-all`
 after upload. A successful upload is only a transfer event; it is not proof
 completion. If upload fails, inspect the upload server log for redacted
 request outcomes; it should never contain the one-time token or artifact
-contents.
+contents. The coordinator start script writes the token, command, log, and PID
+files under the ignored output root with `0600` permissions.
 
 From `apps/stack-installer` on macOS, Git Bash, or WSL:
 
