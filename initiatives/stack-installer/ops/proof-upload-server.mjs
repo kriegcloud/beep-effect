@@ -40,6 +40,16 @@ const send = (response, statusCode, body) => {
   response.end(`${body}\n`);
 };
 
+const requestToken = (request, requestUrl) => {
+  const authorization = request.headers.authorization ?? "";
+
+  if (authorization.startsWith("Bearer ")) {
+    return authorization.slice("Bearer ".length);
+  }
+
+  return requestUrl.searchParams.get("token") ?? "";
+};
+
 const server = http.createServer(async (request, response) => {
   try {
     const requestUrl = new URL(request.url ?? "/", `http://${request.headers.host ?? `${host}:${port}`}`);
@@ -56,7 +66,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (requestUrl.searchParams.get("token") !== token) {
+    if (requestToken(request, requestUrl) !== token) {
       logRequest(request, 403, "invalid-token");
       send(response, 403, "Invalid upload token.");
       return;
