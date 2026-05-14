@@ -39,6 +39,84 @@ const readText = async (filePath) => fs.promises.readFile(filePath, "utf8").catc
 
 const recentLines = (text, count = 12) => (text.trim() ? text.trim().split(/\r?\n/).slice(-count) : []);
 
+const formatDuration = (milliseconds) => {
+  const totalSeconds = Math.ceil(milliseconds / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+
+  return `${seconds}s`;
+};
+
+const parseWatcherProgress = (text) => {
+  let progress;
+
+  for (const line of text.trim().split(/\r?\n/)) {
+    const pending = line.match(/P1 proof watch attempt (\d+)\/(\d+) pending; sleeping (\d+)ms\./);
+
+    if (pending) {
+      progress = {
+        attempt: Number.parseInt(pending[1], 10),
+        attempts: Number.parseInt(pending[2], 10),
+        intervalMs: Number.parseInt(pending[3], 10),
+        state: "pending",
+      };
+      continue;
+    }
+
+    const passed = line.match(/P1 proof watch passed on attempt (\d+)\/(\d+)\./);
+
+    if (passed) {
+      progress = {
+        attempt: Number.parseInt(passed[1], 10),
+        attempts: Number.parseInt(passed[2], 10),
+        intervalMs: undefined,
+        state: "passed",
+      };
+      continue;
+    }
+
+    const exhausted = line.match(/P1 proof watch exhausted (\d+) attempts without passing audit-all\./);
+
+    if (exhausted) {
+      const attempts = Number.parseInt(exhausted[1], 10);
+
+      progress = {
+        attempt: attempts,
+        attempts,
+        intervalMs: undefined,
+        state: "exhausted",
+      };
+    }
+  }
+
+  return progress;
+};
+
+const formatWatcherProgress = (progress) => {
+  if (!progress) {
+    return "unknown";
+  }
+
+  if (progress.state === "pending" && typeof progress.intervalMs === "number") {
+    const remainingAttempts = Math.max(progress.attempts - progress.attempt, 0);
+
+    return `${progress.attempt}/${progress.attempts} pending; ${remainingAttempts} attempts remaining; about ${formatDuration(
+      remainingAttempts * progress.intervalMs
+    )} left`;
+  }
+
+  return `${progress.attempt}/${progress.attempts} ${progress.state}`;
+};
+
 const processExists = (pid) => {
   try {
     process.kill(pid, 0);
@@ -171,6 +249,7 @@ const watchLogFileMode = await fileMode(watchLogPath);
 const watchCommandFileMode = await fileMode(watchCommandPath);
 const hasTokenLikeText = tokenLikePattern.test(leakScanText);
 const hasWatcherTokenLikeText = tokenLikePattern.test(watchLeakScanText);
+const watcherProgress = parseWatcherProgress(watchLogText);
 const statusResponse = statusWithToken ? parseJson(statusWithToken.text) : undefined;
 const statusResponseHasExpectedShape =
   statusResponse?.outputRoot === outputRoot &&
@@ -197,7 +276,7 @@ const platforms = await Promise.all(requiredPlatforms.map(platformStatus));
 const watcherStarted =
   watchPidFileMode !== "missing" || watchLogFileMode !== "missing" || watchCommandFileMode !== "missing";
 const watcherRunning = Number.isInteger(watchPid) && processExists(watchPid);
-const watcherPassed = watchLogText.includes("P1 proof watch passed");
+const watcherPassed = watcherProgress?.state === "passed" || watchLogText.includes("P1 proof watch passed");
 const watcherWindowOk =
   !watcherStarted ||
   ((watcherRunning || watcherPassed) &&
@@ -265,6 +344,7 @@ console.log("detached proof watcher:");
 console.log(
   `- pid: ${Number.isInteger(watchPid) ? `${watchPid} (${watcherRunning ? "running" : "not running"})` : "missing"}`
 );
+console.log(`- progress: ${formatWatcherProgress(watcherProgress)}`);
 console.log(`- completed: ${watcherPassed ? "yes" : "no"}`);
 console.log(`- pid file mode: ${watchPidFileMode}`);
 console.log(`- log file mode: ${watchLogFileMode}`);
