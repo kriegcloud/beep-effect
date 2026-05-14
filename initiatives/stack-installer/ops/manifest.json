@@ -380,7 +380,8 @@
       "cd apps/stack-installer && bun run p1:proof:watch -- --output-root <artifact-root>",
       "cd apps/stack-installer && bun run p1:proof:status -- --output-root <artifact-root>",
       "cd apps/stack-installer && bun run p1:proof:audit-all -- --output-root <artifact-root>",
-      "node initiatives/stack-installer/ops/start-proof-upload-window.mjs --host <coordinator-tailscale-ip> --port 8765 --output-root output/stack-installer/p1-live --replace-existing"
+      "node initiatives/stack-installer/ops/start-proof-upload-window.mjs --host <coordinator-tailscale-ip> --port 8765 --output-root output/stack-installer/p1-live --replace-existing",
+      "node initiatives/stack-installer/ops/proof-upload-status.mjs --host <coordinator-tailscale-ip> --port 8765 --output-root output/stack-installer/p1-live"
     ],
     "p1FreshMachineProof": [
       "future: macOS user-operated bun run p1:proof:capture -- --request-json '<sanitized request>'",

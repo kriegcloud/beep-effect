@@ -266,6 +266,15 @@ node initiatives/stack-installer/ops/start-proof-upload-window.mjs \
   --replace-existing
 ```
 
+Coordinator status template:
+
+```bash
+node initiatives/stack-installer/ops/proof-upload-status.mjs \
+  --host '<coordinator-tailscale-ip>' \
+  --port 8765 \
+  --output-root output/stack-installer/p1-live
+```
+
 Before uploading from a proof machine, verify the endpoint is reachable:
 
 ```bash
