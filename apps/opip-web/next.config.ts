@@ -5,6 +5,6 @@ const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 
 export default defineBeepNextConfig({
   repoRoot,
-  allowedDevOrigins: ["op-ip-web.localhost"],
+  allowedDevOrigins: ["opip-web.localhost"],
   env: process.env,
 });

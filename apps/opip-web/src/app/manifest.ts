@@ -1,5 +1,5 @@
 /**
- * Web app manifest for the op-ip web app shell.
+ * Web app manifest for the opip web app shell.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -8,15 +8,15 @@
 import type { MetadataRoute } from "next";
 
 /**
- * Returns the static web manifest for op-ip web.
+ * Returns the static web manifest for opip web.
  *
  * @category constructors
  * @since 0.0.0
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "op-ip-web",
-    short_name: "op-ip-web",
+    name: "opip-web",
+    short_name: "opip-web",
     description: "OP/IP web application shell.",
     start_url: "/",
     display: "standalone",

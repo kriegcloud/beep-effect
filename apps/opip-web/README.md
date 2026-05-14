@@ -1,4 +1,4 @@
-# @beep/op-ip-web
+# @beep/opip-web
 
 Next.js 16 canary app wired to the shared `@beep/ui` shadcn/Tailwind setup.
 
@@ -20,4 +20,4 @@ bun run build:pwa
 
 ## Dev URL
 
-`bun run dev` serves the app at `https://op-ip-web.localhost:1355`.
+`bun run dev` serves the app at `https://opip-web.localhost:1355`.

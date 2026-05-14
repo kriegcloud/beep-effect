@@ -101,7 +101,7 @@
       "@beep/infra": ["./infra/src/index.ts"],
       "@beep/md": ["./packages/foundation/capability/md/src/index.ts"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
-      "@beep/op-ip-web": ["./apps/op-ip-web/src/index.ts"],
+      "@beep/opip-web": ["./apps/opip-web/src/index.ts"],
       "@beep/professional-runtime-proof": [
         "./apps/professional-runtime-proof/src/index.ts"
       ],

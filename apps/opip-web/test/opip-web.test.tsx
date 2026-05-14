@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import Home from "../src/app/page.tsx";
 import { VERSION } from "../src/index.ts";
 
-describe("@beep/op-ip-web", () => {
+describe("@beep/opip-web", () => {
   it("exposes the package version constant", () => {
     expect(VERSION).toBe("0.0.0");
   });

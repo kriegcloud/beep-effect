@@ -1,5 +1,5 @@
 /**
- * Home page for the op-ip web app.
+ * Home page for the opip web app.
  *
  * @since 0.0.0
  * @packageDocumentation
@@ -9,7 +9,7 @@ import { Button } from "@beep/ui/components/ui/button";
 import Image from "next/image";
 
 /**
- * Renders the starter landing page for op-ip web.
+ * Renders the starter landing page for opip web.
  *
  * @category constructors
  * @since 0.0.0

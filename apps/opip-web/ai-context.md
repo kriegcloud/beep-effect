@@ -1,10 +1,10 @@
 ---
-path: apps/op-ip-web
+path: apps/opip-web
 summary:
 tags: [effect]
 ---
 
-# @beep/op-ip-web
+# @beep/opip-web
 
 ## Architecture
 
@@ -19,7 +19,7 @@ tags: [effect]
 ## Usage Patterns
 
 ```typescript
-import { VERSION } from "@beep/op-ip-web"
+import { VERSION } from "@beep/opip-web"
 ```
 
 ## Design Decisions

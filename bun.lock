@@ -106,8 +106,8 @@
         "typescript": "catalog:",
       },
     },
-    "apps/op-ip-web": {
-      "name": "@beep/op-ip-web",
+    "apps/opip-web": {
+      "name": "@beep/opip-web",
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
@@ -1632,7 +1632,7 @@
 
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
 
-    "@beep/op-ip-web": ["@beep/op-ip-web@workspace:apps/op-ip-web"],
+    "@beep/opip-web": ["@beep/opip-web@workspace:apps/opip-web"],
 
     "@beep/openai": ["@beep/openai@workspace:packages/drivers/openai"],
 

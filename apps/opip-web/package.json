@@ -1,27 +1,27 @@
 {
-  "name": "@beep/op-ip-web",
+  "name": "@beep/opip-web",
   "version": "0.0.0",
   "description": "Next.js canary app wired to shared @beep/ui styling and portless dev URLs",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/apps/op-ip-web",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/apps/opip-web",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "apps/op-ip-web"
+    "directory": "apps/opip-web"
   },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
     "codegen": "echo 'no codegen needed'",
-    "dev": "PORTLESS_HTTPS=1 NEXT_DISABLE_PWA=1 portless op-ip-web next dev --turbopack",
+    "dev": "PORTLESS_HTTPS=1 NEXT_DISABLE_PWA=1 portless opip-web next dev --turbopack",
     "dev:raw": "NEXT_DISABLE_PWA=1 next dev --turbopack",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run type-test && bun run beep:test && bun run beep:lint",
     "beep:build": "NEXT_DISABLE_PWA=1 next build --turbopack",
     "build:pwa": "NEXT_DISABLE_PWA=0 next build --webpack",
     "start": "next start",
     "beep:check": "tsgo -b tsconfig.json",
-    "dtslint": "bunx tstyche dtslint/op-ip-web.tst.ts",
+    "dtslint": "bunx tstyche dtslint/opip-web.tst.ts",
     "type-test": "bun run dtslint",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",

@@ -87,7 +87,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 44 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
 | 45 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
 | 46 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
-| 47 | `@beep/op-ip-web` | `apps/op-ip-web` | needs-remediation | 5 | 6 | 0 | 5 |
+| 47 | `@beep/opip-web` | `apps/opip-web` | needs-remediation | 5 | 6 | 0 | 5 |
 | 48 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 4 | 0 | 0 |
 | 49 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
 | 50 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 31 |
@@ -113,7 +113,7 @@ Export findings:
 - `src/packages.ts:640` `RepoPkgs` (const) - missing @example
 - `src/packages.ts:646` `$MdId` (const) - missing summary; missing @example
 - `src/packages.ts:652` `$CodedankWebId` (const) - missing summary; missing @example
-- `src/packages.ts:658` `$OpIpWebId` (const) - missing summary; missing @example
+- `src/packages.ts:658` `$OpipWebId` (const) - missing summary; missing @example
 - `src/packages.ts:664` `$DrizzleId` (const) - missing summary; missing @example
 - `src/packages.ts:670` `$DuckdbId` (const) - missing summary; missing @example
 - `src/packages.ts:676` `$FfmpegId` (const) - missing summary; missing @example
@@ -3404,9 +3404,9 @@ Export findings:
 - `src/services/shacl-validation.ts:46` `ShaclSeverity` (const) - 1 schema annotation/type-alias gap(s)
 - `src/services/sparql-query.ts:42` `SparqlQueryProfile` (const) - 1 schema annotation/type-alias gap(s)
 
-### @beep/op-ip-web
+### @beep/opip-web
 
-Path: `apps/op-ip-web`
+Path: `apps/opip-web`
 
 Export findings:
 - `src/app/layout.tsx:41` `default` (function) - missing @example

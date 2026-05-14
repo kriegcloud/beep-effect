@@ -1,16 +1,16 @@
 /**
- * Public entry points for the op-ip web app package.
+ * Public entry points for the opip web app package.
  *
  * @since 0.0.0
  * @packageDocumentation
  */
 
 /**
- * Package version for the op-ip web app.
+ * Package version for the opip web app.
  *
  * @example
  * ```ts
- * import { VERSION } from "@beep/op-ip-web"
+ * import { VERSION } from "@beep/opip-web"
  *
  * void VERSION
  * ```

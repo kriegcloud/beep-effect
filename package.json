@@ -20,7 +20,7 @@
     "packages/tooling/test-kit/*",
     "packages/tooling/tool/*",
     "apps/codedank-web",
-    "apps/op-ip-web",
+    "apps/opip-web",
     "apps/professional-runtime-proof",
     "packages/agent-capability/domain",
     "packages/agent-capability/use-cases",

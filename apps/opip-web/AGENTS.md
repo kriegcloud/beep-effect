@@ -1,4 +1,4 @@
-# @beep/op-ip-web Agent Guide
+# @beep/opip-web Agent Guide
 
 ## Purpose & Fit
 -
@@ -16,13 +16,13 @@
 
 ## Quick Recipes
 ```ts
-import { VERSION } from "@beep/op-ip-web"
+import { VERSION } from "@beep/opip-web"
 ```
 
 ## Verifications
-- `bunx turbo run test --filter=@beep/op-ip-web`
-- `bunx turbo run lint --filter=@beep/op-ip-web`
-- `bunx turbo run check --filter=@beep/op-ip-web`
+- `bunx turbo run test --filter=@beep/opip-web`
+- `bunx turbo run lint --filter=@beep/opip-web`
+- `bunx turbo run check --filter=@beep/opip-web`
 
 ## Contributor Checklist
 - [ ] New exports include jsdoc metadata

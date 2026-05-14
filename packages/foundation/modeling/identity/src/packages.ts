@@ -88,7 +88,7 @@ const composers = $I.compose(
   "shared-config",
 
   "codedank-web",
-  "op-ip-web",
+  "opip-web",
   "drizzle",
   "duckdb",
   "face-detection",
@@ -657,7 +657,7 @@ export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = c
  * @since 0.0.0
  * @category configuration
  */
-export const $OpIpWebId: Identity.IdentityComposer<"@beep/op-ip-web"> = composers.$OpIpWebId;
+export const $OpipWebId: Identity.IdentityComposer<"@beep/opip-web"> = composers.$OpipWebId;
 
 /**
  * @since 0.0.0
