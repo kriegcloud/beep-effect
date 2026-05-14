@@ -147,6 +147,28 @@ const evidenceFileNames = Effect.fn("StackInstaller.evidenceFileNames")(function
   return pipe(yield* fs.readDirectory(outputDir), A.filter(isEvidenceFileName), A.sort(Order.String));
 });
 
+const missingRequiredPlatformDirectories = Effect.fn("StackInstaller.missingRequiredPlatformDirectories")(function* (
+  outputRoot: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const missing = yield* Effect.forEach(
+    P1_REQUIRED_PLATFORMS,
+    (platform) => {
+      const outputDir = path.join(outputRoot, platform);
+
+      return pipe(
+        fs.exists(outputDir),
+        Effect.orElseSucceed(() => false),
+        Effect.map((exists) => (exists ? O.none<string>() : O.some(outputDir)))
+      );
+    },
+    { concurrency: A.length(P1_REQUIRED_PLATFORMS) }
+  );
+
+  return A.getSomes(missing);
+});
+
 const sha256File = Effect.fn("StackInstaller.sha256File")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
   const data = yield* fs.readFile(filePath);
@@ -243,6 +265,13 @@ const auditProofArtifacts = Effect.fn("StackInstaller.auditProofArtifacts")(func
 
 const auditAllProofArtifacts = Effect.fn("StackInstaller.auditAllProofArtifacts")(function* (outputRoot: string) {
   const path = yield* Path.Path;
+  const missingDirectories = yield* missingRequiredPlatformDirectories(outputRoot);
+
+  yield* requireAudit(
+    !A.isReadonlyArrayNonEmpty(missingDirectories),
+    `Missing P1 proof artifact directories: ${A.join(", ")(missingDirectories)}`
+  );
+
   const messages = yield* Effect.forEach(
     P1_REQUIRED_PLATFORMS,
     (platform) => auditProofArtifacts(path.join(outputRoot, platform), O.some(platform)),

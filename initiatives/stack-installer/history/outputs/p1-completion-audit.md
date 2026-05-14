@@ -35,8 +35,9 @@ without stopping until:
   `output/stack-installer/p1-live` contains no files.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
-  fails with `Missing P1 proof artifact directory:
-  output/stack-installer/p1-live/macos`.
+  fails with `Missing P1 proof artifact directories:
+  output/stack-installer/p1-live/macos,
+  output/stack-installer/p1-live/windows`.
 
 ## Prompt-To-Artifact Checklist
 
