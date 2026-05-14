@@ -74,7 +74,10 @@ without stopping until:
   `NT_STATUS_ACCESS_DENIED`; no SMB credential was available or guessed. The
   coordinator has no active SMB/CIFS mount, no obvious user-local Samba
   credential config, and no Tailscale SSH host keys advertised for the Windows
-  peer. The current tailnet view does not show a macOS proof peer.
+  peer. A title-only 1Password search for transfer-related Windows, SMB, CIFS,
+  Taildrop, proof, stack-installer, macOS, and peer-host terms found no obvious
+  Windows or SMB transfer credential; no secret fields were read. The current
+  tailnet view does not show a macOS proof peer.
 
 ## Prompt-To-Artifact Checklist
 
