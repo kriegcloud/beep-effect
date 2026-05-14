@@ -36,9 +36,9 @@ not let generated notes accumulate at the initiative root.
   access.
 - [../start-proof-upload-window.mjs](../start-proof-upload-window.mjs) -
   coordinator helper that rotates a private upload token, writes ignored
-  operator commands, and starts the proof upload server. Use `--reuse-token`
-  when restarting an active proof window without invalidating the current
-  operator token.
+  operator commands plus local inbox handoff notes, and starts the proof upload
+  server. Use `--reuse-token` when restarting an active proof window without
+  invalidating the current operator token.
 - [../start-proof-watch-window.mjs](../start-proof-watch-window.mjs) -
   coordinator helper that starts a detached private-log `p1:proof:watch`
   process for long transfer windows.

@@ -28,6 +28,8 @@ const urlBase = `http://${host}:${port}`;
 
 const tokenPath = path.join(outputRoot, "proof-upload-token.txt");
 const commandsPath = path.join(outputRoot, "proof-upload-commands.txt");
+const inboxReadmePath = path.join(outputRoot, "README.operator-inbox.md");
+const nextActionsPath = path.join(outputRoot, "OPERATOR_NEXT_ACTIONS.md");
 const pidPath = path.join(outputRoot, "proof-upload-server.pid");
 const logPath = path.join(outputRoot, "proof-upload-server.log");
 
@@ -62,6 +64,13 @@ const writePrivateFile = async (filePath, content) => {
   await fs.promises.writeFile(filePath, content, { mode: 0o600 });
   await fs.promises.chmod(filePath, 0o600);
 };
+
+const writePublicFile = async (filePath, content) => {
+  await fs.promises.writeFile(filePath, content, { mode: 0o644 });
+  await fs.promises.chmod(filePath, 0o644);
+};
+
+const operatorUrlBase = advertisedUrl || urlBase;
 
 const buildCommandsText = () =>
   [
@@ -115,6 +124,128 @@ const buildCommandsText = () =>
     "",
   ].join("\n");
 
+const buildInboxReadmeText = () =>
+  [
+    "# Stack Installer P1 Proof Inbox",
+    "",
+    "Place returned proof bundles here:",
+    "",
+    "- `stack-installer-p1-macos.tgz`",
+    "- `stack-installer-p1-windows.zip`",
+    "",
+    "Current live upload endpoint:",
+    "",
+    `- URL base: \`${urlBase}\``,
+    ...(advertisedUrl ? [`- MagicDNS URL base: \`${advertisedUrl}\``] : []),
+    `- Health check: \`curl -f '${urlBase}/health'\``,
+    ...(advertisedUrl ? [`- MagicDNS health check: \`curl -f '${advertisedUrl}/health'\``] : []),
+    `- Fetch current upload commands: \`curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${operatorUrlBase}/commands'\``,
+    `- Inspect coordinator receipt: \`curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${operatorUrlBase}/status'\``,
+    `- Coordinator-local token file: \`${path.relative(process.cwd(), tokenPath)}\``,
+    `- Generated upload commands: \`${path.relative(process.cwd(), commandsPath)}\``,
+    "",
+    "Token handling:",
+    "",
+    "- Put the token in `STACK_INSTALLER_PROOF_UPLOAD_TOKEN` on the proof machine.",
+    "- Send it only as `Authorization: Bearer ...`.",
+    "- Do not place the token in URLs, chat, commits, screencasts, PR comments, or command transcripts.",
+    "",
+    "Required archive shapes:",
+    "",
+    "- macOS archive: top-level `macos/` directory with `proof.json`, `commands.txt`, `sha256sums.txt`, and `screencast.*`.",
+    "- Windows archive: top-level `windows/` directory with `proof.json`, `commands.txt`, `sha256sums.txt`, and `screencast.*`.",
+    "",
+    "Coordinator after upload:",
+    "",
+    "```bash",
+    "cd apps/stack-installer",
+    "bun run p1:proof:intake -- --output-root ../../output/stack-installer/p1-live",
+    "bun run p1:proof:audit-all -- --output-root ../../output/stack-installer/p1-live",
+    "```",
+    "",
+    "Current blocker if using Taildrop instead of upload:",
+    "",
+    "```bash",
+    "sudo tailscale set --operator=$USER",
+    "tailscale file get output/stack-installer/p1-live",
+    "```",
+    "",
+  ].join("\n");
+
+const buildNextActionsText = () =>
+  [
+    "# Stack Installer P1 Operator Next Actions",
+    "",
+    "This file is local-only under ignored `output/`. Do not commit it.",
+    "",
+    "## Goal",
+    "",
+    "Return exactly these two bundles to this coordinator checkout:",
+    "",
+    "- `output/stack-installer/p1-live/stack-installer-p1-macos.tgz`",
+    "- `output/stack-installer/p1-live/stack-installer-p1-windows.zip`",
+    "",
+    "The coordinator upload endpoint is live at:",
+    "",
+    "```text",
+    urlBase,
+    ...(advertisedUrl ? [advertisedUrl] : []),
+    "```",
+    "",
+    "The one-time token is stored only on the coordinator at:",
+    "",
+    "```text",
+    path.relative(process.cwd(), tokenPath),
+    "```",
+    "",
+    "Do not put the token in URLs, chat, commits, screencasts, PR comments, or captured command transcripts.",
+    "Send it only in the `Authorization: Bearer ...` header.",
+    "",
+    "Proof machines can fetch the current upload commands after setting the token:",
+    "",
+    "```bash",
+    `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${operatorUrlBase}/commands'`,
+    "```",
+    "",
+    "## On Each Proof Machine",
+    "",
+    "1. Sync the branch:",
+    "",
+    "```bash",
+    "git fetch origin",
+    "git checkout feat/stack-installer-p1-live",
+    "git pull --ff-only",
+    "bun install",
+    "```",
+    "",
+    "2. Run the preflight:",
+    "",
+    "```bash",
+    "bun run config-sync:check",
+    "(cd apps/stack-installer && bun run build)",
+    "(cd apps/stack-installer/src-tauri && cargo check)",
+    "command -v op",
+    "command -v claude",
+    "command -v codex",
+    "op whoami",
+    "claude auth status",
+    "codex login status",
+    "```",
+    "",
+    "3. Run the P1 capture using the platform-specific command from:",
+    "",
+    "```text",
+    "initiatives/stack-installer/ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md",
+    "```",
+    "",
+    "4. Add a `screencast.*` file to the platform artifact directory.",
+    "",
+    "5. Refresh checksums, audit locally, package the platform directory, then upload the bundle.",
+    "",
+    "Use the command endpoint or `proof-upload-commands.txt` for the current exact upload commands.",
+    "",
+  ].join("\n");
+
 await fs.promises.mkdir(outputRoot, { recursive: true });
 await stopExisting();
 
@@ -122,6 +253,8 @@ const existingToken = (await fs.promises.readFile(tokenPath, "utf8").catch(() =>
 const token = reuseToken && existingToken ? existingToken : crypto.randomBytes(tokenBytes).toString("hex");
 await writePrivateFile(tokenPath, `${token}\n`);
 await writePrivateFile(commandsPath, `${buildCommandsText()}\n`);
+await writePublicFile(inboxReadmePath, `${buildInboxReadmeText()}\n`);
+await writePublicFile(nextActionsPath, `${buildNextActionsText()}\n`);
 await writePrivateFile(logPath, "");
 
 const logHandle = await fs.promises.open(logPath, "a");
@@ -147,4 +280,6 @@ console.log(`pid: ${child.pid}`);
 console.log(`token: ${reuseToken && existingToken ? "reused existing token" : "rotated token"}`);
 console.log(`token file: ${tokenPath}`);
 console.log(`commands file: ${commandsPath}`);
+console.log(`operator inbox readme: ${inboxReadmePath}`);
+console.log(`operator next actions: ${nextActionsPath}`);
 console.log(`log file: ${logPath}`);

@@ -25,7 +25,12 @@ without stopping until:
 ## Current Checkout Evidence
 
 - Branch: `feat/stack-installer-p1-live`
-- Latest branch evidence includes the upload-window endpoint status update,
+- Latest branch evidence includes the upload-window operator inbox generation
+  update, which makes `start-proof-upload-window.mjs` regenerate ignored
+  `README.operator-inbox.md` and `OPERATOR_NEXT_ACTIONS.md` files alongside
+  `proof-upload-commands.txt` so local proof-window notes do not drift from the
+  active upload endpoints.
+- Earlier branch evidence includes the upload-window endpoint status update,
   which makes `proof-upload-status.mjs` validate the public landing page plus
   token-protected `/status` and `/commands` behavior without printing the token
   or endpoint response bodies.
@@ -151,9 +156,13 @@ without stopping until:
   now performs the coordinator setup: token rotation, `0600` token/command/PID
   files, detached server start, and endpoint/log path reporting without
   printing the token. It also supports `--reuse-token` for coordinator-side
-  helper restarts that must not invalidate an operator-held token. The live
-  endpoint was restarted through this helper with `--reuse-token` and remains
-  healthy.
+  helper restarts that must not invalidate an operator-held token. It now also
+  regenerates local-only `README.operator-inbox.md` and
+  `OPERATOR_NEXT_ACTIONS.md` files under the ignored output root with current
+  endpoint, status, command, and proof-intake instructions. The live endpoint
+  was restarted through this helper with `--reuse-token`; current upload PID is
+  `1127896`, the generated local handoff files are mode `644`, and the endpoint
+  remains healthy.
 - Current remote upload status endpoint:
   committed `initiatives/stack-installer/ops/proof-upload-server.mjs` exposes a
   token-protected `GET /status` endpoint for proof machines to confirm what the
@@ -182,7 +191,7 @@ without stopping until:
   landing page `200 ok`, status without token `403 ok`, status with token
   `200 ok`, expected status shape present, commands without token `403 ok`,
   commands with token `200 ok`, expected upload routes present, upload PID
-  `1113095` running, token/commands/PID file modes `600`, no token-like text in
+  `1127896` running, token/commands/PID file modes `600`, no token-like text in
   upload logs, commands, status response, or command response, detached watcher
   PID `1078319` running, detached watcher file modes `600`, no token-like text
   in watcher logs or command file, both returned bundles missing, and both

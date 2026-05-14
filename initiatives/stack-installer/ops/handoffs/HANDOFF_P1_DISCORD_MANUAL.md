@@ -368,7 +368,10 @@ after upload. A successful upload is only a transfer event; it is not proof
 completion. If upload fails, inspect the upload server log for redacted
 request outcomes; it should never contain the one-time token or artifact
 contents. The coordinator start script writes the token, command, log, and PID
-files under the ignored output root with `0600` permissions.
+files under the ignored output root with `0600` permissions. It also refreshes
+local-only `README.operator-inbox.md` and `OPERATOR_NEXT_ACTIONS.md` handoff
+notes under the ignored output root so the current endpoint and `/commands`
+route are visible at the proof inbox.
 
 From `apps/stack-installer` on macOS, Git Bash, or WSL:
 
