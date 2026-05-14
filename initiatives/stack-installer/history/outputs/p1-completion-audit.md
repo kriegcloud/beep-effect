@@ -68,6 +68,14 @@ without stopping until:
   `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 6 --watch-interval-ms 5000`
   exhausted all attempts without finding returned bundles and ended with the
   same missing `macos` and `windows` platform directories.
+- Latest upload-window wait:
+  after starting a temporary ignored tailnet upload endpoint at
+  `http://100.117.213.114:8765`, the coordinator ran
+  `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 24 --watch-interval-ms 5000`.
+  The endpoint health check passed, invalid tokens returned `403`, and the
+  watch exhausted without returned bundles. The tokenized operator commands
+  live only in ignored `output/stack-installer/p1-live/proof-upload-commands.txt`
+  and are not committed.
 - Current verifier result:
   `bun run --filter @beep/stack-installer p1:proof:audit-all -- --output-root output/stack-installer/p1-live`
   fails with `Missing P1 proof artifact directories:
@@ -150,6 +158,7 @@ Blocking requirements:
 - macOS fresh-machine proof artifact directory is missing.
 - Windows fresh-machine proof artifact directory is missing.
 - Latest bounded coordinator watch found no returned proof bundles.
+- Latest tailnet upload-window watch found no returned proof bundles.
 - `p1:proof:audit-all` has not run against real macOS and Windows artifacts.
 - P1C `$quality-review-fix-loop` has not run after proof artifacts.
 
