@@ -424,7 +424,7 @@
   },
   "knownGaps": [
     "fresh-OS macOS and Windows proof not run",
-    "artifact intake via Taildrop is blocked until the coordinator runs sudo tailscale set --operator=$USER or uses another approved private transfer channel",
+    "artifact intake via Taildrop is blocked until the coordinator runs sudo tailscale set --operator=$USER or uses another approved private transfer channel; tokenized temporary tailnet upload is documented as a fallback, but no proof bundles have arrived",
     "post-proof quality-review-fix-loop not run",
     "live proof harness validates existing state only and does not install or provision dependencies",
     "MCP executor adapter not built beyond minimal app-local Tauri bridge",
@@ -448,5 +448,5 @@
     "P1 live drivers live under packages/drivers and are consumed by slice server packages",
     "P1 live proof remains app-local runtime composition, not a tooling God Layer"
   ],
-  "nextAction": "Run full P1 live Manual Mode proof on fresh macOS and Windows using ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md: 1Password validation, provider auth validation, Discord liveness, sanitized proof JSON, screencasts, and test messages. Configure Taildrop on the coordinator with sudo tailscale set --operator=$USER or use another approved private transfer channel, place the returned bundles under output/stack-installer/p1-live, and run p1:proof:intake followed by p1:proof:audit-all. After proof artifacts are audited, run the P1 PR readiness quality-review-fix-loop before declaring the branch PR ready."
+  "nextAction": "Run full P1 live Manual Mode proof on fresh macOS and Windows using ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md: 1Password validation, provider auth validation, Discord liveness, sanitized proof JSON, screencasts, and test messages. Configure Taildrop on the coordinator with sudo tailscale set --operator=$USER, use the documented tokenized temporary tailnet upload fallback, or use another approved private transfer channel. Place the returned bundles under output/stack-installer/p1-live, and run p1:proof:intake followed by p1:proof:audit-all. After proof artifacts are audited, run the P1 PR readiness quality-review-fix-loop before declaring the branch PR ready."
 }

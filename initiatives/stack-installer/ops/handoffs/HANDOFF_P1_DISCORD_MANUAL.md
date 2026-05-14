@@ -250,6 +250,29 @@ tailscale file get output/stack-installer/p1-live
 If Taildrop is unavailable, use another approved private transfer channel and
 place the received bundles under `output/stack-installer/p1-live/`.
 
+If the coordinator provides a temporary tailnet upload endpoint, use only the
+tokenized URL supplied by the coordinator for this proof window. Keep the token
+out of chat, commits, shell history captures, and screencasts. Upload only the
+approved bundle file for the current platform:
+
+```bash
+curl -f --upload-file output/stack-installer/p1-live/stack-installer-p1-macos.tgz \
+  'http://<coordinator-tailscale-ip>:<port>/upload/stack-installer-p1-macos.tgz?token=<one-time-token>'
+```
+
+Native Windows PowerShell:
+
+```powershell
+Invoke-WebRequest `
+  -Method Put `
+  -InFile 'output\stack-installer\p1-live\stack-installer-p1-windows.zip' `
+  -Uri 'http://<coordinator-tailscale-ip>:<port>/upload/stack-installer-p1-windows.zip?token=<one-time-token>'
+```
+
+The coordinator must still run `p1:proof:intake` and `p1:proof:audit-all`
+after upload. A successful upload is only a transfer event; it is not proof
+completion.
+
 From `apps/stack-installer` on macOS, Git Bash, or WSL:
 
 ```bash
