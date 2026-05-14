@@ -232,6 +232,42 @@ Only commit documentation summaries and sanitized evidence paths. Do not commit
 raw screencasts unless they have been reviewed for secrets, personal account
 details, and tokens.
 
+## Artifact Return To Coordinator Checkout
+
+After the per-platform audit passes on the fresh machine, transfer only the
+audited platform directory back to the coordinator checkout. Keep the artifacts
+out of commits; `output/` is the working evidence inbox for final audit.
+
+From `apps/stack-installer` on macOS, Git Bash, or WSL:
+
+```bash
+cd ../..
+tar -czf "output/stack-installer/p1-live/stack-installer-p1-${STACK_INSTALLER_PLATFORM}.tgz" \
+  -C output/stack-installer/p1-live \
+  "$STACK_INSTALLER_PLATFORM"
+```
+
+From `apps/stack-installer` on native Windows PowerShell:
+
+```powershell
+Set-Location ..\..
+Compress-Archive `
+  -Path "output\stack-installer\p1-live\$env:STACK_INSTALLER_PLATFORM" `
+  -DestinationPath "output\stack-installer\p1-live\stack-installer-p1-$($env:STACK_INSTALLER_PLATFORM).zip" `
+  -Force
+```
+
+On the coordinator checkout, expand the bundle so these directories exist:
+
+```text
+output/stack-installer/p1-live/macos/
+output/stack-installer/p1-live/windows/
+```
+
+Do not paste artifact contents into chat, issue comments, or PR comments. Share
+the bundle through an approved private transfer channel, then run
+`p1:proof:audit-all` from the coordinator checkout before summarizing evidence.
+
 ## Post-Proof PR Readiness Review
 
 After both fresh-machine proof artifact sets exist and have been audited for
