@@ -7,8 +7,7 @@
 
 /**
  * Static OPIP light/dark theme toggle. The root layout attaches the tiny
- * nonce-protected behavior script so the page does not need React hydration for
- * theme switching.
+ * behavior script so the page does not need React hydration for theme switching.
  *
  * @category components
  * @since 0.0.0

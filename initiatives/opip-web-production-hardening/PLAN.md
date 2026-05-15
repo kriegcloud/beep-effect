@@ -11,9 +11,16 @@
 - [x] Add security, PWA, SEO/AEO, robots, sitemap, JSON-LD, and `llms.txt`
   hardening.
 - [x] Add OPIP Pulumi/IaC for S3 backend, Vercel, and Cloudflare.
-- [x] Run quality, browser QA, staging proof, and closure updates.
+- [x] Run local quality, browser QA, Lighthouse, and closure evidence updates.
+- [x] Prove the `next.config.ts` CSP/security headers locally through portless
+  HTTPS.
 - [x] Enable Cloudflare staging DNS records after the token has Zone DNS
   read/edit.
+- [x] Prove the current hardening on public staging after a fresh Vercel
+  deployment and custom-domain TLS activation.
+- [ ] Decide whether Observatory A+ should override the `next.config.ts`-only
+  CSP constraint; A+ requires a request-bound nonce/proxy path or equivalent
+  generated hashes.
 - [ ] Provision live Sanity content after OPIP Sanity project credentials exist.
 
 ## Proof Commands
@@ -50,6 +57,7 @@ pulumi login s3://opip-law-pulumi-state
 pulumi preview -s staging --non-interactive --diff
 pulumi up -s staging --yes --non-interactive
 pulumi preview -s production --non-interactive --diff
+curl --cacert "$HOME/.portless/ca.pem" -I https://localhost:1355 -H 'Host: opip-web.localhost:1355'
 ```
 
 ## Closure Rules

@@ -20,7 +20,10 @@ tracking scripts deferred.
   the implementation falls back to CRM upsert without requiring a form GUID.
 - Spam controls start with honeypot and minimum elapsed-time checks.
 - No Resend in v1. HubSpot notifications are the first email path.
-- No HubSpot tracking script in v1. Use Vercel Web Analytics/Speed Insights.
+- No HubSpot tracking script in v1. Use Vercel Web Analytics/Speed Insights
+  only after the Vercel project-side analytics asset is enabled; the app gates
+  the scripts behind `NEXT_PUBLIC_ENABLE_VERCEL_INSIGHTS=1` to avoid staging
+  404/MIME console errors.
 
 ## Verification
 

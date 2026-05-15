@@ -44,8 +44,8 @@
     "@pulumi/pulumi": "catalog:",
     "@pulumi/std": "catalog:",
     "@pulumi/tls": "catalog:",
-    "@pulumiverse/vercel": "catalog:",
     "@pulumiverse/unifi": "catalog:",
+    "@pulumiverse/vercel": "catalog:",
     "protobufjs": "7.5.8"
   },
   "devDependencies": {

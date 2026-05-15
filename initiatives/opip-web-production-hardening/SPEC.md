@@ -84,8 +84,9 @@ fallbacks.
   repo-local fallback content otherwise.
 - The native contact form validates server-side and submits to HubSpot through
   `@beep/hubspot`.
-- The app includes security headers, PWA manifest/icons, robots, sitemap,
-  `llms.txt`, conservative JSON-LD, and optimized production metadata.
+- The app includes `next.config.ts` security headers, PWA manifest/icons,
+  robots, sitemap, `llms.txt`, conservative JSON-LD, and optimized production
+  metadata.
 - Staging infrastructure can be applied; production infrastructure previews
   cleanly but does not cut over DNS without approval.
 - Browser QA and Lighthouse/Observatory evidence are recorded before closure.
@@ -94,6 +95,13 @@ fallbacks.
 
 - Cloudflare zone `opip.law` exists and is active. Staging DNS is applied.
   Production DNS remains preview-only until explicit cutover approval.
+- Vercel Authentication is configured disabled for OPIP projects; API reads show
+  no active password, trusted-IP, or Vercel Authentication protection.
+- `https://staging.opip.law` now serves over HTTPS. Public Observatory proof
+  runs against the current deployment. The current static `next.config.ts` CSP
+  scores B+ / 80 because MDN Observatory rejects `unsafe-inline`; a strict
+  no-unsafe CSP breaks Next App Router runtime scripts and Next/Image inline
+  styles unless a request-bound nonce or equivalent generated hashes are added.
 - `OPIP_SECRETS` does not yet contain OPIP Sanity project credentials. The
   Sanity driver and runtime content adapter are ready, but production content
   still falls back to checked-in reviewed content until the project exists.

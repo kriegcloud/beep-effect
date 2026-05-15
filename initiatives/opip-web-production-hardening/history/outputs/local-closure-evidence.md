@@ -20,6 +20,36 @@
   `bun run --cwd infra lint` passed after the Vercel branch-domain fix.
 - After the Cloudflare token update, `bun run --cwd infra check` and
   `bun run --cwd infra lint` passed again.
+- After moving CSP/security headers into `next.config.ts`,
+  `bun run --cwd apps/opip-web check`, `bun run --cwd apps/opip-web test`, and
+  `bun run --cwd apps/opip-web lint` passed.
+- `bun run --cwd apps/opip-web build:pwa` passed after the final CSP and
+  `llms.txt` updates; generated service worker files were removed from the
+  working tree after verification.
+
+## Security Headers And CSP
+
+- CSP/security headers are emitted from `apps/opip-web/next.config.ts`.
+- The former `src/proxy.ts` nonce middleware was removed so the response header
+  source is the Next config, matching the deployment surface expected by Vercel
+  and Observatory.
+- Verified local HTTPS header delivery through portless with:
+  `curl --cacert "$HOME/.portless/ca.pem" -I https://localhost:1355 -H 'Host: opip-web.localhost:1355'`.
+- Verified `https://opip-web.localhost:1355` in Chromium with certificate
+  errors ignored for the local portless CA: HTTP 200, CSP present, HSTS present,
+  zero console errors, zero page errors, and zero failed requests.
+- Portless currently serves a wildcard `*.localhost` certificate that curl and
+  Chromium do not accept for `opip-web.localhost`; the verified curl path uses
+  `https://localhost:1355` with the OPIP Host header and the portless CA.
+- Public staging CSP is deployed to `https://staging.opip.law`.
+- MDN HTTP Observatory v2 reports grade B+ / score 80 with 9 of 10 tests
+  passing. The failing test is `content-security-policy` with result
+  `csp-implemented-with-unsafe-inline`.
+- A strict no-unsafe CSP was tested in Chromium by overriding the staging
+  document response header. It blocked Next App Router inline scripts,
+  Next/Image inline style attributes, and produced a React runtime error. This
+  confirms that Observatory A+ is not safe with a static `next.config.ts` CSP
+  for this app; it needs request-bound nonces or generated script/style hashes.
 
 ## Browser And Lighthouse
 
@@ -32,6 +62,11 @@
   Performance varied under local Next 16 canary/Turbopack runs; the best
   observed run reached 99, while later fresh-profile runs landed in the high
   80s because of local total blocking time variance.
+- Public staging Lighthouse proof at `https://staging.opip.law` reached 100 for
+  performance, accessibility, best practices, SEO, and agentic-browsing.
+- The first public staging Lighthouse run scored 67 for agentic-browsing because
+  `llms.txt` did not contain Markdown links. `llms.txt` now links canonical URL,
+  contact email, public matter sources, and press sources.
 
 ## Pulumi State Backend
 
@@ -54,6 +89,10 @@
 - Stack: `staging`.
 - Vercel project id: `prj_orJn2nvxflBiJqPF0VWLOD0RFAzE`.
 - Vercel project name: `opip-web-staging`.
+- Vercel Authentication is configured disabled through Pulumi. The Vercel
+  project API currently reports `vercelAuthentication: null`,
+  `passwordProtection: null`, and `trustedIps: null`, which is the disabled
+  posture.
 - Staging domain attached in Vercel: `staging.opip.law`.
 - Asset bucket created and hardened: `staging-assets.opip.law`.
 - Runtime env applied:
@@ -72,9 +111,17 @@
   The staging stack now points the staging project domain at `main`; the IaC
   omits `gitBranch` when the requested branch is the production branch, matching
   Vercel provider requirements.
-- Immediately after DNS creation, `curl -I https://staging.opip.law` still
-  returned a TLS connect error, consistent with Vercel certificate/deployment
-  propagation not being ready yet.
+- Immediately after DNS creation, `curl -I https://staging.opip.law` returned a
+  TLS connect error. A later check returned HTTP/2 200, so Vercel custom-domain
+  TLS is active.
+- `https://staging.opip.law` and `https://opip-web-staging.vercel.app` respond,
+  and now serve the deployment containing the `next.config.ts` CSP and linked
+  `llms.txt`.
+- The first current-code staging deployment showed Vercel Analytics attempting
+  to load `/_vercel/insights/script.js`, which returned 404 and caused a
+  browser MIME-type console error. Vercel Analytics and Speed Insights are now
+  gated behind `NEXT_PUBLIC_ENABLE_VERCEL_INSIGHTS=1` so the static v1 stays
+  console-clean until the Vercel project-side analytics asset is enabled.
 
 ## Production
 

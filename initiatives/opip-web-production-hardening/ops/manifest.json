@@ -1,6 +1,6 @@
 {
   "id": "opip-web-production-hardening",
-  "status": "staging_infra_complete_sanity_gated",
+  "status": "local_hardening_applied_provider_gates_remaining",
   "owner": "@beep-team",
   "app": "@beep/opip-web",
   "dependsOn": ["opip-web-launch"],
@@ -40,7 +40,10 @@
     "assetsBucket": "staging-assets.opip.law",
     "applied": true,
     "dnsRecordApplied": true,
-    "dnsTarget": "cname.vercel-dns.com"
+    "dnsTarget": "cname.vercel-dns.com",
+    "vercelAuthentication": "disabled",
+    "customDomainHttps": "verified: staging.opip.law returns HTTP/2 200 over HTTPS",
+    "publicDeployment": "verified: current hardening deployment applied to staging.opip.law"
   },
   "production": {
     "stack": "production",
@@ -54,8 +57,13 @@
   "providerGates": {
     "cloudflareZoneId": "0d26e874202f4579081926dc38b3bf80",
     "cloudflareDnsScope": "verified: token can read DNS records and Pulumi created staging.opip.law",
+    "vercelAuthentication": "verified: Vercel API reports no password, trusted IP, or Vercel Authentication protection",
+    "localCsp": "verified: next.config.ts headers present through portless HTTPS and Chromium runtime has no console errors",
+    "stagingLighthouse": "verified: staging.opip.law scored 100 performance, accessibility, best-practices, seo, and agentic-browsing",
+    "mdnObservatory": "blocked: B+ score 80 because next.config.ts static CSP needs unsafe-inline; A+ requires nonce/proxy or generated hashes",
     "sanityLiveProject": "blocked: OPIP_SECRETS has no OPIP Sanity project id/dataset/token",
-    "hubspotForms": "deferred: service key lacks HubSpot forms scope; CRM contact upsert is active"
+    "hubspotForms": "deferred: service key lacks HubSpot forms scope; CRM contact upsert is active",
+    "vercelInsights": "deferred: scripts are gated behind NEXT_PUBLIC_ENABLE_VERCEL_INSIGHTS until Vercel analytics asset is enabled"
   },
   "blockedActions": [
     "raw-secret-commit",

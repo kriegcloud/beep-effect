@@ -15,6 +15,9 @@ environment, domain, DNS, and state-backend wiring.
   dedicated OPIP AWS organization exists.
 - No DynamoDB lock table is required for Pulumi's S3 backend.
 - AWS MCP is deferred. Use `aws-vault` plus AWS CLI for privileged bootstrap.
+- Vercel Authentication is set to the provider's disabled posture for OPIP
+  projects so preview links can be shared without requiring additional Vercel
+  seats.
 
 ## Temporary State Backend
 
@@ -36,6 +39,12 @@ environment, domain, DNS, and state-backend wiring.
   launch approval.
 - Staging DNS is applied through Pulumi. Production DNS previews cleanly and
   remains unapplied until explicit cutover approval.
+- Current staging proof split:
+  - `opip-web-staging.vercel.app` responds but reflects the last deployed
+    `main` commit until the current hardening changes deploy.
+  - `staging.opip.law` DNS resolves to Vercel and now returns HTTP/2 200 over
+    HTTPS, but it also reflects the last deployed `main` commit until the
+    current hardening changes deploy.
 
 ## Deferred OPIP AWS Org
 

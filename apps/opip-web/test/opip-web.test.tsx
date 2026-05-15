@@ -8,10 +8,6 @@ import { OpipThemeProvider } from "../src/components/OpipThemeProvider.tsx";
 import { decodeOpipSiteContentResult, launchReviewGates, opipSiteContent, ReviewStatus } from "../src/content/index.ts";
 import { VERSION } from "../src/index.ts";
 
-vi.mock("next/headers", () => ({
-  headers: () => Promise.resolve(new Headers([["x-nonce", "test-nonce"]])),
-}));
-
 vi.mock("next/image", async () => {
   const ReactModule = await vi.importActual<typeof import("react")>("react");
   type MockNextImageProps = React.ComponentProps<"img"> & {
@@ -62,7 +58,7 @@ describe("@beep/opip-web", () => {
     expect(screen.getByRole("button", { name: "Switch to dark mode" })).toBeDefined();
   });
 
-  it("renders the progressive theme toggle hook for the nonce-protected layout script", async () => {
+  it("renders the progressive theme toggle hook for the static layout script", async () => {
     render(await Home({}));
 
     const toggle = screen.getAllByRole("button", { name: "Switch to dark mode" }).at(-1);

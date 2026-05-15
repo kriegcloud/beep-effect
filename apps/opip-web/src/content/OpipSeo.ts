@@ -61,8 +61,12 @@ export const makeJsonLdGraph = (content: OpipSiteContent) => ({
  */
 export const makeLlmsText = (content: OpipSiteContent): string => {
   const practiceLines = content.practices.map((practice) => `- ${practice.title}: ${practice.body}`);
-  const matterLines = content.matters.map((matter) => `- ${matter.title}: ${matter.source.href}`);
-  const pressLines = content.press.map((item) => `- ${item.headline} (${item.publication}): ${item.source.href}`);
+  const matterLines = content.matters.map(
+    (matter) => `- [${matter.title}](${matter.source.href}): ${matter.source.label}`
+  );
+  const pressLines = content.press.map(
+    (item) => `- [${item.headline}](${item.source.href}) (${item.publication}): ${item.source.label}`
+  );
   const noticeLines = content.contact.notice.map((notice) => `- ${notice}`);
 
   return [
@@ -72,8 +76,8 @@ export const makeLlmsText = (content: OpipSiteContent): string => {
     "",
     "## Site",
     "",
-    `- Canonical URL: ${content.metadata.siteUrl}`,
-    `- Contact: ${content.contact.email}`,
+    `- Canonical URL: [${content.metadata.siteUrl}](${content.metadata.siteUrl})`,
+    `- Contact: [${content.contact.email}](mailto:${content.contact.email})`,
     `- Description: ${content.metadata.description}`,
     "",
     "## Practice Areas",

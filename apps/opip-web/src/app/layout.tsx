@@ -7,7 +7,6 @@
 
 import { AppThemeInitScript } from "@beep/ui/themes/theme-init-script";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { opipSiteContent } from "../content";
@@ -16,7 +15,7 @@ import "./globals.css";
 const { metadata: siteMetadata } = opipSiteContent;
 const REACT_GRAB_VERSION = "0.1.34";
 const shouldLoadReactGrab = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_REACT_GRAB === "1";
-const shouldLoadVercelInsights = process.env.VERCEL === "1";
+const shouldLoadVercelInsights = process.env.VERCEL === "1" && process.env.NEXT_PUBLIC_ENABLE_VERCEL_INSIGHTS === "1";
 const opipThemeToggleScript = `
 (() => {
   const opipKey = "opip-theme-mode";
@@ -94,14 +93,6 @@ async function VercelInsights() {
 }
 
 /**
- * Allows the nonce-bearing root layout to block for request headers.
- *
- * @category configuration
- * @since 0.0.0
- */
-export const unstable_instant = false;
-
-/**
  * Static metadata for the opip web app shell.
  *
  * @category models
@@ -176,19 +167,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
-
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <AppThemeInitScript attribute="class" defaultMode="light" modeStorageKey="mui-mode" nonce={nonce} />
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: nonce-protected static theme controller without user input */}
-        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: opipThemeToggleScript }} />
+        <AppThemeInitScript attribute="class" defaultMode="light" modeStorageKey="mui-mode" />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static theme controller without user input */}
+        <script dangerouslySetInnerHTML={{ __html: opipThemeToggleScript }} />
         {shouldLoadReactGrab && (
           <Script
             src={`https://unpkg.com/react-grab@${REACT_GRAB_VERSION}/dist/index.global.js`}
             crossOrigin="anonymous"
-            nonce={nonce}
             strategy="beforeInteractive"
           />
         )}

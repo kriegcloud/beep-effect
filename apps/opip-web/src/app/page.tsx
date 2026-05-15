@@ -8,7 +8,6 @@
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { OpipHomePage } from "../components/OpipHomePage";
 import { ContactSubmissionStatus } from "../contact";
 import { getOpipSiteContent, makeJsonLdGraph } from "../content";
@@ -19,6 +18,14 @@ type HomeProps = {
 
 const isContactSubmissionStatus = S.is(ContactSubmissionStatus);
 const safeJsonScript = (value: unknown) => JSON.stringify(value).replaceAll("<", "\\u003c");
+
+/**
+ * Allows the search-param aware home route to block during the first render.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const unstable_instant = false;
 
 /**
  * Generates page metadata from runtime OPIP content.
@@ -67,7 +74,6 @@ export async function generateMetadata(): Promise<Metadata> {
  * @since 0.0.0
  */
 export default async function Home({ searchParams }: HomeProps) {
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const params = await searchParams;
   const content = await getOpipSiteContent();
   const contactStatusValue = A.isArray(params?.contact) ? params.contact[0] : params?.contact;
@@ -77,7 +83,6 @@ export default async function Home({ searchParams }: HomeProps) {
     <>
       <script
         id="opip-json-ld"
-        nonce={nonce}
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is generated server-side and escaped before injection.
         dangerouslySetInnerHTML={{ __html: safeJsonScript(makeJsonLdGraph(content)) }}

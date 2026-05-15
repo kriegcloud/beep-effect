@@ -4,14 +4,18 @@
 
 Implementation is wired and staging infrastructure has been applied to the
 temporary S3 Pulumi backend, including Cloudflare DNS for `staging.opip.law`.
-Remaining launch blockers are external content/deployment operations, not local
-app or IaC module shape:
+The local app now proves its CSP/security headers through the portless HTTPS
+route. Remaining launch blockers are external content/deployment operations,
+not local app or IaC module shape:
 
 - Sanity live content remains unconfigured because no OPIP Sanity project/token
   is present in `OPIP_SECRETS`; the app renders checked-in reviewed fallback
   content until that is provisioned.
-- Vercel TLS/deployment activation for `https://staging.opip.law` may need a
-  short provider-side propagation window after DNS creation.
+- Vercel TLS activation for `https://staging.opip.law` is now live.
+- MDN HTTP Observatory reports B+ / 80 on staging because the static
+  `next.config.ts` CSP must keep `unsafe-inline` for Next App Router runtime
+  scripts and Next/Image inline styles. A+ requires a request-bound nonce CSP
+  path or equivalent script/style hashes.
 
 ## Overview
 
@@ -59,11 +63,16 @@ The first production path is managed-first and lean:
 
 - Local app, driver, infra, repo quality, browser QA, PWA build, and Lighthouse
   proof are recorded in [history/outputs/local-closure-evidence.md](./history/outputs/local-closure-evidence.md).
-- The encrypted S3 backend, staging Vercel project/domain/env, and staging asset
-  bucket have been applied from `infra/opip-web`.
+- The encrypted S3 backend, staging Vercel project/domain/env, disabled Vercel
+  Authentication posture, and staging asset bucket have been applied from
+  `infra/opip-web`.
 - The production stack has been initialized and previews cleanly; it has not
   been applied.
-- Cloudflare staging DNS is applied and the staging stack has a no-diff preview.
+- Cloudflare staging DNS is applied and the staging stack has reached a no-diff
+  preview after DNS creation.
+- Staging Lighthouse proof is 100 across performance, accessibility, best
+  practices, SEO, and agentic-browsing after adding Markdown links to
+  `llms.txt`.
 - Production DNS records preview cleanly but have not been applied.
 - Production DNS cutover remains explicitly out of scope until the user approves
   it after staging review.
