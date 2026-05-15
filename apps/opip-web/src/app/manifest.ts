@@ -10,6 +10,13 @@ import type { MetadataRoute } from "next";
 /**
  * Returns the static web manifest for opip web.
  *
+ * @example
+ * ```ts
+ * import manifest from "@beep/opip-web/app/manifest"
+ *
+ * console.log(manifest().name)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */

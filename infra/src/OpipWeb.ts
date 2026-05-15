@@ -289,6 +289,19 @@ export class OpipVercelProjectConfig extends S.Class<OpipVercelProjectConfig>($I
 /**
  * Secret runtime values for OPIP deploy targets.
  *
+ * @example
+ * ```ts
+ * import type { OpipWebRuntimeSecrets } from "@beep/infra"
+ * import * as pulumi from "@pulumi/pulumi"
+ *
+ * const secrets: OpipWebRuntimeSecrets = {
+ *   hubSpotServiceKey: pulumi.secret("hubspot-service-key"),
+ *   sanityApiToken: pulumi.secret("sanity-api-token"),
+ * }
+ *
+ * console.log(Object.keys(secrets)) // ["hubSpotServiceKey", "sanityApiToken"]
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -336,6 +349,20 @@ export class OpipWebStackArgs extends S.Class<OpipWebStackArgs>($I`OpipWebStackA
 
 /**
  * Build OPIP web stack args from decoded Pulumi config values.
+ *
+ * @example
+ * ```ts
+ * import { makeOpipWebStackArgsFromConfigValues } from "@beep/infra"
+ *
+ * const args = makeOpipWebStackArgsFromConfigValues({
+ *   attachStagingDomain: false,
+ *   projectName: "opip-web-preview",
+ *   stagingDomain: "preview.opip.law",
+ * })
+ *
+ * console.log(args.vercel.projectName) // "opip-web-preview"
+ * console.log(args.dns.attachStagingDomain) // false
+ * ```
  *
  * @category constructors
  * @since 0.0.0
@@ -402,6 +429,15 @@ export const makeOpipWebStackArgsFromConfigValues = ({
 /**
  * Load OPIP web stack args from Pulumi config.
  *
+ * @example
+ * ```ts
+ * import { loadOpipWebStackArgs } from "@beep/infra"
+ *
+ * const args = loadOpipWebStackArgs()
+ *
+ * console.log(args.vercel.projectName)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -438,6 +474,15 @@ export const loadOpipWebStackArgs = (): OpipWebStackArgs => {
 
 /**
  * Load OPIP web runtime secrets from Pulumi secret config.
+ *
+ * @example
+ * ```ts
+ * import { loadOpipWebRuntimeSecrets } from "@beep/infra"
+ *
+ * const secrets = loadOpipWebRuntimeSecrets()
+ *
+ * console.log(Object.keys(secrets))
+ * ```
  *
  * @category constructors
  * @since 0.0.0

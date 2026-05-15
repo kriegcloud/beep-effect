@@ -1,12 +1,14 @@
+import { VERSION } from "@beep/opip-web";
+import { decodeContactSubmission, submitContact } from "@beep/opip-web/contact";
+import { decodeOpipSiteContentResult, launchReviewGates, opipSiteContent, ReviewStatus } from "@beep/opip-web/content";
 import { Button } from "@beep/ui/components/ui/button";
 import { cleanup, render, screen } from "@testing-library/react";
+import { ConfigProvider, Effect, Exit } from "effect";
 import * as Result from "effect/Result";
 import * as React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "../src/app/page.tsx";
 import { OpipThemeProvider } from "../src/components/OpipThemeProvider.tsx";
-import { decodeOpipSiteContentResult, launchReviewGates, opipSiteContent, ReviewStatus } from "../src/content/index.ts";
-import { VERSION } from "../src/index.ts";
 
 vi.mock("next/image", async () => {
   const ReactModule = await vi.importActual<typeof import("react")>("react");
@@ -21,6 +23,39 @@ vi.mock("next/image", async () => {
       ReactModule.createElement("img", props),
   };
 });
+
+vi.mock("next/headers", () => ({
+  headers: async () => new Headers({ "x-nonce": "test-nonce" }),
+}));
+
+const validContactPayload = () => ({
+  email: "TOM@EXAMPLE.COM",
+  message: "I would like help protecting a new machine design.",
+  name: " Thomas Oppold ",
+  submittedAt: 0,
+});
+
+const withContactConfig = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+  Effect.provide(
+    effect,
+    ConfigProvider.layer(
+      ConfigProvider.fromUnknown({
+        CRM_HUBSPOT_ACCOUNT_ID: "12345",
+        CRM_HUBSPOT_SERVICE_KEY: "hubspot-service-key",
+      })
+    )
+  );
+
+const withoutContactConfig = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+  Effect.provide(effect, ConfigProvider.layer(ConfigProvider.fromUnknown({})));
+
+const hubSpotResponse = (body: unknown, status = 200): Response =>
+  Response.json(body, {
+    headers: {
+      "content-type": "application/json",
+    },
+    status,
+  });
 
 describe("@beep/opip-web", () => {
   beforeEach(() => {
@@ -83,5 +118,70 @@ describe("@beep/opip-web", () => {
     expect(launchReviewGates.contact.status).toBe(ReviewStatus.Enum.needs_review);
     expect(opipSiteContent.clients.every((client) => ReviewStatus.is.needs_review(client.review.status))).toBe(true);
     expect(opipSiteContent.matters.every((matter) => ReviewStatus.is.needs_review(matter.review.status))).toBe(true);
+  });
+
+  it("rejects malformed contact payloads at the schema boundary", async () => {
+    const emailExit = await Effect.runPromiseExit(
+      decodeContactSubmission({
+        ...validContactPayload(),
+        email: "not-an-email",
+      })
+    );
+    const messageExit = await Effect.runPromiseExit(
+      decodeContactSubmission({
+        ...validContactPayload(),
+        message: "short",
+      })
+    );
+    const submittedAtExit = await Effect.runPromiseExit(
+      decodeContactSubmission({
+        ...validContactPayload(),
+        submittedAt: Number.POSITIVE_INFINITY,
+      })
+    );
+
+    expect(Exit.isFailure(emailExit)).toBe(true);
+    expect(Exit.isFailure(messageExit)).toBe(true);
+    expect(Exit.isFailure(submittedAtExit)).toBe(true);
+  });
+
+  it("normalizes accepted contact payload fields before provider submission", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(hubSpotResponse({ results: [{ id: "contact-id" }] }));
+
+    const response = await Effect.runPromise(withContactConfig(submitContact(validContactPayload())));
+
+    expect(response.status).toBe("accepted");
+    fetchSpy.mockRestore();
+  });
+
+  it("rejects contact submissions when HubSpot config is absent", async () => {
+    const response = await Effect.runPromise(withoutContactConfig(submitContact(validContactPayload())));
+
+    expect(response.status).toBe("rejected");
+    expect(response.message).toBe("Contact intake is not configured.");
+  });
+
+  it("rejects contact submissions when spam controls fail", async () => {
+    const response = await Effect.runPromise(
+      withContactConfig(
+        submitContact({
+          ...validContactPayload(),
+          website: "https://example.test",
+        })
+      )
+    );
+
+    expect(response.status).toBe("rejected");
+  });
+
+  it("logs and rejects contact submissions when the provider fails", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(hubSpotResponse({ message: "unavailable" }, 503));
+
+    const response = await Effect.runPromise(withContactConfig(submitContact(validContactPayload())));
+
+    expect(response.status).toBe("rejected");
+    fetchSpy.mockRestore();
   });
 });

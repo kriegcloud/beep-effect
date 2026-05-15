@@ -8,6 +8,7 @@
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { OpipHomePage } from "../components/OpipHomePage";
 import { ContactSubmissionStatus } from "../contact";
 import { getOpipSiteContent, makeJsonLdGraph } from "../content";
@@ -22,6 +23,13 @@ const safeJsonScript = (value: unknown) => JSON.stringify(value).replaceAll("<",
 /**
  * Allows the search-param aware home route to block during the first render.
  *
+ * @example
+ * ```ts
+ * import { unstable_instant } from "@beep/opip-web/app/page"
+ *
+ * console.log(unstable_instant)
+ * ```
+ *
  * @category configuration
  * @since 0.0.0
  */
@@ -29,6 +37,14 @@ export const unstable_instant = false;
 
 /**
  * Generates page metadata from runtime OPIP content.
+ *
+ * @example
+ * ```ts
+ * import { generateMetadata } from "@beep/opip-web/app/page"
+ *
+ * const metadata = await generateMetadata()
+ * console.log(metadata.title)
+ * ```
  *
  * @category constructors
  * @since 0.0.0
@@ -70,11 +86,20 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Renders the OPIP public home page.
  *
+ * @example
+ * ```tsx
+ * import Home from "@beep/opip-web/app/page"
+ *
+ * const page = await Home({})
+ * console.log(page.type)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const content = await getOpipSiteContent();
   const contactStatusValue = A.isArray(params?.contact) ? params.contact[0] : params?.contact;
   const contactStatus = isContactSubmissionStatus(contactStatusValue) ? contactStatusValue : undefined;
@@ -83,6 +108,7 @@ export default async function Home({ searchParams }: HomeProps) {
     <>
       <script
         id="opip-json-ld"
+        nonce={nonce}
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is generated server-side and escaped before injection.
         dangerouslySetInnerHTML={{ __html: safeJsonScript(makeJsonLdGraph(content)) }}

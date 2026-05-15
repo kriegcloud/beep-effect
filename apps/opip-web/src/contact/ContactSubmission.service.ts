@@ -8,48 +8,124 @@
 import {
   HubSpot,
   HubSpotConfigInput,
+  type HubSpotError,
   HubSpotFormField,
   HubSpotSubmitFormRequest,
   HubSpotUpsertContactRequest,
 } from "@beep/hubspot";
-import { Clock, Effect, flow, Layer, pipe, Redacted } from "effect";
+import { $OpipWebId } from "@beep/identity/packages";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { Clock, Config, Effect, Layer, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import { type ContactSubmission, ContactSubmissionResponse, decodeContactSubmission } from "./ContactSubmission.model";
 
+const $I = $OpipWebId.create("contact/ContactSubmission.service");
 const minimumElapsedMs = 3_000;
 
-const envOption = (key: string): O.Option<string> =>
-  pipe(process.env[key], O.fromUndefinedOr, O.map(Str.trim), O.filter(Str.isNonEmpty));
-
-const firstEnvOption: (keys: ReadonlyArray<string>) => O.Option<string> = flow(
-  A.findFirst(flow(envOption, O.isSome)),
-  O.flatMap(envOption)
+const ContactSubmissionErrorReason = LiteralKit(["config", "decode", "provider", "spam"] as const).pipe(
+  $I.annoteSchema("ContactSubmissionErrorReason", {
+    description: "Sanitized contact submission failure reason.",
+  })
 );
 
-const hubSpotConfig = (): O.Option<{
-  readonly config: HubSpotConfigInput;
-  readonly formGuid: O.Option<string>;
-}> => {
-  const accountId = firstEnvOption(["CRM_HUBSPOT_ACCOUNT_ID", "HUBSPOT_ACCOUNT_ID"]);
-  const accessToken = firstEnvOption(["CRM_HUBSPOT_SERVICE_KEY", "HUBSPOT_SERVICE_KEY"]);
-  const formGuid = firstEnvOption(["CRM_HUBSPOT_FORM_GUID", "HUBSPOT_FORM_GUID"]);
+type ContactSubmissionErrorReason = typeof ContactSubmissionErrorReason.Type;
+
+type ContactSubmissionErrorOptions = {
+  readonly provider?: string;
+  readonly providerReason?: string;
+  readonly status?: number;
+};
+
+class ContactSubmissionError extends TaggedErrorClass<ContactSubmissionError>($I`ContactSubmissionError`)(
+  "ContactSubmissionError",
+  {
+    provider: S.optionalKey(S.String),
+    providerReason: S.optionalKey(S.String),
+    reason: ContactSubmissionErrorReason,
+    status: S.optionalKey(S.Number),
+  },
+  $I.annote("ContactSubmissionError", {
+    description: "Typed server-side contact submission boundary failure.",
+  })
+) {
+  static readonly fromReason = (
+    reason: ContactSubmissionErrorReason,
+    options: ContactSubmissionErrorOptions = {}
+  ): ContactSubmissionError =>
+    new ContactSubmissionError({
+      reason,
+      ...R.getSomes({
+        provider: O.fromUndefinedOr(options.provider),
+        providerReason: O.fromUndefinedOr(options.providerReason),
+      }),
+      ...R.getSomes({
+        status: O.fromUndefinedOr(options.status),
+      }),
+    });
+}
+
+const trimConfigOption = (value: O.Option<string>): O.Option<string> =>
+  pipe(value, O.map(Str.trim), O.filter(Str.isNonEmpty));
+
+const readTextConfigOption = Effect.fn("OpipContact.readTextConfigOption")(function* (key: string) {
+  const value = yield* Config.string(key).pipe(
+    Config.option,
+    Effect.mapError(() => ContactSubmissionError.fromReason("config"))
+  );
+  return trimConfigOption(value);
+});
+
+const readRedactedConfigOption = Effect.fn("OpipContact.readRedactedConfigOption")(function* (key: string) {
+  const value = yield* Config.redacted(key).pipe(
+    Config.option,
+    Effect.mapError(() => ContactSubmissionError.fromReason("config"))
+  );
+  return pipe(
+    value,
+    O.filter((secret) => Str.isNonEmpty(Str.trim(Redacted.value(secret))))
+  );
+});
+
+const firstTextConfigOption = Effect.fn("OpipContact.firstTextConfigOption")(function* (keys: ReadonlyArray<string>) {
+  const values = yield* Effect.forEach(keys, readTextConfigOption, { concurrency: A.length(keys) });
+  return pipe(values, A.findFirst(O.isSome), O.flatten);
+});
+
+const firstRedactedConfigOption = Effect.fn("OpipContact.firstRedactedConfigOption")(function* (
+  keys: ReadonlyArray<string>
+) {
+  const values = yield* Effect.forEach(keys, readRedactedConfigOption, { concurrency: A.length(keys) });
+  return pipe(values, A.findFirst(O.isSome), O.flatten);
+});
+
+const hubSpotConfig = Effect.fn("OpipContact.hubSpotConfig")(function* (): Effect.fn.Return<
+  {
+    readonly config: HubSpotConfigInput;
+    readonly formGuid: O.Option<string>;
+  },
+  ContactSubmissionError
+> {
+  const accountId = yield* firstTextConfigOption(["CRM_HUBSPOT_ACCOUNT_ID", "HUBSPOT_ACCOUNT_ID"]);
+  const accessToken = yield* firstRedactedConfigOption(["CRM_HUBSPOT_SERVICE_KEY", "HUBSPOT_SERVICE_KEY"]);
+  const formGuid = yield* firstTextConfigOption(["CRM_HUBSPOT_FORM_GUID", "HUBSPOT_FORM_GUID"]);
 
   if (O.isNone(accountId) || O.isNone(accessToken)) {
-    return O.none();
+    return yield* ContactSubmissionError.fromReason("config");
   }
 
-  return O.some({
+  return {
     config: new HubSpotConfigInput({
       accountId: accountId.value,
-      accessToken: Redacted.make(accessToken.value),
+      accessToken: accessToken.value,
     }),
     formGuid,
-  });
-};
+  };
+});
 
 const textField = (name: string, value: O.Option<string>): ReadonlyArray<HubSpotFormField> =>
   pipe(
@@ -98,8 +174,10 @@ const contactProperties = (submission: ContactSubmission): Readonly<Record<strin
   email: submission.email,
   firstname: submission.name,
   message: crmMessage(submission),
-  ...(submission.company === undefined ? {} : { company: submission.company }),
-  ...(submission.phone === undefined ? {} : { phone: submission.phone }),
+  ...R.getSomes({
+    company: O.fromUndefinedOr(submission.company),
+    phone: O.fromUndefinedOr(submission.phone),
+  }),
 });
 
 const accepted = new ContactSubmissionResponse({
@@ -112,21 +190,19 @@ const rejected = new ContactSubmissionResponse({
   status: "rejected",
 });
 
-const isContactSubmissionResponse = S.is(ContactSubmissionResponse);
-
 const validateSpamControls = Effect.fn("OpipContact.validateSpamControls")(function* (
   submission: ContactSubmission
-): Effect.fn.Return<void, ContactSubmissionResponse> {
+): Effect.fn.Return<void, ContactSubmissionError> {
   const honeypot = pipe(O.fromUndefinedOr(submission.website), O.map(Str.trim), O.filter(Str.isNonEmpty));
   const now = yield* Clock.currentTimeMillis;
   const elapsedMs = now - submission.submittedAt;
 
   if (O.isSome(honeypot)) {
-    return yield* Effect.fail(rejected);
+    return yield* ContactSubmissionError.fromReason("spam");
   }
 
   if (elapsedMs < minimumElapsedMs) {
-    return yield* Effect.fail(rejected);
+    return yield* ContactSubmissionError.fromReason("spam");
   }
 
   return undefined;
@@ -164,37 +240,90 @@ const submitConfiguredContact = (
     );
   }).pipe(
     // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(HubSpot.makeLayer(settings.config).pipe(Layer.provide(FetchHttpClient.layer)))
+    Effect.provide(HubSpot.makeLayer(settings.config).pipe(Layer.provide(FetchHttpClient.layer))),
+    Effect.mapError((error: HubSpotError) =>
+      ContactSubmissionError.fromReason("provider", {
+        provider: "hubspot",
+        providerReason: error.reason,
+        ...R.getSomes({ status: O.fromUndefinedOr(error.status) }),
+      })
+    )
   );
+
+const contactResponseForError = (error: ContactSubmissionError): ContactSubmissionResponse =>
+  error.reason === "config"
+    ? new ContactSubmissionResponse({
+        message: "Contact intake is not configured.",
+        status: "rejected",
+      })
+    : rejected;
 
 /**
  * Submits an OPIP contact payload to HubSpot when runtime config is present.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { submitContact } from "@beep/opip-web/contact"
+ *
+ * const program = submitContact({
+ *   email: "builder@example.com",
+ *   message: "I would like to discuss a patent matter.",
+ *   name: "Builder",
+ *   submittedAt: 0
+ * })
+ *
+ * Effect.runPromise(program)
+ * ```
  *
  * @category workflows
  * @since 0.0.0
  */
 export const submitContact = (input: unknown): Effect.Effect<ContactSubmissionResponse> =>
   Effect.gen(function* () {
-    const submission = yield* decodeContactSubmission(input).pipe(Effect.mapError(() => rejected));
+    const submission = yield* decodeContactSubmission(input).pipe(
+      Effect.mapError(() => ContactSubmissionError.fromReason("decode"))
+    );
     yield* validateSpamControls(submission);
 
-    const settings = hubSpotConfig();
-    if (O.isNone(settings)) {
-      return yield* Effect.fail(
-        new ContactSubmissionResponse({
-          message: "Contact intake is not configured.",
-          status: "rejected",
-        })
-      );
-    }
-
-    yield* submitConfiguredContact(settings.value, submission);
+    const settings = yield* hubSpotConfig();
+    yield* submitConfiguredContact(settings, submission);
 
     return accepted;
-  }).pipe(Effect.catch((error) => Effect.succeed(isContactSubmissionResponse(error) ? error : rejected)));
+  }).pipe(
+    Effect.catchTag("ContactSubmissionError", (error) =>
+      Effect.logWarning("OPIP contact submission returned a public rejection.").pipe(
+        Effect.annotateLogs({
+          operation: "opip.contact.submit",
+          outcome: "rejected",
+          reason: error.reason,
+          ...R.getSomes({
+            provider: O.fromUndefinedOr(error.provider),
+            providerReason: O.fromUndefinedOr(error.providerReason),
+          }),
+          ...R.getSomes({
+            status: O.fromUndefinedOr(error.status),
+          }),
+        }),
+        Effect.as(contactResponseForError(error))
+      )
+    )
+  );
 
 /**
  * Builds a JSON-safe contact response object.
+ *
+ * @example
+ * ```ts
+ * import { ContactSubmissionResponse, contactResponseBody } from "@beep/opip-web/contact"
+ *
+ * const body = contactResponseBody(new ContactSubmissionResponse({
+ *   message: "Your note was received.",
+ *   status: "accepted"
+ * }))
+ *
+ * console.log(body.status)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

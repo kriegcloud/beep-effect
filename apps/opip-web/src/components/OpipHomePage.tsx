@@ -98,9 +98,12 @@ function Hero({ content }: { readonly content: OpipSiteContent }) {
           <Lockup className="h-auto w-44 brightness-0 invert" />
         </header>
 
-        <div className="max-w-[41rem] py-12 lg:py-16">
+        <div className="max-w-[41rem] py-12 lg:py-16 2xl:max-w-[32rem]">
           <p className={`${monoLabel} mb-5 text-[var(--opip-gold)]`}>{hero.citation}</p>
-          <h1 id="hero-title" className={`${displayClass} max-w-3xl text-5xl leading-[1.05] sm:text-6xl lg:text-7xl`}>
+          <h1
+            id="hero-title"
+            className={`${displayClass} max-w-3xl text-5xl leading-[1.05] sm:text-6xl lg:text-7xl 2xl:text-[4.75rem]`}
+          >
             {hero.headline}
           </h1>
           <p className={`${displayClass} mt-6 max-w-xl text-2xl italic leading-9 text-[var(--opip-cream-muted)]`}>
@@ -123,7 +126,7 @@ function Hero({ content }: { readonly content: OpipSiteContent }) {
         </div>
 
         <Image
-          className="pointer-events-none absolute bottom-0 right-4 hidden h-[84%] w-auto max-w-[46%] object-contain opacity-95 2xl:block"
+          className="pointer-events-none absolute bottom-0 right-2 hidden h-[78%] w-auto max-w-[38%] object-contain opacity-95 2xl:block"
           src={hero.portrait.src}
           alt={hero.portrait.alt}
           width={hero.portrait.width ?? 700}
@@ -251,9 +254,9 @@ function Matters({ content }: { readonly content: OpipSiteContent }) {
             <ExternalAnchor
               key={matter.id}
               href={matter.source.href}
-              className="group grid min-h-[36rem] w-[min(84vw,26rem)] content-start overflow-hidden rounded-lg border border-[color-mix(in_oklab,var(--opip-on-soil)_18%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_80%,black)] text-[var(--opip-on-soil)] transition-transform hover:-translate-y-1 lg:w-auto"
+              className="group grid min-h-[36rem] w-[min(84vw,26rem)] min-w-0 content-start overflow-hidden rounded-lg border border-[color-mix(in_oklab,var(--opip-on-soil)_18%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_80%,black)] text-[var(--opip-on-soil)] transition-transform hover:-translate-y-1 lg:w-auto"
             >
-              <figure className="border-b border-[color-mix(in_oklab,var(--opip-on-soil)_18%,transparent)] bg-[var(--opip-figure-ground)]">
+              <figure className="min-w-0 border-b border-[color-mix(in_oklab,var(--opip-on-soil)_18%,transparent)] bg-[var(--opip-figure-ground)]">
                 <Image
                   className="aspect-[3/2] size-full object-contain p-5"
                   src={matter.figure.src}
@@ -262,11 +265,11 @@ function Matters({ content }: { readonly content: OpipSiteContent }) {
                   height={matter.figure.height ?? 600}
                   sizes="(min-width: 1024px) 31vw, 84vw"
                 />
-                <figcaption className="border-t border-[var(--opip-rule)] px-4 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--opip-figure-caption)]">
+                <figcaption className="overflow-wrap-anywhere border-t border-[var(--opip-rule)] px-4 py-2 font-[family-name:var(--font-opip-mono)] text-[clamp(0.62rem,0.58rem+0.12vw,0.72rem)] uppercase leading-5 tracking-[0.08em] text-[var(--opip-figure-caption)]">
                   {matter.figure.credit}
                 </figcaption>
               </figure>
-              <div className="grid gap-3 p-5">
+              <div className="grid min-w-0 gap-3 p-5">
                 <p className={`${monoLabel} text-[var(--opip-gold)]`}>{matter.eyebrow}</p>
                 <p className={`${monoLabel} text-[var(--opip-cream-muted)]`}>{matter.caption}</p>
                 <h3 className={`${displayClass} text-3xl leading-tight`}>{matter.title}</h3>
@@ -378,13 +381,13 @@ function Contact({
 
   return (
     <section
-      className="bg-[var(--opip-burgundy)] py-20 text-[var(--opip-on-soil)]"
+      className="bg-[var(--opip-contact-ground)] py-20 text-[var(--opip-on-soil)]"
       id="contact"
       aria-labelledby="contact-title"
     >
       <div className={`${sectionShell} grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-start`}>
         <div>
-          <p className={`${monoLabel} text-[var(--opip-gold)]`}>Contact</p>
+          <p className={`${monoLabel} text-[var(--opip-on-burgundy-accent)]`}>Contact</p>
           <h2 id="contact-title" className={`${displayClass} mt-4 text-5xl leading-tight`}>
             {contact.title}
           </h2>
@@ -393,18 +396,18 @@ function Contact({
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <a
-              className={`${ctaClass} border-[var(--opip-on-soil)] bg-[var(--opip-on-soil)] text-[var(--opip-burgundy)] hover:border-white hover:bg-white`}
+              className={`${ctaClass} border-[var(--opip-on-soil)] bg-[var(--opip-on-soil)] text-[var(--opip-contact-ground)] hover:border-white hover:bg-white`}
               href={mailto}
             >
               {contact.email}
             </a>
-            <span className={`${monoLabel} text-[var(--opip-gold)]`}>Iowa and Minnesota Bars</span>
+            <span className={`${monoLabel} text-[var(--opip-on-burgundy-accent)]`}>Iowa and Minnesota Bars</span>
           </div>
         </div>
         <div className="grid gap-5">
           <ContactForm email={contact.email} status={status} />
           <aside className="rounded-lg border border-[color-mix(in_oklab,var(--opip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_22%,transparent)] p-6">
-            <p className={`${monoLabel} text-[var(--opip-gold)]`}>Notice</p>
+            <p className={`${monoLabel} text-[var(--opip-on-burgundy-accent)]`}>Notice</p>
             <div className="mt-4 grid gap-4 text-sm leading-7 text-[color-mix(in_oklab,var(--opip-on-soil)_88%,transparent)]">
               {contact.notice.map((line) => (
                 <p key={line}>{line}</p>
@@ -448,6 +451,15 @@ function Footer({ content }: { readonly content: OpipSiteContent }) {
 
 /**
  * Renders the OPIP public home page.
+ *
+ * @example
+ * ```tsx
+ * import { OpipHomePage } from "@beep/opip-web/components/OpipHomePage"
+ * import { opipSiteContent } from "@beep/opip-web/content"
+ *
+ * const page = <OpipHomePage contactStatus={undefined} content={opipSiteContent} />
+ * console.log(page.type)
+ * ```
  *
  * @category components
  * @since 0.0.0

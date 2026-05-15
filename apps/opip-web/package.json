@@ -36,6 +36,12 @@
   },
   "exports": {
     "./package.json": "./package.json",
+    "./app/*": "./src/app/*",
+    "./components/*": "./src/components/*",
+    "./contact": "./src/contact/index.ts",
+    "./content": "./src/content/index.ts",
+    "./mdx-components": "./src/mdx-components.tsx",
+    "./proxy": "./src/proxy.ts",
     ".": "./src/index.ts"
   },
   "files": [

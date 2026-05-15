@@ -11,6 +11,13 @@ import { opipSiteContent } from "../content";
 /**
  * Returns the robots policy for OPIP.
  *
+ * @example
+ * ```ts
+ * import robots from "@beep/opip-web/app/robots"
+ *
+ * console.log(robots().rules)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */

@@ -10,6 +10,14 @@ import Image from "next/image";
 /**
  * Optimized decorative hero poster.
  *
+ * @example
+ * ```tsx
+ * import { HeroVideo } from "@beep/opip-web/components/HeroVideo"
+ *
+ * const hero = <HeroVideo poster="/opip/hero.jpg" src="/opip/hero.mp4" />
+ * console.log(hero.type)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

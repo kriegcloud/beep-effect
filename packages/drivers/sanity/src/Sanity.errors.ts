@@ -19,6 +19,17 @@ const $I = $SanityId.create("Sanity.errors");
 /**
  * Technical error reasons emitted by the Sanity driver.
  *
+ * @example
+ * ```ts
+ * import { SanityErrorReason } from "@beep/sanity"
+ * import * as S from "effect/Schema"
+ *
+ * const isReason = S.is(SanityErrorReason)
+ *
+ * console.log(isReason("transport")) // true
+ * console.log(isReason("unexpected")) // false
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -37,6 +48,15 @@ export const SanityErrorReason = LiteralKit([
 /**
  * Type for {@link SanityErrorReason}.
  *
+ * @example
+ * ```ts
+ * import type { SanityErrorReason } from "@beep/sanity"
+ *
+ * const reason: SanityErrorReason = "response decoding"
+ *
+ * console.log(reason) // "response decoding"
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -44,6 +64,18 @@ export type SanityErrorReason = typeof SanityErrorReason.Type;
 
 /**
  * Technical failure raised by the Sanity driver boundary.
+ *
+ * @example
+ * ```ts
+ * import { SanityError } from "@beep/sanity"
+ *
+ * const error = SanityError.fromReason("response status", {
+ *   status: 404,
+ *   url: "https://api.sanity.io/v2025-05-14/data/query/production"
+ * })
+ *
+ * console.log(error.reason) // "response status"
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -62,6 +94,17 @@ export class SanityError extends TaggedErrorClass<SanityError>($I`SanityError`)(
 ) {
   /**
    * Create a Sanity driver error.
+   *
+   * @example
+   * ```ts
+   * import { SanityError } from "@beep/sanity"
+   *
+   * const error = SanityError.fromReason("transport", {
+   *   cause: new Error("connection reset")
+   * })
+   *
+   * console.log(error.cause) // "Error"
+   * ```
    *
    * @category constructors
    * @since 0.0.0
@@ -83,6 +126,18 @@ export class SanityError extends TaggedErrorClass<SanityError>($I`SanityError`)(
 
 /**
  * Options used when constructing Sanity driver errors.
+ *
+ * @example
+ * ```ts
+ * import { SanityErrorOptions } from "@beep/sanity"
+ *
+ * const options = new SanityErrorOptions({
+ *   status: 500,
+ *   url: "https://api.sanity.io/v2025-05-14/data/query/production"
+ * })
+ *
+ * console.log(options.status) // 500
+ * ```
  *
  * @category errors
  * @since 0.0.0

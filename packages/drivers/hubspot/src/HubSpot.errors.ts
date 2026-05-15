@@ -19,6 +19,15 @@ const $I = $HubspotId.create("HubSpot.errors");
 /**
  * Technical error reasons emitted by the HubSpot driver.
  *
+ * @example
+ * ```ts
+ * import { HubSpotErrorReason } from "@beep/hubspot"
+ * import * as S from "effect/Schema"
+ *
+ * const reason = S.decodeSync(HubSpotErrorReason)("transport")
+ * console.log(reason) // "transport"
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -37,6 +46,14 @@ export const HubSpotErrorReason = LiteralKit([
 /**
  * Type for {@link HubSpotErrorReason}.
  *
+ * @example
+ * ```ts
+ * import type { HubSpotErrorReason as HubSpotErrorReasonType } from "@beep/hubspot"
+ *
+ * const reason: HubSpotErrorReasonType = "response status"
+ * console.log(reason) // "response status"
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -44,6 +61,18 @@ export type HubSpotErrorReason = typeof HubSpotErrorReason.Type;
 
 /**
  * Technical failure raised by the HubSpot driver boundary.
+ *
+ * @example
+ * ```ts
+ * import { HubSpotError } from "@beep/hubspot"
+ *
+ * const error = HubSpotError.fromReason("transport", {
+ *   formGuid: "form-guid",
+ *   url: "https://api.hsforms.com/submissions/v3/integration/secure/submit/12345/form-guid"
+ * })
+ *
+ * console.log(error.reason) // "transport"
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -64,6 +93,14 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
 ) {
   /**
    * Create a HubSpot driver error.
+   *
+   * @example
+   * ```ts
+   * import { HubSpotError } from "@beep/hubspot"
+   *
+   * const error = HubSpotError.fromReason("response status", { status: 401 })
+   * console.log(error.status) // 401
+   * ```
    *
    * @category constructors
    * @since 0.0.0
@@ -91,6 +128,18 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
 
 /**
  * Options used when constructing HubSpot driver errors.
+ *
+ * @example
+ * ```ts
+ * import { HubSpotErrorOptions } from "@beep/hubspot"
+ *
+ * const options = new HubSpotErrorOptions({
+ *   formGuid: "form-guid",
+ *   status: 429
+ * })
+ *
+ * console.log(options.status) // 429
+ * ```
  *
  * @category errors
  * @since 0.0.0

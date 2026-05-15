@@ -23,6 +23,17 @@ const $I = $SanityId.create("Sanity.service");
 /**
  * Scalar JSON value accepted in Sanity query params.
  *
+ * @example
+ * ```ts
+ * import { SanityQueryParamValue } from "@beep/sanity"
+ * import * as S from "effect/Schema"
+ *
+ * const isQueryParamValue = S.is(SanityQueryParamValue)
+ *
+ * console.log(isQueryParamValue("home")) // true
+ * console.log(isQueryParamValue({ slug: "home" })) // false
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -35,6 +46,19 @@ export const SanityQueryParamValue = S.Union([S.Boolean, S.Number, S.String]).pi
 /**
  * Type for {@link SanityQueryParamValue}.
  *
+ * @example
+ * ```ts
+ * import type { SanityQueryParamValue } from "@beep/sanity"
+ *
+ * const params = {
+ *   draft: false,
+ *   limit: 10,
+ *   slug: "home"
+ * } satisfies Record<string, SanityQueryParamValue>
+ *
+ * console.log(params.slug) // "home"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -42,6 +66,18 @@ export type SanityQueryParamValue = typeof SanityQueryParamValue.Type;
 
 /**
  * Sanity GROQ query request.
+ *
+ * @example
+ * ```ts
+ * import { SanityQueryRequest } from "@beep/sanity"
+ *
+ * const request = new SanityQueryRequest({
+ *   params: { slug: "home" },
+ *   query: "*[_type == 'page' && slug.current == $slug][0]"
+ * })
+ *
+ * console.log(request.params?.slug) // "home"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -59,6 +95,18 @@ export class SanityQueryRequest extends S.Class<SanityQueryRequest>($I`SanityQue
 /**
  * Sanity query response.
  *
+ * @example
+ * ```ts
+ * import { SanityQueryResponse } from "@beep/sanity"
+ *
+ * const response = new SanityQueryResponse({
+ *   ms: 7,
+ *   result: { title: "Home" }
+ * })
+ *
+ * console.log(response.ms) // 7
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -74,6 +122,20 @@ export class SanityQueryResponse extends S.Class<SanityQueryResponse>($I`SanityQ
 
 /**
  * Public Sanity service shape.
+ *
+ * @example
+ * ```ts
+ * import { SanityQueryResponse, type SanityShape } from "@beep/sanity"
+ * import { Effect } from "effect"
+ *
+ * const service: SanityShape = {
+ *   fetch: () => Effect.succeed(new SanityQueryResponse({ result: [] }))
+ * }
+ *
+ * const program = service.fetch({ query: "*[]" })
+ *
+ * console.log(Effect.runSync(program).result) // []
+ * ```
  *
  * @category services
  * @since 0.0.0
@@ -203,12 +265,49 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedSanityConfig
 /**
  * Effect service for Sanity content API requests.
  *
+ * @example
+ * ```ts
+ * import { Sanity, SanityConfigInput, SanityQueryRequest } from "@beep/sanity"
+ * import { Effect, Layer } from "effect"
+ * import { FetchHttpClient } from "effect/unstable/http"
+ *
+ * const layer = Sanity.makeLayer(
+ *   new SanityConfigInput({
+ *     dataset: "production",
+ *     projectId: "content-project"
+ *   })
+ * ).pipe(Layer.provide(FetchHttpClient.layer))
+ *
+ * const program = Effect.gen(function* () {
+ *   const sanity = yield* Sanity
+ *   return yield* sanity.fetch(new SanityQueryRequest({ query: "*[]" }))
+ * }).pipe(Effect.provide(layer))
+ *
+ * console.log(Effect.isEffect(program)) // true
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
 export class Sanity extends Context.Service<Sanity, SanityShape>()($I`Sanity`) {
   /**
    * Build a Sanity layer from explicit runtime configuration.
+   *
+   * @example
+   * ```ts
+   * import { Sanity, SanityConfigInput } from "@beep/sanity"
+   * import { Layer } from "effect"
+   * import { FetchHttpClient } from "effect/unstable/http"
+   *
+   * const layer = Sanity.makeLayer(
+   *   new SanityConfigInput({
+   *     dataset: "production",
+   *     projectId: "content-project"
+   *   })
+   * ).pipe(Layer.provide(FetchHttpClient.layer))
+   *
+   * console.log(Layer.isLayer(layer)) // true
+   * ```
    *
    * @category layers
    * @since 0.0.0
@@ -225,6 +324,14 @@ export class Sanity extends Context.Service<Sanity, SanityShape>()($I`Sanity`) {
 
   /**
    * Live Sanity layer backed by ambient Effect Config values.
+   *
+   * @example
+   * ```ts
+   * import { Sanity } from "@beep/sanity"
+   * import { Layer } from "effect"
+   *
+   * console.log(Layer.isLayer(Sanity.layer)) // true
+   * ```
    *
    * @category layers
    * @since 0.0.0

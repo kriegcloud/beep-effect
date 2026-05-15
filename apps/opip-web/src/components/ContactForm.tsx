@@ -9,12 +9,20 @@ import type { ContactSubmissionStatus } from "../contact";
 
 const inputClass =
   "min-h-11 rounded-md border border-[color-mix(in_oklab,var(--opip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_18%,transparent)] px-3 py-2 text-sm text-[var(--opip-on-soil)] outline-none transition-colors placeholder:text-[color-mix(in_oklab,var(--opip-on-soil)_52%,transparent)] focus:border-[var(--opip-gold)] focus:ring-3 focus:ring-[color-mix(in_oklab,var(--opip-gold)_35%,transparent)]";
-const labelClass = "grid gap-2 text-xs font-medium uppercase tracking-[0.12em] text-[var(--opip-gold)]";
+const labelClass = "grid gap-2 text-xs font-medium uppercase tracking-[0.12em] text-[var(--opip-on-burgundy-accent)]";
 const submitButtonClass =
   "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-lg border border-transparent bg-primary bg-clip-padding px-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
 
 /**
  * Renders the OPIP contact form.
+ *
+ * @example
+ * ```tsx
+ * import { ContactForm } from "@beep/opip-web/components/ContactForm"
+ *
+ * const form = <ContactForm email="tom@example.com" status={undefined} />
+ * console.log(form.type)
+ * ```
  *
  * @category components
  * @since 0.0.0
@@ -71,7 +79,7 @@ export function ContactForm({
           Send note
         </button>
         <a
-          className="font-[family-name:var(--font-opip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--opip-gold)]"
+          className="font-[family-name:var(--font-opip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--opip-on-burgundy-accent)]"
           href={`mailto:${email}`}
         >
           Email directly

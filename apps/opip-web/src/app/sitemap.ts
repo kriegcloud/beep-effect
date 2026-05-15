@@ -11,6 +11,13 @@ import { opipSiteContent } from "../content";
 /**
  * Returns the OPIP sitemap.
  *
+ * @example
+ * ```ts
+ * import sitemap from "@beep/opip-web/app/sitemap"
+ *
+ * console.log(sitemap()[0]?.url)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */

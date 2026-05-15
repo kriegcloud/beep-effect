@@ -13,6 +13,14 @@ import type { ReactNode } from "react";
 /**
  * Link rendered with the shared `@beep/ui` button styling.
  *
+ * @example
+ * ```tsx
+ * import { CtaLink } from "@beep/opip-web/components/CtaLink"
+ *
+ * const link = <CtaLink className="" href="#contact">Contact</CtaLink>
+ * console.log(link.type)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

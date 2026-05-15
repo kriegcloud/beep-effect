@@ -10,6 +10,14 @@ import { getOpipSiteContent, makeLlmsText } from "../../content";
 /**
  * Returns `llms.txt` for opip.law.
  *
+ * @example
+ * ```ts
+ * import { GET } from "@beep/opip-web/app/llms.txt/route"
+ *
+ * const response = await GET()
+ * console.log(response.headers.get("content-type"))
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */

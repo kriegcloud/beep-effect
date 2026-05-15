@@ -6,7 +6,9 @@
  */
 
 import { Effect } from "effect";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { type NextRequest, NextResponse } from "next/server";
 import { type ContactSubmissionResponse, contactResponseBody, submitContact } from "../../../contact";
 
@@ -20,7 +22,8 @@ const submittedAtValue = (value: FormDataEntryValue | null) => {
   return Number.isFinite(submittedAt) ? submittedAt : 0;
 };
 
-const formTextValue = (value: FormDataEntryValue | null) => (P.isString(value) ? value : undefined);
+const formTextValue = (value: FormDataEntryValue | null) =>
+  O.getOrUndefined(O.filter(O.map(O.filter(O.fromNullishOr(value), P.isString), Str.trim), Str.isNonEmpty));
 
 const formDataPayload = (formData: FormData) => ({
   company: formTextValue(formData.get("company")),
@@ -44,6 +47,15 @@ const redirectToContact = (request: NextRequest, response: ContactSubmissionResp
 
 /**
  * Handles OPIP contact submissions.
+ *
+ * @example
+ * ```ts
+ * import type { NextRequest } from "next/server"
+ * import { POST } from "@beep/opip-web/app/api/contact/route"
+ *
+ * const handler: (request: NextRequest) => Promise<Response> = POST
+ * console.log(typeof handler)
+ * ```
  *
  * @category constructors
  * @since 0.0.0

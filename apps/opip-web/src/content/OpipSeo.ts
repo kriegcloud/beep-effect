@@ -10,6 +10,14 @@ import type { OpipSiteContent } from "./OpipContent.model";
 /**
  * Builds conservative JSON-LD graph data for the OPIP website.
  *
+ * @example
+ * ```ts
+ * import { makeJsonLdGraph, opipSiteContent } from "@beep/opip-web/content"
+ *
+ * const graph = makeJsonLdGraph(opipSiteContent)
+ * console.log(graph["@context"])
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -55,6 +63,14 @@ export const makeJsonLdGraph = (content: OpipSiteContent) => ({
 
 /**
  * Builds `llms.txt` content from reviewed OPIP site content.
+ *
+ * @example
+ * ```ts
+ * import { makeLlmsText, opipSiteContent } from "@beep/opip-web/content"
+ *
+ * const text = makeLlmsText(opipSiteContent)
+ * console.log(text.includes("# opip.law"))
+ * ```
  *
  * @category utilities
  * @since 0.0.0

@@ -14,6 +14,14 @@ const $I = $OpipWebId.create("content/OpipContent.model");
 /**
  * Review state for public claims that need launch approval.
  *
+ * @example
+ * ```ts
+ * import { ReviewStatus } from "@beep/opip-web/content"
+ *
+ * const status = ReviewStatus.Enum.needs_review
+ * console.log(status)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -26,6 +34,14 @@ export const ReviewStatus = LiteralKit(["approved", "needs_review"] as const).an
 /**
  * Runtime type for {@link ReviewStatus}.
  *
+ * @example
+ * ```ts
+ * import type { ReviewStatus } from "@beep/opip-web/content"
+ *
+ * const status: ReviewStatus = "approved"
+ * console.log(status)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -33,6 +49,18 @@ export type ReviewStatus = typeof ReviewStatus.Type;
 
 /**
  * Review note attached to a public website claim.
+ *
+ * @example
+ * ```ts
+ * import { ReviewGate } from "@beep/opip-web/content"
+ *
+ * const gate = new ReviewGate({
+ *   note: "Launch approved.",
+ *   status: "approved"
+ * })
+ *
+ * console.log(gate.status)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -50,6 +78,18 @@ export class ReviewGate extends S.Class<ReviewGate>($I`ReviewGate`)(
 /**
  * External link displayed by the public site.
  *
+ * @example
+ * ```ts
+ * import { ExternalLink } from "@beep/opip-web/content"
+ *
+ * const link = new ExternalLink({
+ *   href: "https://example.com",
+ *   label: "Source"
+ * })
+ *
+ * console.log(link.href)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -65,6 +105,18 @@ export class ExternalLink extends S.Class<ExternalLink>($I`ExternalLink`)(
 
 /**
  * Runtime asset reference served from the OPIP app public folder.
+ *
+ * @example
+ * ```ts
+ * import { SiteAsset } from "@beep/opip-web/content"
+ *
+ * const asset = new SiteAsset({
+ *   alt: "Patent drawing",
+ *   src: "/opip/patent.png"
+ * })
+ *
+ * console.log(asset.src)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -84,6 +136,22 @@ export class SiteAsset extends S.Class<SiteAsset>($I`SiteAsset`)(
 
 /**
  * Top-level metadata used by Next.js and JSON-LD generation.
+ *
+ * @example
+ * ```ts
+ * import { SiteMetadataContent } from "@beep/opip-web/content"
+ *
+ * const metadata = new SiteMetadataContent({
+ *   description: "Patent counsel.",
+ *   linkedInUrl: "https://linkedin.com/company/example",
+ *   ogImage: "/opip/og.png",
+ *   siteName: "opip.law",
+ *   siteUrl: "https://opip.law",
+ *   title: "opip.law"
+ * })
+ *
+ * console.log(metadata.title)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -105,6 +173,14 @@ export class SiteMetadataContent extends S.Class<SiteMetadataContent>($I`SiteMet
 /**
  * Anchor navigation item.
  *
+ * @example
+ * ```ts
+ * import { NavItem } from "@beep/opip-web/content"
+ *
+ * const item = new NavItem({ href: "#contact", label: "Contact" })
+ * console.log(item.label)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -120,6 +196,26 @@ export class NavItem extends S.Class<NavItem>($I`NavItem`)(
 
 /**
  * Hero citation and opening claim.
+ *
+ * @example
+ * ```ts
+ * import { HeroContent, NavItem, SiteAsset } from "@beep/opip-web/content"
+ *
+ * const link = new NavItem({ href: "#contact", label: "Contact" })
+ * const asset = new SiteAsset({ alt: "Hero", src: "/opip/hero.jpg" })
+ * const hero = new HeroContent({
+ *   citation: "175 F.3d 1356",
+ *   headline: "Patent counsel.",
+ *   lede: "For builders.",
+ *   portrait: asset,
+ *   primaryCta: link,
+ *   secondaryCta: link,
+ *   video: asset,
+ *   videoPoster: asset
+ * })
+ *
+ * console.log(hero.headline)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -143,6 +239,21 @@ export class HeroContent extends S.Class<HeroContent>($I`HeroContent`)(
 /**
  * Biographical bridge panel.
  *
+ * @example
+ * ```ts
+ * import { AboutPanel, SiteAsset } from "@beep/opip-web/content"
+ *
+ * const panel = new AboutPanel({
+ *   body: "Trial and prosecution experience.",
+ *   id: "law",
+ *   image: new SiteAsset({ alt: "Portrait", src: "/opip/portrait.png" }),
+ *   kicker: "Law",
+ *   title: "Patent practice"
+ * })
+ *
+ * console.log(panel.id)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -162,6 +273,19 @@ export class AboutPanel extends S.Class<AboutPanel>($I`AboutPanel`)(
 /**
  * Practice-area summary.
  *
+ * @example
+ * ```ts
+ * import { PracticeArea } from "@beep/opip-web/content"
+ *
+ * const practice = new PracticeArea({
+ *   body: "Patent prosecution and litigation.",
+ *   id: "01",
+ *   title: "Patents"
+ * })
+ *
+ * console.log(practice.title)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -178,6 +302,24 @@ export class PracticeArea extends S.Class<PracticeArea>($I`PracticeArea`)(
 
 /**
  * Selected matter summary.
+ *
+ * @example
+ * ```ts
+ * import { ExternalLink, MatterItem, ReviewGate, SiteAsset } from "@beep/opip-web/content"
+ *
+ * const matter = new MatterItem({
+ *   body: "Representative public matter.",
+ *   caption: "Litigation",
+ *   eyebrow: "1999",
+ *   figure: new SiteAsset({ alt: "Patent drawing", src: "/opip/patent.png" }),
+ *   id: "matter",
+ *   review: new ReviewGate({ note: "Approved.", status: "approved" }),
+ *   source: new ExternalLink({ href: "https://example.com", label: "Read" }),
+ *   title: "Matter"
+ * })
+ *
+ * console.log(matter.title)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -202,6 +344,20 @@ export class MatterItem extends S.Class<MatterItem>($I`MatterItem`)(
 /**
  * Client logo reference.
  *
+ * @example
+ * ```ts
+ * import { ClientLogo, ReviewGate, SiteAsset } from "@beep/opip-web/content"
+ *
+ * const client = new ClientLogo({
+ *   aspectRatio: "4 / 1",
+ *   id: "client",
+ *   logo: new SiteAsset({ alt: "Client", src: "/opip/client.svg" }),
+ *   review: new ReviewGate({ note: "Approved.", status: "approved" })
+ * })
+ *
+ * console.log(client.id)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -219,6 +375,22 @@ export class ClientLogo extends S.Class<ClientLogo>($I`ClientLogo`)(
 
 /**
  * Press item summary.
+ *
+ * @example
+ * ```ts
+ * import { ExternalLink, PressItem } from "@beep/opip-web/content"
+ *
+ * const press = new PressItem({
+ *   body: "Coverage summary.",
+ *   date: "2026-05-14",
+ *   dateLabel: "May 14, 2026",
+ *   headline: "Patent coverage",
+ *   publication: "Publication",
+ *   source: new ExternalLink({ href: "https://example.com", label: "Read" })
+ * })
+ *
+ * console.log(press.publication)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -240,6 +412,21 @@ export class PressItem extends S.Class<PressItem>($I`PressItem`)(
 /**
  * Public contact and legal notice content.
  *
+ * @example
+ * ```ts
+ * import { ContactContent, ReviewGate } from "@beep/opip-web/content"
+ *
+ * const contact = new ContactContent({
+ *   email: "hello@example.com",
+ *   lede: "Reach out.",
+ *   notice: ["No attorney-client relationship is formed by this website."],
+ *   review: new ReviewGate({ note: "Approved.", status: "approved" }),
+ *   title: "Contact"
+ * })
+ *
+ * console.log(contact.email)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -258,6 +445,14 @@ export class ContactContent extends S.Class<ContactContent>($I`ContactContent`)(
 
 /**
  * Complete content contract for the OPIP public site.
+ *
+ * @example
+ * ```ts
+ * import { OpipSiteContent, opipSiteContent } from "@beep/opip-web/content"
+ *
+ * const content = new OpipSiteContent(opipSiteContent)
+ * console.log(content.metadata.siteName)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -282,6 +477,15 @@ export class OpipSiteContent extends S.Class<OpipSiteContent>($I`OpipSiteContent
 /**
  * Decodes unknown input into {@link OpipSiteContent}.
  *
+ * @example
+ * ```ts
+ * import { Result } from "effect"
+ * import { decodeOpipSiteContentResult, opipSiteContent } from "@beep/opip-web/content"
+ *
+ * const result = decodeOpipSiteContentResult(opipSiteContent)
+ * console.log(Result.isSuccess(result))
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -289,6 +493,15 @@ export const decodeOpipSiteContentResult = S.decodeUnknownResult(OpipSiteContent
 
 /**
  * Decodes unknown input into {@link OpipSiteContent} in an Effect workflow.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { decodeOpipSiteContent, opipSiteContent } from "@beep/opip-web/content"
+ *
+ * const program = decodeOpipSiteContent(opipSiteContent)
+ * Effect.runPromise(program)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

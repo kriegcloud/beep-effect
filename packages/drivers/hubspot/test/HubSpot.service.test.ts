@@ -174,5 +174,38 @@ describe("@beep/hubspot", () => {
         expect(capture?.headers.authorization).toBe("Bearer hubspot-service-key");
       })
     );
+
+    it.effect(
+      "maps upsert response status failures with email context",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* HubSpotTestHttp;
+        yield* testHttp.respondWith(() => Effect.succeed(makeJsonResponse({ message: "rate limited" }, 429)));
+
+        const hubspot = yield* HubSpot;
+        const exit = yield* Effect.exit(
+          hubspot.upsertContact(
+            new HubSpotUpsertContactRequest({
+              email: "tom@example.com",
+              properties: {
+                email: "tom@example.com",
+              },
+            })
+          )
+        );
+
+        expect(Exit.isFailure(exit)).toBe(true);
+        if (Exit.isFailure(exit)) {
+          const error = Cause.findErrorOption(exit.cause);
+          expect(O.isSome(error)).toBe(true);
+          if (O.isSome(error)) {
+            expect(error.value).toBeInstanceOf(HubSpotError);
+            expect(error.value.reason).toBe("response status");
+            expect(error.value.status).toBe(429);
+            expect(error.value.email).toBe("tom@example.com");
+            expect(error.value.formGuid).toBeUndefined();
+          }
+        }
+      })
+    );
   });
 });

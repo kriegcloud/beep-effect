@@ -11,7 +11,14 @@ import * as S from "effect/Schema";
 const $I = $SanityId.create("Sanity.config");
 
 /**
- * Default Sanity API version used by the OPIP web integration.
+ * Default Sanity API version used when callers do not provide one.
+ *
+ * @example
+ * ```ts
+ * import { SANITY_API_VERSION } from "@beep/sanity"
+ *
+ * console.log(SANITY_API_VERSION) // "2025-05-14"
+ * ```
  *
  * @category constants
  * @since 0.0.0
@@ -20,6 +27,19 @@ export const SANITY_API_VERSION = "2025-05-14";
 
 /**
  * Runtime configuration accepted by {@link Sanity.makeLayer}.
+ *
+ * @example
+ * ```ts
+ * import { SANITY_API_VERSION, SanityConfigInput } from "@beep/sanity"
+ *
+ * const config = new SanityConfigInput({
+ *   apiVersion: SANITY_API_VERSION,
+ *   dataset: "production",
+ *   projectId: "content-project"
+ * })
+ *
+ * console.log(config.dataset) // "production"
+ * ```
  *
  * @category models
  * @since 0.0.0
