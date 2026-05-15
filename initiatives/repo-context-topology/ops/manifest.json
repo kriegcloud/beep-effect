@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "repo-context-topology",
+    "title": "Repo Context Topology",
+    "status": "active",
+    "created": "2026-05-14",
+    "updated": "2026-05-14",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "mission": "Compress repository context into executable topology and generated metadata for coding-agent symbol discovery.",
+  "phase1": {
+    "id": "public-export-catalog",
+    "generator": "bun run beep quality repo-exports-catalog",
+    "check": "bun run beep quality repo-exports-catalog --check",
+    "artifacts": [
+      "standards/repo-exports.catalog.jsonc",
+      "standards/repo-exports.catalog.md"
+    ],
+    "sourceOfTruth": [
+      "bun run topo-sort",
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc summaries and tags"
+    ],
+    "seedProof": {
+      "symbol": "UnknownRecord",
+      "package": "@beep/schema",
+      "importSpecifier": "@beep/schema",
+      "sourcePath": "packages/foundation/modeling/schema/src/Record.ts"
+    }
+  },
+  "futureExtensionPoints": [
+    "catalog query CLI",
+    "catalog-backed MCP lookup",
+    "curated duplicate-symbol failure modes",
+    "Graphiti/FalkorDB projection",
+    "additional topology catalogs"
+  ]
+}

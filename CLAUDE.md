@@ -12,3 +12,8 @@ Ship reliable code with effect first and schema first patterns.
 - In `packages/**/{test,dtslint}/**/*.{ts,tsx}`, import package source through `@beep/*` package aliases instead of relative paths into any workspace `src/`; keep relatives only for local helpers, fixtures, snapshots, and other non-`src` test files.
 - Apply schema defaults when safe.
 - Keep quality gates passing.
+- Before recreating shared helpers, schemas, utilities, models, or known symbols,
+  search `standards/repo-exports.catalog.md` or
+  `standards/repo-exports.catalog.jsonc`; refresh with
+  `bun run repo-exports:catalog` and verify with
+  `bun run repo-exports:catalog:check`.

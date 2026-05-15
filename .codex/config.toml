@@ -103,6 +103,10 @@ name = "quality-review-fix-loop"
 enabled = true
 
 [[skills.config]]
+name = "repo-symbol-discovery"
+enabled = true
+
+[[skills.config]]
 name = "schema-first-development"
 enabled = true
 
