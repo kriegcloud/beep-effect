@@ -1,5 +1,7 @@
 # OPIP Web Production Hardening Evidence
 
+<!-- cspell:words HSTS nvxfl VWLOD -->
+
 ## Local App And Quality
 
 - `bun run config-sync:check` passed.
@@ -26,6 +28,11 @@
 - `bun run --cwd apps/opip-web build:pwa` passed after the final CSP and
   `llms.txt` updates; generated service worker files were removed from the
   working tree after verification.
+- `bun run audit:github quality` passed after refreshing the repo export
+  catalog and sorting dependency keys in `apps/opip-web/package.json` and
+  `infra/package.json`.
+- Final closeout secret scan over changed existing files passed without
+  findings.
 
 ## Security Headers And CSP
 
@@ -35,6 +42,9 @@
   and Observatory.
 - Verified local HTTPS header delivery through portless with:
   `curl --cacert "$HOME/.portless/ca.pem" -I https://localhost:1355 -H 'Host: opip-web.localhost:1355'`.
+- The same portless HTTPS route returned `x-portless: 1`, HTTP/2 200, CSP,
+  HSTS, referrer policy, `x-content-type-options: nosniff`, frame denial,
+  permissions policy, COOP, CORP, and origin-agent-cluster headers.
 - Verified `https://opip-web.localhost:1355` in Chromium with certificate
   errors ignored for the local portless CA: HTTP 200, CSP present, HSTS present,
   zero console errors, zero page errors, and zero failed requests.

@@ -29,8 +29,8 @@ exposing secrets or cutting over production DNS.
 | Vercel Authentication disabled for previews | Manifest and Vercel API evidence record no active password, trusted-IP, or Vercel Authentication protection | Complete |
 | Quality gates | Root `check`, `lint`, `build`, `test`, app `check`/`test`/`lint`/`build:pwa`, infra and driver checks recorded in evidence | Complete |
 | Browser QA and Lighthouse proof | `local-closure-evidence.md` records clean browser QA and staging Lighthouse 100 across performance, accessibility, best practices, SEO, and agentic-browsing | Complete |
-| No raw secrets exposed | Pulumi secrets remain encrypted; secret scan is part of final closeout checks | Pending final closeout check |
-| Clean working tree | Final local commit and post-commit `git status --short` are required | Pending final closeout commit |
+| No raw secrets exposed | Pulumi secrets remain encrypted; final closeout secret scan over changed existing files passed | Complete |
+| Clean working tree | Final closeout commit and post-commit `git status --short --branch` proof are required | Complete after closure commit |
 
 ## Caveats And Explicit Non-Goals
 
