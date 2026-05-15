@@ -20,6 +20,20 @@ describe("sanitizeAnchorHref", () => {
     expect(sanitizeAnchorHref("javascript%3Aalert(1)")).toBe("#");
     expect(sanitizeAnchorHref("javascript%26colon;alert(1)")).toBe("#");
     expect(sanitizeAnchorHref("javascript%26%2358%3balert(1)")).toBe("#");
+    expect(sanitizeAnchorHref("java&tab;script&colon;alert(1)")).toBe("#");
+    expect(sanitizeAnchorHref("java&newline;script:alert(1)")).toBe("#");
     expect(sanitizeAnchorHref("%256a%2561%2576%2561%2573%2563%2572%2569%2570%2574%253aalert(1)")).toBe("#");
+  });
+
+  it("leaves over-nested percent encoding unchanged after bounded decode passes", () => {
+    const href = "%25252525256a%252525252561%252525252576%252525252561%252525252573cript%25252525253aalert(1)";
+
+    expect(sanitizeAnchorHref(href)).toBe(href);
+  });
+
+  it("preserves invalid numeric character references", () => {
+    const href = "javascript&#999999999999999999999999999;alert(1)";
+
+    expect(sanitizeAnchorHref(href)).toBe(href);
   });
 });

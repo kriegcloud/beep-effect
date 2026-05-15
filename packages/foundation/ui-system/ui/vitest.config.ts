@@ -5,7 +5,9 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      // Package-specific overrides
+      coverage: {
+        include: ["src/index.ts", "src/lib/url.ts", "src/lib/utils.ts"],
+      },
     },
   })
 );
