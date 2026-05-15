@@ -54,6 +54,8 @@ const config = {
     "packages/drivers/onepassword-cli/package.json",
     "packages/drivers/discord/package.json",
     "packages/drivers/ai-provider-cli/package.json",
+    "packages/drivers/sanity/package.json",
+    "packages/drivers/hubspot/package.json",
   ],
   customTypes: {
     catalog: {

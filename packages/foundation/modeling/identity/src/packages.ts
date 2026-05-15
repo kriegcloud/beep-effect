@@ -139,7 +139,9 @@ const composers = $I.compose(
   "runpod",
   "onepassword-cli",
   "discord",
-  "ai-provider-cli"
+  "ai-provider-cli",
+  "sanity",
+  "hubspot"
 );
 
 // --- foundation ---
@@ -1283,3 +1285,35 @@ export const $DiscordId: Identity.IdentityComposer<"@beep/discord"> = composers.
  * @category configuration
  */
 export const $AiProviderCliId: Identity.IdentityComposer<"@beep/ai-provider-cli"> = composers.$AiProviderCliId;
+
+/**
+ * Identity composer for `@beep/sanity`.
+ *
+ * @example
+ * ```typescript
+ * import { $SanityId } from "@beep/identity"
+ *
+ * const id = $SanityId.make("Sanity")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $SanityId: Identity.IdentityComposer<"@beep/sanity"> = composers.$SanityId;
+
+/**
+ * Identity composer for `@beep/hubspot`.
+ *
+ * @example
+ * ```typescript
+ * import { $HubspotId } from "@beep/identity"
+ *
+ * const id = $HubspotId.make("Hubspot")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $HubspotId: Identity.IdentityComposer<"@beep/hubspot"> = composers.$HubspotId;

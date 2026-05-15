@@ -200,6 +200,7 @@ ctype
 Deque
 evals
 getenv
+GROQ
 isinstance
 isready
 journalctl

@@ -1,0 +1,5 @@
+name: opip-web
+runtime:
+  name: nodejs
+description: Production web infrastructure for opip.law.
+main: ../src/internal/opip-web-entry.ts

@@ -18,6 +18,38 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
   );
 
 describe("@beep/duckdb", () => {
+  it("normalizes unknown failures into typed DuckDB errors", () => {
+    const cause = new Error("native failed");
+    const error = DuckDbError.fromUnknown("query", cause, {
+      databasePath: "metrics.duckdb",
+      message: "Custom DuckDB failure.",
+      statement: "SELECT broken",
+    });
+
+    expect(error).toBeInstanceOf(DuckDbError);
+    expect(error.cause).toBe(cause);
+    expect(error.databasePath).toBe("metrics.duckdb");
+    expect(error.message).toBe("Custom DuckDB failure.");
+    expect(error.operation).toBe("query");
+    expect(error.statement).toBe("SELECT broken");
+  });
+
+  it("preserves existing DuckDB errors and supports the data-last normalizer form", () => {
+    const existing = new DuckDbError({
+      message: "Already normalized.",
+      operation: "run",
+    });
+
+    expect(DuckDbError.fromUnknown("query", existing)).toBe(existing);
+
+    const normalizeRunFailure = DuckDbError.fromUnknown("plain failure");
+    const normalized = normalizeRunFailure("run");
+
+    expect(normalized).toBeInstanceOf(DuckDbError);
+    expect(normalized.message).toBe("DuckDB operation failed.");
+    expect(normalized.operation).toBe("run");
+  });
+
   it.effect(
     "runs statements, queries rows, and exports parquet",
     Effect.fn(function* () {

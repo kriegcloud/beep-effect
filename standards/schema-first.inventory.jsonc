@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-13",
+  "generatedOn": "2026-05-14",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -9,6 +9,14 @@
     "packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts"
   ],
   "entries": [
+    {
+      "file": "infra/src/OpipWeb.ts",
+      "symbol": "OpipWebRuntimeSecrets",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/infra",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
     {
       "file": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
       "symbol": "ProfessionalRuntimeSdk",
@@ -130,22 +138,6 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
-      "symbol": "FaceDetectionServiceShape",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/face-detection",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
-      "symbol": "LoadedFaceDetector",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/face-detection",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
       "file": "packages/drivers/drizzle/src/Drizzle.service.ts",
       "symbol": "DrizzleClient",
       "kind": "exported-interface",
@@ -178,12 +170,36 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
+      "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+      "symbol": "FaceDetectionServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/face-detection",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+      "symbol": "LoadedFaceDetector",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/face-detection",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
       "symbol": "FFmpegShape",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/ffmpeg",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/hubspot/src/HubSpot.service.ts",
+      "symbol": "HubSpotShape",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/hubspot",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/drivers/openai-compat/src/OpenAiCompat.client.ts",
@@ -200,6 +216,14 @@
       "status": "exception",
       "owner": "@beep/runpod",
       "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/drivers/sanity/src/Sanity.service.ts",
+      "symbol": "SanityShape",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/sanity",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/drivers/xai/src/XAi.service.ts",

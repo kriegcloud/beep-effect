@@ -65,7 +65,9 @@
     "packages/installer-security/use-cases/dtslint/**/*.tst.*",
     "packages/installer-workspace/domain/dtslint/**/*.tst.*",
     "packages/installer-workspace/server/dtslint/**/*.tst.*",
-    "packages/installer-workspace/use-cases/dtslint/**/*.tst.*"
+    "packages/installer-workspace/use-cases/dtslint/**/*.tst.*",
+    "packages/drivers/sanity/dtslint/**/*.tst.*",
+    "packages/drivers/hubspot/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }

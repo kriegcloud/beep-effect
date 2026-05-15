@@ -55,6 +55,14 @@ const opipTheme = createAppTheme(opipThemeOptions);
 /**
  * Provides the OPIP theme while reusing the shared `@beep/ui` theme base.
  *
+ * @example
+ * ```tsx
+ * import { OpipThemeProvider } from "@beep/opip-web/components/OpipThemeProvider"
+ *
+ * const provider = <OpipThemeProvider><main /></OpipThemeProvider>
+ * console.log(provider.type)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

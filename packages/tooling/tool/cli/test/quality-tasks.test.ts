@@ -178,6 +178,20 @@ describe("quality task adapter", () => {
     });
   });
 
+  it("runs combined root coverage tasks in report-only mode", () => {
+    const passthroughTasks = ["build", "check", "test", "coverage", "audit", "lint", "docgen"] as const;
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--fix", ...passthroughTasks]));
+
+    expect(steps[0]).toMatchObject({
+      label: "lint:fix",
+      command: "bunx",
+      args: expectedTurboArgs("lint:fix", passthroughTasks),
+      env: {
+        VITEST_COVERAGE_REPORT_ONLY: "1",
+      },
+    });
+  });
+
   it("runs unit and types as separate turbo invocations", () => {
     const steps = rootQualityStepsForTesting(
       "/repo",

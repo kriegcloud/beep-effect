@@ -1,0 +1,334 @@
+/**
+ * Server-side OPIP contact submission workflow.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import {
+  HubSpot,
+  HubSpotConfigInput,
+  type HubSpotError,
+  HubSpotFormField,
+  HubSpotSubmitFormRequest,
+  HubSpotUpsertContactRequest,
+} from "@beep/hubspot";
+import { $OpipWebId } from "@beep/identity/packages";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { Clock, Config, Effect, Layer, pipe, Redacted } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { FetchHttpClient } from "effect/unstable/http";
+import {
+  type ContactSubmission,
+  ContactSubmissionResponse,
+  decodeContactSubmission,
+} from "./ContactSubmission.model.ts";
+
+const $I = $OpipWebId.create("contact/ContactSubmission.service");
+const minimumElapsedMs = 3_000;
+
+const ContactSubmissionErrorReason = LiteralKit(["config", "decode", "provider", "spam"] as const).pipe(
+  $I.annoteSchema("ContactSubmissionErrorReason", {
+    description: "Sanitized contact submission failure reason.",
+  })
+);
+
+type ContactSubmissionErrorReason = typeof ContactSubmissionErrorReason.Type;
+
+type ContactSubmissionErrorOptions = {
+  readonly provider?: string;
+  readonly providerReason?: string;
+  readonly status?: number;
+};
+
+class ContactSubmissionError extends TaggedErrorClass<ContactSubmissionError>($I`ContactSubmissionError`)(
+  "ContactSubmissionError",
+  {
+    provider: S.optionalKey(S.String),
+    providerReason: S.optionalKey(S.String),
+    reason: ContactSubmissionErrorReason,
+    status: S.optionalKey(S.Number),
+  },
+  $I.annote("ContactSubmissionError", {
+    description: "Typed server-side contact submission boundary failure.",
+  })
+) {
+  static readonly fromReason = (
+    reason: ContactSubmissionErrorReason,
+    options: ContactSubmissionErrorOptions = {}
+  ): ContactSubmissionError =>
+    new ContactSubmissionError({
+      reason,
+      ...R.getSomes({
+        provider: O.fromUndefinedOr(options.provider),
+        providerReason: O.fromUndefinedOr(options.providerReason),
+      }),
+      ...R.getSomes({
+        status: O.fromUndefinedOr(options.status),
+      }),
+    });
+}
+
+const trimConfigOption = (value: O.Option<string>): O.Option<string> =>
+  pipe(value, O.map(Str.trim), O.filter(Str.isNonEmpty));
+
+const readTextConfigOption = Effect.fn("OpipContact.readTextConfigOption")(function* (key: string) {
+  const value = yield* Config.string(key).pipe(
+    Config.option,
+    Effect.mapError(() => ContactSubmissionError.fromReason("config"))
+  );
+  return trimConfigOption(value);
+});
+
+const readRedactedConfigOption = Effect.fn("OpipContact.readRedactedConfigOption")(function* (key: string) {
+  const value = yield* Config.redacted(key).pipe(
+    Config.option,
+    Effect.mapError(() => ContactSubmissionError.fromReason("config"))
+  );
+  return pipe(
+    value,
+    O.filter((secret) => Str.isNonEmpty(Str.trim(Redacted.value(secret))))
+  );
+});
+
+const firstTextConfigOption = Effect.fn("OpipContact.firstTextConfigOption")(function* (keys: ReadonlyArray<string>) {
+  const values = yield* Effect.forEach(keys, readTextConfigOption, { concurrency: A.length(keys) });
+  return pipe(values, A.findFirst(O.isSome), O.flatten);
+});
+
+const firstRedactedConfigOption = Effect.fn("OpipContact.firstRedactedConfigOption")(function* (
+  keys: ReadonlyArray<string>
+) {
+  const values = yield* Effect.forEach(keys, readRedactedConfigOption, { concurrency: A.length(keys) });
+  return pipe(values, A.findFirst(O.isSome), O.flatten);
+});
+
+const hubSpotConfig = Effect.fn("OpipContact.hubSpotConfig")(function* (): Effect.fn.Return<
+  {
+    readonly config: HubSpotConfigInput;
+    readonly formGuid: O.Option<string>;
+  },
+  ContactSubmissionError
+> {
+  const accountId = yield* firstTextConfigOption(["CRM_HUBSPOT_ACCOUNT_ID", "HUBSPOT_ACCOUNT_ID"]);
+  const accessToken = yield* firstRedactedConfigOption(["CRM_HUBSPOT_SERVICE_KEY", "HUBSPOT_SERVICE_KEY"]);
+  const formGuid = yield* firstTextConfigOption(["CRM_HUBSPOT_FORM_GUID", "HUBSPOT_FORM_GUID"]);
+
+  if (O.isNone(accountId) || O.isNone(accessToken)) {
+    return yield* ContactSubmissionError.fromReason("config");
+  }
+
+  return {
+    config: new HubSpotConfigInput({
+      accountId: accountId.value,
+      accessToken: accessToken.value,
+    }),
+    formGuid,
+  };
+});
+
+const textField = (name: string, value: O.Option<string>): ReadonlyArray<HubSpotFormField> =>
+  pipe(
+    value,
+    O.map(Str.trim),
+    O.filter(Str.isNonEmpty),
+    O.match({
+      onNone: A.empty,
+      onSome: (fieldValue) => [new HubSpotFormField({ name, value: fieldValue })],
+    })
+  );
+
+const submissionFields = (submission: ContactSubmission): ReadonlyArray<HubSpotFormField> =>
+  A.flatten([
+    textField("email", O.some(submission.email)),
+    textField("firstname", O.some(submission.name)),
+    textField("company", O.fromUndefinedOr(submission.company)),
+    textField("phone", O.fromUndefinedOr(submission.phone)),
+    textField("message", O.some(submission.message)),
+    textField("technology", O.fromUndefinedOr(submission.technology)),
+    textField("posture", O.fromUndefinedOr(submission.posture)),
+  ]);
+
+const noteLine = (label: string, value: O.Option<string>): ReadonlyArray<string> =>
+  pipe(
+    value,
+    O.map(Str.trim),
+    O.filter(Str.isNonEmpty),
+    O.match({
+      onNone: A.empty,
+      onSome: (fieldValue) => [`${label}: ${fieldValue}`],
+    })
+  );
+
+const crmMessage = (submission: ContactSubmission): string =>
+  pipe(
+    A.flatten([
+      [`Message:\n${submission.message}`],
+      noteLine("Technology", O.fromUndefinedOr(submission.technology)),
+      noteLine("Relationship", O.fromUndefinedOr(submission.posture)),
+    ]),
+    A.join("\n\n")
+  );
+
+const contactProperties = (submission: ContactSubmission): Readonly<Record<string, string>> => ({
+  email: submission.email,
+  firstname: submission.name,
+  message: crmMessage(submission),
+  ...R.getSomes({
+    company: O.fromUndefinedOr(submission.company),
+    phone: O.fromUndefinedOr(submission.phone),
+  }),
+});
+
+const accepted = new ContactSubmissionResponse({
+  message: "Your note was received.",
+  status: "accepted",
+});
+
+const rejected = new ContactSubmissionResponse({
+  message: "The submission could not be accepted.",
+  status: "rejected",
+});
+
+const validateSpamControls = Effect.fn("OpipContact.validateSpamControls")(function* (
+  submission: ContactSubmission
+): Effect.fn.Return<void, ContactSubmissionError> {
+  const honeypot = pipe(O.fromUndefinedOr(submission.website), O.map(Str.trim), O.filter(Str.isNonEmpty));
+  const now = yield* Clock.currentTimeMillis;
+  const elapsedMs = now - submission.submittedAt;
+
+  if (O.isSome(honeypot)) {
+    return yield* ContactSubmissionError.fromReason("spam");
+  }
+
+  if (submission.submittedAt <= 0 || elapsedMs < minimumElapsedMs) {
+    return yield* ContactSubmissionError.fromReason("spam");
+  }
+
+  return undefined;
+});
+
+const submitConfiguredContact = (
+  settings: {
+    readonly config: HubSpotConfigInput;
+    readonly formGuid: O.Option<string>;
+  },
+  submission: ContactSubmission
+) =>
+  Effect.gen(function* () {
+    const hubspot = yield* HubSpot;
+    if (O.isSome(settings.formGuid)) {
+      return yield* hubspot.submitForm(
+        new HubSpotSubmitFormRequest({
+          fields: submissionFields(submission),
+          formGuid: settings.formGuid.value,
+          submittedAt: submission.submittedAt,
+          context: {
+            pageName: "opip.law contact",
+            pageUri: "https://opip.law/#contact",
+          },
+        })
+      );
+    }
+
+    return yield* hubspot.upsertContact(
+      new HubSpotUpsertContactRequest({
+        email: submission.email,
+        objectWriteTraceId: "opip-contact-form",
+        properties: contactProperties(submission),
+      })
+    );
+  }).pipe(
+    // @effect-diagnostics-next-line strictEffectProvide:off
+    Effect.provide(HubSpot.makeLayer(settings.config).pipe(Layer.provide(FetchHttpClient.layer))),
+    Effect.mapError((error: HubSpotError) =>
+      ContactSubmissionError.fromReason("provider", {
+        provider: "hubspot",
+        providerReason: error.reason,
+        ...R.getSomes({ status: O.fromUndefinedOr(error.status) }),
+      })
+    )
+  );
+
+const contactResponseForError = (_error: ContactSubmissionError): ContactSubmissionResponse => rejected;
+
+/**
+ * Submits an OPIP contact payload to HubSpot when runtime config is present.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { submitContact } from "@beep/opip-web/contact"
+ *
+ * const program = submitContact({
+ *   email: "builder@example.com",
+ *   message: "I would like to discuss a patent matter.",
+ *   name: "Builder",
+ *   submittedAt: 0
+ * })
+ *
+ * Effect.runPromise(program)
+ * ```
+ *
+ * @effects Reads server runtime config, decodes untrusted input, optionally
+ * writes the contact to HubSpot, and logs sanitized public rejection reasons.
+ * @category workflows
+ * @since 0.0.0
+ */
+export const submitContact = (input: unknown): Effect.Effect<ContactSubmissionResponse> =>
+  Effect.gen(function* () {
+    const submission = yield* decodeContactSubmission(input).pipe(
+      Effect.mapError(() => ContactSubmissionError.fromReason("decode"))
+    );
+    yield* validateSpamControls(submission);
+
+    const settings = yield* hubSpotConfig();
+    yield* submitConfiguredContact(settings, submission);
+
+    return accepted;
+  }).pipe(
+    Effect.catchTag("ContactSubmissionError", (error) =>
+      Effect.logWarning("OPIP contact submission returned a public rejection.").pipe(
+        Effect.annotateLogs({
+          operation: "opip.contact.submit",
+          outcome: "rejected",
+          reason: error.reason,
+          ...R.getSomes({
+            provider: O.fromUndefinedOr(error.provider),
+            providerReason: O.fromUndefinedOr(error.providerReason),
+          }),
+          ...R.getSomes({
+            status: O.fromUndefinedOr(error.status),
+          }),
+        }),
+        Effect.as(contactResponseForError(error))
+      )
+    )
+  );
+
+/**
+ * Builds a JSON-safe contact response object.
+ *
+ * @example
+ * ```ts
+ * import { ContactSubmissionResponse, contactResponseBody } from "@beep/opip-web/contact"
+ *
+ * const body = contactResponseBody(new ContactSubmissionResponse({
+ *   message: "Your note was received.",
+ *   status: "accepted"
+ * }))
+ *
+ * console.log(body.status)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const contactResponseBody = (response: ContactSubmissionResponse): typeof ContactSubmissionResponse.Encoded => ({
+  message: response.message,
+  status: response.status,
+});
