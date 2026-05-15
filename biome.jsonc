@@ -32,6 +32,7 @@
       "!**/bun.lock",
       "!**/dist",
       "!standards/jsdoc-documentation.inventory.jsonc",
+      "!standards/repo-exports.catalog.jsonc",
       "!scratchpad"
     ]
   },

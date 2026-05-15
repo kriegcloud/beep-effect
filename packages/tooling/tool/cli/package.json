@@ -70,6 +70,8 @@
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
     "beep:jsdoc-inventory": "bun run support/generate-jsdoc-documentation-inventory.ts",
+    "beep:repo-exports-catalog": "bun run support/generate-repo-exports-catalog.ts",
+    "beep:repo-exports-catalog:check": "bun run support/generate-repo-exports-catalog.ts --check",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
     "audit": "bun run --if-present beep:audit"
   },

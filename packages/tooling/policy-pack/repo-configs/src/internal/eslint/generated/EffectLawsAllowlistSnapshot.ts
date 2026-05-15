@@ -83,6 +83,46 @@ export const ALLOWLIST_SNAPSHOT = {
       "reason": "The JSDoc inventory support generator stamps generated inventory metadata once during direct CLI execution outside package runtime code.",
       "owner": "@beep/repo-cli",
       "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
+      "kind": "new-map-set",
+      "reason": "The repo export catalog support generator is a standalone Bun/ts-morph workspace scanner that uses native Set and Map collections to mirror parser traversal state deterministically outside package runtime code.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
+      "kind": "native-error",
+      "reason": "The repo export catalog support generator is invoked as a direct CLI script and throws native Error values for malformed workspace metadata before emitting generated catalog artifacts.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
+      "kind": "array-static",
+      "reason": "The repo export catalog support generator decodes untyped JSONC workspace manifests and uses native Array guards at the external data boundary before normalizing values.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
+      "kind": "typeof-runtime",
+      "reason": "The repo export catalog support generator decodes untyped JSONC and ts-morph metadata in a standalone support-script boundary where simple runtime guards keep generated catalog output deterministic.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
+      "kind": "object-method",
+      "reason": "The repo export catalog support generator renders aggregate maps from plain JSON-compatible records and uses Object entries only at the generated-report boundary.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
     }
   ],
   "diagnostics": []

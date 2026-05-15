@@ -15,7 +15,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Argument, Command } from "effect/unstable/cli";
+import { Argument, Command, Flag } from "effect/unstable/cli";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { QualityTaskStep } from "./Tasks.js";
 
@@ -342,6 +342,9 @@ const runQuality = Effect.fn("QualityScriptCommands.runQuality")(function* (
   yield* Console.log("[github-checks] quality: docgen");
   yield* runBun(repoRoot, "quality:docgen-generate", ["beep", "--", "docgen", "generate"]);
   yield* runBun(repoRoot, "quality:docgen-aggregate", ["beep", "--", "docgen", "aggregate"]);
+
+  yield* Console.log("[github-checks] quality: repo export catalog");
+  yield* runBun(repoRoot, "quality:repo-exports-catalog-check", ["repo-exports:catalog:check"]);
 
   yield* Console.log("[github-checks] quality: test");
   yield* runBun(repoRoot, "quality:test", ["test"]);
@@ -1064,6 +1067,32 @@ export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInvent
   yield* runBun(repoRoot, "quality:jsdoc-inventory", ["--filter=@beep/repo-cli", "beep:jsdoc-inventory"]);
 });
 
+/**
+ * Run the repo export catalog generator now owned by repo-cli.
+ *
+ * @param check - When `true`, fail if tracked catalog artifacts are stale; when `false`, refresh them.
+ * @returns Effect that writes or checks the tracked export catalog artifacts.
+ * @example
+ * ```ts
+ * import { runRepoExportsCatalog } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * const program = runRepoExportsCatalog(false)
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExportsCatalog")(function* (
+  check: boolean
+): Effect.fn.Return<void, QualityScriptCommandError, FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner> {
+  const repoRoot = yield* findRepoRoot().pipe(
+    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
+  );
+
+  const label = check ? "quality:repo-exports-catalog-check" : "quality:repo-exports-catalog";
+  const script = check ? "beep:repo-exports-catalog:check" : "beep:repo-exports-catalog";
+
+  yield* runBun(repoRoot, label, ["--filter=@beep/repo-cli", script]);
+});
+
 const runQualityProgram = <A, R>(
   effect: Effect.Effect<A, QualityScriptCommandError, R>
 ): Effect.Effect<void, never, R> =>
@@ -1125,6 +1154,14 @@ const jsdocInventoryCommand = Command.make("jsdoc-inventory", {}, () => runQuali
   Command.withDescription("Generate the tracked JSDoc documentation inventory")
 );
 
+const repoExportsCatalogCommand = Command.make(
+  "repo-exports-catalog",
+  {
+    check: Flag.boolean("check").pipe(Flag.withDescription("Fail when the tracked repo export catalog is stale")),
+  },
+  ({ check }) => runQualityProgram(runRepoExportsCatalog(check))
+).pipe(Command.withDescription("Generate or check the tracked repo export catalog"));
+
 /**
  * Quality command group for repo operational checks.
  *
@@ -1148,6 +1185,7 @@ export const qualityCommand = Command.make(
     yield* Console.log("- bun run beep quality tsgo-smoke");
     yield* Console.log("- bun run beep quality jsdoc-module-tags");
     yield* Console.log("- bun run beep quality jsdoc-inventory");
+    yield* Console.log("- bun run beep quality repo-exports-catalog");
   })
 ).pipe(
   Command.withDescription("Repository operational quality commands"),
@@ -1159,5 +1197,6 @@ export const qualityCommand = Command.make(
     tsgoSmokeCommand,
     jsdocModuleTagsCommand,
     jsdocInventoryCommand,
+    repoExportsCatalogCommand,
   ])
 );

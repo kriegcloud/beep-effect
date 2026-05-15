@@ -32,6 +32,8 @@ actually lives here.
 - `ip-law-knowledge-graph`
 - `opip-web-production-hardening`
 - `opip-web-launch` — implementation complete; launch review pending.
+- `repo-context-topology` — generated topology and export catalog work for
+  coding-agent symbol discovery.
 - `trustgraph-doc-ontology`
 
 ## Reference Packets
