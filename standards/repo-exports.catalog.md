@@ -9092,7 +9092,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:292` | Effect service for Sanity content API requests. |
+| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
 | `@beep/sanity` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:26` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:47` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
 | `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
@@ -9105,7 +9105,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sanity` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
 | `@beep/sanity` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
 | `@beep/sanity` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
-| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:292` | Effect service for Sanity content API requests. |
+| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
 | `@beep/sanity/index` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:26` | Default Sanity API version used when callers do not provide one. |
 | `@beep/sanity/index` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:47` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
 | `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
@@ -9124,7 +9124,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
 | `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
 | `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:292` | Effect service for Sanity content API requests. |
+| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
 | `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
 | `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
 | `@beep/sanity/Sanity.service` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
@@ -13080,13 +13080,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/opip-web/app/manifest` | `default` | function | `apps/opip-web/src/app/manifest.ts:23` | Returns the static web manifest for opip web. |
 | `@beep/opip-web/app/robots` | `default` | function | `apps/opip-web/src/app/robots.ts:24` | Returns the robots policy for OPIP. |
 | `@beep/opip-web/app/sitemap` | `default` | function | `apps/opip-web/src/app/sitemap.ts:24` | Returns the OPIP sitemap. |
-| `@beep/opip-web/contact` | `contactResponseBody` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:337` | Builds a JSON-safe contact response object. |
+| `@beep/opip-web/contact` | `contactResponseBody` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:331` | Builds a JSON-safe contact response object. |
 | `@beep/opip-web/contact` | `ContactSubmission` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:125` | Browser-submitted OPIP contact form payload. |
 | `@beep/opip-web/contact` | `ContactSubmissionResponse` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:160` | Public contact submission response. |
 | `@beep/opip-web/contact` | `ContactSubmissionStatus` | const | `apps/opip-web/src/contact/ContactSubmission.model.ts:82` | Public contact submission status. |
 | `@beep/opip-web/contact` | `ContactSubmissionStatus` | type | `apps/opip-web/src/contact/ContactSubmission.model.ts:102` | Type for {@link ContactSubmissionStatus}. |
 | `@beep/opip-web/contact` | `decodeContactSubmission` | const | `apps/opip-web/src/contact/ContactSubmission.model.ts:191` | Decodes unknown input into a contact submission. |
-| `@beep/opip-web/contact` | `submitContact` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:288` | Submits an OPIP contact payload to HubSpot when runtime config is present. |
+| `@beep/opip-web/contact` | `submitContact` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:282` | Submits an OPIP contact payload to HubSpot when runtime config is present. |
 | `@beep/opip-web/content` | `AboutPanel` | class | `apps/opip-web/src/content/OpipContent.model.ts:260` | Biographical bridge panel. |
 | `@beep/opip-web/content` | `ClientLogo` | class | `apps/opip-web/src/content/OpipContent.model.ts:364` | Client logo reference. |
 | `@beep/opip-web/content` | `ContactContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:433` | Public contact and legal notice content. |
@@ -13111,8 +13111,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/opip-web/content` | `SiteAsset` | class | `apps/opip-web/src/content/OpipContent.model.ts:124` | Runtime asset reference served from the OPIP app public folder. |
 | `@beep/opip-web/content` | `SiteMetadataContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:159` | Top-level metadata used by Next.js and JSON-LD generation. |
 | `@beep/opip-web/mdx-components` | `useMDXComponents` | function | `apps/opip-web/src/mdx-components.tsx:26` | Returns the MDX component overrides used by opip web. |
-| `@beep/opip-web/proxy` | `config` | const | `apps/opip-web/src/proxy.ts:88` | Route matcher for the OPIP CSP proxy. |
-| `@beep/opip-web/proxy` | `proxy` | function | `apps/opip-web/src/proxy.ts:57` | Adds a per-request CSP nonce to OPIP document responses. |
+| `@beep/opip-web/proxy` | `config` | const | `apps/opip-web/src/proxy.ts:89` | Route matcher for the OPIP CSP proxy. |
+| `@beep/opip-web/proxy` | `proxy` | function | `apps/opip-web/src/proxy.ts:58` | Adds a per-request CSP nonce to OPIP document responses. |
 
 ### @beep/shared-ui
 
