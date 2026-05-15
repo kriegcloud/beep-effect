@@ -39,6 +39,11 @@
       "output": "history/outputs/p1-completion-audit.md",
       "summary": "Prompt-to-artifact completion audit shows P1 remains blocked on fresh macOS and Windows proof artifacts plus post-proof review."
     },
+    "p1PauseHandoff": {
+      "status": "recorded",
+      "output": "history/outputs/p1-pause-handoff-2026-05-14.md",
+      "summary": "End-of-day pause handoff records the local Windows VM cleanup, stopped proof window, missing fresh proof artifacts, and resume checklist."
+    },
     "v1": {
       "status": "in_progress",
       "activeGate": "P1",
@@ -433,6 +438,7 @@
   },
   "knownGaps": [
     "fresh-OS macOS and Windows proof not run",
+    "local Windows libvirt VM was intentionally cleaned up after the 2026-05-14 pause; recreate an 80 GiB VM or use another real Windows environment before resuming Windows proof",
     "artifact intake via Taildrop is blocked until the coordinator runs sudo tailscale set --operator=$USER or uses another approved private transfer channel; tokenized temporary tailnet upload is documented as a fallback, but no proof bundles have arrived",
     "coordinator-side Taildrop send to the online Windows peer is blocked because Tailscale reports the peer is owned by a different user",
     "live upload endpoint is reachable through raw tailnet IP and MagicDNS, but upload logs show no PUT or POST artifact upload attempts",
@@ -459,5 +465,5 @@
     "P1 live drivers live under packages/drivers and are consumed by slice server packages",
     "P1 live proof remains app-local runtime composition, not a tooling God Layer"
   ],
-  "nextAction": "Run full P1 live Manual Mode proof on fresh macOS and Windows using ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md: 1Password validation, provider auth validation, Discord liveness, sanitized proof JSON, screencasts, and test messages. Configure Taildrop on the coordinator with sudo tailscale set --operator=$USER, use the documented tokenized temporary tailnet upload fallback, or use another approved private transfer channel. Place the returned bundles under output/stack-installer/p1-live, and run p1:proof:intake followed by p1:proof:audit-all. After proof artifacts are audited, run the P1 PR readiness quality-review-fix-loop before declaring the branch PR ready."
+  "nextAction": "Resume from history/outputs/p1-pause-handoff-2026-05-14.md. Start a fresh proof upload window and detached watcher, then run full P1 live Manual Mode proof on fresh macOS and Windows using ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md: 1Password validation, provider auth validation, Discord liveness, sanitized proof JSON, screencasts, and test messages. Recreate the local Windows VM only if using the local VM route; otherwise use another real Windows environment. Configure Taildrop on the coordinator with sudo tailscale set --operator=$USER, use the documented tokenized temporary tailnet upload fallback, or use another approved private transfer channel. Place the returned bundles under output/stack-installer/p1-live, and run p1:proof:intake followed by p1:proof:audit-all. After proof artifacts are audited, run the P1 PR readiness quality-review-fix-loop before declaring the branch PR ready."
 }
