@@ -191,7 +191,19 @@ const resolveConfig = Effect.fn("Sanity.resolveConfig")(function* (
 });
 
 const queryUrl = (config: ResolvedSanityConfig): string =>
-  `${config.apiHost}/v${config.apiVersion}/data/query/${config.dataset}`;
+  `${projectScopedApiHost(config)}/v${config.apiVersion}/data/query/${config.dataset}`;
+
+const projectScopedApiHost = (config: ResolvedSanityConfig): string => {
+  if (config.apiHost === "https://api.sanity.io") {
+    return `https://${config.projectId}.api.sanity.io`;
+  }
+
+  if (config.apiHost === "https://apicdn.sanity.io") {
+    return `https://${config.projectId}.apicdn.sanity.io`;
+  }
+
+  return config.apiHost;
+};
 
 const addHeaders = (
   request: HttpClientRequest.HttpClientRequest,

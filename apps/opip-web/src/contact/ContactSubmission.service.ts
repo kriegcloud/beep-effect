@@ -205,7 +205,7 @@ const validateSpamControls = Effect.fn("OpipContact.validateSpamControls")(funct
     return yield* ContactSubmissionError.fromReason("spam");
   }
 
-  if (elapsedMs < minimumElapsedMs) {
+  if (submission.submittedAt <= 0 || elapsedMs < minimumElapsedMs) {
     return yield* ContactSubmissionError.fromReason("spam");
   }
 
@@ -254,13 +254,7 @@ const submitConfiguredContact = (
     )
   );
 
-const contactResponseForError = (error: ContactSubmissionError): ContactSubmissionResponse =>
-  error.reason === "config"
-    ? new ContactSubmissionResponse({
-        message: "Contact intake is not configured.",
-        status: "rejected",
-      })
-    : rejected;
+const contactResponseForError = (_error: ContactSubmissionError): ContactSubmissionResponse => rejected;
 
 /**
  * Submits an OPIP contact payload to HubSpot when runtime config is present.

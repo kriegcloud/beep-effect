@@ -36,7 +36,7 @@ const validContactPayload = () => ({
   email: "TOM@EXAMPLE.COM",
   message: "I would like help protecting a new machine design.",
   name: " Thomas Oppold ",
-  submittedAt: 0,
+  submittedAt: Date.now() - 5_000,
 });
 
 const withContactConfig = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
@@ -164,11 +164,11 @@ describe("@beep/opip-web", () => {
     const response = await Effect.runPromise(withoutContactConfig(submitContact(validContactPayload())));
 
     expect(response.status).toBe("rejected");
-    expect(response.message).toBe("Contact intake is not configured.");
+    expect(response.message).toBe("The submission could not be accepted.");
   });
 
   it("rejects contact submissions when spam controls fail", async () => {
-    const response = await Effect.runPromise(
+    const honeypotResponse = await Effect.runPromise(
       withContactConfig(
         submitContact({
           ...validContactPayload(),
@@ -176,8 +176,17 @@ describe("@beep/opip-web", () => {
         })
       )
     );
+    const timestampResponse = await Effect.runPromise(
+      withContactConfig(
+        submitContact({
+          ...validContactPayload(),
+          submittedAt: 0,
+        })
+      )
+    );
 
-    expect(response.status).toBe("rejected");
+    expect(honeypotResponse.status).toBe("rejected");
+    expect(timestampResponse.status).toBe("rejected");
   });
 
   it("logs and rejects contact submissions when the provider fails", async () => {

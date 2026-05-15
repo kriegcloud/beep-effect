@@ -41,7 +41,7 @@ export function ContactForm({
       method="post"
     >
       <input aria-hidden="true" className="hidden" name="website" tabIndex={-1} autoComplete="off" />
-      <input name="submittedAt" type="hidden" value={0} />
+      <input name="submittedAt" type="hidden" value={Date.now()} />
       <div className="grid gap-4 sm:grid-cols-2">
         <label className={labelClass}>
           Name

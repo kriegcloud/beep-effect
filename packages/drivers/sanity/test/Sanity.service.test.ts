@@ -105,7 +105,7 @@ describe("@beep/sanity", () => {
 
         expect(response.result).toEqual({ ok: true });
         expect(captures[0]?.method).toBe("POST");
-        expect(captures[0]?.url).toBe("https://api.sanity.io/v2025-05-14/data/query/production");
+        expect(captures[0]?.url).toBe("https://opip.api.sanity.io/v2025-05-14/data/query/production");
         expect(captures[0]?.headers.authorization).toBe("Bearer sanity-token");
       })
     );
