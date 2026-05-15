@@ -1137,12 +1137,14 @@ export const asserts = Parser.asserts
  * succeeds with the decoded value or fails with a {@link SchemaError}. Use this
  * when the input type is not statically known. Prefer {@link decodeEffect} when
  * the input is already typed as the schema's `Encoded` type.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * @category Decoding
  * @since 4.0.0
  */
-export function decodeUnknownEffect<S extends Top>(schema: S) {
-  const parser = Parser.decodeUnknownEffect(schema)
+export function decodeUnknownEffect<S extends Top>(schema: S, options?: AST.ParseOptions) {
+  const parser = Parser.decodeUnknownEffect(schema, options)
   return (input: unknown, options?: AST.ParseOptions): Effect.Effect<S["Type"], SchemaError, S["DecodingServices"]> => {
     return Effect.mapErrorEager(parser(input, options), (issue) => new SchemaError(issue))
   }
@@ -1153,12 +1155,15 @@ export function decodeUnknownEffect<S extends Top>(schema: S) {
  * returning an `Effect` that succeeds with the decoded value or fails with a
  * {@link SchemaError}. Use this when the input is already typed; for `unknown`
  * input use {@link decodeUnknownEffect}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * @category Decoding
  * @since 4.0.0
  */
 export const decodeEffect: <S extends Top>(
-  schema: S
+  schema: S,
+  options?: AST.ParseOptions
 ) => (input: S["Encoded"], options?: AST.ParseOptions) => Effect.Effect<S["Type"], SchemaError, S["DecodingServices"]> =
   decodeUnknownEffect
 
@@ -1168,12 +1173,14 @@ export const decodeEffect: <S extends Top>(
  * a {@link SchemaError}. Only usable with schemas that have no
  * `DecodingServices` requirement. Prefer {@link decodeExit} when the input is
  * already typed as the schema's `Encoded` type.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * @category Decoding
  * @since 4.0.0
  */
-export function decodeUnknownExit<S extends Decoder<unknown>>(schema: S) {
-  const parser = Parser.decodeUnknownExit(schema)
+export function decodeUnknownExit<S extends Decoder<unknown>>(schema: S, options?: AST.ParseOptions) {
+  const parser = Parser.decodeUnknownExit(schema, options)
   return (input: unknown, options?: AST.ParseOptions): Exit_.Exit<S["Type"], SchemaError> => {
     return Exit_.mapError(parser(input, options), (issue) => new SchemaError(issue))
   }
@@ -1185,12 +1192,15 @@ export function decodeUnknownExit<S extends Decoder<unknown>>(schema: S) {
  * decoded value or a `Failure` with a {@link SchemaError}. Only usable with
  * schemas that have no `DecodingServices` requirement. For `unknown` input use
  * {@link decodeUnknownExit}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * @category Decoding
  * @since 4.0.0
  */
 export const decodeExit: <S extends Decoder<unknown>>(
-  schema: S
+  schema: S,
+  options?: AST.ParseOptions
 ) => (input: S["Encoded"], options?: AST.ParseOptions) => Exit_.Exit<S["Type"], SchemaError> = decodeUnknownExit
 
 /**
@@ -1199,6 +1209,8 @@ export const decodeExit: <S extends Decoder<unknown>>(
  * over {@link decodeUnknownExit} or {@link decodeUnknownEffect} when you only
  * need to know whether decoding succeeded and don't need error details. For
  * typed input use {@link decodeOption}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * @category Decoding
  * @since 4.0.0
@@ -1209,6 +1221,8 @@ export const decodeUnknownOption = Parser.decodeUnknownOption
  * Decodes a typed input (the schema's `Encoded` type) against a schema,
  * returning an `Option` that is `Some` with the decoded value on success or
  * `None` on failure. For `unknown` input use {@link decodeUnknownOption}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * @category Decoding
  * @since 4.0.0
@@ -1216,10 +1230,11 @@ export const decodeUnknownOption = Parser.decodeUnknownOption
 export const decodeOption = Parser.decodeOption
 
 /**
- * Decodes an `unknown` input against a schema, returning a `Promise` that
- * resolves with the decoded value or rejects with a {@link SchemaError}. Useful
- * for integrating with Promise-based APIs. For typed input use
- * {@link decodePromise}.
+ * Decodes an `unknown` input against a schema, returning a `Result` that
+ * succeeds with the decoded value or fails with a schema issue. For typed input
+ * use {@link decodeResult}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * @category Decoding
  * @since 4.0.0
@@ -1227,12 +1242,25 @@ export const decodeOption = Parser.decodeOption
 export const decodeUnknownResult = Parser.decodeUnknownResult
 
 /**
+ * Decodes a typed input (the schema's `Encoded` type) against a schema,
+ * returning a `Result` that succeeds with the decoded value or fails with a
+ * schema issue. For `unknown` input use {@link decodeUnknownResult}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
+ *
  * @category Decoding
  * @since 4.0.0
  */
 export const decodeResult = Parser.decodeResult
 
 /**
+ * Decodes an `unknown` input against a schema, returning a `Promise` that
+ * resolves with the decoded value or rejects with a schema issue. Useful for
+ * integrating with Promise-based APIs. For typed input use
+ * {@link decodePromise}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
+ *
  * @category Decoding
  * @since 4.0.0
  */
@@ -1242,6 +1270,8 @@ export const decodeUnknownPromise = Parser.decodeUnknownPromise
  * Decodes a typed input (the schema's `Encoded` type) against a schema,
  * returning a `Promise` that resolves with the decoded value or rejects with a
  * {@link SchemaError}. For `unknown` input use {@link decodeUnknownPromise}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * @category Decoding
  * @since 4.0.0
@@ -1255,6 +1285,8 @@ export const decodePromise = Parser.decodePromise
  * non-throwing alternatives see {@link decodeUnknownOption},
  * {@link decodeUnknownExit}, or {@link decodeUnknownEffect}. For typed input
  * use {@link decodeSync}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * **Example** (Decoding with a transformation schema)
  *
@@ -1282,6 +1314,8 @@ export const decodeUnknownSync = Parser.decodeUnknownSync
  * Decodes a typed input (the schema's `Encoded` type) against a schema
  * synchronously, throwing a {@link SchemaError} on failure. For `unknown` input
  * use {@link decodeUnknownSync}.
+ * Options may be provided either when creating the decoder or when applying it;
+ * application options override creation options.
  *
  * @category Decoding
  * @since 4.0.0
@@ -1293,6 +1327,8 @@ export const decodeSync = Parser.decodeSync
  * succeeds with the encoded value or fails with a {@link SchemaError}. Use this
  * when the input type is not statically known. Prefer {@link encodeEffect} when
  * the input is already typed as the schema's `Type`.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * **Example** (Encoding a value to a string)
  *
@@ -1308,8 +1344,8 @@ export const decodeSync = Parser.decodeSync
  * @category Encoding
  * @since 4.0.0
  */
-export function encodeUnknownEffect<S extends Top>(schema: S) {
-  const parser = Parser.encodeUnknownEffect(schema)
+export function encodeUnknownEffect<S extends Top>(schema: S, options?: AST.ParseOptions) {
+  const parser = Parser.encodeUnknownEffect(schema, options)
   return (
     input: unknown,
     options?: AST.ParseOptions
@@ -1323,12 +1359,15 @@ export function encodeUnknownEffect<S extends Top>(schema: S) {
  * `Effect` that succeeds with the encoded value or fails with a
  * {@link SchemaError}. Use this when the input is already typed; for `unknown`
  * input use {@link encodeUnknownEffect}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * @category Encoding
  * @since 4.0.0
  */
 export const encodeEffect: <S extends Top>(
-  schema: S
+  schema: S,
+  options?: AST.ParseOptions
 ) => (input: S["Type"], options?: AST.ParseOptions) => Effect.Effect<S["Encoded"], SchemaError, S["EncodingServices"]> =
   encodeUnknownEffect
 
@@ -1338,12 +1377,14 @@ export const encodeEffect: <S extends Top>(
  * a {@link SchemaError}. Only usable with schemas that have no
  * `EncodingServices` requirement. Prefer {@link encodeExit} when the input is
  * already typed as the schema's `Type`.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * @category Encoding
  * @since 4.0.0
  */
-export function encodeUnknownExit<S extends Encoder<unknown>>(schema: S) {
-  const parser = Parser.encodeUnknownExit(schema)
+export function encodeUnknownExit<S extends Encoder<unknown>>(schema: S, options?: AST.ParseOptions) {
+  const parser = Parser.encodeUnknownExit(schema, options)
   return (input: unknown, options?: AST.ParseOptions): Exit_.Exit<S["Encoded"], SchemaError> => {
     return Exit_.mapError(parser(input, options), (issue) => new SchemaError(issue))
   }
@@ -1355,12 +1396,15 @@ export function encodeUnknownExit<S extends Encoder<unknown>>(schema: S) {
  * `Failure` with a {@link SchemaError}. Only usable with schemas that have no
  * `EncodingServices` requirement. For `unknown` input use
  * {@link encodeUnknownExit}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * @category Encoding
  * @since 4.0.0
  */
 export const encodeExit: <S extends Encoder<unknown>>(
-  schema: S
+  schema: S,
+  options?: AST.ParseOptions
 ) => (input: S["Type"], options?: AST.ParseOptions) => Exit_.Exit<S["Encoded"], SchemaError> = encodeUnknownExit
 
 /**
@@ -1369,6 +1413,8 @@ export const encodeExit: <S extends Encoder<unknown>>(
  * over {@link encodeUnknownExit} or {@link encodeUnknownEffect} when you only
  * need to know whether encoding succeeded and don't need error details. For
  * typed input use {@link encodeOption}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * @category Encoding
  * @since 4.0.0
@@ -1379,6 +1425,8 @@ export const encodeUnknownOption = Parser.encodeUnknownOption
  * Encodes a typed input (the schema's `Type`) against a schema, returning an
  * `Option` that is `Some` with the encoded value on success or `None` on
  * failure. For `unknown` input use {@link encodeUnknownOption}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * @category Encoding
  * @since 4.0.0
@@ -1386,10 +1434,11 @@ export const encodeUnknownOption = Parser.encodeUnknownOption
 export const encodeOption = Parser.encodeOption
 
 /**
- * Encodes an `unknown` input against a schema, returning a `Promise` that
- * resolves with the encoded value or rejects with a {@link SchemaError}. Useful
- * for integrating with Promise-based APIs. For typed input use
- * {@link encodePromise}.
+ * Encodes an `unknown` input against a schema, returning a `Result` that
+ * succeeds with the encoded value or fails with a schema issue. For typed input
+ * use {@link encodeResult}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * @category Encoding
  * @since 4.0.0
@@ -1397,12 +1446,25 @@ export const encodeOption = Parser.encodeOption
 export const encodeUnknownResult = Parser.encodeUnknownResult
 
 /**
+ * Encodes a typed input (the schema's `Type`) against a schema, returning a
+ * `Result` that succeeds with the encoded value or fails with a schema issue.
+ * For `unknown` input use {@link encodeUnknownResult}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
+ *
  * @category Encoding
  * @since 4.0.0
  */
 export const encodeResult = Parser.encodeResult
 
 /**
+ * Encodes an `unknown` input against a schema, returning a `Promise` that
+ * resolves with the encoded value or rejects with a schema issue. Useful for
+ * integrating with Promise-based APIs. For typed input use
+ * {@link encodePromise}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
+ *
  * @category Encoding
  * @since 4.0.0
  */
@@ -1412,6 +1474,8 @@ export const encodeUnknownPromise = Parser.encodeUnknownPromise
  * Encodes a typed input (the schema's `Type`) against a schema, returning a
  * `Promise` that resolves with the encoded value or rejects with a
  * {@link SchemaError}. For `unknown` input use {@link encodeUnknownPromise}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * @category Encoding
  * @since 4.0.0
@@ -1425,6 +1489,8 @@ export const encodePromise = Parser.encodePromise
  * non-throwing alternatives see {@link encodeUnknownOption},
  * {@link encodeUnknownExit}, or {@link encodeUnknownEffect}. For typed input
  * use {@link encodeSync}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * @category Encoding
  * @since 4.0.0
@@ -1435,6 +1501,8 @@ export const encodeUnknownSync = Parser.encodeUnknownSync
  * Encodes a typed input (the schema's `Type`) against a schema synchronously,
  * throwing a {@link SchemaError} on failure. For `unknown` input use
  * {@link encodeUnknownSync}.
+ * Options may be provided either when creating the encoder or when applying it;
+ * application options override creation options.
  *
  * @category Encoding
  * @since 4.0.0
@@ -3731,6 +3799,12 @@ export interface refine<T extends S["Type"], S extends Top> extends
  * Narrows the TypeScript type of a schema's output via a type guard predicate,
  * attaching the guard as a runtime filter check.
  *
+ * The `annotations` parameter annotates the filter created by the refinement.
+ * With the default formatter, failed refinements use `message` first,
+ * `expected` second, and `<filter>` when neither is provided. `identifier`
+ * names type-level failures before the refinement runs; it does not name the
+ * failed refinement itself.
+ *
  * @category Filtering
  * @since 4.0.0
  */
@@ -4300,10 +4374,10 @@ export interface withConstructorDefault<S extends Top & WithoutConstructorDefaul
 export function withConstructorDefault<S extends Top & WithoutConstructorDefault>(
   // `S["~type.make.in"]` instead of `S["Type"]` is intentional here because
   // it makes easier to define the default value if there are nested defaults
-  defaultValue: Effect.Effect<S["~type.make.in"]>
+  defaultValue: Effect.Effect<S["~type.make.in"], SchemaError>
 ) {
   return (schema: S): withConstructorDefault<S> =>
-    make(AST.withConstructorDefault(schema.ast, defaultValue), { schema })
+    make(AST.withConstructorDefault(schema.ast, Effect.mapErrorEager(defaultValue, (e) => e.issue)), { schema })
 }
 
 /**
@@ -4313,8 +4387,8 @@ export function withConstructorDefault<S extends Top & WithoutConstructorDefault
  * @see {@link withDecodingDefaultKey} for the constructor
  * @since 4.0.0
  */
-export interface withDecodingDefaultKey<S extends Top> extends decodeTo<S, optionalKey<toEncoded<S>>> {
-  readonly "Rebuild": withDecodingDefaultKey<S>
+export interface withDecodingDefaultKey<S extends Top, R = never> extends decodeTo<S, optionalKey<toEncoded<S>>, R> {
+  readonly "Rebuild": withDecodingDefaultKey<S, R>
 }
 
 /**
@@ -4361,14 +4435,14 @@ export type DecodingDefaultOptions = {
  * @see {@link withDecodingDefaultTypeKey} for the variant where the default is a `Type` value
  * @since 4.0.0
  */
-export function withDecodingDefaultKey<S extends Top>(
-  defaultValue: Effect.Effect<S["Encoded"]>,
+export function withDecodingDefaultKey<S extends Top, R = never>(
+  defaultValue: Effect.Effect<S["Encoded"], SchemaError, R>,
   options?: DecodingDefaultOptions
 ) {
   const encode = options?.encodingStrategy === "omit" ? Getter.omit() : Getter.passthrough()
-  return (self: S): withDecodingDefaultKey<S> => {
+  return (self: S): withDecodingDefaultKey<S, R> => {
     return optionalKey(toEncoded(self)).pipe(decodeTo(self, {
-      decode: Getter.withDefault(defaultValue),
+      decode: Getter.withDefault(Effect.mapErrorEager(defaultValue, (e) => e.issue)),
       encode
     }))
   }
@@ -4382,10 +4456,10 @@ export function withDecodingDefaultKey<S extends Top>(
  * @see {@link withDecodingDefaultTypeKey} for the constructor
  * @since 4.0.0
  */
-export interface withDecodingDefaultTypeKey<S extends Top>
-  extends decodeTo<withDecodingDefaultKey<toType<S>>, optionalKey<S>>
+export interface withDecodingDefaultTypeKey<S extends Top, R = never>
+  extends decodeTo<withDecodingDefaultKey<toType<S>, R>, optionalKey<S>>
 {
-  readonly "Rebuild": withDecodingDefaultTypeKey<S>
+  readonly "Rebuild": withDecodingDefaultTypeKey<S, R>
 }
 
 /**
@@ -4407,13 +4481,13 @@ export interface withDecodingDefaultTypeKey<S extends Top>
  * @see {@link withDecodingDefaultType} for the value-level variant
  * @since 4.0.0
  */
-export function withDecodingDefaultTypeKey<S extends Top>(
-  defaultValue: Effect.Effect<S["Type"]>,
+export function withDecodingDefaultTypeKey<S extends Top, R = never>(
+  defaultValue: Effect.Effect<S["Type"], SchemaError, R>,
   options?: DecodingDefaultOptions
 ) {
-  return (self: S): withDecodingDefaultTypeKey<S> => {
+  return (self: S): withDecodingDefaultTypeKey<S, R> => {
     return toType(self).pipe(
-      withDecodingDefaultKey<toType<S>>(defaultValue, options),
+      withDecodingDefaultKey<toType<S>, R>(defaultValue, options),
       encodeTo(optionalKey(self))
     )
   }
@@ -4426,8 +4500,8 @@ export function withDecodingDefaultTypeKey<S extends Top>(
  * @see {@link withDecodingDefault} for the constructor
  * @since 4.0.0
  */
-export interface withDecodingDefault<S extends Top> extends decodeTo<S, optional<toEncoded<S>>> {
-  readonly "Rebuild": withDecodingDefault<S>
+export interface withDecodingDefault<S extends Top, R = never> extends decodeTo<S, optional<toEncoded<S>>, R> {
+  readonly "Rebuild": withDecodingDefault<S, R>
 }
 
 /**
@@ -4461,14 +4535,14 @@ export interface withDecodingDefault<S extends Top> extends decodeTo<S, optional
  * @see {@link withDecodingDefaultType} for the variant where the default is a `Type` value
  * @since 4.0.0
  */
-export function withDecodingDefault<S extends Top>(
-  defaultValue: Effect.Effect<S["Encoded"]>,
+export function withDecodingDefault<S extends Top, R = never>(
+  defaultValue: Effect.Effect<S["Encoded"], SchemaError, R>,
   options?: DecodingDefaultOptions
 ) {
   const encode = options?.encodingStrategy === "omit" ? Getter.omit() : Getter.passthrough()
-  return (self: S): withDecodingDefault<S> => {
+  return (self: S): withDecodingDefault<S, R> => {
     return optional(toEncoded(self)).pipe(decodeTo(self, {
-      decode: Getter.withDefault(defaultValue),
+      decode: Getter.withDefault(Effect.mapErrorEager(defaultValue, (e) => e.issue)),
       encode
     }))
   }
@@ -4482,8 +4556,10 @@ export function withDecodingDefault<S extends Top>(
  * @see {@link withDecodingDefaultType} for the constructor
  * @since 4.0.0
  */
-export interface withDecodingDefaultType<S extends Top> extends decodeTo<withDecodingDefault<toType<S>>, optional<S>> {
-  readonly "Rebuild": withDecodingDefaultType<S>
+export interface withDecodingDefaultType<S extends Top, R = never>
+  extends decodeTo<withDecodingDefault<toType<S>, R>, optional<S>>
+{
+  readonly "Rebuild": withDecodingDefaultType<S, R>
 }
 
 /**
@@ -4505,13 +4581,13 @@ export interface withDecodingDefaultType<S extends Top> extends decodeTo<withDec
  * @see {@link withDecodingDefaultTypeKey} for the key-level variant
  * @since 4.0.0
  */
-export function withDecodingDefaultType<S extends Top>(
-  defaultValue: Effect.Effect<S["Type"]>,
+export function withDecodingDefaultType<S extends Top, R = never>(
+  defaultValue: Effect.Effect<S["Type"], SchemaError, R>,
   options?: DecodingDefaultOptions
 ) {
-  return (self: S): withDecodingDefaultType<S> => {
+  return (self: S): withDecodingDefaultType<S, R> => {
     return toType(self).pipe(
-      withDecodingDefault<toType<S>>(defaultValue, options),
+      withDecodingDefault<toType<S>, R>(defaultValue, options),
       encodeTo(optional(self))
     )
   }
@@ -4956,6 +5032,12 @@ export function link<T>() {
  * Creates a custom filter check from a predicate function. The predicate
  * receives the input value, the schema's AST, and parse options, and returns
  * a value of type {@link FilterOutput}.
+ *
+ * The `annotations` parameter annotates the filter itself. With the default
+ * formatter, failed filters use `message` first, `expected` second, and
+ * `<filter>` when neither is provided. `identifier` can name type-level
+ * failures before the filter runs, but it does not name the failed filter
+ * itself.
  *
  * **Example** (Failure at a nested path)
  *
@@ -10512,10 +10594,7 @@ function makeClass<
       return Parser.makeOption(getClassSchema(this) as any)(input ?? {}, options) as any
     }
     static makeEffect(input: S["~type.make.in"], options?: MakeOptions): Effect.Effect<Self, SchemaError> {
-      return Effect.mapErrorEager(
-        Parser.makeEffect(getClassSchema(this) as any)(input ?? {}, options),
-        (issue) => new SchemaError(issue)
-      ) as any
+      return (getClassSchema(this) as any).makeEffect(input ?? {}, options)
     }
     static annotate(annotations: Annotations.Declaration<Self, readonly [S]>) {
       return this.rebuild(AST.annotate(this.ast, annotations))
@@ -11944,6 +12023,15 @@ export declare namespace Annotations {
    * @since 4.0.0
    */
   export interface Augment extends Annotations {
+    /**
+     * Human-readable description of what a value is expected to satisfy.
+     *
+     * For filter and refinement failures, the default formatter uses
+     * `message` first, then `expected`, and finally falls back to `<filter>`.
+     *
+     * Use this to name a failed filter in the default message:
+     * `Expected <expected>, got <actual>`.
+     */
     readonly expected?: string | undefined
     readonly title?: string | undefined
     readonly description?: string | undefined
@@ -11991,13 +12079,31 @@ export declare namespace Annotations {
    */
   export interface Bottom<T, TypeParameters extends ReadonlyArray<Top>> extends Documentation<T> {
     /**
-     * The message to use when the value is invalid.
+     * Complete message to use when this schema node reports an issue.
+     *
+     * This replaces the default message for matching issue types instead of
+     * only changing the expected label. For a filter or refinement failure,
+     * annotate the filter with `message` to replace the whole filter failure
+     * message, or `expected` to keep the default
+     * `Expected <expected>, got <actual>` shape.
      */
     readonly message?: string | undefined
     /**
      * The message to use when a key is unexpected.
      */
     readonly messageUnexpectedKey?: string | undefined
+    /**
+     * Stable identifier for this schema node.
+     *
+     * Identifiers are used by schema tooling, including JSON Schema
+     * generation, to name references. The default formatter also uses
+     * `identifier` as the expected label for type-level failures, such as
+     * `Expected UserId, got null`.
+     *
+     * `identifier` does not name a failed filter or refinement. If the base
+     * type matches and a filter fails, put `expected` or `message` on the
+     * filter/refinement instead.
+     */
     readonly identifier?: string | undefined
     readonly parseOptions?: AST.ParseOptions | undefined
     /**
@@ -12082,7 +12188,21 @@ export declare namespace Annotations {
    * @since 4.0.0
    */
   export interface Filter extends Augment {
+    /**
+     * Complete message to use when this filter or refinement fails.
+     *
+     * The default formatter checks filter annotations in this order:
+     * `message`, then `expected`, then `<filter>`.
+     */
     readonly message?: string | undefined
+    /**
+     * Stable identifier for the schema after this filter is attached.
+     *
+     * This can affect schema tooling such as JSON Schema generation and
+     * type-level failures before the filter runs, but it does not name the
+     * failed filter itself. For filter failure messages, use `expected` or
+     * `message`.
+     */
     readonly identifier?: string | undefined
     /**
      * Optional metadata used to identify or extend the filter with custom data.
