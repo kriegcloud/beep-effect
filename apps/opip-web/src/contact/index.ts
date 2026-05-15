@@ -11,11 +11,11 @@
  * @category models
  * @since 0.0.0
  */
-export * from "./ContactSubmission.model";
+export * from "./ContactSubmission.model.ts";
 /**
  * Contact form server workflow.
  *
  * @category workflows
  * @since 0.0.0
  */
-export * from "./ContactSubmission.service";
+export * from "./ContactSubmission.service.ts";

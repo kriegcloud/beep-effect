@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 60 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 837 |
-| publicExportEntries | 12695 |
-| uniquePackageSymbols | 5058 |
+| importSpecifiers | 841 |
+| publicExportEntries | 12728 |
+| uniquePackageSymbols | 5089 |
 
 ## Seed Discovery Proof
 
@@ -96,7 +96,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 57 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
 | 58 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
 | 59 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
-| 60 | `@beep/opip-web` | `apps/opip-web` | has-public-exports | 1 | 1 | 1 |
+| 60 | `@beep/opip-web` | `apps/opip-web` | has-public-exports | 5 | 34 | 32 |
 | 61 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
@@ -9037,99 +9037,99 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/hubspot` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:339` | Effect service for HubSpot Forms API submissions. |
-| `@beep/hubspot` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:27` | Default HubSpot CRM API base URL. |
-| `@beep/hubspot` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:19` | Default HubSpot Forms API base URL. |
-| `@beep/hubspot` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:35` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
-| `@beep/hubspot` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:51` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:98` | Options used when constructing HubSpot driver errors. |
-| `@beep/hubspot` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:25` | Technical error reasons emitted by the HubSpot driver. |
-| `@beep/hubspot` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:43` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:45` | HubSpot form submission context. |
-| `@beep/hubspot` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:29` | HubSpot form field submission value. |
-| `@beep/hubspot` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:146` | Public HubSpot service shape. |
-| `@beep/hubspot` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:62` | HubSpot form submission request. |
-| `@beep/hubspot` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:80` | HubSpot form submission response. |
-| `@beep/hubspot` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:96` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:128` | HubSpot contact upsert response. |
-| `@beep/hubspot` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:113` | HubSpot contact upsert result. |
-| `@beep/hubspot` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:36` | Package version. |
-| `@beep/hubspot/HubSpot.config` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:27` | Default HubSpot CRM API base URL. |
-| `@beep/hubspot/HubSpot.config` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:19` | Default HubSpot Forms API base URL. |
-| `@beep/hubspot/HubSpot.config` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:35` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:51` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:98` | Options used when constructing HubSpot driver errors. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:25` | Technical error reasons emitted by the HubSpot driver. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:43` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot/HubSpot.service` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:339` | Effect service for HubSpot Forms API submissions. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:45` | HubSpot form submission context. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:29` | HubSpot form field submission value. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:146` | Public HubSpot service shape. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:62` | HubSpot form submission request. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:80` | HubSpot form submission response. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:96` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:128` | HubSpot contact upsert response. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:113` | HubSpot contact upsert result. |
-| `@beep/hubspot/index` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:339` | Effect service for HubSpot Forms API submissions. |
-| `@beep/hubspot/index` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:27` | Default HubSpot CRM API base URL. |
-| `@beep/hubspot/index` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:19` | Default HubSpot Forms API base URL. |
-| `@beep/hubspot/index` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:35` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
-| `@beep/hubspot/index` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:51` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot/index` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:98` | Options used when constructing HubSpot driver errors. |
-| `@beep/hubspot/index` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:25` | Technical error reasons emitted by the HubSpot driver. |
-| `@beep/hubspot/index` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:43` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot/index` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:45` | HubSpot form submission context. |
-| `@beep/hubspot/index` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:29` | HubSpot form field submission value. |
-| `@beep/hubspot/index` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:146` | Public HubSpot service shape. |
-| `@beep/hubspot/index` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:62` | HubSpot form submission request. |
-| `@beep/hubspot/index` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:80` | HubSpot form submission response. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:96` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:128` | HubSpot contact upsert response. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:113` | HubSpot contact upsert result. |
-| `@beep/hubspot/index` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:36` | Package version. |
+| `@beep/hubspot` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
+| `@beep/hubspot` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
+| `@beep/hubspot` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
+| `@beep/hubspot` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
+| `@beep/hubspot` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
+| `@beep/hubspot` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
+| `@beep/hubspot` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
+| `@beep/hubspot` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
+| `@beep/hubspot` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
+| `@beep/hubspot` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
+| `@beep/hubspot` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
+| `@beep/hubspot` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
+| `@beep/hubspot` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
+| `@beep/hubspot` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
+| `@beep/hubspot/HubSpot.config` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
+| `@beep/hubspot/HubSpot.config` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
+| `@beep/hubspot/HubSpot.config` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
+| `@beep/hubspot/HubSpot.service` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
+| `@beep/hubspot/index` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot/index` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
+| `@beep/hubspot/index` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
+| `@beep/hubspot/index` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
+| `@beep/hubspot/index` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
+| `@beep/hubspot/index` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot/index` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
+| `@beep/hubspot/index` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
+| `@beep/hubspot/index` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
+| `@beep/hubspot/index` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
+| `@beep/hubspot/index` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
+| `@beep/hubspot/index` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
+| `@beep/hubspot/index` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
+| `@beep/hubspot/index` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
 
 ### @beep/sanity
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:209` | Effect service for Sanity content API requests. |
-| `@beep/sanity` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:19` | Default Sanity API version used by the OPIP web integration. |
-| `@beep/sanity` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:27` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:51` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:90` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:25` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:43` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:29` | Scalar JSON value accepted in Sanity query params. |
-| `@beep/sanity` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:41` | Type for {@link SanityQueryParamValue}. |
-| `@beep/sanity` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:49` | Sanity GROQ query request. |
-| `@beep/sanity` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:65` | Sanity query response. |
-| `@beep/sanity` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:81` | Public Sanity service shape. |
-| `@beep/sanity` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:36` | Package version. |
-| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:209` | Effect service for Sanity content API requests. |
-| `@beep/sanity/index` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:19` | Default Sanity API version used by the OPIP web integration. |
-| `@beep/sanity/index` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:27` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:51` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity/index` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:90` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity/index` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:25` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity/index` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:43` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity/index` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:29` | Scalar JSON value accepted in Sanity query params. |
-| `@beep/sanity/index` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:41` | Type for {@link SanityQueryParamValue}. |
-| `@beep/sanity/index` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:49` | Sanity GROQ query request. |
-| `@beep/sanity/index` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:65` | Sanity query response. |
-| `@beep/sanity/index` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:81` | Public Sanity service shape. |
-| `@beep/sanity/index` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:36` | Package version. |
-| `@beep/sanity/Sanity.config` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:19` | Default Sanity API version used by the OPIP web integration. |
-| `@beep/sanity/Sanity.config` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:27` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity/Sanity.errors` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:51` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:90` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:25` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:43` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:209` | Effect service for Sanity content API requests. |
-| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:29` | Scalar JSON value accepted in Sanity query params. |
-| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:41` | Type for {@link SanityQueryParamValue}. |
-| `@beep/sanity/Sanity.service` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:49` | Sanity GROQ query request. |
-| `@beep/sanity/Sanity.service` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:65` | Sanity query response. |
-| `@beep/sanity/Sanity.service` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:81` | Public Sanity service shape. |
+| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:292` | Effect service for Sanity content API requests. |
+| `@beep/sanity` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:26` | Default Sanity API version used when callers do not provide one. |
+| `@beep/sanity` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:47` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
+| `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
+| `@beep/sanity` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
+| `@beep/sanity` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
+| `@beep/sanity` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
+| `@beep/sanity` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
+| `@beep/sanity` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
+| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:292` | Effect service for Sanity content API requests. |
+| `@beep/sanity/index` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:26` | Default Sanity API version used when callers do not provide one. |
+| `@beep/sanity/index` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:47` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
+| `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity/index` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity/index` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity/index` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity/index` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
+| `@beep/sanity/index` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
+| `@beep/sanity/index` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
+| `@beep/sanity/index` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
+| `@beep/sanity/index` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
+| `@beep/sanity/index` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
+| `@beep/sanity/Sanity.config` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:26` | Default Sanity API version used when callers do not provide one. |
+| `@beep/sanity/Sanity.config` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:47` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
+| `@beep/sanity/Sanity.errors` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:292` | Effect service for Sanity content API requests. |
+| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
+| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
+| `@beep/sanity/Sanity.service` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
+| `@beep/sanity/Sanity.service` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
+| `@beep/sanity/Sanity.service` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
 
 ### @beep/workspace-tables
 
@@ -12494,19 +12494,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `AIMetricsStackArgs` | class | `infra/src/AIMetrics.ts:329` | Pulumi-facing args for the AI metrics component. |
 | `@beep/infra` | `infraProjectName` | const | `infra/src/index.ts:28` | Canonical project name for this repository's infrastructure workspace. |
 | `@beep/infra` | `loadAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:438` | Load AI metrics args from Pulumi config. |
-| `@beep/infra` | `loadOpipWebRuntimeSecrets` | const | `infra/src/OpipWeb.ts:445` | Load OPIP web runtime secrets from Pulumi secret config. |
-| `@beep/infra` | `loadOpipWebStackArgs` | const | `infra/src/OpipWeb.ts:408` | Load OPIP web stack args from Pulumi config. |
+| `@beep/infra` | `loadOpipWebRuntimeSecrets` | const | `infra/src/OpipWeb.ts:490` | Load OPIP web runtime secrets from Pulumi secret config. |
+| `@beep/infra` | `loadOpipWebStackArgs` | const | `infra/src/OpipWeb.ts:444` | Load OPIP web stack args from Pulumi config. |
 | `@beep/infra` | `makeAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:355` | Build Pulumi component args from a schema-first install input. |
 | `@beep/infra` | `makeAIMetricsStackArgsFromConfigValues` | const | `infra/src/AIMetrics.ts:377` | Build AI metrics stack args from decoded Pulumi config values. |
-| `@beep/infra` | `makeOpipWebStackArgsFromConfigValues` | const | `infra/src/OpipWeb.ts:343` | Build OPIP web stack args from decoded Pulumi config values. |
+| `@beep/infra` | `makeOpipWebStackArgsFromConfigValues` | const | `infra/src/OpipWeb.ts:370` | Build OPIP web stack args from decoded Pulumi config values. |
 | `@beep/infra` | `OpipAssetsBucketConfig` | class | `infra/src/OpipWeb.ts:173` | S3 asset bucket resources for OPIP-controlled media. |
 | `@beep/infra` | `OpipDnsConfig` | class | `infra/src/OpipWeb.ts:206` | DNS configuration for Cloudflare-managed OPIP records. |
 | `@beep/infra` | `OpipPulumiStateBackendConfig` | class | `infra/src/OpipWeb.ts:130` | Pulumi DIY state backend settings for OPIP. |
 | `@beep/infra` | `OpipVercelProjectConfig` | class | `infra/src/OpipWeb.ts:252` | Vercel project configuration for `@beep/opip-web`. |
 | `@beep/infra` | `OpipWebPulumiConfigValues` | const | `infra/src/OpipWeb.ts:87` | Optional Pulumi config values before OPIP deploy defaults are applied. |
-| `@beep/infra` | `OpipWebRuntimeSecrets` | type | `infra/src/OpipWeb.ts:295` | Secret runtime values for OPIP deploy targets. |
-| `@beep/infra` | `OpipWebStack` | class | `infra/src/OpipWeb.ts:591` | Import-safe Pulumi component for OPIP production web infrastructure. |
-| `@beep/infra` | `OpipWebStackArgs` | class | `infra/src/OpipWeb.ts:313` | Pulumi-facing args for the OPIP web stack. |
+| `@beep/infra` | `OpipWebRuntimeSecrets` | type | `infra/src/OpipWeb.ts:308` | Secret runtime values for OPIP deploy targets. |
+| `@beep/infra` | `OpipWebStack` | class | `infra/src/OpipWeb.ts:636` | Import-safe Pulumi component for OPIP production web infrastructure. |
+| `@beep/infra` | `OpipWebStackArgs` | class | `infra/src/OpipWeb.ts:326` | Pulumi-facing args for the OPIP web stack. |
 
 ### @beep/runpod
 
@@ -13075,6 +13075,39 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/opip-web` | `VERSION` | const | `apps/opip-web/src/index.ts:21` | Package version for the opip web app. |
+| `@beep/opip-web/contact` | `contactResponseBody` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:331` | Builds a JSON-safe contact response object. |
+| `@beep/opip-web/contact` | `ContactSubmission` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:124` | Browser-submitted OPIP contact form payload. |
+| `@beep/opip-web/contact` | `ContactSubmissionResponse` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:159` | Public contact submission response. |
+| `@beep/opip-web/contact` | `ContactSubmissionStatus` | const | `apps/opip-web/src/contact/ContactSubmission.model.ts:82` | Public contact submission status. |
+| `@beep/opip-web/contact` | `ContactSubmissionStatus` | type | `apps/opip-web/src/contact/ContactSubmission.model.ts:102` | Type for {@link ContactSubmissionStatus}. |
+| `@beep/opip-web/contact` | `decodeContactSubmission` | const | `apps/opip-web/src/contact/ContactSubmission.model.ts:190` | Decodes unknown input into a contact submission. |
+| `@beep/opip-web/contact` | `submitContact` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:282` | Submits an OPIP contact payload to HubSpot when runtime config is present. |
+| `@beep/opip-web/content` | `AboutPanel` | class | `apps/opip-web/src/content/OpipContent.model.ts:260` | Biographical bridge panel. |
+| `@beep/opip-web/content` | `ClientLogo` | class | `apps/opip-web/src/content/OpipContent.model.ts:364` | Client logo reference. |
+| `@beep/opip-web/content` | `ContactContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:433` | Public contact and legal notice content. |
+| `@beep/opip-web/content` | `decodeOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.model.ts:509` | Decodes unknown input into {@link OpipSiteContent} in an Effect workflow. |
+| `@beep/opip-web/content` | `decodeOpipSiteContentResult` | const | `apps/opip-web/src/content/OpipContent.model.ts:492` | Decodes unknown input into {@link OpipSiteContent}. |
+| `@beep/opip-web/content` | `ExternalLink` | class | `apps/opip-web/src/content/OpipContent.model.ts:96` | External link displayed by the public site. |
+| `@beep/opip-web/content` | `getOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.runtime.ts:181` | Promise boundary for Next.js server components. |
+| `@beep/opip-web/content` | `HeroContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:223` | Hero citation and opening claim. |
+| `@beep/opip-web/content` | `launchReviewGates` | const | `apps/opip-web/src/content/OpipContent.data.ts:330` | Review gate statuses that must be closed before public launch. |
+| `@beep/opip-web/content` | `loadOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.runtime.ts:158` | Loads OPIP site content from Sanity when configured, falling back to the |
+| `@beep/opip-web/content` | `makeJsonLdGraph` | const | `apps/opip-web/src/content/OpipSeo.ts:24` | Builds conservative JSON-LD graph data for the OPIP website. |
+| `@beep/opip-web/content` | `makeLlmsText` | const | `apps/opip-web/src/content/OpipSeo.ts:78` | Builds `llms.txt` content from reviewed OPIP site content. |
+| `@beep/opip-web/content` | `MatterItem` | class | `apps/opip-web/src/content/OpipContent.model.ts:327` | Selected matter summary. |
+| `@beep/opip-web/content` | `NavItem` | class | `apps/opip-web/src/content/OpipContent.model.ts:187` | Anchor navigation item. |
+| `@beep/opip-web/content` | `opipSiteContent` | const | `apps/opip-web/src/content/OpipContent.data.ts:315` | Decoded OPIP launch content. |
+| `@beep/opip-web/content` | `OpipSiteContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:460` | Complete content contract for the OPIP public site. |
+| `@beep/opip-web/content` | `PracticeArea` | class | `apps/opip-web/src/content/OpipContent.model.ts:292` | Practice-area summary. |
+| `@beep/opip-web/content` | `PressItem` | class | `apps/opip-web/src/content/OpipContent.model.ts:398` | Press item summary. |
+| `@beep/opip-web/content` | `ReviewGate` | class | `apps/opip-web/src/content/OpipContent.model.ts:68` | Review note attached to a public website claim. |
+| `@beep/opip-web/content` | `ReviewStatus` | const | `apps/opip-web/src/content/OpipContent.model.ts:28` | Review state for public claims that need launch approval. |
+| `@beep/opip-web/content` | `ReviewStatus` | type | `apps/opip-web/src/content/OpipContent.model.ts:48` | Runtime type for {@link ReviewStatus}. |
+| `@beep/opip-web/content` | `SiteAsset` | class | `apps/opip-web/src/content/OpipContent.model.ts:124` | Runtime asset reference served from the OPIP app public folder. |
+| `@beep/opip-web/content` | `SiteMetadataContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:159` | Top-level metadata used by Next.js and JSON-LD generation. |
+| `@beep/opip-web/mdx-components` | `useMDXComponents` | function | `apps/opip-web/src/mdx-components.tsx:26` | Returns the MDX component overrides used by opip web. |
+| `@beep/opip-web/proxy` | `config` | const | `apps/opip-web/src/proxy.ts:88` | Route matcher for the OPIP CSP proxy. |
+| `@beep/opip-web/proxy` | `proxy` | function | `apps/opip-web/src/proxy.ts:57` | Adds a per-request CSP nonce to OPIP document responses. |
 
 ### @beep/shared-ui
 

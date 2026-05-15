@@ -6,7 +6,7 @@
  */
 
 import { Result } from "effect";
-import { decodeOpipSiteContentResult, type OpipSiteContent, ReviewStatus } from "./OpipContent.model";
+import { decodeOpipSiteContentResult, type OpipSiteContent, ReviewStatus } from "./OpipContent.model.ts";
 
 const needsReview = (note: string) => ({
   note,

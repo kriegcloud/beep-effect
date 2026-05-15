@@ -28,6 +28,10 @@ vi.mock("next/headers", () => ({
   headers: async () => new Headers({ "x-nonce": "test-nonce" }),
 }));
 
+vi.mock("next/server", () => ({
+  connection: async () => undefined,
+}));
+
 const validContactPayload = () => ({
   email: "TOM@EXAMPLE.COM",
   message: "I would like help protecting a new machine design.",

@@ -36,6 +36,11 @@
   },
   "exports": {
     "./package.json": "./package.json",
+    "./app/api/contact/route": "./src/app/api/contact/route.ts",
+    "./app/llms.txt/route": "./src/app/llms.txt/route.ts",
+    "./app/manifest": "./src/app/manifest.ts",
+    "./app/robots": "./src/app/robots.ts",
+    "./app/sitemap": "./src/app/sitemap.ts",
     "./app/*": "./src/app/*",
     "./components/*": "./src/components/*",
     "./contact": "./src/contact/index.ts",

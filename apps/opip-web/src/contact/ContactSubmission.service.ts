@@ -22,7 +22,11 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
-import { type ContactSubmission, ContactSubmissionResponse, decodeContactSubmission } from "./ContactSubmission.model";
+import {
+  type ContactSubmission,
+  ContactSubmissionResponse,
+  decodeContactSubmission,
+} from "./ContactSubmission.model.ts";
 
 const $I = $OpipWebId.create("contact/ContactSubmission.service");
 const minimumElapsedMs = 3_000;
@@ -276,6 +280,8 @@ const contactResponseForError = (error: ContactSubmissionError): ContactSubmissi
  * Effect.runPromise(program)
  * ```
  *
+ * @effects Reads server runtime config, decodes untrusted input, optionally
+ * writes the contact to HubSpot, and logs sanitized public rejection reasons.
  * @category workflows
  * @since 0.0.0
  */

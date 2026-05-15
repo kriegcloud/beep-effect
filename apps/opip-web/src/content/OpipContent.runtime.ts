@@ -14,8 +14,8 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
-import { opipSiteContent } from "./OpipContent.data";
-import { decodeOpipSiteContent, type OpipSiteContent } from "./OpipContent.model";
+import { opipSiteContent } from "./OpipContent.data.ts";
+import { decodeOpipSiteContent, type OpipSiteContent } from "./OpipContent.model.ts";
 
 const $I = $OpipWebId.create("content/OpipContent.runtime");
 const query = '*[_type == "opipSiteContent" && slug.current == "home"][0]';
@@ -152,6 +152,8 @@ const fallbackToStaticContent = (error: OpipContentLoadError): Effect.Effect<Opi
  * Effect.runPromise(loadOpipSiteContent)
  * ```
  *
+ * @effects Reads server runtime config, optionally queries Sanity, decodes the
+ * returned content, and logs sanitized fallback metadata.
  * @category utilities
  * @since 0.0.0
  */
@@ -175,6 +177,8 @@ export const loadOpipSiteContent = Effect.gen(function* () {
  * getOpipSiteContent().then((content) => console.log(content.metadata.siteName))
  * ```
  *
+ * @effects Runs {@link loadOpipSiteContent} as the Promise boundary consumed by
+ * Next.js server components.
  * @category utilities
  * @since 0.0.0
  */

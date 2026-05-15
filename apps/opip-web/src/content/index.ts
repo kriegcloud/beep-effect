@@ -11,7 +11,7 @@
  * @category models
  * @since 0.0.0
  */
-export * from "./OpipContent.data";
+export * from "./OpipContent.data.ts";
 
 /**
  * OPIP content schemas and decoders.
@@ -19,7 +19,7 @@ export * from "./OpipContent.data";
  * @category schemas
  * @since 0.0.0
  */
-export * from "./OpipContent.model";
+export * from "./OpipContent.model.ts";
 
 /**
  * Runtime content utilities.
@@ -27,7 +27,7 @@ export * from "./OpipContent.model";
  * @category utilities
  * @since 0.0.0
  */
-export * from "./OpipContent.runtime";
+export * from "./OpipContent.runtime.ts";
 
 /**
  * OPIP metadata, structured data, and llms.txt helpers.
@@ -35,4 +35,4 @@ export * from "./OpipContent.runtime";
  * @category utilities
  * @since 0.0.0
  */
-export * from "./OpipSeo";
+export * from "./OpipSeo.ts";

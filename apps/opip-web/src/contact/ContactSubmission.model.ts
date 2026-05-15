@@ -106,9 +106,10 @@ export type ContactSubmissionStatus = typeof ContactSubmissionStatus.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ContactSubmission } from "@beep/opip-web/contact"
  *
- * const submission = new ContactSubmission({
+ * const submission = S.decodeUnknownSync(ContactSubmission)({
  *   email: "builder@example.com",
  *   message: "I would like to discuss a patent matter.",
  *   name: "Builder",

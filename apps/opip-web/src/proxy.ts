@@ -44,7 +44,7 @@ const withCsp = (cspHeader: string) => (response: NextResponse) => {
  *
  * @example
  * ```ts
- * import type { NextRequest } from "next/server"
+ * import type { NextRequest, NextResponse } from "next/server"
  * import { proxy } from "@beep/opip-web/proxy"
  *
  * const handler: (request: NextRequest) => NextResponse = proxy

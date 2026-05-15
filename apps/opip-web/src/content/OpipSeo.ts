@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import type { OpipSiteContent } from "./OpipContent.model";
+import type { OpipSiteContent } from "./OpipContent.model.ts";
 
 /**
  * Builds conservative JSON-LD graph data for the OPIP website.

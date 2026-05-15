@@ -9,6 +9,7 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { connection } from "next/server";
 import { OpipHomePage } from "../components/OpipHomePage";
 import { ContactSubmissionStatus } from "../contact";
 import { getOpipSiteContent, makeJsonLdGraph } from "../content";
@@ -50,6 +51,7 @@ export const unstable_instant = false;
  * @since 0.0.0
  */
 export async function generateMetadata(): Promise<Metadata> {
+  await connection();
   const content = await getOpipSiteContent();
 
   return {
@@ -98,6 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * @since 0.0.0
  */
 export default async function Home({ searchParams }: HomeProps) {
+  await connection();
   const params = await searchParams;
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   const content = await getOpipSiteContent();
@@ -109,6 +112,7 @@ export default async function Home({ searchParams }: HomeProps) {
       <script
         id="opip-json-ld"
         nonce={nonce}
+        suppressHydrationWarning
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is generated server-side and escaped before injection.
         dangerouslySetInnerHTML={{ __html: safeJsonScript(makeJsonLdGraph(content)) }}

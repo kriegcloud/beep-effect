@@ -30,6 +30,12 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/opip-web": ["../../apps/opip-web/src/index.ts"],
+      "@beep/opip-web/contact": ["../../apps/opip-web/src/contact/index.ts"],
+      "@beep/opip-web/content": ["../../apps/opip-web/src/content/index.ts"],
+      "@beep/opip-web/mdx-components": [
+        "../../apps/opip-web/src/mdx-components.tsx"
+      ],
+      "@beep/opip-web/proxy": ["../../apps/opip-web/src/proxy.ts"],
       "@beep/hubspot": ["../../packages/drivers/hubspot/src/index.ts"],
       "@beep/hubspot/*": ["../../packages/drivers/hubspot/src/*.ts"],
       "@beep/identity": [

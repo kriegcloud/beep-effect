@@ -9,6 +9,7 @@ import { AppThemeInitScript } from "@beep/ui/themes/theme-init-script";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Script from "next/script";
+import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { opipSiteContent } from "../content";
 import "./globals.css";
@@ -105,6 +106,21 @@ async function VercelInsights() {
 }
 
 /**
+ * Allows the nonce-bearing root layout to block on request state.
+ *
+ * @example
+ * ```ts
+ * import { unstable_instant } from "@beep/opip-web/app/layout"
+ *
+ * console.log(unstable_instant)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const unstable_instant = false;
+
+/**
  * Static metadata for the opip web app shell.
  *
  * @example
@@ -194,6 +210,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
+  await connection();
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
@@ -201,7 +218,7 @@ export default async function RootLayout({
       <head>
         <AppThemeInitScript attribute="class" defaultMode="light" modeStorageKey="mui-mode" nonce={nonce} />
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static theme controller without user input */}
-        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: opipThemeToggleScript }} />
+        <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: opipThemeToggleScript }} />
         {shouldLoadReactGrab && (
           <Script
             src={`https://unpkg.com/react-grab@${REACT_GRAB_VERSION}/dist/index.global.js`}
