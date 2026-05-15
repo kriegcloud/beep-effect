@@ -14,14 +14,14 @@ import Image from "next/image";
  * ```tsx
  * import { HeroVideo } from "@beep/opip-web/components/HeroVideo"
  *
- * const hero = <HeroVideo poster="/opip/hero.jpg" src="/opip/hero.mp4" />
+ * const hero = <HeroVideo poster="/opip/hero.jpg" />
  * console.log(hero.type)
  * ```
  *
  * @category components
  * @since 0.0.0
  */
-export function HeroVideo({ poster }: { readonly poster: string; readonly src: string }) {
+export function HeroVideo({ poster }: { readonly poster: string }) {
   return (
     <Image
       src={poster}

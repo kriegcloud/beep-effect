@@ -80,10 +80,10 @@
 
 ## Pulumi State Backend
 
-- AWS identity: `arn:aws:iam::832907639880:user/elpresidank`.
-- Backend bucket: `opip-law-pulumi-state`.
+- AWS identity: `arn:aws:iam::<redacted>:user/<redacted>`.
+- Backend bucket: `opip-law-pulumi-<redacted>`.
 - Region: `us-east-1`.
-- `pulumi login s3://opip-law-pulumi-state` succeeded.
+- `pulumi login s3://opip-law-pulumi-<redacted>` succeeded.
 - Bucket hardening applied:
   - public access block enabled
   - versioning enabled
@@ -97,7 +97,7 @@
 ## Staging
 
 - Stack: `staging`.
-- Vercel project id: `prj_orJn2nvxflBiJqPF0VWLOD0RFAzE`.
+- Vercel project id: `prj_...RFAzE`.
 - Vercel project name: `opip-web-staging`.
 - Vercel Authentication is configured disabled through Pulumi. The Vercel
   project API currently reports `vercelAuthentication: null`,
@@ -147,8 +147,7 @@
 
 ## Provider Gates
 
-- Cloudflare zone `opip.law` exists and is active:
-  `0d26e874202f4579081926dc38b3bf80`.
+- Cloudflare zone `opip.law` exists and is active with the zone id masked.
 - The updated Cloudflare token can read DNS records and Pulumi created the
   staging CNAME.
 - Production DNS remains unapplied until explicit cutover approval.

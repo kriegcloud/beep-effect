@@ -4,7 +4,12 @@
   "owner": "@beep-team",
   "app": "@beep/opip-web",
   "dependsOn": ["opip-web-launch"],
-  "packages": ["@beep/opip-web", "@beep/sanity", "@beep/hubspot", "@beep/infra"],
+  "packages": [
+    "@beep/opip-web",
+    "@beep/sanity",
+    "@beep/hubspot",
+    "@beep/infra"
+  ],
   "providers": {
     "cms": "sanity",
     "crm": "hubspot",
@@ -23,18 +28,18 @@
     "pulumiPassphraseRef": "op://Shared/OPIP_SECRETS/PULUMI_CONFIG_PASSPHRASE"
   },
   "pulumiState": {
-    "temporaryAccount": "codedank-elpresidank",
-    "awsAccountId": "832907639880",
+    "temporaryAccount": "<redacted-aws-profile>",
+    "awsAccountId": "<redacted-aws-account-id>",
     "region": "us-east-1",
-    "bucket": "opip-law-pulumi-state",
-    "backendUrl": "s3://opip-law-pulumi-state",
+    "bucket": "opip-law-pulumi-<redacted>",
+    "backendUrl": "s3://opip-law-pulumi-<redacted>",
     "encryption": "SSE-S3",
     "dynamoDbLocking": false,
     "provisioned": true
   },
   "staging": {
     "stack": "staging",
-    "vercelProjectId": "prj_orJn2nvxflBiJqPF0VWLOD0RFAzE",
+    "vercelProjectId": "prj_...RFAzE",
     "vercelProjectName": "opip-web-staging",
     "domain": "staging.opip.law",
     "assetsBucket": "staging-assets.opip.law",
@@ -55,7 +60,7 @@
     "applied": false
   },
   "providerGates": {
-    "cloudflareZoneId": "0d26e874202f4579081926dc38b3bf80",
+    "cloudflareZoneId": "0d26...bf80",
     "cloudflareDnsScope": "verified: token can read DNS records and Pulumi created staging.opip.law",
     "vercelAuthentication": "verified: Vercel API reports no password, trusted IP, or Vercel Authentication protection",
     "localCsp": "verified: next.config.ts headers present through portless HTTPS and Chromium runtime has no console errors",

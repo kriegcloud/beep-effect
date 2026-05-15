@@ -136,7 +136,7 @@ function Hero({ content }: { readonly content: OpipSiteContent }) {
       </div>
 
       <div className="relative min-h-[420px] overflow-hidden bg-[var(--opip-soil)] lg:min-h-full lg:[clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]">
-        <HeroVideo src={hero.video.src} poster={hero.videoPoster.src} />
+        <HeroVideo poster={hero.videoPoster.src} />
         <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(31,29,26,0.58),rgba(91,26,26,0.12),rgba(31,29,26,0.38))]" />
       </div>
     </section>

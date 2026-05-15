@@ -189,6 +189,19 @@ describe("@beep/opip-web", () => {
     expect(timestampResponse.status).toBe("rejected");
   });
 
+  it("rejects contact submissions that are too fast", async () => {
+    const response = await Effect.runPromise(
+      withContactConfig(
+        submitContact({
+          ...validContactPayload(),
+          submittedAt: Date.now() - 1_000,
+        })
+      )
+    );
+
+    expect(response.status).toBe("rejected");
+  });
+
   it("logs and rejects contact submissions when the provider fails", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(hubSpotResponse({ message: "unavailable" }, 503));
 

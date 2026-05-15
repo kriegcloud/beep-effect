@@ -6,7 +6,10 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION | package entry point |
+| entry module | VERSION, Sanity, SanityConfigInput, SanityError, SanityQueryRequest, SanityQueryResponse | package entry point |
+| Sanity.config | SANITY_API_VERSION, SanityConfigInput | runtime configuration model |
+| Sanity.errors | SanityError, SanityErrorOptions, SanityErrorReason | typed driver errors |
+| Sanity.service | Sanity, SanityQueryRequest, SanityQueryResponse, SanityShape | service and request/response surface |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -17,7 +20,7 @@
 
 ## Quick Recipes
 ```ts
-import { VERSION } from "@beep/sanity"
+import { Sanity, SanityConfigInput, VERSION } from "@beep/sanity"
 ```
 
 ## Verifications

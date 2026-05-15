@@ -5,12 +5,17 @@
  * @since 0.0.0
  */
 
-import { Effect } from "effect";
+import { Effect, Exit } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import { type NextRequest, NextResponse } from "next/server";
-import { type ContactSubmissionResponse, contactResponseBody, submitContact } from "../../../contact";
+import { ContactSubmissionResponse, contactResponseBody, submitContact } from "../../../contact";
+
+const rejected = new ContactSubmissionResponse({
+  message: "The submission could not be accepted.",
+  status: "rejected",
+});
 
 const submittedAtValue = (value: FormDataEntryValue | null) => {
   if (!P.isString(value)) {
@@ -64,13 +69,14 @@ export async function POST(request: NextRequest) {
   const contentType = request.headers.get("content-type") ?? "";
   const isJsonSubmission = contentType.includes("application/json");
   const payload = isJsonSubmission ? await request.json() : formDataPayload(await request.formData());
-  const response = await Effect.runPromise(submitContact(payload));
+  const exit = await Effect.runPromiseExit(submitContact(payload));
+  const response = Exit.isSuccess(exit) ? exit.value : rejected;
 
   if (!isJsonSubmission) {
     return redirectToContact(request, response);
   }
 
   return NextResponse.json(contactResponseBody(response), {
-    status: response.status === "accepted" ? 202 : 400,
+    status: Exit.isFailure(exit) ? 500 : response.status === "accepted" ? 202 : 400,
   });
 }

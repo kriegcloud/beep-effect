@@ -13075,7 +13075,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/opip-web` | `VERSION` | const | `apps/opip-web/src/index.ts:21` | Package version for the opip web app. |
-| `@beep/opip-web/app/api/contact/route` | `POST` | function | `apps/opip-web/src/app/api/contact/route.ts:63` | Handles OPIP contact submissions. |
+| `@beep/opip-web/app/api/contact/route` | `POST` | function | `apps/opip-web/src/app/api/contact/route.ts:68` | Handles OPIP contact submissions. |
 | `@beep/opip-web/app/llms.txt/route` | `GET` | function | `apps/opip-web/src/app/llms.txt/route.ts:24` | Returns `llms.txt` for opip.law. |
 | `@beep/opip-web/app/manifest` | `default` | function | `apps/opip-web/src/app/manifest.ts:23` | Returns the static web manifest for opip web. |
 | `@beep/opip-web/app/robots` | `default` | function | `apps/opip-web/src/app/robots.ts:24` | Returns the robots policy for OPIP. |
