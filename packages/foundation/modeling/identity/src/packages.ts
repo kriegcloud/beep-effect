@@ -120,7 +120,9 @@ const composers = $I.compose(
   "architecture-lab-client",
   "architecture-lab-ui",
   "architecture-lab-proof",
-  "runpod"
+  "runpod",
+  "sanity",
+  "hubspot"
 );
 
 // --- foundation ---
@@ -1063,3 +1065,35 @@ export const $ArchitectureLabProofId: Identity.IdentityComposer<"@beep/architect
  * @category configuration
  */
 export const $RunpodId: Identity.IdentityComposer<"@beep/runpod"> = composers.$RunpodId;
+
+/**
+ * Identity composer for `@beep/sanity`.
+ *
+ * @example
+ * ```typescript
+ * import { $SanityId } from "@beep/identity"
+ *
+ * const id = $SanityId.make("Sanity")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $SanityId: Identity.IdentityComposer<"@beep/sanity"> = composers.$SanityId;
+
+/**
+ * Identity composer for `@beep/hubspot`.
+ *
+ * @example
+ * ```typescript
+ * import { $HubspotId } from "@beep/identity"
+ *
+ * const id = $HubspotId.make("Hubspot")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $HubspotId: Identity.IdentityComposer<"@beep/hubspot"> = composers.$HubspotId;

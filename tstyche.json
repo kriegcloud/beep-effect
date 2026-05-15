@@ -45,7 +45,9 @@
     "packages/architecture-lab/client/dtslint/**/*.tst.*",
     "packages/architecture-lab/ui/dtslint/**/*.tst.*",
     "apps/architecture-lab-proof/dtslint/**/*.tst.*",
-    "packages/drivers/runpod/dtslint/**/*.tst.*"
+    "packages/drivers/runpod/dtslint/**/*.tst.*",
+    "packages/drivers/sanity/dtslint/**/*.tst.*",
+    "packages/drivers/hubspot/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }

@@ -1,0 +1,88 @@
+{
+  "id": "opip-web-production-hardening",
+  "status": "staging_infra_complete_sanity_gated",
+  "owner": "@beep-team",
+  "app": "@beep/opip-web",
+  "dependsOn": ["opip-web-launch"],
+  "packages": ["@beep/opip-web", "@beep/sanity", "@beep/hubspot", "@beep/infra"],
+  "providers": {
+    "cms": "sanity",
+    "crm": "hubspot",
+    "hosting": "vercel",
+    "dns": "cloudflare",
+    "pulumiState": "s3"
+  },
+  "secrets": {
+    "vercelTokenRef": "op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_VERCEL_TOKEN",
+    "cloudflareAccountIdRef": "op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_CLOUDFLARE_ACCOUNT_ID",
+    "cloudflareTokenRef": "op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_CLOUDFLARE_ACCOUNT_IAC_TOKEN",
+    "sanityTokenRef": "op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_SANITY_KRIEG_IACTOKEN",
+    "sanityOrganizationIdRef": "op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_SANITY_ORGANIZATION_ID",
+    "hubspotAccountIdRef": "op://Shared/OPIP_SECRETS/CRM_HUBSPOT_ACCOUNT_ID",
+    "hubspotServiceKeyRef": "op://Shared/OPIP_SECRETS/CRM_HUBSPOT_SERVICE_KEY",
+    "pulumiPassphraseRef": "op://Shared/OPIP_SECRETS/PULUMI_CONFIG_PASSPHRASE"
+  },
+  "pulumiState": {
+    "temporaryAccount": "codedank-elpresidank",
+    "awsAccountId": "832907639880",
+    "region": "us-east-1",
+    "bucket": "opip-law-pulumi-state",
+    "backendUrl": "s3://opip-law-pulumi-state",
+    "encryption": "SSE-S3",
+    "dynamoDbLocking": false,
+    "provisioned": true
+  },
+  "staging": {
+    "stack": "staging",
+    "vercelProjectId": "prj_orJn2nvxflBiJqPF0VWLOD0RFAzE",
+    "vercelProjectName": "opip-web-staging",
+    "domain": "staging.opip.law",
+    "assetsBucket": "staging-assets.opip.law",
+    "applied": true,
+    "dnsRecordApplied": true,
+    "dnsTarget": "cname.vercel-dns.com"
+  },
+  "production": {
+    "stack": "production",
+    "vercelProjectName": "opip-web",
+    "domain": "opip.law",
+    "wwwDomain": "www.opip.law",
+    "assetsBucket": "assets.opip.law",
+    "previewed": true,
+    "applied": false
+  },
+  "providerGates": {
+    "cloudflareZoneId": "0d26e874202f4579081926dc38b3bf80",
+    "cloudflareDnsScope": "verified: token can read DNS records and Pulumi created staging.opip.law",
+    "sanityLiveProject": "blocked: OPIP_SECRETS has no OPIP Sanity project id/dataset/token",
+    "hubspotForms": "deferred: service key lacks HubSpot forms scope; CRM contact upsert is active"
+  },
+  "blockedActions": [
+    "raw-secret-commit",
+    "hubspot-personal-access-key-runtime-use",
+    "resend-v1",
+    "hubspot-tracking-v1",
+    "aws-mcp-bootstrap",
+    "legal-content-review-approval",
+    "production-dns-cutover-without-user-approval"
+  ],
+  "qualityCommands": [
+    "bun run --cwd packages/drivers/sanity build",
+    "bun run --cwd packages/drivers/sanity check",
+    "bun run --cwd packages/drivers/sanity test",
+    "bun run --cwd packages/drivers/sanity lint",
+    "bun run --cwd packages/drivers/hubspot build",
+    "bun run --cwd packages/drivers/hubspot check",
+    "bun run --cwd packages/drivers/hubspot test",
+    "bun run --cwd packages/drivers/hubspot lint",
+    "bun run --cwd apps/opip-web build",
+    "bun run --cwd apps/opip-web build:pwa",
+    "bun run --cwd apps/opip-web check",
+    "bun run --cwd apps/opip-web test",
+    "bun run --cwd apps/opip-web lint",
+    "bun run --cwd apps/opip-web type-test",
+    "bun run --cwd infra check",
+    "bun run --cwd infra test",
+    "bun run --cwd infra lint"
+  ]
+}

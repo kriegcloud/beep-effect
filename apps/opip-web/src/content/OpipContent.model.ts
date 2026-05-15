@@ -286,3 +286,11 @@ export class OpipSiteContent extends S.Class<OpipSiteContent>($I`OpipSiteContent
  * @since 0.0.0
  */
 export const decodeOpipSiteContentResult = S.decodeUnknownResult(OpipSiteContent);
+
+/**
+ * Decodes unknown input into {@link OpipSiteContent} in an Effect workflow.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const decodeOpipSiteContent = S.decodeUnknownEffect(OpipSiteContent);

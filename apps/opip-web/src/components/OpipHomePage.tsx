@@ -9,8 +9,9 @@ import { cn } from "@beep/ui/lib/utils";
 import * as P from "effect/Predicate";
 import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
-import { opipSiteContent } from "../content";
-import { CtaLink } from "./CtaLink";
+import type { ContactSubmissionStatus } from "../contact";
+import type { OpipSiteContent } from "../content";
+import { ContactForm } from "./ContactForm";
 import { HeroVideo } from "./HeroVideo";
 import { ThemeModeToggle } from "./ThemeModeToggle";
 
@@ -49,7 +50,7 @@ function ExternalAnchor({
   );
 }
 
-function Nav() {
+function Nav({ content }: { readonly content: OpipSiteContent }) {
   return (
     <>
       <a
@@ -67,7 +68,7 @@ function Nav() {
             className="flex max-w-[calc(100%-4.5rem)] items-center gap-1 overflow-x-auto sm:max-w-none sm:gap-3"
             aria-label="Primary navigation"
           >
-            {opipSiteContent.nav.map((item) => (
+            {content.nav.map((item) => (
               <li key={item.href}>
                 <a
                   className="block px-2 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] font-medium uppercase tracking-[0.14em] text-[var(--opip-on-soil)] opacity-80 transition-opacity hover:opacity-100 sm:px-3"
@@ -84,8 +85,8 @@ function Nav() {
   );
 }
 
-function Hero() {
-  const { hero } = opipSiteContent;
+function Hero({ content }: { readonly content: OpipSiteContent }) {
+  const { hero } = content;
 
   return (
     <section
@@ -106,12 +107,12 @@ function Hero() {
             {hero.lede}
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
-            <CtaLink
+            <a
               className={`${ctaClass} border-[var(--opip-gold)] bg-[var(--opip-gold)] text-[var(--opip-soil)] hover:border-[var(--opip-gold-bright)] hover:bg-[var(--opip-gold-bright)]`}
               href={hero.primaryCta.href}
             >
               {hero.primaryCta.label}
-            </CtaLink>
+            </a>
             <a
               className="font-[family-name:var(--font-opip-mono)] text-sm font-medium uppercase tracking-[0.12em] text-[var(--opip-gold)]"
               href={hero.secondaryCta.href}
@@ -127,7 +128,7 @@ function Hero() {
           alt={hero.portrait.alt}
           width={hero.portrait.width ?? 700}
           height={hero.portrait.height ?? 1245}
-          priority
+          sizes="(min-width: 1536px) 32vw, 1px"
         />
       </div>
 
@@ -139,7 +140,7 @@ function Hero() {
   );
 }
 
-function About() {
+function About({ content }: { readonly content: OpipSiteContent }) {
   return (
     <section className="bg-[var(--opip-paper)] py-20 text-[var(--opip-body)]" id="about" aria-labelledby="about-title">
       <div className={sectionShell}>
@@ -147,7 +148,7 @@ function About() {
           About Thomas J. Oppold's practice
         </h2>
         <div className="grid gap-7 lg:grid-cols-3">
-          {opipSiteContent.about.map((panel) => {
+          {content.about.map((panel) => {
             const isPortraitPanel = panel.id === "law";
 
             return (
@@ -167,7 +168,8 @@ function About() {
                     alt={panel.image.alt}
                     width={panel.image.width ?? 1200}
                     height={panel.image.height ?? 800}
-                    loading="eager"
+                    quality={60}
+                    sizes="(min-width: 1024px) 31vw, 90vw"
                   />
                   <figcaption
                     className={cn(
@@ -199,7 +201,7 @@ function About() {
   );
 }
 
-function Practice() {
+function Practice({ content }: { readonly content: OpipSiteContent }) {
   return (
     <section
       className="bg-[var(--opip-paper)] py-20 text-[var(--opip-body)]"
@@ -214,12 +216,12 @@ function Practice() {
           </h2>
         </header>
         <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-          {opipSiteContent.practices.map((practice) => (
+          {content.practices.map((practice) => (
             <article
               key={practice.id}
               className="rounded-lg border border-[var(--opip-rule)] bg-[var(--opip-card)] p-5"
             >
-              <p className={`${monoLabel} text-[var(--opip-gold)]`}>{practice.id}</p>
+              <p className={`${monoLabel} text-[var(--opip-burgundy)]`}>{practice.id}</p>
               <h3 className={`${displayClass} mt-4 text-2xl leading-8 text-[var(--opip-heading)]`}>{practice.title}</h3>
               <p className="mt-4 text-sm leading-7 text-[var(--opip-body)]">{practice.body}</p>
             </article>
@@ -230,7 +232,7 @@ function Practice() {
   );
 }
 
-function Matters() {
+function Matters({ content }: { readonly content: OpipSiteContent }) {
   return (
     <section
       className="bg-[var(--opip-soil)] py-20 text-[var(--opip-on-soil)]"
@@ -245,7 +247,7 @@ function Matters() {
           </h2>
         </header>
         <div className="mt-10 grid auto-cols-[minmax(18rem,1fr)] grid-flow-col gap-5 overflow-x-auto pb-5 lg:grid-flow-row lg:grid-cols-3 lg:overflow-visible">
-          {opipSiteContent.matters.map((matter) => (
+          {content.matters.map((matter) => (
             <ExternalAnchor
               key={matter.id}
               href={matter.source.href}
@@ -258,6 +260,7 @@ function Matters() {
                   alt={matter.figure.alt}
                   width={matter.figure.width ?? 900}
                   height={matter.figure.height ?? 600}
+                  sizes="(min-width: 1024px) 31vw, 84vw"
                 />
                 <figcaption className="border-t border-[var(--opip-rule)] px-4 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--opip-figure-caption)]">
                   {matter.figure.credit}
@@ -285,7 +288,7 @@ function Matters() {
   );
 }
 
-function Clients() {
+function Clients({ content }: { readonly content: OpipSiteContent }) {
   return (
     <section
       className="bg-[var(--opip-paper)] py-14 text-[var(--opip-body)]"
@@ -295,7 +298,7 @@ function Clients() {
       <div className={sectionShell}>
         <p className={`${monoLabel} text-center text-[var(--opip-burgundy)]`}>Counsel of record for selected matters</p>
         <ul className="mt-8 grid grid-cols-2 items-center gap-x-8 gap-y-7 sm:grid-cols-3 lg:grid-cols-5">
-          {opipSiteContent.clients.map((client) => (
+          {content.clients.map((client) => (
             <li key={client.id} className="flex min-h-16 items-center justify-center">
               <img
                 src={client.logo.src}
@@ -321,7 +324,7 @@ function Clients() {
   );
 }
 
-function Press() {
+function Press({ content }: { readonly content: OpipSiteContent }) {
   return (
     <section className="bg-[var(--opip-paper)] py-20 text-[var(--opip-body)]" id="press" aria-labelledby="press-title">
       <div className={sectionShell}>
@@ -332,7 +335,7 @@ function Press() {
           </h2>
         </header>
         <ul className="mt-10 grid gap-5">
-          {opipSiteContent.press.map((item) => (
+          {content.press.map((item) => (
             <li key={item.source.href} className="border-t border-[var(--opip-rule)] pt-5">
               <article className="grid gap-4 md:grid-cols-[14rem_1fr_auto] md:items-start">
                 <p className="font-[family-name:var(--font-opip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--opip-muted)]">
@@ -363,8 +366,14 @@ function Press() {
   );
 }
 
-function Contact() {
-  const { contact } = opipSiteContent;
+function Contact({
+  content,
+  status,
+}: {
+  readonly content: OpipSiteContent;
+  readonly status: ContactSubmissionStatus | undefined;
+}) {
+  const { contact } = content;
   const mailto = `mailto:${contact.email}?subject=opip.law%20-%20new%20matter`;
 
   return (
@@ -383,30 +392,33 @@ function Contact() {
             {contact.lede}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <CtaLink
+            <a
               className={`${ctaClass} border-[var(--opip-on-soil)] bg-[var(--opip-on-soil)] text-[var(--opip-burgundy)] hover:border-white hover:bg-white`}
               href={mailto}
             >
               {contact.email}
-            </CtaLink>
+            </a>
             <span className={`${monoLabel} text-[var(--opip-gold)]`}>Iowa and Minnesota Bars</span>
           </div>
         </div>
-        <aside className="rounded-lg border border-[color-mix(in_oklab,var(--opip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_22%,transparent)] p-6">
-          <p className={`${monoLabel} text-[var(--opip-gold)]`}>Notice</p>
-          <div className="mt-4 grid gap-4 text-sm leading-7 text-[color-mix(in_oklab,var(--opip-on-soil)_88%,transparent)]">
-            {contact.notice.map((line) => (
-              <p key={line}>{line}</p>
-            ))}
-          </div>
-        </aside>
+        <div className="grid gap-5">
+          <ContactForm email={contact.email} status={status} />
+          <aside className="rounded-lg border border-[color-mix(in_oklab,var(--opip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_22%,transparent)] p-6">
+            <p className={`${monoLabel} text-[var(--opip-gold)]`}>Notice</p>
+            <div className="mt-4 grid gap-4 text-sm leading-7 text-[color-mix(in_oklab,var(--opip-on-soil)_88%,transparent)]">
+              {contact.notice.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+            </div>
+          </aside>
+        </div>
       </div>
     </section>
   );
 }
 
-function Footer() {
-  const { metadata } = opipSiteContent;
+function Footer({ content }: { readonly content: OpipSiteContent }) {
+  const { metadata } = content;
 
   return (
     <footer className="bg-[var(--opip-soil)] py-10 text-[var(--opip-on-soil)]">
@@ -440,20 +452,26 @@ function Footer() {
  * @category components
  * @since 0.0.0
  */
-export function OpipHomePage() {
+export function OpipHomePage({
+  contactStatus,
+  content,
+}: {
+  readonly contactStatus: ContactSubmissionStatus | undefined;
+  readonly content: OpipSiteContent;
+}) {
   return (
     <div className="min-h-screen bg-[var(--opip-paper)] text-[var(--opip-body)]">
-      <Nav />
+      <Nav content={content} />
       <main id="main-content">
-        <Hero />
-        <About />
-        <Practice />
-        <Matters />
-        <Clients />
-        <Press />
-        <Contact />
+        <Hero content={content} />
+        <About content={content} />
+        <Practice content={content} />
+        <Matters content={content} />
+        <Clients content={content} />
+        <Press content={content} />
+        <Contact content={content} status={contactStatus} />
       </main>
-      <Footer />
+      <Footer content={content} />
     </div>
   );
 }

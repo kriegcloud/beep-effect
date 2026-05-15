@@ -30,6 +30,8 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/opip-web": ["../../apps/opip-web/src/index.ts"],
+      "@beep/hubspot": ["../../packages/drivers/hubspot/src/index.ts"],
+      "@beep/hubspot/*": ["../../packages/drivers/hubspot/src/*.ts"],
       "@beep/identity": [
         "../../packages/foundation/modeling/identity/src/index.ts"
       ],
@@ -57,6 +59,8 @@
       "@beep/repo-utils/JSDoc/models/tag-values": [
         "../../packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
+      "@beep/sanity": ["../../packages/drivers/sanity/src/index.ts"],
+      "@beep/sanity/*": ["../../packages/drivers/sanity/src/*.ts"],
       "@beep/schema": [
         "../../packages/foundation/modeling/schema/src/index.ts"
       ],

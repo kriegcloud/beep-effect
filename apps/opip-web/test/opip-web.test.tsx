@@ -1,12 +1,30 @@
 import { Button } from "@beep/ui/components/ui/button";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import * as Result from "effect/Result";
 import * as React from "react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "../src/app/page.tsx";
 import { OpipThemeProvider } from "../src/components/OpipThemeProvider.tsx";
 import { decodeOpipSiteContentResult, launchReviewGates, opipSiteContent, ReviewStatus } from "../src/content/index.ts";
 import { VERSION } from "../src/index.ts";
+
+vi.mock("next/headers", () => ({
+  headers: () => Promise.resolve(new Headers([["x-nonce", "test-nonce"]])),
+}));
+
+vi.mock("next/image", async () => {
+  const ReactModule = await vi.importActual<typeof import("react")>("react");
+  type MockNextImageProps = React.ComponentProps<"img"> & {
+    readonly fill?: boolean;
+    readonly priority?: boolean;
+    readonly quality?: number | string;
+  };
+
+  return {
+    default: ({ fill: _fill, priority: _priority, quality: _quality, ...props }: MockNextImageProps) =>
+      ReactModule.createElement("img", props),
+  };
+});
 
 describe("@beep/opip-web", () => {
   beforeEach(() => {
@@ -26,8 +44,8 @@ describe("@beep/opip-web", () => {
     expect(screen.getByRole("button", { name: "Shared UI Button" })).toBeDefined();
   });
 
-  it("exports the main page as a valid React element", () => {
-    expect(React.isValidElement(<Home />)).toBe(true);
+  it("exports the main page as a valid React element", async () => {
+    expect(React.isValidElement(await Home({}))).toBe(true);
   });
 
   it("decodes the static OPIP launch content", () => {
@@ -36,23 +54,22 @@ describe("@beep/opip-web", () => {
     expect(Result.isSuccess(result)).toBe(true);
   });
 
-  it("renders the OPIP public headline and contact CTA", () => {
-    render(<Home />);
+  it("renders the OPIP public headline and contact CTA", async () => {
+    render(await Home({}));
 
     expect(screen.getByRole("heading", { name: /thirty years between a planter row/i })).toBeDefined();
     expect(screen.getByRole("link", { name: opipSiteContent.contact.email })).toBeDefined();
     expect(screen.getByRole("button", { name: "Switch to dark mode" })).toBeDefined();
   });
 
-  it("toggles the app theme without depending on MUI color-scheme context updates", () => {
-    const { container } = render(<Home />);
+  it("renders the progressive theme toggle hook for the nonce-protected layout script", async () => {
+    render(await Home({}));
 
-    fireEvent.click(within(container).getByRole("button", { name: "Switch to dark mode" }));
+    const toggle = screen.getAllByRole("button", { name: "Switch to dark mode" }).at(-1);
 
-    expect(document.documentElement.classList.contains("dark")).toBe(true);
-    expect(document.documentElement.style.colorScheme).toBe("dark");
-    expect(window.localStorage.getItem("opip-theme-mode")).toBe("dark");
-    expect(window.localStorage.getItem("mui-mode")).toBe("dark");
+    expect(toggle?.getAttribute("data-opip-theme-toggle")).toBe("");
+    expect(toggle?.getAttribute("data-theme-mode")).toBe("light");
+    expect(toggle?.getAttribute("aria-pressed")).toBe("false");
   });
 
   it("provides an optional OPIP MUI theme override provider", () => {

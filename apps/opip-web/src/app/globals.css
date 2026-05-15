@@ -1,9 +1,9 @@
 @import "@beep/ui/styles/globals.css";
 
 @theme inline {
-  --font-opip-display: var(--next-font-display), ui-serif, Georgia, serif;
-  --font-opip-body: var(--next-font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-opip-mono: var(--next-font-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-opip-display: Georgia, "Times New Roman", ui-serif, serif;
+  --font-opip-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-opip-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
 }
 
 :root,

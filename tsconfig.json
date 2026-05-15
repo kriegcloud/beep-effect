@@ -540,6 +540,18 @@
       "@beep/runpod/*": ["./packages/drivers/runpod/src/*"],
       "@beep/ui/themes/theme-init-script": [
         "./packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
+      ],
+      "@beep/hubspot": [
+        "./packages/drivers/hubspot/src/index.ts"
+      ],
+      "@beep/hubspot/*": [
+        "./packages/drivers/hubspot/src/*"
+      ],
+      "@beep/sanity": [
+        "./packages/drivers/sanity/src/index.ts"
+      ],
+      "@beep/sanity/*": [
+        "./packages/drivers/sanity/src/*"
       ]
     }
   }

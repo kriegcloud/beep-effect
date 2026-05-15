@@ -110,14 +110,18 @@
       "name": "@beep/opip-web",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/hubspot": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/repo-configs": "workspace:^",
+        "@beep/sanity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/ui": "workspace:^",
         "@beep/utils": "workspace:^",
         "@mdx-js/react": "catalog:",
         "@next/bundle-analyzer": "catalog:",
         "@next/mdx": "catalog:",
+        "@vercel/analytics": "catalog:",
+        "@vercel/speed-insights": "catalog:",
         "next": "catalog:",
         "next-pwa": "catalog:",
         "react": "catalog:",
@@ -168,6 +172,8 @@
         "@beep/identity": "workspace:^",
         "@beep/repo-ai-metrics": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@pulumi/aws": "catalog:",
+        "@pulumi/cloudflare": "catalog:",
         "@pulumi/command": "catalog:",
         "@pulumi/github": "catalog:",
         "@pulumi/kubernetes": "catalog:",
@@ -175,6 +181,7 @@
         "@pulumi/std": "catalog:",
         "@pulumi/tls": "catalog:",
         "@pulumiverse/unifi": "catalog:",
+        "@pulumiverse/vercel": "catalog:",
         "protobufjs": "7.5.8",
       },
       "devDependencies": {
@@ -410,6 +417,19 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/hubspot": {
+      "name": "@beep/hubspot",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/openai": {
       "name": "@beep/openai",
       "version": "0.0.0",
@@ -459,6 +479,19 @@
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/sanity": {
+      "name": "@beep/sanity",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1184,6 +1217,8 @@
     "@phosphor-icons/react": "^2.1.10",
     "@pigment-css/react": "^0.0.30",
     "@pigment-css/vite-plugin": "^0.0.30",
+    "@pulumi/aws": "^7.30.0",
+    "@pulumi/cloudflare": "^6.15.0",
     "@pulumi/command": "^1.2.1",
     "@pulumi/github": "^6.13.1",
     "@pulumi/kubernetes": "^4.30.0",
@@ -1191,6 +1226,7 @@
     "@pulumi/std": "^2.3.2",
     "@pulumi/tls": "^5.4.0",
     "@pulumiverse/unifi": "^0.2.0",
+    "@pulumiverse/vercel": "^4.6.1",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@scure/base": "^2.2.0",
@@ -1221,6 +1257,8 @@
     "@types/ws": "^8.18.1",
     "@typescript-eslint/parser": "^8.59.3",
     "@typescript/native-preview": "^7.0.0-dev.20260514.1",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/browser": "^4.1.6",
     "@vitest/browser-playwright": "^4.1.6",
@@ -1633,6 +1671,8 @@
 
     "@beep/ffmpeg": ["@beep/ffmpeg@workspace:packages/drivers/ffmpeg"],
 
+    "@beep/hubspot": ["@beep/hubspot@workspace:packages/drivers/hubspot"],
+
     "@beep/identity": ["@beep/identity@workspace:packages/foundation/modeling/identity"],
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
@@ -1670,6 +1710,8 @@
     "@beep/runpod": ["@beep/runpod@workspace:packages/drivers/runpod"],
 
     "@beep/sandbox": ["@beep/sandbox@workspace:packages/foundation/capability/sandbox"],
+
+    "@beep/sanity": ["@beep/sanity@workspace:packages/drivers/sanity"],
 
     "@beep/schema": ["@beep/schema@workspace:packages/foundation/modeling/schema"],
 
@@ -3129,6 +3171,10 @@
 
     "@protobufjs/utf8": ["@protobufjs/utf8@1.1.1", "", {}, "sha512-oOAWABowe8EAbMyWKM0tYDKi8Yaox52D+HWZhAIJqQXbqe0xI/GV7FhLWqlEKreMkfDjshR5FKgi3mnle0h6Eg=="],
 
+    "@pulumi/aws": ["@pulumi/aws@7.30.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0", "mime": "^2.0.0" } }, "sha512-R1CnPcGD/ECRj/JZw2N+MLKwhKkm0C8aF+S5arBXf1j85qb+67lg+E2skgR2GtAIj6PJ1Qy8usEx+4ZlVeit7Q=="],
+
+    "@pulumi/cloudflare": ["@pulumi/cloudflare@6.15.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-I2C1UA//YbkuGUV5O9skIMUu94StNSE4hiAU57GFtyL7WEqAMJLvV8Vpcu1192rI1/ZwFIJeR4MbAZfiYlPFqA=="],
+
     "@pulumi/command": ["@pulumi/command@1.2.1", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-mutNDIUYP67yCBYOVIidQyxuTwZDY9v/sx9EGbgIv4PXfyfolOKGgGLeoHEbI1lxRwaw2wbTZ3VNIynDnA5VKA=="],
 
     "@pulumi/github": ["@pulumi/github@6.13.1", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-dvQtwXvhIqx7HHTe0+PzLooyboiNapDHOnxEbGd0jY6boFFuFJpT5LKapK25cjsc6s4qKduvLo2HZdo9UtH05g=="],
@@ -3142,6 +3188,8 @@
     "@pulumi/tls": ["@pulumi/tls@5.4.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-onLIie8deuZJHV8JkuDnY7nilIgGTr8HNyatg1FbgHikqo/HxU9yOwPM5Q7J0EAKtfHXuI9wkhnc4NReWIUfNg=="],
 
     "@pulumiverse/unifi": ["@pulumiverse/unifi@0.2.0", "", { "dependencies": { "@pulumi/pulumi": "^3.0.0" } }, "sha512-NJuYUkbjri9hwOPnyoE4qufrsUtTwZ9Ax32As47basbZIQfmg1fdJemnqfuMsSX7iRzHXiFyTVsWmkFT4/Nwdw=="],
+
+    "@pulumiverse/vercel": ["@pulumiverse/vercel@4.6.1", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-5I0eP0UwN9W3xx8rlXXlut7OITEGSCnq5F4PrnvMDsnEUX7Uw34t/I3/cfnARxlFeZcARVtXND0t8sRxDvPh3Q=="],
 
     "@radix-ui/primitive": ["@radix-ui/primitive@1.1.3", "", {}, "sha512-JTF99U/6XIjCBo0wqkU5sK10glYe27MRRsfwoiq5zzOEZLHU3A3KCMa5X/azekYRCJ0HlwI0crAXS/5dEHTzDg=="],
 
@@ -3609,7 +3657,11 @@
 
     "@use-gesture/react": ["@use-gesture/react@10.3.1", "", { "dependencies": { "@use-gesture/core": "10.3.1" }, "peerDependencies": { "react": ">= 16.8.0" } }, "sha512-Yy19y6O2GJq8f7CHf7L0nxL8bf4PZCPaVOCgJrusOeFHY1LvHgYXnmnXg6N5iwAnbgbZCDjo60SiM6IPJi9C5g=="],
 
+    "@vercel/analytics": ["@vercel/analytics@2.0.1", "", { "peerDependencies": { "@remix-run/react": "^2", "@sveltejs/kit": "^1 || ^2", "next": ">= 13", "nuxt": ">= 3", "react": "^18 || ^19 || ^19.0.0-rc", "svelte": ">= 4", "vue": "^3", "vue-router": "^4" }, "optionalPeers": ["@remix-run/react", "@sveltejs/kit", "next", "nuxt", "react", "svelte", "vue", "vue-router"] }, "sha512-MTQG6V9qQrt1tsDeF+2Uoo5aPjqbVPys1xvnIftXSJYG2SrwXRHnqEvVoYID7BTruDz4lCd2Z7rM1BdkUehk2g=="],
+
     "@vercel/oidc": ["@vercel/oidc@3.2.0", "", {}, "sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug=="],
+
+    "@vercel/speed-insights": ["@vercel/speed-insights@2.0.0", "", { "peerDependencies": { "@sveltejs/kit": "^1 || ^2", "next": ">= 13", "nuxt": ">= 3", "react": "^18 || ^19 || ^19.0.0-rc", "svelte": ">= 4", "vue": "^3", "vue-router": "^4" }, "optionalPeers": ["@sveltejs/kit", "next", "nuxt", "react", "svelte", "vue", "vue-router"] }, "sha512-jwkNcrTeafWxjmWq4AHBaptSqZiJkYU5adLC9QBSqeim0GcqDMgN5Ievh8OG1rJ6W3A4l1oiP7qr9CWxGuzu3w=="],
 
     "@vitest/browser": ["@vitest/browser@4.1.6", "", { "dependencies": { "@blazediff/core": "1.9.1", "@vitest/mocker": "4.1.6", "@vitest/utils": "4.1.6", "magic-string": "^0.30.21", "pngjs": "^7.0.0", "sirv": "^3.0.2", "tinyrainbow": "^3.1.0", "ws": "^8.19.0" }, "peerDependencies": { "vitest": "4.1.6" } }, "sha512-ynsspTubXGSpa58JFJ24xIQt4z4A25epSbugEyaTmmrV1//Wec9EgE/LtoaC6yxUrXi5P7erGHRrkdZIHaVQuA=="],
 
@@ -6504,6 +6556,8 @@
     "@pigment-css/react/@mui/utils": ["@mui/utils@6.4.9", "", { "dependencies": { "@babel/runtime": "^7.26.0", "@mui/types": "~7.2.24", "@types/prop-types": "^15.7.14", "clsx": "^2.1.1", "prop-types": "^15.8.1", "react-is": "^19.0.0" }, "peerDependencies": { "@types/react": "^17.0.0 || ^18.0.0 || ^19.0.0", "react": "^17.0.0 || ^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react"] }, "sha512-Y12Q9hbK9g+ZY0T3Rxrx9m2m10gaphDuUMgWxyV5kNJevVxXYCLclYUCC9vXaIk1/NdNDTcW2Yfr2OGvNFNmHg=="],
 
     "@pigment-css/react/stylis": ["stylis@4.4.0", "", {}, "sha512-5Z9ZpRzfuH6l/UAvCPAPUo3665Nk2wLaZU3x+TLHKVzIz33+sbJqbtrYoC3KD4/uVOr2Zp+L0LySezP9OHV9yA=="],
+
+    "@pulumi/aws/mime": ["mime@2.6.0", "", { "bin": { "mime": "cli.js" } }, "sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg=="],
 
     "@pulumi/kubernetes/glob": ["glob@12.0.0", "", { "dependencies": { "foreground-child": "^3.3.1", "jackspeak": "^4.1.1", "minimatch": "^10.1.1", "minipass": "^7.1.2", "package-json-from-dist": "^1.0.0", "path-scurry": "^2.0.0" }, "bin": { "glob": "dist/esm/bin.mjs" } }, "sha512-5Qcll1z7IKgHr5g485ePDdHcNQY0k2dtv/bjYy0iuyGxQw2qSOiiXUXJ+AYQpg3HNoUMHqAruX478Jeev7UULw=="],
 
