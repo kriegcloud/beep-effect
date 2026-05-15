@@ -11,24 +11,25 @@ import { NextResponse } from "next/server";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const developmentScriptSources = isDevelopment ? " 'unsafe-eval' https://unpkg.com" : "";
 const developmentConnectSources = isDevelopment ? " http://localhost:* https://*.localhost:* ws: wss:" : "";
+const vercelLiveSource = " https://vercel.live";
 
 const buildCspHeader = (nonce: string): string =>
   [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}'${developmentScriptSources}`,
-    `script-src-elem 'self' 'nonce-${nonce}'${developmentScriptSources}`,
+    `script-src-elem 'self' 'nonce-${nonce}'${vercelLiveSource}${developmentScriptSources}`,
     "style-src 'self' 'unsafe-inline'",
     "style-src-elem 'self' 'unsafe-inline'",
     "style-src-attr 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    `img-src 'self' data: blob:${vercelLiveSource}`,
     "font-src 'self' data:",
     "media-src 'self'",
-    `connect-src 'self' https://vitals.vercel-insights.com https://*.vercel-insights.com https://api.sanity.io https://*.api.sanity.io https://*.apicdn.sanity.io https://api.hsforms.com https://forms.hsforms.com https://api.hubapi.com${developmentConnectSources}`,
+    `connect-src 'self' https://vitals.vercel-insights.com https://*.vercel-insights.com${vercelLiveSource} https://api.sanity.io https://*.api.sanity.io https://*.apicdn.sanity.io https://api.hsforms.com https://forms.hsforms.com https://api.hubapi.com${developmentConnectSources}`,
     "manifest-src 'self'",
     "worker-src 'self' blob:",
     "base-uri 'self'",
     "form-action 'self'",
-    "frame-src 'none'",
+    `frame-src${vercelLiveSource}`,
     "frame-ancestors 'none'",
     "object-src 'none'",
     ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
