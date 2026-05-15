@@ -81,6 +81,7 @@
     "tmp/**",
     "specs",
     "**/AGENTS.md",
+    "infra/opip-web/Pulumi.*.yaml",
     "packages/drivers/runpod/openapi.json",
     "packages/drivers/venice-ai/swagger.yaml",
     "packages/foundation/modeling/schema/src/Timezone.ts",

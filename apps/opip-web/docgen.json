@@ -30,6 +30,25 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/opip-web": ["../../apps/opip-web/src/index.ts"],
+      "@beep/opip-web/app/api/contact/route": [
+        "../../apps/opip-web/src/app/api/contact/route.ts"
+      ],
+      "@beep/opip-web/app/llms.txt/route": [
+        "../../apps/opip-web/src/app/llms.txt/route.ts"
+      ],
+      "@beep/opip-web/app/manifest": [
+        "../../apps/opip-web/src/app/manifest.ts"
+      ],
+      "@beep/opip-web/app/robots": ["../../apps/opip-web/src/app/robots.ts"],
+      "@beep/opip-web/app/sitemap": ["../../apps/opip-web/src/app/sitemap.ts"],
+      "@beep/opip-web/contact": ["../../apps/opip-web/src/contact/index.ts"],
+      "@beep/opip-web/content": ["../../apps/opip-web/src/content/index.ts"],
+      "@beep/opip-web/mdx-components": [
+        "../../apps/opip-web/src/mdx-components.tsx"
+      ],
+      "@beep/opip-web/proxy": ["../../apps/opip-web/src/proxy.ts"],
+      "@beep/hubspot": ["../../packages/drivers/hubspot/src/index.ts"],
+      "@beep/hubspot/*": ["../../packages/drivers/hubspot/src/*.ts"],
       "@beep/identity": [
         "../../packages/foundation/modeling/identity/src/index.ts"
       ],
@@ -57,6 +76,8 @@
       "@beep/repo-utils/JSDoc/models/tag-values": [
         "../../packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
+      "@beep/sanity": ["../../packages/drivers/sanity/src/index.ts"],
+      "@beep/sanity/*": ["../../packages/drivers/sanity/src/*.ts"],
       "@beep/schema": [
         "../../packages/foundation/modeling/schema/src/index.ts"
       ],

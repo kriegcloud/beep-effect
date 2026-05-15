@@ -1,0 +1,20 @@
+config:
+  opipWeb:attachProductionDomains: "true"
+  opipWeb:attachStagingDomain: "false"
+  opipWeb:assetsBucketName: assets.opip.law
+  opipWeb:awsRegion: us-east-1
+  opipWeb:cloudflareZoneId: 0d26e874202f4579081926dc38b3bf80
+  opipWeb:projectName: opip-web
+  opipWeb:productionBranch: main
+  opipWeb:productionDomain: opip.law
+  opipWeb:pulumiStateBucketName: opip-law-pulumi-state
+  opipWeb:repository: kriegcloud/beep-effect
+  opipWeb:rootDirectory: apps/opip-web
+  opipWeb:stagingBranch: staging
+  opipWeb:stagingDomain: staging.opip.law
+  opipWeb:vercelAuthenticationDeploymentType: none
+  opipWeb:wwwDomain: www.opip.law
+  opipWeb:hubSpotAccountId: "246203876"
+  opipWeb:hubSpotServiceKey:
+    secure: v1:iUZDwKJZYViTI3vl:1mg9iTFks9Rbk7DNlr2kBHDvnbEkSaDOiZJjYAYAt6Cav20kaU8g9qF3xRSZkcajXxGFfVldfABsP9Yf
+encryptionsalt: v1:ArE3HbpUuJk=:v1:JVQMqcTyT0iDVJdg:aVYL3DgkQAO3RR2C25nWR8Wob3TXBQ==

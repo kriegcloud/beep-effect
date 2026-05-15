@@ -64,6 +64,9 @@
       "path": "packages/drivers/ffmpeg"
     },
     {
+      "path": "packages/drivers/hubspot"
+    },
+    {
       "path": "packages/drivers/openai"
     },
     {
@@ -74,6 +77,9 @@
     },
     {
       "path": "packages/drivers/runpod"
+    },
+    {
+      "path": "packages/drivers/sanity"
     },
     {
       "path": "packages/drivers/venice-ai"

@@ -540,7 +540,26 @@
       "@beep/runpod/*": ["./packages/drivers/runpod/src/*"],
       "@beep/ui/themes/theme-init-script": [
         "./packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
-      ]
+      ],
+      "@beep/hubspot": ["./packages/drivers/hubspot/src/index.ts"],
+      "@beep/hubspot/*": ["./packages/drivers/hubspot/src/*"],
+      "@beep/sanity": ["./packages/drivers/sanity/src/index.ts"],
+      "@beep/sanity/*": ["./packages/drivers/sanity/src/*"],
+      "@beep/opip-web/contact": ["./apps/opip-web/src/contact/index.ts"],
+      "@beep/opip-web/content": ["./apps/opip-web/src/content/index.ts"],
+      "@beep/opip-web/mdx-components": [
+        "./apps/opip-web/src/mdx-components.tsx"
+      ],
+      "@beep/opip-web/proxy": ["./apps/opip-web/src/proxy.ts"],
+      "@beep/opip-web/app/api/contact/route": [
+        "./apps/opip-web/src/app/api/contact/route.ts"
+      ],
+      "@beep/opip-web/app/llms.txt/route": [
+        "./apps/opip-web/src/app/llms.txt/route.ts"
+      ],
+      "@beep/opip-web/app/manifest": ["./apps/opip-web/src/app/manifest.ts"],
+      "@beep/opip-web/app/robots": ["./apps/opip-web/src/app/robots.ts"],
+      "@beep/opip-web/app/sitemap": ["./apps/opip-web/src/app/sitemap.ts"]
     }
   }
 }

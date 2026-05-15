@@ -41,3 +41,18 @@ export const infraProjectName = "beep-effect";
  * @since 0.0.0
  */
 export * from "./AIMetrics.js";
+
+/**
+ * OPIP web Pulumi orchestration exports.
+ *
+ * @example
+ * ```ts
+ * import { OpipWebStack } from "@beep/infra"
+ *
+ * console.log(OpipWebStack)
+ * ```
+ *
+ * @category resources
+ * @since 0.0.0
+ */
+export * from "./OpipWeb.js";

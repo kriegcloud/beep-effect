@@ -49,6 +49,8 @@ const config = {
     "packages/architecture-lab/ui/package.json",
     "apps/architecture-lab-proof/package.json",
     "packages/drivers/runpod/package.json",
+    "packages/drivers/sanity/package.json",
+    "packages/drivers/hubspot/package.json",
   ],
   customTypes: {
     catalog: {

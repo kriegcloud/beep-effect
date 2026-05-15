@@ -1,9 +1,9 @@
 @import "@beep/ui/styles/globals.css";
 
 @theme inline {
-  --font-opip-display: var(--next-font-display), ui-serif, Georgia, serif;
-  --font-opip-body: var(--next-font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-opip-mono: var(--next-font-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-opip-display: Georgia, "Times New Roman", ui-serif, serif;
+  --font-opip-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-opip-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
 }
 
 :root,
@@ -12,8 +12,10 @@
   --opip-on-soil: #f4ede0;
   --opip-paper: #f4ede0;
   --opip-burgundy: #5b1a1a;
+  --opip-contact-ground: #5b1a1a;
   --opip-gold: #c9a24b;
   --opip-gold-bright: #dcb85a;
+  --opip-on-burgundy-accent: #ffdf72;
   --opip-cyan: #2ee6d6;
   --opip-walnut: #3a2a1b;
   --opip-heading: #1f1d1a;
@@ -34,8 +36,10 @@
   --opip-on-soil: #efe7d9;
   --opip-paper: #181512;
   --opip-burgundy: #ce6f66;
+  --opip-contact-ground: #481717;
   --opip-gold: #d8b760;
   --opip-gold-bright: #f1cf78;
+  --opip-on-burgundy-accent: #ffe58d;
   --opip-cyan: #54f2e4;
   --opip-walnut: #eadbc1;
   --opip-heading: #efe7d9;
@@ -60,4 +64,8 @@ body {
   color: var(--opip-body);
   font-family: var(--font-opip-body);
   text-rendering: optimizeLegibility;
+}
+
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
 }

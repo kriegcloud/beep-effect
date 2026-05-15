@@ -6,7 +6,7 @@
  */
 
 import { Result } from "effect";
-import { decodeOpipSiteContentResult, type OpipSiteContent, ReviewStatus } from "./OpipContent.model";
+import { decodeOpipSiteContentResult, type OpipSiteContent, ReviewStatus } from "./OpipContent.model.ts";
 
 const needsReview = (note: string) => ({
   note,
@@ -302,6 +302,13 @@ const rawOpipSiteContent = {
 /**
  * Decoded OPIP launch content.
  *
+ * @example
+ * ```ts
+ * import { opipSiteContent } from "@beep/opip-web/content"
+ *
+ * console.log(opipSiteContent.metadata.siteName)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -309,6 +316,13 @@ export const opipSiteContent = Result.getOrThrow(decodeOpipSiteContentResult(raw
 
 /**
  * Review gate statuses that must be closed before public launch.
+ *
+ * @example
+ * ```ts
+ * import { launchReviewGates } from "@beep/opip-web/content"
+ *
+ * console.log(launchReviewGates.contact.status)
+ * ```
  *
  * @category models
  * @since 0.0.0

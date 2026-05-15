@@ -12,7 +12,7 @@
  * ```ts
  * import { VERSION } from "@beep/opip-web"
  *
- * void VERSION
+ * console.log(VERSION)
  * ```
  *
  * @since 0.0.0

@@ -37,6 +37,12 @@
   },
   "references": [
     {
+      "path": "../../packages/drivers/hubspot/tsconfig.json"
+    },
+    {
+      "path": "../../packages/drivers/sanity/tsconfig.json"
+    },
+    {
       "path": "../../packages/foundation/modeling/identity/tsconfig.json"
     },
     {
