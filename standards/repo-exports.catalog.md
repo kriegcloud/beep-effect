@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 60 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 841 |
-| publicExportEntries | 12728 |
-| uniquePackageSymbols | 5089 |
+| importSpecifiers | 846 |
+| publicExportEntries | 12733 |
+| uniquePackageSymbols | 5092 |
 
 ## Seed Discovery Proof
 
@@ -96,7 +96,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 57 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
 | 58 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
 | 59 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
-| 60 | `@beep/opip-web` | `apps/opip-web` | has-public-exports | 5 | 34 | 32 |
+| 60 | `@beep/opip-web` | `apps/opip-web` | has-public-exports | 10 | 39 | 35 |
 | 61 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
@@ -13075,23 +13075,28 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/opip-web` | `VERSION` | const | `apps/opip-web/src/index.ts:21` | Package version for the opip web app. |
-| `@beep/opip-web/contact` | `contactResponseBody` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:331` | Builds a JSON-safe contact response object. |
-| `@beep/opip-web/contact` | `ContactSubmission` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:124` | Browser-submitted OPIP contact form payload. |
-| `@beep/opip-web/contact` | `ContactSubmissionResponse` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:159` | Public contact submission response. |
+| `@beep/opip-web/app/api/contact/route` | `POST` | function | `apps/opip-web/src/app/api/contact/route.ts:63` | Handles OPIP contact submissions. |
+| `@beep/opip-web/app/llms.txt/route` | `GET` | function | `apps/opip-web/src/app/llms.txt/route.ts:24` | Returns `llms.txt` for opip.law. |
+| `@beep/opip-web/app/manifest` | `default` | function | `apps/opip-web/src/app/manifest.ts:23` | Returns the static web manifest for opip web. |
+| `@beep/opip-web/app/robots` | `default` | function | `apps/opip-web/src/app/robots.ts:24` | Returns the robots policy for OPIP. |
+| `@beep/opip-web/app/sitemap` | `default` | function | `apps/opip-web/src/app/sitemap.ts:24` | Returns the OPIP sitemap. |
+| `@beep/opip-web/contact` | `contactResponseBody` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:337` | Builds a JSON-safe contact response object. |
+| `@beep/opip-web/contact` | `ContactSubmission` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:125` | Browser-submitted OPIP contact form payload. |
+| `@beep/opip-web/contact` | `ContactSubmissionResponse` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:160` | Public contact submission response. |
 | `@beep/opip-web/contact` | `ContactSubmissionStatus` | const | `apps/opip-web/src/contact/ContactSubmission.model.ts:82` | Public contact submission status. |
 | `@beep/opip-web/contact` | `ContactSubmissionStatus` | type | `apps/opip-web/src/contact/ContactSubmission.model.ts:102` | Type for {@link ContactSubmissionStatus}. |
-| `@beep/opip-web/contact` | `decodeContactSubmission` | const | `apps/opip-web/src/contact/ContactSubmission.model.ts:190` | Decodes unknown input into a contact submission. |
-| `@beep/opip-web/contact` | `submitContact` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:282` | Submits an OPIP contact payload to HubSpot when runtime config is present. |
+| `@beep/opip-web/contact` | `decodeContactSubmission` | const | `apps/opip-web/src/contact/ContactSubmission.model.ts:191` | Decodes unknown input into a contact submission. |
+| `@beep/opip-web/contact` | `submitContact` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:288` | Submits an OPIP contact payload to HubSpot when runtime config is present. |
 | `@beep/opip-web/content` | `AboutPanel` | class | `apps/opip-web/src/content/OpipContent.model.ts:260` | Biographical bridge panel. |
 | `@beep/opip-web/content` | `ClientLogo` | class | `apps/opip-web/src/content/OpipContent.model.ts:364` | Client logo reference. |
 | `@beep/opip-web/content` | `ContactContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:433` | Public contact and legal notice content. |
 | `@beep/opip-web/content` | `decodeOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.model.ts:509` | Decodes unknown input into {@link OpipSiteContent} in an Effect workflow. |
 | `@beep/opip-web/content` | `decodeOpipSiteContentResult` | const | `apps/opip-web/src/content/OpipContent.model.ts:492` | Decodes unknown input into {@link OpipSiteContent}. |
 | `@beep/opip-web/content` | `ExternalLink` | class | `apps/opip-web/src/content/OpipContent.model.ts:96` | External link displayed by the public site. |
-| `@beep/opip-web/content` | `getOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.runtime.ts:181` | Promise boundary for Next.js server components. |
+| `@beep/opip-web/content` | `getOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.runtime.ts:185` | Promise boundary for Next.js server components. |
 | `@beep/opip-web/content` | `HeroContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:223` | Hero citation and opening claim. |
 | `@beep/opip-web/content` | `launchReviewGates` | const | `apps/opip-web/src/content/OpipContent.data.ts:330` | Review gate statuses that must be closed before public launch. |
-| `@beep/opip-web/content` | `loadOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.runtime.ts:158` | Loads OPIP site content from Sanity when configured, falling back to the |
+| `@beep/opip-web/content` | `loadOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.runtime.ts:160` | Loads OPIP site content from Sanity when configured, falling back to the |
 | `@beep/opip-web/content` | `makeJsonLdGraph` | const | `apps/opip-web/src/content/OpipSeo.ts:24` | Builds conservative JSON-LD graph data for the OPIP website. |
 | `@beep/opip-web/content` | `makeLlmsText` | const | `apps/opip-web/src/content/OpipSeo.ts:78` | Builds `llms.txt` content from reviewed OPIP site content. |
 | `@beep/opip-web/content` | `MatterItem` | class | `apps/opip-web/src/content/OpipContent.model.ts:327` | Selected matter summary. |
