@@ -433,6 +433,15 @@ const turboRunArgs = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>)
   ...args,
 ];
 
+const includesTurboCoverageTask = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>): boolean =>
+  A.some(tasks, (task) => task === "coverage") || A.some(args, (arg) => arg === "coverage");
+
+const turboCoverageEnv = (
+  tasks: ReadonlyArray<string>,
+  args: ReadonlyArray<string>
+): Record<string, string> | undefined =>
+  includesTurboCoverageTask(tasks, args) ? { VITEST_COVERAGE_REPORT_ONLY: "1" } : undefined;
+
 const isUnresolvedSecretReference = (value: string | undefined): boolean =>
   value !== undefined && Str.startsWith("op://")(value);
 
@@ -557,13 +566,16 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
 
 const runSteps = (steps: ReadonlyArray<QualityTaskStep>) => Effect.forEach(steps, runStep, { discard: true });
 
-const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, args: ReadonlyArray<string>) =>
-  new QualityTaskStep({
+const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, args: ReadonlyArray<string>) => {
+  const env = turboCoverageEnv(tasks, args);
+  return new QualityTaskStep({
     label,
     command: "bunx",
     args: turboRunArgs(tasks, args),
     cwd,
+    ...(env === undefined ? {} : { env }),
   });
+};
 
 const bunRunStep = (cwd: string, label: string, args: ReadonlyArray<string>) =>
   new QualityTaskStep({
