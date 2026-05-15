@@ -248,7 +248,7 @@
     "react-resizable-panels": "^4.11.1",
     "@phosphor-icons/react": "^2.1.10",
     "@pulumi/github": "^6.13.1",
-    "@pulumi/kubernetes": "^4.30.0",
+    "@pulumi/kubernetes": "^4.31.0",
     "@pulumi/std": "^2.3.2",
     "@pulumi/tls": "^5.4.0",
     "@pulumiverse/unifi": "^0.2.0",
