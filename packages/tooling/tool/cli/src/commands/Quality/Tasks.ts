@@ -10,12 +10,13 @@ import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { makePgliteTestcontainerResource, type PgliteTestcontainerResource } from "@beep/test-utils";
 import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { Cause, Config, Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
+import { Cause, Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { configStringEqualsSync, configStringOption } from "./internal/Config.js";
 
 const $I = $RepoCliId.create("commands/Quality/Tasks");
 
@@ -460,17 +461,6 @@ const isExplicitTurboScopeArg = (arg: string): boolean =>
   Str.startsWith("--filter")(arg) || Str.startsWith("--since")(arg);
 
 const shouldRunRepoWideSteps = (args: ReadonlyArray<string>): boolean => !A.some(args, isExplicitTurboScopeArg);
-
-const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
-
-const configStringEqualsSync = (name: string, expected: string): boolean =>
-  pipe(
-    configStringOptionSync(name),
-    O.exists((value) => value === expected)
-  );
-
-const configStringOption = (name: string): Effect.Effect<O.Option<string>> =>
-  Config.option(Config.string(name)).pipe(Effect.orElseSucceed(O.none<string>));
 
 const localTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
   configStringEqualsSync("CI", "true") || A.some(args, isTurboCacheControlArg) ? A.empty() : ["--cache=local:rw"];

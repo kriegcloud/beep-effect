@@ -336,32 +336,32 @@ export const renderLogBanner: {
 const makePrettyConsoleLogger = (pretty: PrettyLoggerConfig): Logger.Logger<unknown, void> => {
   const palette = themePalette(pretty.theme);
 
-  return Logger.make((options) => {
-    const timestamp = palette.dim(options.date.toISOString());
-    const level = levelColor(palette, options.logLevel);
-    const message = palette.accent(renderMessage(options.message));
-    const annotations = options.fiber.getRef(References.CurrentLogAnnotations);
-    const logSpans = options.fiber.getRef(References.CurrentLogSpans);
-    const renderedAnnotations =
-      R.keys(annotations).length === 0 ? "" : ` ${palette.dim(Inspectable.toStringUnknown(annotations, 2))}`;
-    const renderedSpans =
-      logSpans.length === 0
-        ? ""
-        : ` ${palette.dim(
-            Inspectable.toStringUnknown(
-              A.map(logSpans, ([label, startedAt]) => ({
-                label,
-                elapsedMs: Math.max(0, options.date.getTime() - startedAt),
-              })),
-              2
-            )
-          )}`;
-    const renderedCause = options.cause.reasons.length === 0 ? "" : `\n${palette.dim(Cause.pretty(options.cause))}`;
+  return Logger.withConsoleLog(
+    Logger.make((options) => {
+      const timestamp = palette.dim(options.date.toISOString());
+      const level = levelColor(palette, options.logLevel);
+      const message = palette.accent(renderMessage(options.message));
+      const annotations = options.fiber.getRef(References.CurrentLogAnnotations);
+      const logSpans = options.fiber.getRef(References.CurrentLogSpans);
+      const renderedAnnotations =
+        R.keys(annotations).length === 0 ? "" : ` ${palette.dim(Inspectable.toStringUnknown(annotations, 2))}`;
+      const renderedSpans =
+        logSpans.length === 0
+          ? ""
+          : ` ${palette.dim(
+              Inspectable.toStringUnknown(
+                A.map(logSpans, ([label, startedAt]) => ({
+                  label,
+                  elapsedMs: Math.max(0, options.date.getTime() - startedAt),
+                })),
+                2
+              )
+            )}`;
+      const renderedCause = options.cause.reasons.length === 0 ? "" : `\n${palette.dim(Cause.pretty(options.cause))}`;
 
-    globalThis.process.stdout.write(
-      `${timestamp} ${level} ${message}${renderedAnnotations}${renderedSpans}${renderedCause}\n`
-    );
-  });
+      return `${timestamp} ${level} ${message}${renderedAnnotations}${renderedSpans}${renderedCause}`;
+    })
+  );
 };
 
 const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>

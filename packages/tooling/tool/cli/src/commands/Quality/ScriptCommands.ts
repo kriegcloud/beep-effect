@@ -16,7 +16,9 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { XMLParser } from "fast-xml-parser";
 import { type ParseError, parse } from "jsonc-parser";
+import { configStringEqualsSync } from "./internal/Config.js";
 import { QualityTaskStep } from "./Tasks.js";
 
 const $I = $RepoCliId.create("commands/Quality/ScriptCommands");
@@ -31,11 +33,34 @@ const moduleTagScannedExtensions = [".hbs", ".md", ".ts", ".tsx"] as const;
 const effectDiagnosticsDirectiveScannedRoots = ["apps", "packages", "infra"] as const;
 const effectDiagnosticsDirectiveScannedExtensions = [".cts", ".mts", ".ts", ".tsx"] as const;
 const effectDiagnosticsDirectiveIgnoredDirectoryNames = ["node_modules", "dist", "coverage", "tmp"] as const;
-const effectTsgoRuleRowPattern = /<tr><td><code>([^<]+)<\/code><\/td>/gu;
+const effectTsgoDiagnosticsTableStartMarker = "<!-- diagnostics-table:start -->";
+const effectTsgoDiagnosticsTableEndMarker = "<!-- diagnostics-table:end -->";
 const effectDiagnosticsDirectivePrefix = "@effect-diagnostics";
 const effectDiagnosticsOffDirectivePattern = new RegExp(`${effectDiagnosticsDirectivePrefix}[^\\n]*:${"off"}\\b`, "u");
 const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unknown));
 const decodeUnknownArrayOption = S.decodeUnknownOption(S.Array(S.Unknown));
+const effectTsgoReadmeParser = new XMLParser({
+  ignoreAttributes: false,
+  trimValues: true,
+});
+const EffectTsgoRuleCell = S.Struct({
+  code: S.String,
+});
+const EffectTsgoRuleRow = S.Struct({
+  td: S.Array(S.Unknown),
+});
+const EffectTsgoDiagnosticsTable = S.Struct({
+  root: S.Struct({
+    table: S.Struct({
+      tbody: S.Struct({
+        tr: S.Array(S.Unknown),
+      }),
+    }),
+  }),
+});
+const decodeEffectTsgoRuleCellOption = S.decodeUnknownOption(EffectTsgoRuleCell);
+const decodeEffectTsgoRuleRowOption = S.decodeUnknownOption(EffectTsgoRuleRow);
+const decodeEffectTsgoDiagnosticsTableOption = S.decodeUnknownOption(EffectTsgoDiagnosticsTable);
 
 type QualityScriptEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
 
@@ -96,14 +121,6 @@ export class QualityScriptCommandError extends TaggedErrorClass<QualityScriptCom
 ) {}
 
 const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
-
-const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
-
-const configStringEqualsSync = (name: string, expected: string): boolean =>
-  pipe(
-    configStringOptionSync(name),
-    O.exists((value) => value === expected)
-  );
 
 const normalizeExtraArgs = (args: unknown): ReadonlyArray<string> => {
   if (P.isUndefined(args)) {
@@ -655,12 +672,45 @@ const unknownRecordKeys = (value: unknown): ReadonlyArray<string> =>
         O.getOrElse(A.empty<string>)
       );
 
+const extractEffectTsgoDiagnosticsTableFragment = (readme: string): O.Option<string> => {
+  const tableStart = readme.indexOf(effectTsgoDiagnosticsTableStartMarker);
+  const tableEnd = readme.indexOf(effectTsgoDiagnosticsTableEndMarker);
+
+  return tableStart === -1 || tableEnd === -1 || tableEnd <= tableStart
+    ? O.none()
+    : O.some(readme.slice(tableStart + effectTsgoDiagnosticsTableStartMarker.length, tableEnd));
+};
+
+const extractEffectTsgoRuleNameFromRow = (row: unknown): O.Option<string> =>
+  pipe(
+    decodeEffectTsgoRuleRowOption(row),
+    O.flatMap((decodedRow) => A.head(decodedRow.td)),
+    O.flatMap(decodeEffectTsgoRuleCellOption),
+    O.map((cell) => cell.code)
+  );
+
 const extractEffectTsgoReadmeRuleNames = (readme: string): ReadonlyArray<string> =>
   pipe(
-    A.fromIterable(readme.matchAll(effectTsgoRuleRowPattern)),
-    A.flatMap((match) => (match[1] === undefined ? A.empty<string>() : A.of(match[1]))),
-    A.dedupe,
-    A.sort(Order.String)
+    extractEffectTsgoDiagnosticsTableFragment(readme),
+    O.map((fragment) => effectTsgoReadmeParser.parse(`<root>${fragment}</root>`) as unknown),
+    O.flatMap(decodeEffectTsgoDiagnosticsTableOption),
+    O.map((decoded) =>
+      pipe(
+        decoded.root.table.tbody.tr,
+        A.flatMap((row) =>
+          pipe(
+            extractEffectTsgoRuleNameFromRow(row),
+            O.match({
+              onNone: A.empty<string>,
+              onSome: A.of,
+            })
+          )
+        ),
+        A.dedupe,
+        A.sort(Order.String)
+      )
+    ),
+    O.getOrElse(A.empty<string>)
   );
 
 const findEffectLanguageServicePlugin = (config: unknown): O.Option<Readonly<Record<string, unknown>>> =>
