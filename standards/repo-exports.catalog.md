@@ -16,13 +16,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Metric | Count |
 |---|---:|
-| packages | 61 |
-| packagesWithPublicExports | 60 |
+| packages | 62 |
+| packagesWithPublicExports | 61 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 846 |
-| publicExportEntries | 12733 |
-| uniquePackageSymbols | 5092 |
+| importSpecifiers | 847 |
+| publicExportEntries | 12738 |
+| uniquePackageSymbols | 5095 |
 
 ## Seed Discovery Proof
 
@@ -38,7 +38,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Order | Package | Path | Status | Import Specifiers | Export Entries | Unique Symbols |
 |---:|---|---|---|---:|---:|---:|
 | 1 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
-| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 267 | 89 |
+| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 270 | 90 |
 | 3 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 21 | 724 | 549 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
@@ -63,12 +63,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 24 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 25 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
 | 26 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 5 | 140 | 42 |
-| 27 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
-| 28 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
-| 29 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
-| 30 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
-| 31 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
-| 32 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
+| 27 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
+| 28 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
+| 29 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
+| 30 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
+| 31 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
+| 32 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
 | 33 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
 | 34 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
 | 35 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 50 | 16 |
@@ -86,18 +86,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 47 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
 | 48 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
 | 49 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
-| 50 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
-| 51 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
-| 52 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
-| 53 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
-| 54 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 6 | 363 | 149 |
-| 55 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
-| 56 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 8 | 161 | 44 |
-| 57 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
-| 58 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 59 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
-| 60 | `@beep/opip-web` | `apps/opip-web` | has-public-exports | 10 | 39 | 35 |
-| 61 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
+| 50 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 2 | 2 |
+| 51 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
+| 52 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
+| 53 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
+| 54 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
+| 55 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 6 | 363 | 149 |
+| 56 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
+| 57 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 8 | 161 | 44 |
+| 58 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
+| 59 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
+| 60 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
+| 61 | `@beep/opip-web` | `apps/opip-web` | has-public-exports | 10 | 39 | 35 |
+| 62 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
 
@@ -124,74 +125,75 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:883` | Identity composer for `@beep/acp`. |
-| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:571` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:587` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:931` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:711` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:728` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:479` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:656` |  |
-| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:464` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:143` | Identity composer for the `@beep/data` package. |
-| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` |  |
-| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:674` |  |
-| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:556` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:680` |  |
-| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:686` |  |
-| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1099` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:900` | Identity composer for `@beep/acp`. |
+| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:572` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:588` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:728` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:762` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:480` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:673` |  |
+| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:465` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:144` | Identity composer for the `@beep/data` package. |
+| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:685` |  |
+| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:691` |  |
+| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:557` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:697` |  |
+| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:703` |  |
+| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1116` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:764` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:158` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:509` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:603` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:650` |  |
-| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:173` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:434` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:449` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:899` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:855` |  |
-| `@beep/identity` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:662` |  |
-| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:692` |  |
-| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:635` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:252` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:267` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:282` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:494` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:297` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/runpod`. |
-| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/sanity`. |
-| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:188` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:419` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:359` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:404` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:329` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:374` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:344` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:389` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:524` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:312` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:203` | Identity composer for the `@beep/types` package. |
-| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:235` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:218` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:861` |  |
-| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:619` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:541` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:915` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` |  |
+| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:159` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:510` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:604` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:667` |  |
+| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:174` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:435` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:450` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:916` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:872` |  |
+| `@beep/identity` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:679` |  |
+| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:709` |  |
+| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:636` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:652` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:253` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:268` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:283` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:495` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:298` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/runpod`. |
+| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:866` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1100` | Identity composer for `@beep/sanity`. |
+| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:189` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:420` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:360` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:405` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:330` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:375` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:345` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:390` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:525` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:313` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:204` | Identity composer for the `@beep/types` package. |
+| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:236` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:219` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:878` |  |
+| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:620` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:542` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:932` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:884` |  |
 | `@beep/identity` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:481` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:454` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:525` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -206,7 +208,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1215` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:349` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:331` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:644` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:661` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:418` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:203` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:366` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
@@ -233,74 +235,75 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/Id` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:580` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/Id` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:291` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/Id` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:184` | Current version of the `@beep/identity` package. |
-| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:883` | Identity composer for `@beep/acp`. |
-| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:571` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:587` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:931` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:711` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:728` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:479` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:656` |  |
-| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:464` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:143` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` |  |
-| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:674` |  |
-| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:556` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:680` |  |
-| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:686` |  |
-| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1099` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:900` | Identity composer for `@beep/acp`. |
+| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:572` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:588` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:728` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:762` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:480` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:673` |  |
+| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:465` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:144` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:685` |  |
+| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:691` |  |
+| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:557` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:697` |  |
+| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:703` |  |
+| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1116` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/index` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:764` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:158` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:509` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:603` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:650` |  |
-| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:173` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:434` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:449` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:899` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/index` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:855` |  |
-| `@beep/identity/index` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:662` |  |
-| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:692` |  |
-| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:635` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:252` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:267` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:282` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:494` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:297` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:188` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:419` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:359` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:404` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:329` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:374` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:344` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:389` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:524` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:312` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:203` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:235` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:218` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:861` |  |
-| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:619` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:541` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:915` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` |  |
+| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:159` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:510` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:604` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:667` |  |
+| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:174` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:435` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:450` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:916` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/index` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:872` |  |
+| `@beep/identity/index` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:679` |  |
+| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:709` |  |
+| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:636` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:652` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:253` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:268` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:283` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:495` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:298` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:866` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1100` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:189` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:420` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:360` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:405` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:330` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:375` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:345` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:390` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:525` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:313` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:204` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:236` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:219` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:878` |  |
+| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:620` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:542` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:932` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:884` |  |
 | `@beep/identity/index` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:481` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity/index` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:454` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity/index` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:525` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -315,82 +318,83 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/index` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1215` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity/index` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:349` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity/index` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:331` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:644` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:661` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity/index` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:418` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity/index` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:203` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity/index` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:366` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
 | `@beep/identity/index` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:580` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/index` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:291` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/index` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:184` | Current version of the `@beep/identity` package. |
-| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:883` | Identity composer for `@beep/acp`. |
-| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:571` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:587` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:931` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:711` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:728` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:479` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:656` |  |
-| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:464` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:143` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` |  |
-| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:674` |  |
-| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:556` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:680` |  |
-| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:686` |  |
-| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1099` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:900` | Identity composer for `@beep/acp`. |
+| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:572` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:588` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:728` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:762` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:480` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:673` |  |
+| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:465` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:144` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:685` |  |
+| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:691` |  |
+| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:557` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:697` |  |
+| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:703` |  |
+| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1116` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/packages` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:764` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:158` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:509` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:603` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:650` |  |
-| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:173` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:434` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:449` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:899` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/packages` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:855` |  |
-| `@beep/identity/packages` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:662` |  |
-| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:692` |  |
-| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:635` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:252` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:267` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:282` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:494` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:297` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:188` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:419` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:359` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:404` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:329` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:374` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:344` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:389` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:524` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:312` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:203` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:235` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:218` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:861` |  |
-| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:619` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:541` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:915` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` |  |
-| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:644` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:159` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:510` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:604` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:667` |  |
+| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:174` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:435` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:450` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:916` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/packages` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:872` |  |
+| `@beep/identity/packages` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:679` |  |
+| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:709` |  |
+| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:636` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:652` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:253` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:268` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:283` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:495` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:298` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:866` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1100` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:189` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:420` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:360` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:405` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:330` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:375` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:345` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:390` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:525` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:313` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:204` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:236` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:219` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:878` |  |
+| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:620` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:542` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:932` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:884` |  |
+| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:661` | RepoPkgs - export object containing all package IdentityComposer's |
 
 ### @beep/utils
 
@@ -8219,248 +8223,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUsage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:801` | Token usage returned by OpenAI-compatible chat completion endpoints. |
 | `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
 
-### @beep/law-practice-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/law-practice-domain` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
-| `@beep/law-practice-domain` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
-| `@beep/law-practice-domain` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
-| `@beep/law-practice-domain` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
-| `@beep/law-practice-domain` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
-| `@beep/law-practice-domain` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
-| `@beep/law-practice-domain` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
-| `@beep/law-practice-domain` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
-| `@beep/law-practice-domain/entities` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
-| `@beep/law-practice-domain/entities` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
-| `@beep/law-practice-domain/entities` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
-| `@beep/law-practice-domain/entities` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
-| `@beep/law-practice-domain/entities` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
-| `@beep/law-practice-domain/entities` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
-| `@beep/law-practice-domain/entities` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
-| `@beep/law-practice-domain/entities` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
-| `@beep/law-practice-domain/entities/LegalClient` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
-| `@beep/law-practice-domain/entities/LegalClient` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities/LegalClient` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
-| `@beep/law-practice-domain/entities/LegalContact` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
-| `@beep/law-practice-domain/entities/LegalContact` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities/LegalContact` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
-| `@beep/law-practice-domain/entities/Matter` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
-| `@beep/law-practice-domain/entities/Matter` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities/Matter` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
-| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
-| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
-
-### @beep/agent-capability-use-cases
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/agent-capability-use-cases` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
-| `@beep/agent-capability-use-cases` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
-| `@beep/agent-capability-use-cases` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
-| `@beep/agent-capability-use-cases` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
-| `@beep/agent-capability-use-cases` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
-| `@beep/agent-capability-use-cases` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
-| `@beep/agent-capability-use-cases` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
-| `@beep/agent-capability-use-cases` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
-| `@beep/agent-capability-use-cases` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
-| `@beep/agent-capability-use-cases` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
-| `@beep/agent-capability-use-cases` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
-| `@beep/agent-capability-use-cases` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
-| `@beep/agent-capability-use-cases` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
-| `@beep/agent-capability-use-cases` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
-| `@beep/agent-capability-use-cases` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
-| `@beep/agent-capability-use-cases` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
-| `@beep/agent-capability-use-cases` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
-| `@beep/agent-capability-use-cases` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
-| `@beep/agent-capability-use-cases/proof` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
-| `@beep/agent-capability-use-cases/proof` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases/proof` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:215` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
-| `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
-| `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
-| `@beep/agent-capability-use-cases/proof` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
-| `@beep/agent-capability-use-cases/proof` | `runRuntimeFixture` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:666` | Run one deterministic runtime data-loop fixture. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeFixtureInput` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:55` | Parsed fixture inputs for one runtime data-loop scenario. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
-| `@beep/agent-capability-use-cases/proof` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
-| `@beep/agent-capability-use-cases/public` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
-| `@beep/agent-capability-use-cases/public` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases/public` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
-| `@beep/agent-capability-use-cases/public` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
-| `@beep/agent-capability-use-cases/public` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
-| `@beep/agent-capability-use-cases/public` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
-| `@beep/agent-capability-use-cases/test` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
-| `@beep/agent-capability-use-cases/test` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases/test` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:215` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
-| `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
-| `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
-| `@beep/agent-capability-use-cases/test` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
-| `@beep/agent-capability-use-cases/test` | `runRuntimeFixture` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:666` | Run one deterministic runtime data-loop fixture. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeFixtureInput` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:55` | Parsed fixture inputs for one runtime data-loop scenario. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
-| `@beep/agent-capability-use-cases/test` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
-
-### @beep/agent-capability-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/agent-capability-domain` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
-| `@beep/agent-capability-domain` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
-| `@beep/agent-capability-domain` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
-| `@beep/agent-capability-domain` | `Entities` | SourceFile | `packages/agent-capability/domain/src/entities/index.ts:21` |  |
-| `@beep/agent-capability-domain` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
-| `@beep/agent-capability-domain/entities` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
-| `@beep/agent-capability-domain/entities` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
-| `@beep/agent-capability-domain/entities` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
-| `@beep/agent-capability-domain/entities` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
-| `@beep/agent-capability-domain/entities/Agent` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
-| `@beep/agent-capability-domain/entities/Agent` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
-| `@beep/agent-capability-domain/entities/Agent` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
-| `@beep/agent-capability-domain/entities/Skill` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
-
-### @beep/epistemic-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/epistemic-domain` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
-| `@beep/epistemic-domain` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
-| `@beep/epistemic-domain` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
-| `@beep/epistemic-domain` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
-| `@beep/epistemic-domain` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
-| `@beep/epistemic-domain` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
-| `@beep/epistemic-domain/entities` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
-| `@beep/epistemic-domain/entities` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
-| `@beep/epistemic-domain/entities` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
-| `@beep/epistemic-domain/entities` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
-| `@beep/epistemic-domain/entities/Activity` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
-| `@beep/epistemic-domain/entities/CandidateClaim` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
-| `@beep/epistemic-domain/entities/Evidence` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
-| `@beep/epistemic-domain/entities/UsageRecord` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
-| `@beep/epistemic-domain/values` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
-| `@beep/epistemic-domain/values` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
-| `@beep/epistemic-domain/values/ClaimLifecycle` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
-| `@beep/epistemic-domain/values/ClaimLifecycle` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
-
-### @beep/wealth-management-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/wealth-management-domain` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
-| `@beep/wealth-management-domain` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
-| `@beep/wealth-management-domain` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
-| `@beep/wealth-management-domain` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
-| `@beep/wealth-management-domain` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
-| `@beep/wealth-management-domain` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
-| `@beep/wealth-management-domain` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
-| `@beep/wealth-management-domain` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
-| `@beep/wealth-management-domain` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
-| `@beep/wealth-management-domain` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
-| `@beep/wealth-management-domain` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
-| `@beep/wealth-management-domain` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
-| `@beep/wealth-management-domain/entities` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
-| `@beep/wealth-management-domain/entities` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
-| `@beep/wealth-management-domain/entities` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
-| `@beep/wealth-management-domain/entities` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
-| `@beep/wealth-management-domain/entities` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
-| `@beep/wealth-management-domain/entities` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
-| `@beep/wealth-management-domain/entities` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
-| `@beep/wealth-management-domain/entities` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
-| `@beep/wealth-management-domain/entities` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
-| `@beep/wealth-management-domain/entities` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
-| `@beep/wealth-management-domain/entities` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
-| `@beep/wealth-management-domain/entities` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
-| `@beep/wealth-management-domain/entities/Account` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
-| `@beep/wealth-management-domain/entities/Account` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
-| `@beep/wealth-management-domain/entities/Account` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
-| `@beep/wealth-management-domain/entities/Household` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
-| `@beep/wealth-management-domain/entities/Household` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
-| `@beep/wealth-management-domain/entities/Household` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
-| `@beep/wealth-management-domain/entities/Party` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
-| `@beep/wealth-management-domain/entities/Party` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
-| `@beep/wealth-management-domain/entities/Party` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
-| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
-| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
-| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
-
 ### @beep/ui
 
 | Import | Symbol | Kind | Source | Summary |
@@ -8990,6 +8752,248 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/themes/types` | `ThemeOptions` | type | `packages/foundation/ui-system/ui/src/themes/types.ts:9` | Theme option shape derived from MUI. |
 | `@beep/ui/themes/typography` | `typography` | const | `packages/foundation/ui-system/ui/src/themes/typography.ts:89` | Typography scale for the shared theme. |
 | `@beep/ui/themes/typography` | `typographyTheme` | const | `packages/foundation/ui-system/ui/src/themes/typography.ts:113` | Typography component overrides for the shared theme. |
+
+### @beep/law-practice-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/law-practice-domain` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
+| `@beep/law-practice-domain` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
+| `@beep/law-practice-domain` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
+| `@beep/law-practice-domain` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
+| `@beep/law-practice-domain` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
+| `@beep/law-practice-domain` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
+| `@beep/law-practice-domain` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
+| `@beep/law-practice-domain` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
+| `@beep/law-practice-domain/entities` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
+| `@beep/law-practice-domain/entities` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
+| `@beep/law-practice-domain/entities` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
+| `@beep/law-practice-domain/entities` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
+| `@beep/law-practice-domain/entities` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
+| `@beep/law-practice-domain/entities` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
+| `@beep/law-practice-domain/entities` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
+| `@beep/law-practice-domain/entities` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
+| `@beep/law-practice-domain/entities/LegalClient` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
+| `@beep/law-practice-domain/entities/LegalClient` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities/LegalClient` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
+| `@beep/law-practice-domain/entities/LegalContact` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
+| `@beep/law-practice-domain/entities/LegalContact` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities/LegalContact` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
+| `@beep/law-practice-domain/entities/Matter` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
+| `@beep/law-practice-domain/entities/Matter` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities/Matter` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
+| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
+| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
+
+### @beep/agent-capability-use-cases
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/agent-capability-use-cases` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
+| `@beep/agent-capability-use-cases` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
+| `@beep/agent-capability-use-cases` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
+| `@beep/agent-capability-use-cases` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
+| `@beep/agent-capability-use-cases` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
+| `@beep/agent-capability-use-cases` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
+| `@beep/agent-capability-use-cases` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
+| `@beep/agent-capability-use-cases` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
+| `@beep/agent-capability-use-cases` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
+| `@beep/agent-capability-use-cases` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
+| `@beep/agent-capability-use-cases` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
+| `@beep/agent-capability-use-cases` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
+| `@beep/agent-capability-use-cases` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
+| `@beep/agent-capability-use-cases` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
+| `@beep/agent-capability-use-cases` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
+| `@beep/agent-capability-use-cases` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
+| `@beep/agent-capability-use-cases` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
+| `@beep/agent-capability-use-cases` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
+| `@beep/agent-capability-use-cases` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
+| `@beep/agent-capability-use-cases/proof` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
+| `@beep/agent-capability-use-cases/proof` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
+| `@beep/agent-capability-use-cases/proof` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:215` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
+| `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
+| `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
+| `@beep/agent-capability-use-cases/proof` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
+| `@beep/agent-capability-use-cases/proof` | `runRuntimeFixture` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:666` | Run one deterministic runtime data-loop fixture. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeFixtureInput` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:55` | Parsed fixture inputs for one runtime data-loop scenario. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
+| `@beep/agent-capability-use-cases/proof` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
+| `@beep/agent-capability-use-cases/public` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
+| `@beep/agent-capability-use-cases/public` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
+| `@beep/agent-capability-use-cases/public` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
+| `@beep/agent-capability-use-cases/public` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
+| `@beep/agent-capability-use-cases/public` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
+| `@beep/agent-capability-use-cases/public` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
+| `@beep/agent-capability-use-cases/test` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
+| `@beep/agent-capability-use-cases/test` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
+| `@beep/agent-capability-use-cases/test` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:215` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
+| `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
+| `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
+| `@beep/agent-capability-use-cases/test` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
+| `@beep/agent-capability-use-cases/test` | `runRuntimeFixture` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:666` | Run one deterministic runtime data-loop fixture. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeFixtureInput` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:55` | Parsed fixture inputs for one runtime data-loop scenario. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
+| `@beep/agent-capability-use-cases/test` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
+
+### @beep/agent-capability-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/agent-capability-domain` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
+| `@beep/agent-capability-domain` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
+| `@beep/agent-capability-domain` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
+| `@beep/agent-capability-domain` | `Entities` | SourceFile | `packages/agent-capability/domain/src/entities/index.ts:21` |  |
+| `@beep/agent-capability-domain` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
+| `@beep/agent-capability-domain/entities` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
+| `@beep/agent-capability-domain/entities` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
+| `@beep/agent-capability-domain/entities` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
+| `@beep/agent-capability-domain/entities` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
+| `@beep/agent-capability-domain/entities/Agent` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
+| `@beep/agent-capability-domain/entities/Agent` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
+| `@beep/agent-capability-domain/entities/Agent` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
+| `@beep/agent-capability-domain/entities/Skill` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
+
+### @beep/epistemic-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/epistemic-domain` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
+| `@beep/epistemic-domain` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
+| `@beep/epistemic-domain` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
+| `@beep/epistemic-domain` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
+| `@beep/epistemic-domain` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
+| `@beep/epistemic-domain` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
+| `@beep/epistemic-domain/entities` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
+| `@beep/epistemic-domain/entities` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
+| `@beep/epistemic-domain/entities` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
+| `@beep/epistemic-domain/entities` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
+| `@beep/epistemic-domain/entities/Activity` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
+| `@beep/epistemic-domain/entities/CandidateClaim` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
+| `@beep/epistemic-domain/entities/Evidence` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
+| `@beep/epistemic-domain/entities/UsageRecord` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
+| `@beep/epistemic-domain/values` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
+| `@beep/epistemic-domain/values` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
+| `@beep/epistemic-domain/values/ClaimLifecycle` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
+| `@beep/epistemic-domain/values/ClaimLifecycle` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
+
+### @beep/wealth-management-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/wealth-management-domain` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
+| `@beep/wealth-management-domain` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
+| `@beep/wealth-management-domain` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
+| `@beep/wealth-management-domain` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
+| `@beep/wealth-management-domain` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
+| `@beep/wealth-management-domain` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
+| `@beep/wealth-management-domain` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
+| `@beep/wealth-management-domain` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
+| `@beep/wealth-management-domain` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
+| `@beep/wealth-management-domain` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
+| `@beep/wealth-management-domain` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
+| `@beep/wealth-management-domain` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
+| `@beep/wealth-management-domain/entities` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
+| `@beep/wealth-management-domain/entities` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
+| `@beep/wealth-management-domain/entities` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
+| `@beep/wealth-management-domain/entities` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
+| `@beep/wealth-management-domain/entities` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
+| `@beep/wealth-management-domain/entities` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
+| `@beep/wealth-management-domain/entities` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
+| `@beep/wealth-management-domain/entities` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
+| `@beep/wealth-management-domain/entities` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
+| `@beep/wealth-management-domain/entities` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
+| `@beep/wealth-management-domain/entities` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
+| `@beep/wealth-management-domain/entities` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
+| `@beep/wealth-management-domain/entities/Account` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
+| `@beep/wealth-management-domain/entities/Account` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
+| `@beep/wealth-management-domain/entities/Account` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
+| `@beep/wealth-management-domain/entities/Household` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
+| `@beep/wealth-management-domain/entities/Household` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
+| `@beep/wealth-management-domain/entities/Household` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
+| `@beep/wealth-management-domain/entities/Party` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
+| `@beep/wealth-management-domain/entities/Party` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
+| `@beep/wealth-management-domain/entities/Party` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
+| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
+| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
+| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
 
 ### @beep/architecture-lab-ui
 
@@ -11470,6 +11474,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/venice-ai/VeniceAiLanguageModel` | `make` | const | `packages/drivers/venice-ai/src/VeniceAiLanguageModel.ts:172` | Builds a Venice Effect AI language-model service. |
 | `@beep/venice-ai/VeniceAiLanguageModel` | `model` | const | `packages/drivers/venice-ai/src/VeniceAiLanguageModel.ts:221` | Builds an Effect AI model value for Venice. |
 | `@beep/venice-ai/VeniceAiLanguageModel` | `VeniceAiLanguageModelOptions` | class | `packages/drivers/venice-ai/src/VeniceAiLanguageModel.ts:50` | Options accepted by the Venice Effect AI language-model adapter. |
+
+### @beep/professional-desktop
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/professional-desktop` | `App` | function | `apps/professional-desktop/src/App.tsx:93` |  |
+| `@beep/professional-desktop` | `VERSION` | const | `apps/professional-desktop/src/index.ts:23` | Package version. |
 
 ### @beep/professional-runtime-proof
 
