@@ -55,7 +55,8 @@
       "closedGates": [
         "P0 packet bootstrap",
         "P1A runnable dry-run spine",
-        "P1 live proof harness implementation"
+        "P1 live proof harness implementation",
+        "P1 PR readiness quality-review-fix-loop"
       ],
       "remainingGates": [
         "P1 Discord vertical, Manual Mode fresh-OS Windows proof",
@@ -326,7 +327,7 @@
     {
       "phase": "P1D",
       "proof": "App-First Manual Installer UX",
-      "status": "pending",
+      "status": "in_progress",
       "evidenceArtifacts": [
         "history/outputs/p1d-app-first-manual-installer-ux.md",
         "ops/handoffs/HANDOFF_P1D_APP_FIRST_MANUAL_INSTALLER_UX.md",
@@ -438,8 +439,8 @@
       "future: verify zero required blockers or explicit waivers before PR-ready status"
     ],
     "p1dAppFirstManualInstallerUx": [
-      "future: Linux-first app-driven Bun install or repair proof",
-      "future: app validation detects Bun missing or unhealthy before mutation",
+      "future: Linux-first app-driven Bun repair proof for an existing install",
+      "future: app validation detects Bun unhealthy before mutation",
       "future: approval-first action path performs one real host mutation",
       "future: post-action validation reports Bun present or returns typed failure",
       "future: targeted package/app quality commands for touched slices"
@@ -475,7 +476,7 @@
     "artifact intake via Taildrop is blocked until the coordinator runs sudo tailscale set --operator=$USER or uses another approved private transfer channel; tokenized temporary tailnet upload is documented as a fallback, but no proof bundles have arrived",
     "coordinator-side Taildrop send to the online Windows peer is blocked because Tailscale reports the peer is owned by a different user",
     "live upload endpoint is reachable through raw tailnet IP and MagicDNS, but upload logs show no PUT or POST artifact upload attempts",
-    "post-proof quality-review-fix-loop not run",
+    "post-proof quality-review-fix-loop completed under temporary Windows missing-proof waiver (P1C closed)",
     "live proof harness validates existing state only and does not install or provision dependencies",
     "MCP executor adapter not built beyond minimal app-local Tauri bridge",
     "skill and instruction bundle generation not built",

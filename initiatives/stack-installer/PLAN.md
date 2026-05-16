@@ -154,20 +154,20 @@ flow.
 
 Exit Criteria:
 
-- [ ] Audited macOS proof artifact exists before the review starts.
-- [ ] Audited Windows proof artifact exists, or an explicit temporary Windows
+- [x] Audited macOS proof artifact exists before the review starts.
+- [x] Audited Windows proof artifact exists, or an explicit temporary Windows
   missing-proof waiver is recorded for P1C start.
-- [ ] Baseline quality commands are green on the current branch.
-- [ ] Reviewer panel covers quality gates, architecture boundaries, schema and
+- [x] Baseline quality commands are green on the current branch.
+- [x] Reviewer panel covers quality gates, architecture boundaries, schema and
   domain models, Effect laws, error boundaries, tests, observability,
   documentation/API, reuse/duplication, and evolution/deprecation.
-- [ ] Reuse opportunities are checked against existing repo modules before new
+- [x] Reuse opportunities are checked against existing repo modules before new
   abstractions are introduced.
-- [ ] Any structural improvements keep modules flat, idiomatic, and aligned
+- [x] Any structural improvements keep modules flat, idiomatic, and aligned
   with repo laws and package boundaries.
-- [ ] Required blockers are fixed, or every remaining blocker has an explicit
+- [x] Required blockers are fixed, or every remaining blocker has an explicit
   waiver record.
-- [ ] Final review round reports zero required blockers or only accepted
+- [x] Final review round reports zero required blockers or only accepted
   waivers.
 
 Required Outputs:
