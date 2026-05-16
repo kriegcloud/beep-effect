@@ -306,12 +306,12 @@ const parseFixArgs = (args: ReadonlyArray<string>): ParsedFixArgsState =>
 
 const parseTestLaneSelection = (args: ReadonlyArray<string>): TestLaneSelectionState => {
   const selected = A.reduce(stripPassthroughDelimiter(args), emptyTestLaneSelection, (lanes, arg) =>
-    Match.type<string>().pipe(
+    Match.value(arg).pipe(
       Match.when("--unit", () => ({ ...lanes, unit: true })),
       Match.when("--integration", () => ({ ...lanes, integration: true })),
       Match.when("--types", () => ({ ...lanes, types: true })),
       Match.orElse(() => ({ ...lanes, args: pipe(lanes.args, A.append(arg)) }))
-    )(arg)
+    )
   );
   const hasLane = selected.unit || selected.integration || selected.types;
   return {
@@ -381,7 +381,7 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
 
   const findPackageDir: (current: string) => Effect.Effect<O.Option<string>, QualityTaskConfigurationError> = Effect.fn(
     "QualityTasks.findPackageDir"
-  )(function* (current) {
+  )(function* (current): Effect.fn.Return<O.Option<string>, QualityTaskConfigurationError> {
     const packageJsonPath = path.join(current, "package.json");
     const exists = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
 
