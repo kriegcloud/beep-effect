@@ -97,6 +97,36 @@ const stateBadge = (state: BunRuntimeHealthView["state"]) => {
   }
 };
 
+const repairButtonLabel = (state: BunRuntimeHealthView["state"], repairState: RepairState): string => {
+  if (repairState._tag === "running") {
+    return "Repairing Bun";
+  }
+
+  switch (state) {
+    case "healthy":
+      return "Already Healthy";
+    case "missing":
+      return "Repair Unavailable";
+    case "repair-required":
+      return "Approve Repair";
+  }
+};
+
+const repairButtonHint = (state: BunRuntimeHealthView["state"], repairState: RepairState): string => {
+  if (repairState._tag === "running") {
+    return "Approval was received. The installer is running the Bun repair workflow now.";
+  }
+
+  switch (state) {
+    case "healthy":
+      return "No repair action is available because Bun already satisfies the required version.";
+    case "missing":
+      return "This milestone only supports repairing an existing Bun install, not first-time bootstrap.";
+    case "repair-required":
+      return "Clicking repair is the explicit approval boundary for this host mutation.";
+  }
+};
+
 const errorMessage = (error: unknown, fallback: string): string => {
   if (typeof error === "string") {
     return error;
@@ -145,6 +175,7 @@ export function App({
 
   const currentHealth = loadState._tag === "loaded" ? loadState.health : undefined;
   const currentBadge = currentHealth !== undefined ? stateBadge(currentHealth.state) : undefined;
+  const repairActionEnabled = currentHealth?.state === "repair-required" && repairState._tag !== "running";
   const repairProgress =
     repairState._tag === "running"
       ? 55
@@ -248,15 +279,39 @@ export function App({
                   <div className="flex flex-wrap items-center gap-3">
                     <Button
                       onClick={handleRepair}
-                      disabled={currentHealth.state !== "repair-required" || repairState._tag === "running"}
+                      disabled={!repairActionEnabled}
+                      aria-busy={repairState._tag === "running"}
+                      aria-disabled={!repairActionEnabled}
+                      variant={repairActionEnabled ? "default" : "outline"}
                     >
-                      <Hammer weight="fill" />
-                      {repairState._tag === "running" ? "Repairing Bun" : "Approve Repair"}
+                      {repairState._tag === "running" ? (
+                        <ArrowClockwise className="animate-spin" weight="bold" />
+                      ) : (
+                        <Hammer weight="fill" />
+                      )}
+                      {repairButtonLabel(currentHealth.state, repairState)}
                     </Button>
                     <p className="text-sm text-muted-foreground">
-                      Clicking repair is the explicit approval boundary for this host mutation.
+                      {repairButtonHint(currentHealth.state, repairState)}
                     </p>
                   </div>
+                </div>
+              ) : null}
+
+              {repairState._tag === "running" ? (
+                <div className="space-y-3 rounded-md border border-sky-300/60 bg-sky-50 p-4 dark:bg-sky-950/20">
+                  <div className="flex items-start gap-3">
+                    <ArrowClockwise className="mt-0.5 size-5 animate-spin text-sky-600" weight="bold" />
+                    <div className="min-w-0">
+                      <p className="font-medium">Repair in progress</p>
+                      <p className="text-sm text-muted-foreground">
+                        Approval was received. The installer is running the Bun repair workflow now.
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    This can take a moment while the desktop shell waits for <code>bun upgrade</code> to finish.
+                  </p>
                 </div>
               ) : null}
 

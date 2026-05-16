@@ -39,6 +39,8 @@ const healthyRepairResult = {
   summary: "Bun repair completed. Bun 1.3.14 satisfies the required version 1.3.14.",
 };
 
+const healthyHealth = healthyRepairResult.after;
+
 describe.sequential("Stack Installer app", () => {
   beforeEach(() => {
     loadHealthMock.mockReset();
@@ -57,13 +59,27 @@ describe.sequential("Stack Installer app", () => {
   });
 
   it("runs the repair action and renders the before and after state", async () => {
-    runRepairMock.mockResolvedValueOnce(healthyRepairResult);
+    let resolveRepair: ((value: typeof healthyRepairResult) => void) | undefined;
+    runRepairMock.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveRepair = resolve;
+        })
+    );
     render(<App loadBunRuntimeHealth={loadHealthMock} runBunRuntimeRepair={runRepairMock} />);
 
     await waitFor(() => expect(screen.getByRole("button", { name: "Approve Repair" })).toBeDefined());
     fireEvent.click(screen.getByRole("button", { name: "Approve Repair" }));
 
     await waitFor(() => expect(runRepairMock).toHaveBeenCalled());
+    await waitFor(() => expect(screen.getByText("Repair in progress")).toBeDefined());
+    expect(
+      screen.getAllByText("Approval was received. The installer is running the Bun repair workflow now.").length
+    ).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Repairing Bun" })).toBeDefined();
+
+    resolveRepair?.(healthyRepairResult);
+
     await waitFor(() => expect(screen.getByText("Repair complete")).toBeDefined());
     expect(screen.getByText("Executed command: bun upgrade")).toBeDefined();
     expect(screen.getAllByText("1.3.14").length).toBeGreaterThan(0);
@@ -84,5 +100,16 @@ describe.sequential("Stack Installer app", () => {
     fireEvent.click(screen.getByRole("button", { name: "Approve Repair" }));
 
     await waitFor(() => expect(screen.getByText("upgrade failed")).toBeDefined());
+  });
+
+  it("shows a clear no-op state when Bun is already healthy", async () => {
+    loadHealthMock.mockResolvedValueOnce(healthyHealth);
+    render(<App loadBunRuntimeHealth={loadHealthMock} runBunRuntimeRepair={runRepairMock} />);
+
+    await waitFor(() => expect(screen.getAllByText("Healthy").length).toBeGreaterThan(0));
+    expect(screen.getByRole("button", { name: "Already Healthy" }).getAttribute("disabled")).not.toBeNull();
+    expect(
+      screen.getByText("No repair action is available because Bun already satisfies the required version.")
+    ).toBeDefined();
   });
 });

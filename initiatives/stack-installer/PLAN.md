@@ -4,8 +4,8 @@ This plan executes [SPEC.md](./SPEC.md). P0 is complete. P1 remains open:
 Discord vertical, Manual Mode. P1A is complete as a runnable dry-run
 checkpoint. The P1 live harness is implemented. macOS proof is complete and
 audited. Windows proof is still missing and remains explicit open P1 debt.
-P1C is complete. P1D is now the active next execution lane on Linux while full
-P1 still requires the real Windows proof artifact.
+P1C is complete. P1D is complete on Linux. Full P1 still requires the real
+Windows proof artifact before P2 can start.
 
 ## P0: Initiative Bootstrap
 
@@ -237,8 +237,8 @@ Stop Conditions:
 
 ## P1D: App-First Manual Installer UX
 
-Status: active next execution lane; implementation proceeds on the dedicated
-P1D branch/worktree while full P1 remains open on the missing Windows proof
+Status: completed on Linux; full P1 still remains open on the missing Windows
+proof
 
 Goal: move the next meaningful milestone from proof-harness confidence to
 product confidence by making the Tauri app the primary operator surface and
@@ -256,18 +256,18 @@ Scope notes:
 
 Exit Criteria:
 
-- [ ] `apps/stack-installer` opens as the primary surface for this milestone.
-- [ ] The app detects Bun unhealthy and presents a typed repair action for an
+- [x] `apps/stack-installer` opens as the primary surface for this milestone.
+- [x] The app detects Bun unhealthy and presents a typed repair action for an
   existing Bun install.
-- [ ] The action is approval-first and mutates the host only after explicit
+- [x] The action is approval-first and mutates the host only after explicit
   user approval.
-- [ ] `installer-dependencies` owns the live Bun repair contract and server
+- [x] `installer-dependencies` owns the live Bun repair contract and server
   implementation.
-- [ ] `installer-dependencies-config` or equivalent installer-owned config
+- [x] `installer-dependencies-config` or equivalent installer-owned config
   surface owns the required Bun version contract and its live resolution.
-- [ ] After the action runs, the same validation spine reports Bun as present
-  or returns a typed failure with visible status.
-- [ ] Linux-first proof artifacts show the app-first Bun flow end to end.
+- [x] After the action runs, the same validation spine reports Bun as present
+  and the app renders the healthy/no-op state with visible status.
+- [x] Linux-first proof artifacts show the app-first Bun flow end to end.
 
 Required Outputs:
 
@@ -281,7 +281,7 @@ Required Checks:
 - `bun run config-sync:check`
 - `cd apps/stack-installer && bun run build`
 - `cd apps/stack-installer/src-tauri && cargo check`
-- Linux-first app-driven Bun repair proof capture and audit
+- Linux-first app-driven Bun repair proof capture and record update
 
 Stop Conditions:
 
@@ -292,6 +292,12 @@ Stop Conditions:
 - Do not broaden this milestone into first-time Bun bootstrap.
 - Do not add plaintext credential handling or broaden this milestone into AI
   Mode, MCP runtime, recovery, portability, signing, or distribution.
+
+Post-P1D Next Action:
+
+- Recreate the local fresh Windows VM using the preserved installer cache.
+- Resume from `history/outputs/p1-pause-handoff-2026-05-14.md`.
+- Run the real Windows proof and coordinator intake/audit before starting P2.
 
 ## P2: AI Mode Parity
 

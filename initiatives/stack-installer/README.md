@@ -25,9 +25,10 @@ driver packages validate 1Password, provider auth, host commands, and Discord
 liveness, and the app exposes Tauri and CLI proof capture commands. Fresh-OS
 macOS proof is complete and audited. Windows proof is temporarily waived only
 to let the P1C review/fix loop start. Full P1 still stays open until a real
-Windows proof artifact is returned and audited. P1D is now the active next
-execution lane: the app-first Bun repair milestone proceeds on Linux while the
-Windows proof remains explicit open P1 debt and a hard gate before P2.
+Windows proof artifact is returned and audited. P1D is now complete on Linux:
+the app-first Bun repair milestone proved one real approval-first host repair
+action, while the Windows proof remains explicit open P1 debt and a hard gate
+before P2.
 
 ## Read This First
 
@@ -48,12 +49,11 @@ Windows proof remains explicit open P1 debt and a hard gate before P2.
   - post-proof quality review and fix-loop record, including the temporary
     Windows missing-proof waiver
 - [history/outputs/p1d-app-first-manual-installer-ux.md](./history/outputs/p1d-app-first-manual-installer-ux.md)
-  - next milestone stub: app-first Manual Installer UX with one real repair
-    action
+  - completed Linux-first app-first Bun repair proof
 - [ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md](./ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md)
   - user-operated macOS and Windows proof runbook
 - [ops/handoffs/HANDOFF_P1D_APP_FIRST_MANUAL_INSTALLER_UX.md](./ops/handoffs/HANDOFF_P1D_APP_FIRST_MANUAL_INSTALLER_UX.md)
-  - next milestone handoff stub for Linux-first app-driven Bun repair
+  - post-proof handoff for the next Windows-proof-first resume point
 - [ops/handoffs/GOAL_P1_MACOS_PROOF.md](./ops/handoffs/GOAL_P1_MACOS_PROOF.md)
   - short `/goal` indirection target for the buddy MacBook Pro proof run
 - [research/README.md](./research/README.md) - research index
@@ -75,12 +75,11 @@ Windows proof remains explicit open P1 debt and a hard gate before P2.
   sequencing; full P1 remains open until Windows proof is real and audited.
 - P1C is complete: the PR readiness review/fix loop is recorded with the
   temporary Windows missing-proof waiver and zero remaining required blockers.
-- P1D is the active next execution lane: the app must become the primary
-  operator surface and complete one real machine-changing dependency repair
-  action, starting on Linux with Bun repair for an existing Bun install.
-- P2 is pending after both P1D and the real Windows proof: AI Mode parity
-  across Claude and Codex with byte-identical manifest output modulo
-  timestamps.
+- P1D is complete: the Tauri app became the primary operator surface for a
+  Linux-first Bun repair run, completed one real approval-first dependency
+  repair action, and now reports the healthy/no-op state clearly after repair.
+- P2 is pending after the real Windows proof: AI Mode parity across Claude and
+  Codex with byte-identical manifest output modulo timestamps.
 - P3 is pending: recovery proof from salted-broken-state machines.
 - P4 is pending: portability proof from exported manifest on Machine A to
   imported validator suite on Machine B.
@@ -91,11 +90,11 @@ Windows proof remains explicit open P1 debt and a hard gate before P2.
 
 This initiative is done only when all are true:
 
-- [ ] P1 Discord Manual Mode fresh-OS macOS proof is recorded.
+- [x] P1 Discord Manual Mode fresh-OS macOS proof is recorded.
 - [ ] P1 Discord Manual Mode fresh-OS Windows proof is recorded.
-- [ ] P1 PR readiness review/fix loop is recorded with zero required blockers
+- [x] P1 PR readiness review/fix loop is recorded with zero required blockers
   or explicit waivers.
-- [ ] P1D app-first Manual Installer UX is recorded with a real app-driven
+- [x] P1D app-first Manual Installer UX is recorded with a real app-driven
   dependency repair action.
 - [ ] P2 AI Mode parity is recorded for Claude and Codex with a
   byte-identical-manifest gate modulo timestamps.

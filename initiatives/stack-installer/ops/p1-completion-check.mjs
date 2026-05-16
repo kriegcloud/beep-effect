@@ -173,8 +173,8 @@ addCheck(
   `manifest completionEvidence.p1LiveHarness.status=${p1LiveEvidence}`
 );
 addCheck(
-  manifest.currentTargetPhase === "P1D",
-  "Active manifest target is P1D while full P1 remains open",
+  manifest.currentTargetPhase === "P1",
+  "Active manifest target returns to P1 after completed P1D while full P1 remains open",
   `manifest currentTargetPhase=${manifest.currentTargetPhase}`
 );
 addCheck(p2Phase?.status === "pending", "P2 remains pending", `manifest P2 status=${p2Phase?.status ?? "missing"}`);
