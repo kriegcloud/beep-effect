@@ -1,0 +1,149 @@
+{
+  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/canvas/server/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/canvas-server": ["../../../packages/canvas/server/src/index.ts"],
+      "@beep/canvas-server/layer": [
+        "../../../packages/canvas/server/src/Layer.ts"
+      ],
+      "@beep/canvas-server/test": [
+        "../../../packages/canvas/server/src/test.ts"
+      ],
+      "@beep/canvas-server/aggregates/CanvasProject": [
+        "../../../packages/canvas/server/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-server/entities/Worker": [
+        "../../../packages/canvas/server/src/entities/Worker/index.ts"
+      ],
+      "@beep/canvas-config": ["../../../packages/canvas/config/src/index.ts"],
+      "@beep/canvas-config/public": [
+        "../../../packages/canvas/config/src/public.ts"
+      ],
+      "@beep/canvas-config/server": [
+        "../../../packages/canvas/config/src/server.ts"
+      ],
+      "@beep/canvas-config/secrets": [
+        "../../../packages/canvas/config/src/secrets.ts"
+      ],
+      "@beep/canvas-config/layer": [
+        "../../../packages/canvas/config/src/layer.ts"
+      ],
+      "@beep/canvas-config/test": [
+        "../../../packages/canvas/config/src/test.ts"
+      ],
+      "@beep/canvas-config/aggregates/CanvasProject": [
+        "../../../packages/canvas/config/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-domain": ["../../../packages/canvas/domain/src/index.ts"],
+      "@beep/canvas-domain/aggregates": [
+        "../../../packages/canvas/domain/src/aggregates/index.ts"
+      ],
+      "@beep/canvas-domain/aggregates/CanvasProject": [
+        "../../../packages/canvas/domain/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-domain/entities": [
+        "../../../packages/canvas/domain/src/entities/index.ts"
+      ],
+      "@beep/canvas-domain/entities/Worker": [
+        "../../../packages/canvas/domain/src/entities/Worker/index.ts"
+      ],
+      "@beep/canvas-domain/identity": [
+        "../../../packages/canvas/domain/src/identity/index.ts"
+      ],
+      "@beep/canvas-domain/identity/Canvas": [
+        "../../../packages/canvas/domain/src/identity/Canvas.ts"
+      ],
+      "@beep/canvas-domain/values": [
+        "../../../packages/canvas/domain/src/values/index.ts"
+      ],
+      "@beep/canvas-domain/values/WorkPriority": [
+        "../../../packages/canvas/domain/src/values/WorkPriority/index.ts"
+      ],
+      "@beep/canvas-tables": ["../../../packages/canvas/tables/src/index.ts"],
+      "@beep/canvas-tables/tables": [
+        "../../../packages/canvas/tables/src/tables.ts"
+      ],
+      "@beep/canvas-tables/aggregates/CanvasProject": [
+        "../../../packages/canvas/tables/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-tables/entities/Worker": [
+        "../../../packages/canvas/tables/src/entities/Worker/index.ts"
+      ],
+      "@beep/canvas-use-cases": [
+        "../../../packages/canvas/use-cases/src/index.ts"
+      ],
+      "@beep/canvas-use-cases/public": [
+        "../../../packages/canvas/use-cases/src/public.ts"
+      ],
+      "@beep/canvas-use-cases/server": [
+        "../../../packages/canvas/use-cases/src/server.ts"
+      ],
+      "@beep/canvas-use-cases/aggregates/CanvasProject": [
+        "../../../packages/canvas/use-cases/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-use-cases/aggregates/CanvasProject/server": [
+        "../../../packages/canvas/use-cases/src/aggregates/CanvasProject/server.ts"
+      ],
+      "@beep/canvas-use-cases/entities/Worker": [
+        "../../../packages/canvas/use-cases/src/entities/Worker/index.ts"
+      ],
+      "@beep/canvas-use-cases/entities/Worker/server": [
+        "../../../packages/canvas/use-cases/src/entities/Worker/server.ts"
+      ],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/postgres": ["../../../packages/drivers/postgres/src/index.ts"],
+      "@beep/postgres/*": ["../../../packages/drivers/postgres/src/*.ts"],
+      "@beep/schema": [
+        "../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/foundation/modeling/schema/src/*.ts"
+      ],
+      "@beep/test-utils": [
+        "../../../packages/tooling/test-kit/test-utils/src/index.ts"
+      ],
+      "@beep/test-utils/*": [
+        "../../../packages/tooling/test-kit/test-utils/src/*.ts"
+      ],
+      "@beep/utils": [
+        "../../../packages/foundation/modeling/utils/src/index.ts"
+      ],
+      "@beep/utils/*": ["../../../packages/foundation/modeling/utils/src/*.ts"]
+    }
+  }
+}

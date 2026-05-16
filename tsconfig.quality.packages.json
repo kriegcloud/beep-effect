@@ -7,6 +7,9 @@
       "path": "apps/architecture-lab-proof"
     },
     {
+      "path": "apps/canvas"
+    },
+    {
       "path": "apps/codedank-web"
     },
     {
@@ -77,6 +80,9 @@
     },
     {
       "path": "packages/drivers/hubspot"
+    },
+    {
+      "path": "packages/drivers/konva"
     },
     {
       "path": "packages/drivers/onepassword-cli"

@@ -30,6 +30,7 @@ actually lives here.
 - `agent-effectiveness-loop` — research bootstrap for Phoenix-backed coding-agent effectiveness evals and diagnostics.
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
+- `canvas`
 - `ip-law-knowledge-graph`
 - `opip-web-production-hardening`
 - `opip-web-launch` — implementation complete; launch review pending.

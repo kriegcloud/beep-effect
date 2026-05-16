@@ -57,7 +57,9 @@
     "packages/drivers/discord/dtslint/**/*.tst.*",
     "packages/drivers/ai-provider-cli/dtslint/**/*.tst.*",
     "packages/drivers/sanity/dtslint/**/*.tst.*",
-    "packages/drivers/hubspot/dtslint/**/*.tst.*"
+    "packages/drivers/hubspot/dtslint/**/*.tst.*",
+    "packages/drivers/konva/dtslint/**/*.tst.*",
+    "apps/canvas/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }
