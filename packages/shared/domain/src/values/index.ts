@@ -19,3 +19,18 @@
  * @category models
  */
 export * as LocalDate from "./LocalDate/index.ts";
+
+/**
+ * OnePasswordReference - Typed reference to a 1Password item field.
+ *
+ * @example
+ * ```ts
+ * import { OnePasswordReference } from "@beep/shared-domain/values"
+ *
+ * console.log(OnePasswordReference.OnePasswordReference)
+ * ```
+ *
+ * @since 0.0.0
+ * @category value-objects
+ */
+export * as OnePasswordReference from "./OnePasswordReference/index.ts";

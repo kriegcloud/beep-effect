@@ -135,6 +135,9 @@
       ],
       "@beep/shared-domain/values/LocalDate": [
         "../../../packages/shared/domain/src/values/LocalDate/index.ts"
+      ],
+      "@beep/shared-domain/values/OnePasswordReference": [
+        "../../../packages/shared/domain/src/values/OnePasswordReference/index.ts"
       ]
     }
   }

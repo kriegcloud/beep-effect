@@ -5,6 +5,7 @@ Falkor
 falkordb
 grafana
 huggingface
+krieg
 kriegcloud
 lancedb
 Letta

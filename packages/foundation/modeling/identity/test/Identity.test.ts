@@ -4,9 +4,25 @@ import {
   $AgentCapabilityUseCasesId,
   $EpistemicDomainId,
   $I,
+  $InstallerChannelsDomainId,
+  $InstallerChannelsServerId,
+  $InstallerChannelsUseCasesId,
+  $InstallerDependenciesDomainId,
+  $InstallerDependenciesServerId,
+  $InstallerDependenciesUseCasesId,
+  $InstallerProvidersDomainId,
+  $InstallerProvidersServerId,
+  $InstallerProvidersUseCasesId,
+  $InstallerSecurityDomainId,
+  $InstallerSecurityServerId,
+  $InstallerSecurityUseCasesId,
+  $InstallerWorkspaceDomainId,
+  $InstallerWorkspaceServerId,
+  $InstallerWorkspaceUseCasesId,
   $LawPracticeDomainId,
   $ProfessionalRuntimeProofId,
   $SchemaId,
+  $StackInstallerId,
   $WealthManagementDomainId,
   $WorkspaceDomainId,
 } from "@beep/identity/packages";
@@ -254,6 +270,51 @@ describe("@beep/identity", () => {
     expect($LawPracticeDomainId.make("Matter")).toBe("@beep/law-practice-domain/Matter");
     expect($WealthManagementDomainId.make("Household")).toBe("@beep/wealth-management-domain/Household");
     expect($ProfessionalRuntimeProofId.make("RuntimeHarness")).toBe("@beep/professional-runtime-proof/RuntimeHarness");
+  });
+
+  it("exports Stack Installer P1A package composers", () => {
+    expect($StackInstallerId.make("Workbench")).toBe("@beep/stack-installer/Workbench");
+    expect($InstallerDependenciesDomainId.make("HostDependency")).toBe(
+      "@beep/installer-dependencies-domain/HostDependency"
+    );
+    expect($InstallerDependenciesUseCasesId.make("HostDependencyPlan")).toBe(
+      "@beep/installer-dependencies-use-cases/HostDependencyPlan"
+    );
+    expect($InstallerDependenciesServerId.make("InstallerDependenciesServer")).toBe(
+      "@beep/installer-dependencies-server/InstallerDependenciesServer"
+    );
+    expect($InstallerSecurityDomainId.make("SecretReference")).toBe("@beep/installer-security-domain/SecretReference");
+    expect($InstallerSecurityUseCasesId.make("SecretReferencePlan")).toBe(
+      "@beep/installer-security-use-cases/SecretReferencePlan"
+    );
+    expect($InstallerSecurityServerId.make("InstallerSecurityServer")).toBe(
+      "@beep/installer-security-server/InstallerSecurityServer"
+    );
+    expect($InstallerProvidersDomainId.make("ProviderAccount")).toBe(
+      "@beep/installer-providers-domain/ProviderAccount"
+    );
+    expect($InstallerProvidersUseCasesId.make("ProviderAccountPlan")).toBe(
+      "@beep/installer-providers-use-cases/ProviderAccountPlan"
+    );
+    expect($InstallerProvidersServerId.make("InstallerProvidersServer")).toBe(
+      "@beep/installer-providers-server/InstallerProvidersServer"
+    );
+    expect($InstallerChannelsDomainId.make("DiscordChannel")).toBe("@beep/installer-channels-domain/DiscordChannel");
+    expect($InstallerChannelsUseCasesId.make("DiscordChannelPlan")).toBe(
+      "@beep/installer-channels-use-cases/DiscordChannelPlan"
+    );
+    expect($InstallerChannelsServerId.make("InstallerChannelsServer")).toBe(
+      "@beep/installer-channels-server/InstallerChannelsServer"
+    );
+    expect($InstallerWorkspaceDomainId.make("AIStackManifest")).toBe(
+      "@beep/installer-workspace-domain/AIStackManifest"
+    );
+    expect($InstallerWorkspaceUseCasesId.make("WorkspaceDryRunPlan")).toBe(
+      "@beep/installer-workspace-use-cases/WorkspaceDryRunPlan"
+    );
+    expect($InstallerWorkspaceServerId.make("InstallerWorkspaceServer")).toBe(
+      "@beep/installer-workspace-server/InstallerWorkspaceServer"
+    );
   });
 });
 // bench

@@ -61,6 +61,10 @@ test-results/
 # Storybook build output
 storybook-static/
 
+# Rust/Tauri local build output
+**/src-tauri/target/
+**/src-tauri/gen/
+
 # Lost Pixel
 .lostpixel/current/
 .lostpixel/difference/
@@ -76,6 +80,7 @@ storybook-static/
 .sst/
 sst-env.d.ts
 /outputs/agent-reliability/worktrees/
+/output/
 
 # lsmcp cache
 .lsmcp/cache

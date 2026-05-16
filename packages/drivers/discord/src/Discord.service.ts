@@ -1,0 +1,221 @@
+/**
+ * Effect service for Discord REST API proof calls.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $DiscordId } from "@beep/identity";
+import { Context, Effect, Layer, pipe, Redacted } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { FetchHttpClient } from "effect/unstable/http";
+import * as HttpClient from "effect/unstable/http/HttpClient";
+import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import { DiscordError } from "./Discord.errors.ts";
+import {
+  DiscordChannelProof,
+  DiscordChannelRequest,
+  DiscordConfigInput,
+  DiscordCreateMessageRequest,
+  DiscordMessageProof,
+} from "./Discord.models.ts";
+
+const $I = $DiscordId.create("Discord.service");
+
+const DISCORD_API_URL = "https://discord.com/api/v10";
+const normalizeBaseUrl = Str.replace(/\/+$/, "");
+const decodeChannelRequest = S.decodeUnknownEffect(DiscordChannelRequest);
+const decodeCreateMessageRequest = S.decodeUnknownEffect(DiscordCreateMessageRequest);
+
+class DiscordRawChannel extends S.Class<DiscordRawChannel>($I`DiscordRawChannel`)(
+  {
+    guild_id: S.optionalKey(S.String),
+    id: S.String,
+    name: S.optionalKey(S.String),
+  },
+  $I.annote("DiscordRawChannel", {
+    description: "Subset of Discord channel response fields needed for sanitized proof.",
+  })
+) {}
+
+class DiscordRawMessage extends S.Class<DiscordRawMessage>($I`DiscordRawMessage`)(
+  {
+    channel_id: S.String,
+    id: S.String,
+    timestamp: S.optionalKey(S.String),
+  },
+  $I.annote("DiscordRawMessage", {
+    description: "Subset of Discord message response fields needed for sanitized proof.",
+  })
+) {}
+
+const decodeRawChannel = S.decodeUnknownEffect(DiscordRawChannel);
+const decodeRawMessage = S.decodeUnknownEffect(DiscordRawMessage);
+
+/**
+ * Runtime shape exposed by the Discord REST driver service.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+interface DiscordShape {
+  readonly createMessage: (
+    request: DiscordCreateMessageRequest,
+    botToken: Redacted.Redacted<string>
+  ) => Effect.Effect<DiscordMessageProof, DiscordError>;
+  readonly getChannel: (
+    request: DiscordChannelRequest,
+    botToken: Redacted.Redacted<string>
+  ) => Effect.Effect<DiscordChannelProof, DiscordError>;
+}
+
+const errorCause = (cause: unknown): string => (P.isString(cause) ? cause : "unknown");
+
+const discordPath = (path: string): string => (Str.startsWith("/")(path) ? path : `/${path}`);
+
+const authRequest = (
+  request: HttpClientRequest.HttpClientRequest,
+  botToken: Redacted.Redacted<string>
+): HttpClientRequest.HttpClientRequest =>
+  pipe(
+    request,
+    HttpClientRequest.setHeader("Authorization", `Bot ${Redacted.value(botToken)}`),
+    HttpClientRequest.accept("application/json")
+  );
+
+const ensureSuccess = (
+  response: HttpClientResponse.HttpClientResponse,
+  path: string,
+  method: string
+): Effect.Effect<HttpClientResponse.HttpClientResponse, DiscordError> =>
+  response.status >= 200 && response.status < 300
+    ? Effect.succeed(response)
+    : Effect.fail(new DiscordError({ method, path, reason: "response-status", status: response.status }));
+
+const executeJson = Effect.fn("Discord.executeJson")(function* (
+  client: HttpClient.HttpClient,
+  baseUrl: string,
+  path: string,
+  method: "GET" | "POST",
+  botToken: Redacted.Redacted<string>,
+  body?: unknown
+) {
+  const fullPath = discordPath(path);
+  const rawRequest = HttpClientRequest.make(method)(`${baseUrl}${fullPath}`);
+  const request = yield* pipe(
+    body === undefined ? Effect.succeed(rawRequest) : HttpClientRequest.bodyJson(rawRequest, body),
+    Effect.mapError(
+      (cause) => new DiscordError({ cause: errorCause(cause), method, path: fullPath, reason: "request" })
+    ),
+    Effect.map((requestWithBody) => authRequest(requestWithBody, botToken))
+  );
+
+  const response = yield* client
+    .execute(request)
+    .pipe(
+      Effect.mapError(
+        (cause) => new DiscordError({ cause: errorCause(cause), method, path: fullPath, reason: "transport" })
+      )
+    );
+  const successful = yield* ensureSuccess(response, fullPath, method);
+
+  return yield* successful.json.pipe(
+    Effect.mapError(
+      (cause) => new DiscordError({ cause: errorCause(cause), method, path: fullPath, reason: "response-decoding" })
+    )
+  );
+});
+
+const makeService = (client: HttpClient.HttpClient, config: DiscordConfigInput): DiscordShape => {
+  const baseUrl = normalizeBaseUrl(config.baseUrl ?? DISCORD_API_URL);
+
+  return {
+    createMessage: Effect.fn("Discord.createMessage")(function* (rawRequest, botToken) {
+      const request = yield* decodeCreateMessageRequest(rawRequest).pipe(
+        Effect.mapError((cause) => new DiscordError({ cause: errorCause(cause), reason: "request" }))
+      );
+      const body = {
+        allowed_mentions: {
+          parse: [],
+        },
+        content: request.content,
+      };
+      const raw = yield* executeJson(
+        client,
+        baseUrl,
+        `/channels/${request.channelId}/messages`,
+        "POST",
+        botToken,
+        body
+      );
+      const decoded = yield* decodeRawMessage(raw).pipe(
+        Effect.mapError((cause) => new DiscordError({ cause: errorCause(cause), reason: "response-decoding" }))
+      );
+
+      return new DiscordMessageProof({
+        channelId: decoded.channel_id,
+        messageId: decoded.id,
+        status: 200,
+        ...R.getSomes({
+          timestamp: O.fromUndefinedOr(decoded.timestamp),
+        }),
+      });
+    }),
+    getChannel: Effect.fn("Discord.getChannel")(function* (rawRequest, botToken) {
+      const request = yield* decodeChannelRequest(rawRequest).pipe(
+        Effect.mapError((cause) => new DiscordError({ cause: errorCause(cause), reason: "request" }))
+      );
+      const raw = yield* executeJson(client, baseUrl, `/channels/${request.channelId}`, "GET", botToken);
+      const decoded = yield* decodeRawChannel(raw).pipe(
+        Effect.mapError((cause) => new DiscordError({ cause: errorCause(cause), reason: "response-decoding" }))
+      );
+
+      return new DiscordChannelProof({
+        channelId: decoded.id,
+        status: 200,
+        ...R.getSomes({
+          guildId: O.fromUndefinedOr(decoded.guild_id),
+          name: O.fromUndefinedOr(decoded.name),
+        }),
+      });
+    }),
+  };
+};
+
+/**
+ * Effect service for Discord REST API calls.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class Discord extends Context.Service<Discord, DiscordShape>()($I`Discord`) {
+  /**
+   * Build a Discord REST driver layer with an injected HTTP client.
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayer = (
+    config = new DiscordConfigInput({})
+  ): Layer.Layer<Discord, never, HttpClient.HttpClient> =>
+    Layer.effect(
+      Discord,
+      Effect.gen(function* () {
+        const client = yield* HttpClient.HttpClient;
+        return Discord.of(makeService(client, config));
+      })
+    );
+
+  /**
+   * Live Discord REST driver layer backed by the platform fetch client.
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly layer: Layer.Layer<Discord> = Discord.makeLayer().pipe(Layer.provide(FetchHttpClient.layer));
+}

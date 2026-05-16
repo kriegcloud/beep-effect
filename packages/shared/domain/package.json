@@ -51,6 +51,7 @@
     "./identity/Workspace": "./src/identity/Workspace.ts",
     "./values": "./src/values.ts",
     "./values/LocalDate": "./src/values/LocalDate/index.ts",
+    "./values/OnePasswordReference": "./src/values/OnePasswordReference/index.ts",
     "./*": "./src/*.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
@@ -89,6 +90,7 @@
       "./identity/Workspace": "./dist/identity/Workspace.js",
       "./values": "./dist/values.js",
       "./values/LocalDate": "./dist/values/LocalDate/index.js",
+      "./values/OnePasswordReference": "./dist/values/OnePasswordReference/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"

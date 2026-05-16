@@ -34,7 +34,8 @@ actually lives here.
 - `opip-web-launch` — implementation complete; launch review pending.
 - `repo-quality-acceleration` — research-first quality feedback speedup packet.
 - `repo-context-topology` — generated topology and export catalog work for
-  coding-agent symbol discovery.
+    coding-agent symbol discovery.
+- `stack-installer`
 - `trustgraph-doc-ontology`
 
 ## Reference Packets
