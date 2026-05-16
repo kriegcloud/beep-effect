@@ -4,10 +4,9 @@
  * @since 0.0.0
  */
 
+import { A, Str } from "@beep/utils";
 import { flow, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import { AiMetricsTranscriptSource } from "../models.ts";
 
 const codexEventNames = [

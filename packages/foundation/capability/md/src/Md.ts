@@ -5,12 +5,10 @@
  * @since 0.0.0
  */
 
-import { thunkFalse } from "@beep/utils";
-import * as A from "effect/Array";
+import { A, Str, thunkFalse } from "@beep/utils";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   A as ANode,
   type Block,
@@ -251,12 +249,12 @@ const templateToInlineArray = (
   for (let index = 0; index < strings.length; index++) {
     const chunk = strings[index];
     if (chunk !== "") {
-      out.push(text(chunk));
+      A.appendInPlace(out, text(chunk));
     }
 
     const value = values[index];
     if (value !== undefined) {
-      out.push(...asInlineArray(value));
+      A.appendAllInPlace(out, asInlineArray(value));
     }
   }
 
@@ -290,7 +288,7 @@ const templateToBlockArray = (
   let pendingInline: Array<Inline> = [];
   const flushInline = (): void => {
     if (pendingInline.length > 0) {
-      out.push(p(pendingInline));
+      A.appendInPlace(out, p(pendingInline));
       pendingInline = [];
     }
   };
@@ -302,15 +300,15 @@ const templateToBlockArray = (
     const nextIsBlock = value !== undefined && isBlockTemplateBlockValue(value);
     const previousIsBlock = previousValue !== undefined && isBlockTemplateBlockValue(previousValue);
     if (chunk !== "" && !(isBlockTemplateFormattingChunk(chunk) && (nextIsBlock || previousIsBlock))) {
-      pendingInline.push(text(chunk));
+      A.appendInPlace(pendingInline, text(chunk));
     }
 
     if (value !== undefined) {
       if (nextIsBlock) {
         flushInline();
-        out.push(...asBlockArray(value));
+        A.appendAllInPlace(out, asBlockArray(value));
       } else {
-        pendingInline.push(...asInlineArray(value));
+        A.appendAllInPlace(pendingInline, asInlineArray(value));
       }
     }
   }

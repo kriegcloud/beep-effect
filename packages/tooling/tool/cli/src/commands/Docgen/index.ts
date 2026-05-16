@@ -10,12 +10,11 @@
 
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { Runpod, RunpodConfigInput } from "@beep/runpod";
+import { A, Str } from "@beep/utils";
 import { Config, Console, Effect, FileSystem, Match, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { renderBiomeJson } from "../Shared/BiomeJson.js";
@@ -202,8 +201,8 @@ const defaultQualityPath = (packagePath: string, json: boolean, path: Path.Path)
   path.join(packagePath, json ? "JSDOC_QUALITY.json" : "JSDOC_QUALITY.md");
 
 const logGenerationResults = Effect.fn(function* (results: ReadonlyArray<DocgenGenerationResult>) {
-  const failures = results.filter((result) => !result.success);
-  const successes = results.filter((result) => result.success);
+  const failures = A.filter(results, (result) => !result.success);
+  const successes = A.filter(results, (result) => result.success);
 
   for (const result of successes) {
     const suffix = result.moduleCount === undefined ? "" : ` (${result.moduleCount} module file(s))`;
@@ -247,7 +246,7 @@ const resolveGenerateTargets = Effect.fn("Docgen.resolveGenerateTargets")(functi
   }
 
   return yield* discoverDocgenWorkspacePackages().pipe(
-    Effect.map((packages) => packages.filter((pkg) => pkg.hasDocgenConfig))
+    Effect.map((packages) => A.filter(packages, (pkg) => pkg.hasDocgenConfig))
   );
 });
 
@@ -259,7 +258,7 @@ const resolveAnalyzeTargets = Effect.fn("Docgen.resolveAnalyzeTargets")(function
   }
 
   return yield* discoverDocgenWorkspacePackages().pipe(
-    Effect.map((packages) => packages.filter((pkg) => pkg.hasDocgenConfig))
+    Effect.map((packages) => A.filter(packages, (pkg) => pkg.hasDocgenConfig))
   );
 });
 
@@ -385,9 +384,9 @@ const docgenStatusCommand = Command.make(
   Effect.fn(
     function* ({ verbose, json }) {
       const packages = yield* discoverDocgenWorkspacePackages();
-      const configuredAndGenerated = packages.filter((pkg) => pkg.status === "configured-and-generated");
-      const configuredNotGenerated = packages.filter((pkg) => pkg.status === "configured-not-generated");
-      const notConfigured = packages.filter((pkg) => pkg.status === "not-configured");
+      const configuredAndGenerated = A.filter(packages, (pkg) => pkg.status === "configured-and-generated");
+      const configuredNotGenerated = A.filter(packages, (pkg) => pkg.status === "configured-not-generated");
+      const notConfigured = A.filter(packages, (pkg) => pkg.status === "not-configured");
 
       if (json) {
         yield* Console.log(
@@ -426,7 +425,7 @@ const docgenStatusCommand = Command.make(
           if (O.isSome(config)) {
             yield* Console.log(`  srcDir: ${config.value.srcDir ?? "src"}`);
             yield* Console.log(`  outDir: ${config.value.outDir ?? "docs"}`);
-            yield* Console.log(`  exclude: ${(config.value.exclude ?? []).join(", ") || "none"}`);
+            yield* Console.log(`  exclude: ${A.join(config.value.exclude ?? [], ", ") || "none"}`);
           }
         }
       }
@@ -474,7 +473,7 @@ const docgenGenerateCommand = Command.make(
 
       if (json) {
         yield* Console.log(yield* renderJson(results));
-        if (results.some((result) => !result.success)) {
+        if (A.some(results, (result) => !result.success)) {
           process.exitCode = 1;
         }
         return;
@@ -529,7 +528,7 @@ const docgenRunCommand = Command.make(
 
       yield* logGenerationResults(generationResults);
 
-      if (generationResults.some((result) => !result.success)) {
+      if (A.some(generationResults, (result) => !result.success)) {
         yield* Console.log("docgen: skipping aggregation because generation failed for one or more package(s)");
         return;
       }
@@ -696,7 +695,7 @@ const docgenCheckCommand = Command.make(
       const analyses = yield* Effect.forEach(targets, analyzePackageDocumentation, {
         concurrency: Math.max(1, parallel),
       });
-      const failures = analyses.filter((analysis) => analysis.summary.missingDocumentation > 0);
+      const failures = A.filter(analyses, (analysis) => analysis.summary.missingDocumentation > 0);
 
       if (json) {
         yield* Console.log(
@@ -705,9 +704,10 @@ const docgenCheckCommand = Command.make(
             summary: {
               packages: analyses.length,
               failingPackages: failures.length,
-              missingDocumentation: failures.reduce(
-                (total, analysis) => total + analysis.summary.missingDocumentation,
-                0
+              missingDocumentation: A.reduce(
+                failures,
+                0,
+                (total, analysis) => total + analysis.summary.missingDocumentation
               ),
             },
           })

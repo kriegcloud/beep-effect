@@ -22,9 +22,8 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";
-import { Str, thunkEmptyStr, thunkFalse, thunkTrue } from "@beep/utils";
+import { A, Str, thunkEmptyStr, thunkFalse, thunkTrue } from "@beep/utils";
 import { HashSet, pipe } from "effect";
-import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

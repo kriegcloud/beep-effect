@@ -1,4 +1,5 @@
 import { EthereumValidatorPublicKey } from "@beep/schema/blockchain/EthereumValidatorPublicKey";
+import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -13,13 +14,13 @@ describe("EthereumValidatorPublicKey", () => {
   });
 
   it("rejects malformed validator public keys", () => {
-    expect(() => decode(validPublicKey.toUpperCase())).toThrow(
+    expect(() => decode(Str.toUpperCase(validPublicKey))).toThrow(
       "EthereumValidatorPublicKey must be a lowercase 0x-prefixed 48-byte public key"
     );
-    expect(() => decode(`0x${"ab".repeat(47)}`)).toThrow(
+    expect(() => decode(`0x${Str.repeat("ab", 47)}`)).toThrow(
       "EthereumValidatorPublicKey must be a lowercase 0x-prefixed 48-byte public key"
     );
-    expect(() => decode(`0x${"ag".repeat(48)}`)).toThrow(
+    expect(() => decode(`0x${Str.repeat("ag", 48)}`)).toThrow(
       "EthereumValidatorPublicKey must be a lowercase 0x-prefixed 48-byte public key"
     );
   });

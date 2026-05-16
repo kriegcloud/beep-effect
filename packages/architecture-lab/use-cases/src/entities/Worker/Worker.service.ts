@@ -7,8 +7,8 @@
  */
 
 import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
+import { A } from "@beep/utils";
 import { Effect, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { CreateWorkerCommand, GetWorkerQuery, ListWorkersQuery } from "./Worker.commands.js";

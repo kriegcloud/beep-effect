@@ -12,8 +12,8 @@ import {
   TsMorphProjectInspectionRequest,
 } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Effect, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

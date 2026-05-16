@@ -6,14 +6,12 @@
  */
 
 import { $SchemaId } from "@beep/identity";
-import { thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import { Effect, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { type CsvError, csvError } from "../CsvError.ts";
 import type { ParserOptions } from "./ParserOptions.ts";
 
@@ -21,11 +19,13 @@ const $I = $SchemaId.create("csv/parse/CsvParser");
 
 const BOM = "\ufeff";
 
-const removeBom = (input: string): string => (input.charAt(0) === BOM ? input.slice(1) : input);
+const charAt = (input: string, index: number): string | undefined => pipe(input, Str.at(index), O.getOrUndefined);
+
+const removeBom = (input: string): string => (charAt(input, 0) === BOM ? Str.slice(1)(input) : input);
 
 const getRowDelimiterLength = (input: string, cursor: number): number => {
-  const current = input.at(cursor);
-  const next = input.at(cursor + 1);
+  const current = charAt(input, cursor);
+  const next = charAt(input, cursor + 1);
 
   if (current === "\r" && next === "\n") {
     return 2;
@@ -70,11 +70,11 @@ const getQuotedFieldStart = (input: string, cursor: number, parserOptions: Parse
   while (currentCursor < input.length) {
     const rowDelimiterLength = getRowDelimiterLength(input, currentCursor);
 
-    if (rowDelimiterLength > 0 || input.at(currentCursor) === parserOptions.delimiter) {
+    if (rowDelimiterLength > 0 || charAt(input, currentCursor) === parserOptions.delimiter) {
       return O.none();
     }
 
-    const character = input.at(currentCursor);
+    const character = charAt(input, currentCursor);
 
     if (!P.isString(character)) {
       return O.none();
@@ -121,14 +121,14 @@ const parseQuotedField = (
   let foundClosingQuote = false;
 
   while (cursor < input.length) {
-    const character = input.at(cursor);
+    const character = charAt(input, cursor);
 
     if (!P.isString(character)) {
       break;
     }
 
     if (character === escapeChar) {
-      const next = input.at(cursor + 1);
+      const next = charAt(input, cursor + 1);
 
       if (next === quote || next === escapeChar) {
         value = `${value}${next}`;
@@ -164,11 +164,11 @@ const parseQuotedField = (
   while (cursor < input.length) {
     const rowDelimiterLength = getRowDelimiterLength(input, cursor);
 
-    if (rowDelimiterLength > 0 || input.at(cursor) === parserOptions.delimiter) {
+    if (rowDelimiterLength > 0 || charAt(input, cursor) === parserOptions.delimiter) {
       break;
     }
 
-    const character = input.at(cursor);
+    const character = charAt(input, cursor);
 
     if (P.isString(character) && isInlineWhitespace(character)) {
       cursor += 1;
@@ -193,11 +193,11 @@ const parseUnquotedField = (input: string, cursor: number, parserOptions: Parser
   while (currentCursor < input.length) {
     const rowDelimiterLength = getRowDelimiterLength(input, currentCursor);
 
-    if (rowDelimiterLength > 0 || input.at(currentCursor) === parserOptions.delimiter) {
+    if (rowDelimiterLength > 0 || charAt(input, currentCursor) === parserOptions.delimiter) {
       break;
     }
 
-    const character = input.at(currentCursor);
+    const character = charAt(input, currentCursor);
 
     if (!P.isString(character)) {
       break;
@@ -220,7 +220,7 @@ const parseField = (
 ): Effect.Effect<ParsedField, CsvError, never> => {
   const rowDelimiterLength = getRowDelimiterLength(input, cursor);
 
-  if (rowDelimiterLength > 0 || input.at(cursor) === parserOptions.delimiter || cursor >= input.length) {
+  if (rowDelimiterLength > 0 || charAt(input, cursor) === parserOptions.delimiter || cursor >= input.length) {
     return Effect.succeed({
       cursor,
       value: "",
@@ -295,7 +295,7 @@ const parseRowAt = Effect.fn("CsvParser.parseRowAt")(function* (
       };
     }
 
-    if (input.at(currentCursor) === parserOptions.delimiter) {
+    if (charAt(input, currentCursor) === parserOptions.delimiter) {
       currentCursor += 1;
 
       if (currentCursor >= input.length) {
@@ -342,7 +342,7 @@ const advancePastComment = (input: string, cursor: number): number => {
 const isCommentStart = (input: string, cursor: number, parserOptions: ParserOptions): boolean =>
   O.match(parserOptions.comment, {
     onNone: thunkFalse,
-    onSome: (comment) => input.at(cursor) === comment,
+    onSome: (comment) => charAt(input, cursor) === comment,
   });
 
 const parseCsvRowsEffect = Effect.fn("CsvParser.parseCsvRowsEffect")(function* (

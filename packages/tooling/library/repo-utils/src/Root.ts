@@ -7,11 +7,9 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import { NoSuchFileError } from "./errors/index.js";
 
 /**

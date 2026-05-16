@@ -90,6 +90,7 @@
     "@beep/runpod": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/test-utils": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@effect/markdown-toc": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",

@@ -15,12 +15,11 @@ import {
 } from "@beep/hubspot";
 import { $OpipWebId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Clock, Config, Effect, Layer, pipe, Redacted } from "effect";
-import * as A from "effect/Array";
+import { A, Str } from "@beep/utils";
+import { Clock, Config, Effect, flow, Layer, pipe, Redacted } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import {
   type ContactSubmission,
@@ -73,8 +72,7 @@ class ContactSubmissionError extends TaggedErrorClass<ContactSubmissionError>($I
     });
 }
 
-const trimConfigOption = (value: O.Option<string>): O.Option<string> =>
-  pipe(value, O.map(Str.trim), O.filter(Str.isNonEmpty));
+const trimConfigOption: (value: O.Option<string>) => O.Option<string> = flow(O.map(Str.trim), O.filter(Str.isNonEmpty));
 
 const readTextConfigOption = Effect.fn("OpipContact.readTextConfigOption")(function* (key: string) {
   const value = yield* Config.string(key).pipe(

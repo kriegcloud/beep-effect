@@ -36,8 +36,14 @@ import {
   withId,
   withMark,
 } from "@beep/nlp/Core/index";
+import { Str } from "@beep/utils";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
+
+const firstIncludes = (values: ReadonlyArray<string>, searchString: string): boolean => {
+  const first = values[0];
+  return first !== undefined && Str.includes(searchString)(first);
+};
 
 describe("Core Pattern", () => {
   it("creates element builders with optional values", () => {
@@ -86,7 +92,7 @@ describe("Core Pattern", () => {
       )
     );
     const generalized = generalizeLiterals(pattern, (values) =>
-      values[0]?.includes("2010") ? entity("DATE") : pos("NOUN")
+      firstIncludes(values, "2010") ? entity("DATE") : pos("NOUN")
     );
     const combined = combine(pattern, make("other", [pos("VERB")]), "combined");
 

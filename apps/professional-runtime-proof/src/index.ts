@@ -272,18 +272,19 @@ const runtimeScopeFrom = (seed: SeedFixture, email: EmailFixture): RuntimeScope 
     workspaceId: seed.workspace.workspaceId,
   });
 
-const runtimeAgentPrincipalId = (seed: SeedFixture): string => {
-  const principal = seed.principals.find((candidate) => candidate.agentId === seed.agent.agentId);
-
-  if (principal === undefined) {
-    throw new MissingRuntimeAgentPrincipalError({
-      message: `${seed.scenarioId}: missing runtime agent principal`,
-      scenarioId: seed.scenarioId,
-    });
-  }
-
-  return principal.principalId;
-};
+const runtimeAgentPrincipalId = (seed: SeedFixture): string =>
+  pipe(
+    seed.principals,
+    A.findFirst((candidate) => candidate.agentId === seed.agent.agentId),
+    O.map((principal) => principal.principalId),
+    O.getOrThrowWith(
+      () =>
+        new MissingRuntimeAgentPrincipalError({
+          message: `${seed.scenarioId}: missing runtime agent principal`,
+          scenarioId: seed.scenarioId,
+        })
+    )
+  );
 
 const decodeSeedModels = (seed: SeedFixture, email: EmailFixture, body: string): void => {
   decodeOrganization({
@@ -297,7 +298,7 @@ const decodeSeedModels = (seed: SeedFixture, email: EmailFixture, body: string):
     settings: organizationSettings,
     slug: Str.toSlug(seed.organization.name),
   });
-  seed.users.forEach((user, index) =>
+  A.forEach(seed.users, (user, index) =>
     decodeUser({
       ...entityAuditFields,
       displayName: user.displayName,
@@ -305,7 +306,7 @@ const decodeSeedModels = (seed: SeedFixture, email: EmailFixture, body: string):
       id: index + 2,
     })
   );
-  seed.memberships.forEach((membership, index) =>
+  A.forEach(seed.memberships, (membership, index) =>
     decodeMembership({
       ...entityAuditFields,
       entityType: entityTypeOf(Membership),
@@ -436,7 +437,7 @@ const decodeVerticalModels = (seed: SeedFixture): void => {
 };
 
 const decodeCandidateModels = (output: CandidateOutputSet): void => {
-  output.claims.forEach((claim, index) =>
+  A.forEach(output.claims, (claim, index) =>
     decodeCandidateClaim({
       ...entityAuditFields,
       entityType: entityTypeOf(CandidateClaim),
@@ -454,7 +455,7 @@ const decodeCandidateModels = (output: CandidateOutputSet): void => {
     lifecycle: output.candidateProject.lifecycle,
     snapshot: toSnapshot(output.candidateProject),
   });
-  output.tasks.forEach((task, index) =>
+  A.forEach(output.tasks, (task, index) =>
     decodeCandidateTask({
       ...entityAuditFields,
       entityType: entityTypeOf(CandidateTask),
@@ -464,7 +465,7 @@ const decodeCandidateModels = (output: CandidateOutputSet): void => {
       snapshot: toSnapshot(task),
     })
   );
-  output.drafts.forEach((draft, index) =>
+  A.forEach(output.drafts, (draft, index) =>
     decodeCandidateDraft({
       ...entityAuditFields,
       entityType: entityTypeOf(CandidateDraft),
@@ -474,7 +475,7 @@ const decodeCandidateModels = (output: CandidateOutputSet): void => {
       snapshot: toSnapshot(draft),
     })
   );
-  output.approvalGates.forEach((gate, index) =>
+  A.forEach(output.approvalGates, (gate, index) =>
     decodeApprovalGate({
       ...entityAuditFields,
       decision: gate.decision,
@@ -493,7 +494,7 @@ const decodeCandidateModels = (output: CandidateOutputSet): void => {
     scenarioFixtureKey: output.scenarioId,
     snapshot: toSnapshot(output.contextPacket),
   });
-  output.contextPacket.activities.forEach((activity, index) =>
+  A.forEach(output.contextPacket.activities, (activity, index) =>
     decodeActivity({
       ...entityAuditFields,
       entityType: entityTypeOf(Activity),
@@ -502,7 +503,7 @@ const decodeCandidateModels = (output: CandidateOutputSet): void => {
       snapshot: toSnapshot(activity),
     })
   );
-  output.contextPacket.usage.forEach((usage, index) =>
+  A.forEach(output.contextPacket.usage, (usage, index) =>
     decodeUsageRecord({
       ...entityAuditFields,
       entityType: entityTypeOf(UsageRecord),

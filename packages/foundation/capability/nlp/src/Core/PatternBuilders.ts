@@ -5,12 +5,11 @@
  * @packageDocumentation
  */
 
+import { A, Str } from "@beep/utils";
 import { Chunk, Number as Num } from "effect";
-import * as A from "effect/Array";
 import { dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import {
   EntityPatternElement,
   LiteralPatternElement,

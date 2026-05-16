@@ -2,11 +2,10 @@ import * as Configuration from "@beep/repo-docgen/Configuration";
 import * as Domain from "@beep/repo-docgen/Domain";
 import * as Parser from "@beep/repo-docgen/Parser";
 import * as Printer from "@beep/repo-docgen/Printer";
+import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import * as ast from "ts-morph";
 
 let testCounter = 0;

@@ -6,9 +6,8 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
-import { thunk0 } from "@beep/utils";
+import { A, thunk0 } from "@beep/utils";
 import { Clock, Context, Effect, HashMap, Layer, MutableRef, Queue, Result } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";

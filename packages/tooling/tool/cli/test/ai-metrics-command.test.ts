@@ -10,12 +10,11 @@ import {
   AiMetricsWeeklyReportResult,
 } from "@beep/repo-ai-metrics";
 import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index";
+import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { ConfigProvider, Duration, Effect, Encoding, FileSystem, Layer, Path, pipe, Schedule } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
@@ -96,10 +95,13 @@ const seedAiMetricsData = Effect.fn("AIMetricsCommandTest.seedAiMetricsData")(fu
 
   yield* writeText(
     path.join(codexRoot, "codex.jsonl"),
-    [
-      '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
-      '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"SECRET_TOKEN=secret-value"}}',
-    ].join("\n")
+    A.join(
+      [
+        '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
+        '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"SECRET_TOKEN=secret-value"}}',
+      ],
+      "\n"
+    )
   );
   yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
   yield* runAiMetricsCommand([
@@ -162,7 +164,7 @@ const withOtlpSink = <A, E, R>(
       const server = Bun.serve({
         fetch: async (request) => {
           const body = await request.arrayBuffer();
-          requests.push({
+          A.appendInPlace(requests, {
             bodyByteLength: body.byteLength,
             bodyText: new TextDecoder().decode(body),
             contentType: request.headers.get("content-type") ?? "",
@@ -210,10 +212,13 @@ describe("ai-metrics command", () => {
           const inputPath = path.join(tmpDir, "claude.jsonl");
           yield* writeText(
             inputPath,
-            [
-              '{"sessionId":"claude-private-session","cwd":"/private/repo/path","timestamp":"2026-05-05T11:00:00Z","message":{"role":"user"}}',
-              '{"type":"sk-private-event-name","timestamp":"2026-05-05T11:01:00Z","message":{"role":"assistant"}}',
-            ].join("\n")
+            A.join(
+              [
+                '{"sessionId":"claude-private-session","cwd":"/private/repo/path","timestamp":"2026-05-05T11:00:00Z","message":{"role":"user"}}',
+                '{"type":"sk-private-event-name","timestamp":"2026-05-05T11:01:00Z","message":{"role":"assistant"}}',
+              ],
+              "\n"
+            )
           );
 
           yield* runAiMetricsCommand([
@@ -550,10 +555,13 @@ describe("ai-metrics command", () => {
           const inputPath = path.join(tmpDir, "codex.jsonl");
           yield* writeText(
             inputPath,
-            [
-              '{"type":"user_message","timestamp":"2026-05-05T12:00:00Z","message":"ship the private plan","OPENAI_API_KEY":"sk-privatefixture"}',
-              '{"type":"assistant_message","timestamp":"2026-05-05T12:01:00Z","content":"private implementation details"}',
-            ].join("\n")
+            A.join(
+              [
+                '{"type":"user_message","timestamp":"2026-05-05T12:00:00Z","message":"ship the private plan","OPENAI_API_KEY":"sk-privatefixture"}',
+                '{"type":"assistant_message","timestamp":"2026-05-05T12:01:00Z","content":"private implementation details"}',
+              ],
+              "\n"
+            )
           );
 
           yield* runAiMetricsCommand([
@@ -686,10 +694,13 @@ describe("ai-metrics command", () => {
 
           yield* writeText(
             path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
-            [
-              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
-              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"private-forwarder-secret"}}',
-            ].join("\n")
+            A.join(
+              [
+                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"private-forwarder-secret"}}',
+              ],
+              "\n"
+            )
           );
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
 
@@ -736,10 +747,13 @@ describe("ai-metrics command", () => {
 
             yield* writeText(
               path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
-              [
-                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
-                '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":"private-forwarder-otlp-secret"}',
-              ].join("\n")
+              A.join(
+                [
+                  '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                  '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":"private-forwarder-otlp-secret"}',
+                ],
+                "\n"
+              )
             );
             yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
 
@@ -807,10 +821,13 @@ describe("ai-metrics command", () => {
 
               yield* writeText(
                 path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
-                [
-                  '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
-                  '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private-forwarder-failed-otlp"}',
-                ].join("\n")
+                A.join(
+                  [
+                    '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                    '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private-forwarder-failed-otlp"}',
+                  ],
+                  "\n"
+                )
               );
               yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
 
@@ -925,10 +942,13 @@ describe("ai-metrics command", () => {
 
           yield* writeText(
             path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
-            [
-              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
-              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private-cli-report-text"}',
-            ].join("\n")
+            A.join(
+              [
+                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private-cli-report-text"}',
+              ],
+              "\n"
+            )
           );
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
 
@@ -1093,10 +1113,13 @@ describe("ai-metrics command", () => {
 
             yield* writeText(
               path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
-              [
-                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
-                '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":"private-otlp-fixture"}',
-              ].join("\n")
+              A.join(
+                [
+                  '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                  '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":"private-otlp-fixture"}',
+                ],
+                "\n"
+              )
             );
             yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
 

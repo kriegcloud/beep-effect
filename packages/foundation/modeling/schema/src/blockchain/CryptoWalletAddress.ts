@@ -8,12 +8,11 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { Str } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { keccak_256 } from "@noble/hashes/sha3.js";
 import { base58, bech32, bech32m } from "@scure/base";
 import { Encoding, flow, pipe, Redacted, Result } from "effect";
-import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

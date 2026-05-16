@@ -12,8 +12,8 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
+import { A } from "@beep/utils";
 import { DateTime, Duration, Effect, FileSystem, Match, Order, Path, pipe, Result } from "effect";
-import * as A from "effect/Array";
 import { dual, flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -604,42 +604,48 @@ const qualityWorkerEvalWorkerOutputJsonSchema = {
   required: ["localScore", "rationale", "draftJsDoc", "policyViolationCodes", "reviewDisposition"],
 } as const;
 
-const compactPolicyExcerpt = [
-  "Repo JSDoc policy excerpt:",
-  "- Score the whole JSDoc block, not tag presence alone.",
-  "- Every owning exported symbol needs @example, @category, and @since.",
-  "- Re-export declarations are graph edges; document the owning declaration.",
-  "- A useful @example is fenced TypeScript with an observable result, assertion, decoded value, Effect execution, visible output, or type-level evidence.",
-  "- `const result = ...; void result` is a compile trick, not useful documentation.",
-  "- Conditional tags should appear only when they add information not visible in the TypeScript signature.",
-  "- Examples must avoid any, type assertions, declare statements, deprecated imports, and empty Effect.gen bodies.",
-  "- Use canonical aliases in examples: effect/Schema as S, effect/Array as A, effect/Option as O, effect/Predicate as P, effect/Record as R.",
-].join("\n");
+const compactPolicyExcerpt = A.join(
+  [
+    "Repo JSDoc policy excerpt:",
+    "- Score the whole JSDoc block, not tag presence alone.",
+    "- Every owning exported symbol needs @example, @category, and @since.",
+    "- Re-export declarations are graph edges; document the owning declaration.",
+    "- A useful @example is fenced TypeScript with an observable result, assertion, decoded value, Effect execution, visible output, or type-level evidence.",
+    "- `const result = ...; void result` is a compile trick, not useful documentation.",
+    "- Conditional tags should appear only when they add information not visible in the TypeScript signature.",
+    "- Examples must avoid any, type assertions, declare statements, deprecated imports, and empty Effect.gen bodies.",
+    "- Use canonical aliases in examples: effect/Schema as S, effect/Array as A, effect/Option as O, effect/Predicate as P, effect/Record as R.",
+  ],
+  "\n"
+);
 
 const workerPrompt = (candidate: PacketCandidate): string =>
-  [
-    "You are evaluating a single exported-symbol JSDoc remediation packet.",
-    "Use only the supplied packet and policy excerpt. Do not inspect files, run commands, or change source.",
-    "Return structured JSON that matches the provided schema.",
-    "",
-    compactPolicyExcerpt,
-    "",
-    `Package: ${candidate.packageName} (${candidate.packagePath})`,
-    `Source anchor: ${candidate.sourceAnchor}`,
-    `Packet id: ${candidate.packet.id}`,
-    `Subject id: ${candidate.packet.subjectId}`,
-    "",
-    "Deterministic finding codes:",
-    ...A.map(candidate.findingCodes, (code) => `- ${code}`),
-    "",
-    "Remediation packet prompt:",
-    candidate.packet.prompt,
-    "",
-    "Expected verification command:",
-    candidate.packet.verificationCommand,
-    "",
-    "Draft a replacement JSDoc block, score it from 1-10, explain policy concerns, and classify the draft as candidate, needs-human-review, or reject.",
-  ].join("\n");
+  A.join(
+    [
+      "You are evaluating a single exported-symbol JSDoc remediation packet.",
+      "Use only the supplied packet and policy excerpt. Do not inspect files, run commands, or change source.",
+      "Return structured JSON that matches the provided schema.",
+      "",
+      compactPolicyExcerpt,
+      "",
+      `Package: ${candidate.packageName} (${candidate.packagePath})`,
+      `Source anchor: ${candidate.sourceAnchor}`,
+      `Packet id: ${candidate.packet.id}`,
+      `Subject id: ${candidate.packet.subjectId}`,
+      "",
+      "Deterministic finding codes:",
+      ...A.map(candidate.findingCodes, (code) => `- ${code}`),
+      "",
+      "Remediation packet prompt:",
+      candidate.packet.prompt,
+      "",
+      "Expected verification command:",
+      candidate.packet.verificationCommand,
+      "",
+      "Draft a replacement JSDoc block, score it from 1-10, explain policy concerns, and classify the draft as candidate, needs-human-review, or reject.",
+    ],
+    "\n"
+  );
 
 const packetCandidateOrder: Order.Order<PacketCandidate> = Order.combine(
   Order.mapInput(Order.Number, (candidate) => (candidate.isFail ? 0 : 1)),

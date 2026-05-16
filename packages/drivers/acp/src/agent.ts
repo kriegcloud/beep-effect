@@ -6,6 +6,7 @@
  */
 
 import { $AcpId } from "@beep/identity";
+import { A } from "@beep/utils";
 import { Context, Effect, HashMap, HashSet, Layer, Ref, Stdio } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -493,7 +494,7 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
   const handleCancel = Effect.fn($I`AcpAgent_handleCancel`)(
     (handler: (notification: AcpSchema.CancelNotification) => Effect.Effect<void, AcpError.AcpError>) =>
       Effect.sync(() => {
-        cancelHandlers.push(handler);
+        A.appendInPlace(cancelHandlers, handler);
       })
   );
   const handleUnknownExtRequest = Effect.fn($I`AcpAgent_handleUnknownExtRequest`)(

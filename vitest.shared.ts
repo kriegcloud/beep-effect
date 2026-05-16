@@ -1,3 +1,5 @@
+import { A } from "@beep/utils";
+import * as Order from "effect/Order";
 import ts from "typescript";
 import type { ViteUserConfig } from "vitest/config";
 
@@ -65,9 +67,13 @@ const toAliasEntry = (find: string, replacement: string): AliasEntry => {
   };
 };
 
-const rootTsconfigAliases = Object.entries(readRootTsconfigPaths())
-  .sort(([left], [right]) => right.length - left.length)
-  .flatMap(([find, replacements]) => replacements.map((replacement) => toAliasEntry(find, replacement)));
+const rootTsconfigPathEntries: Array<[string, readonly string[]]> = Object.entries(readRootTsconfigPaths());
+
+const rootTsconfigAliases = A.flatMap(
+  A.sortWith(rootTsconfigPathEntries, ([find]) => find.length, Order.flip(Order.Number)),
+  ([find, replacements]: [string, readonly string[]]) =>
+    A.map(replacements, (replacement) => toAliasEntry(find, replacement))
+);
 
 const config: ViteUserConfig = {
   oxc: {

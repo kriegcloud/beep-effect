@@ -6,12 +6,10 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { thunk0, thunk1 } from "@beep/utils";
+import { A, Str, thunk0, thunk1 } from "@beep/utils";
 import { flow, identity, Number as Num, pipe, Result, SchemaGetter, SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $SchemaId.create("color/Color");
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);

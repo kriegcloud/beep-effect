@@ -9,12 +9,11 @@ import os from "node:os";
 import process from "node:process";
 import tty from "node:tty";
 import { $ChalkId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import { flow, Match, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   type ColorInfo,
   ColorSupport,

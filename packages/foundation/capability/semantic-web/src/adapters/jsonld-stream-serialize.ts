@@ -7,8 +7,8 @@
  */
 
 import { NonNegativeInt } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Effect, Layer, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { JsonLdDocument } from "../jsonld.ts";
@@ -42,14 +42,10 @@ const chunkText = (value: string, maxChunkCharacters: O.Option<number>): Readonl
     return [];
   }
 
-  const chunks: Array<string> = [];
-  let offset = 0;
-  while (offset < value.length) {
-    chunks.push(value.slice(offset, offset + maxChunkCharacters.value));
-    offset += maxChunkCharacters.value;
-  }
-
-  return chunks;
+  const chunkSize = maxChunkCharacters.value;
+  return A.makeBy(Math.ceil(value.length / chunkSize), (index) =>
+    pipe(value, Str.slice(index * chunkSize, (index + 1) * chunkSize))
+  );
 };
 
 const mapDocumentErrorToSerializeError = (error: JsonLdDocumentError): JsonLdStreamSerializeError =>

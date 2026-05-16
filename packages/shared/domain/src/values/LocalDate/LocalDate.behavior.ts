@@ -10,12 +10,12 @@
  */
 
 import { $SharedDomainId } from "@beep/identity";
+import { Str } from "@beep/utils";
 import { DateTime, Duration, Effect, Match, Order as Ord, pipe, SchemaGetter, SchemaIssue } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import * as Str from "effect/String";
 import * as LocalDate from "./LocalDate.model.ts";
 
 const $I = $SharedDomainId.create("values/LocalDate/LocalDate.behavior");

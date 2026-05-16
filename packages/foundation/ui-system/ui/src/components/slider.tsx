@@ -1,8 +1,7 @@
 "use client";
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
-import { thunk } from "@beep/utils";
-import * as A from "effect/Array";
+import { A, thunk } from "@beep/utils";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
 

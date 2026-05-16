@@ -6,8 +6,8 @@
  * @packageDocumentation
  */
 
+import { A } from "@beep/utils";
 import { Effect, Layer, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { serializeTerm } from "../rdf.ts";
 import {

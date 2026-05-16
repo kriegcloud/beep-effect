@@ -6,13 +6,12 @@
  */
 
 import { $ChalkId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import { flow, Match, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { type BackgroundColorName, ForegroundColorName, ModifierName } from "./ChalkSchema.ts";
 
 type AnsiCodePair = readonly [open: number, close: number];

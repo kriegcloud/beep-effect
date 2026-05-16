@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import * as A from "effect/Array";
+import { A, Str } from "@beep/utils";
 import * as S from "effect/Schema";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
@@ -19,7 +19,7 @@ type HomeProps = {
 };
 
 const isContactSubmissionStatus = S.is(ContactSubmissionStatus);
-const safeJsonScript = (value: unknown) => JSON.stringify(value).replaceAll("<", "\\u003c");
+const safeJsonScript = (value: unknown) => Str.replaceAll("<", "\\u003c")(JSON.stringify(value));
 
 /**
  * Allows the search-param aware home route to block during the first render.

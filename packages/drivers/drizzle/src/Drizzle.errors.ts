@@ -7,8 +7,8 @@
 
 import { $DrizzleId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { Cause, Result } from "effect";
-import * as A from "effect/Array";
+import { A, Str } from "@beep/utils";
+import { Cause, pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -86,24 +86,23 @@ const readCauseReasons = (cause: Cause.Cause<unknown>): ReadonlyArray<Cause.Reas
 const optionFromSafeDefect = (value: unknown): O.Option<unknown> =>
   safeBoolean(() => S.is(S.DefectWithStack)(value)) ? O.some(value) : O.none();
 
+const contextFromDrizzleMessageMatch = (matched: RegExpMatchArray): DrizzleErrorContext => {
+  const paramsText = O.getOrUndefined(O.map(O.fromUndefinedOr(matched[2]), Str.trim));
+  return makeContext(
+    O.getOrUndefined(O.map(O.fromUndefinedOr(matched[1]), Str.trim)),
+    paramsText === undefined || Str.isEmpty(paramsText) ? undefined : A.of(paramsText)
+  );
+};
+
 const parseDrizzleMessage = (cause: unknown): DrizzleErrorContext => {
   const message = readString(cause, "message");
 
-  return O.match(message, {
-    onNone: emptyContext,
-    onSome: (text) => {
-      const match = text.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s);
-      if (match === null) {
-        return emptyContext();
-      }
-
-      const paramsText = match[2]?.trim();
-      return makeContext(
-        match[1]?.trim(),
-        paramsText === undefined || paramsText.length === 0 ? undefined : A.of(paramsText)
-      );
-    },
-  });
+  return pipe(
+    message,
+    O.flatMap(Str.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s)),
+    O.map(contextFromDrizzleMessageMatch),
+    O.getOrElse(emptyContext)
+  );
 };
 
 const hasQueryContext = (context: DrizzleErrorContext): boolean => context.query !== undefined;

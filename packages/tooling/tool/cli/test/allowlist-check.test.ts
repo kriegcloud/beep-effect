@@ -1,4 +1,5 @@
 import { ALLOWLIST_PATH, AllowlistCheckOptions, runAllowlistCheck } from "@beep/repo-cli/commands/Laws/AllowlistCheck";
+import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
@@ -47,22 +48,25 @@ describe("allowlist-check", () => {
           yield* writeRepoFile(
             tmpDir,
             ALLOWLIST_PATH,
-            [
-              "{",
-              '  "$schema": "./effect-laws.allowlist.schema.json",',
-              '  "version": 1,',
-              '  "entries": [',
-              "    {",
-              '      "rule": "beep-laws/no-native-runtime",',
-              '      "file": "packages/demo/src/index.ts",',
-              '      "kind": "object-method",',
-              '      "reason": "test",',
-              '      "owner": "@beep/test",',
-              '      "issue": "TEST-ALLOWLIST"',
-              "    }",
-              "  ]",
-              "}",
-            ].join("\n")
+            A.join(
+              [
+                "{",
+                '  "$schema": "./effect-laws.allowlist.schema.json",',
+                '  "version": 1,',
+                '  "entries": [',
+                "    {",
+                '      "rule": "beep-laws/no-native-runtime",',
+                '      "file": "packages/demo/src/index.ts",',
+                '      "kind": "object-method",',
+                '      "reason": "test",',
+                '      "owner": "@beep/test",',
+                '      "issue": "TEST-ALLOWLIST"',
+                "    }",
+                "  ]",
+                "}",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runAllowlistCheck(
@@ -85,22 +89,25 @@ describe("allowlist-check", () => {
           yield* writeRepoFile(
             tmpDir,
             ALLOWLIST_PATH,
-            [
-              "{",
-              '  "$schema": "./effect-laws.allowlist.schema.json",',
-              '  "version": 1,',
-              '  "entries": [',
-              "    {",
-              '      "rule": "beep-laws/no-native-runtime",',
-              '      "file": "packages/demo/src/missing.ts",',
-              '      "kind": "object-method",',
-              '      "reason": "test",',
-              '      "owner": "@beep/test",',
-              '      "issue": "TEST-ALLOWLIST"',
-              "    }",
-              "  ]",
-              "}",
-            ].join("\n")
+            A.join(
+              [
+                "{",
+                '  "$schema": "./effect-laws.allowlist.schema.json",',
+                '  "version": 1,',
+                '  "entries": [',
+                "    {",
+                '      "rule": "beep-laws/no-native-runtime",',
+                '      "file": "packages/demo/src/missing.ts",',
+                '      "kind": "object-method",',
+                '      "reason": "test",',
+                '      "owner": "@beep/test",',
+                '      "issue": "TEST-ALLOWLIST"',
+                "    }",
+                "  ]",
+                "}",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runAllowlistCheck(
@@ -133,22 +140,25 @@ describe("allowlist-check", () => {
           yield* writeRepoFile(
             tmpDir,
             ALLOWLIST_PATH,
-            [
-              "{",
-              '  "$schema": "./effect-laws.allowlist.schema.json",',
-              '  "version": 1,',
-              '  "entries": [',
-              "    {",
-              '      "rule": "beep-laws/no-native-runtime",',
-              '      "file": "packages/demo/src/index.ts",',
-              '      "kind": "object-method",',
-              '      "reason": "test",',
-              '      "owner": "@beep/test",',
-              '      "issue": "TEST-ALLOWLIST"',
-              "    }",
-              "  ]",
-              "}",
-            ].join("\n")
+            A.join(
+              [
+                "{",
+                '  "$schema": "./effect-laws.allowlist.schema.json",',
+                '  "version": 1,',
+                '  "entries": [',
+                "    {",
+                '      "rule": "beep-laws/no-native-runtime",',
+                '      "file": "packages/demo/src/index.ts",',
+                '      "kind": "object-method",',
+                '      "reason": "test",',
+                '      "owner": "@beep/test",',
+                '      "issue": "TEST-ALLOWLIST"',
+                "    }",
+                "  ]",
+                "}",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runAllowlistCheck(

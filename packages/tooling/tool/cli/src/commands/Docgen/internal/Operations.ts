@@ -15,14 +15,12 @@ import {
   resolveWorkspaceDirs,
 } from "@beep/repo-utils";
 import { LiteralKit, normalizePath } from "@beep/schema";
-import { thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { A, Str, thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { DateTime, Effect, FileSystem, flow, HashMap, MutableHashSet, Order, Path, pipe, Result, Stream } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
@@ -379,7 +377,8 @@ const loadWorkspaceDocgenAliasSources = Effect.fn("DocgenOperations.loadWorkspac
 
   for (const [packageName, absolutePath] of workspaceDirs) {
     const packageJson = yield* readPackageJson(absolutePath);
-    aliasSources.push(
+    A.appendInPlace(
+      aliasSources,
       buildDocgenAliasSource(packageName, normalizeSlashes(path.relative(rootDir, absolutePath)), packageJson)
     );
   }
@@ -441,7 +440,7 @@ export const discoverOrphanDocgenConfigPaths: (
         continue;
       }
 
-      orphanedPaths.push(normalizeSlashes(path.relative(repoRoot, configPath)));
+      A.appendInPlace(orphanedPaths, normalizeSlashes(path.relative(repoRoot, configPath)));
     }
 
     return A.sort(orphanedPaths, Order.String);
@@ -551,14 +550,14 @@ const getLeadingJsDocCommentText = (node: ExportDeclaration): O.Option<string> =
 
 const extractJsDocTagsFromText = (commentText: string): ReadonlyArray<string> =>
   pipe(
-    commentText.matchAll(/@([A-Za-z][\w-]*)/g),
+    Str.matchAll(/@([A-Za-z][\w-]*)/g)(commentText),
     A.fromIterable,
     A.flatMap((match) => (match[1] === undefined ? A.empty<string>() : [`@${match[1]}`]))
   );
 
 const extractJsDocCategoryValuesFromText = (commentText: string): ReadonlyArray<string> =>
   pipe(
-    commentText.split(/\r?\n/),
+    Str.split(/\r?\n/)(commentText),
     A.flatMap((line) => {
       const match = /@category(?:\s+([^*]+?))?\s*(?:\*\/)?\s*$/.exec(line);
 
@@ -574,7 +573,7 @@ const extractContext = (node: Node): undefined | string =>
     O.map((description) => Str.trim(description)),
     O.filter((description) => description.length > 0),
     O.map((description) => {
-      const [firstLine] = description.split("\n");
+      const [firstLine] = Str.split("\n")(description);
       return firstLine === undefined ? description : firstLine;
     }),
     O.getOrUndefined
@@ -587,14 +586,14 @@ type DocgenRequiredTag = (typeof DOCGEN_REQUIRED_TAGS)[number];
 const resolveRequiredTags = (config: DocgenConfigDocument): ReadonlyArray<DocgenRequiredTag> => {
   const tags = A.empty<DocgenRequiredTag>();
 
-  tags.push("@category");
+  A.appendInPlace(tags, "@category");
 
   if (config.enforceExamples === true) {
-    tags.push("@example");
+    A.appendInPlace(tags, "@example");
   }
 
   if (config.enforceVersion !== false) {
-    tags.push("@since");
+    A.appendInPlace(tags, "@since");
   }
 
   return tags;
@@ -879,7 +878,7 @@ const sourceFileMatchesExclude = (
     ""
   )(normalizeSlashes(sourceFilePath));
   const srcRelative = Str.startsWith(`${srcDir}/`)(packageRelative)
-    ? packageRelative.slice(srcDir.length + 1)
+    ? Str.slice(srcDir.length + 1)(packageRelative)
     : packageRelative;
   const patternRegex = globPatternToRegExp(normalizedPattern);
 
@@ -1355,104 +1354,107 @@ export const generateAnalysisReport: {
   const low = A.filter(issues, (entry) => entry.priority === "low");
   const sections = A.empty<string>();
 
-  sections.push(`# JSDoc Analysis Report: ${analysis.packageName}`);
-  sections.push("");
-  sections.push(`> **Generated**: ${analysis.timestamp}`);
-  sections.push(`> **Package**: ${analysis.packagePath}`);
-  sections.push(`> **Status**: ${analysis.summary.missingDocumentation} export(s) need documentation`);
-  sections.push("");
-  sections.push("## What To Fix");
-  sections.push("");
-  sections.push("Public exports should include the repo-required JSDoc tags and canonical category values:");
-  sections.push("");
-  sections.push("1. `@category`");
-  sections.push("2. `@example`");
-  sections.push("3. `@since`");
-  sections.push("");
-  sections.push("Re-run the analysis after edits:");
-  sections.push("");
-  sections.push("```bash");
-  sections.push(`bun run beep docgen analyze -p ${analysis.packagePath}`);
-  sections.push("```");
-  sections.push("");
+  A.appendInPlace(sections, `# JSDoc Analysis Report: ${analysis.packageName}`);
+  A.appendInPlace(sections, "");
+  A.appendInPlace(sections, `> **Generated**: ${analysis.timestamp}`);
+  A.appendInPlace(sections, `> **Package**: ${analysis.packagePath}`);
+  A.appendInPlace(sections, `> **Status**: ${analysis.summary.missingDocumentation} export(s) need documentation`);
+  A.appendInPlace(sections, "");
+  A.appendInPlace(sections, "## What To Fix");
+  A.appendInPlace(sections, "");
+  A.appendInPlace(
+    sections,
+    "Public exports should include the repo-required JSDoc tags and canonical category values:"
+  );
+  A.appendInPlace(sections, "");
+  A.appendInPlace(sections, "1. `@category`");
+  A.appendInPlace(sections, "2. `@example`");
+  A.appendInPlace(sections, "3. `@since`");
+  A.appendInPlace(sections, "");
+  A.appendInPlace(sections, "Re-run the analysis after edits:");
+  A.appendInPlace(sections, "");
+  A.appendInPlace(sections, "```bash");
+  A.appendInPlace(sections, `bun run beep docgen analyze -p ${analysis.packagePath}`);
+  A.appendInPlace(sections, "```");
+  A.appendInPlace(sections, "");
 
   if (fixMode) {
-    sections.push("## Fix Checklist");
-    sections.push("");
+    A.appendInPlace(sections, "## Fix Checklist");
+    A.appendInPlace(sections, "");
 
     if (A.isReadonlyArrayEmpty(issues)) {
-      sections.push("All public exports are fully documented.");
-      sections.push("");
+      A.appendInPlace(sections, "All public exports are fully documented.");
+      A.appendInPlace(sections, "");
     } else {
       if (A.isReadonlyArrayNonEmpty(high)) {
-        sections.push("### High Priority");
-        sections.push("");
+        A.appendInPlace(sections, "### High Priority");
+        A.appendInPlace(sections, "");
         for (const entry of high) {
-          sections.push(formatChecklistItem(entry));
-          sections.push("");
+          A.appendInPlace(sections, formatChecklistItem(entry));
+          A.appendInPlace(sections, "");
         }
       }
 
       if (A.isReadonlyArrayNonEmpty(medium)) {
-        sections.push("### Medium Priority");
-        sections.push("");
+        A.appendInPlace(sections, "### Medium Priority");
+        A.appendInPlace(sections, "");
         for (const entry of medium) {
-          sections.push(formatChecklistItem(entry));
-          sections.push("");
+          A.appendInPlace(sections, formatChecklistItem(entry));
+          A.appendInPlace(sections, "");
         }
       }
 
       if (A.isReadonlyArrayNonEmpty(low)) {
-        sections.push("### Low Priority");
-        sections.push("");
+        A.appendInPlace(sections, "### Low Priority");
+        A.appendInPlace(sections, "");
         for (const entry of low) {
-          sections.push(formatChecklistItem(entry));
-          sections.push("");
+          A.appendInPlace(sections, formatChecklistItem(entry));
+          A.appendInPlace(sections, "");
         }
       }
     }
   } else {
-    sections.push("## Findings");
-    sections.push("");
+    A.appendInPlace(sections, "## Findings");
+    A.appendInPlace(sections, "");
 
     if (A.isReadonlyArrayEmpty(issues)) {
-      sections.push("All public exports are fully documented.");
-      sections.push("");
+      A.appendInPlace(sections, "All public exports are fully documented.");
+      A.appendInPlace(sections, "");
     } else {
       for (const entry of issues) {
-        sections.push(`### ${entry.name}`);
-        sections.push("");
-        sections.push(`- Location: \`${entry.filePath}:${entry.line}\``);
-        sections.push(`- Kind: ${entry.kind}`);
-        sections.push(`- Missing: ${entry.missingTags.join(", ")}`);
+        A.appendInPlace(sections, `### ${entry.name}`);
+        A.appendInPlace(sections, "");
+        A.appendInPlace(sections, `- Location: \`${entry.filePath}:${entry.line}\``);
+        A.appendInPlace(sections, `- Kind: ${entry.kind}`);
+        A.appendInPlace(sections, `- Missing: ${A.join(entry.missingTags, ", ")}`);
         if (entry.categoryIssues.length > 0) {
-          sections.push(`- Category issues: ${entry.categoryIssues.join("; ")}`);
+          A.appendInPlace(sections, `- Category issues: ${A.join(entry.categoryIssues, "; ")}`);
         }
         if (entry.presentTags.length > 0) {
-          sections.push(`- Present: ${entry.presentTags.join(", ")}`);
+          A.appendInPlace(sections, `- Present: ${A.join(entry.presentTags, ", ")}`);
         }
         if (P.isNotUndefined(entry.context)) {
-          sections.push(`- Context: ${entry.context}`);
+          A.appendInPlace(sections, `- Context: ${entry.context}`);
         }
-        sections.push("");
+        A.appendInPlace(sections, "");
       }
     }
   }
 
-  sections.push("## Summary");
-  sections.push("");
-  sections.push("| Metric | Count |");
-  sections.push("|--------|-------|");
-  sections.push(`| Total Exports | ${analysis.summary.totalExports} |`);
-  sections.push(`| Fully Documented | ${analysis.summary.fullyDocumented} |`);
-  sections.push(`| Missing Documentation | ${analysis.summary.missingDocumentation} |`);
-  sections.push(`| Missing @category | ${analysis.summary.missingCategory} |`);
-  sections.push(`| Invalid @category | ${analysis.summary.invalidCategory} |`);
-  sections.push(`| Missing @example | ${analysis.summary.missingExample} |`);
-  sections.push(`| Missing @since | ${analysis.summary.missingSince} |`);
-  sections.push("");
+  A.appendInPlace(sections, "## Summary");
+  A.appendInPlace(sections, "");
+  A.appendInPlace(sections, "| Metric | Count |");
+  A.appendInPlace(sections, "|--------|-------|");
+  A.appendInPlace(sections, `| Total Exports | ${analysis.summary.totalExports} |`);
+  A.appendInPlace(sections, `| Fully Documented | ${analysis.summary.fullyDocumented} |`);
+  A.appendInPlace(sections, `| Missing Documentation | ${analysis.summary.missingDocumentation} |`);
+  A.appendInPlace(sections, `| Missing @category | ${analysis.summary.missingCategory} |`);
+  A.appendInPlace(sections, `| Invalid @category | ${analysis.summary.invalidCategory} |`);
+  A.appendInPlace(sections, `| Missing @example | ${analysis.summary.missingExample} |`);
+  A.appendInPlace(sections, `| Missing @since | ${analysis.summary.missingSince} |`);
+  A.appendInPlace(sections, "");
 
-  return sections.join("\n");
+  return A.join(sections, "\n");
 });
 
 /**

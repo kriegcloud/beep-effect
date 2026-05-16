@@ -4,9 +4,10 @@
  * @since 0.0.0
  * @packageDocumentation
  */
+
 import { $SchemaId } from "@beep/identity";
+import { A } from "@beep/utils";
 import { Effect, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { CrossOriginEmbedderPolicyHeader, CrossOriginEmbedderPolicyOption } from "./CrossOriginEmbedderPolicy.ts";
@@ -116,7 +117,7 @@ const resolveHeaders = Effect.fnUntraced(function* (
     concurrency: headerEffects.length,
   });
 
-  const resolvedHeaders = A.empty<ResolvedHeader>();
+  let resolvedHeaders = A.empty<ResolvedHeader>();
 
   A.forEach(headers, (headerOption) => {
     if (O.isNone(headerOption)) {
@@ -129,7 +130,7 @@ const resolveHeaders = Effect.fnUntraced(function* (
       return;
     }
 
-    resolvedHeaders.push({
+    resolvedHeaders = A.append(resolvedHeaders, {
       name: header.name,
       value: header.value.value,
     });

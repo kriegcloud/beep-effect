@@ -7,9 +7,8 @@
 
 import { MimeTypesData } from "@beep/data";
 import { $SchemaId } from "@beep/identity/packages";
-import { Struct } from "@beep/utils";
+import { A, Struct } from "@beep/utils";
 import { Function as Fn, flow, pipe } from "effect";
-import * as A from "effect/Array";
 import { LiteralKit, type LiteralKit as LiteralKitSchema } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("MimeType");

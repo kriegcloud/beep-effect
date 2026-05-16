@@ -4,6 +4,8 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { A, O, Str } from "@beep/utils";
+import type * as Ordering from "effect/Ordering";
 import * as jsonc from "jsonc-parser";
 import { Node, Project } from "ts-morph";
 
@@ -15,7 +17,9 @@ const sourceExtensions = new Set([".ts", ".tsx"]);
 const ignoredSourceSuffixes = [".d.ts"];
 const conditionPreference = ["types", "import", "default", "require"];
 const conditionNames = new Set(conditionPreference);
-const checkMode = process.argv.includes("--check");
+const checkMode = A.contains(process.argv, "--check");
+const compareText = (left: string, right: string): Ordering.Ordering => Str.localeCompare(right)(left);
+const compareNumber = (left: number, right: number): Ordering.Ordering => (left < right ? -1 : left > right ? 1 : 0);
 
 const readText = (filePath) => readFileSync(filePath, "utf8");
 
@@ -46,35 +50,32 @@ const formatJsonc = (value) => {
   )}\n`;
 };
 
-const normalizeSlashes = (value) => value.replaceAll(path.sep, "/");
+const normalizeSlashes = (value) => Str.replaceAll(path.sep, "/")(value);
 
 const repoRelative = (absolutePath) => normalizeSlashes(path.relative(rootDir, absolutePath) || ".");
 
-const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegExp = (value) => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 
-const markdownCell = (value) =>
-  String(value ?? "")
-    .replace(/\r?\n/g, " ")
-    .replace(/\|/g, "\\|");
+const markdownCell = (value) => Str.replace(/\|/g, "\\|")(Str.replace(/\r?\n/g, " ")(String(value ?? "")));
 
 const readRootPackage = () => readJsonc(path.join(rootDir, "package.json"));
 
 const workspacePatternsFrom = (workspaces) => {
-  if (Array.isArray(workspaces)) {
+  if (A.isArray(workspaces)) {
     return workspaces;
   }
-  if (workspaces !== null && typeof workspaces === "object" && Array.isArray(workspaces.packages)) {
+  if (workspaces !== null && typeof workspaces === "object" && A.isArray(workspaces.packages)) {
     return workspaces.packages;
   }
   return [];
 };
 
 const expandWorkspacePattern = (pattern) => {
-  const segments = normalizeSlashes(pattern).split("/").filter(Boolean);
+  const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
   let candidates = [rootDir];
 
   for (const segment of segments) {
-    const nextCandidates = [];
+    const nextCandidates: Array<string> = [];
 
     for (const candidate of candidates) {
       if (segment === "*") {
@@ -83,19 +84,19 @@ const expandWorkspacePattern = (pattern) => {
         }
         for (const entry of readdirSync(candidate, { withFileTypes: true })) {
           if (entry.isDirectory()) {
-            nextCandidates.push(path.join(candidate, entry.name));
+            A.appendInPlace(nextCandidates, path.join(candidate, entry.name));
           }
         }
         continue;
       }
 
-      nextCandidates.push(path.join(candidate, segment));
+      A.appendInPlace(nextCandidates, path.join(candidate, segment));
     }
 
     candidates = nextCandidates;
   }
 
-  return candidates.filter((candidate) => existsSync(path.join(candidate, "package.json")));
+  return A.filter(candidates, (candidate) => existsSync(path.join(candidate, "package.json")));
 };
 
 const discoverWorkspacePackages = () => {
@@ -134,10 +135,10 @@ const topoSortPackageNames = () => {
     throw new Error(`bun run topo-sort failed:\n${result.stderr || result.stdout}`);
   }
 
-  return result.stdout
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+  return A.filter(
+    A.map(Str.split(/\r?\n/)(result.stdout), (line) => Str.trim(line)),
+    (line) => line.length > 0
+  );
 };
 
 const listSourceFiles = (directory) => {
@@ -172,29 +173,27 @@ const listSourceFiles = (directory) => {
         continue;
       }
 
-      if (ignoredSourceSuffixes.some((suffix) => entry.name.endsWith(suffix))) {
+      if (A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(entry.name))) {
         continue;
       }
 
-      files.push(absolutePath);
+      A.appendInPlace(files, absolutePath);
     }
   };
 
   visit(directory);
-  return files.sort();
+  return A.sortInPlace(files, compareText);
 };
 
 const stripCommentFraming = (commentText) =>
-  commentText
-    .replace(/^\/\*\*/, "")
-    .replace(/\*\/$/, "")
-    .split(/\r?\n/)
-    .map((line) => line.replace(/^\s*\*\s?/, "").trimEnd());
+  A.map(Str.split(/\r?\n/)(Str.replace(/\*\/$/, "")(Str.replace(/^\/\*\*/, "")(commentText))), (line) =>
+    Str.trimEnd(Str.replace(/^\s*\*\s?/, "")(line))
+  );
 
 const summaryFromComment = (commentText) => {
   for (const line of stripCommentFraming(commentText)) {
-    const trimmed = line.trim();
-    if (trimmed.length === 0 || trimmed.startsWith("@") || trimmed.startsWith("```")) {
+    const trimmed = Str.trim(line);
+    if (trimmed.length === 0 || Str.startsWith("@")(trimmed) || Str.startsWith("```")(trimmed)) {
       continue;
     }
     return trimmed;
@@ -207,7 +206,7 @@ const tagsFromComment = (commentText) => {
   for (const line of stripCommentFraming(commentText)) {
     const match = /^\s*@([A-Za-z][\w-]*)\b/.exec(line);
     if (match !== null) {
-      tags.push(`@${match[1]}`);
+      A.appendInPlace(tags, `@${match[1]}`);
     }
   }
   return [...new Set(tags)];
@@ -220,7 +219,7 @@ const valuesForTag = (commentText, tagName) => {
   for (const line of stripCommentFraming(commentText)) {
     const match = pattern.exec(line);
     if (match !== null) {
-      values.push((match[1] ?? "").trim());
+      A.appendInPlace(values, Str.trim(match[1] ?? ""));
     }
   }
 
@@ -272,7 +271,7 @@ const declarationKind = (node) => {
 };
 
 const isIgnoredSourceTarget = (target) =>
-  typeof target === "string" && ignoredSourceSuffixes.some((suffix) => target.endsWith(suffix));
+  typeof target === "string" && A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(target));
 
 const exportTargetFrom = (value) => {
   if (value === null || value === undefined) {
@@ -319,10 +318,10 @@ const exportTargetFrom = (value) => {
   return ignoredSourceFallback;
 };
 
-const hasExportSubpathKeys = (value) => Object.keys(value).some((key) => key === "." || key.startsWith("./"));
+const hasExportSubpathKeys = (value) => A.some(Object.keys(value), (key) => key === "." || Str.startsWith("./")(key));
 
 const isRootConditionalExportMap = (value) =>
-  !Array.isArray(value) && !hasExportSubpathKeys(value) && Object.keys(value).some((key) => conditionNames.has(key));
+  !A.isArray(value) && !hasExportSubpathKeys(value) && A.some(Object.keys(value), (key) => conditionNames.has(key));
 
 const exportMapEntriesFrom = (packageJson) => {
   const exportsField = packageJson.exports;
@@ -340,7 +339,7 @@ const exportMapEntriesFrom = (packageJson) => {
     ];
   }
 
-  if (typeof exportsField !== "object" || Array.isArray(exportsField)) {
+  if (typeof exportsField !== "object" || A.isArray(exportsField)) {
     return [];
   }
 
@@ -354,7 +353,7 @@ const exportMapEntriesFrom = (packageJson) => {
     ];
   }
 
-  return Object.entries(exportsField).map(([subpath, value]) => ({
+  return A.map(Object.entries(exportsField), ([subpath, value]) => ({
     subpath,
     target: value === null ? null : exportTargetFrom(value),
     denied: value === null,
@@ -363,24 +362,24 @@ const exportMapEntriesFrom = (packageJson) => {
 
 const isSourceTarget = (target) =>
   typeof target === "string" &&
-  (target.endsWith(".ts") || target.endsWith(".tsx")) &&
-  !ignoredSourceSuffixes.some((suffix) => target.endsWith(suffix));
+  (Str.endsWith(".ts")(target) || Str.endsWith(".tsx")(target)) &&
+  !A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(target));
 
 const capturesForPattern = (pattern, value) => {
-  const parts = normalizeSlashes(pattern).split("*").map(escapeRegExp);
-  const regex = new RegExp(`^${parts.join("(.+)")}$`);
+  const parts = A.map(Str.split("*")(normalizeSlashes(pattern)), escapeRegExp);
+  const regex = new RegExp(`^${A.join(parts, "(.+)")}$`);
   const match = regex.exec(normalizeSlashes(value));
   return match === null ? undefined : match.slice(1);
 };
 
 const fillPattern = (pattern, captures) => {
   let captureIndex = 0;
-  return normalizeSlashes(pattern).replace(/\*/g, () => captures[captureIndex++] ?? "");
+  return Str.replaceWith(/\*/g, () => captures[captureIndex++] ?? "")(normalizeSlashes(pattern));
 };
 
 const subpathDenied = (subpath, deniedEntries) =>
   deniedEntries.some((entry) =>
-    entry.subpath.includes("*")
+    Str.includes("*")(entry.subpath)
       ? capturesForPattern(entry.subpath, subpath) !== undefined
       : normalizeSlashes(entry.subpath) === normalizeSlashes(subpath)
   );
@@ -389,21 +388,21 @@ const importSpecifierFor = (packageName, subpath) => {
   if (subpath === ".") {
     return packageName;
   }
-  return `${packageName}/${subpath.replace(/^\.\//, "")}`;
+  return `${packageName}/${Str.replace(/^\.\//, "")(subpath)}`;
 };
 
 const exportedSourceFilePath = (packagePath, target) =>
-  path.join(packagePath, normalizeSlashes(target).replace(/^\.\//, ""));
+  path.join(packagePath, Str.replace(/^\.\//, "")(normalizeSlashes(target)));
 
 const expandExportMap = (packageInfo, sourceFilePaths) => {
   const exportEntries = exportMapEntriesFrom(packageInfo.packageJson);
-  const deniedEntries = exportEntries.filter((entry) => entry.denied);
-  const activeEntries = exportEntries.filter((entry) => !entry.denied && isSourceTarget(entry.target));
+  const deniedEntries = A.filter(exportEntries, (entry) => entry.denied);
+  const activeEntries = A.filter(exportEntries, (entry) => !entry.denied && isSourceTarget(entry.target));
   const exposures = [];
   const seen = new Set();
 
   for (const entry of activeEntries) {
-    if (entry.target.includes("*")) {
+    if (Str.includes("*")(entry.target)) {
       for (const sourceFilePath of sourceFilePaths) {
         const packageTarget = `./${normalizeSlashes(path.relative(packageInfo.absolutePath, sourceFilePath))}`;
         const captures = capturesForPattern(entry.target, packageTarget);
@@ -419,7 +418,7 @@ const expandExportMap = (packageInfo, sourceFilePaths) => {
         const key = `${subpath}:${sourceFilePath}`;
         if (!seen.has(key)) {
           seen.add(key);
-          exposures.push({
+          A.appendInPlace(exposures, {
             exportSubpath: subpath,
             importSpecifier: importSpecifierFor(packageInfo.name, subpath),
             targetPath: packageTarget,
@@ -438,7 +437,7 @@ const expandExportMap = (packageInfo, sourceFilePaths) => {
     const key = `${entry.subpath}:${sourceFilePath}`;
     if (!seen.has(key)) {
       seen.add(key);
-      exposures.push({
+      A.appendInPlace(exposures, {
         exportSubpath: entry.subpath,
         importSpecifier: importSpecifierFor(packageInfo.name, entry.subpath),
         targetPath: normalizeSlashes(entry.target),
@@ -447,27 +446,35 @@ const expandExportMap = (packageInfo, sourceFilePaths) => {
     }
   }
 
-  return exposures.sort((left, right) =>
-    `${left.importSpecifier}:${left.targetPath}`.localeCompare(`${right.importSpecifier}:${right.targetPath}`)
+  return A.sortInPlace(exposures, (left, right) =>
+    compareText(`${left.importSpecifier}:${left.targetPath}`, `${right.importSpecifier}:${right.targetPath}`)
   );
 };
 
 const searchTextFor = (entry) =>
-  [
-    entry.packageName,
-    entry.packagePath,
-    entry.importSpecifier,
-    entry.exportSubpath,
-    entry.symbolName,
-    entry.exportKind,
-    entry.summary,
-    ...entry.categories,
-    entry.sourcePath,
-  ]
-    .join(" ")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
+  Str.trim(
+    Str.replace(
+      /\s+/g,
+      " "
+    )(
+      Str.toLowerCase(
+        A.join(
+          [
+            entry.packageName,
+            entry.packagePath,
+            entry.importSpecifier,
+            entry.exportSubpath,
+            entry.symbolName,
+            entry.exportKind,
+            entry.summary,
+            ...entry.categories,
+            entry.sourcePath,
+          ],
+          " "
+        )
+      )
+    )
+  );
 
 const catalogEntryFor = (packageInfo, topoOrder, exposure, symbolName, declaration) => {
   const docText = getJsDocText(declaration);
@@ -519,33 +526,42 @@ const analyzePackage = (packageInfo, topoOrder) => {
 
     for (const [symbolName, declarations] of sourceFile.getExportedDeclarations()) {
       for (const declaration of declarations) {
-        const key = [
-          exposure.importSpecifier,
-          symbolName,
-          declarationKind(declaration),
-          repoRelative(declaration.getSourceFile().getFilePath()),
-          declaration.getStartLineNumber(),
-        ].join(":");
+        const key = A.join(
+          [
+            exposure.importSpecifier,
+            symbolName,
+            declarationKind(declaration),
+            repoRelative(declaration.getSourceFile().getFilePath()),
+            declaration.getStartLineNumber(),
+          ],
+          ":"
+        );
 
         if (seen.has(key)) {
           continue;
         }
 
         seen.add(key);
-        exports.push(catalogEntryFor(packageInfo, topoOrder, exposure, symbolName, declaration));
+        A.appendInPlace(exports, catalogEntryFor(packageInfo, topoOrder, exposure, symbolName, declaration));
       }
     }
   }
 
-  exports.sort(
+  A.sortInPlace(
+    exports,
     (left, right) =>
-      [
-        left.importSpecifier.localeCompare(right.importSpecifier),
-        left.symbolName.localeCompare(right.symbolName),
-        left.exportKind.localeCompare(right.exportKind),
-        left.sourcePath.localeCompare(right.sourcePath),
-        left.sourceLine - right.sourceLine,
-      ].find((result) => result !== 0) ?? 0
+      O.getOrUndefined(
+        A.findFirst(
+          [
+            Str.localeCompare(right.importSpecifier)(left.importSpecifier),
+            Str.localeCompare(right.symbolName)(left.symbolName),
+            Str.localeCompare(right.exportKind)(left.exportKind),
+            Str.localeCompare(right.sourcePath)(left.sourcePath),
+            compareNumber(left.sourceLine, right.sourceLine),
+          ],
+          (result) => result !== 0
+        )
+      ) ?? 0
   );
 
   return {
@@ -553,10 +569,13 @@ const analyzePackage = (packageInfo, topoOrder) => {
     packagePath: packageInfo.path,
     topoOrder,
     status: packageStatusFor(exports.length),
-    importSpecifiers: [...new Set(exports.map((entry) => entry.importSpecifier))].sort(),
+    importSpecifiers: A.sort(
+      A.map(A.fromIterable(new Set(A.map(exports, (entry) => entry.importSpecifier))), (specifier) => `${specifier}`),
+      compareText
+    ),
     counts: {
       publicExportEntries: exports.length,
-      uniqueSymbols: new Set(exports.map((entry) => entry.symbolName)).size,
+      uniqueSymbols: new Set(A.map(exports, (entry) => entry.symbolName)).size,
       sourceFiles: sourceFilePaths.length,
     },
     exports,
@@ -599,80 +618,90 @@ const renderUnknownRecordProof = (catalog) =>
 
 const renderMarkdown = (catalog) => {
   const lines = [];
-  lines.push("# Repo Export Catalog");
-  lines.push("");
-  lines.push("Generated deterministically from package export maps, TypeScript exported declarations, and JSDoc.");
-  lines.push("");
-  lines.push("## Authority");
-  lines.push("");
-  lines.push(
+  A.appendInPlace(lines, "# Repo Export Catalog");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(
+    lines,
+    "Generated deterministically from package export maps, TypeScript exported declarations, and JSDoc."
+  );
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Authority");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(
+    lines,
     "This catalog is descriptive current-state metadata. It lists legal public export facts; it does not decide whether an import path, package root, wildcard export, or symbol is the canonical architecture surface for new code."
   );
-  lines.push("");
-  lines.push(
+  A.appendInPlace(lines, "");
+  A.appendInPlace(
+    lines,
     "Use `standards/ARCHITECTURE.md`, the numbered architecture doctrine, and package-local policy for canonical boundary choices."
   );
-  lines.push("");
-  lines.push("## Scope");
-  lines.push("");
-  lines.push(
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Scope");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(
+    lines,
     "The package universe is the current `bun run topo-sort` output. This catalog exists so coding agents can answer symbol-discovery questions with repo topology before recreating local helpers."
   );
-  lines.push("");
-  lines.push("## Totals");
-  lines.push("");
-  lines.push("| Metric | Count |");
-  lines.push("|---|---:|");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Totals");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "| Metric | Count |");
+  A.appendInPlace(lines, "|---|---:|");
   for (const [key, value] of Object.entries(catalog.totals)) {
-    lines.push(`| ${key} | ${value} |`);
+    A.appendInPlace(lines, `| ${key} | ${value} |`);
   }
-  lines.push("");
-  lines.push("## Seed Discovery Proof");
-  lines.push("");
-  lines.push(
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Seed Discovery Proof");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(
+    lines,
     "`UnknownRecord` is intentionally proven through generated source metadata, not a hand-maintained alias table."
   );
-  lines.push("");
-  lines.push("| Import | Symbol | Kind | Source | Summary |");
-  lines.push("|---|---|---|---|---|");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "| Import | Symbol | Kind | Source | Summary |");
+  A.appendInPlace(lines, "|---|---|---|---|---|");
   for (const entry of renderUnknownRecordProof(catalog)) {
-    lines.push(
+    A.appendInPlace(
+      lines,
       `| \`${markdownCell(entry.importSpecifier)}\` | \`${markdownCell(entry.symbolName)}\` | ${markdownCell(entry.exportKind)} | \`${markdownCell(entry.sourcePath)}:${entry.sourceLine}\` | ${markdownCell(entry.summary)} |`
     );
   }
-  lines.push("");
-  lines.push("## Package Summary");
-  lines.push("");
-  lines.push("| Order | Package | Path | Status | Import Specifiers | Export Entries | Unique Symbols |");
-  lines.push("|---:|---|---|---|---:|---:|---:|");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Package Summary");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "| Order | Package | Path | Status | Import Specifiers | Export Entries | Unique Symbols |");
+  A.appendInPlace(lines, "|---:|---|---|---|---:|---:|---:|");
   for (const pkg of catalog.packages) {
-    lines.push(
+    A.appendInPlace(
+      lines,
       `| ${pkg.topoOrder} | \`${markdownCell(pkg.packageName)}\` | \`${markdownCell(pkg.packagePath)}\` | ${markdownCell(pkg.status)} | ${pkg.importSpecifiers.length} | ${pkg.counts.publicExportEntries} | ${pkg.counts.uniqueSymbols} |`
     );
   }
-  lines.push("");
-  lines.push("## Public Exports");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Public Exports");
 
   for (const pkg of catalog.packages.filter((entry) => entry.exports.length > 0)) {
-    lines.push("");
-    lines.push(`### ${pkg.packageName}`);
-    lines.push("");
-    lines.push("| Import | Symbol | Kind | Source | Summary |");
-    lines.push("|---|---|---|---|---|");
+    A.appendInPlace(lines, "");
+    A.appendInPlace(lines, `### ${pkg.packageName}`);
+    A.appendInPlace(lines, "");
+    A.appendInPlace(lines, "| Import | Symbol | Kind | Source | Summary |");
+    A.appendInPlace(lines, "|---|---|---|---|---|");
     for (const entry of pkg.exports) {
-      lines.push(
+      A.appendInPlace(
+        lines,
         `| \`${markdownCell(entry.importSpecifier)}\` | \`${markdownCell(entry.symbolName)}\` | ${markdownCell(entry.exportKind)} | \`${markdownCell(entry.sourcePath)}:${entry.sourceLine}\` | ${markdownCell(entry.summary)} |`
       );
     }
   }
 
-  return `${lines.join("\n")}\n`;
+  return `${A.join(lines, "\n")}\n`;
 };
 
 const buildCatalog = () => {
   const packageByName = discoverWorkspacePackages();
   const topoNames = topoSortPackageNames();
-  const packages = topoNames.map((packageName, index) => {
+  const packages = A.map(topoNames, (packageName, index) => {
     const packageInfo = packageByName.get(packageName);
     return packageInfo === undefined
       ? analyzeMissingPackage(packageName, index + 1)

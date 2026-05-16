@@ -9,19 +9,18 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { makePgliteTestcontainerResource, type PgliteTestcontainerResource } from "@beep/test-utils";
-import { thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { Cause, Console, Effect, FileSystem, Match, Path, pipe, type Scope, Stream } from "effect";
-import * as A from "effect/Array";
+import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { Cause, Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $RepoCliId.create("commands/Quality/Tasks");
 
 const QUALITY_TASK_NAMES = ["build", "check", "test", "lint", "audit"] as const;
+const LINT_POLICY_GROUP_CONCURRENCY = 3;
 const LINT_POLICY_SUBCOMMANDS = [
   "circular",
   "package-test-imports",
@@ -172,6 +171,39 @@ export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`Qu
 ) {}
 
 /**
+ * Error raised when a bounded quality task group completes with failed steps.
+ *
+ * @example
+ * ```ts
+ * import { QualityTaskGroupFailed, QualityTaskFailed } from "@beep/repo-cli/commands/Quality/Tasks"
+ * const failure = new QualityTaskGroupFailed({
+ *   label: "lint:policies",
+ *   exitCode: 1,
+ *   failures: [
+ *     new QualityTaskFailed({
+ *       label: "lint:spell",
+ *       command: "bunx cspell .",
+ *       exitCode: 1
+ *     })
+ *   ]
+ * })
+ * ```
+ * @category error-handling
+ * @since 0.0.0
+ */
+export class QualityTaskGroupFailed extends TaggedErrorClass<QualityTaskGroupFailed>($I`QualityTaskGroupFailed`)(
+  "QualityTaskGroupFailed",
+  {
+    label: S.String,
+    exitCode: S.Number,
+    failures: S.Array(QualityTaskFailed),
+  },
+  $I.annote("QualityTaskGroupFailed", {
+    description: "A bounded quality task group completed with one or more failed subprocesses.",
+  })
+) {}
+
+/**
  * Error raised when a quality task cannot resolve its required configuration.
  *
  * @example
@@ -237,6 +269,13 @@ type QualityTaskEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSp
 type OptionalQualityTaskStep = {
   readonly enabled: boolean;
   readonly step: () => QualityTaskStep;
+};
+
+type QualityTaskStepOutput = {
+  readonly command: string;
+  readonly exitCode: number;
+  readonly output: string;
+  readonly step: QualityTaskStep;
 };
 
 type ParsedFixArgsState = {
@@ -566,6 +605,104 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
 
 const runSteps = (steps: ReadonlyArray<QualityTaskStep>) => Effect.forEach(steps, runStep, { discard: true });
 
+const collectResolvedStepOutput = Effect.fn("QualityTasks.collectResolvedStepOutput")(function* (
+  step: QualityTaskStep
+): Effect.fn.Return<QualityTaskStepOutput, QualityTaskConfigurationError, ChildProcessSpawner.ChildProcessSpawner> {
+  const command = commandText(step.command, step.args);
+  const result = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make(step.command, [...step.args], {
+        cwd: step.cwd,
+        env: {
+          ...turboEnvOverrides(step.command, step.args),
+          ...(step.env ?? {}),
+        },
+        extendEnv: true,
+        stdin: "inherit",
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      const output = yield* handle.all.pipe(
+        Stream.decodeText(),
+        Stream.runFold(thunkEmptyStr, (acc, chunk) => acc + chunk)
+      );
+      const exitCode = yield* handle.exitCode;
+      return {
+        output: Str.trim(output),
+        exitCode,
+      };
+    })
+  ).pipe(
+    Effect.mapError(
+      (cause) =>
+        new QualityTaskConfigurationError({
+          message: `Failed to spawn ${command}: ${cause.message}`,
+        })
+    )
+  );
+
+  return {
+    command,
+    exitCode: result.exitCode,
+    output: result.output,
+    step,
+  };
+});
+
+const collectStepOutputInternal = Effect.fn("QualityTasks.collectStepOutput")(function* (
+  step: QualityTaskStep
+): Effect.fn.Return<QualityTaskStepOutput, QualityTaskConfigurationError, QualityTaskEnvironment> {
+  const resolved = yield* withLocalEnv(step);
+  return yield* collectResolvedStepOutput(resolved);
+});
+
+const renderStepOutput = Effect.fn("QualityTasks.renderStepOutput")(function* (result: QualityTaskStepOutput) {
+  if (Str.isNonEmpty(result.output)) {
+    yield* Console.log(`[beep-cli] ${result.step.label} output:\n${result.output}`);
+  }
+});
+
+const failureFromOutput = (result: QualityTaskStepOutput) =>
+  new QualityTaskFailed({
+    label: result.step.label,
+    command: result.command,
+    exitCode: result.exitCode,
+  });
+
+const failedStepOutputs: (results: ReadonlyArray<QualityTaskStepOutput>) => ReadonlyArray<QualityTaskFailed> = flow(
+  A.filter((result) => result.exitCode !== 0),
+  A.map(failureFromOutput)
+);
+
+const runStepGroup = Effect.fn("QualityTasks.runStepGroup")(function* (
+  label: string,
+  steps: ReadonlyArray<QualityTaskStep>,
+  concurrency: number
+) {
+  if (A.isReadonlyArrayEmpty(steps)) {
+    return;
+  }
+
+  yield* Console.log(`[beep-cli] ${label}: running ${A.length(steps)} step(s) with concurrency ${concurrency}`);
+  const resolvedSteps = yield* Effect.forEach(steps, withLocalEnv);
+  yield* Effect.forEach(resolvedSteps, (step) =>
+    Console.log(`[beep-cli] ${step.label}: ${commandText(step.command, step.args)}`)
+  );
+  const results = yield* Effect.forEach(resolvedSteps, collectResolvedStepOutput, { concurrency });
+
+  yield* Effect.forEach(results, renderStepOutput, { discard: true });
+
+  const failures = failedStepOutputs(results);
+  const firstFailure = A.head(failures);
+  if (O.isSome(firstFailure)) {
+    return yield* new QualityTaskGroupFailed({
+      label,
+      failures,
+      exitCode: firstFailure.value.exitCode,
+    });
+  }
+});
+
 const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, args: ReadonlyArray<string>) => {
   const env = turboCoverageEnv(tasks, args);
   return new QualityTaskStep({
@@ -821,6 +958,27 @@ const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boole
     : A.empty<QualityTaskStep>()),
 ];
 
+const runRootLintTask = Effect.fn("QualityTasks.runRootLintTask")(function* (
+  repoRoot: string,
+  args: ReadonlyArray<string>,
+  fix: boolean
+) {
+  yield* runStep(
+    fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], args) : turboStep(repoRoot, "lint", ["lint"], args)
+  );
+
+  if (!shouldRunRepoWideSteps(args)) {
+    return;
+  }
+
+  if (fix) {
+    yield* runSteps(rootLintFixPolicySteps(repoRoot));
+    return;
+  }
+
+  yield* runStepGroup("lint:policies", rootRepoLintPolicySteps(repoRoot), LINT_POLICY_GROUP_CONCURRENCY);
+});
+
 const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   const selection = parseRootAuditSelection(args);
 
@@ -937,6 +1095,11 @@ const runRootTask = Effect.fn("QualityTasks.runRootTask")(function* (
     return;
   }
 
+  if (invocation.task === "lint") {
+    yield* runRootLintTask(repoRoot, invocationArgs(invocation), invocationFix(invocation));
+    return;
+  }
+
   yield* runSteps(rootStepsFor(repoRoot, invocation));
 });
 
@@ -954,6 +1117,15 @@ const handleQualityTaskError = Effect.catchTags({
   QualityTaskFailed: Effect.fn("QualityTasks.handleFailedTask")(function* (error: QualityTaskFailed) {
     process.exitCode = error.exitCode;
     yield* Console.error(`[beep-cli] ${error.label} failed with exit code ${error.exitCode}`);
+  }),
+  QualityTaskGroupFailed: Effect.fn("QualityTasks.handleFailedTaskGroup")(function* (error: QualityTaskGroupFailed) {
+    process.exitCode = error.exitCode;
+    yield* Console.error(`[beep-cli] ${error.label} failed with ${A.length(error.failures)} failed step(s)`);
+    yield* Effect.forEach(
+      error.failures,
+      (failure) => Console.error(`[beep-cli] ${failure.label} failed with exit code ${failure.exitCode}`),
+      { discard: true }
+    );
   }),
   DomainError: Effect.fn("QualityTasks.handleDomainError")(function* (error: DomainError) {
     process.exitCode = 1;
@@ -1096,21 +1268,15 @@ export const runQualityTaskIfRequested: (
  * @since 0.0.0
  */
 export const collectStepOutput = (step: QualityTaskStep) =>
-  Effect.scoped(
-    Effect.gen(function* () {
-      const handle = yield* ChildProcess.make(step.command, [...step.args], {
-        cwd: step.cwd,
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-      const output = yield* handle.all.pipe(
-        Stream.decodeText(),
-        Stream.runFold(thunkEmptyStr, (acc, chunk) => acc + chunk)
-      );
-      const exitCode = yield* handle.exitCode;
-      return {
-        output: Str.trim(output),
-        exitCode,
-      };
-    })
-  );
+  collectStepOutputInternal(step).pipe(Effect.map(({ output, exitCode }) => ({ output, exitCode })));
+
+/**
+ * Run a bounded quality task group. Exposed for focused unit tests.
+ *
+ * @param label - Group label rendered in CLI output.
+ * @param steps - Subprocess steps to execute.
+ * @param concurrency - Maximum number of steps to run at once.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const runQualityTaskStepGroupForTesting = runStepGroup;

@@ -1,4 +1,5 @@
 import { CryptoWalletAddress } from "@beep/schema/blockchain/CryptoWalletAddress";
+import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { base58, bech32, bech32m } from "@scure/base";
@@ -52,7 +53,7 @@ describe("CryptoWalletAddress", () => {
   });
 
   it("rejects malformed EVM addresses", () => {
-    expect(() => decode(evmChecksummed.toUpperCase())).toThrow(
+    expect(() => decode(Str.toUpperCase(evmChecksummed))).toThrow(
       "CryptoWalletAddress must be a canonical mainnet EVM, Bitcoin, or Solana wallet address"
     );
     expect(() => decode("52908400098527886e0f7030069857d2e4169ee7")).toThrow(

@@ -61,6 +61,7 @@
     "@beep/duckdb": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
     "effect": "catalog:",
     "yaml": "catalog:"
   },

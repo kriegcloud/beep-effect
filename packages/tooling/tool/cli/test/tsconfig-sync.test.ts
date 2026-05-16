@@ -1,10 +1,10 @@
 import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/TsconfigSync";
 import { FsUtilsLive } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { Effect, FileSystem, Layer, Order, Path } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";

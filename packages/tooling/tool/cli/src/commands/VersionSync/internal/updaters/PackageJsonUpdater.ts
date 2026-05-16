@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
+import { A } from "@beep/utils";
 import { Effect, FileSystem, Inspectable } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as jsonc from "jsonc-parser";
 import { VersionSyncError } from "../Models.js";

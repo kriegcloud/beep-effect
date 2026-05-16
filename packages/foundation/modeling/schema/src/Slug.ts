@@ -16,12 +16,14 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { Str } from "@beep/utils";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $SchemaId.create("Slug");
 const slugAllowedCharactersPattern = /^[a-z0-9-]+$/;
+const doesNotStartWithHyphen = (value: unknown): boolean => P.isString(value) && !Str.startsWith(value, "-");
+const doesNotEndWithHyphen = (value: unknown): boolean => P.isString(value) && !Str.endsWith(value, "-");
 
 const SlugChecks = S.makeFilterGroup(
   [
@@ -31,13 +33,13 @@ const SlugChecks = S.makeFilterGroup(
       description: "A slug that uses only lowercase ASCII letters, digits, and hyphens.",
       message: "Slug must use lowercase ASCII letters, digits, and hyphens only",
     }),
-    S.makeFilter(P.not(Str.startsWith("-")), {
+    S.makeFilter(doesNotStartWithHyphen, {
       identifier: $I`SlugNoLeadingHyphenCheck`,
       title: "Slug No Leading Hyphen",
       description: "A slug that does not start with a hyphen.",
       message: "Slug must not start with a hyphen",
     }),
-    S.makeFilter(P.not(Str.endsWith("-")), {
+    S.makeFilter(doesNotEndWithHyphen, {
       identifier: $I`SlugNoTrailingHyphenCheck`,
       title: "Slug No Trailing Hyphen",
       description: "A slug that does not end with a hyphen.",

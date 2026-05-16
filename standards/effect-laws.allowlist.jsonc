@@ -28,6 +28,14 @@
     },
     {
       "rule": "beep-laws/no-native-runtime",
+      "file": "apps/opip-web/src/components/ContactForm.tsx",
+      "kind": "date-static",
+      "reason": "The OPIP contact form emits a synchronous anti-spam timestamp as a browser form field; server-side validation uses Effect Clock at the boundary.",
+      "owner": "@beep/opip-web",
+      "issue": "OPIP-CONTACT-FORM-SPAM-TIMESTAMP"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts",
       "kind": "new-map-set",
       "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
@@ -47,14 +55,6 @@
       "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
       "kind": "native-error",
       "reason": "The JSDoc inventory support generator is invoked as a direct CLI script and throws native Error values for malformed workspace metadata before emitting generated inventory artifacts.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
-      "kind": "array-static",
-      "reason": "The JSDoc inventory support generator decodes untyped JSONC workspace manifests and uses native Array guards at the external data boundary before normalizing values.",
       "owner": "@beep/repo-cli",
       "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
     },
@@ -95,14 +95,6 @@
       "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
       "kind": "native-error",
       "reason": "The repo export catalog support generator is invoked as a direct CLI script and throws native Error values for malformed workspace metadata before emitting generated catalog artifacts.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
-      "kind": "array-static",
-      "reason": "The repo export catalog support generator decodes untyped JSONC workspace manifests and uses native Array guards at the external data boundary before normalizing values.",
       "owner": "@beep/repo-cli",
       "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
     },

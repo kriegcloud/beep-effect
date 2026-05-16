@@ -7,8 +7,8 @@
 
 import { codeFrameColumns } from "@babel/code-frame";
 import { $RepoDocgenId } from "@beep/identity";
+import { A } from "@beep/utils";
 import { Effect, Layer } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Configuration from "./Configuration.js";
 import * as Domain from "./Domain.js";
@@ -46,19 +46,22 @@ const checkEntry = Effect.fn("checkEntry")(function* (
   let errors: Array<string> = [];
 
   if (config.enforceDescriptions && model.doc.description === undefined) {
-    errors = errors.concat(
+    errors = A.appendAll(
+      errors,
       makeError(source, model.position, (filePath, frame) => `Missing description in file ${filePath}:\n\n${frame}`)
     );
   }
 
   if (config.enforceExamples && model.doc.examples.length === 0) {
-    errors = errors.concat(
+    errors = A.appendAll(
+      errors,
       makeError(source, model.position, (filePath, frame) => `Missing examples in file ${filePath}:\n\n${frame}`)
     );
   }
 
   if (config.enforceVersion && options.enforceVersion && model.doc.since.length === 0) {
-    errors = errors.concat(
+    errors = A.appendAll(
+      errors,
       makeError(source, model.position, (filePath, frame) => `Missing \`@since\` tag in file ${filePath}:\n\n${frame}`)
     );
   }

@@ -6,6 +6,7 @@
  */
 
 import { $SandboxId } from "@beep/identity";
+import { Str } from "@beep/utils";
 import { Context, Effect, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
 import { SessionCaptureError } from "./Sandbox.errors.ts";
@@ -15,7 +16,7 @@ import { SandboxExecOptions } from "./Sandbox.provider.ts";
 const $I = $SandboxId.create("Session");
 const SESSION_ID_PATTERN = /^[A-Za-z0-9_-]+$/u;
 
-const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
+const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
 
 /**
  * Session path service shape.
@@ -83,7 +84,7 @@ export interface SessionStore<R = never> {
  * @category utilities
  * @since 0.0.0
  */
-export const encodeProjectPath = (cwd: string): string => cwd.replaceAll("/", "-");
+export const encodeProjectPath = (cwd: string): string => Str.replaceAll("/", "-")(cwd);
 
 /**
  * Create a configured session-path layer.

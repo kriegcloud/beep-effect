@@ -7,9 +7,9 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings } from "@beep/schema";
+import { A } from "@beep/utils";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Effect, flow, identity, type JsonPatch, JsonPointer, Order, pipe, Result, SchemaIssue, Tuple } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";

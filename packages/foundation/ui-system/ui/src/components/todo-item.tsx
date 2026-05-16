@@ -1,5 +1,6 @@
 "use client";
 
+import { A, Str } from "@beep/utils";
 import { ArrowRightIcon, CalendarIcon, CheckIcon, InfoIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { DateTime, pipe } from "effect";
 import { cn } from "../lib/index.ts";
@@ -125,7 +126,7 @@ export function TodoItem({
     })();
   const hasMetadata = priority !== "none" || hasDueDate || hasLabels || hasProject || hasSubtasks;
 
-  const completedSubtasks = subtasks.filter((subtask) => subtask.completed).length;
+  const completedSubtasks = A.filter(subtasks, (subtask) => subtask.completed).length;
 
   return (
     <div
@@ -204,7 +205,7 @@ export function TodoItem({
                 </span>
               )}
 
-              {labels.map((label) => (
+              {A.map(labels, (label) => (
                 <span
                   key={label.id}
                   className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
@@ -224,7 +225,7 @@ export function TodoItem({
                   )}
                 >
                   <WarningCircleIcon size={12} />
-                  {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                  {Str.capitalize(priority)}
                 </span>
               )}
 

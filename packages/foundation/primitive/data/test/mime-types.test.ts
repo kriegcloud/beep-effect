@@ -1,7 +1,7 @@
 import { getExtensions, getTypes, lookup, mimeTypes } from "@beep/data/MimeTypes";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Struct } from "effect";
-import * as A from "effect/Array";
 import * as Str from "effect/String";
 
 describe("mimeTypes", () => {

@@ -5,9 +5,8 @@
  * @since 0.0.0
  */
 
-import { thunkFalse } from "@beep/utils";
+import { A, thunkFalse } from "@beep/utils";
 import { identity, pipe, Result } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import {
   ALLOWLIST_PATH,

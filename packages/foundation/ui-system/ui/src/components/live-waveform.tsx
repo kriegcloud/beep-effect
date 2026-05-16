@@ -1,6 +1,6 @@
 "use client";
 
-import * as A from "effect/Array";
+import { A } from "@beep/utils";
 import * as P from "effect/Predicate";
 import { type HTMLAttributes, useEffect, useRef } from "react";
 import { cn } from "../lib/index.ts";

@@ -7,7 +7,8 @@
 
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import * as A from "effect/Array";
+import { A, O } from "@beep/utils";
+import { pipe } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $SandboxId.create("RecoveryMessage");
@@ -90,21 +91,21 @@ const buildSteps = (input: RecoveryInput): ReadonlyArray<RecoveryStep> => {
   const steps = A.empty<RecoveryStep>();
 
   if (input.hasCommits) {
-    steps.push({
+    A.appendInPlace(steps, {
       has: true,
       key: "commits",
       label: "committed changes",
     });
   }
   if (input.hasDiff) {
-    steps.push({
+    A.appendInPlace(steps, {
       has: true,
       key: "diff",
       label: "uncommitted changes",
     });
   }
   if (input.hasUntracked) {
-    steps.push({
+    A.appendInPlace(steps, {
       has: true,
       key: "untracked",
       label: "untracked files",
@@ -119,7 +120,7 @@ const buildRemainingCommands = (patchDir: string, steps: ReadonlyArray<RecoveryS
 
   for (const step of steps) {
     if (step.has) {
-      commands.push(commandForStep(patchDir, step.key));
+      A.appendInPlace(commands, commandForStep(patchDir, step.key));
     }
   }
 
@@ -129,9 +130,10 @@ const buildRemainingCommands = (patchDir: string, steps: ReadonlyArray<RecoveryS
 const formatCommandBlock = (commands: ReadonlyArray<string>): string =>
   commands.length === 1
     ? `  ${commands[0]}`
-    : commands
-        .map((command, index) => (index < commands.length - 1 ? `  ${command} && \\` : `  ${command}`))
-        .join("\n");
+    : A.join(
+        A.map(commands, (command, index) => (index < commands.length - 1 ? `  ${command} && \\` : `  ${command}`)),
+        "\n"
+      );
 
 /**
  * Build copy-pastable recovery commands for a failed sync-out.
@@ -157,7 +159,11 @@ const formatCommandBlock = (commands: ReadonlyArray<string>): string =>
 export const buildRecoveryMessage = (input: RecoveryInput): string => {
   const cmdPatchDir = input.branch === undefined ? input.patchDir : `../../${input.patchDir}`;
   const steps = buildSteps(input);
-  const failedIndex = steps.findIndex((step) => step.key === input.failedStep);
+  const failedIndex = pipe(
+    steps,
+    A.findFirstIndex((step) => step.key === input.failedStep),
+    O.getOrElse(() => -1)
+  );
   const failedStepInfo = steps[failedIndex];
   const lines: Array<string> = [];
 
@@ -165,34 +171,35 @@ export const buildRecoveryMessage = (input: RecoveryInput): string => {
     return `Patch application failed at unknown step (${input.failedStep}).`;
   }
 
-  lines.push(`Patch application failed at step ${failedIndex + 1} (${failedStepInfo.label}).`);
-  lines.push("");
+  A.appendInPlace(lines, `Patch application failed at step ${failedIndex + 1} (${failedStepInfo.label}).`);
+  A.appendInPlace(lines, "");
 
   if (input.branch !== undefined) {
-    lines.push("Set up worktree, then resolve:");
-    lines.push(
+    A.appendInPlace(lines, "Set up worktree, then resolve:");
+    A.appendInPlace(
+      lines,
       formatCommandBlock([`git worktree add .sandcastle/worktree ${input.branch}`, "cd .sandcastle/worktree"])
     );
-    lines.push("");
+    A.appendInPlace(lines, "");
   }
 
   if (input.failedStep === "commits") {
-    lines.push("Resolve conflicts, then continue with:");
-    lines.push("  git am --continue");
+    A.appendInPlace(lines, "Resolve conflicts, then continue with:");
+    A.appendInPlace(lines, "  git am --continue");
 
-    const remaining = buildRemainingCommands(cmdPatchDir, steps.slice(failedIndex + 1));
+    const remaining = buildRemainingCommands(cmdPatchDir, A.slice(steps, failedIndex + 1));
     if (remaining.length > 0) {
-      lines.push("");
-      lines.push("After all commits are applied, run the remaining steps:");
-      lines.push(formatCommandBlock(remaining));
+      A.appendInPlace(lines, "");
+      A.appendInPlace(lines, "After all commits are applied, run the remaining steps:");
+      A.appendInPlace(lines, formatCommandBlock(remaining));
     }
   } else {
-    const remaining = buildRemainingCommands(cmdPatchDir, steps.slice(failedIndex));
+    const remaining = buildRemainingCommands(cmdPatchDir, A.slice(steps, failedIndex));
     if (remaining.length > 0) {
-      lines.push("Run the remaining steps:");
-      lines.push(formatCommandBlock(remaining));
+      A.appendInPlace(lines, "Run the remaining steps:");
+      A.appendInPlace(lines, formatCommandBlock(remaining));
     }
   }
 
-  return lines.join("\n");
+  return A.join(lines, "\n");
 };

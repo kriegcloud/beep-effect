@@ -4,14 +4,12 @@
  * @packageDocumentation
  */
 import { $SchemaId } from "@beep/identity";
-import { Struct } from "@beep/utils";
+import { A, Str, Struct } from "@beep/utils";
 import { Effect, pipe, SchemaIssue, SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { LiteralKit } from "../../LiteralKit.ts";
 import * as SchemaUtils from "../../SchemaUtils/index.ts";
 import * as internal from "./_internal/index.ts";
@@ -276,7 +274,7 @@ export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
       return Str.empty;
     }
 
-    const strings = A.empty<string>();
+    let strings = A.empty<string>();
     A.forEach(Struct.entries(directive), ([key, value]) => {
       const directiveValue = unwrapDirectiveValue(value);
       if (P.isUndefined(directiveValue)) {
@@ -288,7 +286,7 @@ export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
         return;
       }
 
-      strings.push(createDirectiveValue(directiveName, wrapArray(directiveValue)));
+      strings = A.append(strings, createDirectiveValue(directiveName, wrapArray(directiveValue)));
     });
 
     return A.join(strings, directiveValueSeparator);
@@ -316,23 +314,23 @@ export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDir
       return Str.empty;
     }
 
-    const strings = A.empty<string>();
+    let strings = A.empty<string>();
 
     const baseURI = unwrapDirectiveValue(directive.baseURI) ?? unwrapDirectiveValue(directive["base-uri"]);
     if (baseURI != undefined) {
-      strings.push(createDirectiveValue("base-uri", wrapArray(baseURI)));
+      strings = A.append(strings, createDirectiveValue("base-uri", wrapArray(baseURI)));
     }
 
     const pluginTypes = unwrapDirectiveValue(directive.pluginTypes) ?? unwrapDirectiveValue(directive["plugin-types"]);
     if (P.isNotUndefined(pluginTypes)) {
-      strings.push(createDirectiveValue("plugin-types", wrapArray(pluginTypes)));
+      strings = A.append(strings, createDirectiveValue("plugin-types", wrapArray(pluginTypes)));
     }
 
     const sandbox = unwrapDirectiveValue(directive.sandbox);
     if (P.isNotUndefined(sandbox)) {
       const directiveName = "sandbox";
       const value = sandbox === true ? directiveName : createDirectiveValue(directiveName, sandbox);
-      strings.push(value);
+      strings = A.append(strings, value);
     }
 
     return pipe(strings, A.join(directiveValueSeparator));
@@ -361,22 +359,22 @@ export class NavigationDirective extends S.Class<NavigationDirective>($I`Navigat
       return Str.empty;
     }
 
-    const strings = A.empty<string>();
+    let strings = A.empty<string>();
 
     const formAction = unwrapDirectiveValue(directive.formAction) ?? unwrapDirectiveValue(directive["form-action"]);
     if (formAction != undefined) {
-      strings.push(createDirectiveValue("form-action", wrapArray(formAction)));
+      strings = A.append(strings, createDirectiveValue("form-action", wrapArray(formAction)));
     }
 
     const frameAncestors =
       unwrapDirectiveValue(directive.frameAncestors) ?? unwrapDirectiveValue(directive["frame-ancestors"]);
     if (frameAncestors != undefined) {
-      strings.push(createDirectiveValue("frame-ancestors", wrapArray(frameAncestors)));
+      strings = A.append(strings, createDirectiveValue("frame-ancestors", wrapArray(frameAncestors)));
     }
 
     const navigateTo = unwrapDirectiveValue(directive.navigateTo) ?? unwrapDirectiveValue(directive["navigate-to"]);
     if (navigateTo != undefined) {
-      strings.push(createDirectiveValue("navigate-to", wrapArray(navigateTo)));
+      strings = A.append(strings, createDirectiveValue("navigate-to", wrapArray(navigateTo)));
     }
 
     return pipe(strings, A.join(directiveValueSeparator));
@@ -413,16 +411,16 @@ export class ReportingDirective extends S.Class<ReportingDirective>($I`Reporting
       return Str.empty;
     }
 
-    const strings = A.empty<string>();
+    let strings = A.empty<string>();
 
     const reportURIValue = unwrapDirectiveValue(directive.reportURI) ?? unwrapDirectiveValue(directive["report-uri"]);
     if (reportURIValue != undefined) {
       const reportURI = A.map(wrapArray(reportURIValue), (i) => internal.encodeStrictURI(i));
-      strings.push(createDirectiveValue("report-uri", reportURI));
+      strings = A.append(strings, createDirectiveValue("report-uri", reportURI));
     }
     const reportTo = unwrapDirectiveValue(directive.reportTo) ?? unwrapDirectiveValue(directive["report-to"]);
     if (reportTo != undefined) {
-      strings.push(createDirectiveValue("report-to", reportTo));
+      strings = A.append(strings, createDirectiveValue("report-to", reportTo));
     }
 
     return pipe(strings, A.join(directiveValueSeparator));

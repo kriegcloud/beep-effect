@@ -21,14 +21,12 @@ import {
   TSMorphService,
 } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
-import { Str as CommonStr, Text, thunkFalse } from "@beep/utils";
+import { A, Str, Text, thunkFalse } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, flow, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { SyntaxKind } from "ts-morph";
@@ -303,7 +301,7 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
  * @param packagePath - Repo-relative package path.
  * @returns Relative path from the package directory to repo root.
  */
-const toRootRelative = (packagePath: string): string => CommonStr.repeat("../", A.length(Str.split(packagePath, "/")));
+const toRootRelative = (packagePath: string): string => Str.repeat("../", A.length(Str.split(packagePath, "/")));
 
 const parseJsonDocument: {
   (content: string, filePath: string): Effect.Effect<unknown, DomainError, never>;
@@ -466,11 +464,11 @@ const rootWorkspaceEntryNeeded = Effect.fn(function* (repoRoot: string, packageP
   return !isPathCoveredByWorkspacePatterns(workspacePatternsFromPackageJson(packageJson.workspaces), packagePath);
 });
 
-const toIdentityAccessorName = (packageName: string): string => `$${CommonStr.pascalCase(packageName)}Id`;
+const toIdentityAccessorName = (packageName: string): string => `$${Str.pascalCase(packageName)}Id`;
 
 const typedIdentityExportBlock = (packageName: string): string => {
   const accessorName = toIdentityAccessorName(packageName);
-  const exampleName = CommonStr.pascalCase(packageName);
+  const exampleName = Str.pascalCase(packageName);
   return Text.joinLines([
     "",
     "/**",

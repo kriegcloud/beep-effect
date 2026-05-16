@@ -11,6 +11,7 @@ import {
   TextDeltaBuffer,
   TextDeltaBufferOptions,
 } from "@beep/sandbox";
+import { A } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { Effect, Layer } from "effect";
@@ -31,7 +32,7 @@ describe("@beep/sandbox parity helpers", () => {
     it("flushes at sentence, newline, length, explicit, and debounce boundaries", () => {
       const flushed: Array<string> = [];
       const buffer = new TextDeltaBuffer(
-        (text) => flushed.push(text),
+        (text) => A.appendInPlace(flushed, text),
         new TextDeltaBufferOptions({ debounceMs: 50, lengthThreshold: 8 })
       );
 
@@ -48,7 +49,7 @@ describe("@beep/sandbox parity helpers", () => {
 
     it("clears the debounce timer on dispose", () => {
       const flushed: Array<string> = [];
-      const buffer = new TextDeltaBuffer((text) => flushed.push(text));
+      const buffer = new TextDeltaBuffer((text) => A.appendInPlace(flushed, text));
 
       buffer.write("leftover");
       buffer.dispose();

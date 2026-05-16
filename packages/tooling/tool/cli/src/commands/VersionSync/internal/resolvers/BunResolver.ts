@@ -10,15 +10,13 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { A as CommonArray } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, identity, Path } from "effect";
-import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import {
   NetworkUnavailableError,
@@ -425,7 +423,7 @@ export const buildBunReport: (state: BunVersionState) => VersionCategoryReport =
     );
   }
 
-  const hasDrift = CommonArray.matchToBoolean(items);
+  const hasDrift = A.matchToBoolean(items);
   const hasInternalMismatch = state.bunVersionFile !== state.packageManagerField;
 
   return new VersionCategoryReport.cases.bun({

@@ -22,9 +22,9 @@ import { PermittedCrossDomainPoliciesHeader } from "@beep/schema/http/headers/Pe
 import { ReferrerPolicyHeader } from "@beep/schema/http/headers/ReferrerPolicy";
 import { createHeadersObject, createSecureHeaders } from "@beep/schema/http/headers/SecureHeaderOptions";
 import { XSSProtectionHeader } from "@beep/schema/http/headers/XSSProtection";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Exit, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 

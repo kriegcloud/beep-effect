@@ -7,8 +7,8 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { TaggedErrorClass, type TaggedErrorClassFromFields } from "@beep/schema/TaggedErrorClass";
+import { A } from "@beep/utils";
 import { HashMap, pipe, type SchemaAST } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

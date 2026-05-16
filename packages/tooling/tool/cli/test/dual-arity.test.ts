@@ -1,6 +1,7 @@
 import { DualArityRulesOptions, runDualArityRules } from "@beep/repo-cli/commands/Laws/DualArity";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { TSMorphServiceLive } from "@beep/repo-utils/TSMorph/index";
+import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
@@ -48,19 +49,22 @@ const writeProjectScaffold = Effect.gen(function* () {
   yield* writeProjectFile("bun.lock", "");
   yield* writeProjectFile(
     "tsconfig.json",
-    [
-      "{",
-      '  "compilerOptions": {',
-      '    "target": "ES2022",',
-      '    "module": "ESNext",',
-      '    "moduleResolution": "Bundler",',
-      '    "strict": true,',
-      '    "skipLibCheck": true',
-      "  },",
-      '  "include": ["packages/**/*.ts", "packages/**/*.tsx"]',
-      "}",
-      "",
-    ].join("\n")
+    A.join(
+      [
+        "{",
+        '  "compilerOptions": {',
+        '    "target": "ES2022",',
+        '    "module": "ESNext",',
+        '    "moduleResolution": "Bundler",',
+        '    "strict": true,',
+        '    "skipLibCheck": true',
+        "  },",
+        '  "include": ["packages/**/*.ts", "packages/**/*.tsx"]',
+        "}",
+        "",
+      ],
+      "\n"
+    )
   );
 });
 
@@ -86,19 +90,22 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            'import { dual } from "effect/Function";',
-            "",
-            "export const ok: {",
-            "  (self: string, label: string): string",
-            "  (label: string): (self: string) => string",
-            "} = dual(2, (self: string, label: string): string => `${self}:${label}`);",
-            "",
-            "export function missing(self: string, label: string): string {",
-            "  return `${self}:${label}`;",
-            "}",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { dual } from "effect/Function";',
+              "",
+              "export const ok: {",
+              "  (self: string, label: string): string",
+              "  (label: string): (self: string) => string",
+              "} = dual(2, (self: string, label: string): string => `${self}:${label}`);",
+              "",
+              "export function missing(self: string, label: string): string {",
+              "  return `${self}:${label}`;",
+              "}",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
@@ -118,15 +125,18 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            'import * as Fn from "effect/Function";',
-            "",
-            "export const ok: {",
-            "  (self: string, label: string): string",
-            "  (label: string): (self: string) => string",
-            "} = Fn.dual(2, (self: string, label: string): string => `${self}:${label}`);",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import * as Fn from "effect/Function";',
+              "",
+              "export const ok: {",
+              "  (self: string, label: string): string",
+              "  (label: string): (self: string) => string",
+              "} = Fn.dual(2, (self: string, label: string): string => `${self}:${label}`);",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
@@ -143,24 +153,27 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            "interface IdentityLike {",
-            "  (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): string",
-            "  readonly identifier: string",
-            "  make(segment: string): string",
-            "}",
-            "",
-            "declare const identityLike: IdentityLike;",
-            "const makeHelper = () => (self: string, label: string): string => `${self}:${label}`;",
-            "",
-            "export const composer = identityLike;",
-            "export const factoryReturned = makeHelper();",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              "interface IdentityLike {",
+              "  (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): string",
+              "  readonly identifier: string",
+              "  make(segment: string): string",
+              "}",
+              "",
+              "declare const identityLike: IdentityLike;",
+              "const makeHelper = () => (self: string, label: string): string => `${self}:${label}`;",
+              "",
+              "export const composer = identityLike;",
+              "export const factoryReturned = makeHelper();",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
-        const diagnostics = summary.diagnostics.join("\n");
+        const diagnostics = A.join(summary.diagnostics, "\n");
 
         expect(summary.liveEntries).toBe(1);
         expect(diagnostics).not.toContain("composer");
@@ -176,25 +189,28 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            'import * as Order from "effect/Order";',
-            'import * as S from "effect/Schema";',
-            "",
-            "export const decodeName = S.decodeUnknownOption(S.String);",
-            "export const encodeName = S.encodeUnknownResult(S.String);",
-            "export const NameEquivalence = S.toEquivalence(S.String);",
-            "export const ByName: Order.Order<{ readonly name: string }> = Order.mapInput(",
-            "  Order.String,",
-            "  (value: { readonly name: string }) => value.name",
-            ");",
-            "",
-            "export const helper = (self: string, label: string): string => `${self}:${label}`;",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import * as Order from "effect/Order";',
+              'import * as S from "effect/Schema";',
+              "",
+              "export const decodeName = S.decodeUnknownOption(S.String);",
+              "export const encodeName = S.encodeUnknownResult(S.String);",
+              "export const NameEquivalence = S.toEquivalence(S.String);",
+              "export const ByName: Order.Order<{ readonly name: string }> = Order.mapInput(",
+              "  Order.String,",
+              "  (value: { readonly name: string }) => value.name",
+              ");",
+              "",
+              "export const helper = (self: string, label: string): string => `${self}:${label}`;",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
-        const diagnostics = summary.diagnostics.join("\n");
+        const diagnostics = A.join(summary.diagnostics, "\n");
 
         expect(summary.liveEntries).toBe(1);
         expect(diagnostics).toContain("helper");
@@ -212,27 +228,30 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            "export function variadic(first: string, ...rest: ReadonlyArray<string>): string;",
-            "export function variadic(values: ReadonlyArray<string>): string;",
-            "export function variadic(firstOrValues: string | ReadonlyArray<string>, ...rest: ReadonlyArray<string>): string {",
-            "  return Array.isArray(firstOrValues) ? firstOrValues.join(':') : [firstOrValues, ...rest].join(':');",
-            "}",
-            "",
-            "export function optionalFactory(schema: string, error?: string): string {",
-            "  return error === undefined ? schema : `${schema}:${error}`;",
-            "}",
-            "",
-            "export const variadicConst = (first: string, ...rest: ReadonlyArray<string>): string =>",
-            "  [first, ...rest].join(':');",
-            "",
-            "export const helper = (self: string, label: string): string => `${self}:${label}`;",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              "export function variadic(first: string, ...rest: ReadonlyArray<string>): string;",
+              "export function variadic(values: ReadonlyArray<string>): string;",
+              "export function variadic(firstOrValues: string | ReadonlyArray<string>, ...rest: ReadonlyArray<string>): string {",
+              "  return Array.isArray(firstOrValues) ? firstOrValues.join(':') : [firstOrValues, ...rest].join(':');",
+              "}",
+              "",
+              "export function optionalFactory(schema: string, error?: string): string {",
+              "  return error === undefined ? schema : `${schema}:${error}`;",
+              "}",
+              "",
+              "export const variadicConst = (first: string, ...rest: ReadonlyArray<string>): string =>",
+              "  [first, ...rest].join(':');",
+              "",
+              "export const helper = (self: string, label: string): string => `${self}:${label}`;",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
-        const diagnostics = summary.diagnostics.join("\n");
+        const diagnostics = A.join(summary.diagnostics, "\n");
 
         expect(summary.liveEntries).toBe(1);
         expect(diagnostics).toContain("helper");
@@ -249,25 +268,28 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            'import { dual } from "@beep/utils/Function";',
-            'import { dual as effectDual } from "effect/Function";',
-            "",
-            "export const wrongSource: {",
-            "  (self: string, label: string): string",
-            "  (label: string): (self: string) => string",
-            "} = dual(2, (self: string, label: string): string => `${self}:${label}`);",
-            "",
-            "export const wrongArity: {",
-            "  (self: string, label: string): string",
-            "  (label: string): (self: string) => string",
-            "} = effectDual(3, (self: string, label: string): string => `${self}:${label}`);",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { dual } from "@beep/utils/Function";',
+              'import { dual as effectDual } from "effect/Function";',
+              "",
+              "export const wrongSource: {",
+              "  (self: string, label: string): string",
+              "  (label: string): (self: string) => string",
+              "} = dual(2, (self: string, label: string): string => `${self}:${label}`);",
+              "",
+              "export const wrongArity: {",
+              "  (self: string, label: string): string",
+              "  (label: string): (self: string) => string",
+              "} = effectDual(3, (self: string, label: string): string => `${self}:${label}`);",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
-        const diagnostics = summary.diagnostics.join("\n");
+        const diagnostics = A.join(summary.diagnostics, "\n");
 
         expect(summary.liveEntries).toBe(2);
         expect(diagnostics).toContain("invalid-dual-source");
@@ -282,27 +304,30 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            'import { dual } from "effect/Function";',
-            "",
-            "export const ok: {",
-            "  (self: string, label: string): string",
-            "  (label: string): (self: string) => string",
-            "} = dual(",
-            "  (args) => args.length === 2,",
-            "  (self: string, label: string): string => `${self}:${label}`",
-            ");",
-            "",
-            "export const missingShape: (self: string, label: string) => string = dual(",
-            "  (args) => args.length === 2,",
-            "  (self: string, label: string): string => `${self}:${label}`",
-            ");",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { dual } from "effect/Function";',
+              "",
+              "export const ok: {",
+              "  (self: string, label: string): string",
+              "  (label: string): (self: string) => string",
+              "} = dual(",
+              "  (args) => args.length === 2,",
+              "  (self: string, label: string): string => `${self}:${label}`",
+              ");",
+              "",
+              "export const missingShape: (self: string, label: string) => string = dual(",
+              "  (args) => args.length === 2,",
+              "  (self: string, label: string): string => `${self}:${label}`",
+              ");",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
-        const diagnostics = summary.diagnostics.join("\n");
+        const diagnostics = A.join(summary.diagnostics, "\n");
 
         expect(summary.liveEntries).toBe(1);
         expect(diagnostics).not.toContain("ok");
@@ -318,24 +343,27 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            'import { dual } from "effect/Function";',
-            "",
-            "export const missingDataLast: (self: string, label: string) => string = dual(",
-            "  2,",
-            "  (self: string, label: string): string => `${self}:${label}`",
-            ");",
-            "",
-            "export const ok: {",
-            "  (self: string, label: string): string",
-            "  (label: string): (self: string) => string",
-            "} = dual(2, (self: string, label: string): string => `${self}:${label}`);",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { dual } from "effect/Function";',
+              "",
+              "export const missingDataLast: (self: string, label: string) => string = dual(",
+              "  2,",
+              "  (self: string, label: string): string => `${self}:${label}`",
+              ");",
+              "",
+              "export const ok: {",
+              "  (self: string, label: string): string",
+              "  (label: string): (self: string) => string",
+              "} = dual(2, (self: string, label: string): string => `${self}:${label}`);",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
-        const diagnostics = summary.diagnostics.join("\n");
+        const diagnostics = A.join(summary.diagnostics, "\n");
 
         expect(summary.liveEntries).toBe(1);
         expect(diagnostics).toContain("missingDataLast");
@@ -350,104 +378,107 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            'import { Effect } from "effect";',
-            'import { dual } from "effect/Function";',
-            'import * as S from "effect/Schema";',
-            "",
-            "interface InterfaceOptions { readonly strict: boolean }",
-            "class ClassOptions { readonly strict = true }",
-            "type RecordOptions = Record<string, string>;",
-            "type EffectOptions = Effect.Effect<void>;",
-            "type SchemaOptions = S.Schema<string>;",
-            "",
-            "export const inlineOk: {",
-            "  (self: string, label: string, options: { readonly strict: boolean }): string",
-            "  (label: string, options: { readonly strict: boolean }): (self: string) => string",
-            "} = dual(3, (self: string, label: string, options: { readonly strict: boolean }): string =>",
-            "  options.strict ? `${self}:${label}` : self",
-            ");",
-            "",
-            "export const interfaceOk: {",
-            "  (self: string, label: string, options: InterfaceOptions): string",
-            "  (label: string, options: InterfaceOptions): (self: string) => string",
-            "} = dual(3, (self: string, label: string, options: InterfaceOptions): string =>",
-            "  options.strict ? `${self}:${label}` : self",
-            ");",
-            "",
-            "export const classOk: {",
-            "  (self: string, label: string, options: ClassOptions): string",
-            "  (label: string, options: ClassOptions): (self: string) => string",
-            "} = dual(3, (self: string, label: string, options: ClassOptions): string =>",
-            "  options.strict ? `${self}:${label}` : self",
-            ");",
-            "",
-            "export const recordOk: {",
-            "  (self: string, label: string, options: RecordOptions): string",
-            "  (label: string, options: RecordOptions): (self: string) => string",
-            "} = dual(3, (self: string, label: string, options: RecordOptions): string =>",
-            '  options["mode"] ?? `${self}:${label}`',
-            ");",
-            "",
-            "export const constrainedGenericOk: {",
-            "  <Options extends { readonly strict: boolean }>(self: string, label: string, options: Options): string",
-            "  <Options extends { readonly strict: boolean }>(label: string, options: Options): (self: string) => string",
-            "} = dual(3, <Options extends { readonly strict: boolean }>(",
-            "  self: string,",
-            "  label: string,",
-            "  options: Options",
-            "): string => (options.strict ? `${self}:${label}` : self));",
-            "",
-            "export const arrayBad: {",
-            "  (self: string, label: string, options: ReadonlyArray<string>): string",
-            "  (label: string, options: ReadonlyArray<string>): (self: string) => string",
-            "} = dual(3, (self: string, label: string, options: ReadonlyArray<string>): string => `${self}:${label}:${options.length}`);",
-            "",
-            "export const tupleBad: {",
-            "  (self: string, label: string, options: readonly [string, string]): string",
-            "  (label: string, options: readonly [string, string]): (self: string) => string",
-            "} = dual(3, (self: string, label: string, options: readonly [string, string]): string => `${self}:${label}:${options[0]}`);",
-            "",
-            "export const functionBad: {",
-            "  (self: string, label: string, options: () => string): string",
-            "  (label: string, options: () => string): (self: string) => string",
-            "} = dual(3, (self: string, label: string, options: () => string): string => `${self}:${label}:${options()}`);",
-            "",
-            "export const effectBad: {",
-            "  (self: string, label: string, options: EffectOptions): string",
-            "  (label: string, options: EffectOptions): (self: string) => string",
-            "} = dual(3, (self: string, label: string, _options: EffectOptions): string => `${self}:${label}`);",
-            "",
-            "export const schemaBad: {",
-            "  (self: string, label: string, options: SchemaOptions): string",
-            "  (label: string, options: SchemaOptions): (self: string) => string",
-            "} = dual(3, (self: string, label: string, _options: SchemaOptions): string => `${self}:${label}`);",
-            "",
-            "export const promiseBad: {",
-            "  (self: string, label: string, options: Promise<string>): string",
-            "  (label: string, options: Promise<string>): (self: string) => string",
-            "} = dual(3, (self: string, label: string, _options: Promise<string>): string => `${self}:${label}`);",
-            "",
-            "export const anyBad: {",
-            "  (self: string, label: string, options: any): string",
-            "  (label: string, options: any): (self: string) => string",
-            "} = dual(3, (self: string, label: string, _options: any): string => `${self}:${label}`);",
-            "",
-            "export const unknownBad: {",
-            "  (self: string, label: string, options: unknown): string",
-            "  (label: string, options: unknown): (self: string) => string",
-            "} = dual(3, (self: string, label: string, _options: unknown): string => `${self}:${label}`);",
-            "",
-            "export const unconstrainedGenericBad: {",
-            "  <Options>(self: string, label: string, options: Options): string",
-            "  <Options>(label: string, options: Options): (self: string) => string",
-            "} = dual(3, <Options>(self: string, label: string, _options: Options): string => `${self}:${label}`);",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { Effect } from "effect";',
+              'import { dual } from "effect/Function";',
+              'import * as S from "effect/Schema";',
+              "",
+              "interface InterfaceOptions { readonly strict: boolean }",
+              "class ClassOptions { readonly strict = true }",
+              "type RecordOptions = Record<string, string>;",
+              "type EffectOptions = Effect.Effect<void>;",
+              "type SchemaOptions = S.Schema<string>;",
+              "",
+              "export const inlineOk: {",
+              "  (self: string, label: string, options: { readonly strict: boolean }): string",
+              "  (label: string, options: { readonly strict: boolean }): (self: string) => string",
+              "} = dual(3, (self: string, label: string, options: { readonly strict: boolean }): string =>",
+              "  options.strict ? `${self}:${label}` : self",
+              ");",
+              "",
+              "export const interfaceOk: {",
+              "  (self: string, label: string, options: InterfaceOptions): string",
+              "  (label: string, options: InterfaceOptions): (self: string) => string",
+              "} = dual(3, (self: string, label: string, options: InterfaceOptions): string =>",
+              "  options.strict ? `${self}:${label}` : self",
+              ");",
+              "",
+              "export const classOk: {",
+              "  (self: string, label: string, options: ClassOptions): string",
+              "  (label: string, options: ClassOptions): (self: string) => string",
+              "} = dual(3, (self: string, label: string, options: ClassOptions): string =>",
+              "  options.strict ? `${self}:${label}` : self",
+              ");",
+              "",
+              "export const recordOk: {",
+              "  (self: string, label: string, options: RecordOptions): string",
+              "  (label: string, options: RecordOptions): (self: string) => string",
+              "} = dual(3, (self: string, label: string, options: RecordOptions): string =>",
+              '  options["mode"] ?? `${self}:${label}`',
+              ");",
+              "",
+              "export const constrainedGenericOk: {",
+              "  <Options extends { readonly strict: boolean }>(self: string, label: string, options: Options): string",
+              "  <Options extends { readonly strict: boolean }>(label: string, options: Options): (self: string) => string",
+              "} = dual(3, <Options extends { readonly strict: boolean }>(",
+              "  self: string,",
+              "  label: string,",
+              "  options: Options",
+              "): string => (options.strict ? `${self}:${label}` : self));",
+              "",
+              "export const arrayBad: {",
+              "  (self: string, label: string, options: ReadonlyArray<string>): string",
+              "  (label: string, options: ReadonlyArray<string>): (self: string) => string",
+              "} = dual(3, (self: string, label: string, options: ReadonlyArray<string>): string => `${self}:${label}:${options.length}`);",
+              "",
+              "export const tupleBad: {",
+              "  (self: string, label: string, options: readonly [string, string]): string",
+              "  (label: string, options: readonly [string, string]): (self: string) => string",
+              "} = dual(3, (self: string, label: string, options: readonly [string, string]): string => `${self}:${label}:${options[0]}`);",
+              "",
+              "export const functionBad: {",
+              "  (self: string, label: string, options: () => string): string",
+              "  (label: string, options: () => string): (self: string) => string",
+              "} = dual(3, (self: string, label: string, options: () => string): string => `${self}:${label}:${options()}`);",
+              "",
+              "export const effectBad: {",
+              "  (self: string, label: string, options: EffectOptions): string",
+              "  (label: string, options: EffectOptions): (self: string) => string",
+              "} = dual(3, (self: string, label: string, _options: EffectOptions): string => `${self}:${label}`);",
+              "",
+              "export const schemaBad: {",
+              "  (self: string, label: string, options: SchemaOptions): string",
+              "  (label: string, options: SchemaOptions): (self: string) => string",
+              "} = dual(3, (self: string, label: string, _options: SchemaOptions): string => `${self}:${label}`);",
+              "",
+              "export const promiseBad: {",
+              "  (self: string, label: string, options: Promise<string>): string",
+              "  (label: string, options: Promise<string>): (self: string) => string",
+              "} = dual(3, (self: string, label: string, _options: Promise<string>): string => `${self}:${label}`);",
+              "",
+              "export const anyBad: {",
+              "  (self: string, label: string, options: any): string",
+              "  (label: string, options: any): (self: string) => string",
+              "} = dual(3, (self: string, label: string, _options: any): string => `${self}:${label}`);",
+              "",
+              "export const unknownBad: {",
+              "  (self: string, label: string, options: unknown): string",
+              "  (label: string, options: unknown): (self: string) => string",
+              "} = dual(3, (self: string, label: string, _options: unknown): string => `${self}:${label}`);",
+              "",
+              "export const unconstrainedGenericBad: {",
+              "  <Options>(self: string, label: string, options: Options): string",
+              "  <Options>(label: string, options: Options): (self: string) => string",
+              "} = dual(3, <Options>(self: string, label: string, _options: Options): string => `${self}:${label}`);",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
-        const diagnostics = summary.diagnostics.join("\n");
+        const diagnostics = A.join(summary.diagnostics, "\n");
 
         expect(summary.liveEntries).toBe(9);
         expect(diagnostics).toContain("arrayBad");
@@ -475,24 +506,27 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            'import { Effect } from "effect";',
-            'import { dual } from "effect/Function";',
-            "",
-            "export function tooMany(self: string, label: string, mode: string, strict: boolean): string {",
-            "  return `${self}:${label}:${mode}:${strict}`;",
-            "}",
-            "",
-            "export const wrongFirst: {",
-            "  (message: string, effect: Effect.Effect<string>): Effect.Effect<string>",
-            "  (effect: Effect.Effect<string>): (message: string) => Effect.Effect<string>",
-            "} = dual(2, (message: string, effect: Effect.Effect<string>): Effect.Effect<string> => effect);",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { Effect } from "effect";',
+              'import { dual } from "effect/Function";',
+              "",
+              "export function tooMany(self: string, label: string, mode: string, strict: boolean): string {",
+              "  return `${self}:${label}:${mode}:${strict}`;",
+              "}",
+              "",
+              "export const wrongFirst: {",
+              "  (message: string, effect: Effect.Effect<string>): Effect.Effect<string>",
+              "  (effect: Effect.Effect<string>): (message: string) => Effect.Effect<string>",
+              "} = dual(2, (message: string, effect: Effect.Effect<string>): Effect.Effect<string> => effect);",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
-        const diagnostics = summary.diagnostics.join("\n");
+        const diagnostics = A.join(summary.diagnostics, "\n");
 
         expect(summary.liveEntries).toBe(2);
         expect(diagnostics).toContain("tooMany");
@@ -509,34 +543,37 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.tsx",
-          [
-            'import { dual } from "effect/Function";',
-            "",
-            "export function manual(self: string, label: string): string;",
-            "export function manual(label: string): (self: string) => string;",
-            "export function manual(first: string, second?: string): string | ((self: string) => string) {",
-            "  return second === undefined ? (self: string) => `${self}:${first}` : `${first}:${second}`;",
-            "}",
-            "",
-            "export class DomainError {",
-            "  static readonly ok: {",
-            "    (self: string, label: string): string",
-            "    (label: string): (self: string) => string",
-            "  } = dual(2, (self: string, label: string): string => `${self}:${label}`);",
-            "",
-            "  static missing(self: string, label: string): string {",
-            "    return `${self}:${label}`;",
-            "  }",
-            "}",
-            "",
-            "export const useThing = (self: string, label: string): string => `${self}:${label}`;",
-            "export const Component = (props: { readonly value: string }, label: string): string => `${props.value}:${label}`;",
-            "",
-          ].join("\n")
+          A.join(
+            [
+              'import { dual } from "effect/Function";',
+              "",
+              "export function manual(self: string, label: string): string;",
+              "export function manual(label: string): (self: string) => string;",
+              "export function manual(first: string, second?: string): string | ((self: string) => string) {",
+              "  return second === undefined ? (self: string) => `${self}:${first}` : `${first}:${second}`;",
+              "}",
+              "",
+              "export class DomainError {",
+              "  static readonly ok: {",
+              "    (self: string, label: string): string",
+              "    (label: string): (self: string) => string",
+              "  } = dual(2, (self: string, label: string): string => `${self}:${label}`);",
+              "",
+              "  static missing(self: string, label: string): string {",
+              "    return `${self}:${label}`;",
+              "  }",
+              "}",
+              "",
+              "export const useThing = (self: string, label: string): string => `${self}:${label}`;",
+              "export const Component = (props: { readonly value: string }, label: string): string => `${props.value}:${label}`;",
+              "",
+            ],
+            "\n"
+          )
         );
 
         const summary = yield* runLaw();
-        const diagnostics = summary.diagnostics.join("\n");
+        const diagnostics = A.join(summary.diagnostics, "\n");
 
         expect(summary.liveEntries).toBe(2);
         expect(diagnostics).toContain("manual");
@@ -553,20 +590,18 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            "export function missing(self: string, label: string): string {",
-            "  return `${self}:${label}`;",
-            "}",
-            "",
-          ].join("\n")
+          A.join(
+            ["export function missing(self: string, label: string): string {", "  return `${self}:${label}`;", "}", ""],
+            "\n"
+          )
         );
 
         const writeSummary = yield* runLaw({ write: true, strictCheck: false });
         const inventory = yield* readProjectFile("standards/dual-arity.inventory.jsonc");
-        const enforcedInventory = inventory.replace(
+        const enforcedInventory = Str.replace(
           '"packages/tooling/tool/cli/src/commands/Laws/DualArity.ts"',
           '"packages/demo/src"'
-        );
+        )(inventory);
         yield* writeProjectFile("standards/dual-arity.inventory.jsonc", enforcedInventory);
 
         const checkSummary = yield* runLaw();
@@ -586,23 +621,23 @@ layer(testLayer)("dual arity laws", (it) => {
         yield* writeProjectScaffold;
         yield* writeProjectFile(
           "packages/demo/src/index.ts",
-          [
-            "export function missing(self: string, label: string): string {",
-            "  return `${self}:${label}`;",
-            "}",
-            "",
-          ].join("\n")
+          A.join(
+            ["export function missing(self: string, label: string): string {", "  return `${self}:${label}`;", "}", ""],
+            "\n"
+          )
         );
 
         yield* runLaw({ write: true, strictCheck: false });
         const inventory = yield* readProjectFile("standards/dual-arity.inventory.jsonc");
-        const validExceptionInventory = inventory
-          .replace('"status": "candidate"', '"status": "exception"')
-          .replace('"owner": "@beep/root"', '"owner": "@beep/repo-cli"')
-          .replace(
-            '"reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function."',
-            '"reason": "Kept as an explicit compatibility exception for the test fixture."'
-          );
+        const validExceptionInventory = Str.replace(
+          '"reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function."',
+          '"reason": "Kept as an explicit compatibility exception for the test fixture."'
+        )(
+          Str.replace(
+            '"owner": "@beep/root"',
+            '"owner": "@beep/repo-cli"'
+          )(Str.replace('"status": "candidate"', '"status": "exception"')(inventory))
+        );
         yield* writeProjectFile("standards/dual-arity.inventory.jsonc", validExceptionInventory);
 
         const validExceptionSummary = yield* runLaw();
@@ -610,9 +645,10 @@ layer(testLayer)("dual arity laws", (it) => {
         expect(validExceptionSummary.invalidExceptions).toBe(0);
         expect(validExceptionSummary.strictFailure).toBe(false);
 
-        const invalidExceptionInventory = validExceptionInventory
-          .replace('"owner": "@beep/repo-cli"', '"owner": ""')
-          .replace('"reason": "Kept as an explicit compatibility exception for the test fixture."', '"reason": ""');
+        const invalidExceptionInventory = Str.replace(
+          '"reason": "Kept as an explicit compatibility exception for the test fixture."',
+          '"reason": ""'
+        )(Str.replace('"owner": "@beep/repo-cli"', '"owner": ""')(validExceptionInventory));
         yield* writeProjectFile("standards/dual-arity.inventory.jsonc", invalidExceptionInventory);
 
         const invalidExceptionSummary = yield* runLaw();
@@ -620,10 +656,15 @@ layer(testLayer)("dual arity laws", (it) => {
         expect(invalidExceptionSummary.invalidExceptions).toBe(1);
         expect(invalidExceptionSummary.strictFailure).toBe(true);
 
-        const staleInventory = invalidExceptionInventory
-          .replace('"qualifiedName": "missing"', '"qualifiedName": "gone"')
-          .replace('"owner": ""', '"owner": "@beep/repo-cli"')
-          .replace('"reason": ""', '"reason": "Tracked stale fixture."');
+        const staleInventory = Str.replace(
+          '"reason": ""',
+          '"reason": "Tracked stale fixture."'
+        )(
+          Str.replace(
+            '"owner": ""',
+            '"owner": "@beep/repo-cli"'
+          )(Str.replace('"qualifiedName": "missing"', '"qualifiedName": "gone"')(invalidExceptionInventory))
+        );
         yield* writeProjectFile("standards/dual-arity.inventory.jsonc", staleInventory);
 
         const staleSummary = yield* runLaw();
@@ -631,7 +672,7 @@ layer(testLayer)("dual arity laws", (it) => {
         expect(staleSummary.staleEntries).toBe(1);
         expect(staleSummary.missingEntries).toBe(1);
         expect(staleSummary.strictFailure).toBe(true);
-        expect(staleSummary.diagnostics.join("\n")).toContain("[stale]");
+        expect(A.join(staleSummary.diagnostics, "\n")).toContain("[stale]");
       })
     )
   );

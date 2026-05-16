@@ -1,6 +1,6 @@
 import { $RepoCliId, $SchemaId, type IdentityString } from "@beep/identity";
 import { LiteralKit, LiteralNotInSetError, type LiteralToKey } from "@beep/schema";
-import type * as A from "effect/Array";
+import type { A } from "@beep/utils";
 import * as S from "effect/Schema";
 import type { LiteralValue } from "effect/SchemaAST";
 import { describe, expect, it } from "tstyche";

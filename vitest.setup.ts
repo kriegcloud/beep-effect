@@ -3,6 +3,7 @@ import { spawnSync as spawnSyncNode } from "node:child_process";
 import { type GlobOptionsWithoutFileTypes, globSync, statSync } from "node:fs";
 import { readFile, rm, writeFile } from "node:fs/promises";
 import { matchesGlob, resolve } from "node:path";
+import { A } from "@beep/utils";
 import { addEqualityTesters } from "@effect/vitest";
 
 addEqualityTesters();
@@ -41,13 +42,13 @@ class BunGlobShim {
       withFileTypes: false,
       ...(options?.dot === undefined ? {} : { dot: options.dot }),
     } satisfies GlobOptionsWithoutFileTypes;
-    const matches = globSync(this.pattern, globOptions).map(normalizePathSeparators);
+    const matches = A.map(globSync(this.pattern, globOptions), normalizePathSeparators);
 
     if (options?.onlyFiles !== true) {
       return matches;
     }
 
-    return matches.filter((match) => statSync(resolve(cwd, match)).isFile());
+    return A.filter(matches, (match) => statSync(resolve(cwd, match)).isFile());
   }
 }
 

@@ -9,16 +9,20 @@ import {
   type RuntimeFixtureInput,
   runRuntimeFixture,
 } from "@beep/agent-capability-use-cases/test";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 
 const lawFixture: RuntimeFixtureInput = {
-  body: [
-    "[span:law-email-001-s2] We need help preparing a provisional patent application.",
-    "[span:law-email-001-s3] The public prototype demonstration is planned for June 12, 2026.",
-    "[span:law-email-001-s4] Avery Chen and Priya Raman are the main contributors.",
-    "[span:law-email-001-s5] Please schedule an intake call next week.",
-  ].join("\n"),
+  body: A.join(
+    [
+      "[span:law-email-001-s2] We need help preparing a provisional patent application.",
+      "[span:law-email-001-s3] The public prototype demonstration is planned for June 12, 2026.",
+      "[span:law-email-001-s4] Avery Chen and Priya Raman are the main contributors.",
+      "[span:law-email-001-s5] Please schedule an intake call next week.",
+    ],
+    "\n"
+  ),
   email: {
     artifactId: "email-artifact-law-001",
     scenarioId: "law-patent-intake",

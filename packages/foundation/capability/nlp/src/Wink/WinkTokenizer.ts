@@ -6,9 +6,8 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { thunkEmptyStr } from "@beep/utils";
+import { A, thunkEmptyStr } from "@beep/utils";
 import { Chunk, Clock, Effect, Layer, pipe, Ref } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -168,7 +167,7 @@ const collectTokens = (doc: WinkDocument, its: ItsHelpers): Chunk.Chunk<Token> =
 
   doc.tokens().each((token, index) => {
     const [mappedToken, nextEnd] = makeToken(token, index, its, previousEnd);
-    tokens.push(mappedToken);
+    A.appendInPlace(tokens, mappedToken);
     previousEnd = nextEnd;
   });
 
@@ -219,7 +218,8 @@ const collectSentences = (
 
     const lastToken = A.reduce(sentenceTokens, firstToken, (_, token) => token);
 
-    sentences.push(
+    A.appendInPlace(
+      sentences,
       Sentence.make({
         end: lastToken.index,
         importance: O.none(),

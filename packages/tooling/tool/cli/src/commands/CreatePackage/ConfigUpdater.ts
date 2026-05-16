@@ -13,15 +13,13 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { SchemaUtils } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { thunkNegative1 } from "@beep/utils";
+import { A, Str, thunkNegative1 } from "@beep/utils";
 import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
 import { buildCanonicalAliasTargets } from "../Shared/TsconfigAliasTargets.js";
 

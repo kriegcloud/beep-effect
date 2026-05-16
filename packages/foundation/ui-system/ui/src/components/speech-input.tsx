@@ -2,10 +2,9 @@
 
 import { Button } from "@beep/ui/components/button";
 import { type AudioFormat, type CommitStrategy, useScribe } from "@beep/ui/hooks/use-scribe";
+import { A, Str } from "@beep/utils";
 import { MicrophoneIcon, SquareIcon, XIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
-import * as A from "effect/Array";
-import * as Str from "effect/String";
 import { motion } from "framer-motion";
 import {
   type ComponentPropsWithoutRef,

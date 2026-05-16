@@ -6,27 +6,46 @@
  */
 
 import { $ChalkId } from "@beep/identity/packages";
+import { Str } from "@beep/utils";
 import { pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $ChalkId.create("Domain");
 
+const indexOfOrNotFound = (text: string, substring: string): number =>
+  pipe(
+    text,
+    Str.indexOf(substring),
+    O.getOrElse(() => -1)
+  );
+
+const indexOfFromOrNotFound = (text: string, substring: string, fromIndex: number): number => {
+  const searchStart = Math.min(Math.max(fromIndex, 0), Str.length(text));
+
+  return pipe(
+    text,
+    Str.slice(searchStart),
+    Str.indexOf(substring),
+    O.map((index) => index + searchStart),
+    O.getOrElse(() => -1)
+  );
+};
+
 const replaceAllLoop = (text: string, substring: string, replacer: string): string => {
-  let index = text.indexOf(substring);
+  let index = indexOfOrNotFound(text, substring);
   const substringLength = substring.length;
   let endIndex = 0;
   let result = "";
 
   do {
-    result += text.slice(endIndex, index) + substring + replacer;
+    result += Str.slice(endIndex, index)(text) + substring + replacer;
     endIndex = index + substringLength;
-    index = text.indexOf(substring, endIndex);
+    index = indexOfFromOrNotFound(text, substring, endIndex);
   } while (index !== -1);
 
-  result += text.slice(endIndex);
+  result += Str.slice(endIndex)(text);
 
   return result;
 };
@@ -110,15 +129,15 @@ export const stringEncaseCRLFWithFirstIndex: {
     const gotCR = text[nextIndex - 1] === "\r";
 
     result +=
-      text.slice(endIndex, renderLineBreakSliceEnd(nextIndex, gotCR)) +
+      Str.slice(endIndex, renderLineBreakSliceEnd(nextIndex, gotCR))(text) +
       prefix +
       renderLineBreak(gotCR) +
       options.postfix;
     endIndex = nextIndex + 1;
-    nextIndex = text.indexOf("\n", endIndex);
+    nextIndex = indexOfFromOrNotFound(text, "\n", endIndex);
   } while (nextIndex !== -1);
 
-  result += text.slice(endIndex);
+  result += Str.slice(endIndex)(text);
 
   return result;
 });

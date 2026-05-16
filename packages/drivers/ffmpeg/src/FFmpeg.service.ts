@@ -6,13 +6,12 @@
  */
 
 import { $FfmpegId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import { Context, Effect, FileSystem, Layer, Number as N, Order, Path, pipe, Ref, Stream } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import type * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { FFmpegError } from "./FFmpeg.errors.ts";
 import {
@@ -456,13 +455,13 @@ const consumeProgressLine = (
   line: string,
   expected: number
 ): readonly [ProgressState, O.Option<FFmpegProgressEvent>] => {
-  const separatorIndex = line.indexOf("=");
-  if (separatorIndex < 1) {
+  const separatorIndex = Str.indexOf("=")(line);
+  if (O.isNone(separatorIndex) || separatorIndex.value < 1) {
     return [state, O.none()];
   }
 
-  const key = line.slice(0, separatorIndex);
-  const value = line.slice(separatorIndex + 1);
+  const key = Str.slice(0, separatorIndex.value)(line);
+  const value = Str.slice(separatorIndex.value + 1)(line);
 
   if (key === "progress") {
     return [
@@ -697,7 +696,7 @@ const readTempFrames = Effect.fn("FFmpeg.readTempFrames")(function* (
       continue;
     }
 
-    const digits = name.slice(tempPrefix.length, -4);
+    const digits = Str.slice(tempPrefix.length, -4)(name);
     const index = pipe(
       N.parse(digits),
       O.filter((value) => Number.isInteger(value) && value >= 0)

@@ -6,14 +6,13 @@
  * @packageDocumentation
  */
 
+import { A, Str } from "@beep/utils";
 import { Effect, flow, Layer, Match, Order, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { IRIReference } from "../iri.ts";
 import {
   JsonLdContext,
@@ -439,10 +438,7 @@ const normalizeJsonLdLiteralValue = (value: JsonLdLiteralValue): JsonLdLiteralVa
   JsonLdLiteralValue.make({
     "@value": value["@value"],
     "@type": value["@type"],
-    "@language": pipe(
-      value["@language"],
-      O.map((language) => language.toLowerCase())
-    ),
+    "@language": pipe(value["@language"], O.map(Str.toLowerCase)),
   });
 
 const sortJsonLdPropertyValues = (values: ReadonlyArray<JsonLdPropertyValue>): ReadonlyArray<JsonLdPropertyValue> =>
@@ -830,7 +826,7 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
               "invalidNodeReference"
             );
             const object = yield* makeNamedNodeEffect(typeIri, "invalidNodeReference", typeValue);
-            quads.push(yield* makeQuadEffect(subject, RDF_TYPE, object));
+            A.appendInPlace(quads, yield* makeQuadEffect(subject, RDF_TYPE, object));
           }
         }
 
@@ -846,10 +842,10 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
             if (isReferenceValue(value)) {
               const objectIdentifier = resolveJsonLdIdentifier(value["@id"], context, base);
               const object = yield* objectFromIdentifier(objectIdentifier);
-              quads.push(yield* makeQuadEffect(subject, predicate, object));
+              A.appendInPlace(quads, yield* makeQuadEffect(subject, predicate, object));
             } else {
               const object = yield* literalFromValue(value, context, base);
-              quads.push(yield* makeQuadEffect(subject, predicate, object));
+              A.appendInPlace(quads, yield* makeQuadEffect(subject, predicate, object));
             }
           }
         }

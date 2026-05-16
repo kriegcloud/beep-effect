@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/eslint/EffectLawsAllowlistSnapshotCodegen";
+import { Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem } from "effect";
@@ -35,7 +36,7 @@ layer(NodeServices.layer)("effect-first regressions", (it) => {
       Effect.fn(function* () {
         for (const filePath of retainedModulePaths) {
           const source = yield* readText(filePath);
-          expect(source.includes("Match.value("), `${filePath} should not use Match.value`).toBe(false);
+          expect(Str.contains(source, "Match.value("), `${filePath} should not use Match.value`).toBe(false);
         }
       })
     );
@@ -64,11 +65,11 @@ layer(NodeServices.layer)("effect-first regressions", (it) => {
         const docsConfigSource = yield* readText(docsEslintConfigPath);
         const requireCategorySource = yield* readText(requireCategoryTagRulePath);
 
-        expect(docsConfigSource.includes("beep-laws")).toBe(false);
-        expect(docsConfigSource.includes("eslint-plugin-tsdoc")).toBe(true);
-        expect(requireCategorySource.includes("../internal/eslint/RuleAstSchemas.ts")).toBe(true);
-        expect(requireCategorySource.includes("../internal/eslint/RuleHelpers.ts")).toBe(true);
-        expect(requireCategorySource.includes("const firstSome =")).toBe(false);
+        expect(Str.contains(docsConfigSource, "beep-laws")).toBe(false);
+        expect(Str.contains(docsConfigSource, "eslint-plugin-tsdoc")).toBe(true);
+        expect(Str.contains(requireCategorySource, "../internal/eslint/RuleAstSchemas.ts")).toBe(true);
+        expect(Str.contains(requireCategorySource, "../internal/eslint/RuleHelpers.ts")).toBe(true);
+        expect(Str.contains(requireCategorySource, "const firstSome =")).toBe(false);
       })
     );
 
@@ -77,7 +78,7 @@ layer(NodeServices.layer)("effect-first regressions", (it) => {
       Effect.fn(function* () {
         for (const filePath of [snapshotCodegenPath, allowlistSchemasPath]) {
           const source = yield* readText(filePath);
-          expect(source.includes("JSON.stringify(")).toBe(false);
+          expect(Str.contains(source, "JSON.stringify(")).toBe(false);
         }
       })
     );

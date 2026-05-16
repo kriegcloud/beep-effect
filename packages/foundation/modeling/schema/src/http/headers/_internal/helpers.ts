@@ -6,9 +6,9 @@
  */
 
 import { $SchemaId } from "@beep/identity";
+import { A } from "@beep/utils";
 import { cast } from "@beep/utils/Function";
 import { Effect, identity, Option, Result, SchemaIssue, SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

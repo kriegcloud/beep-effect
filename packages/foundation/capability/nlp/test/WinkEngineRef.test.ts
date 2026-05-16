@@ -1,6 +1,7 @@
 import { WinkEngine, WinkEngineLive } from "@beep/nlp/Wink/WinkEngine";
 import { WinkEngineRef, WinkEngineRefLive } from "@beep/nlp/Wink/WinkEngineRef";
 import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "@beep/nlp/Wink/WinkPattern";
+import { A } from "@beep/utils";
 import { Effect, Layer, Ref } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
@@ -53,7 +54,7 @@ describe("WinkEngineRef", () => {
         expect(updatedState.instanceId).not.toBe(initialState.instanceId);
         expect(updatedState.customEntities._tag).toBe("Some");
         expect(O.getOrThrow(updatedState.customEntities).name).toBe("money");
-        expect(tokens.map((token) => token.out())).toContain("$");
+        expect(A.map(tokens, (token) => token.out())).toContain("$");
       }).pipe(Effect.provide(WinkEngineRefBundleLive))
     );
   });

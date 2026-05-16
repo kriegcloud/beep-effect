@@ -6,11 +6,11 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { Str } from "@beep/utils";
 import { Effect, flow, pipe, SchemaGetter, SchemaIssue } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $SchemaId.create("Jsonl");
 const JsonlValues = S.Array(S.Unknown).pipe(S.toType);
