@@ -13,6 +13,8 @@ import { Effect, Layer } from "effect";
  * This is the test-friendly counterpart to `Effect.provide` for layers that
  * allocate resources and need their finalizers to run after the assertion body.
  *
+ * @param layer - Layer to build inside the scoped test lifetime.
+ * @returns A data-last provider for the supplied layer.
  * @example
  * ```ts
  * import { provideScopedLayer } from "@beep/test-utils"

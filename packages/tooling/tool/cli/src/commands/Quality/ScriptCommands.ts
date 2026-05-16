@@ -30,7 +30,7 @@ const dtslintSearchRoots = ["apps", "packages", "tooling"] as const;
 const testSearchRoots = ["apps", "packages", "tooling", "infra"] as const;
 const moduleTagScannedRoots = [".patterns", "apps", "packages", "tooling"] as const;
 const moduleTagScannedExtensions = [".hbs", ".md", ".ts", ".tsx"] as const;
-const effectDiagnosticsDirectiveScannedRoots = ["apps", "packages", "infra"] as const;
+const effectDiagnosticsDirectiveScannedRoots = ["apps", "packages", "tooling", "infra"] as const;
 const effectDiagnosticsDirectiveScannedExtensions = [".cts", ".mts", ".ts", ".tsx"] as const;
 const effectDiagnosticsDirectiveIgnoredDirectoryNames = ["node_modules", "dist", "coverage", "tmp"] as const;
 const effectTsgoDiagnosticsTableStartMarker = "<!-- diagnostics-table:start -->";
@@ -43,21 +43,62 @@ const effectTsgoReadmeParser = new XMLParser({
   ignoreAttributes: false,
   trimValues: true,
 });
-const EffectTsgoRuleCell = S.Struct({
-  code: S.String,
-});
-const EffectTsgoRuleRow = S.Struct({
-  td: S.Array(S.Unknown),
-});
-const EffectTsgoDiagnosticsTable = S.Struct({
-  root: S.Struct({
-    table: S.Struct({
-      tbody: S.Struct({
-        tr: S.Array(S.Unknown),
-      }),
-    }),
-  }),
-});
+
+class EffectTsgoRuleCell extends S.Class<EffectTsgoRuleCell>($I`EffectTsgoRuleCell`)(
+  {
+    code: S.String,
+  },
+  $I.annote("EffectTsgoRuleCell", {
+    description: "Parsed diagnostics table cell containing an Effect tsgo rule code.",
+  })
+) {}
+
+class EffectTsgoRuleRow extends S.Class<EffectTsgoRuleRow>($I`EffectTsgoRuleRow`)(
+  {
+    td: S.Array(S.Unknown),
+  },
+  $I.annote("EffectTsgoRuleRow", {
+    description: "Parsed diagnostics table row from the installed Effect tsgo README.",
+  })
+) {}
+
+class EffectTsgoDiagnosticsTbody extends S.Class<EffectTsgoDiagnosticsTbody>($I`EffectTsgoDiagnosticsTbody`)(
+  {
+    tr: S.Array(S.Unknown),
+  },
+  $I.annote("EffectTsgoDiagnosticsTbody", {
+    description: "Parsed diagnostics table body containing Effect tsgo rule rows.",
+  })
+) {}
+
+class EffectTsgoDiagnosticsTableNode extends S.Class<EffectTsgoDiagnosticsTableNode>(
+  $I`EffectTsgoDiagnosticsTableNode`
+)(
+  {
+    tbody: EffectTsgoDiagnosticsTbody,
+  },
+  $I.annote("EffectTsgoDiagnosticsTableNode", {
+    description: "Parsed diagnostics table node from the installed Effect tsgo README.",
+  })
+) {}
+
+class EffectTsgoDiagnosticsRoot extends S.Class<EffectTsgoDiagnosticsRoot>($I`EffectTsgoDiagnosticsRoot`)(
+  {
+    table: EffectTsgoDiagnosticsTableNode,
+  },
+  $I.annote("EffectTsgoDiagnosticsRoot", {
+    description: "Root wrapper used to parse the Effect tsgo diagnostics table fragment.",
+  })
+) {}
+
+class EffectTsgoDiagnosticsTable extends S.Class<EffectTsgoDiagnosticsTable>($I`EffectTsgoDiagnosticsTable`)(
+  {
+    root: EffectTsgoDiagnosticsRoot,
+  },
+  $I.annote("EffectTsgoDiagnosticsTable", {
+    description: "Parsed diagnostics table fragment from the installed Effect tsgo README.",
+  })
+) {}
 const decodeEffectTsgoRuleCellOption = S.decodeUnknownOption(EffectTsgoRuleCell);
 const decodeEffectTsgoRuleRowOption = S.decodeUnknownOption(EffectTsgoRuleRow);
 const decodeEffectTsgoDiagnosticsTableOption = S.decodeUnknownOption(EffectTsgoDiagnosticsTable);
