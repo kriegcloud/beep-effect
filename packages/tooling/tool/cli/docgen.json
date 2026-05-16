@@ -108,6 +108,8 @@
       "@beep/repo-utils/JSDoc/models/tag-values": [
         "../../../../packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
+      "@beep/runpod": ["../../../../packages/drivers/runpod/src/index.ts"],
+      "@beep/runpod/*": ["../../../../packages/drivers/runpod/src/*.ts"],
       "@beep/schema": [
         "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],

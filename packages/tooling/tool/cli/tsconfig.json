@@ -18,6 +18,9 @@
       "path": "../../../drivers/ffmpeg/tsconfig.json"
     },
     {
+      "path": "../../../drivers/runpod/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/capability/chalk/tsconfig.json"
     },
     {
