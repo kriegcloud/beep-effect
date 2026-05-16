@@ -28,14 +28,6 @@
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "apps/opip-web/src/components/ContactForm.tsx",
-      "kind": "date-static",
-      "reason": "The OPIP contact form emits a synchronous anti-spam timestamp as a browser form field; server-side validation uses Effect Clock at the boundary.",
-      "owner": "@beep/opip-web",
-      "issue": "OPIP-CONTACT-FORM-SPAM-TIMESTAMP"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts",
       "kind": "new-map-set",
       "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
