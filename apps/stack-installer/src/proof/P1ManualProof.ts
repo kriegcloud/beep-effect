@@ -30,6 +30,7 @@ import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeP1ManualProofRequest = S.decodeUnknownEffect(P1ManualProofRequest);
 
@@ -46,6 +47,25 @@ export const P1ManualProofSliceLayer = Layer.mergeAll(
   InstallerChannelsServerLive
 );
 
+const proofCapabilities = (discordSummary: string) =>
+  [
+    new ManifestCapability({
+      id: "provider-claude",
+      label: "Claude Provider",
+      summary: "Claude local-session status was validated in Manual Mode.",
+    }),
+    new ManifestCapability({
+      id: "provider-codex",
+      label: "Codex Provider",
+      summary: "Codex local-session status was validated in Manual Mode.",
+    }),
+    new ManifestCapability({
+      id: "channel-discord",
+      label: "Discord Channel",
+      summary: discordSummary,
+    }),
+  ] as const;
+
 const validationEvent = (
   id: string,
   tier: "existence" | "version" | "config" | "liveness" | "user-confirmation",
@@ -59,6 +79,29 @@ const validationEvent = (
     status,
     subject,
     tier,
+  });
+
+const manifestForRequest = (
+  request: P1ManualProofRequest,
+  providers: ReadonlyArray<ManifestProvider>,
+  options: {
+    readonly discordSummary: string;
+    readonly dryRunOnly: boolean;
+  }
+) =>
+  new AIStackManifest({
+    capabilities: proofCapabilities(options.discordSummary),
+    credentialReferences: [request.discordBotTokenReference],
+    discordChannel: new ManifestDiscordChannel({
+      channelId: request.discordChannelId,
+      displayName: request.discordChannelDisplayName,
+      guildId: request.discordGuildId,
+    }),
+    dryRunOnly: options.dryRunOnly,
+    manifestId: `stack-installer-p1-live-${request.targetPlatform}`,
+    providers,
+    targetPlatform: request.targetPlatform,
+    version: "p1.live.0",
   });
 
 /**
@@ -139,36 +182,9 @@ export const runP1ManualProof = Effect.fn("StackInstaller.runP1ManualProof")(fun
       onSome: (messageId) => `${discordValidation.message} Message ID: ${messageId}.`,
     })
   );
-
-  const manifest = new AIStackManifest({
-    capabilities: [
-      new ManifestCapability({
-        id: "provider-claude",
-        label: "Claude Provider",
-        summary: "Claude local-session status was validated in Manual Mode.",
-      }),
-      new ManifestCapability({
-        id: "provider-codex",
-        label: "Codex Provider",
-        summary: "Codex local-session status was validated in Manual Mode.",
-      }),
-      new ManifestCapability({
-        id: "channel-discord",
-        label: "Discord Channel",
-        summary: "Discord channel liveness and test-message delivery were validated.",
-      }),
-    ],
-    credentialReferences: [request.discordBotTokenReference],
-    discordChannel: new ManifestDiscordChannel({
-      channelId: request.discordChannelId,
-      displayName: request.discordChannelDisplayName,
-      guildId: request.discordGuildId,
-    }),
+  const manifest = manifestForRequest(request, providersForManifest, {
+    discordSummary: "Discord channel liveness and test-message delivery were validated.",
     dryRunOnly: false,
-    manifestId: `stack-installer-p1-live-${request.targetPlatform}`,
-    providers: providersForManifest,
-    targetPlatform: request.targetPlatform,
-    version: "p1.live.0",
   });
 
   return new P1ManualProofResult({
@@ -191,6 +207,96 @@ export const runP1ManualProof = Effect.fn("StackInstaller.runP1ManualProof")(fun
           discordValidation.status === "configured" ? "passed" : "failed",
           "installer-channels:discord",
           discordMessage
+        ),
+      ],
+    }),
+  });
+});
+
+/**
+ * Run the app-local Manual Mode proof preview without performing live Discord mutation.
+ *
+ * @category workflows
+ * @since 0.0.0
+ */
+export const previewP1ManualProof = Effect.fn("StackInstaller.previewP1ManualProof")(function* (
+  rawRequest: P1ManualProofRequest
+) {
+  const request = yield* decodeP1ManualProofRequest(rawRequest);
+  const dependencies = yield* InstallerDependenciesUseCases;
+  const security = yield* InstallerSecurityUseCases;
+  const providers = yield* InstallerProvidersUseCases;
+  const channels = yield* InstallerChannelsUseCases;
+
+  const dependencyValidations = yield* dependencies.validateRequiredCommands();
+  const secretValidation = yield* security.validateSecretReference(
+    new SecretReferenceValidationRequest({
+      id: "discord-bot-token",
+      purpose: "discord-bot-token",
+      reference: request.discordBotTokenReference,
+      usedBy: "installer-channels",
+    })
+  );
+  const providerValidations = yield* providers.validateProviderAuths();
+  const channelPreview = yield* channels.previewDiscordChannels();
+
+  const providersForManifest = A.map(
+    providerValidations,
+    (provider) =>
+      new ManifestProvider({
+        authMode: provider.authMode,
+        provider: provider.provider,
+        status: provider.status,
+      })
+  );
+  const providerEvents = A.map(providerValidations, (provider) =>
+    validationEvent(
+      `provider-${provider.provider}-auth`,
+      "liveness",
+      provider.status === "configured" ? "passed" : "failed",
+      `installer-providers:${provider.provider}`,
+      provider.message
+    )
+  );
+  const dependencyEvents = A.map(dependencyValidations, (dependency) =>
+    validationEvent(
+      `dependency-${dependency.dependency.id}`,
+      "existence",
+      dependency.dependency.status === "present" ? "passed" : "failed",
+      `installer-dependencies:${dependency.dependency.name}`,
+      dependency.message
+    )
+  );
+  const previewNotes = pipe(channelPreview.notes, A.join(" "));
+  const manifest = manifestForRequest(request, providersForManifest, {
+    discordSummary: Str.isNonEmpty(previewNotes)
+      ? previewNotes
+      : "Discord routing was previewed without sending a live test message from the app.",
+    dryRunOnly: true,
+  });
+
+  return new P1ManualProofResult({
+    snapshot: new P1LiveProofSnapshot({
+      generatedBy: `@beep/stack-installer:${request.operatorLabel}`,
+      manifest,
+      validationEvents: [
+        ...dependencyEvents,
+        validationEvent(
+          "onepassword-discord-token-reference",
+          "config",
+          secretValidation.status === "reference-valid" ? "passed" : "failed",
+          "installer-security:discord-bot-token",
+          secretValidation.message
+        ),
+        ...providerEvents,
+        validationEvent(
+          "discord-route-preview",
+          "config",
+          "passed",
+          "installer-channels:discord",
+          Str.isNonEmpty(previewNotes)
+            ? previewNotes
+            : "Discord routing was previewed without sending a live test message from the app."
         ),
       ],
     }),

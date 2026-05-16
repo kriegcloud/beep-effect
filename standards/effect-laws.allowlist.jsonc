@@ -53,14 +53,6 @@
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
-      "kind": "array-static",
-      "reason": "The JSDoc inventory support generator decodes untyped JSONC workspace manifests and uses native Array guards at the external data boundary before normalizing values.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
       "kind": "typeof-runtime",
       "reason": "The JSDoc inventory support generator decodes untyped JSONC and ts-morph metadata in a standalone support-script boundary where simple runtime guards keep generated inventory deterministic.",
       "owner": "@beep/repo-cli",
@@ -95,14 +87,6 @@
       "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
       "kind": "native-error",
       "reason": "The repo export catalog support generator is invoked as a direct CLI script and throws native Error values for malformed workspace metadata before emitting generated catalog artifacts.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
-      "kind": "array-static",
-      "reason": "The repo export catalog support generator decodes untyped JSONC workspace manifests and uses native Array guards at the external data boundary before normalizing values.",
       "owner": "@beep/repo-cli",
       "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
     },

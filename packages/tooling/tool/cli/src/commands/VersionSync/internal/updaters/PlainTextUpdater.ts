@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 
+import { Str } from "@beep/utils";
 import { Effect, FileSystem, Inspectable } from "effect";
 import { dual } from "effect/Function";
-import * as Str from "effect/String";
 import { VersionSyncError } from "../Models.js";
 
 /**

@@ -8,8 +8,8 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Chunk, Clock, Context, Effect, HashMap, HashSet, Layer, pipe, Ref } from "effect";
-import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -591,7 +591,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
           vocabulary = HashSet.add(vocabulary, token);
         }
         existingIds = HashSet.add(existingIds, document.id);
-        learnedDocuments.push(document);
+        A.appendInPlace(learnedDocuments, document);
         totalTokenCount += A.length(tokens);
       }
 

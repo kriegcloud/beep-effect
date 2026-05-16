@@ -8,13 +8,11 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, Match, Order, Path, pipe, Stream } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { QualityTaskStep } from "./Tasks.js";
@@ -899,17 +897,20 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
   yield* fs
     .writeFileString(
       sourcePath,
-      [
-        'import { Effect } from "effect";',
-        "",
-        "export const shouldHaveSuggestion = () => {",
-        "  return Effect.gen(function* () {",
-        "    yield* Effect.succeed(1);",
-        "    return 42;",
-        "  });",
-        "};",
-        "",
-      ].join("\n")
+      A.join(
+        [
+          'import { Effect } from "effect";',
+          "",
+          "export const shouldHaveSuggestion = () => {",
+          "  return Effect.gen(function* () {",
+          "    yield* Effect.succeed(1);",
+          "    return 42;",
+          "  });",
+          "};",
+          "",
+        ],
+        "\n"
+      )
     )
     .pipe(
       Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to write ${sourcePath}.`, cause }))

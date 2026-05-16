@@ -8,14 +8,12 @@
  * @since 0.0.0
  */
 import { normalizePath } from "@beep/schema";
-import { thunkEffectSucceedNull } from "@beep/utils";
+import { A, Str, thunkEffectSucceedNull } from "@beep/utils";
 import { Effect, HashMap, pipe } from "effect";
-import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import { DomainError, type NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
 import {

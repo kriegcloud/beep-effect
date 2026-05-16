@@ -9,8 +9,8 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { A } from "@beep/utils";
 import { Effect, Graph as G, HashMap, HashSet, MutableHashMap, MutableHashSet, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";

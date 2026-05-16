@@ -1,4 +1,5 @@
 import { appendTurboSummary } from "@beep/repo-cli/commands/Ci";
+import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as O from "effect/Option";
@@ -78,7 +79,7 @@ describe("CI commands", () => {
 
           yield* appendTurboSummary(O.some(summaryPath));
 
-          const output = (yield* TestConsole.logLines).join("\n");
+          const output = A.join(yield* TestConsole.logLines, "\n");
           expect(output).toContain("## Turbo Summary");
           expect(output).toContain("Attempted tasks: 1");
           expect(output).toContain("`@beep/repo-cli#test`");

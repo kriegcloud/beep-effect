@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { A } from "@beep/utils";
 import type { OpipSiteContent } from "./OpipContent.model.ts";
 
 /**
@@ -30,7 +31,7 @@ export const makeJsonLdGraph = (content: OpipSiteContent) => ({
       familyName: "Oppold",
       givenName: "Thomas",
       jobTitle: "Patent Attorney",
-      knowsAbout: content.practices.map((practice) => practice.title),
+      knowsAbout: A.map(content.practices, (practice) => practice.title),
       name: "Thomas J. Oppold",
       sameAs: [content.metadata.linkedInUrl],
       url: content.metadata.siteUrl,
@@ -46,7 +47,7 @@ export const makeJsonLdGraph = (content: OpipSiteContent) => ({
       description: content.metadata.description,
       founder: { "@id": `${content.metadata.siteUrl}/#person` },
       name: content.metadata.siteName,
-      serviceType: content.practices.map((practice) => practice.title),
+      serviceType: A.map(content.practices, (practice) => practice.title),
       url: content.metadata.siteUrl,
     },
     {
@@ -76,44 +77,49 @@ export const makeJsonLdGraph = (content: OpipSiteContent) => ({
  * @since 0.0.0
  */
 export const makeLlmsText = (content: OpipSiteContent): string => {
-  const practiceLines = content.practices.map((practice) => `- ${practice.title}: ${practice.body}`);
-  const matterLines = content.matters.map(
+  const practiceLines = A.map(content.practices, (practice) => `- ${practice.title}: ${practice.body}`);
+  const matterLines = A.map(
+    content.matters,
     (matter) => `- [${matter.title}](${matter.source.href}): ${matter.source.label}`
   );
-  const pressLines = content.press.map(
+  const pressLines = A.map(
+    content.press,
     (item) => `- [${item.headline}](${item.source.href}) (${item.publication}): ${item.source.label}`
   );
-  const noticeLines = content.contact.notice.map((notice) => `- ${notice}`);
+  const noticeLines = A.map(content.contact.notice, (notice) => `- ${notice}`);
 
-  return [
-    "# opip.law",
-    "",
-    "> Patent counsel for the people who build the machines.",
-    "",
-    "## Site",
-    "",
-    `- Canonical URL: [${content.metadata.siteUrl}](${content.metadata.siteUrl})`,
-    `- Contact: [${content.contact.email}](mailto:${content.contact.email})`,
-    `- Description: ${content.metadata.description}`,
-    "",
-    "## Practice Areas",
-    "",
-    ...practiceLines,
-    "",
-    "## Public Matter Sources",
-    "",
-    ...matterLines,
-    "",
-    "## Press Sources",
-    "",
-    ...pressLines,
-    "",
-    "## Legal Notices",
-    "",
-    ...noticeLines,
-    "",
-    "## Review Status",
-    "",
-    "- Client logos, selected matters, contact details, credentials, and legal notice text remain review-gated before public launch approval.",
-  ].join("\n");
+  return A.join(
+    [
+      "# opip.law",
+      "",
+      "> Patent counsel for the people who build the machines.",
+      "",
+      "## Site",
+      "",
+      `- Canonical URL: [${content.metadata.siteUrl}](${content.metadata.siteUrl})`,
+      `- Contact: [${content.contact.email}](mailto:${content.contact.email})`,
+      `- Description: ${content.metadata.description}`,
+      "",
+      "## Practice Areas",
+      "",
+      ...practiceLines,
+      "",
+      "## Public Matter Sources",
+      "",
+      ...matterLines,
+      "",
+      "## Press Sources",
+      "",
+      ...pressLines,
+      "",
+      "## Legal Notices",
+      "",
+      ...noticeLines,
+      "",
+      "## Review Status",
+      "",
+      "- Client logos, selected matters, contact details, credentials, and legal notice text remain review-gated before public launch approval.",
+    ],
+    "\n"
+  );
 };

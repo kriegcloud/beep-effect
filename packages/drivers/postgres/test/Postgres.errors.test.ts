@@ -14,9 +14,9 @@ import {
   PostgresErrorContext,
 } from "@beep/postgres";
 import { NativePgClient } from "@beep/postgres/interop";
+import { A } from "@beep/utils";
 import { assert, describe, expect, it } from "@effect/vitest";
 import { Cause, Effect } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 

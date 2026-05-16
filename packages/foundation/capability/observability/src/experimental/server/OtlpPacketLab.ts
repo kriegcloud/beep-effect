@@ -6,8 +6,8 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Clock, Context, Effect, Layer, Match, MutableRef, pipe, Result } from "effect";
-import * as A from "effect/Array";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type * as HttpBody from "effect/unstable/http/HttpBody";
@@ -159,8 +159,8 @@ const previewFromBody: (body: HttpBody.HttpBody) => string = Match.type<HttpBody
   Match.tagsExhaustive({
     Uint8Array: (body) => {
       const contentType = contentTypeFromBody(body) ?? "application/octet-stream";
-      return contentType.includes("json") || contentType.startsWith("text/")
-        ? textDecoder.decode(body.body).slice(0, 400)
+      return Str.contains(contentType, "json") || Str.startsWith(contentType, "text/")
+        ? pipe(textDecoder.decode(body.body), Str.slice(0, 400))
         : `Uint8Array(${body.body.length})`;
     },
     Empty: () => "",

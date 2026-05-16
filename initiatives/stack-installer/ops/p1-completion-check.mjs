@@ -67,6 +67,12 @@ const p1ReviewStatus = (reviewText) => {
   return "unknown";
 };
 
+const hasTemporaryWindowsWaiver = (reviewText) =>
+  /waived item:\s*Windows fresh-machine Manual Mode proof artifact/i.test(reviewText) &&
+  /disposition:\s*accepted temporary waiver for P1C start only/i.test(reviewText) &&
+  /owner:\s*`?@beep-team`?/i.test(reviewText) &&
+  /follow-up trigger:\s*remove this waiver only after a real returned Windows/i.test(reviewText);
+
 const changedPathsSinceBase = () => {
   const result = spawnSync("git", ["diff", "--name-status", `${baseRef}...HEAD`], {
     cwd: repoRoot,
@@ -154,6 +160,7 @@ const p2Phase = manifest.phases.find((phase) => phase.id === "P2");
 const p1aEvidence = manifest.completionEvidence?.p1a?.status;
 const p1LiveEvidence = manifest.completionEvidence?.p1LiveHarness?.status;
 const p1ReviewEvidence = manifest.completionEvidence?.p1PrReadinessReview?.status;
+const windowsWaiverAccepted = hasTemporaryWindowsWaiver(p1ReviewText);
 
 addCheck(
   p1aEvidence === "completed",
@@ -166,8 +173,8 @@ addCheck(
   `manifest completionEvidence.p1LiveHarness.status=${p1LiveEvidence}`
 );
 addCheck(
-  manifest.currentTargetPhase === "P1",
-  "Active manifest target remains P1",
+  manifest.currentTargetPhase === "P1D",
+  "Active manifest target is P1D while full P1 remains open",
   `manifest currentTargetPhase=${manifest.currentTargetPhase}`
 );
 addCheck(p2Phase?.status === "pending", "P2 remains pending", `manifest P2 status=${p2Phase?.status ?? "missing"}`);
@@ -186,6 +193,26 @@ for (const [fileName, label] of [
 }
 
 const platformStatuses = await Promise.all(requiredPlatforms.map(platformArtifactStatus));
+const [macosStatus, windowsStatus] = platformStatuses;
+const p1cStartStatus =
+  macosStatus.ok && (windowsStatus.ok || windowsWaiverAccepted)
+    ? windowsStatus.ok
+      ? {
+          detail: "audited macOS and Windows proof artifacts are present",
+          ok: true,
+        }
+      : {
+          detail: "audited macOS proof artifact is present and Windows is under an accepted temporary waiver",
+          ok: true,
+        }
+    : {
+        detail: !macosStatus.ok
+          ? "blocked because audited macOS proof artifact is not complete"
+          : "blocked because Windows proof is incomplete and no accepted temporary waiver was found",
+        ok: false,
+      };
+
+addCheck(p1cStartStatus.ok, "P1C start gate", p1cStartStatus.detail);
 
 for (const [index, platform] of requiredPlatforms.entries()) {
   const status = platformStatuses[index];
@@ -206,7 +233,13 @@ if (platformStatuses.every((status) => status.ok)) {
 
   addCheck(result.status === 0, "p1:proof:audit-all", output || `exit=${result.status}`);
 } else {
-  addCheck(false, "p1:proof:audit-all", "skipped because both platform artifact directories are not complete");
+  addCheck(
+    false,
+    "p1:proof:audit-all",
+    windowsWaiverAccepted
+      ? "skipped because full P1 still requires both platform artifact directories even though P1C may start under waiver"
+      : "skipped because both platform artifact directories are not complete"
+  );
 }
 
 const reviewStatus = p1ReviewStatus(p1ReviewText);
@@ -222,6 +255,9 @@ const allComplete = checks.every((check) => check.ok);
 console.log(`Stack Installer P1 completion check for ${rel(outputRoot)}`);
 for (const check of checks) {
   console.log(`${check.ok ? "[pass]" : "[block]"} ${check.label}: ${check.detail}`);
+}
+if (!allComplete && p1cStartStatus.ok) {
+  console.log("P1C may start, but full P1 completion remains blocked.");
 }
 console.log(allComplete ? "P1 completion check passed." : "P1 completion check blocked.");
 

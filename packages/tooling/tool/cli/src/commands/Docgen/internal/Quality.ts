@@ -14,14 +14,12 @@ import { parseComment } from "@beep/repo-docgen/Parser";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { ContentHashFromSourceText } from "@beep/repo-utils/TSMorph/index";
 import { LiteralKit } from "@beep/schema";
-import { thunkEmptyStr } from "@beep/utils";
+import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { DateTime, Duration, Effect, FileSystem, flow, Match, Order, Path, pipe, Result, Stream } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
 import { type Diagnostic, type JSDoc, Node, Project, type SourceFile } from "ts-morph";
@@ -410,7 +408,7 @@ const bySubjectIdentityAscending: Order.Order<DocgenQualitySubject> = Order.mapI
   (subject: DocgenQualitySubject) => subject.stableIdentity
 );
 
-const normalizeSlashes = (value: string): string => value.replace(/\\/g, "/");
+const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(value);
 
 type QualityRuntimeBudget = {
   readonly startedAtMs: number;
@@ -436,7 +434,7 @@ const errorMessage = (error: unknown): string =>
     : "Unknown docgen quality analysis failure.";
 
 const firstLine = (value: string): string => {
-  const [line] = value.split(/\r?\n/);
+  const [line] = Str.split(/\r?\n/)(value);
   return Str.trim(line ?? value);
 };
 
@@ -478,7 +476,7 @@ const runGitLines = Effect.fn("DocgenQuality.runGitLines")(function* (repoRoot: 
       return text;
     })
   );
-  return pipe(output.split(/\r?\n/), A.map(Str.trim), A.filter(Str.isNonEmpty));
+  return pipe(Str.split(/\r?\n/)(output), A.map(Str.trim), A.filter(Str.isNonEmpty));
 });
 
 const collectWorkingTreeChangedFiles = Effect.fn("DocgenQuality.collectWorkingTreeChangedFiles")(function* (
@@ -651,11 +649,11 @@ const sourceFileMatchesExclude = (
 ): boolean => {
   const normalized = normalizeSlashes(relativeFilePath);
 
-  if (normalized.endsWith(".d.ts")) {
+  if (Str.endsWith(".d.ts")(normalized)) {
     return true;
   }
 
-  if (A.some(EXCLUDED_SOURCE_SEGMENTS, (segment) => normalized.includes(segment))) {
+  if (A.some(EXCLUDED_SOURCE_SEGMENTS, (segment) => Str.includes(segment)(normalized))) {
     return true;
   }
 
@@ -663,7 +661,7 @@ const sourceFileMatchesExclude = (
     return false;
   }
 
-  const srcRelative = Str.startsWith(`${srcDir}/`)(normalized) ? normalized.slice(srcDir.length + 1) : normalized;
+  const srcRelative = Str.startsWith(`${srcDir}/`)(normalized) ? Str.slice(srcDir.length + 1)(normalized) : normalized;
 
   return A.some(exclude, (pattern) =>
     A.some([normalized, srcRelative], (candidate) =>
@@ -727,7 +725,7 @@ const tagValues = (tags: Record<string, ReadonlyArray<string>>, tagName: string)
   tags[tagName] ?? A.empty<string>();
 
 const hasTag = (tags: Record<string, ReadonlyArray<string>>, tagName: string): boolean =>
-  R.has(tags, tagName.replace(/^@/, ""));
+  R.has(tags, Str.replace(/^@/, "")(tagName));
 
 const descriptionFromRawJsDoc = (rawJsDoc: string): string | null => {
   if (Str.trim(rawJsDoc).length === 0) {
@@ -903,7 +901,7 @@ const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyA
 const nodeLine = (node: Node): number => node.getSourceFile().getLineAndColumnAtPos(node.getStart()).line;
 
 const boundedText = (value: string, maxLength: number): string =>
-  value.length <= maxLength ? value : `${value.slice(0, maxLength - 3)}...`;
+  value.length <= maxLength ? value : `${Str.slice(0, maxLength - 3)(value)}...`;
 
 const signatureText = (node: Node): string => {
   const text = Node.isVariableDeclaration(node)
@@ -1019,7 +1017,7 @@ const makeSubjectCandidate = ({
     deterministicMissingTags: missingRequiredTags(declarationKind, tags),
     categoryValues,
     categoryIssues: categoryIssueMessages(categoryValues),
-    hashSourceText: [packageName, repoPath, declarationKind, exportName, hashSourceText].join("\n"),
+    hashSourceText: A.join([packageName, repoPath, declarationKind, exportName, hashSourceText], "\n"),
   };
 };
 
@@ -1145,7 +1143,7 @@ const generatedDocSnippetForFile = Effect.fn("DocgenQuality.generatedDocSnippetF
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const moduleName = sourceFilePath.replace(/\.(tsx?|mts|cts)$/, ".md");
+  const moduleName = Str.replace(/\.(tsx?|mts|cts)$/, ".md")(sourceFilePath);
   const docPath = path.join(target.absolutePath, "docs", "modules", moduleName);
   const exists = yield* fs.exists(docPath);
 
@@ -1167,7 +1165,7 @@ const finalizeSubject = Effect.fn("DocgenQuality.finalizeSubject")(function* (
   void _hashSourceText;
   return new DocgenQualitySubject({
     ...subject,
-    stableIdentity: `${identityStem}:${contentHash.slice(0, 12)}`,
+    stableIdentity: `${identityStem}:${Str.slice(0, 12)(contentHash)}`,
     contentHash,
   });
 });
@@ -1300,7 +1298,7 @@ const exampleCodeText = (example: string): string => {
 
 const exampleIsTooTrivial = (example: string): boolean => {
   const code = pipe(
-    exampleCodeText(example).split(/\r?\n/),
+    Str.split(/\r?\n/)(exampleCodeText(example)),
     A.map(Str.trim),
     A.filter(Str.isNonEmpty),
     A.filter((line) => !Str.startsWith("//")(line))
@@ -1555,18 +1553,21 @@ const emptyPackageReport = ({
   });
 
 const remediationPrompt = (subject: DocgenQualitySubject, review: DocgenQualityReview): string =>
-  [
-    "Improve the JSDoc block for this exported symbol without changing runtime behavior.",
-    "",
-    `Subject: ${subject.stableIdentity}`,
-    `Anchor: ${subject.sourceAnchor}`,
-    `Signature: ${subject.signature}`,
-    "",
-    "Findings:",
-    ...A.map(review.findings, (finding) => `- ${finding.code}: ${finding.remediation}`),
-    "",
-    "Keep @example mandatory. Prefer a realistic TypeScript example with an observable result.",
-  ].join("\n");
+  A.join(
+    [
+      "Improve the JSDoc block for this exported symbol without changing runtime behavior.",
+      "",
+      `Subject: ${subject.stableIdentity}`,
+      `Anchor: ${subject.sourceAnchor}`,
+      `Signature: ${subject.signature}`,
+      "",
+      "Findings:",
+      ...A.map(review.findings, (finding) => `- ${finding.code}: ${finding.remediation}`),
+      "",
+      "Keep @example mandatory. Prefer a realistic TypeScript example with an observable result.",
+    ],
+    "\n"
+  );
 
 const shellQuote = (value: string): string => `'${Str.replace(/'/g, "'\\''")(value)}'`;
 
@@ -1854,16 +1855,19 @@ const markdownSubject = (subject: DocgenQualitySubject, review: DocgenQualityRev
           (finding) => `  - ${finding.code} (${finding.tier}, -${finding.scoreImpact}): ${finding.message}`
         );
 
-  return [
-    `### ${subject.exportName}`,
-    "",
-    `- Anchor: \`${subject.sourceAnchor}\``,
-    `- Kind: \`${subject.declarationKind}\``,
-    `- Score: ${review.score}/10 (${review.tier})`,
-    `- Signature: \`${subject.signature}\``,
-    "",
-    ...findingLines,
-  ].join("\n");
+  return A.join(
+    [
+      `### ${subject.exportName}`,
+      "",
+      `- Anchor: \`${subject.sourceAnchor}\``,
+      `- Kind: \`${subject.declarationKind}\``,
+      `- Score: ${review.score}/10 (${review.tier})`,
+      `- Signature: \`${subject.signature}\``,
+      "",
+      ...findingLines,
+    ],
+    "\n"
+  );
 };
 
 /**
@@ -1909,46 +1913,46 @@ export const generateQualityReport = (report: DocgenQualityReport): string => {
   ];
 
   for (const pkg of report.packages) {
-    lines.push(
+    A.appendAllInPlace(lines, [
       `## ${pkg.packageName}`,
       "",
       `Path: \`${pkg.packagePath}\``,
       `Status: \`${pkg.status}\``,
       `Duration: ${pkg.durationMs}ms`,
       `Omitted packets: ${pkg.omittedPacketCount}`,
-      ""
-    );
+      "",
+    ]);
 
     if (pkg.error !== null) {
-      lines.push(`> ${pkg.error}`, "");
+      A.appendAllInPlace(lines, [`> ${pkg.error}`, ""]);
     }
 
     if (pkg.subjects.length === 0) {
-      lines.push("No exported-symbol JSDoc subjects found.", "");
+      A.appendAllInPlace(lines, ["No exported-symbol JSDoc subjects found.", ""]);
       continue;
     }
 
     for (const subject of pkg.subjects) {
       const review = A.findFirst(pkg.reviews, (candidate) => candidate.subjectId === subject.stableIdentity);
       if (O.isSome(review)) {
-        lines.push(markdownSubject(subject, review.value), "");
+        A.appendAllInPlace(lines, [markdownSubject(subject, review.value), ""]);
       }
     }
   }
 
   if (report.remediationPackets.length > 0) {
-    lines.push("## Remediation Packets", "");
+    A.appendAllInPlace(lines, ["## Remediation Packets", ""]);
     for (const packet of report.remediationPackets) {
-      lines.push(
+      A.appendAllInPlace(lines, [
         `- ${packet.id}: ${packet.title}`,
         `  - Subject: \`${packet.subjectId}\``,
         `  - Verify: \`${packet.verificationCommand}\``,
         "",
         "  ```text",
-        ...A.map(packet.prompt.split(/\r?\n/), (line) => `  ${line}`),
+        ...A.map(Str.split(/\r?\n/)(packet.prompt), (line) => `  ${line}`),
         "  ```",
-        ""
-      );
+        "",
+      ]);
     }
   }
 

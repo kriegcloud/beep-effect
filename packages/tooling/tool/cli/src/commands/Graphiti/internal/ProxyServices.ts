@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import {
   Clock,
   Context,
@@ -23,11 +24,9 @@ import {
   SchemaTransformation,
   type Scope,
 } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   Headers,
   HttpBody,

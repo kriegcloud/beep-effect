@@ -6,10 +6,9 @@
  */
 
 import { $SchemaId } from "@beep/identity";
+import { A, O } from "@beep/utils";
 import { Effect, HashSet, Order, pipe, SchemaIssue, SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -139,7 +138,17 @@ const mapRowToHeaderRecord = (
     R.fromEntries(
       pipe(
         headerRow,
-        A.map((header, index) => [header, row.at(index) ?? ""] as const)
+        A.map(
+          (header, index) =>
+            [
+              header,
+              pipe(
+                row,
+                A.get(index),
+                O.getOrElse(() => "")
+              ),
+            ] as const
+        )
       )
     )
   );

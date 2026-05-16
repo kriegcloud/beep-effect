@@ -64,13 +64,12 @@ import {
   writeAiMetricsConfigSnapshotArtifacts,
   writeAiMetricsDerivedStorage,
 } from "@beep/repo-ai-metrics";
+import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Encoding, Exit, FileSystem, Order, Path, pipe, Redacted } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -113,11 +112,14 @@ describe("@beep/repo-ai-metrics", () => {
   it.effect(
     "summarizes Codex JSONL and counts rejected lines",
     Effect.fn(function* () {
-      const content = [
-        '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
-        '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"ran"}}',
-        "not-json",
-      ].join("\n");
+      const content = pipe(
+        [
+          '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
+          '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"ran"}}',
+          "not-json",
+        ],
+        A.join("\n")
+      );
 
       const summary = yield* summarizeTranscriptText({
         content,
@@ -170,10 +172,13 @@ describe("@beep/repo-ai-metrics", () => {
 
           yield* writeText(
             path.join(codexRoot, "codex.jsonl"),
-            [
-              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
-              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"SECRET_TOKEN=secret-value"}}',
-            ].join("\n")
+            pipe(
+              [
+                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
+                '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"SECRET_TOKEN=secret-value"}}',
+              ],
+              A.join("\n")
+            )
           );
           yield* writeText(
             path.join(claudeRoot, "claude.jsonl"),
@@ -436,10 +441,13 @@ describe("@beep/repo-ai-metrics", () => {
 
           yield* writeText(
             path.join(homeDir, ".codex/sessions/codex.jsonl"),
-            [
-              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
-              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private benchmark prompt"}',
-            ].join("\n")
+            pipe(
+              [
+                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private benchmark prompt"}',
+              ],
+              A.join("\n")
+            )
           );
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
 
@@ -747,11 +755,14 @@ volumes:
           const dataRoot = path.join(tmpDir, "metrics");
           const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
           const sourcePath = path.join(tmpDir, "home/.claude/projects/repo/claude.jsonl");
-          const content = [
-            '{"type":"user","timestamp":"2026-05-05T10:00:00Z","message":{"content":"private-input"}}',
-            '{"type":"assistant","timestamp":"2026-05-05T10:00:30Z","message":{"content":"private-model-output"}}',
-            '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":{"content":"private-output"}}',
-          ].join("\n");
+          const content = pipe(
+            [
+              '{"type":"user","timestamp":"2026-05-05T10:00:00Z","message":{"content":"private-input"}}',
+              '{"type":"assistant","timestamp":"2026-05-05T10:00:30Z","message":{"content":"private-model-output"}}',
+              '{"type":"tool_result","timestamp":"2026-05-05T10:01:00Z","message":{"content":"private-output"}}',
+            ],
+            A.join("\n")
+          );
 
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
@@ -918,10 +929,13 @@ volumes:
         Effect.fn(function* (tmpDir) {
           const path = yield* Path.Path;
           const sourcePath = path.join(tmpDir, "codex-session.jsonl");
-          const content = [
-            '{"type":"user_message","timestamp":"2026-05-05T12:00:00Z","message":"please refactor the billing flow","OPENAI_API_KEY":"sk-secretfixture"}',
-            '{"type":"assistant_message","timestamp":"2026-05-05T12:01:00Z","content":"done with private output"}',
-          ].join("\n");
+          const content = pipe(
+            [
+              '{"type":"user_message","timestamp":"2026-05-05T12:00:00Z","message":"please refactor the billing flow","OPENAI_API_KEY":"sk-secretfixture"}',
+              '{"type":"assistant_message","timestamp":"2026-05-05T12:01:00Z","content":"done with private output"}',
+            ],
+            A.join("\n")
+          );
           const summary = yield* summarizeTranscriptText({
             content,
             hashSalt: "test-salt",
@@ -960,10 +974,13 @@ volumes:
           const dataRoot = path.join(tmpDir, "metrics");
           const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
           const sourcePath = path.join(tmpDir, "home/.codex/sessions/subagent.jsonl");
-          const content = [
-            '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"child-session","source":{"subagent":{"thread_spawn":true,"parent_thread_id":"parent-thread","agent_role":"worker","agent_nickname":"worker-one"}}}}',
-            '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}',
-          ].join("\n");
+          const content = pipe(
+            [
+              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"child-session","source":{"subagent":{"thread_spawn":true,"parent_thread_id":"parent-thread","agent_role":"worker","agent_nickname":"worker-one"}}}}',
+              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}',
+            ],
+            A.join("\n")
+          );
 
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
@@ -1620,10 +1637,13 @@ volumes:
 
           yield* writeText(
             path.join(codexRoot, "codex.jsonl"),
-            [
-              '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
-              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"SECRET_TOKEN=secret-value"}}',
-            ].join("\n")
+            pipe(
+              [
+                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z","payload":{"id":"s1"}}',
+                '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"SECRET_TOKEN=secret-value"}}',
+              ],
+              A.join("\n")
+            )
           );
           yield* writeText(path.join(repoRoot, "AGENTS.md"), "# Test agent guide\n");
 

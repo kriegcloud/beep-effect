@@ -26,7 +26,7 @@ fn stack_installer_health() -> StackInstallerHealth {
     StackInstallerHealth {
         app: "@beep/stack-installer",
         mode: "p1",
-        dry_run_only: false,
+        dry_run_only: true,
     }
 }
 
@@ -40,7 +40,7 @@ fn run_p1_manual_proof(request: P1ManualProofRequest) -> Result<String, String> 
         .map_err(|_| "Unable to encode P1 proof request.".to_string())?;
     let output = Command::new("bun")
         .current_dir(app_dir)
-        .args(["run", "p1:proof", "--", "--request-json", &request_json])
+        .args(["run", "p1:proof", "--", "--app-local", "--request-json", &request_json])
         .output()
         .map_err(|_| "Unable to launch the app-local P1 proof harness.".to_string())?;
 

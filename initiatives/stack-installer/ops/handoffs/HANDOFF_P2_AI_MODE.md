@@ -6,6 +6,7 @@ Status: stub.
 
 Implement AI Mode parity across Claude and Codex using the same manifest,
 validation spine, approval UI, and slice-owned verb registry contracts as P1.
+Do not start this handoff until P1D app-first Manual Installer UX is complete.
 
 ## Required Startup
 

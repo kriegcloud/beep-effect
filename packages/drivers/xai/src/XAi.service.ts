@@ -7,14 +7,12 @@
 
 import { $XaiId } from "@beep/identity";
 import { decodeJsonString, encodeJsonString } from "@beep/schema/Json";
-import { thunkEmptyStr } from "@beep/utils";
+import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Config, Context, Effect, flow, Layer, Match, pipe, Queue, Redacted, Stream } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";

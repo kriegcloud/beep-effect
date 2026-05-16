@@ -1,13 +1,17 @@
 import {
   parseQualityTaskInvocation,
   QualityTaskFailed,
+  QualityTaskGroupFailed,
   type QualityTaskInvocation,
+  QualityTaskStep,
   rootQualityStepsForTesting,
   runQualityTask,
+  runQualityTaskStepGroupForTesting,
   runSqlIntegrationTestLaneForTesting,
   sqlIntegrationConnectionUriFromEnvForTesting,
   sqlIntegrationStepForTesting,
 } from "@beep/repo-cli/commands/Quality/Tasks";
+import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -25,6 +29,7 @@ const PlatformLayer = Layer.mergeAll(
 );
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 const isQualityTaskFailed = S.is(QualityTaskFailed);
+const isQualityTaskGroupFailed = S.is(QualityTaskGroupFailed);
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -53,7 +58,7 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
 const getInvocation = (argv: ReadonlyArray<string>): QualityTaskInvocation => {
   const invocation = parseQualityTaskInvocation(argv);
   if (O.isNone(invocation)) {
-    throw new Error(`Expected ${argv.join(" ")} to parse as a quality task.`);
+    throw new Error(`Expected ${A.join(argv, " ")} to parse as a quality task.`);
   }
   return invocation.value;
 };
@@ -61,9 +66,28 @@ const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyA
   "turbo",
   "run",
   task,
-  ...(process.env.CI === "true" || args.some((arg) => arg.startsWith("--cache=")) ? [] : ["--cache=local:rw"]),
+  ...(process.env.CI === "true" || A.some(args, (arg) => Str.startsWith("--cache=")(arg)) ? [] : ["--cache=local:rw"]),
   ...args,
 ];
+const bunScriptStep = (label: string, source: string) =>
+  new QualityTaskStep({
+    label,
+    command: "bun",
+    args: ["-e", source],
+    cwd: process.cwd(),
+  });
+
+const expectSubstringBefore = (text: string, before: string, after: string): void => {
+  const beforeIndex = Str.indexOf(before)(text);
+  const afterIndex = Str.indexOf(after)(text);
+
+  expect(O.isSome(beforeIndex)).toBe(true);
+  expect(O.isSome(afterIndex)).toBe(true);
+
+  if (O.isSome(beforeIndex) && O.isSome(afterIndex)) {
+    expect(beforeIndex.value).toBeLessThan(afterIndex.value);
+  }
+};
 
 describe("quality task adapter", () => {
   it("parses canonical task invocations and preserves passthrough args", () => {
@@ -138,7 +162,7 @@ describe("quality task adapter", () => {
       "--affected",
       "--summarize",
     ]);
-    expect(steps.slice(1)).toEqual([
+    expect(A.slice(steps, 1)).toEqual([
       expect.objectContaining({
         label: "check:dtslint:tsgo",
         command: "bun",
@@ -313,6 +337,65 @@ describe("quality task adapter", () => {
     );
   });
 
+  it("runs grouped quality steps with bounded concurrency and deterministic output", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          yield* runQualityTaskStepGroupForTesting(
+            "test:group",
+            [
+              bunScriptStep("test:slow", "await Bun.sleep(20); console.log('slow')"),
+              bunScriptStep("test:fast", "console.log('fast')"),
+            ],
+            2
+          );
+
+          const logText = A.join(yield* TestConsole.logLines, "\n");
+          expect(logText).toContain("[beep-cli] test:group: running 2 step(s) with concurrency 2");
+          expect(logText).toContain("[beep-cli] test:slow: bun -e await Bun.sleep(20); console.log('slow')");
+          expect(logText).toContain("[beep-cli] test:fast: bun -e console.log('fast')");
+          expectSubstringBefore(logText, "[beep-cli] test:slow output:\nslow", "[beep-cli] test:fast output:\nfast");
+        })
+      )
+    );
+  });
+
+  it("aggregates grouped quality step failures in configured step order", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const exit = yield* Effect.exit(
+            runQualityTaskStepGroupForTesting(
+              "test:group",
+              [
+                bunScriptStep("test:first", "console.log('first failed'); process.exit(7)"),
+                bunScriptStep("test:second", "console.log('second failed'); process.exit(3)"),
+              ],
+              2
+            )
+          );
+
+          expect(Exit.isFailure(exit)).toBe(true);
+          if (Exit.isFailure(exit)) {
+            const failure = Cause.squash(exit.cause);
+            expect(failure).toBeInstanceOf(QualityTaskGroupFailed);
+            if (isQualityTaskGroupFailed(failure)) {
+              expect(failure.exitCode).toBe(7);
+              expect(A.map(failure.failures, (step) => step.label)).toEqual(["test:first", "test:second"]);
+            }
+          }
+
+          const logText = A.join(yield* TestConsole.logLines, "\n");
+          expectSubstringBefore(
+            logText,
+            "[beep-cli] test:first output:\nfirst failed",
+            "[beep-cli] test:second output:\nsecond failed"
+          );
+        })
+      )
+    );
+  });
+
   it("leaves lint policy subcommands on the existing command tree", () => {
     expect(O.isNone(parseQualityTaskInvocation(["lint", "circular"]))).toBe(true);
     expect(O.isNone(parseQualityTaskInvocation(["lint", "package-test-imports"]))).toBe(true);
@@ -330,7 +413,7 @@ describe("quality task adapter", () => {
       args: ["run", "beep", "laws", "effect-fn", "--check"],
       cwd: "/repo",
     });
-    expect(steps.slice(1).map((step) => step.label)).toEqual([
+    expect(A.map(A.slice(steps, 1), (step) => step.label)).toEqual([
       "lint:effect-imports",
       "lint:terse-effect",
       "lint:effect-fn",

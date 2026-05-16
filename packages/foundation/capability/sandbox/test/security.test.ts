@@ -1,4 +1,5 @@
 import { type BindMountSandboxHandle, ExecResult, SessionCaptureError, sandboxSessionStore } from "@beep/sandbox";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 
@@ -12,7 +13,7 @@ describe("@beep/sandbox security boundaries", () => {
         copyFileIn: () => Effect.void,
         copyFileOut: () => Effect.void,
         exec: (command) => {
-          commands.push(command);
+          A.appendInPlace(commands, command);
 
           return Effect.succeed(new ExecResult({ exitCode: 0, stderr: "", stdout: "" }));
         },
@@ -35,7 +36,7 @@ describe("@beep/sandbox security boundaries", () => {
         copyFileIn: () => Effect.void,
         copyFileOut: () => Effect.void,
         exec: (command) => {
-          commands.push(command);
+          A.appendInPlace(commands, command);
 
           return Effect.succeed(new ExecResult({ exitCode: 0, stderr: "", stdout: "" }));
         },

@@ -12,6 +12,8 @@ initiative.
   gate.
 - [GOAL_P1_MACOS_PROOF.md](./GOAL_P1_MACOS_PROOF.md) - short `/goal`
   indirection target for the buddy MacBook Pro macOS P1 proof run.
+- [HANDOFF_P1D_APP_FIRST_MANUAL_INSTALLER_UX.md](./HANDOFF_P1D_APP_FIRST_MANUAL_INSTALLER_UX.md)
+  - P1D app-first Manual Installer UX stub for Linux-first Bun install/repair.
 - [HANDOFF_P2_AI_MODE.md](./HANDOFF_P2_AI_MODE.md) - P2 AI Mode parity stub.
 - [HANDOFF_P3_RECOVERY.md](./HANDOFF_P3_RECOVERY.md) - P3 recovery proof
   stub.
@@ -53,5 +55,7 @@ not let generated notes accumulate at the initiative root.
   smoke harness for upload-window endpoint auth, generated operator notes,
   file modes, and `--reuse-token` behavior.
 - [../p1-completion-check.mjs](../p1-completion-check.mjs) - conservative P1
-  prompt-to-artifact checklist that exits nonzero until fresh macOS and Windows
-  proof artifacts, `p1:proof:audit-all`, and the post-proof review are complete.
+  prompt-to-artifact checklist that keeps full P1 blocked until fresh macOS and
+  Windows proof artifacts, `p1:proof:audit-all`, and the post-proof review are
+  complete, while also reporting when P1C may start under the temporary
+  Windows waiver.

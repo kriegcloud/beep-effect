@@ -1,8 +1,8 @@
 import { ExtractFramesManifest } from "@beep/ffmpeg";
 import { imageCommand } from "@beep/repo-cli";
+import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -121,7 +121,7 @@ describe.sequential("image command", () => {
           expect(manifest.summary.frameCount).toBe(2);
           expect(manifest.options.fps).toBe(1);
           expect(manifest.options.prefix).toBe("clip_frame");
-          expect(pipe(yield* fs.readFileString(argsPath), (value) => value.includes("fps=1"))).toBe(true);
+          expect(pipe(yield* fs.readFileString(argsPath), (value) => Str.includes("fps=1")(value))).toBe(true);
           expect(yield* TestConsole.logLines).toEqual([
             `image extract-frames: wrote 2 frame(s) to ${outDir}. manifest: ${path.join(outDir, "extract-frames-manifest.json")}`,
           ]);

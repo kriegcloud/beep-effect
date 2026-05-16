@@ -9,11 +9,9 @@
 
 import chalk from "@beep/chalk";
 import { encodeTSConfigPrettyEffect, FsUtils } from "@beep/repo-utils";
-import { thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import markdownToc from "@effect/markdown-toc";
 import { Effect, FileSystem, flow, HashSet, Path, pipe, Stream } from "effect";
-import * as A from "effect/Array";
-import * as Str from "effect/String";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
 import * as Checker from "./Checker.js";
 import * as Configuration from "./Configuration.js";
@@ -141,7 +139,7 @@ const typeCheckAndRunExamples = Effect.fn("typeCheckAndRunExamples")(function* (
 
 const filterJoin: (segments: ReadonlyArray<string>) => string = flow(A.filter(Str.isNonEmpty), A.join("-"));
 const sanitizeExampleName = (name: string): string => {
-  const sanitized = name.replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "");
+  const sanitized = pipe(name, Str.replace(/[^A-Za-z0-9._-]+/g, "_"), Str.replace(/^_+|_+$/g, ""));
   return sanitized.length > 0 ? sanitized : "example";
 };
 
@@ -219,7 +217,7 @@ const getExampleFiles = Effect.fn("getExampleFiles")(function* (modules: Readonl
     let suffix = 1;
 
     while (HashSet.has(usedExampleFileNames, Str.toLowerCase(candidate))) {
-      candidate = fileName.replace(/\.ts$/, `-${suffix}.ts`);
+      candidate = pipe(fileName, Str.replace(/\.ts$/, `-${suffix}.ts`));
       suffix += 1;
     }
 

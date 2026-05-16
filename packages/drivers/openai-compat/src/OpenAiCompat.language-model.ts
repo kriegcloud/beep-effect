@@ -7,13 +7,12 @@
 
 import { $OpenaiCompatId } from "@beep/identity";
 import { decodeJsonString, encodeJsonString } from "@beep/schema/Json";
+import { A, Str } from "@beep/utils";
 import { Effect, flow, Layer, pipe, Stream, Tuple } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as AiError from "effect/unstable/ai/AiError";
 import * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import * as AiModel from "effect/unstable/ai/Model";

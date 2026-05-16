@@ -1,8 +1,8 @@
 import * as Organization from "@beep/shared-tables/entities/Organization";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { getTableColumns } from "drizzle-orm";
 import { getTableConfig } from "drizzle-orm/pg-core";
-import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 

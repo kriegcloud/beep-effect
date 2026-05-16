@@ -7,9 +7,10 @@
 
 import { $ChalkId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { P } from "@beep/utils";
-import { Result } from "effect";
-import * as A from "effect/Array";
+import { A, Str } from "@beep/utils";
+import { pipe, Result } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ansiStyles, getModelAnsi, getStyleEntry, type StyleName } from "./AnsiStyles.ts";
 import {
@@ -98,6 +99,8 @@ const renderTemplateArguments = (strings: TemplateStringsArray, substitutions: R
     (rendered, text, index) => rendered + text + (index < substitutions.length ? `${substitutions[index]}` : "")
   );
 
+const renderJoinArgument = (argument: unknown): string => (P.isNullish(argument) ? "" : `${argument}`);
+
 const renderArguments = (arguments_: ReadonlyArray<unknown>): string => {
   const [first] = arguments_;
 
@@ -105,8 +108,18 @@ const renderArguments = (arguments_: ReadonlyArray<unknown>): string => {
     return renderTemplateArguments(first, A.drop(arguments_, 1));
   }
 
-  return arguments_.length === 1 ? `${first}` : arguments_.join(" ");
+  return arguments_.length === 1 ? `${first}` : pipe(arguments_, A.map(renderJoinArgument), A.join(" "));
 };
+
+const stringIndexOfOrNotFound = (text: string, substring: string): number =>
+  pipe(
+    text,
+    Str.indexOf(substring),
+    O.getOrElse(() => -1)
+  );
+
+const capitalizeModelName = (modelName: string): string =>
+  `${Str.toUpperCase(Str.slice(0, 1)(modelName))}${Str.slice(1)(modelName)}`;
 
 const createStyler = (open: string, close: string, parent: Styler | undefined): Styler =>
   P.isUndefined(parent)
@@ -139,14 +152,14 @@ const applyStyle = (builder: ChalkFunction, text: string): string => {
   let rendered = text;
   let currentStyler: Styler | undefined = styler;
 
-  if (rendered.includes("\u001B")) {
+  if (Str.includes("\u001B")(rendered)) {
     do {
       rendered = stringReplaceAll(rendered, currentStyler.close, { replacer: currentStyler.open });
       currentStyler = currentStyler.parent;
     } while (P.isNotUndefined(currentStyler));
   }
 
-  const lineFeedIndex = rendered.indexOf("\n");
+  const lineFeedIndex = stringIndexOfOrNotFound(rendered, "\n");
 
   if (lineFeedIndex !== -1) {
     rendered = stringEncaseCRLFWithFirstIndex(rendered, styler.closeAll, {
@@ -212,7 +225,7 @@ const createPrototype = (): ChalkPrototype => {
       },
     });
 
-    const backgroundModelName = `bg${modelName[0]?.toUpperCase() ?? ""}${modelName.slice(1)}`;
+    const backgroundModelName = `bg${capitalizeModelName(modelName)}`;
 
     Object.defineProperty(prototype, backgroundModelName, {
       get(this: ChalkFunction) {

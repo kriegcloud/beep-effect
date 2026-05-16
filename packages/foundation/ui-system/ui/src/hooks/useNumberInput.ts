@@ -1,12 +1,11 @@
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { flow, Match, pipe, Tuple } from "effect";
-import * as A from "effect/Array";
 import { constVoid, dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSpinner } from "./useSpinner";

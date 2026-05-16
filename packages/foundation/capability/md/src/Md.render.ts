@@ -7,14 +7,12 @@
 
 import { $MdId } from "@beep/identity";
 import { HtmlFragment, Markdown, TaggedErrorClass } from "@beep/schema";
-import { Html, thunkEmptyStr } from "@beep/utils";
+import { A, Html, Str, thunkEmptyStr } from "@beep/utils";
 import { Effect, flow, identity, Match, Result, SchemaGetter, SchemaIssue } from "effect";
-import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import type { Block, Document, H1, H2, H3, H4, H5, H6, Inline, Li, TaskItem } from "./Md.model.ts";
 import { Document as DocumentSchema } from "./Md.model.ts";
 import {

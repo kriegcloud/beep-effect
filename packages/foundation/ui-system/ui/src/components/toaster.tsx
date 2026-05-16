@@ -10,6 +10,7 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@beep/ui/components/toast";
+import { A } from "@beep/utils";
 import { cn } from "../lib/index.ts";
 import { globalToastManager } from "../lib/toaster.ts";
 
@@ -23,7 +24,7 @@ export function Toaster() {
   return (
     <ToastProvider timeout={5000} limit={3} toastManager={globalToastManager}>
       <ToastViewport>
-        {toasts.map((toast) => (
+        {A.map(toasts, (toast) => (
           <Toast
             key={toast.id}
             toast={toast as ToastPrimitive.Root.ToastObject<ToastData>}

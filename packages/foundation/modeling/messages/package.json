@@ -24,6 +24,7 @@
     "audit": "bun run --if-present beep:audit"
   },
   "dependencies": {
+    "@beep/utils": "workspace:^",
     "effect": "catalog:",
     "i18next": "catalog:"
   },

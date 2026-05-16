@@ -7,10 +7,9 @@
 
 import defaultChalk, { type Chalk } from "@beep/chalk";
 import defaultColors, { type Colors } from "@beep/colors";
+import { A, Str } from "@beep/utils";
 import { Effect, Ref, Semaphore, Terminal } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
-import * as Str from "effect/String";
 
 const defaultBarWidth = 28;
 const clearCurrentLine = "\r\x1b[2K";

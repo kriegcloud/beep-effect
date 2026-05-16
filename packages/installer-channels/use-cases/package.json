@@ -65,8 +65,8 @@
     }
   },
   "dependencies": {
-    "@beep/installer-channels-domain": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/installer-channels-domain": "workspace:^",
     "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },

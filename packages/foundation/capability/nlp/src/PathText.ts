@@ -4,9 +4,8 @@
  * @since 0.0.0
  * @packageDocumentation
  */
-import * as Str from "@beep/utils/Str";
+import { A, Str } from "@beep/utils";
 import { flow } from "effect";
-import * as A from "effect/Array";
 import * as QueryText from "./QueryText.ts";
 import * as VariantText from "./VariantText.ts";
 

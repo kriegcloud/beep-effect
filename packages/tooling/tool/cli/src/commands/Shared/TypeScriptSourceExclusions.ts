@@ -5,9 +5,7 @@
  * @since 0.0.0
  */
 
-import * as A from "effect/Array";
-import * as Str from "effect/String";
-
+import { A, Str } from "@beep/utils";
 /**
  * Path segments excluded from TypeScript source lint traversals.
  *

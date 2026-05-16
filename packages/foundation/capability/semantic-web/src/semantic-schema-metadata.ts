@@ -8,8 +8,8 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { A } from "@beep/utils";
 import { pipe, Result } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";

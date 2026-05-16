@@ -6,8 +6,8 @@
  */
 
 import { $NlpId } from "@beep/identity";
+import { A } from "@beep/utils";
 import { Chunk, Match, pipe, Result } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";

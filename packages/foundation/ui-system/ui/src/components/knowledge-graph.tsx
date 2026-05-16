@@ -1,8 +1,9 @@
 "use client";
 
+import { A, Str } from "@beep/utils";
 import * as d3 from "d3";
-import { HashSet, Order, pipe } from "effect";
-import * as A from "effect/Array";
+import { flow, HashSet, Order, pipe } from "effect";
+import * as O from "effect/Option";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { cn } from "../lib/index.ts";
 
@@ -84,7 +85,7 @@ export interface KnowledgeGraphHandle {
 const stringToColor = (str: string): string => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
+    const char = O.getOrElse(Str.charCodeAt(str, i), () => 0);
     hash = (hash << 5) - hash + char;
     hash = hash & hash;
   }
@@ -95,7 +96,10 @@ const stringToColor = (str: string): string => {
 };
 
 /** Format type string for display */
-const formatTypeLabel = (type: string): string => type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+const formatTypeLabel: (type: string) => string = flow(
+  Str.replace(/_/g, " "),
+  Str.replaceWith(/\b\w/g, Str.toUpperCase)
+);
 
 // ============================================================================
 // Component
@@ -258,21 +262,28 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
 
       // Set legend items
       setLegendItems(
-        nodeTypes.map((type) => ({
+        A.map(nodeTypes, (type) => ({
           type: formatTypeLabel(type),
           color: colorMapping[type] ?? "#6b7280",
         }))
       );
 
       // Clone data to avoid mutation
-      const nodesCopy: GraphNode[] = nodes.map((n) => ({
+      const nodesCopy: GraphNode[] = A.map(nodes, (n) => ({
         ...n,
         size: n.size ?? 20,
       }));
-      const linksCopy: GraphLink[] = links.map((l) => ({ ...l }));
+      const linksCopy: GraphLink[] = A.map(links, (l) => ({ ...l }));
 
       // Position center node if specified
-      const centerNode = centerNodeId !== undefined ? (nodesCopy.find((n) => n.id === centerNodeId) ?? null) : null;
+      const centerNode =
+        centerNodeId !== undefined
+          ? pipe(
+              nodesCopy,
+              A.findFirst((n) => n.id === centerNodeId),
+              O.getOrNull
+            )
+          : null;
       if (centerNode !== null) {
         centerNode.x = width / 2;
         centerNode.y = height / 2;
@@ -325,7 +336,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       const linkLabel = showLinkLabels
         ? g
             .selectAll<SVGTextElement, GraphLink>(".link-label")
-            .data(linksCopy.filter((l) => l.label))
+            .data(A.filter(linksCopy, (l) => l.label !== undefined && l.label.length > 0))
             .join("text")
             .attr("class", "link-label")
             .attr("text-anchor", "middle")
@@ -378,7 +389,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
         .attr("font-weight", "500")
         .attr("fill", "#ffffff")
         .attr("pointer-events", "none")
-        .text((d: GraphNode) => (d.label.length > 12 ? `${d.label.substring(0, 10)}...` : d.label));
+        .text((d: GraphNode) => (d.label.length > 12 ? `${Str.substring(0, 10)(d.label)}...` : d.label));
 
       // Add event handlers
       nodeGroup
@@ -439,7 +450,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
         {showLegend && legendItems.length > 0 && (
           <div className="absolute top-4 right-4 z-10 p-3 rounded-lg bg-zinc-800/90 backdrop-blur-sm border border-zinc-700">
             <div className="max-h-48 space-y-1.5 overflow-y-auto">
-              {legendItems.map((item) => (
+              {A.map(legendItems, (item) => (
                 <div key={item.type} className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                   <span className="text-xs text-zinc-300">{item.type}</span>

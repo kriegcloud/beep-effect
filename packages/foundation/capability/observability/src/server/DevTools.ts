@@ -15,9 +15,10 @@ import * as Socket from "effect/unstable/socket/Socket";
  *
  * @example
  * ```typescript
+ * import { Str } from "@beep/utils"
  * import type { DevToolsSpanFilter } from "@beep/observability/server"
  *
- * const filter: DevToolsSpanFilter = (name) => name.startsWith("Http.")
+ * const filter: DevToolsSpanFilter = (name) => Str.startsWith(name, "Http.")
  * ```
  *
  * @since 0.0.0

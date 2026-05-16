@@ -15,7 +15,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
-import { runP1ManualProof } from "../src/proof/P1ManualProof.js";
+import { previewP1ManualProof, runP1ManualProof } from "../src/proof/P1ManualProof.js";
 import {
   isP1ProofArtifactStatusFileName,
   isP1ProofEvidenceFileName,
@@ -127,6 +127,35 @@ describe("P1 Manual Mode proof harness", () => {
         expect(encoded).not.toContain("claude-raw-provider-status-output");
         expect(encoded).not.toContain("codex-raw-provider-status-output");
         expect(encoded).toContain("message-1");
+      })
+    );
+
+    it.effect("keeps the app-local preview dry-run and avoids recording a Discord message id", () =>
+      Effect.gen(function* () {
+        const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
+        const result = yield* previewP1ManualProof(
+          new P1ManualProofRequest({
+            discordBotTokenReference,
+            discordChannelDisplayName: "proof-channel",
+            discordChannelId: "channel-1",
+            discordGuildId: "guild-1",
+            operatorLabel: "test",
+            targetPlatform: "macos",
+            testMessageContent: "Stack Installer P1 proof",
+          })
+        );
+        const encoded = yield* encodeProofResult(result);
+
+        expect(result.snapshot.manifest.dryRunOnly).toBe(true);
+        expect(
+          A.some(
+            result.snapshot.validationEvents,
+            (event) => event.id === "discord-route-preview" && event.status === "passed"
+          )
+        ).toBe(true);
+        expect(A.some(result.snapshot.validationEvents, (event) => event.id === "discord-test-message")).toBe(false);
+        expect(encoded).not.toContain("message-1");
+        expect(encoded).not.toContain("raw-secret-value");
       })
     );
 

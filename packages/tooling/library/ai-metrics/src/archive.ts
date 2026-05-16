@@ -7,9 +7,9 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Str } from "@beep/utils";
 import { Clock, Effect, Encoding, FileSystem, Path, Redacted, Result } from "effect";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { AiMetricsTranscriptSource } from "./models.ts";
 import { hashPrivateIdentifier, hashPublicTextSha256 } from "./privacy.ts";
 

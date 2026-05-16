@@ -10,9 +10,8 @@ import type { WorkItemPublicConfig } from "@beep/architecture-lab-config/public"
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import { $ArchitectureLabUiId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Str } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

@@ -2,8 +2,8 @@
 
 import { Label } from "@beep/ui/components/label";
 import { Separator } from "@beep/ui/components/separator";
+import { A } from "@beep/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import type React from "react";

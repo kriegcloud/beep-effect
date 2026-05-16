@@ -7,12 +7,11 @@ import { makeDrizzleWorkItemRepository } from "@beep/architecture-lab-server/agg
 import { makeDrizzleWorkerRepository } from "@beep/architecture-lab-server/entities/Worker";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { makePgliteSqlTestLayer, type SqlTestHooks, TestDatabaseInfo } from "@beep/test-utils";
+import { A, Str } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const sharedConnectionUri = pipe(process.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
 const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));

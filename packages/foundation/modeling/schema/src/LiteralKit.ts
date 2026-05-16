@@ -8,8 +8,8 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { TaggedErrorClass, type TaggedErrorClassFromFields } from "@beep/schema/TaggedErrorClass";
+import { A } from "@beep/utils";
 import { HashMap, HashSet, Match, pipe, type SchemaAST, type Struct, type Unify } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -710,8 +710,10 @@ export function LiteralKit<const L extends Literals, const M extends EnumMapping
   const toTaggedUnion =
     <const Tag extends string>(tag: Tag) =>
     <const Cases extends Record<string, StructFields>>(cases: Cases) => {
-      const union = base.mapMembers((members) =>
-        members.map((member) => {
+      const union = base.mapMembers((members) => {
+        const literalMembers: ReadonlyArray<S.Literal<L[number]>> = members;
+
+        return A.map(literalMembers, (member) => {
           if (!P.isPropertyKey(member.literal)) {
             throw new LiteralKitTaggedUnionLiteralError({
               literal: member.literal,
@@ -722,8 +724,8 @@ export function LiteralKit<const L extends Literals, const M extends EnumMapping
             [tag]: S.tag(member.literal),
             ...cases[helperKey(member.literal, validatedEnumMapping)],
           });
-        })
-      );
+        });
+      });
 
       return S.toTaggedUnion(tag)(
         union as unknown as S.Union<ReadonlyArray<S.Top & { readonly Type: { readonly [K in Tag]: PropertyKey } }>>

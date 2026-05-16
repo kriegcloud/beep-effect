@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { A } from "@beep/utils";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -14,26 +15,29 @@ const developmentConnectSources = isDevelopment ? " http://localhost:* https://*
 const vercelLiveSource = " https://vercel.live";
 
 const buildCspHeader = (nonce: string): string =>
-  [
-    "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'${developmentScriptSources}`,
-    `script-src-elem 'self' 'nonce-${nonce}'${vercelLiveSource}${developmentScriptSources}`,
-    "style-src 'self' 'unsafe-inline'",
-    "style-src-elem 'self' 'unsafe-inline'",
-    "style-src-attr 'unsafe-inline'",
-    `img-src 'self' data: blob:${vercelLiveSource}`,
-    "font-src 'self' data:",
-    "media-src 'self'",
-    `connect-src 'self' https://vitals.vercel-insights.com https://*.vercel-insights.com${vercelLiveSource} https://api.sanity.io https://*.api.sanity.io https://*.apicdn.sanity.io https://api.hsforms.com https://forms.hsforms.com https://api.hubapi.com${developmentConnectSources}`,
-    "manifest-src 'self'",
-    "worker-src 'self' blob:",
-    "base-uri 'self'",
-    "form-action 'self'",
-    `frame-src${vercelLiveSource}`,
-    "frame-ancestors 'none'",
-    "object-src 'none'",
-    ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
-  ].join("; ");
+  A.join(
+    [
+      "default-src 'self'",
+      `script-src 'self' 'nonce-${nonce}'${developmentScriptSources}`,
+      `script-src-elem 'self' 'nonce-${nonce}'${vercelLiveSource}${developmentScriptSources}`,
+      "style-src 'self' 'unsafe-inline'",
+      "style-src-elem 'self' 'unsafe-inline'",
+      "style-src-attr 'unsafe-inline'",
+      `img-src 'self' data: blob:${vercelLiveSource}`,
+      "font-src 'self' data:",
+      "media-src 'self'",
+      `connect-src 'self' https://vitals.vercel-insights.com https://*.vercel-insights.com${vercelLiveSource} https://api.sanity.io https://*.api.sanity.io https://*.apicdn.sanity.io https://api.hsforms.com https://forms.hsforms.com https://api.hubapi.com${developmentConnectSources}`,
+      "manifest-src 'self'",
+      "worker-src 'self' blob:",
+      "base-uri 'self'",
+      "form-action 'self'",
+      `frame-src${vercelLiveSource}`,
+      "frame-ancestors 'none'",
+      "object-src 'none'",
+      ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
+    ],
+    "; "
+  );
 
 const withCsp = (cspHeader: string) => (response: NextResponse) => {
   response.headers.set("Content-Security-Policy", cspHeader);

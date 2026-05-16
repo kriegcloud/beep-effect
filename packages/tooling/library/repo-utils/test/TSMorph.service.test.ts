@@ -15,10 +15,11 @@ import {
   TsMorphSymbolSourceRequest,
   TsMorphUnsupportedFileError,
 } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Array as A, Context, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
+import { Context, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -229,7 +230,10 @@ layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
         expect(outline.filePath).toBe(MODEL_FILE_PATH);
         expect(outline.symbols.length).toBeGreaterThan(0);
         expect(
-          outline.symbols.some((symbol) => symbol.name === "TsMorphProjectScope" && symbol.kind === "ClassDeclaration")
+          A.some(
+            outline.symbols,
+            (symbol) => symbol.name === "TsMorphProjectScope" && symbol.kind === "ClassDeclaration"
+          )
         ).toBe(true);
       }),
       TSMORPH_TIMEOUT
@@ -429,9 +433,9 @@ layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
         expect(blank.symbols).toEqual([]);
         expect(names).toEqual(A.sort(names, Order.String));
         expect(
-          unbounded.symbols.every((symbol) => symbol.category === "class" && symbol.kind === "ClassDeclaration")
+          A.every(unbounded.symbols, (symbol) => symbol.category === "class" && symbol.kind === "ClassDeclaration")
         ).toBe(true);
-        expect(unbounded.symbols.some((symbol) => symbol.name === "TsMorphProjectScope")).toBe(true);
+        expect(A.some(unbounded.symbols, (symbol) => symbol.name === "TsMorphProjectScope")).toBe(true);
         expect(limited.symbols[0]?.name).toBe(unbounded.symbols[0]?.name);
       }),
       TSMORPH_TIMEOUT
@@ -465,7 +469,7 @@ layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
         );
 
         expect(initialSearch.total).toBeGreaterThan(0);
-        expect(initialSearch.symbols.some((symbol) => symbol.filePath === LATE_FILE_INCLUDED_FILE_PATH)).toBe(true);
+        expect(A.some(initialSearch.symbols, (symbol) => symbol.filePath === LATE_FILE_INCLUDED_FILE_PATH)).toBe(true);
         expect(outline.filePath).toBe(LATE_FILE_EXTRA_FILE_PATH);
         expect(O.isSome(targetSymbol)).toBe(true);
         if (O.isNone(targetSymbol)) {

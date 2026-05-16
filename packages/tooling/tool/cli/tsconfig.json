@@ -18,6 +18,9 @@
       "path": "../../../drivers/ffmpeg/tsconfig.json"
     },
     {
+      "path": "../../../drivers/runpod/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/capability/chalk/tsconfig.json"
     },
     {
@@ -31,6 +34,9 @@
     },
     {
       "path": "../../../foundation/modeling/schema/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/modeling/utils/tsconfig.json"
     },
     {
       "path": "../../library/ai-metrics/tsconfig.json"

@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
@@ -8,7 +9,7 @@ const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
 const readJsonFile = (path: string): unknown => JSON.parse(readFileSync(path, "utf8"));
 
 const packageJsonPathsUnder = (directory: string): ReadonlyArray<string> =>
-  readdirSync(directory).flatMap((entry) => {
+  A.flatMap(readdirSync(directory), (entry) => {
     const entryPath = join(directory, entry);
     const stats = statSync(entryPath);
 
@@ -43,8 +44,8 @@ describe("foundation package topology", () => {
     expect(packageJsonPaths.length).toBeGreaterThan(0);
 
     for (const packageJsonPath of packageJsonPaths) {
-      const workspacePath = relative(repoRoot, packageJsonPath).replace(/\/package\.json$/u, "");
-      const [, family, kind] = workspacePath.split("/");
+      const workspacePath = Str.replace(/\/package\.json$/u, "")(relative(repoRoot, packageJsonPath));
+      const [, family, kind] = Str.split("/")(workspacePath);
       const packageJson = readJsonFile(packageJsonPath) as {
         readonly name?: string;
         readonly homepage?: string;
@@ -85,14 +86,15 @@ describe("tooling package topology", () => {
     expect(rootPackage.workspaces).not.toEqual(expect.arrayContaining(["tooling/cli", "tooling/repo-checks"]));
     expect(existsSync(join(repoRoot, "tooling"))).toBe(false);
 
-    const packageJsonPaths = packageJsonPathsUnder(join(repoRoot, "packages", "tooling")).filter(
+    const packageJsonPaths = A.filter(
+      packageJsonPathsUnder(join(repoRoot, "packages", "tooling")),
       isCanonicalToolingPackageRoot
     );
     expect(packageJsonPaths.length).toBeGreaterThan(0);
 
     for (const packageJsonPath of packageJsonPaths) {
-      const workspacePath = relative(repoRoot, packageJsonPath).replace(/\/package\.json$/u, "");
-      const [, family, kind] = workspacePath.split("/");
+      const workspacePath = Str.replace(/\/package\.json$/u, "")(relative(repoRoot, packageJsonPath));
+      const [, family, kind] = Str.split("/")(workspacePath);
       const packageJson = readJsonFile(packageJsonPath) as {
         readonly homepage?: string;
         readonly repository?: {

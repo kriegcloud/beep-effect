@@ -2,7 +2,7 @@ import { $VeniceAiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { decodeJsonString } from "@beep/schema/Json";
 import { parseYaml } from "@beep/schema/Yaml";
-import { thunkEmptyStr, thunkTrue } from "@beep/utils";
+import { A, Str, thunkEmptyStr, thunkTrue } from "@beep/utils";
 import {
   VENICE_AI_OPERATION_DESCRIPTORS,
   VENICE_API_URL,
@@ -15,13 +15,11 @@ import {
 } from "@beep/venice-ai";
 import { describe, expect, layer } from "@effect/vitest";
 import { Context, Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";

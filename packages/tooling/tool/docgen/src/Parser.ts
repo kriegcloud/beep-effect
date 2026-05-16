@@ -6,14 +6,12 @@
  */
 
 import { $RepoDocgenId } from "@beep/identity/packages";
-import { thunkEmptyStr } from "@beep/utils";
+import { A, Str, thunkEmptyStr } from "@beep/utils";
 import * as doctrine from "doctrine";
 import { Context, Effect, flow, Layer, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import * as Str from "effect/String";
 import * as ast from "ts-morph";
 import * as Configuration from "./Configuration.js";
 import * as Domain from "./Domain.js";
@@ -566,7 +564,7 @@ export const getConstructorDeclarationSignature = (constructorDeclaration: ast.C
       onNone: () => constructorDeclaration.getText(),
       onSome: (body) => {
         const end = body.getStart() - constructorDeclaration.getStart() - 1;
-        return constructorDeclaration.getText().substring(0, end);
+        return pipe(constructorDeclaration.getText(), Str.substring(0, end));
       },
     })
   );

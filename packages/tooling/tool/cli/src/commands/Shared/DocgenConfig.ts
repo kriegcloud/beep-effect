@@ -7,15 +7,14 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import type { PackageJson } from "@beep/repo-utils";
+import { A, Str } from "@beep/utils";
 import { Effect, flow, HashMap, HashSet, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   buildDocgenAliasTargets,
   resolveRootExportTarget,

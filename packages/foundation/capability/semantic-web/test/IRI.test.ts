@@ -1,7 +1,7 @@
 import { AbsoluteIRI, IRI, IRIReference, RelativeIRIReference } from "@beep/semantic-web/iri";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { pipe } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
 const decodeIri = S.decodeUnknownSync(IRI);

@@ -29,6 +29,7 @@ describe.sequential("Stack Installer app", () => {
     expect(screen.getByRole("heading", { name: "Install Workbench" })).toBeDefined();
     expect(screen.getByText("Claude Provider")).toBeDefined();
     expect(screen.getByText("Discord is represented as the only v1 channel.")).toBeDefined();
+    expect(screen.queryByRole("option", { name: "Linux" })).toBeNull();
   });
 
   it("rejects plaintext Discord bot tokens before invoking the desktop proof runner", () => {

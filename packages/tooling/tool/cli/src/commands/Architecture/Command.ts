@@ -7,7 +7,7 @@
  */
 
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
-import { Text } from "@beep/utils";
+import { A, Text } from "@beep/utils";
 import { Console, Effect, FileSystem } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -131,9 +131,9 @@ const ensureIdempotent = Effect.fn(function* (result: OperationPlanCheckResult) 
     return yield* new DomainError({
       message: Text.joinLines([
         "Architecture operation plan is not idempotent.",
-        `missing=${result.missingPaths.join(",")}`,
-        `differing=${result.differingPaths.join(",")}`,
-        `unexpected=${result.unexpectedPaths.join(",")}`,
+        `missing=${A.join(result.missingPaths, ",")}`,
+        `differing=${A.join(result.differingPaths, ",")}`,
+        `unexpected=${A.join(result.unexpectedPaths, ",")}`,
       ]),
     });
   }

@@ -7,7 +7,7 @@
 
 import { $PostgresId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import type * as A from "effect/Array";
+import type { A } from "@beep/utils";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";

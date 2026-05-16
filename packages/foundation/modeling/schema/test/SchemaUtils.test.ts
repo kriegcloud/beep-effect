@@ -3,9 +3,9 @@ import * as SchemaUtils from "@beep/schema/SchemaUtils/index";
 import { pluck } from "@beep/schema/SchemaUtils/pluck";
 import { split } from "@beep/schema/SchemaUtils/split";
 import { toEquivalence } from "@beep/schema/SchemaUtils/toEquivalence";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { pipe } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
 describe("pluck", () => {

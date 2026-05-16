@@ -8,8 +8,8 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Chunk, Context, Effect, Inspectable, Layer, pipe, Ref } from "effect";
-import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";

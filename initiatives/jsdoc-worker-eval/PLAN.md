@@ -3,8 +3,11 @@
 ## Current Plan
 
 The structural worker eval lane is implemented as `beep docgen
-quality-worker-eval`. The first local-provider run is complete as a negative
-host-suitability result:
+quality-worker-eval`. The remote GPU lane is implemented as `beep docgen
+quality-worker-eval-runpod`, and a one-packet live Runpod smoke has completed
+successfully.
+
+The first local-provider run is complete as a negative host-suitability result:
 `qwen3-coder:30b` runs CPU-only on this RTX 3070 8 GiB workstation and is not a
 practical interactive worker target.
 
@@ -21,6 +24,7 @@ The hosted proof completed a three-packet Codex baseline using
 | P3 | Complete | Run provider-backed worker sample. | `qwen3-coder:30b` host evidence and aborted eval notes |
 | P4 | Complete | Decide graduation posture. | Keep workers read-only and experimental |
 | P5 | Complete | Run hosted Codex low-reasoning baseline. | Three-packet `gpt-5.4-mini` JSON report and research note |
+| P6 | Smoke complete | Run `qwen3-coder:30b` on an ephemeral Runpod Ollama pod and optionally export sanitized spans to Phoenix. | `quality-worker-eval-runpod`, Runpod/Phoenix runbook, one-packet live JSON evidence |
 
 ## Implementation Direction
 
@@ -28,10 +32,19 @@ The hosted proof completed a three-packet Codex baseline using
 - Keep deterministic `beep docgen quality` as the authoritative queue.
 - Use `@openai/codex-sdk`; do not add direct provider HTTP clients.
 - Require explicit `--provider` and `--model`.
+- Require explicit `--confirm-runpod-eval` before creating a billable Runpod
+  pod.
 - Default hosted Codex reasoning effort to `low`; do not default the provider.
 - Emit JSON artifacts only.
 - Run packet turns sequentially and keep them read-only.
 - Do not use `qwen3-coder:30b` as the default local eval model on this host.
+- For remote Qwen proof, require `--model qwen3-coder:30b`, use Ollama, prefer
+  48 GiB Runpod GPUs, and delete the pod by default.
+- Bootstrap fallback-image pods with deterministic DNS setup, `zstd`, Ollama,
+  and HTTP `/api/pull` model loading before readiness checks.
+- Route Ollama Codex SDK calls to the pod's OpenAI-compatible `/v1` URL.
+- Phoenix export is opt-in with `--otlp` and emits summary plus hashed packet
+  spans only.
 
 ## Provider-Backed Evidence Commands
 
@@ -60,12 +73,31 @@ bun run beep docgen quality-worker-eval --all --provider codex --model gpt-5.4-m
 The hosted baseline completed three selected packets as candidate drafts with
 zero reported policy violations in about 27.3 seconds.
 
+The successful Runpod smoke command:
+
+```sh
+RUNPOD_API_KEY="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')" \
+  bun run beep docgen quality-worker-eval-runpod --input <saved-source-quality-report.json> --provider ollama --model qwen3-coder:30b --packet-limit 1 --otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 --otlp-project beep-jsdoc-worker-eval --confirm-runpod-eval --skip-template-search --readiness-timeout-ms 2700000 --output initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-smoke-v2.json
+```
+
+The Runpod smoke completed one selected packet as a candidate draft with zero
+reported policy violations. Cleanup completed, Phoenix exported two spans, and
+no eval pods remained afterward. Runtime was about 16.6 minutes because the
+ephemeral pod cold-pulled the 18.6 GB model.
+
 ## Follow-Up Recommendation
 
-Keep worker eval read-only. Runpod is still the preferred next host for
-retrying `qwen3-coder:30b`; target at least 24 GiB VRAM, with 48 GiB
-preferred. Auto-remediation remains out of scope until larger samples satisfy
-completion, quality, and policy-preservation thresholds.
+Keep worker eval read-only. The next proof should either use a larger
+10-packet sample or first remove cold-pull overhead with a prebuilt image or
+persistent model cache. The larger-sample command shape is:
+
+```sh
+RUNPOD_API_KEY="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')" \
+  bun run beep docgen quality-worker-eval-runpod --all --provider ollama --model qwen3-coder:30b --packet-limit 10 --otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 --otlp-project beep-jsdoc-worker-eval --confirm-runpod-eval --output initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval.json
+```
+
+Auto-remediation remains out of scope until larger samples satisfy completion,
+quality, cost, runtime, and policy-preservation thresholds.
 
 ## Verification Commands
 

@@ -6,13 +6,12 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import { Effect, flow, MutableHashMap, Order, pipe, Result } from "effect";
-import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
 import type { SyncDataTarget, SyncDataTargetProjection } from "../internal/Models.js";
 import { SyncDataToTsError } from "../internal/Models.js";
@@ -119,10 +118,11 @@ const formatTsLiteral = (value: unknown): string => {
 const normalizeWhitespace = flow(Str.replaceAll(/\s+/gu, " "), Str.trim);
 
 const normalizeCountryName = flow(normalizeWhitespace, Str.toLocaleLowerCase("en-US"), (str) =>
-  str.replaceAll(
-    /(^|[\s()/_',.-])([\p{L}\p{N}])/gu,
-    (_wholeMatch, prefix: string, segment: string) => `${prefix}${segment.toLocaleUpperCase("en-US")}`
-  )
+  Str.replaceAllWith(/(^|[\s()/_',.-])([\p{L}\p{N}])/gu, (_wholeMatch, ...args) => {
+    const prefix = args[0];
+    const segment = args[1];
+    return `${P.isString(prefix) ? prefix : ""}${P.isString(segment) ? Str.toLocaleUpperCase("en-US")(segment) : ""}`;
+  })(str)
 );
 
 const extractCurrencyName = (value: typeof Iso4217CurrencyName.Type): string =>

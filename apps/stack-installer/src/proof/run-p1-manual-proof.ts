@@ -17,7 +17,7 @@ import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { P1ManualProofSliceLayer, runP1ManualProof } from "./P1ManualProof.js";
+import { P1ManualProofSliceLayer, previewP1ManualProof, runP1ManualProof } from "./P1ManualProof.js";
 
 const decodeRequestJson = S.decodeUnknownEffect(S.fromJsonString(P1ManualProofRequest));
 const encodeProofResult = S.encodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
@@ -36,13 +36,20 @@ const argAfter = (name: string): O.Option<string> =>
     O.flatMap((index) => A.get(Bun.argv, index + 1))
   );
 
+const hasArg = (name: string): boolean =>
+  pipe(
+    Bun.argv,
+    A.findFirstIndex((value) => value === name),
+    O.isSome
+  );
+
 const program = Effect.gen(function* () {
   const requestJson = yield* O.match(argAfter("--request-json"), {
     onNone: () => Effect.die("Missing --request-json"),
     onSome: Effect.succeed,
   });
   const request = yield* decodeRequestJson(requestJson);
-  const result = yield* runP1ManualProof(request);
+  const result = hasArg("--app-local") ? yield* previewP1ManualProof(request) : yield* runP1ManualProof(request);
   const encoded = yield* encodeProofResult(result);
   yield* Effect.sync(() => {
     console.log(encoded);

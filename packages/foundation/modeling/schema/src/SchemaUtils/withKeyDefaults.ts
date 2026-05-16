@@ -5,9 +5,10 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $SchemaId } from "@beep/identity/packages";
+import { A } from "@beep/utils";
 import { Effect, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -92,7 +93,7 @@ const applyEmptyArrayDefaults = <
  *
  * @example
  * ```ts
- * import * as A from "effect/Array"
+ * import { A } from "@beep/utils"
  * import * as S from "effect/Schema"
  * import { withEmptyArrayDefaults } from "@beep/schema/SchemaUtils/withKeyDefaults"
  *
