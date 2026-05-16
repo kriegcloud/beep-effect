@@ -19,6 +19,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
 import {
   DocgenQualityFindingCode,
@@ -459,6 +460,7 @@ export class DocgenQualityWorkerEvalRunnerInput extends S.Class<DocgenQualityWor
   $I`DocgenQualityWorkerEvalRunnerInput`
 )(
   {
+    baseUrl: S.optional(S.String),
     model: S.String,
     provider: DocgenQualityWorkerEvalProvider,
     reasoningEffort: S.optional(DocgenQualityWorkerEvalReasoningEffort),
@@ -522,6 +524,7 @@ export class AnalyzeDocgenQualityWorkerEvalOptions extends S.Class<AnalyzeDocgen
   $I`AnalyzeDocgenQualityWorkerEvalOptions`
 )(
   {
+    baseUrl: S.optional(S.String),
     codexSdkVersion: S.optional(S.String),
     model: S.String,
     packetLimit: S.optional(S.Number),
@@ -808,8 +811,24 @@ const resolveCodexSdkVersionOrUnknown: Effect.Effect<string, never, FileSystem.F
 
 type CodexSdkModule = typeof import("@openai/codex-sdk");
 
+const processEnvRecord = (): Record<string, string> =>
+  pipe(
+    process.env,
+    R.toEntries,
+    A.filter((entry) => entry[1] !== undefined),
+    A.map(([key, value]) => [key, value ?? ""] as const),
+    R.fromEntries
+  );
+
+const ossProviderBaseUrl = (value: string): string => {
+  const trimmed = Str.trim(value);
+  const normalized = trimmed.replace(/\/+$/, "");
+  return Str.endsWith("/v1")(normalized) ? normalized : `${normalized}/v1`;
+};
+
 const makeCodexRunner = (sdkModule: CodexSdkModule): DocgenQualityWorkerEvalRunner =>
   Effect.fn("DocgenQualityWorkerEval.codexRunner")(function* ({
+    baseUrl,
     model,
     prompt,
     provider,
@@ -829,13 +848,37 @@ const makeCodexRunner = (sdkModule: CodexSdkModule): DocgenQualityWorkerEvalRunn
         },
       }))
     );
+    const nonEmptyBaseUrl = pipe(O.fromNullishOr(baseUrl), O.map(Str.trim), O.filter(Str.isNonEmpty));
+    const baseUrlOptions = pipe(
+      nonEmptyBaseUrl,
+      O.map((value) => ({ baseUrl: value })),
+      O.getOrElse(() => ({}))
+    );
+    const ossBaseUrlEnvOptions =
+      provider === "ollama"
+        ? pipe(
+            nonEmptyBaseUrl,
+            O.map((value) => ({
+              env: {
+                ...processEnvRecord(),
+                CODEX_OSS_BASE_URL: ossProviderBaseUrl(value),
+              },
+            })),
+            O.getOrElse(() => ({}))
+          )
+        : {};
+    const codexOptionsWithBaseUrl = {
+      ...codexOptions,
+      ...baseUrlOptions,
+      ...ossBaseUrlEnvOptions,
+    };
     const reasoningThreadOptions = pipe(
       O.fromNullishOr(reasoningEffort),
       O.map((modelReasoningEffort) => ({ modelReasoningEffort })),
       O.getOrElse(() => ({}))
     );
     const codex = yield* Effect.try({
-      try: () => new sdkModule.Codex(codexOptions),
+      try: () => new sdkModule.Codex(codexOptionsWithBaseUrl),
       catch: (cause) =>
         new DomainError({
           message: `Failed to construct Codex SDK client for provider "${provider}" and model "${model}": ${errorMessage(cause)}`,
@@ -940,6 +983,7 @@ const completedPacketResult = ({
   });
 
 const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(function* ({
+  baseUrl,
   candidate,
   model,
   provider,
@@ -948,6 +992,7 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
   timeout,
   workingDirectory,
 }: {
+  readonly baseUrl?: string;
   readonly candidate: PacketCandidate;
   readonly model: string;
   readonly provider: DocgenQualityWorkerEvalProvider;
@@ -963,6 +1008,7 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
     O.getOrElse(() => ({}))
   );
   const timed = yield* runner({
+    ...(baseUrl === undefined ? {} : { baseUrl }),
     model,
     prompt: workerPrompt(candidate),
     provider,
@@ -1174,6 +1220,7 @@ export const defaultQualityWorkerEvalReasoningEffort = (): DocgenQualityWorkerEv
  */
 export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval.analyzeDocgenQualityWorkerEval")(
   function* ({
+    baseUrl,
     codexSdkVersion,
     model,
     packetLimit = DEFAULT_WORKER_EVAL_PACKET_LIMIT,
@@ -1188,6 +1235,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
     const startedAtMs = globalThis.performance.now();
     const workingDirectory = yield* findRepoRoot();
     const sdkVersion = codexSdkVersion ?? (yield* resolveCodexSdkVersionOrUnknown);
+    const resolvedBaseUrl = pipe(O.fromNullishOr(baseUrl), O.map(Str.trim), O.filter(Str.isNonEmpty), O.getOrUndefined);
     const candidates = A.map(report.remediationPackets, (packet) => packetCandidate(report, packet));
     const selected = selectQualityWorkerEvalPackets(candidates, packetLimit);
     let packets: ReadonlyArray<DocgenQualityWorkerEvalPacketResult>;
@@ -1205,6 +1253,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
           );
 
           return runPacketEval({
+            ...(resolvedBaseUrl === undefined ? {} : { baseUrl: resolvedBaseUrl }),
             candidate,
             model,
             provider,

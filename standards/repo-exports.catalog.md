@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 60 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 846 |
-| publicExportEntries | 12747 |
-| uniquePackageSymbols | 5101 |
+| importSpecifiers | 847 |
+| publicExportEntries | 12758 |
+| uniquePackageSymbols | 5112 |
 
 ## Seed Discovery Proof
 
@@ -59,38 +59,38 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 20 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
 | 22 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 17 | 549 | 167 |
-| 23 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
-| 24 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
-| 25 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
-| 26 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 5 | 140 | 42 |
-| 27 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
-| 28 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
-| 29 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
-| 30 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
-| 31 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
-| 32 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
-| 33 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
-| 34 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
-| 35 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 50 | 16 |
-| 36 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
-| 37 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
-| 38 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
-| 39 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
-| 40 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 41 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 79 | 826 | 494 |
-| 42 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
-| 43 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
-| 44 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
-| 45 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
-| 46 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
-| 47 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
-| 48 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
-| 49 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
-| 50 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
-| 51 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
-| 52 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
-| 53 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
-| 54 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 6 | 363 | 149 |
+| 23 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 6 | 363 | 149 |
+| 24 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
+| 25 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
+| 26 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
+| 27 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 5 | 140 | 42 |
+| 28 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
+| 29 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
+| 30 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
+| 31 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
+| 32 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
+| 33 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
+| 34 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
+| 35 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
+| 36 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 50 | 16 |
+| 37 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 38 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
+| 39 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
+| 40 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
+| 41 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
+| 42 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 80 | 837 | 505 |
+| 43 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
+| 44 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
+| 45 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
+| 46 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
+| 47 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
+| 48 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
+| 49 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
+| 50 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
+| 51 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
+| 52 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
+| 53 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
+| 54 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
 | 55 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
 | 56 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 8 | 161 | 44 |
 | 57 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
@@ -7440,6 +7440,374 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/source-discovery` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
 | `@beep/repo-ai-metrics/source-discovery` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:674` | Render a source discovery result as JSON. |
 
+### @beep/runpod
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/runpod` | `BillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:807` | BillingRecord model returned by the Runpod REST API. |
+| `@beep/runpod` | `BillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:828` | BillingRecords schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `BillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:850` | BillingRecords value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `ContainerRegistryAuth` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:751` | ContainerRegistryAuth model returned by the Runpod REST API. |
+| `@beep/runpod` | `ContainerRegistryAuthCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:788` | ContainerRegistryAuthCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `ContainerRegistryAuths` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:767` | ContainerRegistryAuths schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `ContainerRegistryAuths` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:780` | ContainerRegistryAuths value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `createContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2538` | Descriptor for CreateContainerRegistryAuth. |
+| `@beep/runpod` | `CreateContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1699` | Request input for CreateContainerRegistryAuth. |
+| `@beep/runpod` | `createEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2196` | Descriptor for CreateEndpoint. |
+| `@beep/runpod` | `CreateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1412` | Request input for CreateEndpoint. |
+| `@beep/runpod` | `createNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2424` | Descriptor for CreateNetworkVolume. |
+| `@beep/runpod` | `CreateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1605` | Request input for CreateNetworkVolume. |
+| `@beep/runpod` | `createPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2006` | Descriptor for CreatePod. |
+| `@beep/runpod` | `CreatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1254` | Request input for CreatePod. |
+| `@beep/runpod` | `createTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2310` | Descriptor for CreateTemplate. |
+| `@beep/runpod` | `CreateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1510` | Request input for CreateTemplate. |
+| `@beep/runpod` | `CudaVersions` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:711` | CudaVersions schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `CudaVersions` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:723` | CudaVersions value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `DataCenter` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:681` | DataCenter model returned by the Runpod REST API. |
+| `@beep/runpod` | `deleteContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2576` | Descriptor for DeleteContainerRegistryAuth. |
+| `@beep/runpod` | `DeleteContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1733` | Request input for DeleteContainerRegistryAuth. |
+| `@beep/runpod` | `deleteEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2253` | Descriptor for DeleteEndpoint. |
+| `@beep/runpod` | `DeleteEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1460` | Request input for DeleteEndpoint. |
+| `@beep/runpod` | `deleteNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2481` | Descriptor for DeleteNetworkVolume. |
+| `@beep/runpod` | `DeleteNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1651` | Request input for DeleteNetworkVolume. |
+| `@beep/runpod` | `deletePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2063` | Descriptor for DeletePod. |
+| `@beep/runpod` | `DeletePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1305` | Request input for DeletePod. |
+| `@beep/runpod` | `deleteTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2367` | Descriptor for DeleteTemplate. |
+| `@beep/runpod` | `DeleteTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1559` | Request input for DeleteTemplate. |
+| `@beep/runpod` | `Endpoint` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:463` | Endpoint model returned by the Runpod REST API. |
+| `@beep/runpod` | `endpointBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2614` | Descriptor for EndpointBilling. |
+| `@beep/runpod` | `EndpointBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1770` | Request input for EndpointBilling. |
+| `@beep/runpod` | `EndpointCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:555` | EndpointCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `Endpoints` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:442` | Endpoints schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `Endpoints` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:455` | Endpoints value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `EndpointUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:501` | EndpointUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `EndpointUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:523` | EndpointUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `getContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2557` | Descriptor for GetContainerRegistryAuth. |
+| `@beep/runpod` | `GetContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1716` | Request input for GetContainerRegistryAuth. |
+| `@beep/runpod` | `getDocsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1951` | Descriptor for GetDocs. |
+| `@beep/runpod` | `GetDocsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1211` | Request input for GetDocs. |
+| `@beep/runpod` | `GetDocsStatus200TextResponse` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1178` | GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `GetDocsStatus200TextResponse` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1190` | GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `getEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2215` | Descriptor for GetEndpoint. |
+| `@beep/runpod` | `GetEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1427` | Request input for GetEndpoint. |
+| `@beep/runpod` | `getNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2443` | Descriptor for GetNetworkVolume. |
+| `@beep/runpod` | `GetNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1620` | Request input for GetNetworkVolume. |
+| `@beep/runpod` | `getOpenAPIOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1932` | Descriptor for GetOpenAPI. |
+| `@beep/runpod` | `GetOpenAPIRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1198` | Request input for GetOpenAPI. |
+| `@beep/runpod` | `GetOpenAPIStatus200Response` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1158` | GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `GetOpenAPIStatus200Response` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1170` | GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `getPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2025` | Descriptor for GetPod. |
+| `@beep/runpod` | `GetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1269` | Request input for GetPod. |
+| `@beep/runpod` | `getTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2329` | Descriptor for GetTemplate. |
+| `@beep/runpod` | `GetTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1525` | Request input for GetTemplate. |
+| `@beep/runpod` | `GPUTypeId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:731` | GPUTypeId schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `GPUTypeId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:743` | GPUTypeId value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `listContainerRegistryAuthsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2519` | Descriptor for ListContainerRegistryAuths. |
+| `@beep/runpod` | `ListContainerRegistryAuthsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1684` | Request input for ListContainerRegistryAuths. |
+| `@beep/runpod` | `listEndpointsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2177` | Descriptor for ListEndpoints. |
+| `@beep/runpod` | `ListEndpointsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1396` | Request input for ListEndpoints. |
+| `@beep/runpod` | `listNetworkVolumesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2405` | Descriptor for ListNetworkVolumes. |
+| `@beep/runpod` | `ListNetworkVolumesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1592` | Request input for ListNetworkVolumes. |
+| `@beep/runpod` | `listPodsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1970` | Descriptor for ListPods. |
+| `@beep/runpod` | `ListPodsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1224` | Request input for ListPods. |
+| `@beep/runpod` | `listTemplatesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2291` | Descriptor for ListTemplates. |
+| `@beep/runpod` | `ListTemplatesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1493` | Request input for ListTemplates. |
+| `@beep/runpod` | `Machine` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:628` | Machine model returned by the Runpod REST API. |
+| `@beep/runpod` | `NetworkVolume` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:265` | NetworkVolume model returned by the Runpod REST API. |
+| `@beep/runpod` | `networkVolumeBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2643` | Descriptor for NetworkVolumeBilling. |
+| `@beep/runpod` | `NetworkVolumeBillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:858` | NetworkVolumeBillingRecord model returned by the Runpod REST API. |
+| `@beep/runpod` | `NetworkVolumeBillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:877` | NetworkVolumeBillingRecords schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `NetworkVolumeBillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:897` | NetworkVolumeBillingRecords value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `NetworkVolumeBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1793` | Request input for NetworkVolumeBilling. |
+| `@beep/runpod` | `NetworkVolumeCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:283` | NetworkVolumeCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `NetworkVolumes` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:238` | NetworkVolumes schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `NetworkVolumes` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:257` | NetworkVolumes value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `NetworkVolumeUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:300` | NetworkVolumeUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
+| `@beep/runpod` | `Pod` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:44` | Pod model returned by the Runpod REST API. |
+| `@beep/runpod` | `podBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2595` | Descriptor for PodBilling. |
+| `@beep/runpod` | `PodBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1750` | Request input for PodBilling. |
+| `@beep/runpod` | `PodCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:191` | PodCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `Pods` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:23` | Pods schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `Pods` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:36` | Pods value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `PodUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:149` | PodUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `PodUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:165` | PodUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `resetPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2139` | Descriptor for ResetPod. |
+| `@beep/runpod` | `ResetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1366` | Request input for ResetPod. |
+| `@beep/runpod` | `restartPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2158` | Descriptor for RestartPod. |
+| `@beep/runpod` | `RestartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1381` | Request input for RestartPod. |
+| `@beep/runpod` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
+| `@beep/runpod` | `RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:905` | Advisory allowedCudaVersions values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
+| `@beep/runpod` | `RUNPOD_CPU_FLAVOR_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:926` | Advisory cpuFlavorIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_CPU_FLAVOR_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:934` | Advisory cpuFlavorPriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:942` | Advisory cudaVersions values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_DATA_CENTER_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:950` | Advisory dataCenterId values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_DATA_CENTER_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:985` | Advisory dataCenterIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_DATA_CENTER_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1020` | Advisory dataCenterPriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
+| `@beep/runpod` | `RUNPOD_GPU_TYPE_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1028` | Advisory gpuTypeId values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_GPU_TYPE_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1071` | Advisory gpuTypeIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_GPU_TYPE_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1129` | Advisory gpuTypePriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2662` | Generated operation spec table for Runpod service construction. |
+| `@beep/runpod` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
+| `@beep/runpod` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
+| `@beep/runpod` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
+| `@beep/runpod` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
+| `@beep/runpod` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
+| `@beep/runpod` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
+| `@beep/runpod` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
+| `@beep/runpod` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
+| `@beep/runpod` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
+| `@beep/runpod` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
+| `@beep/runpod` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
+| `@beep/runpod` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
+| `@beep/runpod` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
+| `@beep/runpod` | `RunpodHttpMethod` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1810` | Supported Runpod HTTP methods. |
+| `@beep/runpod` | `RunpodHttpMethod` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1818` | Supported Runpod HTTP method. |
+| `@beep/runpod` | `RunpodOperationDescriptor` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1908` | Static metadata for one Runpod REST operation. |
+| `@beep/runpod` | `RunpodOperationId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1826` | Operation ids exposed by Runpod REST API v1. |
+| `@beep/runpod` | `RunpodOperationId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1868` | Operation id exposed by Runpod REST API v1. |
+| `@beep/runpod` | `RunpodOperationsShape` | interface | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2847` | Typed method surface generated from Runpod REST API v1. |
+| `@beep/runpod` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
+| `@beep/runpod` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
+| `@beep/runpod` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
+| `@beep/runpod` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
+| `@beep/runpod` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
+| `@beep/runpod` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
+| `@beep/runpod` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
+| `@beep/runpod` | `RunpodRequestBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1876` | Request body encoding used by a Runpod operation. |
+| `@beep/runpod` | `RunpodRequestBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1884` | Request body encoding used by a Runpod operation. |
+| `@beep/runpod` | `RunpodResponseBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1892` | Response body decoding used by a Runpod operation. |
+| `@beep/runpod` | `RunpodResponseBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1900` | Response body decoding used by a Runpod operation. |
+| `@beep/runpod` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
+| `@beep/runpod` | `SavingsPlan` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:608` | SavingsPlan model returned by the Runpod REST API. |
+| `@beep/runpod` | `startPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2101` | Descriptor for StartPod. |
+| `@beep/runpod` | `StartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1336` | Request input for StartPod. |
+| `@beep/runpod` | `stopPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2120` | Descriptor for StopPod. |
+| `@beep/runpod` | `StopPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1351` | Request input for StopPod. |
+| `@beep/runpod` | `Template` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:337` | Template model returned by the Runpod REST API. |
+| `@beep/runpod` | `TemplateCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:369` | TemplateCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `Templates` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:316` | Templates schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `Templates` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:329` | Templates value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `TemplateUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:397` | TemplateUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `TemplateUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:416` | TemplateUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `UnauthorizedError` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:696` | UnauthorizedError model returned by the Runpod REST API. |
+| `@beep/runpod` | `updateEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2234` | Descriptor for UpdateEndpoint. |
+| `@beep/runpod` | `UpdateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1444` | Request input for UpdateEndpoint. |
+| `@beep/runpod` | `updateEndpointViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2272` | Descriptor for UpdateEndpoint. |
+| `@beep/runpod` | `UpdateEndpointViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1475` | Request input for UpdateEndpoint. |
+| `@beep/runpod` | `updateNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2462` | Descriptor for UpdateNetworkVolume. |
+| `@beep/runpod` | `UpdateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1635` | Request input for UpdateNetworkVolume. |
+| `@beep/runpod` | `updateNetworkVolumeViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2500` | Descriptor for UpdateNetworkVolume. |
+| `@beep/runpod` | `UpdateNetworkVolumeViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1666` | Request input for UpdateNetworkVolume. |
+| `@beep/runpod` | `updatePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2044` | Descriptor for UpdatePod. |
+| `@beep/runpod` | `UpdatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1289` | Request input for UpdatePod. |
+| `@beep/runpod` | `updatePodViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2082` | Descriptor for UpdatePod. |
+| `@beep/runpod` | `UpdatePodViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1320` | Request input for UpdatePod. |
+| `@beep/runpod` | `updateTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2348` | Descriptor for UpdateTemplate. |
+| `@beep/runpod` | `UpdateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1543` | Request input for UpdateTemplate. |
+| `@beep/runpod` | `updateTemplateViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2386` | Descriptor for UpdateTemplate. |
+| `@beep/runpod` | `UpdateTemplateViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1574` | Request input for UpdateTemplate. |
+| `@beep/runpod` | `User` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:588` | User schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `User` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:600` | User value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `VERSION` | const | `packages/drivers/runpod/src/index.ts:50` | Package version. |
+| `@beep/runpod/index` | `BillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:807` | BillingRecord model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `BillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:828` | BillingRecords schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `BillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:850` | BillingRecords value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `ContainerRegistryAuth` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:751` | ContainerRegistryAuth model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `ContainerRegistryAuthCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:788` | ContainerRegistryAuthCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `ContainerRegistryAuths` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:767` | ContainerRegistryAuths schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `ContainerRegistryAuths` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:780` | ContainerRegistryAuths value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `createContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2538` | Descriptor for CreateContainerRegistryAuth. |
+| `@beep/runpod/index` | `CreateContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1699` | Request input for CreateContainerRegistryAuth. |
+| `@beep/runpod/index` | `createEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2196` | Descriptor for CreateEndpoint. |
+| `@beep/runpod/index` | `CreateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1412` | Request input for CreateEndpoint. |
+| `@beep/runpod/index` | `createNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2424` | Descriptor for CreateNetworkVolume. |
+| `@beep/runpod/index` | `CreateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1605` | Request input for CreateNetworkVolume. |
+| `@beep/runpod/index` | `createPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2006` | Descriptor for CreatePod. |
+| `@beep/runpod/index` | `CreatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1254` | Request input for CreatePod. |
+| `@beep/runpod/index` | `createTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2310` | Descriptor for CreateTemplate. |
+| `@beep/runpod/index` | `CreateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1510` | Request input for CreateTemplate. |
+| `@beep/runpod/index` | `CudaVersions` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:711` | CudaVersions schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `CudaVersions` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:723` | CudaVersions value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `DataCenter` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:681` | DataCenter model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `deleteContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2576` | Descriptor for DeleteContainerRegistryAuth. |
+| `@beep/runpod/index` | `DeleteContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1733` | Request input for DeleteContainerRegistryAuth. |
+| `@beep/runpod/index` | `deleteEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2253` | Descriptor for DeleteEndpoint. |
+| `@beep/runpod/index` | `DeleteEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1460` | Request input for DeleteEndpoint. |
+| `@beep/runpod/index` | `deleteNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2481` | Descriptor for DeleteNetworkVolume. |
+| `@beep/runpod/index` | `DeleteNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1651` | Request input for DeleteNetworkVolume. |
+| `@beep/runpod/index` | `deletePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2063` | Descriptor for DeletePod. |
+| `@beep/runpod/index` | `DeletePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1305` | Request input for DeletePod. |
+| `@beep/runpod/index` | `deleteTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2367` | Descriptor for DeleteTemplate. |
+| `@beep/runpod/index` | `DeleteTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1559` | Request input for DeleteTemplate. |
+| `@beep/runpod/index` | `Endpoint` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:463` | Endpoint model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `endpointBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2614` | Descriptor for EndpointBilling. |
+| `@beep/runpod/index` | `EndpointBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1770` | Request input for EndpointBilling. |
+| `@beep/runpod/index` | `EndpointCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:555` | EndpointCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `Endpoints` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:442` | Endpoints schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `Endpoints` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:455` | Endpoints value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `EndpointUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:501` | EndpointUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `EndpointUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:523` | EndpointUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `getContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2557` | Descriptor for GetContainerRegistryAuth. |
+| `@beep/runpod/index` | `GetContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1716` | Request input for GetContainerRegistryAuth. |
+| `@beep/runpod/index` | `getDocsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1951` | Descriptor for GetDocs. |
+| `@beep/runpod/index` | `GetDocsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1211` | Request input for GetDocs. |
+| `@beep/runpod/index` | `GetDocsStatus200TextResponse` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1178` | GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `GetDocsStatus200TextResponse` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1190` | GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `getEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2215` | Descriptor for GetEndpoint. |
+| `@beep/runpod/index` | `GetEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1427` | Request input for GetEndpoint. |
+| `@beep/runpod/index` | `getNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2443` | Descriptor for GetNetworkVolume. |
+| `@beep/runpod/index` | `GetNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1620` | Request input for GetNetworkVolume. |
+| `@beep/runpod/index` | `getOpenAPIOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1932` | Descriptor for GetOpenAPI. |
+| `@beep/runpod/index` | `GetOpenAPIRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1198` | Request input for GetOpenAPI. |
+| `@beep/runpod/index` | `GetOpenAPIStatus200Response` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1158` | GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `GetOpenAPIStatus200Response` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1170` | GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `getPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2025` | Descriptor for GetPod. |
+| `@beep/runpod/index` | `GetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1269` | Request input for GetPod. |
+| `@beep/runpod/index` | `getTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2329` | Descriptor for GetTemplate. |
+| `@beep/runpod/index` | `GetTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1525` | Request input for GetTemplate. |
+| `@beep/runpod/index` | `GPUTypeId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:731` | GPUTypeId schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `GPUTypeId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:743` | GPUTypeId value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `listContainerRegistryAuthsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2519` | Descriptor for ListContainerRegistryAuths. |
+| `@beep/runpod/index` | `ListContainerRegistryAuthsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1684` | Request input for ListContainerRegistryAuths. |
+| `@beep/runpod/index` | `listEndpointsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2177` | Descriptor for ListEndpoints. |
+| `@beep/runpod/index` | `ListEndpointsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1396` | Request input for ListEndpoints. |
+| `@beep/runpod/index` | `listNetworkVolumesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2405` | Descriptor for ListNetworkVolumes. |
+| `@beep/runpod/index` | `ListNetworkVolumesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1592` | Request input for ListNetworkVolumes. |
+| `@beep/runpod/index` | `listPodsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1970` | Descriptor for ListPods. |
+| `@beep/runpod/index` | `ListPodsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1224` | Request input for ListPods. |
+| `@beep/runpod/index` | `listTemplatesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2291` | Descriptor for ListTemplates. |
+| `@beep/runpod/index` | `ListTemplatesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1493` | Request input for ListTemplates. |
+| `@beep/runpod/index` | `Machine` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:628` | Machine model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `NetworkVolume` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:265` | NetworkVolume model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `networkVolumeBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2643` | Descriptor for NetworkVolumeBilling. |
+| `@beep/runpod/index` | `NetworkVolumeBillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:858` | NetworkVolumeBillingRecord model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `NetworkVolumeBillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:877` | NetworkVolumeBillingRecords schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `NetworkVolumeBillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:897` | NetworkVolumeBillingRecords value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `NetworkVolumeBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1793` | Request input for NetworkVolumeBilling. |
+| `@beep/runpod/index` | `NetworkVolumeCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:283` | NetworkVolumeCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `NetworkVolumes` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:238` | NetworkVolumes schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `NetworkVolumes` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:257` | NetworkVolumes value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `NetworkVolumeUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:300` | NetworkVolumeUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
+| `@beep/runpod/index` | `Pod` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:44` | Pod model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `podBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2595` | Descriptor for PodBilling. |
+| `@beep/runpod/index` | `PodBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1750` | Request input for PodBilling. |
+| `@beep/runpod/index` | `PodCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:191` | PodCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `Pods` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:23` | Pods schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `Pods` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:36` | Pods value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `PodUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:149` | PodUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `PodUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:165` | PodUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `resetPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2139` | Descriptor for ResetPod. |
+| `@beep/runpod/index` | `ResetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1366` | Request input for ResetPod. |
+| `@beep/runpod/index` | `restartPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2158` | Descriptor for RestartPod. |
+| `@beep/runpod/index` | `RestartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1381` | Request input for RestartPod. |
+| `@beep/runpod/index` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
+| `@beep/runpod/index` | `RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:905` | Advisory allowedCudaVersions values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
+| `@beep/runpod/index` | `RUNPOD_CPU_FLAVOR_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:926` | Advisory cpuFlavorIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_CPU_FLAVOR_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:934` | Advisory cpuFlavorPriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:942` | Advisory cudaVersions values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:950` | Advisory dataCenterId values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:985` | Advisory dataCenterIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1020` | Advisory dataCenterPriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
+| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1028` | Advisory gpuTypeId values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1071` | Advisory gpuTypeIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1129` | Advisory gpuTypePriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2662` | Generated operation spec table for Runpod service construction. |
+| `@beep/runpod/index` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
+| `@beep/runpod/index` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
+| `@beep/runpod/index` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
+| `@beep/runpod/index` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
+| `@beep/runpod/index` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
+| `@beep/runpod/index` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
+| `@beep/runpod/index` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
+| `@beep/runpod/index` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
+| `@beep/runpod/index` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
+| `@beep/runpod/index` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
+| `@beep/runpod/index` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
+| `@beep/runpod/index` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
+| `@beep/runpod/index` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
+| `@beep/runpod/index` | `RunpodHttpMethod` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1810` | Supported Runpod HTTP methods. |
+| `@beep/runpod/index` | `RunpodHttpMethod` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1818` | Supported Runpod HTTP method. |
+| `@beep/runpod/index` | `RunpodOperationDescriptor` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1908` | Static metadata for one Runpod REST operation. |
+| `@beep/runpod/index` | `RunpodOperationId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1826` | Operation ids exposed by Runpod REST API v1. |
+| `@beep/runpod/index` | `RunpodOperationId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1868` | Operation id exposed by Runpod REST API v1. |
+| `@beep/runpod/index` | `RunpodOperationsShape` | interface | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2847` | Typed method surface generated from Runpod REST API v1. |
+| `@beep/runpod/index` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
+| `@beep/runpod/index` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
+| `@beep/runpod/index` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
+| `@beep/runpod/index` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
+| `@beep/runpod/index` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
+| `@beep/runpod/index` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
+| `@beep/runpod/index` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
+| `@beep/runpod/index` | `RunpodRequestBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1876` | Request body encoding used by a Runpod operation. |
+| `@beep/runpod/index` | `RunpodRequestBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1884` | Request body encoding used by a Runpod operation. |
+| `@beep/runpod/index` | `RunpodResponseBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1892` | Response body decoding used by a Runpod operation. |
+| `@beep/runpod/index` | `RunpodResponseBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1900` | Response body decoding used by a Runpod operation. |
+| `@beep/runpod/index` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
+| `@beep/runpod/index` | `SavingsPlan` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:608` | SavingsPlan model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `startPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2101` | Descriptor for StartPod. |
+| `@beep/runpod/index` | `StartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1336` | Request input for StartPod. |
+| `@beep/runpod/index` | `stopPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2120` | Descriptor for StopPod. |
+| `@beep/runpod/index` | `StopPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1351` | Request input for StopPod. |
+| `@beep/runpod/index` | `Template` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:337` | Template model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `TemplateCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:369` | TemplateCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `Templates` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:316` | Templates schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `Templates` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:329` | Templates value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `TemplateUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:397` | TemplateUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `TemplateUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:416` | TemplateUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `UnauthorizedError` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:696` | UnauthorizedError model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `updateEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2234` | Descriptor for UpdateEndpoint. |
+| `@beep/runpod/index` | `UpdateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1444` | Request input for UpdateEndpoint. |
+| `@beep/runpod/index` | `updateEndpointViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2272` | Descriptor for UpdateEndpoint. |
+| `@beep/runpod/index` | `UpdateEndpointViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1475` | Request input for UpdateEndpoint. |
+| `@beep/runpod/index` | `updateNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2462` | Descriptor for UpdateNetworkVolume. |
+| `@beep/runpod/index` | `UpdateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1635` | Request input for UpdateNetworkVolume. |
+| `@beep/runpod/index` | `updateNetworkVolumeViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2500` | Descriptor for UpdateNetworkVolume. |
+| `@beep/runpod/index` | `UpdateNetworkVolumeViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1666` | Request input for UpdateNetworkVolume. |
+| `@beep/runpod/index` | `updatePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2044` | Descriptor for UpdatePod. |
+| `@beep/runpod/index` | `UpdatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1289` | Request input for UpdatePod. |
+| `@beep/runpod/index` | `updatePodViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2082` | Descriptor for UpdatePod. |
+| `@beep/runpod/index` | `UpdatePodViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1320` | Request input for UpdatePod. |
+| `@beep/runpod/index` | `updateTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2348` | Descriptor for UpdateTemplate. |
+| `@beep/runpod/index` | `UpdateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1543` | Request input for UpdateTemplate. |
+| `@beep/runpod/index` | `updateTemplateViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2386` | Descriptor for UpdateTemplate. |
+| `@beep/runpod/index` | `UpdateTemplateViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1574` | Request input for UpdateTemplate. |
+| `@beep/runpod/index` | `User` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:588` | User schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `User` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:600` | User value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `VERSION` | const | `packages/drivers/runpod/src/index.ts:50` | Package version. |
+| `@beep/runpod/Runpod.config` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
+| `@beep/runpod/Runpod.config` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
+| `@beep/runpod/Runpod.config` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
+| `@beep/runpod/Runpod.config` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
+| `@beep/runpod/Runpod.docs` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
+| `@beep/runpod/Runpod.docs` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
+| `@beep/runpod/Runpod.docs` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
+| `@beep/runpod/Runpod.docs` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
+| `@beep/runpod/Runpod.errors` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
+| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
+| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
+| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
+| `@beep/runpod/Runpod.errors` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
+| `@beep/runpod/Runpod.errors` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
+| `@beep/runpod/Runpod.errors` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
+| `@beep/runpod/Runpod.errors` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
+| `@beep/runpod/Runpod.errors` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
+| `@beep/runpod/Runpod.service` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
+| `@beep/runpod/Runpod.service` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
+| `@beep/runpod/Runpod.service` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
+| `@beep/runpod/Runpod.service` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
+| `@beep/runpod/Runpod.service` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
+| `@beep/runpod/Runpod.service` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
+| `@beep/runpod/Runpod.service` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
+| `@beep/runpod/Runpod.service` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
+
 ### @beep/ffmpeg
 
 | Import | Symbol | Kind | Source | Summary |
@@ -9194,7 +9562,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:875` | Human-first docgen command suite. |
+| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1111` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
@@ -9347,7 +9715,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:23` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:39` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationOutcome` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:186` | Outcome for one mutation. |
-| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:875` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1111` | Human-first docgen command suite. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1478` | Aggregate generated package docs into the current root docs layout. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1303` | Analyze a package for missing docgen-required JSDoc. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:465` | Fail when stale package-local docgen configs exist outside current workspaces. |
@@ -9388,31 +9756,42 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1846` | Renders a quality report as stable JSON. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1898` | Renders a quality report as human-readable Markdown. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:559` | Resolves `docgen quality` targets using the v1 scope policy. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1175` | Build a read-only worker eval report from a quality report. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `AnalyzeDocgenQualityWorkerEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:521` | Options for one worker eval run. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1078` | Decode a saved `docgen quality` JSON report for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1115` | Default packet cap for `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1130` | Default hosted Codex reasoning effort for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:196` | Read-only packet execution status for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:215` | Read-only packet execution status for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:266` | Closed repo-policy issue code emitted by a worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:297` | Closed repo-policy issue code emitted by a worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalProvider` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:91` | Worker provider supported by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalProvider` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:110` | Worker provider supported by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:124` | Codex reasoning effort supported by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReasoningEffort` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:149` | Codex reasoning effort supported by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:398` | JSON report emitted by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReviewDisposition` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:229` | Advisory disposition assigned to a worker draft. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReviewDisposition` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:252` | Advisory disposition assigned to a worker draft. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunner` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:487` | Runner used to execute one Codex eval turn. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunnerInput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:458` | Inputs passed to the Codex runner for one remediation packet. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunnerResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:434` | Completed worker turn returned by the Codex runner. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:163` | Source mode used to build a worker eval queue. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:182` | Source mode used to build a worker eval queue. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalWorkerOutput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:312` | Structured response expected from the Codex worker. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1287` | Render a worker eval report as stable JSON. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1099` | Compute the source packet limit used for generated quality reports. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:733` | Select remediation packets for a capped worker eval run. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1221` | Build a read-only worker eval report from a quality report. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `AnalyzeDocgenQualityWorkerEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:523` | Options for one worker eval run. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1124` | Decode a saved `docgen quality` JSON report for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1161` | Default packet cap for `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1176` | Default hosted Codex reasoning effort for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:197` | Read-only packet execution status for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:216` | Read-only packet execution status for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:267` | Closed repo-policy issue code emitted by a worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:298` | Closed repo-policy issue code emitted by a worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalProvider` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:92` | Worker provider supported by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalProvider` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:111` | Worker provider supported by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:125` | Codex reasoning effort supported by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReasoningEffort` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:150` | Codex reasoning effort supported by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:399` | JSON report emitted by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReviewDisposition` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:230` | Advisory disposition assigned to a worker draft. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReviewDisposition` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:253` | Advisory disposition assigned to a worker draft. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunner` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:489` | Runner used to execute one Codex eval turn. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunnerInput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:459` | Inputs passed to the Codex runner for one remediation packet. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunnerResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:435` | Completed worker turn returned by the Codex runner. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:164` | Source mode used to build a worker eval queue. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:183` | Source mode used to build a worker eval queue. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalWorkerOutput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:313` | Structured response expected from the Codex worker. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1336` | Render a worker eval report as stable JSON. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1145` | Compute the source packet limit used for generated quality reports. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:736` | Select remediation packets for a capped worker eval run. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpBaseUrl` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1011` | Default Phoenix-compatible OTLP base URL for remote worker eval traces. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1026` | Default Phoenix project for remote worker eval traces. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:996` | Default packet cap for Runpod-backed worker eval runs. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalReadinessTimeoutMs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1041` | Default readiness timeout for remote Ollama bootstrap. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `DocgenQualityWorkerRunpodEvalReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:230` | JSON wrapper report emitted by `docgen quality-worker-eval-runpod`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `generateQualityWorkerRunpodEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1161` | Render a Runpod worker eval wrapper report as stable JSON. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `makeQualityWorkerRunpodEvalPodCreateInput` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:438` | Build the Runpod create-pod body for an Ollama worker eval host. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `requiredQualityWorkerRunpodEvalModel` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:981` | Required v1 model id for Runpod-backed Qwen worker evals. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `runDocgenQualityWorkerRunpodEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1061` | Run a read-only JSDoc quality worker eval on an ephemeral Runpod pod. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `RunDocgenQualityWorkerRunpodEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:267` | Options for a Runpod-backed quality worker eval run. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `selectQualityWorkerRunpodTemplate` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:399` | Select the first suitable Ollama template from live Runpod templates. |
 | `@beep/repo-cli/commands/Docs` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/commands/Docs` | `DocsSection` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:78` | Documentation section model. |
 | `@beep/repo-cli/commands/Docs` | `DocsSection` | type | `packages/tooling/tool/cli/src/commands/Docs.ts:97` | Documentation section model. |
@@ -10001,7 +10380,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:875` | Human-first docgen command suite. |
+| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1111` | Human-first docgen command suite. |
 | `@beep/repo-cli/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
@@ -12521,374 +12900,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `OpipWebRuntimeSecrets` | type | `infra/src/OpipWeb.ts:308` | Secret runtime values for OPIP deploy targets. |
 | `@beep/infra` | `OpipWebStack` | class | `infra/src/OpipWeb.ts:636` | Import-safe Pulumi component for OPIP production web infrastructure. |
 | `@beep/infra` | `OpipWebStackArgs` | class | `infra/src/OpipWeb.ts:326` | Pulumi-facing args for the OPIP web stack. |
-
-### @beep/runpod
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/runpod` | `BillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:807` | BillingRecord model returned by the Runpod REST API. |
-| `@beep/runpod` | `BillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:828` | BillingRecords schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `BillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:850` | BillingRecords value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `ContainerRegistryAuth` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:751` | ContainerRegistryAuth model returned by the Runpod REST API. |
-| `@beep/runpod` | `ContainerRegistryAuthCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:788` | ContainerRegistryAuthCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `ContainerRegistryAuths` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:767` | ContainerRegistryAuths schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `ContainerRegistryAuths` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:780` | ContainerRegistryAuths value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `createContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2538` | Descriptor for CreateContainerRegistryAuth. |
-| `@beep/runpod` | `CreateContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1699` | Request input for CreateContainerRegistryAuth. |
-| `@beep/runpod` | `createEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2196` | Descriptor for CreateEndpoint. |
-| `@beep/runpod` | `CreateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1412` | Request input for CreateEndpoint. |
-| `@beep/runpod` | `createNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2424` | Descriptor for CreateNetworkVolume. |
-| `@beep/runpod` | `CreateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1605` | Request input for CreateNetworkVolume. |
-| `@beep/runpod` | `createPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2006` | Descriptor for CreatePod. |
-| `@beep/runpod` | `CreatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1254` | Request input for CreatePod. |
-| `@beep/runpod` | `createTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2310` | Descriptor for CreateTemplate. |
-| `@beep/runpod` | `CreateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1510` | Request input for CreateTemplate. |
-| `@beep/runpod` | `CudaVersions` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:711` | CudaVersions schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `CudaVersions` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:723` | CudaVersions value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `DataCenter` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:681` | DataCenter model returned by the Runpod REST API. |
-| `@beep/runpod` | `deleteContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2576` | Descriptor for DeleteContainerRegistryAuth. |
-| `@beep/runpod` | `DeleteContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1733` | Request input for DeleteContainerRegistryAuth. |
-| `@beep/runpod` | `deleteEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2253` | Descriptor for DeleteEndpoint. |
-| `@beep/runpod` | `DeleteEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1460` | Request input for DeleteEndpoint. |
-| `@beep/runpod` | `deleteNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2481` | Descriptor for DeleteNetworkVolume. |
-| `@beep/runpod` | `DeleteNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1651` | Request input for DeleteNetworkVolume. |
-| `@beep/runpod` | `deletePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2063` | Descriptor for DeletePod. |
-| `@beep/runpod` | `DeletePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1305` | Request input for DeletePod. |
-| `@beep/runpod` | `deleteTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2367` | Descriptor for DeleteTemplate. |
-| `@beep/runpod` | `DeleteTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1559` | Request input for DeleteTemplate. |
-| `@beep/runpod` | `Endpoint` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:463` | Endpoint model returned by the Runpod REST API. |
-| `@beep/runpod` | `endpointBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2614` | Descriptor for EndpointBilling. |
-| `@beep/runpod` | `EndpointBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1770` | Request input for EndpointBilling. |
-| `@beep/runpod` | `EndpointCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:555` | EndpointCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `Endpoints` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:442` | Endpoints schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `Endpoints` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:455` | Endpoints value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `EndpointUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:501` | EndpointUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `EndpointUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:523` | EndpointUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `getContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2557` | Descriptor for GetContainerRegistryAuth. |
-| `@beep/runpod` | `GetContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1716` | Request input for GetContainerRegistryAuth. |
-| `@beep/runpod` | `getDocsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1951` | Descriptor for GetDocs. |
-| `@beep/runpod` | `GetDocsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1211` | Request input for GetDocs. |
-| `@beep/runpod` | `GetDocsStatus200TextResponse` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1178` | GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `GetDocsStatus200TextResponse` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1190` | GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `getEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2215` | Descriptor for GetEndpoint. |
-| `@beep/runpod` | `GetEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1427` | Request input for GetEndpoint. |
-| `@beep/runpod` | `getNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2443` | Descriptor for GetNetworkVolume. |
-| `@beep/runpod` | `GetNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1620` | Request input for GetNetworkVolume. |
-| `@beep/runpod` | `getOpenAPIOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1932` | Descriptor for GetOpenAPI. |
-| `@beep/runpod` | `GetOpenAPIRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1198` | Request input for GetOpenAPI. |
-| `@beep/runpod` | `GetOpenAPIStatus200Response` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1158` | GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `GetOpenAPIStatus200Response` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1170` | GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `getPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2025` | Descriptor for GetPod. |
-| `@beep/runpod` | `GetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1269` | Request input for GetPod. |
-| `@beep/runpod` | `getTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2329` | Descriptor for GetTemplate. |
-| `@beep/runpod` | `GetTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1525` | Request input for GetTemplate. |
-| `@beep/runpod` | `GPUTypeId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:731` | GPUTypeId schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `GPUTypeId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:743` | GPUTypeId value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `listContainerRegistryAuthsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2519` | Descriptor for ListContainerRegistryAuths. |
-| `@beep/runpod` | `ListContainerRegistryAuthsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1684` | Request input for ListContainerRegistryAuths. |
-| `@beep/runpod` | `listEndpointsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2177` | Descriptor for ListEndpoints. |
-| `@beep/runpod` | `ListEndpointsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1396` | Request input for ListEndpoints. |
-| `@beep/runpod` | `listNetworkVolumesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2405` | Descriptor for ListNetworkVolumes. |
-| `@beep/runpod` | `ListNetworkVolumesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1592` | Request input for ListNetworkVolumes. |
-| `@beep/runpod` | `listPodsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1970` | Descriptor for ListPods. |
-| `@beep/runpod` | `ListPodsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1224` | Request input for ListPods. |
-| `@beep/runpod` | `listTemplatesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2291` | Descriptor for ListTemplates. |
-| `@beep/runpod` | `ListTemplatesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1493` | Request input for ListTemplates. |
-| `@beep/runpod` | `Machine` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:628` | Machine model returned by the Runpod REST API. |
-| `@beep/runpod` | `NetworkVolume` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:265` | NetworkVolume model returned by the Runpod REST API. |
-| `@beep/runpod` | `networkVolumeBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2643` | Descriptor for NetworkVolumeBilling. |
-| `@beep/runpod` | `NetworkVolumeBillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:858` | NetworkVolumeBillingRecord model returned by the Runpod REST API. |
-| `@beep/runpod` | `NetworkVolumeBillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:877` | NetworkVolumeBillingRecords schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `NetworkVolumeBillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:897` | NetworkVolumeBillingRecords value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `NetworkVolumeBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1793` | Request input for NetworkVolumeBilling. |
-| `@beep/runpod` | `NetworkVolumeCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:283` | NetworkVolumeCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `NetworkVolumes` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:238` | NetworkVolumes schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `NetworkVolumes` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:257` | NetworkVolumes value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `NetworkVolumeUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:300` | NetworkVolumeUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
-| `@beep/runpod` | `Pod` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:44` | Pod model returned by the Runpod REST API. |
-| `@beep/runpod` | `podBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2595` | Descriptor for PodBilling. |
-| `@beep/runpod` | `PodBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1750` | Request input for PodBilling. |
-| `@beep/runpod` | `PodCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:191` | PodCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `Pods` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:23` | Pods schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `Pods` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:36` | Pods value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `PodUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:149` | PodUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `PodUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:165` | PodUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `resetPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2139` | Descriptor for ResetPod. |
-| `@beep/runpod` | `ResetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1366` | Request input for ResetPod. |
-| `@beep/runpod` | `restartPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2158` | Descriptor for RestartPod. |
-| `@beep/runpod` | `RestartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1381` | Request input for RestartPod. |
-| `@beep/runpod` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
-| `@beep/runpod` | `RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:905` | Advisory allowedCudaVersions values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
-| `@beep/runpod` | `RUNPOD_CPU_FLAVOR_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:926` | Advisory cpuFlavorIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_CPU_FLAVOR_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:934` | Advisory cpuFlavorPriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:942` | Advisory cudaVersions values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_DATA_CENTER_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:950` | Advisory dataCenterId values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_DATA_CENTER_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:985` | Advisory dataCenterIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_DATA_CENTER_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1020` | Advisory dataCenterPriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
-| `@beep/runpod` | `RUNPOD_GPU_TYPE_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1028` | Advisory gpuTypeId values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_GPU_TYPE_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1071` | Advisory gpuTypeIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_GPU_TYPE_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1129` | Advisory gpuTypePriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2662` | Generated operation spec table for Runpod service construction. |
-| `@beep/runpod` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
-| `@beep/runpod` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
-| `@beep/runpod` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
-| `@beep/runpod` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
-| `@beep/runpod` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
-| `@beep/runpod` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
-| `@beep/runpod` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
-| `@beep/runpod` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
-| `@beep/runpod` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
-| `@beep/runpod` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
-| `@beep/runpod` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
-| `@beep/runpod` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
-| `@beep/runpod` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
-| `@beep/runpod` | `RunpodHttpMethod` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1810` | Supported Runpod HTTP methods. |
-| `@beep/runpod` | `RunpodHttpMethod` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1818` | Supported Runpod HTTP method. |
-| `@beep/runpod` | `RunpodOperationDescriptor` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1908` | Static metadata for one Runpod REST operation. |
-| `@beep/runpod` | `RunpodOperationId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1826` | Operation ids exposed by Runpod REST API v1. |
-| `@beep/runpod` | `RunpodOperationId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1868` | Operation id exposed by Runpod REST API v1. |
-| `@beep/runpod` | `RunpodOperationsShape` | interface | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2847` | Typed method surface generated from Runpod REST API v1. |
-| `@beep/runpod` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
-| `@beep/runpod` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
-| `@beep/runpod` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
-| `@beep/runpod` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
-| `@beep/runpod` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
-| `@beep/runpod` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
-| `@beep/runpod` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
-| `@beep/runpod` | `RunpodRequestBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1876` | Request body encoding used by a Runpod operation. |
-| `@beep/runpod` | `RunpodRequestBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1884` | Request body encoding used by a Runpod operation. |
-| `@beep/runpod` | `RunpodResponseBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1892` | Response body decoding used by a Runpod operation. |
-| `@beep/runpod` | `RunpodResponseBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1900` | Response body decoding used by a Runpod operation. |
-| `@beep/runpod` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
-| `@beep/runpod` | `SavingsPlan` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:608` | SavingsPlan model returned by the Runpod REST API. |
-| `@beep/runpod` | `startPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2101` | Descriptor for StartPod. |
-| `@beep/runpod` | `StartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1336` | Request input for StartPod. |
-| `@beep/runpod` | `stopPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2120` | Descriptor for StopPod. |
-| `@beep/runpod` | `StopPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1351` | Request input for StopPod. |
-| `@beep/runpod` | `Template` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:337` | Template model returned by the Runpod REST API. |
-| `@beep/runpod` | `TemplateCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:369` | TemplateCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `Templates` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:316` | Templates schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `Templates` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:329` | Templates value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `TemplateUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:397` | TemplateUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `TemplateUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:416` | TemplateUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `UnauthorizedError` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:696` | UnauthorizedError model returned by the Runpod REST API. |
-| `@beep/runpod` | `updateEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2234` | Descriptor for UpdateEndpoint. |
-| `@beep/runpod` | `UpdateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1444` | Request input for UpdateEndpoint. |
-| `@beep/runpod` | `updateEndpointViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2272` | Descriptor for UpdateEndpoint. |
-| `@beep/runpod` | `UpdateEndpointViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1475` | Request input for UpdateEndpoint. |
-| `@beep/runpod` | `updateNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2462` | Descriptor for UpdateNetworkVolume. |
-| `@beep/runpod` | `UpdateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1635` | Request input for UpdateNetworkVolume. |
-| `@beep/runpod` | `updateNetworkVolumeViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2500` | Descriptor for UpdateNetworkVolume. |
-| `@beep/runpod` | `UpdateNetworkVolumeViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1666` | Request input for UpdateNetworkVolume. |
-| `@beep/runpod` | `updatePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2044` | Descriptor for UpdatePod. |
-| `@beep/runpod` | `UpdatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1289` | Request input for UpdatePod. |
-| `@beep/runpod` | `updatePodViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2082` | Descriptor for UpdatePod. |
-| `@beep/runpod` | `UpdatePodViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1320` | Request input for UpdatePod. |
-| `@beep/runpod` | `updateTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2348` | Descriptor for UpdateTemplate. |
-| `@beep/runpod` | `UpdateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1543` | Request input for UpdateTemplate. |
-| `@beep/runpod` | `updateTemplateViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2386` | Descriptor for UpdateTemplate. |
-| `@beep/runpod` | `UpdateTemplateViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1574` | Request input for UpdateTemplate. |
-| `@beep/runpod` | `User` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:588` | User schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `User` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:600` | User value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `VERSION` | const | `packages/drivers/runpod/src/index.ts:50` | Package version. |
-| `@beep/runpod/index` | `BillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:807` | BillingRecord model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `BillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:828` | BillingRecords schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `BillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:850` | BillingRecords value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `ContainerRegistryAuth` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:751` | ContainerRegistryAuth model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `ContainerRegistryAuthCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:788` | ContainerRegistryAuthCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `ContainerRegistryAuths` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:767` | ContainerRegistryAuths schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `ContainerRegistryAuths` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:780` | ContainerRegistryAuths value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `createContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2538` | Descriptor for CreateContainerRegistryAuth. |
-| `@beep/runpod/index` | `CreateContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1699` | Request input for CreateContainerRegistryAuth. |
-| `@beep/runpod/index` | `createEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2196` | Descriptor for CreateEndpoint. |
-| `@beep/runpod/index` | `CreateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1412` | Request input for CreateEndpoint. |
-| `@beep/runpod/index` | `createNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2424` | Descriptor for CreateNetworkVolume. |
-| `@beep/runpod/index` | `CreateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1605` | Request input for CreateNetworkVolume. |
-| `@beep/runpod/index` | `createPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2006` | Descriptor for CreatePod. |
-| `@beep/runpod/index` | `CreatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1254` | Request input for CreatePod. |
-| `@beep/runpod/index` | `createTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2310` | Descriptor for CreateTemplate. |
-| `@beep/runpod/index` | `CreateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1510` | Request input for CreateTemplate. |
-| `@beep/runpod/index` | `CudaVersions` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:711` | CudaVersions schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `CudaVersions` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:723` | CudaVersions value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `DataCenter` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:681` | DataCenter model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `deleteContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2576` | Descriptor for DeleteContainerRegistryAuth. |
-| `@beep/runpod/index` | `DeleteContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1733` | Request input for DeleteContainerRegistryAuth. |
-| `@beep/runpod/index` | `deleteEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2253` | Descriptor for DeleteEndpoint. |
-| `@beep/runpod/index` | `DeleteEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1460` | Request input for DeleteEndpoint. |
-| `@beep/runpod/index` | `deleteNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2481` | Descriptor for DeleteNetworkVolume. |
-| `@beep/runpod/index` | `DeleteNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1651` | Request input for DeleteNetworkVolume. |
-| `@beep/runpod/index` | `deletePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2063` | Descriptor for DeletePod. |
-| `@beep/runpod/index` | `DeletePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1305` | Request input for DeletePod. |
-| `@beep/runpod/index` | `deleteTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2367` | Descriptor for DeleteTemplate. |
-| `@beep/runpod/index` | `DeleteTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1559` | Request input for DeleteTemplate. |
-| `@beep/runpod/index` | `Endpoint` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:463` | Endpoint model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `endpointBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2614` | Descriptor for EndpointBilling. |
-| `@beep/runpod/index` | `EndpointBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1770` | Request input for EndpointBilling. |
-| `@beep/runpod/index` | `EndpointCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:555` | EndpointCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `Endpoints` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:442` | Endpoints schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `Endpoints` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:455` | Endpoints value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `EndpointUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:501` | EndpointUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `EndpointUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:523` | EndpointUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `getContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2557` | Descriptor for GetContainerRegistryAuth. |
-| `@beep/runpod/index` | `GetContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1716` | Request input for GetContainerRegistryAuth. |
-| `@beep/runpod/index` | `getDocsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1951` | Descriptor for GetDocs. |
-| `@beep/runpod/index` | `GetDocsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1211` | Request input for GetDocs. |
-| `@beep/runpod/index` | `GetDocsStatus200TextResponse` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1178` | GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `GetDocsStatus200TextResponse` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1190` | GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `getEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2215` | Descriptor for GetEndpoint. |
-| `@beep/runpod/index` | `GetEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1427` | Request input for GetEndpoint. |
-| `@beep/runpod/index` | `getNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2443` | Descriptor for GetNetworkVolume. |
-| `@beep/runpod/index` | `GetNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1620` | Request input for GetNetworkVolume. |
-| `@beep/runpod/index` | `getOpenAPIOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1932` | Descriptor for GetOpenAPI. |
-| `@beep/runpod/index` | `GetOpenAPIRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1198` | Request input for GetOpenAPI. |
-| `@beep/runpod/index` | `GetOpenAPIStatus200Response` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1158` | GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `GetOpenAPIStatus200Response` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1170` | GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `getPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2025` | Descriptor for GetPod. |
-| `@beep/runpod/index` | `GetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1269` | Request input for GetPod. |
-| `@beep/runpod/index` | `getTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2329` | Descriptor for GetTemplate. |
-| `@beep/runpod/index` | `GetTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1525` | Request input for GetTemplate. |
-| `@beep/runpod/index` | `GPUTypeId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:731` | GPUTypeId schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `GPUTypeId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:743` | GPUTypeId value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `listContainerRegistryAuthsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2519` | Descriptor for ListContainerRegistryAuths. |
-| `@beep/runpod/index` | `ListContainerRegistryAuthsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1684` | Request input for ListContainerRegistryAuths. |
-| `@beep/runpod/index` | `listEndpointsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2177` | Descriptor for ListEndpoints. |
-| `@beep/runpod/index` | `ListEndpointsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1396` | Request input for ListEndpoints. |
-| `@beep/runpod/index` | `listNetworkVolumesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2405` | Descriptor for ListNetworkVolumes. |
-| `@beep/runpod/index` | `ListNetworkVolumesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1592` | Request input for ListNetworkVolumes. |
-| `@beep/runpod/index` | `listPodsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1970` | Descriptor for ListPods. |
-| `@beep/runpod/index` | `ListPodsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1224` | Request input for ListPods. |
-| `@beep/runpod/index` | `listTemplatesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2291` | Descriptor for ListTemplates. |
-| `@beep/runpod/index` | `ListTemplatesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1493` | Request input for ListTemplates. |
-| `@beep/runpod/index` | `Machine` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:628` | Machine model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `NetworkVolume` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:265` | NetworkVolume model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `networkVolumeBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2643` | Descriptor for NetworkVolumeBilling. |
-| `@beep/runpod/index` | `NetworkVolumeBillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:858` | NetworkVolumeBillingRecord model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `NetworkVolumeBillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:877` | NetworkVolumeBillingRecords schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `NetworkVolumeBillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:897` | NetworkVolumeBillingRecords value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `NetworkVolumeBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1793` | Request input for NetworkVolumeBilling. |
-| `@beep/runpod/index` | `NetworkVolumeCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:283` | NetworkVolumeCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `NetworkVolumes` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:238` | NetworkVolumes schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `NetworkVolumes` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:257` | NetworkVolumes value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `NetworkVolumeUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:300` | NetworkVolumeUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
-| `@beep/runpod/index` | `Pod` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:44` | Pod model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `podBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2595` | Descriptor for PodBilling. |
-| `@beep/runpod/index` | `PodBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1750` | Request input for PodBilling. |
-| `@beep/runpod/index` | `PodCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:191` | PodCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `Pods` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:23` | Pods schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `Pods` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:36` | Pods value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `PodUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:149` | PodUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `PodUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:165` | PodUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `resetPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2139` | Descriptor for ResetPod. |
-| `@beep/runpod/index` | `ResetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1366` | Request input for ResetPod. |
-| `@beep/runpod/index` | `restartPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2158` | Descriptor for RestartPod. |
-| `@beep/runpod/index` | `RestartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1381` | Request input for RestartPod. |
-| `@beep/runpod/index` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
-| `@beep/runpod/index` | `RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:905` | Advisory allowedCudaVersions values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
-| `@beep/runpod/index` | `RUNPOD_CPU_FLAVOR_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:926` | Advisory cpuFlavorIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_CPU_FLAVOR_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:934` | Advisory cpuFlavorPriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:942` | Advisory cudaVersions values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:950` | Advisory dataCenterId values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:985` | Advisory dataCenterIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1020` | Advisory dataCenterPriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
-| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1028` | Advisory gpuTypeId values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1071` | Advisory gpuTypeIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1129` | Advisory gpuTypePriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2662` | Generated operation spec table for Runpod service construction. |
-| `@beep/runpod/index` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
-| `@beep/runpod/index` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
-| `@beep/runpod/index` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
-| `@beep/runpod/index` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
-| `@beep/runpod/index` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
-| `@beep/runpod/index` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
-| `@beep/runpod/index` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
-| `@beep/runpod/index` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
-| `@beep/runpod/index` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
-| `@beep/runpod/index` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
-| `@beep/runpod/index` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
-| `@beep/runpod/index` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
-| `@beep/runpod/index` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
-| `@beep/runpod/index` | `RunpodHttpMethod` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1810` | Supported Runpod HTTP methods. |
-| `@beep/runpod/index` | `RunpodHttpMethod` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1818` | Supported Runpod HTTP method. |
-| `@beep/runpod/index` | `RunpodOperationDescriptor` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1908` | Static metadata for one Runpod REST operation. |
-| `@beep/runpod/index` | `RunpodOperationId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1826` | Operation ids exposed by Runpod REST API v1. |
-| `@beep/runpod/index` | `RunpodOperationId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1868` | Operation id exposed by Runpod REST API v1. |
-| `@beep/runpod/index` | `RunpodOperationsShape` | interface | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2847` | Typed method surface generated from Runpod REST API v1. |
-| `@beep/runpod/index` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
-| `@beep/runpod/index` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
-| `@beep/runpod/index` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
-| `@beep/runpod/index` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
-| `@beep/runpod/index` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
-| `@beep/runpod/index` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
-| `@beep/runpod/index` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
-| `@beep/runpod/index` | `RunpodRequestBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1876` | Request body encoding used by a Runpod operation. |
-| `@beep/runpod/index` | `RunpodRequestBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1884` | Request body encoding used by a Runpod operation. |
-| `@beep/runpod/index` | `RunpodResponseBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1892` | Response body decoding used by a Runpod operation. |
-| `@beep/runpod/index` | `RunpodResponseBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1900` | Response body decoding used by a Runpod operation. |
-| `@beep/runpod/index` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
-| `@beep/runpod/index` | `SavingsPlan` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:608` | SavingsPlan model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `startPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2101` | Descriptor for StartPod. |
-| `@beep/runpod/index` | `StartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1336` | Request input for StartPod. |
-| `@beep/runpod/index` | `stopPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2120` | Descriptor for StopPod. |
-| `@beep/runpod/index` | `StopPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1351` | Request input for StopPod. |
-| `@beep/runpod/index` | `Template` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:337` | Template model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `TemplateCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:369` | TemplateCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `Templates` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:316` | Templates schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `Templates` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:329` | Templates value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `TemplateUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:397` | TemplateUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `TemplateUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:416` | TemplateUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `UnauthorizedError` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:696` | UnauthorizedError model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `updateEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2234` | Descriptor for UpdateEndpoint. |
-| `@beep/runpod/index` | `UpdateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1444` | Request input for UpdateEndpoint. |
-| `@beep/runpod/index` | `updateEndpointViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2272` | Descriptor for UpdateEndpoint. |
-| `@beep/runpod/index` | `UpdateEndpointViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1475` | Request input for UpdateEndpoint. |
-| `@beep/runpod/index` | `updateNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2462` | Descriptor for UpdateNetworkVolume. |
-| `@beep/runpod/index` | `UpdateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1635` | Request input for UpdateNetworkVolume. |
-| `@beep/runpod/index` | `updateNetworkVolumeViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2500` | Descriptor for UpdateNetworkVolume. |
-| `@beep/runpod/index` | `UpdateNetworkVolumeViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1666` | Request input for UpdateNetworkVolume. |
-| `@beep/runpod/index` | `updatePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2044` | Descriptor for UpdatePod. |
-| `@beep/runpod/index` | `UpdatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1289` | Request input for UpdatePod. |
-| `@beep/runpod/index` | `updatePodViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2082` | Descriptor for UpdatePod. |
-| `@beep/runpod/index` | `UpdatePodViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1320` | Request input for UpdatePod. |
-| `@beep/runpod/index` | `updateTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2348` | Descriptor for UpdateTemplate. |
-| `@beep/runpod/index` | `UpdateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1543` | Request input for UpdateTemplate. |
-| `@beep/runpod/index` | `updateTemplateViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2386` | Descriptor for UpdateTemplate. |
-| `@beep/runpod/index` | `UpdateTemplateViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1574` | Request input for UpdateTemplate. |
-| `@beep/runpod/index` | `User` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:588` | User schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `User` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:600` | User value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `VERSION` | const | `packages/drivers/runpod/src/index.ts:50` | Package version. |
-| `@beep/runpod/Runpod.config` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
-| `@beep/runpod/Runpod.config` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
-| `@beep/runpod/Runpod.config` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
-| `@beep/runpod/Runpod.config` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
-| `@beep/runpod/Runpod.docs` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
-| `@beep/runpod/Runpod.docs` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
-| `@beep/runpod/Runpod.docs` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
-| `@beep/runpod/Runpod.docs` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
-| `@beep/runpod/Runpod.errors` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
-| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
-| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
-| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
-| `@beep/runpod/Runpod.errors` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
-| `@beep/runpod/Runpod.errors` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
-| `@beep/runpod/Runpod.errors` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
-| `@beep/runpod/Runpod.errors` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
-| `@beep/runpod/Runpod.errors` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
-| `@beep/runpod/Runpod.service` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
-| `@beep/runpod/Runpod.service` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
-| `@beep/runpod/Runpod.service` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
-| `@beep/runpod/Runpod.service` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
-| `@beep/runpod/Runpod.service` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
-| `@beep/runpod/Runpod.service` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
-| `@beep/runpod/Runpod.service` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
-| `@beep/runpod/Runpod.service` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
 
 ### @beep/codedank-web
 
