@@ -1077,33 +1077,32 @@ export const runDocgenQualityWorkerRunpodEval = Effect.fn(
       skipTemplateSearch: options.skipTemplateSearch ?? false,
       ...(options.templateId === undefined ? {} : { templateId: options.templateId }),
     }),
-    (acquired) =>
-      Effect.gen(function* () {
-        const workerStartedAtMs = globalThis.performance.now();
-        yield* Console.log(`docgen: waiting for Ollama model ${options.model}`);
-        yield* waitForOllamaReady({
-          baseUrl: acquired.pod.baseUrl,
-          model: options.model,
-          timeout: Duration.millis(options.readinessTimeoutMs ?? defaultQualityWorkerRunpodEvalReadinessTimeoutMs()),
-        });
+    Effect.fnUntraced(function* (acquired) {
+      const workerStartedAtMs = globalThis.performance.now();
+      yield* Console.log(`docgen: waiting for Ollama model ${options.model}`);
+      yield* waitForOllamaReady({
+        baseUrl: acquired.pod.baseUrl,
+        model: options.model,
+        timeout: Duration.millis(options.readinessTimeoutMs ?? defaultQualityWorkerRunpodEvalReadinessTimeoutMs()),
+      });
 
-        yield* Console.log("docgen: running read-only worker eval packets");
-        const workerEval = yield* analyzeDocgenQualityWorkerEval({
-          baseUrl: acquired.pod.codexBaseUrl,
-          model: options.model,
-          packetLimit: options.packetLimit ?? DEFAULT_RUNPOD_WORKER_PACKET_LIMIT,
-          provider: options.provider,
-          report: options.report,
-          scope: options.scope,
-          sourceQualityReport: options.sourceQualityReport,
-        });
+      yield* Console.log("docgen: running read-only worker eval packets");
+      const workerEval = yield* analyzeDocgenQualityWorkerEval({
+        baseUrl: acquired.pod.codexBaseUrl,
+        model: options.model,
+        packetLimit: options.packetLimit ?? DEFAULT_RUNPOD_WORKER_PACKET_LIMIT,
+        provider: options.provider,
+        report: options.report,
+        scope: options.scope,
+        sourceQualityReport: options.sourceQualityReport,
+      });
 
-        return {
-          acquired,
-          workerDurationMs: durationMsSince(workerStartedAtMs),
-          workerEval,
-        };
-      }),
+      return {
+        acquired,
+        workerDurationMs: durationMsSince(workerStartedAtMs),
+        workerEval,
+      };
+    }),
     (acquired) =>
       cleanupRunpodPod({ keepPod, podId: acquired.pod.podId }).pipe(
         Effect.flatMap((cleanup) => Ref.set(cleanupRef, cleanup))
