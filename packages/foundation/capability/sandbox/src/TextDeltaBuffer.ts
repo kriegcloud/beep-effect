@@ -7,6 +7,7 @@
 
 import { $SandboxId } from "@beep/identity";
 import { Str } from "@beep/utils";
+import { Effect, type Fiber } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $SandboxId.create("TextDeltaBuffer");
@@ -74,7 +75,7 @@ export class TextDeltaBuffer {
   readonly #onFlush: TextDeltaFlush;
   readonly #options: TextDeltaBufferOptions;
   #buffer = "";
-  #timer: ReturnType<typeof setTimeout> | undefined;
+  #timer: Fiber.Fiber<void> | undefined;
 
   constructor(onFlush: TextDeltaFlush, options: TextDeltaBufferOptions = defaultOptions) {
     this.#onFlush = onFlush;
@@ -100,9 +101,16 @@ export class TextDeltaBuffer {
       return;
     }
 
-    this.#timer = setTimeout(() => {
-      this.#flushBuffer();
-    }, this.#options.debounceMs);
+    this.#timer = Effect.runFork(
+      Effect.sleep(this.#options.debounceMs).pipe(
+        Effect.andThen(
+          Effect.sync(() => {
+            this.#timer = undefined;
+            this.#flushBuffer();
+          })
+        )
+      )
+    );
   }
 
   /**
@@ -146,7 +154,7 @@ export class TextDeltaBuffer {
 
   #clearTimer(): void {
     if (this.#timer !== undefined) {
-      clearTimeout(this.#timer);
+      this.#timer.interruptUnsafe();
       this.#timer = undefined;
     }
   }

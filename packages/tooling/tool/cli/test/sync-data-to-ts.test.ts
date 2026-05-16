@@ -11,6 +11,11 @@ import { Command } from "effect/unstable/cli";
 import { HttpClient, HttpClientError, HttpClientResponse } from "effect/unstable/http";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const runSyncDataToTsCommand = Command.runWith(syncDataToTsCommand, { version: "0.0.0" });
 const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 const generatedOutputPath = "packages/foundation/primitive/data/src/generated/iso4217.ts" as const;
@@ -66,15 +71,22 @@ Line 2"
 const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) =>
   HttpClient.make((request, url) =>
     Effect.tryPromise({
-      try: async () => {
-        const response = await handler(
-          new Request(url.toString(), {
-            method: request.method,
-            headers: request.headers,
+      try: () =>
+        Effect.runPromise(
+          Effect.gen(function* () {
+            const response = yield* Effect.promise(() =>
+              Promise.resolve(
+                handler(
+                  new Request(url.toString(), {
+                    method: request.method,
+                    headers: request.headers,
+                  })
+                )
+              )
+            );
+            return HttpClientResponse.fromWeb(request, response);
           })
-        );
-        return HttpClientResponse.fromWeb(request, response);
-      },
+        ),
       catch: (cause) =>
         new HttpClientError.HttpClientError({
           reason: new HttpClientError.TransportError({ request, cause }),
@@ -83,15 +95,19 @@ const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) 
   );
 
 const makeTextFixtureClient = (sourceUrl: string, content: string, contentType: string) =>
-  makeWebHandlerClient(async (request) =>
-    request.url === sourceUrl
-      ? new Response(content, {
-          status: 200,
-          headers: {
-            "content-type": contentType,
-          },
-        })
-      : new Response("missing", { status: 404 })
+  makeWebHandlerClient((request) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        return request.url === sourceUrl
+          ? new Response(content, {
+              status: 200,
+              headers: {
+                "content-type": contentType,
+              },
+            })
+          : new Response("missing", { status: 404 });
+      })
+    )
   );
 
 const makeIso4217Client = () => makeTextFixtureClient(ISO4217_SOURCE_URL, iso4217XmlFixture, "application/xml");
@@ -126,7 +142,7 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
         process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
-  ).pipe(Effect.provide(CommandTestLayer));
+  ).pipe(provideScopedLayer(CommandTestLayer));
 
 const withRegisteredTarget = <A, E, R>(target: SyncDataTarget, use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -194,8 +210,8 @@ const csvTarget: SyncDataTarget = {
 };
 
 describe("sync-data-to-ts", () => {
-  it("writes the generated ISO 4217 module in write mode", async () => {
-    await Effect.runPromise(
+  it("writes the generated ISO 4217 module in write mode", () =>
+    Effect.runPromise(
       withTempRepoCommand(
         provideIso4217Client(
           Effect.gen(function* () {
@@ -218,11 +234,10 @@ describe("sync-data-to-ts", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("does not write files in dry-run mode", async () => {
-    await Effect.runPromise(
+  it("does not write files in dry-run mode", () =>
+    Effect.runPromise(
       withTempRepoCommand(
         provideIso4217Client(
           Effect.gen(function* () {
@@ -239,11 +254,10 @@ describe("sync-data-to-ts", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("fails check mode on drift without modifying the file", async () => {
-    await Effect.runPromise(
+  it("fails check mode on drift without modifying the file", () =>
+    Effect.runPromise(
       withTempRepoCommand(
         provideIso4217Client(
           Effect.gen(function* () {
@@ -262,11 +276,10 @@ describe("sync-data-to-ts", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("becomes a no-op when the generated file is already current", async () => {
-    await Effect.runPromise(
+  it("becomes a no-op when the generated file is already current", () =>
+    Effect.runPromise(
       withTempRepoCommand(
         provideIso4217Client(
           Effect.gen(function* () {
@@ -280,11 +293,10 @@ describe("sync-data-to-ts", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("parses CSV targets with the canonical @beep/schema CSV implementation", async () => {
-    await Effect.runPromise(
+  it("parses CSV targets with the canonical @beep/schema CSV implementation", () =>
+    Effect.runPromise(
       withRegisteredTarget(
         csvTarget,
         withTempRepoCommand(
@@ -303,6 +315,5 @@ describe("sync-data-to-ts", () => {
           )
         )
       )
-    );
-  });
+    ));
 });

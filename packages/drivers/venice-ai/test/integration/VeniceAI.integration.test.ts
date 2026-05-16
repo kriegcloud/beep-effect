@@ -5,7 +5,7 @@ import { Effect, Layer, pipe, Redacted } from "effect";
 import * as O from "effect/Option";
 import { FetchHttpClient } from "effect/unstable/http";
 
-const apiKey = pipe(process.env.AI_VENICE_API_KEY, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
+const apiKey = pipe(Bun.env.AI_VENICE_API_KEY, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
 
 const makeLiveLayer = (key: string) =>
   VeniceAI.makeLayer(new VeniceAIConfigInput({ apiKey: Redacted.make(key), baseUrl: VENICE_API_URL })).pipe(

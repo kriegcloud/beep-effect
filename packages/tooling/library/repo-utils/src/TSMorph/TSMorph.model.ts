@@ -1415,13 +1415,12 @@ export const TsMorphScopeEntrypoint = S.Union([TsMorphScopeEntrypointTsConfig, T
   .pipe(
     S.toTaggedUnion("_tag"),
     SchemaUtils.withStatics(() => {
-      const make = (path: string) => {
-        return Match.value(path).pipe(
+      const make = (path: string) =>
+        Match.value(path).pipe(
           Match.when(S.is(TsConfigFilePath), (path) => new TsMorphScopeEntrypointTsConfig({ tsConfigPath: path })),
           Match.when(S.is(TypeScriptFilePath), (path) => new TsMorphScopeEntrypointFile({ filePath: path })),
           Match.orElseAbsurd
         );
-      };
 
       return {
         make,

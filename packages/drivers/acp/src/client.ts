@@ -459,8 +459,8 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
     })
   );
 
-  const dispatchExtRequest = (method: string, params: unknown) => {
-    return Ref.get(extRequestHandlers).pipe(
+  const dispatchExtRequest = (method: string, params: unknown) =>
+    Ref.get(extRequestHandlers).pipe(
       Effect.flatMap((handlers) =>
         O.match(HashMap.get(handlers, method), {
           onNone: () => runUnknownExtRequest(method, params),
@@ -468,7 +468,6 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
         })
       )
     );
-  };
 
   const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
     stdio: stdio,

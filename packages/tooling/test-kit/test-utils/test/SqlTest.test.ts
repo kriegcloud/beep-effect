@@ -15,6 +15,11 @@ import * as FileSystem from "effect/FileSystem";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const isBunRuntime = process.versions.bun !== undefined;
 const expectedDriver = isBunRuntime ? "bun-sqlite" : "node-sqlite";
 const isSqlTestHarnessError = S.is(SqlTestHarnessError);
@@ -73,11 +78,9 @@ describe("SqlTest", () => {
         `;
 
         return yield* doesTableExist("notes");
-      }).pipe(Effect.provide(makeLayer(), { local: true }));
+      }).pipe(provideScopedLayer(makeLayer()));
 
-      const tableExistsAfterFreshProvision = yield* doesTableExist("notes").pipe(
-        Effect.provide(makeLayer(), { local: true })
-      );
+      const tableExistsAfterFreshProvision = yield* doesTableExist("notes").pipe(provideScopedLayer(makeLayer()));
 
       expect(yield* createTable).toBe(true);
       expect(tableExistsAfterFreshProvision).toBe(false);
@@ -109,7 +112,7 @@ describe("SqlTest", () => {
           ),
         };
       }).pipe(
-        Effect.provide(
+        provideScopedLayer(
           makeLayer({
             migrate: Effect.gen(function* () {
               const sql = (yield* SqlClient.SqlClient).withoutTransforms();
@@ -126,8 +129,7 @@ describe("SqlTest", () => {
                 VALUES ('alpha'), ('beta')
               `;
             }),
-          }),
-          { local: true }
+          })
         )
       );
 
@@ -142,11 +144,10 @@ describe("SqlTest", () => {
     Effect.gen(function* () {
       const exit = yield* Effect.exit(
         Effect.void.pipe(
-          Effect.provide(
+          provideScopedLayer(
             makeLayer({
               migrate: Effect.fail("boom"),
-            }),
-            { local: true }
+            })
           )
         )
       );
@@ -182,12 +183,11 @@ describe("SqlTest", () => {
     Effect.gen(function* () {
       const exit = yield* Effect.exit(
         Effect.void.pipe(
-          Effect.provide(
+          provideScopedLayer(
             makeSqlTestLayer({
               config: { internalPort: 0 },
               driver: PgliteTestcontainersTestDriver,
-            }),
-            { local: true }
+            })
           )
         )
       );
@@ -209,12 +209,11 @@ describe("SqlTest", () => {
     Effect.gen(function* () {
       const exit = yield* Effect.exit(
         Effect.void.pipe(
-          Effect.provide(
+          provideScopedLayer(
             makeSqlTestLayer({
               config: { connectionUri: "not a postgres url" },
               driver: PgExternalTestDriver,
-            }),
-            { local: true }
+            })
           )
         )
       );

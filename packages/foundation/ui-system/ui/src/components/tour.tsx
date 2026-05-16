@@ -13,7 +13,7 @@ import {
 import { Popover, PopoverContent } from "@beep/ui/components/popover";
 import { A } from "@beep/utils";
 import { XIcon } from "@phosphor-icons/react";
-import { pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import Link from "next/link";
@@ -114,10 +114,10 @@ function TourProvider({ tours, children }: { readonly tours: Tour[]; readonly ch
         setIsOpen(true);
         setCurrentStepIndex(0);
       } else {
-        console.error(`Tour with id '${tourId}' has no steps.`);
+        Effect.runSync(Effect.logError(`Tour with id '${tourId}' has no steps.`));
       }
     } else {
-      console.error(`Tour with id '${tourId}' not found.`);
+      Effect.runSync(Effect.logError(`Tour with id '${tourId}' not found.`));
     }
   }
 

@@ -8,6 +8,7 @@ import { InstallerSecurityServerLive } from "@beep/installer-security-server";
 import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-workspace-use-cases";
 import { OnePasswordCli, OnePasswordCliProcessResult } from "@beep/onepassword-cli";
 import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
+import type { TUnsafe } from "@beep/types";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
@@ -94,17 +95,16 @@ const TestDependenciesLayer = Layer.succeed(
   })
 );
 
-const TestSliceLayer = Layer.mergeAll(
-  TestDependenciesLayer,
-  InstallerSecurityServerLive,
-  InstallerProvidersServerLive,
-  InstallerChannelsServerLive
+const TestSliceLayer = InstallerChannelsServerLive.pipe(
+  Layer.provideMerge(InstallerSecurityServerLive),
+  Layer.provideMerge(InstallerProvidersServerLive),
+  Layer.provideMerge(TestDependenciesLayer)
 );
 
 const TestLayer = TestSliceLayer.pipe(Layer.provideMerge(DriverLayer));
 
 describe("P1 Manual Mode proof harness", () => {
-  layer(TestLayer)((it) => {
+  layer(TestLayer as Layer.Layer<TUnsafe.Any, S.SchemaError>)((it) => {
     it.effect("returns a sanitized live proof snapshot without exposing raw secret or provider CLI output", () =>
       Effect.gen(function* () {
         const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");

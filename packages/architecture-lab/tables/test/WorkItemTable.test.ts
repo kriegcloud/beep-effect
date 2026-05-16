@@ -4,7 +4,7 @@ import * as WorkPriority from "@beep/architecture-lab-domain/values/WorkPriority
 import { fromWorkItemRow, toWorkItemInsert, workItemTable } from "@beep/architecture-lab-tables/aggregates/WorkItem";
 import { describe, expect, it } from "@effect/vitest";
 import { getTableName } from "drizzle-orm";
-import { Effect, Option as O } from "effect";
+import { DateTime, Effect, Option as O } from "effect";
 import * as S from "effect/Schema";
 
 const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
@@ -28,9 +28,15 @@ describe("WorkItem table", () => {
       expect(getTableName(workItemTable)).toBe("architecture_lab_work_item");
       expect(row.assigneeId).toBe(workerId);
       expect(row.priority).toBe("high");
-      expect(O.getOrThrow(fromWorkItemRow({ ...row, createdAt: new Date(0), updatedAt: new Date(0) }).assignee)).toBe(
-        workerId
-      );
+      expect(
+        O.getOrThrow(
+          fromWorkItemRow({
+            ...row,
+            createdAt: DateTime.toDateUtc(DateTime.makeUnsafe(0)),
+            updatedAt: DateTime.toDateUtc(DateTime.makeUnsafe(0)),
+          }).assignee
+        )
+      ).toBe(workerId);
     })
   );
 });

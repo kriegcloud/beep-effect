@@ -65,18 +65,21 @@ const redirectToContact = (request: NextRequest, response: ContactSubmissionResp
  * @category constructors
  * @since 0.0.0
  */
-export async function POST(request: NextRequest) {
+export function POST(request: NextRequest): Promise<NextResponse> {
   const contentType = request.headers.get("content-type") ?? "";
   const isJsonSubmission = Str.includes("application/json")(contentType);
-  const payload = isJsonSubmission ? await request.json() : formDataPayload(await request.formData());
-  const exit = await Effect.runPromiseExit(submitContact(payload));
-  const response = Exit.isSuccess(exit) ? exit.value : rejected;
 
-  if (!isJsonSubmission) {
-    return redirectToContact(request, response);
-  }
+  return (isJsonSubmission ? request.json() : request.formData().then(formDataPayload))
+    .then((payload) => Effect.runPromiseExit(submitContact(payload)))
+    .then((exit) => {
+      const response = Exit.isSuccess(exit) ? exit.value : rejected;
 
-  return NextResponse.json(contactResponseBody(response), {
-    status: Exit.isFailure(exit) ? 500 : response.status === "accepted" ? 202 : 400,
-  });
+      if (!isJsonSubmission) {
+        return redirectToContact(request, response);
+      }
+
+      return NextResponse.json(contactResponseBody(response), {
+        status: Exit.isFailure(exit) ? 500 : response.status === "accepted" ? 202 : 400,
+      });
+    });
 }

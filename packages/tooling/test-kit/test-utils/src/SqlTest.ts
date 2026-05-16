@@ -12,7 +12,7 @@ import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import type * as PgClient from "@effect/sql-pg/PgClient";
 import { SqliteClient as NodeSqliteClient } from "@effect/sql-sqlite-node";
-import { Context, Duration, Effect, FileSystem, Layer, Path, pipe, Random, Redacted, Schedule } from "effect";
+import { Config, Context, Duration, Effect, FileSystem, Layer, Path, pipe, Random, Redacted, Schedule } from "effect";
 import * as S from "effect/Schema";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
@@ -639,14 +639,15 @@ const startPgliteContainer = Effect.fn("SqlTest.startPgliteContainer")(function*
       .withWaitStrategy(Testcontainers.Wait.forHealthCheck());
 
   const startBridgeContainer = Effect.tryPromise({
-    try: async (): Promise<StartedPgliteContainer> => {
-      const container = await makeContainer().withExposedPorts(config.internalPort).start();
-      return {
-        container,
-        host: container.getHost(),
-        port: container.getMappedPort(config.internalPort),
-      };
-    },
+    try: (): Promise<StartedPgliteContainer> =>
+      makeContainer()
+        .withExposedPorts(config.internalPort)
+        .start()
+        .then((container) => ({
+          container,
+          host: container.getHost(),
+          port: container.getMappedPort(config.internalPort),
+        })),
     catch: (cause) =>
       toHarnessError(
         "pglite-testcontainers",
@@ -657,14 +658,15 @@ const startPgliteContainer = Effect.fn("SqlTest.startPgliteContainer")(function*
   });
 
   const startHostNetworkContainer = Effect.tryPromise({
-    try: async (): Promise<StartedPgliteContainer> => {
-      const container = await makeContainer().withNetworkMode("host").start();
-      return {
-        container,
-        host: "127.0.0.1",
-        port: config.internalPort,
-      };
-    },
+    try: (): Promise<StartedPgliteContainer> =>
+      makeContainer()
+        .withNetworkMode("host")
+        .start()
+        .then((container) => ({
+          container,
+          host: "127.0.0.1",
+          port: config.internalPort,
+        })),
     catch: (cause) =>
       toHarnessError(
         "pglite-testcontainers",
@@ -732,8 +734,8 @@ export const makePgliteTestcontainerResource = Effect.fn("SqlTest.makePgliteTest
 const parsePgExternalConnectionUri = Effect.fn("SqlTest.PgExternalTestDriver.parseConnectionUri")(function* (
   connectionUri: string
 ) {
-  const parsed = yield* Effect.tryPromise({
-    try: async () => new URL(connectionUri),
+  const parsed = yield* Effect.try({
+    try: () => new URL(connectionUri),
     catch: (cause) => toHarnessError("pg-external", "provision", "Invalid external PostgreSQL connection URI.", cause),
   });
 
@@ -864,15 +866,16 @@ const buildPgExternalLayer = Effect.fn("SqlTest.PgExternalTestDriver.build")(
         const client = yield* Pg.PgClient.fromClient({
           acquire: Effect.acquireRelease(
             Effect.tryPromise({
-              try: async () => {
+              try: () => {
                 const client = new PgNative.Client({
                   connectionString: config.connectionUri,
                   connectionTimeoutMillis: config.connectTimeoutMs,
                   ssl: config.ssl,
                 });
-                await client.connect();
-                await client.query("SELECT 1");
-                return client;
+                return client
+                  .connect()
+                  .then(() => client.query("SELECT 1"))
+                  .then(() => client);
               },
               catch: (cause) =>
                 new SqlError({
@@ -1090,17 +1093,22 @@ export const PgExternalTestDriver: SqlTestDriver<
   sqlClient: SqlClient.SqlClient,
 };
 
-const resolvePgliteExternalConfig = (config: PgExternalTestDriverConfigInput): PgExternalTestDriverConfigInput => {
-  const envConnectionUri = process.env.BEEP_TEST_DATABASE_URL;
-  if (config?.connectionUri !== undefined || envConnectionUri === undefined || !Str.isNonEmpty(envConnectionUri)) {
+const resolvePgliteExternalConfig = Effect.fn("SqlTest.resolvePgliteExternalConfig")(function* (
+  config: PgExternalTestDriverConfigInput
+) {
+  const envConnectionUri = yield* Config.string("BEEP_TEST_DATABASE_URL").pipe(
+    Config.option,
+    Effect.orElseSucceed(O.none<string>)
+  );
+  if (config?.connectionUri !== undefined || O.isNone(envConnectionUri) || !Str.isNonEmpty(envConnectionUri.value)) {
     return config;
   }
 
   return {
     ...config,
-    connectionUri: envConnectionUri,
+    connectionUri: envConnectionUri.value,
   };
-};
+});
 
 const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgExternalTestDriverConfigInput): boolean =>
   mode === "external" || (mode === "auto" && config?.connectionUri !== undefined);
@@ -1125,31 +1133,34 @@ const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgEx
  */
 export const makePgliteSqlTestLayer = <MigrateError = never, SeedError = never>(
   options: PgliteSqlTestLayerOptions<MigrateError, SeedError> = {}
-): Layer.Layer<PgClient.PgClient | SqlClient.SqlClient | TestDatabaseInfo, SqlTestHarnessError> => {
-  const mode = options.mode ?? "auto";
-  const externalConfig = resolvePgliteExternalConfig(options.external);
+): Layer.Layer<PgClient.PgClient | SqlClient.SqlClient | TestDatabaseInfo, SqlTestHarnessError> =>
+  Layer.unwrap(
+    Effect.gen(function* () {
+      const mode = options.mode ?? "auto";
+      const externalConfig = yield* resolvePgliteExternalConfig(options.external);
 
-  if (shouldUseExternalPgliteLayer(mode, externalConfig)) {
-    return options.hooks === undefined
-      ? makeSqlTestLayer({
-          config: externalConfig,
-          driver: PgExternalTestDriver,
-        })
-      : makeSqlTestLayer({
-          config: externalConfig,
-          driver: PgExternalTestDriver,
-          hooks: options.hooks,
-        });
-  }
+      if (shouldUseExternalPgliteLayer(mode, externalConfig)) {
+        return options.hooks === undefined
+          ? makeSqlTestLayer({
+              config: externalConfig,
+              driver: PgExternalTestDriver,
+            })
+          : makeSqlTestLayer({
+              config: externalConfig,
+              driver: PgExternalTestDriver,
+              hooks: options.hooks,
+            });
+      }
 
-  return options.hooks === undefined
-    ? makeSqlTestLayer({
-        config: options.testcontainers,
-        driver: PgliteTestcontainersTestDriver,
-      })
-    : makeSqlTestLayer({
-        config: options.testcontainers,
-        driver: PgliteTestcontainersTestDriver,
-        hooks: options.hooks,
-      });
-};
+      return options.hooks === undefined
+        ? makeSqlTestLayer({
+            config: options.testcontainers,
+            driver: PgliteTestcontainersTestDriver,
+          })
+        : makeSqlTestLayer({
+            config: options.testcontainers,
+            driver: PgliteTestcontainersTestDriver,
+            hooks: options.hooks,
+          });
+    })
+  );

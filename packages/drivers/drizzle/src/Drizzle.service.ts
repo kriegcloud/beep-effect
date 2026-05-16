@@ -104,12 +104,11 @@ export interface DrizzleShape {
   ) => Effect.Effect<A, DrizzleError, R>;
 }
 
-const makeService = (client: DrizzleClient): DrizzleShape => {
-  return {
+const makeService = (client: DrizzleClient): DrizzleShape =>
+  ({
     execute: client.execute,
     withTransaction: (use) => client.withTransaction((transaction) => use(makeService(transaction))),
-  };
-};
+  }) satisfies DrizzleShape;
 
 /**
  * Effect service for product-neutral Drizzle execution.

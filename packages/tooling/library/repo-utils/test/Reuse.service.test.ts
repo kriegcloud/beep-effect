@@ -14,6 +14,11 @@ import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as O from "effect/Option";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const InfrastructureLayer = Layer.mergeAll(
   PlatformLayer,
@@ -39,7 +44,7 @@ describe("Reuse services", () => {
             "packages/tooling/tool/cli",
           ]);
           expect(plan.specialistUnits.length).toBeGreaterThan(0);
-        }).pipe(Effect.provide(makeTestLayer())),
+        }).pipe(provideScopedLayer(makeTestLayer())),
       180_000
     );
 
@@ -57,7 +62,7 @@ describe("Reuse services", () => {
             "packages/tooling/library/repo-utils",
             "packages/tooling/tool/cli",
           ]);
-        }).pipe(Effect.provide(makeTestLayer())),
+        }).pipe(provideScopedLayer(makeTestLayer())),
       180_000
     );
 
@@ -74,7 +79,7 @@ describe("Reuse services", () => {
               (unit) => unit.scopeSelector === "packages/tooling/library/repo-utils,packages/tooling/tool/cli"
             )
           ).toBe(true);
-        }).pipe(Effect.provide(makeTestLayer())),
+        }).pipe(provideScopedLayer(makeTestLayer())),
       180_000
     );
 
@@ -88,7 +93,7 @@ describe("Reuse services", () => {
           expect(plan.scopeSelector).toBe("repo");
           expect(plan.scoutUnits.length).toBe(0);
           expect(plan.specialistUnits.length).toBe(0);
-        }).pipe(Effect.provide(makeTestLayer())),
+        }).pipe(provideScopedLayer(makeTestLayer())),
       180_000
     );
   });
@@ -115,7 +120,7 @@ describe("Reuse services", () => {
           expect(Str.startsWith("@beep/")(packet.candidate.proposedDestinationPackage)).toBe(true);
           expect(packet.candidate.implementationSteps.length).toBeGreaterThan(0);
           expect(packet.candidate.verificationCommands.length).toBeGreaterThan(0);
-        }).pipe(Effect.provide(makeTestLayer())),
+        }).pipe(provideScopedLayer(makeTestLayer())),
       180_000
     );
   });
@@ -142,7 +147,7 @@ describe("Reuse services", () => {
               (match) => match.packageName === "effect" || Str.startsWith("@beep/")(match.packageName)
             )
           ).toBe(true);
-        }).pipe(Effect.provide(makeTestLayer())),
+        }).pipe(provideScopedLayer(makeTestLayer())),
       180_000
     );
 
@@ -159,7 +164,7 @@ describe("Reuse services", () => {
 
           expect(result.filePath).toBe("packages/tooling/tool/cli/src/commands/Docgen/index.ts");
           expect(result.matches.length).toBeGreaterThan(0);
-        }).pipe(Effect.provide(makeTestLayer())),
+        }).pipe(provideScopedLayer(makeTestLayer())),
       180_000
     );
 
@@ -179,7 +184,7 @@ describe("Reuse services", () => {
           expect(error).toBeInstanceOf(ReuseAnalysisError);
           expect(error.operation).toBe("findReuseOptions");
           expect(error.message).toContain("repo-relative path inside the repository");
-        }).pipe(Effect.provide(makeTestLayer())),
+        }).pipe(provideScopedLayer(makeTestLayer())),
       180_000
     );
   });

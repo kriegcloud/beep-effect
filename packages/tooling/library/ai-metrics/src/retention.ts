@@ -9,7 +9,7 @@ import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Clock, Effect, FileSystem, flow, Order, Path, pipe } from "effect";
+import { Clock, Effect, FileSystem, flow, Layer, Order, Path, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -444,44 +444,39 @@ const readRetentionPlan = Effect.fn("AiMetrics.retention.readPlan")(function* (i
   );
   const derivedRoot = path.join(input.dataRoot, "derived/parquet");
   const derivedRootExists = yield* fs.exists(derivedRoot);
-  const derivedExportItems = derivedRootExists
-    ? yield* Effect.gen(function* () {
-        const entries = yield* fs
-          .readDirectory(derivedRoot)
-          .pipe(
-            Effect.mapError((cause) => retentionFailure("Failed to read AI metrics Parquet export directory.", cause))
-          );
-        const items = yield* Effect.forEach(
-          entries,
-          Effect.fnUntraced(function* (entry): Effect.fn.Return<
-            O.Option<PathPlanItem>,
-            AiMetricsRetentionError,
-            FileSystem.FileSystem
-          > {
-            const absolutePath = path.join(derivedRoot, entry);
-            const stat = yield* fs
-              .stat(absolutePath)
-              .pipe(
-                Effect.mapError((cause) => retentionFailure("Failed to inspect AI metrics Parquet export.", cause))
-              );
-            if (stat.type !== "Directory") {
-              return O.none<PathPlanItem>();
-            }
+  let derivedExportItems = A.empty<PathPlanItem>();
+  if (derivedRootExists) {
+    const entries = yield* fs
+      .readDirectory(derivedRoot)
+      .pipe(Effect.mapError((cause) => retentionFailure("Failed to read AI metrics Parquet export directory.", cause)));
+    const items = yield* Effect.forEach(
+      entries,
+      Effect.fnUntraced(function* (entry): Effect.fn.Return<
+        O.Option<PathPlanItem>,
+        AiMetricsRetentionError,
+        FileSystem.FileSystem
+      > {
+        const absolutePath = path.join(derivedRoot, entry);
+        const stat = yield* fs
+          .stat(absolutePath)
+          .pipe(Effect.mapError((cause) => retentionFailure("Failed to inspect AI metrics Parquet export.", cause)));
+        if (stat.type !== "Directory") {
+          return O.none<PathPlanItem>();
+        }
 
-            const item = {
-              absolutePath,
-              modifiedAtEpochMillis: optionalModifiedAtMillis(stat),
-              relativePath: relativeToDataRoot(input.dataRoot, absolutePath),
-            };
-            return A.contains(ingestRunIds, entry) || withinWindow(item.modifiedAtEpochMillis)
-              ? O.some(item)
-              : O.none<PathPlanItem>();
-          }),
-          { concurrency: 8 }
-        );
-        return A.getSomes(items);
-      })
-    : A.empty<PathPlanItem>();
+        const item = {
+          absolutePath,
+          modifiedAtEpochMillis: optionalModifiedAtMillis(stat),
+          relativePath: relativeToDataRoot(input.dataRoot, absolutePath),
+        };
+        return A.contains(ingestRunIds, entry) || withinWindow(item.modifiedAtEpochMillis)
+          ? O.some(item)
+          : O.none<PathPlanItem>();
+      }),
+      { concurrency: 8 }
+    );
+    derivedExportItems = A.getSomes(items);
+  }
   const reportItems = pipe(
     yield* listDirectoryFiles(input.dataRoot, "reports"),
     A.filter((item) => withinWindow(item.modifiedAtEpochMillis))
@@ -550,11 +545,11 @@ export const listAiMetricsRetentionInventory = Effect.fn("AiMetrics.listAiMetric
   input: AiMetricsRetentionSelector
 ) {
   const duckDbPath = childPath(input.dataRoot, "derived/ai-metrics.duckdb");
-  const plan = yield* readRetentionPlan(input).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))),
-    Effect.mapError((cause) => retentionFailure("Failed to read AI metrics retention inventory.", cause))
-  );
+  const plan = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))).pipe(
+      Effect.flatMap((context) => readRetentionPlan(input).pipe(Effect.provide(context)))
+    )
+  ).pipe(Effect.mapError((cause) => retentionFailure("Failed to read AI metrics retention inventory.", cause)));
   return planToInventory(input, plan);
 });
 
@@ -666,11 +661,11 @@ const runRetentionMutation = Effect.fn("AiMetrics.retention.runMutation")(functi
   readonly mode: "compact" | "delete";
 }) {
   const duckDbPath = childPath(input.dataRoot, "derived/ai-metrics.duckdb");
-  const plan = yield* readRetentionPlan(input).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))),
-    Effect.mapError((cause) => retentionFailure("Failed to read AI metrics retention mutation plan.", cause))
-  );
+  const plan = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))).pipe(
+      Effect.flatMap((context) => readRetentionPlan(input).pipe(Effect.provide(context)))
+    )
+  ).pipe(Effect.mapError((cause) => retentionFailure("Failed to read AI metrics retention mutation plan.", cause)));
 
   if (!dryRun && !hasBoundedMutationWindow(input)) {
     return yield* retentionFailure(
@@ -691,11 +686,11 @@ const runRetentionMutation = Effect.fn("AiMetrics.retention.runMutation")(functi
     yield* removePlanPaths(plan.reportItems);
     if (mode === "delete") {
       yield* removeRawArchivePaths(input.dataRoot, plan.rawArchiveItems);
-      yield* deleteRowsForPlan(plan).pipe(
-        // @effect-diagnostics-next-line strictEffectProvide:off
-        Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))),
-        Effect.mapError((cause) => retentionFailure("Failed to delete selected AI metrics derived rows.", cause))
-      );
+      yield* Effect.scoped(
+        Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))).pipe(
+          Effect.flatMap((context) => deleteRowsForPlan(plan).pipe(Effect.provide(context)))
+        )
+      ).pipe(Effect.mapError((cause) => retentionFailure("Failed to delete selected AI metrics derived rows.", cause)));
     }
   }
 
@@ -777,11 +772,11 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const sourceDuckDbPath = childPath(input.selector.dataRoot, "derived/ai-metrics.duckdb");
-  const plan = yield* readRetentionPlan(input.selector).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: sourceDuckDbPath }))),
-    Effect.mapError((cause) => retentionFailure("Failed to select archive objects for restore drill.", cause))
-  );
+  const plan = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: sourceDuckDbPath }))).pipe(
+      Effect.flatMap((context) => readRetentionPlan(input.selector).pipe(Effect.provide(context)))
+    )
+  ).pipe(Effect.mapError((cause) => retentionFailure("Failed to select archive objects for restore drill.", cause)));
   const selected = pipe(plan.rawArchiveItems, A.take(input.maxObjects));
   if (A.isReadonlyArrayEmpty(selected)) {
     return yield* retentionFailure(
@@ -874,19 +869,21 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
     records = A.append(records, new AiMetricsDerivedTranscriptRecord({ archiveObject, privacy }));
   }
 
-  yield* writeAiMetricsDerivedStorage({
-    configSnapshot,
-    ingestRunId: `restore-drill-${startedAtEpochMillis}`,
-    records,
-    repoRootHash,
-    startedAtEpochMillis,
-    storage: spec.storage,
-    target: AiMetricsDeployTarget.Enum.local,
-  }).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))),
-    Effect.mapError((cause) => retentionFailure("Failed to write restore drill derived storage.", cause))
-  );
+  yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+      Effect.flatMap((context) =>
+        writeAiMetricsDerivedStorage({
+          configSnapshot,
+          ingestRunId: `restore-drill-${startedAtEpochMillis}`,
+          records,
+          repoRootHash,
+          startedAtEpochMillis,
+          storage: spec.storage,
+          target: AiMetricsDeployTarget.Enum.local,
+        }).pipe(Effect.provide(context))
+      )
+    )
+  ).pipe(Effect.mapError((cause) => retentionFailure("Failed to write restore drill derived storage.", cause)));
 
   return new AiMetricsRetentionRestoreDrillResult({
     derivedDuckDbPath: spec.storage.duckDbPath,

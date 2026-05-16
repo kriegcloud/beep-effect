@@ -18,8 +18,13 @@ import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf";
 import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
 import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Order, pipe } from "effect";
+import { Effect, Layer, Order, pipe } from "effect";
 import * as S from "effect/Schema";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 
@@ -33,13 +38,13 @@ const dataset = makeDataset([
 ]);
 
 const runCanonicalization = <A>(effect: Effect.Effect<A, unknown, CanonicalizationService>) =>
-  Effect.runPromise(effect.pipe(Effect.provide(CanonicalizationServiceLive)));
+  Effect.runPromise(effect.pipe(provideScopedLayer(CanonicalizationServiceLive)));
 
 const runShacl = <A>(effect: Effect.Effect<A, unknown, ShaclValidationService>) =>
-  Effect.runPromise(effect.pipe(Effect.provide(ShaclValidationServiceLive)));
+  Effect.runPromise(effect.pipe(provideScopedLayer(ShaclValidationServiceLive)));
 
 const runSparql = <A>(effect: Effect.Effect<A, unknown, SparqlQueryService>) =>
-  Effect.runPromise(effect.pipe(Effect.provide(UnsupportedSparqlQueryServiceLive)));
+  Effect.runPromise(effect.pipe(provideScopedLayer(UnsupportedSparqlQueryServiceLive)));
 
 describe("Services and Surface", () => {
   it("keeps the package root surface curated to VERSION plus the IRI family", () => {
@@ -52,144 +57,168 @@ describe("Services and Surface", () => {
     ]);
   });
 
-  it("canonicalizes and fingerprints datasets deterministically", async () => {
-    const canonicalized = await runCanonicalization(
-      Effect.gen(function* () {
-        const service = yield* CanonicalizationService;
-        return yield* service.canonicalize(
-          decodeUnknownSync(CanonicalizeDatasetRequest)({
-            dataset: yield* S.encodeEffect(Dataset)(dataset),
-            algorithm: "rdfc-1.0",
-          })
-        );
-      })
-    );
-
-    expect(pipe(canonicalized.canonicalText, Str.split("\n"))).toHaveLength(2);
-
-    const fingerprint = await runCanonicalization(
-      Effect.gen(function* () {
-        const service = yield* CanonicalizationService;
-        return yield* service.fingerprint(
-          decodeUnknownSync(FingerprintDatasetRequest)({
-            dataset: yield* S.encodeEffect(Dataset)(dataset),
-            algorithm: "rdfc-1.0",
-          })
-        );
-      })
-    );
-
-    expect(fingerprint.fingerprint).toMatch(/^[0-9a-f]{64}$/);
-    expect(fingerprint.canonicalText).toBe(canonicalized.canonicalText);
-  });
-
-  it("produces the same semantic fingerprint for isomorphic blank-node datasets", async () => {
-    const knows = makeNamedNode("https://schema.org/knows");
-    const name = makeNamedNode("https://schema.org/name");
-
-    const left = makeDataset([
-      makeQuad(makeBlankNode("a"), knows, makeBlankNode("b")),
-      makeQuad(makeBlankNode("a"), name, makeLiteral("Alice", XSD_STRING.value)),
-      makeQuad(makeBlankNode("b"), name, makeLiteral("Bob", XSD_STRING.value)),
-    ]);
-
-    const right = makeDataset([
-      makeQuad(makeBlankNode("x"), knows, makeBlankNode("y")),
-      makeQuad(makeBlankNode("x"), name, makeLiteral("Alice", XSD_STRING.value)),
-      makeQuad(makeBlankNode("y"), name, makeLiteral("Bob", XSD_STRING.value)),
-    ]);
-
-    const [leftFingerprint, rightFingerprint] = await Promise.all([
-      runCanonicalization(
-        Effect.gen(function* () {
-          const service = yield* CanonicalizationService;
-          return yield* service.fingerprint(
-            decodeUnknownSync(FingerprintDatasetRequest)({
-              dataset: yield* S.encodeEffect(Dataset)(left),
-              algorithm: "rdfc-1.0",
+  it("canonicalizes and fingerprints datasets deterministically", () =>
+    Effect.gen(function* () {
+      const canonicalized = yield* Effect.promise(() =>
+        Promise.resolve(
+          runCanonicalization(
+            Effect.gen(function* () {
+              const service = yield* CanonicalizationService;
+              return yield* service.canonicalize(
+                decodeUnknownSync(CanonicalizeDatasetRequest)({
+                  dataset: yield* S.encodeEffect(Dataset)(dataset),
+                  algorithm: "rdfc-1.0",
+                })
+              );
             })
-          );
-        })
-      ),
-      runCanonicalization(
-        Effect.gen(function* () {
-          const service = yield* CanonicalizationService;
-          return yield* service.fingerprint(
-            decodeUnknownSync(FingerprintDatasetRequest)({
-              dataset: yield* S.encodeEffect(Dataset)(right),
-              algorithm: "rdfc-1.0",
+          )
+        )
+      );
+
+      expect(pipe(canonicalized.canonicalText, Str.split("\n"))).toHaveLength(2);
+
+      const fingerprint = yield* Effect.promise(() =>
+        Promise.resolve(
+          runCanonicalization(
+            Effect.gen(function* () {
+              const service = yield* CanonicalizationService;
+              return yield* service.fingerprint(
+                decodeUnknownSync(FingerprintDatasetRequest)({
+                  dataset: yield* S.encodeEffect(Dataset)(dataset),
+                  algorithm: "rdfc-1.0",
+                })
+              );
             })
-          );
-        })
-      ),
-    ]);
+          )
+        )
+      );
 
-    expect(leftFingerprint.fingerprint).toBe(rightFingerprint.fingerprint);
-    expect(leftFingerprint.canonicalText).toBe(rightFingerprint.canonicalText);
-  });
+      expect(fingerprint.fingerprint).toMatch(/^[0-9a-f]{64}$/);
+      expect(fingerprint.canonicalText).toBe(canonicalized.canonicalText);
+    }));
 
-  it("validates bounded SHACL-inspired shapes and truncates when max results is reached", async () => {
-    const result = await runShacl(
-      Effect.gen(function* () {
-        const service = yield* ShaclValidationService;
-        return yield* service.validate(
-          decodeUnknownSync(ShaclValidationRequest)({
-            dataset: yield* S.encodeEffect(Dataset)(dataset),
-            shapes: [
-              {
-                targetClass: makeNamedNode("https://schema.org/Person"),
-                properties: [
-                  {
-                    path: makeNamedNode("https://schema.org/knows"),
-                    minCount: 1,
-                  },
-                  {
-                    path: makeNamedNode("https://schema.org/name"),
-                    datatype: makeNamedNode(XSD_STRING.value),
-                  },
-                ],
-              },
-            ],
-            maxResults: 1,
-          })
-        );
-      })
-    );
+  it("produces the same semantic fingerprint for isomorphic blank-node datasets", () =>
+    Effect.gen(function* () {
+      const knows = makeNamedNode("https://schema.org/knows");
+      const name = makeNamedNode("https://schema.org/name");
 
-    expect(result.conforms).toBe(false);
-    expect(result.truncated).toBe(true);
-    expect(result.violations).toHaveLength(1);
-  });
+      const left = makeDataset([
+        makeQuad(makeBlankNode("a"), knows, makeBlankNode("b")),
+        makeQuad(makeBlankNode("a"), name, makeLiteral("Alice", XSD_STRING.value)),
+        makeQuad(makeBlankNode("b"), name, makeLiteral("Bob", XSD_STRING.value)),
+      ]);
 
-  it("exposes the unsupported SPARQL fallback and the web-annotation seam DTOs", async () => {
-    await expect(
-      runSparql(
-        Effect.gen(function* () {
-          const service = yield* SparqlQueryService;
-          return yield* service.execute(
-            decodeUnknownSync(SparqlQueryRequest)({
-              query: "SELECT * WHERE { ?s ?p ?o }",
-              profile: "select",
-              dataset: yield* S.encodeEffect(Dataset)(dataset),
+      const right = makeDataset([
+        makeQuad(makeBlankNode("x"), knows, makeBlankNode("y")),
+        makeQuad(makeBlankNode("x"), name, makeLiteral("Alice", XSD_STRING.value)),
+        makeQuad(makeBlankNode("y"), name, makeLiteral("Bob", XSD_STRING.value)),
+      ]);
+
+      const [leftFingerprint, rightFingerprint] = yield* Effect.promise(() =>
+        Promise.resolve(
+          Promise.all([
+            runCanonicalization(
+              Effect.gen(function* () {
+                const service = yield* CanonicalizationService;
+                return yield* service.fingerprint(
+                  decodeUnknownSync(FingerprintDatasetRequest)({
+                    dataset: yield* S.encodeEffect(Dataset)(left),
+                    algorithm: "rdfc-1.0",
+                  })
+                );
+              })
+            ),
+            runCanonicalization(
+              Effect.gen(function* () {
+                const service = yield* CanonicalizationService;
+                return yield* service.fingerprint(
+                  decodeUnknownSync(FingerprintDatasetRequest)({
+                    dataset: yield* S.encodeEffect(Dataset)(right),
+                    algorithm: "rdfc-1.0",
+                  })
+                );
+              })
+            ),
+          ])
+        )
+      );
+
+      expect(leftFingerprint.fingerprint).toBe(rightFingerprint.fingerprint);
+      expect(leftFingerprint.canonicalText).toBe(rightFingerprint.canonicalText);
+    }));
+
+  it("validates bounded SHACL-inspired shapes and truncates when max results is reached", () =>
+    Effect.gen(function* () {
+      const result = yield* Effect.promise(() =>
+        Promise.resolve(
+          runShacl(
+            Effect.gen(function* () {
+              const service = yield* ShaclValidationService;
+              return yield* service.validate(
+                decodeUnknownSync(ShaclValidationRequest)({
+                  dataset: yield* S.encodeEffect(Dataset)(dataset),
+                  shapes: [
+                    {
+                      targetClass: makeNamedNode("https://schema.org/Person"),
+                      properties: [
+                        {
+                          path: makeNamedNode("https://schema.org/knows"),
+                          minCount: 1,
+                        },
+                        {
+                          path: makeNamedNode("https://schema.org/name"),
+                          datatype: makeNamedNode(XSD_STRING.value),
+                        },
+                      ],
+                    },
+                  ],
+                  maxResults: 1,
+                })
+              );
             })
-          );
-        })
-      )
-    ).rejects.toThrow("No SPARQL engine is wired into the v1 semantic-web package.");
+          )
+        )
+      );
 
-    const annotation = decodeUnknownSync(WebAnnotation)({
-      id: "https://example.com/annotations/1",
-      type: "Annotation",
-      target: {
-        source: "https://example.com/documents/1",
-        selector: {
-          type: "TextQuoteSelector",
-          exact: "Alice",
+      expect(result.conforms).toBe(false);
+      expect(result.truncated).toBe(true);
+      expect(result.violations).toHaveLength(1);
+    }));
+
+  it("exposes the unsupported SPARQL fallback and the web-annotation seam DTOs", () =>
+    Effect.gen(function* () {
+      yield* Effect.promise(() =>
+        Promise.resolve(
+          expect(
+            runSparql(
+              Effect.gen(function* () {
+                const service = yield* SparqlQueryService;
+                return yield* service.execute(
+                  decodeUnknownSync(SparqlQueryRequest)({
+                    query: "SELECT * WHERE { ?s ?p ?o }",
+                    profile: "select",
+                    dataset: yield* S.encodeEffect(Dataset)(dataset),
+                  })
+                );
+              })
+            )
+          ).rejects.toThrow("No SPARQL engine is wired into the v1 semantic-web package.")
+        )
+      );
+
+      const annotation = decodeUnknownSync(WebAnnotation)({
+        id: "https://example.com/annotations/1",
+        type: "Annotation",
+        target: {
+          source: "https://example.com/documents/1",
+          selector: {
+            type: "TextQuoteSelector",
+            exact: "Alice",
+          },
         },
-      },
-    });
+      });
 
-    expect(annotation.type).toBe("Annotation");
-    expect(annotation.target.selector.type).toBe("TextQuoteSelector");
-  });
+      expect(annotation.type).toBe("Annotation");
+      expect(annotation.target.selector.type).toBe("TextQuoteSelector");
+    }));
 });

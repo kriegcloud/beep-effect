@@ -5,9 +5,13 @@
  * @since 0.0.0
  */
 import bc from "@beep/colors";
-import { ErrorReporter, Match } from "effect";
+import { ErrorReporter, Inspectable, Match, pipe } from "effect";
 import * as R from "effect/Record";
 import { renderObservedCause, summarizeCause } from "../CauseDiagnostics.ts";
+
+const writeErrorLine = (line: string): void => {
+  globalThis.process.stderr.write(`${line}\n`);
+};
 
 /**
  * Create a console-backed error reporter with cause fingerprints and pretty rendering.
@@ -37,16 +41,16 @@ export const makeConsoleErrorReporter = (options?: {
       Match.exhaustive
     );
 
-    console.error(
+    writeErrorLine(
       `${severityColor} ${error.name}: ${error.message} fingerprint=${summary.fingerprint.value} classification=${summary.classification}`
     );
 
     if (R.keys(attributes).length > 0) {
-      console.error(attributes);
+      writeErrorLine(Inspectable.toStringUnknown(attributes, 2));
     }
 
     if (options?.includeCause ?? true) {
-      console.error(renderObservedCause(cause));
+      writeErrorLine(pipe(cause, renderObservedCause));
     }
   });
 

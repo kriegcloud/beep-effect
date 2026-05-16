@@ -1417,37 +1417,38 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     target,
   });
   const duckDbLayer = DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }));
-  const forwarderResult = yield* runAiMetricsForwarder(forwarderInput).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(duckDbLayer)
+  const forwarderResult = yield* Effect.scoped(
+    Layer.build(duckDbLayer).pipe(
+      Effect.flatMap((context) => runAiMetricsForwarder(forwarderInput).pipe(Effect.provide(context)))
+    )
   );
-  const result = otlp
-    ? yield* Effect.gen(function* () {
-        const endpoint = yield* defaultServiceEndpoint(spec, otlpBaseUrl);
-        const otlpExit = yield* exportForwarderDerivedOtlp({ endpoint, forwarderResult, target }).pipe(
-          // @effect-diagnostics-next-line strictEffectProvide:off
-          Effect.provide(
-            Layer.mergeAll(duckDbLayer, layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint)))
-          ),
-          Effect.exit
-        );
-        const otlpExport = Exit.isFailure(otlpExit)
-          ? yield* Effect.gen(function* () {
-              yield* Console.error(
-                `ai-metrics: OTLP export failed after forwarder run: ${forwarderOtlpExportFailureMessage}`
-              );
-              return forwarderOtlpExportFailed({
-                endpoint,
-                forwarderResult,
-                message: forwarderOtlpExportFailureMessage,
-                target,
-              });
-            })
-          : otlpExit.value;
+  let result: AiMetricsForwarderRunResult = forwarderResult;
+  if (otlp) {
+    const endpoint = yield* defaultServiceEndpoint(spec, otlpBaseUrl);
+    const otlpExit = yield* Effect.scoped(
+      Layer.build(
+        Layer.mergeAll(duckDbLayer, layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint)))
+      ).pipe(
+        Effect.flatMap((context) =>
+          exportForwarderDerivedOtlp({ endpoint, forwarderResult, target }).pipe(Effect.provide(context))
+        )
+      )
+    ).pipe(Effect.exit);
+    const otlpExport = Exit.isFailure(otlpExit)
+      ? forwarderOtlpExportFailed({
+          endpoint,
+          forwarderResult,
+          message: forwarderOtlpExportFailureMessage,
+          target,
+        })
+      : otlpExit.value;
 
-        return forwarderRunResultWithOtlpExport(forwarderResult, otlpExport);
-      })
-    : forwarderResult;
+    if (Exit.isFailure(otlpExit)) {
+      yield* Console.error(`ai-metrics: OTLP export failed after forwarder run: ${forwarderOtlpExportFailureMessage}`);
+    }
+
+    result = forwarderRunResultWithOtlpExport(forwarderResult, otlpExport);
+  }
 
   if (json) {
     yield* Console.log(yield* forwarderRunResultToJson(result));
@@ -1532,7 +1533,11 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
     target === AiMetricsDeployTarget.Enum.dankserver ? ` --otlp --otlp-base-url ${shellQuote(endpoint.baseUrl)}` : "";
   const maxFileBytesFlagText = ` --max-file-bytes ${maxFileBytes}`;
   const maxFilesFlagText = ` --max-files ${maxFiles}`;
-  const cliCommand = `/usr/bin/env PATH=${shellQuote(process.env.PATH ?? "")} bun packages/tooling/tool/cli/src/bin.ts --`;
+  const pathEnv = pipe(
+    yield* Config.option(Config.string("PATH")).pipe(Effect.orElseSucceed(O.none<string>)),
+    O.getOrElse(() => "")
+  );
+  const cliCommand = `/usr/bin/env PATH=${shellQuote(pathEnv)} bun packages/tooling/tool/cli/src/bin.ts --`;
   const plan = renderAiMetricsForwarderTimerPlan(
     new AiMetricsForwarderTimerInput({
       command: `${cliCommand} ai-metrics forwarder run --target ${target}${dataRootFlag}${hashSaltSecretRefFlagText}${rawArchiveKeySecretRefFlagText}${otlpFlagText}${maxFileBytesFlagText}${maxFilesFlagText} --json`,
@@ -1599,19 +1604,22 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
     })
   );
   const endpoint = yield* defaultServiceEndpoint(spec, otlpBaseUrl);
-  const result = yield* runAiMetricsOtlpExport(
-    new AiMetricsOtlpExportInput({
-      duckDbPath: spec.storage.duckDbPath,
-      endpoint,
-      ingestRunId,
-      target,
-    })
-  ).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(
+  const result = yield* Effect.scoped(
+    Layer.build(
       Layer.mergeAll(
         DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })),
         layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint))
+      )
+    ).pipe(
+      Effect.flatMap((context) =>
+        runAiMetricsOtlpExport(
+          new AiMetricsOtlpExportInput({
+            duckDbPath: spec.storage.duckDbPath,
+            endpoint,
+            ingestRunId,
+            target,
+          })
+        ).pipe(Effect.provide(context))
       )
     )
   );
@@ -1660,18 +1668,21 @@ const makeBenchmarkRunProgram = Effect.fn("AIMetrics.makeBenchmarkRunProgram")(f
     rawArchiveKeySecretRef,
     target,
   });
-  const result = yield* recordAiMetricsBenchmarkRun(
-    new AiMetricsBenchmarkRunInput({
-      benchmarkCaseId: caseId,
-      configSnapshotId,
-      elapsedMs,
-      passed,
-      qualityGate,
-      ...(O.isSome(note) ? { note: note.value } : {}),
-    })
-  ).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  const result = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+      Effect.flatMap((context) =>
+        recordAiMetricsBenchmarkRun(
+          new AiMetricsBenchmarkRunInput({
+            benchmarkCaseId: caseId,
+            configSnapshotId,
+            elapsedMs,
+            passed,
+            qualityGate,
+            ...(O.isSome(note) ? { note: note.value } : {}),
+          })
+        ).pipe(Effect.provide(context))
+      )
+    )
   );
 
   if (json) {
@@ -1724,16 +1735,19 @@ const makeLabelQueueProgram = Effect.fn("AIMetrics.makeLabelQueueProgram")(funct
     target,
   });
   const window = yield* parseWindow({ since, until });
-  const result = yield* queueAiMetricsLabels(
-    new AiMetricsLabelQueueInput({
-      limit,
-      target,
-      windowEndEpochMillis: window.windowEndEpochMillis,
-      windowStartEpochMillis: window.windowStartEpochMillis,
-    })
-  ).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  const result = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+      Effect.flatMap((context) =>
+        queueAiMetricsLabels(
+          new AiMetricsLabelQueueInput({
+            limit,
+            target,
+            windowEndEpochMillis: window.windowEndEpochMillis,
+            windowStartEpochMillis: window.windowStartEpochMillis,
+          })
+        ).pipe(Effect.provide(context))
+      )
+    )
   );
 
   if (json) {
@@ -1781,19 +1795,22 @@ const makeLabelAddProgram = Effect.fn("AIMetrics.makeLabelAddProgram")(function*
     rawArchiveKeySecretRef,
     target,
   });
-  const result = yield* addAiMetricsOutcomeLabel(
-    new AiMetricsOutcomeLabelInput({
-      agentTaskId: taskId,
-      followUpFix,
-      interventionCount: interventions,
-      passed,
-      qualityGate,
-      rating,
-      ...(O.isSome(note) ? { note: note.value } : {}),
-    })
-  ).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  const result = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+      Effect.flatMap((context) =>
+        addAiMetricsOutcomeLabel(
+          new AiMetricsOutcomeLabelInput({
+            agentTaskId: taskId,
+            followUpFix,
+            interventionCount: interventions,
+            passed,
+            qualityGate,
+            rating,
+            ...(O.isSome(note) ? { note: note.value } : {}),
+          })
+        ).pipe(Effect.provide(context))
+      )
+    )
   );
 
   if (json) {
@@ -1835,17 +1852,20 @@ const makeBenchmarkCaseAddProgram = Effect.fn("AIMetrics.makeBenchmarkCaseAddPro
     rawArchiveKeySecretRef,
     target,
   });
-  const result = yield* upsertAiMetricsBenchmarkCase(
-    new AiMetricsBenchmarkCaseInput({
-      benchmarkCaseId: caseId,
-      expectedChecks: parseChecks(checks),
-      promptHash,
-      title,
-      ...(O.isSome(promptRef) ? { promptRef: promptRef.value } : {}),
-    })
-  ).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  const result = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+      Effect.flatMap((context) =>
+        upsertAiMetricsBenchmarkCase(
+          new AiMetricsBenchmarkCaseInput({
+            benchmarkCaseId: caseId,
+            expectedChecks: parseChecks(checks),
+            promptHash,
+            title,
+            ...(O.isSome(promptRef) ? { promptRef: promptRef.value } : {}),
+          })
+        ).pipe(Effect.provide(context))
+      )
+    )
   );
 
   if (json) {
@@ -1876,9 +1896,10 @@ const makeBenchmarkCaseListProgram = Effect.fn("AIMetrics.makeBenchmarkCaseListP
     rawArchiveKeySecretRef,
     target,
   });
-  const result = yield* listAiMetricsBenchmarkCases.pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  const result = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+      Effect.flatMap((context) => listAiMetricsBenchmarkCases.pipe(Effect.provide(context)))
+    )
   );
 
   if (json) {
@@ -1917,16 +1938,19 @@ const makeWeeklyReportProgram = Effect.fn("AIMetrics.makeWeeklyReportProgram")(f
     target,
   });
   const window = yield* parseWindow({ since, until });
-  const result = yield* generateAiMetricsWeeklyReport(
-    new AiMetricsWeeklyReportInput({
-      reportDir: path.join(spec.storage.dataRoot, "reports"),
-      target,
-      windowEndEpochMillis: window.windowEndEpochMillis,
-      windowStartEpochMillis: window.windowStartEpochMillis,
-    })
-  ).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+  const result = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+      Effect.flatMap((context) =>
+        generateAiMetricsWeeklyReport(
+          new AiMetricsWeeklyReportInput({
+            reportDir: path.join(spec.storage.dataRoot, "reports"),
+            target,
+            windowEndEpochMillis: window.windowEndEpochMillis,
+            windowStartEpochMillis: window.windowStartEpochMillis,
+          })
+        ).pipe(Effect.provide(context))
+      )
+    )
   );
 
   if (json) {
@@ -2463,63 +2487,66 @@ const makeArchiveDrillProgram = Effect.fn("AIMetrics.makeArchiveDrillProgram")(f
     target,
   });
   const rawArchiveKey = yield* resolveRawArchiveKey();
-  const result = yield* Effect.gen(function* () {
-    const duckdb = yield* DuckDb;
-    const rows = yield* duckdb
-      .query(
-        `SELECT archive_object_id AS "archiveObjectId",
-                archive_path AS "archivePath",
-                plaintext_content_hash AS "plaintextContentHash"
-         FROM ai_metrics_raw_archive_objects
-         ORDER BY encrypted_at_epoch_ms DESC
-         LIMIT 1`
-      )
-      .pipe(
-        Effect.mapError(
-          (cause) =>
-            new AiMetricsCommandError({
-              cause,
-              message: "Failed to select an AI metrics archive object for the decrypt drill.",
-            })
-        )
-      );
-    const decoded = yield* decodeArchiveDrillRows(rows).pipe(
-      Effect.mapError(
-        (cause) =>
-          new AiMetricsCommandError({
-            cause,
-            message: "Failed to decode AI metrics archive drill rows.",
-          })
-      )
-    );
-    const row = A.head(decoded);
-    if (O.isNone(row)) {
-      return yield* new AiMetricsCommandError({
-        cause: "ai_metrics_raw_archive_objects",
-        message: "No AI metrics raw archive object is available for a decrypt drill.",
-      });
-    }
+  const result = yield* Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath }))).pipe(
+      Effect.flatMap((context) =>
+        Effect.gen(function* () {
+          const duckdb = yield* DuckDb;
+          const rows = yield* duckdb
+            .query(
+              `SELECT archive_object_id AS "archiveObjectId",
+                      archive_path AS "archivePath",
+                      plaintext_content_hash AS "plaintextContentHash"
+               FROM ai_metrics_raw_archive_objects
+               ORDER BY encrypted_at_epoch_ms DESC
+               LIMIT 1`
+            )
+            .pipe(
+              Effect.mapError(
+                (cause) =>
+                  new AiMetricsCommandError({
+                    cause,
+                    message: "Failed to select an AI metrics archive object for the decrypt drill.",
+                  })
+              )
+            );
+          const decoded = yield* decodeArchiveDrillRows(rows).pipe(
+            Effect.mapError(
+              (cause) =>
+                new AiMetricsCommandError({
+                  cause,
+                  message: "Failed to decode AI metrics archive drill rows.",
+                })
+            )
+          );
+          const row = A.head(decoded);
+          if (O.isNone(row)) {
+            return yield* new AiMetricsCommandError({
+              cause: "ai_metrics_raw_archive_objects",
+              message: "No AI metrics raw archive object is available for a decrypt drill.",
+            });
+          }
 
-    const envelope = yield* readEncryptedRawArchiveEnvelope(row.value.archivePath);
-    const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKey });
-    const plaintextHash = yield* hashPublicTextSha256(plaintext);
-    const plaintextHashMatches = plaintextHash === row.value.plaintextContentHash;
-    if (!plaintextHashMatches) {
-      return yield* new AiMetricsCommandError({
-        cause: row.value.archiveObjectId,
-        message: "AI metrics archive decrypt drill failed plaintext hash verification.",
-      });
-    }
+          const envelope = yield* readEncryptedRawArchiveEnvelope(row.value.archivePath);
+          const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKey });
+          const plaintextHash = yield* hashPublicTextSha256(plaintext);
+          const plaintextHashMatches = plaintextHash === row.value.plaintextContentHash;
+          if (!plaintextHashMatches) {
+            return yield* new AiMetricsCommandError({
+              cause: row.value.archiveObjectId,
+              message: "AI metrics archive decrypt drill failed plaintext hash verification.",
+            });
+          }
 
-    return {
-      archiveObjectId: row.value.archiveObjectId,
-      decryptedByteCount: new TextEncoder().encode(plaintext).byteLength,
-      plaintextHashMatches,
-      target,
-    };
-  }).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: spec.storage.duckDbPath })))
+          return {
+            archiveObjectId: row.value.archiveObjectId,
+            decryptedByteCount: new TextEncoder().encode(plaintext).byteLength,
+            plaintextHashMatches,
+            target,
+          };
+        }).pipe(Effect.provide(context))
+      )
+    )
   );
 
   if (json) {

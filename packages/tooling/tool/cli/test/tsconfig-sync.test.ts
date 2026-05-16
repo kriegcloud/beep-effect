@@ -1,5 +1,6 @@
 import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/TsconfigSync";
 import { FsUtilsLive } from "@beep/repo-utils";
+import { provideScopedLayer } from "@beep/test-utils";
 import { A } from "@beep/utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -57,7 +58,7 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
         process.chdir(previousCwd);
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
-  ).pipe(Effect.provide(TestLayer));
+  ).pipe(provideScopedLayer(TestLayer));
 
 const writeTextFile = Effect.fn(function* (filePath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -188,8 +189,8 @@ const bootstrapWorkspace = Effect.fn(function* (
 });
 
 describe("tsconfig-sync", () => {
-  it("synchronizes root references, aliases, tstyche, and syncpack from workspace discovery", async () => {
-    await Effect.runPromise(
+  it("synchronizes root references, aliases, tstyche, and syncpack from workspace discovery", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -265,11 +266,10 @@ describe("tsconfig-sync", () => {
           expect(syncpackConfig).toContain(`"packages/example-domain/package.json"`);
         })
       )
-    );
-  });
+    ));
 
-  it("does not synthesize wildcard aliases for packages without wildcard exports", async () => {
-    await Effect.runPromise(
+  it("does not synthesize wildcard aliases for packages without wildcard exports", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -340,11 +340,10 @@ describe("tsconfig-sync", () => {
           ).not.toHaveProperty("@beep/example-use-cases/*");
         })
       )
-    );
-  });
+    ));
 
-  it("repairs stale root tstyche tsconfig drift", async () => {
-    await Effect.runPromise(
+  it("repairs stale root tstyche tsconfig drift", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -384,11 +383,10 @@ describe("tsconfig-sync", () => {
           });
         })
       )
-    );
-  });
+    ));
 
-  it("syncs managed docgen fields, preserves extras, and respects filter", async () => {
-    await Effect.runPromise(
+  it("syncs managed docgen fields, preserves extras, and respects filter", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -486,50 +484,119 @@ describe("tsconfig-sync", () => {
           });
         })
       )
-    );
-  });
+    ));
 
-  it("reports docgen drift in check mode and backfills missing managed fields in sync mode", async () => {
-    await Effect.runPromise(
-      withTempRepo(
-        Effect.gen(function* () {
-          const path = yield* Path.Path;
-          const rootDir = process.cwd();
+  it(
+    "reports docgen drift in check mode and backfills missing managed fields in sync mode",
+    () =>
+      Effect.runPromise(
+        withTempRepo(
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
 
-          yield* bootstrapRootConfig(rootDir, {
-            workspaces: ["packages/foundation/*/*", "packages/example/*"],
-            references: ["packages/example/protocol", "packages/foundation/modeling/schema"],
-            paths: {
-              "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
-              "@beep/schema/*": ["./packages/foundation/modeling/schema/src/*"],
-              "@beep/example-protocol": ["./packages/example/protocol/src/index.ts"],
-              "@beep/example-protocol/*": ["./packages/example/protocol/src/*"],
-            },
-            testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*", "packages/example/*/dtslint/**/*.tst.*"],
-            syncpackSources: [
-              "package.json",
-              "packages/foundation/*/*/package.json",
-              "packages/example/*/package.json",
-            ],
-          });
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: ["packages/foundation/*/*", "packages/example/*"],
+              references: ["packages/example/protocol", "packages/foundation/modeling/schema"],
+              paths: {
+                "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
+                "@beep/schema/*": ["./packages/foundation/modeling/schema/src/*"],
+                "@beep/example-protocol": ["./packages/example/protocol/src/index.ts"],
+                "@beep/example-protocol/*": ["./packages/example/protocol/src/*"],
+              },
+              testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*", "packages/example/*/dtslint/**/*.tst.*"],
+              syncpackSources: [
+                "package.json",
+                "packages/foundation/*/*/package.json",
+                "packages/example/*/package.json",
+              ],
+            });
 
-          yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/foundation/modeling/schema",
-            packageName: "@beep/schema",
-            docgenConfig: {
-              $schema: "../../../../packages/tooling/tool/docgen/schema.json",
+            yield* bootstrapWorkspace(rootDir, {
+              relativeDir: "packages/foundation/modeling/schema",
+              packageName: "@beep/schema",
+              docgenConfig: {
+                $schema: "../../../../packages/tooling/tool/docgen/schema.json",
+                exclude: ["src/internal/**/*.ts"],
+                srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
+                examplesCompilerOptions: {
+                  noEmit: true,
+                  strict: true,
+                  skipLibCheck: true,
+                  moduleResolution: "bundler",
+                  module: "es2022",
+                  target: "es2022",
+                  lib: ["ESNext", "DOM", "DOM.Iterable"],
+                  rewriteRelativeImportExtensions: true,
+                  allowImportingTsExtensions: true,
+                  moduleDetection: "force",
+                  verbatimModuleSyntax: true,
+                  allowJs: false,
+                  erasableSyntaxOnly: true,
+                  declaration: true,
+                  declarationMap: true,
+                  sourceMap: true,
+                  exactOptionalPropertyTypes: true,
+                  noUnusedLocals: true,
+                  noUnusedParameters: true,
+                  noImplicitOverride: true,
+                  noFallthroughCasesInSwitch: true,
+                  stripInternal: false,
+                  noErrorTruncation: true,
+                  types: [],
+                  jsx: "react-jsx",
+                  paths: {
+                    "@beep/schema": ["../../../../packages/foundation/modeling/schema/src/index.ts"],
+                    "@beep/schema/*": ["../../../../packages/foundation/modeling/schema/src/*.ts"],
+                  },
+                },
+              },
+            });
+            yield* bootstrapWorkspace(rootDir, {
+              relativeDir: "packages/example/protocol",
+              packageName: "@beep/example-protocol",
+              dependencies: {
+                "@beep/schema": "workspace:*",
+              },
+              references: ["../../foundation/modeling/schema/tsconfig.json"],
+              docgenConfig: {
+                $schema: "../../../packages/tooling/tool/docgen/schema.json",
+                srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/example/protocol/src/",
+              },
+            });
+
+            const drift = yield* syncTsconfigAtRoot(rootDir, {
+              mode: "check",
+              filter: "@beep/example-protocol",
+              verbose: false,
+            }).pipe(
+              Effect.match({
+                onFailure: (error) => error,
+                onSuccess: () => undefined,
+              })
+            );
+
+            expect(drift?._tag).toBe("TsconfigSyncDriftError");
+            if (drift?._tag !== "TsconfigSyncDriftError") {
+              return;
+            }
+            expect(drift.fileCount).toBe(1);
+
+            const syncResult = yield* syncTsconfigAtRoot(rootDir, {
+              mode: "sync",
+              filter: "@beep/example-protocol",
+              verbose: false,
+            });
+
+            expect(syncResult.changes).toHaveLength(1);
+            expect(syncResult.changes[0]?.section).toBe("package-docgen");
+
+            const syncedProtocolDocgen = yield* readJsonFile(
+              path.join(rootDir, "packages", "example", "protocol", "docgen.json")
+            );
+            expect(syncedProtocolDocgen).toMatchObject({
               exclude: ["src/internal/**/*.ts"],
-              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
               examplesCompilerOptions: {
-                noEmit: true,
-                strict: true,
-                skipLibCheck: true,
-                moduleResolution: "bundler",
-                module: "es2022",
-                target: "es2022",
-                lib: ["ESNext", "DOM", "DOM.Iterable"],
-                rewriteRelativeImportExtensions: true,
-                allowImportingTsExtensions: true,
                 moduleDetection: "force",
                 verbatimModuleSyntax: true,
                 allowJs: false,
@@ -547,114 +614,49 @@ describe("tsconfig-sync", () => {
                 types: [],
                 jsx: "react-jsx",
                 paths: {
-                  "@beep/schema": ["../../../../packages/foundation/modeling/schema/src/index.ts"],
-                  "@beep/schema/*": ["../../../../packages/foundation/modeling/schema/src/*.ts"],
+                  "@beep/example-protocol": ["../../../packages/example/protocol/src/index.ts"],
+                  "@beep/example-protocol/*": ["../../../packages/example/protocol/src/*.ts"],
+                  "@beep/schema": ["../../../packages/foundation/modeling/schema/src/index.ts"],
+                  "@beep/schema/*": ["../../../packages/foundation/modeling/schema/src/*.ts"],
                 },
               },
-            },
-          });
-          yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/example/protocol",
-            packageName: "@beep/example-protocol",
-            dependencies: {
-              "@beep/schema": "workspace:*",
-            },
-            references: ["../../foundation/modeling/schema/tsconfig.json"],
-            docgenConfig: {
-              $schema: "../../../packages/tooling/tool/docgen/schema.json",
-              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/example/protocol/src/",
-            },
-          });
+            });
+          })
+        )
+      ),
+    20_000
+  );
 
-          const drift = yield* syncTsconfigAtRoot(rootDir, {
-            mode: "check",
-            filter: "@beep/example-protocol",
-            verbose: false,
-          }).pipe(
-            Effect.match({
-              onFailure: (error) => error,
-              onSuccess: () => undefined,
-            })
-          );
+  it(
+    "treats lint-only docgen formatting drift as sync drift",
+    () =>
+      Effect.runPromise(
+        withTempRepo(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
 
-          expect(drift?._tag).toBe("TsconfigSyncDriftError");
-          if (drift?._tag !== "TsconfigSyncDriftError") {
-            return;
-          }
-          expect(drift.fileCount).toBe(1);
-
-          const syncResult = yield* syncTsconfigAtRoot(rootDir, {
-            mode: "sync",
-            filter: "@beep/example-protocol",
-            verbose: false,
-          });
-
-          expect(syncResult.changes).toHaveLength(1);
-          expect(syncResult.changes[0]?.section).toBe("package-docgen");
-
-          const syncedProtocolDocgen = yield* readJsonFile(
-            path.join(rootDir, "packages", "example", "protocol", "docgen.json")
-          );
-          expect(syncedProtocolDocgen).toMatchObject({
-            exclude: ["src/internal/**/*.ts"],
-            examplesCompilerOptions: {
-              moduleDetection: "force",
-              verbatimModuleSyntax: true,
-              allowJs: false,
-              erasableSyntaxOnly: true,
-              declaration: true,
-              declarationMap: true,
-              sourceMap: true,
-              exactOptionalPropertyTypes: true,
-              noUnusedLocals: true,
-              noUnusedParameters: true,
-              noImplicitOverride: true,
-              noFallthroughCasesInSwitch: true,
-              stripInternal: false,
-              noErrorTruncation: true,
-              types: [],
-              jsx: "react-jsx",
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: ["packages/foundation/*/*"],
+              references: ["packages/foundation/modeling/messages"],
               paths: {
-                "@beep/example-protocol": ["../../../packages/example/protocol/src/index.ts"],
-                "@beep/example-protocol/*": ["../../../packages/example/protocol/src/*.ts"],
-                "@beep/schema": ["../../../packages/foundation/modeling/schema/src/index.ts"],
-                "@beep/schema/*": ["../../../packages/foundation/modeling/schema/src/*.ts"],
+                "@beep/messages": ["./packages/foundation/modeling/messages/src/index.ts"],
+                "@beep/messages/*": ["./packages/foundation/modeling/messages/src/*"],
               },
-            },
-          });
-        })
-      )
-    );
-  }, 20_000);
+              testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*"],
+              syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
+            });
 
-  it("treats lint-only docgen formatting drift as sync drift", async () => {
-    await Effect.runPromise(
-      withTempRepo(
-        Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const rootDir = process.cwd();
+            yield* bootstrapWorkspace(rootDir, {
+              relativeDir: "packages/foundation/modeling/messages",
+              packageName: "@beep/messages",
+            });
 
-          yield* bootstrapRootConfig(rootDir, {
-            workspaces: ["packages/foundation/*/*"],
-            references: ["packages/foundation/modeling/messages"],
-            paths: {
-              "@beep/messages": ["./packages/foundation/modeling/messages/src/index.ts"],
-              "@beep/messages/*": ["./packages/foundation/modeling/messages/src/*"],
-            },
-            testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*"],
-            syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
-          });
-
-          yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/foundation/modeling/messages",
-            packageName: "@beep/messages",
-          });
-
-          const docgenPath = path.join(rootDir, "packages", "foundation", "modeling", "messages", "docgen.json");
-          yield* writeTextFile(
-            docgenPath,
-            `{
+            const docgenPath = path.join(rootDir, "packages", "foundation", "modeling", "messages", "docgen.json");
+            yield* writeTextFile(
+              docgenPath,
+              `{
   "$schema": "../../../../packages/tooling/tool/docgen/schema.json",
   "exclude": [
     "src/internal/**/*.ts"
@@ -701,47 +703,48 @@ describe("tsconfig-sync", () => {
   }
 }
 `
-          );
+            );
 
-          const drift = yield* syncTsconfigAtRoot(rootDir, {
-            mode: "check",
-            filter: "@beep/messages",
-            verbose: false,
-          }).pipe(
-            Effect.match({
-              onFailure: (error) => error,
-              onSuccess: () => undefined,
-            })
-          );
+            const drift = yield* syncTsconfigAtRoot(rootDir, {
+              mode: "check",
+              filter: "@beep/messages",
+              verbose: false,
+            }).pipe(
+              Effect.match({
+                onFailure: (error) => error,
+                onSuccess: () => undefined,
+              })
+            );
 
-          expect(drift?._tag).toBe("TsconfigSyncDriftError");
+            expect(drift?._tag).toBe("TsconfigSyncDriftError");
 
-          const syncResult = yield* syncTsconfigAtRoot(rootDir, {
-            mode: "sync",
-            filter: "@beep/messages",
-            verbose: false,
-          });
+            const syncResult = yield* syncTsconfigAtRoot(rootDir, {
+              mode: "sync",
+              filter: "@beep/messages",
+              verbose: false,
+            });
 
-          expect(syncResult.changes).toHaveLength(1);
-          expect(syncResult.changes[0]?.section).toBe("package-docgen");
+            expect(syncResult.changes).toHaveLength(1);
+            expect(syncResult.changes[0]?.section).toBe("package-docgen");
 
-          const syncedText = yield* fs.readFileString(docgenPath);
-          const syncedDocgen = decodeUnknownJson(syncedText) as {
-            readonly examplesCompilerOptions?: {
-              readonly paths?: Record<string, ReadonlyArray<string>>;
+            const syncedText = yield* fs.readFileString(docgenPath);
+            const syncedDocgen = decodeUnknownJson(syncedText) as {
+              readonly examplesCompilerOptions?: {
+                readonly paths?: Record<string, ReadonlyArray<string>>;
+              };
             };
-          };
 
-          expect(syncedText).toContain('"exclude": ["src/internal/**/*.ts"],');
-          expect(syncedText).toContain('"lib": ["ESNext", "DOM", "DOM.Iterable"],');
-          expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/messages"]).toEqual([
-            "../../../../packages/foundation/modeling/messages/src/index.ts",
-          ]);
-          expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/messages/*"]).toEqual([
-            "../../../../packages/foundation/modeling/messages/src/*.ts",
-          ]);
-        })
-      )
-    );
-  }, 20_000);
+            expect(syncedText).toContain('"exclude": ["src/internal/**/*.ts"],');
+            expect(syncedText).toContain('"lib": ["ESNext", "DOM", "DOM.Iterable"],');
+            expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/messages"]).toEqual([
+              "../../../../packages/foundation/modeling/messages/src/index.ts",
+            ]);
+            expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/messages/*"]).toEqual([
+              "../../../../packages/foundation/modeling/messages/src/*.ts",
+            ]);
+          })
+        )
+      ),
+    20_000
+  );
 });

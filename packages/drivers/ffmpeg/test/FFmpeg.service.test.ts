@@ -17,6 +17,11 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const encoder = new TextEncoder();
 const decodeManifest = S.decodeUnknownSync(S.fromJsonString(ExtractFramesManifest));
 
@@ -150,15 +155,15 @@ describe("@beep/ffmpeg", () => {
         expect(probe.frameCount).toBe(60);
         expect(commands[0]?.command).toBe("ffprobe");
       })
-    ).pipe(Effect.provide(Layer.mergeAll(NodeServices.layer, makeLayer(commands))));
+    ).pipe(provideScopedLayer(Layer.mergeAll(NodeServices.layer, makeLayer(commands))));
   });
 
-  it("extracts frames into final names and writes the default manifest", async () => {
-    const commands: Array<ChildProcess.StandardCommand> = [];
-    const events: Array<FFmpegEvent> = [];
+  it("extracts frames into final names and writes the default manifest", () =>
+    Effect.gen(function* () {
+      const commands: Array<ChildProcess.StandardCommand> = [];
+      const events: Array<FFmpegEvent> = [];
 
-    await Effect.runPromise(
-      withTempDirectory((tmpDir) =>
+      yield* withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
@@ -195,15 +200,14 @@ describe("@beep/ffmpeg", () => {
           expect(A.map(events, (event) => event.kind)).toEqual(["started", "progress", "progress", "completed"]);
           expect(A.map(commands, (command) => command.command)).toEqual(["ffprobe", "ffmpeg"]);
         })
-      ).pipe(Effect.provide(Layer.mergeAll(NodeServices.layer, makeLayer(commands))))
-    );
-  });
+      ).pipe(provideScopedLayer(Layer.mergeAll(NodeServices.layer, makeLayer(commands))));
+    }));
 
-  it("fails before overwriting an existing frame target", async () => {
-    const commands: Array<ChildProcess.StandardCommand> = [];
+  it("fails before overwriting an existing frame target", () =>
+    Effect.gen(function* () {
+      const commands: Array<ChildProcess.StandardCommand> = [];
 
-    await Effect.runPromise(
-      withTempDirectory((tmpDir) =>
+      yield* withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
@@ -231,15 +235,14 @@ describe("@beep/ffmpeg", () => {
           expect(error.message).toContain("Refusing to overwrite existing frame output");
           expect(yield* fs.readFileString(path.join(outDir, "sample_frame_00000.png"))).toBe("existing");
         })
-      ).pipe(Effect.provide(Layer.mergeAll(NodeServices.layer, makeLayer(commands))))
-    );
-  });
+      ).pipe(provideScopedLayer(Layer.mergeAll(NodeServices.layer, makeLayer(commands))));
+    }));
 
-  it("normalizes failed ffmpeg exits into FFmpegError", async () => {
-    const commands: Array<ChildProcess.StandardCommand> = [];
+  it("normalizes failed ffmpeg exits into FFmpegError", () =>
+    Effect.gen(function* () {
+      const commands: Array<ChildProcess.StandardCommand> = [];
 
-    await Effect.runPromise(
-      withTempDirectory((tmpDir) =>
+      yield* withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
@@ -264,7 +267,6 @@ describe("@beep/ffmpeg", () => {
           expect(error).toBeInstanceOf(FFmpegError);
           expect(error.message).toContain("ffmpeg could not extract frames");
         })
-      ).pipe(Effect.provide(Layer.mergeAll(NodeServices.layer, makeLayer(commands, 7))))
-    );
-  });
+      ).pipe(provideScopedLayer(Layer.mergeAll(NodeServices.layer, makeLayer(commands, 7))));
+    }));
 });

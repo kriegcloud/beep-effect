@@ -79,13 +79,12 @@ interface RecoveryStep {
   readonly label: string;
 }
 
-const commandForStep = (patchDir: string, step: FailedStep): string => {
-  return FailedStep.$match(step, {
+const commandForStep = (patchDir: string, step: FailedStep): string =>
+  FailedStep.$match(step, {
     commits: () => `git am --3way ${patchDir}/*.patch`,
     diff: () => `git apply ${patchDir}/changes.patch`,
     untracked: () => `cp -r ${patchDir}/untracked/* .`,
   });
-};
 
 const buildSteps = (input: RecoveryInput): ReadonlyArray<RecoveryStep> => {
   const steps = A.empty<RecoveryStep>();

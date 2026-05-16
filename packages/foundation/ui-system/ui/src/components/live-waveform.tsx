@@ -229,9 +229,9 @@ export const LiveWaveform = ({
       return;
     }
 
-    const setupMicrophone = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+    const setupMicrophone = () => {
+      navigator.mediaDevices
+        .getUserMedia({
           audio: hasDeviceId
             ? {
                 deviceId: { exact: deviceId },
@@ -244,31 +244,32 @@ export const LiveWaveform = ({
                 noiseSuppression: true,
                 autoGainControl: true,
               },
-        });
-        streamRef.current = stream;
-        onStreamReady?.(stream);
+        })
+        .then((stream) => {
+          streamRef.current = stream;
+          onStreamReady?.(stream);
 
-        const AudioContextConstructor =
-          window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-        const audioContext = new AudioContextConstructor();
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = fftSize;
-        analyser.smoothingTimeConstant = smoothingTimeConstant;
+          const AudioContextConstructor =
+            window.AudioContext ||
+            (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+          const audioContext = new AudioContextConstructor();
+          const analyser = audioContext.createAnalyser();
+          analyser.fftSize = fftSize;
+          analyser.smoothingTimeConstant = smoothingTimeConstant;
 
-        const source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyser);
+          const source = audioContext.createMediaStreamSource(stream);
+          source.connect(analyser);
 
-        audioContextRef.current = audioContext;
-        analyserRef.current = analyser;
+          audioContextRef.current = audioContext;
+          analyserRef.current = analyser;
 
-        // Clear history when starting
-        historyRef.current = A.empty();
-      } catch (error) {
-        onError?.(error as Error);
-      }
+          // Clear history when starting
+          historyRef.current = A.empty();
+        })
+        .catch((error: unknown) => onError?.(error as Error));
     };
 
-    void setupMicrophone();
+    setupMicrophone();
 
     return () => {
       if (streamRef.current !== null) {
