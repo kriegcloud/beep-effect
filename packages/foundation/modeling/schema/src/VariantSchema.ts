@@ -658,24 +658,22 @@ export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> ext
  */
 export const Overrideable: typeof Overridable = Overridable;
 
-const Struct = <const A extends Field.Fields>(fields: A): Struct<A> => {
-  return {
+const Struct = <const A extends Field.Fields>(fields: A): Struct<A> =>
+  ({
     [TypeId]: fields,
     pipe() {
       return pipeArguments(this, arguments);
     },
-  } satisfies Struct<A>;
-};
+  }) satisfies Struct<A>;
 
-const Field = <const A extends Field.Config>(schemas: A): Field<A> => {
-  return {
+const Field = <const A extends Field.Config>(schemas: A): Field<A> =>
+  ({
     schemas,
     [FieldTypeId]: FieldTypeId,
     pipe() {
       return pipeArguments(this, arguments);
     },
-  } satisfies Field<A>;
-};
+  }) satisfies Field<A>;
 
 const Union = <Members extends ReadonlyArray<AnyStruct>, Variants extends ReadonlyArray<string>>(
   members: Members,

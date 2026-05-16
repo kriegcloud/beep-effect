@@ -10,12 +10,17 @@ import {
 } from "@beep/repo-utils";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { Effect, Exit, Layer, Scope } from "effect";
+import { type Context, Effect, Exit, Layer, Scope } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const runReuseCommand = Command.runWith(reuseCommand, { version: "0.0.0" });
 const TOOLING_CLI_SCOPE = "packages/tooling/tool/cli";
@@ -37,133 +42,204 @@ const parseLoggedJson = Effect.fn(function* <A>(decodeJson: (value: string) => A
 });
 
 const sharedReuseScope = Scope.makeUnsafe();
-let sharedReuseContextPromise: Promise<unknown>;
+let sharedReuseContextPromise: Promise<Context.Context<unknown>>;
 
 beforeAll(() => {
   sharedReuseContextPromise = Effect.runPromise(
-    Layer.buildWithScope(ReuseServiceSuiteLive, sharedReuseScope).pipe(Effect.provide(CommandTestLayer))
+    Layer.buildWithScope(ReuseServiceSuiteLive, sharedReuseScope).pipe(provideScopedLayer(CommandTestLayer))
   );
 });
 
-afterAll(async () => {
-  await Effect.runPromise(Scope.close(sharedReuseScope, Exit.void));
-});
+afterAll(() => Effect.runPromise(Scope.close(sharedReuseScope, Exit.void)));
 
-const runWithReuseContext = async <A, E, R>(effect: Effect.Effect<A, E, R>) => {
-  const context = (await sharedReuseContextPromise) as never;
-  return Effect.runPromise(effect.pipe(Effect.provide(context)) as Effect.Effect<A, E, never>);
-};
+const runWithReuseContext = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+  sharedReuseContextPromise.then((context) =>
+    Effect.runPromise(effect.pipe(Effect.provide(context as Context.Context<R>)))
+  );
 
 describe("reuse command", () => {
-  it("emits machine-readable partitions for the tooling pilot scope", async () => {
-    const plan = await runWithReuseContext(
-      Effect.gen(function* () {
-        const planner = yield* ReusePartitionPlannerService;
-        return yield* planner.buildPartitions(O.some(TOOLING_CLI_SCOPE));
-      })
-    );
+  it(
+    "emits machine-readable partitions for the tooling pilot scope",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          const plan = yield* Effect.promise(() =>
+            Promise.resolve(
+              runWithReuseContext(
+                Effect.gen(function* () {
+                  const planner = yield* ReusePartitionPlannerService;
+                  return yield* planner.buildPartitions(O.some(TOOLING_CLI_SCOPE));
+                })
+              )
+            )
+          );
 
-    expect(plan.scopeSelector).toBe(TOOLING_CLI_SCOPE);
-    expect(plan.catalogEntryCount).toBeGreaterThan(0);
-    expect(A.map(plan.scoutUnits, (unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
-    expect(plan.specialistUnits.length).toBeGreaterThan(0);
-  }, 120_000);
+          expect(plan.scopeSelector).toBe(TOOLING_CLI_SCOPE);
+          expect(plan.catalogEntryCount).toBeGreaterThan(0);
+          expect(A.map(plan.scoutUnits, (unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
+          expect(plan.specialistUnits.length).toBeGreaterThan(0);
+        })
+      ),
+    120_000
+  );
 
-  it("canonicalizes dot-prefixed scope selectors before emitting partitions", async () => {
-    const plan = await runWithReuseContext(
-      Effect.gen(function* () {
-        const planner = yield* ReusePartitionPlannerService;
-        return yield* planner.buildPartitions(O.some(TOOLING_CLI_DOT_SCOPE));
-      })
-    );
+  it(
+    "canonicalizes dot-prefixed scope selectors before emitting partitions",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          const plan = yield* Effect.promise(() =>
+            Promise.resolve(
+              runWithReuseContext(
+                Effect.gen(function* () {
+                  const planner = yield* ReusePartitionPlannerService;
+                  return yield* planner.buildPartitions(O.some(TOOLING_CLI_DOT_SCOPE));
+                })
+              )
+            )
+          );
 
-    expect(plan.scopeSelector).toBe(TOOLING_CLI_SCOPE);
-    expect(A.map(plan.scoutUnits, (unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
-  }, 120_000);
+          expect(plan.scopeSelector).toBe(TOOLING_CLI_SCOPE);
+          expect(A.map(plan.scoutUnits, (unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
+        })
+      ),
+    120_000
+  );
 
-  it("emits a stable machine-readable inventory for the tooling pilot scope", async () => {
-    const inventory = await runWithReuseContext(
-      Effect.gen(function* () {
-        const inventoryService = yield* ReuseInventoryService;
-        return yield* inventoryService.buildInventory(O.some(TOOLING_CLI_SCOPE));
-      })
-    );
+  it(
+    "emits a stable machine-readable inventory for the tooling pilot scope",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          const inventory = yield* Effect.promise(() =>
+            Promise.resolve(
+              runWithReuseContext(
+                Effect.gen(function* () {
+                  const inventoryService = yield* ReuseInventoryService;
+                  return yield* inventoryService.buildInventory(O.some(TOOLING_CLI_SCOPE));
+                })
+              )
+            )
+          );
 
-    expect(inventory.scopeSelector).toBe(TOOLING_CLI_SCOPE);
-    expect(inventory.catalogEntryCount).toBeGreaterThan(0);
-    expect(inventory.candidateCount).toBe(inventory.candidates.length);
-    expect(inventory.candidates.length).toBeGreaterThan(0);
-  }, 120_000);
+          expect(inventory.scopeSelector).toBe(TOOLING_CLI_SCOPE);
+          expect(inventory.catalogEntryCount).toBeGreaterThan(0);
+          expect(inventory.candidateCount).toBe(inventory.candidates.length);
+          expect(inventory.candidates.length).toBeGreaterThan(0);
+        })
+      ),
+    120_000
+  );
 
-  it("emits a packet for a discovered candidate id", async () => {
-    const inventory = await runWithReuseContext(
-      Effect.gen(function* () {
-        const inventoryService = yield* ReuseInventoryService;
-        return yield* inventoryService.buildInventory(O.some(TOOLING_CLI_SCOPE));
-      })
-    );
+  it(
+    "emits a packet for a discovered candidate id",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          const inventory = yield* Effect.promise(() =>
+            Promise.resolve(
+              runWithReuseContext(
+                Effect.gen(function* () {
+                  const inventoryService = yield* ReuseInventoryService;
+                  return yield* inventoryService.buildInventory(O.some(TOOLING_CLI_SCOPE));
+                })
+              )
+            )
+          );
 
-    const firstCandidateId = inventory.candidates[0]?.candidateId;
-    expect(firstCandidateId).toBeTruthy();
-    if (firstCandidateId === undefined) {
-      return;
-    }
+          const firstCandidateId = inventory.candidates[0]?.candidateId;
+          expect(firstCandidateId).toBeTruthy();
+          if (firstCandidateId === undefined) {
+            return;
+          }
 
-    const packet = await runWithReuseContext(
-      Effect.gen(function* () {
-        const inventoryService = yield* ReuseInventoryService;
-        return yield* inventoryService.buildPacket(firstCandidateId, O.some(TOOLING_CLI_SCOPE));
-      })
-    );
+          const packet = yield* Effect.promise(() =>
+            Promise.resolve(
+              runWithReuseContext(
+                Effect.gen(function* () {
+                  const inventoryService = yield* ReuseInventoryService;
+                  return yield* inventoryService.buildPacket(firstCandidateId, O.some(TOOLING_CLI_SCOPE));
+                })
+              )
+            )
+          );
 
-    expect(packet.candidate.candidateId).toBe(firstCandidateId);
-    expect(packet.catalogMatches.length).toBeGreaterThan(0);
-  }, 120_000);
+          expect(packet.candidate.candidateId).toBe(firstCandidateId);
+          expect(packet.catalogMatches.length).toBeGreaterThan(0);
+        })
+      ),
+    120_000
+  );
 
-  it("emits a machine-readable find result", async () => {
-    const result = await runWithReuseContext(
-      Effect.gen(function* () {
-        const discovery = yield* ReuseDiscoveryService;
-        return yield* discovery.findReuseOptions({
-          filePath: TOOLING_CLI_FILE,
-          query: O.some("json"),
-          symbolId: O.none(),
-        });
-      })
-    );
+  it(
+    "emits a machine-readable find result",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          const result = yield* Effect.promise(() =>
+            Promise.resolve(
+              runWithReuseContext(
+                Effect.gen(function* () {
+                  const discovery = yield* ReuseDiscoveryService;
+                  return yield* discovery.findReuseOptions({
+                    filePath: TOOLING_CLI_FILE,
+                    query: O.some("json"),
+                    symbolId: O.none(),
+                  });
+                })
+              )
+            )
+          );
 
-    expect(result.filePath).toBe(TOOLING_CLI_FILE);
-    expect(O.isSome(result.query)).toBe(true);
-    expect(result.matches.length).toBeGreaterThan(0);
-  }, 120_000);
+          expect(result.filePath).toBe(TOOLING_CLI_FILE);
+          expect(O.isSome(result.query)).toBe(true);
+          expect(result.matches.length).toBeGreaterThan(0);
+        })
+      ),
+    120_000
+  );
 
-  it("canonicalizes dot-prefixed file paths in machine-readable find results", async () => {
-    const result = await runWithReuseContext(
-      Effect.gen(function* () {
-        const discovery = yield* ReuseDiscoveryService;
-        return yield* discovery.findReuseOptions({
-          filePath: `./${TOOLING_CLI_FILE}`,
-          query: O.some("json"),
-          symbolId: O.none(),
-        });
-      })
-    );
+  it(
+    "canonicalizes dot-prefixed file paths in machine-readable find results",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          const result = yield* Effect.promise(() =>
+            Promise.resolve(
+              runWithReuseContext(
+                Effect.gen(function* () {
+                  const discovery = yield* ReuseDiscoveryService;
+                  return yield* discovery.findReuseOptions({
+                    filePath: `./${TOOLING_CLI_FILE}`,
+                    query: O.some("json"),
+                    symbolId: O.none(),
+                  });
+                })
+              )
+            )
+          );
 
-    expect(result.filePath).toBe(TOOLING_CLI_FILE);
-    expect(result.matches.length).toBeGreaterThan(0);
-  }, 120_000);
+          expect(result.filePath).toBe(TOOLING_CLI_FILE);
+          expect(result.matches.length).toBeGreaterThan(0);
+        })
+      ),
+    120_000
+  );
 
-  it("validates the Codex SDK smoke adapter contract", async () => {
-    await Effect.runPromise(
-      Effect.gen(function* () {
-        yield* runReuseCommand(["codex-smoke", "--json"]);
+  it(
+    "validates the Codex SDK smoke adapter contract",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          yield* runReuseCommand(["codex-smoke", "--json"]);
 
-        const result = yield* parseLoggedJson(decodeCodexSmokeResultJson);
+          const result = yield* parseLoggedJson(decodeCodexSmokeResultJson);
 
-        expect(result.sdkPackage).toBe("@openai/codex-sdk");
-        expect(result.threadCreated).toBe(true);
-        expect(result.threadRunMethodAvailable).toBe(true);
-      }).pipe(Effect.provide(CommandTestLayer))
-    );
-  }, 120_000);
+          expect(result.sdkPackage).toBe("@openai/codex-sdk");
+          expect(result.threadCreated).toBe(true);
+          expect(result.threadRunMethodAvailable).toBe(true);
+        }).pipe(provideScopedLayer(CommandTestLayer))
+      ),
+    120_000
+  );
 });

@@ -57,12 +57,11 @@ import * as S from "effect/Schema";
 export function pluck<P extends PropertyKey>(key: P) {
   return <FieldSchema extends S.Top>(
     schema: S.Struct<{ [K in P]: FieldSchema }>
-  ): S.decodeTo<S.toType<FieldSchema>, S.Struct<{ [K in P]: FieldSchema }>> => {
-    return schema.mapFields(Struct.pick([key])).pipe(
+  ): S.decodeTo<S.toType<FieldSchema>, S.Struct<{ [K in P]: FieldSchema }>> =>
+    schema.mapFields(Struct.pick([key])).pipe(
       S.decodeTo(S.toType(schema.fields[key]), {
         decode: SchemaGetter.transform((whole: TUnsafe.Any) => whole[key]),
         encode: SchemaGetter.transform((value) => ({ [key]: value }) as TUnsafe.Any),
       })
     );
-  };
 }

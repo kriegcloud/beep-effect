@@ -38,12 +38,13 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   args: { children: "Button" },
-  play: async ({ canvasElement, args }) => {
+  play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole("button");
-    await expect(button).toBeVisible();
-    await userEvent.click(button);
-    await expect(args.onClick).toHaveBeenCalledOnce();
+    return expect(button)
+      .toBeVisible()
+      .then(() => userEvent.click(button))
+      .then(() => expect(args.onClick).toHaveBeenCalledOnce());
   },
 };
 
@@ -109,12 +110,13 @@ export const Large: Story = {
  */
 export const ClickInteraction: Story = {
   args: { children: "Click Me" },
-  play: async ({ canvasElement, args }) => {
+  play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole("button");
-    await expect(button).toHaveTextContent("Click Me");
-    await userEvent.click(button);
-    await userEvent.click(button);
-    await expect(args.onClick).toHaveBeenCalledTimes(2);
+    return expect(button)
+      .toHaveTextContent("Click Me")
+      .then(() => userEvent.click(button))
+      .then(() => userEvent.click(button))
+      .then(() => expect(args.onClick).toHaveBeenCalledTimes(2));
   },
 };

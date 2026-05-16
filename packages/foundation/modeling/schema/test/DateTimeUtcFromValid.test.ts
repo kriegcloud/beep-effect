@@ -13,6 +13,8 @@ import { describe, expect, it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
 import * as S from "effect/Schema";
 
+const NativeDate = globalThis.Date;
+
 const iso = "2024-01-01T00:00:00.000Z";
 const epochMilliseconds = 1_704_067_200_000;
 
@@ -35,7 +37,7 @@ describe("DateTimeInput primitive schemas", () => {
     expect(decodeInput(iso)).toBe(iso);
     expect(decodeInput(epochMilliseconds)).toBe(epochMilliseconds);
 
-    const date = new Date(iso);
+    const date = DateTime.toDateUtc(DateTime.makeUnsafe(iso));
 
     expect(decodeInput(date)).toBe(date);
   });
@@ -43,7 +45,7 @@ describe("DateTimeInput primitive schemas", () => {
   it("decode tagged string, number, and Date inputs", () => {
     const stringInput = DateTimeInputString.makeTagged(iso);
     const numberInput = DateTimeInputNumber.makeTagged(epochMilliseconds);
-    const dateInput = DateTimeInputDate.makeTagged(new Date(iso));
+    const dateInput = DateTimeInputDate.makeTagged(DateTime.toDateUtc(DateTime.makeUnsafe(iso)));
 
     expect(S.decodeUnknownSync(DateTimeInputString.Tagged)(stringInput)).toEqual(stringInput);
     expect(S.decodeUnknownSync(DateTimeInputNumber.Tagged)(numberInput)).toEqual(numberInput);
@@ -55,7 +57,9 @@ describe("DateTimeInput primitive schemas", () => {
       "Expected a string that can be converted into a DateTime.Utc"
     );
     expect(() => S.decodeUnknownSync(DateTimeInputNumber)(Number.POSITIVE_INFINITY)).toThrow();
-    expect(() => S.decodeUnknownSync(DateTimeInputDate)(new Date("not-a-date"))).toThrow();
+    expect(() =>
+      S.decodeUnknownSync(DateTimeInputDate)(Reflect.construct(NativeDate, ["not-a-date"]) as Date)
+    ).toThrow();
   });
 });
 
@@ -120,13 +124,16 @@ describe("DateTimeUtcFromValid", () => {
   it("decodes raw DateTime.Input primitives into DateTime.Utc", () => {
     expectEpochMillis(decodeUtc(iso), epochMilliseconds);
     expectEpochMillis(decodeUtc(epochMilliseconds), epochMilliseconds);
-    expectEpochMillis(decodeUtc(new Date(iso)), epochMilliseconds);
+    expectEpochMillis(decodeUtc(DateTime.makeUnsafe(iso).pipe(DateTime.toDateUtc)), epochMilliseconds);
   });
 
   it("decodes tagged primitive inputs into DateTime.Utc", () => {
     expectEpochMillis(decodeUtc(DateTimeInputString.makeTagged(iso)), epochMilliseconds);
     expectEpochMillis(decodeUtc(DateTimeInputNumber.makeTagged(epochMilliseconds)), epochMilliseconds);
-    expectEpochMillis(decodeUtc(DateTimeInputDate.makeTagged(new Date(iso))), epochMilliseconds);
+    expectEpochMillis(
+      decodeUtc(DateTimeInputDate.makeTagged(DateTime.makeUnsafe(iso).pipe(DateTime.toDateUtc))),
+      epochMilliseconds
+    );
   });
 
   it("decodes existing DateTime.Utc and DateTime.Zoned values into UTC", () => {

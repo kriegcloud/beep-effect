@@ -60,5 +60,7 @@ extend-exclude = [
   "standards/repo-exports.catalog.jsonc",
   "standards/repo-exports.catalog.md",
   "**/internal/data/**",
+  "**/src-tauri/gen/**",
+  "**/src-tauri/target/**",
   "packages/drivers/venice-ai/swagger.yaml",
 ]

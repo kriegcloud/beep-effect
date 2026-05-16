@@ -1,5 +1,6 @@
 import { inspect } from "node:util";
 import { encodeJsonString } from "@beep/schema/Json";
+import type { TUnsafe } from "@beep/types";
 import { A, Str } from "@beep/utils";
 import {
   XAI_API_URL,
@@ -135,7 +136,7 @@ const TestHttpClientLayer = Layer.effect(
   })
 );
 
-const makeXAiUnitLayer = () =>
+const makeXAiUnitLayer = (): Layer.Layer<XAi | XAiTestHttp> =>
   XAi.makeLayer(
     new XAiConfigInput({
       apiKey: Redacted.make("api-test-key"),
@@ -145,7 +146,7 @@ const makeXAiUnitLayer = () =>
     })
   ).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(XAiTestHttpLayer));
 
-const makeInvalidWebSocketUrlLayer = () =>
+const makeInvalidWebSocketUrlLayer = (): Layer.Layer<XAi | XAiTestHttp> =>
   XAi.makeLayer(
     new XAiConfigInput({
       apiKey: Redacted.make("api-test-key"),
@@ -203,7 +204,7 @@ const requestFor = (descriptor: XAiEndpointDescriptor): XAiRequestOptions => {
 };
 
 describe("@beep/xai", () => {
-  layer(makeXAiUnitLayer())((it) =>
+  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
     it.effect("keeps endpoint manifest and service surface aligned", () =>
       Effect.gen(function* () {
         expect(XAI_ENDPOINTS).toHaveLength(XAI_ENDPOINT_COUNT);
@@ -232,7 +233,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer())((it) =>
+  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
     it.effect("sends every HTTP endpoint with the expected method, path, auth, query, and body mode", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -274,7 +275,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer())((it) =>
+  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
     it.effect("maps status, malformed JSON, multipart, and SSE failures", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -333,7 +334,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer())((it) =>
+  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
     it.effect("redacts xAI transport and WebSocket failure causes before rendering", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -402,7 +403,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer())((it) =>
+  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
     it.effect("maps language-model transport failures to retryable network errors", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -432,7 +433,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer())((it) =>
+  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
     it.effect("rejects non-JSON chat completion responses in the language model adapter", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -457,7 +458,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer())((it) =>
+  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
     it.effect("rejects request payloads that do not match the endpoint body mode", () =>
       Effect.gen(function* () {
         const xai = yield* XAi;
@@ -481,7 +482,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeInvalidWebSocketUrlLayer())((it) =>
+  layer(makeInvalidWebSocketUrlLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
     it.effect("maps invalid WebSocket URL configuration into a typed driver error", () =>
       Effect.gen(function* () {
         const xai = yield* XAi;
@@ -493,7 +494,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer())((it) =>
+  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
     it.effect("parses SSE streams for chat, responses, and legacy-compatible endpoints", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;

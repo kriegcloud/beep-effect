@@ -32,6 +32,12 @@ type OrbProps = {
   readonly className?: undefined | string;
 };
 
+const randomUint32 = (): number => {
+  const values = new Uint32Array(1);
+  globalThis.crypto?.getRandomValues(values);
+  return values[0] ?? 0;
+};
+
 /**
  * @category components
  * @since 0.0.0
@@ -135,7 +141,7 @@ function Scene({
     manualOutRef.current = clamp01(manualOutput ?? outputVolumeRef?.current ?? getOutputVolume?.() ?? 0);
   }, [manualOutput, outputVolumeRef, getOutputVolume]);
 
-  const random = useMemo(() => splitmix32(seed ?? Math.floor(Math.random() * 2 ** 32)), [seed]);
+  const random = useMemo(() => splitmix32(seed ?? randomUint32()), [seed]);
   const offsets = useMemo(() => new Float32Array(A.makeBy(7, () => random() * Math.PI * 2)), [random]);
 
   useEffect(() => {
@@ -249,7 +255,7 @@ function Scene({
     const canvas = gl.domElement;
     const onContextLost = (event: Event) => {
       event.preventDefault();
-      setTimeout(() => void gl.forceContextRestore(), 1);
+      window.setTimeout(() => void gl.forceContextRestore(), 1);
     };
     canvas.addEventListener("webglcontextlost", onContextLost, false);
     return () => canvas.removeEventListener("webglcontextlost", onContextLost, false);

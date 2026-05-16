@@ -14,7 +14,7 @@ import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-works
 import { OnePasswordCli } from "@beep/onepassword-cli";
 import { Sha256HexFromBytes } from "@beep/schema/Sha256";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
-import { Duration, Effect, Exit, FileSystem, Layer, Order, Path, pipe, RegExp as Rx, Stream } from "effect";
+import { Console, Duration, Effect, Exit, FileSystem, Layer, Order, Path, pipe, RegExp as Rx, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -54,6 +54,10 @@ const DriverLayer = Layer.mergeAll(OnePasswordCli.makeLayer(), AiProviderCli.mak
 const ProcessLayer = BunChildProcessSpawner.layer.pipe(Layer.provideMerge(BaseLayer));
 const SliceRuntimeLayer = P1ManualProofSliceLayer.pipe(Layer.provideMerge(DriverLayer), Layer.provideMerge(BaseLayer));
 const RuntimeLayer = Layer.mergeAll(ProcessLayer, SliceRuntimeLayer);
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
   stream.pipe(
@@ -547,9 +551,7 @@ const watchProofArtifacts = Effect.fn("StackInstaller.watchProofArtifacts")(func
     }
 
     if (attempt < attempts) {
-      yield* Effect.sync(() => {
-        console.log(`P1 proof watch attempt ${attempt}/${attempts} pending; sleeping ${intervalMs}ms.`);
-      });
+      yield* Console.log(`P1 proof watch attempt ${attempt}/${attempts} pending; sleeping ${intervalMs}ms.`);
       yield* Effect.sleep(Duration.millis(intervalMs));
     }
   }
@@ -594,9 +596,8 @@ const selectedMode = Effect.gen(function* () {
 
 const program = pipe(
   selectedMode,
-  Effect.tap((message) => Effect.sync(() => console.log(message))),
-  // @effect-diagnostics-next-line strictEffectProvide:off
-  Effect.provide(RuntimeLayer)
+  Effect.tap((message) => Console.log(message)),
+  provideScopedLayer(RuntimeLayer)
 );
 
 BunRuntime.runMain(program);

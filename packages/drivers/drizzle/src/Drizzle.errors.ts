@@ -249,12 +249,8 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
    * @category errors
    * @since 0.0.0
    */
-  static readonly fromUnknown = (
-    operation: string,
-    cause?: unknown,
-    context: DrizzleErrorContext = {}
-  ): DrizzleError => {
-    return O.getOrElse(existingDrizzleErrorFromUnknown(cause), () => {
+  static readonly fromUnknown = (operation: string, cause?: unknown, context: DrizzleErrorContext = {}): DrizzleError =>
+    O.getOrElse(existingDrizzleErrorFromUnknown(cause), () => {
       const nativeContext = extractNativeQueryContext(cause);
       return new DrizzleError({
         operation,
@@ -263,5 +259,4 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
         params: O.fromUndefinedOr(context.params ?? nativeContext.params),
       });
     });
-  };
 }

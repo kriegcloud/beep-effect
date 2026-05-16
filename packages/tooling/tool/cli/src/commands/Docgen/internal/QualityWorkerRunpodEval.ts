@@ -26,7 +26,7 @@ import {
   type Template,
 } from "@beep/runpod";
 import { LiteralKit } from "@beep/schema";
-import { Console, DateTime, Duration, Effect, Order, pipe, Ref, Result, Schedule } from "effect";
+import { Console, DateTime, Duration, Effect, Layer, Order, pipe, Ref, Result, Schedule } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -851,31 +851,8 @@ const emitRunpodEvalOtlp = Effect.fn("DocgenQualityWorkerRunpodEval.emitRunpodEv
 
   const serviceName = "beep.docgen.quality-worker-eval-runpod";
   const spanCount = A.length(workerEval.packets) + 1;
-  const exportResult = yield* Effect.gen(function* () {
-    const sourceQualityReportHash = yield* hashPublicIdentifier(sourceQualityReport);
-    yield* runOtlpSpan(`${serviceName}.summary`, {
-      "beep.docgen.eval.completed": workerEval.summary.completed,
-      "beep.docgen.eval.failed": workerEval.summary.failed,
-      "beep.docgen.eval.model": model,
-      "beep.docgen.eval.provider": provider,
-      "beep.docgen.eval.run_id": runId,
-      "beep.docgen.eval.scope": workerEval.scope,
-      "beep.docgen.eval.selected_packets": workerEval.summary.selectedPackets,
-      "beep.docgen.eval.source_quality_report_hash": sourceQualityReportHash,
-      "beep.docgen.eval.timed_out": workerEval.summary.timedOut,
-      "openinference.span.kind": "EVALUATOR",
-    });
-    yield* Effect.forEach(
-      workerEval.packets,
-      (packet) =>
-        packetSpanAttributes({ model, packet, provider, runId }).pipe(
-          Effect.flatMap((attributes) => runOtlpSpan(`${serviceName}.packet`, attributes))
-        ),
-      { concurrency: 8, discard: true }
-    );
-  }).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(
+  const exportResult = yield* Effect.scoped(
+    Layer.build(
       layerNodeSdkServerTraces(
         new ServerObservabilityConfig({
           devtoolsEnabled: false,
@@ -893,9 +870,34 @@ const emitRunpodEvalOtlp = Effect.fn("DocgenQualityWorkerRunpodEval.emitRunpodEv
           serviceVersion: "0.0.0",
         })
       )
-    ),
-    Effect.result
-  );
+    ).pipe(
+      Effect.flatMap((context) =>
+        Effect.gen(function* () {
+          const sourceQualityReportHash = yield* hashPublicIdentifier(sourceQualityReport);
+          yield* runOtlpSpan(`${serviceName}.summary`, {
+            "beep.docgen.eval.completed": workerEval.summary.completed,
+            "beep.docgen.eval.failed": workerEval.summary.failed,
+            "beep.docgen.eval.model": model,
+            "beep.docgen.eval.provider": provider,
+            "beep.docgen.eval.run_id": runId,
+            "beep.docgen.eval.scope": workerEval.scope,
+            "beep.docgen.eval.selected_packets": workerEval.summary.selectedPackets,
+            "beep.docgen.eval.source_quality_report_hash": sourceQualityReportHash,
+            "beep.docgen.eval.timed_out": workerEval.summary.timedOut,
+            "openinference.span.kind": "EVALUATOR",
+          });
+          yield* Effect.forEach(
+            workerEval.packets,
+            (packet) =>
+              packetSpanAttributes({ model, packet, provider, runId }).pipe(
+                Effect.flatMap((attributes) => runOtlpSpan(`${serviceName}.packet`, attributes))
+              ),
+            { concurrency: 8, discard: true }
+          );
+        }).pipe(Effect.provide(context))
+      )
+    )
+  ).pipe(Effect.result);
 
   if (Result.isFailure(exportResult)) {
     return new DocgenQualityWorkerRunpodEvalOtlp({

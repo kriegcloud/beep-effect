@@ -45,12 +45,11 @@ const decodeInputSync = <Input extends S.Top>(inputSchema: Input, input: unknown
     schemaIssueToError
   );
 
-const validateOutputSync = <Output extends S.Top>(outputSchema: Output, output: Output["Type"]): Output["Type"] => {
-  return Result.getOrThrowWith(
+const validateOutputSync = <Output extends S.Top>(outputSchema: Output, output: Output["Type"]): Output["Type"] =>
+  Result.getOrThrowWith(
     SchemaParser.decodeUnknownResult(S.make<S.Decoder<Output["Type"]>>(S.toType(outputSchema).ast))(output),
     schemaIssueToError
   );
-};
 
 const validateFailReasonEffect = <Error extends S.Top>(
   errorSchema: Error,

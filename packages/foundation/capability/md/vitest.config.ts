@@ -1,7 +1,7 @@
 import { defineConfig, mergeConfig } from "vitest/config";
-import shared from "../../../../vitest.shared.ts";
+import shared, { vitestCoverageReportOnly } from "../../../../vitest.shared.ts";
 
-const reportOnly = process.env.VITEST_COVERAGE_REPORT_ONLY === "1";
+const reportOnly = vitestCoverageReportOnly;
 
 export default mergeConfig(
   shared,

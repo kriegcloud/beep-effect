@@ -1,46 +1,84 @@
-import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
 import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
-import { layer as GlobLayer, type GlobOptions, Glob as GlobService, type Pattern } from "@beep/utils/Glob";
+import {
+  type GlobError,
+  layer as GlobLayer,
+  type GlobOptions,
+  Glob as GlobService,
+  type Pattern,
+} from "@beep/utils/Glob";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
-import { Effect, Layer, Match } from "effect";
+import { Effect, Layer, Match, Random } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
+type TestEffect<A, E = never> = Effect.Effect<A, E, never>;
+
+const runTest = <A, E>(effect: TestEffect<A, E>): Promise<A> => Effect.runPromise(effect);
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 type Fixture = {
   readonly dir: string;
-  readonly cleanup: () => Promise<void>;
+  readonly cleanup: TestEffect<void>;
 };
 
 const platformLayer = GlobLayer.pipe(Layer.provide(Layer.mergeAll(BunFileSystem.layer, BunPath.layer)));
+const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
+  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+    .filter((segment) => segment.length > 0)
+    .join("/");
+const runFileCommand = (command: string, args: ReadonlyArray<string>): TestEffect<void> =>
+  Effect.sync(() => Bun.spawnSync([command, ...args], { stderr: "ignore", stdout: "ignore" })).pipe(
+    Effect.flatMap((result) =>
+      result.exitCode === 0
+        ? Effect.void
+        : Effect.die(new Error(`${command} ${args.join(" ")} failed with exit code ${result.exitCode}`))
+    )
+  );
+const makeDirectory = (path: string) => runFileCommand("mkdir", ["-p", path]);
+const makeTempDirectory: (prefix: string) => TestEffect<string> = Effect.fn("GlobTest.makeTempDirectory")(function* (
+  prefix: string
+) {
+  const suffix = yield* Random.nextUUIDv4;
+  const dir = joinPath(tmpdir(), `${prefix}${suffix}`);
+  yield* makeDirectory(dir);
+  return dir;
+});
+const writeText = (path: string, content: string): TestEffect<void> =>
+  Effect.promise(() => Bun.write(path, content)).pipe(Effect.asVoid);
+const removePath = (path: string) => runFileCommand("rm", ["-rf", path]);
+const makeSymlink = (target: string, path: string) => runFileCommand("ln", ["-s", target, path]);
 
-const acquireFixture = Effect.promise<Fixture>(async () => {
-  const dir = await mkdtemp(join(tmpdir(), "beep-utils-glob-"));
+const acquireFixture: TestEffect<Fixture> = Effect.gen(function* () {
+  const dir = yield* makeTempDirectory("beep-utils-glob-");
 
-  await mkdir(join(dir, "src", "errors"), { recursive: true });
-  await mkdir(join(dir, "src", "nested"), { recursive: true });
-  await writeFile(join(dir, "src", "index.ts"), "");
-  await writeFile(join(dir, "src", "errors", "problem.ts"), "");
-  await writeFile(join(dir, "src", "nested", "deep.ts"), "");
-  await writeFile(join(dir, "README.md"), "");
+  yield* makeDirectory(joinPath(dir, "src", "errors"));
+  yield* makeDirectory(joinPath(dir, "src", "nested"));
+  yield* writeText(joinPath(dir, "src", "index.ts"), "");
+  yield* writeText(joinPath(dir, "src", "errors", "problem.ts"), "");
+  yield* writeText(joinPath(dir, "src", "nested", "deep.ts"), "");
+  yield* writeText(joinPath(dir, "README.md"), "");
 
   return {
     dir,
-    cleanup: () => rm(dir, { recursive: true, force: true }),
+    cleanup: removePath(dir),
   };
 });
 
-const runGlob = Effect.fn("GlobTest.runGlob")((pattern: Pattern, options?: undefined | GlobOptions) =>
-  Effect.provide(
-    Effect.gen(function* () {
-      const glob = yield* GlobService;
-      return yield* glob.glob(pattern, options);
-    }),
-    platformLayer
-  )
-);
+const runGlob: (pattern: Pattern, options?: undefined | GlobOptions) => TestEffect<Array<string>, GlobError> =
+  Effect.fn("GlobTest.runGlob")((pattern: Pattern, options?: undefined | GlobOptions) =>
+    provideScopedLayer(platformLayer)(
+      Effect.gen(function* () {
+        const glob = yield* GlobService;
+        return yield* glob.glob(pattern, options);
+      })
+    )
+  );
 
 type GlobProgram = ReturnType<typeof runGlob>;
 
@@ -93,102 +131,117 @@ const withBunGlobDisabled = (effect: GlobProgram) => {
 };
 
 describe("@beep/utils Glob", () => {
-  it("supports array patterns, ignore filters, and deduped deterministic output", async () => {
-    const program = Effect.acquireUseRelease(
-      acquireFixture,
-      (fixture) =>
-        runGlob(["src/**/*.ts", "src/index.ts"], {
-          cwd: fixture.dir,
-          ignore: ["**/nested/**", "**/errors/**"],
-        }),
-      (fixture) => Effect.promise(fixture.cleanup)
-    );
-    const results = await Effect.runPromise(program);
+  it("supports array patterns, ignore filters, and deduped deterministic output", () =>
+    runTest(
+      Effect.gen(function* () {
+        const program = Effect.acquireUseRelease(
+          acquireFixture,
+          (fixture) =>
+            runGlob(["src/**/*.ts", "src/index.ts"], {
+              cwd: fixture.dir,
+              ignore: ["**/nested/**", "**/errors/**"],
+            }),
+          (fixture) => fixture.cleanup
+        );
+        const results = yield* program;
 
-    expect(results).toEqual(["src/index.ts"]);
-  });
+        expect(results).toEqual(["src/index.ts"]);
+      })
+    ));
 
-  it("supports absolute paths and directory matches when nodir is false", async () => {
-    const program = Effect.acquireUseRelease(
-      acquireFixture,
-      (fixture) =>
-        runGlob("src/**", {
-          absolute: true,
-          cwd: fixture.dir,
-        }).pipe(
-          Effect.tap((results) =>
-            Effect.sync(() => {
-              expect(results).toContain(resolve(fixture.dir, "src", "errors"));
-              expect(results).toContain(resolve(fixture.dir, "src", "index.ts"));
-              expect(results).toContain(resolve(fixture.dir, "src", "nested"));
-              expect(results).toContain(resolve(fixture.dir, "src", "nested", "deep.ts"));
-            })
-          )
-        ),
-      (fixture) => Effect.promise(fixture.cleanup)
-    );
-    await Effect.runPromise(program);
-  });
+  it("supports absolute paths and directory matches when nodir is false", () =>
+    runTest(
+      Effect.gen(function* () {
+        const program = Effect.acquireUseRelease(
+          acquireFixture,
+          (fixture) =>
+            runGlob("src/**", {
+              absolute: true,
+              cwd: fixture.dir,
+            }).pipe(
+              Effect.tap((results) =>
+                Effect.sync(() => {
+                  expect(results).toContain(joinPath(fixture.dir, "src", "errors"));
+                  expect(results).toContain(joinPath(fixture.dir, "src", "index.ts"));
+                  expect(results).toContain(joinPath(fixture.dir, "src", "nested"));
+                  expect(results).toContain(joinPath(fixture.dir, "src", "nested", "deep.ts"));
+                })
+              )
+            ),
+          (fixture) => fixture.cleanup
+        );
+        yield* program;
+      })
+    ));
 
-  it("supports nodir by returning only files", async () => {
-    const program = Effect.acquireUseRelease(
-      acquireFixture,
-      (fixture) =>
-        runGlob("src/**", {
-          cwd: fixture.dir,
-          nodir: true,
-        }),
-      (fixture) => Effect.promise(fixture.cleanup)
-    );
-    const results = await Effect.runPromise(program);
+  it("supports nodir by returning only files", () =>
+    runTest(
+      Effect.gen(function* () {
+        const program = Effect.acquireUseRelease(
+          acquireFixture,
+          (fixture) =>
+            runGlob("src/**", {
+              cwd: fixture.dir,
+              nodir: true,
+            }),
+          (fixture) => fixture.cleanup
+        );
+        const results = yield* program;
 
-    expect(results).toEqual(["src/errors/problem.ts", "src/index.ts", "src/nested/deep.ts"]);
-  });
+        expect(results).toEqual(["src/errors/problem.ts", "src/index.ts", "src/nested/deep.ts"]);
+      })
+    ));
 
-  it("falls back to Node globbing when Bun.Glob is unavailable", async () => {
-    const program = Effect.acquireUseRelease(
-      acquireFixture,
-      (fixture) =>
-        withBunGlobDisabled(
-          runGlob("src/**", {
-            absolute: true,
-            cwd: fixture.dir,
-            ignore: ["**/errors/**"],
-            nodir: true,
-          })
-        ).pipe(
-          Effect.tap((results) =>
-            Effect.sync(() => {
-              expect(results).toEqual([
-                resolve(fixture.dir, "src", "index.ts"),
-                resolve(fixture.dir, "src", "nested", "deep.ts"),
-              ]);
-            })
-          )
-        ),
-      (fixture) => Effect.promise(fixture.cleanup)
-    );
-    await Effect.runPromise(program);
-  });
-
-  it("does not recurse into symlinked directories", async () => {
-    const program = Effect.acquireUseRelease(
-      acquireFixture,
-      (fixture) =>
-        Effect.promise(() => symlink(fixture.dir, join(fixture.dir, "src", "linked-root"))).pipe(
-          Effect.flatMap(
-            Effect.fnUntraced(function* () {
-              return yield* runGlob("src/**", {
+  it("falls back to Node globbing when Bun.Glob is unavailable", () =>
+    runTest(
+      Effect.gen(function* () {
+        const program = Effect.acquireUseRelease(
+          acquireFixture,
+          (fixture) =>
+            withBunGlobDisabled(
+              runGlob("src/**", {
+                absolute: true,
                 cwd: fixture.dir,
+                ignore: ["**/errors/**"],
                 nodir: true,
-              });
-            })
-          )
-        ),
-      (fixture) => Effect.promise(fixture.cleanup)
-    );
-    const results = await Effect.runPromise(program);
+              })
+            ).pipe(
+              Effect.tap((results) =>
+                Effect.sync(() => {
+                  expect(results).toEqual([
+                    joinPath(fixture.dir, "src", "index.ts"),
+                    joinPath(fixture.dir, "src", "nested", "deep.ts"),
+                  ]);
+                })
+              )
+            ),
+          (fixture) => fixture.cleanup
+        );
+        yield* program;
+      })
+    ));
 
-    expect(results).toEqual(["src/errors/problem.ts", "src/index.ts", "src/nested/deep.ts"]);
-  });
+  it("does not recurse into symlinked directories", () =>
+    runTest(
+      Effect.gen(function* () {
+        const program = Effect.acquireUseRelease(
+          acquireFixture,
+          (fixture) =>
+            makeSymlink(fixture.dir, joinPath(fixture.dir, "src", "linked-root")).pipe(
+              Effect.flatMap(
+                Effect.fnUntraced(function* () {
+                  return yield* runGlob("src/**", {
+                    cwd: fixture.dir,
+                    nodir: true,
+                  });
+                })
+              )
+            ),
+          (fixture) => fixture.cleanup
+        );
+        const results = yield* program;
+
+        expect(results).toEqual(["src/errors/problem.ts", "src/index.ts", "src/nested/deep.ts"]);
+      })
+    ));
 });

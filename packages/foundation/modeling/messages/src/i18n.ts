@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 import { O } from "@beep/utils";
-import { Exit, Match, pipe, SchemaIssue } from "effect";
+import { Effect, Exit, Match, pipe, SchemaIssue } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import i18next from "i18next";
@@ -104,10 +104,12 @@ export type GetLogIssuesOptions = Readonly<{
  */
 export function getLogIssues(options?: GetLogIssuesOptions) {
   return <S extends S.Codec<unknown, unknown>>(schema: S, input: unknown) => {
-    console.log(
-      String(
-        S.decodeUnknownExit(schema)(input, { errors: "all" }).pipe(
-          Exit.mapError((err) => SchemaIssue.makeFormatterStandardSchemaV1(options)(err.issue).issues)
+    Effect.runSync(
+      Effect.log(
+        String(
+          S.decodeUnknownExit(schema)(input, { errors: "all" }).pipe(
+            Exit.mapError((err) => SchemaIssue.makeFormatterStandardSchemaV1(options)(err.issue).issues)
+          )
         )
       )
     );

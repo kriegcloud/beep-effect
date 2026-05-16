@@ -1,6 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
 import {
   buildRecoveryMessage,
   CwdError,
@@ -14,10 +12,35 @@ import {
 import { A } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Random } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
+  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+    .filter((segment) => segment.length > 0)
+    .join("/");
+const runFileCommand = (command: string, args: ReadonlyArray<string>) =>
+  Effect.sync(() => Bun.spawnSync([command, ...args], { stderr: "ignore", stdout: "ignore" })).pipe(
+    Effect.flatMap((result) =>
+      result.exitCode === 0
+        ? Effect.void
+        : Effect.die(new Error(`${command} ${args.join(" ")} failed with exit code ${result.exitCode}`))
+    )
+  );
+const makeTempDirectory = Effect.fn("SandboxParity.makeTempDirectory")(function* (prefix: string) {
+  const suffix = yield* Random.nextUUIDv4;
+  const dir = joinPath(tmpdir(), `${prefix}${suffix}`);
+  yield* runFileCommand("mkdir", ["-p", dir]);
+  return dir;
+});
+const writeText = (path: string, content: string) => Effect.promise(() => Bun.write(path, content)).pipe(Effect.asVoid);
+const removePath = (path: string) => runFileCommand("rm", ["-rf", path]);
 
 describe("@beep/sandbox parity helpers", () => {
   describe("TextDeltaBuffer", () => {
@@ -124,29 +147,31 @@ describe("@beep/sandbox parity helpers", () => {
   });
 
   describe("resolveCwd", () => {
-    it("returns process cwd for undefined and relative current directory inputs", async () => {
-      await expect(Effect.runPromise(resolveCwd(undefined).pipe(Effect.provide(PlatformLayer)))).resolves.toBe(
-        resolve(process.cwd())
-      );
-      await expect(Effect.runPromise(resolveCwd(".").pipe(Effect.provide(PlatformLayer)))).resolves.toBe(
-        resolve(process.cwd())
-      );
-    });
+    it("returns process cwd for undefined and relative current directory inputs", () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          expect(yield* resolveCwd(undefined).pipe(provideScopedLayer(PlatformLayer))).toBe(process.cwd());
+          expect(yield* resolveCwd(".").pipe(provideScopedLayer(PlatformLayer))).toBe(process.cwd());
+        })
+      ));
 
-    it("accepts absolute directories and rejects files", async () => {
-      const dir = await mkdtemp(join(tmpdir(), "beep-sandbox-cwd-"));
-      const file = join(dir, "file.txt");
-      await writeFile(file, "hello");
+    it("accepts absolute directories and rejects files", () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          const dir = yield* makeTempDirectory("beep-sandbox-cwd-");
+          const file = joinPath(dir, "file.txt");
+          yield* writeText(file, "hello");
 
-      try {
-        await expect(Effect.runPromise(resolveCwd(dir).pipe(Effect.provide(PlatformLayer)))).resolves.toBe(dir);
-        const error = await Effect.runPromise(resolveCwd(file).pipe(Effect.flip, Effect.provide(PlatformLayer)));
+          try {
+            expect(yield* resolveCwd(dir).pipe(provideScopedLayer(PlatformLayer))).toBe(dir);
+            const error = yield* resolveCwd(file).pipe(Effect.flip, provideScopedLayer(PlatformLayer));
 
-        expect(error).toBeInstanceOf(CwdError);
-        expect(error.cwd).toBe(file);
-      } finally {
-        await rm(dir, { force: true, recursive: true });
-      }
-    });
+            expect(error).toBeInstanceOf(CwdError);
+            expect(error.cwd).toBe(file);
+          } finally {
+            yield* removePath(dir);
+          }
+        }) as Effect.Effect<void, unknown>
+      ));
   });
 });

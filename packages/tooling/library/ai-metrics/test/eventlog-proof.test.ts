@@ -5,6 +5,11 @@ import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import * as EventLogEncryption from "effect/unstable/eventlog/EventLogEncryption";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const TurnProjectedPayload = Schema.Struct({
   sourcePathHash: Schema.String,
   turnId: Schema.String,
@@ -52,7 +57,7 @@ describe("@beep/repo-ai-metrics EventLog proof", () => {
         expect(entries).toHaveLength(1);
         expect(entries[0]?.event).toBe("TurnProjected");
         expect(seen).toEqual(["turn-1"]);
-      }).pipe(Effect.provide(logLayer(handled)));
+      }).pipe(provideScopedLayer(logLayer(handled)));
     })
   );
 });

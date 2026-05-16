@@ -312,8 +312,8 @@ const objectFromIdentifier = (value: string): Effect.Effect<ObjectTerm, JsonLdDo
     ? makeBlankNodeEffect(pipe(value, Str.slice(2)), "invalidNodeReference", value)
     : makeNamedNodeEffect(value, "invalidNodeReference");
 
-const datatypeFromScalar = (value: string | number | boolean): string => {
-  return Match.value(value).pipe(
+const datatypeFromScalar = (value: string | number | boolean): string =>
+  Match.value(value).pipe(
     Match.when(P.isBoolean, () => XSD_BOOLEAN.value),
     Match.when(
       (scalar): scalar is number => P.isNumber(scalar) && Number.isInteger(scalar),
@@ -322,7 +322,6 @@ const datatypeFromScalar = (value: string | number | boolean): string => {
     Match.when(P.isNumber, () => XSD_DOUBLE.value),
     Match.orElse(() => XSD_STRING.value)
   );
-};
 
 const literalLexicalForm = (value: string | number | boolean): string =>
   Match.value(value).pipe(

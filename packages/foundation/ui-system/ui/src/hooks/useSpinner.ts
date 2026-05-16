@@ -137,11 +137,11 @@ export function useSpinner<T>(increment: (params?: T) => void, decrement: (param
   const [runOnce, setRunOnce] = useState(true);
 
   const paramsRef = useRef<T | undefined>(undefined);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const timeoutRef = useRef<number | undefined>(undefined);
 
   const removeTimeout = useCallback(() => {
     if (timeoutRef.current !== undefined) {
-      clearTimeout(timeoutRef.current);
+      window.clearTimeout(timeoutRef.current);
       timeoutRef.current = undefined;
     }
   }, []);
@@ -182,7 +182,7 @@ export function useSpinner<T>(increment: (params?: T) => void, decrement: (param
         onFalse: noopVoid,
       });
 
-      timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = window.setTimeout(() => {
         setRunOnce(false);
         setIsSpinning(true);
         setAction(O.some(nextAction));

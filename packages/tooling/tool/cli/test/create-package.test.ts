@@ -2,11 +2,16 @@ import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { Effect, FileSystem, Layer, Path } from "effect";
+import { Context, Effect, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const CommandPlatformLayer = Layer.mergeAll(NodeServices.layer);
 const CommandTestLayer = Layer.mergeAll(
@@ -109,7 +114,7 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
         process.chdir(TestFileCwd);
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
-  ).pipe(Effect.provide(CommandTestLayer));
+  ).pipe(provideScopedLayer(CommandTestLayer), Effect.provide(Context.empty() as Context.Context<unknown>));
 
 const writeTextFile = Effect.fn(function* (filePath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -236,8 +241,8 @@ const bootstrapRootConfig = Effect.fn(function* (
 describe.sequential("create-package", () => {
   it(
     "adds top-level package workspaces, identity exports, and shared config sync outputs",
-    async () => {
-      await Effect.runPromise(
+    () =>
+      Effect.runPromise(
         withTempRepoCommand(
           Effect.gen(function* () {
             const fs = yield* FileSystem.FileSystem;
@@ -322,15 +327,14 @@ describe.sequential("create-package", () => {
             expect(identityPackages).toContain(`export const $ExampleDomainId`);
           })
         )
-      );
-    },
+      ),
     CreatePackageTestTimeoutMs
   );
 
   it(
     "creates canonical foundation packages with family metadata and workspace-resolved identity registration",
-    async () => {
-      await Effect.runPromise(
+    () =>
+      Effect.runPromise(
         withTempRepoCommand(
           Effect.gen(function* () {
             const fs = yield* FileSystem.FileSystem;
@@ -399,15 +403,14 @@ describe.sequential("create-package", () => {
             expect(identityPackages).toContain(`export const $SchemaKitId`);
           })
         )
-      );
-    },
+      ),
     CreatePackageTestTimeoutMs
   );
 
   it(
     "adds tstyche coverage for uncovered nested package paths",
-    async () => {
-      await Effect.runPromise(
+    () =>
+      Effect.runPromise(
         withTempRepoCommand(
           Effect.gen(function* () {
             const fs = yield* FileSystem.FileSystem;
@@ -467,15 +470,14 @@ describe.sequential("create-package", () => {
             expect(identityPackages).toContain(`export const $TelemetryId`);
           })
         )
-      );
-    },
+      ),
     CreatePackageTestTimeoutMs
   );
 
   it(
     "does not duplicate tstyche entries when a covered parent dtslint glob already exists",
-    async () => {
-      await Effect.runPromise(
+    () =>
+      Effect.runPromise(
         withTempRepoCommand(
           Effect.gen(function* () {
             const fs = yield* FileSystem.FileSystem;
@@ -517,15 +519,14 @@ describe.sequential("create-package", () => {
             ).toBe(false);
           })
         )
-      );
-    },
+      ),
     CreatePackageTestTimeoutMs
   );
 
   it(
     "creates canonical tooling packages with family metadata",
-    async () => {
-      await Effect.runPromise(
+    () =>
+      Effect.runPromise(
         withTempRepoCommand(
           Effect.gen(function* () {
             const fs = yield* FileSystem.FileSystem;
@@ -614,15 +615,14 @@ describe.sequential("create-package", () => {
             expect(syncpackConfig).not.toContain(`"packages/tooling/*/*/package.json"`);
           })
         )
-      );
-    },
+      ),
     CreatePackageTestTimeoutMs
   );
 
   it(
     "creates canonical driver packages with flat family metadata",
-    async () => {
-      await Effect.runPromise(
+    () =>
+      Effect.runPromise(
         withTempRepoCommand(
           Effect.gen(function* () {
             const fs = yield* FileSystem.FileSystem;
@@ -685,8 +685,7 @@ describe.sequential("create-package", () => {
             expect(identityPackages).toContain(`export const $RunpodId`);
           })
         )
-      );
-    },
+      ),
     CreatePackageTestTimeoutMs
   );
 });

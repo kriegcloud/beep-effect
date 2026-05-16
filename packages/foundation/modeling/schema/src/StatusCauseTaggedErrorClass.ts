@@ -393,8 +393,8 @@ const makeStatusCauseTaggedErrorMapError = <Error, Fields extends StatusCauseTag
 const makeStatusCauseTaggedErrorNoCause = <
   Error,
   Fields extends StatusCauseTaggedErrorFields,
->(): StatusCauseTaggedErrorNoCause<Error, Fields> => {
-  return function (
+>(): StatusCauseTaggedErrorNoCause<Error, Fields> =>
+  function (
     this: StatusCauseTaggedErrorCtor<Error, Fields>,
     message: string,
     status: number,
@@ -402,7 +402,6 @@ const makeStatusCauseTaggedErrorNoCause = <
   ): Error {
     return new this(statusCauseTaggedErrorInput<Fields>(undefined, message, status, extras));
   } as StatusCauseTaggedErrorNoCause<Error, Fields>;
-};
 
 const attachStatusCauseTaggedErrorStatics = <
   Self,
@@ -502,10 +501,8 @@ const attachStatusCauseTaggedErrorStatics = <
  * @since 0.0.0
  * @category constructors
  */
-export const StatusCauseTaggedErrorClass: StatusCauseTaggedErrorClassConstructor = (
-  identifier?: undefined | string
-) => {
-  return ((tag: string, fieldsOrAnnotations?: TUnsafe.Any, annotations?: TUnsafe.Any) => {
+export const StatusCauseTaggedErrorClass: StatusCauseTaggedErrorClassConstructor = (identifier?: undefined | string) =>
+  ((tag: string, fieldsOrAnnotations?: TUnsafe.Any, annotations?: TUnsafe.Any) => {
     const hasFields = isSchemaFields(fieldsOrAnnotations);
     const fields = hasFields ? fieldsOrAnnotations : {};
     const taggedError = TaggedErrorClass<TUnsafe.Any, TUnsafe.Any>(identifier)(
@@ -516,4 +513,3 @@ export const StatusCauseTaggedErrorClass: StatusCauseTaggedErrorClassConstructor
 
     return attachStatusCauseTaggedErrorStatics(taggedError, fields);
   }) as TUnsafe.Any;
-};

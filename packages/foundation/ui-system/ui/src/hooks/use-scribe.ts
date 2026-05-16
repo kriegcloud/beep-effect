@@ -21,6 +21,7 @@ import {
   type ScribeErrorMessage,
   type ScribeQuotaExceededErrorMessage,
 } from "@elevenlabs/client";
+import { Effect } from "effect";
 import * as P from "effect/Predicate";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -161,7 +162,7 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
   }, []);
 
   const connect = useCallback(
-    async ({ token }: ScribeConnectOptions) => {
+    ({ token }: ScribeConnectOptions): Promise<void> => {
       disconnect();
       setError(null);
       setStatus("connecting");
@@ -208,56 +209,66 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
 
         connectionRef.current = connection;
 
-        await new Promise<void>((resolve, reject) => {
-          let settled = false;
+        return Effect.runPromise(
+          Effect.callback<void, Error>((resume) => {
+            let settled = false;
 
-          const settleResolve = () => {
-            if (!settled) {
-              settled = true;
-              setStatus("connected");
-              resolve();
-            }
-          };
+            const settleResolve = () => {
+              if (!settled) {
+                settled = true;
+                setStatus("connected");
+                resume(Effect.void);
+              }
+            };
 
-          const settleReject = (scribeError: Error) => {
-            handledError = true;
-            setError(scribeError.message);
-            optionsRef.current.onError?.(scribeError);
-            if (!settled) {
-              settled = true;
+            const settleReject = (scribeError: Error) => {
+              handledError = true;
+              setError(scribeError.message);
+              optionsRef.current.onError?.(scribeError);
+              if (!settled) {
+                settled = true;
+                setStatus("idle");
+                resume(Effect.fail(scribeError));
+              }
+            };
+
+            connection.on(RealtimeEvents.OPEN, settleResolve);
+            connection.on(RealtimeEvents.CLOSE, (event) => {
+              if (connectionRef.current === connection) {
+                connectionRef.current = null;
+              }
               setStatus("idle");
-              reject(scribeError);
-            }
-          };
-
-          connection.on(RealtimeEvents.OPEN, settleResolve);
-          connection.on(RealtimeEvents.CLOSE, (event) => {
-            if (connectionRef.current === connection) {
-              connectionRef.current = null;
-            }
+              if (!settled) {
+                settleReject(closeEventToError(event));
+              }
+            });
+            connection.on(RealtimeEvents.ERROR, (data) => settleReject(messageToError(data)));
+            connection.on(RealtimeEvents.AUTH_ERROR, (data) => {
+              optionsRef.current.onAuthError?.(data);
+              settleReject(makeScribeError(data.error));
+            });
+            connection.on(RealtimeEvents.QUOTA_EXCEEDED, (data) => {
+              optionsRef.current.onQuotaExceededError?.(data);
+              settleReject(makeScribeError(data.error));
+            });
+            connection.on(RealtimeEvents.PARTIAL_TRANSCRIPT, (data) => {
+              setPartialTranscript(data.text);
+              optionsRef.current.onPartialTranscript?.(data);
+            });
+            connection.on(RealtimeEvents.COMMITTED_TRANSCRIPT, (data) => {
+              setPartialTranscript("");
+              setCommittedTranscripts((transcripts) => A.append(transcripts, data));
+              optionsRef.current.onCommittedTranscript?.(data);
+            });
+          })
+        ).catch((cause: unknown) => {
+          const scribeError = unknownToError(cause);
+          if (!handledError) {
+            setError(scribeError.message);
             setStatus("idle");
-            if (!settled) {
-              settleReject(closeEventToError(event));
-            }
-          });
-          connection.on(RealtimeEvents.ERROR, (data) => settleReject(messageToError(data)));
-          connection.on(RealtimeEvents.AUTH_ERROR, (data) => {
-            optionsRef.current.onAuthError?.(data);
-            settleReject(makeScribeError(data.error));
-          });
-          connection.on(RealtimeEvents.QUOTA_EXCEEDED, (data) => {
-            optionsRef.current.onQuotaExceededError?.(data);
-            settleReject(makeScribeError(data.error));
-          });
-          connection.on(RealtimeEvents.PARTIAL_TRANSCRIPT, (data) => {
-            setPartialTranscript(data.text);
-            optionsRef.current.onPartialTranscript?.(data);
-          });
-          connection.on(RealtimeEvents.COMMITTED_TRANSCRIPT, (data) => {
-            setPartialTranscript("");
-            setCommittedTranscripts((transcripts) => A.append(transcripts, data));
-            optionsRef.current.onCommittedTranscript?.(data);
-          });
+            optionsRef.current.onError?.(scribeError);
+          }
+          throw scribeError;
         });
       } catch (cause) {
         const scribeError = unknownToError(cause);
@@ -266,7 +277,7 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
           setStatus("idle");
           optionsRef.current.onError?.(scribeError);
         }
-        throw scribeError;
+        return Promise.reject(scribeError);
       }
     },
     [disconnect]

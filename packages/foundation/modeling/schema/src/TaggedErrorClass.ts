@@ -291,8 +291,8 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  * @category constructors
  * @since 0.0.0
  */
-export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: undefined | string) => {
-  return ((
+export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: undefined | string) =>
+  ((
     tagValue: string,
     schema: TaggedErrorFields | TaggedErrorStruct,
     annotations?: S.Annotations.Declaration<TUnsafe.Any, readonly [TaggedErrorStruct]>
@@ -302,4 +302,3 @@ export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: undef
       schema as never,
       annotations as never
     )) as unknown as UnsafeTaggedErrorClassFactory;
-};

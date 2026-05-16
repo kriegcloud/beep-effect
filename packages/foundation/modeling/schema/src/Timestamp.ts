@@ -274,15 +274,14 @@ export const fromDate = (date: Date): Timestamp => Timestamp.make({ epochMillis:
  * @since 0.0.0
  * @category constructors
  */
-export const fromString = (dateString: string): Effect.Effect<Timestamp, SchemaIssue.InvalidValue> => {
-  return pipe(
+export const fromString = (dateString: string): Effect.Effect<Timestamp, SchemaIssue.InvalidValue> =>
+  pipe(
     DateTime.make(dateString),
     O.match({
       onNone: () => Effect.fail(new SchemaIssue.InvalidValue(O.some(dateString))),
       onSome: (dateTime) => Effect.succeed(Timestamp.make({ epochMillis: DateTime.toEpochMillis(dateTime) })),
     })
   );
-};
 
 /**
  * Create a `Timestamp` for the current wall-clock time.

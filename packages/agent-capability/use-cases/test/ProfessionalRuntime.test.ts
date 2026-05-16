@@ -48,44 +48,43 @@ const lawScope = new RuntimeScope({
 });
 
 describe("@beep/agent-capability-use-cases", () => {
-  it("runs deterministic fixtures into structured candidate output sets", async () => {
-    const outputSet = await Effect.runPromise(runRuntimeFixture(lawFixture));
+  it("runs deterministic fixtures into structured candidate output sets", () =>
+    Effect.gen(function* () {
+      const outputSet = yield* runRuntimeFixture(lawFixture);
 
-    expect(outputSet).toBeInstanceOf(CandidateOutputSet);
-    expect(outputSet.scenarioId).toBe("law-patent-intake");
-    expect(outputSet.claims).toHaveLength(3);
-    expect(outputSet.contextPacket.scope.workspaceId).toBe("workspace-law-fixture");
-  });
+      expect(outputSet).toBeInstanceOf(CandidateOutputSet);
+      expect(outputSet.scenarioId).toBe("law-patent-intake");
+      expect(outputSet.claims).toHaveLength(3);
+      expect(outputSet.contextPacket.scope.workspaceId).toBe("workspace-law-fixture");
+    }));
 
-  it("serves context packets through the in-memory SDK facade", async () => {
-    const sdk = makeInMemoryProfessionalRuntimeSdk([lawFixture]);
-    const packet = await Effect.runPromise(
-      sdk.getContextPacket(
+  it("serves context packets through the in-memory SDK facade", () =>
+    Effect.gen(function* () {
+      const sdk = makeInMemoryProfessionalRuntimeSdk([lawFixture]);
+      const packet = yield* sdk.getContextPacket(
         new GetContextPacket({
           artifactId: lawFixture.email.artifactId,
           scenarioId: lawFixture.email.scenarioId,
           scope: lawScope,
         })
-      )
-    );
+      );
 
-    expect(packet.scope).toEqual(lawScope);
-    expect(packet.request.artifactId).toBe(lawFixture.email.artifactId);
-  });
+      expect(packet.scope).toEqual(lawScope);
+      expect(packet.request.artifactId).toBe(lawFixture.email.artifactId);
+    }));
 
-  it("accepts matching candidate output proposals", async () => {
-    const sdk = makeInMemoryProfessionalRuntimeSdk([lawFixture]);
-    const outputSet = await Effect.runPromise(runRuntimeFixture(lawFixture));
-    const accepted = await Effect.runPromise(
-      sdk.proposeCandidateOutputSet(
+  it("accepts matching candidate output proposals", () =>
+    Effect.gen(function* () {
+      const sdk = makeInMemoryProfessionalRuntimeSdk([lawFixture]);
+      const outputSet = yield* runRuntimeFixture(lawFixture);
+      const accepted = yield* sdk.proposeCandidateOutputSet(
         new ProposeCandidateOutputSet({
           outputSet,
           producedByPrincipalId: "principal-agent-runtime-fixture",
           scope: lawScope,
         })
-      )
-    );
+      );
 
-    expect(accepted).toStrictEqual(outputSet);
-  });
+      expect(accepted).toStrictEqual(outputSet);
+    }));
 });

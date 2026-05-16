@@ -132,18 +132,20 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
   static readonly new: {
     (description: string | undefined, options: DocNewOptions): Doc;
     (options: DocNewOptions): (description: string | undefined) => Doc;
-  } = dual(2, (description: string | undefined, options: DocNewOptions): Doc => {
-    return new Doc({
-      description,
-      since: A.fromIterable(options.since),
-      deprecated: A.fromIterable(options.deprecated),
-      examples: A.fromIterable(options.examples),
-      category: A.fromIterable(options.category),
-      throws: A.fromIterable(options.throws),
-      sees: A.fromIterable(options.sees),
-      tags: options.tags,
-    });
-  });
+  } = dual(
+    2,
+    (description: string | undefined, options: DocNewOptions): Doc =>
+      new Doc({
+        description,
+        since: A.fromIterable(options.since),
+        deprecated: A.fromIterable(options.deprecated),
+        examples: A.fromIterable(options.examples),
+        category: A.fromIterable(options.category),
+        throws: A.fromIterable(options.throws),
+        sees: A.fromIterable(options.sees),
+        tags: options.tags,
+      })
+  );
 
   /**
    * Returns a copy of the doc with a different description.
@@ -205,9 +207,11 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
   static readonly new: {
     (name: string, doc: Doc, options: SignaturePositionOptions): DocEntry;
     (doc: Doc, options: SignaturePositionOptions): (name: string) => DocEntry;
-  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): DocEntry => {
-    return new DocEntry({ name, doc, signature: options.signature, position: options.position });
-  });
+  } = dual(
+    3,
+    (name: string, doc: Doc, options: SignaturePositionOptions): DocEntry =>
+      new DocEntry({ name, doc, signature: options.signature, position: options.position })
+  );
 }
 
 /**
@@ -258,17 +262,19 @@ export class Class extends S.Class<Class>($I`Class`)({
   static readonly new: {
     (name: string, doc: Doc, options: ClassNewOptions): Class;
     (doc: Doc, options: ClassNewOptions): (name: string) => Class;
-  } = dual(3, (name: string, doc: Doc, options: ClassNewOptions): Class => {
-    return new Class({
-      name,
-      doc,
-      signature: options.signature,
-      position: options.position,
-      methods: A.fromIterable(options.methods),
-      staticMethods: A.fromIterable(options.staticMethods),
-      properties: A.fromIterable(options.properties),
-    });
-  });
+  } = dual(
+    3,
+    (name: string, doc: Doc, options: ClassNewOptions): Class =>
+      new Class({
+        name,
+        doc,
+        signature: options.signature,
+        position: options.position,
+        methods: A.fromIterable(options.methods),
+        staticMethods: A.fromIterable(options.staticMethods),
+        properties: A.fromIterable(options.properties),
+      })
+  );
 }
 
 /**
@@ -313,9 +319,11 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
   static readonly new: {
     (name: string, doc: Doc, options: SignaturePositionOptions): Interface;
     (doc: Doc, options: SignaturePositionOptions): (name: string) => Interface;
-  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): Interface => {
-    return new Interface({ name, doc, signature: options.signature, position: options.position });
-  });
+  } = dual(
+    3,
+    (name: string, doc: Doc, options: SignaturePositionOptions): Interface =>
+      new Interface({ name, doc, signature: options.signature, position: options.position })
+  );
 }
 
 /**
@@ -360,9 +368,11 @@ export class Function extends S.Class<Function>($I`Function`)({
   static readonly new: {
     (name: string, doc: Doc, options: SignaturePositionOptions): Function;
     (doc: Doc, options: SignaturePositionOptions): (name: string) => Function;
-  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): Function => {
-    return new Function({ name, doc, signature: options.signature, position: options.position });
-  });
+  } = dual(
+    3,
+    (name: string, doc: Doc, options: SignaturePositionOptions): Function =>
+      new Function({ name, doc, signature: options.signature, position: options.position })
+  );
 }
 
 /**
@@ -407,9 +417,11 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
   static readonly new: {
     (name: string, doc: Doc, options: SignaturePositionOptions): TypeAlias;
     (doc: Doc, options: SignaturePositionOptions): (name: string) => TypeAlias;
-  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): TypeAlias => {
-    return new TypeAlias({ name, doc, signature: options.signature, position: options.position });
-  });
+  } = dual(
+    3,
+    (name: string, doc: Doc, options: SignaturePositionOptions): TypeAlias =>
+      new TypeAlias({ name, doc, signature: options.signature, position: options.position })
+  );
 }
 
 /**
@@ -454,9 +466,11 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
   static readonly new: {
     (name: string, doc: Doc, options: SignaturePositionOptions): Constant;
     (doc: Doc, options: SignaturePositionOptions): (name: string) => Constant;
-  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): Constant => {
-    return new Constant({ name, doc, signature: options.signature, position: options.position });
-  });
+  } = dual(
+    3,
+    (name: string, doc: Doc, options: SignaturePositionOptions): Constant =>
+      new Constant({ name, doc, signature: options.signature, position: options.position })
+  );
 }
 
 /**
@@ -511,15 +525,17 @@ export class Export extends S.Class<Export>($I`Export`)({
   static readonly new: {
     (name: string, doc: Doc, options: ExportNewOptions): Export;
     (doc: Doc, options: ExportNewOptions): (name: string) => Export;
-  } = dual(3, (name: string, doc: Doc, options: ExportNewOptions): Export => {
-    return new Export({
-      name,
-      doc,
-      signature: options.signature,
-      position: options.position,
-      isNamespaceExport: options.isNamespaceExport,
-    });
-  });
+  } = dual(
+    3,
+    (name: string, doc: Doc, options: ExportNewOptions): Export =>
+      new Export({
+        name,
+        doc,
+        signature: options.signature,
+        position: options.position,
+        isNamespaceExport: options.isNamespaceExport,
+      })
+  );
 }
 
 /**
@@ -570,16 +586,18 @@ export class Namespace extends S.Class<Namespace>($I`Namespace`)({
   static readonly new: {
     (name: string, doc: Doc, options: NamespaceNewOptions): Namespace;
     (doc: Doc, options: NamespaceNewOptions): (name: string) => Namespace;
-  } = dual(3, (name: string, doc: Doc, options: NamespaceNewOptions): Namespace => {
-    return new Namespace({
-      name,
-      doc,
-      position: options.position,
-      interfaces: A.fromIterable(options.interfaces),
-      typeAliases: A.fromIterable(options.typeAliases),
-      namespaces: A.fromIterable(options.namespaces),
-    });
-  });
+  } = dual(
+    3,
+    (name: string, doc: Doc, options: NamespaceNewOptions): Namespace =>
+      new Namespace({
+        name,
+        doc,
+        position: options.position,
+        interfaces: A.fromIterable(options.interfaces),
+        typeAliases: A.fromIterable(options.typeAliases),
+        namespaces: A.fromIterable(options.namespaces),
+      })
+  );
 }
 
 /**
@@ -619,21 +637,23 @@ export class Module extends S.Class<Module>($I`Module`)({
   static readonly new: {
     (source: Parser.SourceShape, name: string, options: ModuleNewOptions): Module;
     (name: string, options: ModuleNewOptions): (source: Parser.SourceShape) => Module;
-  } = dual(3, (source: Parser.SourceShape, name: string, options: ModuleNewOptions): Module => {
-    return new Module({
-      source,
-      name,
-      doc: options.doc,
-      path: A.fromIterable(options.path),
-      classes: A.fromIterable(options.classes),
-      interfaces: A.fromIterable(options.interfaces),
-      functions: A.fromIterable(options.functions),
-      typeAliases: A.fromIterable(options.typeAliases),
-      constants: A.fromIterable(options.constants),
-      exports: A.fromIterable(options.exports),
-      namespaces: A.fromIterable(options.namespaces),
-    });
-  });
+  } = dual(
+    3,
+    (source: Parser.SourceShape, name: string, options: ModuleNewOptions): Module =>
+      new Module({
+        source,
+        name,
+        doc: options.doc,
+        path: A.fromIterable(options.path),
+        classes: A.fromIterable(options.classes),
+        interfaces: A.fromIterable(options.interfaces),
+        functions: A.fromIterable(options.functions),
+        typeAliases: A.fromIterable(options.typeAliases),
+        constants: A.fromIterable(options.constants),
+        exports: A.fromIterable(options.exports),
+        namespaces: A.fromIterable(options.namespaces),
+      })
+  );
 }
 
 type FileNewOptions = {

@@ -88,6 +88,8 @@
     "**/internal/data/**",
     "**/dtslint/**",
     "**/test/**",
+    "**/src-tauri/gen/**",
+    "**/src-tauri/target/**",
     "standards/jsdoc-documentation.inventory.jsonc",
     "standards/jsdoc-documentation.inventory.md",
     "standards/repo-exports.catalog.jsonc",

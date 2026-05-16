@@ -2,7 +2,7 @@
 
 ## Status
 
-P0-P6 implementation complete; Runpod smoke proof complete
+P0-P6 implementation complete; Runpod 10-packet evidence complete
 
 ## Owner
 
@@ -79,7 +79,7 @@ This initiative consumes the existing report-only quality contract:
 - `beep docgen quality-worker-eval --reasoning-effort low`
 - `beep docgen quality-worker-eval --packet-limit <count>`
 - `beep docgen quality-worker-eval-runpod --all --provider ollama --model qwen3-coder:30b --confirm-runpod-eval`
-- `beep docgen quality-worker-eval-runpod --otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 --otlp-project beep-jsdoc-worker-eval`
+- `beep docgen quality-worker-eval-runpod --otlp --otlp-base-url "$BEEP_OTLP_BASE_URL" --otlp-project beep-jsdoc-worker-eval`
 
 Default output is JSON on stdout. `--output` writes the same JSON report to an
 explicit path. There is no package-local default write path.
@@ -199,13 +199,14 @@ source and selected one packet:
 
 ```sh
 RUNPOD_API_KEY="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')" \
+BEEP_OTLP_BASE_URL="${BEEP_OTLP_BASE_URL:?set BEEP_OTLP_BASE_URL}" \
   bun run beep docgen quality-worker-eval-runpod \
     --input <saved-source-quality-report.json> \
     --provider ollama \
     --model qwen3-coder:30b \
     --packet-limit 1 \
     --otlp \
-    --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 \
+    --otlp-base-url "$BEEP_OTLP_BASE_URL" \
     --otlp-project beep-jsdoc-worker-eval \
     --confirm-runpod-eval \
     --skip-template-search \
@@ -230,6 +231,58 @@ This proves the remote GPU route can run end-to-end and clean itself up. It does
 not prove the larger 10-packet cost/quality profile and does not graduate
 write-mode remediation.
 
+## Runpod Qwen Larger-Sample Evidence
+
+The follow-up Runpod proof used a committed repo-wide source-quality report:
+
+```sh
+bun run beep docgen quality --all --json --score codex --packet-limit 25 --output initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-source-quality-codex-packets-10-packet.json
+```
+
+Source report summary:
+
+- 79 packages
+- 6776 quality subjects
+- 2453 passing reviews
+- 1728 warning reviews
+- 2595 failure reviews
+- 25 capped remediation packets
+
+The live eval command selected 10 packets from that source report:
+
+```sh
+RUNPOD_API_KEY="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')" \
+BEEP_OTLP_BASE_URL="${BEEP_OTLP_BASE_URL:?set BEEP_OTLP_BASE_URL}" \
+  bun run beep docgen quality-worker-eval-runpod \
+    --input initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-source-quality-codex-packets-10-packet.json \
+    --provider ollama \
+    --model qwen3-coder:30b \
+    --packet-limit 10 \
+    --otlp \
+    --otlp-base-url "$BEEP_OTLP_BASE_URL" \
+    --otlp-project beep-jsdoc-worker-eval \
+    --confirm-runpod-eval \
+    --skip-template-search \
+    --readiness-timeout-ms 2700000 \
+    --output initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-10-packet.json
+```
+
+Outcome:
+
+- 10 selected packets
+- 10 completed packets
+- 10 candidate drafts
+- 0 failed packets
+- 0 timed-out packets
+- policy violations included `missing-example`
+- cleanup stop/delete completed
+- Phoenix OTLP exported 11 spans
+- total wrapper runtime was about 7.7 minutes
+
+This closes the larger-sample read-only evidence gap. It does not graduate
+write-mode remediation, because worker drafts remain advisory and at least one
+policy violation code was reported.
+
 ## Non-Goals
 
 - Do not edit repo-tracked source files.
@@ -253,5 +306,6 @@ write-mode remediation.
   confirmation gating without requiring a live Runpod token.
 - Live Runpod graduation evidence must record wrapper JSON, cleanup status,
   runtime, packet outcomes, and Phoenix export status when `--otlp` is used.
-- Smoke-proof evidence must not be treated as graduation evidence for
-  auto-remediation.
+- Larger-sample evidence must not be treated as graduation evidence for
+  auto-remediation without human precision, cost, runtime, and
+  policy-preservation thresholds.
