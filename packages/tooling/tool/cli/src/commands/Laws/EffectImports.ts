@@ -7,12 +7,11 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Effect, Inspectable, MutableHashSet, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Project } from "ts-morph";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
@@ -105,7 +104,8 @@ const INCLUDED_GLOBS = [
 ] as const;
 const ROOT_IMPORT_EXCLUDED_STABLE_SUBMODULES = ["effect/Function"] as const;
 const toStableName = Str.slice("effect/".length);
-const isStableSubmodule = P.and(Str.startsWith("effect/"), P.not(Str.startsWith("effect/unstable/")));
+const isStableSubmodule = (value: string): boolean =>
+  Str.startsWith("effect/")(value) && !Str.startsWith("effect/unstable/")(value);
 const isRootImportExcludedStableSubmodule = (moduleName: string): boolean =>
   A.contains(moduleName)(ROOT_IMPORT_EXCLUDED_STABLE_SUBMODULES);
 
@@ -199,7 +199,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
       const moduleName = importDeclaration.getModuleSpecifierValue();
 
       if (moduleName === "effect" && !importDeclaration.isTypeOnly()) {
-        const namedImports = importDeclaration.getNamedImports().slice();
+        const namedImports = A.slice(importDeclaration.getNamedImports());
 
         for (const namedImport of namedImports) {
           const aliasedModuleName = `effect/${namedImport.getName()}`;

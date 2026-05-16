@@ -6,13 +6,12 @@
  */
 
 import { ImageFileExtension, VideoFileExtension } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Effect, flow, HashSet, Order, type Path, pipe, Stream } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   type ArchivePoorCandidatesEntry,
   type ArchivePoorCandidatesSkippedEntry,
@@ -128,9 +127,9 @@ const sampleBorderColor = (image: RawImagePixelData, side: BorderSide, sampleWid
       const y = side === "top" ? axis : side === "bottom" ? image.height - 1 - axis : line;
       const offset = pixelOffset(image, x, y);
 
-      red.push(byteAt(image.data, offset));
-      green.push(byteAt(image.data, offset + 1));
-      blue.push(byteAt(image.data, offset + 2));
+      A.appendInPlace(red, byteAt(image.data, offset));
+      A.appendInPlace(green, byteAt(image.data, offset + 1));
+      A.appendInPlace(blue, byteAt(image.data, offset + 2));
     }
   }
 

@@ -5,12 +5,11 @@
  * @since 0.0.0
  */
 import { $ChalkId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import { flow, Number as N, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { type ColorInfo, ColorSupport } from "./ChalkSchema.ts";
 
 const $I = $ChalkId.create("Domain");

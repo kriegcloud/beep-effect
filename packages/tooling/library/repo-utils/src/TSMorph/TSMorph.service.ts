@@ -6,13 +6,11 @@
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
-import { thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import { Context, Effect, FileSystem, flow, Inspectable, Layer, MutableHashMap, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Node, Project, type SourceFile } from "ts-morph";
 import { findRepoRoot } from "../Root.js";
 import type {
@@ -486,7 +484,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
   const endOffset = declaration.getEnd();
   const symbolText = yield* decodeOrFail(
     decodeSourceText,
-    sourceFileText.slice(startOffset, endOffset),
+    Str.slice(startOffset, endOffset)(sourceFileText),
     (message) =>
       new TsMorphSourceFileError({
         scopeId: O.none(),
@@ -505,7 +503,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
     )
   );
 
-  const bytePrefix = utf8Encoder.encode(sourceFileText.slice(0, startOffset));
+  const bytePrefix = utf8Encoder.encode(Str.slice(0, startOffset)(sourceFileText));
   const byteSpan = utf8Encoder.encode(symbolText);
   const docstring = readDocstring(declaration);
   const symbol = makeSymbol({
@@ -627,14 +625,14 @@ const collectOutlineEntries = Effect.fn(function* (
 ): Effect.fn.Return<ReadonlyArray<ScopeSymbolEntry>, TSMorphServiceError> {
   const symbolFilePath = yield* resolveSymbolFilePath(filePath);
 
-  const entries = A.empty<ScopeSymbolEntry>();
+  let entries = A.empty<ScopeSymbolEntry>();
   const sourceText = sourceFile.getFullText();
 
   for (const statement of sourceFile.getStatements()) {
     if (Node.isFunctionDeclaration(statement)) {
       const entry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
       if (O.isSome(entry)) {
-        entries.push(entry.value);
+        entries = A.append(entries, entry.value);
       }
       continue;
     }
@@ -642,7 +640,7 @@ const collectOutlineEntries = Effect.fn(function* (
     if (Node.isClassDeclaration(statement)) {
       const classEntry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
       if (O.isSome(classEntry)) {
-        entries.push(classEntry.value);
+        entries = A.append(entries, classEntry.value);
 
         for (const member of statement.getMembers()) {
           if (
@@ -658,7 +656,7 @@ const collectOutlineEntries = Effect.fn(function* (
               O.some(classEntry.value.symbol)
             );
             if (O.isSome(memberEntry)) {
-              entries.push(memberEntry.value);
+              entries = A.append(entries, memberEntry.value);
             }
           }
         }
@@ -673,7 +671,7 @@ const collectOutlineEntries = Effect.fn(function* (
     ) {
       const entry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
       if (O.isSome(entry)) {
-        entries.push(entry.value);
+        entries = A.append(entries, entry.value);
       }
     }
   }
@@ -982,7 +980,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     scope: TsMorphProjectScope
   ): Effect.fn.Return<ScopeSymbolIndex, TSMorphServiceError> {
     const project = yield* projectPool.getOrCreate(scope);
-    const entries = A.empty<ScopeSymbolEntry>();
+    let entries = A.empty<ScopeSymbolEntry>();
 
     for (const sourceFile of project.getSourceFiles()) {
       const absoluteFilePath = pathApi.normalize(sourceFile.getFilePath());
@@ -1005,7 +1003,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       const implementationFilePath = decodeTypeScriptImplementationFilePathOption(repoRelativeFilePath);
       if (O.isSome(implementationFilePath)) {
         const sourceEntries = yield* collectOutlineEntries(implementationFilePath.value, sourceFile);
-        entries.push(...sourceEntries);
+        entries = A.appendAll(entries, sourceEntries);
       }
     }
 

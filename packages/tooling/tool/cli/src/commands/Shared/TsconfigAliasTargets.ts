@@ -6,14 +6,13 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import { pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("commands/Shared/TsconfigAliasTargets");
 const EXPORT_CONDITION_PRIORITY = ["types", "import", "default", "require", "node", "bun", "browser"] as const;

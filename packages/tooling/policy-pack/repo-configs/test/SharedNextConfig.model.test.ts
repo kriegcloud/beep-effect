@@ -4,6 +4,7 @@ import {
   defineBeepNextConfig,
   makeBeepNextBaseConfig,
 } from "@beep/repo-configs/next";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import type { NextConfig } from "next";
@@ -110,11 +111,11 @@ describe("Shared Next.js config preset", () => {
   });
 
   it("composes plugin helpers in explicit left-to-right order", () => {
-    const events: Array<string> = [];
+    let events: ReadonlyArray<string> = A.empty();
     const makePlugin =
       (name: string) =>
       (config: NextConfig): NextConfig => {
-        events.push(name);
+        events = A.append(events, name);
         return config;
       };
 

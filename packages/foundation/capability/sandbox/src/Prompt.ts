@@ -7,12 +7,12 @@
 
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Duration, Effect, FileSystem, HashSet } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Display } from "./Display.ts";
 import { PromptError, PromptExpansionTimeoutError, type SandboxError } from "./Sandbox.errors.ts";
 import { SandboxExecOptions, type SandboxHandle } from "./Sandbox.provider.ts";
@@ -257,7 +257,7 @@ export const findMissingPromptArgKeys: {
   (prompt: string, providedArgs: PromptArgs): ReadonlyArray<string>;
   (providedArgs: PromptArgs): (prompt: string) => ReadonlyArray<string>;
 } = dual(2, (prompt: string, providedArgs: PromptArgs): ReadonlyArray<string> => {
-  const matches = [...prompt.matchAll(PLACEHOLDER_PATTERN)];
+  const matches = [...Str.matchAll(PLACEHOLDER_PATTERN)(prompt)];
   let seen = HashSet.empty<string>();
   const missing = A.empty<string>();
 
@@ -273,7 +273,7 @@ export const findMissingPromptArgKeys: {
     if (R.has(key)(providedArgs)) {
       continue;
     }
-    missing.push(key);
+    A.appendInPlace(missing, key);
   }
 
   return missing;
@@ -295,7 +295,7 @@ export const substitutePromptArgs = Effect.fn("Prompt.substitutePromptArgs")(fun
     SHELL_BLOCK_PATTERN,
     `!${SHELL_BLOCK_MARKER}\`$1\``
   )(Str.replaceAll(SHELL_BLOCK_MARKER, "")(prompt));
-  const matches = [...markedPrompt.matchAll(PLACEHOLDER_PATTERN)];
+  const matches = [...Str.matchAll(PLACEHOLDER_PATTERN)(markedPrompt)];
 
   for (const key of findMissingPromptArgKeys(markedPrompt, args)) {
     return yield* PromptError.new(
@@ -317,11 +317,15 @@ export const substitutePromptArgs = Effect.fn("Prompt.substitutePromptArgs")(fun
     }
   }
 
-  return markedPrompt.replace(PLACEHOLDER_PATTERN, (_match: string, key: string): string => {
+  return Str.replaceWith(PLACEHOLDER_PATTERN, (_match, key): string => {
+    if (!P.isString(key)) {
+      return "";
+    }
+
     const value = args[key];
 
     return value === undefined ? "" : promptArgValueToText(value);
-  });
+  })(markedPrompt);
 });
 
 const replaceMarkedShellBlocks = (
@@ -340,7 +344,7 @@ const replaceMarkedShellBlocks = (
       continue;
     }
 
-    result = `${result.slice(0, start)}${replacement}${result.slice(start + match[0].length)}`;
+    result = `${Str.slice(0, start)(result)}${replacement}${Str.slice(start + match[0].length)(result)}`;
   }
 
   return Str.replaceAll(SHELL_BLOCK_MARKER, "")(result);
@@ -406,7 +410,7 @@ export const expandPromptShellExpressions: {
     sandbox: SandboxHandle<R>,
     options: ExpandPromptShellExpressionsOptions
   ) {
-    const matches = [...options.prompt.matchAll(MARKED_SHELL_BLOCK_PATTERN)];
+    const matches = [...Str.matchAll(MARKED_SHELL_BLOCK_PATTERN)(options.prompt)];
 
     if (matches.length === 0) {
       return Str.replaceAll(SHELL_BLOCK_MARKER, "")(options.prompt);

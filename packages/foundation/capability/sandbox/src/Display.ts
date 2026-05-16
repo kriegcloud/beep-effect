@@ -6,12 +6,11 @@
  */
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import { A, Struct, Text } from "@beep/utils";
+import { A, Str, Struct, Text } from "@beep/utils";
 import * as clack from "@clack/prompts";
 import { Clock, Context, DateTime, Effect, Exit, FileSystem, Layer, Path, pipe, Ref } from "effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { redactSensitiveText } from "./Sandbox.observability.ts";
 
 const $I = $SandboxId.create("Display");

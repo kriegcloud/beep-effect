@@ -23,6 +23,7 @@ import {
   SandboxLifecycleSetupOptions,
 } from "@beep/sandbox/Lifecycle";
 import { HookTimeoutError } from "@beep/sandbox/Sandbox.errors";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Duration, Effect, Fiber, Layer, Ref } from "effect";
 import { TestClock } from "effect/testing";
@@ -39,7 +40,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
         copyFileOut: () => Effect.void,
         exec: (command, options) =>
           Effect.sync(() => {
-            commands.push({ command, cwd: options?.cwd });
+            A.appendInPlace(commands, { command, cwd: options?.cwd });
 
             return new ExecResult({
               exitCode: 0,
@@ -91,7 +92,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
           ),
           runShell: Effect.fn("SandboxProcess.runShell")((command, options) =>
             Effect.sync(() => {
-              hostShellCalls.push({ command, cwd: options?.cwd });
+              A.appendInPlace(hostShellCalls, { command, cwd: options?.cwd });
 
               return new ProcessResult({ exitCode: 0, stderr: "", stdout: "" });
             })
@@ -103,7 +104,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
         copyFileOut: () => Effect.void,
         exec: (command, options) =>
           Effect.sync(() => {
-            sandboxExecCalls.push({ command, options });
+            A.appendInPlace(sandboxExecCalls, { command, options });
 
             return new ExecResult({ exitCode: 0, stderr: "", stdout: "" });
           }),
@@ -132,7 +133,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
         })
       ).pipe(Effect.provide(Layer.mergeAll(DisplayLayer, ProcessLayer)));
 
-      expect(sandboxExecCalls.map((call) => call.command)).toEqual([
+      expect(A.map(sandboxExecCalls, (call) => call.command)).toEqual([
         "git config --global --add safe.directory '/sandbox/repo'",
         "git config --global user.name 'Host User'",
         "git config --global user.email 'host@test'",
@@ -180,12 +181,12 @@ describe("@beep/sandbox lifecycle foundation", () => {
         SandboxProcess.of({
           run: Effect.fn("SandboxProcess.run")((command) =>
             Effect.sync(() => {
-              gitCalls.push({ args: command.args, cwd: command.cwd });
+              A.appendInPlace(gitCalls, { args: command.args, cwd: command.cwd });
 
               return new ProcessResult({
                 exitCode: 0,
                 stderr: "",
-                stdout: command.args.includes("--count") ? "1\n" : "",
+                stdout: A.contains(command.args, "--count") ? "1\n" : "",
               });
             })
           ),

@@ -7,11 +7,10 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Clock, Effect, FileSystem, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { AiMetricsRawArchiveKey, writeEncryptedRawArchiveObject } from "./archive.ts";
 import {
   AiMetricsConfigSnapshotInput,
@@ -381,46 +380,55 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
   const envFileUnitPath = "%h/.config/beep/ai-metrics.env";
   const failureStatusPython =
     'import json,sys; data=open(sys.argv[2],"rb").read(2000).decode("utf-8","replace"); print(json.dumps({"status":"failed","exitCode":int(sys.argv[1]),"stderr":data},separators=(",",":")))';
-  const execCommand = [
-    "set -euo pipefail",
-    `mkdir -p "$(dirname ${shellQuote(input.statusPath)})" "$(dirname ${shellQuote(input.lockPath)})"`,
-    "exit_code=0",
-    `> ${shellQuote(stderrTmpPath)}`,
-    `if flock -n ${shellQuote(input.lockPath)} ${input.command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
-    `rm -f ${shellQuote(stderrTmpPath)}`,
-    `mv ${shellQuote(statusTmpPath)} ${shellQuote(input.statusPath)}`,
-    'exit "$exit_code"',
-  ].join("; ");
-  const serviceUnit = [
-    "[Unit]",
-    "Description=Beep AI metrics forwarder collection",
-    "StartLimitBurst=3",
-    "StartLimitIntervalSec=30m",
-    "",
-    "[Service]",
-    "Type=oneshot",
-    `WorkingDirectory=${input.workingDirectory}`,
-    `EnvironmentFile=${envFileUnitPath}`,
-    "# The command may capture PATH at render time so user-local Bun can be found; rerender after changing Bun install paths.",
-    `ExecStart=/usr/bin/env bash -lc ${shellQuote(execCommand)}`,
-    "Restart=on-failure",
-    "RestartSec=5m",
-    "",
-  ].join("\n");
-  const timerUnit = [
-    "[Unit]",
-    "Description=Run Beep AI metrics forwarder collection",
-    "",
-    "[Timer]",
-    "OnBootSec=5m",
-    `OnUnitInactiveSec=${input.intervalMinutes}m`,
-    "RandomizedDelaySec=2m",
-    "Persistent=true",
-    "",
-    "[Install]",
-    "WantedBy=timers.target",
-    "",
-  ].join("\n");
+  const execCommand = pipe(
+    [
+      "set -euo pipefail",
+      `mkdir -p "$(dirname ${shellQuote(input.statusPath)})" "$(dirname ${shellQuote(input.lockPath)})"`,
+      "exit_code=0",
+      `> ${shellQuote(stderrTmpPath)}`,
+      `if flock -n ${shellQuote(input.lockPath)} ${input.command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
+      `rm -f ${shellQuote(stderrTmpPath)}`,
+      `mv ${shellQuote(statusTmpPath)} ${shellQuote(input.statusPath)}`,
+      'exit "$exit_code"',
+    ],
+    A.join("; ")
+  );
+  const serviceUnit = pipe(
+    [
+      "[Unit]",
+      "Description=Beep AI metrics forwarder collection",
+      "StartLimitBurst=3",
+      "StartLimitIntervalSec=30m",
+      "",
+      "[Service]",
+      "Type=oneshot",
+      `WorkingDirectory=${input.workingDirectory}`,
+      `EnvironmentFile=${envFileUnitPath}`,
+      "# The command may capture PATH at render time so user-local Bun can be found; rerender after changing Bun install paths.",
+      `ExecStart=/usr/bin/env bash -lc ${shellQuote(execCommand)}`,
+      "Restart=on-failure",
+      "RestartSec=5m",
+      "",
+    ],
+    A.join("\n")
+  );
+  const timerUnit = pipe(
+    [
+      "[Unit]",
+      "Description=Run Beep AI metrics forwarder collection",
+      "",
+      "[Timer]",
+      "OnBootSec=5m",
+      `OnUnitInactiveSec=${input.intervalMinutes}m`,
+      "RandomizedDelaySec=2m",
+      "Persistent=true",
+      "",
+      "[Install]",
+      "WantedBy=timers.target",
+      "",
+    ],
+    A.join("\n")
+  );
   const writeEnvFileCommands = [
     `install -m 0600 /dev/null ${envFileShellPath}`,
     ...(input.hashSaltSecretRef === undefined

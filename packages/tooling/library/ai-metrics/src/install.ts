@@ -7,12 +7,11 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Effect, flow, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   AiMetricsDeployTarget,
   AiMetricsOtlpEndpointSpec,

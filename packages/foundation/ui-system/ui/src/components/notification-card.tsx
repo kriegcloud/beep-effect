@@ -2,6 +2,7 @@
 
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { A } from "@beep/utils";
 import { ArrowRightIcon, CheckIcon, ClockIcon, SpinnerGapIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { DateTime, pipe } from "effect";
 import * as O from "effect/Option";
@@ -195,7 +196,7 @@ export function NotificationCard({
         <div className="mt-3 flex items-end justify-between">
           {actions.length > 0 && (
             <div className={cn("flex flex-wrap items-center gap-2", !isUnread && "opacity-60")}>
-              {actions.map((action) => {
+              {A.map(actions, (action) => {
                 const isLoading = loadingActionId === action.id;
                 const isExecuted = pipe(
                   action.executed,

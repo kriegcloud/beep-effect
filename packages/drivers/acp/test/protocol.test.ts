@@ -1,6 +1,7 @@
 import * as AcpError from "@beep/acp/errors";
 import * as AcpProtocol from "@beep/acp/protocol";
 import * as AcpSchema from "@beep/acp/schema";
+import { A } from "@beep/utils";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, it } from "@effect/vitest";
 import * as Deferred from "effect/Deferred";
@@ -127,7 +128,7 @@ it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
         logOutgoing: true,
         logger: (event) =>
           Effect.sync(() => {
-            events.push(event);
+            A.appendInPlace(events, event);
           }),
       });
 

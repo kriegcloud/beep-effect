@@ -12,6 +12,7 @@ import {
 import { PROV_ACTIVITY, PROV_ENTITY, PROV_WAS_GENERATED_BY } from "@beep/semantic-web/vocab/prov";
 import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf";
 import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -53,7 +54,7 @@ describe("RDF", () => {
     const left = makeDataset([quadA, quadB]);
     const right = makeDataset([quadB, quadA]);
 
-    expect(sortDatasetQuads(left).map(serializeQuad)).toEqual(sortDatasetQuads(right).map(serializeQuad));
+    expect(A.map(sortDatasetQuads(left), serializeQuad)).toEqual(A.map(sortDatasetQuads(right), serializeQuad));
     expect(areDatasetsEquivalent(left, right)).toBe(true);
   });
 

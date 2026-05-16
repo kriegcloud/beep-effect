@@ -1,4 +1,5 @@
 import { EffectImportRulesOptions, runEffectImportRules } from "@beep/repo-cli/commands/Laws/EffectImports";
+import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
@@ -40,7 +41,7 @@ const readProjectFile = Effect.fn(function* (relativePath: string) {
 
 const writeTsconfig = writeProjectFile(
   "tsconfig.json",
-  ["{", '  "compilerOptions": {', '    "target": "ES2022",', '    "module": "ESNext"', "  }", "}"].join("\n")
+  A.join(["{", '  "compilerOptions": {', '    "target": "ES2022",', '    "module": "ESNext"', "  }", "}"], "\n")
 );
 
 describe("effect import laws", () => {
@@ -51,14 +52,17 @@ describe("effect import laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import * as Duration from "effect/Duration";',
-              'import * as Command from "effect/unstable/cli";',
-              "",
-              "export const duration = Duration.seconds(1);",
-              "export const command = Command.run;",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import * as Duration from "effect/Duration";',
+                'import * as Command from "effect/unstable/cli";',
+                "",
+                "export const duration = Duration.seconds(1);",
+                "export const command = Command.run;",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runEffectImportRules(
@@ -89,14 +93,17 @@ describe("effect import laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import * as Duration from "effect/Duration";',
-              'import * as Command from "effect/unstable/cli";',
-              "",
-              "export const duration = Duration.seconds(1);",
-              "export const command = Command.run;",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import * as Duration from "effect/Duration";',
+                'import * as Command from "effect/unstable/cli";',
+                "",
+                "export const duration = Duration.seconds(1);",
+                "export const command = Command.run;",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runEffectImportRules(

@@ -1,0 +1,45 @@
+# Repo Quality Acceleration
+
+## Status
+
+Research bootstrap active
+
+## Mission
+
+Reduce the wall-clock cost of this repo's quality feedback loops without
+weakening the canonical quality proof.
+
+The first priority is GitHub pull request feedback speed. Local canonical
+quality commands remain important, but CI and local commands do not need to
+share identical orchestration when a tiered gate gives faster PR feedback and a
+full push-to-main or scheduled proof still covers the complete quality surface.
+
+This initiative starts from the current repo reality:
+
+- root quality scripts are intentionally compact and route through
+  `@beep/repo-cli` or Turbo;
+- GitHub Actions already splits major lanes and uses affected Turbo scopes on
+  pull requests;
+- docgen already has package, affected, changed-files, quality, and worker-eval
+  surfaces;
+- the export catalog and JSDoc inventory packets provide useful deterministic
+  metadata but do not yet define a quality acceleration strategy.
+
+## First Proof
+
+Phase 0 produces read-only evidence:
+
+- recent GitHub Actions run and job timing baseline;
+- focused local timing probes for suspected slow lanes;
+- five parallel explorer reports;
+- a ranked roadmap of candidate interventions with correctness risks.
+
+No quality command behavior changes belong in the first proof.
+
+## Reading Order
+
+- [SPEC.md](./SPEC.md) - research contract and quality semantics
+- [PLAN.md](./PLAN.md) - current phased plan
+- [ops/manifest.json](./ops/manifest.json) - machine-readable routing metadata
+- [ops/prompts/parallel-explorer.md](./ops/prompts/parallel-explorer.md) -
+  prompt for read-only parallel explorer agents

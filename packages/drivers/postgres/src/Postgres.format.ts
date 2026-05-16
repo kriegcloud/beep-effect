@@ -6,12 +6,11 @@
  */
 
 import colors, { type Colors } from "@beep/colors";
+import { A, Str } from "@beep/utils";
 import { Cause, Console, type Effect, pipe, Result } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { format } from "sql-formatter";
 import { PostgresError } from "./Postgres.errors.ts";
 
@@ -112,18 +111,19 @@ const SqlFunctionValues = [
   "substring",
 ];
 
-const stripAnsi = (text: string): string => text.replace(/\x1b\[[0-9;]*m/g, "");
+const stripAnsi = (text: string): string => Str.replace(/\x1b\[[0-9;]*m/g, "")(text);
 const visualLength = (text: string): number => Str.length(stripAnsi(text));
 
 const padEnd = (text: string, targetLength: number): string => {
   const currentLength = visualLength(text);
-  return currentLength >= targetLength ? text : `${text}${" ".repeat(targetLength - currentLength)}`;
+  return currentLength >= targetLength ? text : `${text}${Str.repeat(" ", targetLength - currentLength)}`;
 };
 
 const highlightLine = (line: string, palette: Colors): string =>
-  line
-    .replace(/\$\d+/g, (placeholder) => palette.yellow(palette.bold(placeholder)))
-    .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g, (word) => {
+  pipe(
+    line,
+    Str.replaceWith(/\$\d+/g, (placeholder) => palette.yellow(palette.bold(placeholder))),
+    Str.replaceWith(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g, (word) => {
       const lower = Str.toLowerCase(word);
       if (A.contains(SqlKeywordValues, lower)) {
         return palette.magenta(palette.bold(word));
@@ -132,8 +132,9 @@ const highlightLine = (line: string, palette: Colors): string =>
         return palette.blue(word);
       }
       return word;
-    })
-    .replace(/([=<>!]+|::|->|@>|<@|\?\||\?&)/g, (operator) => palette.cyan(operator));
+    }),
+    Str.replaceWith(/([=<>!]+|::|->|@>|<@|\?\||\?&)/g, (operator) => palette.cyan(operator))
+  );
 
 const safeBoolean = (evaluate: () => boolean): boolean =>
   pipe(
@@ -345,37 +346,39 @@ export const formatSql = (
  */
 export const formatPostgresError = (error: unknown, palette: Colors = colors): string => {
   const normalized = normalizePostgresError(error);
-  const lines = [palette.red(palette.bold("POSTGRES ERROR")), `${palette.dim("operation")} ${normalized.operation}`];
-
-  O.map(normalized.message, (message) => lines.push(`${palette.dim("message")}   ${message}`));
-  O.map(normalized.sqlState, (code) => {
-    const name = O.match(normalized.sqlStateName, {
-      onNone: () => "",
-      onSome: (value) => palette.dim(` (${value})`),
-    });
-    lines.push(`${palette.dim("sqlstate")}  ${palette.yellow(code)}${name}`);
-  });
-  O.map(normalized.severity, (severity) => lines.push(`${palette.dim("severity")}  ${palette.red(severity)}`));
-  O.map(normalized.schemaName, (schema) => lines.push(`${palette.dim("schema")}    ${palette.cyan(schema)}`));
-  O.map(normalized.tableName, (table) => lines.push(`${palette.dim("table")}     ${palette.cyan(table)}`));
-  O.map(normalized.columnName, (column) => lines.push(`${palette.dim("column")}    ${palette.cyan(column)}`));
-  O.map(normalized.constraintName, (constraint) =>
-    lines.push(`${palette.dim("constraint")} ${palette.magenta(constraint)}`)
-  );
-  O.map(normalized.detail, (detail) => lines.push(`${palette.dim("detail")}    ${detail}`));
-  O.map(normalized.hint, (hint) => lines.push(`${palette.dim("hint")}      ${palette.green(hint)}`));
-  O.map(normalized.where, (where) => lines.push(`${palette.dim("where")}     ${palette.gray(where)}`));
-  O.map(normalized.sourceLocation, (location) =>
-    lines.push(`${palette.dim("source")}    ${palette.underline(location)}`)
-  );
-  O.map(normalized.query, (query) => {
-    const parameters = O.getOrElse(normalized.params, A.empty<unknown>);
-    lines.push("");
-    lines.push(palette.bold(queryType(query)));
-    lines.push(formatSql(query, parameters, palette));
+  const detailLines = A.getSomes([
+    O.map(normalized.message, (message) => `${palette.dim("message")}   ${message}`),
+    O.map(normalized.sqlState, (code) => {
+      const name = O.match(normalized.sqlStateName, {
+        onNone: () => "",
+        onSome: (value) => palette.dim(` (${value})`),
+      });
+      return `${palette.dim("sqlstate")}  ${palette.yellow(code)}${name}`;
+    }),
+    O.map(normalized.severity, (severity) => `${palette.dim("severity")}  ${palette.red(severity)}`),
+    O.map(normalized.schemaName, (schema) => `${palette.dim("schema")}    ${palette.cyan(schema)}`),
+    O.map(normalized.tableName, (table) => `${palette.dim("table")}     ${palette.cyan(table)}`),
+    O.map(normalized.columnName, (column) => `${palette.dim("column")}    ${palette.cyan(column)}`),
+    O.map(normalized.constraintName, (constraint) => `${palette.dim("constraint")} ${palette.magenta(constraint)}`),
+    O.map(normalized.detail, (detail) => `${palette.dim("detail")}    ${detail}`),
+    O.map(normalized.hint, (hint) => `${palette.dim("hint")}      ${palette.green(hint)}`),
+    O.map(normalized.where, (where) => `${palette.dim("where")}     ${palette.gray(where)}`),
+    O.map(normalized.sourceLocation, (location) => `${palette.dim("source")}    ${palette.underline(location)}`),
+  ]);
+  const queryLines = O.match(normalized.query, {
+    onNone: A.empty<string>,
+    onSome: (query) => {
+      const parameters = O.getOrElse(normalized.params, A.empty<unknown>);
+      return ["", palette.bold(queryType(query)), formatSql(query, parameters, palette)];
+    },
   });
 
-  return A.join(lines, "\n");
+  return pipe(
+    [palette.red(palette.bold("POSTGRES ERROR")), `${palette.dim("operation")} ${normalized.operation}`],
+    A.appendAll(detailLines),
+    A.appendAll(queryLines),
+    A.join("\n")
+  );
 };
 
 /**

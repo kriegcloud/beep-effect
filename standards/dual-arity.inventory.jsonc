@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-09",
+  "generatedOn": "2026-05-16",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -20,6 +20,84 @@
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["invalid-dual-arity", "third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Str.ts",
+      "qualifiedName": "replaceAllWith",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Central String.prototype.replaceAll callback wrapper intentionally mirrors the native positional replacer API while preserving the data-last overload required by the native String method sweep.",
+      "issue": "UTILS-STR-CALLBACK-REPLACER",
+      "line": 658,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Str.ts",
+      "qualifiedName": "replaceWith",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Central String.prototype.replace callback wrapper intentionally mirrors the native positional replacer API while preserving the data-last overload required by the native String method sweep.",
+      "issue": "UTILS-STR-CALLBACK-REPLACER",
+      "line": 617,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Array.ts",
+      "qualifiedName": "indexOf",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Central Array.prototype.indexOf parity helper intentionally mirrors the native optional fromIndex positional API while returning Option for effect-first consumers.",
+      "issue": "UTILS-ARRAY-NATIVE-PARITY",
+      "line": 275,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Array.ts",
+      "qualifiedName": "lastIndexOf",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Central Array.prototype.lastIndexOf parity helper intentionally mirrors the native optional fromIndex positional API while returning Option for effect-first consumers.",
+      "issue": "UTILS-ARRAY-NATIVE-PARITY",
+      "line": 304,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Array.ts",
+      "qualifiedName": "slice",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Central Array.prototype.slice parity helper intentionally mirrors the native optional end positional API for behavior-preserving array-method migration.",
+      "issue": "UTILS-ARRAY-NATIVE-PARITY",
+      "line": 333,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/Array.ts",
+      "qualifiedName": "spliceInPlace",
+      "kind": "exported-const-function",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Explicit in-place Array.prototype.splice parity helper centralizes the rare identity-preserving mutation cases found by the native Array sweep.",
+      "issue": "UTILS-ARRAY-NATIVE-PARITY",
+      "line": 499,
+      "column": 14,
+      "parameterCount": 4,
+      "diagnostics": ["too-many-positional-params"]
     }
   ]
 }

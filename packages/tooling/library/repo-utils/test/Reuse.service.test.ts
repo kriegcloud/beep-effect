@@ -7,6 +7,7 @@ import {
   ReuseServiceSuiteLive,
   TSMorphServiceLive,
 } from "@beep/repo-utils";
+import { A, Str } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, it } from "@effect/vitest";
@@ -33,7 +34,7 @@ describe("Reuse services", () => {
 
           expect(plan.scopeSelector).toBe("packages/tooling/tool/cli,packages/tooling/library/repo-utils");
           expect(plan.catalogEntryCount).toBeGreaterThan(0);
-          expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual([
+          expect(A.map(plan.scoutUnits, (unit) => unit.scopeSelector)).toEqual([
             "packages/tooling/library/repo-utils",
             "packages/tooling/tool/cli",
           ]);
@@ -52,7 +53,7 @@ describe("Reuse services", () => {
           );
 
           expect(plan.scopeSelector).toBe("packages/tooling/tool/cli,packages/tooling/library/repo-utils");
-          expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual([
+          expect(A.map(plan.scoutUnits, (unit) => unit.scopeSelector)).toEqual([
             "packages/tooling/library/repo-utils",
             "packages/tooling/tool/cli",
           ]);
@@ -68,7 +69,8 @@ describe("Reuse services", () => {
           const plan = yield* planner.buildPartitions(TOOLING_SCOPE);
 
           expect(
-            plan.specialistUnits.some(
+            A.some(
+              plan.specialistUnits,
               (unit) => unit.scopeSelector === "packages/tooling/library/repo-utils,packages/tooling/tool/cli"
             )
           ).toBe(true);
@@ -98,7 +100,7 @@ describe("Reuse services", () => {
         Effect.gen(function* () {
           const inventoryService = yield* ReuseInventoryService;
           const inventory = yield* inventoryService.buildInventory(TOOLING_SCOPE);
-          const candidateIds = inventory.candidates.map((candidate) => candidate.candidateId);
+          const candidateIds = A.map(inventory.candidates, (candidate) => candidate.candidateId);
           const firstCandidate = inventory.candidates[0];
 
           expect(inventory.scopeSelector).toBe("packages/tooling/tool/cli,packages/tooling/library/repo-utils");
@@ -110,7 +112,7 @@ describe("Reuse services", () => {
           const packet = yield* inventoryService.buildPacket(firstCandidate.candidateId, TOOLING_SCOPE);
 
           expect(packet.candidate.candidateId).toBe(firstCandidate.candidateId);
-          expect(packet.candidate.proposedDestinationPackage.startsWith("@beep/")).toBe(true);
+          expect(Str.startsWith("@beep/")(packet.candidate.proposedDestinationPackage)).toBe(true);
           expect(packet.candidate.implementationSteps.length).toBeGreaterThan(0);
           expect(packet.candidate.verificationCommands.length).toBeGreaterThan(0);
         }).pipe(Effect.provide(makeTestLayer())),
@@ -135,7 +137,10 @@ describe("Reuse services", () => {
           expect(O.getOrElse(result.query, () => "")).toBe("json");
           expect(result.matches.length).toBeGreaterThan(0);
           expect(
-            result.matches.some((match) => match.packageName === "effect" || match.packageName.startsWith("@beep/"))
+            A.some(
+              result.matches,
+              (match) => match.packageName === "effect" || Str.startsWith("@beep/")(match.packageName)
+            )
           ).toBe(true);
         }).pipe(Effect.provide(makeTestLayer())),
       180_000

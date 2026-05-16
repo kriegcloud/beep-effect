@@ -1,7 +1,10 @@
 "use client";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
+import { Str } from "@beep/utils";
 import { ArrowSquareOutIcon, InfoIcon } from "@phosphor-icons/react";
+import { pipe } from "effect";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { cn, sanitizeAnchorHref } from "../lib/index.ts";
@@ -42,7 +45,7 @@ const extractMetaTag = (html: string, name: string): null | string => {
   ];
 
   for (const pattern of patterns) {
-    const match = html.match(pattern);
+    const match = O.getOrUndefined(Str.match(pattern)(html));
     const matchValue = match?.[1];
     if (hasText(matchValue)) {
       return matchValue;
@@ -89,7 +92,7 @@ const getFallbackMetadata = (href: string): UrlMetadata => {
   return {
     title: null,
     description: null,
-    favicon: `${origin.replace(/\/$/, "")}/favicon.ico`,
+    favicon: `${Str.replace(/\/$/, "")(origin)}/favicon.ico`,
     websiteName: toHostname(href),
     websiteImage: null,
     url: href,
@@ -111,7 +114,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
   const [error, setError] = useState<null | string>(null);
   const safeHref = sanitizeAnchorHref(href);
 
-  const isValidUrl = href.length > 0 && isValidHttpUrl(href) && !isEmail(href) && !href.startsWith("mailto:");
+  const isValidUrl = href.length > 0 && isValidHttpUrl(href) && !isEmail(href) && !Str.startsWith(href, "mailto:");
 
   const shouldFetch = isValidUrl && canFetchMetadata(href);
 
@@ -134,7 +137,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
         }
 
         const html = await response.text();
-        const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+        const titleMatch = O.getOrUndefined(Str.match(/<title[^>]*>([^<]+)<\/title>/i)(html));
         const parsed = new URL(href);
 
         setFetchedMetadata({
@@ -271,7 +274,9 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
               <div className="line-clamp-3 w-full text-xs text-gray-400">{description}</div>
             )}
 
-            <div className="truncate text-xs text-primary">{href.replace("https://", "").replace("http://", "")}</div>
+            <div className="truncate text-xs text-primary">
+              {pipe(href, Str.replace("https://", ""), Str.replace("http://", ""))}
+            </div>
           </div>
         )}
       </TooltipContent>

@@ -185,3 +185,23 @@ describe("repeat", () => {
     expect(pipe("ab" as const, Str.repeat(3))).type.toBe<"ababab">();
   });
 });
+
+describe("replaceWith", () => {
+  it("data-first returns string", () => {
+    expect(Str.replaceWith("beep", "beep", (match) => Str.toUpperCase(match))).type.toBe<string>();
+  });
+
+  it("data-last returns string transformer", () => {
+    expect(Str.replaceWith("beep", (match) => Str.toUpperCase(match))).type.toBe<(self: string) => string>();
+  });
+});
+
+describe("replaceAllWith", () => {
+  it("data-first returns string", () => {
+    expect(Str.replaceAllWith("beep beep", /beep/g, (match) => Str.toUpperCase(match))).type.toBe<string>();
+  });
+
+  it("data-last returns string transformer", () => {
+    expect(Str.replaceAllWith(/beep/g, (match) => Str.toUpperCase(match))).type.toBe<(self: string) => string>();
+  });
+});

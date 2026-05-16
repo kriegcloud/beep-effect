@@ -6,14 +6,12 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { thunkEmptyReadonlyArray, thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { A, Str, thunkEmptyReadonlyArray, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { Chunk, Clock, Effect, flow, Inspectable, identity, Layer, Match, Order, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { type Tool, Toolkit } from "effect/unstable/ai";
 import { DocumentId } from "../Core/Document.ts";
 import { BracketStringToPatternElement, Tokenization } from "../Core/index.ts";
@@ -452,7 +450,7 @@ export const NlpToolkitLive: Layer.Layer<
 
         const flush = () => {
           if (startSentenceIndex >= 0 && !Str.isEmpty(currentText)) {
-            chunks.push({
+            A.appendInPlace(chunks, {
               charCount: Str.length(currentText),
               endSentenceIndex,
               sentenceCount: endSentenceIndex - startSentenceIndex + 1,
@@ -855,7 +853,7 @@ export const NlpToolkitLive: Layer.Layer<
 
         for (const operation of operations) {
           current = yield* applyTransformOperation(utils, operation, current);
-          operationsApplied.push(operation);
+          A.appendInPlace(operationsApplied, operation);
         }
 
         return {

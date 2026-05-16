@@ -15,5 +15,10 @@
       "@beep/ui/lib": ["./src/lib/index.ts"],
       "@beep/ui/lib/*": ["./src/lib/*"]
     }
-  }
+  },
+  "references": [
+    {
+      "path": "../../modeling/utils/tsconfig.json"
+    }
+  ]
 }

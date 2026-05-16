@@ -16,6 +16,7 @@ import {
 } from "@beep/face-detection";
 import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
+import { A, Str } from "@beep/utils";
 import {
   Console,
   Context,
@@ -31,9 +32,7 @@ import {
   Result,
   type Terminal,
 } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { imageSizeFromFile } from "image-size/fromFile";
 import sharp from "sharp";

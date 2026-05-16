@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
-import { Str as CommonStr, thunkEmptyRecord, thunkEmptyStr } from "@beep/utils";
+import { Str, thunkEmptyRecord, thunkEmptyStr } from "@beep/utils";
 import { Context, Effect, FileSystem, flow, identity, pipe, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -108,10 +108,10 @@ const toHelperValue = (value: unknown): string => pipe(decodeTemplateHelperStrin
 const createHandlebarsEnvironment = () => {
   const hbs = Handlebars.create();
 
-  hbs.registerHelper("camelCase", flow(toHelperValue, CommonStr.camelCase));
-  hbs.registerHelper("pascalCase", flow(toHelperValue, CommonStr.pascalCase));
-  hbs.registerHelper("kebabCase", flow(toHelperValue, CommonStr.kebabCase));
-  hbs.registerHelper("snakeCase", flow(toHelperValue, CommonStr.snakeCase));
+  hbs.registerHelper("camelCase", flow(toHelperValue, Str.camelCase));
+  hbs.registerHelper("pascalCase", flow(toHelperValue, Str.pascalCase));
+  hbs.registerHelper("kebabCase", flow(toHelperValue, Str.kebabCase));
+  hbs.registerHelper("snakeCase", flow(toHelperValue, Str.snakeCase));
 
   return hbs;
 };

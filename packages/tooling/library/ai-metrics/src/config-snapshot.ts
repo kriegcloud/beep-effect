@@ -7,11 +7,10 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Effect, FileSystem, flow, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ConfigSnapshot } from "./models.ts";
 import { hashPublicTextSha256 } from "./privacy.ts";
 

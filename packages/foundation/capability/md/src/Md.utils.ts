@@ -7,9 +7,8 @@
 
 import { $MdId } from "@beep/identity";
 import { Markdown } from "@beep/schema";
-import { Html, Str } from "@beep/utils";
+import { A, Html, Str } from "@beep/utils";
 import { Number as N } from "effect";
-import * as A from "effect/Array";
 import { dual, flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -75,7 +74,18 @@ const replaceHtmlCharacterReferences = (
     hexadecimal: string | undefined,
     named: string | undefined
   ) => string
-): string => value.replace(htmlCharacterReferencePattern, replacer);
+): string =>
+  pipe(
+    value,
+    Str.replaceAllWith(htmlCharacterReferencePattern, (match, decimal, hexadecimal, named) =>
+      replacer(
+        match,
+        P.isString(decimal) ? decimal : undefined,
+        P.isString(hexadecimal) ? hexadecimal : undefined,
+        P.isString(named) ? named : undefined
+      )
+    )
+  );
 
 const decodeHtmlCharacterReferences = (value: string): string =>
   replaceHtmlCharacterReferences(
@@ -96,8 +106,10 @@ const decodeHtmlCharacterReferences = (value: string): string =>
     }
   );
 
-const decodePercentEncodedByte = (value: string): string =>
-  value.replace(percentEncodedBytePattern, (_match, hex: string) => codePointToString(parseCodePoint(hex, 16)));
+const decodePercentEncodedByte: (value: string) => string = Str.replaceAllWith(
+  percentEncodedBytePattern,
+  (match, hex) => (P.isString(hex) ? codePointToString(parseCodePoint(hex, 16)) : match)
+);
 
 const decodePercentEncodedBytes = (value: string): string => {
   let decoded = value;
@@ -273,9 +285,10 @@ export const sanitizeCodeFenceLanguage = (language: string): string => {
  *
  * @example
  * ```ts
+ * import { Str } from "@beep/utils"
  * import { maxBackticks } from "@beep/md/Md.utils"
  *
- * const triple = "`".repeat(3)
+ * const triple = Str.repeat("`", 3)
  * const count = maxBackticks(`\`one\` and ${triple}three${triple}`)
  * console.log(count) // 3
  * ```
@@ -335,11 +348,12 @@ export const renderInlineCode = (text: string): string => {
  *
  * @example
  * ```ts
+ * import { Str } from "@beep/utils"
  * import { renderFencedCode } from "@beep/md/Md.utils"
  *
  * const block = renderFencedCode("console.log('beep')", "ts")
- * const fence = "`".repeat(3)
- * console.log(block.includes(`${fence}ts`)) // true
+ * const fence = Str.repeat("`", 3)
+ * console.log(Str.includes(`${fence}ts`)(block)) // true
  * ```
  *
  * @category utilities

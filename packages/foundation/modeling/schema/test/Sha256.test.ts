@@ -1,4 +1,5 @@
 import { Sha256Hex, Sha256HexFromBytes, Sha256HexFromHexBytes } from "@beep/schema";
+import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
@@ -14,7 +15,7 @@ describe("Sha256Hex", () => {
   });
 
   it("rejects uppercase digests", () => {
-    expect(() => decode(knownDigest.toUpperCase())).toThrow(
+    expect(() => decode(Str.toUpperCase(knownDigest))).toThrow(
       "SHA-256 digest must contain only lowercase hexadecimal characters"
     );
   });
@@ -24,7 +25,7 @@ describe("Sha256Hex", () => {
   });
 
   it("rejects 64-character strings with non-hex characters", () => {
-    expect(() => decode(`${"g".repeat(63)}z`)).toThrow(
+    expect(() => decode(`${Str.repeat("g", 63)}z`)).toThrow(
       "SHA-256 digest must contain only lowercase hexadecimal characters"
     );
   });

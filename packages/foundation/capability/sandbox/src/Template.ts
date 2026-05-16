@@ -7,13 +7,11 @@
 
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import { Struct } from "@beep/utils";
+import { A, Str, Struct } from "@beep/utils";
 import { Effect } from "effect";
-import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { InitError } from "./Sandbox.errors.ts";
 
 const $I = $SandboxId.create("Template");
@@ -44,8 +42,9 @@ export type SandboxTemplateName = typeof SandboxTemplateName.Type;
  * @example
  * ```ts
  * import { listSandboxTemplates } from "@beep/sandbox"
+ * import { A } from "@beep/utils"
  *
- * const names = listSandboxTemplates().map((template) => template.name)
+ * const names = A.map(listSandboxTemplates(), (template) => template.name)
  * console.log(names)
  * ```
  *

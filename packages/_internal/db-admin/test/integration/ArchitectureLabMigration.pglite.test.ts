@@ -1,11 +1,10 @@
 import { fileURLToPath } from "node:url";
 import { makeDrizzle, migrate } from "@beep/postgres";
 import { makePgliteSqlTestLayer, type SqlTestHooks, TestDatabaseInfo } from "@beep/test-utils";
+import { A, Str } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 
 const sharedConnectionUri = pipe(process.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));

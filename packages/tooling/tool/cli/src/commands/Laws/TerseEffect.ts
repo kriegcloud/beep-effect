@@ -7,9 +7,8 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { thunkEmptyStr } from "@beep/utils";
+import { A, thunkEmptyStr } from "@beep/utils";
 import { Effect, HashMap, Inspectable, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

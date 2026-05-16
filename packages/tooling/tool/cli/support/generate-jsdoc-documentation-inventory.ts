@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { A, Str } from "@beep/utils";
 import * as jsonc from "jsonc-parser";
 import { Node, Project, SyntaxKind } from "ts-morph";
 
@@ -47,21 +48,17 @@ const formatJsonc = (value) => {
   )}\n`;
 };
 
-const normalizeSlashes = (value) => value.replaceAll(path.sep, "/");
+const normalizeSlashes = (value) => Str.replaceAll(path.sep, "/")(value);
 
 const repoRelative = (absolutePath) => normalizeSlashes(path.relative(rootDir, absolutePath) || ".");
 
 const markdownAnchor = (value) =>
-  value
-    .toLowerCase()
-    .replace(/`/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  Str.replace(/^-+|-+$/g, "")(Str.replace(/[^a-z0-9]+/g, "-")(Str.replace(/`/g, "")(Str.toLowerCase(value))));
 
-const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegExp = (value) => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 
 const globPatternToRegExp = (pattern) => {
-  const normalized = normalizeSlashes(pattern.replace(/^\.\//, ""));
+  const normalized = normalizeSlashes(Str.replace(/^\.\//, "")(pattern));
   let source = "^";
   let index = 0;
 
@@ -97,8 +94,8 @@ const globPatternToRegExp = (pattern) => {
 
 const packageSourceMatchesExclude = (packagePath, srcDir, sourceFilePath, pattern) => {
   const packageRelative = normalizeSlashes(path.relative(packagePath, sourceFilePath));
-  const srcRelative = packageRelative.startsWith(`${srcDir}/`)
-    ? packageRelative.slice(srcDir.length + 1)
+  const srcRelative = Str.startsWith(`${srcDir}/`)(packageRelative)
+    ? Str.slice(srcDir.length + 1)(packageRelative)
     : packageRelative;
   const matcher = globPatternToRegExp(pattern);
 
@@ -108,21 +105,21 @@ const packageSourceMatchesExclude = (packagePath, srcDir, sourceFilePath, patter
 const readRootPackage = () => readJsonc(path.join(rootDir, "package.json"));
 
 const workspacePatternsFrom = (workspaces) => {
-  if (Array.isArray(workspaces)) {
+  if (A.isArray(workspaces)) {
     return workspaces;
   }
-  if (workspaces !== null && typeof workspaces === "object" && Array.isArray(workspaces.packages)) {
+  if (workspaces !== null && typeof workspaces === "object" && A.isArray(workspaces.packages)) {
     return workspaces.packages;
   }
   return [];
 };
 
 const expandWorkspacePattern = (pattern) => {
-  const segments = normalizeSlashes(pattern).split("/").filter(Boolean);
+  const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
   let candidates = [rootDir];
 
   for (const segment of segments) {
-    const nextCandidates = [];
+    const nextCandidates: Array<string> = [];
 
     for (const candidate of candidates) {
       if (segment === "*") {
@@ -131,19 +128,19 @@ const expandWorkspacePattern = (pattern) => {
         }
         for (const entry of readdirSync(candidate, { withFileTypes: true })) {
           if (entry.isDirectory()) {
-            nextCandidates.push(path.join(candidate, entry.name));
+            A.appendInPlace(nextCandidates, path.join(candidate, entry.name));
           }
         }
         continue;
       }
 
-      nextCandidates.push(path.join(candidate, segment));
+      A.appendInPlace(nextCandidates, path.join(candidate, segment));
     }
 
     candidates = nextCandidates;
   }
 
-  return candidates.filter((candidate) => existsSync(path.join(candidate, "package.json")));
+  return A.filter(candidates, (candidate) => existsSync(path.join(candidate, "package.json")));
 };
 
 const discoverWorkspacePackages = () => {
@@ -182,10 +179,10 @@ const topoSortPackageNames = () => {
     throw new Error(`bun run topo-sort failed:\n${result.stderr || result.stdout}`);
   }
 
-  return result.stdout
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.startsWith("@"));
+  return A.filter(
+    A.map(Str.split(/\r?\n/)(result.stdout), (line) => Str.trim(line)),
+    (line) => Str.startsWith("@")(line)
+  );
 };
 
 const listSourceFiles = (directory) => {
@@ -220,29 +217,27 @@ const listSourceFiles = (directory) => {
         continue;
       }
 
-      if (ignoredSourceSuffixes.some((suffix) => entry.name.endsWith(suffix))) {
+      if (A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(entry.name))) {
         continue;
       }
 
-      files.push(absolutePath);
+      A.appendInPlace(files, absolutePath);
     }
   };
 
   visit(directory);
-  return files.sort();
+  return A.sortInPlace(files, (left, right) => Str.localeCompare(right)(left));
 };
 
 const stripCommentFraming = (commentText) =>
-  commentText
-    .replace(/^\/\*\*/, "")
-    .replace(/\*\/$/, "")
-    .split(/\r?\n/)
-    .map((line) => line.replace(/^\s*\*\s?/, "").trimEnd());
+  A.map(Str.split(/\r?\n/)(Str.replace(/\*\/$/, "")(Str.replace(/^\/\*\*/, "")(commentText))), (line) =>
+    Str.trimEnd(Str.replace(/^\s*\*\s?/, "")(line))
+  );
 
 const summaryFromComment = (commentText) => {
   for (const line of stripCommentFraming(commentText)) {
-    const trimmed = line.trim();
-    if (trimmed.length === 0 || trimmed.startsWith("@") || trimmed.startsWith("```")) {
+    const trimmed = Str.trim(line);
+    if (trimmed.length === 0 || Str.startsWith("@")(trimmed) || Str.startsWith("```")(trimmed)) {
       continue;
     }
     return trimmed;
@@ -255,7 +250,7 @@ const tagsFromComment = (commentText) => {
   for (const line of stripCommentFraming(commentText)) {
     const match = /^\s*@([A-Za-z][\w-]*)\b/.exec(line);
     if (match !== null) {
-      tags.push(`@${match[1]}`);
+      A.appendInPlace(tags, `@${match[1]}`);
     }
   }
   return [...new Set(tags)];
@@ -268,7 +263,7 @@ const valuesForTag = (commentText, tagName) => {
   for (const line of stripCommentFraming(commentText)) {
     const match = pattern.exec(line);
     if (match !== null) {
-      values.push((match[1] ?? "").trim());
+      A.appendInPlace(values, Str.trim(match[1] ?? ""));
     }
   }
 
@@ -276,13 +271,13 @@ const valuesForTag = (commentText, tagName) => {
 };
 
 const extractExamples = (commentText) => {
-  const cleaned = stripCommentFraming(commentText).join("\n");
+  const cleaned = A.join(stripCommentFraming(commentText), "\n");
   const examples = [];
   const codeFencePattern = /```(?:ts|typescript)\s*\n([\s\S]*?)```/g;
   let match = codeFencePattern.exec(cleaned);
 
   while (match !== null) {
-    examples.push(match[1] ?? "");
+    A.appendInPlace(examples, match[1] ?? "");
     match = codeFencePattern.exec(cleaned);
   }
 
@@ -312,7 +307,7 @@ const leadingJsDocText = (node) =>
   node
     .getLeadingCommentRanges()
     .map((range) => range.getText())
-    .filter((text) => text.startsWith("/**"))
+    .filter((text) => Str.startsWith("/**")(text))
     .at(-1) ?? "";
 
 const declarationKind = (node) => {
@@ -346,33 +341,33 @@ const malformedConditionalTags = (commentText) => {
   const findings = [];
   const lines = stripCommentFraming(commentText);
 
-  lines.forEach((line, index) => {
+  for (const [index, line] of A.entries(lines)) {
     const lineNumber = index + 1;
 
     if (/^\s*@(?:param|returns|throws)\s+\{[^}]+}/.test(line)) {
-      findings.push({
+      A.appendInPlace(findings, {
         rule: "no-type-braces-in-tags",
         lineOffset: lineNumber,
-        text: line.trim(),
+        text: Str.trim(line),
       });
     }
 
     if (/^\s*@(?:returns|throws)\s+-\s+/.test(line)) {
-      findings.push({
+      A.appendInPlace(findings, {
         rule: "no-hyphen-after-returns-or-throws",
         lineOffset: lineNumber,
-        text: line.trim(),
+        text: Str.trim(line),
       });
     }
 
-    if (/^\s*@deprecated\b/.test(line) && !line.includes("{@link")) {
-      findings.push({
+    if (/^\s*@deprecated\b/.test(line) && !Str.includes("{@link")(line)) {
+      A.appendInPlace(findings, {
         rule: "deprecated-requires-link",
         lineOffset: lineNumber,
-        text: line.trim(),
+        text: Str.trim(line),
       });
     }
-  });
+  }
 
   return findings;
 };
@@ -387,9 +382,9 @@ const exampleImportViolations = (commentText) => {
     { module: "effect/Record", alias: "R" },
   ];
 
-  extractExamples(commentText).forEach((example, exampleIndex) => {
+  for (const [exampleIndex, example] of A.entries(extractExamples(commentText))) {
     if (/@effect\/schema/.test(example)) {
-      violations.push({
+      A.appendInPlace(violations, {
         example: exampleIndex + 1,
         rule: "no-deprecated-effect-schema-import",
         detail: "Examples must import Schema APIs from effect/Schema, not @effect/schema.",
@@ -405,22 +400,22 @@ const exampleImportViolations = (commentText) => {
       );
 
       if (namedImportPattern.test(example)) {
-        violations.push({
+        A.appendInPlace(violations, {
           example: exampleIndex + 1,
           rule: "use-required-namespace-import",
           detail: `Use import * as ${required.alias} from "${required.module}".`,
         });
       }
 
-      if (example.includes(`from "${required.module}"`) && !namespaceImportPattern.test(example)) {
-        violations.push({
+      if (Str.includes(`from "${required.module}"`)(example) && !namespaceImportPattern.test(example)) {
+        A.appendInPlace(violations, {
           example: exampleIndex + 1,
           rule: "wrong-required-namespace-alias",
           detail: `Examples importing ${required.module} must use the ${required.alias} namespace alias.`,
         });
       }
     }
-  });
+  }
 
   return violations;
 };
@@ -428,15 +423,15 @@ const exampleImportViolations = (commentText) => {
 const unsafeExampleViolations = (commentText) => {
   const violations = [];
 
-  extractExamples(commentText).forEach((example, exampleIndex) => {
-    const nonImportLines = example
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => !line.startsWith("import "));
-    const nonImportText = nonImportLines.join("\n");
+  for (const [exampleIndex, example] of A.entries(extractExamples(commentText))) {
+    const nonImportLines = A.filter(
+      A.map(Str.split(/\r?\n/)(example), (line) => Str.trim(line)),
+      (line) => !Str.startsWith("import ")(line)
+    );
+    const nonImportText = A.join(nonImportLines, "\n");
 
     if (/\bdeclare\b/.test(nonImportText)) {
-      violations.push({
+      A.appendInPlace(violations, {
         example: exampleIndex + 1,
         rule: "no-declare-statements",
         detail: "Examples must be executable snippets, not declaration stubs.",
@@ -444,7 +439,7 @@ const unsafeExampleViolations = (commentText) => {
     }
 
     if (/\bany\b/.test(nonImportText)) {
-      violations.push({
+      A.appendInPlace(violations, {
         example: exampleIndex + 1,
         rule: "no-any-in-examples",
         detail: "Examples must not use any.",
@@ -452,30 +447,31 @@ const unsafeExampleViolations = (commentText) => {
     }
 
     if (/\bas\s+(?:const|unknown|never|string|number|boolean|readonly|[A-Z_$({[])/.test(nonImportText)) {
-      violations.push({
+      A.appendInPlace(violations, {
         example: exampleIndex + 1,
         rule: "no-type-assertions-in-examples",
         detail: "Examples must construct values through public APIs instead of type assertions.",
       });
     }
-  });
+  }
 
   return violations;
 };
 
-const forbiddenTagsIn = (presentTags) => presentTags.filter((tag) => forbiddenTags.includes(tag));
+const forbiddenTagsIn = (presentTags) => presentTags.filter((tag) => A.contains(forbiddenTags, tag));
 
 const categoryViolations = (commentText) =>
-  valuesForTag(commentText, "@category")
-    .filter((value) => /[A-Z]/.test(value))
-    .map((value) => ({
+  A.map(
+    A.filter(valuesForTag(commentText, "@category"), (value) => /[A-Z]/.test(value)),
+    (value) => ({
       rule: "category-must-be-lowercase",
       detail: value,
-    }));
+    })
+  );
 
 const textLooksLikeSchemaExport = (name, node) => {
   const text = getDocNode(node).getText();
-  if (name.startsWith("$")) {
+  if (Str.startsWith("$")(name)) {
     return false;
   }
   if (Node.isClassDeclaration(node)) {
@@ -505,14 +501,14 @@ const schemaAnnotationGaps = (name, node, sourceFile) => {
     /\$I\.annote(?:Schema)?\s*\(/.test(text) || /\.annotate\s*\(/.test(text) || /\bS\.annotate\s*\(/.test(text);
 
   if (!hasAnnotation) {
-    gaps.push({
+    A.appendInPlace(gaps, {
       rule: "missing-schema-annotation",
       detail: "Exported schemas should carry $I.annote or $I.annoteSchema metadata.",
     });
   }
 
   if (!Node.isClassDeclaration(node) && sourceFile.getTypeAlias(name) === undefined) {
-    gaps.push({
+    A.appendInPlace(gaps, {
       rule: "missing-schema-runtime-type-alias",
       detail: `Exported non-class schema ${name} should have an exported same-name runtime type alias.`,
     });
@@ -535,9 +531,9 @@ const analyzeModule = (sourceFile, packagePath, exportCount) => {
   const missingTags = exportCount === 0 ? [] : missingRequiredTags(presentTags, requiredModuleTags);
   const forbidden = forbiddenTagsIn(presentTags);
   const missingSummary = fileoverview === undefined ? exportCount > 0 : summaryFromComment(fileoverview) === undefined;
-  const docKind = presentTags.includes("@packageDocumentation")
+  const docKind = A.contains(presentTags, "@packageDocumentation")
     ? "packageDocumentation"
-    : presentTags.includes("@module")
+    : A.contains(presentTags, "@module")
       ? "module"
       : fileoverview === undefined
         ? "none"
@@ -658,7 +654,7 @@ const exportedDeclarationsFor = (sourceFile, packagePath) => {
     }
     const key = `re-export:${declaration.getStart()}`;
     seen.add(key);
-    exports.push({
+    A.appendInPlace(exports, {
       key,
       analysis: analyzeExportDeclaration(declaration, sourceFile, packagePath),
     });
@@ -674,7 +670,7 @@ const exportedDeclarationsFor = (sourceFile, packagePath) => {
         continue;
       }
       seen.add(key);
-      exports.push({ key, name, declaration });
+      A.appendInPlace(exports, { key, name, declaration });
     }
   }
 
@@ -686,11 +682,12 @@ const analyzePackage = (packageInfo, topoOrder) => {
   const hasDocgenConfig = existsSync(docgenPath);
   const docgenConfig = hasDocgenConfig ? readJsonc(docgenPath) : {};
   const srcDir = typeof docgenConfig.srcDir === "string" ? docgenConfig.srcDir : "src";
-  const exclude = Array.isArray(docgenConfig.exclude)
+  const exclude = A.isArray(docgenConfig.exclude)
     ? docgenConfig.exclude.filter((item) => typeof item === "string")
     : [];
   const sourceRoot = path.join(packageInfo.absolutePath, srcDir);
-  const sourceFiles = listSourceFiles(sourceRoot).filter(
+  const sourceFiles = A.filter(
+    listSourceFiles(sourceRoot),
     (sourceFilePath) =>
       !exclude.some((pattern) => packageSourceMatchesExclude(packageInfo.absolutePath, srcDir, sourceFilePath, pattern))
   );
@@ -705,24 +702,27 @@ const analyzePackage = (packageInfo, topoOrder) => {
 
     for (const entry of directExports) {
       if (entry.analysis !== undefined) {
-        packageExports.push({
+        A.appendInPlace(packageExports, {
           ...entry.analysis,
           filePath: normalizeSlashes(path.relative(packageInfo.absolutePath, sourceFile.getFilePath())),
           repoPath: repoRelative(sourceFile.getFilePath()),
         });
         continue;
       }
-      packageExports.push(analyzeDirectExport(entry.name, entry.declaration, sourceFile, packageInfo.absolutePath));
+      A.appendInPlace(
+        packageExports,
+        analyzeDirectExport(entry.name, entry.declaration, sourceFile, packageInfo.absolutePath)
+      );
     }
 
     if (packageExports.length > 0) {
-      modules.push(analyzeModule(sourceFile, packageInfo.absolutePath, packageExports.length));
-      exports.push(...packageExports);
+      A.appendInPlace(modules, analyzeModule(sourceFile, packageInfo.absolutePath, packageExports.length));
+      A.appendAllInPlace(exports, packageExports);
     }
   }
 
-  const openModuleCount = modules.filter((entry) => entry.remediationStatus === "open").length;
-  const openExportCount = exports.filter((entry) => entry.remediationStatus === "open").length;
+  const openModuleCount = A.filter(modules, (entry) => entry.remediationStatus === "open").length;
+  const openExportCount = A.filter(exports, (entry) => entry.remediationStatus === "open").length;
   const status =
     sourceFiles.length === 0 || (modules.length === 0 && exports.length === 0)
       ? "no-public-src-surface"
@@ -750,19 +750,19 @@ const analyzePackage = (packageInfo, topoOrder) => {
     counts: {
       openModules: openModuleCount,
       openExports: openExportCount,
-      missingExportExamples: exports.filter((entry) => entry.missingRequiredTags.includes("@example")).length,
-      missingExportCategories: exports.filter((entry) => entry.missingRequiredTags.includes("@category")).length,
-      missingExportSince: exports.filter((entry) => entry.missingRequiredTags.includes("@since")).length,
-      missingExportSummaries: exports.filter((entry) => entry.missingSummary).length,
+      missingExportExamples: A.filter(exports, (entry) => entry.missingRequiredTags.includes("@example")).length,
+      missingExportCategories: A.filter(exports, (entry) => entry.missingRequiredTags.includes("@category")).length,
+      missingExportSince: A.filter(exports, (entry) => entry.missingRequiredTags.includes("@since")).length,
+      missingExportSummaries: A.filter(exports, (entry) => entry.missingSummary).length,
       forbiddenTagFindings:
-        modules.reduce((total, entry) => total + entry.forbiddenTags.length, 0) +
-        exports.reduce((total, entry) => total + entry.forbiddenTags.length, 0),
+        A.reduce(modules, 0, (total, entry) => total + entry.forbiddenTags.length) +
+        A.reduce(exports, 0, (total, entry) => total + entry.forbiddenTags.length),
       malformedConditionalTagFindings:
-        modules.reduce((total, entry) => total + entry.malformedConditionalTags.length, 0) +
-        exports.reduce((total, entry) => total + entry.malformedConditionalTags.length, 0),
-      exampleImportFindings: exports.reduce((total, entry) => total + entry.exampleImportViolations.length, 0),
-      unsafeExampleFindings: exports.reduce((total, entry) => total + entry.unsafeExampleViolations.length, 0),
-      schemaAnnotationFindings: exports.reduce((total, entry) => total + entry.schemaAnnotationGaps.length, 0),
+        A.reduce(modules, 0, (total, entry) => total + entry.malformedConditionalTags.length) +
+        A.reduce(exports, 0, (total, entry) => total + entry.malformedConditionalTags.length),
+      exampleImportFindings: A.reduce(exports, 0, (total, entry) => total + entry.exampleImportViolations.length),
+      unsafeExampleFindings: A.reduce(exports, 0, (total, entry) => total + entry.unsafeExampleViolations.length),
+      schemaAnnotationFindings: A.reduce(exports, 0, (total, entry) => total + entry.schemaAnnotationGaps.length),
     },
     modules,
     exports,
@@ -806,10 +806,10 @@ const analyzeMissingPackage = (packageName, topoOrder) => ({
 const analyzeRootPolicy = () => {
   const tsdocPath = path.join(rootDir, "tsdoc.json");
   const tsdoc = readJsonc(tsdocPath);
-  const tagDefinitions = Array.isArray(tsdoc.tagDefinitions) ? tsdoc.tagDefinitions : [];
+  const tagDefinitions = A.isArray(tsdoc.tagDefinitions) ? tsdoc.tagDefinitions : [];
   const supportForTags = tsdoc.supportForTags ?? {};
 
-  const customTags = requiredTsdocCustomTags.map((tagName) => {
+  const customTags = A.map(requiredTsdocCustomTags, (tagName) => {
     const hasDefinition = tagDefinitions.some((entry) => entry?.tagName === tagName);
     const hasSupport = supportForTags[tagName] === true;
     return {
@@ -825,7 +825,7 @@ const analyzeRootPolicy = () => {
     filePath: "tsdoc.json",
     requiredCustomTags: requiredTsdocCustomTags,
     customTags,
-    status: customTags.every((entry) => entry.status === "resolved") ? "resolved" : "open",
+    status: A.every(customTags, (entry) => entry.status === "resolved") ? "resolved" : "open",
   };
 };
 
@@ -859,87 +859,91 @@ const detailList = (entry) => {
   const details = [];
 
   if (entry.missingSummary) {
-    details.push("missing summary");
+    A.appendInPlace(details, "missing summary");
   }
   if (entry.missingRequiredTags.length > 0) {
-    details.push(`missing ${entry.missingRequiredTags.join(", ")}`);
+    A.appendInPlace(details, `missing ${entry.missingRequiredTags.join(", ")}`);
   }
   if (entry.forbiddenTags.length > 0) {
-    details.push(`forbidden ${entry.forbiddenTags.join(", ")}`);
+    A.appendInPlace(details, `forbidden ${entry.forbiddenTags.join(", ")}`);
   }
   if (entry.malformedConditionalTags.length > 0) {
-    details.push(`${entry.malformedConditionalTags.length} malformed conditional tag(s)`);
+    A.appendInPlace(details, `${entry.malformedConditionalTags.length} malformed conditional tag(s)`);
   }
   if (entry.exampleImportViolations?.length > 0) {
-    details.push(`${entry.exampleImportViolations.length} example import violation(s)`);
+    A.appendInPlace(details, `${entry.exampleImportViolations.length} example import violation(s)`);
   }
   if (entry.unsafeExampleViolations?.length > 0) {
-    details.push(`${entry.unsafeExampleViolations.length} unsafe example violation(s)`);
+    A.appendInPlace(details, `${entry.unsafeExampleViolations.length} unsafe example violation(s)`);
   }
   if (entry.schemaAnnotationGaps?.length > 0) {
-    details.push(`${entry.schemaAnnotationGaps.length} schema annotation/type-alias gap(s)`);
+    A.appendInPlace(details, `${entry.schemaAnnotationGaps.length} schema annotation/type-alias gap(s)`);
   }
   if (entry.categoryViolations?.length > 0) {
-    details.push(`${entry.categoryViolations.length} category casing violation(s)`);
+    A.appendInPlace(details, `${entry.categoryViolations.length} category casing violation(s)`);
   }
 
-  return details.length === 0 ? "resolved" : details.join("; ");
+  return details.length === 0 ? "resolved" : A.join(details, "; ");
 };
 
 const renderMarkdown = (inventory) => {
   const lines = [];
-  lines.push("# JSDoc Documentation Compliance Inventory");
-  lines.push("");
-  lines.push(`Generated: ${inventory.generatedAt}`);
-  lines.push("");
-  lines.push("## Scope");
-  lines.push("");
-  lines.push(
+  A.appendInPlace(lines, "# JSDoc Documentation Compliance Inventory");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, `Generated: ${inventory.generatedAt}`);
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Scope");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(
+    lines,
     "The package universe is the current `bun run topo-sort` output. This inventory checks repo JSDoc rules that package docgen does not fully validate yet: required export tags, summaries, TSDoc grammar, forbidden legacy tags, example import aliases, unsafe examples, root TSDoc custom tag registration, and schema annotation/type-alias gaps."
   );
-  lines.push("");
-  lines.push("## Totals");
-  lines.push("");
-  lines.push("| Metric | Count |");
-  lines.push("|---|---:|");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Totals");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "| Metric | Count |");
+  A.appendInPlace(lines, "|---|---:|");
   for (const [key, value] of Object.entries(inventory.totals)) {
-    lines.push(`| ${key} | ${value} |`);
+    A.appendInPlace(lines, `| ${key} | ${value} |`);
   }
-  lines.push("");
-  lines.push("## Root Policy");
-  lines.push("");
-  lines.push("| File | Tag | Status | Missing |");
-  lines.push("|---|---|---|---|");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Root Policy");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "| File | Tag | Status | Missing |");
+  A.appendInPlace(lines, "|---|---|---|---|");
   for (const tag of inventory.rootPolicy.customTags) {
-    lines.push(
+    A.appendInPlace(
+      lines,
       `| ${inventory.rootPolicy.filePath} | \`${tag.tagName}\` | ${tag.status} | ${tag.missing.join(", ") || "none"} |`
     );
   }
-  lines.push("");
-  lines.push("## Package Summary");
-  lines.push("");
-  lines.push("| Order | Package | Path | Status | Modules | Exports | Open Modules | Open Exports |");
-  lines.push("|---:|---|---|---|---:|---:|---:|---:|");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Package Summary");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "| Order | Package | Path | Status | Modules | Exports | Open Modules | Open Exports |");
+  A.appendInPlace(lines, "|---:|---|---|---|---:|---:|---:|---:|");
   for (const pkg of inventory.packages) {
-    lines.push(
+    A.appendInPlace(
+      lines,
       `| ${pkg.topoOrder} | \`${pkg.packageName}\` | \`${pkg.packagePath}\` | ${pkg.status} | ${pkg.sourceCoverage.publicModuleCount} | ${pkg.sourceCoverage.publicExportCount} | ${pkg.counts.openModules} | ${pkg.counts.openExports} |`
     );
   }
-  lines.push("");
-  lines.push("## Open Findings");
+  A.appendInPlace(lines, "");
+  A.appendInPlace(lines, "## Open Findings");
 
   for (const pkg of inventory.packages.filter((entry) => entry.status === "needs-remediation")) {
-    lines.push("");
-    lines.push(`### ${pkg.packageName}`);
-    lines.push("");
-    lines.push(`Path: \`${pkg.packagePath}\``);
+    A.appendInPlace(lines, "");
+    A.appendInPlace(lines, `### ${pkg.packageName}`);
+    A.appendInPlace(lines, "");
+    A.appendInPlace(lines, `Path: \`${pkg.packagePath}\``);
 
     const openModules = pkg.modules.filter((entry) => entry.remediationStatus === "open");
     if (openModules.length > 0) {
-      lines.push("");
-      lines.push("Module findings:");
+      A.appendInPlace(lines, "");
+      A.appendInPlace(lines, "Module findings:");
       for (const moduleEntry of openModules) {
-        lines.push(
+        A.appendInPlace(
+          lines,
           `- \`${moduleEntry.filePath}:${moduleEntry.line}\` (${moduleEntry.docKind}) - ${detailList(moduleEntry)}`
         );
       }
@@ -947,24 +951,25 @@ const renderMarkdown = (inventory) => {
 
     const openExports = pkg.exports.filter((entry) => entry.remediationStatus === "open");
     if (openExports.length > 0) {
-      lines.push("");
-      lines.push("Export findings:");
+      A.appendInPlace(lines, "");
+      A.appendInPlace(lines, "Export findings:");
       for (const exportEntry of openExports) {
-        lines.push(
+        A.appendInPlace(
+          lines,
           `- \`${exportEntry.filePath}:${exportEntry.line}\` \`${exportEntry.symbolName}\` (${exportEntry.exportKind}) - ${detailList(exportEntry)}`
         );
       }
     }
   }
 
-  return `${lines.join("\n")}\n`;
+  return `${A.join(lines, "\n")}\n`;
 };
 
 const main = () => {
   const packageByName = discoverWorkspacePackages();
   const topoNames = topoSortPackageNames();
   const rootPolicy = analyzeRootPolicy();
-  const packages = topoNames.map((packageName, index) => {
+  const packages = A.map(topoNames, (packageName, index) => {
     const packageInfo = packageByName.get(packageName);
     return packageInfo === undefined
       ? analyzeMissingPackage(packageName, index + 1)

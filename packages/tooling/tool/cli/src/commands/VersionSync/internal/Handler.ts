@@ -6,8 +6,8 @@
  */
 
 import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { Console, Effect, type FileSystem, Layer, Number as Num, type Path } from "effect";
-import * as A from "effect/Array";
 import type { HttpClient } from "effect/unstable/http";
 import {
   VersionSyncDriftError,

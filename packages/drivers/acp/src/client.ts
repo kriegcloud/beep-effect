@@ -6,6 +6,7 @@
  */
 
 import { $AcpId } from "@beep/identity";
+import { A } from "@beep/utils";
 import { Context, Effect, HashMap, HashSet, Layer, Match, Ref } from "effect";
 import * as O from "effect/Option";
 import type * as S from "effect/Schema";
@@ -424,7 +425,7 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
       if (registration.handlers.length === 0 || registration.pending.length === 0) {
         return Effect.void;
       }
-      const pending = registration.pending.splice(0, registration.pending.length);
+      const pending = A.spliceInPlace(registration.pending, 0, A.length(registration.pending));
       return Effect.forEach(pending, (notification) => runNotificationHandlers(method, registration, notification), {
         discard: true,
       });
@@ -434,14 +435,14 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
     Match.tagsExhaustive({
       SessionUpdate: (value) => {
         if (notificationHandlers.sessionUpdate.handlers.length === 0) {
-          notificationHandlers.sessionUpdate.pending.push(value.params);
+          A.appendInPlace(notificationHandlers.sessionUpdate.pending, value.params);
           return Effect.void;
         }
         return runNotificationHandlers(value.method, notificationHandlers.sessionUpdate, value.params);
       },
       ElicitationComplete: (value) => {
         if (notificationHandlers.elicitationComplete.handlers.length === 0) {
-          notificationHandlers.elicitationComplete.pending.push(value.params);
+          A.appendInPlace(notificationHandlers.elicitationComplete.pending, value.params);
           return Effect.void;
         }
         return runNotificationHandlers(value.method, notificationHandlers.elicitationComplete, value.params);
@@ -587,13 +588,13 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
   const handleSessionUpdate = Effect.fn($I`AcpClient_handleSessionUpdate`)(function* (
     handler: (notification: AcpSchema.SessionNotification) => Effect.Effect<void, AcpError.AcpError>
   ) {
-    notificationHandlers.sessionUpdate.handlers.push(handler);
+    A.appendInPlace(notificationHandlers.sessionUpdate.handlers, handler);
     yield* flushBufferedNotifications(CLIENT_METHODS.session_update, notificationHandlers.sessionUpdate);
   });
   const handleElicitationComplete = Effect.fn($I`AcpClient_handleElicitationComplete`)(function* (
     handler: (notification: AcpSchema.ElicitationCompleteNotification) => Effect.Effect<void, AcpError.AcpError>
   ) {
-    notificationHandlers.elicitationComplete.handlers.push(handler);
+    A.appendInPlace(notificationHandlers.elicitationComplete.handlers, handler);
     yield* flushBufferedNotifications(
       CLIENT_METHODS.session_elicitation_complete,
       notificationHandlers.elicitationComplete

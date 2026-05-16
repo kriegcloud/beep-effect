@@ -8,6 +8,7 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import {
   Context,
   DateTime,
@@ -17,12 +18,10 @@ import {
   Inspectable,
   Layer,
   MutableHashMap,
-  MutableHashSet,
   Order,
   Path,
   pipe,
 } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -80,6 +79,11 @@ type PatternOccurrence = {
   readonly line: number;
   readonly text: string;
   readonly sourceSymbol: O.Option<ReuseSourceSymbolRef>;
+};
+
+type ScoredCatalogMatch = {
+  readonly entry: ReuseCatalogEntry;
+  readonly score: number;
 };
 
 type PatternOccurrencesById = Readonly<Record<string, ReadonlyArray<PatternOccurrence>>>;
@@ -296,12 +300,12 @@ const PATTERN_DEFINITIONS = [
   },
 ] satisfies ReadonlyArray<PatternDefinition>;
 
-const normalizeRelativePath = (value: string): string => value.replace(/\\/gu, "/");
+const normalizeRelativePath = (value: string): string => Str.replaceAll(/\\/gu, "/")(value);
 
 const canonicalizeRelativePath = (value: string): string => {
-  const normalized = normalizeRelativePath(value.trim());
-  const segments = normalized.split("/");
-  const resolved: Array<string> = [];
+  const normalized = normalizeRelativePath(Str.trim(value));
+  const segments = Str.split("/")(normalized);
+  let resolved = A.empty<string>();
 
   for (const segment of segments) {
     if (segment.length === 0 || segment === ".") {
@@ -309,23 +313,23 @@ const canonicalizeRelativePath = (value: string): string => {
     }
 
     if (segment === "..") {
-      const previous = resolved.at(-1);
-      if (previous !== undefined && previous !== "..") {
-        resolved.pop();
+      const previous = A.last(resolved);
+      if (O.isSome(previous) && previous.value !== "..") {
+        resolved = A.slice(resolved, 0, -1);
       } else {
-        resolved.push(segment);
+        resolved = A.append(resolved, segment);
       }
       continue;
     }
 
-    resolved.push(segment);
+    resolved = A.append(resolved, segment);
   }
 
-  return resolved.join("/");
+  return pipe(resolved, A.join("/"));
 };
 
 const toNullableNonEmptyString = (value: string): string | null => {
-  const trimmed = value.trim();
+  const trimmed = Str.trim(value);
   return trimmed.length > 0 ? trimmed : null;
 };
 
@@ -351,55 +355,31 @@ const parseScopeSelector = (scopeSelector: O.Option<string>): ReadonlyArray<stri
     return [];
   }
 
-  const rawTokens = scopeSelector.value.split(",");
-  const tokens: string[] = [];
-  for (const rawToken of rawTokens) {
-    const normalized = canonicalizeRelativePath(rawToken);
-    if (normalized.length > 0) {
-      tokens.push(normalized);
-    }
-  }
-
-  return tokens;
+  return pipe(Str.split(",")(scopeSelector.value), A.map(canonicalizeRelativePath), A.filter(Str.isNonEmpty));
 };
 
-const uniqueStrings = (values: ReadonlyArray<string>): Array<string> => {
-  const seen = MutableHashSet.empty<string>();
-  const unique: string[] = [];
+const uniqueStrings = (values: ReadonlyArray<string>): Array<string> => A.dedupe(values);
 
-  for (const value of values) {
-    if (!MutableHashSet.has(seen, value)) {
-      MutableHashSet.add(seen, value);
-      unique.push(value);
-    }
-  }
-
-  return unique;
-};
-
-const uniqueSortedStrings = (values: ReadonlyArray<string>): Array<string> =>
-  uniqueStrings(values).sort((left, right) => left.localeCompare(right));
+const uniqueSortedStrings: (values: ReadonlyArray<string>) => Array<string> = flow(uniqueStrings, A.sort(Order.String));
 
 const lowerKeywords = (input: string): Array<string> => {
-  const matches = input.match(/[A-Za-z0-9]+/gu) ?? [];
-  const normalizedKeywords: string[] = [];
-
-  for (const match of matches) {
-    const normalized = match.trim().toLowerCase();
-    if (normalized.length >= 2) {
-      normalizedKeywords.push(normalized);
-    }
-  }
-
-  return uniqueStrings(normalizedKeywords);
+  const matches = pipe(
+    input,
+    Str.match(/[A-Za-z0-9]+/gu),
+    O.getOrElse(() => [] as ReadonlyArray<string>)
+  );
+  return pipe(
+    matches,
+    A.map(flow(Str.trim, Str.toLowerCase)),
+    A.filter((normalized) => normalized.length >= 2),
+    uniqueStrings
+  );
 };
 
 const lowerKeywordsFromParts = (parts: ReadonlyArray<string>): Array<string> => {
-  const keywords: string[] = [];
+  let keywords = A.empty<string>();
   for (const part of parts) {
-    for (const keyword of lowerKeywords(part)) {
-      keywords.push(keyword);
-    }
+    keywords = A.appendAll(keywords, lowerKeywords(part));
   }
   return uniqueStrings(keywords);
 };
@@ -409,14 +389,14 @@ const matchesScopeSelector = (scope: WorkspaceScope, selectorTokens: ReadonlyArr
     return true;
   }
 
-  const scopePathSegments = scope.packagePath.split("/");
+  const scopePathSegments = Str.split("/")(scope.packagePath);
 
   for (const token of selectorTokens) {
     if (
       scope.packageName === token ||
       scope.packagePath === token ||
-      scope.packagePath.startsWith(`${token}/`) ||
-      scopePathSegments.includes(token)
+      Str.startsWith(`${token}/`)(scope.packagePath) ||
+      A.contains(scopePathSegments, token)
     ) {
       return true;
     }
@@ -443,46 +423,59 @@ const rankCatalogMatches = (
   queryKeywords: ReadonlyArray<string>,
   limit = 8
 ): ReadonlyArray<ReuseCatalogEntry> => {
-  const normalizedQuery = uniqueStrings(queryKeywords.map((keyword) => keyword.toLowerCase()));
-  const scored: { readonly entry: ReuseCatalogEntry; readonly score: number }[] = [];
+  const normalizedQuery = pipe(queryKeywords, A.map(Str.toLowerCase), uniqueStrings);
+  const scored = pipe(
+    catalogEntries,
+    A.reduce(A.empty<ScoredCatalogMatch>(), (matches, entry) => {
+      const entryKeywords = catalogEntryKeywords(entry);
+      let score = 0;
 
-  for (const entry of catalogEntries) {
-    const entryKeywords = catalogEntryKeywords(entry);
-    let score = 0;
-
-    for (const keyword of normalizedQuery) {
-      if (entry.symbolName.toLowerCase() === keyword) {
-        score += 5;
+      for (const keyword of normalizedQuery) {
+        if (Str.toLowerCase(entry.symbolName) === keyword) {
+          score += 5;
+        }
+        if (
+          pipe(entry.packageName, Str.toLowerCase, Str.includes(keyword)) ||
+          pipe(entry.modulePath, Str.toLowerCase, Str.includes(keyword))
+        ) {
+          score += 2;
+        }
+        if (A.contains(entryKeywords, keyword)) {
+          score += 3;
+        }
       }
-      if (entry.packageName.toLowerCase().includes(keyword) || entry.modulePath.toLowerCase().includes(keyword)) {
-        score += 2;
-      }
-      if (entryKeywords.includes(keyword)) {
-        score += 3;
-      }
-    }
 
-    if (score > 0) {
-      scored.push({ entry, score });
-    }
-  }
+      return score > 0 ? A.append(matches, { entry, score }) : matches;
+    }),
+    A.sort(
+      Order.combine(
+        Order.mapInput(Order.Number, (item: ScoredCatalogMatch) => -item.score),
+        Order.mapInput(Order.String, (item: ScoredCatalogMatch) => item.entry.id)
+      )
+    )
+  );
 
-  scored.sort((left, right) => right.score - left.score || left.entry.id.localeCompare(right.entry.id));
-  return scored.slice(0, limit).map((item) => item.entry);
+  return pipe(
+    scored,
+    A.slice(0, limit),
+    A.map((item) => item.entry)
+  );
 };
 
 const stableSourceSymbols = (symbols: ReadonlyArray<ReuseSourceSymbolRef>): ReadonlyArray<ReuseSourceSymbolRef> => {
-  const seen: string[] = [];
-  const result: ReuseSourceSymbolRef[] = [];
+  const state = pipe(
+    symbols,
+    A.reduce({ seen: A.empty<string>(), result: A.empty<ReuseSourceSymbolRef>() }, (current, symbol) =>
+      A.contains(current.seen, symbol.symbolId)
+        ? current
+        : {
+            seen: A.append(current.seen, symbol.symbolId),
+            result: A.append(current.result, symbol),
+          }
+    )
+  );
 
-  for (const symbol of symbols) {
-    if (!seen.includes(symbol.symbolId)) {
-      seen.push(symbol.symbolId);
-      result.push(symbol);
-    }
-  }
-
-  return result;
+  return state.result;
 };
 
 const sourceSymbolFromTsMorph = (symbol: TsMorphSymbol): ReuseSourceSymbolRef =>
@@ -509,14 +502,30 @@ const candidateFromPattern = (
   catalogEntries: ReadonlyArray<ReuseCatalogEntry>
 ): ReuseCandidate => {
   const sourceSymbols = stableSourceSymbols(
-    occurrences.flatMap((occurrence) => (O.isSome(occurrence.sourceSymbol) ? [occurrence.sourceSymbol.value] : []))
+    pipe(
+      occurrences,
+      A.flatMap((occurrence) =>
+        O.isSome(occurrence.sourceSymbol) ? A.of(occurrence.sourceSymbol.value) : A.empty<ReuseSourceSymbolRef>()
+      )
+    )
   );
-  const sourceScopes = uniqueSortedStrings(occurrences.map((occurrence) => occurrence.packagePath));
-  const evidence = occurrences.map(
-    (occurrence) => `${occurrence.filePath}:${occurrence.line} matches ${pattern.id} -> ${occurrence.text.trim()}`
+  const sourceScopes = uniqueSortedStrings(
+    pipe(
+      occurrences,
+      A.map((occurrence) => occurrence.packagePath)
+    )
+  );
+  const evidence = pipe(
+    occurrences,
+    A.map(
+      (occurrence) => `${occurrence.filePath}:${occurrence.line} matches ${pattern.id} -> ${Str.trim(occurrence.text)}`
+    )
   );
   const queryKeywords = lowerKeywordsFromParts([pattern.title, ...pattern.catalogKeywords, ...sourceScopes]);
-  const catalogMatches = rankCatalogMatches(catalogEntries, queryKeywords).map((entry) => entry.id);
+  const catalogMatches = pipe(
+    rankCatalogMatches(catalogEntries, queryKeywords),
+    A.map((entry) => entry.id)
+  );
 
   return new ReuseCandidate({
     candidateId: `reuse-pattern:${pattern.id}`,
@@ -539,17 +548,21 @@ const candidateFromPattern = (
 const scopeSelectorLabel = (scopeSelector: O.Option<string>, scopes: ReadonlyArray<WorkspaceScope>): string => {
   if (O.isSome(scopeSelector)) {
     const tokens = parseScopeSelector(scopeSelector);
-    return tokens.length > 0 ? tokens.join(",") : "all-production";
+    return tokens.length > 0 ? pipe(tokens, A.join(",")) : "all-production";
   }
 
-  const joined = scopes.map((scope) => scope.packagePath).join(",");
+  const joined = pipe(
+    scopes,
+    A.map((scope) => scope.packagePath),
+    A.join(",")
+  );
   return joined.length > 0 ? joined : "all-production";
 };
 
 const buildCatalogEntry = (scope: WorkspaceScope, symbol: TsMorphSymbol): ReuseCatalogEntry =>
   new ReuseCatalogEntry({
     id: `repo:${symbol.id}`,
-    origin: scope.packagePath.startsWith("packages/foundation/") ? "repo-foundation" : "repo-tooling",
+    origin: Str.startsWith("packages/foundation/")(scope.packagePath) ? "repo-foundation" : "repo-tooling",
     packageName: scope.packageName,
     packagePath: scope.packagePath,
     modulePath: symbol.filePath,
@@ -590,21 +603,19 @@ const scanPatternsInFile = (
   outlineSymbols: ReadonlyArray<TsMorphSymbol>
 ): PatternOccurrencesById => {
   const buckets: Record<string, Array<PatternOccurrence>> = {};
-  const lines = text.split(/\r?\n/u);
+  const lines = Str.split(/\r?\n/u)(text);
 
   let lineNumber = 1;
   for (const line of lines) {
     for (const pattern of PATTERN_DEFINITIONS) {
       if (pattern.regex.test(line)) {
-        const next = buckets[pattern.id] ?? [];
-        next.push({
+        buckets[pattern.id] = A.append(buckets[pattern.id] ?? A.empty<PatternOccurrence>(), {
           filePath,
           packagePath,
           line: lineNumber,
           text: line,
           sourceSymbol: nearestSymbolForLine(outlineSymbols, lineNumber),
         });
-        buckets[pattern.id] = next;
       }
       pattern.regex.lastIndex = 0;
     }
@@ -616,7 +627,7 @@ const scanPatternsInFile = (
 
 const countPatternsInText = (text: string): PatternMatchCountsById => {
   const counts: Record<string, number> = {};
-  const lines = text.split(/\r?\n/u);
+  const lines = Str.split(/\r?\n/u)(text);
 
   for (const line of lines) {
     for (const pattern of PATTERN_DEFINITIONS) {
@@ -641,10 +652,10 @@ const makeScoutWorkUnit = (scope: WorkspaceScope): ReuseWorkUnit =>
 
 const makeSpecialistWorkUnit = (label: string, selectors: ReadonlyArray<string>, rationale: string): ReuseWorkUnit =>
   new ReuseWorkUnit({
-    id: `reuse:specialist:${label.toLowerCase().replace(/\s+/gu, "-")}`,
+    id: `reuse:specialist:${pipe(label, Str.toLowerCase, Str.replace(/\s+/gu, "-"))}`,
     kind: "specialist",
     label,
-    scopeSelector: uniqueSortedStrings(selectors).join(","),
+    scopeSelector: pipe(uniqueSortedStrings(selectors), A.join(",")),
     rationale,
   });
 
@@ -683,11 +694,11 @@ class ReuseAnalysisContext extends Context.Service<ReuseAnalysisContext, ReuseAn
 
 const selectorCacheKey = (scopeSelector: O.Option<string>): SelectorCacheKey => {
   const tokens = scopeSelector.pipe(parseScopeSelector, uniqueSortedStrings);
-  return tokens.length > 0 ? tokens.join(",") : "__all__";
+  return tokens.length > 0 ? pipe(tokens, A.join(",")) : "__all__";
 };
 
 const optionFromSelectorTokens = (tokens: ReadonlyArray<string>): O.Option<string> =>
-  tokens.length > 0 ? O.some(tokens.join(",")) : O.none();
+  tokens.length > 0 ? O.some(pipe(tokens, A.join(","))) : O.none();
 
 const catalogScopeSelector = (scopeSelector: O.Option<string>): O.Option<string> => {
   if (O.isNone(scopeSelector)) {
@@ -734,7 +745,7 @@ const discoverWorkspaceScopes = (analysisContext: ReuseAnalysisContextShape, sco
         })
         .pipe(Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", "Failed to list workspace manifests")));
 
-      const scopes: WorkspaceScope[] = [];
+      let scopes = A.empty<WorkspaceScope>();
 
       for (const packageJsonPath of packageJsonPaths) {
         const absolutePackageJsonPath = runtime.path.join(runtime.repoRoot, packageJsonPath);
@@ -770,13 +781,11 @@ const discoverWorkspaceScopes = (analysisContext: ReuseAnalysisContextShape, sco
         } satisfies WorkspaceScope;
 
         if (matchesScopeSelector(scope, selectorTokens)) {
-          scopes.push(scope);
+          scopes = A.append(scopes, scope);
         }
       }
 
-      scopes.sort((left, right) => left.packagePath.localeCompare(right.packagePath));
-      const resolvedScopes: ReadonlyArray<WorkspaceScope> = scopes;
-      return resolvedScopes;
+      return pipe(scopes, A.sort(Order.mapInput(Order.String, (scope: WorkspaceScope) => scope.packagePath)));
     })
   );
 
@@ -820,7 +829,7 @@ const collectCatalogEntriesForScope = (analysisContext: ReuseAnalysisContextShap
             )
           )
         );
-      const entries: ReuseCatalogEntry[] = [];
+      let entries = A.empty<ReuseCatalogEntry>();
 
       for (const filePath of files) {
         const fileOutlineRequest = yield* decodeFileOutlineRequest({
@@ -838,12 +847,11 @@ const collectCatalogEntriesForScope = (analysisContext: ReuseAnalysisContextShap
         }
 
         for (const symbol of outlineOption.value.symbols) {
-          entries.push(buildCatalogEntry(scope, symbol));
+          entries = A.append(entries, buildCatalogEntry(scope, symbol));
         }
       }
 
-      const resolvedEntries: ReadonlyArray<ReuseCatalogEntry> = entries;
-      return resolvedEntries;
+      return entries;
     })
   );
 
@@ -897,9 +905,7 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
         const scanned = scanPatternsInFile(filePath, scope.packagePath, sourceTextOption.value, outlineSymbols);
 
         for (const [patternId, occurrences] of R.toEntries(scanned)) {
-          const next = merged[patternId] ?? [];
-          next.push(...occurrences);
-          merged[patternId] = next;
+          merged[patternId] = A.appendAll(merged[patternId] ?? A.empty<PatternOccurrence>(), occurrences);
         }
       }
 
@@ -1112,17 +1118,15 @@ export const ReuseCatalogServiceLive = Layer.effect(
         cacheKey,
         Effect.gen(function* () {
           const scopes = yield* discoverWorkspaceScopes(analysisContext, effectiveScopeSelector);
-          const entries: ReuseCatalogEntry[] = [];
+          let entries = A.empty<ReuseCatalogEntry>();
 
           for (const scope of scopes) {
             const scopeEntries = yield* collectCatalogEntriesForScope(analysisContext, scope);
-            entries.push(...scopeEntries);
+            entries = A.appendAll(entries, scopeEntries);
           }
 
-          entries.push(...CURATED_EFFECT_V4_ENTRIES);
-          entries.sort((left, right) => left.id.localeCompare(right.id));
-          const resolvedEntries: ReadonlyArray<ReuseCatalogEntry> = entries;
-          return resolvedEntries;
+          entries = A.appendAll(entries, CURATED_EFFECT_V4_ENTRIES);
+          return pipe(entries, A.sort(Order.mapInput(Order.String, (entry: ReuseCatalogEntry) => entry.id)));
         })
       );
     });
@@ -1156,7 +1160,7 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
     ) {
       const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
       const catalogEntries = yield* catalogService.buildCatalog(scopeSelector);
-      const scoutUnits = scopes.map(makeScoutWorkUnit);
+      const scoutUnits = pipe(scopes, A.map(makeScoutWorkUnit));
       const specialistHotspots: Record<
         string,
         {
@@ -1176,15 +1180,20 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
             continue;
           }
 
-          const existing = specialistHotspots[pattern.specialistLabel] ?? {
-            label: pattern.specialistLabel,
-            rationale: pattern.rationale,
-            selectors: [],
-            totalOccurrences: 0,
-          };
-          existing.totalOccurrences += matchedCount;
-          existing.selectors.push(scope.packagePath);
-          specialistHotspots[pattern.specialistLabel] = existing;
+          const existing = specialistHotspots[pattern.specialistLabel];
+          specialistHotspots[pattern.specialistLabel] =
+            existing === undefined
+              ? {
+                  label: pattern.specialistLabel,
+                  rationale: pattern.rationale,
+                  selectors: A.of(scope.packagePath),
+                  totalOccurrences: matchedCount,
+                }
+              : {
+                  ...existing,
+                  selectors: A.append(existing.selectors, scope.packagePath),
+                  totalOccurrences: existing.totalOccurrences + matchedCount,
+                };
         }
       }
 
@@ -1260,25 +1269,30 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
           for (const scope of scopes) {
             const scopedOccurrences = yield* collectPatternOccurrencesForScope(analysisContext, scope);
             for (const [patternId, occurrences] of R.toEntries(scopedOccurrences)) {
-              const next = mergedOccurrences[patternId] ?? [];
-              next.push(...occurrences);
-              mergedOccurrences[patternId] = next;
+              mergedOccurrences[patternId] = A.appendAll(
+                mergedOccurrences[patternId] ?? A.empty<PatternOccurrence>(),
+                occurrences
+              );
             }
           }
 
-          const candidates: ReuseCandidate[] = [];
+          let candidates = A.empty<ReuseCandidate>();
           for (const pattern of PATTERN_DEFINITIONS) {
             const occurrences = mergedOccurrences[pattern.id] ?? [];
             if (occurrences.length >= 2) {
-              candidates.push(candidateFromPattern(pattern, occurrences, catalogEntries));
+              candidates = A.append(candidates, candidateFromPattern(pattern, occurrences, catalogEntries));
             }
           }
 
-          candidates.sort(
-            (left, right) => right.confidence - left.confidence || left.candidateId.localeCompare(right.candidateId)
+          return pipe(
+            candidates,
+            A.sort(
+              Order.combine(
+                Order.mapInput(Order.Number, (candidate: ReuseCandidate) => -candidate.confidence),
+                Order.mapInput(Order.String, (candidate: ReuseCandidate) => candidate.candidateId)
+              )
+            )
           );
-          const resolvedCandidates: ReadonlyArray<ReuseCandidate> = candidates;
-          return resolvedCandidates;
         })
       );
     });
@@ -1293,7 +1307,7 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
         runtime.path.isAbsolute(filePath) ? runtime.path.relative(runtime.repoRoot, filePath) : filePath
       );
 
-      if (normalizedFilePath.length === 0 || normalizedFilePath === ".." || normalizedFilePath.startsWith("../")) {
+      if (normalizedFilePath.length === 0 || normalizedFilePath === ".." || Str.startsWith("../")(normalizedFilePath)) {
         return yield* mkAnalysisError(
           "findReuseOptions",
           `Target file must be a repo-relative path inside the repository: ${filePath}`
@@ -1310,26 +1324,37 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
       }
 
       const scopes = yield* discoverWorkspaceScopes(analysisContext, O.none());
-      const owningScope = scopes.find(
-        (scope) => normalizedFilePath === scope.packagePath || normalizedFilePath.startsWith(`${scope.packagePath}/`)
+      const owningScopeOption = pipe(
+        scopes,
+        A.findFirst(
+          (scope) =>
+            normalizedFilePath === scope.packagePath || Str.startsWith(`${scope.packagePath}/`)(normalizedFilePath)
+        )
       );
 
-      if (owningScope === undefined) {
+      if (O.isNone(owningScopeOption)) {
         return yield* mkAnalysisError(
           "findReuseOptions",
           `Could not resolve an owning workspace scope for ${normalizedFilePath}`
         );
       }
 
+      const owningScope = owningScopeOption.value;
       const inventoryCandidates = yield* discoverCandidates(O.some(owningScope.packagePath));
-      const localSuggestions = inventoryCandidates.filter((candidate) =>
-        candidate.evidence.some((line) => line.startsWith(`${normalizedFilePath}:`))
+      const localSuggestions = pipe(
+        inventoryCandidates,
+        A.filter((candidate) =>
+          pipe(
+            candidate.evidence,
+            A.some((line) => Str.startsWith(`${normalizedFilePath}:`)(line))
+          )
+        )
       );
       const catalogEntries = yield* catalogService.buildCatalog(O.some(owningScope.packagePath));
-      const queryKeywords: string[] = [];
+      let queryKeywords = A.empty<string>();
 
       if (O.isSome(query)) {
-        queryKeywords.push(...lowerKeywords(query.value));
+        queryKeywords = A.appendAll(queryKeywords, lowerKeywords(query.value));
       }
 
       if (O.isSome(symbolId)) {
@@ -1358,8 +1383,9 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
           .getSymbolById(symbolLookupRequest)
           .pipe(Effect.mapError(mapAnalysisError("findReuseOptions", `Failed to lookup symbol ${symbolId.value}`)));
 
-        queryKeywords.push(
-          ...lowerKeywordsFromParts([
+        queryKeywords = A.appendAll(
+          queryKeywords,
+          lowerKeywordsFromParts([
             lookup.symbol.name,
             lookup.symbol.qualifiedName,
             lookup.symbol.signature,
@@ -1370,7 +1396,7 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
       }
 
       if (queryKeywords.length === 0) {
-        queryKeywords.push(...lowerKeywords(normalizedFilePath));
+        queryKeywords = A.appendAll(queryKeywords, lowerKeywords(normalizedFilePath));
       }
 
       return new ReuseFindResult({
@@ -1437,17 +1463,24 @@ export const ReuseInventoryServiceLive = Layer.effect(
       scopeSelector = O.none()
     ) {
       const inventory = yield* buildInventory(scopeSelector);
-      const candidate = inventory.candidates.find((entry) => entry.candidateId === candidateId);
+      const candidateOption = pipe(
+        inventory.candidates,
+        A.findFirst((entry) => entry.candidateId === candidateId)
+      );
 
-      if (candidate === undefined) {
+      if (O.isNone(candidateOption)) {
         return yield* new ReuseCandidateNotFoundError({
           candidateId,
           scopeSelector: inventory.scopeSelector,
         });
       }
 
+      const candidate = candidateOption.value;
       const catalogEntries = yield* catalogService.buildCatalog(scopeSelector);
-      const catalogMatches = catalogEntries.filter((entry) => candidate.catalogMatchIds.includes(entry.id));
+      const catalogMatches = pipe(
+        catalogEntries,
+        A.filter((entry) => A.contains(candidate.catalogMatchIds, entry.id))
+      );
 
       return new ReusePacket({
         candidate,

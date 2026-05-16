@@ -6,12 +6,12 @@
  */
 
 import { $InfraId } from "@beep/identity/packages";
-import { Struct } from "@beep/utils";
+import { A, Str, Struct } from "@beep/utils";
 import * as aws from "@pulumi/aws";
 import * as cloudflare from "@pulumi/cloudflare";
 import * as pulumi from "@pulumi/pulumi";
 import * as vercel from "@pulumiverse/vercel";
-import { Effect } from "effect";
+import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $InfraId.create("OpipWeb");
@@ -584,7 +584,7 @@ const makeRuntimeEnvironmentVariable = (
   value === undefined
     ? undefined
     : new vercel.ProjectEnvironmentVariable(
-        `${name}-${key.toLowerCase().replaceAll("_", "-")}`,
+        `${name}-${pipe(key, Str.toLowerCase, Str.replaceAll("_", "-"))}`,
         {
           ...optionalTeamArgs(teamId),
           key,
@@ -854,7 +854,8 @@ export class OpipWebStack extends pulumi.ComponentResource {
       : undefined;
 
     const dnsOpts: pulumi.CustomResourceOptions = {
-      dependsOn: [productionDomain, stagingDomain].filter(
+      dependsOn: A.filter(
+        [productionDomain, stagingDomain],
         (resource): resource is vercel.ProjectDomain => resource !== undefined
       ),
       parent: this,

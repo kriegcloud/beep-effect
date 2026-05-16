@@ -13,10 +13,11 @@ import { findRepoRoot } from "@beep/repo-utils/Root";
 import { collectTsConfigPaths } from "@beep/repo-utils/TsConfig";
 import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
+import { A, Str } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, FileSystem, HashMap, HashSet, Layer } from "effect";
+import { Effect, FileSystem, HashMap, HashSet, Layer, Order } from "effect";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
@@ -33,8 +34,8 @@ layer(TestLayer, { timeout: 120_000 })("integration (real monorepo)", (it) => {
         const hasTurboJson = yield* fs.exists(`${root}/turbo.json`);
         const hasBunLock = yield* fs.exists(`${root}/bun.lock`);
 
-        expect(root.startsWith("/")).toBe(true);
-        expect(root.endsWith("/")).toBe(false);
+        expect(Str.startsWith("/")(root)).toBe(true);
+        expect(Str.endsWith("/")(root)).toBe(false);
         expect(hasPackageJson).toBe(true);
         expect(hasTurboJson).toBe(true);
         expect(hasBunLock).toBe(true);
@@ -79,7 +80,7 @@ layer(TestLayer, { timeout: 120_000 })("integration (real monorepo)", (it) => {
         for (const [_name, paths] of configs) {
           expect(paths.length).toBeGreaterThan(0);
           for (const p of paths) {
-            expect(p.startsWith("/")).toBe(true);
+            expect(Str.startsWith("/")(p)).toBe(true);
             expect(p).toMatch(/tsconfig.*\.json$/);
           }
         }
@@ -125,10 +126,10 @@ layer(TestLayer, { timeout: 120_000 })("integration (real monorepo)", (it) => {
         expect(unique.dependencies).toContain("effect");
 
         // Both arrays must be sorted
-        const sortedDeps = [...unique.dependencies].sort();
+        const sortedDeps = A.sort(unique.dependencies, Order.String);
         expect(unique.dependencies).toEqual(sortedDeps);
 
-        const sortedDevDeps = [...unique.devDependencies].sort();
+        const sortedDevDeps = A.sort(unique.devDependencies, Order.String);
         expect(unique.devDependencies).toEqual(sortedDevDeps);
 
         // No duplicates within each array

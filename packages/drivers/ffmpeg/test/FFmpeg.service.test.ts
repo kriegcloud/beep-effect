@@ -9,10 +9,10 @@ import {
   formatFrameFileName,
   ProbeVideoRequest,
 } from "@beep/ffmpeg";
+import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, FileSystem, Layer, Order, Path, Sink, Stream } from "effect";
-import * as A from "effect/Array";
+import { Effect, FileSystem, Layer, Order, Path, pipe, Sink, Stream } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
@@ -51,7 +51,7 @@ const makeHandle = (stdout: string, stderr = "", exitCode = 0): ChildProcessSpaw
   });
 
 const renderPatternPath = (pattern: string, index: number): string =>
-  pattern.replace(/%0(\d+)d/, (_, width: string) => `${index}`.padStart(Number(width), "0"));
+  Str.replaceWith(/%0(\d+)d/, (_match, width) => pipe(`${index}`, Str.padStart(Number(width), "0")))(pattern);
 
 const makeFakeSpawnerLayer = (commands: Array<ChildProcess.StandardCommand>, exitCode = 0) =>
   Layer.effect(
@@ -65,7 +65,7 @@ const makeFakeSpawnerLayer = (commands: Array<ChildProcess.StandardCommand>, exi
               return makeHandle("", "unsupported command", 1);
             }
 
-            commands.push(command);
+            commands[A.length(commands)] = command;
 
             if (command.command === "ffprobe") {
               return makeHandle(ffprobeJson);
@@ -178,7 +178,7 @@ describe("@beep/ffmpeg", () => {
             }),
             (event) =>
               Effect.sync(() => {
-                events.push(event);
+                events[A.length(events)] = event;
               })
           );
 
@@ -193,7 +193,7 @@ describe("@beep/ffmpeg", () => {
           expect(manifest.summary.frameCount).toBe(2);
           expect(manifest.options.prefix).toBe("sample_frame");
           expect(A.map(events, (event) => event.kind)).toEqual(["started", "progress", "progress", "completed"]);
-          expect(commands.map((command) => command.command)).toEqual(["ffprobe", "ffmpeg"]);
+          expect(A.map(commands, (command) => command.command)).toEqual(["ffprobe", "ffmpeg"]);
         })
       ).pipe(Effect.provide(Layer.mergeAll(NodeServices.layer, makeLayer(commands))))
     );

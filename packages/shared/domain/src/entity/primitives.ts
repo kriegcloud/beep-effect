@@ -20,10 +20,11 @@ const $I = $SharedDomainId.create("entity/primitives");
  * ```ts
  * import { Effect } from "effect"
  * import { Sha256 } from "@beep/shared-domain/entity/primitives"
+ * import { Str } from "@beep/utils"
  * import * as S from "effect/Schema"
  *
  * const program = Effect.gen(function* () {
- *   const hash = yield* S.decodeUnknownEffect(Sha256)("a".repeat(64))
+ *   const hash = yield* S.decodeUnknownEffect(Sha256)(Str.repeat("a", 64))
  *   return hash
  * })
  * void program

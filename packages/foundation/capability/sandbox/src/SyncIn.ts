@@ -6,11 +6,11 @@
  */
 
 import { $SandboxId } from "@beep/identity";
+import { A, Str } from "@beep/utils";
 import { Effect, FileSystem, Path } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { SyncError } from "./Sandbox.errors.ts";
 import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
 import { ProcessCommand, SandboxProcess } from "./Sandbox.process.ts";
@@ -18,7 +18,7 @@ import { type IsolatedSandboxHandle, SandboxExecOptions } from "./Sandbox.provid
 
 const $I = $SandboxId.create("SyncIn");
 
-const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
+const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
 
 /**
  * Result returned after a repository has been copied into an isolated sandbox.
@@ -43,7 +43,7 @@ const profileSyncIn = (action: string) =>
     phase: `sandbox.syncIn.${action}`,
   });
 
-const hostGitCommandLabel = (args: ReadonlyArray<string>): string => `git ${args.join(" ")}`;
+const hostGitCommandLabel = (args: ReadonlyArray<string>): string => `git ${A.join(args, " ")}`;
 
 const runHostGit = Effect.fn("SyncIn.runHostGit")(function* (args: ReadonlyArray<string>, cwd: string) {
   const process = yield* SandboxProcess;
@@ -127,12 +127,15 @@ const syncBundleToSandbox = Effect.fn("SyncIn.syncBundleToSandbox")(function* <R
   yield* copyBundleIntoSandbox(handle, bundleHostPath, bundleSandboxPath);
   yield* execSandboxOk(
     handle,
-    [
-      `mkdir -p ${shellEscape(path.dirname(worktreePath))}`,
-      `rm -rf ${shellEscape(worktreePath)} ${shellEscape(clonePath)}`,
-      `git clone ${shellEscape(bundleSandboxPath)} ${shellEscape(clonePath)}`,
-      `mv ${shellEscape(clonePath)} ${shellEscape(worktreePath)}`,
-    ].join(" && ")
+    A.join(
+      [
+        `mkdir -p ${shellEscape(path.dirname(worktreePath))}`,
+        `rm -rf ${shellEscape(worktreePath)} ${shellEscape(clonePath)}`,
+        `git clone ${shellEscape(bundleSandboxPath)} ${shellEscape(clonePath)}`,
+        `mv ${shellEscape(clonePath)} ${shellEscape(worktreePath)}`,
+      ],
+      " && "
+    )
   );
   yield* execSandboxOk(
     handle,

@@ -6,11 +6,10 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { A, O } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
 import { Clock, DateTime, Duration, Effect, pipe } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import type { AgentProvider } from "./Agent.provider.ts";
 import { IterationUsage } from "./Agent.provider.ts";
 import { AgentStreamEmitter, AgentStreamEvent } from "./AgentStreamEmitter.ts";
@@ -243,7 +242,7 @@ export const orchestrate: <R>(
       }
     }
 
-    iterations.push(new IterationResult({ ...(sessionId === undefined ? {} : { sessionId }) }));
+    A.appendInPlace(iterations, new IterationResult({ ...(sessionId === undefined ? {} : { sessionId }) }));
     completionSignal = firstMatchedSignal(stdout, signals);
     if (P.isNotUndefined(completionSignal)) {
       break;

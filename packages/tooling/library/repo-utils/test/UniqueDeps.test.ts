@@ -1,9 +1,10 @@
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps";
+import { A } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Context, Effect, Layer, Path } from "effect";
+import { Context, Effect, Layer, Order, Path } from "effect";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
@@ -49,11 +50,11 @@ layer(TestLayer)("UniqueDeps", (it) => {
         const result = yield* collectUniqueNpmDependencies(MOCK_ROOT);
         // "effect" appears in pkg-a deps, pkg-b deps, and pkg-c peerDeps
         // but should only appear once
-        const effectCount = result.dependencies.filter((d) => d === "effect").length;
+        const effectCount = A.filter(result.dependencies, (d) => d === "effect").length;
         expect(effectCount).toBe(1);
 
         // "vitest" appears in root and pkg-b devDeps
-        const vitestCount = result.devDependencies.filter((d) => d === "vitest").length;
+        const vitestCount = A.filter(result.devDependencies, (d) => d === "vitest").length;
         expect(vitestCount).toBe(1);
       })
     );
@@ -62,8 +63,8 @@ layer(TestLayer)("UniqueDeps", (it) => {
       "should return sorted arrays",
       Effect.fn(function* () {
         const result = yield* collectUniqueNpmDependencies(MOCK_ROOT);
-        const sortedDeps = [...result.dependencies].sort();
-        const sortedDevDeps = [...result.devDependencies].sort();
+        const sortedDeps = A.sort(result.dependencies, Order.String);
+        const sortedDevDeps = A.sort(result.devDependencies, Order.String);
         expect(result.dependencies).toEqual(sortedDeps);
         expect(result.devDependencies).toEqual(sortedDevDeps);
       })

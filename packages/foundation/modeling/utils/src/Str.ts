@@ -591,12 +591,94 @@ export const repeat: {
   <const Input extends string, const Count extends number>(self: Input, count: Count): TF.StringRepeat<Input, Count> =>
     cast(Str.repeat(count)(self))
 );
+
+/**
+ * Replaces the first occurrence of `searchValue` using a callback replacer.
+ *
+ * Supports both data-first and data-last calling conventions. Use this helper
+ * for native `replace` callback sites that cannot be expressed with
+ * `Str.replace(searchValue, replacement)`.
+ *
+ * @example
+ * ```ts
+ * import { Str } from "@beep/utils"
+ * import { pipe } from "effect"
+ *
+ * const replaced = Str.replaceWith("beep", (match) => Str.toUpperCase(match))("hello beep")
+ * const piped = pipe("hello beep", Str.replaceWith("beep", (match) => Str.toUpperCase(match)))
+ *
+ * console.log(replaced)
+ * console.log(piped)
+ * ```
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const replaceWith: {
+  (
+    searchValue: string | RegExp,
+    replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
+  ): (self: string) => string;
+  (
+    self: string,
+    searchValue: string | RegExp,
+    replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
+  ): string;
+} = dual(
+  3,
+  (
+    self: string,
+    searchValue: string | RegExp,
+    replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
+  ): string => self.replace(searchValue, replacer)
+);
+
+/**
+ * Replaces every occurrence of `searchValue` using a callback replacer.
+ *
+ * Supports both data-first and data-last calling conventions. Use this helper
+ * for native `replaceAll` callback sites that cannot be expressed with
+ * `Str.replaceAll(searchValue, replacement)`.
+ *
+ * @example
+ * ```ts
+ * import { Str } from "@beep/utils"
+ * import { pipe } from "effect"
+ *
+ * const replaced = Str.replaceAllWith(/beep/g, (match) => Str.toUpperCase(match))("beep beep")
+ * const piped = pipe("beep beep", Str.replaceAllWith(/beep/g, (match) => Str.toUpperCase(match)))
+ *
+ * console.log(replaced)
+ * console.log(piped)
+ * ```
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const replaceAllWith: {
+  (
+    searchValue: string | RegExp,
+    replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
+  ): (self: string) => string;
+  (
+    self: string,
+    searchValue: string | RegExp,
+    replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
+  ): string;
+} = dual(
+  3,
+  (
+    self: string,
+    searchValue: string | RegExp,
+    replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
+  ): string => self.replaceAll(searchValue, replacer)
+);
 /**
  * Re-export of all helpers from `effect/String`.
  *
  * @example
  * ```ts
- * import * as Str from "@beep/utils/Str"
+ * import { Str } from "@beep/utils"
  *
  * const lower = Str.toLowerCase("BEEP")
  * console.log(lower)

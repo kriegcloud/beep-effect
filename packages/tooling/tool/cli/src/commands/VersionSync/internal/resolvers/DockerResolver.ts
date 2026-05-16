@@ -10,7 +10,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeYamlTextAs } from "@beep/schema/Yaml";
-import { thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import {
   Effect,
   FileSystem,
@@ -22,13 +22,11 @@ import {
   Path,
   SchemaTransformation,
 } from "effect";
-import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import {
   NetworkUnavailableError,

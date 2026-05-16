@@ -7,11 +7,10 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Console, Effect, pipe, Tuple } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Argument, Command } from "effect/unstable/cli";
 import { docsAggregateCommand } from "./DocsAggregate.js";
 

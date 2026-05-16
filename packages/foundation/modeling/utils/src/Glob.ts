@@ -294,7 +294,7 @@ const compileIncludedPatterns: (patterns: ReadonlyArray<string>) => ReadonlyArra
     const matcher = picomatch(normalizedPattern, {
       dot: true,
     });
-    const rootDirectory = Str.endsWith("/**")(normalizedPattern) ? normalizedPattern.slice(0, -3) : undefined;
+    const rootDirectory = Str.endsWith("/**")(normalizedPattern) ? Str.slice(0, -3)(normalizedPattern) : undefined;
 
     return (relativePath: string, isDirectory: boolean): boolean =>
       matcher(relativePath) && !(isDirectory && rootDirectory !== undefined && relativePath === rootDirectory);

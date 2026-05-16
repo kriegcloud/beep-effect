@@ -8,12 +8,10 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { TaggedErrorClass } from "@beep/schema";
-import { thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import { Clock, Console, Duration, Effect, FileSystem, Path, pipe, Stream } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { QualityTaskStep } from "../../Quality/Tasks.js";
 
@@ -72,7 +70,7 @@ const emptyString = () => "";
 
 const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
 
-const shellQuote = (value: string): string => `'${value.replaceAll("'", "'\"'\"'")}'`;
+const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 
 const homeDirectory = (): string => process.env.HOME ?? process.cwd();
 
@@ -431,15 +429,18 @@ const startProxyDetached = Effect.fn("GraphitiProxyOps.startProxyDetached")(func
   yield* Console.log(
     `[graphiti-proxy:ensure] Starting proxy via 'bun run beep graphiti proxy' (log: ${config.logFile}).`
   );
-  const launchScript = [
-    `mkdir -p ${shellQuote(config.stateDir)} ${shellQuote(path.dirname(config.pidFile))}`,
-    "if command -v setsid >/dev/null 2>&1; then",
-    `  setsid bun run beep graphiti proxy >> ${shellQuote(config.logFile)} 2>&1 < /dev/null &`,
-    "else",
-    `  nohup bun run beep graphiti proxy >> ${shellQuote(config.logFile)} 2>&1 < /dev/null &`,
-    "fi",
-    `echo "$!" > ${shellQuote(config.pidFile)}`,
-  ].join("\n");
+  const launchScript = A.join(
+    [
+      `mkdir -p ${shellQuote(config.stateDir)} ${shellQuote(path.dirname(config.pidFile))}`,
+      "if command -v setsid >/dev/null 2>&1; then",
+      `  setsid bun run beep graphiti proxy >> ${shellQuote(config.logFile)} 2>&1 < /dev/null &`,
+      "else",
+      `  nohup bun run beep graphiti proxy >> ${shellQuote(config.logFile)} 2>&1 < /dev/null &`,
+      "fi",
+      `echo "$!" > ${shellQuote(config.pidFile)}`,
+    ],
+    "\n"
+  );
 
   yield* runInheritedStep(
     new QualityTaskStep({
@@ -622,29 +623,32 @@ export const shouldRecoverGraphitiStackForTesting = (options: {
   options.force || (options.recoverOnUnhealthy && (options.falkor !== "healthy" || options.graphiti !== "healthy"));
 
 const renderServiceUnit = (repoRoot: string, bunBin: string, config: ProxyServiceConfig): string =>
-  [
-    "[Unit]",
-    "Description=beep Graphiti MCP queue proxy",
-    "After=network-online.target",
-    "Wants=network-online.target",
-    "",
-    "[Service]",
-    "Type=simple",
-    `WorkingDirectory=${repoRoot}`,
-    `ExecStart=${bunBin} run beep graphiti proxy`,
-    "Restart=always",
-    "RestartSec=2",
-    `Environment=PATH=/usr/local/bin:/usr/bin:/bin:${homeDirectory()}/.bun/bin`,
-    "Environment=GRAPHITI_PROXY_HOST=127.0.0.1",
-    "Environment=GRAPHITI_PROXY_PORT=8123",
-    "Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:8000/mcp",
-    `StandardOutput=append:${config.stateDir}/graphiti-proxy.log`,
-    `StandardError=append:${config.stateDir}/graphiti-proxy.err.log`,
-    "",
-    "[Install]",
-    "WantedBy=default.target",
-    "",
-  ].join("\n");
+  A.join(
+    [
+      "[Unit]",
+      "Description=beep Graphiti MCP queue proxy",
+      "After=network-online.target",
+      "Wants=network-online.target",
+      "",
+      "[Service]",
+      "Type=simple",
+      `WorkingDirectory=${repoRoot}`,
+      `ExecStart=${bunBin} run beep graphiti proxy`,
+      "Restart=always",
+      "RestartSec=2",
+      `Environment=PATH=/usr/local/bin:/usr/bin:/bin:${homeDirectory()}/.bun/bin`,
+      "Environment=GRAPHITI_PROXY_HOST=127.0.0.1",
+      "Environment=GRAPHITI_PROXY_PORT=8123",
+      "Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:8000/mcp",
+      `StandardOutput=append:${config.stateDir}/graphiti-proxy.log`,
+      `StandardError=append:${config.stateDir}/graphiti-proxy.err.log`,
+      "",
+      "[Install]",
+      "WantedBy=default.target",
+      "",
+    ],
+    "\n"
+  );
 
 /**
  * Install and start the user-level systemd unit for the Graphiti proxy.

@@ -8,10 +8,9 @@
 import { DuckDb, type DuckDbError, DuckDbParquetExport } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Clock, Effect, FileSystem, flow, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { AiMetricsRawArchiveObject } from "./archive.ts";
 import { AiMetricsStorageLayout } from "./install.ts";
 import { AiMetricsDeployTarget, ConfigSnapshot } from "./models.ts";

@@ -1,5 +1,6 @@
 import { inspect } from "node:util";
 import { encodeJsonString } from "@beep/schema/Json";
+import { A, Str } from "@beep/utils";
 import {
   XAI_API_URL,
   XAI_ENDPOINT_COUNT,
@@ -16,12 +17,10 @@ import {
 } from "@beep/xai";
 import { describe, expect, layer } from "@effect/vitest";
 import { Context, Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
@@ -250,7 +249,7 @@ describe("@beep/xai", () => {
         const captures = yield* testHttp.captures;
         expect(captures).toHaveLength(descriptors.length);
 
-        for (const [index, descriptor] of descriptors.entries()) {
+        for (const [index, descriptor] of A.entries(descriptors)) {
           const capture = captures[index];
           const expectedBase = descriptor.base === "management" ? XAI_MANAGEMENT_API_URL : XAI_API_URL;
           const expectedToken =
@@ -383,12 +382,10 @@ describe("@beep/xai", () => {
         });
         const transportJson = yield* encodeJson(transportError);
         const websocketJson = yield* encodeJson(websocketError);
-        const rendered = [
-          transportJson,
-          inspect(transportError, { depth: 8 }),
-          websocketJson,
-          inspect(websocketError, { depth: 8 }),
-        ].join("\n");
+        const rendered = A.join(
+          [transportJson, inspect(transportError, { depth: 8 }), websocketJson, inspect(websocketError, { depth: 8 })],
+          "\n"
+        );
 
         expect(transportError.reason).toBe("transport");
         expect(transportError.cause).toBe("HttpClientError:TransportError");

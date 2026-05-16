@@ -1,6 +1,8 @@
 import { CyclicDependencyError, computeTransitiveClosure, detectCycles, topologicalSort } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, HashMap, HashSet } from "effect";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 
 /**
@@ -13,6 +15,9 @@ const makeAdj = (entries: Record<string, ReadonlyArray<string>>): HashMap.HashMa
   }
   return map;
 };
+
+const indexOfOrThrow = (values: ReadonlyArray<string>, value: string): number =>
+  O.getOrThrowWith(A.indexOf(values, value), () => new Error(`Missing expected value: ${value}`));
 
 // ---------------------------------------------------------------------------
 // topologicalSort
@@ -30,9 +35,9 @@ describe("topologicalSort", () => {
       const order = yield* topologicalSort(adj);
 
       // C must come before B, B before A
-      const idxC = order.indexOf("C");
-      const idxB = order.indexOf("B");
-      const idxA = order.indexOf("A");
+      const idxC = indexOfOrThrow(order, "C");
+      const idxB = indexOfOrThrow(order, "B");
+      const idxA = indexOfOrThrow(order, "A");
 
       expect(idxC).toBeLessThan(idxB);
       expect(idxB).toBeLessThan(idxA);
@@ -51,10 +56,10 @@ describe("topologicalSort", () => {
       });
       const order = yield* topologicalSort(adj);
 
-      const idxD = order.indexOf("D");
-      const idxB = order.indexOf("B");
-      const idxC = order.indexOf("C");
-      const idxA = order.indexOf("A");
+      const idxD = indexOfOrThrow(order, "D");
+      const idxB = indexOfOrThrow(order, "B");
+      const idxC = indexOfOrThrow(order, "C");
+      const idxA = indexOfOrThrow(order, "A");
 
       // D must come before B and C, and B and C before A
       expect(idxD).toBeLessThan(idxB);
@@ -113,9 +118,9 @@ describe("topologicalSort", () => {
 
       expect(order).toHaveLength(4);
       // B before A
-      expect(order.indexOf("B")).toBeLessThan(order.indexOf("A"));
+      expect(indexOfOrThrow(order, "B")).toBeLessThan(indexOfOrThrow(order, "A"));
       // D before C
-      expect(order.indexOf("D")).toBeLessThan(order.indexOf("C"));
+      expect(indexOfOrThrow(order, "D")).toBeLessThan(indexOfOrThrow(order, "C"));
     })
   );
 

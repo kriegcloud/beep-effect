@@ -6,12 +6,11 @@
  */
 
 import { $SandboxId } from "@beep/identity";
+import { A, Str } from "@beep/utils";
 import { DateTime, Effect, FileSystem, Path } from "effect";
-import * as A from "effect/Array";
 import { dual, flow } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { buildRecoveryMessage, type FailedStep, RecoveryInput } from "./RecoveryMessage.ts";
 import { SyncError } from "./Sandbox.errors.ts";
 import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
@@ -20,8 +19,8 @@ import { type IsolatedSandboxHandle, SandboxExecOptions } from "./Sandbox.provid
 
 const $I = $SandboxId.create("SyncOut");
 
-const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
-const pad2 = (value: number): string => value.toString().padStart(2, "0");
+const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
+const pad2 = (value: number): string => Str.padStart(2, "0")(String(value));
 const formatTimestamp = (dateTime: DateTime.DateTime): string => {
   const parts = DateTime.toParts(DateTime.setZone(dateTime, DateTime.zoneMakeLocal()));
 
@@ -71,7 +70,7 @@ const profileSyncOut = (action: string) =>
     phase: `sandbox.syncOut.${action}`,
   });
 
-const hostGitCommandLabel = (args: ReadonlyArray<string>): string => `git ${args.join(" ")}`;
+const hostGitCommandLabel = (args: ReadonlyArray<string>): string => `git ${A.join(args, " ")}`;
 
 const runHostGitResult = Effect.fn("SyncOut.runHostGitResult")(function* (args: ReadonlyArray<string>, cwd: string) {
   const process = yield* SandboxProcess;
@@ -232,7 +231,7 @@ const copyCommittedPatchesFromSandbox = Effect.fn("SyncOut.copyCommittedPatchesF
         .pipe(SyncError.mapError(`Failed to copy generated patch out of sandbox: ${patchName}`));
 
       if (!(yield* isEmptyPatch(hostPatchPath))) {
-        patches.push(hostPatchPath);
+        A.appendInPlace(patches, hostPatchPath);
       }
     }),
     { concurrency: 1, discard: true }

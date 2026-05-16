@@ -9,8 +9,8 @@
  */
 
 import { DomainError } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { Console, Effect } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";

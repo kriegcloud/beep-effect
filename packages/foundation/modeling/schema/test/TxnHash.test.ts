@@ -1,4 +1,5 @@
 import { CryptoTxnHash } from "@beep/schema/blockchain/CryptoTxnHash";
+import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -16,25 +17,25 @@ describe("CryptoTxnHash", () => {
   });
 
   it("rejects malformed EVM transaction hashes", () => {
-    expect(() => decode(evmCryptoTxnHash.toUpperCase())).toThrow(
+    expect(() => decode(Str.toUpperCase(evmCryptoTxnHash))).toThrow(
       "CryptoTxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier"
     );
-    expect(() => decode(`0x${"ab".repeat(31)}`)).toThrow(
+    expect(() => decode(`0x${Str.repeat("ab", 31)}`)).toThrow(
       "CryptoTxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier"
     );
-    expect(() => decode(`0x${"ag".repeat(32)}`)).toThrow(
+    expect(() => decode(`0x${Str.repeat("ag", 32)}`)).toThrow(
       "CryptoTxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier"
     );
   });
 
   it("rejects malformed Bitcoin transaction hashes", () => {
-    expect(() => decode(bitcoinCryptoTxnHash.toUpperCase())).toThrow(
+    expect(() => decode(Str.toUpperCase(bitcoinCryptoTxnHash))).toThrow(
       "CryptoTxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier"
     );
-    expect(() => decode(bitcoinCryptoTxnHash.slice(2))).toThrow(
+    expect(() => decode(Str.slice(2)(bitcoinCryptoTxnHash))).toThrow(
       "CryptoTxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier"
     );
-    expect(() => decode(`g${bitcoinCryptoTxnHash.slice(1)}`)).toThrow(
+    expect(() => decode(`g${Str.slice(1)(bitcoinCryptoTxnHash)}`)).toThrow(
       "CryptoTxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier"
     );
   });

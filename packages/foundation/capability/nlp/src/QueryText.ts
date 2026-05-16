@@ -4,9 +4,8 @@
  * @since 0.0.0
  * @packageDocumentation
  */
-import * as Str from "@beep/utils/Str";
+import { A, Str } from "@beep/utils";
 import { flow, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 
 const firstCapture = (pattern: RegExp, input: string): O.Option<string> =>

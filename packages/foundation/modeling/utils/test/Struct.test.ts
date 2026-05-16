@@ -1,4 +1,4 @@
-import { Struct } from "@beep/utils";
+import { Str, Struct } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import { describe, expect, expectTypeOf, it } from "vitest";
@@ -105,7 +105,7 @@ describe("@beep/utils Struct.mapPath", () => {
 
   it("supports tuple paths", () => {
     const source = { profile: { name: "boop" } } as const;
-    const shout = (value: "boop") => value.toUpperCase();
+    const shout = (value: "boop") => Str.toUpperCase(value);
 
     const result = Struct.mapPath(source, shout, ["profile", "name"] as const);
 
@@ -124,7 +124,7 @@ describe("@beep/utils Struct.mapPathLazy", () => {
   it("supports data-first and data-last calls", () => {
     const source = { profile: { name: "beep" }, count: 1 } as const;
 
-    const dataFirst = Struct.mapPathLazy(source, (value: string) => value.toUpperCase(), "profile.name");
+    const dataFirst = Struct.mapPathLazy(source, (value: string) => Str.toUpperCase(value), "profile.name");
     const dataLast = pipe(
       source,
       Struct.mapPathLazy((value: 1) => value + 1, "count")
@@ -138,7 +138,7 @@ describe("@beep/utils Struct.mapPathLazy", () => {
 
   it("defers the lookup until the thunk is invoked", () => {
     const source = { profile: { name: "before" } };
-    const getUpper = Struct.mapPathLazy(source, (value: string) => value.toUpperCase(), "profile.name");
+    const getUpper = Struct.mapPathLazy(source, (value: string) => Str.toUpperCase(value), "profile.name");
 
     source.profile.name = "after";
 

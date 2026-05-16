@@ -2,6 +2,7 @@ import { VERSION } from "@beep/opip-web";
 import { decodeContactSubmission, submitContact } from "@beep/opip-web/contact";
 import { decodeOpipSiteContentResult, launchReviewGates, opipSiteContent, ReviewStatus } from "@beep/opip-web/content";
 import { Button } from "@beep/ui/components/ui/button";
+import { A } from "@beep/utils";
 import { cleanup, render, screen } from "@testing-library/react";
 import { ConfigProvider, Effect, Exit } from "effect";
 import * as Result from "effect/Result";
@@ -100,11 +101,12 @@ describe("@beep/opip-web", () => {
   it("renders the progressive theme toggle hook for the static layout script", async () => {
     render(await Home({}));
 
-    const toggle = screen.getAllByRole("button", { name: "Switch to dark mode" }).at(-1);
+    const toggles = screen.getAllByRole("button", { name: "Switch to dark mode" });
+    const toggle = A.getUnsafe(toggles, A.length(toggles) - 1);
 
-    expect(toggle?.getAttribute("data-opip-theme-toggle")).toBe("");
-    expect(toggle?.getAttribute("data-theme-mode")).toBe("light");
-    expect(toggle?.getAttribute("aria-pressed")).toBe("false");
+    expect(toggle.getAttribute("data-opip-theme-toggle")).toBe("");
+    expect(toggle.getAttribute("data-theme-mode")).toBe("light");
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
   });
 
   it("provides an optional OPIP MUI theme override provider", () => {
@@ -120,8 +122,8 @@ describe("@beep/opip-web", () => {
   it("keeps launch-risk content review-gated", () => {
     expect(launchReviewGates.clientLogos.status).toBe(ReviewStatus.Enum.needs_review);
     expect(launchReviewGates.contact.status).toBe(ReviewStatus.Enum.needs_review);
-    expect(opipSiteContent.clients.every((client) => ReviewStatus.is.needs_review(client.review.status))).toBe(true);
-    expect(opipSiteContent.matters.every((matter) => ReviewStatus.is.needs_review(matter.review.status))).toBe(true);
+    expect(A.every(opipSiteContent.clients, (client) => ReviewStatus.is.needs_review(client.review.status))).toBe(true);
+    expect(A.every(opipSiteContent.matters, (matter) => ReviewStatus.is.needs_review(matter.review.status))).toBe(true);
   });
 
   it("rejects malformed contact payloads at the schema boundary", async () => {

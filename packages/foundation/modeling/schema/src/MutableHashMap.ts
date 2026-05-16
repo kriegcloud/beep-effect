@@ -6,6 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import {
   Effect,
   MutableHashMap as MutableHashMap_,
@@ -15,9 +16,7 @@ import {
   SchemaParser,
   SchemaTransformation,
 } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $SchemaId.create("MutableHashMap");
 

@@ -7,8 +7,8 @@
  */
 
 import { NonNegativeInt } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Effect, Layer, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { JsonLdContext, JsonLdDocument } from "../jsonld.ts";

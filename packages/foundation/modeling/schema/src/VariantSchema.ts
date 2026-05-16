@@ -1,6 +1,7 @@
 /**
  * @since 0.0.0
  */
+import { A } from "@beep/utils";
 import { Effect } from "effect";
 import type { Brand } from "effect/Brand";
 import { dual } from "effect/Function";
@@ -526,7 +527,7 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
     return <S extends S.Top>(schema: S) => {
       const obj: Record<string, S> = {};
       for (const variant of options.variants) {
-        if (!keys.includes(variant)) {
+        if (!A.contains(keys, variant)) {
           obj[variant] = schema;
         }
       }
@@ -541,7 +542,7 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
     (self: AnyField | S.Top, f: Record<string, (schema: S.Top | undefined) => S.Top | undefined>): AnyField => {
       const field = isField(self)
         ? self
-        : Field(R.fromEntries(options.variants.map((variant) => [variant, self] as const)));
+        : Field(R.fromEntries(A.map(options.variants, (variant) => [variant, self] as const)));
       const evolved: Record<string, S.Top | undefined> = {};
       for (const key of R.keys(field.schemas)) {
         const evolve = f[key];
@@ -680,10 +681,10 @@ const Union = <Members extends ReadonlyArray<AnyStruct>, Variants extends Readon
   members: Members,
   variants: Variants
 ) => {
-  const VariantUnion = S.Union(members.filter((member): member is Members[number] & S.Top => S.isSchema(member)));
+  const VariantUnion = S.Union(A.filter(members, (member): member is Members[number] & S.Top => S.isSchema(member)));
   for (const variant of variants) {
     Object.defineProperty(VariantUnion, variant, {
-      value: S.Union(members.map((member) => extract(member, variant))),
+      value: S.Union(A.map(members, (member) => extract(member, variant))),
     });
   }
   return VariantUnion;

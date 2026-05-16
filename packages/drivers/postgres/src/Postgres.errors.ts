@@ -7,13 +7,12 @@
 
 import { $PostgresId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Cause, pipe, Result } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { getPgErrorName, PgErrorName } from "./Postgres.sqlstate.ts";
 
 const $I = $PostgresId.create("Postgres.errors");
@@ -149,7 +148,7 @@ const extractSourceLocation = (value: unknown): O.Option<string> => {
   }
 
   for (const line of Str.split(stack, "\n")) {
-    const match = line.match(/at\s+(?:.*?\s+)?\(?([^()]+):(\d+):(\d+)\)?/);
+    const match = pipe(line, Str.match(/at\s+(?:.*?\s+)?\(?([^()]+):(\d+):(\d+)\)?/), O.getOrUndefined);
     const filePath = match?.[1];
     const lineNumber = match?.[2];
     const columnNumber = match?.[3];
@@ -199,15 +198,20 @@ const makeQueryContext = (
 
 const parseDrizzleMessage = (value: unknown): PostgresErrorContext => {
   const message = O.getOrUndefined(getErrorMessage(value));
-  const match = message?.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s);
+  const match = pipe(
+    message,
+    O.fromUndefinedOr,
+    O.flatMap(Str.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s)),
+    O.getOrUndefined
+  );
 
   if (match === null || match === undefined) {
     return {};
   }
 
-  const paramsText = match[2]?.trim();
+  const paramsText = pipe(match[2], O.fromUndefinedOr, O.map(Str.trim), O.getOrUndefined);
   return makeQueryContext(
-    match[1]?.trim(),
+    pipe(match[1], O.fromUndefinedOr, O.map(Str.trim), O.getOrUndefined),
     paramsText === undefined || paramsText.length === 0 ? undefined : A.of(paramsText)
   );
 };

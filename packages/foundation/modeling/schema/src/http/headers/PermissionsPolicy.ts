@@ -5,9 +5,8 @@
  * @packageDocumentation
  */
 import { $SchemaId } from "@beep/identity";
-import { Struct } from "@beep/utils";
+import { A, Struct } from "@beep/utils";
 import { Effect, pipe, SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

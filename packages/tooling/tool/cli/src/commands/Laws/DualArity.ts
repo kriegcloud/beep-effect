@@ -9,12 +9,11 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { TSMorphService, TsMorphProjectInspectionRequest } from "@beep/repo-utils/TSMorph/index";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, HashMap, Match, MutableHashSet, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { type ParseError, parse, printParseErrorCode } from "jsonc-parser";
 import {
   type ArrowFunction,
@@ -274,8 +273,8 @@ const sortEntries = (entries: ReadonlyArray<DualArityInventoryEntry>): ReadonlyA
 const todayYmd = (): string => {
   const now = DateTime.nowUnsafe();
   const year = `${DateTime.getPartUtc(now, "year")}`;
-  const month = `${DateTime.getPartUtc(now, "month")}`.padStart(2, "0");
-  const day = `${DateTime.getPartUtc(now, "day")}`.padStart(2, "0");
+  const month = Str.padStart(2, "0")(`${DateTime.getPartUtc(now, "month")}`);
+  const day = Str.padStart(2, "0")(`${DateTime.getPartUtc(now, "day")}`);
   return `${year}-${month}-${day}`;
 };
 
@@ -848,7 +847,7 @@ const makeOwnerResolver = Effect.fn("DualArity.makeOwnerResolver")(function* () 
 
   return (absoluteFilePath: string): string => {
     const normalized = toPosixPath(absoluteFilePath);
-    const relativePath = toPosixPath(normalized.replace(`${cwd}/`, ""));
+    const relativePath = toPosixPath(Str.replace(`${cwd}/`, "")(normalized));
     const workspaceMatch = A.findFirst(
       workspaceEntries,
       ([, workspacePath]) => normalized === workspacePath || Str.startsWith(`${workspacePath}/`)(normalized)

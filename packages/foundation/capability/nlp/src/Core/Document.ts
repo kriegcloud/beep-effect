@@ -7,13 +7,12 @@
 
 import { $NlpId } from "@beep/identity";
 import { NonNegativeInt } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Brand, Chunk, pipe, Result } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import type * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Sentence, type SentenceIndex } from "./Sentence.ts";
 import { Token, type TokenIndex } from "./Token.ts";
 

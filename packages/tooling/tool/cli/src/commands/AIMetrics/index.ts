@@ -101,6 +101,7 @@ import {
   upsertAiMetricsBenchmarkCase,
 } from "@beep/repo-ai-metrics";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import {
   Clock,
   Config,
@@ -117,10 +118,8 @@ import {
   pipe,
   Redacted,
 } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("commands/AIMetrics");

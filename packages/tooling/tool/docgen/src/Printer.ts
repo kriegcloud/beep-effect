@@ -5,12 +5,11 @@
  * @since 0.0.0
  */
 
+import { A, Str } from "@beep/utils";
 import { Effect, Layer, Match, Order, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual, flow } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import * as Str from "effect/String";
 
 import * as Configuration from "./Configuration.js";
 import type * as Domain from "./Domain.js";
@@ -43,14 +42,26 @@ const Markdown = {
 };
 
 function replaceJSDocLinks(text: string): string {
-  return text.replace(/\{@link\s+([^\s}]+)(?:\s+([^}]+))?}/g, (_, link, label) => `\`${Str.trim(label || link)}\``);
+  return pipe(
+    text,
+    Str.replaceWith(/\{@link\s+([^\s}]+)(?:\s+([^}]+))?}/g, (_match, link, label) => {
+      const linkText = P.isString(link) ? link : "";
+      const labelText = P.isString(label) ? label : linkText;
+      return `\`${Str.trim(labelText)}\``;
+    })
+  );
 }
 
 function removeFenceMetadata(markdown: string): string {
-  return markdown.replace(/^(`{3,})([^\n]*)/gm, (_match, fence, info) => {
-    const tokens = pipe(info, Str.trim, Str.split(/\s+/));
-    return `${fence}${tokens[0] ?? ""}`;
-  });
+  return pipe(
+    markdown,
+    Str.replaceWith(/^(`{3,})([^\n]*)/gm, (_match, fence, info) => {
+      const fenceText = P.isString(fence) ? fence : "";
+      const infoText = P.isString(info) ? info : "";
+      const tokens = pipe(infoText, Str.trim, Str.split(/\s+/));
+      return `${fenceText}${tokens[0] ?? ""}`;
+    })
+  );
 }
 
 const printOptionalDescription = Effect.fn("printOptionalDescription")(function* (description: string | undefined) {
@@ -134,7 +145,7 @@ const pathSegments = (segments: ReadonlyArray<string>): ReadonlyArray<string> =>
   A.flatMap(segments, flow(Str.split(/[\\/]+/), A.filter(Str.isNonEmpty)));
 
 const startsWithSegments = (segments: ReadonlyArray<string>, prefix: ReadonlyArray<string>): boolean =>
-  prefix.length > 0 && prefix.every((segment, index) => segments[index] === segment);
+  prefix.length > 0 && A.every(prefix, (segment, index) => segments[index] === segment);
 
 const findSubsequenceIndex = (segments: ReadonlyArray<string>, subsequence: ReadonlyArray<string>): number => {
   if (subsequence.length === 0 || subsequence.length > segments.length) {
@@ -142,7 +153,7 @@ const findSubsequenceIndex = (segments: ReadonlyArray<string>, subsequence: Read
   }
 
   for (let index = 0; index <= segments.length - subsequence.length; index++) {
-    if (subsequence.every((segment, offset) => segments[index + offset] === segment)) {
+    if (A.every(subsequence, (segment, offset) => segments[index + offset] === segment)) {
       return index;
     }
   }

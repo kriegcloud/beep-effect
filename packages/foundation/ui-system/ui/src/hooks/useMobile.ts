@@ -5,10 +5,10 @@
  * @since 0.0.0
  * @packageDocumentation
  */
+import { Str } from "@beep/utils";
 import { useAtom } from "@effect/atom-react";
 import { constFalse } from "effect/Function";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import { Atom } from "effect/unstable/reactivity";
 import * as React from "react";
 import { TOUCH_MEDIA_QUERY } from "../themes/scales.ts";

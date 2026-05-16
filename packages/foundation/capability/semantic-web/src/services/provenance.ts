@@ -8,8 +8,8 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt, TaggedErrorClass } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Context, Effect, Layer, pipe } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { BoundedEvidenceProjection, EvidenceAnchor } from "../evidence.ts";
 import {

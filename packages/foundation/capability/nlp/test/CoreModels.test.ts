@@ -1,8 +1,8 @@
 import { Document, DocumentId } from "@beep/nlp/Core/Document";
 import { Sentence, SentenceIndex } from "@beep/nlp/Core/Sentence";
 import { CharPosition, Token, TokenIndex } from "@beep/nlp/Core/Token";
+import { A } from "@beep/utils";
 import { Chunk, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
 

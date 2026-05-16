@@ -12,10 +12,11 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $SchemaId } from "@beep/identity";
 import { MappedLiteralKit } from "@beep/schema/MappedLiteralKit";
+import { A } from "@beep/utils";
 import { pipe } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("HttpStatus");

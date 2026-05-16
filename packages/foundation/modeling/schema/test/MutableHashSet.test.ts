@@ -1,4 +1,5 @@
 import { isMutableHashSet, MutableHashSet, MutableHashSetFromSelf } from "@beep/schema";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as MutableHashSet_ from "effect/MutableHashSet";
 import * as S from "effect/Schema";
@@ -11,7 +12,7 @@ describe("MutableHashSetFromSelf", () => {
     expect(schema.value).toBe(S.NumberFromString);
     expect(schema.annotate({}).value).toBe(S.NumberFromString);
     expect(isMutableHashSet(decoded)).toBe(true);
-    expect(Array.from(decoded)).toEqual([1, 2]);
+    expect(A.fromIterable(decoded)).toEqual([1, 2]);
   });
 
   it("rejects non-mutable-hash-set inputs", () => {
@@ -45,7 +46,7 @@ describe("MutableHashSet", () => {
     expect(schema.value).toBe(S.NumberFromString);
     expect(schema.annotate({}).value).toBe(S.NumberFromString);
     expect(isMutableHashSet(decoded)).toBe(true);
-    expect(Array.from(decoded)).toEqual([1, 2]);
+    expect(A.fromIterable(decoded)).toEqual([1, 2]);
   });
 
   it("encodes mutable hash sets back to arrays", () => {

@@ -16,13 +16,12 @@ import {
   isNoNativeRuntimeExtraCheckHotspot,
 } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Effect, HashSet, Inspectable, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-
 import {
   type BinaryExpression,
   type CallExpression,
