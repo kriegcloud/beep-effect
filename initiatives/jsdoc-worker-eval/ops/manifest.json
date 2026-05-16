@@ -3,23 +3,46 @@
   "initiative": {
     "id": "jsdoc-worker-eval",
     "title": "JSDoc Worker Eval",
-    "status": "p0-p5-complete-hosted-baseline-candidate",
+    "status": "p0-p6-implemented-runpod-smoke-proof-complete",
     "created": "2026-05-12",
-    "updated": "2026-05-12",
+    "updated": "2026-05-16",
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
   "reportDirectory": "research",
   "rawOutputDirectory": "history/outputs",
-  "implementedCommandSurfaces": ["beep docgen quality-worker-eval"],
+  "implementedCommandSurfaces": [
+    "beep docgen quality-worker-eval",
+    "beep docgen quality-worker-eval-runpod"
+  ],
   "providerPath": {
     "supportedProviders": ["codex", "ollama", "lmstudio"],
     "providerArgumentRequired": true,
     "modelArgumentRequired": true,
+    "codexSdkBaseUrlFlag": "--base-url",
     "hostedCodexDefaultReasoningEffort": "low",
     "firstLocalModelFamily": "Qwen3-Coder",
     "rejectedHostModelPairing": "qwen3-coder:30b on RTX 3070 8GiB local workstation",
-    "recommendedNextEnvironment": "Runpod or another larger-VRAM GPU host"
+    "recommendedNextEnvironment": "Runpod or another larger-VRAM GPU host",
+    "runpodCommand": {
+      "surface": "beep docgen quality-worker-eval-runpod",
+      "requiredProvider": "ollama",
+      "requiredModel": "qwen3-coder:30b",
+      "confirmationFlag": "--confirm-runpod-eval",
+      "defaultPacketLimit": 10,
+      "preferredGpuRamGb": 48,
+      "fallbackGpuRamGb": 24,
+      "fallbackFlag": "--allow-24gb-fallback",
+      "cleanupDefault": "stop-and-delete",
+      "otlpOptional": true,
+      "defaultOtlpBaseUrl": "https://dankserver.tailc7c348.ts.net:8447",
+      "defaultOtlpProject": "beep-jsdoc-worker-eval",
+      "runpodApiKeyEnv": "RUNPOD_API_KEY",
+      "runpodApiKeySecretRef": "op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY",
+      "fallbackImageRequiresZstd": true,
+      "codexOllamaBaseUrlRequiresV1": true,
+      "coldPullDominatesRuntime": true
+    }
   },
   "evidence": [
     {
@@ -33,6 +56,13 @@
       "report": "research/2026-05-12-codex-gpt-5.4-mini-low-worker-eval.md",
       "raw": "history/outputs/2026-05-12-codex-gpt-5.4-mini-low-worker-eval.json",
       "result": "candidate-baseline"
+    },
+    {
+      "id": "2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval",
+      "report": "research/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval.md",
+      "expectedRaw": "history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval.json",
+      "smokeRaw": "history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-smoke-v2.json",
+      "result": "smoke-proof-complete"
     }
   ],
   "phaseStatus": [
@@ -65,6 +95,11 @@
       "id": "P5",
       "status": "complete",
       "title": "Hosted Codex low-reasoning baseline"
+    },
+    {
+      "id": "P6",
+      "status": "smoke-proof-complete",
+      "title": "Runpod Ollama Qwen3-Coder remote GPU worker eval"
     }
   ],
   "nonGoals": [
@@ -73,5 +108,5 @@
     "Qwen-specific architecture doctrine",
     "auto-remediation write mode"
   ],
-  "nextAction": "Keep workers read-only; compare larger hosted and remote-GPU samples before opening auto-remediation write mode."
+  "nextAction": "Decide whether to run a larger 10-packet Runpod sample now or first remove cold-pull overhead with a repo-owned image/template or persistent model cache."
 }

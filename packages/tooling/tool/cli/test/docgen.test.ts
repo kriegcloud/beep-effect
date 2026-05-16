@@ -23,12 +23,19 @@ import {
   type DocgenQualityWorkerEvalRunner,
   generateQualityWorkerEvalJson,
 } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval";
+import {
+  makeQualityWorkerRunpodEvalPodCreateInput,
+  requiredQualityWorkerRunpodEvalModel,
+  selectQualityWorkerRunpodTemplate,
+} from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
+import { Template } from "@beep/runpod";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { Duration, Effect, Exit, FileSystem, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -1647,6 +1654,34 @@ export type TypeValue = string;
 
           expect(localProviderReport.reasoningEffort).toBeNull();
 
+          let observedBaseUrl = O.none<string>();
+          const baseUrlRunner: DocgenQualityWorkerEvalRunner = (input) => {
+            observedBaseUrl = O.fromUndefinedOr(input.baseUrl);
+            return Effect.succeed({
+              finalResponse: encodeJson({
+                localScore: 8,
+                rationale: "The draft adds an observable example and keeps required tags.",
+                draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
+                policyViolationCodes: [],
+                reviewDisposition: "candidate",
+              }),
+            });
+          };
+          const baseUrlReport = yield* analyzeDocgenQualityWorkerEval({
+            baseUrl: "https://pod-11434.proxy.runpod.net/v1",
+            codexSdkVersion: "test-sdk",
+            model: "qwen3-coder:30b",
+            packetLimit: 1,
+            provider: "ollama",
+            report,
+            runner: baseUrlRunner,
+            scope: "input",
+            sourceQualityReport: "quality.json",
+          });
+
+          expect(baseUrlReport.summary.completed).toBe(1);
+          expect(O.getOrNull(observedBaseUrl)).toBe("https://pod-11434.proxy.runpod.net/v1");
+
           const outOfRangeScoreRunner: DocgenQualityWorkerEvalRunner = () =>
             Effect.succeed({
               finalResponse: encodeJson({
@@ -1835,6 +1870,66 @@ export const workerEvalValue = 1;
           expect(decoded.summary.selectedPackets).toBe(0);
           expect(decoded.packets).toHaveLength(0);
           expect(logLines.join("\n")).toContain(`docgen: wrote ${evalPath}`);
+        })
+      )
+    );
+  });
+
+  it("builds Runpod Ollama pod inputs without secrets", async () => {
+    const selected = selectQualityWorkerRunpodTemplate([
+      new Template({
+        id: "template-z",
+        imageName: "runpod/pytorch:latest",
+        name: "Plain PyTorch",
+      }),
+      new Template({
+        id: "template-a",
+        imageName: "ollama/ollama:latest",
+        name: "Ollama CUDA",
+      }),
+    ]);
+
+    expect(O.isSome(selected)).toBe(true);
+    if (O.isNone(selected)) {
+      return;
+    }
+
+    expect(selected.value.id).toBe("template-a");
+
+    const body = makeQualityWorkerRunpodEvalPodCreateInput({
+      gpuTypeIds: ["NVIDIA RTX A6000"],
+      minRamPerGpuGb: 48,
+      model: requiredQualityWorkerRunpodEvalModel(),
+      podName: "beep-jsdoc-worker-eval-test",
+    });
+    const bootstrap = A.join(body.dockerStartCmd ?? [], "\n");
+
+    expect(body.computeType).toBe("GPU");
+    expect(body.globalNetworking).toBe(true);
+    expect(body.gpuTypeIds).toEqual(["NVIDIA RTX A6000"]);
+    expect(body.minRAMPerGPU).toBe(48);
+    expect(body.ports).toEqual(["11434/http"]);
+    expect(bootstrap).toContain("apt-get install -y curl ca-certificates zstd");
+    expect(bootstrap).toContain("http://127.0.0.1:11434/api/pull");
+    expect(bootstrap).toContain('-d \'{"name":"qwen3-coder:30b"}\'');
+    expect(bootstrap).not.toContain("RUNPOD_API_KEY");
+  });
+
+  it("guards Runpod worker eval behind explicit confirmation", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          yield* runDocgenCommand([
+            "quality-worker-eval-runpod",
+            "--all",
+            "--provider",
+            "ollama",
+            "--model",
+            requiredQualityWorkerRunpodEvalModel(),
+          ]);
+
+          expect((yield* TestConsole.errorLines).join("\n")).toContain("--confirm-runpod-eval");
+          expect(process.exitCode).toBe(1);
         })
       )
     );

@@ -1028,6 +1028,7 @@
         "@beep/repo-configs": "workspace:^",
         "@beep/repo-docgen": "workspace:^",
         "@beep/repo-utils": "workspace:^",
+        "@beep/runpod": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/markdown-toc": "catalog:",

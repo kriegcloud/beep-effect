@@ -2,7 +2,7 @@
 
 ## Status
 
-P0-P5 complete; hosted Codex baseline completed
+P0-P6 implementation complete; Runpod Qwen smoke proof complete
 
 ## Overview
 
@@ -11,7 +11,7 @@ JSDoc quality remediation packets to a read-only worker, including hosted Codex
 models and local Qwen-style models through Ollama or LM Studio, without making
 model judgment the source of truth.
 
-The implemented v1 command is read-only:
+The implemented local/hosted v1 command is read-only:
 
 ```sh
 bun run beep docgen quality-worker-eval --input quality.json --provider codex --model <model-id>
@@ -20,6 +20,25 @@ bun run beep docgen quality-worker-eval --input quality.json --provider codex --
 It consumes `beep docgen quality --score codex` remediation packets, asks a
 Codex SDK worker for advisory scoring and draft JSDoc, and emits JSON. It does
 not edit source files.
+
+The remote GPU path is also read-only:
+
+```sh
+RUNPOD_API_KEY="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')" \
+  bun run beep docgen quality-worker-eval-runpod --all --provider ollama --model qwen3-coder:30b --confirm-runpod-eval
+```
+
+It creates an ephemeral Runpod pod, boots Ollama, routes Codex SDK traffic to
+the pod, emits a wrapper JSON report, and stops/deletes the pod unless
+`--keep-pod` is passed for debugging.
+
+The first live Runpod smoke completed one repo-wide packet with
+`qwen3-coder:30b` on an ephemeral 48 GiB GPU pod. The packet completed as a
+candidate draft with zero reported policy violations, Phoenix exported two
+spans, and pod cleanup completed. The run used a saved source-quality report
+as packet input. This proves the remote path can run end-to-end, but it does
+not graduate auto-remediation or prove the cost/quality profile for larger
+samples.
 
 The first local-provider run proved the plumbing but not the worker value:
 Ollama 0.23.2 successfully pulled `qwen3-coder:30b`, then ran it CPU-only on
@@ -37,6 +56,7 @@ completed as candidate drafts with zero reported policy violations.
 - [PLAN.md](./PLAN.md) - current rollout plan and phase state
 - [research/2026-05-12-ollama-qwen3-coder-30b-host-eval.md](./research/2026-05-12-ollama-qwen3-coder-30b-host-eval.md) - local-provider host outcome
 - [research/2026-05-12-codex-gpt-5.4-mini-low-worker-eval.md](./research/2026-05-12-codex-gpt-5.4-mini-low-worker-eval.md) - hosted Codex baseline
+- [research/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval.md](./research/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval.md) - Runpod command/runbook and smoke-proof evidence
 - [history/outputs/](./history/outputs) - raw worker-model evidence worth preserving
 - [ops/manifest.json](./ops/manifest.json) - machine-readable routing
 
@@ -51,6 +71,14 @@ completed as candidate drafts with zero reported policy violations.
   when a caller deliberately selects a local provider.
 - Do not use `qwen3-coder:30b` as the default eval model on this 8 GiB VRAM
   workstation; it runs CPU-only and degrades interactivity.
+- Use Runpod for the next `qwen3-coder:30b` proof; prefer 48 GiB GPUs, allow
+  24 GiB fallback only with explicit operator consent.
+- Expect cold Runpod/Ollama pulls to dominate runtime unless a prebuilt image
+  or persistent model cache is introduced.
+- Pass `RUNPOD_API_KEY` through the environment. The CLI never reads
+  1Password references directly.
+- Use `--otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447` when
+  the live proof should appear in the Phoenix UI.
 - Do not make worker findings blocking.
 - Do not unblock write-mode remediation until accepted precision, cost, runtime,
   and policy-preservation evidence exists.

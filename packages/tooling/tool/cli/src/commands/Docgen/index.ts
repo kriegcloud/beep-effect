@@ -9,7 +9,8 @@
  */
 
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
-import { Console, Effect, FileSystem, Match, Path, pipe } from "effect";
+import { Runpod, RunpodConfigInput } from "@beep/runpod";
+import { Config, Console, Duration, Effect, FileSystem, Match, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -46,6 +47,15 @@ import {
   generateQualityWorkerEvalJson,
   qualityWorkerEvalSourcePacketLimit,
 } from "./internal/QualityWorkerEval.js";
+import {
+  defaultQualityWorkerRunpodEvalOtlpBaseUrl,
+  defaultQualityWorkerRunpodEvalOtlpProject,
+  defaultQualityWorkerRunpodEvalPacketLimit,
+  defaultQualityWorkerRunpodEvalReadinessTimeoutMs,
+  generateQualityWorkerRunpodEvalJson,
+  requiredQualityWorkerRunpodEvalModel,
+  runDocgenQualityWorkerRunpodEval,
+} from "./internal/QualityWorkerRunpodEval.js";
 
 const packageFlag = Flag.string("package").pipe(
   Flag.withAlias("p"),
@@ -94,6 +104,10 @@ const qualityWorkerEvalPacketLimitFlag = Flag.integer("packet-limit").pipe(
   Flag.withDefault(defaultQualityWorkerEvalPacketLimit()),
   Flag.withDescription("Maximum number of remediation packets to send to the worker; must be zero or greater")
 );
+const qualityWorkerRunpodEvalPacketLimitFlag = Flag.integer("packet-limit").pipe(
+  Flag.withDefault(defaultQualityWorkerRunpodEvalPacketLimit()),
+  Flag.withDescription("Maximum number of remediation packets to send to the Runpod worker; must be zero or greater")
+);
 const qualityWorkerEvalProviderFlag = Flag.choiceWithValue("provider", [
   ["codex", "codex"],
   ["ollama", "ollama"],
@@ -101,6 +115,10 @@ const qualityWorkerEvalProviderFlag = Flag.choiceWithValue("provider", [
 ]).pipe(Flag.withDescription("Codex worker provider to evaluate; choose codex, ollama, or lmstudio"));
 const qualityWorkerEvalModelFlag = Flag.string("model").pipe(
   Flag.withDescription("Model id to pass to Codex; required to avoid provider-specific default drift")
+);
+const qualityWorkerEvalBaseUrlFlag = Flag.string("base-url").pipe(
+  Flag.withDescription("Optional OpenAI-compatible base URL passed through to the Codex SDK"),
+  Flag.optional
 );
 const qualityWorkerEvalReasoningEffortFlag = Flag.choiceWithValue("reasoning-effort", [
   ["minimal", "minimal"],
@@ -111,6 +129,41 @@ const qualityWorkerEvalReasoningEffortFlag = Flag.choiceWithValue("reasoning-eff
 ]).pipe(
   Flag.withDescription("Optional Codex reasoning effort; hosted codex defaults to low when omitted"),
   Flag.optional
+);
+const confirmRunpodEvalFlag = Flag.boolean("confirm-runpod-eval").pipe(
+  Flag.withDescription("Acknowledge that quality-worker-eval-runpod creates a billable remote GPU pod")
+);
+const keepRunpodPodFlag = Flag.boolean("keep-pod").pipe(
+  Flag.withDescription("Debug mode: leave the Runpod pod running instead of deleting it after the eval")
+);
+const allow24GbFallbackFlag = Flag.boolean("allow-24gb-fallback").pipe(
+  Flag.withDescription("Allow explicitly verified 24 GiB GPU fallbacks when preferred 48 GiB GPUs are unavailable")
+);
+const runpodGpuTypeIdsFlag = Flag.string("gpu-type-ids").pipe(
+  Flag.withDescription("Comma-separated Runpod GPU type ids; overrides the default 48 GiB preference list"),
+  Flag.optional
+);
+const runpodTemplateIdFlag = Flag.string("template-id").pipe(
+  Flag.withDescription("Optional Runpod template id override; otherwise live templates are searched first"),
+  Flag.optional
+);
+const skipRunpodTemplateSearchFlag = Flag.boolean("skip-template-search").pipe(
+  Flag.withDescription("Use the repo fallback image instead of searching public Runpod templates")
+);
+const runpodReadinessTimeoutMinutesFlag = Flag.integer("readiness-timeout-minutes").pipe(
+  Flag.withDefault(Math.ceil(defaultQualityWorkerRunpodEvalReadinessTimeoutMs() / 60_000)),
+  Flag.withDescription("Minutes to wait for remote Ollama readiness after pod creation")
+);
+const qualityWorkerRunpodEvalOtlpFlag = Flag.boolean("otlp").pipe(
+  Flag.withDescription("Emit sanitized summary and hashed packet spans to the configured Phoenix OTLP endpoint")
+);
+const qualityWorkerRunpodEvalOtlpBaseUrlFlag = Flag.string("otlp-base-url").pipe(
+  Flag.withDefault(defaultQualityWorkerRunpodEvalOtlpBaseUrl()),
+  Flag.withDescription("Phoenix-compatible OTLP collector base URL")
+);
+const qualityWorkerRunpodEvalOtlpProjectFlag = Flag.string("otlp-project").pipe(
+  Flag.withDefault(defaultQualityWorkerRunpodEvalOtlpProject()),
+  Flag.withDescription("Phoenix project name carried as openinference.project.name")
 );
 const verboseFlag = Flag.boolean("verbose").pipe(
   Flag.withAlias("v"),
@@ -221,6 +274,54 @@ const resolvePackageSelector = Effect.fn("Docgen.resolvePackageSelector")(functi
   }
 
   return O.isSome(packageSelector) ? packageSelector : filterSelector;
+});
+
+const splitCommaSeparatedFlag = (value: string): ReadonlyArray<string> =>
+  pipe(Str.split(",")(value), A.map(Str.trim), A.filter(Str.isNonEmpty));
+
+const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEvalSource")(function* ({
+  all,
+  input,
+  packageSelector,
+  packetLimit,
+}: {
+  readonly all: boolean;
+  readonly input: O.Option<string>;
+  readonly packageSelector: O.Option<string>;
+  readonly packetLimit: number;
+}) {
+  const fs = yield* FileSystem.FileSystem;
+
+  if (O.isSome(input)) {
+    return {
+      report: yield* fs.readFileString(input.value).pipe(Effect.flatMap(decodeDocgenQualityReportForWorkerEval)),
+      scope: "input" as const,
+      sourceQualityReport: input.value,
+    };
+  }
+
+  const { scope, targets } = yield* resolveDocgenQualityTargets({
+    all,
+    changedFiles: false,
+    packageSelector,
+  });
+
+  if (targets.length === 0) {
+    return yield* new DomainError({
+      message: "No packages selected for docgen quality worker eval.",
+    });
+  }
+
+  return {
+    report: yield* analyzeDocgenQuality({
+      packetLimit: qualityWorkerEvalSourcePacketLimit(packetLimit),
+      scope,
+      scoreMode: "codex",
+      targets,
+    }),
+    scope: scope === "all" ? ("all" as const) : ("package" as const),
+    sourceQualityReport: `generated:${scope}`,
+  };
 });
 
 const docgenInitCommand = Command.make(
@@ -758,11 +859,22 @@ const docgenQualityWorkerEvalCommand = Command.make(
     output: outputFlag,
     provider: qualityWorkerEvalProviderFlag,
     model: qualityWorkerEvalModelFlag,
+    baseUrl: qualityWorkerEvalBaseUrlFlag,
     reasoningEffort: qualityWorkerEvalReasoningEffortFlag,
     packetLimit: qualityWorkerEvalPacketLimitFlag,
   },
   Effect.fn(
-    function* ({ package: packageSelector, all, input, output, provider, model, reasoningEffort, packetLimit }) {
+    function* ({
+      package: packageSelector,
+      all,
+      input,
+      output,
+      provider,
+      model,
+      baseUrl,
+      reasoningEffort,
+      packetLimit,
+    }) {
       const fs = yield* FileSystem.FileSystem;
       const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
       const resolvedReasoningEffort = Match.value(provider).pipe(
@@ -793,38 +905,16 @@ const docgenQualityWorkerEvalCommand = Command.make(
         });
       }
 
-      const source = O.isSome(input)
-        ? {
-            report: yield* fs.readFileString(input.value).pipe(Effect.flatMap(decodeDocgenQualityReportForWorkerEval)),
-            scope: "input" as const,
-            sourceQualityReport: input.value,
-          }
-        : yield* Effect.gen(function* () {
-            const { scope, targets } = yield* resolveDocgenQualityTargets({
-              all,
-              changedFiles: false,
-              packageSelector,
-            });
-
-            if (targets.length === 0) {
-              return yield* new DomainError({
-                message: "No packages selected for docgen quality-worker-eval.",
-              });
-            }
-
-            return {
-              report: yield* analyzeDocgenQuality({
-                packetLimit: qualityWorkerEvalSourcePacketLimit(packetLimit),
-                scope,
-                scoreMode: "codex",
-                targets,
-              }),
-              scope: scope === "all" ? ("all" as const) : ("package" as const),
-              sourceQualityReport: `generated:${scope}`,
-            };
-          });
+      const source = yield* resolveQualityWorkerEvalSource({ all, input, packageSelector, packetLimit });
+      const baseUrlOptions = pipe(
+        baseUrl,
+        O.filter((value) => Str.isNonEmpty(Str.trim(value))),
+        O.map((value) => ({ baseUrl: value })),
+        O.getOrElse(() => ({}))
+      );
 
       const report = yield* analyzeDocgenQualityWorkerEval({
+        ...baseUrlOptions,
         model,
         packetLimit,
         provider,
@@ -862,6 +952,152 @@ const docgenQualityWorkerEvalCommand = Command.make(
   Command.withDescription("Run read-only worker evaluation over deterministic docgen quality remediation packets")
 );
 
+const docgenQualityWorkerRunpodEvalCommand = Command.make(
+  "quality-worker-eval-runpod",
+  {
+    package: packageFlag,
+    all: allFlag,
+    input: inputFlag,
+    output: outputFlag,
+    provider: qualityWorkerEvalProviderFlag,
+    model: qualityWorkerEvalModelFlag,
+    packetLimit: qualityWorkerRunpodEvalPacketLimitFlag,
+    confirmRunpodEval: confirmRunpodEvalFlag,
+    keepPod: keepRunpodPodFlag,
+    allow24GbFallback: allow24GbFallbackFlag,
+    gpuTypeIds: runpodGpuTypeIdsFlag,
+    templateId: runpodTemplateIdFlag,
+    skipTemplateSearch: skipRunpodTemplateSearchFlag,
+    readinessTimeoutMinutes: runpodReadinessTimeoutMinutesFlag,
+    otlp: qualityWorkerRunpodEvalOtlpFlag,
+    otlpBaseUrl: qualityWorkerRunpodEvalOtlpBaseUrlFlag,
+    otlpProject: qualityWorkerRunpodEvalOtlpProjectFlag,
+  },
+  Effect.fn(
+    function* ({
+      package: packageSelector,
+      all,
+      input,
+      output,
+      provider,
+      model,
+      packetLimit,
+      confirmRunpodEval,
+      keepPod,
+      allow24GbFallback,
+      gpuTypeIds,
+      templateId,
+      skipTemplateSearch,
+      readinessTimeoutMinutes,
+      otlp,
+      otlpBaseUrl,
+      otlpProject,
+    }) {
+      const fs = yield* FileSystem.FileSystem;
+      const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
+
+      if (sourceCount !== 1) {
+        return yield* new DomainError({
+          message: "Choose exactly one docgen quality-worker-eval-runpod source: --input, --package, or --all.",
+        });
+      }
+
+      if (packetLimit < 0) {
+        return yield* new DomainError({
+          message: "--packet-limit must be zero or greater; use 0 to suppress worker packet turns.",
+        });
+      }
+
+      if (readinessTimeoutMinutes <= 0) {
+        return yield* new DomainError({
+          message: "--readiness-timeout-minutes must be greater than zero.",
+        });
+      }
+
+      if (provider !== "ollama") {
+        return yield* new DomainError({
+          message: "docgen quality-worker-eval-runpod v1 only supports --provider ollama.",
+        });
+      }
+
+      if (model !== requiredQualityWorkerRunpodEvalModel()) {
+        return yield* new DomainError({
+          message: `docgen quality-worker-eval-runpod v1 requires --model ${requiredQualityWorkerRunpodEvalModel()}.`,
+        });
+      }
+
+      if (!confirmRunpodEval) {
+        return yield* new DomainError({
+          message:
+            "docgen quality-worker-eval-runpod creates a billable remote GPU pod; pass --confirm-runpod-eval to continue.",
+        });
+      }
+
+      const source = yield* resolveQualityWorkerEvalSource({ all, input, packageSelector, packetLimit });
+      const resolvedGpuTypeIds = pipe(
+        gpuTypeIds,
+        O.map(splitCommaSeparatedFlag),
+        O.filter((values) => A.length(values) > 0),
+        O.getOrUndefined
+      );
+      const runpodApiKey = yield* Config.redacted("RUNPOD_API_KEY").pipe(
+        Effect.mapError(
+          (cause) =>
+            new DomainError({
+              message:
+                "RUNPOD_API_KEY is required for docgen quality-worker-eval-runpod. Use RUNPOD_API_KEY=\"$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')\".",
+              cause,
+            })
+        )
+      );
+      const report = yield* runDocgenQualityWorkerRunpodEval({
+        allow24GbFallback,
+        confirmRunpodEval,
+        ...(resolvedGpuTypeIds === undefined ? {} : { gpuTypeIds: resolvedGpuTypeIds }),
+        keepPod,
+        model,
+        otlpBaseUrl,
+        otlpEnabled: otlp,
+        otlpProject,
+        packetLimit,
+        provider,
+        readinessTimeoutMs: Duration.toMillis(Duration.minutes(readinessTimeoutMinutes)),
+        report: source.report,
+        scope: source.scope,
+        sourceQualityReport: source.sourceQualityReport,
+        skipTemplateSearch,
+        ...(O.isSome(templateId) ? { templateId: templateId.value } : {}),
+      }).pipe(
+        // @effect-diagnostics-next-line strictEffectProvide:off
+        Effect.provide(Runpod.makeLayer(new RunpodConfigInput({ apiKey: runpodApiKey })))
+      );
+      const content = yield* generateQualityWorkerRunpodEvalJson(report);
+
+      if (O.isSome(output)) {
+        yield* fs.writeFileString(output.value, content);
+        yield* Console.log(`docgen: wrote ${output.value}`);
+        return;
+      }
+
+      yield* Console.log(content);
+    },
+    Effect.catchTag(
+      "DomainError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    ),
+    Effect.catchTag(
+      "NoSuchFileError",
+      Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`docgen: ${error.message}`);
+      })
+    )
+  )
+).pipe(Command.withDescription("Run read-only JSDoc worker evaluation on an ephemeral Runpod Ollama GPU pod"));
+
 const printDocgenIndex = Effect.fn(function* () {
   yield* Console.log('Run "bun run beep docgen --help" to see the available docgen commands and flags.');
 });
@@ -884,5 +1120,6 @@ export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
     docgenCheckCommand,
     docgenQualityCommand,
     docgenQualityWorkerEvalCommand,
+    docgenQualityWorkerRunpodEvalCommand,
   ])
 );
