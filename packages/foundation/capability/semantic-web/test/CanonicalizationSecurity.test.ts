@@ -3,21 +3,25 @@ import { Dataset, makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@bee
 import { CanonicalizationService, CanonicalizeDatasetRequest } from "@beep/semantic-web/services/canonicalization";
 import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import * as S from "effect/Schema";
 import { afterEach, vi } from "vitest";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const { canonizeMock } = vi.hoisted(() => ({
   canonizeMock: vi.fn(),
 }));
 
-vi.mock("rdf-canonize", async () => {
-  const actual = await vi.importActual<typeof import("rdf-canonize")>("rdf-canonize");
-  return {
+vi.mock("rdf-canonize", (importOriginal) =>
+  importOriginal<typeof import("rdf-canonize")>().then((actual) => ({
     ...actual,
     canonize: canonizeMock,
-  };
-});
+  }))
+);
 
 const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 
@@ -33,7 +37,7 @@ const dataset = makeDataset([
 ]);
 
 const runCanonicalization = <A>(effect: Effect.Effect<A, unknown, CanonicalizationService>) =>
-  Effect.runPromise(effect.pipe(Effect.provide(CanonicalizationServiceLive)));
+  Effect.runPromise(effect.pipe(provideScopedLayer(CanonicalizationServiceLive)));
 
 const expectSemanticBudgetFailure = (error: Error) => {
   canonizeMock.mockRejectedValueOnce(error);
@@ -61,49 +65,57 @@ afterEach(() => {
 });
 
 describe("Canonicalization security hardening", () => {
-  it("passes explicit resource controls to rdf-canonize for semantic canonicalization", async () => {
-    const actual = await vi.importActual<typeof import("rdf-canonize")>("rdf-canonize");
-    canonizeMock.mockImplementation(actual.canonize);
+  it("passes explicit resource controls to rdf-canonize for semantic canonicalization", () =>
+    Effect.gen(function* () {
+      const actual = yield* Effect.promise(() =>
+        Promise.resolve(vi.importActual<typeof import("rdf-canonize")>("rdf-canonize"))
+      );
+      canonizeMock.mockImplementation(actual.canonize);
 
-    await runCanonicalization(
-      Effect.gen(function* () {
-        const service = yield* CanonicalizationService;
-        return yield* service.canonicalize(
-          decodeUnknownSync(CanonicalizeDatasetRequest)({
-            dataset: yield* S.encodeEffect(Dataset)(dataset),
-            algorithm: "rdfc-1.0",
-          })
-        );
-      })
-    );
+      yield* Effect.promise(() =>
+        Promise.resolve(
+          runCanonicalization(
+            Effect.gen(function* () {
+              const service = yield* CanonicalizationService;
+              return yield* service.canonicalize(
+                decodeUnknownSync(CanonicalizeDatasetRequest)({
+                  dataset: yield* S.encodeEffect(Dataset)(dataset),
+                  algorithm: "rdfc-1.0",
+                })
+              );
+            })
+          )
+        )
+      );
 
-    expect(canonizeMock).toHaveBeenCalledTimes(1);
-    const call = canonizeMock.mock.calls[0];
-    expect(call).toBeDefined();
+      expect(canonizeMock).toHaveBeenCalledTimes(1);
+      const call = canonizeMock.mock.calls[0];
+      expect(call).toBeDefined();
 
-    if (call === undefined) {
-      return;
-    }
+      if (call === undefined) {
+        return;
+      }
 
-    const [, options] = call;
-    expect(options.algorithm).toBe("RDFC-1.0");
-    expect(options.format).toBe("application/n-quads");
-    expect(options.maxWorkFactor).toBe(1);
-    expect(options.signal).toBeInstanceOf(AbortSignal);
-  });
+      const [, options] = call;
+      expect(options.algorithm).toBe("RDFC-1.0");
+      expect(options.format).toBe("application/n-quads");
+      expect(options.maxWorkFactor).toBe(1);
+      expect(options.signal).toBeInstanceOf(AbortSignal);
+    }));
 
-  it("maps semantic resource-budget failures to work-limit errors", async () => {
-    await expectSemanticBudgetFailure(new Error("Maximum deep iterations exceeded (8)."));
-  });
+  it("maps semantic resource-budget failures to work-limit errors", () =>
+    Effect.promise(() =>
+      Promise.resolve(expectSemanticBudgetFailure(new Error("Maximum deep iterations exceeded (8).")))
+    ));
 
-  it("maps abort-signal budget failures to work-limit errors", async () => {
-    await expectSemanticBudgetFailure(new Error("Abort signal received"));
-  });
+  it("maps abort-signal budget failures to work-limit errors", () =>
+    Effect.promise(() => Promise.resolve(expectSemanticBudgetFailure(new Error("Abort signal received")))));
 
-  it("maps timeout-style budget failures to work-limit errors", async () => {
-    const timeoutError = new Error("signal timed out");
-    timeoutError.name = "TimeoutError";
+  it("maps timeout-style budget failures to work-limit errors", () =>
+    Effect.gen(function* () {
+      const timeoutError = new Error("signal timed out");
+      timeoutError.name = "TimeoutError";
 
-    await expectSemanticBudgetFailure(timeoutError);
-  });
+      yield* Effect.promise(() => Promise.resolve(expectSemanticBudgetFailure(timeoutError)));
+    }));
 });

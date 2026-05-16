@@ -6,9 +6,14 @@ import { TextSimilarity } from "@beep/nlp/Tools/TextSimilarity";
 import { TverskySimilarity } from "@beep/nlp/Tools/TverskySimilarity";
 import { WinkEngine, WinkEngineLive } from "@beep/nlp/Wink/WinkEngine";
 import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "@beep/nlp/Wink/WinkPattern";
-import { Cause, Effect, Exit, Schema } from "effect";
+import { Cause, Effect, Exit, Layer, Schema } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 describe("Tool validation", () => {
   it("rejects fractional keyword limits at the schema boundary", () => {
@@ -65,31 +70,34 @@ describe("Tool validation", () => {
     ).toThrow();
   });
 
-  it("rejects invalid custom-entity bracket patterns during engine learning", async () => {
-    const brokenEntities = new WinkEngineCustomEntities({
-      name: EntityGroupName.make("custom-entities"),
-      patterns: [
-        new CustomEntityExample({
-          mark: O.none(),
-          name: "BROKEN_ENTITY",
-          patterns: ["[NOT_A_TAG]"],
-        }),
-      ],
-    });
+  it("rejects invalid custom-entity bracket patterns during engine learning", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const brokenEntities = new WinkEngineCustomEntities({
+          name: EntityGroupName.make("custom-entities"),
+          patterns: [
+            new CustomEntityExample({
+              mark: O.none(),
+              name: "BROKEN_ENTITY",
+              patterns: ["[NOT_A_TAG]"],
+            }),
+          ],
+        });
 
-    const program = Effect.gen(function* () {
-      const engine = yield* WinkEngine;
-      yield* engine.learnCustomEntities(brokenEntities);
-    }).pipe(Effect.provide(WinkEngineLive));
-    const exitedProgram = Effect.exit(program);
-    const result = await Effect.runPromise(exitedProgram);
-    const rendered = Exit.match(result, {
-      onFailure: Cause.pretty,
-      onSuccess: () => "",
-    });
+        const program = Effect.gen(function* () {
+          const engine = yield* WinkEngine;
+          yield* engine.learnCustomEntities(brokenEntities);
+        }).pipe(provideScopedLayer(WinkEngineLive));
+        const exitedProgram = Effect.exit(program);
+        const result = yield* exitedProgram;
+        const rendered = Exit.match(result, {
+          onFailure: Cause.pretty,
+          onSuccess: () => "",
+        });
 
-    expect(Exit.isFailure(result)).toBe(true);
-    expect(rendered).toContain("learnCustomEntities");
-    expect(rendered).toContain('incorrect token "not_a_tag"');
-  });
+        expect(Exit.isFailure(result)).toBe(true);
+        expect(rendered).toContain("learnCustomEntities");
+        expect(rendered).toContain('incorrect token "not_a_tag"');
+      })
+    ));
 });

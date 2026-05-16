@@ -205,7 +205,7 @@ describe("LocalDate", () => {
 
   describe("fromDate", () => {
     it("creates LocalDate from JavaScript Date", () => {
-      const jsDate = new Date(Date.UTC(2024, 5, 15)); // June is month 5 in JS
+      const jsDate = DateTime.toDateUtc(DateTime.makeUnsafe("2024-06-15T00:00:00.000Z"));
       const date = fromDate(jsDate);
       expect(date.year).toBe(2024);
       expect(date.month).toBe(6);
@@ -251,7 +251,7 @@ describe("LocalDate", () => {
   describe("today", () => {
     it("returns current date", () => {
       const t = today();
-      const now = new Date();
+      const now = DateTime.toDateUtc(DateTime.makeUnsafe(Math.trunc(performance.timeOrigin + performance.now())));
       expect(t.year).toBe(now.getUTCFullYear());
       expect(t.month).toBe(now.getUTCMonth() + 1);
       expect(t.day).toBe(now.getUTCDate());
@@ -288,7 +288,7 @@ describe("LocalDate", () => {
     it.effect("handles specific date via TestClock.setTime", () =>
       Effect.gen(function* () {
         // Set clock to 2024-06-15 midnight UTC
-        const targetDate = new Date(Date.UTC(2024, 5, 15, 0, 0, 0, 0));
+        const targetDate = DateTime.toDateUtc(DateTime.makeUnsafe("2024-06-15T00:00:00.000Z"));
         yield* TestClock.setTime(targetDate.getTime());
 
         const date = yield* todayEffect;
@@ -301,7 +301,7 @@ describe("LocalDate", () => {
     it.live("returns real current date with live effect", () =>
       Effect.gen(function* () {
         const date = yield* todayEffect;
-        const now = new Date();
+        const now = DateTime.toDateUtc(yield* DateTime.now);
         // Should be today's date (UTC)
         expect(date.year).toBe(now.getUTCFullYear());
         expect(date.month).toBe(now.getUTCMonth() + 1);

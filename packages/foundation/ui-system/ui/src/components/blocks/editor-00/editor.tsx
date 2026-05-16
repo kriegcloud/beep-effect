@@ -3,6 +3,7 @@
 import { TooltipProvider } from "@beep/ui/components/ui/tooltip";
 import { type InitialConfigType, LexicalComposer } from "@lexical/react/LexicalComposer";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { Effect } from "effect";
 import type { EditorState, SerializedEditorState } from "lexical";
 
 import { editorTheme } from "../../editor/themes/editor-theme.js";
@@ -15,7 +16,7 @@ const editorConfig: InitialConfigType = {
   theme: editorTheme,
   nodes,
   onError: (error: Error) => {
-    console.error(error);
+    Effect.runSync(Effect.logError(error));
   },
 };
 

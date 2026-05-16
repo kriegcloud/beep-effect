@@ -153,10 +153,7 @@ const queryOnConnection = Effect.fn("DuckDb.queryOnConnection")(function* (
   parameters?: DuckDbQueryParameters | undefined
 ) {
   const rows = yield* Effect.tryPromise({
-    try: async () => {
-      const reader = await connection.runAndReadAll(statement, parameters);
-      return reader.getRowObjectsJson();
-    },
+    try: () => connection.runAndReadAll(statement, parameters).then((reader) => reader.getRowObjectsJson()),
     catch: connectionFailure("query", options, statement),
   });
   return yield* decodeRows(rows).pipe(
@@ -178,10 +175,7 @@ const acquireSharedConnection = (options: DuckDbConnectionOptions) => {
       Effect.tryPromise({
         try: () => {
           nativePromise ??= DuckDBInstance.create(options.databasePath, options.databaseOptions)
-            .then(async (instance) => ({
-              connection: await instance.connect(),
-              instance,
-            }))
+            .then((instance) => instance.connect().then((connection) => ({ connection, instance })))
             .catch((cause) => {
               nativePromise = undefined;
               throw cause;

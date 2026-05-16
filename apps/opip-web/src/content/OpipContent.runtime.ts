@@ -102,15 +102,19 @@ const sanityConfig = Effect.fn("OpipContent.sanityConfig")(function* () {
 });
 
 const loadFromSanity = (config: SanityConfigInput): Effect.Effect<OpipSiteContent, OpipContentLoadError> =>
-  Effect.gen(function* () {
-    const sanity = yield* Sanity;
-    const response = yield* sanity.fetch(new SanityQueryRequest({ query }));
-    return yield* decodeOpipSiteContent(response.result).pipe(
-      Effect.mapError(() => OpipContentLoadError.fromReason("decode", { provider: "sanity" }))
-    );
-  }).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(Sanity.makeLayer(config).pipe(Layer.provide(FetchHttpClient.layer))),
+  Effect.scoped(
+    Layer.build(Sanity.makeLayer(config).pipe(Layer.provide(FetchHttpClient.layer))).pipe(
+      Effect.flatMap((context) =>
+        Effect.gen(function* () {
+          const sanity = yield* Sanity;
+          const response = yield* sanity.fetch(new SanityQueryRequest({ query }));
+          return yield* decodeOpipSiteContent(response.result).pipe(
+            Effect.mapError(() => OpipContentLoadError.fromReason("decode", { provider: "sanity" }))
+          );
+        }).pipe(Effect.provide(context))
+      )
+    )
+  ).pipe(
     Effect.catchTag("SanityError", (error: SanityError) =>
       Effect.fail(
         OpipContentLoadError.fromReason("provider", {

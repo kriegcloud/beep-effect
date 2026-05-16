@@ -8,6 +8,11 @@ import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const testLayer = Layer.mergeAll(
   NodeServices.layer,
   TestConsole.layer,
@@ -35,19 +40,19 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
         process.exitCode = 0;
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
-  ).pipe(Effect.provide(testLayer));
+  ).pipe(provideScopedLayer(testLayer));
 
 const withPathPrefix = <A, E, R>(pathPrefix: string, use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
     Effect.sync(() => {
-      const previousPath = process.env.PATH;
-      process.env.PATH = `${pathPrefix}:${previousPath ?? ""}`;
+      const previousPath = Bun.env.PATH;
+      Bun.env.PATH = `${pathPrefix}:${previousPath ?? ""}`;
       return previousPath;
     }),
     () => use,
     (previousPath) =>
       Effect.sync(() => {
-        process.env.PATH = previousPath;
+        Bun.env.PATH = previousPath;
       })
   );
 
@@ -93,8 +98,8 @@ printf '%s\\n' 'frame=1' 'progress=continue' 'frame=2' 'progress=end'
 });
 
 describe.sequential("image command", () => {
-  it("extracts frames, writes the default manifest, and prints a non-TTY summary", async () => {
-    await Effect.runPromise(
+  it("extracts frames, writes the default manifest, and prints a non-TTY summary", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -128,11 +133,10 @@ describe.sequential("image command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("fails instead of overwriting existing frame outputs without --overwrite", async () => {
-    await Effect.runPromise(
+  it("fails instead of overwriting existing frame outputs without --overwrite", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -159,6 +163,5 @@ describe.sequential("image command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 });

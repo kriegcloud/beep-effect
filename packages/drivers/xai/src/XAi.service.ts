@@ -717,14 +717,30 @@ const connectSocket = Effect.fn("XAi.connectSocket")(function* (
     authorization: `Bearer ${Redacted.value(token)}`,
   };
 
-  return yield* Effect.tryPromise({
-    try: () =>
-      new Promise<WebSocket>((resolve, reject) => {
-        const socket = new WebSocket(url, { headers });
-        socket.once("open", () => resolve(socket));
-        socket.once("error", reject);
-      }),
-    catch: (cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause }),
+  return yield* Effect.callback<WebSocket, XAiError>((resume) => {
+    const socket = new WebSocket(url, { headers });
+    const cleanup = () => {
+      socket.off("open", onOpen);
+      socket.off("error", onError);
+    };
+    const onOpen = () => {
+      cleanup();
+      resume(Effect.succeed(socket));
+    };
+    const onError = (cause: Error) => {
+      cleanup();
+      resume(Effect.fail(XAiError.fromDescriptor(descriptor, "websocket", { cause })));
+    };
+
+    socket.once("open", onOpen);
+    socket.once("error", onError);
+
+    return Effect.sync(() => {
+      cleanup();
+      if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+        socket.close();
+      }
+    });
   });
 });
 
@@ -764,26 +780,30 @@ const sendSocketText = (
   socket: WebSocket,
   text: string
 ): Effect.Effect<void, XAiError> =>
-  Effect.tryPromise({
-    try: () =>
-      new Promise<void>((resolve, reject) =>
-        socket.send(text, (error) => (P.isUndefined(error) ? resolve() : reject(error)))
-      ),
-    catch: (cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause }),
-  });
+  Effect.callback<void, XAiError>((resume) =>
+    socket.send(text, (error) =>
+      resume(
+        P.isUndefined(error)
+          ? Effect.void
+          : Effect.fail(XAiError.fromDescriptor(descriptor, "websocket", { cause: error }))
+      )
+    )
+  );
 
 const sendSocketBytes = (
   descriptor: XAiEndpointDescriptor,
   socket: WebSocket,
   bytes: Uint8Array
 ): Effect.Effect<void, XAiError> =>
-  Effect.tryPromise({
-    try: () =>
-      new Promise<void>((resolve, reject) =>
-        socket.send(bytes, { binary: true }, (error) => (P.isUndefined(error) ? resolve() : reject(error)))
-      ),
-    catch: (cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause }),
-  });
+  Effect.callback<void, XAiError>((resume) =>
+    socket.send(bytes, { binary: true }, (error) =>
+      resume(
+        P.isUndefined(error)
+          ? Effect.void
+          : Effect.fail(XAiError.fromDescriptor(descriptor, "websocket", { cause: error }))
+      )
+    )
+  );
 
 const encodeSocketJson = (descriptor: XAiEndpointDescriptor, body: unknown): Effect.Effect<string, XAiError> =>
   encodeJson(body).pipe(Effect.mapError((cause) => XAiError.fromDescriptor(descriptor, "websocket", { cause })));

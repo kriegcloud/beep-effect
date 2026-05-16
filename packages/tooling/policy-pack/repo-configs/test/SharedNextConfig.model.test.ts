@@ -60,41 +60,42 @@ describe("Shared Next.js config preset", () => {
     expect(Object.getOwnPropertyNames(config.typescript ?? {})).not.toContain("pipe");
   });
 
-  it("adds secure headers without invoking app headers during construction", async () => {
-    let headersCalled = false;
-    const config = defineBeepNextConfig({
-      repoRoot: "/repo",
-      allowedDevOrigins: ["codedank-web.localhost"],
-      mdx: false,
-      pwa: false,
-      bundleAnalyzer: false,
-      next: {
-        async headers() {
-          headersCalled = true;
-          return [
-            {
-              source: "/custom",
-              headers: [{ key: "X-App", value: "1" }],
-            },
-          ];
+  it("adds secure headers without invoking app headers during construction", () =>
+    Effect.gen(function* () {
+      let headersCalled = false;
+      const config = defineBeepNextConfig({
+        repoRoot: "/repo",
+        allowedDevOrigins: ["codedank-web.localhost"],
+        mdx: false,
+        pwa: false,
+        bundleAnalyzer: false,
+        next: {
+          headers() {
+            headersCalled = true;
+            return Promise.resolve([
+              {
+                source: "/custom",
+                headers: [{ key: "X-App", value: "1" }],
+              },
+            ]);
+          },
         },
-      },
-    });
+      });
 
-    expect(headersCalled).toBe(false);
-    const headers = await config.headers?.();
+      expect(headersCalled).toBe(false);
+      const headers = yield* Effect.promise(() => Promise.resolve(config.headers?.()));
 
-    expect(headersCalled).toBe(true);
-    expect(headers?.[0]?.source).toBe("/(.*)");
-    expect(headers?.[0]?.headers).toContainEqual({
-      key: "X-Content-Type-Options",
-      value: "nosniff",
-    });
-    expect(headers?.[1]).toEqual({
-      source: "/custom",
-      headers: [{ key: "X-App", value: "1" }],
-    });
-  });
+      expect(headersCalled).toBe(true);
+      expect(headers?.[0]?.source).toBe("/(.*)");
+      expect(headers?.[0]?.headers).toContainEqual({
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      });
+      expect(headers?.[1]).toEqual({
+        source: "/custom",
+        headers: [{ key: "X-App", value: "1" }],
+      });
+    }));
 
   it("can disable every shared feature wrapper explicitly", () => {
     const config = defineBeepNextConfig({

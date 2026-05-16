@@ -1,6 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
 import {
   AgentCommandOptions,
   AgentError,
@@ -49,8 +47,37 @@ import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, it } from "@effect/vitest";
-import { DateTime, Duration, Effect, Exit, Fiber, Layer, Ref } from "effect";
+import { DateTime, Duration, Effect, Exit, Fiber, Layer, Random, Ref } from "effect";
 import { TestClock } from "effect/testing";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
+const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
+  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+    .filter((segment) => segment.length > 0)
+    .join("/");
+const runFileCommand = (command: string, args: ReadonlyArray<string>): Effect.Effect<void> =>
+  Effect.sync(() => Bun.spawnSync([command, ...args], { stderr: "ignore", stdout: "ignore" })).pipe(
+    Effect.flatMap((result) =>
+      result.exitCode === 0
+        ? Effect.void
+        : Effect.die(new Error(`${command} ${args.join(" ")} failed with exit code ${result.exitCode}`))
+    )
+  );
+const makeDirectory = (path: string): Effect.Effect<void> => runFileCommand("mkdir", ["-p", path]);
+const makeTempDirectory: (prefix: string) => Effect.Effect<string> = Effect.fn("SandboxTest.makeTempDirectory")(
+  function* (prefix: string) {
+    const suffix = yield* Random.nextUUIDv4;
+    const dir = joinPath(tmpdir(), `${prefix}${suffix}`);
+    yield* makeDirectory(dir);
+    return dir;
+  }
+);
+const readText = (path: string): Effect.Effect<string> => Effect.promise(() => Bun.file(path).text());
+const removePath = (path: string): Effect.Effect<void> => runFileCommand("rm", ["-rf", path]);
 
 describe("@beep/sandbox", () => {
   it("builds run helper outputs with Pascal severity values", () => {
@@ -87,11 +114,11 @@ describe("@beep/sandbox", () => {
   it.effect(
     "runs a created worktree without creating a second worktree and closes it explicitly",
     Effect.fnUntraced(function* () {
-      const repoDir = yield* Effect.promise(() => mkdtemp(join(tmpdir(), "beep-sandbox-worktree-")));
+      const repoDir = yield* makeTempDirectory("beep-sandbox-worktree-");
       const gitCommands: Array<ReadonlyArray<string>> = [];
       const displayRef = yield* Ref.make<ReadonlyArray<DisplayEntry>>([]);
       const createdSandboxPaths: Array<string> = [];
-      const worktreePath = join(repoDir, ".sandcastle", "worktrees", "feature-reuse");
+      const worktreePath = joinPath(repoDir, ".sandcastle", "worktrees", "feature-reuse");
       const ProcessLayer = Layer.succeed(
         SandboxProcess,
         SandboxProcess.of({
@@ -100,7 +127,7 @@ describe("@beep/sandbox", () => {
               A.appendInPlace(gitCommands, command.args);
 
               if (A.contains(command.args, "add")) {
-                yield* Effect.promise(() => mkdir(worktreePath, { recursive: true }));
+                yield* makeDirectory(worktreePath);
               }
 
               if (A.contains(command.args, "rev-parse")) {
@@ -146,7 +173,7 @@ describe("@beep/sandbox", () => {
       );
 
       const worktree = yield* createWorktree(new CreateWorktreeOptions({ branch: "feature/reuse", repoDir })).pipe(
-        Effect.provide(TestLayer)
+        provideScopedLayer(TestLayer)
       );
       const result = yield* worktree
         .run({
@@ -155,11 +182,11 @@ describe("@beep/sandbox", () => {
           prompt: "hello",
           sandbox,
         })
-        .pipe(Effect.provide(TestLayer));
+        .pipe(provideScopedLayer(TestLayer));
 
-      yield* worktree.close().pipe(Effect.provide(TestLayer));
-      yield* worktree.close().pipe(Effect.provide(TestLayer));
-      yield* Effect.promise(() => rm(repoDir, { force: true, recursive: true }));
+      yield* worktree.close().pipe(provideScopedLayer(TestLayer));
+      yield* worktree.close().pipe(provideScopedLayer(TestLayer));
+      yield* removePath(repoDir);
 
       expect(result.branch).toBe("feature/reuse");
       expect(createdSandboxPaths).toEqual([worktreePath]);
@@ -178,7 +205,7 @@ describe("@beep/sandbox", () => {
         yield* display.toolCall("Bash", "echo ok");
       });
 
-      yield* program.pipe(Effect.provide(SilentDisplay.layer(ref)));
+      yield* program.pipe(provideScopedLayer(SilentDisplay.layer(ref)));
       const entries = yield* Ref.get(ref);
 
       expect(entries).toEqual([
@@ -207,7 +234,7 @@ describe("@beep/sandbox", () => {
         yield* display.toolCall("Bash", "export OPENAI_API_KEY=sk-test-secret");
       });
 
-      yield* program.pipe(Effect.provide(SilentDisplay.layer(ref)));
+      yield* program.pipe(provideScopedLayer(SilentDisplay.layer(ref)));
       const entries = yield* Ref.get(ref);
 
       expect(entries).toEqual([
@@ -235,8 +262,8 @@ describe("@beep/sandbox", () => {
   it.effect(
     "redacts file display output",
     Effect.fnUntraced(function* () {
-      const tempDir = yield* Effect.promise(() => mkdtemp(join(tmpdir(), "beep-sandbox-display-")));
-      const logPath = join(tempDir, "run.log");
+      const tempDir = yield* makeTempDirectory("beep-sandbox-display-");
+      const logPath = joinPath(tempDir, "run.log");
       const DisplayLayer = FileDisplay.layer(logPath).pipe(
         Layer.provide(NodeFileSystem.layer),
         Layer.provide(NodePath.layer)
@@ -254,10 +281,10 @@ describe("@beep/sandbox", () => {
         yield* display.text("Authorization: Bearer secret-token-value");
       });
 
-      yield* program.pipe(Effect.provide(DisplayLayer));
-      const rendered = yield* Effect.promise(() => readFile(logPath, "utf8"));
+      yield* program.pipe(provideScopedLayer(DisplayLayer));
+      const rendered = yield* readText(logPath);
 
-      yield* Effect.promise(() => rm(tempDir, { force: true, recursive: true }));
+      yield* removePath(tempDir);
 
       expect(rendered).toContain("OPENAI_API_KEY=[REDACTED]");
       expect(rendered).toContain("Authorization: [REDACTED]");
@@ -305,7 +332,7 @@ describe("@beep/sandbox", () => {
       });
 
       yield* program.pipe(
-        Effect.provide(
+        provideScopedLayer(
           callbackAgentStreamEmitterLayer((event) => {
             A.appendInPlace(seen, event);
           })
@@ -338,7 +365,7 @@ describe("@beep/sandbox", () => {
           timestamp,
         });
       }).pipe(
-        Effect.provide(
+        provideScopedLayer(
           callbackAgentStreamEmitterLayer(() => {
             throw new Error("callback failed");
           })
@@ -460,7 +487,7 @@ describe("@beep/sandbox", () => {
   it.effect(
     "runs interactive sessions through sandbox interactiveExec",
     Effect.fnUntraced(function* () {
-      const tempDir = yield* Effect.promise(() => mkdtemp(join(tmpdir(), "beep-sandbox-interactive-")));
+      const tempDir = yield* makeTempDirectory("beep-sandbox-interactive-");
       const displayRef = yield* Ref.make<ReadonlyArray<DisplayEntry>>([]);
       let capturedArgs: ReadonlyArray<string> = [];
       let capturedCwd = "";
@@ -513,9 +540,11 @@ describe("@beep/sandbox", () => {
         cwd: tempDir,
         prompt: "hello interactive",
         sandbox,
-      }).pipe(Effect.provide(Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, SilentDisplay.layer(displayRef))));
+      }).pipe(
+        provideScopedLayer(Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, SilentDisplay.layer(displayRef)))
+      );
 
-      yield* Effect.promise(() => rm(tempDir, { force: true, recursive: true }));
+      yield* removePath(tempDir);
 
       expect(result.exitCode).toBe(7);
       expect(capturedArgs).toEqual(["agent", "hello interactive", "skip-permissions"]);
@@ -535,7 +564,7 @@ describe("@beep/sandbox", () => {
         Layer.provide(NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer)))
       );
       const result = yield* Effect.gen(function* () {
-        const tempDir = yield* Effect.promise(() => mkdtemp(join(tmpdir(), "beep-sandbox-stream-")));
+        const tempDir = yield* makeTempDirectory("beep-sandbox-stream-");
         const lines: Array<string> = [];
         const sandbox = yield* noSandbox().create({ env: {}, worktreePath: tempDir });
         const execResult = yield* sandbox.exec(
@@ -547,10 +576,10 @@ describe("@beep/sandbox", () => {
           })
         );
 
-        yield* Effect.promise(() => rm(tempDir, { force: true, recursive: true }));
+        yield* removePath(tempDir);
 
         return { lines, result: execResult };
-      }).pipe(Effect.provide(ProcessLayer));
+      }).pipe(provideScopedLayer(ProcessLayer));
 
       expect(result.result.stdout).toBe("one\ntwo\npartial");
       expect(result.lines).toEqual(["one", "two", "partial"]);
@@ -564,7 +593,7 @@ describe("@beep/sandbox", () => {
         Layer.provide(NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer)))
       );
       const result = yield* Effect.gen(function* () {
-        const tempDir = yield* Effect.promise(() => mkdtemp(join(tmpdir(), "beep-sandbox-stream-")));
+        const tempDir = yield* makeTempDirectory("beep-sandbox-stream-");
         const lines: Array<string> = [];
         const sandbox = yield* noSandbox().create({ env: {}, worktreePath: tempDir });
         const execResult = yield* sandbox.exec(
@@ -576,10 +605,10 @@ describe("@beep/sandbox", () => {
           })
         );
 
-        yield* Effect.promise(() => rm(tempDir, { force: true, recursive: true }));
+        yield* removePath(tempDir);
 
         return { lines, result: execResult };
-      }).pipe(Effect.provide(ProcessLayer));
+      }).pipe(provideScopedLayer(ProcessLayer));
 
       expect(result.result.stdout).toBe("section1\n\nsection2\n");
       expect(result.lines).toEqual(["section1", "", "section2"]);
@@ -614,7 +643,7 @@ describe("@beep/sandbox", () => {
         sandboxRepoDir: "/tmp/silent-worktree",
       }).pipe(
         Effect.flip,
-        Effect.provide(
+        provideScopedLayer(
           Layer.mergeAll(
             SilentDisplay.layer(displayRef),
             callbackAgentStreamEmitterLayer(() => {})

@@ -4,6 +4,11 @@ import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const testLayer = Layer.mergeAll(NodeServices.layer);
 
 const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
@@ -39,8 +44,8 @@ const writeTsconfig = writeProjectFile(
 );
 
 describe("native runtime laws", () => {
-  it("keeps non-hotspot findings as warnings in strict check mode", async () => {
-    await Effect.runPromise(
+  it("keeps non-hotspot findings as warnings in strict check mode", () =>
+    Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
           yield* writeTsconfig;
@@ -61,12 +66,11 @@ describe("native runtime laws", () => {
           expect(summary.affectedFiles).toEqual(["packages/demo/src/index.ts"]);
           expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.severity)).toEqual(["warn"]);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("fails strict check for hotspot-native runtime violations", async () => {
-    await Effect.runPromise(
+  it("fails strict check for hotspot-native runtime violations", () =>
+    Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
           yield* writeTsconfig;
@@ -88,12 +92,11 @@ describe("native runtime laws", () => {
           expect(summary.affectedFiles).toEqual(["packages/tooling/tool/cli/src/commands/Lint/index.ts"]);
           expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.severity)).toEqual(["error"]);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("fails strict check for switch statements outside hotspot files", async () => {
-    await Effect.runPromise(
+  it("fails strict check for switch statements outside hotspot files", () =>
+    Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
           yield* writeTsconfig;
@@ -128,12 +131,11 @@ describe("native runtime laws", () => {
           expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.messageId)).toEqual(["nativeSwitch"]);
           expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.severity)).toEqual(["error"]);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("suppresses allowlisted map-set constructors by snapshot path and kind", async () => {
-    await Effect.runPromise(
+  it("suppresses allowlisted map-set constructors by snapshot path and kind", () =>
+    Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
           yield* writeTsconfig;
@@ -155,7 +157,6 @@ describe("native runtime laws", () => {
           expect(summary.touchedFiles).toBe(0);
           expect(summary.affectedFiles).toEqual([]);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 });

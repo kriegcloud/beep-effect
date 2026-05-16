@@ -78,9 +78,7 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
    * @returns * @since 0.0.0
    * @category utilities
    */
-  override readonly toString = (): string => {
-    return this.toISOString();
-  };
+  override readonly toString = (): string => this.toISOString();
 
   /**
    * Value equality for LocalDate instances.
@@ -114,9 +112,7 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
    * @returns * @since 0.0.0
    * @category utilities
    */
-  readonly toDate = (): Date => {
-    return DateTime.toDateUtc(this.toDateTime());
-  };
+  readonly toDate = (): Date => DateTime.toDateUtc(this.toDateTime());
 }
 
 /**
@@ -397,13 +393,12 @@ export const diffInDays: {
  * @since 0.0.0
  * @category utilities
  */
-export const startOfMonth = (date: LocalDate): LocalDate => {
-  return LocalDate.make({
+export const startOfMonth = (date: LocalDate): LocalDate =>
+  LocalDate.make({
     year: date.year,
     month: date.month,
     day: 1,
   });
-};
 
 /**
  * Return the last day of the month for the given `LocalDate`.
@@ -411,13 +406,12 @@ export const startOfMonth = (date: LocalDate): LocalDate => {
  * @since 0.0.0
  * @category utilities
  */
-export const endOfMonth = (date: LocalDate): LocalDate => {
-  return LocalDate.make({
+export const endOfMonth = (date: LocalDate): LocalDate =>
+  LocalDate.make({
     year: date.year,
     month: date.month,
     day: getDaysInMonth(date.year, date.month),
   });
-};
 
 /**
  * Return January 1st for the year of the given `LocalDate`.
@@ -425,13 +419,12 @@ export const endOfMonth = (date: LocalDate): LocalDate => {
  * @since 0.0.0
  * @category utilities
  */
-export const startOfYear = (date: LocalDate): LocalDate => {
-  return LocalDate.make({
+export const startOfYear = (date: LocalDate): LocalDate =>
+  LocalDate.make({
     year: date.year,
     month: 1,
     day: 1,
   });
-};
 
 /**
  * Return December 31st for the year of the given `LocalDate`.
@@ -439,13 +432,12 @@ export const startOfYear = (date: LocalDate): LocalDate => {
  * @since 0.0.0
  * @category utilities
  */
-export const endOfYear = (date: LocalDate): LocalDate => {
-  return LocalDate.make({
+export const endOfYear = (date: LocalDate): LocalDate =>
+  LocalDate.make({
     year: date.year,
     month: 12,
     day: 31,
   });
-};
 
 /**
  * Check whether a year is a leap year.
@@ -453,9 +445,7 @@ export const endOfYear = (date: LocalDate): LocalDate => {
  * @since 0.0.0
  * @category predicates
  */
-export const isLeapYear = (year: number): boolean => {
-  return isLeapYearInternal(year);
-};
+export const isLeapYear = (year: number): boolean => isLeapYearInternal(year);
 
 /**
  * Get the number of days in a given month, accounting for leap years.

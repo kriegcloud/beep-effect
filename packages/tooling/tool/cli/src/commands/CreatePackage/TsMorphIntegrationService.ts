@@ -143,9 +143,7 @@ class TsMorphMutationOutcomeApplied extends S.Class<TsMorphMutationOutcomeApplie
     description: "Applied mutation outcome.",
   })
 ) {
-  static readonly thunkThis = () => {
-    return this;
-  };
+  static readonly thunkThis = () => this;
 }
 
 class TsMorphMutationOutcomeSkipped extends S.Class<TsMorphMutationOutcomeSkipped>($I`TsMorphMutationOutcomeSkipped`)(

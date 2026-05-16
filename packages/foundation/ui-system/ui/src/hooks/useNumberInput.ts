@@ -1,7 +1,7 @@
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { flow, Match, pipe, Tuple } from "effect";
+import { Effect, flow, Match, pipe, Tuple } from "effect";
 import { constVoid, dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -612,7 +612,8 @@ export const useNumberInput = (options: UseNumberInputOptions = {}) => {
 
   useEffect(() => {
     if (getNodeEnv() !== "production" && focusInputOnChange && inputRef.current === null) {
-      console.warn(`Cannot find inputRef, make sure to pass it to <input /> like this 👇
+      Effect.runSync(
+        Effect.logWarning(`Cannot find inputRef, make sure to pass it to <input /> like this 👇
 
 function NumberInput() {
   const { inputRef } = useNumberInput(options)
@@ -621,7 +622,8 @@ function NumberInput() {
     <input ref={inputRef} />
   )
 }
-        `);
+        `)
+      );
     }
   }, [focusInputOnChange, inputRef]);
 

@@ -6,6 +6,14 @@
  */
 
 /**
+ * Effect layer test helper exports.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export * from "./Layer.js";
+
+/**
  * SQL test utility exports.
  *
  * @category testing

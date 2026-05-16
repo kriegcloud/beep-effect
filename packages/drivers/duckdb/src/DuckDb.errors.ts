@@ -106,14 +106,16 @@ export class DuckDbError extends TaggedErrorClass<DuckDbError>($I`DuckDbError`)(
   } = dual(
     (args) => args.length >= 2 && P.isString(args[0]),
     (operation: string, cause: unknown, options: DuckDbErrorFromUnknownOptions = {}): DuckDbError =>
-      O.getOrElse(existingDuckDbError(cause), () => {
-        return new DuckDbError({
-          ...R.getSomes({ cause: O.fromUndefinedOr(causeFromUnknown(cause)) }),
-          ...R.getSomes({ databasePath: O.fromUndefinedOr(options.databasePath) }),
-          message: options.message ?? "DuckDB operation failed.",
-          operation,
-          ...R.getSomes({ statement: O.fromUndefinedOr(options.statement) }),
-        });
-      })
+      O.getOrElse(
+        existingDuckDbError(cause),
+        () =>
+          new DuckDbError({
+            ...R.getSomes({ cause: O.fromUndefinedOr(causeFromUnknown(cause)) }),
+            ...R.getSomes({ databasePath: O.fromUndefinedOr(options.databasePath) }),
+            message: options.message ?? "DuckDB operation failed.",
+            operation,
+            ...R.getSomes({ statement: O.fromUndefinedOr(options.statement) }),
+          })
+      )
   );
 }

@@ -11,7 +11,7 @@
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { Runpod, RunpodConfigInput } from "@beep/runpod";
 import { A, Str } from "@beep/utils";
-import { Config, Console, Effect, FileSystem, Match, Path, pipe } from "effect";
+import { Config, Console, Effect, FileSystem, Layer, Match, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -1067,9 +1067,12 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
         sourceQualityReport: source.sourceQualityReport,
         skipTemplateSearch,
         ...(O.isSome(templateId) ? { templateId: templateId.value } : {}),
-      }).pipe(
-        // @effect-diagnostics-next-line strictEffectProvide:off
-        Effect.provide(Runpod.makeLayer(new RunpodConfigInput({ apiKey: runpodApiKey })))
+      }).pipe((effect) =>
+        Effect.scoped(
+          Layer.build(Runpod.makeLayer(new RunpodConfigInput({ apiKey: runpodApiKey }))).pipe(
+            Effect.flatMap((context) => effect.pipe(Effect.provide(context)))
+          )
+        )
       );
       const content = yield* generateQualityWorkerRunpodEvalJson(report);
 

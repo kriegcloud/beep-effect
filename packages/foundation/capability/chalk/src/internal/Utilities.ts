@@ -82,14 +82,14 @@ type StringReplaceAllOptions = typeof StringReplaceAllOptionsModel.Encoded;
 export const stringReplaceAll: {
   (text: string, substring: string, options: StringReplaceAllOptions): string;
   (substring: string, options: StringReplaceAllOptions): (text: string) => string;
-} = dual(3, (text: string, substring: string, options: StringReplaceAllOptions): string => {
-  return pipe(
+} = dual(3, (text: string, substring: string, options: StringReplaceAllOptions): string =>
+  pipe(
     text,
     O.liftPredicate(Str.includes(substring)),
     O.map(() => replaceAllLoop(text, substring, options.replacer)),
     O.getOrElse(() => text)
-  );
-});
+  )
+);
 
 /**
  * Encase each line break with close and reopen ANSI sequences.

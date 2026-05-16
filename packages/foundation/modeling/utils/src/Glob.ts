@@ -382,28 +382,28 @@ const scanDirectoryWithNodeFs = (
     })
   );
 
-const scanWithNodeGlob = async (
+const scanWithNodeGlob = (
   pattern: Pattern,
   options: undefined | GlobOptions,
   cwdUrl: URL,
   toAbsolute: (relativePath: string) => string
-): Promise<Array<string>> => {
-  const fs = await import("node:fs");
-  const includeMatchers = compileIncludedPatterns(toPatterns(pattern));
-  const ignoreMatchers = compileIgnoredPatterns(toIgnorePatterns(options?.ignore));
-  const cwdPath = fileURLToPath(cwdUrl);
+): Promise<Array<string>> =>
+  import("node:fs").then((fs) => {
+    const includeMatchers = compileIncludedPatterns(toPatterns(pattern));
+    const ignoreMatchers = compileIgnoredPatterns(toIgnorePatterns(options?.ignore));
+    const cwdPath = fileURLToPath(cwdUrl);
 
-  const relativePaths = pipe(
-    scanDirectoryWithNodeFs(fs, cwdUrl, cwdPath, "", includeMatchers, ignoreMatchers, options),
-    A.map((entry) => entry.relativePath),
-    A.dedupe,
-    A.sort(Order.String)
-  );
+    const relativePaths = pipe(
+      scanDirectoryWithNodeFs(fs, cwdUrl, cwdPath, "", includeMatchers, ignoreMatchers, options),
+      A.map((entry) => entry.relativePath),
+      A.dedupe,
+      A.sort(Order.String)
+    );
 
-  return options?.absolute === true
-    ? pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths])
-    : [...relativePaths];
-};
+    return options?.absolute === true
+      ? pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths])
+      : [...relativePaths];
+  });
 
 const makeGlob = (pattern: Pattern, options?: undefined | GlobOptions) => {
   const cwdUrl = toDirectoryUrl(options?.cwd ?? ".");

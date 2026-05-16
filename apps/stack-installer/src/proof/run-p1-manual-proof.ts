@@ -13,7 +13,7 @@ import { Discord } from "@beep/discord";
 import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-workspace-use-cases";
 import { OnePasswordCli } from "@beep/onepassword-cli";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
-import { Effect, Layer, pipe } from "effect";
+import { Console, Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -28,6 +28,10 @@ const DriverLayer = Layer.mergeAll(OnePasswordCli.makeLayer(), AiProviderCli.mak
   Layer.provideMerge(BaseLayer)
 );
 const RuntimeLayer = P1ManualProofSliceLayer.pipe(Layer.provideMerge(DriverLayer));
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const argAfter = (name: string): O.Option<string> =>
   pipe(
@@ -51,10 +55,7 @@ const program = Effect.gen(function* () {
   const request = yield* decodeRequestJson(requestJson);
   const result = hasArg("--app-local") ? yield* previewP1ManualProof(request) : yield* runP1ManualProof(request);
   const encoded = yield* encodeProofResult(result);
-  yield* Effect.sync(() => {
-    console.log(encoded);
-  });
-  // @effect-diagnostics-next-line strictEffectProvide:off
-}).pipe(Effect.provide(RuntimeLayer));
+  yield* Console.log(encoded);
+}).pipe(provideScopedLayer(RuntimeLayer));
 
 BunRuntime.runMain(program);

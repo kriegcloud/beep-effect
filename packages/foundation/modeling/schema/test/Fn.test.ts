@@ -48,43 +48,46 @@ describe("Fn schema", () => {
 });
 
 describe("Fn thunks", () => {
-  it("validates transformed failures against the schema type side", async () => {
-    const schema = Fn({
-      output: S.String,
-      error: S.NumberFromString,
-    });
-    const impl = schema.implementEffect(() => Effect.fail(2));
-    const result = await runResult(impl());
+  it("validates transformed failures against the schema type side", () =>
+    Effect.gen(function* () {
+      const schema = Fn({
+        output: S.String,
+        error: S.NumberFromString,
+      });
+      const impl = schema.implementEffect(() => Effect.fail(2));
+      const result = yield* Effect.promise(() => Promise.resolve(runResult(impl())));
 
-    expect(result).toEqual({
-      _tag: "Failure",
-      error: 2,
-    });
-    expect(schema.errorSchema).toBe(S.NumberFromString);
-  });
+      expect(result).toEqual({
+        _tag: "Failure",
+        error: 2,
+      });
+      expect(schema.errorSchema).toBe(S.NumberFromString);
+    }));
 
-  it("validates transformed outputs against the schema type side", async () => {
-    const schema = Fn({ output: S.NumberFromString });
-    const impl = schema.implement(() => 2);
+  it("validates transformed outputs against the schema type side", () =>
+    Effect.gen(function* () {
+      const schema = Fn({ output: S.NumberFromString });
+      const impl = schema.implement(() => 2);
 
-    await expect(Effect.runPromise(impl())).resolves.toBe(2);
-    expect(schema.inputSchema).toBe(S.Never);
-    expect(schema.outputSchema).toBe(S.NumberFromString);
-  });
+      expect(yield* impl()).toBe(2);
+      expect(schema.inputSchema).toBe(S.Never);
+      expect(schema.outputSchema).toBe(S.NumberFromString);
+    }));
 
-  it("preserves handler failures for implementEffect", async () => {
-    const schema = Fn({
-      output: S.String,
-      error: S.String,
-    });
-    const impl = schema.implementEffect(() => Effect.fail("boom" as const));
-    const result = await runResult(impl());
+  it("preserves handler failures for implementEffect", () =>
+    Effect.gen(function* () {
+      const schema = Fn({
+        output: S.String,
+        error: S.String,
+      });
+      const impl = schema.implementEffect(() => Effect.fail("boom" as const));
+      const result = yield* Effect.promise(() => Promise.resolve(runResult(impl())));
 
-    expect(result).toEqual({
-      _tag: "Failure",
-      error: "boom",
-    });
-  });
+      expect(result).toEqual({
+        _tag: "Failure",
+        error: "boom",
+      });
+    }));
 
   it("provides a synchronous helper for service-free schemas", () => {
     const schema = Fn({ output: S.String });
@@ -93,72 +96,77 @@ describe("Fn thunks", () => {
     expect(impl()).toBe("hello");
   });
 
-  it("preserves defects without validating them against errorSchema", async () => {
-    const schema = Fn({
-      output: S.String,
-      error: S.String,
-    });
-    const impl = schema.implementEffect(() => Effect.die("boom"));
-    const cause = await runCause(impl());
+  it("preserves defects without validating them against errorSchema", () =>
+    Effect.gen(function* () {
+      const schema = Fn({
+        output: S.String,
+        error: S.String,
+      });
+      const impl = schema.implementEffect(() => Effect.die("boom"));
+      const cause = yield* Effect.promise(() => Promise.resolve(runCause(impl())));
 
-    expect(Cause.hasDies(cause)).toBe(true);
-    expect(Cause.hasFails(cause)).toBe(false);
-  });
+      expect(Cause.hasDies(cause)).toBe(true);
+      expect(Cause.hasFails(cause)).toBe(false);
+    }));
 });
 
 describe("Fn unary functions", () => {
-  it("decodes transformed inputs before running the handler", async () => {
-    const schema = Fn({
-      input: S.NumberFromString,
-      output: S.String,
-    });
-    const impl = schema.implement((count) => `${count + 1}`);
+  it("decodes transformed inputs before running the handler", () =>
+    Effect.gen(function* () {
+      const schema = Fn({
+        input: S.NumberFromString,
+        output: S.String,
+      });
+      const impl = schema.implement((count) => `${count + 1}`);
 
-    await expect(Effect.runPromise(impl("1"))).resolves.toBe("2");
-  });
+      expect(yield* impl("1")).toBe("2");
+    }));
 
-  it("validates input before calling the handler", async () => {
-    const schema = Fn({
-      input: S.Number,
-      output: S.String,
-    });
+  it("validates input before calling the handler", () =>
+    Effect.gen(function* () {
+      const schema = Fn({
+        input: S.Number,
+        output: S.String,
+      });
 
-    let called = false;
-    const impl = schema.implementEffect((count) => {
-      called = true;
-      return Effect.succeed(`${count}`);
-    });
-    const result = await runResult(impl("nope"));
+      let called = false;
+      const impl = schema.implementEffect((count) => {
+        called = true;
+        return Effect.succeed(`${count}`);
+      });
+      const result = yield* Effect.promise(() => Promise.resolve(runResult(impl("nope"))));
 
-    expect(called).toBe(false);
-    expect(result._tag).toBe("Failure");
-  });
+      expect(called).toBe(false);
+      expect(result._tag).toBe("Failure");
+    }));
 
-  it("validates output values from implement", async () => {
-    const schema = Fn({
-      input: S.Number,
-      output: S.NonEmptyString,
-    });
-    const impl = schema.implement(() => "");
-    const result = await runResult(impl(1));
+  it("validates output values from implement", () =>
+    Effect.gen(function* () {
+      const schema = Fn({
+        input: S.Number,
+        output: S.NonEmptyString,
+      });
+      const impl = schema.implement(() => "");
+      const result = yield* Effect.promise(() => Promise.resolve(runResult(impl(1))));
 
-    expect(result._tag).toBe("Failure");
-  });
+      expect(result._tag).toBe("Failure");
+    }));
 
-  it("validates failure values from implementEffect", async () => {
-    const schema = Fn({
-      input: S.Number,
-      output: S.String,
-      error: S.NonEmptyString,
-    });
-    const impl = schema.implementEffect(() => Effect.fail(""));
-    const result = await runResult(impl(1));
+  it("validates failure values from implementEffect", () =>
+    Effect.gen(function* () {
+      const schema = Fn({
+        input: S.Number,
+        output: S.String,
+        error: S.NonEmptyString,
+      });
+      const impl = schema.implementEffect(() => Effect.fail(""));
+      const result = yield* Effect.promise(() => Promise.resolve(runResult(impl(1))));
 
-    expect(result._tag).toBe("Failure");
-    if (result._tag === "Failure") {
-      expect(SchemaIssue.isIssue(result.error)).toBe(true);
-    }
-  });
+      expect(result._tag).toBe("Failure");
+      if (result._tag === "Failure") {
+        expect(SchemaIssue.isIssue(result.error)).toBe(true);
+      }
+    }));
 
   it("supports implementSync for transformed input schemas", () => {
     const schema = Fn({
@@ -180,27 +188,28 @@ describe("Fn unary functions", () => {
     expect(impl("beep")).toBeUndefined();
   });
 
-  it("handles structured payloads", async () => {
-    const schema = Fn({
-      input: S.Struct({
-        name: S.String,
-        age: S.NumberFromString,
-      }),
-      output: S.Struct({
-        id: S.String,
-        label: S.NonEmptyString,
-      }),
-    });
-    const impl = schema.implement(({ name, age }) => ({
-      id: `${Str.toLowerCase(name)}-${age}`,
-      label: `${name} (${age})`,
-    }));
+  it("handles structured payloads", () =>
+    Effect.gen(function* () {
+      const schema = Fn({
+        input: S.Struct({
+          name: S.String,
+          age: S.NumberFromString,
+        }),
+        output: S.Struct({
+          id: S.String,
+          label: S.NonEmptyString,
+        }),
+      });
+      const impl = schema.implement(({ name, age }) => ({
+        id: `${Str.toLowerCase(name)}-${age}`,
+        label: `${name} (${age})`,
+      }));
 
-    await expect(Effect.runPromise(impl({ name: "Ada", age: "10" }))).resolves.toEqual({
-      id: "ada-10",
-      label: "Ada (10)",
-    });
-  });
+      expect(yield* impl({ name: "Ada", age: "10" })).toEqual({
+        id: "ada-10",
+        label: "Ada (10)",
+      });
+    }));
 });
 
 describe("Fn convenience exports", () => {
