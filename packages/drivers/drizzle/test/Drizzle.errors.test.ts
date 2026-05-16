@@ -1,8 +1,8 @@
 import { Drizzle, type DrizzleClient, DrizzleError, DrizzleErrorContext, DrizzleRows } from "@beep/drizzle";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as assert from "@effect/vitest/utils";
 import { Effect, pipe } from "effect";
-import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

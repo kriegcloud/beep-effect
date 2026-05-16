@@ -7,12 +7,11 @@
 
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, NonNegativeInt, SchemaUtils } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Result } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $NlpId.create("Core/Pattern");
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);

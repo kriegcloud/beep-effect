@@ -1,6 +1,7 @@
 import { Float16Arr, Float16ArrayFromArray } from "@beep/schema/Float16Array";
 import { Float32Arr, Float32ArrayFromArray } from "@beep/schema/Float32Array";
 import { Float64Arr, Float64ArrayFromArray } from "@beep/schema/Float64Array";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -16,7 +17,7 @@ describe("Float16Array schemas", () => {
     const encoded = S.encodeSync(Float16ArrayFromArray)(value);
 
     expect(value).toBeInstanceOf(Float16Array);
-    expect(Array.from(value)).toEqual([1, 2, 3]);
+    expect(A.fromIterable(value)).toEqual([1, 2, 3]);
     expect(encoded).toEqual([1, 2, 3]);
   });
 });
@@ -33,7 +34,7 @@ describe("Float32Array schemas", () => {
     const encoded = S.encodeSync(Float32ArrayFromArray)(value);
 
     expect(value).toBeInstanceOf(Float32Array);
-    expect(Array.from(value)).toEqual([1, 2, 3]);
+    expect(A.fromIterable(value)).toEqual([1, 2, 3]);
     expect(encoded).toEqual([1, 2, 3]);
   });
 });
@@ -50,7 +51,7 @@ describe("Float64Array schemas", () => {
     const encoded = S.encodeSync(Float64ArrayFromArray)(value);
 
     expect(value).toBeInstanceOf(Float64Array);
-    expect(Array.from(value)).toEqual([1, 2, 3]);
+    expect(A.fromIterable(value)).toEqual([1, 2, 3]);
     expect(encoded).toEqual([1, 2, 3]);
   });
 });

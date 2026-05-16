@@ -7,6 +7,7 @@
 
 import { $SchemaId } from "@beep/identity";
 import { LocalDate } from "@beep/schema/LocalDate";
+import { Str } from "@beep/utils";
 import {
   type Brand,
   DateTime,
@@ -21,7 +22,6 @@ import {
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { PosInt } from "./Int.ts";
 import { NonEmptyTrimmedStr } from "./String.ts";
 

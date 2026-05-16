@@ -9,13 +9,11 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
-import { Str as CommonStr, thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import type * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("commands/Architecture/OperationPlan");
 
@@ -1356,7 +1354,7 @@ const normalizeInput = (input: Partial<typeof ArchitecturePlanTarget.Type> = {})
     boundedContext,
     concept,
     domainKind,
-    conceptPath: `${domainKind}/${CommonStr.pascalCase(concept)}`,
+    conceptPath: `${domainKind}/${Str.pascalCase(concept)}`,
     stage: input.stage ?? defaultPlanTarget.stage,
   });
 };
@@ -1442,7 +1440,7 @@ const packageShellRolePlanFor = (
   });
 
 const packageShellDescriptionForRole = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string => {
-  const contextLabel = Str.replaceAll("-", " ")(CommonStr.kebabCase(target.boundedContext));
+  const contextLabel = Str.replaceAll("-", " ")(Str.kebabCase(target.boundedContext));
   if (role === "domain") return `${contextLabel} domain package.`;
   if (role === "use-cases") return `${contextLabel} use-case contract package.`;
   if (role === "config") return `${contextLabel} typed configuration package.`;
@@ -1657,7 +1655,7 @@ export {};
 `;
 
 const packageShellLayerContent = (target: ArchitecturePlanTarget, role: "config" | "server"): string => {
-  const contextPascal = CommonStr.pascalCase(target.boundedContext);
+  const contextPascal = Str.pascalCase(target.boundedContext);
   const exportName = role === "server" ? `${contextPascal}ServerLive` : `${contextPascal}ConfigLive`;
   return `/**
  * ${Str.replaceAll("-", " ")(target.boundedContext)} ${role} layer.
@@ -1680,7 +1678,7 @@ export const ${exportName} = Layer.empty;
 };
 
 const packageShellTestLayerContent = (target: ArchitecturePlanTarget, role: "config" | "server"): string => {
-  const contextPascal = CommonStr.pascalCase(target.boundedContext);
+  const contextPascal = Str.pascalCase(target.boundedContext);
   const exportName = role === "server" ? `${contextPascal}ServerTest` : `${contextPascal}ConfigTest`;
   return `/**
  * ${Str.replaceAll("-", " ")(target.boundedContext)} ${role} test layer.
@@ -1871,7 +1869,8 @@ const packageShellFileOperationsFor = (
   if (role === "config") {
     return [
       ...commonFiles,
-      ...(["public", "server", "secrets"] as const).map(
+      ...A.map(
+        ["public", "server", "secrets"] as const,
         (surface) =>
           new WriteFileOperation({
             kind: "write-file",
@@ -2022,18 +2021,18 @@ const targetPathFor = (sourcePath: string, target: ArchitecturePlanTarget): stri
   if (isDefaultPlanTarget(target)) return sourcePath;
   const sourceConcept = sourceConceptForPath(sourcePath);
   const sourceConceptPath = sourceConceptPathFor(sourcePath);
-  const conceptPascal = CommonStr.pascalCase(target.concept);
-  const conceptKebab = CommonStr.kebabCase(target.concept);
-  const conceptSnake = CommonStr.snakeCase(target.concept);
-  const sourceConceptKebab = CommonStr.kebabCase(sourceConcept);
-  const sourceConceptSnake = CommonStr.snakeCase(sourceConcept);
-  const contextKebab = CommonStr.kebabCase(target.boundedContext);
-  const contextSnake = CommonStr.snakeCase(target.boundedContext);
+  const conceptPascal = Str.pascalCase(target.concept);
+  const conceptKebab = Str.kebabCase(target.concept);
+  const conceptSnake = Str.snakeCase(target.concept);
+  const sourceConceptKebab = Str.kebabCase(sourceConcept);
+  const sourceConceptSnake = Str.snakeCase(sourceConcept);
+  const contextKebab = Str.kebabCase(target.boundedContext);
+  const contextSnake = Str.snakeCase(target.boundedContext);
   if (Str.startsWith("packages/architecture-lab/")(sourcePath)) {
     return pipe(
       sourcePath,
       Str.replace("packages/architecture-lab/", `packages/${target.boundedContext}/`),
-      Str.replaceAll("ArchitectureLab", CommonStr.pascalCase(target.boundedContext)),
+      Str.replaceAll("ArchitectureLab", Str.pascalCase(target.boundedContext)),
       Str.replaceAll("architecture_lab", contextSnake),
       Str.replaceAll(sourceConceptPath, target.conceptPath),
       Str.replaceAll(sourceConcept, conceptPascal),
@@ -2045,7 +2044,7 @@ const targetPathFor = (sourcePath: string, target: ArchitecturePlanTarget): stri
     return pipe(
       sourcePath,
       Str.replace("apps/architecture-lab-proof/", `apps/${target.boundedContext}-proof/`),
-      Str.replaceAll("ArchitectureLab", CommonStr.pascalCase(target.boundedContext)),
+      Str.replaceAll("ArchitectureLab", Str.pascalCase(target.boundedContext)),
       Str.replaceAll(sourceConcept, conceptPascal),
       Str.replaceAll(sourceConceptKebab, conceptKebab),
       Str.replaceAll(sourceConceptSnake, conceptSnake)
@@ -2053,7 +2052,7 @@ const targetPathFor = (sourcePath: string, target: ArchitecturePlanTarget): stri
   }
   return pipe(
     sourcePath,
-    Str.replaceAll("ArchitectureLab", CommonStr.pascalCase(target.boundedContext)),
+    Str.replaceAll("ArchitectureLab", Str.pascalCase(target.boundedContext)),
     Str.replaceAll("architecture-lab", contextKebab),
     Str.replaceAll("architecture_lab", contextSnake),
     Str.replaceAll(sourceConcept, conceptPascal),
@@ -2067,21 +2066,21 @@ const replacementPairs = (
   sourcePath: string
 ): ReadonlyArray<readonly [string, string]> => {
   const sourceConcept = sourceConceptForPath(sourcePath);
-  const sourceConceptPascal = CommonStr.pascalCase(sourceConcept);
-  const sourceConceptCamel = CommonStr.camelCase(sourceConcept);
-  const sourceConceptKebab = CommonStr.kebabCase(sourceConcept);
-  const sourceConceptSnake = CommonStr.snakeCase(sourceConcept);
-  const conceptPascal = CommonStr.pascalCase(target.concept);
-  const conceptCamel = CommonStr.camelCase(target.concept);
-  const conceptKebab = CommonStr.kebabCase(target.concept);
-  const conceptSnake = CommonStr.snakeCase(target.concept);
-  const contextPascal = CommonStr.pascalCase(target.boundedContext);
-  const contextKebab = CommonStr.kebabCase(target.boundedContext);
-  const contextSnake = CommonStr.snakeCase(target.boundedContext);
+  const sourceConceptPascal = Str.pascalCase(sourceConcept);
+  const sourceConceptCamel = Str.camelCase(sourceConcept);
+  const sourceConceptKebab = Str.kebabCase(sourceConcept);
+  const sourceConceptSnake = Str.snakeCase(sourceConcept);
+  const conceptPascal = Str.pascalCase(target.concept);
+  const conceptCamel = Str.camelCase(target.concept);
+  const conceptKebab = Str.kebabCase(target.concept);
+  const conceptSnake = Str.snakeCase(target.concept);
+  const contextPascal = Str.pascalCase(target.boundedContext);
+  const contextKebab = Str.kebabCase(target.boundedContext);
+  const contextSnake = Str.snakeCase(target.boundedContext);
 
   return [
-    ["ARCHITECTURE_LAB", CommonStr.toUpperCase(contextSnake)],
-    [CommonStr.toUpperCase(sourceConceptSnake), CommonStr.toUpperCase(conceptSnake)],
+    ["ARCHITECTURE_LAB", Str.toUpperCase(contextSnake)],
+    [Str.toUpperCase(sourceConceptSnake), Str.toUpperCase(conceptSnake)],
     ["ArchitectureLab", contextPascal],
     ["architecture-lab", contextKebab],
     ["architecture_lab", contextSnake],
@@ -2141,7 +2140,7 @@ const validateRequestedRoles = Effect.fn(function* (
   );
   if (disallowedRoles.length > 0) {
     return yield* DomainError.newMessage(
-      `Architecture ${target.domainKind} concepts do not support role(s): ${disallowedRoles.join(", ")}`
+      `Architecture ${target.domainKind} concepts do not support role(s): ${A.join(disallowedRoles, ", ")}`
     );
   }
 });

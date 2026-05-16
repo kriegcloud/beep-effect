@@ -8,11 +8,10 @@
 import { DuckDb, DuckDbConnectionOptions, DuckDbParquetExport } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Clock, Effect, FileSystem, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { AiMetricsDeployTarget } from "./models.ts";
 
 const $I = $RepoAiMetricsId.create("mirror");
@@ -603,7 +602,7 @@ const buildMirrorTables = Effect.fn("AiMetrics.buildMirrorTables")(function* ({
   const duckdb = yield* DuckDb;
   const path = yield* Path.Path;
   yield* duckdb.run(`ATTACH ${sqlString(sourceDuckDbPath)} AS source_db (READ_ONLY)`);
-  const exports: Array<AiMetricsMirrorTableExport> = [];
+  let exports: ReadonlyArray<AiMetricsMirrorTableExport> = A.empty();
 
   for (const projection of mirrorTableProjections) {
     yield* duckdb.run(`DROP TABLE IF EXISTS ${projection.targetTable}`);
@@ -613,7 +612,8 @@ const buildMirrorTables = Effect.fn("AiMetrics.buildMirrorTables")(function* ({
     yield* duckdb.copyTableToParquet(
       new DuckDbParquetExport({ filePath: parquetPath, tableName: projection.targetTable })
     );
-    exports.push(
+    exports = A.append(
+      exports,
       new AiMetricsMirrorTableExport({
         parquetPath,
         rowCount: countFromRow(rows[0]),

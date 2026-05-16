@@ -1,5 +1,5 @@
+import { A } from "@beep/utils";
 import { Effect, flow, Inspectable, pipe, Result, SchemaIssue, SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { type ParseError, parse, printParseErrorCode } from "jsonc-parser";

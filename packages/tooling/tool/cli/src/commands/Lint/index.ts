@@ -9,12 +9,10 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { normalizePath, TaggedErrorClass } from "@beep/schema";
-import { thunkEmptyStr } from "@beep/utils";
+import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Console, Effect, FileSystem, HashSet, Inspectable, MutableHashSet, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Command } from "effect/unstable/cli";
 import madge from "madge";
 import { isExcludedTypeScriptSourcePath } from "../Shared/TypeScriptSourceExclusions.ts";
@@ -306,7 +304,7 @@ const runLintToolingTaggedErrors = Effect.fn("runLintToolingTaggedErrors")(funct
       return;
     }
 
-    for (const match of content.matchAll(/\bnew Error\(/g)) {
+    for (const match of Str.matchAll(/\bnew Error\(/g)(content)) {
       const line = lineNumberAt(content, match.index ?? 0);
       const lineText = pipe(Str.split("\n")(content), A.get(line - 1), O.getOrElse(thunkEmptyStr), Str.trim);
       violations = A.append(violations, `${file}:${line}:${lineText}`);
@@ -406,7 +404,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
       }
 
       const sortPattern = /\b([A-Za-z_$][\w$]*)\.sort\s*\(/g;
-      for (const match of content.matchAll(sortPattern)) {
+      for (const match of Str.matchAll(sortPattern)(content)) {
         const receiver = match[1];
         if (receiver !== "A") {
           pushViolation("native-sort", "Use A.sort with an explicit Order in hotspot runtime files.", match.index ?? 0);
@@ -414,7 +412,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
       }
 
       const stringMethodPattern = /\b([A-Za-z_$][\w$]*)\.(split|trim|startsWith|endsWith)\s*\(/g;
-      for (const match of content.matchAll(stringMethodPattern)) {
+      for (const match of Str.matchAll(stringMethodPattern)(content)) {
         const receiver = match[1];
         const method = match[2];
         if (receiver !== "Str") {
@@ -429,7 +427,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
 
     if (isToolingFile) {
       const serviceLinePattern = /Context\.Service</g;
-      for (const match of content.matchAll(serviceLinePattern)) {
+      for (const match of Str.matchAll(serviceLinePattern)(content)) {
         const start = match.index ?? 0;
         const nearby = Str.slice(start, start + 320)(content);
         if (!/\(\)\(\s*\$I`/.test(nearby)) {
@@ -438,7 +436,7 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
       }
 
       const classPattern = /S\.Class<[^>]+>\(\$I`[^`]+`\)\(/g;
-      for (const match of content.matchAll(classPattern)) {
+      for (const match of Str.matchAll(classPattern)(content)) {
         const start = match.index ?? 0;
         const nearby = Str.slice(start, start + 2400)(content);
         if (!/\$I\.annote\(/.test(nearby)) {

@@ -2,6 +2,7 @@ import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs/index"
 import { type SyncDataTarget, SyncDataTargetProjection } from "@beep/repo-cli/commands/SyncDataToTs/internal/Models";
 import { ISO4217_SOURCE_URL } from "@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217";
 import { syncDataTargets } from "@beep/repo-cli/commands/SyncDataToTs/targets/index";
+import { A, O } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
@@ -131,16 +132,16 @@ const withRegisteredTarget = <A, E, R>(target: SyncDataTarget, use: Effect.Effec
   Effect.acquireUseRelease(
     Effect.sync(() => {
       const targets = syncDataTargets as unknown as Array<SyncDataTarget>;
-      targets.push(target);
+      A.appendInPlace(targets, target);
       return targets;
     }),
     () => use,
     (targets) =>
       Effect.sync(() => {
-        const index = targets.findIndex((candidate) => candidate.id === target.id);
+        const index = O.getOrUndefined(A.findFirstIndex(targets, (candidate) => candidate.id === target.id));
 
-        if (index >= 0) {
-          targets.splice(index, 1);
+        if (index !== undefined) {
+          A.spliceInPlace(targets, index, 1);
         }
       })
   );

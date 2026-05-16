@@ -5,10 +5,10 @@
  * @since 0.0.0
  */
 
+import { Str } from "@beep/utils";
 import { Effect, Exit } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import { type NextRequest, NextResponse } from "next/server";
 import { ContactSubmissionResponse, contactResponseBody, submitContact } from "../../../contact";
 
@@ -67,7 +67,7 @@ const redirectToContact = (request: NextRequest, response: ContactSubmissionResp
  */
 export async function POST(request: NextRequest) {
   const contentType = request.headers.get("content-type") ?? "";
-  const isJsonSubmission = contentType.includes("application/json");
+  const isJsonSubmission = Str.includes("application/json")(contentType);
   const payload = isJsonSubmission ? await request.json() : formDataPayload(await request.formData());
   const exit = await Effect.runPromiseExit(submitContact(payload));
   const response = Exit.isSuccess(exit) ? exit.value : rejected;

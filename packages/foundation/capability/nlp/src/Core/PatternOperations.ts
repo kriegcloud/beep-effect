@@ -5,10 +5,9 @@
  * @packageDocumentation
  */
 
-import * as A from "effect/Array";
+import { A, Str } from "@beep/utils";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import type { EntityPatternElement, LiteralPatternElement, PatternElement, POSPatternElement } from "./Pattern.ts";
 
 /**

@@ -6,8 +6,8 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Cause, Clock, Duration, Effect, Exit, Layer, Metric, Result, SchemaAST } from "effect";
-import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";

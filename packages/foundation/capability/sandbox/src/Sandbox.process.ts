@@ -7,11 +7,10 @@
 
 import { $SandboxId } from "@beep/identity";
 import { Fn } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Context, Duration, Effect, Layer, Stream } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { ExecHostError } from "./Sandbox.errors.ts";
 import { profileSandboxPhase } from "./Sandbox.observability.ts";

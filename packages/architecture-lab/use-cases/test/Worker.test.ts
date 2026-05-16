@@ -1,9 +1,9 @@
 import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
 import { Worker } from "@beep/architecture-lab-use-cases/public";
 import * as WorkerServer from "@beep/architecture-lab-use-cases/server";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, HashMap } from "effect";
-import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

@@ -7,11 +7,11 @@
 
 import { $SandboxId } from "@beep/identity";
 import { profilePhase } from "@beep/observability";
+import { Str } from "@beep/utils";
 import { Effect, Metric } from "effect";
 import { dual } from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $SandboxId.create("Sandbox.observability");
 

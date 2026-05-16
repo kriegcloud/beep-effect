@@ -8,6 +8,7 @@ import {
   resolveNodeVersions,
 } from "@beep/repo-cli/commands/VersionSync/internal/resolvers/NodeResolver";
 import { updateCatalogEntry } from "@beep/repo-cli/commands/VersionSync/internal/updaters/PackageJsonUpdater";
+import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem, Path } from "effect";
@@ -49,11 +50,11 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
           expect(report.latest.value).toBe("^4.0.0-beta.28");
         }
         expect(report.items).toHaveLength(2);
-        expect(report.items.map((item) => item.field)).toEqual([
+        expect(A.map(report.items, (item) => item.field)).toEqual([
           "catalog.@effect/opentelemetry",
           "catalog.@effect/vitest",
         ]);
-        expect(report.items.map((item) => item.expected)).toEqual(["^4.0.0-beta.28", "^4.0.0-beta.28"]);
+        expect(A.map(report.items, (item) => item.expected)).toEqual(["^4.0.0-beta.28", "^4.0.0-beta.28"]);
 
         yield* fs.remove(tmpDir, { recursive: true });
       })
@@ -142,14 +143,17 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
         yield* fs.writeFileString(path.join(tmpDir, ".nvmrc"), "20.11.1\n");
         yield* fs.writeFileString(
           path.join(workflowDir, "ci.yml"),
-          [
-            "jobs:",
-            "  test:",
-            "    steps:",
-            "      - uses: actions/setup-node@v4",
-            "        with:",
-            "          node-version: 18.19.0",
-          ].join("\n")
+          A.join(
+            [
+              "jobs:",
+              "  test:",
+              "    steps:",
+              "      - uses: actions/setup-node@v4",
+              "        with:",
+              "          node-version: 18.19.0",
+            ],
+            "\n"
+          )
         );
 
         const state = yield* resolveNodeVersions(tmpDir);

@@ -22,15 +22,13 @@ import {
 } from "@beep/repo-utils";
 import { LiteralKit, normalizePath, TaggedErrorClass } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { thunkFalse, thunkUndefined } from "@beep/utils";
+import { A, Str, thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, flow, HashMap, HashSet, Order, Path, pipe, Tuple } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
@@ -857,7 +855,7 @@ const uniqueInInputOrder = (values: ReadonlyArray<string>): ReadonlyArray<string
       continue;
     }
     seen = HashSet.add(seen, value);
-    results.push(value);
+    A.appendInPlace(results, value);
   }
 
   return results;
@@ -883,7 +881,7 @@ const workspacePatternCoversPath = (workspacePattern: string, relativeDir: strin
     return false;
   }
 
-  for (const [index, segment] of patternSegments.entries()) {
+  for (const [index, segment] of A.entries(patternSegments)) {
     if (segment !== "*" && !stringEquivalence(segment, pathParts[index] ?? "")) {
       return false;
     }
@@ -926,7 +924,7 @@ const readSyncpackSources = (content: string): Effect.Effect<ReadonlyArray<strin
 
   return Effect.succeed(
     pipe(
-      [...(match.groups?.body ?? "").matchAll(SYNC_SOURCE_ENTRY_PATTERN)],
+      [...Str.matchAll(SYNC_SOURCE_ENTRY_PATTERN)(match.groups?.body ?? "")],
       A.map((entry) => entry[1] ?? "")
     )
   );
@@ -941,7 +939,7 @@ const renderSyncpackSourcesBlock = (sources: ReadonlyArray<string>): string =>
 
 const replaceSyncpackSources = (content: string, sources: ReadonlyArray<string>): Effect.Effect<string, DomainError> =>
   SYNCPACK_SOURCE_ARRAY_PATTERN.test(content)
-    ? Effect.succeed(content.replace(SYNCPACK_SOURCE_ARRAY_PATTERN, renderSyncpackSourcesBlock(sources)))
+    ? Effect.succeed(Str.replace(SYNCPACK_SOURCE_ARRAY_PATTERN, renderSyncpackSourcesBlock(sources))(content))
     : Effect.fail(new DomainError({ message: "Failed to replace syncpack source array: source array not found" }));
 
 const buildCanonicalSyncpackSources = (workspacePatterns: ReadonlyArray<string>): ReadonlyArray<string> =>
@@ -1034,7 +1032,8 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
     };
     const docgenAliasSource = buildDocgenAliasSource(packageName, relativeDir, packageJson);
 
-    descriptors.push(
+    A.appendInPlace(
+      descriptors,
       new WorkspaceDescriptor({
         packageName,
         absoluteDir,
@@ -1528,7 +1527,7 @@ const planPackageReferenceSync = Effect.fn(function* (
       if (O.isSome(canonicalTarget)) {
         const normalizedTarget = toPosixPath(canonicalTarget.value);
         if (!A.some(existingResolvedTargets, (existingTarget) => stringEquivalence(existingTarget, normalizedTarget))) {
-          existingResolvedTargets.push(normalizedTarget);
+          A.appendInPlace(existingResolvedTargets, normalizedTarget);
         }
       }
     }
@@ -1555,7 +1554,8 @@ const planPackageReferenceSync = Effect.fn(function* (
     }
 
     const summary = summaryCounts(currentResolvedRefPaths, finalRefPaths, "references");
-    plannedChanges.push(
+    A.appendInPlace(
+      plannedChanges,
       new PlannedFileChange.cases["package-references"]({
         filePath: sourceOwnerTsconfigPath,
         summary,
@@ -1620,7 +1620,8 @@ const planPackageDocgenSync = Effect.fn(function* (
       continue;
     }
 
-    plannedChanges.push(
+    A.appendInPlace(
+      plannedChanges,
       new PlannedFileChange.cases["package-docgen"]({
         filePath,
         summary: "managed docgen fields synchronized",
@@ -1730,27 +1731,27 @@ export const syncTsconfigAtRoot: {
 
     const rootReferenceChange = yield* planRootReferenceSync(rootDir, workspaces);
     if (O.isSome(rootReferenceChange)) {
-      plannedChanges.push(rootReferenceChange.value);
+      A.appendInPlace(plannedChanges, rootReferenceChange.value);
     }
 
     const rootQualityReferenceChange = yield* planRootQualityReferenceSync(rootDir, workspaces);
     if (O.isSome(rootQualityReferenceChange)) {
-      plannedChanges.push(rootQualityReferenceChange.value);
+      A.appendInPlace(plannedChanges, rootQualityReferenceChange.value);
     }
 
     const rootAliasChange = yield* planRootAliasSync(rootDir, workspaces);
     if (O.isSome(rootAliasChange)) {
-      plannedChanges.push(rootAliasChange.value);
+      A.appendInPlace(plannedChanges, rootAliasChange.value);
     }
 
     const rootTstycheChange = yield* planRootTstycheSync(rootDir, workspaces);
     if (O.isSome(rootTstycheChange)) {
-      plannedChanges.push(rootTstycheChange.value);
+      A.appendInPlace(plannedChanges, rootTstycheChange.value);
     }
 
     const rootSyncpackChange = yield* planRootSyncpackSync(rootDir);
     if (O.isSome(rootSyncpackChange)) {
-      plannedChanges.push(rootSyncpackChange.value);
+      A.appendInPlace(plannedChanges, rootSyncpackChange.value);
     }
 
     const packageChanges = yield* planPackageReferenceSync(
@@ -1761,10 +1762,10 @@ export const syncTsconfigAtRoot: {
       options.filter,
       options.verbose
     );
-    plannedChanges.push(...packageChanges);
+    A.appendAllInPlace(plannedChanges, packageChanges);
 
     const docgenChanges = yield* planPackageDocgenSync(rootDir, workspaces, options.filter);
-    plannedChanges.push(...docgenChanges);
+    A.appendAllInPlace(plannedChanges, docgenChanges);
 
     const sortedPlannedChanges = sortChanges(plannedChanges);
 
@@ -1873,7 +1874,7 @@ export const tsconfigSyncCommand = Command.make(
           process.exitCode = 1;
           yield* Console.error(`tsconfig-sync: ${error.message}`);
           for (const cycle of error.cycles) {
-            yield* Console.error(`  cycle: ${cycle.join(" -> ")}`);
+            yield* Console.error(`  cycle: ${A.join(cycle, " -> ")}`);
           }
         })
       )

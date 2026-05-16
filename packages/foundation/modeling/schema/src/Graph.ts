@@ -6,6 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import {
   Effect,
   flow,
@@ -18,7 +19,6 @@ import {
   SchemaParser,
   SchemaTransformation,
 } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -852,7 +852,7 @@ const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
         importDeclaration: 'import * as Graph from "effect/Graph"',
       },
       expected: name,
-      description: `Schema for existing ${expectedType ?? ""} Effect graph values.`.trim(),
+      description: Str.trim(`Schema for existing ${expectedType ?? ""} Effect graph values.`),
       toEquivalence: ([node, edge]) => makeGraphEquivalence(node, edge),
       toFormatter:
         ([node, edge]) =>
@@ -906,7 +906,7 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
         importDeclaration: 'import * as Graph from "effect/Graph"',
       },
       expected: name,
-      description: `Schema for existing mutable ${expectedType ?? ""} Effect graph values.`.trim(),
+      description: Str.trim(`Schema for existing mutable ${expectedType ?? ""} Effect graph values.`),
       toEquivalence: ([node, edge]) => makeGraphEquivalence(node, edge),
       toFormatter:
         ([node, edge]) =>

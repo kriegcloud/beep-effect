@@ -114,80 +114,92 @@ WantedBy=default.target
 `;
 
 // cspell:ignore DBUS
-const userSystemdEnvironment = [
-  'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"',
-  'export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=${XDG_RUNTIME_DIR}/bus}"',
-].join("\n");
+const userSystemdEnvironment = A.join(
+  [
+    'export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"',
+    'export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=${XDG_RUNTIME_DIR}/bus}"',
+  ],
+  "\n"
+);
 
 const renderRemotePreflightCommand = (remote: AIMetricsRemoteDeploymentConfig): string =>
   `/bin/bash -lc ${shellQuote(
-    [
-      "set -euo pipefail",
-      "command -v docker >/dev/null",
-      "command -v sg >/dev/null",
-      "command -v systemctl >/dev/null",
-      "command -v tailscale >/dev/null",
-      "command -v curl >/dev/null",
-      "docker compose version >/dev/null",
-      "systemctl --user --version >/dev/null",
-      "tailscale status --json >/dev/null",
-      `printf 'AI metrics Phoenix preflight passed for ${remote.tailnetFqdn}:${remote.phoenixTailnetHttpsPort}\\n'`,
-    ].join("\n")
+    A.join(
+      [
+        "set -euo pipefail",
+        "command -v docker >/dev/null",
+        "command -v sg >/dev/null",
+        "command -v systemctl >/dev/null",
+        "command -v tailscale >/dev/null",
+        "command -v curl >/dev/null",
+        "docker compose version >/dev/null",
+        "systemctl --user --version >/dev/null",
+        "tailscale status --json >/dev/null",
+        `printf 'AI metrics Phoenix preflight passed for ${remote.tailnetFqdn}:${remote.phoenixTailnetHttpsPort}\\n'`,
+      ],
+      "\n"
+    )
   )}`;
 
 const renderRemoteApplyCommand = (remote: AIMetricsRemoteDeploymentConfig, service: AiMetricsServiceSpec): string =>
   `/bin/bash -lc ${shellQuote(
-    [
-      "set -euo pipefail",
-      userSystemdEnvironment,
-      `remote_root=${shellQuote(remote.remoteConfigRoot)}`,
-      `compose_path="\${remote_root}/${remotePhoenixComposeFile}"`,
-      `port_state_path="\${remote_root}/${remotePhoenixTailnetPortStateFile}"`,
-      `current_tailnet_port=${shellQuote(String(remote.phoenixTailnetHttpsPort))}`,
-      `unit_path="\${HOME}/.config/systemd/user/${remotePhoenixServiceName}"`,
-      'install -d -m 0755 "${remote_root}"',
-      'install -d -m 0755 "${HOME}/.config/systemd/user"',
-      "cat > \"${compose_path}\" <<'BEEP_AI_METRICS_PHOENIX_COMPOSE'",
-      renderRemotePhoenixCompose(service),
-      "BEEP_AI_METRICS_PHOENIX_COMPOSE",
-      "cat > \"${unit_path}\" <<'BEEP_AI_METRICS_PHOENIX_SYSTEMD'",
-      renderRemotePhoenixSystemdService(remote.remoteConfigRoot),
-      "BEEP_AI_METRICS_PHOENIX_SYSTEMD",
-      "systemctl --user daemon-reload",
-      `systemctl --user enable ${remotePhoenixServiceName} >/dev/null`,
-      `systemctl --user restart ${remotePhoenixServiceName}`,
-      'if [ -f "${port_state_path}" ]; then',
-      '  previous_tailnet_port="$(tr -d \'[:space:]\' < "${port_state_path}")"',
-      '  if printf "%s" "${previous_tailnet_port}" | grep -Eq \'^[0-9]+$\' && [ "${previous_tailnet_port}" != "${current_tailnet_port}" ]; then',
-      '    tailscale serve --https="${previous_tailnet_port}" off >/dev/null || true',
-      "  fi",
-      "fi",
-      'tailscale serve --yes --bg --https="${current_tailnet_port}" http://127.0.0.1:6006',
-      'printf "%s\\n" "${current_tailnet_port}" > "${port_state_path}"',
-      `printf 'AI metrics Phoenix remote apply completed at ${service.publicUrl}\\n'`,
-    ].join("\n")
+    A.join(
+      [
+        "set -euo pipefail",
+        userSystemdEnvironment,
+        `remote_root=${shellQuote(remote.remoteConfigRoot)}`,
+        `compose_path="\${remote_root}/${remotePhoenixComposeFile}"`,
+        `port_state_path="\${remote_root}/${remotePhoenixTailnetPortStateFile}"`,
+        `current_tailnet_port=${shellQuote(String(remote.phoenixTailnetHttpsPort))}`,
+        `unit_path="\${HOME}/.config/systemd/user/${remotePhoenixServiceName}"`,
+        'install -d -m 0755 "${remote_root}"',
+        'install -d -m 0755 "${HOME}/.config/systemd/user"',
+        "cat > \"${compose_path}\" <<'BEEP_AI_METRICS_PHOENIX_COMPOSE'",
+        renderRemotePhoenixCompose(service),
+        "BEEP_AI_METRICS_PHOENIX_COMPOSE",
+        "cat > \"${unit_path}\" <<'BEEP_AI_METRICS_PHOENIX_SYSTEMD'",
+        renderRemotePhoenixSystemdService(remote.remoteConfigRoot),
+        "BEEP_AI_METRICS_PHOENIX_SYSTEMD",
+        "systemctl --user daemon-reload",
+        `systemctl --user enable ${remotePhoenixServiceName} >/dev/null`,
+        `systemctl --user restart ${remotePhoenixServiceName}`,
+        'if [ -f "${port_state_path}" ]; then',
+        '  previous_tailnet_port="$(tr -d \'[:space:]\' < "${port_state_path}")"',
+        '  if printf "%s" "${previous_tailnet_port}" | grep -Eq \'^[0-9]+$\' && [ "${previous_tailnet_port}" != "${current_tailnet_port}" ]; then',
+        '    tailscale serve --https="${previous_tailnet_port}" off >/dev/null || true',
+        "  fi",
+        "fi",
+        'tailscale serve --yes --bg --https="${current_tailnet_port}" http://127.0.0.1:6006',
+        'printf "%s\\n" "${current_tailnet_port}" > "${port_state_path}"',
+        `printf 'AI metrics Phoenix remote apply completed at ${service.publicUrl}\\n'`,
+      ],
+      "\n"
+    )
   )}`;
 
 const renderRemoteHealthCommand = (remote: AIMetricsRemoteDeploymentConfig, service: AiMetricsServiceSpec): string =>
   `/bin/bash -lc ${shellQuote(
-    [
-      "set -euo pipefail",
-      userSystemdEnvironment,
-      `systemctl --user is-active --quiet ${remotePhoenixServiceName}`,
-      "for attempt in $(seq 1 24); do",
-      "  if curl -fsS http://127.0.0.1:6006 >/dev/null; then",
-      "    break",
-      "  fi",
-      '  if [ "${attempt}" -eq 24 ]; then',
-      "    docker logs beep-ai-metrics-phoenix --tail 80 || true",
-      "    exit 1",
-      "  fi",
-      "  sleep 5",
-      "done",
-      `tailscale serve status --json | grep -F ${shellQuote("127.0.0.1:6006")} >/dev/null`,
-      `curl -fsS ${shellQuote(service.publicUrl)} >/dev/null`,
-      `printf 'AI metrics Phoenix health check passed for ${service.publicUrl}\\n'`,
-    ].join("\n")
+    A.join(
+      [
+        "set -euo pipefail",
+        userSystemdEnvironment,
+        `systemctl --user is-active --quiet ${remotePhoenixServiceName}`,
+        "for attempt in $(seq 1 24); do",
+        "  if curl -fsS http://127.0.0.1:6006 >/dev/null; then",
+        "    break",
+        "  fi",
+        '  if [ "${attempt}" -eq 24 ]; then',
+        "    docker logs beep-ai-metrics-phoenix --tail 80 || true",
+        "    exit 1",
+        "  fi",
+        "  sleep 5",
+        "done",
+        `tailscale serve status --json | grep -F ${shellQuote("127.0.0.1:6006")} >/dev/null`,
+        `curl -fsS ${shellQuote(service.publicUrl)} >/dev/null`,
+        `printf 'AI metrics Phoenix health check passed for ${service.publicUrl}\\n'`,
+      ],
+      "\n"
+    )
   )}`;
 
 type AIMetricsPulumiConfigValues = {

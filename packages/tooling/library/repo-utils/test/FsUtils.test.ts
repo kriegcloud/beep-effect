@@ -1,11 +1,11 @@
 import { FsUtils, FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { normalizePath } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as Fs from "effect/FileSystem";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 
 // Build a TestLayer that provides FsUtils AND also passes through FileSystem/Path
 // so tests can use them directly (e.g. for makeTempDirectory)
@@ -22,7 +22,7 @@ layer(TestLayer)("FsUtils", (it) => {
           cwd: `${__dirname}/..`,
         });
         expect(results.length).toBeGreaterThan(0);
-        expect(results.some((r) => r.includes("index.ts"))).toBe(true);
+        expect(A.some(results, Str.includes("index.ts"))).toBe(true);
       })
     );
 
@@ -45,7 +45,7 @@ layer(TestLayer)("FsUtils", (it) => {
           cwd: `${__dirname}/..`,
           ignore: ["**/errors/**"],
         });
-        expect(results.every((r) => !r.includes("errors/"))).toBe(true);
+        expect(A.every(results, (r) => !Str.includes("errors/")(r))).toBe(true);
       })
     );
 
@@ -59,12 +59,12 @@ layer(TestLayer)("FsUtils", (it) => {
           cwd,
           absolute: true,
         });
-        const normalizedResults = results.map(normalizePath);
+        const normalizedResults = A.map(results, normalizePath);
 
         expect(results.length).toBeGreaterThan(0);
-        expect(normalizedResults.every((result) => result.startsWith(normalizePath(canonicalCwd)))).toBe(true);
+        expect(A.every(normalizedResults, Str.startsWith(normalizePath(canonicalCwd)))).toBe(true);
         expect(new Set(normalizedResults).size).toBe(normalizedResults.length);
-        expect(normalizedResults.some((result) => result.endsWith("/src/FsUtils.ts"))).toBe(true);
+        expect(A.some(normalizedResults, Str.endsWith("/src/FsUtils.ts"))).toBe(true);
       })
     );
   });
@@ -79,7 +79,7 @@ layer(TestLayer)("FsUtils", (it) => {
         });
         // All results should have file extensions (not bare directory names)
         expect(results.length).toBeGreaterThan(0);
-        expect(results.every((r) => r.includes("."))).toBe(true);
+        expect(A.every(results, Str.includes("."))).toBe(true);
       })
     );
   });

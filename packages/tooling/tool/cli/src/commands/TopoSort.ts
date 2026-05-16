@@ -6,8 +6,8 @@
  */
 
 import { buildRepoDependencyIndex, findRepoRoot, topologicalSort, type WorkspaceDeps } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { Console, Effect, HashMap, HashSet } from "effect";
-import * as A from "effect/Array";
 import * as R from "effect/Record";
 import { Command } from "effect/unstable/cli";
 

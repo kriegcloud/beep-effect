@@ -6,12 +6,11 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { A, Struct } from "@beep/utils";
+import { A, Str, Struct } from "@beep/utils";
 import { Effect, FileSystem, HashSet, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { InitError } from "./Sandbox.errors.ts";
 
 const $I = $SandboxId.create("Env");
@@ -40,18 +39,18 @@ const parseEnvLine = (line: string): O.Option<readonly [string, string]> => {
     return O.none();
   }
 
-  const separatorIndex = trimmed.indexOf("=");
-  if (separatorIndex < 0) {
+  const separatorIndex = pipe(trimmed, Str.indexOf("="));
+  if (O.isNone(separatorIndex)) {
     return O.none();
   }
 
-  const key = Str.trim(trimmed.slice(0, separatorIndex));
-  const rawValue = Str.trim(trimmed.slice(separatorIndex + 1));
+  const key = pipe(trimmed, Str.slice(0, separatorIndex.value), Str.trim);
+  const rawValue = pipe(trimmed, Str.slice(separatorIndex.value + 1), Str.trim);
   const value =
     rawValue.length >= 2 &&
     ((Str.startsWith('"')(rawValue) && Str.endsWith('"')(rawValue)) ||
       (Str.startsWith("'")(rawValue) && Str.endsWith("'")(rawValue)))
-      ? rawValue.slice(1, -1)
+      ? Str.slice(1, -1)(rawValue)
       : rawValue;
 
   return key.length === 0 ? O.none() : O.some([key, value] as const);
@@ -63,7 +62,7 @@ const parseEnvFile = (content: string): Record<string, string> => {
   for (const line of Str.split("\n")(content)) {
     const parsed = parseEnvLine(line);
     if (O.isSome(parsed)) {
-      entries.push(parsed.value);
+      A.appendInPlace(entries, parsed.value);
     }
   }
 
@@ -117,7 +116,7 @@ export const mergeProviderEnv = Effect.fn("Env.mergeProviderEnv")(function* (opt
   if (overlapping.length > 0) {
     return yield* InitError.new(
       "provider environment conflict",
-      `Overlapping env keys between agent provider and sandbox provider: ${overlapping.join(", ")}`
+      `Overlapping env keys between agent provider and sandbox provider: ${A.join(overlapping, ", ")}`
     );
   }
 

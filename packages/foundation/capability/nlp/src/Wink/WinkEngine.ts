@@ -7,8 +7,8 @@
 
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
+import { A } from "@beep/utils";
 import { Clock, Context, Effect, Layer, pipe, Ref } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { AsHelpers, ItemToken, ItsHelpers, Model, Document as WinkDocument, WinkMethods } from "wink-nlp";
@@ -151,7 +151,7 @@ const collectTokens = (state: WinkEngineRuntimeState, text: string): Array<ItemT
     .readDoc(text)
     .tokens()
     .each((token: ItemToken) => {
-      tokens.push(token);
+      A.appendInPlace(tokens, token);
     });
   return tokens;
 };

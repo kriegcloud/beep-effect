@@ -7,12 +7,12 @@
 
 import { $NlpId } from "@beep/identity";
 import { NonNegativeInt } from "@beep/schema";
+import { Str } from "@beep/utils";
 import { Brand, Chunk } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Token, TokenIndex } from "./Token.ts";
 
 const $I = $NlpId.create("Core/Sentence");

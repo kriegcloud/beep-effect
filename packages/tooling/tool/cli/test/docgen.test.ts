@@ -24,11 +24,11 @@ import {
   generateQualityWorkerEvalJson,
 } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
+import { A, O } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { Duration, Effect, Exit, FileSystem, Layer, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -155,7 +155,7 @@ describe("Docgen operations", () => {
 
           const config = yield* loadDocgenConfigDocument(packageDir);
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(config.enforceDescriptions).toBe(true);
           expect(config.enforceExamples).toBe(true);
@@ -215,7 +215,7 @@ describe("Docgen operations", () => {
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/identity");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/identity"));
 
           expect(target).toBeDefined();
 
@@ -313,7 +313,7 @@ describe("Docgen operations", () => {
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/example-server");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/example-server"));
 
           expect(target).toBeDefined();
 
@@ -372,8 +372,8 @@ describe("Docgen operations", () => {
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
 
-          expect(packages.map((pkg) => pkg.relativePath)).toEqual(["packages/foundation/modeling/schema"]);
-          expect(packages.map((pkg) => pkg.name)).toEqual(["@beep/schema"]);
+          expect(A.map(packages, (pkg) => pkg.relativePath)).toEqual(["packages/foundation/modeling/schema"]);
+          expect(A.map(packages, (pkg) => pkg.name)).toEqual(["@beep/schema"]);
         })
       )
     );
@@ -716,13 +716,15 @@ export const parseValue = (value: string): string => value.trim();
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
           const report = yield* analyzePackageQuality(target!);
-          const subject = report.subjects.find((entry) => entry.exportName === "parseValue");
-          const review = report.reviews.find((entry) => entry.subjectId === subject?.stableIdentity);
+          const subject = O.getOrUndefined(A.findFirst(report.subjects, (entry) => entry.exportName === "parseValue"));
+          const review = O.getOrUndefined(
+            A.findFirst(report.reviews, (entry) => entry.subjectId === subject?.stableIdentity)
+          );
 
           expect(subject?.description).toContain("Parses a value");
           expect(subject?.parsedExamples).toHaveLength(1);
@@ -730,7 +732,7 @@ export const parseValue = (value: string): string => value.trim();
           expect(subject?.contentHash).toMatch(/^[a-f0-9]{64}$/);
           expect(subject?.declarationKind).toBe("const");
           expect(review?.tier).toBe("warn");
-          expect(review?.findings.map((finding) => finding.code)).toContain("example-only-voids-result");
+          expect(A.map(review?.findings ?? [], (finding) => finding.code)).toContain("example-only-voids-result");
         })
       )
     );
@@ -783,15 +785,17 @@ export { parseValue };
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
           const report = yield* analyzePackageQuality(target!);
-          const exportNames = report.subjects.map((subject) => subject.exportName);
-          const subject = report.subjects.find((entry) => entry.exportName === "parseValue");
-          const review = report.reviews.find((entry) => entry.subjectId === subject?.stableIdentity);
-          const findingCodes = review?.findings.map((finding) => finding.code) ?? [];
+          const exportNames = A.map(report.subjects, (subject) => subject.exportName);
+          const subject = O.getOrUndefined(A.findFirst(report.subjects, (entry) => entry.exportName === "parseValue"));
+          const review = O.getOrUndefined(
+            A.findFirst(report.reviews, (entry) => entry.subjectId === subject?.stableIdentity)
+          );
+          const findingCodes = A.map(review?.findings ?? [], (finding) => finding.code);
 
           expect(exportNames).toEqual(["parseValue"]);
           expect(subject?.description).toContain("Parses a value");
@@ -872,18 +876,20 @@ export const formatValue = (value: string): string => \`value: \${value}\`;
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
           const report = yield* analyzePackageQuality(target!);
           const reviewFor = (exportName: string) => {
-            const subject = report.subjects.find((entry) => entry.exportName === exportName);
-            return report.reviews.find((entry) => entry.subjectId === subject?.stableIdentity);
+            const subject = O.getOrUndefined(A.findFirst(report.subjects, (entry) => entry.exportName === exportName));
+            return O.getOrUndefined(
+              A.findFirst(report.reviews, (entry) => entry.subjectId === subject?.stableIdentity)
+            );
           };
 
-          const parseFindingCodes = reviewFor("parseValue")?.findings.map((finding) => finding.code) ?? [];
-          const formatFindingCodes = reviewFor("formatValue")?.findings.map((finding) => finding.code) ?? [];
+          const parseFindingCodes = A.map(reviewFor("parseValue")?.findings ?? [], (finding) => finding.code);
+          const formatFindingCodes = A.map(reviewFor("formatValue")?.findings ?? [], (finding) => finding.code);
 
           expect(parseFindingCodes).not.toContain("example-only-voids-result");
           expect(parseFindingCodes).not.toContain("example-lacks-observable-result");
@@ -942,14 +948,16 @@ export type Elem<T> = T extends readonly (infer U)[] ? U : never;
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
           const report = yield* analyzePackageQuality(target!);
-          const subject = report.subjects.find((entry) => entry.exportName === "Elem");
-          const review = report.reviews.find((entry) => entry.subjectId === subject?.stableIdentity);
-          const findingCodes = review?.findings.map((finding) => finding.code) ?? [];
+          const subject = O.getOrUndefined(A.findFirst(report.subjects, (entry) => entry.exportName === "Elem"));
+          const review = O.getOrUndefined(
+            A.findFirst(report.reviews, (entry) => entry.subjectId === subject?.stableIdentity)
+          );
+          const findingCodes = A.map(review?.findings ?? [], (finding) => finding.code);
 
           expect(subject?.declarationKind).toBe("type");
           expect(findingCodes).not.toContain("example-only-voids-result");
@@ -1045,7 +1053,7 @@ export default trimDefault;
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
@@ -1133,12 +1141,12 @@ export * as Value from "./Value.ts";
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
           const report = yield* analyzePackageQuality(target!);
-          const exportNames = report.subjects.map((subject) => subject.exportName);
+          const exportNames = A.map(report.subjects, (subject) => subject.exportName);
           const findingCodes = pipe(
             report.reviews,
             A.flatMap((review) => A.map(review.findings, (finding) => finding.code))
@@ -1182,7 +1190,7 @@ export * as Value from "./Value.ts";
           yield* fs.writeFileString(path.join(packageDir, "src", "index.ts"), `export const parseValue = "skip";\n`);
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
@@ -1279,12 +1287,12 @@ export const parseValue = (value: string): string => value.trim();
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
           const report = yield* analyzePackageQuality(target!);
-          const exportNames = report.subjects.map((subject) => subject.exportName);
+          const exportNames = A.map(report.subjects, (subject) => subject.exportName);
 
           expect(exportNames).toContain("parseValue");
           expect(exportNames).not.toContain("HiddenInternal");
@@ -1341,7 +1349,7 @@ export const parseValue = (value: string): string => value.trim();
 
           yield* runDocgenCommand(["quality", "--changed-files", "--json"]);
 
-          const output = (yield* TestConsole.logLines).join("\n");
+          const output = A.join(yield* TestConsole.logLines, "\n");
           const decoded = decodeUnknownJson(output) as {
             readonly scope?: string;
             readonly packages?: ReadonlyArray<{
@@ -1352,7 +1360,7 @@ export const parseValue = (value: string): string => value.trim();
 
           expect(decoded.scope).toBe("changed-files");
           expect(decoded.packages?.[0]?.packageName).toBe("@beep/schema");
-          expect(decoded.packages?.[0]?.subjects?.map((subject) => subject.exportName)).toContain("parseValue");
+          expect(A.map(decoded.packages?.[0]?.subjects ?? [], (subject) => subject.exportName)).toContain("parseValue");
         })
       )
     );
@@ -1410,7 +1418,7 @@ export const parseValue = (value: string): string => value.trim();
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
@@ -1499,7 +1507,7 @@ export const value${index} = ${index};
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
@@ -1796,7 +1804,7 @@ export const workerEvalValue = 1;
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
@@ -1834,7 +1842,7 @@ export const workerEvalValue = 1;
           expect(decoded.summary.sourcePackets).toBeGreaterThan(0);
           expect(decoded.summary.selectedPackets).toBe(0);
           expect(decoded.packets).toHaveLength(0);
-          expect(logLines.join("\n")).toContain(`docgen: wrote ${evalPath}`);
+          expect(A.join(logLines, "\n")).toContain(`docgen: wrote ${evalPath}`);
         })
       )
     );
@@ -1886,7 +1894,7 @@ export const parseValue = (value: string): string => value.trim();
 
           yield* runDocgenCommand(["quality", "-p", "packages/foundation/modeling/schema", "--packet-limit=-1"]);
 
-          expect((yield* TestConsole.errorLines).join("\n")).toContain("--packet-limit must be zero or greater");
+          expect(A.join(yield* TestConsole.errorLines, "\n")).toContain("--packet-limit must be zero or greater");
           expect(process.exitCode).toBe(1);
         })
       )
@@ -1921,7 +1929,7 @@ export const parseValue = (value: string): string => value.trim();
           yield* fs.writeFileString(path.join(packageDir, "docgen.json"), "{ invalid");
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
@@ -1970,9 +1978,9 @@ export const parseValue = (value: string): string => value.trim();
           const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
           const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
 
-          expect(errorLines.join("\n")).toContain("packages/foundation/modeling/schema has");
-          expect(errorLines.join("\n")).toContain("<module fileoverview> missing @since");
-          expect(errorLines.join("\n")).toContain("MissingMetadata missing @category, @since");
+          expect(A.join(errorLines, "\n")).toContain("packages/foundation/modeling/schema has");
+          expect(A.join(errorLines, "\n")).toContain("<module fileoverview> missing @since");
+          expect(A.join(errorLines, "\n")).toContain("MissingMetadata missing @category, @since");
           expect(wroteMarkdown).toBe(false);
           expect(wroteJson).toBe(false);
           expect(process.exitCode).toBe(1);
@@ -2030,7 +2038,7 @@ export const RejectedCategory = "nope";
 
           yield* runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]);
 
-          const errorText = (yield* TestConsole.errorLines).join("\n");
+          const errorText = A.join(yield* TestConsole.errorLines, "\n");
           const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
           const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
 
@@ -2116,7 +2124,7 @@ export const parseValue = (value: string): string => value.trim();
             readonly scorer?: unknown;
             readonly remediationPackets?: ReadonlyArray<{ readonly prompt?: string }>;
           };
-          const logText = (yield* TestConsole.logLines).join("\n");
+          const logText = A.join(yield* TestConsole.logLines, "\n");
 
           expect(decoded.schemaVersion).toBe(2);
           expect(decoded.scorer).toBe("codex-advisory-packet-v1");
@@ -2174,16 +2182,18 @@ export const RejectedCategory = "nope";
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
           const analysis = yield* analyzePackageDocumentation(target!);
-          const rejected = analysis.exports.find((entry) => entry.name === "RejectedCategory");
+          const rejected = O.getOrUndefined(
+            A.findFirst(analysis.exports, (entry) => entry.name === "RejectedCategory")
+          );
 
           expect(rejected?.missingTags).toEqual([]);
           expect(rejected?.categoryValues).toEqual(["exports"]);
-          expect(rejected?.categoryIssues.join("\n")).toContain("Re-exports are graph edges");
+          expect(A.join(rejected?.categoryIssues ?? [], "\n")).toContain("Re-exports are graph edges");
           expect(analysis.summary.invalidCategory).toBe(1);
           expect(analysis.summary.missingDocumentation).toBe(1);
         })
@@ -2240,16 +2250,18 @@ export const ValidExport = packageDocAnchor;
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/schema");
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
           expect(target).toBeDefined();
 
           const analysis = yield* analyzePackageDocumentation(target!);
-          const fileoverview = analysis.exports.find((entry) => entry.name === "<module fileoverview>");
+          const fileoverview = O.getOrUndefined(
+            A.findFirst(analysis.exports, (entry) => entry.name === "<module fileoverview>")
+          );
 
           expect(fileoverview?.missingTags).toEqual([]);
           expect(fileoverview?.categoryValues).toEqual(["exports"]);
-          expect(fileoverview?.categoryIssues.join("\n")).toContain("Re-exports are graph edges");
+          expect(A.join(fileoverview?.categoryIssues ?? [], "\n")).toContain("Re-exports are graph edges");
           expect(analysis.summary.invalidCategory).toBe(1);
           expect(analysis.summary.missingDocumentation).toBe(1);
         })

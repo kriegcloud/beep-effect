@@ -6,8 +6,8 @@
  * @packageDocumentation
  */
 
-import { Effect, Layer, Order } from "effect";
-import * as A from "effect/Array";
+import { A, Str } from "@beep/utils";
+import { Effect, Layer, Order, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -69,11 +69,11 @@ const mergeContextTerms = (left: JsonLdContext["terms"], right: JsonLdContext["t
   R.fromEntries([...R.toEntries(left), ...R.toEntries(right)]);
 
 const expandCompactIdentifier = (context: JsonLdContext, value: string): string => {
-  if (value.startsWith("@") || schemePrefix.test(value)) {
+  if (pipe(value, Str.startsWith("@")) || schemePrefix.test(value)) {
     return value;
   }
 
-  const curieParts = value.split(":");
+  const curieParts = pipe(value, Str.split(":"));
   if (curieParts.length === 2) {
     const [prefix, suffix] = curieParts;
     const prefixBinding = context.terms[prefix];
@@ -104,13 +104,13 @@ const compactIdentifier = (context: JsonLdContext, iri: string): string => {
     if (identifier === iri) {
       return term;
     }
-    if (iri.startsWith(identifier)) {
-      return `${term}:${iri.slice(identifier.length)}`;
+    if (pipe(iri, Str.startsWith(identifier))) {
+      return `${term}:${pipe(iri, Str.slice(identifier.length))}`;
     }
   }
 
-  if (O.isSome(context["@vocab"]) && iri.startsWith(context["@vocab"].value)) {
-    return iri.slice(context["@vocab"].value.length);
+  if (O.isSome(context["@vocab"]) && pipe(iri, Str.startsWith(context["@vocab"].value))) {
+    return pipe(iri, Str.slice(context["@vocab"].value.length));
   }
 
   return iri;

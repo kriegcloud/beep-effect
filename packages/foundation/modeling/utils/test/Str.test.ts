@@ -172,6 +172,36 @@ describe("@beep/utils Str.repeat", () => {
   });
 });
 
+describe("@beep/utils Str.replaceWith", () => {
+  it("data-first: replaces the first match with a callback", () => {
+    expect(Str.replaceWith("beep beep", "beep", (match) => Str.toUpperCase(match))).toBe("BEEP beep");
+  });
+
+  it("data-last: replaces the first match with a callback", () => {
+    expect(
+      pipe(
+        "beep beep",
+        Str.replaceWith("beep", (match) => Str.toUpperCase(match))
+      )
+    ).toBe("BEEP beep");
+  });
+});
+
+describe("@beep/utils Str.replaceAllWith", () => {
+  it("data-first: replaces every match with a callback", () => {
+    expect(Str.replaceAllWith("beep beep", /beep/g, (match) => Str.toUpperCase(match))).toBe("BEEP BEEP");
+  });
+
+  it("data-last: replaces every match with a callback", () => {
+    expect(
+      pipe(
+        "beep beep",
+        Str.replaceAllWith(/beep/g, (match) => Str.toUpperCase(match))
+      )
+    ).toBe("BEEP BEEP");
+  });
+});
+
 describe("@beep/utils Str.truncate", () => {
   it("data-first: trims text before returning untruncated text", () => {
     expect(Str.truncate("  hello  ", 10)).toBe("hello");

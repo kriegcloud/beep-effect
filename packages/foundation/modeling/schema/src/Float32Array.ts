@@ -9,9 +9,10 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $SchemaId } from "@beep/identity";
+import { A } from "@beep/utils";
 import { SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { Model } from "effect/unstable/schema";
 

@@ -8,11 +8,10 @@ import {
   NormalizeManifest,
   renderFilesProgressBar,
 } from "@beep/repo-cli/commands/Files/index";
+import { A, O, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Data, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import sharp from "sharp";
@@ -404,11 +403,13 @@ describe.sequential("files command", () => {
 
           const report = yield* readDetectBordersJsonLog();
           const entry = report.entries[0];
+          const leftSide = O.getOrUndefined(A.findFirst(entry?.sides ?? [], (side) => side.side === "left"));
+          const rightSide = O.getOrUndefined(A.findFirst(entry?.sides ?? [], (side) => side.side === "right"));
 
           expect(report.summary.borderedCount).toBe(1);
           expect(entry?.classification).toBe("pillarbox");
-          expect(entry?.sides.find((side) => side.side === "left")?.widthPx).toBe(20);
-          expect(entry?.sides.find((side) => side.side === "right")?.widthPx).toBe(20);
+          expect(leftSide?.widthPx).toBe(20);
+          expect(rightSide?.widthPx).toBe(20);
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
@@ -490,11 +491,12 @@ describe.sequential("files command", () => {
 
           const report = yield* readDetectBordersJsonLog();
           const entry = report.entries[0];
+          const leftSide = O.getOrUndefined(A.findFirst(entry?.sides ?? [], (side) => side.side === "left"));
 
           expect(report.summary.borderedCount).toBe(1);
           expect(entry?.classification).toBe("canvas-edge");
-          expect(entry?.sides.find((side) => side.side === "left")?.colorHex).toBe("#ffffff");
-          expect(entry?.sides.find((side) => side.side === "left")?.widthPx).toBe(10);
+          expect(leftSide?.colorHex).toBe("#ffffff");
+          expect(leftSide?.widthPx).toBe(10);
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
@@ -534,10 +536,12 @@ describe.sequential("files command", () => {
 
           const report = yield* readDetectBordersJsonLog();
           const entry = report.entries[0];
+          const leftSide = O.getOrUndefined(A.findFirst(entry?.sides ?? [], (side) => side.side === "left"));
+          const rightSide = O.getOrUndefined(A.findFirst(entry?.sides ?? [], (side) => side.side === "right"));
 
           expect(entry?.classification).toBe("pillarbox");
-          expect(entry?.sides.find((side) => side.side === "left")?.widthPx).toBeGreaterThanOrEqual(8);
-          expect(entry?.sides.find((side) => side.side === "right")?.widthPx).toBeGreaterThanOrEqual(8);
+          expect(leftSide?.widthPx).toBeGreaterThanOrEqual(8);
+          expect(rightSide?.widthPx).toBeGreaterThanOrEqual(8);
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
@@ -1504,13 +1508,15 @@ describe.sequential("files command", () => {
             movedSidecarCount: 1,
             skippedCount: 0,
           });
-          expect(manifest.entries.find((entry) => entry.sourceName === "tiny.jpg")?.decision).toBe("archive");
-          expect(manifest.entries.find((entry) => entry.sourceName === "tiny.jpg")?.reasons).toEqual([
-            "short-edge-too-small",
-            "extreme-aspect-ratio",
-            "upscale-too-large",
-          ]);
-          expect(manifest.entries.find((entry) => entry.sourceName === "good.jpg")?.decision).toBe("keep");
+          expect(
+            O.getOrUndefined(A.findFirst(manifest.entries, (entry) => entry.sourceName === "tiny.jpg"))?.decision
+          ).toBe("archive");
+          expect(
+            O.getOrUndefined(A.findFirst(manifest.entries, (entry) => entry.sourceName === "tiny.jpg"))?.reasons
+          ).toEqual(["short-edge-too-small", "extreme-aspect-ratio", "upscale-too-large"]);
+          expect(
+            O.getOrUndefined(A.findFirst(manifest.entries, (entry) => entry.sourceName === "good.jpg"))?.decision
+          ).toBe("keep");
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
@@ -1791,7 +1797,7 @@ describe.sequential("files command", () => {
           yield* withPathPrefix(binDir, runFilesCommand(["strip-metadata", "--dir", datasetDir]));
 
           const args = pipe(yield* fs.readFileString(argsPath), Str.split("\n"));
-          expect(args.slice(0, -2)).toEqual([
+          expect(A.slice(args, 0, -2)).toEqual([
             "-hide_banner",
             "-nostdin",
             "-y",
@@ -1810,7 +1816,7 @@ describe.sequential("files command", () => {
             "-map_chapters",
             "-1",
           ]);
-          expect(args.at(-2)).toContain(".beep-files-strip-metadata-");
+          expect(O.getOrUndefined(A.get(args, args.length - 2))).toContain(".beep-files-strip-metadata-");
           expect(yield* fs.readFileString(clipPath)).toBe("clean video\n");
           expect(process.exitCode ?? 0).toBe(0);
         })

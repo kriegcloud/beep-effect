@@ -10,9 +10,9 @@ import {
   PackageJson,
   packageJsonJsonSchema,
 } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Exit, Order, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

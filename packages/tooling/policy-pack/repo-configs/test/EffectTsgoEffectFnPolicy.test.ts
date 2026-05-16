@@ -1,10 +1,11 @@
 import { fileURLToPath } from "node:url";
+import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Effect, FileSystem, Layer, Path, Stream } from "effect";
+import { Effect, FileSystem, Layer, Path, pipe, Stream } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
@@ -76,21 +77,24 @@ const bootstrapTsgoProject = Effect.fn(function* (projectDir: string) {
   yield* writeProjectFile(
     projectDir,
     "src/index.ts",
-    [
-      'import { Effect } from "effect";',
-      "",
-      "export const shouldError = (value: string) => {",
-      "  return Effect.gen(function* () {",
-      "    yield* Effect.succeed(value);",
-      "    return value.toUpperCase();",
-      "  });",
-      "};",
-      "",
-      "export const shortPlain = () => {",
-      "  return Effect.succeed(1);",
-      "};",
-      "",
-    ].join("\n")
+    pipe(
+      [
+        'import { Effect } from "effect";',
+        "",
+        "export const shouldError = (value: string) => {",
+        "  return Effect.gen(function* () {",
+        "    yield* Effect.succeed(value);",
+        "    return value.toUpperCase();",
+        "  });",
+        "};",
+        "",
+        "export const shortPlain = () => {",
+        "  return Effect.succeed(1);",
+        "};",
+        "",
+      ],
+      A.join("\n")
+    )
   );
 });
 
@@ -132,7 +136,11 @@ describe("Effect tsgo effectFn policy", () => {
           yield* bootstrapTsgoProject(projectDir);
           const result = yield* runTsgoOnProject(projectDir);
           const output = Str.trim(`${result.stdout}\n${result.stderr}`);
-          const effectFnOpportunityMatches = output.match(/effect\(effectFnOpportunity\)/g) ?? [];
+          const effectFnOpportunityMatches = pipe(
+            output,
+            Str.match(/effect\(effectFnOpportunity\)/g),
+            O.getOrElse(() => [])
+          );
 
           expect(result.exitCode).not.toBe(0);
           expect(effectFnOpportunityMatches).toHaveLength(1);

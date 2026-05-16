@@ -6,6 +6,7 @@
  */
 
 import { make } from "@beep/identity";
+import { A } from "@beep/utils";
 import {
   type DuckDBConnection,
   DuckDBInstance,
@@ -244,7 +245,7 @@ const makeConnectionClient = (
         Effect.withSpan("db.query", {
           attributes: {
             "db.operation": "run_many",
-            "db.statement_count": statements.length,
+            "db.statement_count": A.length(statements),
             "db.system": "duckdb",
           },
         })

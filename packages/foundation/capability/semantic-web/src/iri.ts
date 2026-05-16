@@ -5,11 +5,10 @@
  * @since 0.0.0
  */
 import { $SemanticWebId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import { pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 // cspell:words ireg ucschar iprivate Ucschar Iprivate Iunreserved Isegment irelative Abempty Hier hier
 

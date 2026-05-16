@@ -7,11 +7,10 @@
 
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Effect, FileSystem, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ConfigDirError, InitError } from "./Sandbox.errors.ts";
 import {
   renderSandboxTemplateFiles,

@@ -4,8 +4,8 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { A } from "@beep/utils";
 import { Effect, HashMap, HashSet } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import type { ProposeCandidateOutputSet } from "./ProfessionalRuntime.commands.js";
 import type {
@@ -50,7 +50,7 @@ const sameScope = (left: RuntimeScope, right: RuntimeScope): boolean =>
   left.workspaceId === right.workspaceId;
 
 const sameOrderedStrings = (left: ReadonlyArray<string>, right: ReadonlyArray<string>): boolean =>
-  left.length === right.length && left.every((value, index) => value === right[index]);
+  left.length === right.length && A.every(left, (value, index) => value === right[index]);
 
 const toPlainJson = (value: unknown): string => JSON.stringify(value);
 
@@ -60,134 +60,127 @@ const spanIdsFromEvidence = (evidence: RuntimeEvidenceRef): ReadonlyArray<string
 ];
 
 const collectEvidence = (outputSet: CandidateOutputSet): ReadonlyArray<RuntimeEvidenceRef> => [
-  ...outputSet.claims.flatMap((claim) => claim.evidence),
+  ...A.flatMap(outputSet.claims, (claim) => claim.evidence),
   ...outputSet.candidateProject.evidence,
-  ...outputSet.tasks.flatMap((task) => task.evidence),
-  ...outputSet.drafts.flatMap((draft) => draft.evidence),
-  ...outputSet.approvalGates.flatMap((gate) => gate.evidence),
+  ...A.flatMap(outputSet.tasks, (task) => task.evidence),
+  ...A.flatMap(outputSet.drafts, (draft) => draft.evidence),
+  ...A.flatMap(outputSet.approvalGates, (gate) => gate.evidence),
 ];
 
 const collectCandidateIds = (outputSet: CandidateOutputSet): HashSet.HashSet<string> =>
   HashSet.fromIterable([
-    ...outputSet.claims.map((claim) => claim.claimId),
-    ...outputSet.tasks.map((task) => task.taskId),
-    ...outputSet.drafts.map((draft) => draft.draftId),
+    ...A.map(outputSet.claims, (claim) => claim.claimId),
+    ...A.map(outputSet.tasks, (task) => task.taskId),
+    ...A.map(outputSet.drafts, (draft) => draft.draftId),
   ]);
 
 const collectSourceArtifactSpans = (packet: SdkContextPacket): HashMap.HashMap<string, HashSet.HashSet<string>> =>
   HashMap.fromIterable(
-    packet.sourceArtifacts.map((artifact) => [
+    A.map(packet.sourceArtifacts, (artifact) => [
       artifact.artifactId,
-      HashSet.fromIterable(artifact.spanRefs.map((spanRef) => spanRef.spanId)),
+      HashSet.fromIterable(A.map(artifact.spanRefs, (spanRef) => spanRef.spanId)),
     ])
   );
 
-const pushEvidenceIssues = (
-  issues: Array<string>,
-  outputSet: CandidateOutputSet,
-  sourceArtifactSpans: HashMap.HashMap<string, HashSet.HashSet<string>>
-): void => {
-  for (const evidence of collectEvidence(outputSet)) {
-    const spanIds = spanIdsFromEvidence(evidence);
-    const knownSpans = HashMap.get(sourceArtifactSpans, evidence.artifactId);
+const when = (condition: boolean, issue: string): ReadonlyArray<string> => (condition ? [issue] : []);
 
-    if (spanIds.length === 0) {
-      issues.push(`evidence for ${evidence.artifactId} does not reference any spans`);
-      continue;
-    }
+const collectEvidenceIssue = (
+  sourceArtifactSpans: HashMap.HashMap<string, HashSet.HashSet<string>>,
+  evidence: RuntimeEvidenceRef
+): ReadonlyArray<string> => {
+  const spanIds = spanIdsFromEvidence(evidence);
+  const knownSpans = HashMap.get(sourceArtifactSpans, evidence.artifactId);
 
-    if (O.isNone(knownSpans)) {
-      issues.push(`evidence references unknown artifact ${evidence.artifactId}`);
-      continue;
-    }
-
-    for (const spanId of spanIds) {
-      if (!HashSet.has(knownSpans.value, spanId)) {
-        issues.push(`evidence references unknown span ${evidence.artifactId}#${spanId}`);
-      }
-    }
+  if (spanIds.length === 0) {
+    return [`evidence for ${evidence.artifactId} does not reference any spans`];
   }
+
+  if (O.isNone(knownSpans)) {
+    return [`evidence references unknown artifact ${evidence.artifactId}`];
+  }
+
+  return A.map(
+    A.filter(spanIds, (spanId) => !HashSet.has(knownSpans.value, spanId)),
+    (spanId) => `evidence references unknown span ${evidence.artifactId}#${spanId}`
+  );
 };
 
+const collectEvidenceIssues = (
+  outputSet: CandidateOutputSet,
+  sourceArtifactSpans: HashMap.HashMap<string, HashSet.HashSet<string>>
+): ReadonlyArray<string> =>
+  A.flatMap(collectEvidence(outputSet), (evidence) => collectEvidenceIssue(sourceArtifactSpans, evidence));
+
+const collectApprovalGateIssues =
+  (principalIds: HashSet.HashSet<string>, candidateIds: HashSet.HashSet<string>) =>
+  (gate: CandidateOutputSet["approvalGates"][number]): ReadonlyArray<string> => [
+    ...when(
+      !HashSet.has(principalIds, gate.reviewerPrincipalId),
+      `${gate.approvalGateId} reviewer ${gate.reviewerPrincipalId} is missing from context packet principals`
+    ),
+    ...A.map(
+      A.filter(gate.candidateRefs, (candidateRef) => !HashSet.has(candidateIds, candidateRef)),
+      (candidateRef) => `${gate.approvalGateId} references unknown candidate ${candidateRef}`
+    ),
+  ];
+
 const collectOutputIssues = (outputSet: CandidateOutputSet, producedByPrincipalId: string): ReadonlyArray<string> => {
-  const issues: Array<string> = [];
   const principalIds = HashSet.fromIterable(outputSet.contextPacket.principals);
   const sourceArtifactSpans = collectSourceArtifactSpans(outputSet.contextPacket);
   const candidateIds = collectCandidateIds(outputSet);
-  const claimIds = outputSet.claims.map((claim) => claim.claimId);
-  const taskIds = outputSet.tasks.map((task) => task.taskId);
-  const draftIds = outputSet.drafts.map((draft) => draft.draftId);
-  const gateIds = outputSet.approvalGates.map((gate) => gate.approvalGateId);
+  const claimIds = A.map(outputSet.claims, (claim) => claim.claimId);
+  const taskIds = A.map(outputSet.tasks, (task) => task.taskId);
+  const draftIds = A.map(outputSet.drafts, (draft) => draft.draftId);
+  const gateIds = A.map(outputSet.approvalGates, (gate) => gate.approvalGateId);
 
-  if (outputSet.contextPacket.scenarioId !== outputSet.scenarioId) {
-    issues.push(`context packet scenario ${outputSet.contextPacket.scenarioId} does not match ${outputSet.scenarioId}`);
-  }
-
-  if (outputSet.contextPacket.request.artifactId !== outputSet.contextPacket.sourceArtifacts[0]?.artifactId) {
-    issues.push("context packet request artifact is not declared as a source artifact");
-  }
-
-  if (!HashSet.has(principalIds, producedByPrincipalId)) {
-    issues.push(`producing principal ${producedByPrincipalId} is missing from context packet principals`);
-  }
-
-  for (const claim of outputSet.claims) {
-    if (claim.producedByPrincipalId !== producedByPrincipalId) {
-      issues.push(`${claim.claimId} was produced by ${claim.producedByPrincipalId}, not ${producedByPrincipalId}`);
-    }
-  }
-
-  for (const draft of outputSet.drafts) {
-    if (draft.producedByPrincipalId !== producedByPrincipalId) {
-      issues.push(`${draft.draftId} was produced by ${draft.producedByPrincipalId}, not ${producedByPrincipalId}`);
-    }
-  }
-
-  for (const task of outputSet.tasks) {
-    if (!HashSet.has(principalIds, task.assigneePrincipalId)) {
-      issues.push(`${task.taskId} assignee ${task.assigneePrincipalId} is missing from context packet principals`);
-    }
-  }
-
-  for (const gate of outputSet.approvalGates) {
-    if (!HashSet.has(principalIds, gate.reviewerPrincipalId)) {
-      issues.push(
-        `${gate.approvalGateId} reviewer ${gate.reviewerPrincipalId} is missing from context packet principals`
-      );
-    }
-
-    for (const candidateRef of gate.candidateRefs) {
-      if (!HashSet.has(candidateIds, candidateRef)) {
-        issues.push(`${gate.approvalGateId} references unknown candidate ${candidateRef}`);
-      }
-    }
-  }
-
-  for (const activity of outputSet.contextPacket.activities) {
-    if (!HashSet.has(principalIds, activity.principalId)) {
-      issues.push(`${activity.activityId} principal ${activity.principalId} is missing from context packet principals`);
-    }
-  }
-
-  if (!sameOrderedStrings(outputSet.contextPacket.candidateClaims, claimIds)) {
-    issues.push("context packet candidate claim refs do not match claims");
-  }
-
-  if (!sameOrderedStrings(outputSet.contextPacket.candidateTasks, taskIds)) {
-    issues.push("context packet candidate task refs do not match tasks");
-  }
-
-  if (!sameOrderedStrings(outputSet.contextPacket.candidateDrafts, draftIds)) {
-    issues.push("context packet candidate draft refs do not match drafts");
-  }
-
-  if (!sameOrderedStrings(outputSet.contextPacket.approvalGates, gateIds)) {
-    issues.push("context packet approval gate refs do not match approval gates");
-  }
-
-  pushEvidenceIssues(issues, outputSet, sourceArtifactSpans);
-
-  return issues;
+  return [
+    ...when(
+      outputSet.contextPacket.scenarioId !== outputSet.scenarioId,
+      `context packet scenario ${outputSet.contextPacket.scenarioId} does not match ${outputSet.scenarioId}`
+    ),
+    ...when(
+      outputSet.contextPacket.request.artifactId !== outputSet.contextPacket.sourceArtifacts[0]?.artifactId,
+      "context packet request artifact is not declared as a source artifact"
+    ),
+    ...when(
+      !HashSet.has(principalIds, producedByPrincipalId),
+      `producing principal ${producedByPrincipalId} is missing from context packet principals`
+    ),
+    ...A.map(
+      A.filter(outputSet.claims, (claim) => claim.producedByPrincipalId !== producedByPrincipalId),
+      (claim) => `${claim.claimId} was produced by ${claim.producedByPrincipalId}, not ${producedByPrincipalId}`
+    ),
+    ...A.map(
+      A.filter(outputSet.drafts, (draft) => draft.producedByPrincipalId !== producedByPrincipalId),
+      (draft) => `${draft.draftId} was produced by ${draft.producedByPrincipalId}, not ${producedByPrincipalId}`
+    ),
+    ...A.map(
+      A.filter(outputSet.tasks, (task) => !HashSet.has(principalIds, task.assigneePrincipalId)),
+      (task) => `${task.taskId} assignee ${task.assigneePrincipalId} is missing from context packet principals`
+    ),
+    ...A.flatMap(outputSet.approvalGates, collectApprovalGateIssues(principalIds, candidateIds)),
+    ...A.map(
+      A.filter(outputSet.contextPacket.activities, (activity) => !HashSet.has(principalIds, activity.principalId)),
+      (activity) => `${activity.activityId} principal ${activity.principalId} is missing from context packet principals`
+    ),
+    ...when(
+      !sameOrderedStrings(outputSet.contextPacket.candidateClaims, claimIds),
+      "context packet candidate claim refs do not match claims"
+    ),
+    ...when(
+      !sameOrderedStrings(outputSet.contextPacket.candidateTasks, taskIds),
+      "context packet candidate task refs do not match tasks"
+    ),
+    ...when(
+      !sameOrderedStrings(outputSet.contextPacket.candidateDrafts, draftIds),
+      "context packet candidate draft refs do not match drafts"
+    ),
+    ...when(
+      !sameOrderedStrings(outputSet.contextPacket.approvalGates, gateIds),
+      "context packet approval gate refs do not match approval gates"
+    ),
+    ...collectEvidenceIssues(outputSet, sourceArtifactSpans),
+  ];
 };
 
 const validateOutputSet = (
@@ -196,7 +189,7 @@ const validateOutputSet = (
 ): Effect.Effect<void, ProfessionalRuntimeValidationError> => {
   const issues = collectOutputIssues(outputSet, producedByPrincipalId);
 
-  return issues.length === 0 ? Effect.void : failValidation(`${outputSet.scenarioId}: ${issues.join("; ")}`);
+  return issues.length === 0 ? Effect.void : failValidation(`${outputSet.scenarioId}: ${A.join(issues, "; ")}`);
 };
 
 /**

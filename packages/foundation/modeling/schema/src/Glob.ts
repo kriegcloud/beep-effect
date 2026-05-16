@@ -19,12 +19,11 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { thunkFalse } from "@beep/utils";
+import { Str, thunkFalse } from "@beep/utils";
 import { Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $SchemaId.create("Glob");
 const MAX_GLOB_PATTERN_LENGTH = 1024 * 64;

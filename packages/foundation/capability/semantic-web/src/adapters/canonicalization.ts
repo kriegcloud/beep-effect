@@ -9,9 +9,8 @@
 /// <reference path="../rdf-canonize.d.ts" />
 
 import { Sha256Hex } from "@beep/schema";
-import { Str } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { Duration, Effect, flow, Layer, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
@@ -98,7 +97,7 @@ const enforceWorkLimit = (
     : Effect.void;
 
 const lexicalCanonicalTextFromQuads = (quads: ReadonlyArray<Quad>): string =>
-  NQuads.serialize(toCanonizeDataset(quads)).trimEnd();
+  pipe(NQuads.serialize(toCanonizeDataset(quads)), Str.trimEnd);
 
 const toCanonizeSubject = (subject: Subject): CanonizeSubject =>
   subject.termType === "NamedNode"
@@ -212,7 +211,7 @@ const canonicalizeSemantically = Effect.fn("SemanticWeb.canonicalizeSemantically
   });
 
   return {
-    canonicalText: canonicalText.trimEnd(),
+    canonicalText: pipe(canonicalText, Str.trimEnd),
     dataset: makeDataset(pipe(parsed, A.map(fromCanonizeQuad))),
   };
 });

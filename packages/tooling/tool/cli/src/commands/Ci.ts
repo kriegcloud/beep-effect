@@ -8,13 +8,11 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { TaggedErrorClass } from "@beep/schema";
-import { thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Argument, Command } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("commands/Ci");
@@ -251,10 +249,10 @@ const renderTurboSummary = (repoRoot: string, summaryPath: string, run: TurboSum
   ];
 
   if (A.isReadonlyArrayNonEmpty(longestTasks)) {
-    lines.push("", "| Task | Duration | Cache |", "| --- | ---: | --- |");
+    A.appendAllInPlace(lines, ["", "| Task | Duration | Cache |", "| --- | ---: | --- |"]);
 
     for (const task of longestTasks) {
-      lines.push(`| \`${task.taskId}\` | ${formatDuration(task.durationMs)} | ${task.cacheStatus} |`);
+      A.appendInPlace(lines, `| \`${task.taskId}\` | ${formatDuration(task.durationMs)} | ${task.cacheStatus} |`);
     }
   }
 

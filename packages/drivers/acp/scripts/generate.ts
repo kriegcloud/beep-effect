@@ -2,11 +2,11 @@
 
 import { $AcpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { make as makeJsonSchemaGenerator } from "@effect/openapi-generator/JsonSchemaGenerator";
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { Effect, FileSystem, Layer, Logger, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -18,13 +18,7 @@ const CURRENT_SCHEMA_RELEASE = "v0.11.3";
 const GENERATED_SCHEMA_ID = '$AcpId.create("_generated/schema.gen")';
 const GENERATED_META_ID = '$AcpId.create("_generated/meta.gen")';
 const $I = $AcpId.create("scripts/generate");
-const schemaNameOrder = Order.make<string>((left, right) => {
-  const ordering = left.localeCompare(right);
-  if (ordering < 0) {
-    return -1;
-  }
-  return ordering > 0 ? 1 : 0;
-});
+const schemaNameOrder = Order.make<string>((left, right) => Str.localeCompare(right)(left));
 
 interface GenerateCommandError {
   readonly _tag: "GenerateCommandError";
@@ -140,20 +134,22 @@ const writeGeneratedFiles = Effect.fn("writeGeneratedFiles")(function* (schemaOu
 });
 
 function collectSchemaEntries(chunk: string): ReadonlyArray<SchemaEntry> {
-  const lines = chunk
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0 && !line.startsWith("//"));
-  const entries: Array<SchemaEntry> = [];
+  const lines = pipe(
+    chunk,
+    Str.split("\n"),
+    A.map(Str.trim),
+    A.filter((line) => Str.length(line) > 0 && !Str.startsWith("//")(line))
+  );
+  let entries = A.empty<SchemaEntry>();
 
   for (let index = 0; index < lines.length; index += 1) {
     const typeLine = lines[index];
-    if (!typeLine?.startsWith("export type ")) {
+    if (!P.isString(typeLine) || !Str.startsWith("export type ")(typeLine)) {
       continue;
     }
 
     const constLine = lines[index + 1];
-    if (!constLine?.startsWith("export const ")) {
+    if (!P.isString(constLine) || !Str.startsWith("export const ")(constLine)) {
       throw new AcpGeneratorOutputError({ message: `Malformed generator output near: ${typeLine}` });
     }
 
@@ -162,7 +158,7 @@ function collectSchemaEntries(chunk: string): ReadonlyArray<SchemaEntry> {
       throw new AcpGeneratorOutputError({ message: `Could not extract schema name from: ${typeLine}` });
     }
 
-    entries.push({
+    entries = A.append(entries, {
       name: match[1],
       code: renderSchemaEntry(match[1], constLine),
     });
@@ -173,65 +169,73 @@ function collectSchemaEntries(chunk: string): ReadonlyArray<SchemaEntry> {
 }
 
 function renderSchemaEntry(name: string, constLine: string): string {
-  const schemaExpression = constLine
-    .replace(new RegExp(`^export const ${name} = `), "")
-    .replace(/;$/, "")
-    .replaceAll("Schema.", "S.");
-  return [
-    "/**",
-    ` * Generated ACP schema for \`${name}\`.`,
-    " *",
-    " * @example",
-    " * ```ts",
-    ` * import { ${name} } from "@beep/acp/schema"`,
-    " *",
-    ` * console.log(${name}.ast)`,
-    " * ```",
-    " *",
-    " * @category schemas",
-    " * @since 0.0.0",
-    " */",
-    `export const ${name} = ${schemaExpression}.pipe(`,
-    `  $I.annoteSchema("${name}", {`,
-    `    description: "Generated ACP schema for ${name}."`,
-    "  })",
-    ");",
-    "",
-    "/**",
-    ` * Type for {@link ${name}}.`,
-    " *",
-    " * @example",
-    " * ```ts",
-    ` * import type { ${name} } from "@beep/acp/schema"`,
-    " *",
-    ` * const inspect = (value: ${name}) => value`,
-    " * void inspect",
-    " * ```",
-    " *",
-    " * @category models",
-    " * @since 0.0.0",
-    " */",
-    `export type ${name} = typeof ${name}.Type;`,
-  ].join("\n");
+  const schemaExpression = pipe(
+    constLine,
+    Str.replace(new RegExp(`^export const ${name} = `), ""),
+    Str.replace(/;$/, ""),
+    Str.replaceAll("Schema.", "S.")
+  );
+  return pipe(
+    [
+      "/**",
+      ` * Generated ACP schema for \`${name}\`.`,
+      " *",
+      " * @example",
+      " * ```ts",
+      ` * import { ${name} } from "@beep/acp/schema"`,
+      " *",
+      ` * console.log(${name}.ast)`,
+      " * ```",
+      " *",
+      " * @category schemas",
+      " * @since 0.0.0",
+      " */",
+      `export const ${name} = ${schemaExpression}.pipe(`,
+      `  $I.annoteSchema("${name}", {`,
+      `    description: "Generated ACP schema for ${name}."`,
+      "  })",
+      ");",
+      "",
+      "/**",
+      ` * Type for {@link ${name}}.`,
+      " *",
+      " * @example",
+      " * ```ts",
+      ` * import type { ${name} } from "@beep/acp/schema"`,
+      " *",
+      ` * const inspect = (value: ${name}) => value`,
+      " * void inspect",
+      " * ```",
+      " *",
+      " * @category models",
+      " * @since 0.0.0",
+      " */",
+      `export type ${name} = typeof ${name}.Type;`,
+    ],
+    A.join("\n")
+  );
 }
 
 function renderMetaConst(name: string, value: string, description: string): string {
-  return [
-    "/**",
-    ` * ${description}`,
-    " *",
-    " * @example",
-    " * ```ts",
-    ` * import { ${name} } from "@beep/acp/schema"`,
-    " *",
-    ` * console.log(${name})`,
-    " * ```",
-    " *",
-    " * @category constants",
-    " * @since 0.0.0",
-    " */",
-    `export const ${name} = ${value} as const;`,
-  ].join("\n");
+  return pipe(
+    [
+      "/**",
+      ` * ${description}`,
+      " *",
+      " * @example",
+      " * ```ts",
+      ` * import { ${name} } from "@beep/acp/schema"`,
+      " *",
+      ` * console.log(${name})`,
+      " * ```",
+      " *",
+      " * @category constants",
+      " * @since 0.0.0",
+      " */",
+      `export const ${name} = ${value} as const;`,
+    ],
+    A.join("\n")
+  );
 }
 
 function normalizeNullableTypes(value: typeof S.Json.Type): typeof S.Json.Type {
@@ -298,7 +302,7 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
     generator.addSchema(name, schema as never);
   }
 
-  const output = generator.generate("openapi-3.1", normalizedDefinitions as never, false).trim();
+  const output = Str.trim(generator.generate("openapi-3.1", normalizedDefinitions as never, false));
   if (output.length > 0) {
     for (const entry of collectSchemaEntries(output)) {
       if (!A.some(generatedEntries, (existing) => existing.name === entry.name)) {
@@ -320,43 +324,53 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
     "",
   ];
 
-  const schemaOutput = [
-    ...prelude,
-    'import { $AcpId } from "@beep/identity";',
-    'import * as S from "effect/Schema";',
-    "",
-    `const $I = ${GENERATED_SCHEMA_ID};`,
-    "",
-    pipe(
-      generatedEntries,
-      A.map((entry) => entry.code),
-      A.join("\n\n")
-    ),
-    "",
-  ].join("\n");
+  const schemaOutput = pipe(
+    [
+      ...prelude,
+      'import { $AcpId } from "@beep/identity";',
+      'import * as S from "effect/Schema";',
+      "",
+      `const $I = ${GENERATED_SCHEMA_ID};`,
+      "",
+      pipe(
+        generatedEntries,
+        A.map((entry) => entry.code),
+        A.join("\n\n")
+      ),
+      "",
+    ],
+    A.join("\n")
+  );
 
-  const metaOutput = [
-    ...prelude,
-    'import { $AcpId } from "@beep/identity";',
-    "",
-    `const $I = ${GENERATED_META_ID};`,
-    "void $I;",
-    "",
-    renderMetaConst(
-      "AGENT_METHODS",
-      yield* encodeAgentMethods(upstreamMeta.agentMethods),
-      "Generated ACP agent method lookup table."
-    ),
-    "",
-    renderMetaConst(
-      "CLIENT_METHODS",
-      yield* encodeClientMethods(upstreamMeta.clientMethods),
-      "Generated ACP client method lookup table."
-    ),
-    "",
-    renderMetaConst("PROTOCOL_VERSION", yield* encodeVersion(upstreamMeta.version), "Generated ACP protocol version."),
-    "",
-  ].join("\n");
+  const metaOutput = pipe(
+    [
+      ...prelude,
+      'import { $AcpId } from "@beep/identity";',
+      "",
+      `const $I = ${GENERATED_META_ID};`,
+      "void $I;",
+      "",
+      renderMetaConst(
+        "AGENT_METHODS",
+        yield* encodeAgentMethods(upstreamMeta.agentMethods),
+        "Generated ACP agent method lookup table."
+      ),
+      "",
+      renderMetaConst(
+        "CLIENT_METHODS",
+        yield* encodeClientMethods(upstreamMeta.clientMethods),
+        "Generated ACP client method lookup table."
+      ),
+      "",
+      renderMetaConst(
+        "PROTOCOL_VERSION",
+        yield* encodeVersion(upstreamMeta.version),
+        "Generated ACP protocol version."
+      ),
+      "",
+    ],
+    A.join("\n")
+  );
 
   yield* writeGeneratedFiles(schemaOutput, metaOutput);
   yield* Effect.log(`Generated ${A.length(generatedEntries)} ACP schemas from ${CURRENT_SCHEMA_RELEASE}`);

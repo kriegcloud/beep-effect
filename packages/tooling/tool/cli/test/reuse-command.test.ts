@@ -8,6 +8,7 @@ import {
   ReuseServiceSuiteLive,
   TSMorphServiceLive,
 } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, Exit, Layer, Scope } from "effect";
 import * as O from "effect/Option";
@@ -32,7 +33,7 @@ const decodeCodexSmokeResultJson = S.decodeUnknownSync(S.fromJsonString(CodexSmo
 
 const parseLoggedJson = Effect.fn(function* <A>(decodeJson: (value: string) => A) {
   const logLines = yield* TestConsole.logLines;
-  return decodeJson(logLines.join("\n"));
+  return decodeJson(A.join(logLines, "\n"));
 });
 
 const sharedReuseScope = Scope.makeUnsafe();
@@ -64,7 +65,7 @@ describe("reuse command", () => {
 
     expect(plan.scopeSelector).toBe(TOOLING_CLI_SCOPE);
     expect(plan.catalogEntryCount).toBeGreaterThan(0);
-    expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
+    expect(A.map(plan.scoutUnits, (unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
     expect(plan.specialistUnits.length).toBeGreaterThan(0);
   }, 120_000);
 
@@ -77,7 +78,7 @@ describe("reuse command", () => {
     );
 
     expect(plan.scopeSelector).toBe(TOOLING_CLI_SCOPE);
-    expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
+    expect(A.map(plan.scoutUnits, (unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
   }, 120_000);
 
   it("emits a stable machine-readable inventory for the tooling pilot scope", async () => {

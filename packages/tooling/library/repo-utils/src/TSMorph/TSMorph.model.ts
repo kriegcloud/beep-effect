@@ -14,6 +14,7 @@ import {
   Sha256Hex,
   Sha256HexFromBytes,
 } from "@beep/schema";
+import { Str } from "@beep/utils";
 import { Effect, Match, Result, SchemaGetter, Tuple } from "effect";
 
 import * as S from "effect/Schema";
@@ -30,12 +31,12 @@ const SYMBOL_QUALIFIED_NAME_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][
 
 const symbolIdSafePathChecks = S.makeFilterGroup(
   [
-    S.makeFilter((value: string) => !value.includes("::"), {
+    S.makeFilter((value: string) => !Str.includes("::")(value), {
       title: "noDoubleColonDelimiter",
       description: 'a path without the "::" template-literal delimiter',
       message: 'Path must not contain "::"',
     }),
-    S.makeFilter((value: string) => !value.includes("#"), {
+    S.makeFilter((value: string) => !Str.includes("#")(value), {
       title: "noHashDelimiter",
       description: 'a path without the "#" template-literal delimiter',
       message: 'Path must not contain "#"',

@@ -1,6 +1,7 @@
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as Organization from "@beep/shared-domain/entities/Organization";
 import * as Shared from "@beep/shared-domain/identity/Shared";
+import { A } from "@beep/utils";
 import { assert, describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";
 import * as O from "effect/Option";
@@ -85,7 +86,7 @@ describe("Organization", () => {
   it("materializes schema-first descriptors for the entity and table layers", () => {
     const definition = Organization.Model.definition;
 
-    expect(Object.keys(definition.fields).filter((key) => key in definition.persisted)).toEqual([
+    expect(A.filter(Object.keys(definition.fields), (key) => key in definition.persisted)).toEqual([
       "createdAt",
       "createdByPrincipal",
       "orgId",

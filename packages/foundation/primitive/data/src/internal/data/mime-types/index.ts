@@ -9,10 +9,8 @@
  * @since 0.0.0
  */
 
-import { thunkEmptyStr } from "@beep/utils";
+import { A, O, thunkEmptyStr } from "@beep/utils";
 import { Function as Fn, Match, pipe, Struct } from "effect";
-import * as A from "effect/Array";
-import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { application as _application } from "./application.ts";

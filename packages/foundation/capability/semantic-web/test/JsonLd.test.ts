@@ -25,9 +25,9 @@ import {
   JsonLdStreamSerializeRequest,
   JsonLdStreamSerializeService,
 } from "@beep/semantic-web/services/jsonld-stream-serialize";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 

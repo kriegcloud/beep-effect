@@ -6,11 +6,11 @@
  */
 
 import { $SandboxId } from "@beep/identity";
+import { A, Str } from "@beep/utils";
 import { Duration, Effect } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Display } from "./Display.ts";
 import {
   ExecError,
@@ -29,7 +29,7 @@ const DEFAULT_GIT_SETUP_TIMEOUT = Duration.millis(10_000);
 const DEFAULT_HOOK_TIMEOUT = Duration.millis(60_000);
 const DEFAULT_MERGE_TO_HEAD_TIMEOUT = Duration.millis(30_000);
 
-const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
+const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
 
 /**
  * Host lifecycle hook command.
@@ -194,7 +194,7 @@ const hostProcessOk = Effect.fn("Lifecycle.hostProcessOk")(function* (
   command: ProcessCommand
 ) {
   const result = yield* process.run(command);
-  const renderedCommand = [command.command, ...command.args].join(" ");
+  const renderedCommand = A.join([command.command, ...command.args], " ");
 
   if (result.exitCode !== 0) {
     return yield* new ExecHostError({
@@ -339,8 +339,8 @@ const runSandboxReadyHooks = Effect.fn("Lifecycle.runSandboxReadyHooks")(functio
   }
 
   const process = yield* SandboxProcess;
-  const hostEffects = hostHooks.map((hook) => runHostHook(process, hook, hostWorktreePath, defaultTimeout));
-  const sandboxEffects = sandboxHooks.map((hook) => runSandboxHook(sandbox, hook, sandboxRepoDir, defaultTimeout));
+  const hostEffects = A.map(hostHooks, (hook) => runHostHook(process, hook, hostWorktreePath, defaultTimeout));
+  const sandboxEffects = A.map(sandboxHooks, (hook) => runSandboxHook(sandbox, hook, sandboxRepoDir, defaultTimeout));
 
   yield* Effect.all([...hostEffects, ...sandboxEffects], {
     concurrency: "unbounded",

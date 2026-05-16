@@ -6,8 +6,8 @@
  */
 
 import { ExtractFramesRequest, FFmpeg, type FFmpegError, type FFmpegEvent } from "@beep/ffmpeg";
+import { Str } from "@beep/utils";
 import { Console, Effect, pipe, Terminal } from "effect";
-import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 
 const barWidth = 24;

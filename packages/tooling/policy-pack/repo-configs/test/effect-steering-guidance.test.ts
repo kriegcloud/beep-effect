@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem } from "effect";
@@ -28,7 +29,9 @@ layer(NodeServices.layer)("effect steering guidance", (it) => {
         expect(source).toContain("O.all({...})");
         expect(source).toContain("S.OptionFrom*");
         expect(source).toContain("onNone: () => ({})");
-        expect(source.includes("Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.")).toBe(false);
+        expect(Str.contains(source, "Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.")).toBe(
+          false
+        );
       })
     );
   });

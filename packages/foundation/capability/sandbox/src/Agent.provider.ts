@@ -7,16 +7,15 @@
 
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import { A, O } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
 import { Effect, pipe } from "effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $SandboxId.create("Agent.provider");
 
-const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
+const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
 
 const TOOL_ARG_FIELDS: Readonly<Record<string, string>> = {
   Agent: "description",
@@ -553,28 +552,30 @@ const parseClaudeStreamLine = (line: string): ReadonlyArray<ParsedStreamEvent> =
 
     for (const block of parsed.value.message.content) {
       if (block.type === "text") {
-        texts.push(block.text);
+        A.appendInPlace(texts, block.text);
         continue;
       }
 
       const toolCall = claudeToolCallEvent(block);
       if (O.isSome(toolCall)) {
         if (texts.length > 0) {
-          events.push(
+          A.appendInPlace(
+            events,
             ParsedStreamEvent.cases.Text.make({
-              text: texts.join(""),
+              text: A.join(texts, ""),
             })
           );
           texts.length = 0;
         }
-        events.push(toolCall.value);
+        A.appendInPlace(events, toolCall.value);
       }
     }
 
     if (texts.length > 0) {
-      events.push(
+      A.appendInPlace(
+        events,
         ParsedStreamEvent.cases.Text.make({
-          text: texts.join(""),
+          text: A.join(texts, ""),
         })
       );
     }
@@ -723,7 +724,7 @@ const parsePiStreamLine = (line: string): ReadonlyArray<ParsedStreamEvent> => {
     return texts.length > 0
       ? [
           ParsedStreamEvent.cases.Result.make({
-            result: texts.join(""),
+            result: A.join(texts, ""),
           }),
         ]
       : empty;

@@ -11,13 +11,11 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { FsUtils } from "@beep/repo-utils";
-import { Text, thunkFalse, thunkUndefined } from "@beep/utils";
+import { A, Str, Text, thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, Order, Path, pipe, Result, SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("commands/Codegen");

@@ -7,6 +7,7 @@
 
 import { $AcpId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Deferred, Effect, HashMap, HashSet, Inspectable, Match, Queue, Ref, Stream } from "effect";
 import type * as Cause from "effect/Cause";
 import * as O from "effect/Option";
@@ -445,11 +446,11 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
         if (message.exit._tag === "Success") {
           return completeExtPendingSuccess(message.requestId, message.exit.value);
         }
-        const failure = message.exit.cause.find((entry) => entry._tag === "Fail");
-        if (failure !== undefined && isProtocolError(failure.error)) {
+        const failure = A.findFirst(message.exit.cause, (entry) => entry._tag === "Fail");
+        if (O.isSome(failure) && isProtocolError(failure.value.error)) {
           return completeExtPendingFailure(
             message.requestId,
-            AcpError.AcpRequestError.fromProtocolError(failure.error)
+            AcpError.AcpRequestError.fromProtocolError(failure.value.error)
           );
         }
         return completeExtPendingFailure(

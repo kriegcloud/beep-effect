@@ -22,8 +22,8 @@ import {
   ReuseServiceSuiteLive,
   type TSMorphService,
 } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { Console, Effect, type FileSystem, Layer, type Path } from "effect";
-import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";

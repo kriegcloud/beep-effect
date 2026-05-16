@@ -9,8 +9,8 @@
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
+import { A } from "@beep/utils";
 import { Effect, flow, MutableHashSet, Order, Struct } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { buildRepoDependencyIndex } from "./DependencyIndex.js";
 import type { DomainError, NoSuchFileError } from "./errors/index.js";

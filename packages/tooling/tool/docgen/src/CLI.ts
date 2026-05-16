@@ -8,8 +8,8 @@
  */
 
 import { TSConfigCompilerOptions } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { Effect, Layer } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";

@@ -1,5 +1,6 @@
 import { EffectFnRulesOptions, runEffectFnRules } from "@beep/repo-cli/commands/Laws/EffectFn";
 import { TSMorphServiceLive } from "@beep/repo-utils/TSMorph/index";
+import { A } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path, Stream } from "effect";
 import * as Chunk from "effect/Chunk";
@@ -44,19 +45,22 @@ const writeProjectScaffold = Effect.gen(function* () {
   yield* writeProjectFile("bun.lock", "");
   yield* writeProjectFile(
     "tsconfig.json",
-    [
-      "{",
-      '  "compilerOptions": {',
-      '    "target": "ES2022",',
-      '    "module": "ESNext",',
-      '    "moduleResolution": "Bundler",',
-      '    "strict": true,',
-      '    "skipLibCheck": true',
-      "  },",
-      '  "include": ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx", "infra/**/*.ts"]',
-      "}",
-      "",
-    ].join("\n")
+    A.join(
+      [
+        "{",
+        '  "compilerOptions": {',
+        '    "target": "ES2022",',
+        '    "module": "ESNext",',
+        '    "moduleResolution": "Bundler",',
+        '    "strict": true,',
+        '    "skipLibCheck": true',
+        "  },",
+        '  "include": ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx", "infra/**/*.ts"]',
+        "}",
+        "",
+      ],
+      "\n"
+    )
   );
 });
 
@@ -83,51 +87,54 @@ describe("effect fn laws", () => {
           yield* writeProjectScaffold;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import { Effect } from "effect";',
-              "",
-              "declare const flag: boolean;",
-              "declare const effects: ReadonlyArray<Effect.Effect<string>>;",
-              "",
-              "export const annotatedExpression = (value: string): Effect.Effect<string> => Effect.gen(function* () {",
-              "  return yield* Effect.succeed(value);",
-              "});",
-              "",
-              "export const annotatedBlock = (value: string): Effect.Effect<string> => {",
-              "  const prefix = 'x';",
-              "  return Effect.gen(function* () {",
-              "    return `${prefix}${value}`;",
-              "  });",
-              "};",
-              "",
-              "export const conditional = (value: string): Effect.Effect<string> => {",
-              "  if (flag) return Effect.succeed(value);",
-              "  return Effect.gen(function* () {",
-              "    return yield* Effect.succeed(value);",
-              "  });",
-              "};",
-              "",
-              "export function declared(value: string): Effect.Effect<string> {",
-              "  return Effect.gen(function* () {",
-              "    return yield* Effect.succeed(value);",
-              "  });",
-              "}",
-              "",
-              "export const handlers = {",
-              "  method(value: string): Effect.Effect<string> {",
-              "    return Effect.gen(function* () {",
-              "      return yield* Effect.succeed(value);",
-              "    });",
-              "  },",
-              "};",
-              "",
-              "export const mapped = effects.map((effect) => {",
-              "  return Effect.gen(function* () {",
-              "    return yield* effect;",
-              "  });",
-              "});",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import { Effect } from "effect";',
+                "",
+                "declare const flag: boolean;",
+                "declare const effects: ReadonlyArray<Effect.Effect<string>>;",
+                "",
+                "export const annotatedExpression = (value: string): Effect.Effect<string> => Effect.gen(function* () {",
+                "  return yield* Effect.succeed(value);",
+                "});",
+                "",
+                "export const annotatedBlock = (value: string): Effect.Effect<string> => {",
+                "  const prefix = 'x';",
+                "  return Effect.gen(function* () {",
+                "    return `${prefix}${value}`;",
+                "  });",
+                "};",
+                "",
+                "export const conditional = (value: string): Effect.Effect<string> => {",
+                "  if (flag) return Effect.succeed(value);",
+                "  return Effect.gen(function* () {",
+                "    return yield* Effect.succeed(value);",
+                "  });",
+                "};",
+                "",
+                "export function declared(value: string): Effect.Effect<string> {",
+                "  return Effect.gen(function* () {",
+                "    return yield* Effect.succeed(value);",
+                "  });",
+                "}",
+                "",
+                "export const handlers = {",
+                "  method(value: string): Effect.Effect<string> {",
+                "    return Effect.gen(function* () {",
+                "      return yield* Effect.succeed(value);",
+                "    });",
+                "  },",
+                "};",
+                "",
+                "export const mapped = effects.map((effect) => {",
+                "  return Effect.gen(function* () {",
+                "    return yield* effect;",
+                "  });",
+                "});",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runEffectFnRules(
@@ -142,7 +149,7 @@ describe("effect fn laws", () => {
           expect(summary.violationCount).toBe(6);
           expect(summary.strictFailure).toBe(true);
           expect(summary.affectedFiles).toEqual(["packages/demo/src/index.ts"]);
-          expect(summary.diagnostics.map((diagnostic) => diagnostic.ownerName)).toEqual([
+          expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.ownerName)).toEqual([
             "annotatedExpression",
             "annotatedBlock",
             "conditional",
@@ -150,7 +157,7 @@ describe("effect fn laws", () => {
             "method",
             "callback",
           ]);
-          expect(summary.diagnostics.map((diagnostic) => diagnostic.recommendation)).toEqual([
+          expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.recommendation)).toEqual([
             "Effect.fn",
             "Effect.fn",
             "Effect.fn",
@@ -170,37 +177,43 @@ describe("effect fn laws", () => {
           yield* writeProjectScaffold;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import { Effect } from "effect";',
-              "",
-              "export const program = Effect.gen(function* () {",
-              "  return yield* Effect.succeed(1);",
-              "});",
-              "",
-              "export const scoped = () => Effect.scoped(Effect.gen(function* () {",
-              "  return yield* Effect.succeed(1);",
-              "}));",
-              "",
-              "export const already = Effect.fn('already')(function* (value: string) {",
-              "  return yield* Effect.succeed(value);",
-              "});",
-              "",
-              "export const alreadyUntraced = Effect.fnUntraced(function* (value: string) {",
-              "  return yield* Effect.succeed(value);",
-              "});",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import { Effect } from "effect";',
+                "",
+                "export const program = Effect.gen(function* () {",
+                "  return yield* Effect.succeed(1);",
+                "});",
+                "",
+                "export const scoped = () => Effect.scoped(Effect.gen(function* () {",
+                "  return yield* Effect.succeed(1);",
+                "}));",
+                "",
+                "export const already = Effect.fn('already')(function* (value: string) {",
+                "  return yield* Effect.succeed(value);",
+                "});",
+                "",
+                "export const alreadyUntraced = Effect.fnUntraced(function* (value: string) {",
+                "  return yield* Effect.succeed(value);",
+                "});",
+                "",
+              ],
+              "\n"
+            )
           );
           yield* writeProjectFile(
             "packages/demo/test/index.ts",
-            [
-              'import { Effect } from "effect";',
-              "",
-              "export const ignored = (value: string): Effect.Effect<string> => Effect.gen(function* () {",
-              "  return yield* Effect.succeed(value);",
-              "});",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import { Effect } from "effect";',
+                "",
+                "export const ignored = (value: string): Effect.Effect<string> => Effect.gen(function* () {",
+                "  return yield* Effect.succeed(value);",
+                "});",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runEffectFnRules(
@@ -228,14 +241,17 @@ describe("effect fn laws", () => {
           yield* writeProjectScaffold;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import { Effect } from "effect";',
-              "",
-              "export const ignored = (value: string): Effect.Effect<string> => Effect.gen(function* () {",
-              "  return yield* Effect.succeed(value);",
-              "});",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import { Effect } from "effect";',
+                "",
+                "export const ignored = (value: string): Effect.Effect<string> => Effect.gen(function* () {",
+                "  return yield* Effect.succeed(value);",
+                "});",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runEffectFnRules(
@@ -261,14 +277,17 @@ describe("effect fn laws", () => {
           yield* writeProjectScaffold;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import { Effect } from "effect";',
-              "",
-              "export const loadDemo = (): Effect.Effect<string> => Effect.gen(function* () {",
-              '  return "demo";',
-              "});",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import { Effect } from "effect";',
+                "",
+                "export const loadDemo = (): Effect.Effect<string> => Effect.gen(function* () {",
+                '  return "demo";',
+                "});",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const result = yield* runCliCommand("laws", "effect-fn", "--check");

@@ -8,11 +8,10 @@
 
 import { DomainError } from "@beep/repo-utils";
 import { normalizePath } from "@beep/schema";
-import { thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, Match, Path } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   type ArchitectureOperation,
   ArchitectureOperationCheck,
@@ -109,8 +108,8 @@ export const checkCanonicalSliceOperationPlan: {
       ) {
         const expected = yield* renderWritableOperation(writableOperation);
         if (!exists) {
-          missingPaths.push(writableOperation.path);
-          operationStatuses.push(checkStatusFor(writableOperation, "missing"));
+          A.appendInPlace(missingPaths, writableOperation.path);
+          A.appendInPlace(operationStatuses, checkStatusFor(writableOperation, "missing"));
           return;
         }
 
@@ -118,10 +117,10 @@ export const checkCanonicalSliceOperationPlan: {
           .readFileString(operationPath)
           .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${writableOperation.path}"`)));
         if (!stringEquivalence(current, expected)) {
-          differingPaths.push(writableOperation.path);
-          operationStatuses.push(checkStatusFor(writableOperation, "differing"));
+          A.appendInPlace(differingPaths, writableOperation.path);
+          A.appendInPlace(operationStatuses, checkStatusFor(writableOperation, "differing"));
         } else {
-          operationStatuses.push(checkStatusFor(writableOperation, "matching"));
+          A.appendInPlace(operationStatuses, checkStatusFor(writableOperation, "matching"));
         }
       });
 
@@ -131,19 +130,19 @@ export const checkCanonicalSliceOperationPlan: {
           "ensure-file": (ensureFileOperation) =>
             Effect.sync(() => {
               if (!exists) {
-                missingPaths.push(ensureFileOperation.path);
-                operationStatuses.push(checkStatusFor(ensureFileOperation, "missing"));
+                A.appendInPlace(missingPaths, ensureFileOperation.path);
+                A.appendInPlace(operationStatuses, checkStatusFor(ensureFileOperation, "missing"));
               } else {
-                operationStatuses.push(checkStatusFor(ensureFileOperation, "matching"));
+                A.appendInPlace(operationStatuses, checkStatusFor(ensureFileOperation, "matching"));
               }
             }),
           "ensure-absent-path": (ensureAbsentPathOperation) =>
             Effect.sync(() => {
               if (exists) {
-                unexpectedPaths.push(ensureAbsentPathOperation.path);
-                operationStatuses.push(checkStatusFor(ensureAbsentPathOperation, "unexpected"));
+                A.appendInPlace(unexpectedPaths, ensureAbsentPathOperation.path);
+                A.appendInPlace(operationStatuses, checkStatusFor(ensureAbsentPathOperation, "unexpected"));
               } else {
-                operationStatuses.push(checkStatusFor(ensureAbsentPathOperation, "absent"));
+                A.appendInPlace(operationStatuses, checkStatusFor(ensureAbsentPathOperation, "absent"));
               }
             }),
           "write-file": checkWritableOperation,
@@ -209,7 +208,7 @@ export const applyCanonicalSliceOperationPlan: {
               Effect.mapError((cause) => DomainError.newCause(cause, `Failed to read "${writableOperation.path}"`))
             );
           if (stringEquivalence(current, expected)) {
-            skippedPaths.push(writableOperation.path);
+            A.appendInPlace(skippedPaths, writableOperation.path);
           } else {
             return yield* DomainError.newMessage(
               `Architecture operation would overwrite a differing file: ${writableOperation.path}`
@@ -228,7 +227,7 @@ export const applyCanonicalSliceOperationPlan: {
         yield* fs
           .writeFileString(operationPath, expected)
           .pipe(Effect.mapError((cause) => DomainError.newCause(cause, `Failed to write "${writableOperation.path}"`)));
-        writtenPaths.push(writableOperation.path);
+        A.appendInPlace(writtenPaths, writableOperation.path);
       });
 
       yield* Match.value(operation).pipe(
@@ -236,7 +235,7 @@ export const applyCanonicalSliceOperationPlan: {
         Match.discriminatorsExhaustive("kind")({
           "ensure-file": Effect.fn("applyEnsureFileOperation")(function* (ensureFileOperation) {
             if (exists) {
-              skippedPaths.push(ensureFileOperation.path);
+              A.appendInPlace(skippedPaths, ensureFileOperation.path);
             } else {
               return yield* DomainError.newMessage(
                 `Required architecture file is missing: ${ensureFileOperation.path}`
@@ -252,9 +251,9 @@ export const applyCanonicalSliceOperationPlan: {
                     DomainError.newCause(cause, `Failed to remove "${ensureAbsentPathOperation.path}"`)
                   )
                 );
-              removedPaths.push(ensureAbsentPathOperation.path);
+              A.appendInPlace(removedPaths, ensureAbsentPathOperation.path);
             } else {
-              skippedPaths.push(ensureAbsentPathOperation.path);
+              A.appendInPlace(skippedPaths, ensureAbsentPathOperation.path);
             }
           }),
           "write-file": applyWritableOperation,

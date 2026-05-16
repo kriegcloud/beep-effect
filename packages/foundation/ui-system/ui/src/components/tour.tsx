@@ -11,8 +11,9 @@ import {
   CardTitle,
 } from "@beep/ui/components/card";
 import { Popover, PopoverContent } from "@beep/ui/components/popover";
+import { A } from "@beep/utils";
 import { XIcon } from "@phosphor-icons/react";
-import * as A from "effect/Array";
+import { pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import Link from "next/link";
@@ -72,7 +73,11 @@ function TourProvider({ tours, children }: { readonly tours: Tour[]; readonly ch
   const [activeTourId, setActiveTourId] = React.useState<string | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = React.useState(0);
 
-  const activeTour = tours.find((tour) => tour.id === activeTourId);
+  const activeTour = pipe(
+    tours,
+    A.findFirst((tour) => tour.id === activeTourId),
+    O.getOrUndefined
+  );
   const steps = activeTour?.steps || [];
 
   function next() {
@@ -98,7 +103,11 @@ function TourProvider({ tours, children }: { readonly tours: Tour[]; readonly ch
   }
 
   function start(tourId: string) {
-    const tour = tours.find((tour) => tour.id === tourId);
+    const tour = pipe(
+      tours,
+      A.findFirst((tour) => tour.id === tourId),
+      O.getOrUndefined
+    );
     if (tour !== undefined) {
       if (tour.steps.length > 0) {
         setActiveTourId(tourId);
@@ -158,7 +167,7 @@ function TourOverlay({
       const elements = document.querySelectorAll(`[data-tour-step-id*='${step.id}']`);
 
       if (elements.length > 0) {
-        const validElements = A.empty<{
+        let validElements = A.empty<{
           readonly rect: {
             readonly width: number;
             readonly height: number;
@@ -181,7 +190,7 @@ function TourOverlay({
           const style = window.getComputedStyle(element);
           const radius = Number(style.borderRadius) || 4;
 
-          validElements.push({
+          validElements = A.append(validElements, {
             rect: {
               width: rect.width,
               height: rect.height,
@@ -198,7 +207,7 @@ function TourOverlay({
           });
         }
 
-        setTargets(validElements.map(({ rect, radius }) => ({ rect, radius })));
+        setTargets(A.map(validElements, ({ rect, radius }) => ({ rect, radius })));
 
         if (validElements.length > 0 && needsScroll) {
           validElements[0]?.element.scrollIntoView({
@@ -253,7 +262,7 @@ function TourOverlay({
         <defs>
           <mask id="tour-mask">
             <rect x="0" y="0" width="100%" height="100%" fill="white" />
-            {targets.map((target, i) => (
+            {A.map(targets, (target, i) => (
               <rect
                 key={i}
                 x={target.rect.left}

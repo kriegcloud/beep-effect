@@ -1,4 +1,5 @@
 import { leafHook, logIssues, t } from "@beep/messages";
+import { A } from "@beep/utils";
 import { Option, SchemaIssue } from "effect";
 import * as S from "effect/Schema";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -21,7 +22,12 @@ describe("@beep/messages", () => {
 
     logIssues(Person, {});
 
-    expect(logSpy.mock.calls.map(([value]) => String(value)).join("\n")).toContain("This field is required");
+    expect(
+      A.join(
+        A.map(logSpy.mock.calls, ([value]) => String(value)),
+        "\n"
+      )
+    ).toContain("This field is required");
   });
 
   it("logs min-length schema issues with repository messaging", () => {
@@ -33,9 +39,12 @@ describe("@beep/messages", () => {
 
     logIssues(Person, { name: "" });
 
-    expect(logSpy.mock.calls.map(([value]) => String(value)).join("\n")).toContain(
-      "Please enter at least 2 character(s)"
-    );
+    expect(
+      A.join(
+        A.map(logSpy.mock.calls, ([value]) => String(value)),
+        "\n"
+      )
+    ).toContain("Please enter at least 2 character(s)");
   });
 
   it("formats each leaf issue variant with repository messaging", () => {

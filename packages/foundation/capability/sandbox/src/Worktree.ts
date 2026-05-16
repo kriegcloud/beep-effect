@@ -6,10 +6,9 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { DateTime, Duration, Effect, Path, pipe } from "effect";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { WorktreeError, WorktreeTimeoutError } from "./Sandbox.errors.ts";
 import { profileSandboxPhase } from "./Sandbox.observability.ts";
 import { ProcessCommand, SandboxProcess } from "./Sandbox.process.ts";
@@ -18,7 +17,7 @@ const $I = $SandboxId.create("Worktree");
 const WORKTREE_TIMEOUT_MS = 30_000;
 const NO_CONFIG_LOCK_FLAGS = ["-c", "branch.autoSetupMerge=false", "-c", "push.autoSetupRemote=false"] as const;
 
-const pad2 = (value: number): string => value.toString().padStart(2, "0");
+const pad2 = (value: number): string => Str.padStart(2, "0")(String(value));
 
 const formatTimestamp = (dateTime: DateTime.DateTime): string => {
   const parts = DateTime.toParts(DateTime.setZone(dateTime, DateTime.zoneMakeLocal()));
@@ -95,7 +94,7 @@ const runGitRaw = Effect.fn("Worktree.runGit")(function* (args: ReadonlyArray<st
     .pipe(WorktreeError.mapError("Failed to run git command"));
 
   if (result.exitCode !== 0) {
-    return yield* WorktreeError.new(result.stderr || result.stdout, `Git command failed: git ${args.join(" ")}`);
+    return yield* WorktreeError.new(result.stderr || result.stdout, `Git command failed: git ${A.join(args, " ")}`);
   }
 
   return result.stdout;

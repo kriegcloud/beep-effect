@@ -1,11 +1,11 @@
 import * as Configuration from "@beep/repo-docgen/Configuration";
 import * as Domain from "@beep/repo-docgen/Domain";
+import { Str } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as O from "effect/Option";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const encodeJson = S.encodeSync(S.UnknownFromJsonString);
 

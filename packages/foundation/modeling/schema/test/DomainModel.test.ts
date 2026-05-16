@@ -1,6 +1,7 @@
 import { NonNegativeInt } from "@beep/schema";
 import { DomainModel, defaultFields } from "@beep/schema/DomainModel";
 import * as Model from "@beep/schema/Model";
+import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -28,7 +29,7 @@ describe("DomainModel", () => {
       id: Model.Generated(EntityId),
     }) {}
 
-    expect(Object.keys(DomainModel.select.fields).sort()).toEqual([
+    expect(A.sort(Object.keys(DomainModel.select.fields), Str.Order)).toEqual([
       "createdAt",
       "createdBy",
       "deletedAt",
@@ -38,7 +39,7 @@ describe("DomainModel", () => {
       "updatedBy",
       "version",
     ]);
-    expect(Object.keys(Entity.select.fields).sort()).toEqual([
+    expect(A.sort(Object.keys(Entity.select.fields), Str.Order)).toEqual([
       "createdAt",
       "createdBy",
       "deletedAt",
@@ -49,7 +50,7 @@ describe("DomainModel", () => {
       "updatedBy",
       "version",
     ]);
-    expect(Object.keys(Entity.insert.fields).sort()).toEqual([
+    expect(A.sort(Object.keys(Entity.insert.fields), Str.Order)).toEqual([
       "createdAt",
       "createdBy",
       "deletedAt",

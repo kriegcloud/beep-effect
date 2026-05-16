@@ -8,14 +8,13 @@
 import { $VeniceAiId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { decodeJsonString } from "@beep/schema/Json";
+import { A, Str } from "@beep/utils";
 import { Config, Context, Effect, flow, Layer, pipe, type Redacted, Result, Stream } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
@@ -1176,8 +1175,8 @@ const webSearchOperation = new VeniceAIOperationDescriptor({
  * @example
  * ```ts
  * import { VENICE_AI_OPERATION_DESCRIPTORS } from "@beep/venice-ai"
+ * import { A } from "@beep/utils"
  * import { pipe } from "effect"
- * import * as A from "effect/Array"
  *
  * const operationIds = pipe(
  *   VENICE_AI_OPERATION_DESCRIPTORS,

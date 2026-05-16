@@ -6,8 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { A } from "@beep/utils";
 import { Context, Layer, Match } from "effect";
-import * as A from "effect/Array";
 import {
   VersionCategoryOptions,
   type VersionCategory as VersionCategoryValue,

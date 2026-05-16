@@ -16,8 +16,9 @@ import {
 } from "@beep/semantic-web/services/sparql-query";
 import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf";
 import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
+import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect } from "effect";
+import { Effect, Order, pipe } from "effect";
 import * as S from "effect/Schema";
 
 const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
@@ -42,7 +43,7 @@ const runSparql = <A>(effect: Effect.Effect<A, unknown, SparqlQueryService>) =>
 
 describe("Services and Surface", () => {
   it("keeps the package root surface curated to VERSION plus the IRI family", () => {
-    expect(Object.keys(SemanticWeb).sort()).toEqual([
+    expect(pipe(Object.keys(SemanticWeb), A.sort(Order.String))).toEqual([
       "AbsoluteIRI",
       "IRI",
       "IRIReference",
@@ -64,7 +65,7 @@ describe("Services and Surface", () => {
       })
     );
 
-    expect(canonicalized.canonicalText.split("\n")).toHaveLength(2);
+    expect(pipe(canonicalized.canonicalText, Str.split("\n"))).toHaveLength(2);
 
     const fingerprint = await runCanonicalization(
       Effect.gen(function* () {

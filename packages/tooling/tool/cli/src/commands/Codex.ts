@@ -8,8 +8,8 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { TaggedErrorClass } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Console, Effect, type FileSystem, Stream } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { Argument, Command } from "effect/unstable/cli";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";

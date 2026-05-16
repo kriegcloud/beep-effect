@@ -9,6 +9,7 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
+import { Str } from "@beep/utils";
 import {
   DateTime,
   Duration,
@@ -24,10 +25,8 @@ import {
 } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import * as Str from "effect/String";
 
 const $I = $SchemaId.create("LocalDate");
 
@@ -161,11 +160,11 @@ const decodeLocalDateFromString: (
   dateString: string,
   _options: AST.ParseOptions
 ) {
-  const match = dateString.match(ISO_DATE_PATTERN);
-  if (P.isNullish(match)) {
+  const match = Str.match(ISO_DATE_PATTERN)(dateString);
+  if (O.isNone(match)) {
     return yield* Effect.fail(new SchemaIssue.InvalidValue(O.some(dateString)));
   }
-  const [, yearStr, monthStr, dayStr] = match;
+  const [, yearStr, monthStr, dayStr] = match.value;
   const year = Number.parseInt(yearStr, 10);
   const month = Number.parseInt(monthStr, 10);
   const day = Number.parseInt(dayStr, 10);
@@ -198,9 +197,9 @@ const encodeLocalDateFromString = (localDate: {
   readonly day: number;
 }) => {
   // Format as ISO 8601 date string (YYYY-MM-DD)
-  const y = String(localDate.year).padStart(4, "0");
-  const m = String(localDate.month).padStart(2, "0");
-  const d = String(localDate.day).padStart(2, "0");
+  const y = Str.padStart(4, "0")(String(localDate.year));
+  const m = Str.padStart(2, "0")(String(localDate.month));
+  const d = Str.padStart(2, "0")(String(localDate.day));
   return `${y}-${m}-${d}`;
 };
 

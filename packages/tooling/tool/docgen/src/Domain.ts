@@ -7,11 +7,10 @@
 
 import { $RepoDocgenId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Context, Effect, Layer, Order, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import type * as Parser from "./Parser.js";
 
 const $I = $RepoDocgenId.create("Domain");

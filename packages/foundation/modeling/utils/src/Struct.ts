@@ -417,7 +417,7 @@ export const pathsOf = <const S extends Record<string, unknown>>(
         Match.when(true, () => key),
         Match.orElse(() => `${prefix}.${key}`)
       );
-      result.push(nextPath);
+      A.appendInPlace(result, nextPath);
       walk(current[key], nextPath);
     }
   };

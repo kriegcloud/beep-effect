@@ -8,13 +8,12 @@
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Clock, Effect, FileSystem, flow, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   AiMetricsRawArchiveKey,
   decryptEncryptedRawArchiveEnvelope,
@@ -105,7 +104,7 @@ const hasOrderedMutationWindow = (input: AiMetricsRetentionSelector): boolean =>
 };
 
 const relativeToDataRoot = (dataRoot: string, absolutePath: string): string =>
-  Str.startsWith(`${dataRoot}/`)(absolutePath) ? absolutePath.slice(dataRoot.length + 1) : absolutePath;
+  Str.startsWith(`${dataRoot}/`)(absolutePath) ? pipe(absolutePath, Str.slice(dataRoot.length + 1)) : absolutePath;
 
 const quoteSqlString = flow(Str.replace(/'/gu, "''"), (value) => `'${value}'`);
 
@@ -810,7 +809,7 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
   const repoRootHash = yield* hashPrivateIdentifier(input.restoreRoot, input.hashSalt).pipe(
     Effect.mapError((cause) => retentionFailure("Failed to hash restore drill root.", cause))
   );
-  const records = [];
+  let records: ReadonlyArray<AiMetricsDerivedTranscriptRecord> = A.empty();
   const startedAtEpochMillis = yield* Clock.currentTimeMillis;
 
   for (const item of selected) {
@@ -872,7 +871,7 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
       sourceKind: item.sourceKind,
       sourcePath: restoreSourcePath,
     }).pipe(Effect.mapError((cause) => retentionFailure("Failed to write restore drill archive object.", cause)));
-    records.push(new AiMetricsDerivedTranscriptRecord({ archiveObject, privacy }));
+    records = A.append(records, new AiMetricsDerivedTranscriptRecord({ archiveObject, privacy }));
   }
 
   yield* writeAiMetricsDerivedStorage({

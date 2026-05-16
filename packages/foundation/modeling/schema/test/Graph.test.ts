@@ -22,6 +22,7 @@ import {
   UndirectedGraph,
   UndirectedGraphFromSelf,
 } from "@beep/schema";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Graph_ from "effect/Graph";
 import * as S from "effect/Schema";
@@ -131,11 +132,13 @@ describe("DirectedGraph", () => {
     expect(isGraph(decoded)).toBe(true);
     expect(decoded.type).toBe("directed");
     expect(decoded.mutable).toBe(false);
-    expect(Array.from(decoded.nodes.entries())).toEqual([
+    expect(A.fromIterable(decoded.nodes.entries())).toEqual([
       [0, 1],
       [1, 2],
     ]);
-    expect(Array.from(decoded.edges.entries())).toEqual([[0, new Graph_.Edge({ source: 0, target: 1, data: "a" })]]);
+    expect(A.fromIterable(decoded.edges.entries())).toEqual([
+      [0, new Graph_.Edge({ source: 0, target: 1, data: "a" })],
+    ]);
   });
 
   it("encodes immutable directed graphs back to the wire shape", () => {
@@ -225,7 +228,7 @@ describe("UndirectedGraph", () => {
 
     expect(decoded.type).toBe("undirected");
     expect(decoded.mutable).toBe(false);
-    expect(Array.from(decoded.edges.entries())).toEqual([[0, new Graph_.Edge({ source: 0, target: 1, data: 1 })]]);
+    expect(A.fromIterable(decoded.edges.entries())).toEqual([[0, new Graph_.Edge({ source: 0, target: 1, data: 1 })]]);
   });
 
   it("validates existing immutable undirected graphs with nested transforms", () => {
@@ -243,7 +246,7 @@ describe("UndirectedGraph", () => {
 
     expect(decoded.type).toBe("undirected");
     expect(decoded.mutable).toBe(false);
-    expect(Array.from(decoded.nodes.entries())).toEqual([
+    expect(A.fromIterable(decoded.nodes.entries())).toEqual([
       [0, 1],
       [1, 2],
     ]);
@@ -265,7 +268,7 @@ describe("Graph FromSelf schemas", () => {
 
     expect(decoded.type).toBe("directed");
     expect(decoded.mutable).toBe(false);
-    expect(Array.from(decoded.nodes.entries())).toEqual([
+    expect(A.fromIterable(decoded.nodes.entries())).toEqual([
       [0, 1],
       [1, 2],
     ]);
@@ -316,7 +319,7 @@ describe("Graph FromSelf schemas", () => {
 
     expect(decoded.type).toBe("directed");
     expect(decoded.mutable).toBe(true);
-    expect(Array.from(decoded.nodes.entries())).toEqual([
+    expect(A.fromIterable(decoded.nodes.entries())).toEqual([
       [0, 1],
       [1, 2],
     ]);

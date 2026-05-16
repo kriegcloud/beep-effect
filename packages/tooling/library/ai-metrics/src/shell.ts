@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import * as Str from "effect/String";
+import { Str } from "@beep/utils";
 
 /**
  * Quote a value as one POSIX shell token.

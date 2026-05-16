@@ -6,7 +6,7 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { A, Struct } from "@beep/utils";
+import { A, Str, Struct } from "@beep/utils";
 import { Clock, Effect, flow, pipe } from "effect";
 import * as S from "effect/Schema";
 import { CopyError, DockerError, PodmanError } from "./Sandbox.errors.ts";
@@ -28,7 +28,7 @@ import {
 
 const $I = $SandboxId.create("Sandbox.providers");
 
-const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
+const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
 
 const toExecResult = (result: ProcessResult): ExecResult =>
   new ExecResult({
@@ -48,7 +48,7 @@ const profileProviderAction = (provider: string, action: string) =>
       action,
       provider,
     },
-    phase: `sandbox.provider.${action.replaceAll(" ", ".")}`,
+    phase: `sandbox.provider.${Str.replaceAll(" ", ".")(action)}`,
   });
 
 /**
@@ -311,7 +311,7 @@ export const noSandbox = (options: NoSandboxOptions = new NoSandboxOptions({})):
       }),
       interactiveExec: Effect.fn("NoSandboxHandle.interactiveExec")(function* (args: ReadonlyArray<string>) {
         const process = yield* SandboxProcess;
-        const command = pipe(args, A.map(shellEscape), (parts) => parts.join(" "));
+        const command = pipe(args, A.map(shellEscape), A.join(" "));
         const result = yield* process
           .runShell(command, {
             cwd: worktreePath,

@@ -1,16 +1,18 @@
 import { DocsESLintConfig } from "@beep/repo-configs/eslint/DocsESLintConfig";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "vitest";
+
+const configIncludesPlugin = (pluginName: string): boolean =>
+  A.some(DocsESLintConfig, (entry) => entry.plugins !== undefined && pluginName in entry.plugins);
 
 describe("docs-eslint-config", () => {
   it("does not register the legacy beep-laws plugin", () => {
-    expect(DocsESLintConfig.some((entry) => entry.plugins !== undefined && "beep-laws" in entry.plugins)).toBe(false);
+    expect(configIncludesPlugin("beep-laws")).toBe(false);
   });
 
   it("keeps jsdoc and tsdoc plugins available for the docs lane", () => {
-    expect(DocsESLintConfig.some((entry) => entry.plugins !== undefined && "jsdoc" in entry.plugins)).toBe(true);
-    expect(DocsESLintConfig.some((entry) => entry.plugins !== undefined && "beep-jsdoc" in entry.plugins)).toBe(true);
-    expect(
-      DocsESLintConfig.some((entry) => entry.plugins !== undefined && "eslint-plugin-tsdoc" in entry.plugins)
-    ).toBe(true);
+    expect(configIncludesPlugin("jsdoc")).toBe(true);
+    expect(configIncludesPlugin("beep-jsdoc")).toBe(true);
+    expect(configIncludesPlugin("eslint-plugin-tsdoc")).toBe(true);
   });
 });

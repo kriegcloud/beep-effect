@@ -1,10 +1,9 @@
 "use client";
 
+import { A, Str } from "@beep/utils";
 import { ListIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
-import * as A from "effect/Array";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
 import { requireReactContext } from "../lib/react-invariant.ts";

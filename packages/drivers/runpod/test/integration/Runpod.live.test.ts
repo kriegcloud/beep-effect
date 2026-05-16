@@ -1,7 +1,7 @@
 import { Runpod } from "@beep/runpod";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Config, Effect } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 
 describe("@beep/runpod live", () => {

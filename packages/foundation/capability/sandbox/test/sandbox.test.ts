@@ -44,6 +44,7 @@ import {
   SilentDisplay,
   WorktreeTimeoutError,
 } from "@beep/sandbox";
+import { A } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -96,13 +97,13 @@ describe("@beep/sandbox", () => {
         SandboxProcess.of({
           run: Effect.fn("SandboxProcess.run")(function* (command) {
             if (command.command === "git") {
-              gitCommands.push(command.args);
+              A.appendInPlace(gitCommands, command.args);
 
-              if (command.args.includes("add")) {
+              if (A.contains(command.args, "add")) {
                 yield* Effect.promise(() => mkdir(worktreePath, { recursive: true }));
               }
 
-              if (command.args.includes("rev-parse")) {
+              if (A.contains(command.args, "rev-parse")) {
                 return new ProcessResult({ exitCode: 0, stderr: "", stdout: "feature/reuse\n" });
               }
             }
@@ -117,7 +118,7 @@ describe("@beep/sandbox", () => {
       const sandbox: SandboxProvider = {
         _tag: "None",
         create: (options) => {
-          createdSandboxPaths.push(options.worktreePath);
+          A.appendInPlace(createdSandboxPaths, options.worktreePath);
 
           return Effect.succeed({
             close: () => Effect.void,
@@ -162,8 +163,8 @@ describe("@beep/sandbox", () => {
 
       expect(result.branch).toBe("feature/reuse");
       expect(createdSandboxPaths).toEqual([worktreePath]);
-      expect(gitCommands.filter((args) => args.includes("add"))).toHaveLength(1);
-      expect(gitCommands.filter((args) => args.includes("remove"))).toHaveLength(1);
+      expect(A.filter(gitCommands, (args) => A.contains(args, "add"))).toHaveLength(1);
+      expect(A.filter(gitCommands, (args) => A.contains(args, "remove"))).toHaveLength(1);
     })
   );
 
@@ -306,7 +307,7 @@ describe("@beep/sandbox", () => {
       yield* program.pipe(
         Effect.provide(
           callbackAgentStreamEmitterLayer((event) => {
-            seen.push(event);
+            A.appendInPlace(seen, event);
           })
         )
       );
@@ -541,7 +542,7 @@ describe("@beep/sandbox", () => {
           "printf 'one\\ntwo\\npartial'",
           new SandboxExecOptions({
             onLine: (line) => {
-              lines.push(line);
+              A.appendInPlace(lines, line);
             },
           })
         );
@@ -570,7 +571,7 @@ describe("@beep/sandbox", () => {
           "printf 'section1\\n\\nsection2\\n'",
           new SandboxExecOptions({
             onLine: (line) => {
-              lines.push(line);
+              A.appendInPlace(lines, line);
             },
           })
         );

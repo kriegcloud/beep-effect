@@ -7,12 +7,11 @@
 
 import { $OpenaiCompatId } from "@beep/identity";
 import { decodeJsonString } from "@beep/schema/Json";
+import { A, Str } from "@beep/utils";
 import { Context, Effect, flow, Layer, pipe, Stream } from "effect";
-import * as A from "effect/Array";
 import { identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as AiError from "effect/unstable/ai/AiError";
 import * as Sse from "effect/unstable/encoding/Sse";
 import { FetchHttpClient } from "effect/unstable/http";

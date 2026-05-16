@@ -1,5 +1,5 @@
+import { A } from "@beep/utils";
 import { Effect } from "effect";
-import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
