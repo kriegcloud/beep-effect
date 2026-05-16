@@ -4652,7 +4652,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1064` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:28` | Provide a layer to an effect inside a scoped lifetime. |
+| `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
 | `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
 | `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
 | `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
@@ -4673,14 +4673,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1064` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:28` | Provide a layer to an effect inside a scoped lifetime. |
+| `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
 | `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
 | `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
 | `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
 | `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:36` | Package version marker for test utilities. |
-| `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:28` | Provide a layer to an effect inside a scoped lifetime. |
+| `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
 | `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:992` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
 | `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1134` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:714` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
@@ -9981,7 +9981,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1498` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
@@ -10624,22 +10624,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Purge` | `purgeAtRoot` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:197` | Purge root/workspace artifacts under a specific root directory. |
 | `@beep/repo-cli/commands/Purge` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge.ts:132` | Summary statistics returned after a purge run. |
-| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringEqualsSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:29` | Check whether an optional string config value equals the expected value. |
-| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOption` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:42` | Read an optional string config value inside an Effect workflow. |
-| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOptionSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:19` | Synchronously read an optional string config value. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:78` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:95` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1498` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:108` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:310` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1009` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:559` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1377` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1299` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1402` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1057` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:794` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1191` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringEqualsSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:35` | Check whether an optional string config value equals the expected value. |
+| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOption` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:54` | Read an optional string config value inside an Effect workflow. |
+| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOptionSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:22` | Synchronously read an optional string config value. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:119` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:136` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:149` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:351` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1050` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:600` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1418` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1340` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1443` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1098` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:835` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1232` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1297` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:80` | Package-local script profile used by the quality task adapter. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1187` | Parse a raw argv vector into a quality task invocation when the first token is |
@@ -10803,7 +10803,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1498` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
 | `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
