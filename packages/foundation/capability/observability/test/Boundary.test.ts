@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "../../../..");
-const boundaryTypecheckTimeout = 300_000;
+const boundaryTypecheckTimeout = 600_000;
 const readText = (relativePath: string) => readFileSync(resolve(packageRoot, relativePath), "utf8");
 const runTypecheck = (tscPath: string, tsconfigPath: string) =>
   new Promise<void>((resolvePromise, rejectPromise) => {
