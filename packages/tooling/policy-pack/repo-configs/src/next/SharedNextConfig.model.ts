@@ -7,10 +7,10 @@
 import { createRequire } from "node:module";
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { A } from "@beep/utils";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import createMDX from "@next/mdx";
 import { pipe, Result } from "effect";
-import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";

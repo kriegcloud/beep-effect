@@ -1,5 +1,6 @@
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { collectTsConfigPaths } from "@beep/repo-utils/TsConfig";
+import { A, Str } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
@@ -23,8 +24,8 @@ layer(TestLayer)("TsConfig", (it) => {
         expect(O.isSome(rootConfigs)).toBe(true);
         if (O.isSome(rootConfigs)) {
           expect(rootConfigs.value.length).toBe(2);
-          expect(rootConfigs.value.some((p) => p.endsWith("tsconfig.json"))).toBe(true);
-          expect(rootConfigs.value.some((p) => p.endsWith("tsconfig.build.json"))).toBe(true);
+          expect(A.some(rootConfigs.value, Str.endsWith("tsconfig.json"))).toBe(true);
+          expect(A.some(rootConfigs.value, Str.endsWith("tsconfig.build.json"))).toBe(true);
         }
       })
     );
@@ -38,8 +39,8 @@ layer(TestLayer)("TsConfig", (it) => {
         expect(O.isSome(pkgAConfigs)).toBe(true);
         if (O.isSome(pkgAConfigs)) {
           expect(pkgAConfigs.value.length).toBe(2);
-          expect(pkgAConfigs.value.some((p) => p.endsWith("tsconfig.json"))).toBe(true);
-          expect(pkgAConfigs.value.some((p) => p.endsWith("tsconfig.test.json"))).toBe(true);
+          expect(A.some(pkgAConfigs.value, Str.endsWith("tsconfig.json"))).toBe(true);
+          expect(A.some(pkgAConfigs.value, Str.endsWith("tsconfig.test.json"))).toBe(true);
         }
       })
     );

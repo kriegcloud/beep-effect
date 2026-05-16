@@ -23,12 +23,11 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Cause, Exit, flow, Match, Number as N, pipe, Result, Struct } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $ObservabilityId.create("CauseDiagnostics");
 const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);

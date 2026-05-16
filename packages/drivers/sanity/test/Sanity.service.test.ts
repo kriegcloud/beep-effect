@@ -1,7 +1,7 @@
 import { Sanity, SanityConfigInput, SanityError, SanityQueryRequest } from "@beep/sanity";
+import { A } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { Cause, Context, Effect, Exit, Layer, Redacted, Ref } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import type * as HttpClientError from "effect/unstable/http/HttpClientError";

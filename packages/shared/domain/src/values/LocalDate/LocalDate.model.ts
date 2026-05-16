@@ -9,10 +9,10 @@
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity";
+import { Str } from "@beep/utils";
 import { DateTime, Hash } from "effect";
 import * as Eq from "effect/Equal";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $SharedDomainId.create("values/LocalDate/LocalDate.model");
 

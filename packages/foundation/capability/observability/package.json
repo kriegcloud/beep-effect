@@ -62,6 +62,7 @@
     "@beep/colors": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@effect/opentelemetry": "catalog:",
     "@opentelemetry/exporter-logs-otlp-proto": "0.215.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "0.215.0",

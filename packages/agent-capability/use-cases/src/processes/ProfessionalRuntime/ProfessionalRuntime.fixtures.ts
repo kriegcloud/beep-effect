@@ -6,6 +6,7 @@
  */
 
 import { $AgentCapabilityUseCasesId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import { Effect, Match } from "effect";
 import * as S from "effect/Schema";
 import { CandidateOutputSet } from "./ProfessionalRuntime.contracts.js";
@@ -71,10 +72,10 @@ const assertScenario = (input: RuntimeFixtureInput): void => {
 };
 
 const assertSpanRefs = (input: RuntimeFixtureInput, spanIds: ReadonlyArray<string>): void => {
-  const missing = spanIds.filter((spanId) => !input.body.includes(`[span:${spanId}]`));
+  const missing = A.filter(spanIds, (spanId) => !Str.includes(`[span:${spanId}]`)(input.body));
 
   if (missing.length > 0) {
-    failValidation(`${input.email.scenarioId}: missing body spans: ${missing.join(", ")}`);
+    failValidation(`${input.email.scenarioId}: missing body spans: ${A.join(missing, ", ")}`);
   }
 };
 

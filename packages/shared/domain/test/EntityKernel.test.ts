@@ -8,8 +8,9 @@ import * as EntityRef from "@beep/shared-domain/entity/EntityRef";
 import * as Principal from "@beep/shared-domain/entity/Principal";
 import * as primitives from "@beep/shared-domain/entity/primitives";
 import * as SourceKind from "@beep/shared-domain/entity/SourceKind";
+import { A, Str } from "@beep/utils";
 import { assert, describe, expect, it } from "@effect/vitest";
-import { Effect, Exit } from "effect";
+import { Effect, Exit, Order } from "effect";
 import { cast } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -127,9 +128,11 @@ describe("EntityId", () => {
 
 describe("BaseEntity", () => {
   it("exports invariant fields and persistence descriptors", () => {
+    const orgIdIndexHints = BaseEntity.BaseEntity.definition.persisted.orgId.indexHints;
+
     expect(BaseEntity.BaseEntity.definition.persisted.createdAt.valueStrategy).toBe("defaultedOnInsert");
     expect(BaseEntity.BaseEntity.definition.persisted.createdByPrincipal.storageKind).toBe("jsonb");
-    expect(BaseEntity.BaseEntity.definition.persisted.orgId.indexHints?.map((hint) => hint.kind)).toEqual([
+    expect(orgIdIndexHints === undefined ? undefined : A.map(orgIdIndexHints, (hint) => hint.kind)).toEqual([
       "btree",
       "lookup",
     ]);
@@ -159,7 +162,7 @@ describe("BaseEntity", () => {
   );
 
   it("derives variant field presence from persistence strategies", () => {
-    expect(Object.keys(Document.fields).sort()).toContain("id");
+    expect(A.sort(Object.keys(Document.fields), Order.String)).toContain("id");
     expect(Object.keys(Document.insert.fields)).not.toContain("id");
     expect(Object.keys(Document.insert.fields)).toContain("entityType");
     expect(Object.keys(Document.insert.fields)).toContain("note");
@@ -184,7 +187,8 @@ describe("EntityRef and shared entity primitives", () => {
         expect(resultRef.success.id).toBe(1);
       }
       expect(yield* S.decodeUnknownEffect(EntityRef.EntityType)("SharedDocument")).toBe("SharedDocument");
-      expect(yield* S.decodeUnknownEffect(primitives.Sha256)("a".repeat(64))).toBe("a".repeat(64));
+      const sha256Fixture = Str.repeat("a", 64);
+      expect(yield* S.decodeUnknownEffect(primitives.Sha256)(sha256Fixture)).toBe(sha256Fixture);
       expect(yield* S.decodeUnknownEffect(primitives.Ed25519Signature)("signature")).toBe("signature");
       expect(yield* S.decodeUnknownEffect(primitives.EncryptionKeyId)("key")).toBe("key");
       expect(yield* S.decodeUnknownEffect(primitives.HybridLogicalClock)("clock")).toBe("clock");

@@ -4,10 +4,9 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { A, Str } from "@beep/utils";
 import { Effect, flow, Layer } from "effect";
-import * as A from "effect/Array";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import * as PrometheusMetrics from "effect/unstable/observability/PrometheusMetrics";

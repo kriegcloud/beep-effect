@@ -8,6 +8,7 @@
 import { $DrizzleId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
+import { A } from "@beep/utils";
 import * as Struct from "@beep/utils/Struct";
 import { getColumns } from "drizzle-orm";
 import {
@@ -40,7 +41,6 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { Match, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";

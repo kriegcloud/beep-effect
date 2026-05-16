@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-14",
+  "generatedOn": "2026-05-16",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",

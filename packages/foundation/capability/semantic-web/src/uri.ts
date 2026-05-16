@@ -7,6 +7,8 @@
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
+import { Str } from "@beep/utils";
+import { pipe } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { makeSemanticSchemaMetadata } from "./semantic-schema-metadata.ts";
@@ -121,16 +123,15 @@ const makeNonEmptyReferenceChecks = (
     }
   );
 
-const normalizePercentEncoding = (value: string): string =>
-  value.replace(/%[0-9a-fA-F]{2}/g, (token) => {
-    const decoded = String.fromCharCode(Number.parseInt(token.slice(1), 16));
-    return UNRESERVED.test(decoded) ? decoded : token.toUpperCase();
-  });
+const normalizePercentEncoding: (value: string) => string = Str.replaceWith(/%[0-9a-fA-F]{2}/g, (token) => {
+  const decoded = String.fromCharCode(Number.parseInt(pipe(token, Str.slice(1)), 16));
+  return UNRESERVED.test(decoded) ? decoded : Str.toUpperCase(token);
+});
 
 const normalizeAbsoluteUri = (value: string): string => {
   const url = new URL(value);
-  const scheme = url.protocol.toLowerCase();
-  const host = url.host.toLowerCase();
+  const scheme = Str.toLowerCase(url.protocol);
+  const host = Str.toLowerCase(url.host);
   const pathname = normalizePercentEncoding(url.pathname);
   const search = normalizePercentEncoding(url.search);
   const hash = normalizePercentEncoding(url.hash);
@@ -140,8 +141,8 @@ const normalizeAbsoluteUri = (value: string): string => {
   }
 
   const normalizedHost =
-    (scheme === "http:" && host.endsWith(":80")) || (scheme === "https:" && host.endsWith(":443"))
-      ? host.replace(/:(80|443)$/, "")
+    (scheme === "http:" && pipe(host, Str.endsWith(":80"))) || (scheme === "https:" && pipe(host, Str.endsWith(":443")))
+      ? pipe(host, Str.replace(/:(80|443)$/, ""))
       : host;
 
   return `${scheme}//${normalizedHost}${pathname}${search}${hash}`;
@@ -155,7 +156,7 @@ const isRelativeUriReference = (value: string): boolean =>
   value === "" || (isUriReference(value) && !looksLikeAbsoluteUri(value));
 
 const isAbsoluteUri = (value: string): boolean =>
-  value.length > 0 && looksLikeAbsoluteUri(value) && URL.canParse(value) && !value.includes("#");
+  value.length > 0 && looksLikeAbsoluteUri(value) && URL.canParse(value) && !pipe(value, Str.includes("#"));
 
 const isUri = (value: string): boolean => value.length > 0 && looksLikeAbsoluteUri(value) && URL.canParse(value);
 

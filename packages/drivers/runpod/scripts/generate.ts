@@ -2,13 +2,11 @@
 
 // cspell:words cuda dtos uncapitalize
 
-import { Str as BeepStr, Struct } from "@beep/utils";
+import { A, Str, Struct } from "@beep/utils";
 import { Match, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import * as Str from "effect/String";
 
 type JsonSchema = {
   readonly $ref?: string;
@@ -135,7 +133,7 @@ const main = async (): Promise<void> => {
 
 const buildOperations = (document: OpenApiDocument): readonly Operation[] => {
   let methodCounts: Record<string, number> = {};
-  const operations: Operation[] = [];
+  let operations: readonly Operation[] = [];
 
   for (const [path, pathItem] of Struct.entries(document.paths)) {
     for (const openApiMethod of HTTP_METHODS) {
@@ -161,7 +159,7 @@ const buildOperations = (document: OpenApiDocument): readonly Operation[] => {
       const requestFields = renderRequestFields(parameters, bodySchema, operation.requestBody?.required === true);
       const response = chooseResponse(methodName, operation.responses ?? {});
 
-      operations.push({
+      operations = A.append(operations, {
         descriptorName,
         hasRequiredRequest: pipe(
           requestFields,
@@ -227,29 +225,23 @@ const renderRequestFields = (
   bodySchema?: JsonSchema,
   bodyRequired = false
 ): readonly RequestField[] => {
-  const fields: RequestField[] = [];
-
-  for (const parameter of parameters) {
-    if (parameter.in !== "path" && parameter.in !== "query") {
-      continue;
-    }
-
-    fields.push({
+  const fields = pipe(
+    parameters,
+    A.filter((parameter) => parameter.in === "path" || parameter.in === "query"),
+    A.map((parameter) => ({
       name: parameter.name,
       required: parameter.in === "path" || parameter.required === true,
       schemaExpression: schemaExpression(parameter.schema ?? { type: "string" }, parameter.name),
-    });
-  }
+    }))
+  );
 
-  if (bodySchema !== undefined) {
-    fields.push({
-      name: "body",
-      required: bodyRequired,
-      schemaExpression: schemaExpression(bodySchema, "body"),
-    });
-  }
-
-  return fields;
+  return bodySchema === undefined
+    ? fields
+    : A.append(fields, {
+        name: "body",
+        required: bodyRequired,
+        schemaExpression: schemaExpression(bodySchema, "body"),
+      });
 };
 
 const mergeParameters = (
@@ -460,7 +452,7 @@ export type ${name} = typeof ${name}.Type;`;
 const renderAdvisoryEnums = (): string => {
   const entries = pipe(
     Struct.entries(advisoryEnums),
-    A.sort(([left], [right]) => left.localeCompare(right))
+    A.sort(([left], [right]) => pipe(left, Str.localeCompare(right)))
   );
 
   if (A.isReadonlyArrayEmpty(entries)) {
@@ -470,7 +462,7 @@ const renderAdvisoryEnums = (): string => {
   return pipe(
     entries,
     A.map(([name, values]) => {
-      const constantName = `RUNPOD_${BeepStr.screamingSnake(name)}_VALUES`;
+      const constantName = `RUNPOD_${Str.screamingSnake(name)}_VALUES`;
 
       return `/**
  * Advisory ${name} values observed in the checked-in Runpod OpenAPI document.
@@ -709,7 +701,7 @@ const schemaExpression = (schema: JsonSchema, hint: string): string => {
     const values = pipe(schema.enum, A.filter(P.isString));
     if (A.isReadonlyArrayNonEmpty(values)) {
       if (shouldTrackAdvisoryEnum(hint)) {
-        advisoryEnums = R.set(advisoryEnums, BeepStr.camelCase(hint), values);
+        advisoryEnums = R.set(advisoryEnums, Str.camelCase(hint), values);
 
         return wrapNullable(schema, "S.String");
       }

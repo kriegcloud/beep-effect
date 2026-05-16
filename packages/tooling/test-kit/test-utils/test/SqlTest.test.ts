@@ -8,9 +8,9 @@ import {
   type SqlTestHooks,
   TestDatabaseInfo,
 } from "@beep/test-utils";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Context, Effect, Exit, Layer, pipe, Scope } from "effect";
-import * as A from "effect/Array";
 import * as FileSystem from "effect/FileSystem";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";

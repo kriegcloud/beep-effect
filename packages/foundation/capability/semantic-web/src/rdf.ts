@@ -6,8 +6,8 @@
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
+import { A, Str } from "@beep/utils";
 import { Order, pipe, Result } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -978,7 +978,7 @@ export const serializeTerm = (term: Term): string =>
     BlankNode: (value) => `_:${value.value}`,
     Literal: (value) =>
       O.isSome(value.language)
-        ? `"${value.value}"@${value.language.value.toLowerCase()}`
+        ? `"${value.value}"@${Str.toLowerCase(value.language.value)}`
         : `"${value.value}"^^<${value.datatype.value}>`,
     DefaultGraph: () => "default",
   });

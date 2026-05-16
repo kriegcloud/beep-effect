@@ -8,7 +8,7 @@
 import { $SharedDomainId, type IdentityComposer } from "@beep/identity";
 import { SchemaUtils } from "@beep/schema";
 import { PosInt } from "@beep/schema/Int";
-import * as Str from "@beep/utils/Str";
+import { Str } from "@beep/utils";
 import { pipe } from "effect";
 import type * as BrandNS from "effect/Brand";
 import { dual } from "effect/Function";

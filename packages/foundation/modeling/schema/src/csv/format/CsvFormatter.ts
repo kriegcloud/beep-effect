@@ -5,12 +5,11 @@
  * @since 0.0.0
  */
 
+import { A, Str } from "@beep/utils";
 import { Effect, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import type { CsvCodecOptions } from "../CsvCodecOptions.ts";
 import { type CsvError, csvError } from "../CsvError.ts";
 

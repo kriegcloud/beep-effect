@@ -9,6 +9,7 @@ import * as JsonLdDocumentServiceModule from "@beep/semantic-web/services/jsonld
 import * as JsonLdStreamParseServiceModule from "@beep/semantic-web/services/jsonld-stream-parse";
 import * as JsonLdStreamSerializeServiceModule from "@beep/semantic-web/services/jsonld-stream-serialize";
 import * as ShaclValidationServiceModule from "@beep/semantic-web/services/shacl-validation";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -90,7 +91,8 @@ describe("Interop and Metadata", () => {
 
   it("audits semantic schema metadata coverage for public schema families", () => {
     for (const moduleAudit of auditModules) {
-      const schemaEntries = Object.entries(moduleAudit.exports).filter(
+      const schemaEntries = A.filter(
+        Object.entries(moduleAudit.exports),
         ([name, value]) => /^[A-Z]/.test(name) && S.isSchema(value) && !moduleAudit.exclude.has(name)
       );
 

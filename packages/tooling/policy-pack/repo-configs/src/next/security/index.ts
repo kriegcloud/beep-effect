@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 import { $RepoConfigsId } from "@beep/identity";
+import { A } from "@beep/utils";
 import { pipe } from "effect";
-import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";

@@ -6,12 +6,11 @@
  */
 
 import { $NlpId } from "@beep/identity";
+import { A, Str } from "@beep/utils";
 import { Effect, flow, Match, pipe, Result, SchemaGetter, SchemaIssue } from "effect";
-import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {
   EntityPatternElement,
   EntityPatternOption,

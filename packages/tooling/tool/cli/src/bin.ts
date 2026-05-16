@@ -9,6 +9,7 @@
  */
 
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
+import { A } from "@beep/utils";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
 import { Effect, Layer } from "effect";
 import * as O from "effect/Option";
@@ -54,7 +55,7 @@ const DerivedLayers = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive, 
   Layer.provideMerge(BaseLayers)
 );
 
-const argv = process.argv.slice(2);
+const argv = A.slice(process.argv, 2);
 const qualityTaskInvocation = parseQualityTaskInvocation(argv);
 
 /**

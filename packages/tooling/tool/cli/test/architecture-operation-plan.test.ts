@@ -15,13 +15,12 @@ import {
   WriteFileOperation,
   WritePackageJsonOperation,
 } from "@beep/repo-cli/commands/Architecture/index";
+import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Order, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 
@@ -149,9 +148,9 @@ const collectFiles = (rootDir: string, repoPath: string): ReadonlyArray<string> 
     const childRepoPath = `${repoPath}/${entry.name}`;
     if (isGeneratedArchitectureSurface(childRepoPath)) continue;
     if (entry.isDirectory()) {
-      files.push(...collectFiles(rootDir, childRepoPath));
+      A.appendAllInPlace(files, collectFiles(rootDir, childRepoPath));
     } else if (isManifestIncludedArchitectureProofFile(childRepoPath)) {
-      files.push(childRepoPath);
+      A.appendInPlace(files, childRepoPath);
     }
   }
   return files;
@@ -181,8 +180,8 @@ describe("architecture operation plan", () => {
         aggregate: "WorkItem",
         aggregatePath: "aggregates/WorkItem",
       });
-      expect(decoded.roles.map((role) => role.path)).toContain("packages/architecture-lab/domain");
-      expect(decoded.operations.map((operation) => operation.path)).toContain(
+      expect(A.map(decoded.roles, (role) => role.path)).toContain("packages/architecture-lab/domain");
+      expect(A.map(decoded.operations, (operation) => operation.path)).toContain(
         "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.model.ts"
       );
       expect(decoded.operations[0]?.operationId).toContain(":");
@@ -251,7 +250,7 @@ describe("architecture operation plan", () => {
         rootDir,
         new CanonicalSliceOperationPlan({
           ...plan,
-          operations: plan.operations.filter((operation) => operation.path === requiredFile),
+          operations: A.filter(plan.operations, (operation) => operation.path === requiredFile),
         })
       ).pipe(Effect.provide(NodeServices.layer));
 
@@ -376,13 +375,15 @@ describe("architecture operation plan", () => {
         Effect.flatMap(() => checkCanonicalSliceOperationPlan(tempRoot, plan)),
         Effect.provide(NodeServices.layer)
       );
-      const plannedPaths = plan.operations.map((operation) => operation.path);
+      const plannedPaths = A.map(plan.operations, (operation) => operation.path);
 
       rmSync(tempRoot, { force: true, recursive: true });
-      expect(plannedPaths.every((operationPath) => !operationPath.startsWith("packages/_internal/db-admin/"))).toBe(
+      expect(
+        A.every(plannedPaths, (operationPath) => !Str.startsWith("packages/_internal/db-admin/")(operationPath))
+      ).toBe(true);
+      expect(A.every(plannedPaths, (operationPath) => !Str.includes("architecture_lab_work_item")(operationPath))).toBe(
         true
       );
-      expect(plannedPaths.every((operationPath) => !operationPath.includes("architecture_lab_work_item"))).toBe(true);
       expect(checkAfterApply.idempotent).toBe(true);
     })
   );
@@ -408,13 +409,13 @@ describe("architecture operation plan", () => {
 
       const generated = readFileSync(join(tempRoot, acceptedPath), "utf8");
       const accepted = readFileSync(join(repoRoot, acceptedPath), "utf8");
-      const plannedRoles = plan.roles.map((role) => role.role);
+      const plannedRoles = A.map(plan.roles, (role) => role.role);
 
       rmSync(tempRoot, { force: true, recursive: true });
       expect(firstApply.writtenPaths).toContain(acceptedPath);
       expect(generated).toBe(accepted);
       expect(plannedRoles).toEqual(["domain", "use-cases", "server", "tables", "db-admin"]);
-      expect(plan.operations.map((operation) => operation.path)).not.toContain(
+      expect(A.map(plan.operations, (operation) => operation.path)).not.toContain(
         "packages/architecture-lab/ui/src/aggregates/WorkItem/WorkItem.view-model.ts"
       );
     })
@@ -467,10 +468,10 @@ describe("architecture operation plan", () => {
       rmSync(tempRoot, { force: true, recursive: true });
       expect(firstApply.writtenPaths).toContain(acceptedPath);
       expect(generated).toBe(accepted);
-      expect(plan.roles.map((role) => role.role)).toEqual(["domain"]);
-      expect(plan.operations.every((operation) => operation.kind !== "write-file" || operation.role === "domain")).toBe(
-        true
-      );
+      expect(A.map(plan.roles, (role) => role.role)).toEqual(["domain"]);
+      expect(
+        A.every(plan.operations, (operation) => operation.kind !== "write-file" || operation.role === "domain")
+      ).toBe(true);
     })
   );
 
@@ -499,12 +500,14 @@ describe("architecture operation plan", () => {
       });
       const json = yield* encodeCanonicalSliceOperationPlanJson(plan);
       const decoded = yield* decodeCanonicalSliceOperationPlanJson(json);
-      const plannedPaths = decoded.operations.map((operation) => operation.path);
-      const packageJsonOperation = decoded.operations.find((operation): operation is WritePackageJsonOperation =>
-        S.is(WritePackageJsonOperation)(operation)
+      const plannedPaths = A.map(decoded.operations, (operation) => operation.path);
+      const packageJsonOperation = O.getOrUndefined(
+        A.findFirst(decoded.operations, (operation): operation is WritePackageJsonOperation =>
+          S.is(WritePackageJsonOperation)(operation)
+        )
       );
 
-      expect(decoded.roles.map((role) => role.role)).toEqual(["use-cases"]);
+      expect(A.map(decoded.roles, (role) => role.role)).toEqual(["use-cases"]);
       expect(decoded.roles[0]?.exports).toEqual([
         ".",
         "./public",
@@ -524,8 +527,8 @@ describe("architecture operation plan", () => {
       expect(plannedPaths).toContain("packages/research-lab/use-cases/src/index.ts");
       expect(plannedPaths).toContain("packages/research-lab/use-cases/src/public.ts");
       expect(plannedPaths).toContain("packages/research-lab/use-cases/src/server.ts");
-      expect(plannedPaths.some((operationPath) => operationPath.includes("/WorkItem/"))).toBe(false);
-      expect(plannedPaths.some((operationPath) => operationPath.includes("/PackageShell/"))).toBe(false);
+      expect(A.some(plannedPaths, (operationPath) => Str.includes("/WorkItem/")(operationPath))).toBe(false);
+      expect(A.some(plannedPaths, (operationPath) => Str.includes("/PackageShell/")(operationPath))).toBe(false);
     })
   );
 
@@ -592,7 +595,7 @@ describe("architecture operation plan", () => {
 
       expect(decoded.target.boundedContext).toBe(sliceName);
       expect(decoded.operations[0]?.operationSource).toBe("package-shell");
-      expect(decoded.operations.map((operation) => operation.path)).toContain(
+      expect(A.map(decoded.operations, (operation) => operation.path)).toContain(
         `packages/${sliceName}/domain/src/index.ts`
       );
       expect(existsSync(targetDir)).toBe(false);

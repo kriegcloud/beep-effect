@@ -1,4 +1,5 @@
 import { runTerseEffectRules, TerseEffectRulesOptions } from "@beep/repo-cli/commands/Laws/TerseEffect";
+import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
@@ -40,7 +41,7 @@ const readProjectFile = Effect.fn(function* (relativePath: string) {
 
 const writeTsconfig = writeProjectFile(
   "tsconfig.json",
-  ["{", '  "compilerOptions": {', '    "target": "ES2022",', '    "module": "ESNext"', "  }", "}"].join("\n")
+  A.join(["{", '  "compilerOptions": {', '    "target": "ES2022",', '    "module": "ESNext"', "  }", "}"], "\n")
 );
 
 describe("terse effect laws", () => {
@@ -51,15 +52,18 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import * as A from "effect/Array";',
-              "",
-              "export const value = {",
-              "  onNone: () => A.empty<string>(),",
-              "  onSome: (reference) => A.make(reference),",
-              "};",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import * as A from "effect/Array";',
+                "",
+                "export const value = {",
+                "  onNone: () => A.empty<string>(),",
+                "  onSome: (reference) => A.make(reference),",
+                "};",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -92,15 +96,18 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import * as A from "effect/Array";',
-              "",
-              "export const value = {",
-              "  onNone: () => A.empty<string>(),",
-              "  onSome: (reference) => A.make(reference),",
-              "};",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import * as A from "effect/Array";',
+                "",
+                "export const value = {",
+                "  onNone: () => A.empty<string>(),",
+                "  onSome: (reference) => A.make(reference),",
+                "};",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -132,15 +139,18 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import * as A from "effect/Array";',
-              "",
-              "export const value = {",
-              "  onNone: A.empty<string>,",
-              "  onSome: A.of,",
-              "};",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import * as A from "effect/Array";',
+                "",
+                "export const value = {",
+                "  onNone: A.empty<string>,",
+                "  onSome: A.of,",
+                "};",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -170,20 +180,23 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import { pipe } from "effect";',
-              'import * as O from "effect/Option";',
-              'import { thunkUndefined } from "@beep/utils";',
-              "",
-              "declare const parse: (value: string) => O.Option<string>;",
-              "declare const render: (value: O.Option<string>) => string;",
-              "",
-              "export const value = {",
-              "  onNone: () => undefined,",
-              "  parse: (input: string) => pipe(input, parse, render),",
-              "};",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import { pipe } from "effect";',
+                'import * as O from "effect/Option";',
+                'import { thunkUndefined } from "@beep/utils";',
+                "",
+                "declare const parse: (value: string) => O.Option<string>;",
+                "declare const render: (value: O.Option<string>) => string;",
+                "",
+                "export const value = {",
+                "  onNone: () => undefined,",
+                "  parse: (input: string) => pipe(input, parse, render),",
+                "};",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -215,20 +228,23 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import { pipe } from "effect";',
-              'import * as O from "effect/Option";',
-              'import { thunkUndefined } from "@beep/utils";',
-              "",
-              "declare const parse: (value: string) => O.Option<string>;",
-              "declare const render: (value: O.Option<string>) => string;",
-              "",
-              "export const value = {",
-              "  onNone: () => undefined,",
-              "  parse: (input: string) => pipe(input, parse, render),",
-              "};",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import { pipe } from "effect";',
+                'import * as O from "effect/Option";',
+                'import { thunkUndefined } from "@beep/utils";',
+                "",
+                "declare const parse: (value: string) => O.Option<string>;",
+                "declare const render: (value: O.Option<string>) => string;",
+                "",
+                "export const value = {",
+                "  onNone: () => undefined,",
+                "  parse: (input: string) => pipe(input, parse, render),",
+                "};",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -260,13 +276,16 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import { type thunkUndefined, thunk0 } from "@beep/utils";',
-              "",
-              "export const keep = thunk0;",
-              "export const value = { onNone: () => undefined };",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import { type thunkUndefined, thunk0 } from "@beep/utils";',
+                "",
+                "export const keep = thunk0;",
+                "export const value = { onNone: () => undefined };",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -295,25 +314,28 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import { pipe } from "effect";',
-              'import * as O from "effect/Option";',
-              "",
-              "declare const maybeParse: O.Option<(input: string) => unknown>;",
-              "",
-              "export const runtime = pipe(",
-              "  maybeParse,",
-              "  O.match({",
-              "    onNone: () => ({}),",
-              "    onSome: (parse) => ({",
-              "      Bun: {",
-              "        YAML: { parse },",
-              "      },",
-              "    }),",
-              "  })",
-              ");",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import { pipe } from "effect";',
+                'import * as O from "effect/Option";',
+                "",
+                "declare const maybeParse: O.Option<(input: string) => unknown>;",
+                "",
+                "export const runtime = pipe(",
+                "  maybeParse,",
+                "  O.match({",
+                "    onNone: () => ({}),",
+                "    onSome: (parse) => ({",
+                "      Bun: {",
+                "        YAML: { parse },",
+                "      },",
+                "    }),",
+                "  })",
+                ");",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -345,20 +367,23 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import * as O from "effect/Option";',
-              "",
-              "declare const selector: O.Option<string>;",
-              "",
-              "export const options = {",
-              "  verbose: true,",
-              "  ...O.match(selector, {",
-              "    onNone: () => ({}),",
-              "    onSome: (packageName) => ({ package: packageName }),",
-              "  }),",
-              "};",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import * as O from "effect/Option";',
+                "",
+                "declare const selector: O.Option<string>;",
+                "",
+                "export const options = {",
+                "  verbose: true,",
+                "  ...O.match(selector, {",
+                "    onNone: () => ({}),",
+                "    onSome: (packageName) => ({ package: packageName }),",
+                "  }),",
+                "};",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -385,26 +410,29 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import * as Bool from "effect/Boolean";',
-              'import * as O from "effect/Option";',
-              "",
-              "declare const enabled: boolean;",
-              "declare const maybeFallback: O.Option<string>;",
-              "declare const maybeName: O.Option<string>;",
-              "declare const verified: boolean;",
-              "",
-              "export const label = O.match(maybeName, {",
-              '  onNone: () => O.match(maybeFallback, { onNone: () => "missing", onSome: (fallback) => fallback }),',
-              "  onSome: (name) => name,",
-              "});",
-              "",
-              "export const status = Bool.match(enabled, {",
-              '  onFalse: () => "disabled",',
-              '  onTrue: () => Bool.match(verified, { onFalse: () => "pending", onTrue: () => "ready" }),',
-              "});",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import * as Bool from "effect/Boolean";',
+                'import * as O from "effect/Option";',
+                "",
+                "declare const enabled: boolean;",
+                "declare const maybeFallback: O.Option<string>;",
+                "declare const maybeName: O.Option<string>;",
+                "declare const verified: boolean;",
+                "",
+                "export const label = O.match(maybeName, {",
+                '  onNone: () => O.match(maybeFallback, { onNone: () => "missing", onSome: (fallback) => fallback }),',
+                "  onSome: (name) => name,",
+                "});",
+                "",
+                "export const status = Bool.match(enabled, {",
+                '  onFalse: () => "disabled",',
+                '  onTrue: () => Bool.match(verified, { onFalse: () => "pending", onTrue: () => "ready" }),',
+                "});",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -437,32 +465,35 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              "type PackageOptions = Readonly<{ packageName: string }>;",
-              "",
-              "export function withPackage(packageName: string, options: PackageOptions): PackageOptions;",
-              "export function withPackage(packageName: string): (options: PackageOptions) => PackageOptions;",
-              "export function withPackage(",
-              "  packageName: string,",
-              "  options?: PackageOptions",
-              "): PackageOptions | ((options: PackageOptions) => PackageOptions) {",
-              "  if (options === undefined) {",
-              "    return (self) => ({ ...self, packageName });",
-              "  }",
-              "",
-              "  return { ...options, packageName };",
-              "}",
-              "",
-              "export function literal(first: string, ...rest: ReadonlyArray<string>): ReadonlyArray<string>;",
-              "export function literal(values: ReadonlyArray<string>): ReadonlyArray<string>;",
-              "export function literal(",
-              "  firstOrValues: string | ReadonlyArray<string>,",
-              "  ...rest: ReadonlyArray<string>",
-              "): ReadonlyArray<string> {",
-              '  return typeof firstOrValues === "string" ? [firstOrValues, ...rest] : firstOrValues;',
-              "}",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                "type PackageOptions = Readonly<{ packageName: string }>;",
+                "",
+                "export function withPackage(packageName: string, options: PackageOptions): PackageOptions;",
+                "export function withPackage(packageName: string): (options: PackageOptions) => PackageOptions;",
+                "export function withPackage(",
+                "  packageName: string,",
+                "  options?: PackageOptions",
+                "): PackageOptions | ((options: PackageOptions) => PackageOptions) {",
+                "  if (options === undefined) {",
+                "    return (self) => ({ ...self, packageName });",
+                "  }",
+                "",
+                "  return { ...options, packageName };",
+                "}",
+                "",
+                "export function literal(first: string, ...rest: ReadonlyArray<string>): ReadonlyArray<string>;",
+                "export function literal(values: ReadonlyArray<string>): ReadonlyArray<string>;",
+                "export function literal(",
+                "  firstOrValues: string | ReadonlyArray<string>,",
+                "  ...rest: ReadonlyArray<string>",
+                "): ReadonlyArray<string> {",
+                '  return typeof firstOrValues === "string" ? [firstOrValues, ...rest] : firstOrValues;',
+                "}",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -495,23 +526,26 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              "export const nestedTernary = (first: boolean, second: boolean): string =>",
-              '  first ? (second ? "both" : "first") : "neither";',
-              "",
-              "export function nestedIf(first: boolean, second: boolean): string {",
-              "  if (first) {",
-              "    if (second) {",
-              '      return "both";',
-              "    }",
-              "",
-              '    return "first";',
-              "  }",
-              "",
-              '  return "neither";',
-              "}",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                "export const nestedTernary = (first: boolean, second: boolean): string =>",
+                '  first ? (second ? "both" : "first") : "neither";',
+                "",
+                "export function nestedIf(first: boolean, second: boolean): string {",
+                "  if (first) {",
+                "    if (second) {",
+                '      return "both";',
+                "    }",
+                "",
+                '    return "first";',
+                "  }",
+                "",
+                '  return "neither";',
+                "}",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(
@@ -544,19 +578,22 @@ describe("terse effect laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              'import * as O from "effect/Option";',
-              'import * as R from "effect/Record";',
-              'import * as S from "effect/Schema";',
-              "",
-              "declare const selector: O.Option<string>;",
-              "",
-              "export const options = R.getSomes({ package: selector });",
-              'export class Input extends S.Class<Input>("Input")({',
-              "  package: S.OptionFromOptionalKey(S.String),",
-              "}) {}",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import * as O from "effect/Option";',
+                'import * as R from "effect/Record";',
+                'import * as S from "effect/Schema";',
+                "",
+                "declare const selector: O.Option<string>;",
+                "",
+                "export const options = R.getSomes({ package: selector });",
+                'export class Input extends S.Class<Input>("Input")({',
+                "  package: S.OptionFromOptionalKey(S.String),",
+                "}) {}",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runTerseEffectRules(

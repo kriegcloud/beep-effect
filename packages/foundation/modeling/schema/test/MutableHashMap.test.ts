@@ -1,4 +1,5 @@
 import { isMutableHashMap, MutableHashMap, MutableHashMapFromSelf } from "@beep/schema";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as MutableHashMap_ from "effect/MutableHashMap";
 import * as S from "effect/Schema";
@@ -16,7 +17,7 @@ describe("MutableHashMapFromSelf", () => {
     expect(schema.annotate({}).key).toBe(S.String);
     expect(schema.annotate({}).value).toBe(S.NumberFromString);
     expect(isMutableHashMap(decoded)).toBe(true);
-    expect(Array.from(decoded)).toEqual([
+    expect(A.fromIterable(decoded)).toEqual([
       ["a", 1],
       ["b", 2],
     ]);
@@ -77,7 +78,7 @@ describe("MutableHashMap", () => {
     expect(schema.annotate({}).key).toBe(S.String);
     expect(schema.annotate({}).value).toBe(S.NumberFromString);
     expect(isMutableHashMap(decoded)).toBe(true);
-    expect(Array.from(decoded)).toEqual([
+    expect(A.fromIterable(decoded)).toEqual([
       ["a", 1],
       ["b", 2],
     ]);

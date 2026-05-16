@@ -6,7 +6,7 @@
  */
 
 // import { sha512 } from "./_sha.js";
-import { RandomValues } from "@beep/utils";
+import { RandomValues, Str } from "@beep/utils";
 import { DateTimes } from "@beep/utils/DateTime";
 import { Context, Effect, Layer, Schema } from "effect";
 
@@ -82,7 +82,8 @@ export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/C
       INITIAL_COUNT_MAX;
 
     // Create fingerprint from environment data
-    const fingerprint = (yield* hash(envData)).substring(0, BIG_LENGTH);
+    const envHash = yield* hash(envData);
+    const fingerprint = Str.substring(0, BIG_LENGTH)(envHash);
 
     let counter = initialValue;
 
@@ -141,7 +142,7 @@ function hash(input: string): Effect.Effect<string> {
       value = (value << 8n) + BigInt(byte);
     }
     // Drop the first character because it will bias the histogram to the left
-    return value.toString(36).slice(1);
+    return Str.slice(1)(value.toString(36));
   });
 }
 
@@ -170,7 +171,7 @@ const makeCuidFromSeed = Effect.fn("Schema.Cuid.cuidFromSeed")(function* ({
   const hashed = yield* hash(hashInput);
 
   // Construct the final CUID
-  const id = `${firstLetter}${hashed.substring(0, DEFAULT_LENGTH - 1)}`;
+  const id = `${firstLetter}${Str.substring(0, DEFAULT_LENGTH - 1)(hashed)}`;
 
   return Cuid.make(id);
 });

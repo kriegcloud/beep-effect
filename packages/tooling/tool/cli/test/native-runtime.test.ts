@@ -1,4 +1,5 @@
 import { NoNativeRuntimeRulesOptions, runNoNativeRuntimeRules } from "@beep/repo-cli/commands/Laws/NoNativeRuntime";
+import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
@@ -34,7 +35,7 @@ const writeProjectFile = Effect.fn(function* (relativePath: string, content: str
 
 const writeTsconfig = writeProjectFile(
   "tsconfig.json",
-  ["{", '  "compilerOptions": {', '    "target": "ES2022",', '    "module": "ESNext"', "  }", "}"].join("\n")
+  A.join(["{", '  "compilerOptions": {', '    "target": "ES2022",', '    "module": "ESNext"', "  }", "}"], "\n")
 );
 
 describe("native runtime laws", () => {
@@ -58,7 +59,7 @@ describe("native runtime laws", () => {
           expect(summary.errorCount).toBe(0);
           expect(summary.strictFailure).toBe(false);
           expect(summary.affectedFiles).toEqual(["packages/demo/src/index.ts"]);
-          expect(summary.diagnostics.map((diagnostic) => diagnostic.severity)).toEqual(["warn"]);
+          expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.severity)).toEqual(["warn"]);
         })
       ).pipe(Effect.provide(testLayer))
     );
@@ -85,7 +86,7 @@ describe("native runtime laws", () => {
           expect(summary.errorCount).toBe(1);
           expect(summary.strictFailure).toBe(true);
           expect(summary.affectedFiles).toEqual(["packages/tooling/tool/cli/src/commands/Lint/index.ts"]);
-          expect(summary.diagnostics.map((diagnostic) => diagnostic.severity)).toEqual(["error"]);
+          expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.severity)).toEqual(["error"]);
         })
       ).pipe(Effect.provide(testLayer))
     );
@@ -98,16 +99,19 @@ describe("native runtime laws", () => {
           yield* writeTsconfig;
           yield* writeProjectFile(
             "packages/demo/src/index.ts",
-            [
-              "export const label = (status: 'ready' | 'blocked') => {",
-              "  switch (status) {",
-              "    case 'ready':",
-              "      return 'Ready';",
-              "    case 'blocked':",
-              "      return 'Blocked';",
-              "  }",
-              "};",
-            ].join("\n")
+            A.join(
+              [
+                "export const label = (status: 'ready' | 'blocked') => {",
+                "  switch (status) {",
+                "    case 'ready':",
+                "      return 'Ready';",
+                "    case 'blocked':",
+                "      return 'Blocked';",
+                "  }",
+                "};",
+              ],
+              "\n"
+            )
           );
 
           const summary = yield* runNoNativeRuntimeRules(
@@ -121,8 +125,8 @@ describe("native runtime laws", () => {
           expect(summary.errorCount).toBe(1);
           expect(summary.strictFailure).toBe(true);
           expect(summary.affectedFiles).toEqual(["packages/demo/src/index.ts"]);
-          expect(summary.diagnostics.map((diagnostic) => diagnostic.messageId)).toEqual(["nativeSwitch"]);
-          expect(summary.diagnostics.map((diagnostic) => diagnostic.severity)).toEqual(["error"]);
+          expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.messageId)).toEqual(["nativeSwitch"]);
+          expect(A.map(summary.diagnostics, (diagnostic) => diagnostic.severity)).toEqual(["error"]);
         })
       ).pipe(Effect.provide(testLayer))
     );

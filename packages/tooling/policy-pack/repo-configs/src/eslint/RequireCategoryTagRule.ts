@@ -5,13 +5,12 @@
  * @since 0.0.0
  */
 
-import { thunkFalse, thunkUndefined } from "@beep/utils";
+import { A, Str } from "@beep/utils";
+import { thunkFalse, thunkUndefined } from "@beep/utils/thunk";
 import { flow, HashSet, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import type { Rule, SourceCode } from "eslint";
 import type ESTree from "estree";
 import {

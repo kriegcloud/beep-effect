@@ -25,8 +25,8 @@
 import bc from "@beep/colors";
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, LogLevel } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Cause, Inspectable, Layer, Logger, Match, References } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -327,8 +327,9 @@ export const renderLogBanner: {
 
     const palette = themePalette(pretty.theme);
     const glyph = renderBannerGlyph(kind);
-    const line = palette.accent(`${glyph.repeat(4)} ${title.toUpperCase()} ${glyph.repeat(4)}`);
-    return [line, palette.dim("-".repeat(Math.max(12, title.length + 10)))].join("\n");
+    const bannerGlyphs = Str.repeat(glyph, 4);
+    const line = palette.accent(`${bannerGlyphs} ${Str.toUpperCase(title)} ${bannerGlyphs}`);
+    return A.join(A.make(line, palette.dim(Str.repeat("-", Math.max(12, title.length + 10)))), "\n");
   }
 );
 

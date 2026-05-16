@@ -6,8 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { A } from "@beep/utils";
 import { Console, Context, Effect, Layer } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {

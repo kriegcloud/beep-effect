@@ -7,11 +7,11 @@
 
 import { $SandboxId } from "@beep/identity";
 import { Fn, LiteralKit } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Duration, Effect, FileSystem, Path } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import type { AgentProvider } from "./Agent.provider.ts";
 import { type AgentStreamEmitter, AgentStreamEvent } from "./AgentStreamEmitter.ts";
 import { Display, type Severity } from "./Display.ts";
@@ -412,7 +412,7 @@ export const buildContextWindowLines = (
 
   for (const iteration of iterations) {
     if (iteration.usage !== undefined) {
-      lines.push(`Context window: ${formatContextWindowSize(iteration.usage)}`);
+      A.appendInPlace(lines, `Context window: ${formatContextWindowSize(iteration.usage)}`);
     }
   }
 
@@ -457,7 +457,7 @@ const copyPathToWorktree = Effect.fn("Run.copyPathToWorktree")(function* (
     path.isAbsolute(relativePath) ||
     normalizedRelativePath === "." ||
     normalizedRelativePath === ".." ||
-    normalizedRelativePath.startsWith(`..${path.sep}`)
+    Str.startsWith(`..${path.sep}`)(normalizedRelativePath)
   ) {
     return yield* CopyToWorktreeError.new(
       "invalid copy path",
@@ -480,8 +480,8 @@ const copyPathToWorktree = Effect.fn("Run.copyPathToWorktree")(function* (
     path.isAbsolute(destinationRelative) ||
     sourceRelative === ".." ||
     destinationRelative === ".." ||
-    sourceRelative.startsWith(`..${path.sep}`) ||
-    destinationRelative.startsWith(`..${path.sep}`)
+    Str.startsWith(`..${path.sep}`)(sourceRelative) ||
+    Str.startsWith(`..${path.sep}`)(destinationRelative)
   ) {
     return yield* CopyToWorktreeError.new(
       "copy path escaped repository",
@@ -551,7 +551,7 @@ const copyPathsToWorktree = Effect.fn("Run.copyPathsToWorktree")(function* (
   );
 });
 
-const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
+const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
 
 const defaultBranchStrategy = <R>(provider: SandboxProvider<R>): BranchStrategy =>
   provider._tag === "Isolated" ? new MergeToHeadBranchStrategy({}) : new HeadBranchStrategy({});
@@ -787,12 +787,17 @@ const runEffect: <R>(
       ? branchStrategy.branch
       : branchStrategy._tag === "Head"
         ? currentBranch
-        : buildLogFilename(
-            currentBranch,
-            new LogFilenameOptions({
-              ...(options.name === undefined ? {} : { name: options.name }),
-            })
-          ).replace(/\.log$/u, "");
+        : Str.replace(
+            /\.log$/u,
+            ""
+          )(
+            buildLogFilename(
+              currentBranch,
+              new LogFilenameOptions({
+                ...(options.name === undefined ? {} : { name: options.name }),
+              })
+            )
+          );
   const builtInArgs = {
     SOURCE_BRANCH: resolvedBranch,
     TARGET_BRANCH: currentBranch,

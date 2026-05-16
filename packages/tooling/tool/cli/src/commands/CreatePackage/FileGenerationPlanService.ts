@@ -8,15 +8,13 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit, normalizePath, SchemaUtils } from "@beep/schema";
-import { thunkFalse, thunkTrue } from "@beep/utils";
+import { A, Str, thunkFalse, thunkTrue } from "@beep/utils";
 import { Context, Effect, FileSystem, flow, Number as Num, Order, Path, pipe, Ref, Struct } from "effect";
-import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("commands/CreatePackage/FileGenerationPlanService");
 const relativePlanPathSegments = flow(normalizePath, Str.split("/"), A.filter(Str.isNonEmpty));
@@ -43,12 +41,15 @@ const RelativePlanPathChecks = S.makeFilterGroup(
       description: "Create-package plan paths must not be empty.",
       message: "Create-package plan paths must not be empty.",
     }),
-    S.makeFilter(P.not(Str.startsWith("/")), {
-      identifier: $I`RelativePlanPathNotAbsoluteCheck`,
-      title: "Relative plan path not absolute",
-      description: "Create-package plan paths must stay relative to the output directory.",
-      message: "Create-package plan paths must stay relative to the output directory.",
-    }),
+    S.makeFilter(
+      P.not((value: string) => Str.startsWith("/")(value)),
+      {
+        identifier: $I`RelativePlanPathNotAbsoluteCheck`,
+        title: "Relative plan path not absolute",
+        description: "Create-package plan paths must stay relative to the output directory.",
+        message: "Create-package plan paths must stay relative to the output directory.",
+      }
+    ),
     S.makeFilter(isSafeRelativePlanPath, {
       identifier: $I`RelativePlanPathTraversalCheck`,
       title: "Relative plan path traversal-safe",

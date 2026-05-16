@@ -7,6 +7,7 @@
  */
 "use client";
 
+import { A } from "@beep/utils";
 import {
   AudioFormat,
   CommitStrategy,
@@ -20,7 +21,6 @@ import {
   type ScribeErrorMessage,
   type ScribeQuotaExceededErrorMessage,
 } from "@elevenlabs/client";
-import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import { useCallback, useEffect, useRef, useState } from "react";
 

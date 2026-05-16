@@ -8,12 +8,10 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
-import { thunkEmptyStr } from "@beep/utils";
+import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, flow, HashMap, Order, Path, pipe, SchemaGetter } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { Node, Project, SyntaxKind, type TypeElementTypes } from "ts-morph";
@@ -155,13 +153,13 @@ const sortEntries: (entries: ReadonlyArray<SchemaFirstInventoryEntry>) => Readon
   flow(A.sort(byEntryKeyAscending));
 
 const isEnforcedFile = (filePath: string): boolean =>
-  ENFORCED_ROOTS.some((root) => filePath === root || Str.startsWith(`${root}/`)(filePath));
+  A.some(ENFORCED_ROOTS, (root) => filePath === root || Str.startsWith(`${root}/`)(filePath));
 
 const todayYmd = (): string => {
   const now = DateTime.nowUnsafe();
   const year = `${DateTime.getPartUtc(now, "year")}`;
-  const month = `${DateTime.getPartUtc(now, "month")}`.padStart(2, "0");
-  const day = `${DateTime.getPartUtc(now, "day")}`.padStart(2, "0");
+  const month = Str.padStart(2, "0")(`${DateTime.getPartUtc(now, "month")}`);
+  const day = Str.padStart(2, "0")(`${DateTime.getPartUtc(now, "day")}`);
   return `${year}-${month}-${day}`;
 };
 
@@ -199,7 +197,7 @@ const makeOwnerResolver = Effect.fn("makeOwnerResolver")(function* () {
 
   return (absoluteFilePath: string): string => {
     const normalized = toPosixPath(absoluteFilePath);
-    const relativePath = toPosixPath(normalized.replace(`${cwd}/`, ""));
+    const relativePath = toPosixPath(Str.replace(`${cwd}/`, "")(normalized));
     const workspaceMatch = A.findFirst(
       workspaceEntries,
       ([, workspacePath]) => normalized === workspacePath || Str.startsWith(`${workspacePath}/`)(normalized)
@@ -330,7 +328,8 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     reason: string,
     owner: string
   ) =>
-    void entries.push(
+    void A.appendInPlace(
+      entries,
       new SchemaFirstInventoryEntry({
         file,
         symbol,
@@ -461,7 +460,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
   const mergedDocument = mergeInventory(liveDocument, existingDocument);
 
   const liveByKey = HashMap.fromIterable(
-    liveDocument.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+    A.map(liveDocument.entries, (entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
   );
   const trackedByKey = pipe(
     existingDocument,

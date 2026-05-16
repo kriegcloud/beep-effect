@@ -7,8 +7,8 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Effect, flow, Order, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { firstString, metricEventName, optionalTimestamp, transcriptLines } from "./internal/transcript-utils.ts";

@@ -1,4 +1,5 @@
 import { EvmAddress } from "@beep/schema/blockchain/EvmAddress";
+import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -14,7 +15,7 @@ describe("EvmAddress", () => {
   });
 
   it("rejects malformed or non-EVM addresses", () => {
-    expect(() => decode(evmChecksummed.toUpperCase())).toThrow("EvmAddress must be a canonical mainnet EVM address");
+    expect(() => decode(Str.toUpperCase(evmChecksummed))).toThrow("EvmAddress must be a canonical mainnet EVM address");
     expect(() => decode("52908400098527886e0f7030069857d2e4169ee7")).toThrow(
       "EvmAddress must be a canonical mainnet EVM address"
     );

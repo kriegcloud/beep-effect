@@ -12,6 +12,9 @@
       "path": "../../drivers/drizzle/tsconfig.json"
     },
     {
+      "path": "../../foundation/modeling/utils/tsconfig.json"
+    },
+    {
       "path": "../domain/tsconfig.json"
     }
   ]

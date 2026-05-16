@@ -6,6 +6,7 @@
  */
 
 import { $SandboxId } from "@beep/identity";
+import { Str } from "@beep/utils";
 import * as S from "effect/Schema";
 
 const $I = $SandboxId.create("TextDeltaBuffer");
@@ -57,9 +58,10 @@ export type TextDeltaFlush = (text: string) => void;
  * @example
  * ```ts
  * import { TextDeltaBuffer } from "@beep/sandbox"
+ * import { A } from "@beep/utils"
  *
  * const flushed: Array<string> = []
- * const buffer = new TextDeltaBuffer((text) => flushed.push(text))
+ * const buffer = new TextDeltaBuffer((text) => A.appendInPlace(flushed, text))
  *
  * buffer.write("Hello. ")
  * buffer.dispose()
@@ -126,7 +128,7 @@ export class TextDeltaBuffer {
 
   #shouldFlush(): boolean {
     return (
-      this.#buffer.includes("\n") ||
+      Str.includes("\n")(this.#buffer) ||
       SENTENCE_BOUNDARY_PATTERN.test(this.#buffer) ||
       this.#buffer.length >= this.#options.lengthThreshold
     );

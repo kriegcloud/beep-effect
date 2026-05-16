@@ -1,4 +1,5 @@
 import * as VariantSchema from "@beep/schema/VariantSchema";
+import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -24,10 +25,10 @@ describe("VariantSchema.Class", () => {
     class RawModel extends Class<RawModel>("RawModel")(baseFields) {}
     class StructModel extends Class<StructModel>("StructModel")(Struct(baseFields)) {}
 
-    expect(Object.keys(RawModel.select.fields).sort()).toEqual(["id", "name", "secret"]);
-    expect(Object.keys(RawModel.json.fields).sort()).toEqual(["id", "name"]);
-    expect(Object.keys(StructModel.select.fields).sort()).toEqual(["id", "name", "secret"]);
-    expect(Object.keys(StructModel.json.fields).sort()).toEqual(["id", "name"]);
+    expect(A.sort(Object.keys(RawModel.select.fields), Str.Order)).toEqual(["id", "name", "secret"]);
+    expect(A.sort(Object.keys(RawModel.json.fields), Str.Order)).toEqual(["id", "name"]);
+    expect(A.sort(Object.keys(StructModel.select.fields), Str.Order)).toEqual(["id", "name", "secret"]);
+    expect(A.sort(Object.keys(StructModel.json.fields), Str.Order)).toEqual(["id", "name"]);
   });
 
   it("keeps variant statics after raw-field and struct-based extension", () => {
@@ -44,11 +45,11 @@ describe("VariantSchema.Class", () => {
       })
     ) {}
 
-    expect(Object.keys(RawChild.select.fields).sort()).toEqual(["childOnly", "id", "name", "secret"]);
-    expect(Object.keys(RawChild.jsonCreate.fields).sort()).toEqual(["childOnly", "name"]);
-    expect(Object.keys(StructChild.select.fields).sort()).toEqual(["childOnly", "id", "name", "secret"]);
-    expect(Object.keys(StructChild.insert.fields).sort()).toEqual(["name", "secret"]);
-    expect(Object.keys(StructChild.json.fields).sort()).toEqual(["childOnly", "id", "name"]);
+    expect(A.sort(Object.keys(RawChild.select.fields), Str.Order)).toEqual(["childOnly", "id", "name", "secret"]);
+    expect(A.sort(Object.keys(RawChild.jsonCreate.fields), Str.Order)).toEqual(["childOnly", "name"]);
+    expect(A.sort(Object.keys(StructChild.select.fields), Str.Order)).toEqual(["childOnly", "id", "name", "secret"]);
+    expect(A.sort(Object.keys(StructChild.insert.fields), Str.Order)).toEqual(["name", "secret"]);
+    expect(A.sort(Object.keys(StructChild.json.fields), Str.Order)).toEqual(["childOnly", "id", "name"]);
   });
 
   it("lets child fields override parent fields by key", () => {
@@ -93,10 +94,15 @@ describe("VariantSchema.Class", () => {
     class ChildFromMapped extends BaseModel.extend<ChildFromMapped>("ChildFromMapped")(mapped) {}
 
     expect(VariantSchema.isStruct(mapped)).toBe(true);
-    expect(Object.keys(FromMapped.select.fields).sort()).toEqual(["id", "mappedOnly", "name", "secret"]);
-    expect(Object.keys(FromMapped.json.fields).sort()).toEqual(["id", "mappedOnly", "name"]);
-    expect(Object.keys(ChildFromMapped.select.fields).sort()).toEqual(["id", "mappedOnly", "name", "secret"]);
-    expect(Object.keys(ChildFromMapped.jsonCreate.fields).sort()).toEqual(["name"]);
+    expect(A.sort(Object.keys(FromMapped.select.fields), Str.Order)).toEqual(["id", "mappedOnly", "name", "secret"]);
+    expect(A.sort(Object.keys(FromMapped.json.fields), Str.Order)).toEqual(["id", "mappedOnly", "name"]);
+    expect(A.sort(Object.keys(ChildFromMapped.select.fields), Str.Order)).toEqual([
+      "id",
+      "mappedOnly",
+      "name",
+      "secret",
+    ]);
+    expect(A.sort(Object.keys(ChildFromMapped.jsonCreate.fields), Str.Order)).toEqual(["name"]);
   });
 
   it("supports helper structs, fields, curried extract, field evolution, and unions", () => {

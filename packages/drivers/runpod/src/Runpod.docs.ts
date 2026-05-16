@@ -6,12 +6,11 @@
  */
 
 import { $RunpodId } from "@beep/identity";
+import { A, Str } from "@beep/utils";
 import { Config, Context, Effect, flow, Layer, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";

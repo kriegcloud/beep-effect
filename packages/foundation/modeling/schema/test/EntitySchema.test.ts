@@ -1,6 +1,7 @@
 import { $SchemaId } from "@beep/identity";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as Model from "@beep/schema/Model";
+import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -180,10 +181,22 @@ describe("EntitySchema", () => {
   });
 
   it("derives variants from persistence strategies", () => {
-    expect(Object.keys(Fixture.fields).sort()).toEqual(["id", "name", "optionalName", "payload", "rowVersion"]);
-    expect(Object.keys(Fixture.insert.fields).sort()).toEqual(["name", "optionalName", "payload"]);
-    expect(Object.keys(Fixture.update.fields).sort()).toEqual(["id", "name", "optionalName", "payload", "rowVersion"]);
-    expect(Object.keys(Fixture.jsonCreate.fields).sort()).toEqual(["name", "optionalName", "payload"]);
+    expect(A.sort(Object.keys(Fixture.fields), Str.Order)).toEqual([
+      "id",
+      "name",
+      "optionalName",
+      "payload",
+      "rowVersion",
+    ]);
+    expect(A.sort(Object.keys(Fixture.insert.fields), Str.Order)).toEqual(["name", "optionalName", "payload"]);
+    expect(A.sort(Object.keys(Fixture.update.fields), Str.Order)).toEqual([
+      "id",
+      "name",
+      "optionalName",
+      "payload",
+      "rowVersion",
+    ]);
+    expect(A.sort(Object.keys(Fixture.jsonCreate.fields), Str.Order)).toEqual(["name", "optionalName", "payload"]);
   });
 
   it("normalizes explicit Model helpers through selected fields while preserving variant fields", () => {
@@ -196,7 +209,7 @@ describe("EntitySchema", () => {
     expect(definition.fields.payloadText).toBe(explicitFields.payloadText.schemas.select);
     expect(EntitySchema.encodedFieldShape(definition.fields.payloadText).absenceKind).toBe("required");
 
-    expect(Object.keys(ExplicitFixture.fields).sort()).toEqual([
+    expect(A.sort(Object.keys(ExplicitFixture.fields), Str.Order)).toEqual([
       "appCode",
       "binaryUuid",
       "createdAt",
@@ -207,7 +220,7 @@ describe("EntitySchema", () => {
       "secret",
       "updatedAt",
     ]);
-    expect(Object.keys(ExplicitFixture.insert.fields).sort()).toEqual([
+    expect(A.sort(Object.keys(ExplicitFixture.insert.fields), Str.Order)).toEqual([
       "appCode",
       "binaryUuid",
       "createdAt",
@@ -217,7 +230,7 @@ describe("EntitySchema", () => {
       "secret",
       "updatedAt",
     ]);
-    expect(Object.keys(ExplicitFixture.update.fields).sort()).toEqual([
+    expect(A.sort(Object.keys(ExplicitFixture.update.fields), Str.Order)).toEqual([
       "appCode",
       "binaryUuid",
       "generatedValue",
@@ -226,7 +239,7 @@ describe("EntitySchema", () => {
       "secret",
       "updatedAt",
     ]);
-    expect(Object.keys(ExplicitFixture.json.fields).sort()).toEqual([
+    expect(A.sort(Object.keys(ExplicitFixture.json.fields), Str.Order)).toEqual([
       "appCode",
       "binaryUuid",
       "createdAt",
@@ -236,8 +249,8 @@ describe("EntitySchema", () => {
       "payloadText",
       "updatedAt",
     ]);
-    expect(Object.keys(ExplicitFixture.jsonCreate.fields).sort()).toEqual(["optionalName", "payloadText"]);
-    expect(Object.keys(ExplicitFixture.jsonUpdate.fields).sort()).toEqual(["optionalName", "payloadText"]);
+    expect(A.sort(Object.keys(ExplicitFixture.jsonCreate.fields), Str.Order)).toEqual(["optionalName", "payloadText"]);
+    expect(A.sort(Object.keys(ExplicitFixture.jsonUpdate.fields), Str.Order)).toEqual(["optionalName", "payloadText"]);
   });
 
   it("accepts upstream effect unstable Model helpers directly", () => {

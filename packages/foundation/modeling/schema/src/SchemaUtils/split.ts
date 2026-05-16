@@ -8,10 +8,9 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { A, Str } from "@beep/utils";
 import { SchemaTransformation } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 /**
  * Build a schema that decodes delimited text into a readonly string array.

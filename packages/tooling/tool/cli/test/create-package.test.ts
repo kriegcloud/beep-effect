@@ -1,8 +1,8 @@
 import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
+import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
@@ -142,7 +142,10 @@ const writeSyncpackConfig = (filePath: string, sources: ReadonlyArray<string>) =
 
 const config = {
   source: [
-${A.map(sources, (source) => `    "${source}",`).join("\n")}
+${A.join(
+  A.map(sources, (source) => `    "${source}",`),
+  "\n"
+)}
   ],
   customTypes: {},
   versionGroups: [],
@@ -157,7 +160,7 @@ const bootstrapIdentityWorkspace = Effect.fn(function* (
   relativeDir = "packages/foundation/modeling/identity"
 ) {
   const path = yield* Path.Path;
-  const identityDir = path.join(rootDir, ...relativeDir.split("/"));
+  const identityDir = path.join(rootDir, ...Str.split("/")(relativeDir));
 
   yield* writeJsonFile(path.join(identityDir, "package.json"), {
     name: "@beep/identity",

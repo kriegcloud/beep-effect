@@ -10,14 +10,12 @@ import { CSV } from "@beep/schema";
 import { parseCsvRows } from "@beep/schema/csv/parse/CsvParser";
 import { ParserOptions } from "@beep/schema/csv/parse/ParserOptions";
 import { XmlTextToUnknown } from "@beep/schema/Xml";
-import { P, Struct, thunkEffectVoid, thunkTrue } from "@beep/utils";
+import { A, P, Str, Struct, thunkEffectVoid, thunkTrue } from "@beep/utils";
 import { cast } from "@beep/utils/Function";
 import { Console, Effect, FileSystem, flow, Match, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import {

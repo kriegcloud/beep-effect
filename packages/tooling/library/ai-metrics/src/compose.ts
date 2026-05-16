@@ -6,8 +6,8 @@
  */
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
+import { A } from "@beep/utils";
 import { Effect, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { stringify as stringifyYaml } from "yaml";
 import { AiMetricsInstallConfigurationError, type AiMetricsInstallSpec, type AiMetricsServiceSpec } from "./install.ts";

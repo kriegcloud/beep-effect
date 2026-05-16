@@ -7,9 +7,9 @@ import {
   OpenAiCompatClient,
   OpenAiCompatClientOptions,
 } from "@beep/openai-compat";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AiError from "effect/unstable/ai/AiError";

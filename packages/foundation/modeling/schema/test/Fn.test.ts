@@ -1,4 +1,5 @@
 import { AnyFn, Fn, ThunkOf } from "@beep/schema";
+import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as Cause from "effect/Cause";
@@ -191,7 +192,7 @@ describe("Fn unary functions", () => {
       }),
     });
     const impl = schema.implement(({ name, age }) => ({
-      id: `${name.toLowerCase()}-${age}`,
+      id: `${Str.toLowerCase(name)}-${age}`,
       label: `${name} (${age})`,
     }));
 

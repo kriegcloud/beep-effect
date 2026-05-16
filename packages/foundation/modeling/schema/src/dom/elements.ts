@@ -99,7 +99,7 @@ export const isReactNode = (u: unknown): u is React.ReactNode => {
 
   // Arrays (Iterable)
   if (A.isArray(u)) {
-    return u.every(isReactNode);
+    return A.every(u, isReactNode);
   }
 
   // React elements and portals (objects with $$typeof)

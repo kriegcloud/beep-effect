@@ -29,9 +29,8 @@
  */
 
 import { $ColorsId } from "@beep/identity";
-import { Str } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
@@ -106,18 +105,26 @@ const hasNoColorEnv = (env: Readonly<Record<string, string | undefined>>): boole
 const hasForceColorEnv = (env: Readonly<Record<string, string | undefined>>): boolean =>
   env.FORCE_COLOR !== undefined && env.FORCE_COLOR !== "0";
 
+const findCloseFrom = (text: string, close: string, cursor: number): O.Option<number> =>
+  pipe(
+    text,
+    Str.substring(cursor),
+    Str.indexOf(close),
+    O.map((index) => cursor + index)
+  );
+
 const replaceClose = (text: string, close: string, replace: string, index: number): string => {
   let result = "";
   let cursor = 0;
-  let nextIndex = index;
+  let nextIndex = O.some(index);
 
-  do {
-    result += Str.substring(cursor, nextIndex)(text) + replace;
-    cursor = nextIndex + close.length;
-    nextIndex = text.indexOf(close, cursor);
-  } while (nextIndex !== -1);
+  while (O.isSome(nextIndex)) {
+    result += Str.substring(cursor, nextIndex.value)(text) + replace;
+    cursor = nextIndex.value + close.length;
+    nextIndex = findCloseFrom(text, close, cursor);
+  }
 
-  return result + text.substring(cursor);
+  return result + Str.substring(cursor)(text);
 };
 
 /**
@@ -161,9 +168,12 @@ const formatter =
   (open: string, close: string, replace = open): Formatter =>
   (input) => {
     const text = String(input);
-    const index = text.indexOf(close, open.length);
+    const index = findCloseFrom(text, close, open.length);
 
-    return index !== -1 ? open + replaceClose(text, close, replace, index) + close : open + text + close;
+    return O.match(index, {
+      onNone: () => open + text + close,
+      onSome: (nextIndex) => open + replaceClose(text, close, replace, nextIndex) + close,
+    });
   };
 
 /**

@@ -6,6 +6,7 @@
  */
 
 import { cn } from "@beep/ui/lib/utils";
+import { A } from "@beep/utils";
 import * as P from "effect/Predicate";
 import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
@@ -68,7 +69,7 @@ function Nav({ content }: { readonly content: OpipSiteContent }) {
             className="flex max-w-[calc(100%-4.5rem)] items-center gap-1 overflow-x-auto sm:max-w-none sm:gap-3"
             aria-label="Primary navigation"
           >
-            {content.nav.map((item) => (
+            {A.map(content.nav, (item) => (
               <li key={item.href}>
                 <a
                   className="block px-2 py-2 font-[family-name:var(--font-opip-mono)] text-[0.68rem] font-medium uppercase tracking-[0.14em] text-[var(--opip-on-soil)] opacity-80 transition-opacity hover:opacity-100 sm:px-3"
@@ -151,7 +152,7 @@ function About({ content }: { readonly content: OpipSiteContent }) {
           About Thomas J. Oppold's practice
         </h2>
         <div className="grid gap-7 lg:grid-cols-3">
-          {content.about.map((panel) => {
+          {A.map(content.about, (panel) => {
             const isPortraitPanel = panel.id === "law";
 
             return (
@@ -219,7 +220,7 @@ function Practice({ content }: { readonly content: OpipSiteContent }) {
           </h2>
         </header>
         <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-          {content.practices.map((practice) => (
+          {A.map(content.practices, (practice) => (
             <article
               key={practice.id}
               className="rounded-lg border border-[var(--opip-rule)] bg-[var(--opip-card)] p-5"
@@ -250,7 +251,7 @@ function Matters({ content }: { readonly content: OpipSiteContent }) {
           </h2>
         </header>
         <div className="mt-10 grid auto-cols-[minmax(18rem,1fr)] grid-flow-col gap-5 overflow-x-auto pb-5 lg:grid-flow-row lg:grid-cols-3 lg:overflow-visible">
-          {content.matters.map((matter) => (
+          {A.map(content.matters, (matter) => (
             <ExternalAnchor
               key={matter.id}
               href={matter.source.href}
@@ -301,7 +302,7 @@ function Clients({ content }: { readonly content: OpipSiteContent }) {
       <div className={sectionShell}>
         <p className={`${monoLabel} text-center text-[var(--opip-burgundy)]`}>Counsel of record for selected matters</p>
         <ul className="mt-8 grid grid-cols-2 items-center gap-x-8 gap-y-7 sm:grid-cols-3 lg:grid-cols-5">
-          {content.clients.map((client) => (
+          {A.map(content.clients, (client) => (
             <li key={client.id} className="flex min-h-16 items-center justify-center">
               <img
                 src={client.logo.src}
@@ -338,7 +339,7 @@ function Press({ content }: { readonly content: OpipSiteContent }) {
           </h2>
         </header>
         <ul className="mt-10 grid gap-5">
-          {content.press.map((item) => (
+          {A.map(content.press, (item) => (
             <li key={item.source.href} className="border-t border-[var(--opip-rule)] pt-5">
               <article className="grid gap-4 md:grid-cols-[14rem_1fr_auto] md:items-start">
                 <p className="font-[family-name:var(--font-opip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--opip-muted)]">
@@ -409,7 +410,7 @@ function Contact({
           <aside className="rounded-lg border border-[color-mix(in_oklab,var(--opip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--opip-soil)_22%,transparent)] p-6">
             <p className={`${monoLabel} text-[var(--opip-on-burgundy-accent)]`}>Notice</p>
             <div className="mt-4 grid gap-4 text-sm leading-7 text-[color-mix(in_oklab,var(--opip-on-soil)_88%,transparent)]">
-              {contact.notice.map((line) => (
+              {A.map(contact.notice, (line) => (
                 <p key={line}>{line}</p>
               ))}
             </div>

@@ -8,11 +8,11 @@
 import { $OpipWebId } from "@beep/identity/packages";
 import { Sanity, SanityConfigInput, type SanityError, SanityQueryRequest } from "@beep/sanity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Config, Effect, Layer, pipe, Redacted } from "effect";
+import { Str } from "@beep/utils";
+import { Config, Effect, flow, Layer, pipe, Redacted } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import { opipSiteContent } from "./OpipContent.data.ts";
 import { decodeOpipSiteContent, type OpipSiteContent } from "./OpipContent.model.ts";
@@ -62,8 +62,7 @@ class OpipContentLoadError extends TaggedErrorClass<OpipContentLoadError>($I`Opi
     });
 }
 
-const trimConfigOption = (value: O.Option<string>): O.Option<string> =>
-  pipe(value, O.map(Str.trim), O.filter(Str.isNonEmpty));
+const trimConfigOption: (value: O.Option<string>) => O.Option<string> = flow(O.map(Str.trim), O.filter(Str.isNonEmpty));
 
 const readTextConfigOption = Effect.fn("OpipContent.readTextConfigOption")(function* (key: string) {
   const value = yield* Config.string(key).pipe(

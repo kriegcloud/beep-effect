@@ -8,11 +8,10 @@
 import { DuckDb } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Clock, Effect, FileSystem, flow, Order, Path, pipe } from "effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { ensureAiMetricsDerivedStorage } from "./derived-storage.ts";
 import {
   AiMetricsDeployTarget,
@@ -1165,20 +1164,23 @@ const renderMarkdownReport = (document: AiMetricsWeeklyReportDocument): string =
   );
   const coverage = pipe(document.coverageGaps, A.join(", "));
 
-  return `${[
-    "# AI Metrics Weekly Config-Impact Report",
-    "",
-    `target: ${document.target}`,
-    `windowStartEpochMillis: ${document.windowStartEpochMillis}`,
-    `windowEndEpochMillis: ${document.windowEndEpochMillis}`,
-    `generatedAtEpochMillis: ${document.generatedAtEpochMillis}`,
-    `coverageGaps: ${Str.isNonEmpty(coverage) ? coverage : "none"}`,
-    "",
-    "| configSnapshotId | total | outcome | flow | cost | tasks | labels | benchmarks | completionReady | gaps |",
-    "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
-    Str.isNonEmpty(rows) ? rows : "| none | 0.000 | 0.000 | 0.000 | 0.000 | 0 | 0 | 0 | no | no_data |",
-    "",
-  ].join("\n")}`;
+  return pipe(
+    [
+      "# AI Metrics Weekly Config-Impact Report",
+      "",
+      `target: ${document.target}`,
+      `windowStartEpochMillis: ${document.windowStartEpochMillis}`,
+      `windowEndEpochMillis: ${document.windowEndEpochMillis}`,
+      `generatedAtEpochMillis: ${document.generatedAtEpochMillis}`,
+      `coverageGaps: ${Str.isNonEmpty(coverage) ? coverage : "none"}`,
+      "",
+      "| configSnapshotId | total | outcome | flow | cost | tasks | labels | benchmarks | completionReady | gaps |",
+      "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+      Str.isNonEmpty(rows) ? rows : "| none | 0.000 | 0.000 | 0.000 | 0.000 | 0 | 0 | 0 | no | no_data |",
+      "",
+    ],
+    A.join("\n")
+  );
 };
 
 const artifactBaseName = (input: AiMetricsWeeklyReportInput): string =>

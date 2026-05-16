@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import * as A from "effect/Array";
+import { A } from "@beep/utils";
 
 /**
  * Files that currently receive blocking `no-native-runtime` severity in the legacy ESLint surface.

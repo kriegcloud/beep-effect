@@ -4,9 +4,8 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-
+import type { A } from "@beep/utils";
 import type { SchemaAST } from "effect";
-import type * as A from "effect/Array";
 import type { LiteralKit as LiteralKitSchema } from "../LiteralKit.ts";
 import { withStatics } from "./withStatics.ts";
 

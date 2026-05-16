@@ -1,8 +1,7 @@
 import { CurrencyCodeDataValues } from "@beep/data/CurrencyCodes";
+import { A, O } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { pipe } from "effect";
-import * as A from "effect/Array";
-import * as O from "effect/Option";
 
 describe("CurrencyCodes", () => {
   it("exports the generated ISO 4217 data through the public module", () => {

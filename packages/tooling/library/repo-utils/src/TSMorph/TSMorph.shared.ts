@@ -4,13 +4,11 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Text, thunkEmptyStr } from "@beep/utils";
+import { A, Str, Text, thunkEmptyStr } from "@beep/utils";
 import { flow, Match, Order, pipe } from "effect";
-import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import {
   type ClassDeclaration,
   type ConstructorDeclaration,
@@ -173,7 +171,7 @@ export const readSignature = (node: OutlineDeclaration): string => {
   const signatureSourceText = pipe(
     Node.isDecoratable(node) ? node.getDecorators() : A.empty(),
     A.last,
-    O.map((decorator) => node.getSourceFile().getFullText().slice(decorator.getEnd(), node.getEnd())),
+    O.map((decorator) => Str.slice(decorator.getEnd(), node.getEnd())(node.getSourceFile().getFullText())),
     O.getOrElse(() => node.getText())
   );
 

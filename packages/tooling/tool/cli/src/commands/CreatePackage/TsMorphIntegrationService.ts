@@ -8,8 +8,8 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import type { DomainError } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
+import { A } from "@beep/utils";
 import { Context, Effect, Tuple } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/CreatePackage/TsMorphIntegrationService");
