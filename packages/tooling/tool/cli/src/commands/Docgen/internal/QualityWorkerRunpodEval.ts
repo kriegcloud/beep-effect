@@ -512,13 +512,14 @@ const resolveTemplate = Effect.fn("DocgenQualityWorkerRunpodEval.resolveTemplate
   readonly skipTemplateSearch: boolean;
   readonly templateId?: string;
 }) {
-  if (templateId !== undefined && Str.isNonEmpty(Str.trim(templateId))) {
+  const normalizedTemplateId = templateId === undefined ? undefined : Str.trim(templateId);
+  if (normalizedTemplateId !== undefined && Str.isNonEmpty(normalizedTemplateId)) {
     return new DocgenQualityWorkerRunpodEvalTemplate({
       imageName: RUNPOD_PYTORCH_IMAGE,
       searchIncludedPublicTemplates: false,
       searchIncludedRunpodTemplates: false,
       strategy: "explicit-template",
-      templateId,
+      templateId: normalizedTemplateId,
       templateName: null,
     });
   }

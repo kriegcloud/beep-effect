@@ -816,7 +816,8 @@ const processEnvRecord = (): Record<string, string> =>
 
 const ossProviderBaseUrl = (value: string): string => {
   const trimmed = Str.trim(value);
-  return Str.endsWith("/v1")(trimmed) ? trimmed : `${trimmed}/v1`;
+  const normalized = trimmed.replace(/\/+$/, "");
+  return Str.endsWith("/v1")(normalized) ? normalized : `${normalized}/v1`;
 };
 
 const makeCodexRunner = (sdkModule: CodexSdkModule): DocgenQualityWorkerEvalRunner =>
@@ -1228,6 +1229,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
     const startedAtMs = globalThis.performance.now();
     const workingDirectory = yield* findRepoRoot();
     const sdkVersion = codexSdkVersion ?? (yield* resolveCodexSdkVersionOrUnknown);
+    const resolvedBaseUrl = pipe(O.fromNullishOr(baseUrl), O.map(Str.trim), O.filter(Str.isNonEmpty), O.getOrUndefined);
     const candidates = A.map(report.remediationPackets, (packet) => packetCandidate(report, packet));
     const selected = selectQualityWorkerEvalPackets(candidates, packetLimit);
     let packets: ReadonlyArray<DocgenQualityWorkerEvalPacketResult>;
@@ -1245,7 +1247,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
           );
 
           return runPacketEval({
-            ...(baseUrl === undefined ? {} : { baseUrl }),
+            ...(resolvedBaseUrl === undefined ? {} : { baseUrl: resolvedBaseUrl }),
             candidate,
             model,
             provider,

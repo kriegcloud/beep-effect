@@ -10,7 +10,7 @@
 
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { Runpod, RunpodConfigInput } from "@beep/runpod";
-import { Config, Console, Duration, Effect, FileSystem, Match, Path, pipe } from "effect";
+import { Config, Console, Effect, FileSystem, Match, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -139,7 +139,7 @@ const keepRunpodPodFlag = Flag.boolean("keep-pod").pipe(
 const allow24GbFallbackFlag = Flag.boolean("allow-24gb-fallback").pipe(
   Flag.withDescription("Allow explicitly verified 24 GiB GPU fallbacks when preferred 48 GiB GPUs are unavailable")
 );
-const runpodGpuTypeIdsFlag = Flag.string("gpu-type-ids").pipe(
+const runpodGpuTypeIdsFlag = Flag.string("gpu-type").pipe(
   Flag.withDescription("Comma-separated Runpod GPU type ids; overrides the default 48 GiB preference list"),
   Flag.optional
 );
@@ -150,9 +150,9 @@ const runpodTemplateIdFlag = Flag.string("template-id").pipe(
 const skipRunpodTemplateSearchFlag = Flag.boolean("skip-template-search").pipe(
   Flag.withDescription("Use the repo fallback image instead of searching public Runpod templates")
 );
-const runpodReadinessTimeoutMinutesFlag = Flag.integer("readiness-timeout-minutes").pipe(
-  Flag.withDefault(Math.ceil(defaultQualityWorkerRunpodEvalReadinessTimeoutMs() / 60_000)),
-  Flag.withDescription("Minutes to wait for remote Ollama readiness after pod creation")
+const runpodReadinessTimeoutMsFlag = Flag.integer("readiness-timeout-ms").pipe(
+  Flag.withDefault(defaultQualityWorkerRunpodEvalReadinessTimeoutMs()),
+  Flag.withDescription("Milliseconds to wait for remote Ollama readiness after pod creation")
 );
 const qualityWorkerRunpodEvalOtlpFlag = Flag.boolean("otlp").pipe(
   Flag.withDescription("Emit sanitized summary and hashed packet spans to the configured Phoenix OTLP endpoint")
@@ -909,7 +909,7 @@ const docgenQualityWorkerEvalCommand = Command.make(
       const baseUrlOptions = pipe(
         baseUrl,
         O.filter((value) => Str.isNonEmpty(Str.trim(value))),
-        O.map((value) => ({ baseUrl: value })),
+        O.map((value) => ({ baseUrl: Str.trim(value) })),
         O.getOrElse(() => ({}))
       );
 
@@ -968,7 +968,7 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
     gpuTypeIds: runpodGpuTypeIdsFlag,
     templateId: runpodTemplateIdFlag,
     skipTemplateSearch: skipRunpodTemplateSearchFlag,
-    readinessTimeoutMinutes: runpodReadinessTimeoutMinutesFlag,
+    readinessTimeoutMs: runpodReadinessTimeoutMsFlag,
     otlp: qualityWorkerRunpodEvalOtlpFlag,
     otlpBaseUrl: qualityWorkerRunpodEvalOtlpBaseUrlFlag,
     otlpProject: qualityWorkerRunpodEvalOtlpProjectFlag,
@@ -988,7 +988,7 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
       gpuTypeIds,
       templateId,
       skipTemplateSearch,
-      readinessTimeoutMinutes,
+      readinessTimeoutMs,
       otlp,
       otlpBaseUrl,
       otlpProject,
@@ -1008,9 +1008,9 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
         });
       }
 
-      if (readinessTimeoutMinutes <= 0) {
+      if (readinessTimeoutMs <= 0) {
         return yield* new DomainError({
-          message: "--readiness-timeout-minutes must be greater than zero.",
+          message: "--readiness-timeout-ms must be greater than zero.",
         });
       }
 
@@ -1061,7 +1061,7 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
         otlpProject,
         packetLimit,
         provider,
-        readinessTimeoutMs: Duration.toMillis(Duration.minutes(readinessTimeoutMinutes)),
+        readinessTimeoutMs,
         report: source.report,
         scope: source.scope,
         sourceQualityReport: source.sourceQualityReport,

@@ -77,7 +77,7 @@ The successful Runpod smoke command:
 
 ```sh
 RUNPOD_API_KEY="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')" \
-  bun run beep docgen quality-worker-eval-runpod --input <saved-source-quality-report.json> --provider ollama --model qwen3-coder:30b --packet-limit 1 --otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 --otlp-project beep-jsdoc-worker-eval --confirm-runpod-eval --skip-template-search --readiness-timeout-minutes 45 --output initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-smoke-v2.json
+  bun run beep docgen quality-worker-eval-runpod --input <saved-source-quality-report.json> --provider ollama --model qwen3-coder:30b --packet-limit 1 --otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 --otlp-project beep-jsdoc-worker-eval --confirm-runpod-eval --skip-template-search --readiness-timeout-ms 2700000 --output initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-smoke-v2.json
 ```
 
 The Runpod smoke completed one selected packet as a candidate draft with zero

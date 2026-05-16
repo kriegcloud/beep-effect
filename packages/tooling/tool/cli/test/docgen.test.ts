@@ -1668,7 +1668,7 @@ export type TypeValue = string;
             });
           };
           const baseUrlReport = yield* analyzeDocgenQualityWorkerEval({
-            baseUrl: "https://pod-11434.proxy.runpod.net/v1",
+            baseUrl: "  https://pod-11434.proxy.runpod.net/v1  ",
             codexSdkVersion: "test-sdk",
             model: "qwen3-coder:30b",
             packetLimit: 1,
@@ -1929,9 +1929,36 @@ export const workerEvalValue = 1;
             "ollama",
             "--model",
             requiredQualityWorkerRunpodEvalModel(),
+            "--gpu-type",
+            "NVIDIA RTX A6000",
+            "--readiness-timeout-ms",
+            "1",
           ]);
 
           expect((yield* TestConsole.errorLines).join("\n")).toContain("--confirm-runpod-eval");
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("rejects nonpositive Runpod readiness timeout values", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          yield* runDocgenCommand([
+            "quality-worker-eval-runpod",
+            "--all",
+            "--provider",
+            "ollama",
+            "--model",
+            requiredQualityWorkerRunpodEvalModel(),
+            "--readiness-timeout-ms",
+            "0",
+            "--confirm-runpod-eval",
+          ]);
+
+          expect((yield* TestConsole.errorLines).join("\n")).toContain("--readiness-timeout-ms");
           expect(process.exitCode).toBe(1);
         })
       )
