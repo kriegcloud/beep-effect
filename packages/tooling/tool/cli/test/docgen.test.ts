@@ -26,14 +26,15 @@ import {
 import {
   makeQualityWorkerRunpodEvalPodCreateInput,
   requiredQualityWorkerRunpodEvalModel,
+  runDocgenQualityWorkerRunpodEval,
   selectQualityWorkerRunpodTemplate,
 } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
-import { Template } from "@beep/runpod";
+import { Pod, Runpod, Template } from "@beep/runpod";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Duration, Effect, Exit, FileSystem, Layer, Path, pipe } from "effect";
+import { Duration, Effect, Exit, FileSystem, Layer, Path, pipe, Ref } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -1916,6 +1917,78 @@ export const workerEvalValue = 1;
     expect(bootstrap).toContain("http://127.0.0.1:11434/api/pull");
     expect(bootstrap).toContain('-d \'{"name":"qwen3-coder:30b"}\'');
     expect(bootstrap).not.toContain("RUNPOD_API_KEY");
+  });
+
+  it("cleans up Runpod pods after recovering a missing createPod id", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({ name: "@beep/schema", version: "0.0.0" })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Schema fixture without a useful example.
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseValue = (value: string): string => value.trim();
+`
+          );
+
+          const [target] = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const report = yield* analyzeDocgenQuality({
+            scope: "package",
+            scoreMode: "codex",
+            targets: [target!],
+          });
+          const stoppedPodIds = yield* Ref.make<ReadonlyArray<string>>([]);
+          const deletedPodIds = yield* Ref.make<ReadonlyArray<string>>([]);
+          const RunpodTestLayer = Layer.succeed(
+            Runpod,
+            Runpod.of({
+              createPod: () => Effect.succeed(new Pod({ name: "created-without-id" })),
+              deletePod: (request) => Ref.update(deletedPodIds, A.append(request.podId)),
+              getPod: (request) => Effect.succeed(new Pod({ id: request.podId, name: "recovered-pod" })),
+              listPods: (request) => Effect.succeed([new Pod({ id: "pod-recovered", name: request?.name })]),
+              stopPod: (request) => Ref.update(stoppedPodIds, A.append(request.podId)),
+            } as never)
+          );
+
+          const exit = yield* runDocgenQualityWorkerRunpodEval({
+            confirmRunpodEval: true,
+            model: requiredQualityWorkerRunpodEvalModel(),
+            provider: "ollama",
+            readinessTimeoutMs: 1,
+            report,
+            scope: "package",
+            skipTemplateSearch: true,
+            sourceQualityReport: "quality.json",
+          }).pipe(Effect.provide(RunpodTestLayer), Effect.exit);
+
+          expect(Exit.isFailure(exit)).toBe(true);
+          expect(yield* Ref.get(stoppedPodIds)).toEqual(["pod-recovered"]);
+          expect(yield* Ref.get(deletedPodIds)).toEqual(["pod-recovered"]);
+        })
+      )
+    );
   });
 
   it("guards Runpod worker eval behind explicit confirmation", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {

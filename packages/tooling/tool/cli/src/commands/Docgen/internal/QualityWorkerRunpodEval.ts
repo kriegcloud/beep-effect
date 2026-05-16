@@ -17,6 +17,7 @@ import {
   CreatePodRequest,
   DeletePodRequest,
   GetPodRequest,
+  ListPodsRequest,
   ListTemplatesRequest,
   type Pod,
   PodCreateInput,
@@ -471,15 +472,43 @@ const podProxyBaseUrl = (podId: string): string => `https://${podId}-${OLLAMA_PO
 
 const codexBaseUrlFor = (baseUrl: string): string => `${baseUrl}/v1`;
 
+const podIdOption = (pod: Pod): O.Option<string> =>
+  pipe(O.fromUndefinedOr(pod.id), O.map(Str.trim), O.filter(Str.isNonEmpty));
+
 const requirePodId = (pod: Pod): Effect.Effect<string, DomainError> =>
   pipe(
-    O.fromUndefinedOr(pod.id),
-    O.filter((value) => Str.isNonEmpty(Str.trim(value))),
+    podIdOption(pod),
     O.match({
       onNone: () => Effect.fail(new DomainError({ message: "Runpod createPod returned a pod without an id." })),
       onSome: Effect.succeed,
     })
   );
+
+const findCreatedPodIdByName = Effect.fn("DocgenQualityWorkerRunpodEval.findCreatedPodIdByName")(function* ({
+  podName,
+}: {
+  readonly podName: string;
+}) {
+  const runpod = yield* Runpod;
+  const pods = yield* runpod
+    .listPods(new ListPodsRequest({ name: podName }))
+    .pipe(
+      Effect.mapError((cause) => new DomainError({ message: `Failed to list Runpod pods named "${podName}".`, cause }))
+    );
+  const podId = pipe(
+    pods,
+    A.findFirst((pod) => pod.name === podName),
+    O.flatMap(podIdOption)
+  );
+
+  return yield* pipe(
+    podId,
+    O.match({
+      onNone: () => Effect.fail(new DomainError({ message: `Runpod pod "${podName}" did not expose an id.` })),
+      onSome: Effect.succeed,
+    })
+  );
+});
 
 const podGpuDisplayName = (pod: Pod): string | null =>
   pipe(
@@ -664,7 +693,7 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
   const created = yield* runpod
     .createPod(new CreatePodRequest({ body: createInput }))
     .pipe(Effect.mapError((cause) => new DomainError({ message: "Failed to create Runpod worker eval pod.", cause })));
-  const podId = yield* requirePodId(created);
+  const podId = yield* requirePodId(created).pipe(Effect.catch(() => findCreatedPodIdByName({ podName })));
   const baseUrl = podProxyBaseUrl(podId);
   yield* Console.log(`docgen: created Runpod pod ${podId}; waiting on ${baseUrl}`);
   const pod = yield* runpod
@@ -1039,42 +1068,47 @@ export const runDocgenQualityWorkerRunpodEval = Effect.fn(
   const runId = yield* hashPublicIdentifier(`${generatedAt}\u0000${options.model}\u0000${options.sourceQualityReport}`);
   const keepPod = options.keepPod ?? false;
   const cleanupRef = yield* Ref.make(cleanupSkipped(keepPod));
-  const acquired = yield* acquireRunpodPod({
-    allow24GbFallback: options.allow24GbFallback ?? false,
-    ...(options.gpuTypeIds === undefined ? {} : { gpuTypeIds: options.gpuTypeIds }),
-    model: options.model,
-    runId,
-    skipTemplateSearch: options.skipTemplateSearch ?? false,
-    ...(options.templateId === undefined ? {} : { templateId: options.templateId }),
-  });
-
-  const workerStartedAtMs = globalThis.performance.now();
-  const workerEval = yield* Effect.gen(function* () {
-    yield* Console.log(`docgen: waiting for Ollama model ${options.model}`);
-    yield* waitForOllamaReady({
-      baseUrl: acquired.pod.baseUrl,
+  const { acquired, workerDurationMs, workerEval } = yield* Effect.acquireUseRelease(
+    acquireRunpodPod({
+      allow24GbFallback: options.allow24GbFallback ?? false,
+      ...(options.gpuTypeIds === undefined ? {} : { gpuTypeIds: options.gpuTypeIds }),
       model: options.model,
-      timeout: Duration.millis(options.readinessTimeoutMs ?? defaultQualityWorkerRunpodEvalReadinessTimeoutMs()),
-    });
+      runId,
+      skipTemplateSearch: options.skipTemplateSearch ?? false,
+      ...(options.templateId === undefined ? {} : { templateId: options.templateId }),
+    }),
+    (acquired) =>
+      Effect.gen(function* () {
+        const workerStartedAtMs = globalThis.performance.now();
+        yield* Console.log(`docgen: waiting for Ollama model ${options.model}`);
+        yield* waitForOllamaReady({
+          baseUrl: acquired.pod.baseUrl,
+          model: options.model,
+          timeout: Duration.millis(options.readinessTimeoutMs ?? defaultQualityWorkerRunpodEvalReadinessTimeoutMs()),
+        });
 
-    yield* Console.log("docgen: running read-only worker eval packets");
-    return yield* analyzeDocgenQualityWorkerEval({
-      baseUrl: acquired.pod.codexBaseUrl,
-      model: options.model,
-      packetLimit: options.packetLimit ?? DEFAULT_RUNPOD_WORKER_PACKET_LIMIT,
-      provider: options.provider,
-      report: options.report,
-      scope: options.scope,
-      sourceQualityReport: options.sourceQualityReport,
-    });
-  }).pipe(
-    Effect.ensuring(
+        yield* Console.log("docgen: running read-only worker eval packets");
+        const workerEval = yield* analyzeDocgenQualityWorkerEval({
+          baseUrl: acquired.pod.codexBaseUrl,
+          model: options.model,
+          packetLimit: options.packetLimit ?? DEFAULT_RUNPOD_WORKER_PACKET_LIMIT,
+          provider: options.provider,
+          report: options.report,
+          scope: options.scope,
+          sourceQualityReport: options.sourceQualityReport,
+        });
+
+        return {
+          acquired,
+          workerDurationMs: durationMsSince(workerStartedAtMs),
+          workerEval,
+        };
+      }),
+    (acquired) =>
       cleanupRunpodPod({ keepPod, podId: acquired.pod.podId }).pipe(
         Effect.flatMap((cleanup) => Ref.set(cleanupRef, cleanup))
       )
-    )
   );
-  const workerDurationMs = durationMsSince(workerStartedAtMs);
   const cleanup = yield* Ref.get(cleanupRef);
   const otlp = yield* emitRunpodEvalOtlp({
     baseUrl: options.otlpBaseUrl ?? DEFAULT_RUNPOD_OTLP_BASE_URL,
