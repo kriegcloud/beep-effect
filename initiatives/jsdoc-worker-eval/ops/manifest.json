@@ -59,7 +59,7 @@
     },
     {
       "id": "2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval",
-      "report": "research/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval.md",
+      "report": "research/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-10-packet.md",
       "raw": "history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-10-packet.json",
       "sourceRaw": "history/outputs/2026-05-16-source-quality-codex-packets-10-packet.json",
       "smokeRaw": "history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-smoke-v2.json",

@@ -74,11 +74,13 @@ bun run beep docgen quality-worker-eval --all --provider codex --model gpt-5.4-m
 The hosted baseline completed three selected packets as candidate drafts with
 zero reported policy violations in about 27.3 seconds.
 
-The successful Runpod smoke command:
+The successful Runpod smoke command, with the OTLP endpoint provided by
+`BEEP_OTLP_BASE_URL`:
 
 ```sh
 RUNPOD_API_KEY="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')" \
-  bun run beep docgen quality-worker-eval-runpod --input <saved-source-quality-report.json> --provider ollama --model qwen3-coder:30b --packet-limit 1 --otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 --otlp-project beep-jsdoc-worker-eval --confirm-runpod-eval --skip-template-search --readiness-timeout-ms 2700000 --output initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-smoke-v2.json
+BEEP_OTLP_BASE_URL="${BEEP_OTLP_BASE_URL:?set BEEP_OTLP_BASE_URL}" \
+  bun run beep docgen quality-worker-eval-runpod --input <saved-source-quality-report.json> --provider ollama --model qwen3-coder:30b --packet-limit 1 --otlp --otlp-base-url "$BEEP_OTLP_BASE_URL" --otlp-project beep-jsdoc-worker-eval --confirm-runpod-eval --skip-template-search --readiness-timeout-ms 2700000 --output initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-smoke-v2.json
 ```
 
 The Runpod smoke completed one selected packet as a candidate draft with zero
@@ -94,13 +96,14 @@ bun run beep docgen quality --all --json --score codex --packet-limit 25 --outpu
 
 ```sh
 RUNPOD_API_KEY="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')" \
+BEEP_OTLP_BASE_URL="${BEEP_OTLP_BASE_URL:?set BEEP_OTLP_BASE_URL}" \
   bun run beep docgen quality-worker-eval-runpod \
     --input initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-source-quality-codex-packets-10-packet.json \
     --provider ollama \
     --model qwen3-coder:30b \
     --packet-limit 10 \
     --otlp \
-    --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 \
+    --otlp-base-url "$BEEP_OTLP_BASE_URL" \
     --otlp-project beep-jsdoc-worker-eval \
     --confirm-runpod-eval \
     --skip-template-search \

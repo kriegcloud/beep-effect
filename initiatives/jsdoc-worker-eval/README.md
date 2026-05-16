@@ -85,8 +85,8 @@ completed as candidate drafts with zero reported policy violations.
   or persistent model cache is introduced.
 - Pass `RUNPOD_API_KEY` through the environment. The CLI never reads
   1Password references directly.
-- Use `--otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447` when
-  the live proof should appear in the Phoenix UI.
+- Use `--otlp --otlp-base-url "$BEEP_OTLP_BASE_URL"` when the live proof should
+  appear in the Phoenix UI.
 - Do not make worker findings blocking.
 - Do not unblock write-mode remediation until accepted precision, cost, runtime,
   and policy-preservation evidence exists.
