@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
 | importSpecifiers | 847 |
-| publicExportEntries | 12738 |
-| uniquePackageSymbols | 5095 |
+| publicExportEntries | 12737 |
+| uniquePackageSymbols | 5094 |
 
 ## Seed Discovery Proof
 
@@ -86,7 +86,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 47 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
 | 48 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
 | 49 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
-| 50 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 2 | 2 |
+| 50 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
 | 51 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
 | 52 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
 | 53 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
@@ -11479,8 +11479,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/professional-desktop` | `App` | function | `apps/professional-desktop/src/App.tsx:93` |  |
-| `@beep/professional-desktop` | `VERSION` | const | `apps/professional-desktop/src/index.ts:23` | Package version. |
+| `@beep/professional-desktop` | `VERSION` | const | `apps/professional-desktop/src/index.ts:21` | Package version. |
 
 ### @beep/professional-runtime-proof
 

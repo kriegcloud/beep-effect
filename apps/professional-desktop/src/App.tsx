@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep
 import { Separator } from "@beep/ui/components/separator";
 import { AppWindow, Brain, Buildings, CheckCircle, FolderOpen, Scales, ShieldCheck } from "@phosphor-icons/react";
 import { invoke } from "@tauri-apps/api/core";
+import { Match } from "effect";
 import * as P from "effect/Predicate";
 import { useEffect, useState } from "react";
 
@@ -19,7 +20,7 @@ type DesktopHealth = {
   readonly desktopShell: "minimal";
   readonly runtimeConnection: "pending";
   readonly slices: readonly string[];
-  readonly status: "ready";
+  readonly status: "preview" | "ready";
 };
 
 type LoadState =
@@ -34,32 +35,29 @@ const previewHealth: DesktopHealth = {
   desktopShell: "minimal",
   runtimeConnection: "pending",
   slices: ["workspace", "agent-capability", "epistemic", "law-practice", "wealth-management"],
-  status: "ready",
+  status: "preview",
 };
 
 const hasMessage = (input: unknown): input is { readonly message: string } =>
   P.isObject(input) && P.hasProperty(input, "message") && P.isString(input.message);
 
-const errorMessage = (error: unknown, fallback: string): string => {
-  if (P.isString(error)) {
-    return error;
-  }
-  if (P.isError(error)) {
-    return error.message;
-  }
-  if (hasMessage(error)) {
-    return error.message;
-  }
-  return fallback;
-};
+const errorMessage = (error: unknown, fallback: string): string =>
+  Match.value(error).pipe(
+    Match.when(P.isString, (value) => value),
+    Match.when(P.isError, (value) => value.message),
+    Match.when(hasMessage, (value) => value.message),
+    Match.orElse(() => fallback)
+  );
+
+const isDesktopShellRuntime = (): boolean =>
+  P.hasProperty(globalThis, "__TAURI__") || P.hasProperty(globalThis, "__TAURI_INTERNALS__");
 
 const defaultLoadDesktopHealth: LoadDesktopHealth = async () => {
-  try {
-    const encoded = await invoke<string>("professional_desktop_health");
-    return JSON.parse(encoded) as DesktopHealth;
-  } catch {
+  if (!isDesktopShellRuntime()) {
     return previewHealth;
   }
+
+  return invoke<DesktopHealth>("professional_desktop_health");
 };
 
 const sliceMeta = [

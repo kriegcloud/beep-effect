@@ -20,12 +20,12 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost ws://localhost:1421 http://localhost:1421"
     }
   },
   "bundle": {
     "active": false,
     "targets": "all",
-    "icon": []
+    "icon": ["icons/icon.png"]
   }
 }

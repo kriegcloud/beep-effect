@@ -11,8 +11,8 @@ struct ProfessionalDesktopHealth {
 }
 
 #[tauri::command]
-fn professional_desktop_health() -> Result<String, String> {
-    serde_json::to_string(&ProfessionalDesktopHealth {
+fn professional_desktop_health() -> ProfessionalDesktopHealth {
+    ProfessionalDesktopHealth {
         app: "@beep/professional-desktop",
         desktop_shell: "minimal",
         runtime_connection: "pending",
@@ -24,8 +24,7 @@ fn professional_desktop_health() -> Result<String, String> {
             "wealth-management",
         ],
         status: "ready",
-    })
-    .map_err(|_| "Unable to encode professional desktop health.".to_string())
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

@@ -55,6 +55,7 @@
     "@effect/vitest": "catalog:",
     "@tauri-apps/cli": "catalog:",
     "@testing-library/dom": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

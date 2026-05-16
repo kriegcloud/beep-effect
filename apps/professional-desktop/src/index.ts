@@ -5,8 +5,6 @@
  * @since 0.0.0
  */
 
-export { App } from "./App.js";
-
 /**
  * Package version.
  *
