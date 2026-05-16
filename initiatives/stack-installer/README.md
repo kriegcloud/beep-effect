@@ -45,6 +45,8 @@ still required before P1 can close.
   - pending post-proof quality review and fix-loop record
 - [ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md](./ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md)
   - user-operated macOS and Windows proof runbook
+- [ops/handoffs/GOAL_P1_MACOS_PROOF.md](./ops/handoffs/GOAL_P1_MACOS_PROOF.md)
+  - short `/goal` indirection target for the buddy MacBook Pro proof run
 - [research/README.md](./research/README.md) - research index
 - [research/verb-registry-schema-sketch.md](./research/verb-registry-schema-sketch.md)
   - future registry schema questions

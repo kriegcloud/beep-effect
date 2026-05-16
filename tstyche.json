@@ -51,6 +51,8 @@
     "packages/drivers/onepassword-cli/dtslint/**/*.tst.*",
     "packages/drivers/discord/dtslint/**/*.tst.*",
     "packages/drivers/ai-provider-cli/dtslint/**/*.tst.*",
+    "packages/drivers/sanity/dtslint/**/*.tst.*",
+    "packages/drivers/hubspot/dtslint/**/*.tst.*",
     "packages/installer-channels/domain/dtslint/**/*.tst.*",
     "packages/installer-channels/server/dtslint/**/*.tst.*",
     "packages/installer-channels/use-cases/dtslint/**/*.tst.*",
@@ -65,9 +67,7 @@
     "packages/installer-security/use-cases/dtslint/**/*.tst.*",
     "packages/installer-workspace/domain/dtslint/**/*.tst.*",
     "packages/installer-workspace/server/dtslint/**/*.tst.*",
-    "packages/installer-workspace/use-cases/dtslint/**/*.tst.*",
-    "packages/drivers/sanity/dtslint/**/*.tst.*",
-    "packages/drivers/hubspot/dtslint/**/*.tst.*"
+    "packages/installer-workspace/use-cases/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }
