@@ -538,6 +538,185 @@
       ],
       "@beep/runpod": ["./packages/drivers/runpod/src/index.ts"],
       "@beep/runpod/*": ["./packages/drivers/runpod/src/*"],
+      "@beep/installer-channels-domain": [
+        "./packages/installer-channels/domain/src/index.ts"
+      ],
+      "@beep/installer-channels-domain/aggregates": [
+        "./packages/installer-channels/domain/src/aggregates/index.ts"
+      ],
+      "@beep/installer-channels-domain/entities": [
+        "./packages/installer-channels/domain/src/entities/index.ts"
+      ],
+      "@beep/installer-channels-domain/identity": [
+        "./packages/installer-channels/domain/src/identity/index.ts"
+      ],
+      "@beep/installer-channels-domain/values": [
+        "./packages/installer-channels/domain/src/values/index.ts"
+      ],
+      "@beep/installer-channels-server": [
+        "./packages/installer-channels/server/src/index.ts"
+      ],
+      "@beep/installer-channels-server/layer": [
+        "./packages/installer-channels/server/src/Layer.ts"
+      ],
+      "@beep/installer-channels-server/test": [
+        "./packages/installer-channels/server/src/test.ts"
+      ],
+      "@beep/installer-channels-use-cases": [
+        "./packages/installer-channels/use-cases/src/index.ts"
+      ],
+      "@beep/installer-channels-use-cases/public": [
+        "./packages/installer-channels/use-cases/src/public.ts"
+      ],
+      "@beep/installer-channels-use-cases/server": [
+        "./packages/installer-channels/use-cases/src/server.ts"
+      ],
+      "@beep/installer-dependencies-domain": [
+        "./packages/installer-dependencies/domain/src/index.ts"
+      ],
+      "@beep/installer-dependencies-domain/aggregates": [
+        "./packages/installer-dependencies/domain/src/aggregates/index.ts"
+      ],
+      "@beep/installer-dependencies-domain/entities": [
+        "./packages/installer-dependencies/domain/src/entities/index.ts"
+      ],
+      "@beep/installer-dependencies-domain/identity": [
+        "./packages/installer-dependencies/domain/src/identity/index.ts"
+      ],
+      "@beep/installer-dependencies-domain/values": [
+        "./packages/installer-dependencies/domain/src/values/index.ts"
+      ],
+      "@beep/installer-dependencies-server": [
+        "./packages/installer-dependencies/server/src/index.ts"
+      ],
+      "@beep/installer-dependencies-server/layer": [
+        "./packages/installer-dependencies/server/src/Layer.ts"
+      ],
+      "@beep/installer-dependencies-server/test": [
+        "./packages/installer-dependencies/server/src/test.ts"
+      ],
+      "@beep/installer-dependencies-use-cases": [
+        "./packages/installer-dependencies/use-cases/src/index.ts"
+      ],
+      "@beep/installer-dependencies-use-cases/public": [
+        "./packages/installer-dependencies/use-cases/src/public.ts"
+      ],
+      "@beep/installer-dependencies-use-cases/server": [
+        "./packages/installer-dependencies/use-cases/src/server.ts"
+      ],
+      "@beep/installer-providers-domain": [
+        "./packages/installer-providers/domain/src/index.ts"
+      ],
+      "@beep/installer-providers-domain/aggregates": [
+        "./packages/installer-providers/domain/src/aggregates/index.ts"
+      ],
+      "@beep/installer-providers-domain/entities": [
+        "./packages/installer-providers/domain/src/entities/index.ts"
+      ],
+      "@beep/installer-providers-domain/identity": [
+        "./packages/installer-providers/domain/src/identity/index.ts"
+      ],
+      "@beep/installer-providers-domain/values": [
+        "./packages/installer-providers/domain/src/values/index.ts"
+      ],
+      "@beep/installer-providers-server": [
+        "./packages/installer-providers/server/src/index.ts"
+      ],
+      "@beep/installer-providers-server/layer": [
+        "./packages/installer-providers/server/src/Layer.ts"
+      ],
+      "@beep/installer-providers-server/test": [
+        "./packages/installer-providers/server/src/test.ts"
+      ],
+      "@beep/installer-providers-use-cases": [
+        "./packages/installer-providers/use-cases/src/index.ts"
+      ],
+      "@beep/installer-providers-use-cases/public": [
+        "./packages/installer-providers/use-cases/src/public.ts"
+      ],
+      "@beep/installer-providers-use-cases/server": [
+        "./packages/installer-providers/use-cases/src/server.ts"
+      ],
+      "@beep/installer-security-domain": [
+        "./packages/installer-security/domain/src/index.ts"
+      ],
+      "@beep/installer-security-domain/aggregates": [
+        "./packages/installer-security/domain/src/aggregates/index.ts"
+      ],
+      "@beep/installer-security-domain/entities": [
+        "./packages/installer-security/domain/src/entities/index.ts"
+      ],
+      "@beep/installer-security-domain/identity": [
+        "./packages/installer-security/domain/src/identity/index.ts"
+      ],
+      "@beep/installer-security-domain/values": [
+        "./packages/installer-security/domain/src/values/index.ts"
+      ],
+      "@beep/installer-security-server": [
+        "./packages/installer-security/server/src/index.ts"
+      ],
+      "@beep/installer-security-server/layer": [
+        "./packages/installer-security/server/src/Layer.ts"
+      ],
+      "@beep/installer-security-server/test": [
+        "./packages/installer-security/server/src/test.ts"
+      ],
+      "@beep/installer-security-use-cases": [
+        "./packages/installer-security/use-cases/src/index.ts"
+      ],
+      "@beep/installer-security-use-cases/public": [
+        "./packages/installer-security/use-cases/src/public.ts"
+      ],
+      "@beep/installer-security-use-cases/server": [
+        "./packages/installer-security/use-cases/src/server.ts"
+      ],
+      "@beep/installer-workspace-domain": [
+        "./packages/installer-workspace/domain/src/index.ts"
+      ],
+      "@beep/installer-workspace-domain/aggregates": [
+        "./packages/installer-workspace/domain/src/aggregates/index.ts"
+      ],
+      "@beep/installer-workspace-domain/entities": [
+        "./packages/installer-workspace/domain/src/entities/index.ts"
+      ],
+      "@beep/installer-workspace-domain/identity": [
+        "./packages/installer-workspace/domain/src/identity/index.ts"
+      ],
+      "@beep/installer-workspace-domain/values": [
+        "./packages/installer-workspace/domain/src/values/index.ts"
+      ],
+      "@beep/installer-workspace-server": [
+        "./packages/installer-workspace/server/src/index.ts"
+      ],
+      "@beep/installer-workspace-server/layer": [
+        "./packages/installer-workspace/server/src/Layer.ts"
+      ],
+      "@beep/installer-workspace-server/test": [
+        "./packages/installer-workspace/server/src/test.ts"
+      ],
+      "@beep/installer-workspace-use-cases": [
+        "./packages/installer-workspace/use-cases/src/index.ts"
+      ],
+      "@beep/installer-workspace-use-cases/public": [
+        "./packages/installer-workspace/use-cases/src/public.ts"
+      ],
+      "@beep/installer-workspace-use-cases/server": [
+        "./packages/installer-workspace/use-cases/src/server.ts"
+      ],
+      "@beep/stack-installer": ["./apps/stack-installer/src/index.ts"],
+      "@beep/shared-domain/values/OnePasswordReference": [
+        "./packages/shared/domain/src/values/OnePasswordReference/index.ts"
+      ],
+      "@beep/onepassword-cli": [
+        "./packages/drivers/onepassword-cli/src/index.ts"
+      ],
+      "@beep/onepassword-cli/*": ["./packages/drivers/onepassword-cli/src/*"],
+      "@beep/discord": ["./packages/drivers/discord/src/index.ts"],
+      "@beep/discord/*": ["./packages/drivers/discord/src/*"],
+      "@beep/ai-provider-cli": [
+        "./packages/drivers/ai-provider-cli/src/index.ts"
+      ],
+      "@beep/ai-provider-cli/*": ["./packages/drivers/ai-provider-cli/src/*"],
       "@beep/ui/themes/theme-init-script": [
         "./packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
       ],

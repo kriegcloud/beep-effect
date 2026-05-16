@@ -18,7 +18,13 @@ export default mergeConfig(
   defineConfig({
     test: {
       coverage: {
-        include: ["src/entities/**/*.ts", "src/entity/*.ts", "src/identity/*.ts", "src/values/LocalDate/*.ts"],
+        include: [
+          "src/entities/**/*.ts",
+          "src/entity/*.ts",
+          "src/identity/*.ts",
+          "src/values/LocalDate/*.ts",
+          "src/values/OnePasswordReference/*.ts",
+        ],
         ...coverageThresholds,
       },
     },

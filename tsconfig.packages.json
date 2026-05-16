@@ -19,6 +19,9 @@
       "path": "apps/professional-runtime-proof"
     },
     {
+      "path": "apps/stack-installer"
+    },
+    {
       "path": "infra"
     },
     {
@@ -55,6 +58,12 @@
       "path": "packages/drivers/acp"
     },
     {
+      "path": "packages/drivers/ai-provider-cli"
+    },
+    {
+      "path": "packages/drivers/discord"
+    },
+    {
       "path": "packages/drivers/drizzle"
     },
     {
@@ -68,6 +77,9 @@
     },
     {
       "path": "packages/drivers/hubspot"
+    },
+    {
+      "path": "packages/drivers/onepassword-cli"
     },
     {
       "path": "packages/drivers/openai"
@@ -134,6 +146,51 @@
     },
     {
       "path": "packages/foundation/ui-system/ui"
+    },
+    {
+      "path": "packages/installer-channels/domain"
+    },
+    {
+      "path": "packages/installer-channels/server"
+    },
+    {
+      "path": "packages/installer-channels/use-cases"
+    },
+    {
+      "path": "packages/installer-dependencies/domain"
+    },
+    {
+      "path": "packages/installer-dependencies/server"
+    },
+    {
+      "path": "packages/installer-dependencies/use-cases"
+    },
+    {
+      "path": "packages/installer-providers/domain"
+    },
+    {
+      "path": "packages/installer-providers/server"
+    },
+    {
+      "path": "packages/installer-providers/use-cases"
+    },
+    {
+      "path": "packages/installer-security/domain"
+    },
+    {
+      "path": "packages/installer-security/server"
+    },
+    {
+      "path": "packages/installer-security/use-cases"
+    },
+    {
+      "path": "packages/installer-workspace/domain"
+    },
+    {
+      "path": "packages/installer-workspace/server"
+    },
+    {
+      "path": "packages/installer-workspace/use-cases"
     },
     {
       "path": "packages/law-practice/domain"

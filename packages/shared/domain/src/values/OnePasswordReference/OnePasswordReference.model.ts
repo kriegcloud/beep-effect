@@ -1,0 +1,58 @@
+/**
+ * Shared 1Password reference value object.
+ *
+ * @packageDocumentation
+ * @category value-objects
+ * @since 0.0.0
+ */
+
+import { $SharedDomainId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $SharedDomainId.create("values/OnePasswordReference/OnePasswordReference.model");
+
+const onePasswordReferencePattern = /^op:\/\/[^/]+\/[^/]+\/[^/]+(?:\/[^/]+)?$/;
+
+const OnePasswordReferenceChecks = S.makeFilterGroup([
+  S.isPattern(onePasswordReferencePattern, {
+    identifier: $I`OnePasswordReferencePatternCheck`,
+    title: "1Password reference pattern",
+    description: "Requires an op://vault/item/field reference, with an optional section segment.",
+    message: "OnePasswordReference must look like op://vault/item/field",
+  }),
+]);
+
+/**
+ * Typed reference to a 1Password item field.
+ *
+ * @remarks
+ * This value is a reference only. It is safe for manifests, approvals, and
+ * validators because it never contains the resolved secret value.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export const OnePasswordReference = S.String.check(OnePasswordReferenceChecks).pipe(
+  S.brand("OnePasswordReference"),
+  $I.annoteSchema("OnePasswordReference", {
+    identifier: "OnePasswordReference",
+    title: "1Password reference",
+    description: "A typed reference to a 1Password item field, never the plaintext secret value.",
+  })
+);
+
+/**
+ * Runtime type for {@link OnePasswordReference}.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export type OnePasswordReference = typeof OnePasswordReference.Type;
+
+/**
+ * Schema-derived guard for 1Password references.
+ *
+ * @category guards
+ * @since 0.0.0
+ */
+export const isOnePasswordReference = S.is(OnePasswordReference);

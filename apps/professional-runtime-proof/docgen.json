@@ -165,6 +165,9 @@
       "@beep/shared-domain/values/LocalDate": [
         "../../packages/shared/domain/src/values/LocalDate/index.ts"
       ],
+      "@beep/shared-domain/values/OnePasswordReference": [
+        "../../packages/shared/domain/src/values/OnePasswordReference/index.ts"
+      ],
       "@beep/utils": ["../../packages/foundation/modeling/utils/src/index.ts"],
       "@beep/utils/*": ["../../packages/foundation/modeling/utils/src/*.ts"],
       "@beep/wealth-management-domain": [
