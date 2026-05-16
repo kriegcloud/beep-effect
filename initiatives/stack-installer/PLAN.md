@@ -1,11 +1,11 @@
 # Stack Installer Plan
 
-This plan executes [SPEC.md](./SPEC.md). P0 is complete. P1 is the active
-target: Discord vertical, Manual Mode. P1A is complete as a runnable dry-run
+This plan executes [SPEC.md](./SPEC.md). P0 is complete. P1 remains open:
+Discord vertical, Manual Mode. P1A is complete as a runnable dry-run
 checkpoint. The P1 live harness is implemented. macOS proof is complete and
-audited. Windows proof is still missing, but is temporarily waived only so the
-P1C review/fix loop can start. Full P1 still requires a real Windows proof
-artifact plus the post-proof PR readiness review/fix loop.
+audited. Windows proof is still missing and remains explicit open P1 debt.
+P1C is complete. P1D is now the active next execution lane on Linux while full
+P1 still requires the real Windows proof artifact.
 
 ## P0: Initiative Bootstrap
 
@@ -144,8 +144,7 @@ Stop Conditions:
 
 ### P1C: PR Readiness Review And Fix Loop
 
-Status: pending; may start after audited macOS proof plus either audited
-Windows proof or an explicit temporary Windows missing-proof waiver
+Status: completed under sequencing-only temporary Windows missing-proof waiver
 
 Goal: review the whole implemented P1 initiative surface and directly affected
 code paths before the PR is called ready. The review uses
@@ -155,20 +154,20 @@ flow.
 
 Exit Criteria:
 
-- [ ] Audited macOS proof artifact exists before the review starts.
-- [ ] Audited Windows proof artifact exists, or an explicit temporary Windows
+- [x] Audited macOS proof artifact exists before the review starts.
+- [x] Audited Windows proof artifact exists, or an explicit temporary Windows
   missing-proof waiver is recorded for P1C start.
-- [ ] Baseline quality commands are green on the current branch.
-- [ ] Reviewer panel covers quality gates, architecture boundaries, schema and
+- [x] Baseline quality commands are green on the current branch.
+- [x] Reviewer panel covers quality gates, architecture boundaries, schema and
   domain models, Effect laws, error boundaries, tests, observability,
   documentation/API, reuse/duplication, and evolution/deprecation.
-- [ ] Reuse opportunities are checked against existing repo modules before new
+- [x] Reuse opportunities are checked against existing repo modules before new
   abstractions are introduced.
-- [ ] Any structural improvements keep modules flat, idiomatic, and aligned
+- [x] Any structural improvements keep modules flat, idiomatic, and aligned
   with repo laws and package boundaries.
-- [ ] Required blockers are fixed, or every remaining blocker has an explicit
+- [x] Required blockers are fixed, or every remaining blocker has an explicit
   waiver record.
-- [ ] Final review round reports zero required blockers or only accepted
+- [x] Final review round reports zero required blockers or only accepted
   waivers.
 
 Required Outputs:
@@ -238,29 +237,34 @@ Stop Conditions:
 
 ## P1D: App-First Manual Installer UX
 
-Status: pending
+Status: active next execution lane; implementation proceeds on the dedicated
+P1D branch/worktree while full P1 remains open on the missing Windows proof
 
 Goal: move the next meaningful milestone from proof-harness confidence to
 product confidence by making the Tauri app the primary operator surface and
-having it complete one real dependency install or repair action.
+having it complete one real dependency repair action.
 
 Scope notes:
 
 - Stage this milestone on Linux first so the next proof loop can run locally.
 - Keep macOS and Windows as the long-term parity target; Linux-first staging
   does not change the v1 parity doctrine.
-- The first real action is Bun install or repair owned by
-  `installer-dependencies`, not app-local glue code.
+- The first real action is repair-only Bun upgrade for an existing Bun install
+  owned by `installer-dependencies`, not app-local glue code.
+- The required Bun version is an installer-owned config contract. App workflow
+  code must not read repo metadata directly to discover it.
 
 Exit Criteria:
 
 - [ ] `apps/stack-installer` opens as the primary surface for this milestone.
-- [ ] The app detects Bun missing or unhealthy and presents a typed install or
-  repair action.
+- [ ] The app detects Bun unhealthy and presents a typed repair action for an
+  existing Bun install.
 - [ ] The action is approval-first and mutates the host only after explicit
   user approval.
-- [ ] `installer-dependencies` owns the live Bun install/repair contract and
-  server implementation.
+- [ ] `installer-dependencies` owns the live Bun repair contract and server
+  implementation.
+- [ ] `installer-dependencies-config` or equivalent installer-owned config
+  surface owns the required Bun version contract and its live resolution.
 - [ ] After the action runs, the same validation spine reports Bun as present
   or returns a typed failure with visible status.
 - [ ] Linux-first proof artifacts show the app-first Bun flow end to end.
@@ -277,13 +281,15 @@ Required Checks:
 - `bun run config-sync:check`
 - `cd apps/stack-installer && bun run build`
 - `cd apps/stack-installer/src-tauri && cargo check`
-- Linux-first app-driven Bun install/repair proof capture and audit
+- Linux-first app-driven Bun repair proof capture and audit
 
 Stop Conditions:
 
-- Do not start P2 before P1D closes.
+- Do not start P2 before both P1D closes and the real Windows proof audit
+  closes the remaining P1 debt.
 - Do not hide the real dependency mutation in shell scripts owned outside the
   installer slice boundary.
+- Do not broaden this milestone into first-time Bun bootstrap.
 - Do not add plaintext credential handling or broaden this milestone into AI
   Mode, MCP runtime, recovery, portability, signing, or distribution.
 
