@@ -304,7 +304,7 @@
     "wink-nlp-utils": "^2.1.0",
     "picomatch": "^4.0.4",
     "@typescript-eslint/parser": "^8.59.3",
-    "@typescript/native-preview": "^7.0.0-dev.20260515.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260516.1",
     "@vitest/browser": "^4.1.6",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@vitest/browser-playwright": "^4.1.6",
