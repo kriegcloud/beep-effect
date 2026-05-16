@@ -57,6 +57,8 @@ const defaultLoadDesktopHealth: LoadDesktopHealth = async () => {
     return previewHealth;
   }
 
+  // In a real Tauri shell we surface bridge failures to the UI instead of
+  // silently substituting preview data.
   return invoke<DesktopHealth>("professional_desktop_health");
 };
 
