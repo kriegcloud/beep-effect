@@ -28,6 +28,7 @@ import * as P from "effect/Predicate";
 import { Atom } from "effect/unstable/reactivity";
 import type { FormEvent } from "react";
 import { p1aDryRunRegistry, p1aDryRunSnapshot } from "./dry-run-registry.js";
+import { P1_REQUIRED_PLATFORMS } from "./proof/P1ProofArtifacts.js";
 
 const workbenchSteps = [
   {
@@ -309,7 +310,9 @@ function LiveProofPanel({ runP1ManualProof }: { readonly runP1ManualProof: RunP1
     <Card className="rounded-lg">
       <CardHeader>
         <CardTitle>P1 Live Proof</CardTitle>
-        <CardDescription>Manual Mode desktop validation for Discord, Claude, Codex, and 1Password.</CardDescription>
+        <CardDescription>
+          Manual Mode proof preview for Discord, Claude, Codex, and 1Password before operator capture.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -326,9 +329,11 @@ function LiveProofPanel({ runP1ManualProof }: { readonly runP1ManualProof: RunP1
                 defaultValue="macos"
                 name="targetPlatform"
               >
-                <option value="macos">macOS</option>
-                <option value="windows">Windows</option>
-                <option value="linux">Linux</option>
+                {A.map(P1_REQUIRED_PLATFORMS, (platform) => (
+                  <option key={platform} value={platform}>
+                    {platform === "macos" ? "macOS" : "Windows"}
+                  </option>
+                ))}
               </select>
             </label>
             <label className="grid gap-1 text-sm font-medium">
