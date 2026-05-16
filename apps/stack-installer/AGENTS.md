@@ -1,6 +1,6 @@
 # Agent Notes
 
 - Keep the app UI on `@beep/ui` primitives and `@beep/ui/styles/globals.css`.
-- Keep installer dry-run composition in TypeScript until later phases introduce live adapters.
+- Keep app-local runtime composition in TypeScript; live dependency mutation must stay owned by installer slice contracts and drivers, not ad hoc app shell glue.
 - Keep the Tauri bridge narrow: app health and explicit capabilities only.
-- Do not add live install commands, Discord mutation, or plaintext-secret handling in this package.
+- Do not add Discord mutation, plaintext-secret handling, or product logic that belongs in installer slice packages.

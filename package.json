@@ -56,6 +56,7 @@
     "packages/architecture-lab/ui",
     "apps/architecture-lab-proof",
     "packages/drivers/runpod",
+    "packages/drivers/bun-cli",
     "packages/drivers/onepassword-cli",
     "packages/drivers/discord",
     "packages/drivers/ai-provider-cli",

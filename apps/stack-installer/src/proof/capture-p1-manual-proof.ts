@@ -9,11 +9,15 @@
  */
 
 import { AiProviderCli } from "@beep/ai-provider-cli";
+import { BunCli } from "@beep/bun-cli";
 import { Discord } from "@beep/discord";
+import { makeInstallerDependenciesConfigLayer } from "@beep/installer-dependencies-config/layer";
 import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-workspace-use-cases";
 import { OnePasswordCli } from "@beep/onepassword-cli";
 import { Sha256HexFromBytes } from "@beep/schema/Sha256";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { Duration, Effect, Exit, FileSystem, Layer, Order, Path, pipe, RegExp as Rx, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -46,13 +50,22 @@ const decodeProofJson = S.decodeUnknownEffect(S.fromJsonString(P1ManualProofResu
 const encodeProofResult = S.encodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
 const decodeSha256HexFromBytes = S.decodeUnknownEffect(Sha256HexFromBytes);
 
-const BaseLayer = Layer.mergeAll(BunServices.layer, BunHttpClient.layer);
-const DriverLayer = Layer.mergeAll(OnePasswordCli.makeLayer(), AiProviderCli.makeLayer(), Discord.layer).pipe(
-  Layer.provideMerge(BunChildProcessSpawner.layer),
+const appDir = process.cwd();
+const repoRoot = new URL("../..", `file://${appDir.endsWith("/") ? appDir : `${appDir}/`}`).pathname;
+
+const BaseLayer = Layer.mergeAll(BunServices.layer, BunHttpClient.layer, BunFileSystem.layer, BunPath.layer);
+const DriverLayer = Layer.mergeAll(
+  OnePasswordCli.makeLayer(),
+  AiProviderCli.makeLayer(),
+  BunCli.makeLayer(),
+  Discord.layer
+).pipe(Layer.provideMerge(BunChildProcessSpawner.layer), Layer.provideMerge(BaseLayer));
+const ProcessLayer = BunChildProcessSpawner.layer.pipe(Layer.provideMerge(BaseLayer));
+const SliceRuntimeLayer = P1ManualProofSliceLayer.pipe(
+  Layer.provideMerge(DriverLayer),
+  Layer.provideMerge(makeInstallerDependenciesConfigLayer(repoRoot)),
   Layer.provideMerge(BaseLayer)
 );
-const ProcessLayer = BunChildProcessSpawner.layer.pipe(Layer.provideMerge(BaseLayer));
-const SliceRuntimeLayer = P1ManualProofSliceLayer.pipe(Layer.provideMerge(DriverLayer), Layer.provideMerge(BaseLayer));
 const RuntimeLayer = Layer.mergeAll(ProcessLayer, SliceRuntimeLayer);
 
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>

@@ -36,6 +36,8 @@
       "@beep/ai-provider-cli/*": [
         "../../packages/drivers/ai-provider-cli/src/*.ts"
       ],
+      "@beep/bun-cli": ["../../packages/drivers/bun-cli/src/index.ts"],
+      "@beep/bun-cli/*": ["../../packages/drivers/bun-cli/src/*.ts"],
       "@beep/discord": ["../../packages/drivers/discord/src/index.ts"],
       "@beep/discord/*": ["../../packages/drivers/discord/src/*.ts"],
       "@beep/identity": [
@@ -79,6 +81,21 @@
       ],
       "@beep/installer-channels-use-cases/server": [
         "../../packages/installer-channels/use-cases/src/server.ts"
+      ],
+      "@beep/installer-dependencies-config": [
+        "../../packages/installer-dependencies/config/src/index.ts"
+      ],
+      "@beep/installer-dependencies-config/server": [
+        "../../packages/installer-dependencies/config/src/server.ts"
+      ],
+      "@beep/installer-dependencies-config/layer": [
+        "../../packages/installer-dependencies/config/src/layer.ts"
+      ],
+      "@beep/installer-dependencies-config/test": [
+        "../../packages/installer-dependencies/config/src/test.ts"
+      ],
+      "@beep/installer-dependencies-config/aggregates/BunRuntime": [
+        "../../packages/installer-dependencies/config/src/aggregates/BunRuntime/index.ts"
       ],
       "@beep/installer-dependencies-server": [
         "../../packages/installer-dependencies/server/src/index.ts"

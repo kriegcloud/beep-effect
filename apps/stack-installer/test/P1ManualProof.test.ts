@@ -1,14 +1,23 @@
 import { AiProviderCli, AiProviderCliProcessResult, type AiProviderCliProvider } from "@beep/ai-provider-cli";
+import { BunCli, BunCliProcessResult } from "@beep/bun-cli";
 import { Discord, DiscordConfigInput } from "@beep/discord";
 import { InstallerChannelsServerLive } from "@beep/installer-channels-server";
-import { HostDependencyPlan, HostDependencyValidationResult } from "@beep/installer-dependencies-use-cases";
+import {
+  BunRuntimeHealthResult,
+  BunRuntimeRepairResult,
+  HostDependencyPlan,
+  HostDependencyValidationResult,
+} from "@beep/installer-dependencies-use-cases";
 import { InstallerDependenciesUseCases } from "@beep/installer-dependencies-use-cases/server";
 import { InstallerProvidersServerLive } from "@beep/installer-providers-server";
 import { InstallerSecurityServerLive } from "@beep/installer-security-server";
 import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-workspace-use-cases";
 import { OnePasswordCli, OnePasswordCliProcessResult } from "@beep/onepassword-cli";
 import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
-import { describe, expect, it, layer } from "@effect/vitest";
+import { BunChildProcessSpawner } from "@effect/platform-bun";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
+import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -47,6 +56,15 @@ const providerRunner = (provider: AiProviderCliProvider) =>
     })
   );
 
+const bunRunner = () =>
+  Effect.succeed(
+    new BunCliProcessResult({
+      exitCode: 0,
+      stderr: "",
+      stdout: "1.3.14\n",
+    })
+  );
+
 const TestHttpClientLayer = Layer.succeed(
   HttpClient.HttpClient,
   HttpClient.make((request) =>
@@ -64,6 +82,7 @@ const TestHttpClientLayer = Layer.succeed(
 const DriverLayer = Layer.mergeAll(
   OnePasswordCli.makeLayerFromRunner(onePasswordRunner),
   AiProviderCli.makeLayerFromRunner(providerRunner),
+  BunCli.makeLayerFromRunner(bunRunner),
   Discord.makeLayer(new DiscordConfigInput({ baseUrl: "https://discord.example.test/api/v10" })).pipe(
     Layer.provide(TestHttpClientLayer)
   )
@@ -72,8 +91,60 @@ const DriverLayer = Layer.mergeAll(
 const TestDependenciesLayer = Layer.succeed(
   InstallerDependenciesUseCases,
   InstallerDependenciesUseCases.of({
+    inspectBunRuntime: Effect.fn("TestDependencies.inspectBunRuntime")(function* () {
+      return yield* Effect.succeed(
+        new BunRuntimeHealthResult({
+          dependency: {
+            detectedVersion: O.some("1.0.0"),
+            id: "bun",
+            installHint: "Run repair.",
+            kind: "runtime",
+            name: "Bun",
+            requiredVersion: O.some("1.0.0"),
+            status: "present",
+          },
+          state: "healthy",
+          summary: "Bun satisfies the requested version.",
+        })
+      );
+    }),
     previewHostDependencies: Effect.fn("TestDependencies.previewHostDependencies")(function* () {
       return yield* Effect.succeed(new HostDependencyPlan({ dependencies: [], notes: ["test"], verbs: [] }));
+    }),
+    repairBunRuntime: Effect.fn("TestDependencies.repairBunRuntime")(function* () {
+      return yield* Effect.succeed(
+        new BunRuntimeRepairResult({
+          after: new BunRuntimeHealthResult({
+            dependency: {
+              detectedVersion: O.some("1.0.0"),
+              id: "bun",
+              installHint: "Run repair.",
+              kind: "runtime",
+              name: "Bun",
+              requiredVersion: O.some("1.0.0"),
+              status: "present",
+            },
+            state: "healthy",
+            summary: "Bun satisfies the requested version.",
+          }),
+          before: new BunRuntimeHealthResult({
+            dependency: {
+              detectedVersion: O.some("0.9.0"),
+              id: "bun",
+              installHint: "Run repair.",
+              kind: "runtime",
+              name: "Bun",
+              requiredVersion: O.some("1.0.0"),
+              status: "present",
+            },
+            state: "repair-required",
+            summary: "Bun requires repair.",
+          }),
+          changed: true,
+          command: "bun upgrade",
+          summary: "Bun repaired.",
+        })
+      );
     }),
     validateRequiredCommands: Effect.fn("TestDependencies.validateRequiredCommands")(function* () {
       return yield* Effect.succeed([
@@ -101,122 +172,125 @@ const TestSliceLayer = Layer.mergeAll(
   InstallerChannelsServerLive
 );
 
-const TestLayer = TestSliceLayer.pipe(Layer.provideMerge(DriverLayer));
+const TestLayer = TestSliceLayer.pipe(
+  Layer.provideMerge(DriverLayer),
+  Layer.provideMerge(BunChildProcessSpawner.layer),
+  Layer.provideMerge(BunFileSystem.layer),
+  Layer.provideMerge(BunPath.layer)
+);
 
 describe("P1 Manual Mode proof harness", () => {
-  layer(TestLayer)((it) => {
-    it.effect("returns a sanitized live proof snapshot without exposing raw secret or provider CLI output", () =>
-      Effect.gen(function* () {
-        const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
-        const result = yield* runP1ManualProof(
-          new P1ManualProofRequest({
-            discordBotTokenReference,
-            discordChannelDisplayName: "proof-channel",
-            discordChannelId: "channel-1",
-            discordGuildId: "guild-1",
-            operatorLabel: "test",
-            targetPlatform: "macos",
-            testMessageContent: "Stack Installer P1 proof",
-          })
-        );
-        const encoded = yield* encodeProofResult(result);
+  it.effect("returns a sanitized live proof snapshot without exposing raw secret or provider CLI output", () =>
+    Effect.gen(function* () {
+      const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
+      const result = yield* runP1ManualProof(
+        new P1ManualProofRequest({
+          discordBotTokenReference,
+          discordChannelDisplayName: "proof-channel",
+          discordChannelId: "channel-1",
+          discordGuildId: "guild-1",
+          operatorLabel: "test",
+          targetPlatform: "macos",
+          testMessageContent: "Stack Installer P1 proof",
+        })
+      );
+      const encoded = yield* encodeProofResult(result);
 
-        expect(result.snapshot.manifest.dryRunOnly).toBe(false);
-        expect(A.every(result.snapshot.validationEvents, (event) => event.status === "passed")).toBe(true);
-        expect(encoded).not.toContain("raw-secret-value");
-        expect(encoded).not.toContain("claude-raw-provider-status-output");
-        expect(encoded).not.toContain("codex-raw-provider-status-output");
-        expect(encoded).toContain("message-1");
-      })
-    );
+      expect(result.snapshot.manifest.dryRunOnly).toBe(false);
+      expect(A.every(result.snapshot.validationEvents, (event) => event.status === "passed")).toBe(true);
+      expect(encoded).not.toContain("raw-secret-value");
+      expect(encoded).not.toContain("claude-raw-provider-status-output");
+      expect(encoded).not.toContain("codex-raw-provider-status-output");
+      expect(encoded).toContain("message-1");
+    }).pipe(Effect.provide(TestLayer))
+  );
 
-    it.effect("keeps the app-local preview dry-run and avoids recording a Discord message id", () =>
-      Effect.gen(function* () {
-        const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
-        const result = yield* previewP1ManualProof(
-          new P1ManualProofRequest({
-            discordBotTokenReference,
-            discordChannelDisplayName: "proof-channel",
-            discordChannelId: "channel-1",
-            discordGuildId: "guild-1",
-            operatorLabel: "test",
-            targetPlatform: "macos",
-            testMessageContent: "Stack Installer P1 proof",
-          })
-        );
-        const encoded = yield* encodeProofResult(result);
+  it.effect("keeps the app-local preview dry-run and avoids recording a Discord message id", () =>
+    Effect.gen(function* () {
+      const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
+      const result = yield* previewP1ManualProof(
+        new P1ManualProofRequest({
+          discordBotTokenReference,
+          discordChannelDisplayName: "proof-channel",
+          discordChannelId: "channel-1",
+          discordGuildId: "guild-1",
+          operatorLabel: "test",
+          targetPlatform: "macos",
+          testMessageContent: "Stack Installer P1 proof",
+        })
+      );
+      const encoded = yield* encodeProofResult(result);
 
-        expect(result.snapshot.manifest.dryRunOnly).toBe(true);
-        expect(
-          A.some(
-            result.snapshot.validationEvents,
-            (event) => event.id === "discord-route-preview" && event.status === "passed"
-          )
-        ).toBe(true);
-        expect(A.some(result.snapshot.validationEvents, (event) => event.id === "discord-test-message")).toBe(false);
-        expect(encoded).not.toContain("message-1");
-        expect(encoded).not.toContain("raw-secret-value");
-      })
-    );
+      expect(result.snapshot.manifest.dryRunOnly).toBe(true);
+      expect(
+        A.some(
+          result.snapshot.validationEvents,
+          (event) => event.id === "discord-route-preview" && event.status === "passed"
+        )
+      ).toBe(true);
+      expect(A.some(result.snapshot.validationEvents, (event) => event.id === "discord-test-message")).toBe(false);
+      expect(encoded).not.toContain("message-1");
+      expect(encoded).not.toContain("raw-secret-value");
+    }).pipe(Effect.provide(TestLayer))
+  );
 
-    it.effect("records Bash commands for macOS proof artifacts", () =>
-      Effect.gen(function* () {
-        const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
-        const commands = buildP1ProofCommandsText(
-          new P1ManualProofRequest({
-            discordBotTokenReference,
-            discordChannelDisplayName: "proof-channel",
-            discordChannelId: "channel-1",
-            discordGuildId: "guild-1",
-            operatorLabel: "operator-macos-001",
-            targetPlatform: "macos",
-            testMessageContent: "Stack Installer P1 macOS proof",
-          }),
-          {
-            outputDir: "/repo/output/stack-installer/p1-live/macos",
-            requestJson: '{"targetPlatform":"macos"}',
-          }
-        );
+  it.effect("records Bash commands for macOS proof artifacts", () =>
+    Effect.gen(function* () {
+      const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
+      const commands = buildP1ProofCommandsText(
+        new P1ManualProofRequest({
+          discordBotTokenReference,
+          discordChannelDisplayName: "proof-channel",
+          discordChannelId: "channel-1",
+          discordGuildId: "guild-1",
+          operatorLabel: "operator-macos-001",
+          targetPlatform: "macos",
+          testMessageContent: "Stack Installer P1 macOS proof",
+        }),
+        {
+          outputDir: "/repo/output/stack-installer/p1-live/macos",
+          requestJson: '{"targetPlatform":"macos"}',
+        }
+      );
 
-        expect(commands).toContain("command -v op");
-        expect(commands).toContain("(cd apps/stack-installer && bun run p1:proof:capture");
-        expect(commands).toContain("--output-dir '/repo/output/stack-installer/p1-live/macos'");
-        expect(commands).not.toContain("Get-Command op");
-        expect(p1ProofCommandsTextMatchesPlatform(commands, "macos")).toBe(true);
-        expect(p1ProofCommandsTextMatchesPlatform(commands, "windows")).toBe(false);
-      })
-    );
+      expect(commands).toContain("command -v op");
+      expect(commands).toContain("(cd apps/stack-installer && bun run p1:proof:capture");
+      expect(commands).toContain("--output-dir '/repo/output/stack-installer/p1-live/macos'");
+      expect(commands).not.toContain("Get-Command op");
+      expect(p1ProofCommandsTextMatchesPlatform(commands, "macos")).toBe(true);
+      expect(p1ProofCommandsTextMatchesPlatform(commands, "windows")).toBe(false);
+    }).pipe(Effect.provide(TestLayer))
+  );
 
-    it.effect("records PowerShell commands for Windows proof artifacts", () =>
-      Effect.gen(function* () {
-        const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
-        const commands = buildP1ProofCommandsText(
-          new P1ManualProofRequest({
-            discordBotTokenReference,
-            discordChannelDisplayName: "proof-channel",
-            discordChannelId: "channel-1",
-            discordGuildId: "guild-1",
-            operatorLabel: "operator-windows-001",
-            targetPlatform: "windows",
-            testMessageContent: "Stack Installer P1 Windows proof",
-          }),
-          {
-            outputDir: "C:\\repo\\output\\stack-installer\\p1-live\\windows",
-            requestJson: '{"targetPlatform":"windows"}',
-          }
-        );
+  it.effect("records PowerShell commands for Windows proof artifacts", () =>
+    Effect.gen(function* () {
+      const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
+      const commands = buildP1ProofCommandsText(
+        new P1ManualProofRequest({
+          discordBotTokenReference,
+          discordChannelDisplayName: "proof-channel",
+          discordChannelId: "channel-1",
+          discordGuildId: "guild-1",
+          operatorLabel: "operator-windows-001",
+          targetPlatform: "windows",
+          testMessageContent: "Stack Installer P1 Windows proof",
+        }),
+        {
+          outputDir: "C:\\repo\\output\\stack-installer\\p1-live\\windows",
+          requestJson: '{"targetPlatform":"windows"}',
+        }
+      );
 
-        expect(commands).toContain("Get-Command op");
-        expect(commands).toContain("Push-Location apps/stack-installer");
-        expect(commands).toContain("$stackInstallerOutputDir = 'C:\\repo\\output\\stack-installer\\p1-live\\windows'");
-        expect(commands).toContain('--output-dir "$stackInstallerOutputDir"');
-        expect(commands).not.toContain("command -v op");
-        expect(commands).not.toContain("(cd apps/stack-installer");
-        expect(p1ProofCommandsTextMatchesPlatform(commands, "windows")).toBe(true);
-        expect(p1ProofCommandsTextMatchesPlatform(commands, "macos")).toBe(false);
-      })
-    );
-  });
+      expect(commands).toContain("Get-Command op");
+      expect(commands).toContain("Push-Location apps/stack-installer");
+      expect(commands).toContain("$stackInstallerOutputDir = 'C:\\repo\\output\\stack-installer\\p1-live\\windows'");
+      expect(commands).toContain('--output-dir "$stackInstallerOutputDir"');
+      expect(commands).not.toContain("command -v op");
+      expect(commands).not.toContain("(cd apps/stack-installer");
+      expect(p1ProofCommandsTextMatchesPlatform(commands, "windows")).toBe(true);
+      expect(p1ProofCommandsTextMatchesPlatform(commands, "macos")).toBe(false);
+    }).pipe(Effect.provide(TestLayer))
+  );
 });
 
 describe("P1 proof artifact helpers", () => {

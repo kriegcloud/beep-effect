@@ -9,10 +9,14 @@
  */
 
 import { AiProviderCli } from "@beep/ai-provider-cli";
+import { BunCli } from "@beep/bun-cli";
 import { Discord } from "@beep/discord";
+import { makeInstallerDependenciesConfigLayer } from "@beep/installer-dependencies-config/layer";
 import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-workspace-use-cases";
 import { OnePasswordCli } from "@beep/onepassword-cli";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -22,12 +26,21 @@ import { P1ManualProofSliceLayer, previewP1ManualProof, runP1ManualProof } from 
 const decodeRequestJson = S.decodeUnknownEffect(S.fromJsonString(P1ManualProofRequest));
 const encodeProofResult = S.encodeUnknownEffect(S.fromJsonString(P1ManualProofResult));
 
-const BaseLayer = Layer.mergeAll(BunServices.layer, BunHttpClient.layer);
-const DriverLayer = Layer.mergeAll(OnePasswordCli.makeLayer(), AiProviderCli.makeLayer(), Discord.layer).pipe(
-  Layer.provideMerge(BunChildProcessSpawner.layer),
+const appDir = process.cwd();
+const repoRoot = new URL("../..", `file://${appDir.endsWith("/") ? appDir : `${appDir}/`}`).pathname;
+
+const BaseLayer = Layer.mergeAll(BunServices.layer, BunHttpClient.layer, BunFileSystem.layer, BunPath.layer);
+const DriverLayer = Layer.mergeAll(
+  OnePasswordCli.makeLayer(),
+  AiProviderCli.makeLayer(),
+  BunCli.makeLayer(),
+  Discord.layer
+).pipe(Layer.provideMerge(BunChildProcessSpawner.layer), Layer.provideMerge(BaseLayer));
+const RuntimeLayer = P1ManualProofSliceLayer.pipe(
+  Layer.provideMerge(DriverLayer),
+  Layer.provideMerge(makeInstallerDependenciesConfigLayer(repoRoot)),
   Layer.provideMerge(BaseLayer)
 );
-const RuntimeLayer = P1ManualProofSliceLayer.pipe(Layer.provideMerge(DriverLayer));
 
 const argAfter = (name: string): O.Option<string> =>
   pipe(

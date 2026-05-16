@@ -61,6 +61,9 @@
       "path": "packages/drivers/ai-provider-cli"
     },
     {
+      "path": "packages/drivers/bun-cli"
+    },
+    {
       "path": "packages/drivers/discord"
     },
     {
@@ -155,6 +158,9 @@
     },
     {
       "path": "packages/installer-channels/use-cases"
+    },
+    {
+      "path": "packages/installer-dependencies/config"
     },
     {
       "path": "packages/installer-dependencies/domain"

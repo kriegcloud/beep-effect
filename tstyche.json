@@ -52,6 +52,7 @@
     "packages/architecture-lab/ui/dtslint/**/*.tst.*",
     "apps/architecture-lab-proof/dtslint/**/*.tst.*",
     "packages/drivers/runpod/dtslint/**/*.tst.*",
+    "packages/drivers/bun-cli/dtslint/**/*.tst.*",
     "packages/drivers/onepassword-cli/dtslint/**/*.tst.*",
     "packages/drivers/discord/dtslint/**/*.tst.*",
     "packages/drivers/ai-provider-cli/dtslint/**/*.tst.*",

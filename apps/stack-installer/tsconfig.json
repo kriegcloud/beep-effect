@@ -27,6 +27,9 @@
       "path": "../../packages/drivers/ai-provider-cli/tsconfig.json"
     },
     {
+      "path": "../../packages/drivers/bun-cli/tsconfig.json"
+    },
+    {
       "path": "../../packages/drivers/discord/tsconfig.json"
     },
     {
@@ -49,6 +52,9 @@
     },
     {
       "path": "../../packages/installer-channels/use-cases/tsconfig.json"
+    },
+    {
+      "path": "../../packages/installer-dependencies/config/tsconfig.json"
     },
     {
       "path": "../../packages/installer-dependencies/server/tsconfig.json"

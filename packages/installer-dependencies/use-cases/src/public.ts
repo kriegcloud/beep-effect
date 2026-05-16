@@ -8,6 +8,7 @@
 
 import { $InstallerDependenciesUseCasesId } from "@beep/identity/packages";
 import { HostDependency } from "@beep/installer-dependencies-domain/aggregates/HostDependency";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $InstallerDependenciesUseCasesId.create("public");
@@ -66,6 +67,145 @@ export class HostDependencyValidationResult extends S.Class<HostDependencyValida
   $I.annote("HostDependencyValidationResult", {
     title: "Host dependency validation result",
     description: "Sanitized live command-existence and version probe result.",
+  })
+) {}
+
+/**
+ * Bun runtime health states visible to the app.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const BunRuntimeHealthState = LiteralKit(["healthy", "repair-required", "missing"] as const).pipe(
+  $I.annoteSchema("BunRuntimeHealthState", {
+    description: "App-facing Bun runtime health state for the focused repair flow.",
+  })
+);
+
+/**
+ * Runtime type for {@link BunRuntimeHealthState}.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export type BunRuntimeHealthState = typeof BunRuntimeHealthState.Type;
+
+/**
+ * App-facing Bun runtime health result.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export class BunRuntimeHealthResult extends S.Class<BunRuntimeHealthResult>($I`BunRuntimeHealthResult`)(
+  {
+    dependency: HostDependency,
+    state: BunRuntimeHealthState,
+    summary: S.NonEmptyString,
+  },
+  $I.annote("BunRuntimeHealthResult", {
+    description: "Current Bun runtime health as presented by the Stack Installer app.",
+  })
+) {}
+
+/**
+ * App-facing Bun repair request.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export class BunRuntimeRepairRequest extends S.Class<BunRuntimeRepairRequest>($I`BunRuntimeRepairRequest`)(
+  {
+    approved: S.Boolean,
+  },
+  $I.annote("BunRuntimeRepairRequest", {
+    description: "Approval-first request to repair the Bun runtime for the focused app flow.",
+  })
+) {}
+
+/**
+ * App-facing Bun repair result.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export class BunRuntimeRepairResult extends S.Class<BunRuntimeRepairResult>($I`BunRuntimeRepairResult`)(
+  {
+    after: BunRuntimeHealthResult,
+    before: BunRuntimeHealthResult,
+    changed: S.Boolean,
+    command: S.NonEmptyString,
+    summary: S.NonEmptyString,
+  },
+  $I.annote("BunRuntimeRepairResult", {
+    description: "Before and after evidence for the app-driven Bun repair flow.",
+  })
+) {}
+
+/**
+ * Public failure when Bun health cannot be inspected.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class BunRuntimeInspectionFailed extends TaggedErrorClass<BunRuntimeInspectionFailed>(
+  $I`BunRuntimeInspectionFailed`
+)(
+  "BunRuntimeInspectionFailed",
+  {
+    reason: S.NonEmptyString,
+  },
+  $I.annote("BunRuntimeInspectionFailed", {
+    description: "The app could not inspect the Bun runtime health.",
+  })
+) {}
+
+/**
+ * Public failure when the repair action is invoked without approval.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class BunRuntimeRepairApprovalRequired extends TaggedErrorClass<BunRuntimeRepairApprovalRequired>(
+  $I`BunRuntimeRepairApprovalRequired`
+)(
+  "BunRuntimeRepairApprovalRequired",
+  {
+    reason: S.NonEmptyString,
+  },
+  $I.annote("BunRuntimeRepairApprovalRequired", {
+    description: "The app requires explicit user approval before mutating the Bun runtime.",
+  })
+) {}
+
+/**
+ * Public failure when the Bun runtime is already healthy.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class BunRuntimeAlreadyHealthy extends TaggedErrorClass<BunRuntimeAlreadyHealthy>($I`BunRuntimeAlreadyHealthy`)(
+  "BunRuntimeAlreadyHealthy",
+  {
+    reason: S.NonEmptyString,
+  },
+  $I.annote("BunRuntimeAlreadyHealthy", {
+    description: "The Bun runtime already satisfies the current requirement.",
+  })
+) {}
+
+/**
+ * Public failure when Bun repair cannot complete successfully.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class BunRuntimeRepairFailed extends TaggedErrorClass<BunRuntimeRepairFailed>($I`BunRuntimeRepairFailed`)(
+  "BunRuntimeRepairFailed",
+  {
+    reason: S.NonEmptyString,
+  },
+  $I.annote("BunRuntimeRepairFailed", {
+    description: "The Bun repair flow failed or did not reach a healthy state.",
   })
 ) {}
 

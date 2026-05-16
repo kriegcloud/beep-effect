@@ -62,6 +62,8 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/bun-cli": "workspace:^",
+    "@beep/installer-dependencies-config": "workspace:^",
     "@beep/installer-dependencies-domain": "workspace:^",
     "@beep/installer-dependencies-use-cases": "workspace:^",
     "@beep/schema": "workspace:^",

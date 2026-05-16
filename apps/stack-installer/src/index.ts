@@ -15,9 +15,10 @@
 export const VERSION = "0.0.0" as const;
 
 /**
- * App-local live proof harness exports.
+ * App-local workflow exports.
  *
  * @category workflows
  * @since 0.0.0
  */
 export * from "./proof/P1ManualProof.js";
+export * from "./repair/BunRuntimeRepair.js";

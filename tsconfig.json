@@ -738,7 +738,24 @@
       ],
       "@beep/opip-web/app/manifest": ["./apps/opip-web/src/app/manifest.ts"],
       "@beep/opip-web/app/robots": ["./apps/opip-web/src/app/robots.ts"],
-      "@beep/opip-web/app/sitemap": ["./apps/opip-web/src/app/sitemap.ts"]
+      "@beep/opip-web/app/sitemap": ["./apps/opip-web/src/app/sitemap.ts"],
+      "@beep/bun-cli": ["./packages/drivers/bun-cli/src/index.ts"],
+      "@beep/bun-cli/*": ["./packages/drivers/bun-cli/src/*"],
+      "@beep/installer-dependencies-config": [
+        "./packages/installer-dependencies/config/src/index.ts"
+      ],
+      "@beep/installer-dependencies-config/aggregates/BunRuntime": [
+        "./packages/installer-dependencies/config/src/aggregates/BunRuntime/index.ts"
+      ],
+      "@beep/installer-dependencies-config/layer": [
+        "./packages/installer-dependencies/config/src/layer.ts"
+      ],
+      "@beep/installer-dependencies-config/server": [
+        "./packages/installer-dependencies/config/src/server.ts"
+      ],
+      "@beep/installer-dependencies-config/test": [
+        "./packages/installer-dependencies/config/src/test.ts"
+      ]
     }
   }
 }

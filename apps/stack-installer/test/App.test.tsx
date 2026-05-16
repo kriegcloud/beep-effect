@@ -2,111 +2,87 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../src/App.js";
 
-const runProofMock = vi.fn();
+const loadHealthMock = vi.fn();
+const runRepairMock = vi.fn();
 
-const submitProofForm = () => {
-  const runButton = screen.getAllByRole("button", { name: "Run Proof" })[0];
-  const form = runButton?.closest("form");
+const repairRequiredHealth = {
+  dependency: {
+    detectedVersion: "1.3.11",
+    id: "bun",
+    installHint: "Run the focused Bun repair flow from the desktop app.",
+    kind: "runtime",
+    name: "Bun",
+    requiredVersion: "1.3.14",
+    status: "present",
+  },
+  state: "repair-required",
+  summary: "Bun 1.3.11 is older than the required version 1.3.14.",
+};
 
-  expect(form).toBeDefined();
-  if (form === null) {
-    return;
-  }
-
-  fireEvent.submit(form);
+const healthyRepairResult = {
+  after: {
+    dependency: {
+      detectedVersion: "1.3.14",
+      id: "bun",
+      installHint: "Run the focused Bun repair flow from the desktop app.",
+      kind: "runtime",
+      name: "Bun",
+      requiredVersion: "1.3.14",
+      status: "present",
+    },
+    state: "healthy",
+    summary: "Bun 1.3.14 satisfies the required version 1.3.14.",
+  },
+  before: repairRequiredHealth,
+  changed: true,
+  command: "bun upgrade",
+  summary: "Bun repair completed. Bun 1.3.14 satisfies the required version 1.3.14.",
 };
 
 describe.sequential("Stack Installer app", () => {
   beforeEach(() => {
-    runProofMock.mockReset();
+    loadHealthMock.mockReset();
+    runRepairMock.mockReset();
+    loadHealthMock.mockResolvedValue(repairRequiredHealth);
   });
 
   afterEach(cleanup);
 
-  it("renders the P1 workbench", () => {
-    render(<App />);
+  it("renders the focused Bun repair flow", async () => {
+    render(<App loadBunRuntimeHealth={loadHealthMock} runBunRuntimeRepair={runRepairMock} />);
 
-    expect(screen.getByRole("heading", { name: "Install Workbench" })).toBeDefined();
-    expect(screen.getByText("Claude Provider")).toBeDefined();
-    expect(screen.getByText("Discord is represented as the only v1 channel.")).toBeDefined();
-    expect(screen.queryByRole("option", { name: "Linux" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Bun Repair" })).toBeDefined();
+    await waitFor(() => expect(screen.getAllByText("Repair Needed").length).toBeGreaterThan(0));
+    expect(screen.getByText("Bun 1.3.11 is older than the required version 1.3.14.")).toBeDefined();
   });
 
-  it("rejects plaintext Discord bot tokens before invoking the desktop proof runner", () => {
-    render(<App runP1ManualProof={runProofMock} />);
+  it("runs the repair action and renders the before and after state", async () => {
+    runRepairMock.mockResolvedValueOnce(healthyRepairResult);
+    render(<App loadBunRuntimeHealth={loadHealthMock} runBunRuntimeRepair={runRepairMock} />);
 
-    const tokenInput = screen.getAllByLabelText("Bot Token Reference")[0];
-    const runButton = screen.getAllByRole("button", { name: "Run Proof" })[0];
+    await waitFor(() => expect(screen.getByRole("button", { name: "Approve Repair" })).toBeDefined());
+    fireEvent.click(screen.getByRole("button", { name: "Approve Repair" }));
 
-    expect(tokenInput).toBeDefined();
-    expect(runButton).toBeDefined();
-    if (tokenInput === undefined || runButton === undefined) {
-      return;
-    }
-
-    fireEvent.change(tokenInput, {
-      target: { value: "plaintext-token" },
-    });
-    submitProofForm();
-
-    expect(screen.getAllByText("Discord bot token must be a 1Password reference.").length).toBeGreaterThan(0);
-    expect(runProofMock).not.toHaveBeenCalled();
+    await waitFor(() => expect(runRepairMock).toHaveBeenCalled());
+    await waitFor(() => expect(screen.getByText("Repair complete")).toBeDefined());
+    expect(screen.getByText("Executed command: bun upgrade")).toBeDefined();
+    expect(screen.getAllByText("1.3.14").length).toBeGreaterThan(0);
   });
 
-  it("runs the Tauri P1 proof command with sanitized form values", async () => {
-    runProofMock.mockResolvedValueOnce("sanitized proof output");
-    render(<App runP1ManualProof={runProofMock} />);
+  it("renders inspection errors", async () => {
+    loadHealthMock.mockRejectedValueOnce(new Error("inspection unavailable"));
+    render(<App loadBunRuntimeHealth={loadHealthMock} runBunRuntimeRepair={runRepairMock} />);
 
-    fireEvent.change(screen.getAllByLabelText("Guild ID")[0], {
-      target: { value: "guild-1" },
-    });
-    fireEvent.change(screen.getAllByLabelText("Channel ID")[0], {
-      target: { value: "channel-1" },
-    });
-    fireEvent.change(screen.getAllByLabelText("Operator")[0], {
-      target: { value: "operator-macos-001" },
-    });
-    submitProofForm();
-
-    await waitFor(() => expect(runProofMock).toHaveBeenCalled());
-    await waitFor(() => expect(screen.getByText("sanitized proof output")).toBeDefined());
-    expect(runProofMock).toHaveBeenCalledWith({
-      discordBotTokenReference: "op://Private/Discord Bot/token",
-      discordChannelDisplayName: "ai-stack-installer",
-      discordChannelId: "channel-1",
-      discordGuildId: "guild-1",
-      operatorLabel: "operator-macos-001",
-      targetPlatform: "macos",
-      testMessageContent: "Stack Installer P1 Manual Mode proof",
-    });
+    await waitFor(() => expect(screen.getByText("inspection unavailable")).toBeDefined());
   });
 
-  it("renders string Tauri proof errors", async () => {
-    runProofMock.mockRejectedValueOnce("proof rejected");
-    render(<App runP1ManualProof={runProofMock} />);
+  it("renders repair errors", async () => {
+    runRepairMock.mockRejectedValueOnce(new Error("upgrade failed"));
+    render(<App loadBunRuntimeHealth={loadHealthMock} runBunRuntimeRepair={runRepairMock} />);
 
-    submitProofForm();
+    await waitFor(() => expect(screen.getByRole("button", { name: "Approve Repair" })).toBeDefined());
+    fireEvent.click(screen.getByRole("button", { name: "Approve Repair" }));
 
-    await waitFor(() => expect(screen.getByText("proof rejected")).toBeDefined());
-  });
-
-  it("renders object Tauri proof errors", async () => {
-    runProofMock.mockRejectedValueOnce(new Error("provider auth missing"));
-    render(<App runP1ManualProof={runProofMock} />);
-
-    submitProofForm();
-
-    await waitFor(() => expect(screen.getByText("provider auth missing")).toBeDefined());
-  });
-
-  it("falls back for unknown Tauri proof errors", async () => {
-    runProofMock.mockRejectedValueOnce({ reason: "opaque" });
-    render(<App runP1ManualProof={runProofMock} />);
-
-    submitProofForm();
-
-    await waitFor(() =>
-      expect(screen.getByText("P1 proof failed before sanitized output was returned.")).toBeDefined()
-    );
+    await waitFor(() => expect(screen.getByText("upgrade failed")).toBeDefined());
   });
 });

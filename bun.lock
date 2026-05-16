@@ -169,11 +169,13 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/ai-provider-cli": "workspace:^",
+        "@beep/bun-cli": "workspace:^",
         "@beep/discord": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/installer-channels-domain": "workspace:^",
         "@beep/installer-channels-server": "workspace:^",
         "@beep/installer-channels-use-cases": "workspace:^",
+        "@beep/installer-dependencies-config": "workspace:^",
         "@beep/installer-dependencies-server": "workspace:^",
         "@beep/installer-dependencies-use-cases": "workspace:^",
         "@beep/installer-providers-server": "workspace:^",
@@ -406,6 +408,19 @@
     },
     "packages/drivers/ai-provider-cli": {
       "name": "@beep/ai-provider-cli",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/bun-cli": {
+      "name": "@beep/bun-cli",
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
@@ -968,6 +983,19 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/installer-dependencies/config": {
+      "name": "@beep/installer-dependencies-config",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/installer-dependencies/domain": {
       "name": "@beep/installer-dependencies-domain",
       "version": "0.0.0",
@@ -986,7 +1014,9 @@
       "name": "@beep/installer-dependencies-server",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/bun-cli": "workspace:^",
         "@beep/identity": "workspace:^",
+        "@beep/installer-dependencies-config": "workspace:^",
         "@beep/installer-dependencies-domain": "workspace:^",
         "@beep/installer-dependencies-use-cases": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1978,6 +2008,8 @@
 
     "@beep/architecture-lab-use-cases": ["@beep/architecture-lab-use-cases@workspace:packages/architecture-lab/use-cases"],
 
+    "@beep/bun-cli": ["@beep/bun-cli@workspace:packages/drivers/bun-cli"],
+
     "@beep/chalk": ["@beep/chalk@workspace:packages/foundation/capability/chalk"],
 
     "@beep/codedank-web": ["@beep/codedank-web@workspace:apps/codedank-web"],
@@ -2011,6 +2043,8 @@
     "@beep/installer-channels-server": ["@beep/installer-channels-server@workspace:packages/installer-channels/server"],
 
     "@beep/installer-channels-use-cases": ["@beep/installer-channels-use-cases@workspace:packages/installer-channels/use-cases"],
+
+    "@beep/installer-dependencies-config": ["@beep/installer-dependencies-config@workspace:packages/installer-dependencies/config"],
 
     "@beep/installer-dependencies-domain": ["@beep/installer-dependencies-domain@workspace:packages/installer-dependencies/domain"],
 

@@ -9,10 +9,16 @@
   },
   "references": [
     {
+      "path": "../../drivers/bun-cli/tsconfig.json"
+    },
+    {
       "path": "../../foundation/modeling/identity/tsconfig.json"
     },
     {
       "path": "../../foundation/modeling/schema/tsconfig.json"
+    },
+    {
+      "path": "../config/tsconfig.json"
     },
     {
       "path": "../domain/tsconfig.json"

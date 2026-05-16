@@ -1,0 +1,70 @@
+{
+  "name": "@beep/installer-dependencies-config",
+  "version": "0.0.0",
+  "description": "installer dependencies typed configuration package for the Bun repair milestone.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/installer-dependencies/config",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/installer-dependencies/config"
+  },
+  "scripts": {
+    "audit": "bun run --if-present beep:audit",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+    "beep:build": "tsc -b tsconfig.json && bun run babel",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "beep:test": "bunx --bun vitest run --passWithNoTests",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "coverage": "bunx --bun vitest run --coverage --passWithNoTests",
+    "docgen": "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./layer": "./src/layer.ts",
+    "./test": "./src/test.ts",
+    "./aggregates/BunRuntime": "./src/aggregates/BunRuntime/index.ts",
+    "./internal/*": null,
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      ".": "./dist/index.js",
+      "./server": "./dist/server.js",
+      "./layer": "./dist/layer.js",
+      "./test": "./dist/test.js",
+      "./aggregates/BunRuntime": "./dist/aggregates/BunRuntime/index.js",
+      "./internal/*": null,
+      "./package.json": "./package.json"
+    }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

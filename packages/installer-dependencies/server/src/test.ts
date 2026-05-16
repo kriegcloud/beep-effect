@@ -6,6 +6,8 @@
  * @since 0.0.0
  */
 
+import { makeInstallerDependenciesConfigTestLayer } from "@beep/installer-dependencies-config/test";
+import { Layer } from "effect";
 import { InstallerDependenciesServerLive } from "./Layer.js";
 
 /**
@@ -14,4 +16,6 @@ import { InstallerDependenciesServerLive } from "./Layer.js";
  * @category testing
  * @since 0.0.0
  */
-export const InstallerDependenciesServerTest = InstallerDependenciesServerLive;
+export const InstallerDependenciesServerTest = InstallerDependenciesServerLive.pipe(
+  Layer.provideMerge(makeInstallerDependenciesConfigTestLayer("1.3.14"))
+);
