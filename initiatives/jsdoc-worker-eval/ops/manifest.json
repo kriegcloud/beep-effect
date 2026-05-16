@@ -3,7 +3,7 @@
   "initiative": {
     "id": "jsdoc-worker-eval",
     "title": "JSDoc Worker Eval",
-    "status": "p0-p6-implemented-runpod-smoke-proof-complete",
+    "status": "p0-p6-implemented-runpod-10-packet-evidence-complete",
     "created": "2026-05-12",
     "updated": "2026-05-16",
     "packetAnchorDocument": "SPEC.md"
@@ -60,9 +60,11 @@
     {
       "id": "2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval",
       "report": "research/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval.md",
-      "expectedRaw": "history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval.json",
+      "raw": "history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-10-packet.json",
+      "sourceRaw": "history/outputs/2026-05-16-source-quality-codex-packets-10-packet.json",
       "smokeRaw": "history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-smoke-v2.json",
-      "result": "smoke-proof-complete"
+      "largerSampleReport": "research/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-10-packet.md",
+      "result": "larger-sample-evidence-complete"
     }
   ],
   "phaseStatus": [
@@ -98,7 +100,7 @@
     },
     {
       "id": "P6",
-      "status": "smoke-proof-complete",
+      "status": "evidence-complete",
       "title": "Runpod Ollama Qwen3-Coder remote GPU worker eval"
     }
   ],
@@ -108,5 +110,5 @@
     "Qwen-specific architecture doctrine",
     "auto-remediation write mode"
   ],
-  "nextAction": "Decide whether to run a larger 10-packet Runpod sample now or first remove cold-pull overhead with a repo-owned image/template or persistent model cache."
+  "nextAction": "Treat jsdoc-worker-eval as read-only evidence-complete. Plan cache/template cost reduction, human draft review, or write-mode auto-remediation as separate follow-up initiatives."
 }

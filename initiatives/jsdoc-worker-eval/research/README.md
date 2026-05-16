@@ -5,6 +5,7 @@ Curated provider-backed evaluation reports live here.
 - [2026-05-12 Ollama Qwen3-Coder 30B host eval](./2026-05-12-ollama-qwen3-coder-30b-host-eval.md)
 - [2026-05-12 Codex GPT-5.4 Mini low worker eval](./2026-05-12-codex-gpt-5.4-mini-low-worker-eval.md)
 - [2026-05-16 Runpod Ollama Qwen3-Coder 30B worker eval](./2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval.md)
+- [2026-05-16 Runpod Ollama Qwen3-Coder 30B 10-packet worker eval](./2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-10-packet.md)
 
 Reports should record:
 
