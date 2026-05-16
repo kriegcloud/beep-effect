@@ -22,6 +22,7 @@
     "packages/tooling/tool/*/dtslint/**/*.tst.*",
     "apps/codedank-web/dtslint/**/*.tst.*",
     "apps/opip-web/dtslint/**/*.tst.*",
+    "apps/professional-desktop/dtslint/**/*.tst.*",
     "apps/stack-installer/dtslint/**/*.tst.*",
     "apps/professional-runtime-proof/dtslint/**/*.tst.*",
     "packages/agent-capability/domain/dtslint/**/*.tst.*",

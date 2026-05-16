@@ -27,6 +27,7 @@ actually lives here.
 ## Current Initiatives
 
 - `ai-metrics-stack`
+- `agent-effectiveness-loop` — research bootstrap for Phoenix-backed coding-agent effectiveness evals and diagnostics.
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
 - `ip-law-knowledge-graph`

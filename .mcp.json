@@ -2,7 +2,7 @@
   "mcpServers": {
     "graphiti-memory": {
       "type": "http",
-      "url": "http://localhost:8000/mcp"
+      "url": "http://localhost:8123/mcp"
     },
     "greptile": {
       "type": "http",

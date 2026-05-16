@@ -16,6 +16,9 @@
       "path": "apps/opip-web"
     },
     {
+      "path": "apps/professional-desktop"
+    },
+    {
       "path": "apps/professional-runtime-proof"
     },
     {
