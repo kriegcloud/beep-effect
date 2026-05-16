@@ -21,6 +21,7 @@
     "packages/tooling/tool/*",
     "apps/codedank-web",
     "apps/opip-web",
+    "apps/professional-desktop",
     "apps/professional-runtime-proof",
     "packages/agent-capability/domain",
     "packages/agent-capability/use-cases",

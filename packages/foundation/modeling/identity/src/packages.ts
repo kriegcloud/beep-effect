@@ -63,6 +63,7 @@ const composers = $I.compose(
   "agent-capability-use-cases",
   "epistemic-domain",
   "law-practice-domain",
+  "professional-desktop",
   "professional-runtime-proof",
   "wealth-management-domain",
   "workspace-domain",
@@ -618,6 +619,22 @@ export const $LawPracticeDomainId: Identity.IdentityComposer<"@beep/law-practice
  */
 export const $WealthManagementDomainId: Identity.IdentityComposer<"@beep/wealth-management-domain"> =
   composers.$WealthManagementDomainId;
+
+/**
+ * Identity composer for the `@beep/professional-desktop` package.
+ *
+ * @example
+ * ```typescript
+ * import { $ProfessionalDesktopId } from "@beep/identity"
+ *
+ * const id = $ProfessionalDesktopId.make("Workbench")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $ProfessionalDesktopId: Identity.IdentityComposer<"@beep/professional-desktop"> =
+  composers.$ProfessionalDesktopId;
 
 /**
  * Identity composer for the `@beep/professional-runtime-proof` package.

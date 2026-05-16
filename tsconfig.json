@@ -102,6 +102,9 @@
       "@beep/md": ["./packages/foundation/capability/md/src/index.ts"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
       "@beep/opip-web": ["./apps/opip-web/src/index.ts"],
+      "@beep/professional-desktop": [
+        "./apps/professional-desktop/src/index.ts"
+      ],
       "@beep/professional-runtime-proof": [
         "./apps/professional-runtime-proof/src/index.ts"
       ],

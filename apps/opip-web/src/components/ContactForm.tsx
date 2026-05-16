@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { DateTime } from "effect";
 import type { ContactSubmissionStatus } from "../contact";
 
 const inputClass =
@@ -41,7 +42,7 @@ export function ContactForm({
       method="post"
     >
       <input aria-hidden="true" className="hidden" name="website" tabIndex={-1} autoComplete="off" />
-      <input name="submittedAt" type="hidden" value={Date.now()} />
+      <input name="submittedAt" type="hidden" value={DateTime.nowUnsafe().epochMilliseconds} />
       <div className="grid gap-4 sm:grid-cols-2">
         <label className={labelClass}>
           Name

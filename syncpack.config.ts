@@ -20,6 +20,7 @@ const config = {
     "packages/tooling/tool/*/package.json",
     "apps/codedank-web/package.json",
     "apps/opip-web/package.json",
+    "apps/professional-desktop/package.json",
     "apps/professional-runtime-proof/package.json",
     "packages/agent-capability/domain/package.json",
     "packages/agent-capability/use-cases/package.json",
