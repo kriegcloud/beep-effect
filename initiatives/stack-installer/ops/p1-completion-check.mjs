@@ -252,14 +252,18 @@ addCheck(
 
 const allComplete = checks.every((check) => check.ok);
 
-console.log(`Stack Installer P1 completion check for ${rel(outputRoot)}`);
+console.log(`Stack Installer P1/P1D readiness check for ${rel(outputRoot)}`);
 for (const check of checks) {
   console.log(`${check.ok ? "[pass]" : "[block]"} ${check.label}: ${check.detail}`);
 }
 if (!allComplete && p1cStartStatus.ok) {
   console.log("P1C may start, but full P1 completion remains blocked.");
 }
-console.log(allComplete ? "P1 completion check passed." : "P1 completion check blocked.");
+console.log(
+  allComplete
+    ? "P1D readiness check passed; full P1 remains open until the real Windows proof is returned and audited."
+    : "P1/P1D readiness check blocked."
+);
 
 if (!allComplete) {
   process.exitCode = 1;

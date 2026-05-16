@@ -1,6 +1,6 @@
 # P1D App-First Manual Installer UX
 
-Status: pending.
+Status: in progress.
 
 This file records evidence for the active next execution lane after the P1C
 closure pass. Full P1 remains open until the real Windows proof is returned and
