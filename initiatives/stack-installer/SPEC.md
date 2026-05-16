@@ -248,12 +248,21 @@ P1 is complete when fresh-OS macOS and Windows Manual Mode runs complete
 provider auth, 1Password setup, Discord setup, and an end-to-end test message,
 with screencasts, sanitized manifest, CI green for the vertical verbs, and a
 post-proof PR readiness review/fix loop with zero required blockers or explicit
-waivers.
-Local harness implementation alone is not sufficient to close P1.
+waivers. Local harness implementation alone is not sufficient to close P1.
+
+P1C, the post-proof review/fix loop, may begin after audited macOS proof plus
+either audited Windows proof or an explicit temporary Windows missing-proof
+waiver. That waiver is sequencing-only. It does not count as Windows success
+and does not close P1.
+
+P1D is complete when the Tauri app becomes the primary operator surface for a
+Linux-first proof run and completes one real machine-changing dependency
+install or repair action through installer-owned code, with proof artifacts and
+validation showing the before and after state.
 
 P2 is complete when the same flow runs in AI Mode for Claude and Codex, with
 screencasts, structured action logs, and a byte-identical-manifest gate modulo
-timestamps between P1 and P2.
+timestamps between P1D and P2.
 
 P3 is complete when AI Mode repairs salted broken states for wrong Node
 version, invalid Discord token, and missing 1Password reference, with

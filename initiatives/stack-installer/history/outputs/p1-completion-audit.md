@@ -1,223 +1,75 @@
 # P1 Completion Audit
 
-Status: blocked; not complete.
+Status: blocked for full P1 close; P1C may start under waiver.
 
-Audit date: 2026-05-14
+Audit date: 2026-05-16
 
-This audit maps the active `/goal` objective to concrete repository evidence.
-It is intentionally strict: substantial implementation work, green targeted
-checks, and a complete manifest are not enough to close P1 unless every
-required artifact and gate below has direct evidence.
+This audit now distinguishes two truths:
+
+- the current branch is ready to start the P1C review/fix loop because macOS
+  proof is complete and Windows has an explicit temporary missing-proof waiver
+  for sequencing
+- full P1 is still blocked until a real Windows proof artifact exists and is
+  audited
 
 ## Objective Restated
 
-Complete Stack Installer P1 live Manual Mode proof from the current P1A branch
-without stopping until:
+Keep the P1 packet honest after the completed macOS proof:
 
-- P1A is committed.
-- P1 live validators and Tauri proof flow are implemented.
-- targeted repo checks pass.
-- macOS and Windows user-operated fresh-machine proof artifacts are recorded.
-- initiative manifest and history are updated.
-- P2 AI Mode, MCP runtime, recovery, portability, signing, and distribution
-  work remain untouched.
+- preserve the rule that full P1 needs real macOS and Windows fresh-machine
+  proof artifacts
+- allow the current branch to start P1C under an explicit temporary Windows
+  missing-proof waiver
+- queue the next meaningful product milestone as app-first Manual Installer UX
+- keep P2 AI Mode, MCP runtime, recovery, portability, signing, and
+  distribution work untouched for now
 
-## Current Checkout Evidence
+## Current Gate Position
 
-- Branch: `feat/stack-installer-p1-live`
-- Latest branch evidence includes the proof upload status progress update,
-  which makes `initiatives/stack-installer/ops/proof-upload-status.mjs` parse
-  detached `proof-watch.log` progress and print pending, passed, or exhausted
-  watcher state plus remaining attempts and time estimate without printing the
-  upload token or endpoint response bodies.
-- Earlier branch evidence includes the proof upload smoke harness, which adds
-  `initiatives/stack-installer/ops/proof-upload-smoke.mjs` as a repeatable
-  temporary-local check for upload-window endpoint authentication, generated
-  operator notes, file modes, token-leak indicators, and `--reuse-token`
-  behavior without touching live proof artifacts.
-- Earlier branch evidence also includes
-  `initiatives/stack-installer/ops/p1-completion-check.mjs`, a conservative
-  prompt-to-artifact completion checklist that exits nonzero until the fresh
-  macOS and Windows artifacts exist, `p1:proof:audit-all` passes, and the
-  post-proof review is complete. It also checks the branch diff against
-  `origin/main` for forbidden P2 AI Mode, MCP, runtime, skill-bundle, or
-  executor implementation paths while allowing pending future-phase packet
-  stubs.
-- Earlier branch evidence includes the remote operator next-actions endpoint
-  update, which exposes generated `OPERATOR_NEXT_ACTIONS.md` through
-  token-protected `GET /next-actions` so proof machines with the bearer token
-  can fetch the full current runbook without coordinator file sharing.
-- Earlier branch evidence includes the upload-window operator inbox generation
-  update, which makes `start-proof-upload-window.mjs` regenerate ignored
-  `README.operator-inbox.md` and `OPERATOR_NEXT_ACTIONS.md` files alongside
-  `proof-upload-commands.txt` so local proof-window notes do not drift from the
-  active upload endpoints.
-- Earlier branch evidence includes the upload-window endpoint status update,
-  which makes `proof-upload-status.mjs` validate the public landing page plus
-  token-protected `/status` and `/commands` behavior without printing the token
-  or endpoint response bodies.
-- Earlier branch evidence includes the upload command endpoint update, which
-  lets a proof machine fetch the current coordinator-generated upload commands
-  through token-protected `GET /commands` without SSH or file sharing.
-- Earlier branch evidence includes the upload restart and landing-page update,
-  which lets the coordinator restart the live upload helper with `--reuse-token`
-  and exposes a non-secret `GET /` operator landing page while keeping
-  `/status`, `/commands`, and `/upload/*` token-protected.
-- Earlier branch evidence includes the detached proof-window status update,
-  which keeps `initiatives/stack-installer/ops/proof-upload-status.mjs` as the
-  single coordinator command for upload server health, private-file modes,
-  returned bundle presence, platform artifact status, and detached watcher
-  state.
-- Earlier branch evidence includes `76e62e1d0c docs(stack-installer): add
-  proof watch starter`, which adds the detached coordinator watch starter at
-  `initiatives/stack-installer/ops/start-proof-watch-window.mjs` and documents
-  its private `proof-watch.log`, `proof-watch.pid`, and
-  `proof-watch-command.txt` outputs under the ignored proof inbox.
-- Earlier branch evidence includes `91fa8041a5 docs(stack-installer):
-  advertise upload aliases`, which lets the upload-window starter emit both
-  raw tailnet and MagicDNS operator URLs without rotating the live upload token.
-- Earlier branch evidence includes `d93e83320b chore: merge origin main into
-  stack installer p1`, which syncs the branch with `origin/main` at
-  `97636ab4ff`, keeps both the `opip-web-launch` and `stack-installer`
-  initiative index entries, and keeps both the Stack Installer TypeScript path
-  aliases plus main's `@beep/ui/themes/theme-init-script` alias.
-- Earlier branch evidence includes `57d518069f docs(stack-installer): record
-  upload route blockers`, which records the verified MagicDNS upload endpoint,
-  the absence of `PUT` or `POST` upload attempts, and the Taildrop peer
-  ownership blocker for coordinator-side sends to the Windows peer.
-- Earlier branch evidence includes `2475433ad0 docs(stack-installer): tighten
-  pr readiness review gate`, which records the stricter post-proof requirement
-  to run `$quality-review-fix-loop` across the whole implemented P1 initiative
-  surface and directly affected code paths, including reuse opportunities,
-  structural simplification, flat idiomatic modules, and repo-law alignment.
-- Earlier branch evidence includes `0e95b717ce test(stack-installer): cover
-  desktop proof flow`, `7c8ccac126 test(stack-installer): cover p1 proof
-  artifact helpers`, `61c9a94f1c feat(stack-installer): surface proof bundle
-  extraction`, and `7923a2387a feat(stack-installer): report p1 proof artifact
-  status`.
-- Relevant audit evidence lives on the pushed branch in
-  `apps/stack-installer/src/proof/capture-p1-manual-proof.ts`,
-  `ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md`, and this completion audit
-  output.
-- Base evidence after latest `git fetch origin main`: `origin/main` remains at
-  `97636ab4ff` and is an ancestor of the current branch.
-- Worktree status before this proof-status progress update: clean and even with
-  `origin/feat/stack-installer-p1-live` at `d20e8637f5`.
-- Latest post-main-sync verification:
-  `bun run config-sync:check`, `bun run --filter @beep/stack-installer check`,
-  `bun run --filter @beep/stack-installer test`,
-  `bun run --filter @beep/stack-installer lint`,
-  `bun run --filter @beep/stack-installer build`, `cargo check` in
-  `apps/stack-installer/src-tauri`, and `git diff --check` all pass after the
-  merge. `bun run --filter @beep/stack-installer p1:proof:audit-all --
-  --output-root output/stack-installer/p1-live` still fails only because the
-  real `macos` and `windows` proof artifact directories are missing.
-- Latest proof upload smoke verification:
-  `node initiatives/stack-installer/ops/proof-upload-smoke.mjs` passes against
-  a temporary localhost upload window. It verifies upload-window token reuse,
-  private/public generated file modes, `/health`, public `/`, token-protected
-  `/status`, `/commands`, and `/next-actions`, expected route/runbook content,
-  invalid-token upload rejection, unsupported file-name rejection, approved
-  macOS `PUT` and Windows `POST` bundle storage, `/status` bundle reporting
-  after upload, stored bundle content, stored bundle `0600` file modes, and
-  absence of token-like text in generated notes and endpoint responses.
-- Latest completion check verification:
-  `node initiatives/stack-installer/ops/p1-completion-check.mjs --output-root
-  output/stack-installer/p1-live --base-ref origin/main` exits `1` as
-  expected. It passes manifest evidence for P1A, the P1 live harness, active P1
-  target, pending P2, and the branch-diff check for no forbidden P2 AI
-  Mode/MCP/runtime implementation paths, then blocks on missing macOS and
-  Windows returned bundles, missing platform proof directories, skipped
-  `p1:proof:audit-all`, and pending post-proof review.
-- Latest proof upload status verification:
-  `node initiatives/stack-installer/ops/proof-upload-status.mjs --host
-  100.117.213.114 --port 8765 --alternate-url-base
-  http://dankputer.tailc7c348.ts.net:8765 --output-root
-  output/stack-installer/p1-live --fail-on-missing` exits `1` as expected
-  because returned bundles and platform artifact directories are still missing.
-  The same run verifies upload-window health, private file modes,
-  token-protected status, commands, and next-actions endpoints, token-leak
-  indicators, detached watcher progress, and MagicDNS alternate endpoint
-  health/landing/status/commands/next-actions responses. It also reports
-  `runbook activity: landing 54; commands 51; next-actions 51; remotes:
-  100.117.213.114` and `upload activity: 0 attempts; 0 stored; 0 rejected;
-  remotes: none`, confirming no non-coordinator proof machine has fetched the
-  runbook endpoints or attempted a `PUT` or `POST` upload yet. The same status
-  command now checks the local process table for watchers tied to the proof
-  output root; current active processes are the expected watcher parent/child
-  pair only, and the stale-process check reports `ok`.
-- Latest upload-window operator-routing hardening:
-  `proof-upload-server.mjs` now makes the public landing page spell out the
-  non-secret proof-operator path for users who only have the endpoint URL:
-  get the private token out-of-band, set `STACK_INSTALLER_PROOF_UPLOAD_TOKEN`,
-  fetch token-protected `/next-actions`, then upload only an approved bundle
-  name. `proof-upload-status.mjs` summarizes upload attempts, stored uploads,
-  rejected uploads, and upload remotes from the private log. The upload-window
-  starter supports `--preserve-log` so a `--reuse-token` restart can refresh
-  server code without erasing active transfer-window evidence.
-- Latest live upload-window refresh:
-  `start-proof-upload-window.mjs --replace-existing --reuse-token
-  --preserve-log` restarted the live upload server with the existing token,
-  preserved the private transfer log, and made the clearer public landing page
-  visible at the active endpoint. The refreshed status command reports upload
-  PID `1199734`, `upload activity: 0 attempts; 0 stored; 0 rejected; remotes:
-  none`, and missing macOS/Windows bundles. The public landing page now renders
-  request-host-specific `/health`, `/status`, `/commands`, `/next-actions`, and
-  approved `/upload/*` URLs so an operator who receives only the endpoint URL
-  sees copy-ready, non-secret command shapes. The MagicDNS landing page was
-  verified at `http://dankputer.tailc7c348.ts.net:8765/`, and the upload smoke
-  harness now asserts request-host-specific landing URLs plus absence of
-  token-like text in the public landing response.
-- Latest coordinator-side Taildrop unblock attempt:
-  `sudo -n tailscale set --operator=$USER` fails with `sudo: a password is
-  required`, so Taildrop still requires an interactive coordinator-side sudo
-  step. Until that is done, the tokenized temporary tailnet upload window
-  remains the active private transfer path.
-- Local artifact scan before this audit update:
-  `output/stack-installer/p1-live` exists, but the required `macos` and
-  `windows` platform directories are missing.
-- Current read-only artifact status:
-  `bun run --filter @beep/stack-installer p1:proof:status` exits successfully
-  and reports the `macos` and `windows` platform directories as missing. When
-  returned `stack-installer-p1-*.tgz` or `.zip` bundles are present at the
-  output root, the same status command prints the extraction command before the
-  final audit gate.
-- Current artifact intake status:
-  `bun run --filter @beep/stack-installer p1:proof:intake` exits successfully
-  against the empty output root, reports that no returned bundles are present,
-  and prints the same missing-directory status. When returned platform bundles
-  are present, this command extracts them before the final audit gate. A
-  temporary coordinator smoke verified extraction of both
-  `stack-installer-p1-macos.tgz` and `stack-installer-p1-windows.zip` into the
-  required platform directories.
-- Current artifact watch status:
-  `cd apps/stack-installer && bun run p1:proof:watch -- --watch-attempts 1 --watch-interval-ms 1`
-  fails as expected against the empty output root, printing the same missing
-  macOS and Windows directory status. The watch helper is a bounded polling
-  convenience for transfer windows, not a proof substitute.
-- Current detached proof-watch state:
-  `node initiatives/stack-installer/ops/start-proof-watch-window.mjs
-  --output-root output/stack-installer/p1-live --watch-attempts 2880
-  --watch-interval-ms 5000 --replace-existing --preserve-log` starts or
-  extends a detached coordinator-side `p1:proof:watch` process with private
-  `0600` `proof-watch.log`, `proof-watch.pid`, and
-  `proof-watch-command.txt` files. The watcher starter now stops the existing
-  detached process group on replacement so a stale Bun child does not continue
-  writing to the same private log. After stopping stale watcher children and
-  restarting with preserved private log evidence, the current detached watcher
-  is alive as PID `1188608`, with one expected Bun child, polling the proof
-  inbox for roughly four more hours, but has not found any returned bundles or
-  platform artifact directories.
-- Latest coordinator wait:
-  `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 6 --watch-interval-ms 5000`
-  exhausted all attempts without finding returned bundles and ended with the
-  same missing `macos` and `windows` platform directories.
-- Latest upload-window wait:
-  after starting a temporary ignored tailnet upload endpoint at
-  `http://100.117.213.114:8765`, the coordinator ran
-  `bun run --filter @beep/stack-installer p1:proof:watch -- --watch-attempts 24 --watch-interval-ms 5000`.
-  The endpoint health check passed, invalid tokens returned `403`, and the
-  watch exhausted without returned bundles. The tokenized operator commands
+- macOS proof: complete and audited on the coordinator checkout
+- Windows proof: still missing
+- Windows disposition: temporarily waived for P1C start only
+- P1C review/fix loop: may start now
+- full P1 close: still blocked
+
+## Evidence Snapshot
+
+- `output/stack-installer/p1-live/macos/` exists and includes:
+  - `proof.json`
+  - `commands.txt`
+  - `sha256sums.txt`
+  - `screencast.mp4`
+- `output/stack-installer/p1-live/stack-installer-p1-macos.tgz` exists
+- `bun run p1:proof:audit -- --platform macos` passed after intake
+- returned Windows bundle and extracted Windows proof directory are still
+  missing
+- `history/outputs/p1-pr-readiness-review.md` now records the temporary
+  Windows missing-proof waiver and its follow-up trigger
+
+## Completion Interpretation
+
+What is complete:
+
+- P1A dry-run runnable spine
+- P1 live Manual Mode harness implementation
+- macOS fresh-machine Manual Mode proof
+- packet updates needed to let P1C start under an explicit waiver
+
+What is not complete:
+
+- Windows fresh-machine Manual Mode proof
+- full P1 closure
+- P1D app-first Manual Installer UX
+- P2 and later phases
+
+## Required Follow-Up
+
+1. Run P1C now under the recorded temporary Windows missing-proof waiver.
+2. Keep the waiver visible in the reviewer inventory instead of treating it as
+   hidden debt.
+3. Remove the waiver only after a real Windows proof bundle is produced,
+   returned, and audited.
+4. Start P1D only after the P1C loop is complete.
   live only in ignored `output/stack-installer/p1-live/proof-upload-commands.txt`
   and are not committed.
 - Current upload fallback state:

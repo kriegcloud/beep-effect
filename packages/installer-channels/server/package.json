@@ -62,9 +62,9 @@
   },
   "dependencies": {
     "@beep/discord": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/installer-channels-domain": "workspace:^",
     "@beep/installer-channels-use-cases": "workspace:^",
-    "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },

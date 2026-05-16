@@ -1,11 +1,19 @@
 # Handoff P1 - Discord Vertical, Manual Mode
 
-Status: ready for user-operated fresh-machine proof.
+Status: macOS proof complete; Windows proof still pending; full P1 not closed.
 
 ## Mission
 
 Implement and prove the Discord-only Manual Mode vertical for macOS and
 Windows. Do not implement AI Mode in this phase.
+
+## Current Gate Position
+
+- macOS proof has been completed and audited on the coordinator checkout.
+- Windows proof is still required for full P1 closure.
+- P1C may now start under the explicit temporary Windows missing-proof waiver
+  recorded in `../../history/outputs/p1-pr-readiness-review.md`.
+- Do not treat that waiver as Windows success.
 
 ## Required Startup
 

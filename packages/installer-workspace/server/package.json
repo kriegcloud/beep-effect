@@ -61,9 +61,9 @@
     }
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
     "@beep/installer-workspace-domain": "workspace:^",
     "@beep/installer-workspace-use-cases": "workspace:^",
-    "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },

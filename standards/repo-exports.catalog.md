@@ -17,12 +17,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Metric | Count |
 |---|---:|
 | packages | 80 |
-| packagesWithPublicExports | 64 |
+| packagesWithPublicExports | 79 |
 | packagesWithoutPublicExports | 1 |
-| missingWorkspaceMetadata | 15 |
-| importSpecifiers | 865 |
-| publicExportEntries | 12885 |
-| uniquePackageSymbols | 5139 |
+| missingWorkspaceMetadata | 0 |
+| importSpecifiers | 910 |
+| publicExportEntries | 13042 |
+| uniquePackageSymbols | 5244 |
 
 ## Seed Discovery Proof
 
@@ -45,24 +45,24 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 6 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 133 | 3051 | 738 |
 | 7 | `@beep/shared-domain` | `packages/shared/domain` | has-public-exports | 41 | 291 | 111 |
 | 8 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 3 | 59 | 20 |
-| 9 | `@beep/installer-security-domain` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
-| 10 | `@beep/installer-channels-domain` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
-| 11 | `@beep/installer-providers-domain` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
-| 12 | `@beep/installer-dependencies-domain` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
+| 9 | `@beep/installer-security-domain` | `packages/installer-security/domain` | has-public-exports | 3 | 11 | 8 |
+| 10 | `@beep/installer-channels-domain` | `packages/installer-channels/domain` | has-public-exports | 3 | 11 | 8 |
+| 11 | `@beep/installer-providers-domain` | `packages/installer-providers/domain` | has-public-exports | 3 | 13 | 9 |
+| 12 | `@beep/installer-dependencies-domain` | `packages/installer-dependencies/domain` | has-public-exports | 3 | 11 | 8 |
 | 13 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
 | 14 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
 | 15 | `@beep/colors` | `packages/foundation/capability/colors` | has-public-exports | 4 | 34 | 8 |
 | 16 | `@beep/chalk` | `packages/foundation/capability/chalk` | has-public-exports | 4 | 140 | 24 |
 | 17 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 60 | 1584 | 474 |
 | 18 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
-| 19 | `@beep/installer-workspace-domain` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
-| 20 | `@beep/installer-security-use-cases` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
+| 19 | `@beep/installer-workspace-domain` | `packages/installer-workspace/domain` | has-public-exports | 3 | 21 | 17 |
+| 20 | `@beep/installer-security-use-cases` | `packages/installer-security/use-cases` | has-public-exports | 3 | 14 | 8 |
 | 21 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
 | 22 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
-| 23 | `@beep/installer-channels-use-cases` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
+| 23 | `@beep/installer-channels-use-cases` | `packages/installer-channels/use-cases` | has-public-exports | 3 | 12 | 7 |
 | 24 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | has-public-exports | 5 | 27 | 7 |
-| 25 | `@beep/installer-providers-use-cases` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
-| 26 | `@beep/installer-dependencies-use-cases` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
+| 25 | `@beep/installer-providers-use-cases` | `packages/installer-providers/use-cases` | has-public-exports | 3 | 10 | 6 |
+| 26 | `@beep/installer-dependencies-use-cases` | `packages/installer-dependencies/use-cases` | has-public-exports | 3 | 10 | 6 |
 | 27 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
 | 28 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
 | 29 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
@@ -75,12 +75,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 36 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 37 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
 | 38 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 5 | 140 | 42 |
-| 39 | `@beep/installer-workspace-use-cases` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
-| 40 | `@beep/installer-security-server` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
-| 41 | `@beep/installer-channels-server` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
-| 42 | `@beep/installer-providers-server` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
+| 39 | `@beep/installer-workspace-use-cases` | `packages/installer-workspace/use-cases` | has-public-exports | 3 | 14 | 8 |
+| 40 | `@beep/installer-security-server` | `packages/installer-security/server` | has-public-exports | 3 | 6 | 4 |
+| 41 | `@beep/installer-channels-server` | `packages/installer-channels/server` | has-public-exports | 3 | 6 | 4 |
+| 42 | `@beep/installer-providers-server` | `packages/installer-providers/server` | has-public-exports | 3 | 6 | 4 |
 | 43 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
-| 44 | `@beep/installer-dependencies-server` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
+| 44 | `@beep/installer-dependencies-server` | `packages/installer-dependencies/server` | has-public-exports | 3 | 6 | 4 |
 | 45 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
 | 46 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
 | 47 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
@@ -103,7 +103,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 64 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
 | 65 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
 | 66 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
-| 67 | `@beep/installer-workspace-server` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
+| 67 | `@beep/installer-workspace-server` | `packages/installer-workspace/server` | has-public-exports | 3 | 6 | 4 |
 | 68 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 3 | 3 |
 | 69 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
 | 70 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
@@ -4682,6 +4682,72 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils/SqlTest` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:278` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/SqlTest` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 
+### @beep/installer-security-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-security-domain` | `Aggregates` | SourceFile | `packages/installer-security/domain/src/aggregates/index.ts:9` |  |
+| `@beep/installer-security-domain` | `Entities` | SourceFile | `packages/installer-security/domain/src/entities/index.ts:9` |  |
+| `@beep/installer-security-domain` | `Identity` | SourceFile | `packages/installer-security/domain/src/identity/index.ts:9` |  |
+| `@beep/installer-security-domain` | `Values` | SourceFile | `packages/installer-security/domain/src/values/index.ts:9` |  |
+| `@beep/installer-security-domain` | `VERSION` | const | `packages/installer-security/domain/src/index.ts:15` | Package version for `@beep/installer-security-domain`. |
+| `@beep/installer-security-domain/aggregates` | `SecretReference` | SourceFile | `packages/installer-security/domain/src/aggregates/SecretReference/index.ts:7` |  |
+| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReference` | class | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:71` | Secret reference consumed by stack installer workflows. |
+| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReferencePurpose` | const | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:22` | Installer secret reference purpose. |
+| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReferencePurpose` | type | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:39` | Runtime type for {@link SecretReferencePurpose}. |
+| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReferenceStatus` | const | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:47` | Dry-run status for a secret reference. |
+| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReferenceStatus` | type | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:63` | Runtime type for {@link SecretReferenceStatus}. |
+
+### @beep/installer-channels-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-channels-domain` | `Aggregates` | SourceFile | `packages/installer-channels/domain/src/aggregates/index.ts:9` |  |
+| `@beep/installer-channels-domain` | `Entities` | SourceFile | `packages/installer-channels/domain/src/entities/index.ts:9` |  |
+| `@beep/installer-channels-domain` | `Identity` | SourceFile | `packages/installer-channels/domain/src/identity/index.ts:9` |  |
+| `@beep/installer-channels-domain` | `Values` | SourceFile | `packages/installer-channels/domain/src/values/index.ts:9` |  |
+| `@beep/installer-channels-domain` | `VERSION` | const | `packages/installer-channels/domain/src/index.ts:15` | Package version for `@beep/installer-channels-domain`. |
+| `@beep/installer-channels-domain/aggregates` | `DiscordChannel` | SourceFile | `packages/installer-channels/domain/src/aggregates/DiscordChannel/index.ts:7` |  |
+| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannel` | class | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:62` | Discord channel target for v1 installer notifications. |
+| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannelKind` | const | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:22` | Discord channel family supported in v1. |
+| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannelKind` | type | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:34` | Runtime type for {@link DiscordChannelKind}. |
+| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannelStatus` | const | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:42` | Discord channel dry-run status. |
+| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannelStatus` | type | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:54` | Runtime type for {@link DiscordChannelStatus}. |
+
+### @beep/installer-providers-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-providers-domain` | `Aggregates` | SourceFile | `packages/installer-providers/domain/src/aggregates/index.ts:9` |  |
+| `@beep/installer-providers-domain` | `Entities` | SourceFile | `packages/installer-providers/domain/src/entities/index.ts:9` |  |
+| `@beep/installer-providers-domain` | `Identity` | SourceFile | `packages/installer-providers/domain/src/identity/index.ts:9` |  |
+| `@beep/installer-providers-domain` | `Values` | SourceFile | `packages/installer-providers/domain/src/values/index.ts:9` |  |
+| `@beep/installer-providers-domain` | `VERSION` | const | `packages/installer-providers/domain/src/index.ts:15` | Package version for `@beep/installer-providers-domain`. |
+| `@beep/installer-providers-domain/aggregates` | `ProviderAccount` | SourceFile | `packages/installer-providers/domain/src/aggregates/ProviderAccount/index.ts:7` |  |
+| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAccount` | class | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:82` | Provider account requested by the installer. |
+| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAccountStatus` | const | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:62` | Dry-run status for a provider account. |
+| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAccountStatus` | type | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:74` | Runtime type for {@link ProviderAccountStatus}. |
+| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAuthMode` | const | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:42` | Authentication shape for a provider account. |
+| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAuthMode` | type | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:54` | Runtime type for {@link ProviderAuthMode}. |
+| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderKind` | const | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:22` | Provider supported by the v1 installer dry-run. |
+| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderKind` | type | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:34` | Runtime type for {@link ProviderKind}. |
+
+### @beep/installer-dependencies-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-dependencies-domain` | `Aggregates` | SourceFile | `packages/installer-dependencies/domain/src/aggregates/index.ts:9` |  |
+| `@beep/installer-dependencies-domain` | `Entities` | SourceFile | `packages/installer-dependencies/domain/src/entities/index.ts:9` |  |
+| `@beep/installer-dependencies-domain` | `Identity` | SourceFile | `packages/installer-dependencies/domain/src/identity/index.ts:9` |  |
+| `@beep/installer-dependencies-domain` | `Values` | SourceFile | `packages/installer-dependencies/domain/src/values/index.ts:9` |  |
+| `@beep/installer-dependencies-domain` | `VERSION` | const | `packages/installer-dependencies/domain/src/index.ts:15` | Package version for `@beep/installer-dependencies-domain`. |
+| `@beep/installer-dependencies-domain/aggregates` | `HostDependency` | SourceFile | `packages/installer-dependencies/domain/src/aggregates/HostDependency/index.ts:7` |  |
+| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependency` | class | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:61` | Host dependency required by the AI stack installer. |
+| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependencyKind` | const | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:21` | Host dependency family recognized by the dry-run installer. |
+| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependencyKind` | type | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:33` | Runtime type for {@link HostDependencyKind}. |
+| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependencyStatus` | const | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:41` | Validation status for a host dependency. |
+| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependencyStatus` | type | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:53` | Runtime type for {@link HostDependencyStatus}. |
+
 ### @beep/drizzle
 
 | Import | Symbol | Kind | Source | Summary |
@@ -6536,6 +6602,51 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/duckdb` | `DuckDbRows` | type | `packages/drivers/duckdb/src/DuckDb.models.ts:149` | Type for {@link DuckDbRows}. |
 | `@beep/duckdb` | `DuckDbShape` | interface | `packages/drivers/duckdb/src/DuckDb.service.ts:100` | Runtime shape exposed by the {@link DuckDb} service. |
 
+### @beep/installer-workspace-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-workspace-domain` | `Aggregates` | SourceFile | `packages/installer-workspace/domain/src/aggregates/index.ts:9` |  |
+| `@beep/installer-workspace-domain` | `Entities` | SourceFile | `packages/installer-workspace/domain/src/entities/index.ts:9` |  |
+| `@beep/installer-workspace-domain` | `Identity` | SourceFile | `packages/installer-workspace/domain/src/identity/index.ts:9` |  |
+| `@beep/installer-workspace-domain` | `Values` | SourceFile | `packages/installer-workspace/domain/src/values/index.ts:9` |  |
+| `@beep/installer-workspace-domain` | `VERSION` | const | `packages/installer-workspace/domain/src/index.ts:15` | Package version for `@beep/installer-workspace-domain`. |
+| `@beep/installer-workspace-domain/aggregates` | `StackManifest` | SourceFile | `packages/installer-workspace/domain/src/aggregates/StackManifest/index.ts:7` |  |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `AIStackManifest` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:162` | AI stack manifest assembled by the workspace slice. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ManifestCapability` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:144` | Manifest capability entry. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ManifestDiscordChannel` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:126` | Manifest Discord channel target. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ManifestProvider` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:108` | Manifest provider entry. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `P1aDryRunSnapshot` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:205` | Deterministic P1A snapshot containing a manifest and validation feed. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `P1LiveProofSnapshot` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:223` | P1 live proof snapshot containing only sanitized validation evidence. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `StackInstallerPlatform` | const | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:22` | Host platforms tracked by v1 installer manifests. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `StackInstallerPlatform` | type | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:34` | Runtime type for {@link StackInstallerPlatform}. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `StackInstallerProvider` | const | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:42` | Provider names tracked by the stack manifest. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `StackInstallerProvider` | type | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:54` | Runtime type for {@link StackInstallerProvider}. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationEvent` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:185` | Validation event emitted while proving an installer manifest. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationStatus` | const | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:88` | Validation status for installer evidence events. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationStatus` | type | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:100` | Runtime type for {@link ValidationStatus}. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationTier` | const | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:62` | Validation tier for installer evidence events. |
+| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationTier` | type | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:80` | Runtime type for {@link ValidationTier}. |
+
+### @beep/installer-security-use-cases
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-security-use-cases` | `P1A_SECRET_REFERENCE_VERB_INPUTS` | const | `packages/installer-security/use-cases/src/public.ts:126` | Static P1A verb contracts owned by the security slice. |
+| `@beep/installer-security-use-cases` | `SecretReferencePlan` | class | `packages/installer-security/use-cases/src/public.ts:47` | Dry-run secret-reference preview plan. |
+| `@beep/installer-security-use-cases` | `SecretReferenceReadError` | class | `packages/installer-security/use-cases/src/public.ts:109` | Typed failure for an approved live secret read. |
+| `@beep/installer-security-use-cases` | `SecretReferenceValidationRequest` | class | `packages/installer-security/use-cases/src/public.ts:65` | Live 1Password reference validation request. |
+| `@beep/installer-security-use-cases` | `SecretReferenceValidationResult` | class | `packages/installer-security/use-cases/src/public.ts:86` | Live 1Password reference validation result. |
+| `@beep/installer-security-use-cases` | `SecretReferenceVerb` | class | `packages/installer-security/use-cases/src/public.ts:27` | Dry-run verb owned by the installer-security slice. |
+| `@beep/installer-security-use-cases` | `VERSION` | const | `packages/installer-security/use-cases/src/index.ts:15` | Package version for `@beep/installer-security-use-cases`. |
+| `@beep/installer-security-use-cases/public` | `P1A_SECRET_REFERENCE_VERB_INPUTS` | const | `packages/installer-security/use-cases/src/public.ts:126` | Static P1A verb contracts owned by the security slice. |
+| `@beep/installer-security-use-cases/public` | `SecretReferencePlan` | class | `packages/installer-security/use-cases/src/public.ts:47` | Dry-run secret-reference preview plan. |
+| `@beep/installer-security-use-cases/public` | `SecretReferenceReadError` | class | `packages/installer-security/use-cases/src/public.ts:109` | Typed failure for an approved live secret read. |
+| `@beep/installer-security-use-cases/public` | `SecretReferenceValidationRequest` | class | `packages/installer-security/use-cases/src/public.ts:65` | Live 1Password reference validation request. |
+| `@beep/installer-security-use-cases/public` | `SecretReferenceValidationResult` | class | `packages/installer-security/use-cases/src/public.ts:86` | Live 1Password reference validation result. |
+| `@beep/installer-security-use-cases/public` | `SecretReferenceVerb` | class | `packages/installer-security/use-cases/src/public.ts:27` | Dry-run verb owned by the installer-security slice. |
+| `@beep/installer-security-use-cases/server` | `InstallerSecurityUseCases` | class | `packages/installer-security/use-cases/src/server.ts:44` | Security use-case service key. |
+
 ### @beep/onepassword-cli
 
 | Import | Symbol | Kind | Source | Summary |
@@ -6600,6 +6711,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/discord/index` | `DiscordErrorReason` | type | `packages/drivers/discord/src/Discord.errors.ts:37` | Runtime type for {@link DiscordErrorReason}. |
 | `@beep/discord/index` | `DiscordMessageProof` | class | `packages/drivers/discord/src/Discord.models.ts:83` | Redacted Discord message proof metadata. |
 
+### @beep/installer-channels-use-cases
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-channels-use-cases` | `DiscordChannelPlan` | class | `packages/installer-channels/use-cases/src/public.ts:41` | Dry-run Discord channel preview plan. |
+| `@beep/installer-channels-use-cases` | `DiscordChannelVerb` | class | `packages/installer-channels/use-cases/src/public.ts:21` | Dry-run verb owned by the installer-channels slice. |
+| `@beep/installer-channels-use-cases` | `DiscordLiveValidationRequest` | class | `packages/installer-channels/use-cases/src/public.ts:59` | Live Discord validation request. |
+| `@beep/installer-channels-use-cases` | `DiscordLiveValidationResult` | class | `packages/installer-channels/use-cases/src/public.ts:78` | Live Discord validation result. |
+| `@beep/installer-channels-use-cases` | `P1A_DISCORD_CHANNEL_VERB_INPUTS` | const | `packages/installer-channels/use-cases/src/public.ts:97` | Static P1A verb contracts owned by the channel slice. |
+| `@beep/installer-channels-use-cases` | `VERSION` | const | `packages/installer-channels/use-cases/src/index.ts:15` | Package version for `@beep/installer-channels-use-cases`. |
+| `@beep/installer-channels-use-cases/public` | `DiscordChannelPlan` | class | `packages/installer-channels/use-cases/src/public.ts:41` | Dry-run Discord channel preview plan. |
+| `@beep/installer-channels-use-cases/public` | `DiscordChannelVerb` | class | `packages/installer-channels/use-cases/src/public.ts:21` | Dry-run verb owned by the installer-channels slice. |
+| `@beep/installer-channels-use-cases/public` | `DiscordLiveValidationRequest` | class | `packages/installer-channels/use-cases/src/public.ts:59` | Live Discord validation request. |
+| `@beep/installer-channels-use-cases/public` | `DiscordLiveValidationResult` | class | `packages/installer-channels/use-cases/src/public.ts:78` | Live Discord validation result. |
+| `@beep/installer-channels-use-cases/public` | `P1A_DISCORD_CHANNEL_VERB_INPUTS` | const | `packages/installer-channels/use-cases/src/public.ts:97` | Static P1A verb contracts owned by the channel slice. |
+| `@beep/installer-channels-use-cases/server` | `InstallerChannelsUseCases` | class | `packages/installer-channels/use-cases/src/server.ts:36` | Channel use-case service key. |
+
 ### @beep/ai-provider-cli
 
 | Import | Symbol | Kind | Source | Summary |
@@ -6631,6 +6759,36 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-provider-cli/index` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
 | `@beep/ai-provider-cli/index` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:36` | Product-neutral process runner used by provider CLI probes. |
+
+### @beep/installer-providers-use-cases
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-providers-use-cases` | `P1A_PROVIDER_ACCOUNT_VERB_INPUTS` | const | `packages/installer-providers/use-cases/src/public.ts:86` | Static P1A verb contracts owned by the provider slice. |
+| `@beep/installer-providers-use-cases` | `ProviderAccountPlan` | class | `packages/installer-providers/use-cases/src/public.ts:46` | Dry-run provider preview plan. |
+| `@beep/installer-providers-use-cases` | `ProviderAccountVerb` | class | `packages/installer-providers/use-cases/src/public.ts:26` | Dry-run verb owned by the installer-providers slice. |
+| `@beep/installer-providers-use-cases` | `ProviderAuthValidationResult` | class | `packages/installer-providers/use-cases/src/public.ts:64` | Live provider authentication validation result. |
+| `@beep/installer-providers-use-cases` | `VERSION` | const | `packages/installer-providers/use-cases/src/index.ts:15` | Package version for `@beep/installer-providers-use-cases`. |
+| `@beep/installer-providers-use-cases/public` | `P1A_PROVIDER_ACCOUNT_VERB_INPUTS` | const | `packages/installer-providers/use-cases/src/public.ts:86` | Static P1A verb contracts owned by the provider slice. |
+| `@beep/installer-providers-use-cases/public` | `ProviderAccountPlan` | class | `packages/installer-providers/use-cases/src/public.ts:46` | Dry-run provider preview plan. |
+| `@beep/installer-providers-use-cases/public` | `ProviderAccountVerb` | class | `packages/installer-providers/use-cases/src/public.ts:26` | Dry-run verb owned by the installer-providers slice. |
+| `@beep/installer-providers-use-cases/public` | `ProviderAuthValidationResult` | class | `packages/installer-providers/use-cases/src/public.ts:64` | Live provider authentication validation result. |
+| `@beep/installer-providers-use-cases/server` | `InstallerProvidersUseCases` | class | `packages/installer-providers/use-cases/src/server.ts:34` | Provider use-case service key. |
+
+### @beep/installer-dependencies-use-cases
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-dependencies-use-cases` | `HostDependencyPlan` | class | `packages/installer-dependencies/use-cases/src/public.ts:41` | Dry-run dependency preview plan. |
+| `@beep/installer-dependencies-use-cases` | `HostDependencyValidationResult` | class | `packages/installer-dependencies/use-cases/src/public.ts:59` | Live host dependency validation result. |
+| `@beep/installer-dependencies-use-cases` | `HostDependencyVerb` | class | `packages/installer-dependencies/use-cases/src/public.ts:21` | Dry-run verb owned by the installer-dependencies slice. |
+| `@beep/installer-dependencies-use-cases` | `P1A_HOST_DEPENDENCY_VERB_INPUTS` | const | `packages/installer-dependencies/use-cases/src/public.ts:78` | Static P1A verb contracts owned by the dependency slice. |
+| `@beep/installer-dependencies-use-cases` | `VERSION` | const | `packages/installer-dependencies/use-cases/src/index.ts:15` | Package version for `@beep/installer-dependencies-use-cases`. |
+| `@beep/installer-dependencies-use-cases/public` | `HostDependencyPlan` | class | `packages/installer-dependencies/use-cases/src/public.ts:41` | Dry-run dependency preview plan. |
+| `@beep/installer-dependencies-use-cases/public` | `HostDependencyValidationResult` | class | `packages/installer-dependencies/use-cases/src/public.ts:59` | Live host dependency validation result. |
+| `@beep/installer-dependencies-use-cases/public` | `HostDependencyVerb` | class | `packages/installer-dependencies/use-cases/src/public.ts:21` | Dry-run verb owned by the installer-dependencies slice. |
+| `@beep/installer-dependencies-use-cases/public` | `P1A_HOST_DEPENDENCY_VERB_INPUTS` | const | `packages/installer-dependencies/use-cases/src/public.ts:78` | Static P1A verb contracts owned by the dependency slice. |
+| `@beep/installer-dependencies-use-cases/server` | `InstallerDependenciesUseCases` | class | `packages/installer-dependencies/use-cases/src/server.ts:34` | Dependency use-case service key. |
 
 ### @beep/architecture-lab-config
 
@@ -8402,6 +8560,58 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUsage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:801` | Token usage returned by OpenAI-compatible chat completion endpoints. |
 | `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
 
+### @beep/installer-workspace-use-cases
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-workspace-use-cases` | `P1A_DRY_RUN_SNAPSHOT_INPUT` | const | `packages/installer-workspace/use-cases/src/public.ts:125` | Deterministic P1A manifest snapshot input. |
+| `@beep/installer-workspace-use-cases` | `P1A_WORKSPACE_VERB_INPUTS` | const | `packages/installer-workspace/use-cases/src/public.ts:102` | Static P1A verb contracts owned by the workspace slice. |
+| `@beep/installer-workspace-use-cases` | `P1ManualProofRequest` | class | `packages/installer-workspace/use-cases/src/public.ts:64` | App-local P1 Manual Mode proof request. |
+| `@beep/installer-workspace-use-cases` | `P1ManualProofResult` | class | `packages/installer-workspace/use-cases/src/public.ts:86` | P1 Manual Mode proof result. |
+| `@beep/installer-workspace-use-cases` | `VERSION` | const | `packages/installer-workspace/use-cases/src/index.ts:15` | Package version for `@beep/installer-workspace-use-cases`. |
+| `@beep/installer-workspace-use-cases` | `WorkspaceDryRunPlan` | class | `packages/installer-workspace/use-cases/src/public.ts:46` | Workspace dry-run plan. |
+| `@beep/installer-workspace-use-cases` | `WorkspaceDryRunVerb` | class | `packages/installer-workspace/use-cases/src/public.ts:26` | Dry-run verb owned by the installer-workspace slice. |
+| `@beep/installer-workspace-use-cases/public` | `P1A_DRY_RUN_SNAPSHOT_INPUT` | const | `packages/installer-workspace/use-cases/src/public.ts:125` | Deterministic P1A manifest snapshot input. |
+| `@beep/installer-workspace-use-cases/public` | `P1A_WORKSPACE_VERB_INPUTS` | const | `packages/installer-workspace/use-cases/src/public.ts:102` | Static P1A verb contracts owned by the workspace slice. |
+| `@beep/installer-workspace-use-cases/public` | `P1ManualProofRequest` | class | `packages/installer-workspace/use-cases/src/public.ts:64` | App-local P1 Manual Mode proof request. |
+| `@beep/installer-workspace-use-cases/public` | `P1ManualProofResult` | class | `packages/installer-workspace/use-cases/src/public.ts:86` | P1 Manual Mode proof result. |
+| `@beep/installer-workspace-use-cases/public` | `WorkspaceDryRunPlan` | class | `packages/installer-workspace/use-cases/src/public.ts:46` | Workspace dry-run plan. |
+| `@beep/installer-workspace-use-cases/public` | `WorkspaceDryRunVerb` | class | `packages/installer-workspace/use-cases/src/public.ts:26` | Dry-run verb owned by the installer-workspace slice. |
+| `@beep/installer-workspace-use-cases/server` | `InstallerWorkspaceUseCases` | class | `packages/installer-workspace/use-cases/src/server.ts:33` | Workspace use-case service key. |
+
+### @beep/installer-security-server
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-security-server` | `InstallerSecurityServerLive` | const | `packages/installer-security/server/src/Layer.ts:115` | Deterministic security server layer for P1A. |
+| `@beep/installer-security-server` | `makeInstallerSecurityServer` | const | `packages/installer-security/server/src/Layer.ts:62` | Build the deterministic security dry-run service. |
+| `@beep/installer-security-server` | `VERSION` | const | `packages/installer-security/server/src/index.ts:15` | Package version for `@beep/installer-security-server`. |
+| `@beep/installer-security-server/layer` | `InstallerSecurityServerLive` | const | `packages/installer-security/server/src/Layer.ts:115` | Deterministic security server layer for P1A. |
+| `@beep/installer-security-server/layer` | `makeInstallerSecurityServer` | const | `packages/installer-security/server/src/Layer.ts:62` | Build the deterministic security dry-run service. |
+| `@beep/installer-security-server/test` | `InstallerSecurityServerTest` | const | `packages/installer-security/server/src/test.ts:17` | Deterministic test layer for the installer-security slice. |
+
+### @beep/installer-channels-server
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-channels-server` | `InstallerChannelsServerLive` | const | `packages/installer-channels/server/src/Layer.ts:102` | Deterministic channel server layer for P1A. |
+| `@beep/installer-channels-server` | `makeInstallerChannelsServer` | const | `packages/installer-channels/server/src/Layer.ts:46` | Build the deterministic channel dry-run service. |
+| `@beep/installer-channels-server` | `VERSION` | const | `packages/installer-channels/server/src/index.ts:15` | Package version for `@beep/installer-channels-server`. |
+| `@beep/installer-channels-server/layer` | `InstallerChannelsServerLive` | const | `packages/installer-channels/server/src/Layer.ts:102` | Deterministic channel server layer for P1A. |
+| `@beep/installer-channels-server/layer` | `makeInstallerChannelsServer` | const | `packages/installer-channels/server/src/Layer.ts:46` | Build the deterministic channel dry-run service. |
+| `@beep/installer-channels-server/test` | `InstallerChannelsServerTest` | const | `packages/installer-channels/server/src/test.ts:17` | Deterministic test layer for the installer-channels slice. |
+
+### @beep/installer-providers-server
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-providers-server` | `InstallerProvidersServerLive` | const | `packages/installer-providers/server/src/Layer.ts:97` | Deterministic provider server layer for P1A. |
+| `@beep/installer-providers-server` | `makeInstallerProvidersServer` | const | `packages/installer-providers/server/src/Layer.ts:53` | Build the deterministic provider dry-run service. |
+| `@beep/installer-providers-server` | `VERSION` | const | `packages/installer-providers/server/src/index.ts:15` | Package version for `@beep/installer-providers-server`. |
+| `@beep/installer-providers-server/layer` | `InstallerProvidersServerLive` | const | `packages/installer-providers/server/src/Layer.ts:97` | Deterministic provider server layer for P1A. |
+| `@beep/installer-providers-server/layer` | `makeInstallerProvidersServer` | const | `packages/installer-providers/server/src/Layer.ts:53` | Build the deterministic provider dry-run service. |
+| `@beep/installer-providers-server/test` | `InstallerProvidersServerTest` | const | `packages/installer-providers/server/src/test.ts:17` | Deterministic test layer for the installer-providers slice. |
+
 ### @beep/ui
 
 | Import | Symbol | Kind | Source | Summary |
@@ -8931,6 +9141,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/themes/types` | `ThemeOptions` | type | `packages/foundation/ui-system/ui/src/themes/types.ts:9` | Theme option shape derived from MUI. |
 | `@beep/ui/themes/typography` | `typography` | const | `packages/foundation/ui-system/ui/src/themes/typography.ts:89` | Typography scale for the shared theme. |
 | `@beep/ui/themes/typography` | `typographyTheme` | const | `packages/foundation/ui-system/ui/src/themes/typography.ts:113` | Typography component overrides for the shared theme. |
+
+### @beep/installer-dependencies-server
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-dependencies-server` | `InstallerDependenciesServerLive` | const | `packages/installer-dependencies/server/src/Layer.ts:162` | Deterministic dependency server layer for P1A. |
+| `@beep/installer-dependencies-server` | `makeInstallerDependenciesServer` | const | `packages/installer-dependencies/server/src/Layer.ts:145` | Build the deterministic dependency dry-run service. |
+| `@beep/installer-dependencies-server` | `VERSION` | const | `packages/installer-dependencies/server/src/index.ts:15` | Package version for `@beep/installer-dependencies-server`. |
+| `@beep/installer-dependencies-server/layer` | `InstallerDependenciesServerLive` | const | `packages/installer-dependencies/server/src/Layer.ts:162` | Deterministic dependency server layer for P1A. |
+| `@beep/installer-dependencies-server/layer` | `makeInstallerDependenciesServer` | const | `packages/installer-dependencies/server/src/Layer.ts:145` | Build the deterministic dependency dry-run service. |
+| `@beep/installer-dependencies-server/test` | `InstallerDependenciesServerTest` | const | `packages/installer-dependencies/server/src/test.ts:17` | Deterministic test layer for the installer-dependencies slice. |
 
 ### @beep/law-practice-domain
 
@@ -11653,6 +11874,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/venice-ai/VeniceAiLanguageModel` | `make` | const | `packages/drivers/venice-ai/src/VeniceAiLanguageModel.ts:172` | Builds a Venice Effect AI language-model service. |
 | `@beep/venice-ai/VeniceAiLanguageModel` | `model` | const | `packages/drivers/venice-ai/src/VeniceAiLanguageModel.ts:221` | Builds an Effect AI model value for Venice. |
 | `@beep/venice-ai/VeniceAiLanguageModel` | `VeniceAiLanguageModelOptions` | class | `packages/drivers/venice-ai/src/VeniceAiLanguageModel.ts:50` | Options accepted by the Venice Effect AI language-model adapter. |
+
+### @beep/installer-workspace-server
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-workspace-server` | `InstallerWorkspaceServerLive` | const | `packages/installer-workspace/server/src/Layer.ts:46` | Deterministic workspace server layer for P1A. |
+| `@beep/installer-workspace-server` | `makeInstallerWorkspaceServer` | const | `packages/installer-workspace/server/src/Layer.ts:32` | Build the deterministic workspace dry-run service. |
+| `@beep/installer-workspace-server` | `VERSION` | const | `packages/installer-workspace/server/src/index.ts:15` | Package version for `@beep/installer-workspace-server`. |
+| `@beep/installer-workspace-server/layer` | `InstallerWorkspaceServerLive` | const | `packages/installer-workspace/server/src/Layer.ts:46` | Deterministic workspace server layer for P1A. |
+| `@beep/installer-workspace-server/layer` | `makeInstallerWorkspaceServer` | const | `packages/installer-workspace/server/src/Layer.ts:32` | Build the deterministic workspace dry-run service. |
+| `@beep/installer-workspace-server/test` | `InstallerWorkspaceServerTest` | const | `packages/installer-workspace/server/src/test.ts:17` | Deterministic test layer for the installer-workspace slice. |
 
 ### @beep/stack-installer
 

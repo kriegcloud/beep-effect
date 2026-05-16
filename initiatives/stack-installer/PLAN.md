@@ -2,9 +2,10 @@
 
 This plan executes [SPEC.md](./SPEC.md). P0 is complete. P1 is the active
 target: Discord vertical, Manual Mode. P1A is complete as a runnable dry-run
-checkpoint. The P1 live harness is implemented; full P1 still requires
-fresh-OS macOS and Windows proof artifacts plus the post-proof PR readiness
-review/fix loop.
+checkpoint. The P1 live harness is implemented. macOS proof is complete and
+audited. Windows proof is still missing, but is temporarily waived only so the
+P1C review/fix loop can start. Full P1 still requires a real Windows proof
+artifact plus the post-proof PR readiness review/fix loop.
 
 ## P0: Initiative Bootstrap
 
@@ -44,7 +45,8 @@ Stop Conditions:
 ## P1: Discord Vertical, Manual Mode
 
 Status: in progress; P1A dry-run runnable spine complete, P1 live harness
-implemented, fresh-OS live Discord proof and PR readiness review pending
+implemented, macOS proof complete, Windows proof temporarily waived for P1C
+start only, full P1 closure still pending
 
 Goal: Prove the smallest end-to-end v1 path without AI Mode: provider auth,
 1Password, Discord bot/channel setup, manifest creation, validation, and a
@@ -142,7 +144,8 @@ Stop Conditions:
 
 ### P1C: PR Readiness Review And Fix Loop
 
-Status: pending; run after fresh-machine proof artifacts exist
+Status: pending; may start after audited macOS proof plus either audited
+Windows proof or an explicit temporary Windows missing-proof waiver
 
 Goal: review the whole implemented P1 initiative surface and directly affected
 code paths before the PR is called ready. The review uses
@@ -152,8 +155,9 @@ flow.
 
 Exit Criteria:
 
-- [ ] Fresh macOS and Windows proof artifacts have been produced and audited
-  for secret safety before the review starts.
+- [ ] Audited macOS proof artifact exists before the review starts.
+- [ ] Audited Windows proof artifact exists, or an explicit temporary Windows
+  missing-proof waiver is recorded for P1C start.
 - [ ] Baseline quality commands are green on the current branch.
 - [ ] Reviewer panel covers quality gates, architecture boundaries, schema and
   domain models, Effect laws, error boundaries, tests, observability,
@@ -181,8 +185,9 @@ Required Checks:
 
 Stop Conditions:
 
-- Do not start P1C before the macOS and Windows fresh-machine proof artifacts
-  exist.
+- Do not start P1C before the audited macOS proof artifact exists.
+- Do not treat a Windows missing-proof waiver as Windows success or as full P1
+  closure evidence.
 - Do not route vague reuse findings into generic `common`, `core`, `utils`, or
   `lib` packages.
 - Do not call the PR ready while baseline quality is red or required blockers
@@ -230,6 +235,57 @@ Stop Conditions:
 - Do not credit P1 without the post-proof PR readiness review/fix loop.
 - Do not include AI Mode evidence as a substitute for Manual Mode.
 - Do not accept any verb that handles plaintext credentials.
+
+## P1D: App-First Manual Installer UX
+
+Status: pending
+
+Goal: move the next meaningful milestone from proof-harness confidence to
+product confidence by making the Tauri app the primary operator surface and
+having it complete one real dependency install or repair action.
+
+Scope notes:
+
+- Stage this milestone on Linux first so the next proof loop can run locally.
+- Keep macOS and Windows as the long-term parity target; Linux-first staging
+  does not change the v1 parity doctrine.
+- The first real action is Bun install or repair owned by
+  `installer-dependencies`, not app-local glue code.
+
+Exit Criteria:
+
+- [ ] `apps/stack-installer` opens as the primary surface for this milestone.
+- [ ] The app detects Bun missing or unhealthy and presents a typed install or
+  repair action.
+- [ ] The action is approval-first and mutates the host only after explicit
+  user approval.
+- [ ] `installer-dependencies` owns the live Bun install/repair contract and
+  server implementation.
+- [ ] After the action runs, the same validation spine reports Bun as present
+  or returns a typed failure with visible status.
+- [ ] Linux-first proof artifacts show the app-first Bun flow end to end.
+
+Required Outputs:
+
+- `history/outputs/p1d-app-first-manual-installer-ux.md`
+- `ops/handoffs/HANDOFF_P1D_APP_FIRST_MANUAL_INSTALLER_UX.md`
+
+Required Checks:
+
+- targeted package/app `check`, `test`, and `lint` for the touched installer
+  slices and app
+- `bun run config-sync:check`
+- `cd apps/stack-installer && bun run build`
+- `cd apps/stack-installer/src-tauri && cargo check`
+- Linux-first app-driven Bun install/repair proof capture and audit
+
+Stop Conditions:
+
+- Do not start P2 before P1D closes.
+- Do not hide the real dependency mutation in shell scripts owned outside the
+  installer slice boundary.
+- Do not add plaintext credential handling or broaden this milestone into AI
+  Mode, MCP runtime, recovery, portability, signing, or distribution.
 
 ## P2: AI Mode Parity
 
