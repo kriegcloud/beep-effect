@@ -3,13 +3,13 @@
   "initiative": {
     "id": "stack-installer",
     "title": "Stack Installer",
-    "status": "active-p1c-startable-full-p1-blocked-on-windows-proof",
+    "status": "active-p1d-with-open-p1-windows-proof-debt",
     "created": "2026-05-14",
     "updated": "2026-05-16",
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P1",
+  "currentTargetPhase": "P1D",
   "reportDirectory": "research",
   "rawOutputDirectory": "history/outputs",
   "completionEvidence": {
@@ -40,9 +40,9 @@
       "summary": "Prompt-to-artifact completion audit records macOS proof complete, Windows proof temporarily waived for P1C start only, and full P1 still blocked on the real Windows artifact."
     },
     "p1dAppFirstManualInstallerUx": {
-      "status": "pending",
+      "status": "in_progress",
       "output": "history/outputs/p1d-app-first-manual-installer-ux.md",
-      "summary": "Next milestone after P1C: make the Tauri app the primary surface and complete one real Linux-first Bun install or repair action through installer-owned code."
+      "summary": "Active next milestone after P1C: make the Tauri app the primary surface and complete one real Linux-first Bun repair action for an existing Bun install through installer-owned code and installer-owned config."
     },
     "p1PauseHandoff": {
       "status": "recorded",
@@ -51,15 +51,14 @@
     },
     "v1": {
       "status": "in_progress",
-      "activeGate": "P1",
+      "activeGate": "P1D",
       "closedGates": [
         "P0 packet bootstrap",
         "P1A runnable dry-run spine",
         "P1 live proof harness implementation"
       ],
       "remainingGates": [
-        "P1 Discord vertical, Manual Mode fresh-OS macOS and Windows proof",
-        "P1 PR readiness quality-review-fix-loop",
+        "P1 Discord vertical, Manual Mode fresh-OS Windows proof",
         "P1D app-first Manual Installer UX",
         "P2 AI Mode parity",
         "P3 Recovery",
@@ -104,15 +103,15 @@
   },
   "v1Completion": {
     "status": "in_progress",
-    "activeGate": "P1",
+    "activeGate": "P1D",
     "closedGates": [
       "P0 packet bootstrap",
       "P1A runnable dry-run spine",
-      "P1 live proof harness implementation"
+      "P1 live proof harness implementation",
+      "P1 PR readiness quality-review-fix-loop"
     ],
     "remainingGates": [
-      "P1 Discord vertical, Manual Mode fresh-OS macOS and Windows proof",
-      "P1 PR readiness quality-review-fix-loop",
+      "P1 Discord vertical, Manual Mode fresh-OS Windows proof",
       "P1D app-first Manual Installer UX",
       "P2 AI Mode parity across Claude and Codex",
       "P3 salted recovery proof",
@@ -242,9 +241,9 @@
     {
       "id": "P1D",
       "name": "App-First Manual Installer UX",
-      "status": "pending",
+      "status": "in_progress",
       "output": "history/outputs/p1d-app-first-manual-installer-ux.md",
-      "exitCriteriaSummary": "The Tauri app becomes the primary operator surface and completes one real Linux-first Bun install or repair action through installer-owned code."
+      "exitCriteriaSummary": "The Tauri app becomes the primary operator surface and completes one real Linux-first Bun repair action for an existing Bun install through installer-owned code and installer-owned config."
     },
     {
       "id": "P2",
@@ -332,7 +331,7 @@
         "history/outputs/p1d-app-first-manual-installer-ux.md",
         "ops/handoffs/HANDOFF_P1D_APP_FIRST_MANUAL_INSTALLER_UX.md",
         "future evidence: app-open screencast",
-        "future evidence: Bun missing-to-installed proof",
+        "future evidence: Bun repair proof for existing install",
         "future evidence: approval-first action log",
         "future evidence: before/after validation output"
       ]
@@ -499,5 +498,5 @@
     "P1 live drivers live under packages/drivers and are consumed by slice server packages",
     "P1 live proof remains app-local runtime composition, not a tooling God Layer"
   ],
-  "nextAction": "Resume from history/outputs/p1-pause-handoff-2026-05-14.md. Start a fresh proof upload window and detached watcher, then run full P1 live Manual Mode proof on fresh macOS and Windows using ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md: 1Password validation, provider auth validation, Discord liveness, sanitized proof JSON, screencasts, and test messages. Recreate the local Windows VM only if using the local VM route; otherwise use another real Windows environment. Configure Taildrop on the coordinator with sudo tailscale set --operator=$USER, use the documented tokenized temporary tailnet upload fallback, or use another approved private transfer channel. Place the returned bundles under output/stack-installer/p1-live, and run p1:proof:intake followed by p1:proof:audit-all. After proof artifacts are audited, run the P1 PR readiness quality-review-fix-loop before declaring the branch PR ready."
+  "nextAction": "Keep P1 explicitly open on the missing Windows proof while making P1D the active execution lane. Resume the dedicated P1D branch/worktree from this packet truth, record the successful Linux-first repair-only Bun proof with installer-owned config and visible app-state evidence, then close and publish P1D. After P1D closes, run the real Windows proof intake/audit before starting P2."
 }
