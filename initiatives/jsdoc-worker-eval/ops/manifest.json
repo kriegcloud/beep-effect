@@ -35,7 +35,7 @@
       "fallbackFlag": "--allow-24gb-fallback",
       "cleanupDefault": "stop-and-delete",
       "otlpOptional": true,
-      "defaultOtlpBaseUrl": "https://dankserver.tailc7c348.ts.net:8447",
+      "defaultOtlpBaseUrl": "http://localhost:6006",
       "defaultOtlpProject": "beep-jsdoc-worker-eval",
       "runpodApiKeyEnv": "RUNPOD_API_KEY",
       "runpodApiKeySecretRef": "op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY",

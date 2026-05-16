@@ -47,12 +47,13 @@ const $I = $RepoCliId.create("commands/Docgen/internal/QualityWorkerRunpodEval")
 const QUALITY_WORKER_RUNPOD_EVAL_SCHEMA_VERSION = 1 as const;
 const DEFAULT_RUNPOD_WORKER_PACKET_LIMIT = 10;
 const REQUIRED_RUNPOD_WORKER_MODEL = "qwen3-coder:30b";
-const DEFAULT_RUNPOD_OTLP_BASE_URL = "https://dankserver.tailc7c348.ts.net:8447";
+const DEFAULT_RUNPOD_OTLP_BASE_URL = "http://localhost:6006";
 const DEFAULT_RUNPOD_OTLP_PROJECT = "beep-jsdoc-worker-eval";
 const DEFAULT_RUNPOD_READINESS_TIMEOUT = Duration.minutes(30);
 const OLLAMA_PORT = 11434;
 const OLLAMA_PORT_MAPPING = "11434/http";
 const RUNPOD_PYTORCH_IMAGE = "runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04";
+const OLLAMA_INSTALL_SCRIPT_SHA256 = "25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f";
 const JSON_FORMAT_MAX_LENGTH = 500_000;
 
 class OllamaTagsModel extends S.Class<OllamaTagsModel>($I`OllamaTagsModel`)(
@@ -343,7 +344,9 @@ const ollamaBootstrapCommand = (model: string): ReadonlyArray<string> => {
       "wait_for_dns ollama.com",
       'retry_command "apt-get update" apt-get update',
       "apt-get install -y curl ca-certificates zstd",
-      "curl --retry 60 --retry-all-errors --retry-delay 5 --connect-timeout 10 -fsSL https://ollama.com/install.sh | sh",
+      "curl --retry 60 --retry-all-errors --retry-delay 5 --connect-timeout 10 -fsSL https://ollama.com/install.sh -o /tmp/ollama-install.sh",
+      `echo '${OLLAMA_INSTALL_SCRIPT_SHA256}  /tmp/ollama-install.sh' | sha256sum -c -`,
+      "sh /tmp/ollama-install.sh",
       `OLLAMA_HOST=0.0.0.0:${OLLAMA_PORT} ollama serve >/tmp/ollama.log 2>&1 &`,
       `until curl -fsS http://127.0.0.1:${OLLAMA_PORT}/api/tags >/dev/null; do sleep 2; done`,
       `retry_command "ollama api pull" curl --retry 60 --retry-all-errors --retry-delay 5 --connect-timeout 10 --max-time 7200 -fsS -H 'Content-Type: application/json' -d ${pullPayload} http://127.0.0.1:${OLLAMA_PORT}/api/pull >/tmp/ollama-pull.log`,
