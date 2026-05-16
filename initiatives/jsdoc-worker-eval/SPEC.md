@@ -2,7 +2,7 @@
 
 ## Status
 
-P0-P5 complete; hosted Codex baseline completed
+P0-P6 implementation complete; Runpod smoke proof complete
 
 ## Owner
 
@@ -11,7 +11,7 @@ P0-P5 complete; hosted Codex baseline completed
 ## Created / Updated
 
 - **Created:** 2026-05-12
-- **Updated:** 2026-05-12
+- **Updated:** 2026-05-16
 
 ## Purpose
 
@@ -34,6 +34,7 @@ This initiative consumes the existing report-only quality contract:
 
 - Ownership stays in `@beep/repo-cli` under the `beep docgen` command group.
 - The command surface is `beep docgen quality-worker-eval`.
+- The remote GPU command surface is `beep docgen quality-worker-eval-runpod`.
 - The eval lane is read-only and writes only explicit JSON report outputs.
 - `--provider` is required and supports `codex`, `ollama`, and `lmstudio`.
 - `--model` is required so hosted spend and local hardware load are caller-owned.
@@ -48,6 +49,21 @@ This initiative consumes the existing report-only quality contract:
 - Worker output is advisory evidence only.
 - Eval reports stamp the resolved `@openai/codex-sdk` package version when it
   can be found.
+- `quality-worker-eval` accepts `--base-url` for explicit OpenAI-compatible
+  Codex SDK routing.
+- `quality-worker-eval-runpod` requires `--provider ollama`, `--model
+  qwen3-coder:30b`, and `--confirm-runpod-eval`.
+- Runpod pods are stopped and deleted by default; `--keep-pod` is debug-only.
+- Runpod v1 prefers 48 GiB GPUs; 24 GiB fallback requires
+  `--allow-24gb-fallback`.
+- Runpod fallback-image bootstrap installs `zstd` before the Ollama installer,
+  because current Ollama Linux archives require it.
+- Runpod fallback-image bootstrap uses Ollama's HTTP `/api/pull` endpoint after
+  service startup so model readiness is observable through `/api/tags`.
+- Ollama Codex SDK routing requires an OpenAI-compatible `/v1` base URL for
+  both the SDK `baseUrl` option and `CODEX_OSS_BASE_URL`.
+- Phoenix/AI metrics export is opt-in with `--otlp` and may fail without
+  failing the eval report.
 
 ## Public Surface
 
@@ -59,8 +75,11 @@ This initiative consumes the existing report-only quality contract:
 - `beep docgen quality-worker-eval --provider ollama`
 - `beep docgen quality-worker-eval --provider lmstudio`
 - `beep docgen quality-worker-eval --model <model-id>`
+- `beep docgen quality-worker-eval --base-url <openai-compatible-url>`
 - `beep docgen quality-worker-eval --reasoning-effort low`
 - `beep docgen quality-worker-eval --packet-limit <count>`
+- `beep docgen quality-worker-eval-runpod --all --provider ollama --model qwen3-coder:30b --confirm-runpod-eval`
+- `beep docgen quality-worker-eval-runpod --otlp --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 --otlp-project beep-jsdoc-worker-eval`
 
 Default output is JSON on stdout. `--output` writes the same JSON report to an
 explicit path. There is no package-local default write path.
@@ -102,6 +121,29 @@ Each packet result includes:
 - `error`
 
 `reviewDisposition` is one of `candidate`, `needs-human-review`, or `reject`.
+
+## Runpod Output Contract
+
+The Runpod wrapper report includes the nested worker eval report plus sanitized
+orchestration metadata:
+
+- `runId`
+- `provider`
+- `model`
+- `scope`
+- `sourceQualityReport`
+- `template`
+- `pod`
+- `bootstrap`
+- `cleanup`
+- `otlp`
+- `runtime`
+- `workerEval`
+- `recommendation`
+
+The wrapper report intentionally does not include prompts, draft source text
+outside the nested worker eval contract, API keys, 1Password references, raw
+source paths in OTLP spans, or unbounded Runpod logs.
 
 ## First Provider-Backed Outcome
 
@@ -150,6 +192,44 @@ three packet turns in about 27.3 seconds:
 This proves hosted Codex worker orchestration is viable for more evaluation. It
 does not grant write-mode remediation.
 
+## Runpod Qwen Smoke Proof
+
+The first successful live Runpod proof used a saved repo-wide quality packet
+source and selected one packet:
+
+```sh
+RUNPOD_API_KEY="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_RUNPOD_API_KEY')" \
+  bun run beep docgen quality-worker-eval-runpod \
+    --input <saved-source-quality-report.json> \
+    --provider ollama \
+    --model qwen3-coder:30b \
+    --packet-limit 1 \
+    --otlp \
+    --otlp-base-url https://dankserver.tailc7c348.ts.net:8447 \
+    --otlp-project beep-jsdoc-worker-eval \
+    --confirm-runpod-eval \
+    --skip-template-search \
+    --readiness-timeout-ms 2700000 \
+    --output initiatives/jsdoc-worker-eval/history/outputs/2026-05-16-runpod-ollama-qwen3-coder-30b-worker-eval-smoke-v2.json
+```
+
+Outcome:
+
+- 1 selected packet
+- 1 completed packet
+- 1 candidate draft
+- 0 failed packets
+- 0 timed-out packets
+- 0 reported policy violations
+- cleanup stop/delete completed
+- Phoenix OTLP exported 2 spans
+- total runtime was about 16.6 minutes, dominated by the cold 18.6 GB Ollama
+  model pull
+
+This proves the remote GPU route can run end-to-end and clean itself up. It does
+not prove the larger 10-packet cost/quality profile and does not graduate
+write-mode remediation.
+
 ## Non-Goals
 
 - Do not edit repo-tracked source files.
@@ -169,3 +249,9 @@ does not grant write-mode remediation.
   decision.
 - Hosted Codex evidence records provider, model, reasoning effort, packet
   outcomes, and policy violations.
+- Runpod command tests prove pod body construction, template selection, and
+  confirmation gating without requiring a live Runpod token.
+- Live Runpod graduation evidence must record wrapper JSON, cleanup status,
+  runtime, packet outcomes, and Phoenix export status when `--otlp` is used.
+- Smoke-proof evidence must not be treated as graduation evidence for
+  auto-remediation.

@@ -16,13 +16,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Metric | Count |
 |---|---:|
-| packages | 80 |
-| packagesWithPublicExports | 79 |
+| packages | 61 |
+| packagesWithPublicExports | 60 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 910 |
-| publicExportEntries | 13057 |
-| uniquePackageSymbols | 5254 |
+| importSpecifiers | 847 |
+| publicExportEntries | 12758 |
+| uniquePackageSymbols | 5112 |
 
 ## Seed Discovery Proof
 
@@ -38,85 +38,66 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Order | Package | Path | Status | Import Specifiers | Export Entries | Unique Symbols |
 |---:|---|---|---|---:|---:|---:|
 | 1 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
-| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 324 | 108 |
+| 2 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 267 | 89 |
 | 3 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 21 | 736 | 556 |
 | 4 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
 | 5 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
 | 6 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 133 | 3051 | 738 |
-| 7 | `@beep/shared-domain` | `packages/shared/domain` | has-public-exports | 41 | 291 | 111 |
-| 8 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 3 | 59 | 20 |
-| 9 | `@beep/installer-security-domain` | `packages/installer-security/domain` | has-public-exports | 3 | 11 | 8 |
-| 10 | `@beep/installer-channels-domain` | `packages/installer-channels/domain` | has-public-exports | 3 | 11 | 8 |
-| 11 | `@beep/installer-providers-domain` | `packages/installer-providers/domain` | has-public-exports | 3 | 13 | 9 |
-| 12 | `@beep/installer-dependencies-domain` | `packages/installer-dependencies/domain` | has-public-exports | 3 | 11 | 8 |
-| 13 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
-| 14 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
-| 15 | `@beep/colors` | `packages/foundation/capability/colors` | has-public-exports | 4 | 34 | 8 |
-| 16 | `@beep/chalk` | `packages/foundation/capability/chalk` | has-public-exports | 4 | 140 | 24 |
-| 17 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 60 | 1584 | 474 |
-| 18 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
-| 19 | `@beep/installer-workspace-domain` | `packages/installer-workspace/domain` | has-public-exports | 3 | 21 | 17 |
-| 20 | `@beep/installer-security-use-cases` | `packages/installer-security/use-cases` | has-public-exports | 3 | 14 | 8 |
-| 21 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
-| 22 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
-| 23 | `@beep/installer-channels-use-cases` | `packages/installer-channels/use-cases` | has-public-exports | 3 | 12 | 7 |
-| 24 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | has-public-exports | 5 | 27 | 7 |
-| 25 | `@beep/installer-providers-use-cases` | `packages/installer-providers/use-cases` | has-public-exports | 3 | 10 | 6 |
-| 26 | `@beep/installer-dependencies-use-cases` | `packages/installer-dependencies/use-cases` | has-public-exports | 3 | 10 | 6 |
-| 27 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
-| 28 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
-| 29 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
-| 30 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 8 | 86 | 31 |
-| 31 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
-| 32 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
-| 33 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
-| 34 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 17 | 549 | 167 |
-| 35 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
-| 36 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
-| 37 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
-| 38 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 5 | 140 | 42 |
-| 39 | `@beep/installer-workspace-use-cases` | `packages/installer-workspace/use-cases` | has-public-exports | 3 | 14 | 8 |
-| 40 | `@beep/installer-security-server` | `packages/installer-security/server` | has-public-exports | 3 | 6 | 4 |
-| 41 | `@beep/installer-channels-server` | `packages/installer-channels/server` | has-public-exports | 3 | 6 | 4 |
-| 42 | `@beep/installer-providers-server` | `packages/installer-providers/server` | has-public-exports | 3 | 6 | 4 |
-| 43 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
-| 44 | `@beep/installer-dependencies-server` | `packages/installer-dependencies/server` | has-public-exports | 3 | 6 | 4 |
-| 45 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
-| 46 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
-| 47 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
-| 48 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
-| 49 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
-| 50 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
-| 51 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
-| 52 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 50 | 16 |
-| 53 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
-| 54 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
-| 55 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
-| 56 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
-| 57 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 58 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 79 | 826 | 494 |
-| 59 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
-| 60 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
-| 61 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
-| 62 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
-| 63 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
-| 64 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
-| 65 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
-| 66 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
-| 67 | `@beep/installer-workspace-server` | `packages/installer-workspace/server` | has-public-exports | 3 | 6 | 4 |
-| 68 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
-| 69 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
-| 70 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
-| 71 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
-| 72 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
-| 73 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 6 | 363 | 149 |
-| 74 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
-| 75 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 8 | 161 | 44 |
-| 76 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
-| 77 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 78 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
-| 79 | `@beep/opip-web` | `apps/opip-web` | has-public-exports | 10 | 39 | 35 |
-| 80 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
+| 7 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 3 | 59 | 20 |
+| 8 | `@beep/shared-domain` | `packages/shared/domain` | has-public-exports | 38 | 280 | 109 |
+| 9 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
+| 10 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
+| 11 | `@beep/colors` | `packages/foundation/capability/colors` | has-public-exports | 4 | 34 | 8 |
+| 12 | `@beep/chalk` | `packages/foundation/capability/chalk` | has-public-exports | 4 | 140 | 24 |
+| 13 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 60 | 1584 | 474 |
+| 14 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
+| 15 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
+| 16 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
+| 17 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
+| 18 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 8 | 86 | 31 |
+| 19 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
+| 20 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
+| 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
+| 22 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 17 | 549 | 167 |
+| 23 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 6 | 363 | 149 |
+| 24 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
+| 25 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
+| 26 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
+| 27 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 5 | 140 | 42 |
+| 28 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
+| 29 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
+| 30 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
+| 31 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
+| 32 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
+| 33 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
+| 34 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
+| 35 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
+| 36 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 50 | 16 |
+| 37 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 38 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
+| 39 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
+| 40 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
+| 41 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
+| 42 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 80 | 837 | 505 |
+| 43 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
+| 44 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
+| 45 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
+| 46 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
+| 47 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
+| 48 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
+| 49 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
+| 50 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
+| 51 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
+| 52 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
+| 53 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
+| 54 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
+| 55 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
+| 56 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 8 | 161 | 44 |
+| 57 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
+| 58 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
+| 59 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
+| 60 | `@beep/opip-web` | `apps/opip-web` | has-public-exports | 10 | 39 | 35 |
+| 61 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
 
@@ -143,93 +124,74 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:902` | Identity composer for `@beep/acp`. |
-| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:590` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:606` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1287` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1035` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:984` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:950` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1069` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1001` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1018` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1052` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:967` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:730` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:747` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:764` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:498` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:675` |  |
-| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:483` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:162` | Identity composer for the `@beep/data` package. |
-| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1271` | Identity composer for `@beep/discord`. |
-| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:687` |  |
-| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:693` |  |
-| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:575` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:699` |  |
-| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:705` |  |
-| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1319` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:883` | Identity composer for `@beep/acp`. |
+| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:571` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:587` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:931` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:711` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:728` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:479` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:656` |  |
+| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:464` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:143` | Identity composer for the `@beep/data` package. |
+| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` |  |
+| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:674` |  |
+| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:556` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:680` |  |
+| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:686` |  |
+| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1099` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:783` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:800` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:817` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:834` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:177` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:528` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity` | `$InstallerChannelsDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1177` | Identity composer for `@beep/installer-channels-domain`. |
-| `@beep/identity` | `$InstallerChannelsServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1195` | Identity composer for `@beep/installer-channels-server`. |
-| `@beep/identity` | `$InstallerChannelsUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1186` | Identity composer for `@beep/installer-channels-use-cases`. |
-| `@beep/identity` | `$InstallerDependenciesDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1096` | Identity composer for `@beep/installer-dependencies-domain`. |
-| `@beep/identity` | `$InstallerDependenciesServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1114` | Identity composer for `@beep/installer-dependencies-server`. |
-| `@beep/identity` | `$InstallerDependenciesUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1105` | Identity composer for `@beep/installer-dependencies-use-cases`. |
-| `@beep/identity` | `$InstallerProvidersDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1150` | Identity composer for `@beep/installer-providers-domain`. |
-| `@beep/identity` | `$InstallerProvidersServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1168` | Identity composer for `@beep/installer-providers-server`. |
-| `@beep/identity` | `$InstallerProvidersUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1159` | Identity composer for `@beep/installer-providers-use-cases`. |
-| `@beep/identity` | `$InstallerSecurityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1123` | Identity composer for `@beep/installer-security-domain`. |
-| `@beep/identity` | `$InstallerSecurityServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1141` | Identity composer for `@beep/installer-security-server`. |
-| `@beep/identity` | `$InstallerSecurityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1132` | Identity composer for `@beep/installer-security-use-cases`. |
-| `@beep/identity` | `$InstallerWorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1204` | Identity composer for `@beep/installer-workspace-domain`. |
-| `@beep/identity` | `$InstallerWorkspaceServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1222` | Identity composer for `@beep/installer-workspace-server`. |
-| `@beep/identity` | `$InstallerWorkspaceUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1213` | Identity composer for `@beep/installer-workspace-use-cases`. |
-| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:622` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:669` |  |
-| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:192` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:453` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:468` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1255` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:918` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:874` |  |
-| `@beep/identity` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:681` |  |
-| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:711` |  |
-| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:654` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:271` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:286` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:301` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:513` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:316` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1239` | Identity composer for `@beep/runpod`. |
-| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:868` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1303` | Identity composer for `@beep/sanity`. |
-| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:207` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:851` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:438` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:378` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:423` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:348` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:393` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:363` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:408` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:543` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1088` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:331` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:222` | Identity composer for the `@beep/types` package. |
-| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:254` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:237` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:880` |  |
-| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:638` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:560` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:934` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:886` |  |
+| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:764` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:158` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:509` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:603` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:650` |  |
+| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:173` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:434` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:449` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:899` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:855` |  |
+| `@beep/identity` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:662` |  |
+| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:692` |  |
+| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:635` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:252` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:267` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:282` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:494` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:297` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/runpod`. |
+| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/sanity`. |
+| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:188` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:419` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:359` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:404` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:329` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:374` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:344` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:389` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:524` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:312` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:203` | Identity composer for the `@beep/types` package. |
+| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:235` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:218` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:861` |  |
+| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:619` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:541` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:915` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` |  |
 | `@beep/identity` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:481` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:454` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:525` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -244,7 +206,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1215` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:349` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:331` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:663` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:644` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:418` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:203` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:366` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
@@ -271,93 +233,74 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/Id` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:580` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/Id` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:291` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/Id` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:184` | Current version of the `@beep/identity` package. |
-| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:902` | Identity composer for `@beep/acp`. |
-| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:590` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:606` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1287` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1035` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:984` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:950` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1069` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1001` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1018` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1052` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:967` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:730` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:747` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:764` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:498` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:675` |  |
-| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:483` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:162` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1271` | Identity composer for `@beep/discord`. |
-| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:687` |  |
-| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:693` |  |
-| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:575` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:699` |  |
-| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:705` |  |
-| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1319` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:883` | Identity composer for `@beep/acp`. |
+| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:571` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:587` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:931` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:711` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:728` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:479` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:656` |  |
+| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:464` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:143` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` |  |
+| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:674` |  |
+| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:556` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:680` |  |
+| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:686` |  |
+| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1099` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/index` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:783` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:800` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:817` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:834` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:177` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:528` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/index` | `$InstallerChannelsDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1177` | Identity composer for `@beep/installer-channels-domain`. |
-| `@beep/identity/index` | `$InstallerChannelsServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1195` | Identity composer for `@beep/installer-channels-server`. |
-| `@beep/identity/index` | `$InstallerChannelsUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1186` | Identity composer for `@beep/installer-channels-use-cases`. |
-| `@beep/identity/index` | `$InstallerDependenciesDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1096` | Identity composer for `@beep/installer-dependencies-domain`. |
-| `@beep/identity/index` | `$InstallerDependenciesServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1114` | Identity composer for `@beep/installer-dependencies-server`. |
-| `@beep/identity/index` | `$InstallerDependenciesUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1105` | Identity composer for `@beep/installer-dependencies-use-cases`. |
-| `@beep/identity/index` | `$InstallerProvidersDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1150` | Identity composer for `@beep/installer-providers-domain`. |
-| `@beep/identity/index` | `$InstallerProvidersServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1168` | Identity composer for `@beep/installer-providers-server`. |
-| `@beep/identity/index` | `$InstallerProvidersUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1159` | Identity composer for `@beep/installer-providers-use-cases`. |
-| `@beep/identity/index` | `$InstallerSecurityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1123` | Identity composer for `@beep/installer-security-domain`. |
-| `@beep/identity/index` | `$InstallerSecurityServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1141` | Identity composer for `@beep/installer-security-server`. |
-| `@beep/identity/index` | `$InstallerSecurityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1132` | Identity composer for `@beep/installer-security-use-cases`. |
-| `@beep/identity/index` | `$InstallerWorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1204` | Identity composer for `@beep/installer-workspace-domain`. |
-| `@beep/identity/index` | `$InstallerWorkspaceServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1222` | Identity composer for `@beep/installer-workspace-server`. |
-| `@beep/identity/index` | `$InstallerWorkspaceUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1213` | Identity composer for `@beep/installer-workspace-use-cases`. |
-| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:622` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:669` |  |
-| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:192` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:453` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:468` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1255` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:918` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/index` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:874` |  |
-| `@beep/identity/index` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:681` |  |
-| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:711` |  |
-| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:654` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:271` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:286` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:301` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:513` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:316` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1239` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:868` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1303` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:207` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:851` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:438` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:378` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:423` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:348` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:393` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:363` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:408` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:543` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1088` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:331` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:222` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:254` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:237` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:880` |  |
-| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:638` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:560` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:934` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:886` |  |
+| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:764` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:158` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:509` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:603` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:650` |  |
+| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:173` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:434` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:449` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:899` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/index` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:855` |  |
+| `@beep/identity/index` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:662` |  |
+| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:692` |  |
+| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:635` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:252` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:267` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:282` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:494` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:297` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:188` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:419` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:359` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:404` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:329` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:374` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:344` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:389` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:524` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:312` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:203` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:235` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:218` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:861` |  |
+| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:619` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:541` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:915` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` |  |
 | `@beep/identity/index` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:481` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity/index` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:454` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity/index` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:525` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -372,101 +315,82 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/index` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1215` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity/index` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:349` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity/index` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:331` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:663` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:644` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity/index` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:418` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity/index` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:203` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity/index` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:366` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
 | `@beep/identity/index` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:580` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/index` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:291` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/index` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:184` | Current version of the `@beep/identity` package. |
-| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:902` | Identity composer for `@beep/acp`. |
-| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:590` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:606` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1287` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1035` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:984` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:950` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1069` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1001` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1018` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1052` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:967` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:730` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:747` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:764` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:498` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:675` |  |
-| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:483` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:162` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1271` | Identity composer for `@beep/discord`. |
-| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:687` |  |
-| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:693` |  |
-| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:575` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:699` |  |
-| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:705` |  |
-| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1319` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:883` | Identity composer for `@beep/acp`. |
+| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:571` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:587` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1016` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:965` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:931` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1050` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:982` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:999` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1033` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:948` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:711` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:728` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:745` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:479` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:656` |  |
+| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:464` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:143` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` |  |
+| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:674` |  |
+| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:556` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:680` |  |
+| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:686` |  |
+| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1099` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/packages` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:783` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:800` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:817` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:834` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:177` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:528` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/packages` | `$InstallerChannelsDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1177` | Identity composer for `@beep/installer-channels-domain`. |
-| `@beep/identity/packages` | `$InstallerChannelsServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1195` | Identity composer for `@beep/installer-channels-server`. |
-| `@beep/identity/packages` | `$InstallerChannelsUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1186` | Identity composer for `@beep/installer-channels-use-cases`. |
-| `@beep/identity/packages` | `$InstallerDependenciesDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1096` | Identity composer for `@beep/installer-dependencies-domain`. |
-| `@beep/identity/packages` | `$InstallerDependenciesServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1114` | Identity composer for `@beep/installer-dependencies-server`. |
-| `@beep/identity/packages` | `$InstallerDependenciesUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1105` | Identity composer for `@beep/installer-dependencies-use-cases`. |
-| `@beep/identity/packages` | `$InstallerProvidersDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1150` | Identity composer for `@beep/installer-providers-domain`. |
-| `@beep/identity/packages` | `$InstallerProvidersServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1168` | Identity composer for `@beep/installer-providers-server`. |
-| `@beep/identity/packages` | `$InstallerProvidersUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1159` | Identity composer for `@beep/installer-providers-use-cases`. |
-| `@beep/identity/packages` | `$InstallerSecurityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1123` | Identity composer for `@beep/installer-security-domain`. |
-| `@beep/identity/packages` | `$InstallerSecurityServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1141` | Identity composer for `@beep/installer-security-server`. |
-| `@beep/identity/packages` | `$InstallerSecurityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1132` | Identity composer for `@beep/installer-security-use-cases`. |
-| `@beep/identity/packages` | `$InstallerWorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1204` | Identity composer for `@beep/installer-workspace-domain`. |
-| `@beep/identity/packages` | `$InstallerWorkspaceServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1222` | Identity composer for `@beep/installer-workspace-server`. |
-| `@beep/identity/packages` | `$InstallerWorkspaceUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1213` | Identity composer for `@beep/installer-workspace-use-cases`. |
-| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:622` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:669` |  |
-| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:192` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:453` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:468` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1255` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:918` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/packages` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:874` |  |
-| `@beep/identity/packages` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:681` |  |
-| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:711` |  |
-| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:654` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:271` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:286` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:301` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:513` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:316` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1239` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:868` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1303` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:207` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:851` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:438` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:378` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:423` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:348` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:393` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:363` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:408` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:543` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1088` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:331` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:222` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:254` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:237` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:880` |  |
-| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:638` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:560` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:934` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:886` |  |
-| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:663` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:764` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:781` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:158` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:509` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:603` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:650` |  |
+| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:173` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:434` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:449` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:899` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/packages` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:855` |  |
+| `@beep/identity/packages` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:662` |  |
+| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:692` |  |
+| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:635` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:252` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:267` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:282` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:494` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:297` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:849` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1083` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:188` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:832` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:419` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:359` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:404` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:329` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:374` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:344` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:389` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:524` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:312` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:203` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:235` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:218` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:861` |  |
+| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:619` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:541` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:915` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` |  |
+| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:644` | RepoPkgs - export object containing all package IdentityComposer's |
 
 ### @beep/utils
 
@@ -4334,6 +4258,70 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Yaml` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:78` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
 | `@beep/schema/Yaml` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:101` | Schema transformation that decodes YAML text into an unknown parsed value. |
 
+### @beep/test-utils
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1126` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:712` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:507` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:207` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:242` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:250` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:258` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:439` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:28` | Package version marker for test utilities. |
+| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1126` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:712` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:507` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:207` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:242` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:250` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:258` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:439` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/index` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:28` | Package version marker for test utilities. |
+| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1126` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:712` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:507` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:207` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:242` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:250` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:258` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:439` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils/SqlTest` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils/SqlTest` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils/SqlTest` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/SqlTest` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
+
 ### @beep/shared-domain
 
 | Import | Symbol | Kind | Source | Summary |
@@ -4536,9 +4524,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain/index` | `Values` | SourceFile | `packages/shared/domain/src/values/index.ts:21` |  |
 | `@beep/shared-domain/index` | `VERSION` | const | `packages/shared/domain/src/index.ts:21` | Shared domain package version. |
 | `@beep/shared-domain/values` | `LocalDate` | SourceFile | `packages/shared/domain/src/values/LocalDate/index.ts:21` |  |
-| `@beep/shared-domain/values` | `OnePasswordReference` | SourceFile | `packages/shared/domain/src/values/OnePasswordReference/index.ts:9` |  |
 | `@beep/shared-domain/values/index` | `LocalDate` | SourceFile | `packages/shared/domain/src/values/LocalDate/index.ts:21` |  |
-| `@beep/shared-domain/values/index` | `OnePasswordReference` | SourceFile | `packages/shared/domain/src/values/OnePasswordReference/index.ts:9` |  |
 | `@beep/shared-domain/values/LocalDate` | `addDays` | const | `packages/shared/domain/src/values/LocalDate/LocalDate.behavior.ts:432` | Add whole days to a LocalDate. |
 | `@beep/shared-domain/values/LocalDate` | `addMonths` | const | `packages/shared/domain/src/values/LocalDate/LocalDate.behavior.ts:460` | Add whole months to a LocalDate. |
 | `@beep/shared-domain/values/LocalDate` | `addYears` | const | `packages/shared/domain/src/values/LocalDate/LocalDate.behavior.ts:488` | Add whole years to a LocalDate. |
@@ -4620,145 +4606,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain/values/LocalDate/LocalDate.behavior` | `today` | const | `packages/shared/domain/src/values/LocalDate/LocalDate.behavior.ts:256` | Get today's UTC LocalDate using the live clock. |
 | `@beep/shared-domain/values/LocalDate/LocalDate.behavior` | `todayEffect` | const | `packages/shared/domain/src/values/LocalDate/LocalDate.behavior.ts:279` | Get today's UTC LocalDate using Effect's `Clock` service. |
 | `@beep/shared-domain/values/LocalDate/LocalDate.model` | `Model` | class | `packages/shared/domain/src/values/LocalDate/LocalDate.model.ts:38` | Schema class representing a calendar date without time or timezone. |
-| `@beep/shared-domain/values/OnePasswordReference` | `isOnePasswordReference` | const | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts:58` | Schema-derived guard for 1Password references. |
-| `@beep/shared-domain/values/OnePasswordReference` | `OnePasswordReference` | const | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts:35` | Typed reference to a 1Password item field. |
-| `@beep/shared-domain/values/OnePasswordReference` | `OnePasswordReference` | type | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts:50` | Runtime type for {@link OnePasswordReference}. |
-| `@beep/shared-domain/values/OnePasswordReference/index` | `isOnePasswordReference` | const | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts:58` | Schema-derived guard for 1Password references. |
-| `@beep/shared-domain/values/OnePasswordReference/index` | `OnePasswordReference` | const | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts:35` | Typed reference to a 1Password item field. |
-| `@beep/shared-domain/values/OnePasswordReference/index` | `OnePasswordReference` | type | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts:50` | Runtime type for {@link OnePasswordReference}. |
-| `@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model` | `isOnePasswordReference` | const | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts:58` | Schema-derived guard for 1Password references. |
-| `@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model` | `OnePasswordReference` | const | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts:35` | Typed reference to a 1Password item field. |
-| `@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model` | `OnePasswordReference` | type | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts:50` | Runtime type for {@link OnePasswordReference}. |
-
-### @beep/test-utils
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1126` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:712` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:507` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:207` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:242` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:250` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:258` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:439` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:28` | Package version marker for test utilities. |
-| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1126` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:712` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:507` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:207` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:242` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:250` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:258` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:439` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils/index` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:28` | Package version marker for test utilities. |
-| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1126` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:712` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:507` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:207` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:242` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:250` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:258` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:439` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils/SqlTest` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils/SqlTest` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils/SqlTest` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils/SqlTest` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
-
-### @beep/installer-security-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-security-domain` | `Aggregates` | SourceFile | `packages/installer-security/domain/src/aggregates/index.ts:9` |  |
-| `@beep/installer-security-domain` | `Entities` | SourceFile | `packages/installer-security/domain/src/entities/index.ts:9` |  |
-| `@beep/installer-security-domain` | `Identity` | SourceFile | `packages/installer-security/domain/src/identity/index.ts:9` |  |
-| `@beep/installer-security-domain` | `Values` | SourceFile | `packages/installer-security/domain/src/values/index.ts:9` |  |
-| `@beep/installer-security-domain` | `VERSION` | const | `packages/installer-security/domain/src/index.ts:15` | Package version for `@beep/installer-security-domain`. |
-| `@beep/installer-security-domain/aggregates` | `SecretReference` | SourceFile | `packages/installer-security/domain/src/aggregates/SecretReference/index.ts:7` |  |
-| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReference` | class | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:71` | Secret reference consumed by stack installer workflows. |
-| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReferencePurpose` | const | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:22` | Installer secret reference purpose. |
-| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReferencePurpose` | type | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:39` | Runtime type for {@link SecretReferencePurpose}. |
-| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReferenceStatus` | const | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:47` | Dry-run status for a secret reference. |
-| `@beep/installer-security-domain/aggregates/SecretReference` | `SecretReferenceStatus` | type | `packages/installer-security/domain/src/aggregates/SecretReference/SecretReference.model.ts:63` | Runtime type for {@link SecretReferenceStatus}. |
-
-### @beep/installer-channels-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-channels-domain` | `Aggregates` | SourceFile | `packages/installer-channels/domain/src/aggregates/index.ts:9` |  |
-| `@beep/installer-channels-domain` | `Entities` | SourceFile | `packages/installer-channels/domain/src/entities/index.ts:9` |  |
-| `@beep/installer-channels-domain` | `Identity` | SourceFile | `packages/installer-channels/domain/src/identity/index.ts:9` |  |
-| `@beep/installer-channels-domain` | `Values` | SourceFile | `packages/installer-channels/domain/src/values/index.ts:9` |  |
-| `@beep/installer-channels-domain` | `VERSION` | const | `packages/installer-channels/domain/src/index.ts:15` | Package version for `@beep/installer-channels-domain`. |
-| `@beep/installer-channels-domain/aggregates` | `DiscordChannel` | SourceFile | `packages/installer-channels/domain/src/aggregates/DiscordChannel/index.ts:7` |  |
-| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannel` | class | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:62` | Discord channel target for v1 installer notifications. |
-| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannelKind` | const | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:22` | Discord channel family supported in v1. |
-| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannelKind` | type | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:34` | Runtime type for {@link DiscordChannelKind}. |
-| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannelStatus` | const | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:42` | Discord channel dry-run status. |
-| `@beep/installer-channels-domain/aggregates/DiscordChannel` | `DiscordChannelStatus` | type | `packages/installer-channels/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts:54` | Runtime type for {@link DiscordChannelStatus}. |
-
-### @beep/installer-providers-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-providers-domain` | `Aggregates` | SourceFile | `packages/installer-providers/domain/src/aggregates/index.ts:9` |  |
-| `@beep/installer-providers-domain` | `Entities` | SourceFile | `packages/installer-providers/domain/src/entities/index.ts:9` |  |
-| `@beep/installer-providers-domain` | `Identity` | SourceFile | `packages/installer-providers/domain/src/identity/index.ts:9` |  |
-| `@beep/installer-providers-domain` | `Values` | SourceFile | `packages/installer-providers/domain/src/values/index.ts:9` |  |
-| `@beep/installer-providers-domain` | `VERSION` | const | `packages/installer-providers/domain/src/index.ts:15` | Package version for `@beep/installer-providers-domain`. |
-| `@beep/installer-providers-domain/aggregates` | `ProviderAccount` | SourceFile | `packages/installer-providers/domain/src/aggregates/ProviderAccount/index.ts:7` |  |
-| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAccount` | class | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:82` | Provider account requested by the installer. |
-| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAccountStatus` | const | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:62` | Dry-run status for a provider account. |
-| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAccountStatus` | type | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:74` | Runtime type for {@link ProviderAccountStatus}. |
-| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAuthMode` | const | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:42` | Authentication shape for a provider account. |
-| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderAuthMode` | type | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:54` | Runtime type for {@link ProviderAuthMode}. |
-| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderKind` | const | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:22` | Provider supported by the v1 installer dry-run. |
-| `@beep/installer-providers-domain/aggregates/ProviderAccount` | `ProviderKind` | type | `packages/installer-providers/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts:34` | Runtime type for {@link ProviderKind}. |
-
-### @beep/installer-dependencies-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-dependencies-domain` | `Aggregates` | SourceFile | `packages/installer-dependencies/domain/src/aggregates/index.ts:9` |  |
-| `@beep/installer-dependencies-domain` | `Entities` | SourceFile | `packages/installer-dependencies/domain/src/entities/index.ts:9` |  |
-| `@beep/installer-dependencies-domain` | `Identity` | SourceFile | `packages/installer-dependencies/domain/src/identity/index.ts:9` |  |
-| `@beep/installer-dependencies-domain` | `Values` | SourceFile | `packages/installer-dependencies/domain/src/values/index.ts:9` |  |
-| `@beep/installer-dependencies-domain` | `VERSION` | const | `packages/installer-dependencies/domain/src/index.ts:15` | Package version for `@beep/installer-dependencies-domain`. |
-| `@beep/installer-dependencies-domain/aggregates` | `HostDependency` | SourceFile | `packages/installer-dependencies/domain/src/aggregates/HostDependency/index.ts:7` |  |
-| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependency` | class | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:61` | Host dependency required by the AI stack installer. |
-| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependencyKind` | const | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:21` | Host dependency family recognized by the dry-run installer. |
-| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependencyKind` | type | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:33` | Runtime type for {@link HostDependencyKind}. |
-| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependencyStatus` | const | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:41` | Validation status for a host dependency. |
-| `@beep/installer-dependencies-domain/aggregates/HostDependency` | `HostDependencyStatus` | type | `packages/installer-dependencies/domain/src/aggregates/HostDependency/HostDependency.model.ts:53` | Runtime type for {@link HostDependencyStatus}. |
 
 ### @beep/drizzle
 
@@ -6614,194 +6461,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/duckdb` | `DuckDbRows` | type | `packages/drivers/duckdb/src/DuckDb.models.ts:149` | Type for {@link DuckDbRows}. |
 | `@beep/duckdb` | `DuckDbShape` | interface | `packages/drivers/duckdb/src/DuckDb.service.ts:101` | Runtime shape exposed by the {@link DuckDb} service. |
 
-### @beep/installer-workspace-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-workspace-domain` | `Aggregates` | SourceFile | `packages/installer-workspace/domain/src/aggregates/index.ts:9` |  |
-| `@beep/installer-workspace-domain` | `Entities` | SourceFile | `packages/installer-workspace/domain/src/entities/index.ts:9` |  |
-| `@beep/installer-workspace-domain` | `Identity` | SourceFile | `packages/installer-workspace/domain/src/identity/index.ts:9` |  |
-| `@beep/installer-workspace-domain` | `Values` | SourceFile | `packages/installer-workspace/domain/src/values/index.ts:9` |  |
-| `@beep/installer-workspace-domain` | `VERSION` | const | `packages/installer-workspace/domain/src/index.ts:15` | Package version for `@beep/installer-workspace-domain`. |
-| `@beep/installer-workspace-domain/aggregates` | `StackManifest` | SourceFile | `packages/installer-workspace/domain/src/aggregates/StackManifest/index.ts:7` |  |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `AIStackManifest` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:162` | AI stack manifest assembled by the workspace slice. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ManifestCapability` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:144` | Manifest capability entry. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ManifestDiscordChannel` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:126` | Manifest Discord channel target. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ManifestProvider` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:108` | Manifest provider entry. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `P1aDryRunSnapshot` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:205` | Deterministic P1A snapshot containing a manifest and validation feed. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `P1LiveProofSnapshot` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:223` | P1 live proof snapshot containing only sanitized validation evidence. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `StackInstallerPlatform` | const | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:22` | Host platforms tracked by v1 installer manifests. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `StackInstallerPlatform` | type | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:34` | Runtime type for {@link StackInstallerPlatform}. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `StackInstallerProvider` | const | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:42` | Provider names tracked by the stack manifest. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `StackInstallerProvider` | type | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:54` | Runtime type for {@link StackInstallerProvider}. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationEvent` | class | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:185` | Validation event emitted while proving an installer manifest. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationStatus` | const | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:88` | Validation status for installer evidence events. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationStatus` | type | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:100` | Runtime type for {@link ValidationStatus}. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationTier` | const | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:62` | Validation tier for installer evidence events. |
-| `@beep/installer-workspace-domain/aggregates/StackManifest` | `ValidationTier` | type | `packages/installer-workspace/domain/src/aggregates/StackManifest/StackManifest.model.ts:80` | Runtime type for {@link ValidationTier}. |
-
-### @beep/installer-security-use-cases
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-security-use-cases` | `P1A_SECRET_REFERENCE_VERB_INPUTS` | const | `packages/installer-security/use-cases/src/public.ts:126` | Static P1A verb contracts owned by the security slice. |
-| `@beep/installer-security-use-cases` | `SecretReferencePlan` | class | `packages/installer-security/use-cases/src/public.ts:47` | Dry-run secret-reference preview plan. |
-| `@beep/installer-security-use-cases` | `SecretReferenceReadError` | class | `packages/installer-security/use-cases/src/public.ts:109` | Typed failure for an approved live secret read. |
-| `@beep/installer-security-use-cases` | `SecretReferenceValidationRequest` | class | `packages/installer-security/use-cases/src/public.ts:65` | Live 1Password reference validation request. |
-| `@beep/installer-security-use-cases` | `SecretReferenceValidationResult` | class | `packages/installer-security/use-cases/src/public.ts:86` | Live 1Password reference validation result. |
-| `@beep/installer-security-use-cases` | `SecretReferenceVerb` | class | `packages/installer-security/use-cases/src/public.ts:27` | Dry-run verb owned by the installer-security slice. |
-| `@beep/installer-security-use-cases` | `VERSION` | const | `packages/installer-security/use-cases/src/index.ts:15` | Package version for `@beep/installer-security-use-cases`. |
-| `@beep/installer-security-use-cases/public` | `P1A_SECRET_REFERENCE_VERB_INPUTS` | const | `packages/installer-security/use-cases/src/public.ts:126` | Static P1A verb contracts owned by the security slice. |
-| `@beep/installer-security-use-cases/public` | `SecretReferencePlan` | class | `packages/installer-security/use-cases/src/public.ts:47` | Dry-run secret-reference preview plan. |
-| `@beep/installer-security-use-cases/public` | `SecretReferenceReadError` | class | `packages/installer-security/use-cases/src/public.ts:109` | Typed failure for an approved live secret read. |
-| `@beep/installer-security-use-cases/public` | `SecretReferenceValidationRequest` | class | `packages/installer-security/use-cases/src/public.ts:65` | Live 1Password reference validation request. |
-| `@beep/installer-security-use-cases/public` | `SecretReferenceValidationResult` | class | `packages/installer-security/use-cases/src/public.ts:86` | Live 1Password reference validation result. |
-| `@beep/installer-security-use-cases/public` | `SecretReferenceVerb` | class | `packages/installer-security/use-cases/src/public.ts:27` | Dry-run verb owned by the installer-security slice. |
-| `@beep/installer-security-use-cases/server` | `InstallerSecurityUseCases` | class | `packages/installer-security/use-cases/src/server.ts:44` | Security use-case service key. |
-
-### @beep/onepassword-cli
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/onepassword-cli` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:143` | Effect service for native `op` execution. |
-| `@beep/onepassword-cli` | `OnePasswordCliAccount` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:57` | 1Password account/session probe result. |
-| `@beep/onepassword-cli` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:41` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
-| `@beep/onepassword-cli` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:22` | Options captured while normalizing unknown 1Password CLI failures. |
-| `@beep/onepassword-cli` | `OnePasswordCliProcessResult` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:40` | Process output captured by a 1Password CLI command. |
-| `@beep/onepassword-cli` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:37` | Product-neutral process runner used by the 1Password CLI driver. |
-| `@beep/onepassword-cli` | `OnePasswordReferenceProbe` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:73` | Secret-reference validation result that does not expose the secret. |
-| `@beep/onepassword-cli` | `OnePasswordReferenceProbeStatus` | const | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:20` | 1Password reference probe status. |
-| `@beep/onepassword-cli` | `OnePasswordReferenceProbeStatus` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:32` | Runtime type for {@link OnePasswordReferenceProbeStatus}. |
-| `@beep/onepassword-cli/index` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:143` | Effect service for native `op` execution. |
-| `@beep/onepassword-cli/index` | `OnePasswordCliAccount` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:57` | 1Password account/session probe result. |
-| `@beep/onepassword-cli/index` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:41` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
-| `@beep/onepassword-cli/index` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:22` | Options captured while normalizing unknown 1Password CLI failures. |
-| `@beep/onepassword-cli/index` | `OnePasswordCliProcessResult` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:40` | Process output captured by a 1Password CLI command. |
-| `@beep/onepassword-cli/index` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:37` | Product-neutral process runner used by the 1Password CLI driver. |
-| `@beep/onepassword-cli/index` | `OnePasswordReferenceProbe` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:73` | Secret-reference validation result that does not expose the secret. |
-| `@beep/onepassword-cli/index` | `OnePasswordReferenceProbeStatus` | const | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:20` | 1Password reference probe status. |
-| `@beep/onepassword-cli/index` | `OnePasswordReferenceProbeStatus` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:32` | Runtime type for {@link OnePasswordReferenceProbeStatus}. |
-| `@beep/onepassword-cli/OnePasswordCli.errors` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:41` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
-| `@beep/onepassword-cli/OnePasswordCli.errors` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:22` | Options captured while normalizing unknown 1Password CLI failures. |
-| `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordCliAccount` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:57` | 1Password account/session probe result. |
-| `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordCliProcessResult` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:40` | Process output captured by a 1Password CLI command. |
-| `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordReferenceProbe` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:73` | Secret-reference validation result that does not expose the secret. |
-| `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordReferenceProbeStatus` | const | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:20` | 1Password reference probe status. |
-| `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordReferenceProbeStatus` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:32` | Runtime type for {@link OnePasswordReferenceProbeStatus}. |
-| `@beep/onepassword-cli/OnePasswordCli.service` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:143` | Effect service for native `op` execution. |
-| `@beep/onepassword-cli/OnePasswordCli.service` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:37` | Product-neutral process runner used by the 1Password CLI driver. |
-
-### @beep/discord
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/discord` | `Discord` | class | `packages/drivers/discord/src/Discord.service.ts:196` | Effect service for Discord REST API calls. |
-| `@beep/discord` | `DiscordChannelProof` | class | `packages/drivers/discord/src/Discord.models.ts:65` | Redacted Discord channel proof metadata. |
-| `@beep/discord` | `DiscordChannelRequest` | class | `packages/drivers/discord/src/Discord.models.ts:34` | Discord channel lookup request. |
-| `@beep/discord` | `DiscordConfigInput` | class | `packages/drivers/discord/src/Discord.models.ts:19` | Discord driver configuration. |
-| `@beep/discord` | `DiscordCreateMessageRequest` | class | `packages/drivers/discord/src/Discord.models.ts:49` | Discord message creation request. |
-| `@beep/discord` | `DiscordError` | class | `packages/drivers/discord/src/Discord.errors.ts:45` | Technical failure raised by the Discord driver boundary. |
-| `@beep/discord` | `DiscordErrorReason` | const | `packages/drivers/discord/src/Discord.errors.ts:20` | Discord driver error reason vocabulary. |
-| `@beep/discord` | `DiscordErrorReason` | type | `packages/drivers/discord/src/Discord.errors.ts:37` | Runtime type for {@link DiscordErrorReason}. |
-| `@beep/discord` | `DiscordMessageProof` | class | `packages/drivers/discord/src/Discord.models.ts:83` | Redacted Discord message proof metadata. |
-| `@beep/discord/Discord.errors` | `DiscordError` | class | `packages/drivers/discord/src/Discord.errors.ts:45` | Technical failure raised by the Discord driver boundary. |
-| `@beep/discord/Discord.errors` | `DiscordErrorReason` | const | `packages/drivers/discord/src/Discord.errors.ts:20` | Discord driver error reason vocabulary. |
-| `@beep/discord/Discord.errors` | `DiscordErrorReason` | type | `packages/drivers/discord/src/Discord.errors.ts:37` | Runtime type for {@link DiscordErrorReason}. |
-| `@beep/discord/Discord.models` | `DiscordChannelProof` | class | `packages/drivers/discord/src/Discord.models.ts:65` | Redacted Discord channel proof metadata. |
-| `@beep/discord/Discord.models` | `DiscordChannelRequest` | class | `packages/drivers/discord/src/Discord.models.ts:34` | Discord channel lookup request. |
-| `@beep/discord/Discord.models` | `DiscordConfigInput` | class | `packages/drivers/discord/src/Discord.models.ts:19` | Discord driver configuration. |
-| `@beep/discord/Discord.models` | `DiscordCreateMessageRequest` | class | `packages/drivers/discord/src/Discord.models.ts:49` | Discord message creation request. |
-| `@beep/discord/Discord.models` | `DiscordMessageProof` | class | `packages/drivers/discord/src/Discord.models.ts:83` | Redacted Discord message proof metadata. |
-| `@beep/discord/Discord.service` | `Discord` | class | `packages/drivers/discord/src/Discord.service.ts:196` | Effect service for Discord REST API calls. |
-| `@beep/discord/index` | `Discord` | class | `packages/drivers/discord/src/Discord.service.ts:196` | Effect service for Discord REST API calls. |
-| `@beep/discord/index` | `DiscordChannelProof` | class | `packages/drivers/discord/src/Discord.models.ts:65` | Redacted Discord channel proof metadata. |
-| `@beep/discord/index` | `DiscordChannelRequest` | class | `packages/drivers/discord/src/Discord.models.ts:34` | Discord channel lookup request. |
-| `@beep/discord/index` | `DiscordConfigInput` | class | `packages/drivers/discord/src/Discord.models.ts:19` | Discord driver configuration. |
-| `@beep/discord/index` | `DiscordCreateMessageRequest` | class | `packages/drivers/discord/src/Discord.models.ts:49` | Discord message creation request. |
-| `@beep/discord/index` | `DiscordError` | class | `packages/drivers/discord/src/Discord.errors.ts:45` | Technical failure raised by the Discord driver boundary. |
-| `@beep/discord/index` | `DiscordErrorReason` | const | `packages/drivers/discord/src/Discord.errors.ts:20` | Discord driver error reason vocabulary. |
-| `@beep/discord/index` | `DiscordErrorReason` | type | `packages/drivers/discord/src/Discord.errors.ts:37` | Runtime type for {@link DiscordErrorReason}. |
-| `@beep/discord/index` | `DiscordMessageProof` | class | `packages/drivers/discord/src/Discord.models.ts:83` | Redacted Discord message proof metadata. |
-
-### @beep/installer-channels-use-cases
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-channels-use-cases` | `DiscordChannelPlan` | class | `packages/installer-channels/use-cases/src/public.ts:41` | Dry-run Discord channel preview plan. |
-| `@beep/installer-channels-use-cases` | `DiscordChannelVerb` | class | `packages/installer-channels/use-cases/src/public.ts:21` | Dry-run verb owned by the installer-channels slice. |
-| `@beep/installer-channels-use-cases` | `DiscordLiveValidationRequest` | class | `packages/installer-channels/use-cases/src/public.ts:59` | Live Discord validation request. |
-| `@beep/installer-channels-use-cases` | `DiscordLiveValidationResult` | class | `packages/installer-channels/use-cases/src/public.ts:78` | Live Discord validation result. |
-| `@beep/installer-channels-use-cases` | `P1A_DISCORD_CHANNEL_VERB_INPUTS` | const | `packages/installer-channels/use-cases/src/public.ts:97` | Static P1A verb contracts owned by the channel slice. |
-| `@beep/installer-channels-use-cases` | `VERSION` | const | `packages/installer-channels/use-cases/src/index.ts:15` | Package version for `@beep/installer-channels-use-cases`. |
-| `@beep/installer-channels-use-cases/public` | `DiscordChannelPlan` | class | `packages/installer-channels/use-cases/src/public.ts:41` | Dry-run Discord channel preview plan. |
-| `@beep/installer-channels-use-cases/public` | `DiscordChannelVerb` | class | `packages/installer-channels/use-cases/src/public.ts:21` | Dry-run verb owned by the installer-channels slice. |
-| `@beep/installer-channels-use-cases/public` | `DiscordLiveValidationRequest` | class | `packages/installer-channels/use-cases/src/public.ts:59` | Live Discord validation request. |
-| `@beep/installer-channels-use-cases/public` | `DiscordLiveValidationResult` | class | `packages/installer-channels/use-cases/src/public.ts:78` | Live Discord validation result. |
-| `@beep/installer-channels-use-cases/public` | `P1A_DISCORD_CHANNEL_VERB_INPUTS` | const | `packages/installer-channels/use-cases/src/public.ts:97` | Static P1A verb contracts owned by the channel slice. |
-| `@beep/installer-channels-use-cases/server` | `InstallerChannelsUseCases` | class | `packages/installer-channels/use-cases/src/server.ts:36` | Channel use-case service key. |
-
-### @beep/ai-provider-cli
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/ai-provider-cli` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:128` | Effect service for Claude and Codex CLI status checks. |
-| `@beep/ai-provider-cli` | `AiProviderCliAuthProbe` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:77` | Redacted provider CLI authentication probe. |
-| `@beep/ai-provider-cli` | `AiProviderCliAuthStatus` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:40` | Provider CLI authentication status. |
-| `@beep/ai-provider-cli` | `AiProviderCliAuthStatus` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:52` | Runtime type for {@link AiProviderCliAuthStatus}. |
-| `@beep/ai-provider-cli` | `AiProviderCliError` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.errors.ts:20` | Technical provider CLI failure. |
-| `@beep/ai-provider-cli` | `AiProviderCliProcessResult` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:60` | Provider CLI process result. |
-| `@beep/ai-provider-cli` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
-| `@beep/ai-provider-cli` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
-| `@beep/ai-provider-cli` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:36` | Product-neutral process runner used by provider CLI probes. |
-| `@beep/ai-provider-cli/AiProviderCli.errors` | `AiProviderCliError` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.errors.ts:20` | Technical provider CLI failure. |
-| `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliAuthProbe` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:77` | Redacted provider CLI authentication probe. |
-| `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliAuthStatus` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:40` | Provider CLI authentication status. |
-| `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliAuthStatus` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:52` | Runtime type for {@link AiProviderCliAuthStatus}. |
-| `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliProcessResult` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:60` | Provider CLI process result. |
-| `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
-| `@beep/ai-provider-cli/AiProviderCli.models` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
-| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:128` | Effect service for Claude and Codex CLI status checks. |
-| `@beep/ai-provider-cli/AiProviderCli.service` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:36` | Product-neutral process runner used by provider CLI probes. |
-| `@beep/ai-provider-cli/index` | `AiProviderCli` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:128` | Effect service for Claude and Codex CLI status checks. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliAuthProbe` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:77` | Redacted provider CLI authentication probe. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliAuthStatus` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:40` | Provider CLI authentication status. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliAuthStatus` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:52` | Runtime type for {@link AiProviderCliAuthStatus}. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliError` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.errors.ts:20` | Technical provider CLI failure. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliProcessResult` | class | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:60` | Provider CLI process result. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliProvider` | const | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:20` | AI provider CLI vocabulary. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliProvider` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:32` | Runtime type for {@link AiProviderCliProvider}. |
-| `@beep/ai-provider-cli/index` | `AiProviderCliRunner` | type | `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:36` | Product-neutral process runner used by provider CLI probes. |
-
-### @beep/installer-providers-use-cases
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-providers-use-cases` | `P1A_PROVIDER_ACCOUNT_VERB_INPUTS` | const | `packages/installer-providers/use-cases/src/public.ts:86` | Static P1A verb contracts owned by the provider slice. |
-| `@beep/installer-providers-use-cases` | `ProviderAccountPlan` | class | `packages/installer-providers/use-cases/src/public.ts:46` | Dry-run provider preview plan. |
-| `@beep/installer-providers-use-cases` | `ProviderAccountVerb` | class | `packages/installer-providers/use-cases/src/public.ts:26` | Dry-run verb owned by the installer-providers slice. |
-| `@beep/installer-providers-use-cases` | `ProviderAuthValidationResult` | class | `packages/installer-providers/use-cases/src/public.ts:64` | Live provider authentication validation result. |
-| `@beep/installer-providers-use-cases` | `VERSION` | const | `packages/installer-providers/use-cases/src/index.ts:15` | Package version for `@beep/installer-providers-use-cases`. |
-| `@beep/installer-providers-use-cases/public` | `P1A_PROVIDER_ACCOUNT_VERB_INPUTS` | const | `packages/installer-providers/use-cases/src/public.ts:86` | Static P1A verb contracts owned by the provider slice. |
-| `@beep/installer-providers-use-cases/public` | `ProviderAccountPlan` | class | `packages/installer-providers/use-cases/src/public.ts:46` | Dry-run provider preview plan. |
-| `@beep/installer-providers-use-cases/public` | `ProviderAccountVerb` | class | `packages/installer-providers/use-cases/src/public.ts:26` | Dry-run verb owned by the installer-providers slice. |
-| `@beep/installer-providers-use-cases/public` | `ProviderAuthValidationResult` | class | `packages/installer-providers/use-cases/src/public.ts:64` | Live provider authentication validation result. |
-| `@beep/installer-providers-use-cases/server` | `InstallerProvidersUseCases` | class | `packages/installer-providers/use-cases/src/server.ts:34` | Provider use-case service key. |
-
-### @beep/installer-dependencies-use-cases
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-dependencies-use-cases` | `HostDependencyPlan` | class | `packages/installer-dependencies/use-cases/src/public.ts:41` | Dry-run dependency preview plan. |
-| `@beep/installer-dependencies-use-cases` | `HostDependencyValidationResult` | class | `packages/installer-dependencies/use-cases/src/public.ts:59` | Live host dependency validation result. |
-| `@beep/installer-dependencies-use-cases` | `HostDependencyVerb` | class | `packages/installer-dependencies/use-cases/src/public.ts:21` | Dry-run verb owned by the installer-dependencies slice. |
-| `@beep/installer-dependencies-use-cases` | `P1A_HOST_DEPENDENCY_VERB_INPUTS` | const | `packages/installer-dependencies/use-cases/src/public.ts:78` | Static P1A verb contracts owned by the dependency slice. |
-| `@beep/installer-dependencies-use-cases` | `VERSION` | const | `packages/installer-dependencies/use-cases/src/index.ts:15` | Package version for `@beep/installer-dependencies-use-cases`. |
-| `@beep/installer-dependencies-use-cases/public` | `HostDependencyPlan` | class | `packages/installer-dependencies/use-cases/src/public.ts:41` | Dry-run dependency preview plan. |
-| `@beep/installer-dependencies-use-cases/public` | `HostDependencyValidationResult` | class | `packages/installer-dependencies/use-cases/src/public.ts:59` | Live host dependency validation result. |
-| `@beep/installer-dependencies-use-cases/public` | `HostDependencyVerb` | class | `packages/installer-dependencies/use-cases/src/public.ts:21` | Dry-run verb owned by the installer-dependencies slice. |
-| `@beep/installer-dependencies-use-cases/public` | `P1A_HOST_DEPENDENCY_VERB_INPUTS` | const | `packages/installer-dependencies/use-cases/src/public.ts:78` | Static P1A verb contracts owned by the dependency slice. |
-| `@beep/installer-dependencies-use-cases/server` | `InstallerDependenciesUseCases` | class | `packages/installer-dependencies/use-cases/src/server.ts:34` | Dependency use-case service key. |
-
 ### @beep/architecture-lab-config
 
 | Import | Symbol | Kind | Source | Summary |
@@ -7781,6 +7440,374 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/source-discovery` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
 | `@beep/repo-ai-metrics/source-discovery` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:674` | Render a source discovery result as JSON. |
 
+### @beep/runpod
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/runpod` | `BillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:807` | BillingRecord model returned by the Runpod REST API. |
+| `@beep/runpod` | `BillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:828` | BillingRecords schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `BillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:850` | BillingRecords value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `ContainerRegistryAuth` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:751` | ContainerRegistryAuth model returned by the Runpod REST API. |
+| `@beep/runpod` | `ContainerRegistryAuthCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:788` | ContainerRegistryAuthCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `ContainerRegistryAuths` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:767` | ContainerRegistryAuths schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `ContainerRegistryAuths` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:780` | ContainerRegistryAuths value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `createContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2538` | Descriptor for CreateContainerRegistryAuth. |
+| `@beep/runpod` | `CreateContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1699` | Request input for CreateContainerRegistryAuth. |
+| `@beep/runpod` | `createEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2196` | Descriptor for CreateEndpoint. |
+| `@beep/runpod` | `CreateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1412` | Request input for CreateEndpoint. |
+| `@beep/runpod` | `createNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2424` | Descriptor for CreateNetworkVolume. |
+| `@beep/runpod` | `CreateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1605` | Request input for CreateNetworkVolume. |
+| `@beep/runpod` | `createPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2006` | Descriptor for CreatePod. |
+| `@beep/runpod` | `CreatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1254` | Request input for CreatePod. |
+| `@beep/runpod` | `createTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2310` | Descriptor for CreateTemplate. |
+| `@beep/runpod` | `CreateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1510` | Request input for CreateTemplate. |
+| `@beep/runpod` | `CudaVersions` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:711` | CudaVersions schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `CudaVersions` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:723` | CudaVersions value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `DataCenter` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:681` | DataCenter model returned by the Runpod REST API. |
+| `@beep/runpod` | `deleteContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2576` | Descriptor for DeleteContainerRegistryAuth. |
+| `@beep/runpod` | `DeleteContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1733` | Request input for DeleteContainerRegistryAuth. |
+| `@beep/runpod` | `deleteEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2253` | Descriptor for DeleteEndpoint. |
+| `@beep/runpod` | `DeleteEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1460` | Request input for DeleteEndpoint. |
+| `@beep/runpod` | `deleteNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2481` | Descriptor for DeleteNetworkVolume. |
+| `@beep/runpod` | `DeleteNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1651` | Request input for DeleteNetworkVolume. |
+| `@beep/runpod` | `deletePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2063` | Descriptor for DeletePod. |
+| `@beep/runpod` | `DeletePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1305` | Request input for DeletePod. |
+| `@beep/runpod` | `deleteTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2367` | Descriptor for DeleteTemplate. |
+| `@beep/runpod` | `DeleteTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1559` | Request input for DeleteTemplate. |
+| `@beep/runpod` | `Endpoint` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:463` | Endpoint model returned by the Runpod REST API. |
+| `@beep/runpod` | `endpointBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2614` | Descriptor for EndpointBilling. |
+| `@beep/runpod` | `EndpointBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1770` | Request input for EndpointBilling. |
+| `@beep/runpod` | `EndpointCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:555` | EndpointCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `Endpoints` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:442` | Endpoints schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `Endpoints` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:455` | Endpoints value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `EndpointUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:501` | EndpointUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `EndpointUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:523` | EndpointUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `getContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2557` | Descriptor for GetContainerRegistryAuth. |
+| `@beep/runpod` | `GetContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1716` | Request input for GetContainerRegistryAuth. |
+| `@beep/runpod` | `getDocsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1951` | Descriptor for GetDocs. |
+| `@beep/runpod` | `GetDocsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1211` | Request input for GetDocs. |
+| `@beep/runpod` | `GetDocsStatus200TextResponse` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1178` | GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `GetDocsStatus200TextResponse` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1190` | GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `getEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2215` | Descriptor for GetEndpoint. |
+| `@beep/runpod` | `GetEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1427` | Request input for GetEndpoint. |
+| `@beep/runpod` | `getNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2443` | Descriptor for GetNetworkVolume. |
+| `@beep/runpod` | `GetNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1620` | Request input for GetNetworkVolume. |
+| `@beep/runpod` | `getOpenAPIOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1932` | Descriptor for GetOpenAPI. |
+| `@beep/runpod` | `GetOpenAPIRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1198` | Request input for GetOpenAPI. |
+| `@beep/runpod` | `GetOpenAPIStatus200Response` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1158` | GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `GetOpenAPIStatus200Response` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1170` | GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `getPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2025` | Descriptor for GetPod. |
+| `@beep/runpod` | `GetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1269` | Request input for GetPod. |
+| `@beep/runpod` | `getTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2329` | Descriptor for GetTemplate. |
+| `@beep/runpod` | `GetTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1525` | Request input for GetTemplate. |
+| `@beep/runpod` | `GPUTypeId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:731` | GPUTypeId schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `GPUTypeId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:743` | GPUTypeId value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `listContainerRegistryAuthsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2519` | Descriptor for ListContainerRegistryAuths. |
+| `@beep/runpod` | `ListContainerRegistryAuthsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1684` | Request input for ListContainerRegistryAuths. |
+| `@beep/runpod` | `listEndpointsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2177` | Descriptor for ListEndpoints. |
+| `@beep/runpod` | `ListEndpointsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1396` | Request input for ListEndpoints. |
+| `@beep/runpod` | `listNetworkVolumesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2405` | Descriptor for ListNetworkVolumes. |
+| `@beep/runpod` | `ListNetworkVolumesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1592` | Request input for ListNetworkVolumes. |
+| `@beep/runpod` | `listPodsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1970` | Descriptor for ListPods. |
+| `@beep/runpod` | `ListPodsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1224` | Request input for ListPods. |
+| `@beep/runpod` | `listTemplatesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2291` | Descriptor for ListTemplates. |
+| `@beep/runpod` | `ListTemplatesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1493` | Request input for ListTemplates. |
+| `@beep/runpod` | `Machine` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:628` | Machine model returned by the Runpod REST API. |
+| `@beep/runpod` | `NetworkVolume` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:265` | NetworkVolume model returned by the Runpod REST API. |
+| `@beep/runpod` | `networkVolumeBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2643` | Descriptor for NetworkVolumeBilling. |
+| `@beep/runpod` | `NetworkVolumeBillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:858` | NetworkVolumeBillingRecord model returned by the Runpod REST API. |
+| `@beep/runpod` | `NetworkVolumeBillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:877` | NetworkVolumeBillingRecords schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `NetworkVolumeBillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:897` | NetworkVolumeBillingRecords value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `NetworkVolumeBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1793` | Request input for NetworkVolumeBilling. |
+| `@beep/runpod` | `NetworkVolumeCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:283` | NetworkVolumeCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `NetworkVolumes` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:238` | NetworkVolumes schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `NetworkVolumes` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:257` | NetworkVolumes value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `NetworkVolumeUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:300` | NetworkVolumeUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
+| `@beep/runpod` | `Pod` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:44` | Pod model returned by the Runpod REST API. |
+| `@beep/runpod` | `podBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2595` | Descriptor for PodBilling. |
+| `@beep/runpod` | `PodBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1750` | Request input for PodBilling. |
+| `@beep/runpod` | `PodCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:191` | PodCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `Pods` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:23` | Pods schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `Pods` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:36` | Pods value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `PodUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:149` | PodUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `PodUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:165` | PodUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `resetPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2139` | Descriptor for ResetPod. |
+| `@beep/runpod` | `ResetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1366` | Request input for ResetPod. |
+| `@beep/runpod` | `restartPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2158` | Descriptor for RestartPod. |
+| `@beep/runpod` | `RestartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1381` | Request input for RestartPod. |
+| `@beep/runpod` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
+| `@beep/runpod` | `RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:905` | Advisory allowedCudaVersions values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
+| `@beep/runpod` | `RUNPOD_CPU_FLAVOR_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:926` | Advisory cpuFlavorIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_CPU_FLAVOR_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:934` | Advisory cpuFlavorPriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:942` | Advisory cudaVersions values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_DATA_CENTER_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:950` | Advisory dataCenterId values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_DATA_CENTER_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:985` | Advisory dataCenterIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_DATA_CENTER_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1020` | Advisory dataCenterPriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
+| `@beep/runpod` | `RUNPOD_GPU_TYPE_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1028` | Advisory gpuTypeId values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_GPU_TYPE_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1071` | Advisory gpuTypeIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_GPU_TYPE_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1129` | Advisory gpuTypePriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2662` | Generated operation spec table for Runpod service construction. |
+| `@beep/runpod` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
+| `@beep/runpod` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
+| `@beep/runpod` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
+| `@beep/runpod` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
+| `@beep/runpod` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
+| `@beep/runpod` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
+| `@beep/runpod` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
+| `@beep/runpod` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
+| `@beep/runpod` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
+| `@beep/runpod` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
+| `@beep/runpod` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
+| `@beep/runpod` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
+| `@beep/runpod` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
+| `@beep/runpod` | `RunpodHttpMethod` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1810` | Supported Runpod HTTP methods. |
+| `@beep/runpod` | `RunpodHttpMethod` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1818` | Supported Runpod HTTP method. |
+| `@beep/runpod` | `RunpodOperationDescriptor` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1908` | Static metadata for one Runpod REST operation. |
+| `@beep/runpod` | `RunpodOperationId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1826` | Operation ids exposed by Runpod REST API v1. |
+| `@beep/runpod` | `RunpodOperationId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1868` | Operation id exposed by Runpod REST API v1. |
+| `@beep/runpod` | `RunpodOperationsShape` | interface | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2847` | Typed method surface generated from Runpod REST API v1. |
+| `@beep/runpod` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
+| `@beep/runpod` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
+| `@beep/runpod` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
+| `@beep/runpod` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
+| `@beep/runpod` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
+| `@beep/runpod` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
+| `@beep/runpod` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
+| `@beep/runpod` | `RunpodRequestBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1876` | Request body encoding used by a Runpod operation. |
+| `@beep/runpod` | `RunpodRequestBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1884` | Request body encoding used by a Runpod operation. |
+| `@beep/runpod` | `RunpodResponseBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1892` | Response body decoding used by a Runpod operation. |
+| `@beep/runpod` | `RunpodResponseBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1900` | Response body decoding used by a Runpod operation. |
+| `@beep/runpod` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
+| `@beep/runpod` | `SavingsPlan` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:608` | SavingsPlan model returned by the Runpod REST API. |
+| `@beep/runpod` | `startPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2101` | Descriptor for StartPod. |
+| `@beep/runpod` | `StartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1336` | Request input for StartPod. |
+| `@beep/runpod` | `stopPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2120` | Descriptor for StopPod. |
+| `@beep/runpod` | `StopPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1351` | Request input for StopPod. |
+| `@beep/runpod` | `Template` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:337` | Template model returned by the Runpod REST API. |
+| `@beep/runpod` | `TemplateCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:369` | TemplateCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `Templates` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:316` | Templates schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `Templates` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:329` | Templates value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `TemplateUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:397` | TemplateUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `TemplateUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:416` | TemplateUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod` | `UnauthorizedError` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:696` | UnauthorizedError model returned by the Runpod REST API. |
+| `@beep/runpod` | `updateEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2234` | Descriptor for UpdateEndpoint. |
+| `@beep/runpod` | `UpdateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1444` | Request input for UpdateEndpoint. |
+| `@beep/runpod` | `updateEndpointViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2272` | Descriptor for UpdateEndpoint. |
+| `@beep/runpod` | `UpdateEndpointViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1475` | Request input for UpdateEndpoint. |
+| `@beep/runpod` | `updateNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2462` | Descriptor for UpdateNetworkVolume. |
+| `@beep/runpod` | `UpdateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1635` | Request input for UpdateNetworkVolume. |
+| `@beep/runpod` | `updateNetworkVolumeViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2500` | Descriptor for UpdateNetworkVolume. |
+| `@beep/runpod` | `UpdateNetworkVolumeViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1666` | Request input for UpdateNetworkVolume. |
+| `@beep/runpod` | `updatePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2044` | Descriptor for UpdatePod. |
+| `@beep/runpod` | `UpdatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1289` | Request input for UpdatePod. |
+| `@beep/runpod` | `updatePodViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2082` | Descriptor for UpdatePod. |
+| `@beep/runpod` | `UpdatePodViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1320` | Request input for UpdatePod. |
+| `@beep/runpod` | `updateTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2348` | Descriptor for UpdateTemplate. |
+| `@beep/runpod` | `UpdateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1543` | Request input for UpdateTemplate. |
+| `@beep/runpod` | `updateTemplateViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2386` | Descriptor for UpdateTemplate. |
+| `@beep/runpod` | `UpdateTemplateViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1574` | Request input for UpdateTemplate. |
+| `@beep/runpod` | `User` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:588` | User schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `User` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:600` | User value generated from the Runpod OpenAPI document. |
+| `@beep/runpod` | `VERSION` | const | `packages/drivers/runpod/src/index.ts:50` | Package version. |
+| `@beep/runpod/index` | `BillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:807` | BillingRecord model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `BillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:828` | BillingRecords schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `BillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:850` | BillingRecords value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `ContainerRegistryAuth` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:751` | ContainerRegistryAuth model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `ContainerRegistryAuthCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:788` | ContainerRegistryAuthCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `ContainerRegistryAuths` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:767` | ContainerRegistryAuths schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `ContainerRegistryAuths` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:780` | ContainerRegistryAuths value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `createContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2538` | Descriptor for CreateContainerRegistryAuth. |
+| `@beep/runpod/index` | `CreateContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1699` | Request input for CreateContainerRegistryAuth. |
+| `@beep/runpod/index` | `createEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2196` | Descriptor for CreateEndpoint. |
+| `@beep/runpod/index` | `CreateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1412` | Request input for CreateEndpoint. |
+| `@beep/runpod/index` | `createNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2424` | Descriptor for CreateNetworkVolume. |
+| `@beep/runpod/index` | `CreateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1605` | Request input for CreateNetworkVolume. |
+| `@beep/runpod/index` | `createPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2006` | Descriptor for CreatePod. |
+| `@beep/runpod/index` | `CreatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1254` | Request input for CreatePod. |
+| `@beep/runpod/index` | `createTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2310` | Descriptor for CreateTemplate. |
+| `@beep/runpod/index` | `CreateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1510` | Request input for CreateTemplate. |
+| `@beep/runpod/index` | `CudaVersions` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:711` | CudaVersions schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `CudaVersions` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:723` | CudaVersions value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `DataCenter` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:681` | DataCenter model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `deleteContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2576` | Descriptor for DeleteContainerRegistryAuth. |
+| `@beep/runpod/index` | `DeleteContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1733` | Request input for DeleteContainerRegistryAuth. |
+| `@beep/runpod/index` | `deleteEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2253` | Descriptor for DeleteEndpoint. |
+| `@beep/runpod/index` | `DeleteEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1460` | Request input for DeleteEndpoint. |
+| `@beep/runpod/index` | `deleteNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2481` | Descriptor for DeleteNetworkVolume. |
+| `@beep/runpod/index` | `DeleteNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1651` | Request input for DeleteNetworkVolume. |
+| `@beep/runpod/index` | `deletePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2063` | Descriptor for DeletePod. |
+| `@beep/runpod/index` | `DeletePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1305` | Request input for DeletePod. |
+| `@beep/runpod/index` | `deleteTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2367` | Descriptor for DeleteTemplate. |
+| `@beep/runpod/index` | `DeleteTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1559` | Request input for DeleteTemplate. |
+| `@beep/runpod/index` | `Endpoint` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:463` | Endpoint model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `endpointBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2614` | Descriptor for EndpointBilling. |
+| `@beep/runpod/index` | `EndpointBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1770` | Request input for EndpointBilling. |
+| `@beep/runpod/index` | `EndpointCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:555` | EndpointCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `Endpoints` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:442` | Endpoints schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `Endpoints` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:455` | Endpoints value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `EndpointUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:501` | EndpointUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `EndpointUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:523` | EndpointUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `getContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2557` | Descriptor for GetContainerRegistryAuth. |
+| `@beep/runpod/index` | `GetContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1716` | Request input for GetContainerRegistryAuth. |
+| `@beep/runpod/index` | `getDocsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1951` | Descriptor for GetDocs. |
+| `@beep/runpod/index` | `GetDocsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1211` | Request input for GetDocs. |
+| `@beep/runpod/index` | `GetDocsStatus200TextResponse` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1178` | GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `GetDocsStatus200TextResponse` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1190` | GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `getEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2215` | Descriptor for GetEndpoint. |
+| `@beep/runpod/index` | `GetEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1427` | Request input for GetEndpoint. |
+| `@beep/runpod/index` | `getNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2443` | Descriptor for GetNetworkVolume. |
+| `@beep/runpod/index` | `GetNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1620` | Request input for GetNetworkVolume. |
+| `@beep/runpod/index` | `getOpenAPIOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1932` | Descriptor for GetOpenAPI. |
+| `@beep/runpod/index` | `GetOpenAPIRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1198` | Request input for GetOpenAPI. |
+| `@beep/runpod/index` | `GetOpenAPIStatus200Response` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1158` | GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `GetOpenAPIStatus200Response` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1170` | GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `getPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2025` | Descriptor for GetPod. |
+| `@beep/runpod/index` | `GetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1269` | Request input for GetPod. |
+| `@beep/runpod/index` | `getTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2329` | Descriptor for GetTemplate. |
+| `@beep/runpod/index` | `GetTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1525` | Request input for GetTemplate. |
+| `@beep/runpod/index` | `GPUTypeId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:731` | GPUTypeId schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `GPUTypeId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:743` | GPUTypeId value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `listContainerRegistryAuthsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2519` | Descriptor for ListContainerRegistryAuths. |
+| `@beep/runpod/index` | `ListContainerRegistryAuthsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1684` | Request input for ListContainerRegistryAuths. |
+| `@beep/runpod/index` | `listEndpointsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2177` | Descriptor for ListEndpoints. |
+| `@beep/runpod/index` | `ListEndpointsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1396` | Request input for ListEndpoints. |
+| `@beep/runpod/index` | `listNetworkVolumesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2405` | Descriptor for ListNetworkVolumes. |
+| `@beep/runpod/index` | `ListNetworkVolumesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1592` | Request input for ListNetworkVolumes. |
+| `@beep/runpod/index` | `listPodsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1970` | Descriptor for ListPods. |
+| `@beep/runpod/index` | `ListPodsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1224` | Request input for ListPods. |
+| `@beep/runpod/index` | `listTemplatesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2291` | Descriptor for ListTemplates. |
+| `@beep/runpod/index` | `ListTemplatesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1493` | Request input for ListTemplates. |
+| `@beep/runpod/index` | `Machine` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:628` | Machine model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `NetworkVolume` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:265` | NetworkVolume model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `networkVolumeBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2643` | Descriptor for NetworkVolumeBilling. |
+| `@beep/runpod/index` | `NetworkVolumeBillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:858` | NetworkVolumeBillingRecord model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `NetworkVolumeBillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:877` | NetworkVolumeBillingRecords schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `NetworkVolumeBillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:897` | NetworkVolumeBillingRecords value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `NetworkVolumeBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1793` | Request input for NetworkVolumeBilling. |
+| `@beep/runpod/index` | `NetworkVolumeCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:283` | NetworkVolumeCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `NetworkVolumes` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:238` | NetworkVolumes schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `NetworkVolumes` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:257` | NetworkVolumes value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `NetworkVolumeUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:300` | NetworkVolumeUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
+| `@beep/runpod/index` | `Pod` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:44` | Pod model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `podBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2595` | Descriptor for PodBilling. |
+| `@beep/runpod/index` | `PodBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1750` | Request input for PodBilling. |
+| `@beep/runpod/index` | `PodCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:191` | PodCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `Pods` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:23` | Pods schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `Pods` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:36` | Pods value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `PodUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:149` | PodUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `PodUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:165` | PodUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `resetPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2139` | Descriptor for ResetPod. |
+| `@beep/runpod/index` | `ResetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1366` | Request input for ResetPod. |
+| `@beep/runpod/index` | `restartPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2158` | Descriptor for RestartPod. |
+| `@beep/runpod/index` | `RestartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1381` | Request input for RestartPod. |
+| `@beep/runpod/index` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
+| `@beep/runpod/index` | `RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:905` | Advisory allowedCudaVersions values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
+| `@beep/runpod/index` | `RUNPOD_CPU_FLAVOR_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:926` | Advisory cpuFlavorIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_CPU_FLAVOR_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:934` | Advisory cpuFlavorPriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:942` | Advisory cudaVersions values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:950` | Advisory dataCenterId values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:985` | Advisory dataCenterIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1020` | Advisory dataCenterPriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
+| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1028` | Advisory gpuTypeId values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1071` | Advisory gpuTypeIds values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1129` | Advisory gpuTypePriority values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
+| `@beep/runpod/index` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2662` | Generated operation spec table for Runpod service construction. |
+| `@beep/runpod/index` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
+| `@beep/runpod/index` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
+| `@beep/runpod/index` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
+| `@beep/runpod/index` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
+| `@beep/runpod/index` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
+| `@beep/runpod/index` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
+| `@beep/runpod/index` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
+| `@beep/runpod/index` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
+| `@beep/runpod/index` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
+| `@beep/runpod/index` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
+| `@beep/runpod/index` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
+| `@beep/runpod/index` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
+| `@beep/runpod/index` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
+| `@beep/runpod/index` | `RunpodHttpMethod` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1810` | Supported Runpod HTTP methods. |
+| `@beep/runpod/index` | `RunpodHttpMethod` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1818` | Supported Runpod HTTP method. |
+| `@beep/runpod/index` | `RunpodOperationDescriptor` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1908` | Static metadata for one Runpod REST operation. |
+| `@beep/runpod/index` | `RunpodOperationId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1826` | Operation ids exposed by Runpod REST API v1. |
+| `@beep/runpod/index` | `RunpodOperationId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1868` | Operation id exposed by Runpod REST API v1. |
+| `@beep/runpod/index` | `RunpodOperationsShape` | interface | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2847` | Typed method surface generated from Runpod REST API v1. |
+| `@beep/runpod/index` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
+| `@beep/runpod/index` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
+| `@beep/runpod/index` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
+| `@beep/runpod/index` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
+| `@beep/runpod/index` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
+| `@beep/runpod/index` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
+| `@beep/runpod/index` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
+| `@beep/runpod/index` | `RunpodRequestBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1876` | Request body encoding used by a Runpod operation. |
+| `@beep/runpod/index` | `RunpodRequestBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1884` | Request body encoding used by a Runpod operation. |
+| `@beep/runpod/index` | `RunpodResponseBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1892` | Response body decoding used by a Runpod operation. |
+| `@beep/runpod/index` | `RunpodResponseBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1900` | Response body decoding used by a Runpod operation. |
+| `@beep/runpod/index` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
+| `@beep/runpod/index` | `SavingsPlan` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:608` | SavingsPlan model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `startPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2101` | Descriptor for StartPod. |
+| `@beep/runpod/index` | `StartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1336` | Request input for StartPod. |
+| `@beep/runpod/index` | `stopPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2120` | Descriptor for StopPod. |
+| `@beep/runpod/index` | `StopPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1351` | Request input for StopPod. |
+| `@beep/runpod/index` | `Template` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:337` | Template model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `TemplateCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:369` | TemplateCreateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `Templates` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:316` | Templates schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `Templates` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:329` | Templates value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `TemplateUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:397` | TemplateUpdateInPlaceInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `TemplateUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:416` | TemplateUpdateInput model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `UnauthorizedError` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:696` | UnauthorizedError model returned by the Runpod REST API. |
+| `@beep/runpod/index` | `updateEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2234` | Descriptor for UpdateEndpoint. |
+| `@beep/runpod/index` | `UpdateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1444` | Request input for UpdateEndpoint. |
+| `@beep/runpod/index` | `updateEndpointViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2272` | Descriptor for UpdateEndpoint. |
+| `@beep/runpod/index` | `UpdateEndpointViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1475` | Request input for UpdateEndpoint. |
+| `@beep/runpod/index` | `updateNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2462` | Descriptor for UpdateNetworkVolume. |
+| `@beep/runpod/index` | `UpdateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1635` | Request input for UpdateNetworkVolume. |
+| `@beep/runpod/index` | `updateNetworkVolumeViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2500` | Descriptor for UpdateNetworkVolume. |
+| `@beep/runpod/index` | `UpdateNetworkVolumeViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1666` | Request input for UpdateNetworkVolume. |
+| `@beep/runpod/index` | `updatePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2044` | Descriptor for UpdatePod. |
+| `@beep/runpod/index` | `UpdatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1289` | Request input for UpdatePod. |
+| `@beep/runpod/index` | `updatePodViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2082` | Descriptor for UpdatePod. |
+| `@beep/runpod/index` | `UpdatePodViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1320` | Request input for UpdatePod. |
+| `@beep/runpod/index` | `updateTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2348` | Descriptor for UpdateTemplate. |
+| `@beep/runpod/index` | `UpdateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1543` | Request input for UpdateTemplate. |
+| `@beep/runpod/index` | `updateTemplateViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2386` | Descriptor for UpdateTemplate. |
+| `@beep/runpod/index` | `UpdateTemplateViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1574` | Request input for UpdateTemplate. |
+| `@beep/runpod/index` | `User` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:588` | User schema generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `User` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:600` | User value generated from the Runpod OpenAPI document. |
+| `@beep/runpod/index` | `VERSION` | const | `packages/drivers/runpod/src/index.ts:50` | Package version. |
+| `@beep/runpod/Runpod.config` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
+| `@beep/runpod/Runpod.config` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
+| `@beep/runpod/Runpod.config` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
+| `@beep/runpod/Runpod.config` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
+| `@beep/runpod/Runpod.docs` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
+| `@beep/runpod/Runpod.docs` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
+| `@beep/runpod/Runpod.docs` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
+| `@beep/runpod/Runpod.docs` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
+| `@beep/runpod/Runpod.errors` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
+| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
+| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
+| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
+| `@beep/runpod/Runpod.errors` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
+| `@beep/runpod/Runpod.errors` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
+| `@beep/runpod/Runpod.errors` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
+| `@beep/runpod/Runpod.errors` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
+| `@beep/runpod/Runpod.errors` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
+| `@beep/runpod/Runpod.service` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
+| `@beep/runpod/Runpod.service` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
+| `@beep/runpod/Runpod.service` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
+| `@beep/runpod/Runpod.service` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
+| `@beep/runpod/Runpod.service` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
+| `@beep/runpod/Runpod.service` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
+| `@beep/runpod/Runpod.service` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
+| `@beep/runpod/Runpod.service` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
+
 ### @beep/ffmpeg
 
 | Import | Symbol | Kind | Source | Summary |
@@ -8572,57 +8599,247 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUsage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:801` | Token usage returned by OpenAI-compatible chat completion endpoints. |
 | `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
 
-### @beep/installer-workspace-use-cases
+### @beep/law-practice-domain
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/installer-workspace-use-cases` | `P1A_DRY_RUN_SNAPSHOT_INPUT` | const | `packages/installer-workspace/use-cases/src/public.ts:125` | Deterministic P1A manifest snapshot input. |
-| `@beep/installer-workspace-use-cases` | `P1A_WORKSPACE_VERB_INPUTS` | const | `packages/installer-workspace/use-cases/src/public.ts:102` | Static P1A verb contracts owned by the workspace slice. |
-| `@beep/installer-workspace-use-cases` | `P1ManualProofRequest` | class | `packages/installer-workspace/use-cases/src/public.ts:64` | App-local P1 Manual Mode proof request. |
-| `@beep/installer-workspace-use-cases` | `P1ManualProofResult` | class | `packages/installer-workspace/use-cases/src/public.ts:86` | P1 Manual Mode proof result. |
-| `@beep/installer-workspace-use-cases` | `VERSION` | const | `packages/installer-workspace/use-cases/src/index.ts:15` | Package version for `@beep/installer-workspace-use-cases`. |
-| `@beep/installer-workspace-use-cases` | `WorkspaceDryRunPlan` | class | `packages/installer-workspace/use-cases/src/public.ts:46` | Workspace dry-run plan. |
-| `@beep/installer-workspace-use-cases` | `WorkspaceDryRunVerb` | class | `packages/installer-workspace/use-cases/src/public.ts:26` | Dry-run verb owned by the installer-workspace slice. |
-| `@beep/installer-workspace-use-cases/public` | `P1A_DRY_RUN_SNAPSHOT_INPUT` | const | `packages/installer-workspace/use-cases/src/public.ts:125` | Deterministic P1A manifest snapshot input. |
-| `@beep/installer-workspace-use-cases/public` | `P1A_WORKSPACE_VERB_INPUTS` | const | `packages/installer-workspace/use-cases/src/public.ts:102` | Static P1A verb contracts owned by the workspace slice. |
-| `@beep/installer-workspace-use-cases/public` | `P1ManualProofRequest` | class | `packages/installer-workspace/use-cases/src/public.ts:64` | App-local P1 Manual Mode proof request. |
-| `@beep/installer-workspace-use-cases/public` | `P1ManualProofResult` | class | `packages/installer-workspace/use-cases/src/public.ts:86` | P1 Manual Mode proof result. |
-| `@beep/installer-workspace-use-cases/public` | `WorkspaceDryRunPlan` | class | `packages/installer-workspace/use-cases/src/public.ts:46` | Workspace dry-run plan. |
-| `@beep/installer-workspace-use-cases/public` | `WorkspaceDryRunVerb` | class | `packages/installer-workspace/use-cases/src/public.ts:26` | Dry-run verb owned by the installer-workspace slice. |
-| `@beep/installer-workspace-use-cases/server` | `InstallerWorkspaceUseCases` | class | `packages/installer-workspace/use-cases/src/server.ts:33` | Workspace use-case service key. |
+| `@beep/law-practice-domain` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
+| `@beep/law-practice-domain` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
+| `@beep/law-practice-domain` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
+| `@beep/law-practice-domain` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
+| `@beep/law-practice-domain` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
+| `@beep/law-practice-domain` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
+| `@beep/law-practice-domain` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
+| `@beep/law-practice-domain` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
+| `@beep/law-practice-domain/entities` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
+| `@beep/law-practice-domain/entities` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
+| `@beep/law-practice-domain/entities` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
+| `@beep/law-practice-domain/entities` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
+| `@beep/law-practice-domain/entities` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
+| `@beep/law-practice-domain/entities` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
+| `@beep/law-practice-domain/entities` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
+| `@beep/law-practice-domain/entities` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
+| `@beep/law-practice-domain/entities/LegalClient` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
+| `@beep/law-practice-domain/entities/LegalClient` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities/LegalClient` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
+| `@beep/law-practice-domain/entities/LegalContact` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
+| `@beep/law-practice-domain/entities/LegalContact` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities/LegalContact` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
+| `@beep/law-practice-domain/entities/Matter` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
+| `@beep/law-practice-domain/entities/Matter` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities/Matter` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
+| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
+| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
+| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
 
-### @beep/installer-security-server
+### @beep/agent-capability-use-cases
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/installer-security-server` | `InstallerSecurityServerLive` | const | `packages/installer-security/server/src/Layer.ts:115` | Deterministic security server layer for P1A. |
-| `@beep/installer-security-server` | `makeInstallerSecurityServer` | const | `packages/installer-security/server/src/Layer.ts:62` | Build the deterministic security dry-run service. |
-| `@beep/installer-security-server` | `VERSION` | const | `packages/installer-security/server/src/index.ts:15` | Package version for `@beep/installer-security-server`. |
-| `@beep/installer-security-server/layer` | `InstallerSecurityServerLive` | const | `packages/installer-security/server/src/Layer.ts:115` | Deterministic security server layer for P1A. |
-| `@beep/installer-security-server/layer` | `makeInstallerSecurityServer` | const | `packages/installer-security/server/src/Layer.ts:62` | Build the deterministic security dry-run service. |
-| `@beep/installer-security-server/test` | `InstallerSecurityServerTest` | const | `packages/installer-security/server/src/test.ts:17` | Deterministic test layer for the installer-security slice. |
+| `@beep/agent-capability-use-cases` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
+| `@beep/agent-capability-use-cases` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
+| `@beep/agent-capability-use-cases` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
+| `@beep/agent-capability-use-cases` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
+| `@beep/agent-capability-use-cases` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
+| `@beep/agent-capability-use-cases` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
+| `@beep/agent-capability-use-cases` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
+| `@beep/agent-capability-use-cases` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
+| `@beep/agent-capability-use-cases` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
+| `@beep/agent-capability-use-cases` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
+| `@beep/agent-capability-use-cases` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
+| `@beep/agent-capability-use-cases` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
+| `@beep/agent-capability-use-cases` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
+| `@beep/agent-capability-use-cases` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
+| `@beep/agent-capability-use-cases` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
+| `@beep/agent-capability-use-cases` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
+| `@beep/agent-capability-use-cases` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
+| `@beep/agent-capability-use-cases` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
+| `@beep/agent-capability-use-cases` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
+| `@beep/agent-capability-use-cases` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
+| `@beep/agent-capability-use-cases/proof` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
+| `@beep/agent-capability-use-cases/proof` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
+| `@beep/agent-capability-use-cases/proof` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:208` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
+| `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
+| `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
+| `@beep/agent-capability-use-cases/proof` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
+| `@beep/agent-capability-use-cases/proof` | `runRuntimeFixture` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:667` | Run one deterministic runtime data-loop fixture. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeFixtureInput` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:56` | Parsed fixture inputs for one runtime data-loop scenario. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/proof` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
+| `@beep/agent-capability-use-cases/proof` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
+| `@beep/agent-capability-use-cases/public` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
+| `@beep/agent-capability-use-cases/public` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
+| `@beep/agent-capability-use-cases/public` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
+| `@beep/agent-capability-use-cases/public` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
+| `@beep/agent-capability-use-cases/public` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/public` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
+| `@beep/agent-capability-use-cases/public` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
+| `@beep/agent-capability-use-cases/test` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
+| `@beep/agent-capability-use-cases/test` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
+| `@beep/agent-capability-use-cases/test` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:208` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
+| `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
+| `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
+| `@beep/agent-capability-use-cases/test` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
+| `@beep/agent-capability-use-cases/test` | `runRuntimeFixture` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:667` | Run one deterministic runtime data-loop fixture. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeFixtureInput` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:56` | Parsed fixture inputs for one runtime data-loop scenario. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
+| `@beep/agent-capability-use-cases/test` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
+| `@beep/agent-capability-use-cases/test` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
 
-### @beep/installer-channels-server
+### @beep/agent-capability-domain
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/installer-channels-server` | `InstallerChannelsServerLive` | const | `packages/installer-channels/server/src/Layer.ts:102` | Deterministic channel server layer for P1A. |
-| `@beep/installer-channels-server` | `makeInstallerChannelsServer` | const | `packages/installer-channels/server/src/Layer.ts:46` | Build the deterministic channel dry-run service. |
-| `@beep/installer-channels-server` | `VERSION` | const | `packages/installer-channels/server/src/index.ts:15` | Package version for `@beep/installer-channels-server`. |
-| `@beep/installer-channels-server/layer` | `InstallerChannelsServerLive` | const | `packages/installer-channels/server/src/Layer.ts:102` | Deterministic channel server layer for P1A. |
-| `@beep/installer-channels-server/layer` | `makeInstallerChannelsServer` | const | `packages/installer-channels/server/src/Layer.ts:46` | Build the deterministic channel dry-run service. |
-| `@beep/installer-channels-server/test` | `InstallerChannelsServerTest` | const | `packages/installer-channels/server/src/test.ts:17` | Deterministic test layer for the installer-channels slice. |
+| `@beep/agent-capability-domain` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
+| `@beep/agent-capability-domain` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
+| `@beep/agent-capability-domain` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
+| `@beep/agent-capability-domain` | `Entities` | SourceFile | `packages/agent-capability/domain/src/entities/index.ts:21` |  |
+| `@beep/agent-capability-domain` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
+| `@beep/agent-capability-domain/entities` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
+| `@beep/agent-capability-domain/entities` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
+| `@beep/agent-capability-domain/entities` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
+| `@beep/agent-capability-domain/entities` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
+| `@beep/agent-capability-domain/entities/Agent` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
+| `@beep/agent-capability-domain/entities/Agent` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
+| `@beep/agent-capability-domain/entities/Agent` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
+| `@beep/agent-capability-domain/entities/Skill` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
 
-### @beep/installer-providers-server
+### @beep/epistemic-domain
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/installer-providers-server` | `InstallerProvidersServerLive` | const | `packages/installer-providers/server/src/Layer.ts:97` | Deterministic provider server layer for P1A. |
-| `@beep/installer-providers-server` | `makeInstallerProvidersServer` | const | `packages/installer-providers/server/src/Layer.ts:53` | Build the deterministic provider dry-run service. |
-| `@beep/installer-providers-server` | `VERSION` | const | `packages/installer-providers/server/src/index.ts:15` | Package version for `@beep/installer-providers-server`. |
-| `@beep/installer-providers-server/layer` | `InstallerProvidersServerLive` | const | `packages/installer-providers/server/src/Layer.ts:97` | Deterministic provider server layer for P1A. |
-| `@beep/installer-providers-server/layer` | `makeInstallerProvidersServer` | const | `packages/installer-providers/server/src/Layer.ts:53` | Build the deterministic provider dry-run service. |
-| `@beep/installer-providers-server/test` | `InstallerProvidersServerTest` | const | `packages/installer-providers/server/src/test.ts:17` | Deterministic test layer for the installer-providers slice. |
+| `@beep/epistemic-domain` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
+| `@beep/epistemic-domain` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
+| `@beep/epistemic-domain` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
+| `@beep/epistemic-domain` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
+| `@beep/epistemic-domain` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
+| `@beep/epistemic-domain` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
+| `@beep/epistemic-domain/entities` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
+| `@beep/epistemic-domain/entities` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
+| `@beep/epistemic-domain/entities` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
+| `@beep/epistemic-domain/entities` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
+| `@beep/epistemic-domain/entities/Activity` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
+| `@beep/epistemic-domain/entities/CandidateClaim` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
+| `@beep/epistemic-domain/entities/Evidence` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
+| `@beep/epistemic-domain/entities/UsageRecord` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
+| `@beep/epistemic-domain/values` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
+| `@beep/epistemic-domain/values` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
+| `@beep/epistemic-domain/values/ClaimLifecycle` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
+| `@beep/epistemic-domain/values/ClaimLifecycle` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
+
+### @beep/wealth-management-domain
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/wealth-management-domain` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
+| `@beep/wealth-management-domain` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
+| `@beep/wealth-management-domain` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
+| `@beep/wealth-management-domain` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
+| `@beep/wealth-management-domain` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
+| `@beep/wealth-management-domain` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
+| `@beep/wealth-management-domain` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
+| `@beep/wealth-management-domain` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
+| `@beep/wealth-management-domain` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
+| `@beep/wealth-management-domain` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
+| `@beep/wealth-management-domain` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
+| `@beep/wealth-management-domain` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
+| `@beep/wealth-management-domain/entities` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
+| `@beep/wealth-management-domain/entities` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
+| `@beep/wealth-management-domain/entities` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
+| `@beep/wealth-management-domain/entities` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
+| `@beep/wealth-management-domain/entities` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
+| `@beep/wealth-management-domain/entities` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
+| `@beep/wealth-management-domain/entities` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
+| `@beep/wealth-management-domain/entities` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
+| `@beep/wealth-management-domain/entities` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
+| `@beep/wealth-management-domain/entities` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
+| `@beep/wealth-management-domain/entities` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
+| `@beep/wealth-management-domain/entities` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
+| `@beep/wealth-management-domain/entities/Account` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
+| `@beep/wealth-management-domain/entities/Account` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
+| `@beep/wealth-management-domain/entities/Account` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
+| `@beep/wealth-management-domain/entities/Household` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
+| `@beep/wealth-management-domain/entities/Household` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
+| `@beep/wealth-management-domain/entities/Household` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
+| `@beep/wealth-management-domain/entities/Party` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
+| `@beep/wealth-management-domain/entities/Party` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
+| `@beep/wealth-management-domain/entities/Party` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
+| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
+| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
+| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
 
 ### @beep/ui
 
@@ -9154,259 +9371,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/themes/typography` | `typography` | const | `packages/foundation/ui-system/ui/src/themes/typography.ts:89` | Typography scale for the shared theme. |
 | `@beep/ui/themes/typography` | `typographyTheme` | const | `packages/foundation/ui-system/ui/src/themes/typography.ts:113` | Typography component overrides for the shared theme. |
 
-### @beep/installer-dependencies-server
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-dependencies-server` | `InstallerDependenciesServerLive` | const | `packages/installer-dependencies/server/src/Layer.ts:162` | Deterministic dependency server layer for P1A. |
-| `@beep/installer-dependencies-server` | `makeInstallerDependenciesServer` | const | `packages/installer-dependencies/server/src/Layer.ts:145` | Build the deterministic dependency dry-run service. |
-| `@beep/installer-dependencies-server` | `VERSION` | const | `packages/installer-dependencies/server/src/index.ts:15` | Package version for `@beep/installer-dependencies-server`. |
-| `@beep/installer-dependencies-server/layer` | `InstallerDependenciesServerLive` | const | `packages/installer-dependencies/server/src/Layer.ts:162` | Deterministic dependency server layer for P1A. |
-| `@beep/installer-dependencies-server/layer` | `makeInstallerDependenciesServer` | const | `packages/installer-dependencies/server/src/Layer.ts:145` | Build the deterministic dependency dry-run service. |
-| `@beep/installer-dependencies-server/test` | `InstallerDependenciesServerTest` | const | `packages/installer-dependencies/server/src/test.ts:17` | Deterministic test layer for the installer-dependencies slice. |
-
-### @beep/law-practice-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/law-practice-domain` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
-| `@beep/law-practice-domain` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
-| `@beep/law-practice-domain` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
-| `@beep/law-practice-domain` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
-| `@beep/law-practice-domain` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
-| `@beep/law-practice-domain` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
-| `@beep/law-practice-domain` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
-| `@beep/law-practice-domain` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
-| `@beep/law-practice-domain/entities` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
-| `@beep/law-practice-domain/entities` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
-| `@beep/law-practice-domain/entities` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
-| `@beep/law-practice-domain/entities` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
-| `@beep/law-practice-domain/entities` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
-| `@beep/law-practice-domain/entities` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
-| `@beep/law-practice-domain/entities` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
-| `@beep/law-practice-domain/entities` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
-| `@beep/law-practice-domain/entities/LegalClient` | `LegalClient` | class | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts:29` | Legal client context. |
-| `@beep/law-practice-domain/entities/LegalClient` | `LegalClientStatus` | const | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:26` | Legal client status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities/LegalClient` | `LegalClientStatus` | type | `packages/law-practice/domain/src/entities/LegalClient/LegalClient.values.ts:46` | Runtime type for {@link LegalClientStatus}. |
-| `@beep/law-practice-domain/entities/LegalContact` | `LegalContact` | class | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.model.ts:29` | Legal contact context. |
-| `@beep/law-practice-domain/entities/LegalContact` | `LegalContactRole` | const | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:26` | Legal contact role vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities/LegalContact` | `LegalContactRole` | type | `packages/law-practice/domain/src/entities/LegalContact/LegalContact.values.ts:46` | Runtime type for {@link LegalContactRole}. |
-| `@beep/law-practice-domain/entities/Matter` | `Matter` | class | `packages/law-practice/domain/src/entities/Matter/Matter.model.ts:29` | Legal matter context. |
-| `@beep/law-practice-domain/entities/Matter` | `MatterType` | const | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:26` | Matter type vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities/Matter` | `MatterType` | type | `packages/law-practice/domain/src/entities/Matter/Matter.values.ts:46` | Runtime type for {@link MatterType}. |
-| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAsset` | class | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.model.ts:29` | Patent asset context. |
-| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAssetStatus` | const | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:26` | Patent asset status vocabulary represented in proof seeds. |
-| `@beep/law-practice-domain/entities/PatentAsset` | `PatentAssetStatus` | type | `packages/law-practice/domain/src/entities/PatentAsset/PatentAsset.values.ts:46` | Runtime type for {@link PatentAssetStatus}. |
-
-### @beep/agent-capability-use-cases
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/agent-capability-use-cases` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
-| `@beep/agent-capability-use-cases` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
-| `@beep/agent-capability-use-cases` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
-| `@beep/agent-capability-use-cases` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
-| `@beep/agent-capability-use-cases` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
-| `@beep/agent-capability-use-cases` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
-| `@beep/agent-capability-use-cases` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
-| `@beep/agent-capability-use-cases` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
-| `@beep/agent-capability-use-cases` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
-| `@beep/agent-capability-use-cases` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
-| `@beep/agent-capability-use-cases` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
-| `@beep/agent-capability-use-cases` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
-| `@beep/agent-capability-use-cases` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
-| `@beep/agent-capability-use-cases` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
-| `@beep/agent-capability-use-cases` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
-| `@beep/agent-capability-use-cases` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
-| `@beep/agent-capability-use-cases` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
-| `@beep/agent-capability-use-cases` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
-| `@beep/agent-capability-use-cases` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
-| `@beep/agent-capability-use-cases/proof` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
-| `@beep/agent-capability-use-cases/proof` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases/proof` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:208` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
-| `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
-| `@beep/agent-capability-use-cases/proof` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
-| `@beep/agent-capability-use-cases/proof` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
-| `@beep/agent-capability-use-cases/proof` | `runRuntimeFixture` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:667` | Run one deterministic runtime data-loop fixture. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeFixtureInput` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:56` | Parsed fixture inputs for one runtime data-loop scenario. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/proof` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
-| `@beep/agent-capability-use-cases/proof` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
-| `@beep/agent-capability-use-cases/public` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
-| `@beep/agent-capability-use-cases/public` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases/public` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
-| `@beep/agent-capability-use-cases/public` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
-| `@beep/agent-capability-use-cases/public` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/public` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
-| `@beep/agent-capability-use-cases/public` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
-| `@beep/agent-capability-use-cases/test` | `CandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:433` | Batch of candidate outputs proposed by an agent run. |
-| `@beep/agent-capability-use-cases/test` | `GetContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts:26` | Request for an evidence-bounded context packet. |
-| `@beep/agent-capability-use-cases/test` | `makeInMemoryProfessionalRuntimeSdk` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts:208` | Create an in-memory SDK facade over deterministic runtime fixture inputs. |
-| `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeSdk` | interface | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` | SDK facade shape exposed to clients and adapters. |
-| `@beep/agent-capability-use-cases/test` | `ProfessionalRuntimeValidationError` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts:27` | Validation failure for runtime SDK requests and candidate proposals. |
-| `@beep/agent-capability-use-cases/test` | `ProposeCandidateOutputSet` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts:27` | Command for proposing candidate work through the SDK facade. |
-| `@beep/agent-capability-use-cases/test` | `runRuntimeFixture` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:667` | Run one deterministic runtime data-loop fixture. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeActivity` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:345` | Runtime provenance activity included in a context packet. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeActivityType` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:98` | Activity types emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeApprovalDecision` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:53` | Approval decision vocabulary for candidate approval gates. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeApprovalGate` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:245` | Candidate approval gate proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateClaim` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:106` | Candidate claim proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateDraft` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:214` | Candidate draft proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateLifecycle` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:23` | Candidate lifecycle vocabulary used by runtime output sections. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateProject` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:136` | Candidate project proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeCandidateTask` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:163` | Candidate task proposed by the runtime. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeClaimConfidence` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:38` | Confidence vocabulary for candidate claims. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeContextPacketRequest` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:274` | Request section embedded in a context packet. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeDraftRecipient` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:191` | Recipient for a candidate draft. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeEntityRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:59` | Lightweight reference to a vertical or runtime entity. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeEvidenceRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:82` | Source evidence reference for a candidate output. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeFixtureInput` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts:56` | Parsed fixture inputs for one runtime data-loop scenario. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeRequestKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:68` | Runtime request kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeScope` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:35` | Scope for an SDK request. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeSourceArtifact` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:320` | Source artifact declared by a context packet. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeSourceKind` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:83` | Source artifact kinds represented in context packets. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeSourceSpanRef` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:297` | Source span declared by a context packet source artifact. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeUsageMode` | const | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:113` | Usage modes emitted by deterministic runtime fixtures. |
-| `@beep/agent-capability-use-cases/test` | `RuntimeUsageRecord` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:371` | Runtime usage attribution included in a context packet. |
-| `@beep/agent-capability-use-cases/test` | `SdkContextPacket` | class | `packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:396` | Context packet returned to SDK clients. |
-
-### @beep/agent-capability-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/agent-capability-domain` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
-| `@beep/agent-capability-domain` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
-| `@beep/agent-capability-domain` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
-| `@beep/agent-capability-domain` | `Entities` | SourceFile | `packages/agent-capability/domain/src/entities/index.ts:21` |  |
-| `@beep/agent-capability-domain` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
-| `@beep/agent-capability-domain/entities` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
-| `@beep/agent-capability-domain/entities` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
-| `@beep/agent-capability-domain/entities` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
-| `@beep/agent-capability-domain/entities` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
-| `@beep/agent-capability-domain/entities/Agent` | `Agent` | class | `packages/agent-capability/domain/src/entities/Agent/Agent.model.ts:29` | Agent definition available to the runtime proof. |
-| `@beep/agent-capability-domain/entities/Agent` | `AgentMode` | const | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:26` | Agent mode used by the deterministic proof. |
-| `@beep/agent-capability-domain/entities/Agent` | `AgentMode` | type | `packages/agent-capability/domain/src/entities/Agent/Agent.values.ts:46` | Runtime type for {@link AgentMode}. |
-| `@beep/agent-capability-domain/entities/Skill` | `Skill` | class | `packages/agent-capability/domain/src/entities/Skill/Skill.model.ts:28` | Skill definition used by an agent. |
-
-### @beep/epistemic-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/epistemic-domain` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
-| `@beep/epistemic-domain` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
-| `@beep/epistemic-domain` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
-| `@beep/epistemic-domain` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
-| `@beep/epistemic-domain` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
-| `@beep/epistemic-domain` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
-| `@beep/epistemic-domain/entities` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
-| `@beep/epistemic-domain/entities` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
-| `@beep/epistemic-domain/entities` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
-| `@beep/epistemic-domain/entities` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
-| `@beep/epistemic-domain/entities/Activity` | `Activity` | class | `packages/epistemic/domain/src/entities/Activity/Activity.model.ts:29` | Provenance activity produced by the runtime proof. |
-| `@beep/epistemic-domain/entities/CandidateClaim` | `CandidateClaim` | class | `packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts:31` | Candidate claim proposed by an agent with source evidence. |
-| `@beep/epistemic-domain/entities/Evidence` | `Evidence` | class | `packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts:28` | Source span evidence reference. |
-| `@beep/epistemic-domain/entities/UsageRecord` | `UsageRecord` | class | `packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts:29` | Usage attribution record for a fixture agent run. |
-| `@beep/epistemic-domain/values` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
-| `@beep/epistemic-domain/values` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
-| `@beep/epistemic-domain/values/ClaimLifecycle` | `ClaimLifecycle` | const | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:25` | Candidate lifecycle vocabulary for claim outputs. |
-| `@beep/epistemic-domain/values/ClaimLifecycle` | `ClaimLifecycle` | type | `packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:45` | Runtime type for {@link ClaimLifecycle}. |
-
-### @beep/wealth-management-domain
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/wealth-management-domain` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
-| `@beep/wealth-management-domain` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
-| `@beep/wealth-management-domain` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
-| `@beep/wealth-management-domain` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
-| `@beep/wealth-management-domain` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
-| `@beep/wealth-management-domain` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
-| `@beep/wealth-management-domain` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
-| `@beep/wealth-management-domain` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
-| `@beep/wealth-management-domain` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
-| `@beep/wealth-management-domain` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
-| `@beep/wealth-management-domain` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
-| `@beep/wealth-management-domain` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
-| `@beep/wealth-management-domain/entities` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
-| `@beep/wealth-management-domain/entities` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
-| `@beep/wealth-management-domain/entities` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
-| `@beep/wealth-management-domain/entities` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
-| `@beep/wealth-management-domain/entities` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
-| `@beep/wealth-management-domain/entities` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
-| `@beep/wealth-management-domain/entities` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
-| `@beep/wealth-management-domain/entities` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
-| `@beep/wealth-management-domain/entities` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
-| `@beep/wealth-management-domain/entities` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
-| `@beep/wealth-management-domain/entities` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
-| `@beep/wealth-management-domain/entities` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
-| `@beep/wealth-management-domain/entities/Account` | `Account` | class | `packages/wealth-management/domain/src/entities/Account/Account.model.ts:30` | Account reference context. |
-| `@beep/wealth-management-domain/entities/Account` | `AccountType` | const | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:26` | Fixture account type vocabulary. |
-| `@beep/wealth-management-domain/entities/Account` | `AccountType` | type | `packages/wealth-management/domain/src/entities/Account/Account.values.ts:46` | Runtime type for {@link AccountType}. |
-| `@beep/wealth-management-domain/entities/Household` | `Household` | class | `packages/wealth-management/domain/src/entities/Household/Household.model.ts:30` | Household context. |
-| `@beep/wealth-management-domain/entities/Household` | `HouseholdStatus` | const | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:26` | Fixture household status vocabulary. |
-| `@beep/wealth-management-domain/entities/Household` | `HouseholdStatus` | type | `packages/wealth-management/domain/src/entities/Household/Household.values.ts:46` | Runtime type for {@link HouseholdStatus}. |
-| `@beep/wealth-management-domain/entities/Party` | `Party` | class | `packages/wealth-management/domain/src/entities/Party/Party.model.ts:30` | Party context. |
-| `@beep/wealth-management-domain/entities/Party` | `PartyType` | const | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:26` | Fixture party type vocabulary. |
-| `@beep/wealth-management-domain/entities/Party` | `PartyType` | type | `packages/wealth-management/domain/src/entities/Party/Party.values.ts:46` | Runtime type for {@link PartyType}. |
-| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClient` | class | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.model.ts:30` | Wealth client context. |
-| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClientStatus` | const | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:26` | Fixture wealth-client status vocabulary. |
-| `@beep/wealth-management-domain/entities/WealthClient` | `WealthClientStatus` | type | `packages/wealth-management/domain/src/entities/WealthClient/WealthClient.values.ts:46` | Runtime type for {@link WealthClientStatus}. |
-
 ### @beep/architecture-lab-ui
 
 | Import | Symbol | Kind | Source | Summary |
@@ -9598,7 +9562,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:875` | Human-first docgen command suite. |
+| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1111` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
@@ -9751,7 +9715,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:23` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:39` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationOutcome` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:186` | Outcome for one mutation. |
-| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:875` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1111` | Human-first docgen command suite. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1478` | Aggregate generated package docs into the current root docs layout. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1303` | Analyze a package for missing docgen-required JSDoc. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:465` | Fail when stale package-local docgen configs exist outside current workspaces. |
@@ -9792,31 +9756,42 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1846` | Renders a quality report as stable JSON. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1898` | Renders a quality report as human-readable Markdown. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:559` | Resolves `docgen quality` targets using the v1 scope policy. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1175` | Build a read-only worker eval report from a quality report. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `AnalyzeDocgenQualityWorkerEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:521` | Options for one worker eval run. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1078` | Decode a saved `docgen quality` JSON report for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1115` | Default packet cap for `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1130` | Default hosted Codex reasoning effort for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:196` | Read-only packet execution status for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:215` | Read-only packet execution status for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:266` | Closed repo-policy issue code emitted by a worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:297` | Closed repo-policy issue code emitted by a worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalProvider` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:91` | Worker provider supported by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalProvider` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:110` | Worker provider supported by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:124` | Codex reasoning effort supported by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReasoningEffort` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:149` | Codex reasoning effort supported by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:398` | JSON report emitted by `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReviewDisposition` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:229` | Advisory disposition assigned to a worker draft. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReviewDisposition` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:252` | Advisory disposition assigned to a worker draft. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunner` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:487` | Runner used to execute one Codex eval turn. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunnerInput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:458` | Inputs passed to the Codex runner for one remediation packet. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunnerResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:434` | Completed worker turn returned by the Codex runner. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:163` | Source mode used to build a worker eval queue. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:182` | Source mode used to build a worker eval queue. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalWorkerOutput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:312` | Structured response expected from the Codex worker. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1287` | Render a worker eval report as stable JSON. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1099` | Compute the source packet limit used for generated quality reports. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:733` | Select remediation packets for a capped worker eval run. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1221` | Build a read-only worker eval report from a quality report. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `AnalyzeDocgenQualityWorkerEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:523` | Options for one worker eval run. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1124` | Decode a saved `docgen quality` JSON report for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1161` | Default packet cap for `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1176` | Default hosted Codex reasoning effort for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:197` | Read-only packet execution status for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:216` | Read-only packet execution status for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:267` | Closed repo-policy issue code emitted by a worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:298` | Closed repo-policy issue code emitted by a worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalProvider` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:92` | Worker provider supported by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalProvider` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:111` | Worker provider supported by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:125` | Codex reasoning effort supported by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReasoningEffort` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:150` | Codex reasoning effort supported by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:399` | JSON report emitted by `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReviewDisposition` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:230` | Advisory disposition assigned to a worker draft. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalReviewDisposition` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:253` | Advisory disposition assigned to a worker draft. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunner` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:489` | Runner used to execute one Codex eval turn. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunnerInput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:459` | Inputs passed to the Codex runner for one remediation packet. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalRunnerResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:435` | Completed worker turn returned by the Codex runner. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:164` | Source mode used to build a worker eval queue. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:183` | Source mode used to build a worker eval queue. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalWorkerOutput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:313` | Structured response expected from the Codex worker. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1336` | Render a worker eval report as stable JSON. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1145` | Compute the source packet limit used for generated quality reports. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:736` | Select remediation packets for a capped worker eval run. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpBaseUrl` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1011` | Default Phoenix-compatible OTLP base URL for remote worker eval traces. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1026` | Default Phoenix project for remote worker eval traces. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:996` | Default packet cap for Runpod-backed worker eval runs. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalReadinessTimeoutMs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1041` | Default readiness timeout for remote Ollama bootstrap. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `DocgenQualityWorkerRunpodEvalReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:230` | JSON wrapper report emitted by `docgen quality-worker-eval-runpod`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `generateQualityWorkerRunpodEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1161` | Render a Runpod worker eval wrapper report as stable JSON. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `makeQualityWorkerRunpodEvalPodCreateInput` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:438` | Build the Runpod create-pod body for an Ollama worker eval host. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `requiredQualityWorkerRunpodEvalModel` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:981` | Required v1 model id for Runpod-backed Qwen worker evals. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `runDocgenQualityWorkerRunpodEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1061` | Run a read-only JSDoc quality worker eval on an ephemeral Runpod pod. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `RunDocgenQualityWorkerRunpodEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:267` | Options for a Runpod-backed quality worker eval run. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `selectQualityWorkerRunpodTemplate` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:399` | Select the first suitable Ollama template from live Runpod templates. |
 | `@beep/repo-cli/commands/Docs` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/commands/Docs` | `DocsSection` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:78` | Documentation section model. |
 | `@beep/repo-cli/commands/Docs` | `DocsSection` | type | `packages/tooling/tool/cli/src/commands/Docs.ts:97` | Documentation section model. |
@@ -10405,7 +10380,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:875` | Human-first docgen command suite. |
+| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1111` | Human-first docgen command suite. |
 | `@beep/repo-cli/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
@@ -11889,26 +11864,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/venice-ai/VeniceAiLanguageModel` | `model` | const | `packages/drivers/venice-ai/src/VeniceAiLanguageModel.ts:221` | Builds an Effect AI model value for Venice. |
 | `@beep/venice-ai/VeniceAiLanguageModel` | `VeniceAiLanguageModelOptions` | class | `packages/drivers/venice-ai/src/VeniceAiLanguageModel.ts:50` | Options accepted by the Venice Effect AI language-model adapter. |
 
-### @beep/installer-workspace-server
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-workspace-server` | `InstallerWorkspaceServerLive` | const | `packages/installer-workspace/server/src/Layer.ts:46` | Deterministic workspace server layer for P1A. |
-| `@beep/installer-workspace-server` | `makeInstallerWorkspaceServer` | const | `packages/installer-workspace/server/src/Layer.ts:32` | Build the deterministic workspace dry-run service. |
-| `@beep/installer-workspace-server` | `VERSION` | const | `packages/installer-workspace/server/src/index.ts:15` | Package version for `@beep/installer-workspace-server`. |
-| `@beep/installer-workspace-server/layer` | `InstallerWorkspaceServerLive` | const | `packages/installer-workspace/server/src/Layer.ts:46` | Deterministic workspace server layer for P1A. |
-| `@beep/installer-workspace-server/layer` | `makeInstallerWorkspaceServer` | const | `packages/installer-workspace/server/src/Layer.ts:32` | Build the deterministic workspace dry-run service. |
-| `@beep/installer-workspace-server/test` | `InstallerWorkspaceServerTest` | const | `packages/installer-workspace/server/src/test.ts:17` | Deterministic test layer for the installer-workspace slice. |
-
-### @beep/stack-installer
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `apps/stack-installer/src/proof/P1ManualProof.ts:43` | Layer that composes the live P1 installer slice services. |
-| `@beep/stack-installer` | `previewP1ManualProof` | const | `apps/stack-installer/src/proof/P1ManualProof.ts:222` | Run the app-local Manual Mode proof preview without performing live Discord mutation. |
-| `@beep/stack-installer` | `runP1ManualProof` | const | `apps/stack-installer/src/proof/P1ManualProof.ts:113` | Run the live Manual Mode P1 proof and return only sanitized evidence. |
-| `@beep/stack-installer` | `VERSION` | const | `apps/stack-installer/src/index.ts:15` | App version marker. |
-
 ### @beep/professional-runtime-proof
 
 | Import | Symbol | Kind | Source | Summary |
@@ -12945,374 +12900,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `OpipWebRuntimeSecrets` | type | `infra/src/OpipWeb.ts:308` | Secret runtime values for OPIP deploy targets. |
 | `@beep/infra` | `OpipWebStack` | class | `infra/src/OpipWeb.ts:636` | Import-safe Pulumi component for OPIP production web infrastructure. |
 | `@beep/infra` | `OpipWebStackArgs` | class | `infra/src/OpipWeb.ts:326` | Pulumi-facing args for the OPIP web stack. |
-
-### @beep/runpod
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/runpod` | `BillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:807` | BillingRecord model returned by the Runpod REST API. |
-| `@beep/runpod` | `BillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:828` | BillingRecords schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `BillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:850` | BillingRecords value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `ContainerRegistryAuth` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:751` | ContainerRegistryAuth model returned by the Runpod REST API. |
-| `@beep/runpod` | `ContainerRegistryAuthCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:788` | ContainerRegistryAuthCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `ContainerRegistryAuths` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:767` | ContainerRegistryAuths schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `ContainerRegistryAuths` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:780` | ContainerRegistryAuths value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `createContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2538` | Descriptor for CreateContainerRegistryAuth. |
-| `@beep/runpod` | `CreateContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1699` | Request input for CreateContainerRegistryAuth. |
-| `@beep/runpod` | `createEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2196` | Descriptor for CreateEndpoint. |
-| `@beep/runpod` | `CreateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1412` | Request input for CreateEndpoint. |
-| `@beep/runpod` | `createNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2424` | Descriptor for CreateNetworkVolume. |
-| `@beep/runpod` | `CreateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1605` | Request input for CreateNetworkVolume. |
-| `@beep/runpod` | `createPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2006` | Descriptor for CreatePod. |
-| `@beep/runpod` | `CreatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1254` | Request input for CreatePod. |
-| `@beep/runpod` | `createTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2310` | Descriptor for CreateTemplate. |
-| `@beep/runpod` | `CreateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1510` | Request input for CreateTemplate. |
-| `@beep/runpod` | `CudaVersions` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:711` | CudaVersions schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `CudaVersions` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:723` | CudaVersions value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `DataCenter` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:681` | DataCenter model returned by the Runpod REST API. |
-| `@beep/runpod` | `deleteContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2576` | Descriptor for DeleteContainerRegistryAuth. |
-| `@beep/runpod` | `DeleteContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1733` | Request input for DeleteContainerRegistryAuth. |
-| `@beep/runpod` | `deleteEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2253` | Descriptor for DeleteEndpoint. |
-| `@beep/runpod` | `DeleteEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1460` | Request input for DeleteEndpoint. |
-| `@beep/runpod` | `deleteNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2481` | Descriptor for DeleteNetworkVolume. |
-| `@beep/runpod` | `DeleteNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1651` | Request input for DeleteNetworkVolume. |
-| `@beep/runpod` | `deletePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2063` | Descriptor for DeletePod. |
-| `@beep/runpod` | `DeletePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1305` | Request input for DeletePod. |
-| `@beep/runpod` | `deleteTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2367` | Descriptor for DeleteTemplate. |
-| `@beep/runpod` | `DeleteTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1559` | Request input for DeleteTemplate. |
-| `@beep/runpod` | `Endpoint` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:463` | Endpoint model returned by the Runpod REST API. |
-| `@beep/runpod` | `endpointBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2614` | Descriptor for EndpointBilling. |
-| `@beep/runpod` | `EndpointBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1770` | Request input for EndpointBilling. |
-| `@beep/runpod` | `EndpointCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:555` | EndpointCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `Endpoints` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:442` | Endpoints schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `Endpoints` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:455` | Endpoints value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `EndpointUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:501` | EndpointUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `EndpointUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:523` | EndpointUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `getContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2557` | Descriptor for GetContainerRegistryAuth. |
-| `@beep/runpod` | `GetContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1716` | Request input for GetContainerRegistryAuth. |
-| `@beep/runpod` | `getDocsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1951` | Descriptor for GetDocs. |
-| `@beep/runpod` | `GetDocsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1211` | Request input for GetDocs. |
-| `@beep/runpod` | `GetDocsStatus200TextResponse` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1178` | GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `GetDocsStatus200TextResponse` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1190` | GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `getEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2215` | Descriptor for GetEndpoint. |
-| `@beep/runpod` | `GetEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1427` | Request input for GetEndpoint. |
-| `@beep/runpod` | `getNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2443` | Descriptor for GetNetworkVolume. |
-| `@beep/runpod` | `GetNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1620` | Request input for GetNetworkVolume. |
-| `@beep/runpod` | `getOpenAPIOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1932` | Descriptor for GetOpenAPI. |
-| `@beep/runpod` | `GetOpenAPIRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1198` | Request input for GetOpenAPI. |
-| `@beep/runpod` | `GetOpenAPIStatus200Response` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1158` | GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `GetOpenAPIStatus200Response` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1170` | GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `getPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2025` | Descriptor for GetPod. |
-| `@beep/runpod` | `GetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1269` | Request input for GetPod. |
-| `@beep/runpod` | `getTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2329` | Descriptor for GetTemplate. |
-| `@beep/runpod` | `GetTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1525` | Request input for GetTemplate. |
-| `@beep/runpod` | `GPUTypeId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:731` | GPUTypeId schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `GPUTypeId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:743` | GPUTypeId value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `listContainerRegistryAuthsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2519` | Descriptor for ListContainerRegistryAuths. |
-| `@beep/runpod` | `ListContainerRegistryAuthsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1684` | Request input for ListContainerRegistryAuths. |
-| `@beep/runpod` | `listEndpointsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2177` | Descriptor for ListEndpoints. |
-| `@beep/runpod` | `ListEndpointsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1396` | Request input for ListEndpoints. |
-| `@beep/runpod` | `listNetworkVolumesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2405` | Descriptor for ListNetworkVolumes. |
-| `@beep/runpod` | `ListNetworkVolumesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1592` | Request input for ListNetworkVolumes. |
-| `@beep/runpod` | `listPodsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1970` | Descriptor for ListPods. |
-| `@beep/runpod` | `ListPodsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1224` | Request input for ListPods. |
-| `@beep/runpod` | `listTemplatesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2291` | Descriptor for ListTemplates. |
-| `@beep/runpod` | `ListTemplatesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1493` | Request input for ListTemplates. |
-| `@beep/runpod` | `Machine` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:628` | Machine model returned by the Runpod REST API. |
-| `@beep/runpod` | `NetworkVolume` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:265` | NetworkVolume model returned by the Runpod REST API. |
-| `@beep/runpod` | `networkVolumeBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2643` | Descriptor for NetworkVolumeBilling. |
-| `@beep/runpod` | `NetworkVolumeBillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:858` | NetworkVolumeBillingRecord model returned by the Runpod REST API. |
-| `@beep/runpod` | `NetworkVolumeBillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:877` | NetworkVolumeBillingRecords schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `NetworkVolumeBillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:897` | NetworkVolumeBillingRecords value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `NetworkVolumeBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1793` | Request input for NetworkVolumeBilling. |
-| `@beep/runpod` | `NetworkVolumeCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:283` | NetworkVolumeCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `NetworkVolumes` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:238` | NetworkVolumes schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `NetworkVolumes` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:257` | NetworkVolumes value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `NetworkVolumeUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:300` | NetworkVolumeUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
-| `@beep/runpod` | `Pod` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:44` | Pod model returned by the Runpod REST API. |
-| `@beep/runpod` | `podBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2595` | Descriptor for PodBilling. |
-| `@beep/runpod` | `PodBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1750` | Request input for PodBilling. |
-| `@beep/runpod` | `PodCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:191` | PodCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `Pods` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:23` | Pods schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `Pods` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:36` | Pods value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `PodUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:149` | PodUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `PodUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:165` | PodUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `resetPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2139` | Descriptor for ResetPod. |
-| `@beep/runpod` | `ResetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1366` | Request input for ResetPod. |
-| `@beep/runpod` | `restartPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2158` | Descriptor for RestartPod. |
-| `@beep/runpod` | `RestartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1381` | Request input for RestartPod. |
-| `@beep/runpod` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
-| `@beep/runpod` | `RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:905` | Advisory allowedCudaVersions values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
-| `@beep/runpod` | `RUNPOD_CPU_FLAVOR_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:926` | Advisory cpuFlavorIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_CPU_FLAVOR_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:934` | Advisory cpuFlavorPriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:942` | Advisory cudaVersions values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_DATA_CENTER_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:950` | Advisory dataCenterId values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_DATA_CENTER_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:985` | Advisory dataCenterIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_DATA_CENTER_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1020` | Advisory dataCenterPriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
-| `@beep/runpod` | `RUNPOD_GPU_TYPE_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1028` | Advisory gpuTypeId values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_GPU_TYPE_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1071` | Advisory gpuTypeIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_GPU_TYPE_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1129` | Advisory gpuTypePriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2662` | Generated operation spec table for Runpod service construction. |
-| `@beep/runpod` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
-| `@beep/runpod` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
-| `@beep/runpod` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
-| `@beep/runpod` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
-| `@beep/runpod` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
-| `@beep/runpod` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
-| `@beep/runpod` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
-| `@beep/runpod` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
-| `@beep/runpod` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
-| `@beep/runpod` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
-| `@beep/runpod` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
-| `@beep/runpod` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
-| `@beep/runpod` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
-| `@beep/runpod` | `RunpodHttpMethod` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1810` | Supported Runpod HTTP methods. |
-| `@beep/runpod` | `RunpodHttpMethod` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1818` | Supported Runpod HTTP method. |
-| `@beep/runpod` | `RunpodOperationDescriptor` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1908` | Static metadata for one Runpod REST operation. |
-| `@beep/runpod` | `RunpodOperationId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1826` | Operation ids exposed by Runpod REST API v1. |
-| `@beep/runpod` | `RunpodOperationId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1868` | Operation id exposed by Runpod REST API v1. |
-| `@beep/runpod` | `RunpodOperationsShape` | interface | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2847` | Typed method surface generated from Runpod REST API v1. |
-| `@beep/runpod` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
-| `@beep/runpod` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
-| `@beep/runpod` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
-| `@beep/runpod` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
-| `@beep/runpod` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
-| `@beep/runpod` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
-| `@beep/runpod` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
-| `@beep/runpod` | `RunpodRequestBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1876` | Request body encoding used by a Runpod operation. |
-| `@beep/runpod` | `RunpodRequestBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1884` | Request body encoding used by a Runpod operation. |
-| `@beep/runpod` | `RunpodResponseBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1892` | Response body decoding used by a Runpod operation. |
-| `@beep/runpod` | `RunpodResponseBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1900` | Response body decoding used by a Runpod operation. |
-| `@beep/runpod` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
-| `@beep/runpod` | `SavingsPlan` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:608` | SavingsPlan model returned by the Runpod REST API. |
-| `@beep/runpod` | `startPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2101` | Descriptor for StartPod. |
-| `@beep/runpod` | `StartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1336` | Request input for StartPod. |
-| `@beep/runpod` | `stopPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2120` | Descriptor for StopPod. |
-| `@beep/runpod` | `StopPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1351` | Request input for StopPod. |
-| `@beep/runpod` | `Template` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:337` | Template model returned by the Runpod REST API. |
-| `@beep/runpod` | `TemplateCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:369` | TemplateCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `Templates` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:316` | Templates schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `Templates` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:329` | Templates value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `TemplateUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:397` | TemplateUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `TemplateUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:416` | TemplateUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod` | `UnauthorizedError` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:696` | UnauthorizedError model returned by the Runpod REST API. |
-| `@beep/runpod` | `updateEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2234` | Descriptor for UpdateEndpoint. |
-| `@beep/runpod` | `UpdateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1444` | Request input for UpdateEndpoint. |
-| `@beep/runpod` | `updateEndpointViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2272` | Descriptor for UpdateEndpoint. |
-| `@beep/runpod` | `UpdateEndpointViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1475` | Request input for UpdateEndpoint. |
-| `@beep/runpod` | `updateNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2462` | Descriptor for UpdateNetworkVolume. |
-| `@beep/runpod` | `UpdateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1635` | Request input for UpdateNetworkVolume. |
-| `@beep/runpod` | `updateNetworkVolumeViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2500` | Descriptor for UpdateNetworkVolume. |
-| `@beep/runpod` | `UpdateNetworkVolumeViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1666` | Request input for UpdateNetworkVolume. |
-| `@beep/runpod` | `updatePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2044` | Descriptor for UpdatePod. |
-| `@beep/runpod` | `UpdatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1289` | Request input for UpdatePod. |
-| `@beep/runpod` | `updatePodViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2082` | Descriptor for UpdatePod. |
-| `@beep/runpod` | `UpdatePodViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1320` | Request input for UpdatePod. |
-| `@beep/runpod` | `updateTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2348` | Descriptor for UpdateTemplate. |
-| `@beep/runpod` | `UpdateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1543` | Request input for UpdateTemplate. |
-| `@beep/runpod` | `updateTemplateViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2386` | Descriptor for UpdateTemplate. |
-| `@beep/runpod` | `UpdateTemplateViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1574` | Request input for UpdateTemplate. |
-| `@beep/runpod` | `User` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:588` | User schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `User` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:600` | User value generated from the Runpod OpenAPI document. |
-| `@beep/runpod` | `VERSION` | const | `packages/drivers/runpod/src/index.ts:50` | Package version. |
-| `@beep/runpod/index` | `BillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:807` | BillingRecord model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `BillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:828` | BillingRecords schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `BillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:850` | BillingRecords value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `ContainerRegistryAuth` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:751` | ContainerRegistryAuth model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `ContainerRegistryAuthCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:788` | ContainerRegistryAuthCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `ContainerRegistryAuths` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:767` | ContainerRegistryAuths schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `ContainerRegistryAuths` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:780` | ContainerRegistryAuths value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `createContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2538` | Descriptor for CreateContainerRegistryAuth. |
-| `@beep/runpod/index` | `CreateContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1699` | Request input for CreateContainerRegistryAuth. |
-| `@beep/runpod/index` | `createEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2196` | Descriptor for CreateEndpoint. |
-| `@beep/runpod/index` | `CreateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1412` | Request input for CreateEndpoint. |
-| `@beep/runpod/index` | `createNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2424` | Descriptor for CreateNetworkVolume. |
-| `@beep/runpod/index` | `CreateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1605` | Request input for CreateNetworkVolume. |
-| `@beep/runpod/index` | `createPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2006` | Descriptor for CreatePod. |
-| `@beep/runpod/index` | `CreatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1254` | Request input for CreatePod. |
-| `@beep/runpod/index` | `createTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2310` | Descriptor for CreateTemplate. |
-| `@beep/runpod/index` | `CreateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1510` | Request input for CreateTemplate. |
-| `@beep/runpod/index` | `CudaVersions` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:711` | CudaVersions schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `CudaVersions` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:723` | CudaVersions value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `DataCenter` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:681` | DataCenter model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `deleteContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2576` | Descriptor for DeleteContainerRegistryAuth. |
-| `@beep/runpod/index` | `DeleteContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1733` | Request input for DeleteContainerRegistryAuth. |
-| `@beep/runpod/index` | `deleteEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2253` | Descriptor for DeleteEndpoint. |
-| `@beep/runpod/index` | `DeleteEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1460` | Request input for DeleteEndpoint. |
-| `@beep/runpod/index` | `deleteNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2481` | Descriptor for DeleteNetworkVolume. |
-| `@beep/runpod/index` | `DeleteNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1651` | Request input for DeleteNetworkVolume. |
-| `@beep/runpod/index` | `deletePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2063` | Descriptor for DeletePod. |
-| `@beep/runpod/index` | `DeletePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1305` | Request input for DeletePod. |
-| `@beep/runpod/index` | `deleteTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2367` | Descriptor for DeleteTemplate. |
-| `@beep/runpod/index` | `DeleteTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1559` | Request input for DeleteTemplate. |
-| `@beep/runpod/index` | `Endpoint` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:463` | Endpoint model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `endpointBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2614` | Descriptor for EndpointBilling. |
-| `@beep/runpod/index` | `EndpointBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1770` | Request input for EndpointBilling. |
-| `@beep/runpod/index` | `EndpointCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:555` | EndpointCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `Endpoints` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:442` | Endpoints schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `Endpoints` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:455` | Endpoints value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `EndpointUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:501` | EndpointUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `EndpointUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:523` | EndpointUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `getContainerRegistryAuthOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2557` | Descriptor for GetContainerRegistryAuth. |
-| `@beep/runpod/index` | `GetContainerRegistryAuthRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1716` | Request input for GetContainerRegistryAuth. |
-| `@beep/runpod/index` | `getDocsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1951` | Descriptor for GetDocs. |
-| `@beep/runpod/index` | `GetDocsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1211` | Request input for GetDocs. |
-| `@beep/runpod/index` | `GetDocsStatus200TextResponse` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1178` | GetDocsStatus200TextResponse schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `GetDocsStatus200TextResponse` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1190` | GetDocsStatus200TextResponse value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `getEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2215` | Descriptor for GetEndpoint. |
-| `@beep/runpod/index` | `GetEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1427` | Request input for GetEndpoint. |
-| `@beep/runpod/index` | `getNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2443` | Descriptor for GetNetworkVolume. |
-| `@beep/runpod/index` | `GetNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1620` | Request input for GetNetworkVolume. |
-| `@beep/runpod/index` | `getOpenAPIOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1932` | Descriptor for GetOpenAPI. |
-| `@beep/runpod/index` | `GetOpenAPIRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1198` | Request input for GetOpenAPI. |
-| `@beep/runpod/index` | `GetOpenAPIStatus200Response` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1158` | GetOpenAPIStatus200Response schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `GetOpenAPIStatus200Response` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1170` | GetOpenAPIStatus200Response value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `getPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2025` | Descriptor for GetPod. |
-| `@beep/runpod/index` | `GetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1269` | Request input for GetPod. |
-| `@beep/runpod/index` | `getTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2329` | Descriptor for GetTemplate. |
-| `@beep/runpod/index` | `GetTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1525` | Request input for GetTemplate. |
-| `@beep/runpod/index` | `GPUTypeId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:731` | GPUTypeId schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `GPUTypeId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:743` | GPUTypeId value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `listContainerRegistryAuthsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2519` | Descriptor for ListContainerRegistryAuths. |
-| `@beep/runpod/index` | `ListContainerRegistryAuthsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1684` | Request input for ListContainerRegistryAuths. |
-| `@beep/runpod/index` | `listEndpointsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2177` | Descriptor for ListEndpoints. |
-| `@beep/runpod/index` | `ListEndpointsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1396` | Request input for ListEndpoints. |
-| `@beep/runpod/index` | `listNetworkVolumesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2405` | Descriptor for ListNetworkVolumes. |
-| `@beep/runpod/index` | `ListNetworkVolumesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1592` | Request input for ListNetworkVolumes. |
-| `@beep/runpod/index` | `listPodsOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1970` | Descriptor for ListPods. |
-| `@beep/runpod/index` | `ListPodsRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1224` | Request input for ListPods. |
-| `@beep/runpod/index` | `listTemplatesOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2291` | Descriptor for ListTemplates. |
-| `@beep/runpod/index` | `ListTemplatesRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1493` | Request input for ListTemplates. |
-| `@beep/runpod/index` | `Machine` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:628` | Machine model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `NetworkVolume` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:265` | NetworkVolume model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `networkVolumeBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2643` | Descriptor for NetworkVolumeBilling. |
-| `@beep/runpod/index` | `NetworkVolumeBillingRecord` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:858` | NetworkVolumeBillingRecord model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `NetworkVolumeBillingRecords` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:877` | NetworkVolumeBillingRecords schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `NetworkVolumeBillingRecords` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:897` | NetworkVolumeBillingRecords value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `NetworkVolumeBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1793` | Request input for NetworkVolumeBilling. |
-| `@beep/runpod/index` | `NetworkVolumeCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:283` | NetworkVolumeCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `NetworkVolumes` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:238` | NetworkVolumes schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `NetworkVolumes` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:257` | NetworkVolumes value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `NetworkVolumeUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:300` | NetworkVolumeUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
-| `@beep/runpod/index` | `Pod` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:44` | Pod model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `podBillingOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2595` | Descriptor for PodBilling. |
-| `@beep/runpod/index` | `PodBillingRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1750` | Request input for PodBilling. |
-| `@beep/runpod/index` | `PodCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:191` | PodCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `Pods` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:23` | Pods schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `Pods` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:36` | Pods value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `PodUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:149` | PodUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `PodUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:165` | PodUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `resetPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2139` | Descriptor for ResetPod. |
-| `@beep/runpod/index` | `ResetPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1366` | Request input for ResetPod. |
-| `@beep/runpod/index` | `restartPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2158` | Descriptor for RestartPod. |
-| `@beep/runpod/index` | `RestartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1381` | Request input for RestartPod. |
-| `@beep/runpod/index` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
-| `@beep/runpod/index` | `RUNPOD_ALLOWED_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:905` | Advisory allowedCudaVersions values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
-| `@beep/runpod/index` | `RUNPOD_CPU_FLAVOR_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:926` | Advisory cpuFlavorIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_CPU_FLAVOR_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:934` | Advisory cpuFlavorPriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_CUDA_VERSIONS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:942` | Advisory cudaVersions values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:950` | Advisory dataCenterId values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:985` | Advisory dataCenterIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_DATA_CENTER_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1020` | Advisory dataCenterPriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
-| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_ID_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1028` | Advisory gpuTypeId values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_IDS_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1071` | Advisory gpuTypeIds values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_GPU_TYPE_PRIORITY_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1129` | Advisory gpuTypePriority values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_MIN_CUDA_VERSION_VALUES` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1137` | Advisory minCudaVersion values observed in the checked-in Runpod OpenAPI document. |
-| `@beep/runpod/index` | `RUNPOD_OPERATION_SPECS` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2662` | Generated operation spec table for Runpod service construction. |
-| `@beep/runpod/index` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
-| `@beep/runpod/index` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
-| `@beep/runpod/index` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
-| `@beep/runpod/index` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
-| `@beep/runpod/index` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
-| `@beep/runpod/index` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
-| `@beep/runpod/index` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
-| `@beep/runpod/index` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
-| `@beep/runpod/index` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
-| `@beep/runpod/index` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
-| `@beep/runpod/index` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
-| `@beep/runpod/index` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
-| `@beep/runpod/index` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
-| `@beep/runpod/index` | `RunpodHttpMethod` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1810` | Supported Runpod HTTP methods. |
-| `@beep/runpod/index` | `RunpodHttpMethod` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1818` | Supported Runpod HTTP method. |
-| `@beep/runpod/index` | `RunpodOperationDescriptor` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1908` | Static metadata for one Runpod REST operation. |
-| `@beep/runpod/index` | `RunpodOperationId` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1826` | Operation ids exposed by Runpod REST API v1. |
-| `@beep/runpod/index` | `RunpodOperationId` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1868` | Operation id exposed by Runpod REST API v1. |
-| `@beep/runpod/index` | `RunpodOperationsShape` | interface | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2847` | Typed method surface generated from Runpod REST API v1. |
-| `@beep/runpod/index` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
-| `@beep/runpod/index` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
-| `@beep/runpod/index` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
-| `@beep/runpod/index` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
-| `@beep/runpod/index` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
-| `@beep/runpod/index` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
-| `@beep/runpod/index` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
-| `@beep/runpod/index` | `RunpodRequestBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1876` | Request body encoding used by a Runpod operation. |
-| `@beep/runpod/index` | `RunpodRequestBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1884` | Request body encoding used by a Runpod operation. |
-| `@beep/runpod/index` | `RunpodResponseBodyKind` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1892` | Response body decoding used by a Runpod operation. |
-| `@beep/runpod/index` | `RunpodResponseBodyKind` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1900` | Response body decoding used by a Runpod operation. |
-| `@beep/runpod/index` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
-| `@beep/runpod/index` | `SavingsPlan` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:608` | SavingsPlan model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `startPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2101` | Descriptor for StartPod. |
-| `@beep/runpod/index` | `StartPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1336` | Request input for StartPod. |
-| `@beep/runpod/index` | `stopPodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2120` | Descriptor for StopPod. |
-| `@beep/runpod/index` | `StopPodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1351` | Request input for StopPod. |
-| `@beep/runpod/index` | `Template` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:337` | Template model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `TemplateCreateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:369` | TemplateCreateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `Templates` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:316` | Templates schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `Templates` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:329` | Templates value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `TemplateUpdateInPlaceInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:397` | TemplateUpdateInPlaceInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `TemplateUpdateInput` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:416` | TemplateUpdateInput model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `UnauthorizedError` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:696` | UnauthorizedError model returned by the Runpod REST API. |
-| `@beep/runpod/index` | `updateEndpointOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2234` | Descriptor for UpdateEndpoint. |
-| `@beep/runpod/index` | `UpdateEndpointRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1444` | Request input for UpdateEndpoint. |
-| `@beep/runpod/index` | `updateEndpointViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2272` | Descriptor for UpdateEndpoint. |
-| `@beep/runpod/index` | `UpdateEndpointViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1475` | Request input for UpdateEndpoint. |
-| `@beep/runpod/index` | `updateNetworkVolumeOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2462` | Descriptor for UpdateNetworkVolume. |
-| `@beep/runpod/index` | `UpdateNetworkVolumeRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1635` | Request input for UpdateNetworkVolume. |
-| `@beep/runpod/index` | `updateNetworkVolumeViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2500` | Descriptor for UpdateNetworkVolume. |
-| `@beep/runpod/index` | `UpdateNetworkVolumeViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1666` | Request input for UpdateNetworkVolume. |
-| `@beep/runpod/index` | `updatePodOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2044` | Descriptor for UpdatePod. |
-| `@beep/runpod/index` | `UpdatePodRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1289` | Request input for UpdatePod. |
-| `@beep/runpod/index` | `updatePodViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2082` | Descriptor for UpdatePod. |
-| `@beep/runpod/index` | `UpdatePodViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1320` | Request input for UpdatePod. |
-| `@beep/runpod/index` | `updateTemplateOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2348` | Descriptor for UpdateTemplate. |
-| `@beep/runpod/index` | `UpdateTemplateRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1543` | Request input for UpdateTemplate. |
-| `@beep/runpod/index` | `updateTemplateViaPostOperation` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:2386` | Descriptor for UpdateTemplate. |
-| `@beep/runpod/index` | `UpdateTemplateViaPostRequest` | class | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:1574` | Request input for UpdateTemplate. |
-| `@beep/runpod/index` | `User` | const | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:588` | User schema generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `User` | type | `packages/drivers/runpod/src/_generated/Runpod.generated.ts:600` | User value generated from the Runpod OpenAPI document. |
-| `@beep/runpod/index` | `VERSION` | const | `packages/drivers/runpod/src/index.ts:50` | Package version. |
-| `@beep/runpod/Runpod.config` | `RUNPOD_API_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:19` | Default Runpod REST API v1 base URL. |
-| `@beep/runpod/Runpod.config` | `RUNPOD_DOCS_INDEX_URL` | const | `packages/drivers/runpod/src/Runpod.config.ts:27` | Default Runpod documentation index URL for LLM-oriented docs. |
-| `@beep/runpod/Runpod.config` | `RunpodConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:35` | Runtime configuration accepted by {@link Runpod.makeLayer}. |
-| `@beep/runpod/Runpod.config` | `RunpodDocsConfigInput` | class | `packages/drivers/runpod/src/Runpod.config.ts:52` | Runtime configuration accepted by {@link RunpodDocs.makeLayer}. |
-| `@beep/runpod/Runpod.docs` | `parseRunpodDocsIndex` | const | `packages/drivers/runpod/src/Runpod.docs.ts:170` | Parse Runpod's `llms.txt` Markdown index into a structured schema model. |
-| `@beep/runpod/Runpod.docs` | `RunpodDocs` | class | `packages/drivers/runpod/src/Runpod.docs.ts:266` | Effect service for the Runpod LLM documentation index. |
-| `@beep/runpod/Runpod.docs` | `RunpodDocsIndex` | class | `packages/drivers/runpod/src/Runpod.docs.ts:47` | Parsed Runpod documentation index. |
-| `@beep/runpod/Runpod.docs` | `RunpodDocsIndexEntry` | class | `packages/drivers/runpod/src/Runpod.docs.ts:29` | One Markdown documentation link parsed from Runpod's `llms.txt` index. |
-| `@beep/runpod/Runpod.errors` | `RunpodDocsError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:163` | Technical failure raised by the Runpod documentation index driver boundary. |
-| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:237` | Options used when constructing Runpod documentation driver errors. |
-| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:53` | Technical error reasons emitted by the Runpod documentation index driver. |
-| `@beep/runpod/Runpod.errors` | `RunpodDocsErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:71` | Type for {@link RunpodDocsErrorReason}. |
-| `@beep/runpod/Runpod.errors` | `RunpodError` | class | `packages/drivers/runpod/src/Runpod.errors.ts:81` | Technical failure raised by the Runpod REST API driver boundary. |
-| `@beep/runpod/Runpod.errors` | `RunpodErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:202` | Options used when constructing Runpod driver errors. |
-| `@beep/runpod/Runpod.errors` | `RunpodErrorReason` | const | `packages/drivers/runpod/src/Runpod.errors.ts:27` | Technical error reasons emitted by the Runpod REST API driver. |
-| `@beep/runpod/Runpod.errors` | `RunpodErrorReason` | type | `packages/drivers/runpod/src/Runpod.errors.ts:45` | Type for {@link RunpodErrorReason}. |
-| `@beep/runpod/Runpod.errors` | `RunpodRawErrorOptions` | class | `packages/drivers/runpod/src/Runpod.errors.ts:218` | Options used when constructing Runpod driver errors for raw requests. |
-| `@beep/runpod/Runpod.service` | `Runpod` | class | `packages/drivers/runpod/src/Runpod.service.ts:804` | Effect service for all documented Runpod REST API v1 operations. |
-| `@beep/runpod/Runpod.service` | `RunpodQueryScalar` | const | `packages/drivers/runpod/src/Runpod.service.ts:31` | Scalar query values accepted by Runpod request models and raw requests. |
-| `@beep/runpod/Runpod.service` | `RunpodQueryScalar` | type | `packages/drivers/runpod/src/Runpod.service.ts:43` | Type for {@link RunpodQueryScalar}. |
-| `@beep/runpod/Runpod.service` | `RunpodQueryValue` | const | `packages/drivers/runpod/src/Runpod.service.ts:54` | Query value accepted by the raw Runpod request escape hatch. |
-| `@beep/runpod/Runpod.service` | `RunpodQueryValue` | type | `packages/drivers/runpod/src/Runpod.service.ts:66` | Type for {@link RunpodQueryValue}. |
-| `@beep/runpod/Runpod.service` | `RunpodRawRequest` | class | `packages/drivers/runpod/src/Runpod.service.ts:74` | Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document. |
-| `@beep/runpod/Runpod.service` | `RunpodRawResponse` | class | `packages/drivers/runpod/src/Runpod.service.ts:94` | Raw Runpod HTTP response returned by {@link Runpod.raw}. |
-| `@beep/runpod/Runpod.service` | `RunpodShape` | interface | `packages/drivers/runpod/src/Runpod.service.ts:112` | Public service shape for generated Runpod operations plus the raw request escape hatch. |
 
 ### @beep/codedank-web
 
