@@ -4,13 +4,13 @@ import {
   findMissingChangesetPackageReferences,
   makeChangesetGraphSummary,
 } from "@beep/repo-cli/commands/Quality/ChangesetGraph";
+import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
-import { describe, expect, it } from "vitest";
 
 describe("changeset graph", () => {
-  it("parses package names from changeset frontmatter", async () => {
-    const references = await Effect.runPromise(
-      changesetPackageReferencesFromText(
+  it.effect("parses package names from changeset frontmatter", () =>
+    Effect.gen(function* () {
+      const references = yield* changesetPackageReferencesFromText(
         ".changeset/demo.md",
         `---
 "@beep/schema": patch
@@ -19,35 +19,35 @@ describe("changeset graph", () => {
 
 Patch package metadata.
 `
-      )
-    );
+      );
 
-    expect(references).toEqual([
-      new ChangesetGraphPackageReference({
-        file: ".changeset/demo.md",
-        packageName: "@beep/repo-cli",
-      }),
-      new ChangesetGraphPackageReference({
-        file: ".changeset/demo.md",
-        packageName: "@beep/schema",
-      }),
-    ]);
-  });
+      expect(references).toEqual([
+        new ChangesetGraphPackageReference({
+          file: ".changeset/demo.md",
+          packageName: "@beep/repo-cli",
+        }),
+        new ChangesetGraphPackageReference({
+          file: ".changeset/demo.md",
+          packageName: "@beep/schema",
+        }),
+      ]);
+    })
+  );
 
-  it("treats empty changeset frontmatter as a valid no-op", async () => {
-    const references = await Effect.runPromise(
-      changesetPackageReferencesFromText(
+  it.effect("treats empty changeset frontmatter as a valid no-op", () =>
+    Effect.gen(function* () {
+      const references = yield* changesetPackageReferencesFromText(
         ".changeset/noop.md",
         `---
 ---
 
 Record a private workspace change.
 `
-      )
-    );
+      );
 
-    expect(references).toEqual([]);
-  });
+      expect(references).toEqual([]);
+    })
+  );
 
   it("reports only package references outside the workspace graph", () => {
     const missing = findMissingChangesetPackageReferences(
