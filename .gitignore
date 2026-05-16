@@ -44,6 +44,8 @@ docs/
 **/docs
 !initiatives/**/docs/
 !initiatives/**/docs/**
+!apps/professional-desktop/docs/
+!apps/professional-desktop/docs/**
 # Docgen analysis artifacts
 **/JSDOC_ANALYSIS.md
 **/JSDOC_ANALYSIS.json

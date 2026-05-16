@@ -1,0 +1,4 @@
+src-tauri/gen/**
+src-tauri/target/**
+dist/**
+coverage/**
