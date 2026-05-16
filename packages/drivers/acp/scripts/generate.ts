@@ -154,13 +154,14 @@ function collectSchemaEntries(chunk: string): ReadonlyArray<SchemaEntry> {
     }
 
     const match = /^export type ([A-Za-z0-9_]+)/.exec(typeLine);
-    if (!match?.[1]) {
+    const schemaName = match?.[1];
+    if (schemaName === undefined) {
       throw new AcpGeneratorOutputError({ message: `Could not extract schema name from: ${typeLine}` });
     }
 
     entries = A.append(entries, {
-      name: match[1],
-      code: renderSchemaEntry(match[1], constLine),
+      name: schemaName,
+      code: renderSchemaEntry(schemaName, constLine),
     });
     index += 1;
   }
@@ -238,15 +239,17 @@ function renderMetaConst(name: string, value: string, description: string): stri
   );
 }
 
-function normalizeNullableTypes(value: typeof S.Json.Type): typeof S.Json.Type {
+type Json = typeof S.Json.Type;
+
+function normalizeNullableTypes(value: Json): Json {
   if (A.isArray(value)) {
-    return A.map(value, normalizeNullableTypes) as typeof S.Json.Type;
+    return A.map(value as ReadonlyArray<Json>, normalizeNullableTypes);
   }
   if (value === null || !P.isObject(value)) {
     return value;
   }
 
-  const normalizedObject = R.map(value as Record<string, typeof S.Json.Type>, normalizeNullableTypes);
+  const normalizedObject = R.map(value as Record<string, Json>, normalizeNullableTypes);
   const typeValue = normalizedObject.type;
 
   if (!A.isArray(typeValue)) {
@@ -293,7 +296,7 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
 
   const sortedEntries = pipe(
     R.toEntries(normalizedDefinitions),
-    A.sort(Order.mapInput(schemaNameOrder, ([name]) => name))
+    A.sort(Order.mapInput(schemaNameOrder, (entry: readonly [string, Json]) => entry[0]))
   );
   let generatedEntries = A.empty<SchemaEntry>();
   const generator = makeJsonSchemaGenerator();
@@ -402,6 +405,8 @@ const runtimeLayer = Layer.mergeAll(Logger.layer([Logger.consolePretty()]), Node
 
 Command.run(generateCommand, { version: "0.0.0" }).pipe(
   Effect.scoped,
+  // @effect-diagnostics-next-line strictEffectProvide:off
+  // Entry point script: the diagnostic is expected and documented as safe for application entry points.
   Effect.provide(runtimeLayer),
   NodeRuntime.runMain
 );

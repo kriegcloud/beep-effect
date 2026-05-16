@@ -25,6 +25,10 @@
 
             # Docker
             docker-compose
+
+            # Native libs needed by globally-installed Node CLIs (e.g. grok -> keytar -> libsecret + glib)
+            libsecret
+            glib
           ];
 
           shellHook = ''
@@ -35,6 +39,7 @@
             export BUN_INSTALL_CACHE_DIR="/tmp/$USER-$worktree_name-bun-install-cache"
             mkdir -p "$BUN_INSTALL_CACHE_DIR"
             export PATH="$BUN_INSTALL/bin:$PATH"
+            export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [ pkgs.libsecret pkgs.glib ]}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           '';
         };
       });

@@ -1374,13 +1374,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
 | `@beep/schema` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:434` |  |
 | `@beep/schema` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:280` | Schema factory for CSV documents whose rows are validated by the provided |
+| `@beep/schema` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
 | `@beep/schema` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
 | `@beep/schema` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
 | `@beep/schema` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
 | `@beep/schema` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:307` | Branded runtime type for CSV document text produced by encoding a `CSV` |
+| `@beep/schema` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:302` | Branded runtime type for CSV document text produced by encoding a `CSV` |
 | `@beep/schema` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
 | `@beep/schema` | `Darken` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1163` | Type for {@link Darken}. |
 | `@beep/schema` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1129` | Request schema for darkening a color. |
@@ -1406,9 +1406,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `decodeJsonlTextAs` | const | `packages/foundation/modeling/schema/src/Jsonl.ts:144` | Builds a decoder that parses JSONL text and then decodes the resulting value |
 | `@beep/schema` | `decodeJsonString` | const | `packages/foundation/modeling/schema/src/Json.ts:86` | Decodes a JSON string into an unknown JSON-compatible value. |
 | `@beep/schema` | `decodeMarkdownTextAs` | const | `packages/foundation/modeling/schema/src/Markdown.ts:206` | Builds a decoder that renders Markdown text to HTML and then decodes the |
-| `@beep/schema` | `decodeTomlTextAs` | const | `packages/foundation/modeling/schema/src/Toml.ts:123` | Builds a decoder that parses TOML text and then decodes the result through a |
+| `@beep/schema` | `decodeTomlTextAs` | const | `packages/foundation/modeling/schema/src/Toml.ts:128` | Builds a decoder that parses TOML text and then decodes the result through a |
 | `@beep/schema` | `decodeXmlTextAs` | const | `packages/foundation/modeling/schema/src/Xml.ts:119` | Builds a decoder that parses XML text and then decodes the result through a |
-| `@beep/schema` | `decodeYamlTextAs` | const | `packages/foundation/modeling/schema/src/Yaml.ts:141` | Builds a decoder that parses YAML text and then decodes the result through a |
+| `@beep/schema` | `decodeYamlTextAs` | const | `packages/foundation/modeling/schema/src/Yaml.ts:133` | Builds a decoder that parses YAML text and then decodes the result through a |
 | `@beep/schema` | `destructiveTransform` | const | `packages/foundation/modeling/schema/src/Transformations.ts:47` | Applies a lossy transform by inferring the target type from a callback result. |
 | `@beep/schema` | `diffInDays` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:380` | Get the difference in whole days between two `LocalDate` values. |
 | `@beep/schema` | `DirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph.ts:1177` | Schema for immutable directed graphs. |
@@ -1755,7 +1755,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
 | `@beep/schema` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
 | `@beep/schema` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:78` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
+| `@beep/schema` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:73` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
 | `@beep/schema` | `PascalCaseStr` | const | `packages/foundation/modeling/schema/src/PascalStr.ts:28` | Branded PascalCase string schema. |
 | `@beep/schema` | `PascalCaseStr` | type | `packages/foundation/modeling/schema/src/PascalStr.ts:54` | Type for {@link PascalCaseStr}. |
 | `@beep/schema` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
@@ -1884,7 +1884,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `Timezone` | type | `packages/foundation/modeling/schema/src/Timezone.ts:493` | Runtime type for {@link Timezone}. |
 | `@beep/schema` | `today` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:245` | Get today's date in UTC. |
 | `@beep/schema` | `todayEffect` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:253` | Get today's UTC date as an `Effect` using the Clock service, testable with `TestClock`. |
-| `@beep/schema` | `TomlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Toml.ts:84` | Schema transformation that decodes TOML text into an unknown record using |
+| `@beep/schema` | `TomlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Toml.ts:94` | Schema transformation that decodes TOML text into an unknown record using |
 | `@beep/schema` | `TrimmedNonEmptyText` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:36` | Trimmed and non-empty text schema that strips whitespace and rejects empty results. |
 | `@beep/schema` | `TrimmedNonEmptyText` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:64` | Type for {@link TrimmedNonEmptyText}. |
 | `@beep/schema` | `UndirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph.ts:1201` | Schema for immutable undirected graphs. |
@@ -1947,7 +1947,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
 | `@beep/schema` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
 | `@beep/schema` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:101` | Schema transformation that decodes YAML text into an unknown parsed value. |
+| `@beep/schema` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:96` | Schema transformation that decodes YAML text into an unknown parsed value. |
 | `@beep/schema/AbortSignal` | `AbortSig` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:46` | Declared schema for `AbortSignal` instances. |
 | `@beep/schema/AbortSignal` | `AbortSig` | type | `packages/foundation/modeling/schema/src/AbortSignal.ts:65` | {@inheritDoc AbortSig} |
 | `@beep/schema/AbortSignal` | `isAbortSignal` | const | `packages/foundation/modeling/schema/src/AbortSignal.ts:28` | Type guard that checks whether a value is an `AbortSignal` instance. |
@@ -2143,13 +2143,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/CommonTextSchemas` | `NormalizedBooleanString` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:154` | Type for {@link NormalizedBooleanString}. |
 | `@beep/schema/CommonTextSchemas` | `TrimmedNonEmptyText` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:36` | Trimmed and non-empty text schema that strips whitespace and rejects empty results. |
 | `@beep/schema/CommonTextSchemas` | `TrimmedNonEmptyText` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:64` | Type for {@link TrimmedNonEmptyText}. |
-| `@beep/schema/csv` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:280` | Schema factory for CSV documents whose rows are validated by the provided |
+| `@beep/schema/csv` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema/csv` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
 | `@beep/schema/csv` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
 | `@beep/schema/csv` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
 | `@beep/schema/csv` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
 | `@beep/schema/csv` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/csv` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:307` | Branded runtime type for CSV document text produced by encoding a `CSV` |
+| `@beep/schema/csv` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:302` | Branded runtime type for CSV document text produced by encoding a `CSV` |
 | `@beep/schema/csv` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
 | `@beep/schema/csv` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
 | `@beep/schema/csv` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
@@ -2176,13 +2176,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/csv/format/index` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
 | `@beep/schema/csv/format/index` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
 | `@beep/schema/csv/format/index` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
-| `@beep/schema/csv/index` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:280` | Schema factory for CSV documents whose rows are validated by the provided |
+| `@beep/schema/csv/index` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema/csv/index` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
 | `@beep/schema/csv/index` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
 | `@beep/schema/csv/index` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
 | `@beep/schema/csv/index` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
 | `@beep/schema/csv/index` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/csv/index` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:307` | Branded runtime type for CSV document text produced by encoding a `CSV` |
+| `@beep/schema/csv/index` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:302` | Branded runtime type for CSV document text produced by encoding a `CSV` |
 | `@beep/schema/csv/index` | `formatCsvDataRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:125` | Format a CSV data row. |
 | `@beep/schema/csv/index` | `formatCsvDocument` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:152` | Format a whole CSV document. |
 | `@beep/schema/csv/index` | `formatCsvHeaderRow` | const | `packages/foundation/modeling/schema/src/csv/format/CsvFormatter.ts:100` | Format a CSV header row. |
@@ -3264,13 +3264,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `CryptoWalletAddressRedacted` | type | `packages/foundation/modeling/schema/src/blockchain/CryptoWalletAddress.ts:223` | Type for {@link CryptoWalletAddressRedacted}. |
 | `@beep/schema/index` | `CspDirectives` | const | `packages/foundation/modeling/schema/src/http/headers/Csp.ts:434` |  |
 | `@beep/schema/index` | `CspError` | class | `packages/foundation/modeling/schema/src/http/headers/SecureHeaderError.ts:109` |  |
-| `@beep/schema/index` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:280` | Schema factory for CSV documents whose rows are validated by the provided |
+| `@beep/schema/index` | `CSV` | const | `packages/foundation/modeling/schema/src/csv/index.ts:275` | Schema factory for CSV documents whose rows are validated by the provided |
 | `@beep/schema/index` | `CsvCodecOptions` | class | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:38` | Schema-backed CSV text codec options. |
 | `@beep/schema/index` | `CsvCodecOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:105` | Encoded/raw constructor input for {@link CsvCodecOptions}. |
 | `@beep/schema/index` | `CsvCodecOptionsParseOptions` | const | `packages/foundation/modeling/schema/src/csv/CsvCodecOptions.ts:113` | Parse options used when normalizing raw CSV codec option input. |
 | `@beep/schema/index` | `csvError` | const | `packages/foundation/modeling/schema/src/csv/CsvError.ts:42` | Construct a {@link CsvError}. |
 | `@beep/schema/index` | `CsvError` | class | `packages/foundation/modeling/schema/src/csv/CsvError.ts:34` | Raised when CSV parsing, header validation, or formatting fails. |
-| `@beep/schema/index` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:307` | Branded runtime type for CSV document text produced by encoding a `CSV` |
+| `@beep/schema/index` | `CsvText` | type | `packages/foundation/modeling/schema/src/csv/index.ts:302` | Branded runtime type for CSV document text produced by encoding a `CSV` |
 | `@beep/schema/index` | `Darken` | const | `packages/foundation/modeling/schema/src/color/Color.ts:1145` | One-way schema for darkening a color. |
 | `@beep/schema/index` | `Darken` | type | `packages/foundation/modeling/schema/src/color/Color.ts:1163` | Type for {@link Darken}. |
 | `@beep/schema/index` | `DarkenInput` | class | `packages/foundation/modeling/schema/src/color/Color.ts:1129` | Request schema for darkening a color. |
@@ -3296,9 +3296,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `decodeJsonlTextAs` | const | `packages/foundation/modeling/schema/src/Jsonl.ts:144` | Builds a decoder that parses JSONL text and then decodes the resulting value |
 | `@beep/schema/index` | `decodeJsonString` | const | `packages/foundation/modeling/schema/src/Json.ts:86` | Decodes a JSON string into an unknown JSON-compatible value. |
 | `@beep/schema/index` | `decodeMarkdownTextAs` | const | `packages/foundation/modeling/schema/src/Markdown.ts:206` | Builds a decoder that renders Markdown text to HTML and then decodes the |
-| `@beep/schema/index` | `decodeTomlTextAs` | const | `packages/foundation/modeling/schema/src/Toml.ts:123` | Builds a decoder that parses TOML text and then decodes the result through a |
+| `@beep/schema/index` | `decodeTomlTextAs` | const | `packages/foundation/modeling/schema/src/Toml.ts:128` | Builds a decoder that parses TOML text and then decodes the result through a |
 | `@beep/schema/index` | `decodeXmlTextAs` | const | `packages/foundation/modeling/schema/src/Xml.ts:119` | Builds a decoder that parses XML text and then decodes the result through a |
-| `@beep/schema/index` | `decodeYamlTextAs` | const | `packages/foundation/modeling/schema/src/Yaml.ts:141` | Builds a decoder that parses YAML text and then decodes the result through a |
+| `@beep/schema/index` | `decodeYamlTextAs` | const | `packages/foundation/modeling/schema/src/Yaml.ts:133` | Builds a decoder that parses YAML text and then decodes the result through a |
 | `@beep/schema/index` | `destructiveTransform` | const | `packages/foundation/modeling/schema/src/Transformations.ts:47` | Applies a lossy transform by inferring the target type from a callback result. |
 | `@beep/schema/index` | `diffInDays` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:380` | Get the difference in whole days between two `LocalDate` values. |
 | `@beep/schema/index` | `DirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph.ts:1177` | Schema for immutable directed graphs. |
@@ -3645,7 +3645,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `ParserOptions` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:107` | Schema-backed CSV parser options. |
 | `@beep/schema/index` | `ParserOptionsArgs` | type | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:226` | Encoded/raw constructor input for {@link ParserOptions}. |
 | `@beep/schema/index` | `ParserOptionsError` | class | `packages/foundation/modeling/schema/src/csv/parse/ParserOptions.ts:80` | A parser options configuration error. |
-| `@beep/schema/index` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:78` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
+| `@beep/schema/index` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:73` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
 | `@beep/schema/index` | `PascalCaseStr` | const | `packages/foundation/modeling/schema/src/PascalStr.ts:28` | Branded PascalCase string schema. |
 | `@beep/schema/index` | `PascalCaseStr` | type | `packages/foundation/modeling/schema/src/PascalStr.ts:54` | Type for {@link PascalCaseStr}. |
 | `@beep/schema/index` | `PermissionsPolicyAllowlistedOrigin` | const | `packages/foundation/modeling/schema/src/http/headers/PermissionsPolicy.ts:138` |  |
@@ -3774,7 +3774,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `Timezone` | type | `packages/foundation/modeling/schema/src/Timezone.ts:493` | Runtime type for {@link Timezone}. |
 | `@beep/schema/index` | `today` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:245` | Get today's date in UTC. |
 | `@beep/schema/index` | `todayEffect` | const | `packages/foundation/modeling/schema/src/LocalDate.ts:253` | Get today's UTC date as an `Effect` using the Clock service, testable with `TestClock`. |
-| `@beep/schema/index` | `TomlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Toml.ts:84` | Schema transformation that decodes TOML text into an unknown record using |
+| `@beep/schema/index` | `TomlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Toml.ts:94` | Schema transformation that decodes TOML text into an unknown record using |
 | `@beep/schema/index` | `TrimmedNonEmptyText` | const | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:36` | Trimmed and non-empty text schema that strips whitespace and rejects empty results. |
 | `@beep/schema/index` | `TrimmedNonEmptyText` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:64` | Type for {@link TrimmedNonEmptyText}. |
 | `@beep/schema/index` | `UndirectedGraph` | const | `packages/foundation/modeling/schema/src/Graph.ts:1201` | Schema for immutable undirected graphs. |
@@ -3837,7 +3837,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/index` | `XSSProtectionReport` | type | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:69` |  |
 | `@beep/schema/index` | `XSSProtectionReportConfig` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:46` |  |
 | `@beep/schema/index` | `XSSProtectionResponseHeader` | class | `packages/foundation/modeling/schema/src/http/headers/XSSProtection.ts:91` |  |
-| `@beep/schema/index` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:101` | Schema transformation that decodes YAML text into an unknown parsed value. |
+| `@beep/schema/index` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:96` | Schema transformation that decodes YAML text into an unknown parsed value. |
 | `@beep/schema/Int` | `Int` | const | `packages/foundation/modeling/schema/src/Int.ts:29` | Branded schema for finite integers. |
 | `@beep/schema/Int` | `Int` | type | `packages/foundation/modeling/schema/src/Int.ts:55` | Type for {@link Int}. |
 | `@beep/schema/Int` | `NegInt` | const | `packages/foundation/modeling/schema/src/Int.ts:154` | Branded schema for negative integers (less than zero). |
@@ -4308,8 +4308,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Timestamp` | `ToIsoString` | type | `packages/foundation/modeling/schema/src/Timestamp.ts:139` | Normalized ISO string type extracted from {@link ToIsoStr}. |
 | `@beep/schema/Timezone` | `Timezone` | const | `packages/foundation/modeling/schema/src/Timezone.ts:28` | IANA timezone identifier schema covering standard regions and UTC offsets. |
 | `@beep/schema/Timezone` | `Timezone` | type | `packages/foundation/modeling/schema/src/Timezone.ts:493` | Runtime type for {@link Timezone}. |
-| `@beep/schema/Toml` | `decodeTomlTextAs` | const | `packages/foundation/modeling/schema/src/Toml.ts:123` | Builds a decoder that parses TOML text and then decodes the result through a |
-| `@beep/schema/Toml` | `TomlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Toml.ts:84` | Schema transformation that decodes TOML text into an unknown record using |
+| `@beep/schema/Toml` | `decodeTomlTextAs` | const | `packages/foundation/modeling/schema/src/Toml.ts:128` | Builds a decoder that parses TOML text and then decodes the result through a |
+| `@beep/schema/Toml` | `TomlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Toml.ts:94` | Schema transformation that decodes TOML text into an unknown record using |
 | `@beep/schema/Transformations` | `destructiveTransform` | const | `packages/foundation/modeling/schema/src/Transformations.ts:47` | Applies a lossy transform by inferring the target type from a callback result. |
 | `@beep/schema/URL` | `URLStr` | const | `packages/foundation/modeling/schema/src/URL.ts:60` | A branded schema for URL-encoded strings validated against `new URL()`. |
 | `@beep/schema/URL` | `URLStr` | type | `packages/foundation/modeling/schema/src/URL.ts:85` | {@inheritDoc URLStr} |
@@ -4334,9 +4334,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/VariantSchema` | `Union` | namespace | `packages/foundation/modeling/schema/src/VariantSchema.ts:353` |  |
 | `@beep/schema/Xml` | `decodeXmlTextAs` | const | `packages/foundation/modeling/schema/src/Xml.ts:119` | Builds a decoder that parses XML text and then decodes the result through a |
 | `@beep/schema/Xml` | `XmlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Xml.ts:79` | Schema transformation that decodes XML text into an unknown parsed document |
-| `@beep/schema/Yaml` | `decodeYamlTextAs` | const | `packages/foundation/modeling/schema/src/Yaml.ts:141` | Builds a decoder that parses YAML text and then decodes the result through a |
-| `@beep/schema/Yaml` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:78` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
-| `@beep/schema/Yaml` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:101` | Schema transformation that decodes YAML text into an unknown parsed value. |
+| `@beep/schema/Yaml` | `decodeYamlTextAs` | const | `packages/foundation/modeling/schema/src/Yaml.ts:133` | Builds a decoder that parses YAML text and then decodes the result through a |
+| `@beep/schema/Yaml` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:73` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
+| `@beep/schema/Yaml` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:96` | Schema transformation that decodes YAML text into an unknown parsed value. |
 
 ### @beep/shared-domain
 
@@ -4652,7 +4652,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1064` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:28` | Provide a layer to an effect inside a scoped lifetime. |
+| `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
 | `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
 | `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
 | `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
@@ -4673,14 +4673,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1064` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:28` | Provide a layer to an effect inside a scoped lifetime. |
+| `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
 | `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
 | `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
 | `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
 | `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:36` | Package version marker for test utilities. |
-| `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:28` | Provide a layer to an effect inside a scoped lifetime. |
+| `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
 | `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:992` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
 | `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1134` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:714` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
@@ -9981,7 +9981,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1498` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
@@ -10624,22 +10624,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Purge` | `purgeAtRoot` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:197` | Purge root/workspace artifacts under a specific root directory. |
 | `@beep/repo-cli/commands/Purge` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge.ts:132` | Summary statistics returned after a purge run. |
-| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringEqualsSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:29` | Check whether an optional string config value equals the expected value. |
-| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOption` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:42` | Read an optional string config value inside an Effect workflow. |
-| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOptionSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:19` | Synchronously read an optional string config value. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:78` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:95` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1498` | Quality command group for repo operational checks. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:108` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:310` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1009` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:559` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1377` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1299` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1402` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1057` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:794` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1191` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringEqualsSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:35` | Check whether an optional string config value equals the expected value. |
+| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOption` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:54` | Read an optional string config value inside an Effect workflow. |
+| `@beep/repo-cli/commands/Quality/internal/Config` | `configStringOptionSync` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts:22` | Synchronously read an optional string config value. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:119` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:136` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:149` | Typed failure for repo operational commands. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:351` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1050` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:600` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1418` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1340` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1443` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1098` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:835` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1232` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1297` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:80` | Package-local script profile used by the quality task adapter. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1187` | Parse a raw argv vector into a quality task invocation when the first token is |
@@ -10803,7 +10803,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/index.ts:434` | Laws command group. |
 | `@beep/repo-cli/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/index.ts:607` | Lint command group. |
 | `@beep/repo-cli/index` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge.ts:258` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1498` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1539` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:361` | Reuse-discovery command group. |
 | `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |

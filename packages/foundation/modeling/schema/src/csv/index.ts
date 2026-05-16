@@ -265,12 +265,7 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  * const Row = S.Struct({ name: S.String, age: S.NumberFromString })
  * const CsvSchema = CSV(Row)
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- * })
+ * const program = Effect.gen(function* () {})
  * void program
  * ```
  *
