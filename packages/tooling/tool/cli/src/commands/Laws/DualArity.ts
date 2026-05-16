@@ -575,9 +575,10 @@ const hasDualSignatures = (callableType: Type, arity: number): boolean => {
       return false;
     }
 
-    return A.some(signature.getReturnType().getCallSignatures(), (returnSignature) => {
-      return returnSignature.getParameters().length === 1;
-    });
+    return A.some(
+      signature.getReturnType().getCallSignatures(),
+      (returnSignature) => returnSignature.getParameters().length === 1
+    );
   });
 
   return hasDataFirst && hasDataLast;

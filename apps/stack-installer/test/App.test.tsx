@@ -53,7 +53,7 @@ describe.sequential("Stack Installer app", () => {
     expect(runProofMock).not.toHaveBeenCalled();
   });
 
-  it("runs the Tauri P1 proof command with sanitized form values", async () => {
+  it("runs the Tauri P1 proof command with sanitized form values", () => {
     runProofMock.mockResolvedValueOnce("sanitized proof output");
     render(<App runP1ManualProof={runProofMock} />);
 
@@ -68,44 +68,46 @@ describe.sequential("Stack Installer app", () => {
     });
     submitProofForm();
 
-    await waitFor(() => expect(runProofMock).toHaveBeenCalled());
-    await waitFor(() => expect(screen.getByText("sanitized proof output")).toBeDefined());
-    expect(runProofMock).toHaveBeenCalledWith({
-      discordBotTokenReference: "op://Private/Discord Bot/token",
-      discordChannelDisplayName: "ai-stack-installer",
-      discordChannelId: "channel-1",
-      discordGuildId: "guild-1",
-      operatorLabel: "operator-macos-001",
-      targetPlatform: "macos",
-      testMessageContent: "Stack Installer P1 Manual Mode proof",
-    });
+    return waitFor(() => expect(runProofMock).toHaveBeenCalled()).then(() =>
+      waitFor(() => expect(screen.getByText("sanitized proof output")).toBeDefined()).then(() => {
+        expect(runProofMock).toHaveBeenCalledWith({
+          discordBotTokenReference: "op://Private/Discord Bot/token",
+          discordChannelDisplayName: "ai-stack-installer",
+          discordChannelId: "channel-1",
+          discordGuildId: "guild-1",
+          operatorLabel: "operator-macos-001",
+          targetPlatform: "macos",
+          testMessageContent: "Stack Installer P1 Manual Mode proof",
+        });
+      })
+    );
   });
 
-  it("renders string Tauri proof errors", async () => {
+  it("renders string Tauri proof errors", () => {
     runProofMock.mockRejectedValueOnce("proof rejected");
     render(<App runP1ManualProof={runProofMock} />);
 
     submitProofForm();
 
-    await waitFor(() => expect(screen.getByText("proof rejected")).toBeDefined());
+    return waitFor(() => expect(screen.getByText("proof rejected")).toBeDefined());
   });
 
-  it("renders object Tauri proof errors", async () => {
+  it("renders object Tauri proof errors", () => {
     runProofMock.mockRejectedValueOnce(new Error("provider auth missing"));
     render(<App runP1ManualProof={runProofMock} />);
 
     submitProofForm();
 
-    await waitFor(() => expect(screen.getByText("provider auth missing")).toBeDefined());
+    return waitFor(() => expect(screen.getByText("provider auth missing")).toBeDefined());
   });
 
-  it("falls back for unknown Tauri proof errors", async () => {
+  it("falls back for unknown Tauri proof errors", () => {
     runProofMock.mockRejectedValueOnce({ reason: "opaque" });
     render(<App runP1ManualProof={runProofMock} />);
 
     submitProofForm();
 
-    await waitFor(() =>
+    return waitFor(() =>
       expect(screen.getByText("P1 proof failed before sanitized output was returned.")).toBeDefined()
     );
   });

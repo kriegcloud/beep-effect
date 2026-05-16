@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Config, Console, Effect, FileSystem, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -139,7 +139,10 @@ const appendToSummary = Effect.fn("Ci.appendToSummary")(function* (
   renderedSummary: string
 ): Effect.fn.Return<void, CiCommandError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
-  const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+  const summaryPath = pipe(
+    yield* Config.option(Config.string("GITHUB_STEP_SUMMARY")).pipe(Effect.orElseSucceed(O.none<string>)),
+    O.getOrUndefined
+  );
 
   if (summaryPath === undefined || Str.isEmpty(summaryPath)) {
     yield* Console.log(renderedSummary);

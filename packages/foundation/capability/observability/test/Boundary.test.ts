@@ -1,72 +1,87 @@
-import { execFile } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
-const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const repoRoot = resolve(packageRoot, "../../../..");
-const boundaryTypecheckTimeout = 600_000;
-const readText = (relativePath: string) => readFileSync(resolve(packageRoot, relativePath), "utf8");
-const runTypecheck = (tscPath: string, tsconfigPath: string) =>
-  new Promise<void>((resolvePromise, rejectPromise) => {
-    execFile(
-      tscPath,
-      ["--pretty", "false", "--noEmit", "-p", tsconfigPath],
-      { cwd: repoRoot, maxBuffer: 10 * 1024 * 1024 },
-      (error) => {
-        if (error !== null) {
-          rejectPromise(error);
-          return;
-        }
+const pathFromUrl = (url: URL): string => decodeURIComponent(url.pathname).replace(/\/$/u, "");
+const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
+  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+    .filter((segment) => segment.length > 0)
+    .join("/");
 
-        resolvePromise();
-      }
-    );
-  });
+const packageRoot = pathFromUrl(new URL("..", import.meta.url));
+const repoRoot = pathFromUrl(new URL("../../../../..", import.meta.url));
+const boundaryTypecheckTimeout = 600_000;
+const PackageJson = S.Struct({
+  exports: S.Record(S.String, S.NullOr(S.String)),
+});
+const decodePackageJson = S.decodeUnknownEffect(S.fromJsonString(PackageJson));
+const readText = (relativePath: string) => Effect.promise(() => Bun.file(joinPath(packageRoot, relativePath)).text());
+const runTypecheck = (tscPath: string, tsconfigPath: string) =>
+  Effect.promise(
+    () =>
+      Bun.spawn([tscPath, "--pretty", "false", "--noEmit", "-p", tsconfigPath], {
+        cwd: repoRoot,
+        stderr: "ignore",
+        stdout: "ignore",
+      }).exited
+  ).pipe(
+    Effect.flatMap((exitCode) =>
+      exitCode === 0 ? Effect.void : Effect.die(new Error(`tsc failed for ${tsconfigPath} with exit code ${exitCode}`))
+    )
+  );
 
 describe("Boundary", () => {
-  it("keeps package exports explicit and removes root node ambient types", { timeout: 60_000 }, () => {
-    const packageJson = JSON.parse(readText("package.json")) as {
-      exports: Record<string, string>;
-    };
-    const tsconfigSource = readText("tsconfig.json");
+  it("keeps package exports explicit and removes root node ambient types", { timeout: 60_000 }, () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const packageJson = yield* readText("package.json").pipe(Effect.flatMap(decodePackageJson));
+        const tsconfigSource = yield* readText("tsconfig.json");
 
-    expect(packageJson.exports).toMatchObject({
-      ".": "./src/index.ts",
-      "./experimental/server": "./src/experimental/server/index.ts",
-      "./server": "./src/server/index.ts",
-      "./web": "./src/web/index.ts",
-    });
-    expect(packageJson.exports).not.toHaveProperty("./*");
-    expect(tsconfigSource).not.toMatch(/"types"\s*:\s*\[[^\]]*"node"/m);
-  });
+        expect(packageJson.exports).toMatchObject({
+          ".": "./src/index.ts",
+          "./experimental/server": "./src/experimental/server/index.ts",
+          "./server": "./src/server/index.ts",
+          "./web": "./src/web/index.ts",
+        });
+        expect(packageJson.exports).not.toHaveProperty("./*");
+        expect(tsconfigSource).not.toMatch(/"types"\s*:\s*\[[^\]]*"node"/m);
+      })
+    )
+  );
 
-  it("keeps the root and web entrypoints free from server-only imports", { timeout: 60_000 }, () => {
-    const indexSource = readText("src/index.ts");
-    const webLayerSource = readText("src/web/Layer.ts");
+  it("keeps the root and web entrypoints free from server-only imports", { timeout: 60_000 }, () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const indexSource = yield* readText("src/index.ts");
+        const webLayerSource = yield* readText("src/web/Layer.ts");
 
-    expect(indexSource).not.toContain("./server");
-    expect(indexSource).not.toContain("./web");
-    expect(indexSource).not.toContain("./experimental");
-    expect(webLayerSource).not.toContain("effect/unstable/devtools");
-    expect(webLayerSource).not.toContain("effect/unstable/observability");
-    expect(webLayerSource).not.toContain("@effect/platform-");
-    expect(webLayerSource).not.toContain("node:");
-  });
+        expect(indexSource).not.toContain("./server");
+        expect(indexSource).not.toContain("./web");
+        expect(indexSource).not.toContain("./experimental");
+        expect(webLayerSource).not.toContain("effect/unstable/devtools");
+        expect(webLayerSource).not.toContain("effect/unstable/observability");
+        expect(webLayerSource).not.toContain("@effect/platform-");
+        expect(webLayerSource).not.toContain("node:");
+      })
+    )
+  );
 
   it("typechecks browser-safe, server-safe, and experimental-server fixtures", {
     timeout: boundaryTypecheckTimeout,
-  }, async () => {
-    const tscPath = resolve(repoRoot, "node_modules/.bin/tsc");
-    const fixtureTsconfigs = [
-      resolve(packageRoot, "test/fixtures/tsconfig.browser.json"),
-      resolve(packageRoot, "test/fixtures/tsconfig.server.json"),
-      resolve(packageRoot, "test/fixtures/tsconfig.experimental-server.json"),
-    ];
+  }, () => {
+    const program: Effect.Effect<void> = Effect.gen(function* () {
+      const tscPath = joinPath(repoRoot, "node_modules/.bin/tsc");
+      const fixtureTsconfigs = [
+        joinPath(packageRoot, "test/fixtures/tsconfig.browser.json"),
+        joinPath(packageRoot, "test/fixtures/tsconfig.server.json"),
+        joinPath(packageRoot, "test/fixtures/tsconfig.experimental-server.json"),
+      ];
 
-    for (const tsconfigPath of fixtureTsconfigs) {
-      await runTypecheck(tscPath, tsconfigPath);
-    }
+      for (const tsconfigPath of fixtureTsconfigs) {
+        yield* runTypecheck(tscPath, tsconfigPath);
+      }
+    });
+
+    return Effect.runPromise(program);
   });
 });

@@ -16,9 +16,16 @@ import {
 import { NativePgClient } from "@beep/postgres/interop";
 import { A } from "@beep/utils";
 import { assert, describe, expect, it } from "@effect/vitest";
-import { Cause, Effect } from "effect";
+import { Cause, Effect, Layer } from "effect";
 import * as O from "effect/Option";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
+
+const NativeDate = globalThis.Date;
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const makeHostileProxy = (): unknown =>
   new Proxy(
@@ -313,7 +320,7 @@ describe("Postgres formatting", () => {
   });
 
   it("formats invalid Date params without throwing", () => {
-    const invalidDate = new Date("invalid");
+    const invalidDate = Reflect.construct(NativeDate, ["invalid"]) as Date;
     const rendered = formatSql("select $1", [invalidDate], createColors(false));
 
     expect(rendered).toContain("Invalid Date");
@@ -337,7 +344,7 @@ describe("Postgres formatting", () => {
     const rendered = formatPostgresError(
       PostgresError.fromUnknown("query", new Error("syntax failed"), {
         query: "select $1",
-        params: [new Date("invalid")],
+        params: [Reflect.construct(NativeDate, ["invalid"]) as Date],
       }),
       createColors(false)
     );
@@ -468,6 +475,6 @@ describe("Postgres client", () => {
       assert.strictEqual(sqlClient, client);
     });
 
-    return program.pipe(Effect.provide(PostgresClient.fromPgClient(client)));
+    return program.pipe(provideScopedLayer(PostgresClient.fromPgClient(client)));
   });
 });

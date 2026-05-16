@@ -4,6 +4,11 @@ import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const testLayer = Layer.mergeAll(NodeServices.layer);
 
 const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
@@ -45,8 +50,8 @@ const writeTsconfig = writeProjectFile(
 );
 
 describe("effect import laws", () => {
-  it("flags stable submodule namespace imports in dry-run mode while ignoring unstable ones", async () => {
-    await Effect.runPromise(
+  it("flags stable submodule namespace imports in dry-run mode while ignoring unstable ones", () =>
+    Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
           yield* writeTsconfig;
@@ -82,12 +87,11 @@ describe("effect import laws", () => {
           expect(source).toContain('import * as Duration from "effect/Duration";');
           expect(source).toContain('import * as Command from "effect/unstable/cli";');
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("rewrites stable submodule namespace imports to root effect imports in write mode", async () => {
-    await Effect.runPromise(
+  it("rewrites stable submodule namespace imports to root effect imports in write mode", () =>
+    Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
           yield* writeTsconfig;
@@ -122,7 +126,6 @@ describe("effect import laws", () => {
           expect(source).toContain('import * as Command from "effect/unstable/cli";');
           expect(source).not.toContain('import * as Duration from "effect/Duration";');
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 });

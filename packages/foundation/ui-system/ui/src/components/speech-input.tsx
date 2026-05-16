@@ -202,7 +202,7 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
 
   const isConnecting = scribe.status === "connecting";
 
-  const start = useCallback(async () => {
+  const start = useCallback((): Promise<void> => {
     const requestId = startRequestIdRef.current + 1;
     startRequestIdRef.current = requestId;
 
@@ -212,23 +212,26 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
     };
     scribe.clearTranscripts();
 
-    try {
-      const token = await getToken();
-      if (startRequestIdRef.current !== requestId) {
-        return;
-      }
+    return getToken()
+      .then((token) => {
+        if (startRequestIdRef.current !== requestId) {
+          return;
+        }
 
-      await scribe.connect({
-        token,
+        return scribe.connect({
+          token,
+        });
+      })
+      .then(() => {
+        if (startRequestIdRef.current !== requestId) {
+          scribe.disconnect();
+          return;
+        }
+        onStart?.(buildEvent(transcriptsRef.current));
+      })
+      .catch(() => {
+        // Error is handled by onError callback
       });
-      if (startRequestIdRef.current !== requestId) {
-        scribe.disconnect();
-        return;
-      }
-      onStart?.(buildEvent(transcriptsRef.current));
-    } catch {
-      // Error is handled by onError callback
-    }
   }, [getToken, scribe, onStart, microphone]);
 
   const stop = () => {

@@ -21,6 +21,11 @@ import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const FileSystemLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const PlatformLayer = Layer.mergeAll(
   FileSystemLayer,
@@ -53,7 +58,7 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
         process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
-  ).pipe(Effect.provide(PlatformLayer));
+  ).pipe(provideScopedLayer(PlatformLayer));
 
 const getInvocation = (argv: ReadonlyArray<string>): QualityTaskInvocation => {
   const invocation = parseQualityTaskInvocation(argv);
@@ -66,7 +71,7 @@ const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyA
   "turbo",
   "run",
   task,
-  ...(process.env.CI === "true" || A.some(args, (arg) => Str.startsWith("--cache=")(arg)) ? [] : ["--cache=local:rw"]),
+  ...(Bun.env.CI === "true" || A.some(args, (arg) => Str.startsWith("--cache=")(arg)) ? [] : ["--cache=local:rw"]),
   ...args,
 ];
 const bunScriptStep = (label: string, source: string) =>
@@ -158,7 +163,7 @@ describe("quality task adapter", () => {
       "turbo",
       "run",
       "check",
-      ...(process.env.CI === "true" ? [] : ["--cache=local:rw"]),
+      ...(Bun.env.CI === "true" ? [] : ["--cache=local:rw"]),
       "--affected",
       "--summarize",
     ]);
@@ -274,8 +279,8 @@ describe("quality task adapter", () => {
     ).toEqual(O.none());
   });
 
-  it("forwards shared SQL env vars to the integration child process", async () => {
-    await Effect.runPromise(
+  it("forwards shared SQL env vars to the integration child process", () =>
+    Effect.runPromise(
       withTempRepo(
         runSqlIntegrationTestLaneForTesting({
           acquireResource: Effect.acquireRelease(
@@ -289,17 +294,16 @@ describe("quality task adapter", () => {
             command: "bun",
             args: [
               "-e",
-              "process.exit(process.env.BEEP_TEST_DATABASE_URL === 'postgres://postgres:postgres@127.0.0.1:5432/postgres' && process.env.BEEP_TEST_DATABASE_DRIVER === 'pg-external' ? 0 : 42)",
+              "process.exit(Bun.env.BEEP_TEST_DATABASE_URL === 'postgres://postgres:postgres@127.0.0.1:5432/postgres' && Bun.env.BEEP_TEST_DATABASE_DRIVER === 'pg-external' ? 0 : 42)",
             ],
           },
           repoRoot: process.cwd(),
         })
       )
-    );
-  });
+    ));
 
-  it("fails nonzero integration children and releases the shared SQL resource", async () => {
-    await Effect.runPromise(
+  it("fails nonzero integration children and releases the shared SQL resource", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           let released = false;
@@ -334,11 +338,10 @@ describe("quality task adapter", () => {
           }
         })
       )
-    );
-  });
+    ));
 
-  it("runs grouped quality steps with bounded concurrency and deterministic output", async () => {
-    await Effect.runPromise(
+  it("runs grouped quality steps with bounded concurrency and deterministic output", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           yield* runQualityTaskStepGroupForTesting(
@@ -357,11 +360,10 @@ describe("quality task adapter", () => {
           expectSubstringBefore(logText, "[beep-cli] test:slow output:\nslow", "[beep-cli] test:fast output:\nfast");
         })
       )
-    );
-  });
+    ));
 
-  it("aggregates grouped quality step failures in configured step order", async () => {
-    await Effect.runPromise(
+  it("aggregates grouped quality step failures in configured step order", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const exit = yield* Effect.exit(
@@ -393,8 +395,7 @@ describe("quality task adapter", () => {
           );
         })
       )
-    );
-  });
+    ));
 
   it("leaves lint policy subcommands on the existing command tree", () => {
     expect(O.isNone(parseQualityTaskInvocation(["lint", "circular"]))).toBe(true);
@@ -405,7 +406,7 @@ describe("quality task adapter", () => {
   it("delegates affected root lint to the aggregate repo lint lane and repo-wide policy checks", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]));
 
-    expect(steps).toHaveLength(17);
+    expect(steps).toHaveLength(18);
     expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--affected", "--summarize"]));
     expect(steps[3]).toMatchObject({
       label: "lint:effect-fn",
@@ -420,6 +421,7 @@ describe("quality task adapter", () => {
       "lint:native-runtime",
       "lint:dual-arity",
       "lint:allowlist",
+      "lint:tsgo-rules",
       "lint:package-test-imports",
       "lint:schema-first",
       "lint:jsdoc",
@@ -440,8 +442,8 @@ describe("quality task adapter", () => {
     expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--filter=@beep/schema"]));
   });
 
-  it("treats unsupported package tasks as explicit no-ops", async () => {
-    await Effect.runPromise(
+  it("treats unsupported package tasks as explicit no-ops", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -477,6 +479,5 @@ describe("quality task adapter", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 });

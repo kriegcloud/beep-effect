@@ -17,6 +17,11 @@ import { Command } from "effect/unstable/cli";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const testLayer = Layer.mergeAll(
   NodeServices.layer,
   TestConsole.layer,
@@ -51,7 +56,7 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
         process.exitCode = 0;
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
-  ).pipe(Effect.provide(testLayer));
+  ).pipe(provideScopedLayer(testLayer));
 
 const makeDatasetDir = Effect.fn("FilesTest.makeDatasetDir")(function* (tmpDir: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -299,14 +304,14 @@ const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")
 const withPathPrefix = <A, E, R>(pathPrefix: string, use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
     Effect.sync(() => {
-      const previousPath = process.env.PATH;
-      process.env.PATH = `${pathPrefix}:${previousPath ?? ""}`;
+      const previousPath = Bun.env.PATH;
+      Bun.env.PATH = `${pathPrefix}:${previousPath ?? ""}`;
       return previousPath;
     }),
     () => use,
     (previousPath) =>
       Effect.sync(() => {
-        process.env.PATH = previousPath;
+        Bun.env.PATH = previousPath;
       })
   );
 
@@ -383,8 +388,8 @@ describe.sequential("files command", () => {
     expect(rendered).toBe("files normalize write <#####-----> 3/6 50.0%");
   });
 
-  it("detects black pillarbox borders", async () => {
-    await Effect.runPromise(
+  it("detects black pillarbox borders", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -413,11 +418,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("writes an empty face detection manifest without loading the model", async () => {
-    await Effect.runPromise(
+  it("writes an empty face detection manifest without loading the model", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -441,11 +445,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("creates an empty no-face move directory without loading the model", async () => {
-    await Effect.runPromise(
+  it("creates an empty no-face move directory without loading the model", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -475,11 +478,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("detects one-sided white canvas edges", async () => {
-    await Effect.runPromise(
+  it("detects one-sided white canvas edges", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -500,11 +502,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("does not report clean patterned images as bordered", async () => {
-    await Effect.runPromise(
+  it("does not report clean patterned images as bordered", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -520,11 +521,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("detects near-solid jpeg-compressed borders with tolerance", async () => {
-    await Effect.runPromise(
+  it("detects near-solid jpeg-compressed borders with tolerance", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -545,11 +545,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("skips unsupported and unreadable sources during border detection", async () => {
-    await Effect.runPromise(
+  it("skips unsupported and unreadable sources during border detection", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -588,11 +587,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("validates border detection threshold relationships", async () => {
-    await Effect.runPromise(
+  it("validates border detection threshold relationships", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -616,11 +614,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("crops detected pillarbox borders in place", async () => {
-    await Effect.runPromise(
+  it("crops detected pillarbox borders in place", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -646,11 +643,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("preserves bordered images during crop-borders dry-run", async () => {
-    await Effect.runPromise(
+  it("preserves bordered images during crop-borders dry-run", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -669,11 +665,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("validates border crop threshold relationships", async () => {
-    await Effect.runPromise(
+  it("validates border crop threshold relationships", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -697,11 +692,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("sorts direct files by size and renames with generated indexes", async () => {
-    await Effect.runPromise(
+  it("sorts direct files by size and renames with generated indexes", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -727,11 +721,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("breaks equal-size ties by original name", async () => {
-    await Effect.runPromise(
+  it("breaks equal-size ties by original name", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -749,11 +742,10 @@ describe.sequential("files command", () => {
           expect(yield* fs.readFileString(path.join(datasetDir, "image_02.png"))).toBe("bb");
         })
       )
-    );
-  });
+    ));
 
-  it("increases index width from the file count", async () => {
-    await Effect.runPromise(
+  it("increases index width from the file count", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -771,11 +763,10 @@ describe.sequential("files command", () => {
           expect(A.length(yield* sortedDirectoryEntries(datasetDir))).toBe(100);
         })
       )
-    );
-  });
+    ));
 
-  it("preserves files during dry-run", async () => {
-    await Effect.runPromise(
+  it("preserves files during dry-run", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -793,11 +784,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("preserves extension casing", async () => {
-    await Effect.runPromise(
+  it("preserves extension casing", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -811,11 +801,10 @@ describe.sequential("files command", () => {
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["image_00.PNG", "image_01.jpg"]);
         })
       )
-    );
-  });
+    ));
 
-  it("fails before mutation when a selected file has no extension", async () => {
-    await Effect.runPromise(
+  it("fails before mutation when a selected file has no extension", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -835,11 +824,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("fails before mutation when a target path exists outside the rename set", async () => {
-    await Effect.runPromise(
+  it("fails before mutation when a target path exists outside the rename set", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -857,11 +845,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("skips directories and symlink entries", async () => {
-    await Effect.runPromise(
+  it("skips directories and symlink entries", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -886,11 +873,10 @@ describe.sequential("files command", () => {
           expect(yield* fs.exists(path.join(datasetDir, "image_02.png"))).toBe(false);
         })
       )
-    );
-  });
+    ));
 
-  it("succeeds as a no-op for empty directories", async () => {
-    await Effect.runPromise(
+  it("succeeds as a no-op for empty directories", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const datasetDir = yield* makeDatasetDir(tmpDir);
@@ -904,11 +890,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("includes media dimensions in generated names when requested", async () => {
-    await Effect.runPromise(
+  it("includes media dimensions in generated names when requested", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -923,11 +908,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("leaves non-media files untouched when dimensions are requested", async () => {
-    await Effect.runPromise(
+  it("leaves non-media files untouched when dimensions are requested", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -945,11 +929,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("does not append duplicate dimension suffixes when rerun", async () => {
-    await Effect.runPromise(
+  it("does not append duplicate dimension suffixes when rerun", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -964,11 +947,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("uses ffprobe stream rotation for video dimensions", async () => {
-    await Effect.runPromise(
+  it("uses ffprobe stream rotation for video dimensions", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -987,11 +969,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("fails before mutation when selected media dimensions cannot be probed", async () => {
-    await Effect.runPromise(
+  it("fails before mutation when selected media dimensions cannot be probed", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -1006,11 +987,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("normalizes images into an output directory with orientation, metadata stripping, resizing, and a manifest", async () => {
-    await Effect.runPromise(
+  it("normalizes images into an output directory with orientation, metadata stripping, resizing, and a manifest", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1068,11 +1048,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("does not upscale images during normalization", async () => {
-    await Effect.runPromise(
+  it("does not upscale images during normalization", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1108,11 +1087,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("skips exact duplicate normalized outputs when normalize dedupe is enabled", async () => {
-    await Effect.runPromise(
+  it("skips exact duplicate normalized outputs when normalize dedupe is enabled", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1162,11 +1140,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("moves exact duplicate source files when normalize move-duplicates-to is provided", async () => {
-    await Effect.runPromise(
+  it("moves exact duplicate source files when normalize move-duplicates-to is provided", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1226,11 +1203,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("preserves stems, resolves same-run output collisions, and records skipped sources", async () => {
-    await Effect.runPromise(
+  it("preserves stems, resolves same-run output collisions, and records skipped sources", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1271,11 +1247,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("does not create outputs or directories during normalize dry-run", async () => {
-    await Effect.runPromise(
+  it("does not create outputs or directories during normalize dry-run", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1293,11 +1268,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("refuses existing normalize output files unless overwrite is enabled", async () => {
-    await Effect.runPromise(
+  it("refuses existing normalize output files unless overwrite is enabled", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1325,11 +1299,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("refuses an existing normalize manifest unless overwrite is enabled", async () => {
-    await Effect.runPromise(
+  it("refuses an existing normalize manifest unless overwrite is enabled", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1350,11 +1323,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("creates missing same-stem caption sidecars for image files", async () => {
-    await Effect.runPromise(
+  it("creates missing same-stem caption sidecars for image files", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1385,11 +1357,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("does not create caption sidecars during create-captions dry-run", async () => {
-    await Effect.runPromise(
+  it("does not create caption sidecars during create-captions dry-run", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1406,11 +1377,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("overwrites existing caption sidecars only when requested", async () => {
-    await Effect.runPromise(
+  it("overwrites existing caption sidecars only when requested", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1431,11 +1401,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("skips duplicate caption targets during create-captions planning", async () => {
-    await Effect.runPromise(
+  it("skips duplicate caption targets during create-captions planning", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1455,11 +1424,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("archives poor image candidates with same-stem txt sidecars by default", async () => {
-    await Effect.runPromise(
+  it("archives poor image candidates with same-stem txt sidecars by default", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1520,11 +1488,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("does not create archives or directories during archive-poor-candidates dry-run", async () => {
-    await Effect.runPromise(
+  it("does not create archives or directories during archive-poor-candidates dry-run", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1555,11 +1522,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("leaves captions in place when archive-poor-candidates sidecars are disabled", async () => {
-    await Effect.runPromise(
+  it("leaves captions in place when archive-poor-candidates sidecars are disabled", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1593,11 +1559,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("refuses existing archive targets unless overwrite is enabled", async () => {
-    await Effect.runPromise(
+  it("refuses existing archive targets unless overwrite is enabled", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1646,11 +1611,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("records skipped sources while archiving poor candidates", async () => {
-    await Effect.runPromise(
+  it("records skipped sources while archiving poor candidates", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1685,11 +1649,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("refuses to archive poor candidates into the source directory", async () => {
-    await Effect.runPromise(
+  it("refuses to archive poor candidates into the source directory", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1707,11 +1670,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("strips image metadata by normalizing selected image files", async () => {
-    await Effect.runPromise(
+  it("strips image metadata by normalizing selected image files", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -1731,11 +1693,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("preserves files during strip-metadata dry-run without decoding media", async () => {
-    await Effect.runPromise(
+  it("preserves files during strip-metadata dry-run without decoding media", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -1751,11 +1712,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("skips non-media files and unsupported image formats", async () => {
-    await Effect.runPromise(
+  it("skips non-media files and unsupported image formats", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1777,11 +1737,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("uses ffmpeg stream copy flags for selected video files", async () => {
-    await Effect.runPromise(
+  it("uses ffmpeg stream copy flags for selected video files", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1821,11 +1780,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("leaves originals untouched when strip-metadata transform fails", async () => {
-    await Effect.runPromise(
+  it("leaves originals untouched when strip-metadata transform fails", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -1842,11 +1800,10 @@ describe.sequential("files command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("leaves video originals untouched when ffmpeg fails", async () => {
-    await Effect.runPromise(
+  it("leaves video originals untouched when ffmpeg fails", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1866,6 +1823,5 @@ describe.sequential("files command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 });

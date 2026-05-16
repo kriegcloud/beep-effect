@@ -2,10 +2,15 @@ import { EffectFnRulesOptions, runEffectFnRules } from "@beep/repo-cli/commands/
 import { TSMorphServiceLive } from "@beep/repo-utils/TSMorph/index";
 import { A } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
-import { Effect, FileSystem, Layer, Path, Stream } from "effect";
+import { Context, Effect, FileSystem, Layer, Path, Stream } from "effect";
 import * as Chunk from "effect/Chunk";
 import { ChildProcess } from "effect/unstable/process";
 import { describe, expect, it } from "vitest";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const testLayer = Layer.mergeAll(
   NodeServices.layer,
@@ -80,8 +85,8 @@ const runCliCommand = Effect.fn("effect-fn.test.runCliCommand")(function* (...ar
 });
 
 describe("effect fn laws", () => {
-  it("flags direct Effect.gen returns that tsgo effectFnOpportunity can miss", async () => {
-    await Effect.runPromise(
+  it("flags direct Effect.gen returns that tsgo effectFnOpportunity can miss", () =>
+    Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
           yield* writeProjectScaffold;
@@ -166,12 +171,11 @@ describe("effect fn laws", () => {
             "Effect.fnUntraced",
           ]);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("ignores one-off effects, existing Effect.fn wrappers, excluded paths, and non-direct Effect.gen composition", async () => {
-    await Effect.runPromise(
+  it("ignores one-off effects, existing Effect.fn wrappers, excluded paths, and non-direct Effect.gen composition", () =>
+    Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
           yield* writeProjectScaffold;
@@ -230,12 +234,11 @@ describe("effect fn laws", () => {
           expect(summary.affectedFiles).toEqual([]);
           expect(summary.diagnostics).toEqual([]);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("honors explicit exclude paths", async () => {
-    await Effect.runPromise(
+  it("honors explicit exclude paths", () =>
+    Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
           yield* writeProjectScaffold;
@@ -266,38 +269,40 @@ describe("effect fn laws", () => {
           expect(summary.violationCount).toBe(0);
           expect(summary.strictFailure).toBe(false);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("exits non-zero from the CLI command when strict check finds a violation", async () => {
-    await Effect.runPromise(
-      withTempWorkingDirectory(
-        Effect.gen(function* () {
-          yield* writeProjectScaffold;
-          yield* writeProjectFile(
-            "packages/demo/src/index.ts",
-            A.join(
-              [
-                'import { Effect } from "effect";',
-                "",
-                "export const loadDemo = (): Effect.Effect<string> => Effect.gen(function* () {",
-                '  return "demo";',
-                "});",
-                "",
-              ],
-              "\n"
-            )
-          );
+  it(
+    "exits non-zero from the CLI command when strict check finds a violation",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            yield* writeProjectScaffold;
+            yield* writeProjectFile(
+              "packages/demo/src/index.ts",
+              A.join(
+                [
+                  'import { Effect } from "effect";',
+                  "",
+                  "export const loadDemo = (): Effect.Effect<string> => Effect.gen(function* () {",
+                  '  return "demo";',
+                  "});",
+                  "",
+                ],
+                "\n"
+              )
+            );
 
-          const result = yield* runCliCommand("laws", "effect-fn", "--check");
+            const result = yield* runCliCommand("laws", "effect-fn", "--check");
 
-          expect(result.exitCode).not.toBe(0);
-          expect(result.output).toContain("[effect-governance-effect-fn] violations=1");
-          expect(result.output).toContain("packages/demo/src/index.ts");
-          expect(result.output).toContain('Use named Effect.fn("loadDemo") instead');
-        })
-      ).pipe(Effect.provide(testLayer))
-    );
-  }, 30_000);
+            expect(result.exitCode).not.toBe(0);
+            expect(result.output).toContain("[effect-governance-effect-fn] violations=1");
+            expect(result.output).toContain("packages/demo/src/index.ts");
+            expect(result.output).toContain('Use named Effect.fn("loadDemo") instead');
+          })
+        ).pipe(provideScopedLayer(testLayer), Effect.provide(Context.empty() as Context.Context<unknown>))
+      ),
+    30_000
+  );
 });

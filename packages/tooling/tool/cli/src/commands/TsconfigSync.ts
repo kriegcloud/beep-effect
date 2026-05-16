@@ -710,9 +710,8 @@ const byPlannedChangeAscending = Order.combine(byPlannedChangeFileAscending, byP
 
 const toPosixPath = normalizePath;
 
-const uniqueSorted = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
-  return pipe(values, HashSet.fromIterable, A.fromIterable, A.sort(byStringAscending));
-};
+const uniqueSorted = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
+  pipe(values, HashSet.fromIterable, A.fromIterable, A.sort(byStringAscending));
 
 const arraysEqual = (left: ReadonlyArray<string>, right: ReadonlyArray<string>): boolean =>
   stringArrayEquivalence(left, right);

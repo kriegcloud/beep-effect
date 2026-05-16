@@ -9,12 +9,14 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, Match, Order, Path, pipe, Stream } from "effect";
+import { Config, Console, Effect, FileSystem, Match, Order, Path, pipe, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { type ParseError, parse } from "jsonc-parser";
 import { QualityTaskStep } from "./Tasks.js";
 
 const $I = $RepoCliId.create("commands/Quality/ScriptCommands");
@@ -26,6 +28,14 @@ const dtslintSearchRoots = ["apps", "packages", "tooling"] as const;
 const testSearchRoots = ["apps", "packages", "tooling", "infra"] as const;
 const moduleTagScannedRoots = [".patterns", "apps", "packages", "tooling"] as const;
 const moduleTagScannedExtensions = [".hbs", ".md", ".ts", ".tsx"] as const;
+const effectDiagnosticsDirectiveScannedRoots = ["apps", "packages", "infra"] as const;
+const effectDiagnosticsDirectiveScannedExtensions = [".cts", ".mts", ".ts", ".tsx"] as const;
+const effectDiagnosticsDirectiveIgnoredDirectoryNames = ["node_modules", "dist", "coverage", "tmp"] as const;
+const effectTsgoRuleRowPattern = /<tr><td><code>([^<]+)<\/code><\/td>/gu;
+const effectDiagnosticsDirectivePrefix = "@effect-diagnostics";
+const effectDiagnosticsOffDirectivePattern = new RegExp(`${effectDiagnosticsDirectivePrefix}[^\\n]*:${"off"}\\b`, "u");
+const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unknown));
+const decodeUnknownArrayOption = S.decodeUnknownOption(S.Array(S.Unknown));
 
 type QualityScriptEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
 
@@ -86,6 +96,14 @@ export class QualityScriptCommandError extends TaggedErrorClass<QualityScriptCom
 ) {}
 
 const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
+
+const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
+
+const configStringEqualsSync = (name: string, expected: string): boolean =>
+  pipe(
+    configStringOptionSync(name),
+    O.exists((value) => value === expected)
+  );
 
 const normalizeExtraArgs = (args: unknown): ReadonlyArray<string> => {
   if (P.isUndefined(args)) {
@@ -201,7 +219,7 @@ const collectSuccessfulOutput = Effect.fn("QualityScriptCommands.collectSuccessf
 });
 
 const isTruthyMainPush = (): boolean =>
-  process.env.GITHUB_EVENT_NAME === "push" && process.env.GITHUB_REF_NAME === "main";
+  configStringEqualsSync("GITHUB_EVENT_NAME", "push") && configStringEqualsSync("GITHUB_REF_NAME", "main");
 
 const currentBranch = Effect.fn("QualityScriptCommands.currentBranch")(function* (
   repoRoot: string
@@ -617,6 +635,247 @@ const collectFiles = Effect.fn("QualityScriptCommands.collectFiles")(function* (
   return pipe(yield* visit(searchRoot), A.sort(Order.String));
 });
 
+const unknownRecordProperty = (value: unknown, key: string): O.Option<unknown> => {
+  if (A.isArray(value)) {
+    return O.none();
+  }
+
+  return pipe(
+    decodeUnknownRecordOption(value),
+    O.flatMap((record) => O.fromUndefinedOr(record[key]))
+  );
+};
+
+const unknownRecordKeys = (value: unknown): ReadonlyArray<string> =>
+  A.isArray(value)
+    ? A.empty<string>()
+    : pipe(
+        decodeUnknownRecordOption(value),
+        O.map((record) => pipe(R.keys(record), A.sort(Order.String))),
+        O.getOrElse(A.empty<string>)
+      );
+
+const extractEffectTsgoReadmeRuleNames = (readme: string): ReadonlyArray<string> =>
+  pipe(
+    A.fromIterable(readme.matchAll(effectTsgoRuleRowPattern)),
+    A.flatMap((match) => (match[1] === undefined ? A.empty<string>() : A.of(match[1]))),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+
+const findEffectLanguageServicePlugin = (config: unknown): O.Option<Readonly<Record<string, unknown>>> =>
+  pipe(
+    unknownRecordProperty(config, "compilerOptions"),
+    O.flatMap((compilerOptions) => unknownRecordProperty(compilerOptions, "plugins")),
+    O.flatMap(decodeUnknownArrayOption),
+    O.flatMap(
+      A.findFirst((plugin) =>
+        pipe(
+          unknownRecordProperty(plugin, "name"),
+          O.exists((name) => name === "@effect/language-service")
+        )
+      )
+    ),
+    O.flatMap(decodeUnknownRecordOption)
+  );
+
+const collectDisabledDiagnosticSeverityEntries = (
+  value: unknown,
+  propertyPath: ReadonlyArray<string>
+): ReadonlyArray<string> => {
+  if (A.isArray(value)) {
+    return pipe(
+      value,
+      A.flatMap((entry, index) =>
+        collectDisabledDiagnosticSeverityEntries(entry, pipe(propertyPath, A.append(`[${index}]`)))
+      )
+    );
+  }
+
+  const record = decodeUnknownRecordOption(value);
+  if (O.isNone(record)) {
+    return A.empty<string>();
+  }
+
+  return pipe(
+    unknownRecordKeys(value),
+    A.flatMap((key) => {
+      const entryPath = pipe(propertyPath, A.append(key));
+      const nested = record.value[key];
+      const disabledAtThisProperty =
+        key === "diagnosticSeverity"
+          ? pipe(
+              unknownRecordKeys(nested),
+              A.flatMap((ruleName) =>
+                pipe(
+                  unknownRecordProperty(nested, ruleName),
+                  O.filter((severity) => severity === "off"),
+                  O.match({
+                    onNone: A.empty<string>,
+                    onSome: () => A.of(`${A.join(entryPath, ".")}.${ruleName}`),
+                  })
+                )
+              )
+            )
+          : A.empty<string>();
+
+      return A.appendAll(disabledAtThisProperty, collectDisabledDiagnosticSeverityEntries(nested, entryPath));
+    })
+  );
+};
+
+const renderTsgoRuleDiagnostics = (label: string, diagnostics: ReadonlyArray<string>): ReadonlyArray<string> =>
+  A.isReadonlyArrayNonEmpty(diagnostics)
+    ? [`${label}:`, ...A.map(diagnostics, (diagnostic) => `  - ${diagnostic}`)]
+    : [];
+
+/**
+ * Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.
+ *
+ * @returns Effect that fails when tsgo rules drift or local source suppresses Effect diagnostics.
+ * @example
+ * ```ts
+ * import { runTsgoRulesCheck } from "@beep/repo-cli/commands/Quality/ScriptCommands"
+ * const program = runTsgoRulesCheck()
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCheck")(function* (): Effect.fn.Return<
+  void,
+  QualityScriptCommandError,
+  QualityScriptEnvironment
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const repoRoot = yield* findRepoRoot().pipe(
+    Effect.mapError((cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause }))
+  );
+  const readmePath = path.join(repoRoot, "node_modules", "@effect", "tsgo", "README.md");
+  const tsconfigPath = path.join(repoRoot, "tsconfig.base.json");
+  const readmeText = yield* fs
+    .readFileString(readmePath)
+    .pipe(
+      Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to read ${readmePath}.`, cause }))
+    );
+  const installedRuleNames = extractEffectTsgoReadmeRuleNames(readmeText);
+
+  if (A.isReadonlyArrayEmpty(installedRuleNames)) {
+    return yield* new QualityScriptCommandError({
+      message: "Failed to discover @effect/tsgo diagnostic rules from the installed README.",
+      exitCode: 1,
+    });
+  }
+
+  const configText = yield* fs
+    .readFileString(tsconfigPath)
+    .pipe(
+      Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to read ${tsconfigPath}.`, cause }))
+    );
+  const parseErrors: Array<ParseError> = [];
+  const config = parse(configText, parseErrors, {
+    allowTrailingComma: true,
+    disallowComments: false,
+  });
+
+  if (A.isReadonlyArrayNonEmpty(parseErrors)) {
+    yield* Console.error("[check:tsgo-rules] failed to parse tsconfig.base.json");
+    yield* Console.error(
+      A.join(
+        A.map(parseErrors, (error) => `parse error ${error.error} at offset ${error.offset}`),
+        "\n"
+      )
+    );
+    return yield* new QualityScriptCommandError({ message: "tsconfig.base.json is not valid JSONC.", exitCode: 1 });
+  }
+
+  const plugin = findEffectLanguageServicePlugin(config);
+  if (O.isNone(plugin)) {
+    return yield* new QualityScriptCommandError({
+      message: "tsconfig.base.json is missing the @effect/language-service plugin.",
+      exitCode: 1,
+    });
+  }
+
+  const diagnosticSeverity = pipe(
+    unknownRecordProperty(plugin.value, "diagnosticSeverity"),
+    O.flatMap(decodeUnknownRecordOption)
+  );
+  if (O.isNone(diagnosticSeverity)) {
+    return yield* new QualityScriptCommandError({
+      message: "tsconfig.base.json is missing the root @effect/language-service diagnosticSeverity map.",
+      exitCode: 1,
+    });
+  }
+
+  const configuredRuleNames = pipe(R.keys(diagnosticSeverity.value), A.sort(Order.String));
+  const missingRuleNames = A.filter(installedRuleNames, (ruleName) => !A.contains(configuredRuleNames, ruleName));
+  const extraRuleNames = A.filter(configuredRuleNames, (ruleName) => !A.contains(installedRuleNames, ruleName));
+  const nonErrorSeverities = pipe(
+    configuredRuleNames,
+    A.flatMap((ruleName) =>
+      diagnosticSeverity.value[ruleName] === "error"
+        ? A.empty<string>()
+        : A.of(`${ruleName}: ${String(diagnosticSeverity.value[ruleName])}`)
+    )
+  );
+  const disabledSeverityEntries = collectDisabledDiagnosticSeverityEntries(plugin.value, [
+    "compilerOptions",
+    "plugins",
+    "@effect/language-service",
+  ]);
+  const scannedFiles = yield* Effect.forEach(
+    effectDiagnosticsDirectiveScannedRoots,
+    (root) =>
+      collectFiles(
+        path.join(repoRoot, root),
+        (_normalized, name) =>
+          A.contains(effectDiagnosticsDirectiveScannedExtensions as ReadonlyArray<string>, path.extname(name)),
+        (_normalized, name) =>
+          A.contains(effectDiagnosticsDirectiveIgnoredDirectoryNames as ReadonlyArray<string>, name)
+      ),
+    { concurrency: 1 }
+  ).pipe(Effect.map(A.flatten));
+  const disabledDirectives = yield* Effect.forEach(
+    scannedFiles,
+    Effect.fn(function* (filePath) {
+      const text = yield* fs
+        .readFileString(filePath)
+        .pipe(
+          Effect.mapError((cause) => new QualityScriptCommandError({ message: `Failed to read ${filePath}.`, cause }))
+        );
+      const violations = pipe(
+        Str.split(text, "\n"),
+        A.flatMap((line, index) =>
+          effectDiagnosticsOffDirectivePattern.test(line)
+            ? A.of(`${normalizePath(path.relative(repoRoot, filePath))}:${index + 1}`)
+            : A.empty<string>()
+        )
+      );
+
+      return violations;
+    }),
+    { concurrency: 8 }
+  ).pipe(Effect.map(A.flatten));
+  const diagnostics = [
+    ...renderTsgoRuleDiagnostics("missing installed rules", missingRuleNames),
+    ...renderTsgoRuleDiagnostics("unexpected configured rules", extraRuleNames),
+    ...renderTsgoRuleDiagnostics("rules not configured as error", nonErrorSeverities),
+    ...renderTsgoRuleDiagnostics("diagnosticSeverity entries set to off", disabledSeverityEntries),
+    ...renderTsgoRuleDiagnostics("disabled Effect diagnostic directives", disabledDirectives),
+  ];
+
+  if (A.isReadonlyArrayNonEmpty(diagnostics)) {
+    yield* Console.error("[check:tsgo-rules] @effect/tsgo diagnostics are not globally enforced.");
+    yield* Console.error(A.join(diagnostics, "\n"));
+    return yield* new QualityScriptCommandError({ message: "@effect/tsgo rule enforcement drift found.", exitCode: 1 });
+  }
+
+  yield* Console.log(
+    `[check:tsgo-rules] verified ${A.length(installedRuleNames)} installed @effect/tsgo rule(s) are configured as error`
+  );
+});
+
 const runTsgoWithSyntheticConfig = Effect.fn("QualityScriptCommands.runTsgoWithSyntheticConfig")(function* (
   repoRoot: string,
   label: string,
@@ -852,7 +1111,16 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
     yield* Console.log(
       `[check:tsgo:tests] ignored ${A.length(fileDiagnosticLines)} non-Effect TypeScript diagnostic(s); this lane only gates Effect diagnostics`
     );
-    if (process.env.BEEP_TSGO_TEST_CHECK_VERBOSE === "1" && Str.isNonEmpty(result.output)) {
+    const verbose = yield* Config.option(Config.string("BEEP_TSGO_TEST_CHECK_VERBOSE")).pipe(
+      Effect.orElseSucceed(O.none<string>)
+    );
+    if (
+      pipe(
+        verbose,
+        O.exists((value) => value === "1")
+      ) &&
+      Str.isNonEmpty(result.output)
+    ) {
       yield* Console.log(result.output);
     }
   }
@@ -1147,6 +1415,10 @@ const tsgoSmokeCommand = Command.make("tsgo-smoke", {}, () => runQualityProgram(
   Command.withDescription("Smoke test the repo tsgo Effect diagnostics")
 );
 
+const tsgoRulesCommand = Command.make("tsgo-rules", {}, () => runQualityProgram(runTsgoRulesCheck())).pipe(
+  Command.withDescription("Check root @effect/tsgo diagnostic severities")
+);
+
 const jsdocModuleTagsCommand = Command.make("jsdoc-module-tags", {}, () =>
   runQualityProgram(runJSDocModuleTagsCheck())
 ).pipe(Command.withDescription("Check for forbidden @module fileoverview tags"));
@@ -1184,6 +1456,7 @@ export const qualityCommand = Command.make(
     yield* Console.log("- bun run beep quality dtslint-tsgo");
     yield* Console.log("- bun run beep quality test-tsgo");
     yield* Console.log("- bun run beep quality tsgo-smoke");
+    yield* Console.log("- bun run beep quality tsgo-rules");
     yield* Console.log("- bun run beep quality jsdoc-module-tags");
     yield* Console.log("- bun run beep quality jsdoc-inventory");
     yield* Console.log("- bun run beep quality repo-exports-catalog");
@@ -1196,6 +1469,7 @@ export const qualityCommand = Command.make(
     dtslintTsgoCommand,
     testTsgoCommand,
     tsgoSmokeCommand,
+    tsgoRulesCommand,
     jsdocModuleTagsCommand,
     jsdocInventoryCommand,
     repoExportsCatalogCommand,

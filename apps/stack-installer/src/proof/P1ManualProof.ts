@@ -40,11 +40,10 @@ const decodeP1ManualProofRequest = S.decodeUnknownEffect(P1ManualProofRequest);
  * @category layers
  * @since 0.0.0
  */
-export const P1ManualProofSliceLayer = Layer.mergeAll(
-  InstallerDependenciesServerLive,
-  InstallerSecurityServerLive,
-  InstallerProvidersServerLive,
-  InstallerChannelsServerLive
+export const P1ManualProofSliceLayer = InstallerChannelsServerLive.pipe(
+  Layer.provideMerge(InstallerSecurityServerLive),
+  Layer.provideMerge(InstallerProvidersServerLive),
+  Layer.provideMerge(InstallerDependenciesServerLive)
 );
 
 const proofCapabilities = (discordSummary: string) =>

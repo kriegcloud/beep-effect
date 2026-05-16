@@ -39,7 +39,7 @@ describe("LocalDate", () => {
 
   it("preserves conversion helper types", () => {
     expect(fromString("2024-06-15")).type.toBe<Effect.Effect<Model, S.SchemaError, never>>();
-    expect(fromDate(new Date("2024-06-15T00:00:00.000Z"))).type.toBe<Model>();
+    expect(fromDate({} as Date)).type.toBe<Model>();
     expect(pipe(date.toDateTime(), fromDateTime)).type.toBe<Model>();
     expect(date.toDateTime()).type.toBe<DateTime.Utc>();
     expect(date.toDate()).type.toBe<Date>();

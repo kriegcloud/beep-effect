@@ -4,6 +4,11 @@ import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const testLayer = Layer.mergeAll(NodeServices.layer, FsUtilsLive.pipe(Layer.provide(NodeServices.layer)));
 
 const withTempDirectories = <A, E, R>(use: (tmpDir: string, externalDir: string) => Effect.Effect<A, E, R>) =>
@@ -24,8 +29,8 @@ const withTempDirectories = <A, E, R>(use: (tmpDir: string, externalDir: string)
   );
 
 describe("purge security", () => {
-  it("fails closed before deleting artifacts from a symlinked workspace outside the repo root", async () => {
-    await Effect.runPromise(
+  it("fails closed before deleting artifacts from a symlinked workspace outside the repo root", () =>
+    Effect.runPromise(
       withTempDirectories((tmpDir, externalDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -58,12 +63,11 @@ describe("purge security", () => {
           expect(yield* fs.exists(externalDistDir)).toBe(true);
           expect(yield* fs.readFileString(externalSentinelPath)).toBe("keep\n");
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("accepts a symlinked repo root when every purge target stays inside the canonical repository", async () => {
-    await Effect.runPromise(
+  it("accepts a symlinked repo root when every purge target stays inside the canonical repository", () =>
+    Effect.runPromise(
       withTempDirectories((tmpDir, externalDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -97,7 +101,6 @@ describe("purge security", () => {
           expect(yield* fs.exists(rootNodeModules)).toBe(false);
           expect(yield* fs.exists(workspaceDist)).toBe(false);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 });

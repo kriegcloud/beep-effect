@@ -4,6 +4,12 @@ import { Option, SchemaIssue } from "effect";
 import * as S from "effect/Schema";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const loggedText = (calls: ReadonlyArray<ReadonlyArray<unknown>>): string =>
+  A.join(
+    A.flatMap(calls, (call) => A.map(call, String)),
+    "\n"
+  );
+
 describe("@beep/messages", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -22,12 +28,7 @@ describe("@beep/messages", () => {
 
     logIssues(Person, {});
 
-    expect(
-      A.join(
-        A.map(logSpy.mock.calls, ([value]) => String(value)),
-        "\n"
-      )
-    ).toContain("This field is required");
+    expect(loggedText(logSpy.mock.calls)).toContain("This field is required");
   });
 
   it("logs min-length schema issues with repository messaging", () => {
@@ -39,12 +40,7 @@ describe("@beep/messages", () => {
 
     logIssues(Person, { name: "" });
 
-    expect(
-      A.join(
-        A.map(logSpy.mock.calls, ([value]) => String(value)),
-        "\n"
-      )
-    ).toContain("Please enter at least 2 character(s)");
+    expect(loggedText(logSpy.mock.calls)).toContain("Please enter at least 2 character(s)");
   });
 
   it("formats each leaf issue variant with repository messaging", () => {

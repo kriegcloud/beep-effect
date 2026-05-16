@@ -361,16 +361,15 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
           );
         },
       }),
-    onExtRequest: (method, params) => {
-      return Ref.get(extRequestHandlers).pipe(
+    onExtRequest: (method, params) =>
+      Ref.get(extRequestHandlers).pipe(
         Effect.flatMap((handlers) =>
           O.match(HashMap.get(handlers, method), {
             onNone: () => runUnknownExtRequest(method, params),
             onSome: (handler) => handler(params),
           })
         )
-      );
-    },
+      ),
   });
 
   const agentHandlerLayer = AcpRpcs.AgentRpcs.toLayer(

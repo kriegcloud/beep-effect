@@ -50,39 +50,38 @@ export const unstable_instant = false;
  * @category constructors
  * @since 0.0.0
  */
-export async function generateMetadata(): Promise<Metadata> {
-  await connection();
-  const content = await getOpipSiteContent();
-
-  return {
-    title: content.metadata.title,
-    description: content.metadata.description,
-    alternates: {
-      canonical: "/",
-    },
-    openGraph: {
-      type: "website",
-      url: content.metadata.siteUrl,
-      siteName: content.metadata.siteName,
+export function generateMetadata(): Promise<Metadata> {
+  return connection()
+    .then(() => getOpipSiteContent())
+    .then((content) => ({
       title: content.metadata.title,
       description: content.metadata.description,
-      locale: "en_US",
-      images: [
-        {
-          url: content.metadata.ogImage,
-          width: 1200,
-          height: 630,
-          alt: "opip.law - patent counsel for the people who build the machines.",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: content.metadata.title,
-      description: content.metadata.description,
-      images: [content.metadata.ogImage],
-    },
-  };
+      alternates: {
+        canonical: "/",
+      },
+      openGraph: {
+        type: "website",
+        url: content.metadata.siteUrl,
+        siteName: content.metadata.siteName,
+        title: content.metadata.title,
+        description: content.metadata.description,
+        locale: "en_US",
+        images: [
+          {
+            url: content.metadata.ogImage,
+            width: 1200,
+            height: 630,
+            alt: "opip.law - patent counsel for the people who build the machines.",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: content.metadata.title,
+        description: content.metadata.description,
+        images: [content.metadata.ogImage],
+      },
+    }));
 }
 
 /**
@@ -99,25 +98,26 @@ export async function generateMetadata(): Promise<Metadata> {
  * @category constructors
  * @since 0.0.0
  */
-export default async function Home({ searchParams }: HomeProps) {
-  await connection();
-  const params = await searchParams;
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
-  const content = await getOpipSiteContent();
-  const contactStatusValue = A.isArray(params?.contact) ? params.contact[0] : params?.contact;
-  const contactStatus = isContactSubmissionStatus(contactStatusValue) ? contactStatusValue : undefined;
+export default function Home({ searchParams }: HomeProps) {
+  return connection()
+    .then(() => Promise.all([searchParams, headers(), getOpipSiteContent()]))
+    .then(([params, requestHeaders, content]) => {
+      const nonce = requestHeaders.get("x-nonce") ?? undefined;
+      const contactStatusValue = A.isArray(params?.contact) ? params.contact[0] : params?.contact;
+      const contactStatus = isContactSubmissionStatus(contactStatusValue) ? contactStatusValue : undefined;
 
-  return (
-    <>
-      <script
-        id="opip-json-ld"
-        nonce={nonce}
-        suppressHydrationWarning
-        type="application/ld+json"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is generated server-side and escaped before injection.
-        dangerouslySetInnerHTML={{ __html: safeJsonScript(makeJsonLdGraph(content)) }}
-      />
-      <OpipHomePage contactStatus={contactStatus} content={content} />
-    </>
-  );
+      return (
+        <>
+          <script
+            id="opip-json-ld"
+            nonce={nonce}
+            suppressHydrationWarning
+            type="application/ld+json"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is generated server-side and escaped before injection.
+            dangerouslySetInnerHTML={{ __html: safeJsonScript(makeJsonLdGraph(content)) }}
+          />
+          <OpipHomePage contactStatus={contactStatus} content={content} />
+        </>
+      );
+    });
 }

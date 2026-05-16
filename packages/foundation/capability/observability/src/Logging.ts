@@ -358,7 +358,9 @@ const makePrettyConsoleLogger = (pretty: PrettyLoggerConfig): Logger.Logger<unkn
           )}`;
     const renderedCause = options.cause.reasons.length === 0 ? "" : `\n${palette.dim(Cause.pretty(options.cause))}`;
 
-    console.log(`${timestamp} ${level} ${message}${renderedAnnotations}${renderedSpans}${renderedCause}`);
+    globalThis.process.stdout.write(
+      `${timestamp} ${level} ${message}${renderedAnnotations}${renderedSpans}${renderedCause}\n`
+    );
   });
 };
 

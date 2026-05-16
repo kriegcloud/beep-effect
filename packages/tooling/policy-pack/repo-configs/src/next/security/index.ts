@@ -227,13 +227,14 @@ export const withSecureHeaders = (config: NextConfig, secureHeadersConfig?: Secu
         const previousHeaders = config.headers;
         return {
           ...config,
-          headers: async () => [
-            {
-              source: headerSource(secureHeadersConfig),
-              headers: A.fromIterable(secureHeaders),
-            },
-            ...(P.isFunction(previousHeaders) ? await previousHeaders() : A.empty()),
-          ],
+          headers: () =>
+            Promise.resolve(P.isFunction(previousHeaders) ? previousHeaders() : A.empty()).then((headers) => [
+              {
+                source: headerSource(secureHeadersConfig),
+                headers: A.fromIterable(secureHeaders),
+              },
+              ...headers,
+            ]),
         };
       },
     })

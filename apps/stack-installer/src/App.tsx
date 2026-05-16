@@ -100,7 +100,7 @@ const errorMessage = (error: unknown): string => {
   return "P1 proof failed before sanitized output was returned.";
 };
 
-const submitProof = async (
+const submitProof = (
   event: FormEvent<HTMLFormElement>,
   setProofState: (state: ProofState) => void,
   runP1ManualProof: RunP1ManualProof
@@ -119,21 +119,17 @@ const submitProof = async (
 
   setProofState({ _tag: "running" });
 
-  try {
-    const output = await runP1ManualProof({
-      discordBotTokenReference,
-      discordChannelDisplayName: valueFor(formData, "discordChannelDisplayName"),
-      discordChannelId: valueFor(formData, "discordChannelId"),
-      discordGuildId: valueFor(formData, "discordGuildId"),
-      operatorLabel: valueFor(formData, "operatorLabel"),
-      targetPlatform: valueFor(formData, "targetPlatform"),
-      testMessageContent: valueFor(formData, "testMessageContent"),
-    });
-
-    setProofState({ _tag: "completed", output });
-  } catch (error) {
-    setProofState({ _tag: "failed", message: errorMessage(error) });
-  }
+  return runP1ManualProof({
+    discordBotTokenReference,
+    discordChannelDisplayName: valueFor(formData, "discordChannelDisplayName"),
+    discordChannelId: valueFor(formData, "discordChannelId"),
+    discordGuildId: valueFor(formData, "discordGuildId"),
+    operatorLabel: valueFor(formData, "operatorLabel"),
+    targetPlatform: valueFor(formData, "targetPlatform"),
+    testMessageContent: valueFor(formData, "testMessageContent"),
+  })
+    .then((output) => setProofState({ _tag: "completed", output }))
+    .catch((error: unknown) => setProofState({ _tag: "failed", message: errorMessage(error) }));
 };
 
 function AppHeader() {

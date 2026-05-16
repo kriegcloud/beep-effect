@@ -69,7 +69,7 @@ const makeParserTestLayer = (source: string | ast.SourceFile, config?: Partial<C
     })
   );
 
-const runPromiseInLayer = <A, E, R>(layer: Layer.Layer<R, E>, effect: Effect.Effect<A, E, R>) =>
+const runInLayer = <A, E, R, E2>(layer: Layer.Layer<R, E2>, effect: Effect.Effect<A, E, R>) =>
   Effect.scoped(
     Layer.build(layer).pipe(
       Effect.flatMap(
@@ -78,7 +78,7 @@ const runPromiseInLayer = <A, E, R>(layer: Layer.Layer<R, E>, effect: Effect.Eff
         })
       )
     )
-  ).pipe(Effect.runPromise);
+  );
 
 const runSyncInLayer = <A, E, R>(layer: Layer.Layer<R, E>, effect: Effect.Effect<A, E, R>) =>
   Effect.scoped(
@@ -91,7 +91,7 @@ const runSyncInLayer = <A, E, R>(layer: Layer.Layer<R, E>, effect: Effect.Effect
     )
   ).pipe(Effect.runSync);
 
-const expectMarkdown = async <E>(
+const expectMarkdown = Effect.fn("ParserTest.expectMarkdown")(function* <E>(
   eff: Effect.Effect<
     ReadonlyArray<Printer.Printable> | Domain.Module,
     E,
@@ -100,8 +100,8 @@ const expectMarkdown = async <E>(
   source: string | ast.SourceFile,
   expected: string,
   config?: Partial<Configuration.ConfigurationShape>
-) => {
-  const actual = await runPromiseInLayer(
+) {
+  const actual = yield* runInLayer(
     makeParserTestLayer(source, config),
     eff.pipe(
       Effect.flatMap(
@@ -115,27 +115,28 @@ const expectMarkdown = async <E>(
     )
   );
   expect(actual).toBe(expected);
-};
+});
 
 describe("Parser", () => {
   describe("parseModule", () => {
-    it("preserves nested source paths in generated source links", async () => {
-      const sourceFile = project.createSourceFile(
-        "src/entities/Agent/Agent.model.ts",
-        `/**
+    it("preserves nested source paths in generated source links", () =>
+      Effect.gen(function* () {
+        const sourceFile = project.createSourceFile(
+          "src/entities/Agent/Agent.model.ts",
+          `/**
  * Agent model value.
  *
  * @category entity
  * @since 0.0.0
  */
 export const Agent = "agent"`,
-        { overwrite: true }
-      );
+          { overwrite: true }
+        );
 
-      await expectMarkdown(
-        Parser.parseConstants,
-        sourceFile,
-        `## Agent
+        yield* expectMarkdown(
+          Parser.parseConstants,
+          sourceFile,
+          `## Agent
 
 Agent model value.
 
@@ -148,11 +149,11 @@ declare const Agent: "agent"
 [Source](https://github.com/effect-ts/docgen/blob/main/src/entities/Agent/Agent.model.ts#L7)
 
 Since v0.0.0`
-      );
-    });
+        );
+      }));
 
-    it("should not require an example for modules when `enforceExamples` is set to true", async () =>
-      await expectMarkdown(
+    it("should not require an example for modules when `enforceExamples` is set to true", () =>
+      expectMarkdown(
         Parser.parseModule,
         `/**
 * This is the assert module.
@@ -206,8 +207,8 @@ declare const foo: "foo"
 Since v1.0.0`
       ));
 
-    it("should ignore non-JSDoc comments above JSDoc comments", async () =>
-      await expectMarkdown(
+    it("should ignore non-JSDoc comments above JSDoc comments", () =>
+      expectMarkdown(
         Parser.parseModule,
         `/**
 * This is the assert module.
@@ -265,8 +266,8 @@ Since v1.0.0`
   });
 
   describe("parseFunctions", () => {
-    it(`should remove all metadata from typedcript code blocks when the theme is ${Configuration.DEFAULT_THEME}`, async () =>
-      await expectMarkdown(
+    it(`should remove all metadata from typedcript code blocks when the theme is ${Configuration.DEFAULT_THEME}`, () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * \`\`\`ts skip-type-checking a=1 showLineNumbers=true
@@ -292,8 +293,8 @@ declare const myfunc: <A>() => void
 
 Since v1.0.0`
       ));
-    it("generics", async () =>
-      await expectMarkdown(
+    it("generics", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * This is a description containing two links to {@link foo} and {@link bar}.
@@ -316,8 +317,8 @@ declare const myfunc: <A>() => void
 Since v1.2.0`
       ));
 
-    it("description", async () =>
-      await expectMarkdown(
+    it("description", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * This is a description containing two links to {@link foo} and {@link bar}.
@@ -340,8 +341,8 @@ declare const myfunc: () => void
 Since v1.2.0`
       ));
 
-    it("throws", async () =>
-      await expectMarkdown(
+    it("throws", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * description...
@@ -370,8 +371,8 @@ declare const myfunc: () => void
 Since v1.2.0`
       ));
 
-    it("sees", async () =>
-      await expectMarkdown(
+    it("sees", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * description...
@@ -402,8 +403,8 @@ declare const myfunc: () => void
 Since v1.2.0`
       ));
 
-    it("example without fence", async () =>
-      await expectMarkdown(
+    it("example without fence", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * description...
@@ -433,8 +434,8 @@ declare const myfunc: () => void
 Since v1.0.0`
       ));
 
-    it("example with backtick fence", async () =>
-      await expectMarkdown(
+    it("example with backtick fence", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * description...
@@ -466,8 +467,8 @@ declare const myfunc: () => void
 Since v1.0.0`
       ));
 
-    it("2 examples", async () =>
-      await expectMarkdown(
+    it("2 examples", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * description...
@@ -509,8 +510,8 @@ declare const myfunc: () => void
 Since v1.0.0`
       ));
 
-    it("example with metas", async () =>
-      await expectMarkdown(
+    it("example with metas", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * description...
@@ -542,8 +543,8 @@ declare const myfunc: () => void
 Since v1.0.0`
       ));
 
-    it("example with titde fence", async () =>
-      await expectMarkdown(
+    it("example with titde fence", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * description...
@@ -575,8 +576,8 @@ declare const myfunc: () => void
 Since v1.0.0`
       ));
 
-    it("should not return private function declarations", async () =>
-      await expectMarkdown(
+    it("should not return private function declarations", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * description...
@@ -585,8 +586,8 @@ Since v1.0.0`
         ""
       ));
 
-    it("should not return ignored function declarations", async () =>
-      await expectMarkdown(
+    it("should not return ignored function declarations", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
          * @ignore
@@ -595,8 +596,8 @@ Since v1.0.0`
         ""
       ));
 
-    it("should not return ignored function declarations with overloads", async () =>
-      await expectMarkdown(
+    it("should not return ignored function declarations with overloads", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
           * @ignore
@@ -606,8 +607,8 @@ Since v1.0.0`
         ""
       ));
 
-    it("should not return internal function declarations", async () =>
-      await expectMarkdown(
+    it("should not return internal function declarations", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
           * @internal
@@ -616,8 +617,8 @@ Since v1.0.0`
         ""
       ));
 
-    it("should not return internal function declarations even with overloads", async () =>
-      await expectMarkdown(
+    it("should not return internal function declarations even with overloads", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
           * @internal
@@ -627,11 +628,11 @@ Since v1.0.0`
         ""
       ));
 
-    it("should not return private const function declarations", async () =>
-      await expectMarkdown(Parser.parseFunctions, `const sum = (a: number, b: number): number => a + b `, ""));
+    it("should not return private const function declarations", () =>
+      expectMarkdown(Parser.parseFunctions, `const sum = (a: number, b: number): number => a + b `, ""));
 
-    it("should not return internal const function declarations", async () =>
-      await expectMarkdown(
+    it("should not return internal const function declarations", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
           * @internal
@@ -640,8 +641,8 @@ Since v1.0.0`
         ""
       ));
 
-    it("should account for nullable polymorphic return types", async () =>
-      await expectMarkdown(
+    it("should account for nullable polymorphic return types", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
           * @since 1.0.0
@@ -660,8 +661,8 @@ declare const toNullable: <A>(ma: A | null) => A | null
 Since v1.0.0`
       ));
 
-    it("should handle a const function declaration", async () =>
-      await expectMarkdown(
+    it("should handle a const function declaration", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
           * a description...
@@ -700,8 +701,8 @@ declare const f: (a: number, b: number) => { [key: string]: number; }
 Since v1.0.0`
       ));
 
-    it("should handle a function declaration", async () =>
-      await expectMarkdown(
+    it("should handle a function declaration", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
         * @since 1.0.0
@@ -720,8 +721,8 @@ declare const f: (a: number, b: number) => { [key: string]: number; }
 Since v1.0.0`
       ));
 
-    it("should handle overloadings", async () =>
-      await expectMarkdown(
+    it("should handle overloadings", () =>
+      expectMarkdown(
         Parser.parseFunctions,
         `/**
         * a description...
@@ -748,8 +749,8 @@ Since v1.0.0`
   });
 
   describe("parseConstants", () => {
-    it("should handle a constant value", async () =>
-      await expectMarkdown(
+    it("should handle a constant value", () =>
+      expectMarkdown(
         Parser.parseConstants,
         `/**
           * a description...
@@ -772,8 +773,8 @@ declare const s: string
 Since v1.0.0`
       ));
 
-    it("should support constants with default type parameters", async () =>
-      await expectMarkdown(
+    it("should support constants with default type parameters", () =>
+      expectMarkdown(
         Parser.parseConstants,
         `/**
           * @since 1.0.0
@@ -792,8 +793,8 @@ declare const left: <E = never, A = never>(l: E) => string
 Since v1.0.0`
       ));
 
-    it("should support untyped constants", async () =>
-      await expectMarkdown(
+    it("should support untyped constants", () =>
+      expectMarkdown(
         Parser.parseConstants,
         `
       class A {}
@@ -814,8 +815,8 @@ declare const empty: A
 Since v1.0.0`
       ));
 
-    it("should handle constants with typeof annotations", async () =>
-      await expectMarkdown(
+    it("should handle constants with typeof annotations", () =>
+      expectMarkdown(
         Parser.parseConstants,
         ` const task: { a: number } = {
         a: 1
@@ -840,8 +841,8 @@ declare const taskSeq: { a: number; }
 Since v1.0.0`
       ));
 
-    it("should not include variables declared in for loops", async () =>
-      await expectMarkdown(
+    it("should not include variables declared in for loops", () =>
+      expectMarkdown(
         Parser.parseConstants,
         ` const object = { a: 1, b: 2, c: 3 };
 
@@ -853,8 +854,8 @@ Since v1.0.0`
   });
 
   describe("parseTypeAliases", () =>
-    it("should return a type alias", async () =>
-      await expectMarkdown(
+    it("should return a type alias", () =>
+      expectMarkdown(
         Parser.parseTypeAliases,
         `
         type None<A> = { readonly _tag: "None" }
@@ -881,10 +882,10 @@ Since v1.0.0`
       )));
 
   describe("parseExports", () => {
-    it("should return no exports if the file is empty", async () => await expectMarkdown(Parser.parseExports, "", ""));
+    it("should return no exports if the file is empty", () => expectMarkdown(Parser.parseExports, "", ""));
 
-    it("should return an `Export`", async () =>
-      await expectMarkdown(
+    it("should return an `Export`", () =>
+      expectMarkdown(
         Parser.parseExports,
         `
         const a = 1;
@@ -936,8 +937,8 @@ declare const b: 2
 Since v2.0.0`
       ));
 
-    it("should handle renamimg", async () =>
-      await expectMarkdown(
+    it("should handle renamimg", () =>
+      expectMarkdown(
         Parser.parseExports,
         `const a = 1;
         export {
@@ -1083,14 +1084,13 @@ Since v1.0.0`
   });
 
   describe("parseInterfaces", () => {
-    it("should return no interfaces if the file is empty", async () =>
-      await expectMarkdown(Parser.parseInterfaces, "", ""));
+    it("should return no interfaces if the file is empty", () => expectMarkdown(Parser.parseInterfaces, "", ""));
 
-    it("should return no interfaces if there are no exported interfaces", async () =>
-      await expectMarkdown(Parser.parseInterfaces, "interface A {}", ""));
+    it("should return no interfaces if there are no exported interfaces", () =>
+      expectMarkdown(Parser.parseInterfaces, "interface A {}", ""));
 
-    it("should return an interface", async () =>
-      await expectMarkdown(
+    it("should return an interface", () =>
+      expectMarkdown(
         Parser.parseInterfaces,
         `/**
       * a description...
@@ -1115,14 +1115,13 @@ Since v1.0.0`
   });
 
   describe("parseNamespaces", () => {
-    it("should return no namespaces if the file is empty", async () =>
-      await expectMarkdown(Parser.parseNamespaces, "", ""));
+    it("should return no namespaces if the file is empty", () => expectMarkdown(Parser.parseNamespaces, "", ""));
 
-    it("should return no namespaces if there are no exported namespaces", async () =>
-      await expectMarkdown(Parser.parseNamespaces, "namespace A {}", ""));
+    it("should return no namespaces if there are no exported namespaces", () =>
+      expectMarkdown(Parser.parseNamespaces, "namespace A {}", ""));
 
-    it("should parse an empty Namespace", async () =>
-      await expectMarkdown(
+    it("should parse an empty Namespace", () =>
+      expectMarkdown(
         Parser.parseNamespaces,
         `
       /**
@@ -1138,8 +1137,8 @@ Since v1.0.0`
       ));
 
     describe("namespace > interfaces", () => {
-      it("should ignore not exported interfaces", async () =>
-        await expectMarkdown(
+      it("should ignore not exported interfaces", () =>
+        expectMarkdown(
           Parser.parseNamespaces,
           `
         /**
@@ -1156,8 +1155,8 @@ Since v1.0.0`
 Since v1.0.0`
         ));
 
-      it("should parse an interface", async () =>
-        await expectMarkdown(
+      it("should parse an interface", () =>
+        expectMarkdown(
           Parser.parseNamespaces,
           `
 /**
@@ -1195,8 +1194,8 @@ Since v1.0.1`
     });
 
     describe("namespace > type aliases", () => {
-      it("should ignore not exported type aliases", async () =>
-        await expectMarkdown(
+      it("should ignore not exported type aliases", () =>
+        expectMarkdown(
           Parser.parseNamespaces,
           `
         /**
@@ -1213,8 +1212,8 @@ Since v1.0.1`
 Since v1.0.0`
         ));
 
-      it("should parse a type alias", async () =>
-        await expectMarkdown(
+      it("should parse a type alias", () =>
+        expectMarkdown(
           Parser.parseNamespaces,
           `
         /**
@@ -1248,8 +1247,8 @@ Since v1.0.1`
     });
 
     describe("namespace > nested namespaces", () => {
-      it("should ignore not exported namespaces", async () =>
-        await expectMarkdown(
+      it("should ignore not exported namespaces", () =>
+        expectMarkdown(
           Parser.parseNamespaces,
           `
         /**
@@ -1266,8 +1265,8 @@ Since v1.0.1`
 Since v1.0.0`
         ));
 
-      it("should parse a namespace", async () =>
-        await expectMarkdown(
+      it("should parse a namespace", () =>
+        expectMarkdown(
           Parser.parseNamespaces,
           `
         /**
@@ -1313,11 +1312,11 @@ Since v1.0.2`
   });
 
   describe("parseClasses", () => {
-    it("should ignore `@internal` classes", async () =>
-      await expectMarkdown(Parser.parseClasses, `/** @internal */export class MyClass {}`, ""));
+    it("should ignore `@internal` classes", () =>
+      expectMarkdown(Parser.parseClasses, `/** @internal */export class MyClass {}`, ""));
 
-    it("should ignore `@ignore` classes", async () =>
-      await expectMarkdown(
+    it("should ignore `@ignore` classes", () =>
+      expectMarkdown(
         Parser.parseClasses,
         `
         /** @ignore */
@@ -1326,8 +1325,8 @@ Since v1.0.2`
         ""
       ));
 
-    it("should ignore not exported classes", async () =>
-      await expectMarkdown(
+    it("should ignore not exported classes", () =>
+      expectMarkdown(
         Parser.parseClasses,
         `
         class MyClass {}
@@ -1335,8 +1334,8 @@ Since v1.0.2`
         ""
       ));
 
-    it("should skip ignored properties", async () =>
-      await expectMarkdown(
+    it("should skip ignored properties", () =>
+      expectMarkdown(
         Parser.parseClasses,
         `/**
       * @since 1.0.0
@@ -1360,8 +1359,8 @@ declare class MyClass<A>
 Since v1.0.0`
       ));
 
-    it("should skip the constructor body", async () =>
-      await expectMarkdown(
+    it("should skip the constructor body", () =>
+      expectMarkdown(
         Parser.parseClasses,
         `/**
       * description
@@ -1401,8 +1400,8 @@ Since v1.0.0`
       expect(Parser.getConstructorDeclarationSignature(constructorDeclaration)).toEqual("constructor()");
     });
 
-    it("should handle non-readonly properties", async () =>
-      await expectMarkdown(
+    it("should handle non-readonly properties", () =>
+      expectMarkdown(
         Parser.parseClasses,
         `/**
       * description
@@ -1441,8 +1440,8 @@ a: string
 Since v1.0.0`
       ));
 
-    it("should return a `Class`", async () =>
-      await expectMarkdown(
+    it("should return a `Class`", () =>
+      expectMarkdown(
         Parser.parseClasses,
         `/**
       * a class description...
@@ -1530,8 +1529,8 @@ readonly a: string
 Since v1.1.0`
       ));
 
-    it("should handle method overloadings", async () =>
-      await expectMarkdown(
+    it("should handle method overloadings", () =>
+      expectMarkdown(
         Parser.parseClasses,
         `/**
       * a class description...
@@ -1602,8 +1601,8 @@ declare const map: { (f: (a: number) => number): Test; (f: (a: string) => string
 Since v1.1.0`
       ));
 
-    it("should ignore internal/ignored methods (#42)", async () =>
-      await expectMarkdown(
+    it("should ignore internal/ignored methods (#42)", () =>
+      expectMarkdown(
         Parser.parseClasses,
         `/**
       * a class description...
@@ -1638,13 +1637,14 @@ Since v1.0.0`
   });
 
   describe("parseFile", () =>
-    it("should not parse a non-existent file", async () => {
-      const file = Domain.File.new("non-existent.ts", "", { isOverwritable: false });
-      const project = new ast.Project({ useInMemoryFileSystem: true });
+    it("should not parse a non-existent file", () =>
+      Effect.gen(function* () {
+        const file = Domain.File.new("non-existent.ts", "", { isOverwritable: false });
+        const project = new ast.Project({ useInMemoryFileSystem: true });
 
-      const error = runSyncInLayer(Path.layer, Parser.parseFile(project)(file).pipe(Effect.flip));
-      expect(error).toEqual(["Unable to locate file: non-existent.ts"]);
-    }));
+        const error = runSyncInLayer(Path.layer, Parser.parseFile(project)(file).pipe(Effect.flip));
+        expect(error).toEqual(["Unable to locate file: non-existent.ts"]);
+      })));
 
   describe("utils", () =>
     it("parseComment", () => {

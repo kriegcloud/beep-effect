@@ -658,12 +658,14 @@ export const patchReplaceLiteralAt: {
 } = dual<
   (replacer: (values: ReadonlyArray<string>) => PatternElement) => (index: number) => PatternPatch,
   (index: number, replacer: (values: ReadonlyArray<string>) => PatternElement) => PatternPatch
->(2, (index: number, replacer: (values: ReadonlyArray<string>) => PatternElement): PatternPatch => {
-  return (pattern) =>
-    mapElements(pattern, (element: PatternElement, elementIndex: number) =>
-      elementIndex === index && isLiteralElement(element) ? replacer(element.value) : element
-    );
-});
+>(
+  2,
+  (index: number, replacer: (values: ReadonlyArray<string>) => PatternElement): PatternPatch =>
+    (pattern) =>
+      mapElements(pattern, (element: PatternElement, elementIndex: number) =>
+        elementIndex === index && isLiteralElement(element) ? replacer(element.value) : element
+      )
+);
 
 /**
  * Replace all literal elements.

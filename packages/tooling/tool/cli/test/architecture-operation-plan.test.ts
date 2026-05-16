@@ -1,6 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   applyCanonicalSliceOperationPlan,
@@ -18,14 +16,37 @@ import {
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Layer, Order, pipe } from "effect";
+import { Clock, Effect, Layer, Order, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
-const architectureFixtureManifestPath = join(
+const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
+  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+    .filter((segment) => segment.length > 0)
+    .join("/");
+const runFileCommandSync = (command: string, args: ReadonlyArray<string>) => {
+  const result = Bun.spawnSync([command, ...args], { stderr: "ignore", stdout: "ignore" });
+  if (result.exitCode !== 0) {
+    throw new Error(`${command} ${args.join(" ")} failed with exit code ${result.exitCode}`);
+  }
+};
+const pathExistsSync = (path: string): boolean =>
+  Bun.spawnSync(["test", "-e", path], { stderr: "ignore", stdout: "ignore" }).exitCode === 0;
+const makeDirectory = (path: string) => Effect.sync(() => runFileCommandSync("mkdir", ["-p", path]));
+const removePath = (path: string) => Effect.sync(() => runFileCommandSync("rm", ["-rf", path]));
+const removeFile = (path: string) => Effect.sync(() => runFileCommandSync("rm", ["-f", path]));
+const readText = (path: string) => Effect.promise(() => Bun.file(path).text());
+const writeText = (path: string, content: string) => Effect.promise(() => Bun.write(path, content)).pipe(Effect.asVoid);
+
+const architectureFixtureManifestPath = joinPath(
   repoRoot,
   "packages/tooling/tool/cli/test/fixtures/architecture-operation-plan/accepted-work-item-manifest.json"
 );
@@ -95,6 +116,14 @@ const ArchitectureFixtureManifest = S.Struct({
   excludedSurfaces: S.Array(S.String),
 });
 const decodeArchitectureFixtureManifest = S.decodeUnknownEffect(S.fromJsonString(ArchitectureFixtureManifest));
+const readGeneratedComparison = Effect.fn("ArchitectureOperationPlan.readGeneratedComparison")(function* (
+  tempRoot: string,
+  acceptedPath: string
+) {
+  const accepted = yield* readText(joinPath(repoRoot, acceptedPath));
+  const generated = yield* readText(joinPath(tempRoot, acceptedPath));
+  return { accepted, acceptedPath, generated };
+});
 
 const isGeneratedArchitectureSurface = (repoPath: string): boolean =>
   pipe(
@@ -139,25 +168,35 @@ const isManifestIncludedArchitectureProofFile = (repoPath: string): boolean => {
   return false;
 };
 
-const collectFiles = (rootDir: string, repoPath: string): ReadonlyArray<string> => {
-  const absolutePath = join(rootDir, repoPath);
-  if (!existsSync(absolutePath)) return [];
-  const entries = readdirSync(absolutePath, { withFileTypes: true });
-  const files: Array<string> = [];
-  for (const entry of entries) {
-    const childRepoPath = `${repoPath}/${entry.name}`;
-    if (isGeneratedArchitectureSurface(childRepoPath)) continue;
-    if (entry.isDirectory()) {
-      A.appendAllInPlace(files, collectFiles(rootDir, childRepoPath));
-    } else if (isManifestIncludedArchitectureProofFile(childRepoPath)) {
-      A.appendInPlace(files, childRepoPath);
-    }
+const collectDotKeepFiles = (rootDir: string, repoPath: string): ReadonlyArray<string> => {
+  const result = Bun.spawnSync(["find", joinPath(rootDir, repoPath), "-type", "f", "-name", ".gitkeep"], {
+    stderr: "ignore",
+  });
+  if (result.exitCode !== 0) {
+    return [];
   }
-  return files;
+  return pipe(
+    Str.split("\n")(String(result.stdout)),
+    A.filter(Str.isNonEmpty),
+    A.map(Str.replace(`${rootDir.replace(/\/$/u, "")}/`, ""))
+  );
+};
+
+const collectFiles = (rootDir: string, repoPath: string): ReadonlyArray<string> => {
+  const glob = new Bun.Glob(`${repoPath}/**/*`);
+  return pipe(
+    Array.from(glob.scanSync({ cwd: rootDir })),
+    A.appendAll(collectDotKeepFiles(rootDir, repoPath)),
+    A.dedupe,
+    A.filter((childRepoPath) => !isGeneratedArchitectureSurface(childRepoPath)),
+    A.filter(isManifestIncludedArchitectureProofFile)
+  );
 };
 
 const collectAcceptedArchitectureProofFiles = Effect.fn(function* () {
-  const manifest = yield* decodeArchitectureFixtureManifest(readFileSync(architectureFixtureManifestPath, "utf8"));
+  const manifest = yield* readText(architectureFixtureManifestPath).pipe(
+    Effect.flatMap(decodeArchitectureFixtureManifest)
+  );
   expect(manifest.acceptedOracle).toBe("live architecture-lab WorkItem proof");
   expect(manifest.includedSurfaces).toEqual([...architectureManifestIncludedSurfaceEntries]);
   expect(manifest.excludedSurfaces).toEqual([...architectureManifestExcludedSurfaceEntries]);
@@ -191,7 +230,7 @@ describe("architecture operation plan", () => {
 
   it.effect("decodes older v1 operation JSON with metadata defaults", () =>
     Effect.gen(function* () {
-      const rootDir = join(tmpdir(), `beep-architecture-legacy-plan-${Date.now()}`);
+      const rootDir = joinPath(tmpdir(), `beep-architecture-legacy-plan-${yield* Clock.currentTimeMillis}`);
       const operationPath = "packages/architecture-lab/domain/src/index.ts";
       const legacyJson = `{
   "schemaVersion": "architecture-operation-plan/v1",
@@ -221,13 +260,15 @@ describe("architecture operation plan", () => {
     }
   ]
 }`;
-      mkdirSync(join(rootDir, "packages/architecture-lab/domain/src"), { recursive: true });
-      writeFileSync(join(rootDir, operationPath), "export {}\n");
+      yield* makeDirectory(joinPath(rootDir, "packages/architecture-lab/domain/src"));
+      yield* writeText(joinPath(rootDir, operationPath), "export {}\n");
 
       const decoded = yield* decodeCanonicalSliceOperationPlanJson(legacyJson);
-      const result = yield* checkCanonicalSliceOperationPlan(rootDir, decoded).pipe(Effect.provide(NodeServices.layer));
+      const result = yield* checkCanonicalSliceOperationPlan(rootDir, decoded).pipe(
+        provideScopedLayer(NodeServices.layer)
+      );
 
-      rmSync(rootDir, { force: true, recursive: true });
+      yield* removePath(rootDir);
       expect(decoded.operations[0]?.operationId).toBe("legacy-operation");
       expect(decoded.operations[0]?.operationSource).toBe("legacy-plan");
       expect(decoded.operations[0]?.writeMode).toBe("write-if-missing");
@@ -240,10 +281,10 @@ describe("architecture operation plan", () => {
 
   it.effect("reports idempotency from the decoded operation list", () =>
     Effect.gen(function* () {
-      const rootDir = join(tmpdir(), `beep-architecture-plan-${Date.now()}`);
+      const rootDir = joinPath(tmpdir(), `beep-architecture-plan-${yield* Clock.currentTimeMillis}`);
       const requiredFile = "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.model.ts";
-      mkdirSync(join(rootDir, "packages/architecture-lab/domain/src/aggregates/WorkItem"), { recursive: true });
-      writeFileSync(join(rootDir, requiredFile), "export {}\n");
+      yield* makeDirectory(joinPath(rootDir, "packages/architecture-lab/domain/src/aggregates/WorkItem"));
+      yield* writeText(joinPath(rootDir, requiredFile), "export {}\n");
 
       const plan = makeCanonicalSliceOperationPlan();
       const result = yield* checkCanonicalSliceOperationPlan(
@@ -252,26 +293,29 @@ describe("architecture operation plan", () => {
           ...plan,
           operations: A.filter(plan.operations, (operation) => operation.path === requiredFile),
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
 
-      rmSync(rootDir, { force: true, recursive: true });
+      yield* removePath(rootDir);
       expect(result.idempotent).toBe(true);
     })
   );
 
   it.effect("generates every manifest-included WorkItem proof file and second apply is a no-op", () =>
     Effect.gen(function* () {
-      const tempRoot = join(tmpdir(), `beep-architecture-generated-${Date.now()}`);
+      const tempRoot = joinPath(tmpdir(), `beep-architecture-generated-${yield* Clock.currentTimeMillis}`);
+      yield* removePath(tempRoot);
       const acceptedFiles = yield* collectAcceptedArchitectureProofFiles();
 
       const proof = yield* Effect.gen(function* () {
-        const plan = yield* makeArchitectureOperationPlan(repoRoot).pipe(Effect.provide(NodeServices.layer));
+        const plan = yield* makeArchitectureOperationPlan(repoRoot).pipe(provideScopedLayer(NodeServices.layer));
         const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-          Effect.provide(NodeServices.layer)
+          provideScopedLayer(NodeServices.layer)
         );
-        const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(Effect.provide(NodeServices.layer));
+        const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+          provideScopedLayer(NodeServices.layer)
+        );
         const secondApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-          Effect.provide(NodeServices.layer)
+          provideScopedLayer(NodeServices.layer)
         );
         const plannedWritePaths = pipe(
           plan.operations,
@@ -279,17 +323,12 @@ describe("architecture operation plan", () => {
           A.map((operation) => operation.path),
           A.sort(Order.String)
         );
-        const generatedComparisons = pipe(
-          acceptedFiles,
-          A.map((acceptedPath) => ({
-            accepted: readFileSync(join(repoRoot, acceptedPath), "utf8"),
-            acceptedPath,
-            generated: readFileSync(join(tempRoot, acceptedPath), "utf8"),
-          }))
+        const generatedComparisons = yield* Effect.forEach(acceptedFiles, (acceptedPath) =>
+          readGeneratedComparison(tempRoot, acceptedPath)
         );
 
         return { check, firstApply, generatedComparisons, plan, plannedWritePaths, secondApply };
-      }).pipe(Effect.ensuring(Effect.sync(() => rmSync(tempRoot, { force: true, recursive: true }))));
+      }).pipe(Effect.ensuring(removePath(tempRoot)));
 
       for (const { accepted, acceptedPath, generated } of proof.generatedComparisons) {
         expect(generated, acceptedPath).toBe(accepted);
@@ -305,20 +344,23 @@ describe("architecture operation plan", () => {
 
   it.effect("generates a complete non-default aggregate slice plan with package scaffolds", () =>
     Effect.gen(function* () {
-      const tempRoot = join(tmpdir(), `beep-architecture-demo-generated-${Date.now()}`);
+      const tempRoot = joinPath(tmpdir(), `beep-architecture-demo-generated-${yield* Clock.currentTimeMillis}`);
+      yield* removePath(tempRoot);
 
       const plan = yield* makeArchitectureOperationPlan(repoRoot, {
         boundedContext: "research-lab",
         concept: "Ticket",
         domainKind: "aggregates",
         stage: "core",
-      }).pipe(Effect.provide(NodeServices.layer));
+      }).pipe(provideScopedLayer(NodeServices.layer));
       const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-        Effect.provide(NodeServices.layer)
+        provideScopedLayer(NodeServices.layer)
       );
-      const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(Effect.provide(NodeServices.layer));
+      const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+        provideScopedLayer(NodeServices.layer)
+      );
 
-      rmSync(tempRoot, { force: true, recursive: true });
+      yield* removePath(tempRoot);
       expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/package.json");
       expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/src/index.ts");
       expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/src/identity/ResearchLab.ts");
@@ -329,10 +371,12 @@ describe("architecture operation plan", () => {
 
   it.effect("rejects operation paths that escape the repository root before writing files", () =>
     Effect.gen(function* () {
-      const rootName = `beep-architecture-escape-${Date.now()}`;
-      const tempRoot = join(tmpdir(), rootName);
+      const rootName = `beep-architecture-escape-${yield* Clock.currentTimeMillis}`;
+      const tempRoot = joinPath(tmpdir(), rootName);
       const outsideFileName = `${rootName}-outside.txt`;
-      const outsidePath = join(tmpdir(), outsideFileName);
+      const outsidePath = joinPath(tmpdir(), outsideFileName);
+      yield* removePath(tempRoot);
+      yield* removeFile(outsidePath);
       const plan = makeCanonicalSliceOperationPlan();
       const escapedPlan = new CanonicalSliceOperationPlan({
         ...plan,
@@ -349,13 +393,13 @@ describe("architecture operation plan", () => {
       });
 
       const error = yield* applyCanonicalSliceOperationPlan(tempRoot, escapedPlan).pipe(
-        Effect.provide(NodeServices.layer),
+        provideScopedLayer(NodeServices.layer),
         Effect.flip
       );
-      const outsideExists = existsSync(outsidePath);
+      const outsideExists = pathExistsSync(outsidePath);
 
-      rmSync(tempRoot, { force: true, recursive: true });
-      rmSync(outsidePath, { force: true });
+      yield* removePath(tempRoot);
+      yield* removeFile(outsidePath);
       expect(error.message).toContain("Architecture operation path escapes repository root");
       expect(outsideExists).toBe(false);
     })
@@ -363,21 +407,22 @@ describe("architecture operation plan", () => {
 
   it.effect("keeps global db-admin state out of non-default persistence slice plans", () =>
     Effect.gen(function* () {
-      const tempRoot = join(tmpdir(), `beep-architecture-persistence-generated-${Date.now()}`);
+      const tempRoot = joinPath(tmpdir(), `beep-architecture-persistence-generated-${yield* Clock.currentTimeMillis}`);
+      yield* removePath(tempRoot);
 
       const plan = yield* makeArchitectureOperationPlan(repoRoot, {
         boundedContext: "research-lab",
         concept: "Ticket",
         domainKind: "aggregates",
         stage: "persistence",
-      }).pipe(Effect.provide(NodeServices.layer));
+      }).pipe(provideScopedLayer(NodeServices.layer));
       const checkAfterApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
         Effect.flatMap(() => checkCanonicalSliceOperationPlan(tempRoot, plan)),
-        Effect.provide(NodeServices.layer)
+        provideScopedLayer(NodeServices.layer)
       );
       const plannedPaths = A.map(plan.operations, (operation) => operation.path);
 
-      rmSync(tempRoot, { force: true, recursive: true });
+      yield* removePath(tempRoot);
       expect(
         A.every(plannedPaths, (operationPath) => !Str.startsWith("packages/_internal/db-admin/")(operationPath))
       ).toBe(true);
@@ -390,7 +435,8 @@ describe("architecture operation plan", () => {
 
   it.effect("generates the accepted Worker entity archetype without aggregate-only roles", () =>
     Effect.gen(function* () {
-      const tempRoot = join(tmpdir(), `beep-architecture-worker-generated-${Date.now()}`);
+      const tempRoot = joinPath(tmpdir(), `beep-architecture-worker-generated-${yield* Clock.currentTimeMillis}`);
+      yield* removePath(tempRoot);
       const acceptedPath = "packages/architecture-lab/domain/src/entities/Worker/Worker.model.ts";
 
       const plan = yield* makeArchitectureOperationPlan(
@@ -402,16 +448,16 @@ describe("architecture operation plan", () => {
           stage: "full",
         },
         O.none()
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
       const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-        Effect.provide(NodeServices.layer)
+        provideScopedLayer(NodeServices.layer)
       );
 
-      const generated = readFileSync(join(tempRoot, acceptedPath), "utf8");
-      const accepted = readFileSync(join(repoRoot, acceptedPath), "utf8");
+      const generated = yield* readText(joinPath(tempRoot, acceptedPath));
+      const accepted = yield* readText(joinPath(repoRoot, acceptedPath));
       const plannedRoles = A.map(plan.roles, (role) => role.role);
 
-      rmSync(tempRoot, { force: true, recursive: true });
+      yield* removePath(tempRoot);
       expect(firstApply.writtenPaths).toContain(acceptedPath);
       expect(generated).toBe(accepted);
       expect(plannedRoles).toEqual(["domain", "use-cases", "server", "tables", "db-admin"]);
@@ -428,18 +474,18 @@ describe("architecture operation plan", () => {
         concept: "Worker",
         domainKind: "entities",
         stage: "full",
-      }).pipe(Effect.provide(NodeServices.layer));
+      }).pipe(provideScopedLayer(NodeServices.layer));
       const priorityPlan = yield* makeArchitectureOperationPlan(repoRoot, {
         boundedContext: "architecture-lab",
         concept: "WorkPriority",
         domainKind: "values",
         stage: "full",
-      }).pipe(Effect.provide(NodeServices.layer));
+      }).pipe(provideScopedLayer(NodeServices.layer));
       const workerCheck = yield* checkCanonicalSliceOperationPlan(repoRoot, workerPlan).pipe(
-        Effect.provide(NodeServices.layer)
+        provideScopedLayer(NodeServices.layer)
       );
       const priorityCheck = yield* checkCanonicalSliceOperationPlan(repoRoot, priorityPlan).pipe(
-        Effect.provide(NodeServices.layer)
+        provideScopedLayer(NodeServices.layer)
       );
 
       expect(workerCheck.idempotent).toBe(true);
@@ -449,7 +495,8 @@ describe("architecture operation plan", () => {
 
   it.effect("generates the accepted WorkPriority value archetype as domain-only", () =>
     Effect.gen(function* () {
-      const tempRoot = join(tmpdir(), `beep-architecture-priority-generated-${Date.now()}`);
+      const tempRoot = joinPath(tmpdir(), `beep-architecture-priority-generated-${yield* Clock.currentTimeMillis}`);
+      yield* removePath(tempRoot);
       const acceptedPath = "packages/architecture-lab/domain/src/values/WorkPriority/WorkPriority.model.ts";
 
       const plan = yield* makeArchitectureOperationPlan(repoRoot, {
@@ -457,15 +504,15 @@ describe("architecture operation plan", () => {
         concept: "WorkPriority",
         domainKind: "values",
         stage: "full",
-      }).pipe(Effect.provide(NodeServices.layer));
+      }).pipe(provideScopedLayer(NodeServices.layer));
       const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-        Effect.provide(NodeServices.layer)
+        provideScopedLayer(NodeServices.layer)
       );
 
-      const generated = readFileSync(join(tempRoot, acceptedPath), "utf8");
-      const accepted = readFileSync(join(repoRoot, acceptedPath), "utf8");
+      const generated = yield* readText(joinPath(tempRoot, acceptedPath));
+      const accepted = yield* readText(joinPath(repoRoot, acceptedPath));
 
-      rmSync(tempRoot, { force: true, recursive: true });
+      yield* removePath(tempRoot);
       expect(firstApply.writtenPaths).toContain(acceptedPath);
       expect(generated).toBe(accepted);
       expect(A.map(plan.roles, (role) => role.role)).toEqual(["domain"]);
@@ -486,7 +533,7 @@ describe("architecture operation plan", () => {
           stage: "full",
         },
         O.some(["server"])
-      ).pipe(Effect.provide(NodeServices.layer), Effect.flip);
+      ).pipe(provideScopedLayer(NodeServices.layer), Effect.flip);
 
       expect(error.message).toContain("values concepts do not support role(s): server");
     })
@@ -534,24 +581,27 @@ describe("architecture operation plan", () => {
 
   it.effect("applies a shell-only slice role package twice with a no-op second apply", () =>
     Effect.gen(function* () {
-      const tempRoot = join(tmpdir(), `beep-architecture-package-shell-${Date.now()}`);
+      const tempRoot = joinPath(tmpdir(), `beep-architecture-package-shell-${yield* Clock.currentTimeMillis}`);
+      yield* removePath(tempRoot);
       const plan = yield* makeArchitecturePackageOperationPlan({
         boundedContext: "research-lab",
         role: "domain",
       });
 
       const firstApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-        Effect.provide(NodeServices.layer)
+        provideScopedLayer(NodeServices.layer)
       );
-      const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(Effect.provide(NodeServices.layer));
+      const check = yield* checkCanonicalSliceOperationPlan(tempRoot, plan).pipe(
+        provideScopedLayer(NodeServices.layer)
+      );
       const secondApply = yield* applyCanonicalSliceOperationPlan(tempRoot, plan).pipe(
-        Effect.provide(NodeServices.layer)
+        provideScopedLayer(NodeServices.layer)
       );
-      const packageJson = readFileSync(join(tempRoot, "packages/research-lab/domain/package.json"), "utf8");
+      const packageJson = yield* readText(joinPath(tempRoot, "packages/research-lab/domain/package.json"));
       const parsedPackageJson = yield* decodePackageJsonPublishConfig(packageJson);
-      const index = readFileSync(join(tempRoot, "packages/research-lab/domain/src/index.ts"), "utf8");
+      const index = yield* readText(joinPath(tempRoot, "packages/research-lab/domain/src/index.ts"));
 
-      rmSync(tempRoot, { force: true, recursive: true });
+      yield* removePath(tempRoot);
       expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/package.json");
       expect(firstApply.writtenPaths).toContain("packages/research-lab/domain/src/aggregates/index.ts");
       expect(firstApply.writtenPaths).not.toContain("packages/research-lab/domain/src/aggregates/WorkItem/index.ts");
@@ -571,7 +621,7 @@ describe("architecture operation plan", () => {
 
   it.effect("architecture plan command emits decoded JSON with operation metadata", () =>
     Effect.gen(function* () {
-      yield* runArchitectureCommand(["plan", "--stage", "core"]).pipe(Effect.provide(CommandTestLayer));
+      yield* runArchitectureCommand(["plan", "--stage", "core"]).pipe(provideScopedLayer(CommandTestLayer));
       const output = pipe(yield* TestConsole.logLines, A.join("\n"));
       const decoded = yield* decodeCanonicalSliceOperationPlanJson(output);
 
@@ -583,12 +633,12 @@ describe("architecture operation plan", () => {
 
   it.effect("architecture create package dry-run prints a plan without writing files", () =>
     Effect.gen(function* () {
-      const sliceName = `dry-run-lab-${Date.now()}`;
-      const targetDir = join(repoRoot, "packages", sliceName);
-      expect(existsSync(targetDir)).toBe(false);
+      const sliceName = `dry-run-lab-${yield* Clock.currentTimeMillis}`;
+      const targetDir = joinPath(repoRoot, "packages", sliceName);
+      expect(pathExistsSync(targetDir)).toBe(false);
 
       yield* runArchitectureCommand(["create", "package", sliceName, "domain", "--dry-run"]).pipe(
-        Effect.provide(CommandTestLayer)
+        provideScopedLayer(CommandTestLayer)
       );
       const output = pipe(yield* TestConsole.logLines, A.join("\n"));
       const decoded = yield* decodeCanonicalSliceOperationPlanJson(output);
@@ -598,21 +648,21 @@ describe("architecture operation plan", () => {
       expect(A.map(decoded.operations, (operation) => operation.path)).toContain(
         `packages/${sliceName}/domain/src/index.ts`
       );
-      expect(existsSync(targetDir)).toBe(false);
+      expect(pathExistsSync(targetDir)).toBe(false);
     })
   );
 
   it.effect("architecture check command validates an operation-plan file", () =>
     Effect.gen(function* () {
-      const planPath = join(tmpdir(), `beep-architecture-check-${Date.now()}.json`);
+      const planPath = joinPath(tmpdir(), `beep-architecture-check-${yield* Clock.currentTimeMillis}.json`);
       const plan = makeCanonicalSliceOperationPlan();
       const json = yield* encodeCanonicalSliceOperationPlanJson(plan);
-      writeFileSync(planPath, json);
+      yield* writeText(planPath, json);
 
-      yield* runArchitectureCommand(["check", "--file", planPath]).pipe(Effect.provide(CommandTestLayer));
+      yield* runArchitectureCommand(["check", "--file", planPath]).pipe(provideScopedLayer(CommandTestLayer));
       const output = pipe(yield* TestConsole.logLines, A.join("\n"));
 
-      rmSync(planPath, { force: true });
+      yield* removeFile(planPath);
       expect(output).toContain("idempotent=true");
       expect(output).toContain(`operations=${plan.operations.length}`);
     })

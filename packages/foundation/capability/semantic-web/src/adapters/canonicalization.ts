@@ -56,13 +56,14 @@ const semanticCanonicalizationBudgetMessage = `Semantic canonicalization exceede
 
 const hashCanonicalText = Effect.fn("SemanticWeb.hashCanonicalText")(function* (canonicalText: string) {
   const hex = yield* Effect.tryPromise({
-    try: async () => {
+    try: () => {
       const bytes = new TextEncoder().encode(canonicalText);
-      const digest = await crypto.subtle.digest("SHA-256", bytes);
-      return pipe(
-        A.fromIterable(new Uint8Array(digest)),
-        A.map((value) => Str.padStart(2, "0")(value.toString(16))),
-        A.join("")
+      return crypto.subtle.digest("SHA-256", bytes).then((digest) =>
+        pipe(
+          A.fromIterable(new Uint8Array(digest)),
+          A.map((value) => Str.padStart(2, "0")(value.toString(16))),
+          A.join("")
+        )
       );
     },
     catch: () =>

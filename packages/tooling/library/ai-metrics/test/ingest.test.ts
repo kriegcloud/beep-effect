@@ -64,12 +64,18 @@ import {
   writeAiMetricsConfigSnapshotArtifacts,
   writeAiMetricsDerivedStorage,
 } from "@beep/repo-ai-metrics";
+import type { TUnsafe } from "@beep/types";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
-import { Effect, Encoding, Exit, FileSystem, Order, Path, pipe, Redacted } from "effect";
+import { expect, layer } from "@effect/vitest";
+import { Effect, Encoding, Exit, FileSystem, Layer, Order, Path, pipe, Redacted } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -108,7 +114,7 @@ const phoenixService = <A extends { readonly tool: string }>(spec: { readonly se
     A.findFirst((service) => service.tool === AiMetricsTool.Enum.phoenix)
   );
 
-describe("@beep/repo-ai-metrics", () => {
+layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (it) => {
   it.effect(
     "summarizes Codex JSONL and counts rejected lines",
     Effect.fn(function* () {
@@ -231,9 +237,9 @@ describe("@beep/repo-ai-metrics", () => {
             const envelope = yield* readEncryptedRawArchiveEnvelope(archivePath);
             const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKey });
             expect(plaintext).toContain("secret-value");
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -302,9 +308,9 @@ describe("@beep/repo-ai-metrics", () => {
                 }),
               ])
             );
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     }),
     AI_METRICS_LONG_TEST_TIMEOUT
   );
@@ -419,9 +425,9 @@ describe("@beep/repo-ai-metrics", () => {
             expect(agentTaskRows).toEqual([{ configSnapshotCount: 2, count: "2" }]);
             expect(sessionRows).toEqual([{ count: "3" }]);
             expect(turnRows).toEqual([{ count: "3" }]);
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -530,9 +536,9 @@ describe("@beep/repo-ai-metrics", () => {
             expect(reportJson).not.toContain("secret-scorecard-fixture");
             expect(reportJson).not.toContain(tmpDir);
             expect(reportMarkdown).toContain("AI Metrics Weekly Config-Impact Report");
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     }),
     AI_METRICS_LONG_TEST_TIMEOUT
   );
@@ -649,7 +655,7 @@ describe("@beep/repo-ai-metrics", () => {
           expect(planJson).not.toContain(tmpDir);
           expect(doctorJson).not.toContain(tmpDir);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -866,9 +872,9 @@ volumes:
             expect(json).not.toContain("private-model-output");
             expect(json).not.toContain("private-output");
             expect(json).not.toContain(tmpDir);
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -961,7 +967,7 @@ volumes:
           expect(json).not.toContain(tmpDir);
           expect(json).not.toContain(sourcePath);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1056,9 +1062,9 @@ volumes:
               }),
             ]);
             expect(turnRows).toEqual([{ sourceRole: "subagent" }]);
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1094,9 +1100,9 @@ volumes:
 
             expect(sourceRows).toEqual([{ sourceRole: "primary" }]);
             expect(scorecardRows).toEqual([{ completionReady: false, coverageGapsJson: "[]" }]);
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1181,9 +1187,9 @@ volumes:
 
             expect(taskRows).toEqual([{ agentTaskId: currentTaskId }]);
             expect(migrationRows).toEqual([{ migrationId: "ai-metrics-agent-task-id-v2" }]);
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1255,7 +1261,7 @@ volumes:
           expect(changed.diff.modifiedPaths).toEqual([".codex/config.toml"]);
           expect(changed.snapshot.previousSnapshotId).toBe(result.snapshot.snapshotId);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1292,7 +1298,7 @@ volumes:
           expect(result.snapshot.previousSnapshotId).toBe("config-legacy");
           expect(result.diff.modifiedPaths).toEqual(["AGENTS.md"]);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1316,7 +1322,7 @@ volumes:
 
           expect(error.message).toContain("Failed to decode previous AI metrics config snapshot artifact");
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1359,7 +1365,7 @@ volumes:
           expect(yield* fs.exists(path.join(snapshotDir, "latest.json"))).toBe(false);
           expect(A.some(snapshotFiles, Str.endsWith(".json"))).toBe(true);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1408,7 +1414,7 @@ volumes:
           expect(json).not.toContain(tmpDir);
           expect(json).not.toContain("super-secret-token");
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1450,7 +1456,7 @@ volumes:
           expect(claude.value.includedFileCount).toBe(1);
           expect(claude.value.files[0]?.sourceRole).toBe("primary");
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1495,7 +1501,7 @@ volumes:
           expect(codex.value.limitedByMaxFiles).toBe(false);
           expect(result.discoveredFileCount).toBe(1);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1543,7 +1549,7 @@ volumes:
           expect(codex.value.files[0]?.sizeBytes).toBeLessThanOrEqual(128);
           expect(codex.value.sizeExcludedFileCount).toBe(1);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1588,7 +1594,7 @@ volumes:
           expect(codex.value.files[0]?.sourceRole).toBe("subagent");
           expect(codex.value.files[0]?.threadSpawn).toBe(true);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1658,7 +1664,7 @@ volumes:
               repoRoot,
               target: AiMetricsDeployTarget.Enum.local,
             })
-          ).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
 
           const bundle = yield* buildAiMetricsMirrorBundle(
             new AiMetricsMirrorBundleInput({
@@ -1677,7 +1683,7 @@ volumes:
               )})`
             );
             return A.map(rows, (row) => globalThis.String(row.column_name));
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
           const labelColumns = yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
             const rows = yield* duckdb.query(
@@ -1686,7 +1692,7 @@ volumes:
               )})`
             );
             return A.map(rows, (row) => globalThis.String(row.column_name));
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
 
           expect(bundle.manifest.privacyProof.safe).toBe(true);
           expect(bundle.manifest.omittedTables).toContain("ai_metrics_raw_archive_objects");
@@ -1706,7 +1712,7 @@ volumes:
           expect(statusText).not.toContain(dataRoot);
           expect(statusText).not.toContain("secret-value");
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1742,7 +1748,7 @@ volumes:
               repoRoot,
               target: AiMetricsDeployTarget.Enum.local,
             })
-          ).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
 
           yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
 
@@ -1769,7 +1775,7 @@ volumes:
           expect(drill.transcriptTextPrinted).toBe(false);
           expect(yield* fs.exists(drill.derivedDuckDbPath)).toBe(true);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1804,18 +1810,18 @@ volumes:
               repoRoot,
               target: AiMetricsDeployTarget.Enum.local,
             })
-          ).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
           const originalArchivePath = yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
             const rows = yield* duckdb.query("SELECT archive_path FROM ai_metrics_raw_archive_objects LIMIT 1");
             return globalThis.String(rows[0]?.archive_path);
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
           yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
             yield* duckdb.run(
               `UPDATE ai_metrics_raw_archive_objects SET archive_path = ${sqlString(path.join(tmpDir, "outside.json"))}`
             );
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
 
           const selector = new AiMetricsRetentionSelector({
             beforeEpochMillis: 4_102_444_800_000,
@@ -1841,7 +1847,7 @@ volumes:
                   SET archive_path = ${sqlString(originalArchivePath)},
                       plaintext_content_hash = 'mismatch'`
             );
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
           const exit = yield* Effect.exit(
             runAiMetricsRetentionRestoreDrill(
               new AiMetricsRetentionRestoreDrillInput({
@@ -1856,7 +1862,7 @@ volumes:
 
           expect(Exit.isFailure(exit)).toBe(true);
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -1892,7 +1898,7 @@ volumes:
               repoRoot,
               target: AiMetricsDeployTarget.Enum.local,
             })
-          ).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          ).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
 
           yield* writeText(path.join(dataRoot, "reports/weekly.md"), "# report\n");
 
@@ -1900,7 +1906,7 @@ volumes:
             const duckdb = yield* DuckDb;
             const rows = yield* duckdb.query("SELECT agent_task_id FROM ai_metrics_agent_tasks LIMIT 1");
             return globalThis.String(rows[0]?.agent_task_id);
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
           yield* Effect.gen(function* () {
             const duckdb = yield* DuckDb;
             yield* duckdb.run(
@@ -1922,7 +1928,7 @@ volumes:
                   beforeEpochMillis + 1
                 })`
             );
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
 
           const selector = new AiMetricsRetentionSelector({ beforeEpochMillis, dataRoot });
           const compactResult = yield* runAiMetricsRetentionCompact(selector, false);
@@ -1933,7 +1939,7 @@ volumes:
           expect(yield* fs.exists(path.join(dataRoot, "reports/weekly.md"))).toBe(false);
 
           const deleteResult = yield* runAiMetricsRetentionDelete(selector, false).pipe(
-            Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })))
+            provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })))
           );
           expect(deleteResult.dryRun).toBe(false);
           expect(deleteResult.deletedRawArchiveObjectCount).toBe(1);
@@ -1959,7 +1965,7 @@ volumes:
               sourceFiles: globalThis.Number(sourceFiles[0]?.count),
               turns: globalThis.Number(turns[0]?.count),
             };
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
           expect(tableCounts).toEqual({
             agentTasks: 1,
             ingestRuns: 0,
@@ -1976,7 +1982,7 @@ volumes:
             untilEpochMillis: beforeEpochMillis + 2,
           });
           const labelOnlyDelete = yield* runAiMetricsRetentionDelete(labelOnlySelector, false).pipe(
-            Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })))
+            provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath })))
           );
           expect(labelOnlyDelete.deletedRawArchiveObjectCount).toBe(0);
           const labelOnlyCounts = yield* Effect.gen(function* () {
@@ -1987,10 +1993,10 @@ volumes:
               agentTasks: globalThis.Number(agentTasks[0]?.count),
               labels: globalThis.Number(labels[0]?.count),
             };
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: duckDbPath }))));
           expect(labelOnlyCounts).toEqual({ agentTasks: 0, labels: 0 });
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 });

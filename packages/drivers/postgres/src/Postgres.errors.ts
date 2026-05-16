@@ -114,8 +114,8 @@ const firstMapped = <Input, Output>(
 ): O.Option<Output> =>
   A.reduce(values, O.none<Output>(), (current, value) => (O.isSome(current) ? current : map(value)));
 
-const reasonValue = (reason: Cause.Reason<unknown>): O.Option<unknown> => {
-  return pipe(
+const reasonValue = (reason: Cause.Reason<unknown>): O.Option<unknown> =>
+  pipe(
     Result.try((): O.Option<unknown> => {
       if (Cause.isFailReason(reason)) {
         return O.some(reason.error);
@@ -127,7 +127,6 @@ const reasonValue = (reason: Cause.Reason<unknown>): O.Option<unknown> => {
     }),
     Result.getOrElse(O.none)
   );
-};
 
 const findInCause = <A>(
   cause: Cause.Cause<unknown>,

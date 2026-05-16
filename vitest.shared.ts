@@ -1,4 +1,6 @@
 import { A } from "@beep/utils";
+import { Config, Effect, pipe } from "effect";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import ts from "typescript";
 import type { ViteUserConfig } from "vitest/config";
@@ -11,20 +13,26 @@ type AliasEntry = {
 const projectRootDirectory = new URL("./", import.meta.url);
 const rootTsconfigPath = new URL("./tsconfig.json", import.meta.url).pathname;
 const coverageProvider = process.versions.bun !== undefined ? "istanbul" : "v8";
-const coverageThresholds =
-  process.env.VITEST_COVERAGE_REPORT_ONLY === "1"
-    ? {
-        branches: 0,
-        functions: 0,
-        lines: 0,
-        statements: 0,
-      }
-    : {
-        branches: 80,
-        functions: 60,
-        lines: 30,
-        statements: 30,
-      };
+const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
+const configStringEqualsSync = (name: string, expected: string): boolean =>
+  pipe(
+    configStringOptionSync(name),
+    O.exists((value) => value === expected)
+  );
+export const vitestCoverageReportOnly = configStringEqualsSync("VITEST_COVERAGE_REPORT_ONLY", "1");
+const coverageThresholds = vitestCoverageReportOnly
+  ? {
+      branches: 0,
+      functions: 0,
+      lines: 0,
+      statements: 0,
+    }
+  : {
+      branches: 80,
+      functions: 60,
+      lines: 30,
+      statements: 30,
+    };
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

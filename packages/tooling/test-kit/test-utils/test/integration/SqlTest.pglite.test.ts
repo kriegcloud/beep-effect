@@ -14,7 +14,12 @@ import { Cause, Context, Duration, Effect, Exit, Layer, pipe, Scope } from "effe
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 
-const sharedConnectionUri = process.env.BEEP_TEST_DATABASE_URL;
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
+const sharedConnectionUri = Bun.env.BEEP_TEST_DATABASE_URL;
 const hasSharedConnectionUri = sharedConnectionUri !== undefined && sharedConnectionUri !== "";
 let pgliteTestcontainersAvailable = false;
 const isSqlTestHarnessError = S.is(SqlTestHarnessError);
@@ -115,12 +120,11 @@ const schemaExists = Effect.fn("SqlTestIntegration.schemaExists")(function* (sch
 
 const isContainerInspectable = Effect.fn("SqlTestIntegration.isContainerInspectable")(function* (containerId: string) {
   const inspected = yield* Effect.tryPromise({
-    try: async () => {
-      const { getContainerRuntimeClient } = await import("testcontainers");
-      const runtime = await getContainerRuntimeClient();
-      await runtime.container.inspect(runtime.container.getById(containerId));
-      return true;
-    },
+    try: () =>
+      import("testcontainers")
+        .then(({ getContainerRuntimeClient }) => getContainerRuntimeClient())
+        .then((runtime) => runtime.container.inspect(runtime.container.getById(containerId)))
+        .then(() => true),
     catch: () => false,
   }).pipe(Effect.option, Effect.timeoutOption(ContainerInspectTimeout));
 
@@ -153,7 +157,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
             ),
             schema: O.isSome(info.schema),
           };
-        }).pipe(Effect.provide(makeSharedLayer(), { local: true }));
+        }).pipe(provideScopedLayer(makeSharedLayer()));
 
         expect(result.driver).toBe("pg-external");
         expect(result.one).toBe(1);
@@ -190,7 +194,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
             rows,
             A.map((row) => row.body)
           );
-        }).pipe(Effect.provide(makeSharedLayer(), { local: true }));
+        }).pipe(provideScopedLayer(makeSharedLayer()));
 
         expect(values).toEqual(["alpha", "beta"]);
       }),
@@ -217,7 +221,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
           `;
 
           return yield* countIsolatedNotes();
-        }).pipe(Effect.provide(makeSharedLayer(), { local: true }));
+        }).pipe(provideScopedLayer(makeSharedLayer()));
 
         const countAfterCreate = yield* createTableAndCountRows;
         const countAfterFreshProvision = yield* Effect.gen(function* () {
@@ -229,7 +233,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
             )
           `;
           return yield* countIsolatedNotes();
-        }).pipe(Effect.provide(makeSharedLayer(), { local: true }));
+        }).pipe(provideScopedLayer(makeSharedLayer()));
 
         expect(countAfterCreate).toBe(1);
         expect(countAfterFreshProvision).toBe(0);
@@ -260,7 +264,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
             ),
           };
         }).pipe(
-          Effect.provide(
+          provideScopedLayer(
             makeSharedLayer({
               migrate: Effect.gen(function* () {
                 const sql = (yield* SqlClient.SqlClient).withoutTransforms();
@@ -277,8 +281,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
                   VALUES ('alpha'), ('beta')
                 `;
               }),
-            }),
-            { local: true }
+            })
           )
         );
 
@@ -296,11 +299,10 @@ describe.sequential("PGLite shared external SQL test driver", () => {
 
         const exit = yield* Effect.exit(
           Effect.void.pipe(
-            Effect.provide(
+            provideScopedLayer(
               makeSharedLayer({
                 migrate: Effect.fail("boom"),
-              }),
-              { local: true }
+              })
             )
           )
         );
@@ -338,7 +340,7 @@ describe.sequential("PGLite shared external SQL test driver", () => {
         ).toBe(true);
         yield* Scope.close(scope, Exit.void);
         const existsAfterClose = yield* schemaExists(schemaName).pipe(
-          Effect.provide(makeExternalNoIsolationLayer(connectionUri), { local: true })
+          provideScopedLayer(makeExternalNoIsolationLayer(connectionUri))
         );
 
         expect(existsAfterClose).toBe(false);
@@ -374,7 +376,7 @@ describe.sequential("PGLite Testcontainers SQL test driver", () => {
             port: O.isSome(info.port),
             username: O.isSome(info.username),
           };
-        }).pipe(Effect.provide(makeContainerLayer(), { local: true }));
+        }).pipe(provideScopedLayer(makeContainerLayer()));
 
         expect(result.driver).toBe("pglite-testcontainers");
         expect(result.one).toBe(1);

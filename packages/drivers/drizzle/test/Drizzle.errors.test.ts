@@ -2,10 +2,15 @@ import { Drizzle, type DrizzleClient, DrizzleError, DrizzleErrorContext, Drizzle
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as assert from "@effect/vitest/utils";
-import { Effect, pipe } from "effect";
+import { Effect, Layer, pipe } from "effect";
 import * as Cause from "effect/Cause";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const makeClient = (execute: DrizzleClient["execute"]): DrizzleClient => {
   let client: DrizzleClient;
@@ -283,7 +288,7 @@ describe("Drizzle", () => {
         const drizzle = yield* Drizzle;
         return yield* drizzle.execute("select 1", []);
       });
-      const error = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)), Effect.flip);
+      const error = yield* pipe(program, provideScopedLayer(Drizzle.makeLayer(client)), Effect.flip);
 
       assert.assertInstanceOf(error, DrizzleError);
       assert.strictEqual(error.operation, "execute");
@@ -305,7 +310,7 @@ describe("Drizzle", () => {
         const transacted = yield* drizzle.withTransaction((transaction) => transaction.execute("select 2", ["tx"]));
         return { executed, transacted };
       });
-      const result = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)));
+      const result = yield* pipe(program, provideScopedLayer(Drizzle.makeLayer(client)));
 
       assert.deepStrictEqual(result.executed, ["select 1", ["root"]]);
       assert.deepStrictEqual(result.transacted, ["select 2", ["tx"]]);
@@ -321,7 +326,7 @@ describe("Drizzle", () => {
         const drizzle = yield* Drizzle;
         return yield* drizzle.withTransaction(() => Effect.fail(expected));
       });
-      const error = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)), Effect.flip);
+      const error = yield* pipe(program, provideScopedLayer(Drizzle.makeLayer(client)), Effect.flip);
 
       assert.strictEqual(error, expected);
     })
@@ -339,7 +344,7 @@ describe("Drizzle", () => {
         const drizzle = yield* Drizzle;
         return yield* drizzle.withTransaction((transaction) => transaction.execute("select 1", []));
       });
-      const error = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)), Effect.flip);
+      const error = yield* pipe(program, provideScopedLayer(Drizzle.makeLayer(client)), Effect.flip);
 
       assert.strictEqual(error, expected);
     })
@@ -353,7 +358,7 @@ describe("Drizzle", () => {
         const drizzle = yield* Drizzle;
         return yield* drizzle.withTransaction((transaction) => transaction.execute("select 1", []));
       });
-      const rows = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)));
+      const rows = yield* pipe(program, provideScopedLayer(Drizzle.makeLayer(client)));
 
       assert.deepStrictEqual(rows, ["select 1"]);
     })

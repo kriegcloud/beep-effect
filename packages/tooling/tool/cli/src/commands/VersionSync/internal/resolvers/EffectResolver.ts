@@ -84,30 +84,25 @@ type SnapshotSpecifierParts = {
   readonly sha: string;
 };
 
-const splitVersionSpecifier = (specifier: string): O.Option<VersionSpecifierParts> => {
-  return O.flatMap(Str.match(VERSION_SPECIFIER_PATTERN)(Str.trim(specifier)), (match) =>
+const splitVersionSpecifier = (specifier: string): O.Option<VersionSpecifierParts> =>
+  O.flatMap(Str.match(VERSION_SPECIFIER_PATTERN)(Str.trim(specifier)), (match) =>
     O.flatMap(O.fromUndefinedOr(match[1]), (prefix) =>
       O.map(O.fromUndefinedOr(match[2]), (exact) => ({ prefix, exact }))
     )
   );
-};
 
-const splitSnapshotSpecifier = (specifier: string): O.Option<SnapshotSpecifierParts> => {
-  return O.flatMap(Str.match(EFFECT_SMOL_SNAPSHOT_PATTERN)(Str.trim(specifier)), (match) =>
+const splitSnapshotSpecifier = (specifier: string): O.Option<SnapshotSpecifierParts> =>
+  O.flatMap(Str.match(EFFECT_SMOL_SNAPSHOT_PATTERN)(Str.trim(specifier)), (match) =>
     O.flatMap(O.fromUndefinedOr(match[1]), (packageName) =>
       O.map(O.fromUndefinedOr(match[2]), (sha) => ({ packageName, sha }))
     )
   );
-};
 
 const makeSnapshotSpecifier = (packageName: string, sha: string): string =>
   `https://pkg.pr.new/Effect-TS/effect-smol/${packageName}@${sha}`;
 
-const parseMajorVersion = (exactVersion: string): O.Option<number> => {
-  return O.flatMap(Str.match(EXACT_VERSION_PATTERN)(exactVersion), (match) =>
-    O.flatMap(O.fromUndefinedOr(match[1]), N.parse)
-  );
-};
+const parseMajorVersion = (exactVersion: string): O.Option<number> =>
+  O.flatMap(Str.match(EXACT_VERSION_PATTERN)(exactVersion), (match) => O.flatMap(O.fromUndefinedOr(match[1]), N.parse));
 
 const isPublishedLockstepEffectPackage = (
   packageName: string,

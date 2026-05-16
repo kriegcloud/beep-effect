@@ -54,9 +54,7 @@ const SimilarityMethod = SimilarityMethodKit.pipe(
 
 const loadSimilarityRuntime = (): SimilarityRuntime => require("wink-nlp/utilities/similarity");
 
-const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => {
-  return new Set(terms);
-};
+const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => new Set(terms);
 
 /**
  * Parameters controlling the asymmetric Tversky index.

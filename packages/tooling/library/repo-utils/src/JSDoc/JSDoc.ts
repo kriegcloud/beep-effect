@@ -578,8 +578,8 @@ export declare namespace StructuralJSDoc {
  * @category models
  * @since 0.0.0
  */
-export const matchStructuralJSDoc = (value: StructuralJSDoc.Type) => {
-  return Match.value(value).pipe(
+export const matchStructuralJSDoc = (value: StructuralJSDoc.Type) =>
+  Match.value(value).pipe(
     Match.discriminatorsExhaustive("_tag")({
       param: (_jsdoc: JSDocParam) => {},
       returns: (_jsdoc: JSDocReturns) => {},
@@ -598,7 +598,6 @@ export const matchStructuralJSDoc = (value: StructuralJSDoc.Type) => {
       yields: (_jsdoc: JSDocYields) => {},
     })
   );
-};
 
 // Access modifiers — all fully in AST modifier flags
 

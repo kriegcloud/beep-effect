@@ -39,8 +39,14 @@ import { Duration, Effect, Exit, FileSystem, Layer, Path, pipe, Ref } from "effe
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
+import * as HttpClient from "effect/unstable/http/HttpClient";
 import { ChildProcess } from "effect/unstable/process";
 import { describe, expect, it } from "vitest";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = Layer.mergeAll(
@@ -97,7 +103,7 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
         process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
-  ).pipe(Effect.provide(TestLayer));
+  ).pipe(provideScopedLayer(TestLayer));
 
 const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -121,11 +127,11 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
         process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
-  ).pipe(Effect.provide(CommandTestLayer));
+  ).pipe(provideScopedLayer(CommandTestLayer));
 
 describe("Docgen operations", () => {
-  it("parses current schema flags and classifies a configured package that has not generated docs", async () => {
-    await Effect.runPromise(
+  it("parses current schema flags and classifies a configured package that has not generated docs", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -171,11 +177,10 @@ describe("Docgen operations", () => {
           expect(target?.docsOutputPath).toBe("foundation/modeling/schema");
         })
       )
-    );
-  });
+    ));
 
-  it("builds repo-standard init config with own and dependency path mappings", async () => {
-    await Effect.runPromise(
+  it("builds repo-standard init config with own and dependency path mappings", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -269,11 +274,10 @@ describe("Docgen operations", () => {
           });
         })
       )
-    );
-  });
+    ));
 
-  it("builds docgen path mappings from non-standard source exports", async () => {
-    await Effect.runPromise(
+  it("builds docgen path mappings from non-standard source exports", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -336,11 +340,10 @@ describe("Docgen operations", () => {
           });
         })
       )
-    );
-  });
+    ));
 
-  it("ignores vendored docgen trees that are outside workspace patterns", async () => {
-    await Effect.runPromise(
+  it("ignores vendored docgen trees that are outside workspace patterns", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -383,11 +386,10 @@ describe("Docgen operations", () => {
           expect(A.map(packages, (pkg) => pkg.name)).toEqual(["@beep/schema"]);
         })
       )
-    );
-  });
+    ));
 
-  it("preserves the nested docs layout and rewrites module parents", async () => {
-    await Effect.runPromise(
+  it("preserves the nested docs layout and rewrites module parents", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -430,11 +432,10 @@ describe("Docgen operations", () => {
           expect(aggregatedIndex).toContain("permalink: /docs/foundation/modeling/schema");
         })
       )
-    );
-  });
+    ));
 
-  it("skips symlinked docs entries during aggregation", async () => {
-    await Effect.runPromise(
+  it("skips symlinked docs entries during aggregation", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -480,11 +481,10 @@ describe("Docgen operations", () => {
           expect(leakedExists).toBe(false);
         })
       )
-    );
-  });
+    ));
 
-  it("rejects symlinked docs roots during aggregation", async () => {
-    await Effect.runPromise(
+  it("rejects symlinked docs roots during aggregation", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -527,11 +527,10 @@ describe("Docgen operations", () => {
           expect(aggregatedExists).toBe(false);
         })
       )
-    );
-  });
+    ));
 
-  it("rejects stale docgen configs outside current workspaces during aggregation", async () => {
-    await Effect.runPromise(
+  it("rejects stale docgen configs outside current workspaces during aggregation", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -567,11 +566,10 @@ describe("Docgen operations", () => {
           expect(error.message).toContain("packages/retired/runtime/docgen.json");
         })
       )
-    );
-  });
+    ));
 
-  it("supports clean aggregation when stale docs paths conflict with nested package docs", async () => {
-    await Effect.runPromise(
+  it("supports clean aggregation when stale docs paths conflict with nested package docs", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -614,8 +612,7 @@ describe("Docgen operations", () => {
           expect(aggregated).toContain('parent: "@beep/example-store"');
         })
       )
-    );
-  });
+    ));
 
   it("renders human-first report content without agent instructions", () => {
     const analysis = new DocgenPackageAnalysis({
@@ -658,8 +655,8 @@ describe("Docgen operations", () => {
     expect(report).not.toContain("You are tasked");
   });
 
-  it("builds rich JSDoc quality subjects and advisory findings", async () => {
-    await Effect.runPromise(
+  it("builds rich JSDoc quality subjects and advisory findings", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -742,11 +739,10 @@ export const parseValue = (value: string): string => value.trim();
           expect(A.map(review?.findings ?? [], (finding) => finding.code)).toContain("example-only-voids-result");
         })
       )
-    );
-  });
+    ));
 
-  it("collects local export-list symbols and treats lowercase console output as observable", async () => {
-    await Effect.runPromise(
+  it("collects local export-list symbols and treats lowercase console output as observable", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -818,11 +814,10 @@ export { parseValue };
           expect(review?.tier).toBe("pass");
         })
       )
-    );
-  });
+    ));
 
-  it("aligns observable example and Effect signature heuristics", async () => {
-    await Effect.runPromise(
+  it("aligns observable example and Effect signature heuristics", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -903,11 +898,10 @@ export const formatValue = (value: string): string => \`value: \${value}\`;
           expect(formatFindingCodes).not.toContain("missing-effects-for-effectful-symbol");
         })
       )
-    );
-  });
+    ));
 
-  it("accepts type-level evidence as a useful type-only example", async () => {
-    await Effect.runPromise(
+  it("accepts type-level evidence as a useful type-only example", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -972,11 +966,10 @@ export type Elem<T> = T extends readonly (infer U)[] ? U : never;
           expect(review?.tier).toBe("pass");
         })
       )
-    );
-  });
+    ));
 
-  it("preserves default-export subjects in quality analysis", async () => {
-    await Effect.runPromise(
+  it("preserves default-export subjects in quality analysis", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1091,11 +1084,10 @@ export default trimDefault;
           );
         })
       )
-    );
-  });
+    ));
 
-  it("treats module re-exports as graph edges instead of quality subjects", async () => {
-    await Effect.runPromise(
+  it("treats module re-exports as graph edges instead of quality subjects", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1165,11 +1157,10 @@ export * as Value from "./Value.ts";
           expect(findingCodes).not.toContain("missing-description");
         })
       )
-    );
-  });
+    ));
 
-  it("emits schema v2 partial package reports when the package budget is exhausted", async () => {
-    await Effect.runPromise(
+  it("emits schema v2 partial package reports when the package budget is exhausted", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1225,11 +1216,10 @@ export * as Value from "./Value.ts";
           expect(decoded.packages?.[0]?.error).toContain("Timed out");
         })
       )
-    );
-  });
+    ));
 
-  it("honors docgen exclude globs during quality subject collection", async () => {
-    await Effect.runPromise(
+  it("honors docgen exclude globs during quality subject collection", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1306,11 +1296,10 @@ export const parseValue = (value: string): string => value.trim();
           expect(exportNames).not.toContain("GeneratedExport");
         })
       )
-    );
-  });
+    ));
 
-  it("selects packages from changed-files git output", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
-    await Effect.runPromise(
+  it("selects packages from changed-files git output", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1370,11 +1359,11 @@ export const parseValue = (value: string): string => value.trim();
           expect(A.map(decoded.packages?.[0]?.subjects ?? [], (subject) => subject.exportName)).toContain("parseValue");
         })
       )
-    );
-  });
+    )
+  );
 
-  it("renders consolidated quality reports and Codex remediation packets", async () => {
-    await Effect.runPromise(
+  it("renders consolidated quality reports and Codex remediation packets", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1466,11 +1455,10 @@ export const parseValue = (value: string): string => value.trim();
           expect(decoded.schemaVersion).toBe(2);
         })
       )
-    );
-  });
+    ));
 
-  it("caps and ranks Codex remediation packets for broad quality reports", async () => {
-    await Effect.runPromise(
+  it("caps and ranks Codex remediation packets for broad quality reports", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1545,11 +1533,10 @@ export const value${index} = ${index};
           expect(suppressedReport.packages[0]?.omittedPacketCount).toBe(30);
         })
       )
-    );
-  });
+    ));
 
-  it("evaluates worker packets with a fake Codex runner", async () => {
-    await Effect.runPromise(
+  it("evaluates worker packets with a fake Codex runner", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1719,11 +1706,10 @@ export type TypeValue = string;
           expect(failedPacket?.error).toContain("Worker returned invalid eval JSON");
         })
       )
-    );
-  });
+    ));
 
-  it("wires --packet-limit through the quality CLI", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
-    await Effect.runPromise(
+  it("wires --packet-limit through the quality CLI", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1793,42 +1779,45 @@ export const cliValue${index} = ${index};
           expect(decoded.packages?.[0]?.omittedPacketCount).toBe(3);
         })
       )
-    );
-  });
+    )
+  );
 
-  it("writes worker eval JSON from a saved quality report without requiring a live provider", {
-    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
-  }, async () => {
-    await Effect.runPromise(
-      withTempRepoCommand(
-        Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const tmpDir = process.cwd();
-          yield* fs.writeFileString(
-            path.join(tmpDir, "package.json"),
-            encodeJson({
-              name: "@beep/test-root",
-              private: true,
-              workspaces: ["packages/foundation/*/*"],
-            })
-          );
+  it(
+    "writes worker eval JSON from a saved quality report without requiring a live provider",
+    {
+      timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+    },
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const tmpDir = process.cwd();
+            yield* fs.writeFileString(
+              path.join(tmpDir, "package.json"),
+              encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                workspaces: ["packages/foundation/*/*"],
+              })
+            );
 
-          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
-          const qualityPath = path.join(tmpDir, "quality.json");
-          const evalPath = path.join(tmpDir, "worker-eval.json");
-          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
-          yield* fs.writeFileString(
-            path.join(packageDir, "package.json"),
-            encodeJson({
-              name: "@beep/schema",
-              version: "0.0.0",
-            })
-          );
-          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
-          yield* fs.writeFileString(
-            path.join(packageDir, "src", "index.ts"),
-            `/**
+            const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+            const qualityPath = path.join(tmpDir, "quality.json");
+            const evalPath = path.join(tmpDir, "worker-eval.json");
+            yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join(packageDir, "package.json"),
+              encodeJson({
+                name: "@beep/schema",
+                version: "0.0.0",
+              })
+            );
+            yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+            yield* fs.writeFileString(
+              path.join(packageDir, "src", "index.ts"),
+              `/**
  * Missing example worker eval fixture.
  *
  * @category parsing
@@ -1836,98 +1825,101 @@ export const cliValue${index} = ${index};
  */
 export const workerEvalValue = 1;
 `
-          );
+            );
 
-          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
+            const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+            const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
 
-          expect(target).toBeDefined();
+            expect(target).toBeDefined();
 
-          const qualityReport = yield* analyzeDocgenQuality({
-            scope: "package",
-            scoreMode: "codex",
-            targets: [target!],
-          });
-          yield* fs.writeFileString(qualityPath, yield* generateQualityJson(qualityReport));
+            const qualityReport = yield* analyzeDocgenQuality({
+              scope: "package",
+              scoreMode: "codex",
+              targets: [target!],
+            });
+            yield* fs.writeFileString(qualityPath, yield* generateQualityJson(qualityReport));
 
-          yield* runDocgenCommand([
-            "quality-worker-eval",
-            "--input",
-            qualityPath,
-            "--provider",
-            "codex",
-            "--model",
-            "gpt-5.4-mini",
-            "--packet-limit",
-            "0",
-            "--output",
-            evalPath,
-          ]);
+            yield* runDocgenCommand([
+              "quality-worker-eval",
+              "--input",
+              qualityPath,
+              "--provider",
+              "codex",
+              "--model",
+              "gpt-5.4-mini",
+              "--packet-limit",
+              "0",
+              "--output",
+              evalPath,
+            ]);
 
-          const decoded = decodeWorkerEvalReportJson(yield* fs.readFileString(evalPath));
-          const logLines = yield* TestConsole.logLines;
+            const decoded = decodeWorkerEvalReportJson(yield* fs.readFileString(evalPath));
+            const logLines = yield* TestConsole.logLines;
 
-          expect(decoded.schemaVersion).toBe(1);
-          expect(decoded.scope).toBe("input");
-          expect(decoded.sourceQualityReport).toBe(qualityPath);
-          expect(decoded.provider).toBe("codex");
-          expect(decoded.model).toBe("gpt-5.4-mini");
-          expect(decoded.reasoningEffort).toBe("low");
-          expect(decoded.codexSdkVersion).toMatch(/^\d+\.\d+\.\d+/);
-          expect(decoded.summary.sourcePackets).toBeGreaterThan(0);
-          expect(decoded.summary.selectedPackets).toBe(0);
-          expect(decoded.packets).toHaveLength(0);
-          expect(A.join(logLines, "\n")).toContain(`docgen: wrote ${evalPath}`);
-        })
+            expect(decoded.schemaVersion).toBe(1);
+            expect(decoded.scope).toBe("input");
+            expect(decoded.sourceQualityReport).toBe(qualityPath);
+            expect(decoded.provider).toBe("codex");
+            expect(decoded.model).toBe("gpt-5.4-mini");
+            expect(decoded.reasoningEffort).toBe("low");
+            expect(decoded.codexSdkVersion).toMatch(/^\d+\.\d+\.\d+/);
+            expect(decoded.summary.sourcePackets).toBeGreaterThan(0);
+            expect(decoded.summary.selectedPackets).toBe(0);
+            expect(decoded.packets).toHaveLength(0);
+            expect(A.join(logLines, "\n")).toContain(`docgen: wrote ${evalPath}`);
+          })
+        )
       )
-    );
-  });
+  );
 
-  it("builds Runpod Ollama pod inputs without secrets", async () => {
-    const selected = selectQualityWorkerRunpodTemplate([
-      new Template({
-        id: "template-z",
-        imageName: "runpod/pytorch:latest",
-        name: "Plain PyTorch",
-      }),
-      new Template({
-        id: "template-a",
-        imageName: "ollama/ollama:latest",
-        name: "Ollama CUDA",
-      }),
-    ]);
+  it("builds Runpod Ollama pod inputs without secrets", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const selected = selectQualityWorkerRunpodTemplate([
+          new Template({
+            id: "template-z",
+            imageName: "runpod/pytorch:latest",
+            name: "Plain PyTorch",
+          }),
+          new Template({
+            id: "template-a",
+            imageName: "ollama/ollama:latest",
+            name: "Ollama CUDA",
+          }),
+        ]);
 
-    expect(O.isSome(selected)).toBe(true);
-    if (O.isNone(selected)) {
-      return;
-    }
+        expect(O.isSome(selected)).toBe(true);
+        if (O.isNone(selected)) {
+          return;
+        }
 
-    expect(selected.value.id).toBe("template-a");
+        expect(selected.value.id).toBe("template-a");
 
-    const body = makeQualityWorkerRunpodEvalPodCreateInput({
-      gpuTypeIds: ["NVIDIA RTX A6000"],
-      minRamPerGpuGb: 48,
-      model: requiredQualityWorkerRunpodEvalModel(),
-      podName: "beep-jsdoc-worker-eval-test",
-    });
-    const bootstrap = A.join(body.dockerStartCmd ?? [], "\n");
+        const body = makeQualityWorkerRunpodEvalPodCreateInput({
+          gpuTypeIds: ["NVIDIA RTX A6000"],
+          minRamPerGpuGb: 48,
+          model: requiredQualityWorkerRunpodEvalModel(),
+          podName: "beep-jsdoc-worker-eval-test",
+        });
+        const bootstrap = A.join(body.dockerStartCmd ?? [], "\n");
 
-    expect(body.computeType).toBe("GPU");
-    expect(body.globalNetworking).toBe(true);
-    expect(body.gpuTypeIds).toEqual(["NVIDIA RTX A6000"]);
-    expect(body.minRAMPerGPU).toBe(48);
-    expect(body.ports).toEqual(["11434/http"]);
-    expect(bootstrap).toContain("apt-get install -y curl ca-certificates zstd");
-    expect(bootstrap).toContain("sha256sum -c -");
-    expect(bootstrap).toContain("sh /tmp/ollama-install.sh");
-    expect(bootstrap).not.toMatch(/curl.*\|\s*sh/);
-    expect(bootstrap).toContain("http://127.0.0.1:11434/api/pull");
-    expect(bootstrap).toContain('-d \'{"name":"qwen3-coder:30b"}\'');
-    expect(bootstrap).not.toContain("RUNPOD_API_KEY");
-  });
+        expect(body.computeType).toBe("GPU");
+        expect(body.globalNetworking).toBe(true);
+        expect(body.gpuTypeIds).toEqual(["NVIDIA RTX A6000"]);
+        expect(body.minRAMPerGPU).toBe(48);
+        expect(body.ports).toEqual(["11434/http"]);
+        expect(bootstrap).toContain("apt-get install -y curl ca-certificates zstd");
+        expect(bootstrap).toContain("sha256sum -c -");
+        expect(bootstrap).toContain("sh /tmp/ollama-install.sh");
+        expect(bootstrap).not.toMatch(/curl.*\|\s*sh/);
+        expect(bootstrap).toContain("http://127.0.0.1:11434/api/pull");
+        expect(bootstrap).toContain('-d \'{"name":"qwen3-coder:30b"}\'');
+        expect(bootstrap).not.toContain("RUNPOD_API_KEY");
+      })
+    ));
 
-  it("cleans up Runpod pods after recovering a missing createPod id", async () => {
-    await Effect.runPromise(
+  it("cleans up Runpod pods after recovering a missing createPod id", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1977,6 +1969,13 @@ export const parseValue = (value: string): string => value.trim();
               listPods: (request) => Effect.succeed([new Pod({ id: "pod-recovered", name: request?.name })]),
               stopPod: (request) => Ref.update(stoppedPodIds, A.append(request.podId)),
             } as never)
+          ).pipe(
+            Layer.provideMerge(
+              Layer.succeed(
+                HttpClient.HttpClient,
+                HttpClient.make(() => Effect.die("unexpected docgen quality worker HTTP request"))
+              )
+            )
           );
 
           const exit = yield* runDocgenQualityWorkerRunpodEval({
@@ -1988,18 +1987,17 @@ export const parseValue = (value: string): string => value.trim();
             scope: "package",
             skipTemplateSearch: true,
             sourceQualityReport: "quality.json",
-          }).pipe(Effect.provide(RunpodTestLayer), Effect.exit);
+          }).pipe(provideScopedLayer(RunpodTestLayer), Effect.exit);
 
           expect(Exit.isFailure(exit)).toBe(true);
           expect(yield* Ref.get(stoppedPodIds)).toEqual(["pod-recovered"]);
           expect(yield* Ref.get(deletedPodIds)).toEqual(["pod-recovered"]);
         })
       )
-    );
-  });
+    ));
 
-  it("guards Runpod worker eval behind explicit confirmation", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
-    await Effect.runPromise(
+  it("guards Runpod worker eval behind explicit confirmation", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
           yield* runDocgenCommand([
@@ -2019,11 +2017,11 @@ export const parseValue = (value: string): string => value.trim();
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    )
+  );
 
-  it("rejects nonpositive Runpod readiness timeout values", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
-    await Effect.runPromise(
+  it("rejects nonpositive Runpod readiness timeout values", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
           yield* runDocgenCommand([
@@ -2042,11 +2040,11 @@ export const parseValue = (value: string): string => value.trim();
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    )
+  );
 
-  it("rejects negative --packet-limit values", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
-    await Effect.runPromise(
+  it("rejects negative --packet-limit values", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -2095,11 +2093,11 @@ export const parseValue = (value: string): string => value.trim();
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    )
+  );
 
-  it("fails analysis when a package-local docgen.json is malformed", async () => {
-    await Effect.runPromise(
+  it("fails analysis when a package-local docgen.json is malformed", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -2135,11 +2133,10 @@ export const parseValue = (value: string): string => value.trim();
           expect(Exit.isFailure(exit)).toBe(true);
         })
       )
-    );
-  });
+    ));
 
-  it("checks docgen metadata without writing analysis files", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
-    await Effect.runPromise(
+  it("checks docgen metadata without writing analysis files", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -2183,40 +2180,43 @@ export const parseValue = (value: string): string => value.trim();
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    )
+  );
 
-  it("checks rejected category values without writing analysis files", {
-    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
-  }, async () => {
-    await Effect.runPromise(
-      withTempRepoCommand(
-        Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const tmpDir = process.cwd();
-          yield* fs.writeFileString(
-            path.join(tmpDir, "package.json"),
-            encodeJson({
-              name: "@beep/test-root",
-              private: true,
-              workspaces: ["packages/foundation/*/*"],
-            })
-          );
+  it(
+    "checks rejected category values without writing analysis files",
+    {
+      timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+    },
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const tmpDir = process.cwd();
+            yield* fs.writeFileString(
+              path.join(tmpDir, "package.json"),
+              encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                workspaces: ["packages/foundation/*/*"],
+              })
+            );
 
-          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
-          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
-          yield* fs.writeFileString(
-            path.join(packageDir, "package.json"),
-            encodeJson({
-              name: "@beep/schema",
-              version: "0.0.0",
-            })
-          );
-          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
-          yield* fs.writeFileString(
-            path.join(packageDir, "src", "index.ts"),
-            `/**
+            const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+            yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join(packageDir, "package.json"),
+              encodeJson({
+                name: "@beep/schema",
+                version: "0.0.0",
+              })
+            );
+            yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+            yield* fs.writeFileString(
+              path.join(packageDir, "src", "index.ts"),
+              `/**
  * Package docs.
  *
  * @packageDocumentation
@@ -2231,70 +2231,73 @@ export const parseValue = (value: string): string => value.trim();
  */
 export const RejectedCategory = "nope";
 `
-          );
+            );
 
-          yield* runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]);
+            yield* runDocgenCommand(["check", "-p", "packages/foundation/modeling/schema"]);
 
-          const errorText = A.join(yield* TestConsole.errorLines, "\n");
-          const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
-          const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
+            const errorText = A.join(yield* TestConsole.errorLines, "\n");
+            const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
+            const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
 
-          expect(errorText).toContain("packages/foundation/modeling/schema has");
-          expect(errorText).toContain("RejectedCategory invalid category: Re-exports are graph edges");
-          expect(errorText).not.toContain("RejectedCategory missing");
-          expect(wroteMarkdown).toBe(false);
-          expect(wroteJson).toBe(false);
-          expect(process.exitCode).toBe(1);
-        })
+            expect(errorText).toContain("packages/foundation/modeling/schema has");
+            expect(errorText).toContain("RejectedCategory invalid category: Re-exports are graph edges");
+            expect(errorText).not.toContain("RejectedCategory missing");
+            expect(wroteMarkdown).toBe(false);
+            expect(wroteJson).toBe(false);
+            expect(process.exitCode).toBe(1);
+          })
+        )
       )
-    );
-  });
+  );
 
-  it("writes report-only quality JSON without failing the command", {
-    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
-  }, async () => {
-    await Effect.runPromise(
-      withTempRepoCommand(
-        Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const tmpDir = process.cwd();
-          yield* fs.writeFileString(
-            path.join(tmpDir, "package.json"),
-            encodeJson({
-              name: "@beep/test-root",
-              private: true,
-              workspaces: ["packages/foundation/*/*"],
-            })
-          );
-          yield* fs.writeFileString(
-            path.join(tmpDir, "tsconfig.json"),
-            encodeJson({
-              compilerOptions: {
-                module: "es2022",
-                target: "es2022",
-                moduleResolution: "bundler",
-                strict: true,
-                noEmit: true,
-              },
-              include: ["packages/**/*.ts"],
-            })
-          );
+  it(
+    "writes report-only quality JSON without failing the command",
+    {
+      timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+    },
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const tmpDir = process.cwd();
+            yield* fs.writeFileString(
+              path.join(tmpDir, "package.json"),
+              encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                workspaces: ["packages/foundation/*/*"],
+              })
+            );
+            yield* fs.writeFileString(
+              path.join(tmpDir, "tsconfig.json"),
+              encodeJson({
+                compilerOptions: {
+                  module: "es2022",
+                  target: "es2022",
+                  moduleResolution: "bundler",
+                  strict: true,
+                  noEmit: true,
+                },
+                include: ["packages/**/*.ts"],
+              })
+            );
 
-          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
-          const outputPath = path.join(tmpDir, "quality.json");
-          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
-          yield* fs.writeFileString(
-            path.join(packageDir, "package.json"),
-            encodeJson({
-              name: "@beep/schema",
-              version: "0.0.0",
-            })
-          );
-          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
-          yield* fs.writeFileString(
-            path.join(packageDir, "src", "index.ts"),
-            `/**
+            const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+            const outputPath = path.join(tmpDir, "quality.json");
+            yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join(packageDir, "package.json"),
+              encodeJson({
+                name: "@beep/schema",
+                version: "0.0.0",
+              })
+            );
+            yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+            yield* fs.writeFileString(
+              path.join(packageDir, "src", "index.ts"),
+              `/**
  * Missing example fixture.
  *
  * @category parsing
@@ -2302,39 +2305,39 @@ export const RejectedCategory = "nope";
  */
 export const parseValue = (value: string): string => value.trim();
 `
-          );
+            );
 
-          yield* runDocgenCommand([
-            "quality",
-            "-p",
-            "packages/foundation/modeling/schema",
-            "--json",
-            "--score",
-            "codex",
-            "-o",
-            outputPath,
-          ]);
+            yield* runDocgenCommand([
+              "quality",
+              "-p",
+              "packages/foundation/modeling/schema",
+              "--json",
+              "--score",
+              "codex",
+              "-o",
+              outputPath,
+            ]);
 
-          const output = yield* fs.readFileString(outputPath);
-          const decoded = decodeUnknownJson(output) as {
-            readonly schemaVersion?: unknown;
-            readonly scorer?: unknown;
-            readonly remediationPackets?: ReadonlyArray<{ readonly prompt?: string }>;
-          };
-          const logText = A.join(yield* TestConsole.logLines, "\n");
+            const output = yield* fs.readFileString(outputPath);
+            const decoded = decodeUnknownJson(output) as {
+              readonly schemaVersion?: unknown;
+              readonly scorer?: unknown;
+              readonly remediationPackets?: ReadonlyArray<{ readonly prompt?: string }>;
+            };
+            const logText = A.join(yield* TestConsole.logLines, "\n");
 
-          expect(decoded.schemaVersion).toBe(2);
-          expect(decoded.scorer).toBe("codex-advisory-packet-v1");
-          expect(decoded.remediationPackets?.[0]?.prompt).toContain("Keep @example mandatory");
-          expect(logText).toContain("docgen: wrote");
-          expect(process.exitCode).toBe(0);
-        })
+            expect(decoded.schemaVersion).toBe(2);
+            expect(decoded.scorer).toBe("codex-advisory-packet-v1");
+            expect(decoded.remediationPackets?.[0]?.prompt).toContain("Keep @example mandatory");
+            expect(logText).toContain("docgen: wrote");
+            expect(process.exitCode).toBe(0);
+          })
+        )
       )
-    );
-  });
+  );
 
-  it("flags rejected category values during analysis", async () => {
-    await Effect.runPromise(
+  it("flags rejected category values during analysis", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -2395,11 +2398,10 @@ export const RejectedCategory = "nope";
           expect(analysis.summary.missingDocumentation).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("flags rejected category values on module fileoverview during analysis", async () => {
-    await Effect.runPromise(
+  it("flags rejected category values on module fileoverview during analysis", () =>
+    Effect.runPromise(
       withTempRepo(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -2463,93 +2465,98 @@ export const ValidExport = packageDocAnchor;
           expect(analysis.summary.missingDocumentation).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("returns a non-zero exit code when generate targets an unconfigured package", {
-    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
-  }, async () => {
-    await Effect.runPromise(
-      withTempRepoCommand(
-        Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const tmpDir = process.cwd();
-          yield* fs.writeFileString(
-            path.join(tmpDir, "package.json"),
-            encodeJson({
-              name: "@beep/test-root",
-              private: true,
-              workspaces: ["packages/foundation/*/*"],
-            })
-          );
+  it(
+    "returns a non-zero exit code when generate targets an unconfigured package",
+    {
+      timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+    },
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const tmpDir = process.cwd();
+            yield* fs.writeFileString(
+              path.join(tmpDir, "package.json"),
+              encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                workspaces: ["packages/foundation/*/*"],
+              })
+            );
 
-          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
-          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
-          yield* fs.writeFileString(
-            path.join(packageDir, "package.json"),
-            encodeJson({
-              name: "@beep/schema",
-              version: "0.0.0",
-            })
-          );
+            const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+            yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join(packageDir, "package.json"),
+              encodeJson({
+                name: "@beep/schema",
+                version: "0.0.0",
+              })
+            );
 
-          yield* runDocgenCommand(["generate", "-p", "packages/foundation/modeling/schema"]);
+            yield* runDocgenCommand(["generate", "-p", "packages/foundation/modeling/schema"]);
 
-          const errorLines = yield* TestConsole.errorLines;
+            const errorLines = yield* TestConsole.errorLines;
 
-          expect(errorLines).toEqual([
-            'docgen: packages/foundation/modeling/schema is missing docgen.json. Run "bun run beep docgen init -p packages/foundation/modeling/schema" first.',
-          ]);
-          expect(process.exitCode).toBe(1);
-        })
+            expect(errorLines).toEqual([
+              'docgen: packages/foundation/modeling/schema is missing docgen.json. Run "bun run beep docgen init -p packages/foundation/modeling/schema" first.',
+            ]);
+            expect(process.exitCode).toBe(1);
+          })
+        )
       )
-    );
-  });
+  );
 
-  it("accepts --filter for generate and resolves it like --package", {
-    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
-  }, async () => {
-    await Effect.runPromise(
-      withTempRepoCommand(
-        Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const tmpDir = process.cwd();
-          yield* fs.writeFileString(
-            path.join(tmpDir, "package.json"),
-            encodeJson({
-              name: "@beep/test-root",
-              private: true,
-              workspaces: ["packages/foundation/*/*"],
-            })
-          );
+  it(
+    "accepts --filter for generate and resolves it like --package",
+    {
+      timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+    },
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const tmpDir = process.cwd();
+            yield* fs.writeFileString(
+              path.join(tmpDir, "package.json"),
+              encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                workspaces: ["packages/foundation/*/*"],
+              })
+            );
 
-          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
-          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
-          yield* fs.writeFileString(
-            path.join(packageDir, "package.json"),
-            encodeJson({
-              name: "@beep/schema",
-              version: "0.0.0",
-            })
-          );
+            const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+            yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join(packageDir, "package.json"),
+              encodeJson({
+                name: "@beep/schema",
+                version: "0.0.0",
+              })
+            );
 
-          yield* runDocgenCommand(["generate", "--filter", "packages/foundation/modeling/schema"]);
+            yield* runDocgenCommand(["generate", "--filter", "packages/foundation/modeling/schema"]);
 
-          const errorLines = yield* TestConsole.errorLines;
+            const errorLines = yield* TestConsole.errorLines;
 
-          expect(errorLines).toEqual([
-            'docgen: packages/foundation/modeling/schema is missing docgen.json. Run "bun run beep docgen init -p packages/foundation/modeling/schema" first.',
-          ]);
-          expect(process.exitCode).toBe(1);
-        })
+            expect(errorLines).toEqual([
+              'docgen: packages/foundation/modeling/schema is missing docgen.json. Run "bun run beep docgen init -p packages/foundation/modeling/schema" first.',
+            ]);
+            expect(process.exitCode).toBe(1);
+          })
+        )
       )
-    );
-  });
+  );
 
-  it("rejects conflicting selector flags for generate", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
-    await Effect.runPromise(
+  it("rejects conflicting selector flags for generate", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -2580,11 +2587,11 @@ export const ValidExport = packageDocAnchor;
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    )
+  );
 
-  it("writes lint-clean docgen.json during init", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
-    await Effect.runPromise(
+  it("writes lint-clean docgen.json during init", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -2635,6 +2642,6 @@ export const ValidExport = packageDocAnchor;
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    )
+  );
 });

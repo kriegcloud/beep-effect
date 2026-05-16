@@ -10,6 +10,11 @@ import { ChildProcess } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
 const tsgoBinPath = fileURLToPath(new URL("../../../../../node_modules/.bin/tsgo", import.meta.url));
 
@@ -129,26 +134,29 @@ const runTsgoOnProject = Effect.fn(function* (projectDir: string) {
 });
 
 describe("Effect tsgo effectFn policy", () => {
-  it("fails reusable Effect.gen wrappers with a named Effect.fn suggestion", async () => {
-    await Effect.runPromise(
-      withTempProject((projectDir) =>
-        Effect.gen(function* () {
-          yield* bootstrapTsgoProject(projectDir);
-          const result = yield* runTsgoOnProject(projectDir);
-          const output = Str.trim(`${result.stdout}\n${result.stderr}`);
-          const effectFnOpportunityMatches = pipe(
-            output,
-            Str.match(/effect\(effectFnOpportunity\)/g),
-            O.getOrElse(() => [])
-          );
+  it(
+    "fails reusable Effect.gen wrappers with a named Effect.fn suggestion",
+    () =>
+      Effect.runPromise(
+        withTempProject((projectDir) =>
+          Effect.gen(function* () {
+            yield* bootstrapTsgoProject(projectDir);
+            const result = yield* runTsgoOnProject(projectDir);
+            const output = Str.trim(`${result.stdout}\n${result.stderr}`);
+            const effectFnOpportunityMatches = pipe(
+              output,
+              Str.match(/effect\(effectFnOpportunity\)/g),
+              O.getOrElse(() => [])
+            );
 
-          expect(result.exitCode).not.toBe(0);
-          expect(effectFnOpportunityMatches).toHaveLength(1);
-          expect(output).toContain("error TS");
-          expect(output).toContain('Effect.fn("shouldError")(function*(value) { ... })');
-          expect(output).not.toContain("shortPlain");
-        })
-      ).pipe(Effect.provide(TestLayer))
-    );
-  }, 15_000);
+            expect(result.exitCode).not.toBe(0);
+            expect(effectFnOpportunityMatches).toHaveLength(1);
+            expect(output).toContain("error TS");
+            expect(output).toContain('Effect.fn("shouldError")(function*(value) { ... })');
+            expect(output).not.toContain("shortPlain");
+          })
+        ).pipe(provideScopedLayer(TestLayer))
+      ),
+    15_000
+  );
 });
