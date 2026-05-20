@@ -6,7 +6,7 @@
  * @since 0.0.0
  */
 
-import type { P1ManualProofRequest } from "@beep/installer-workspace-use-cases";
+import type { P1ManualProofRequest } from "@beep/installer-use-cases";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as Str from "effect/String";

@@ -1,0 +1,78 @@
+{
+  "name": "@beep/installer-server",
+  "version": "0.0.0",
+  "description": "installer server adapter package.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/installer/server",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/installer/server"
+  },
+  "scripts": {
+    "audit": "bun run --if-present beep:audit",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
+    "beep:build": "tsc -b tsconfig.json && bun run babel",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+    "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "coverage": "bunx --bun vitest run --coverage --passWithNoTests --exclude=test/integration/**",
+    "docgen": "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test",
+    "test:integration": "bun run beep:test:integration"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./layer": "./src/Layer.ts",
+    "./test": "./src/test.ts",
+    "./aggregates/*": "./src/aggregates/*/index.ts",
+    "./entities/*": "./src/entities/*/index.ts",
+    "./internal/*": null,
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      ".": "./dist/index.js",
+      "./layer": "./dist/Layer.js",
+      "./test": "./dist/test.js",
+      "./aggregates/*": "./dist/aggregates/*/index.js",
+      "./entities/*": "./dist/entities/*/index.js",
+      "./internal/*": null,
+      "./package.json": "./package.json"
+    }
+  },
+  "dependencies": {
+    "@beep/ai-provider-cli": "workspace:^",
+    "@beep/discord": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/installer-domain": "workspace:^",
+    "@beep/installer-use-cases": "workspace:^",
+    "@beep/onepassword-cli": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

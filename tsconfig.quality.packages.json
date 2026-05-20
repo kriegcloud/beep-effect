@@ -148,49 +148,13 @@
       "path": "packages/foundation/ui-system/ui"
     },
     {
-      "path": "packages/installer-channels/domain"
+      "path": "packages/installer/domain"
     },
     {
-      "path": "packages/installer-channels/server"
+      "path": "packages/installer/server"
     },
     {
-      "path": "packages/installer-channels/use-cases"
-    },
-    {
-      "path": "packages/installer-dependencies/domain"
-    },
-    {
-      "path": "packages/installer-dependencies/server"
-    },
-    {
-      "path": "packages/installer-dependencies/use-cases"
-    },
-    {
-      "path": "packages/installer-providers/domain"
-    },
-    {
-      "path": "packages/installer-providers/server"
-    },
-    {
-      "path": "packages/installer-providers/use-cases"
-    },
-    {
-      "path": "packages/installer-security/domain"
-    },
-    {
-      "path": "packages/installer-security/server"
-    },
-    {
-      "path": "packages/installer-security/use-cases"
-    },
-    {
-      "path": "packages/installer-workspace/domain"
-    },
-    {
-      "path": "packages/installer-workspace/server"
-    },
-    {
-      "path": "packages/installer-workspace/use-cases"
+      "path": "packages/installer/use-cases"
     },
     {
       "path": "packages/law-practice/domain"

@@ -50,6 +50,8 @@ Windows proof remains explicit open P1 debt and a hard gate before P2.
 - [history/outputs/p1d-app-first-manual-installer-ux.md](./history/outputs/p1d-app-first-manual-installer-ux.md)
   - next milestone stub: app-first Manual Installer UX with one real repair
     action
+- [history/outputs/pre-v1-installer-topology-correction.md](./history/outputs/pre-v1-installer-topology-correction.md)
+  - pre-v1 correction from installer category slices to one installer slice
 - [ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md](./ops/handoffs/HANDOFF_P1_DISCORD_MANUAL.md)
   - user-operated macOS and Windows proof runbook
 - [ops/handoffs/HANDOFF_P1D_APP_FIRST_MANUAL_INSTALLER_UX.md](./ops/handoffs/HANDOFF_P1D_APP_FIRST_MANUAL_INSTALLER_UX.md)
@@ -65,10 +67,11 @@ Windows proof remains explicit open P1 debt and a hard gate before P2.
 ## Current Progress
 
 - P0 is complete: the packet exists, locked decisions are recorded, the
-  corrected installer slice topology is named, and the manifest points to P1.
+  initial installer slice topology was named, and the manifest points to P1.
 - P1A is complete: the dry-run package spine and Stack Installer web shell
-  exist, validate 1Password-reference-only inputs, compose slice-owned verb
-  contracts, and render a deterministic manifest preview.
+  exist, validate 1Password-reference-only inputs, compose installer-owned verb
+  contracts from `@beep/installer-domain`, `@beep/installer-use-cases`, and
+  `@beep/installer-server`, and render a deterministic manifest preview.
 - P1 live harness is implemented: app-local proof composition, Tauri command,
   CLI artifact capture/audit, and live driver-backed validators exist. macOS
   proof is complete. Windows proof is missing but temporarily waived only for
@@ -77,7 +80,8 @@ Windows proof remains explicit open P1 debt and a hard gate before P2.
   temporary Windows missing-proof waiver and zero remaining required blockers.
 - P1D is the active next execution lane: the app must become the primary
   operator surface and complete one real machine-changing dependency repair
-  action, starting on Linux with Bun repair for an existing Bun install.
+  action through the single installer slice, starting on Linux with Bun repair
+  for an existing Bun install.
 - P2 is pending after both P1D and the real Windows proof: AI Mode parity
   across Claude and Codex with byte-identical manifest output modulo
   timestamps.

@@ -771,6 +771,40 @@ cases executable, branchable, decodable, and documentable from one schema. The
 architecture already treats schemas as executable contracts; finite cases need
 the same runtime evidence as ordinary object fields.
 
+## 2026-05-20: Correct Stack Installer To One Pre-v1 Slice
+
+- **Status:** Active
+
+Decision:
+
+Stack Installer uses one installer slice before v1:
+`packages/installer/{domain,use-cases,server}` with package names
+`@beep/installer-domain`, `@beep/installer-use-cases`, and
+`@beep/installer-server`.
+
+The earlier category topology for `installer-dependencies`,
+`installer-security`, `installer-providers`, `installer-channels`, and
+`installer-workspace` is retired as target topology. Those names may remain in
+historical initiative outputs as evidence of the earlier P1 state, but they are
+not compatibility packages, sunset aliases, or desired v1 boundaries.
+
+Waiver:
+
+Because the correction happens before v1 compatibility exists, all known
+consumers migrate in the same PR. No compatibility wrappers, re-export
+packages, or sunset aliases are required. A dedicated installer config package
+is deferred until real installer configuration exists; the current Bun version
+contract remains installer-owned without creating a premature config package.
+
+Rationale:
+
+The category names describe installer concepts, but they do not yet have
+independent product lifecycles. Splitting them into sibling slices before v1
+adds package coordination and migration surface without proving separate
+bounded contexts. One installer slice keeps the domain/use-case/server boundary
+strict while letting the future promote a category only when it earns a
+separate lifecycle.
+
 ## Known Unknowns
 
 Areas the doctrine does not yet cover and which the authors expect to revise as the architecture is load-tested:

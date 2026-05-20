@@ -1,0 +1,23 @@
+/**
+ * Package entry point for `@beep/installer-server`.
+ *
+ * @packageDocumentation
+ * @category handlers
+ * @since 0.0.0
+ */
+
+/**
+ * Package version for `@beep/installer-server`.
+ *
+ * @category handlers
+ * @since 0.0.0
+ */
+export const VERSION = "0.0.0" as const;
+
+/**
+ * Server layer exports.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./Layer.js";
