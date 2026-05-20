@@ -29,6 +29,39 @@ const isAcpError = S.is(AcpError.AcpError);
 const isAcpRequestError = S.is(AcpError.AcpRequestError);
 const ACP_PROTOCOL_QUEUE_CAPACITY = 1_024;
 const ACP_PROTOCOL_DISCONNECT_QUEUE_CAPACITY = 16;
+const ACP_STDIO_CLIENT_ID = 0;
+const singleValueSetIterator = <A>(value: A): SetIterator<A> => {
+  let isDone = false;
+  const iterator: SetIterator<A> = {
+    [Symbol.dispose]: () => {},
+    [Symbol.iterator]: () => iterator,
+    next: () => {
+      if (isDone) {
+        return {
+          done: true,
+          value: undefined,
+        };
+      }
+      isDone = true;
+      return {
+        done: false,
+        value,
+      };
+    },
+  };
+  return iterator;
+};
+const ACP_STDIO_CLIENT_IDS: ReadonlySet<number> = {
+  [Symbol.iterator]: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
+  entries: () => singleValueSetIterator<[number, number]>([ACP_STDIO_CLIENT_ID, ACP_STDIO_CLIENT_ID]),
+  forEach: (callbackfn, thisArg?: unknown) => {
+    callbackfn.call(thisArg, ACP_STDIO_CLIENT_ID, ACP_STDIO_CLIENT_ID, ACP_STDIO_CLIENT_IDS);
+  },
+  has: (value) => value === ACP_STDIO_CLIENT_ID,
+  keys: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
+  size: 1,
+  values: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
+};
 
 /**
  * Structured log event emitted by the ACP protocol adapter.
@@ -580,7 +613,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   });
 
   const serverProtocol = RpcServer.Protocol.of({
-    clientIds: Effect.succeed(new Set<number>([0])),
+    clientIds: Effect.succeed(ACP_STDIO_CLIENT_IDS),
     disconnects,
     end: Effect.fn($I`AcpServer_Protocol_end`)((_clientId) => Queue.end(outgoing)),
     initialMessage: Effect.succeedNone,
