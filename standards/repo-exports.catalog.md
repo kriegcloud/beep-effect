@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 80 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 914 |
-| publicExportEntries | 13079 |
-| uniquePackageSymbols | 5272 |
+| importSpecifiers | 912 |
+| publicExportEntries | 13076 |
+| uniquePackageSymbols | 5270 |
 
 ## Seed Discovery Proof
 
@@ -93,14 +93,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 54 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
 | 55 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
 | 56 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
-| 57 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
+| 57 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 4 | 13 | 5 |
 | 58 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
 | 59 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 81 | 841 | 509 |
 | 60 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 61 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 62 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
 | 63 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
-| 64 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
+| 64 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 13 | 18 | 6 |
 | 65 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
 | 66 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
 | 67 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
@@ -518,142 +518,142 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `allocate` | const | `node_modules/effect/dist/Array.d.ts:128` | Creates a new `Array` of the specified length with all slots uninitialized. |
 | `@beep/utils/Array` | `append` | const | `node_modules/effect/dist/Array.d.ts:836` | Adds a single element to the end of an iterable, returning a `NonEmptyArray`. |
 | `@beep/utils/Array` | `appendAll` | const | `node_modules/effect/dist/Array.d.ts:903` | Concatenates two iterables into a single array. |
-| `@beep/utils/Array` | `appendAllInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:438` | Appends all `values` to a mutable array and returns the same array reference. |
-| `@beep/utils/Array` | `appendInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:411` | Appends `value` to a mutable array and returns the same array reference. |
+| `@beep/utils/Array` | `appendAllInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:456` | Appends all `values` to a mutable array and returns the same array reference. |
+| `@beep/utils/Array` | `appendInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:429` | Appends `value` to a mutable array and returns the same array reference. |
 | `@beep/utils/Array` | `Array` | const | `node_modules/effect/dist/Array.d.ts:29` | Reference to the global `Array` constructor. |
 | `@beep/utils/Array` | `assertNonEmptyArray` | const | `packages/foundation/modeling/utils/src/Array.ts:66` | Asserts that `input` is a mutable non-empty array, throwing on failure. |
-| `@beep/utils/Array` | `assertNonEmptyReadonlyArray` | const | `packages/foundation/modeling/utils/src/Array.ts:86` | Asserts that `input` is a readonly non-empty array, throwing on failure. |
-| `@beep/utils/Array` | `bind` | const | `node_modules/effect/dist/Array.d.ts:7061` | Introduces a new array variable into a do-notation scope, producing the cartesian product with all previous bindings. |
-| `@beep/utils/Array` | `bindTo` | const | `node_modules/effect/dist/Array.d.ts:7149` | Names the elements of an array by wrapping each in an object with the given key, starting a do-notation scope. |
-| `@beep/utils/Array` | `cartesian` | const | `node_modules/effect/dist/Array.d.ts:6959` | Computes the cartesian product of two arrays, returning all pairs as tuples. |
-| `@beep/utils/Array` | `cartesianWith` | const | `node_modules/effect/dist/Array.d.ts:6893` | Computes the cartesian product of two arrays, applying a combiner to each pair. |
-| `@beep/utils/Array` | `chop` | const | `node_modules/effect/dist/Array.d.ts:4032` | Repeatedly applies a function that consumes a prefix of the array and |
-| `@beep/utils/Array` | `chunksOf` | const | `node_modules/effect/dist/Array.d.ts:4515` | Splits an iterable into chunks of length `n`. The last chunk may be shorter |
-| `@beep/utils/Array` | `contains` | const | `node_modules/effect/dist/Array.d.ts:3967` | Tests whether an array contains a value, using `Equal.equivalence()` for |
-| `@beep/utils/Array` | `containsWith` | const | `node_modules/effect/dist/Array.d.ts:3946` | Returns a membership-test function using a custom equivalence. |
-| `@beep/utils/Array` | `copy` | const | `node_modules/effect/dist/Array.d.ts:4381` | Creates a shallow copy of an array. |
-| `@beep/utils/Array` | `countBy` | const | `node_modules/effect/dist/Array.d.ts:7277` | Counts the elements in an iterable that satisfy a predicate. |
-| `@beep/utils/Array` | `dedupe` | const | `node_modules/effect/dist/Array.d.ts:6664` | Removes duplicates using `Equal.equivalence()`, preserving the order of the |
-| `@beep/utils/Array` | `dedupeAdjacent` | const | `node_modules/effect/dist/Array.d.ts:6746` | Removes consecutive duplicate elements using `Equal.equivalence()`. |
-| `@beep/utils/Array` | `dedupeAdjacentWith` | const | `node_modules/effect/dist/Array.d.ts:6685` | Removes consecutive duplicate elements using a custom equivalence. |
-| `@beep/utils/Array` | `dedupeWith` | const | `node_modules/effect/dist/Array.d.ts:6587` | Removes duplicates using a custom equivalence, preserving the order of the |
-| `@beep/utils/Array` | `difference` | const | `node_modules/effect/dist/Array.d.ts:5163` | Computes elements in the first array that are not in the second, using |
-| `@beep/utils/Array` | `differenceWith` | const | `node_modules/effect/dist/Array.d.ts:5140` | Computes elements in the first array that are not in the second, using a |
-| `@beep/utils/Array` | `Do` | const | `node_modules/effect/dist/Array.d.ts:7032` | Starting point for the "do simulation" — an array comprehension pattern. |
+| `@beep/utils/Array` | `assertNonEmptyReadonlyArray` | const | `packages/foundation/modeling/utils/src/Array.ts:94` | Asserts that `input` is a readonly non-empty array, throwing on failure. |
+| `@beep/utils/Array` | `bind` | const | `node_modules/effect/dist/Array.d.ts:7104` | Introduces a new array variable into a do-notation scope, producing the cartesian product with all previous bindings. |
+| `@beep/utils/Array` | `bindTo` | const | `node_modules/effect/dist/Array.d.ts:7192` | Names the elements of an array by wrapping each in an object with the given key, starting a do-notation scope. |
+| `@beep/utils/Array` | `cartesian` | const | `node_modules/effect/dist/Array.d.ts:7002` | Computes the cartesian product of two arrays, returning all pairs as tuples. |
+| `@beep/utils/Array` | `cartesianWith` | const | `node_modules/effect/dist/Array.d.ts:6936` | Computes the cartesian product of two arrays, applying a combiner to each pair. |
+| `@beep/utils/Array` | `chop` | const | `node_modules/effect/dist/Array.d.ts:4070` | Repeatedly applies a function that consumes a prefix of the array and |
+| `@beep/utils/Array` | `chunksOf` | const | `node_modules/effect/dist/Array.d.ts:4553` | Splits an iterable into chunks of length `n`. The last chunk may be shorter |
+| `@beep/utils/Array` | `contains` | const | `node_modules/effect/dist/Array.d.ts:4005` | Tests whether an array contains a value, using `Equal.equivalence()` for |
+| `@beep/utils/Array` | `containsWith` | const | `node_modules/effect/dist/Array.d.ts:3984` | Returns a membership-test function using a custom equivalence. |
+| `@beep/utils/Array` | `copy` | const | `node_modules/effect/dist/Array.d.ts:4419` | Creates a shallow copy of an array. |
+| `@beep/utils/Array` | `countBy` | const | `node_modules/effect/dist/Array.d.ts:7322` | Counts the elements in an iterable that satisfy a predicate. |
+| `@beep/utils/Array` | `dedupe` | const | `node_modules/effect/dist/Array.d.ts:6707` | Removes duplicates using `Equal.equivalence()`, preserving the order of the |
+| `@beep/utils/Array` | `dedupeAdjacent` | const | `node_modules/effect/dist/Array.d.ts:6789` | Removes consecutive duplicate elements using `Equal.equivalence()`. |
+| `@beep/utils/Array` | `dedupeAdjacentWith` | const | `node_modules/effect/dist/Array.d.ts:6728` | Removes consecutive duplicate elements using a custom equivalence. |
+| `@beep/utils/Array` | `dedupeWith` | const | `node_modules/effect/dist/Array.d.ts:6630` | Removes duplicates using a custom equivalence, preserving the order of the |
+| `@beep/utils/Array` | `difference` | const | `node_modules/effect/dist/Array.d.ts:5201` | Computes elements in the first array that are not in the second, using |
+| `@beep/utils/Array` | `differenceWith` | const | `node_modules/effect/dist/Array.d.ts:5178` | Computes elements in the first array that are not in the second, using a |
+| `@beep/utils/Array` | `Do` | const | `node_modules/effect/dist/Array.d.ts:7075` | Starting point for the "do simulation" — an array comprehension pattern. |
 | `@beep/utils/Array` | `drop` | const | `node_modules/effect/dist/Array.d.ts:2050` | Removes the first `n` elements, creating a new array. |
 | `@beep/utils/Array` | `dropRight` | const | `node_modules/effect/dist/Array.d.ts:2115` | Removes the last `n` elements, creating a new array. |
 | `@beep/utils/Array` | `dropWhile` | const | `node_modules/effect/dist/Array.d.ts:2176` | Drops elements from the start while the predicate holds, returning the rest. |
 | `@beep/utils/Array` | `dropWhileFilter` | const | `node_modules/effect/dist/Array.d.ts:2227` | Drops elements from the start while a `Filter` succeeds. |
-| `@beep/utils/Array` | `empty` | const | `node_modules/effect/dist/Array.d.ts:5223` | Creates an empty array. |
+| `@beep/utils/Array` | `empty` | const | `node_modules/effect/dist/Array.d.ts:5261` | Creates an empty array. |
 | `@beep/utils/Array` | `ensure` | const | `node_modules/effect/dist/Array.d.ts:335` | Normalizes a value that is either a single element or an array into an array. |
-| `@beep/utils/Array` | `entries` | const | `packages/foundation/modeling/utils/src/Array.ts:355` | Materializes array entries as readonly `[index, value]` pairs. |
-| `@beep/utils/Array` | `every` | const | `node_modules/effect/dist/Array.d.ts:6152` | Tests whether all elements satisfy the predicate. Supports refinements for |
-| `@beep/utils/Array` | `extend` | const | `node_modules/effect/dist/Array.d.ts:6308` | Applies a function to each suffix of the array (starting from each index), |
-| `@beep/utils/Array` | `filter` | const | `node_modules/effect/dist/Array.d.ts:5639` | Keeps only elements satisfying a predicate (or refinement). |
-| `@beep/utils/Array` | `filterMap` | const | `node_modules/effect/dist/Array.d.ts:5576` | Keeps transformed values for elements where a `Filter` succeeds. |
+| `@beep/utils/Array` | `entries` | const | `packages/foundation/modeling/utils/src/Array.ts:373` | Materializes array entries as readonly `[index, value]` pairs. |
+| `@beep/utils/Array` | `every` | const | `node_modules/effect/dist/Array.d.ts:6195` | Tests whether all elements satisfy the predicate. Supports refinements for |
+| `@beep/utils/Array` | `extend` | const | `node_modules/effect/dist/Array.d.ts:6351` | Applies a function to each suffix of the array (starting from each index), |
+| `@beep/utils/Array` | `filter` | const | `node_modules/effect/dist/Array.d.ts:5681` | Keeps only elements satisfying a predicate (or refinement). |
+| `@beep/utils/Array` | `filterMap` | const | `node_modules/effect/dist/Array.d.ts:5618` | Keeps transformed values for elements where a `Filter` succeeds. |
 | `@beep/utils/Array` | `findFirst` | const | `node_modules/effect/dist/Array.d.ts:2388` | Returns the first element matching a predicate, refinement, or mapping |
 | `@beep/utils/Array` | `findFirstIndex` | const | `node_modules/effect/dist/Array.d.ts:2267` | Returns the index of the first element matching the predicate, wrapped in an |
-| `@beep/utils/Array` | `findFirstWithIndex` | const | `node_modules/effect/dist/Array.d.ts:2552` | Returns a tuple `[element, index]` of the first element matching a |
-| `@beep/utils/Array` | `findLast` | const | `node_modules/effect/dist/Array.d.ts:2689` | Returns the last element matching a predicate, refinement, or mapping |
+| `@beep/utils/Array` | `findFirstWithIndex` | const | `node_modules/effect/dist/Array.d.ts:2556` | Returns the first selected value together with its index, wrapped in an |
+| `@beep/utils/Array` | `findLast` | const | `node_modules/effect/dist/Array.d.ts:2717` | Returns the last element matching a predicate, refinement, or mapping |
 | `@beep/utils/Array` | `findLastIndex` | const | `node_modules/effect/dist/Array.d.ts:2325` | Returns the index of the last element matching the predicate, wrapped in an |
-| `@beep/utils/Array` | `flatMap` | const | `node_modules/effect/dist/Array.d.ts:5416` | Maps each element to an array and flattens the results into a single array. |
-| `@beep/utils/Array` | `flatMapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:161` | Like `Array.flatMap` but asserts the result as `NonEmptyArray`. |
-| `@beep/utils/Array` | `flatMapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:241` | Like `Array.flatMap` but asserts the result as `NonEmptyReadonlyArray`. |
-| `@beep/utils/Array` | `flatMapNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6072` | Maps each element with a nullable-returning function, keeping only non-null / |
-| `@beep/utils/Array` | `flatten` | const | `node_modules/effect/dist/Array.d.ts:5497` | Flattens a nested array of arrays into a single array. |
-| `@beep/utils/Array` | `forEach` | const | `node_modules/effect/dist/Array.d.ts:6537` | Runs a side-effect for each element. The callback receives `(element, index)`. |
+| `@beep/utils/Array` | `flatMap` | const | `node_modules/effect/dist/Array.d.ts:5458` | Maps each element to an array and flattens the results into a single array. |
+| `@beep/utils/Array` | `flatMapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:179` | Like `Array.flatMap` but asserts the result as `NonEmptyArray`. |
+| `@beep/utils/Array` | `flatMapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:259` | Like `Array.flatMap` but asserts the result as `NonEmptyReadonlyArray`. |
+| `@beep/utils/Array` | `flatMapNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6115` | Maps each element with a nullable-returning function, keeping only non-null / |
+| `@beep/utils/Array` | `flatten` | const | `node_modules/effect/dist/Array.d.ts:5539` | Flattens a nested array of arrays into a single array. |
+| `@beep/utils/Array` | `forEach` | const | `node_modules/effect/dist/Array.d.ts:6580` | Runs a side-effect for each element. The callback receives `(element, index)`. |
 | `@beep/utils/Array` | `fromIterable` | const | `node_modules/effect/dist/Array.d.ts:312` | Converts an `Iterable` to an `Array`. |
-| `@beep/utils/Array` | `fromIterableNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:571` | Converts an iterable into a `NonEmptyReadonlyArray`, asserting that at |
-| `@beep/utils/Array` | `fromNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6031` | Converts a nullable value to an array: `null`/`undefined` becomes `[]`, |
+| `@beep/utils/Array` | `fromIterableNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:589` | Converts an iterable into a `NonEmptyReadonlyArray`, asserting that at |
+| `@beep/utils/Array` | `fromNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6074` | Converts a nullable value to an array: `null`/`undefined` becomes `[]`, |
 | `@beep/utils/Array` | `fromOption` | const | `node_modules/effect/dist/Array.d.ts:372` | Converts an `Option` to an array: `Some(a)` becomes `[a]`, `None` becomes `[]`. |
 | `@beep/utils/Array` | `fromRecord` | const | `node_modules/effect/dist/Array.d.ts:354` | Converts a record into an array of `[key, value]` tuples. |
 | `@beep/utils/Array` | `get` | const | `node_modules/effect/dist/Array.d.ts:1313` | Safely reads an element at the given index, returning `Option.some` or |
-| `@beep/utils/Array` | `getFailures` | const | `node_modules/effect/dist/Array.d.ts:5535` | Extracts all failure values from an iterable of `Result`s, discarding |
-| `@beep/utils/Array` | `getReadonlyReducerConcat` | function | `node_modules/effect/dist/Array.d.ts:7248` | Returns a `Reducer` that combines `ReadonlyArray` values by concatenation. |
-| `@beep/utils/Array` | `getSomes` | const | `node_modules/effect/dist/Array.d.ts:5515` | Extracts all `Some` values from an iterable of `Option`s, discarding `None`s. |
-| `@beep/utils/Array` | `getSuccesses` | const | `node_modules/effect/dist/Array.d.ts:5555` | Extracts all success values from an iterable of `Result`s, discarding |
+| `@beep/utils/Array` | `getFailures` | const | `node_modules/effect/dist/Array.d.ts:5577` | Extracts all failure values from an iterable of `Result`s, discarding |
+| `@beep/utils/Array` | `getReadonlyReducerConcat` | function | `node_modules/effect/dist/Array.d.ts:7292` | Returns a `Reducer` that combines `ReadonlyArray` values by concatenation. |
+| `@beep/utils/Array` | `getSomes` | const | `node_modules/effect/dist/Array.d.ts:5557` | Extracts all `Some` values from an iterable of `Option`s, discarding `None`s. |
+| `@beep/utils/Array` | `getSuccesses` | const | `node_modules/effect/dist/Array.d.ts:5597` | Extracts all success values from an iterable of `Result`s, discarding |
 | `@beep/utils/Array` | `getUnsafe` | const | `node_modules/effect/dist/Array.d.ts:1383` | Reads an element at the given index, throwing if the index is out of bounds. |
-| `@beep/utils/Array` | `group` | const | `node_modules/effect/dist/Array.d.ts:4736` | Groups consecutive equal elements using `Equal.equivalence()`. |
-| `@beep/utils/Array` | `groupBy` | const | `node_modules/effect/dist/Array.d.ts:4767` | Groups elements into a record by a key-returning function. Each key maps |
-| `@beep/utils/Array` | `groupWith` | const | `node_modules/effect/dist/Array.d.ts:4671` | Groups consecutive equal elements using a custom equivalence function. |
+| `@beep/utils/Array` | `group` | const | `node_modules/effect/dist/Array.d.ts:4774` | Groups consecutive equal elements using `Equal.equivalence()`. |
+| `@beep/utils/Array` | `groupBy` | const | `node_modules/effect/dist/Array.d.ts:4805` | Groups elements into a record by a key-returning function. Each key maps |
+| `@beep/utils/Array` | `groupWith` | const | `node_modules/effect/dist/Array.d.ts:4709` | Groups consecutive equal elements using a custom equivalence function. |
 | `@beep/utils/Array` | `head` | const | `node_modules/effect/dist/Array.d.ts:1493` | Returns the first element of an array wrapped in `Option.some`, or |
 | `@beep/utils/Array` | `headNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1511` | Returns the first element of a `NonEmptyReadonlyArray` directly (no `Option` |
-| `@beep/utils/Array` | `indexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:275` | Finds the first index where `value` appears in `self`. |
+| `@beep/utils/Array` | `indexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:293` | Finds the first index where `value` appears in `self`. |
 | `@beep/utils/Array` | `init` | function | `node_modules/effect/dist/Array.d.ts:1611` | Returns all elements except the last, wrapped in an `Option`. |
 | `@beep/utils/Array` | `initNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1629` | Returns all elements except the last of a `NonEmptyReadonlyArray`. |
-| `@beep/utils/Array` | `insertAt` | const | `node_modules/effect/dist/Array.d.ts:2844` | Inserts an element at the specified index, returning a new `NonEmptyArray` |
-| `@beep/utils/Array` | `intersection` | const | `node_modules/effect/dist/Array.d.ts:5078` | Computes the intersection of two arrays using `Equal.equivalence()`. Order is |
-| `@beep/utils/Array` | `intersectionWith` | const | `node_modules/effect/dist/Array.d.ts:5055` | Computes the intersection of two arrays using a custom equivalence. Order is |
-| `@beep/utils/Array` | `intersperse` | const | `node_modules/effect/dist/Array.d.ts:3564` | Places a separator element between every pair of elements. |
+| `@beep/utils/Array` | `insertAt` | const | `node_modules/effect/dist/Array.d.ts:2872` | Inserts an element at the specified index, returning a new `NonEmptyArray` |
+| `@beep/utils/Array` | `intersection` | const | `node_modules/effect/dist/Array.d.ts:5116` | Computes the intersection of two arrays using `Equal.equivalence()`. Order is |
+| `@beep/utils/Array` | `intersectionWith` | const | `node_modules/effect/dist/Array.d.ts:5093` | Computes the intersection of two arrays using a custom equivalence. Order is |
+| `@beep/utils/Array` | `intersperse` | const | `node_modules/effect/dist/Array.d.ts:3598` | Places a separator element between every pair of elements. |
 | `@beep/utils/Array` | `isArray` | const | `node_modules/effect/dist/Array.d.ts:1151` | Tests whether a value is an `Array`. |
 | `@beep/utils/Array` | `isArrayEmpty` | const | `node_modules/effect/dist/Array.d.ts:1215` | Tests whether a mutable `Array` is empty, narrowing the type to `[]`. |
 | `@beep/utils/Array` | `isArrayNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1254` | Tests whether a mutable `Array` is non-empty, narrowing the type to |
 | `@beep/utils/Array` | `isReadonlyArrayEmpty` | const | `node_modules/effect/dist/Array.d.ts:1234` | Tests whether a `ReadonlyArray` is empty, narrowing the type to `readonly []`. |
 | `@beep/utils/Array` | `isReadonlyArrayNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1274` | Tests whether a `ReadonlyArray` is non-empty, narrowing the type to |
-| `@beep/utils/Array` | `join` | const | `node_modules/effect/dist/Array.d.ts:6763` | Joins string elements with a separator. |
-| `@beep/utils/Array` | `keys` | const | `packages/foundation/modeling/utils/src/Array.ts:372` | Materializes the numeric indexes of `self`. |
+| `@beep/utils/Array` | `join` | const | `node_modules/effect/dist/Array.d.ts:6806` | Joins string elements with a separator. |
+| `@beep/utils/Array` | `keys` | const | `packages/foundation/modeling/utils/src/Array.ts:390` | Materializes the numeric indexes of `self`. |
 | `@beep/utils/Array` | `last` | const | `node_modules/effect/dist/Array.d.ts:1531` | Returns the last element of an array wrapped in `Option.some`, or |
-| `@beep/utils/Array` | `lastIndexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:304` | Finds the last index where `value` appears in `self`. |
+| `@beep/utils/Array` | `lastIndexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:322` | Finds the last index where `value` appears in `self`. |
 | `@beep/utils/Array` | `lastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1549` | Returns the last element of a `NonEmptyReadonlyArray` directly (no `Option` |
 | `@beep/utils/Array` | `length` | const | `node_modules/effect/dist/Array.d.ts:1289` | Returns the number of elements in a `ReadonlyArray`. |
-| `@beep/utils/Array` | `let` | const | `node_modules/effect/dist/Array.d.ts:7205` |  |
-| `@beep/utils/Array` | `liftNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6055` | Lifts a nullable-returning function into one that returns an array: |
-| `@beep/utils/Array` | `liftOption` | const | `node_modules/effect/dist/Array.d.ts:6010` | Lifts an `Option`-returning function into one that returns an array: |
-| `@beep/utils/Array` | `liftPredicate` | const | `node_modules/effect/dist/Array.d.ts:5963` | Lifts a predicate into an array: returns `[value]` if the predicate holds, |
-| `@beep/utils/Array` | `liftResult` | const | `node_modules/effect/dist/Array.d.ts:6133` | Lifts a `Result`-returning function into one that returns an array: failures |
+| `@beep/utils/Array` | `let` | const | `node_modules/effect/dist/Array.d.ts:7248` |  |
+| `@beep/utils/Array` | `liftNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6098` | Lifts a nullable-returning function into one that returns an array: |
+| `@beep/utils/Array` | `liftOption` | const | `node_modules/effect/dist/Array.d.ts:6053` | Lifts an `Option`-returning function into one that returns an array: |
+| `@beep/utils/Array` | `liftPredicate` | const | `node_modules/effect/dist/Array.d.ts:6006` | Lifts a predicate into an array: returns `[value]` if the predicate holds, |
+| `@beep/utils/Array` | `liftResult` | const | `node_modules/effect/dist/Array.d.ts:6176` | Lifts a `Result`-returning function into one that returns an array: failures |
 | `@beep/utils/Array` | `make` | const | `node_modules/effect/dist/Array.d.ts:106` | Creates a `NonEmptyArray` from one or more elements. |
 | `@beep/utils/Array` | `makeBy` | const | `node_modules/effect/dist/Array.d.ts:151` | Creates a `NonEmptyArray` of length `n` where element `i` is computed by `f(i)`. |
-| `@beep/utils/Array` | `makeEquivalence` | const | `node_modules/effect/dist/Array.d.ts:6522` | Creates an `Equivalence` for arrays based on an element `Equivalence`. Two |
-| `@beep/utils/Array` | `makeOrder` | const | `node_modules/effect/dist/Array.d.ts:6502` | Creates an `Order` for arrays based on an element `Order`. Arrays are |
-| `@beep/utils/Array` | `makeReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:551` | Normalizes a value-or-array into a `ReadonlyArray`. |
-| `@beep/utils/Array` | `makeReducerConcat` | function | `node_modules/effect/dist/Array.d.ts:7256` | Returns a `Reducer` that combines `Array` values by concatenation. |
-| `@beep/utils/Array` | `map` | const | `node_modules/effect/dist/Array.d.ts:5354` | Transforms each element using a function, returning a new array. |
-| `@beep/utils/Array` | `mapAccum` | const | `node_modules/effect/dist/Array.d.ts:6822` | Maps over an array while threading an accumulator through each step, returning both the final state and the mapped array. |
-| `@beep/utils/Array` | `mapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:125` | Like `Array.map` but asserts the result as `NonEmptyArray`. |
-| `@beep/utils/Array` | `mapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:199` | Like `Array.map` but asserts the result as `NonEmptyReadonlyArray`. |
+| `@beep/utils/Array` | `makeEquivalence` | const | `node_modules/effect/dist/Array.d.ts:6565` | Creates an `Equivalence` for arrays based on an element `Equivalence`. Two |
+| `@beep/utils/Array` | `makeOrder` | const | `node_modules/effect/dist/Array.d.ts:6545` | Creates an `Order` for arrays based on an element `Order`. Arrays are |
+| `@beep/utils/Array` | `makeReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:569` | Normalizes a value-or-array into a `ReadonlyArray`. |
+| `@beep/utils/Array` | `makeReducerConcat` | function | `node_modules/effect/dist/Array.d.ts:7301` | Returns a `Reducer` that combines `Array` values by concatenation. |
+| `@beep/utils/Array` | `map` | const | `node_modules/effect/dist/Array.d.ts:5396` | Transforms each element using a function, returning a new array. |
+| `@beep/utils/Array` | `mapAccum` | const | `node_modules/effect/dist/Array.d.ts:6865` | Maps over an array while threading an accumulator through each step, returning both the final state and the mapped array. |
+| `@beep/utils/Array` | `mapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:143` | Like `Array.map` but asserts the result as `NonEmptyArray`. |
+| `@beep/utils/Array` | `mapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:217` | Like `Array.map` but asserts the result as `NonEmptyReadonlyArray`. |
 | `@beep/utils/Array` | `match` | const | `node_modules/effect/dist/Array.d.ts:399` | Pattern-matches on an array, handling empty and non-empty cases separately. |
 | `@beep/utils/Array` | `matchLeft` | const | `node_modules/effect/dist/Array.d.ts:487` | Pattern-matches on an array from the left, providing the first element and |
 | `@beep/utils/Array` | `matchRight` | const | `node_modules/effect/dist/Array.d.ts:575` | Pattern-matches on an array from the right, providing all elements except the |
 | `@beep/utils/Array` | `matchToBoolean` | const | `packages/foundation/modeling/utils/src/Array.ts:39` | Returns `true` when the array is non-empty, `false` otherwise. |
-| `@beep/utils/Array` | `max` | const | `node_modules/effect/dist/Array.d.ts:6422` | Returns the maximum element of a non-empty array according to the given |
-| `@beep/utils/Array` | `min` | const | `node_modules/effect/dist/Array.d.ts:6364` | Returns the minimum element of a non-empty array according to the given |
-| `@beep/utils/Array` | `modify` | const | `node_modules/effect/dist/Array.d.ts:2976` | Applies a function to the element at the specified index, returning a new |
-| `@beep/utils/Array` | `modifyHeadNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3644` | Applies a function to the first element of a non-empty array, returning a |
-| `@beep/utils/Array` | `modifyLastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3757` | Applies a function to the last element of a non-empty array, returning a |
+| `@beep/utils/Array` | `max` | const | `node_modules/effect/dist/Array.d.ts:6465` | Returns the maximum element of a non-empty array according to the given |
+| `@beep/utils/Array` | `min` | const | `node_modules/effect/dist/Array.d.ts:6407` | Returns the minimum element of a non-empty array according to the given |
+| `@beep/utils/Array` | `modify` | const | `node_modules/effect/dist/Array.d.ts:3008` | Applies a function to the element at the specified index, returning the |
+| `@beep/utils/Array` | `modifyHeadNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3678` | Applies a function to the first element of a non-empty array, returning a |
+| `@beep/utils/Array` | `modifyLastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3791` | Applies a function to the last element of a non-empty array, returning a |
 | `@beep/utils/Array` | `NonEmptyArray` | type | `node_modules/effect/dist/Array.d.ts:83` | A mutable array guaranteed to have at least one element. |
 | `@beep/utils/Array` | `NonEmptyReadonlyArray` | type | `node_modules/effect/dist/Array.d.ts:60` | A readonly array guaranteed to have at least one element. |
-| `@beep/utils/Array` | `of` | const | `node_modules/effect/dist/Array.d.ts:5241` | Wraps a single value in a `NonEmptyArray`. |
-| `@beep/utils/Array` | `pad` | const | `node_modules/effect/dist/Array.d.ts:4449` | Pads or truncates an array to exactly `n` elements, filling with `fill` |
-| `@beep/utils/Array` | `partition` | const | `node_modules/effect/dist/Array.d.ts:5744` | Splits an iterable using a `Filter` into failures and successes. |
+| `@beep/utils/Array` | `of` | const | `node_modules/effect/dist/Array.d.ts:5279` | Wraps a single value in a `NonEmptyArray`. |
+| `@beep/utils/Array` | `pad` | const | `node_modules/effect/dist/Array.d.ts:4487` | Pads or truncates an array to exactly `n` elements, filling with `fill` |
+| `@beep/utils/Array` | `partition` | const | `node_modules/effect/dist/Array.d.ts:5786` | Splits an iterable using a `Filter` into failures and successes. |
 | `@beep/utils/Array` | `prepend` | const | `node_modules/effect/dist/Array.d.ts:658` | Adds a single element to the front of an iterable, returning a `NonEmptyArray`. |
 | `@beep/utils/Array` | `prependAll` | const | `node_modules/effect/dist/Array.d.ts:725` | Prepends all elements from a prefix iterable to the front of an array. |
 | `@beep/utils/Array` | `range` | const | `node_modules/effect/dist/Array.d.ts:221` | Creates a `NonEmptyArray` containing a range of integers, inclusive on both |
-| `@beep/utils/Array` | `ReadonlyArray` | namespace | `node_modules/effect/dist/Array.d.ts:5249` | Utility types for working with `ReadonlyArray` at the type level. Use these |
+| `@beep/utils/Array` | `ReadonlyArray` | namespace | `node_modules/effect/dist/Array.d.ts:5286` | Utility types for working with `ReadonlyArray` at the type level. Use these |
 | `@beep/utils/Array` | `ReadonlyArrayTypeLambda` | interface | `node_modules/effect/dist/Array.d.ts:36` | Type lambda for `ReadonlyArray`, used for higher-kinded type operations. |
-| `@beep/utils/Array` | `reduce` | const | `node_modules/effect/dist/Array.d.ts:5840` | Folds an iterable from left to right into a single value. |
-| `@beep/utils/Array` | `reduceRight` | const | `node_modules/effect/dist/Array.d.ts:5901` | Folds an iterable from right to left into a single value. |
-| `@beep/utils/Array` | `remove` | const | `node_modules/effect/dist/Array.d.ts:3045` | Removes the element at the specified index, returning a new array. If the |
-| `@beep/utils/Array` | `replace` | const | `node_modules/effect/dist/Array.d.ts:2910` | Replaces the element at the specified index with a new value, returning a new |
+| `@beep/utils/Array` | `reduce` | const | `node_modules/effect/dist/Array.d.ts:5883` | Folds an iterable from left to right into a single value. |
+| `@beep/utils/Array` | `reduceRight` | const | `node_modules/effect/dist/Array.d.ts:5944` | Folds an iterable from right to left into a single value. |
+| `@beep/utils/Array` | `remove` | const | `node_modules/effect/dist/Array.d.ts:3079` | Removes the element at the specified index, returning a new array. If the |
+| `@beep/utils/Array` | `replace` | const | `node_modules/effect/dist/Array.d.ts:2939` | Replaces the element at the specified index with a new value, returning the |
 | `@beep/utils/Array` | `replicate` | const | `node_modules/effect/dist/Array.d.ts:243` | Creates a `NonEmptyArray` containing a value repeated `n` times. |
-| `@beep/utils/Array` | `reverse` | const | `node_modules/effect/dist/Array.d.ts:3108` | Reverses an iterable into a new array. |
-| `@beep/utils/Array` | `rotate` | const | `node_modules/effect/dist/Array.d.ts:3870` | Rotates an array by `n` steps. Positive `n` rotates left (front elements |
+| `@beep/utils/Array` | `reverse` | const | `node_modules/effect/dist/Array.d.ts:3142` | Reverses an iterable into a new array. |
+| `@beep/utils/Array` | `rotate` | const | `node_modules/effect/dist/Array.d.ts:3905` | Rotates an array by `n` steps. Positive `n` rotates right; negative `n` |
 | `@beep/utils/Array` | `scan` | const | `node_modules/effect/dist/Array.d.ts:1015` | Left-to-right fold that keeps every intermediate accumulator value. |
 | `@beep/utils/Array` | `scanRight` | const | `node_modules/effect/dist/Array.d.ts:1084` | Right-to-left fold that keeps every intermediate accumulator value. |
-| `@beep/utils/Array` | `separate` | const | `node_modules/effect/dist/Array.d.ts:5817` | Separates an iterable of `Result`s into two arrays: failures and successes. |
-| `@beep/utils/Array` | `setHeadNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3701` | Replaces the first element of a non-empty array with a new value. |
-| `@beep/utils/Array` | `setLastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3814` | Replaces the last element of a non-empty array with a new value. |
-| `@beep/utils/Array` | `slice` | const | `packages/foundation/modeling/utils/src/Array.ts:333` | Returns an immutable copy of the selected range from `self`. |
-| `@beep/utils/Array` | `some` | const | `node_modules/effect/dist/Array.d.ts:6249` | Tests whether at least one element satisfies the predicate. Narrows the type |
-| `@beep/utils/Array` | `sort` | const | `node_modules/effect/dist/Array.d.ts:3131` | Sorts an array by the given `Order`, returning a new array. |
-| `@beep/utils/Array` | `sortBy` | const | `node_modules/effect/dist/Array.d.ts:3330` | Sorts an array by multiple `Order`s applied in sequence: the first order is |
-| `@beep/utils/Array` | `sortInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:469` | Sorts a mutable array in place using an explicit `Order`. |
-| `@beep/utils/Array` | `sortWith` | const | `node_modules/effect/dist/Array.d.ts:3224` | Sorts an array by a derived key using a mapping function and an `Order` for |
+| `@beep/utils/Array` | `separate` | const | `node_modules/effect/dist/Array.d.ts:5860` | Separates an iterable of `Result`s into failure values and success values. |
+| `@beep/utils/Array` | `setHeadNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3735` | Replaces the first element of a non-empty array with a new value. |
+| `@beep/utils/Array` | `setLastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3848` | Replaces the last element of a non-empty array with a new value. |
+| `@beep/utils/Array` | `slice` | const | `packages/foundation/modeling/utils/src/Array.ts:351` | Returns an immutable copy of the selected range from `self`. |
+| `@beep/utils/Array` | `some` | const | `node_modules/effect/dist/Array.d.ts:6292` | Tests whether at least one element satisfies the predicate. Narrows the type |
+| `@beep/utils/Array` | `sort` | const | `node_modules/effect/dist/Array.d.ts:3165` | Sorts an array by the given `Order`, returning a new array. |
+| `@beep/utils/Array` | `sortBy` | const | `node_modules/effect/dist/Array.d.ts:3364` | Sorts an array by multiple `Order`s applied in sequence: the first order is |
+| `@beep/utils/Array` | `sortInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:487` | Sorts a mutable array in place using an explicit `Order`. |
+| `@beep/utils/Array` | `sortWith` | const | `node_modules/effect/dist/Array.d.ts:3258` | Sorts an array by a derived key using a mapping function and an `Order` for |
 | `@beep/utils/Array` | `span` | const | `node_modules/effect/dist/Array.d.ts:1931` | Splits an iterable into two arrays: the longest prefix where the predicate |
-| `@beep/utils/Array` | `spliceInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:499` | Removes and inserts items in a mutable array and returns the removed values. |
-| `@beep/utils/Array` | `split` | const | `node_modules/effect/dist/Array.d.ts:4259` | Splits an iterable into `n` roughly equal-sized chunks. |
-| `@beep/utils/Array` | `splitAt` | const | `node_modules/effect/dist/Array.d.ts:4138` | Splits an iterable into two arrays at the given index. |
-| `@beep/utils/Array` | `splitAtNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:4200` | Splits a non-empty array into two parts at the given index. The first part |
-| `@beep/utils/Array` | `splitWhere` | const | `node_modules/effect/dist/Array.d.ts:4319` | Splits an iterable at the first element matching the predicate. The matching |
+| `@beep/utils/Array` | `spliceInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:517` | Removes and inserts items in a mutable array and returns the removed values. |
+| `@beep/utils/Array` | `split` | const | `node_modules/effect/dist/Array.d.ts:4297` | Splits an iterable into `n` roughly equal-sized chunks. |
+| `@beep/utils/Array` | `splitAt` | const | `node_modules/effect/dist/Array.d.ts:4176` | Splits an iterable into two arrays at the given index. |
+| `@beep/utils/Array` | `splitAtNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:4238` | Splits a non-empty array into two parts at the given index. The first part |
+| `@beep/utils/Array` | `splitWhere` | const | `node_modules/effect/dist/Array.d.ts:4357` | Splits an iterable at the first element matching the predicate. The matching |
 | `@beep/utils/Array` | `tail` | function | `node_modules/effect/dist/Array.d.ts:1571` | Returns all elements except the first, wrapped in an `Option`. |
 | `@beep/utils/Array` | `tailNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1589` | Returns all elements except the first of a `NonEmptyReadonlyArray`. |
 | `@beep/utils/Array` | `take` | const | `node_modules/effect/dist/Array.d.ts:1651` | Keeps the first `n` elements, creating a new array. |
@@ -661,203 +661,203 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `takeWhile` | const | `node_modules/effect/dist/Array.d.ts:1783` | Takes elements from the start while the predicate holds, stopping at the |
 | `@beep/utils/Array` | `takeWhileFilter` | const | `node_modules/effect/dist/Array.d.ts:1886` | Takes elements from the start while a `Filter` succeeds, collecting transformed values. |
 | `@beep/utils/Array` | `unappend` | const | `node_modules/effect/dist/Array.d.ts:1473` | Splits a non-empty array into all elements except the last, and the last |
-| `@beep/utils/Array` | `unfold` | const | `node_modules/effect/dist/Array.d.ts:6482` | Builds an array by repeatedly applying a function to a seed value. The |
-| `@beep/utils/Array` | `union` | const | `node_modules/effect/dist/Array.d.ts:4951` | Computes the union of two arrays, removing duplicates using |
-| `@beep/utils/Array` | `unionWith` | const | `node_modules/effect/dist/Array.d.ts:4850` | Computes the union of two arrays using a custom equivalence, removing |
+| `@beep/utils/Array` | `unfold` | const | `node_modules/effect/dist/Array.d.ts:6525` | Builds an array by repeatedly applying a function to a seed value. The |
+| `@beep/utils/Array` | `union` | const | `node_modules/effect/dist/Array.d.ts:4989` | Computes the union of two arrays, removing duplicates using |
+| `@beep/utils/Array` | `unionWith` | const | `node_modules/effect/dist/Array.d.ts:4888` | Computes the union of two arrays using a custom equivalence, removing |
 | `@beep/utils/Array` | `unprepend` | const | `node_modules/effect/dist/Array.d.ts:1449` | Splits a non-empty array into its first element and the remaining elements. |
-| `@beep/utils/Array` | `unzip` | const | `node_modules/effect/dist/Array.d.ts:3544` | Splits an array of pairs into two arrays. Inverse of {@link zip}. |
-| `@beep/utils/Array` | `values` | const | `packages/foundation/modeling/utils/src/Array.ts:388` | Returns a shallow immutable copy of the values in `self`. |
-| `@beep/utils/Array` | `window` | const | `node_modules/effect/dist/Array.d.ts:4606` | Creates overlapping sliding windows of size `n`. |
-| `@beep/utils/Array` | `zip` | const | `node_modules/effect/dist/Array.d.ts:3351` | Pairs elements from two iterables by position. If the iterables differ in |
-| `@beep/utils/Array` | `zipWith` | const | `node_modules/effect/dist/Array.d.ts:3454` | Combines elements from two iterables pairwise using a function. If the |
-| `@beep/utils/Bool` | `and` | const | `node_modules/effect/dist/Boolean.d.ts:186` | Combines two boolean using AND: `self && that`. |
-| `@beep/utils/Bool` | `Boolean` | const | `node_modules/effect/dist/Boolean.d.ts:31` | Reference to the global Boolean constructor. |
-| `@beep/utils/Bool` | `Equivalence` | const | `node_modules/effect/dist/Boolean.d.ts:152` | An `Equivalence` instance for booleans using strict equality (`===`). |
-| `@beep/utils/Bool` | `eqv` | const | `node_modules/effect/dist/Boolean.d.ts:461` | Combines two booleans using EQV (aka XNOR): `!xor(self, that)`. |
-| `@beep/utils/Bool` | `every` | const | `node_modules/effect/dist/Boolean.d.ts:569` | This utility function is used to check if all the elements in a collection of boolean values are `true`. |
-| `@beep/utils/Bool` | `implies` | const | `node_modules/effect/dist/Boolean.d.ts:516` | Combines two booleans using an implication: `(!self \|\| that)`. |
-| `@beep/utils/Bool` | `isBoolean` | const | `node_modules/effect/dist/Boolean.d.ts:47` | Tests if a value is a `boolean`. |
-| `@beep/utils/Bool` | `match` | const | `node_modules/effect/dist/Boolean.d.ts:69` | This function returns the result of either of the given functions depending on the value of the boolean parameter. |
-| `@beep/utils/Bool` | `nand` | const | `node_modules/effect/dist/Boolean.d.ts:241` | Combines two boolean using NAND: `!(self && that)`. |
-| `@beep/utils/Bool` | `nor` | const | `node_modules/effect/dist/Boolean.d.ts:351` | Combines two booleans using NOR: `!(self \|\| that)`. |
-| `@beep/utils/Bool` | `not` | const | `node_modules/effect/dist/Boolean.d.ts:168` | Negates the given boolean: `!self` |
-| `@beep/utils/Bool` | `or` | const | `node_modules/effect/dist/Boolean.d.ts:296` | Combines two boolean using OR: `self \|\| that`. |
-| `@beep/utils/Bool` | `Order` | const | `node_modules/effect/dist/Boolean.d.ts:137` | Provides an `Order` instance for `boolean` that allows comparing and sorting boolean values. |
-| `@beep/utils/Bool` | `ReducerAnd` | const | `node_modules/effect/dist/Boolean.d.ts:593` | A `Reducer` for combining `boolean`s using AND. |
-| `@beep/utils/Bool` | `ReducerOr` | const | `node_modules/effect/dist/Boolean.d.ts:601` | A `Reducer` for combining `boolean`s using OR. |
-| `@beep/utils/Bool` | `some` | const | `node_modules/effect/dist/Boolean.d.ts:585` | This utility function is used to check if at least one of the elements in a collection of boolean values is `true`. |
-| `@beep/utils/Bool` | `xor` | const | `node_modules/effect/dist/Boolean.d.ts:406` | Combines two booleans using XOR: `(!self && that) \|\| (self && !that)`. |
-| `@beep/utils/DateTime` | `add` | const | `node_modules/effect/dist/DateTime.d.ts:2742` | Add the given `amount` of `unit`'s to a `DateTime`. |
-| `@beep/utils/DateTime` | `addDuration` | const | `node_modules/effect/dist/DateTime.d.ts:2641` | Add the given `Duration` to a `DateTime`. |
-| `@beep/utils/DateTime` | `between` | const | `node_modules/effect/dist/DateTime.d.ts:1449` | Checks if a `DateTime` is between two other `DateTime` values (inclusive). |
-| `@beep/utils/DateTime` | `clamp` | const | `node_modules/effect/dist/DateTime.d.ts:343` | Clamp a `DateTime` between a minimum and maximum value. |
-| `@beep/utils/DateTime` | `CurrentTimeZone` | class | `node_modules/effect/dist/DateTime.d.ts:2025` | import { DateTime, Effect } from "effect" |
-| `@beep/utils/DateTime` | `DateTime` | namespace | `node_modules/effect/dist/DateTime.d.ts:50` |  |
-| `@beep/utils/DateTime` | `DateTime` | type | `node_modules/effect/dist/DateTime.d.ts:24` | A `DateTime` represents a point in time. It can optionally have a time zone |
+| `@beep/utils/Array` | `unzip` | const | `node_modules/effect/dist/Array.d.ts:3578` | Splits an array of pairs into two arrays. Inverse of {@link zip}. |
+| `@beep/utils/Array` | `values` | const | `packages/foundation/modeling/utils/src/Array.ts:406` | Returns a shallow immutable copy of the values in `self`. |
+| `@beep/utils/Array` | `window` | const | `node_modules/effect/dist/Array.d.ts:4644` | Creates overlapping sliding windows of size `n`. |
+| `@beep/utils/Array` | `zip` | const | `node_modules/effect/dist/Array.d.ts:3385` | Pairs elements from two iterables by position. If the iterables differ in |
+| `@beep/utils/Array` | `zipWith` | const | `node_modules/effect/dist/Array.d.ts:3488` | Combines elements from two iterables pairwise using a function. If the |
+| `@beep/utils/Bool` | `and` | const | `node_modules/effect/dist/Boolean.d.ts:195` | Combines two boolean using AND: `self && that`. |
+| `@beep/utils/Bool` | `Boolean` | const | `node_modules/effect/dist/Boolean.d.ts:32` | Reference to the global Boolean constructor. |
+| `@beep/utils/Bool` | `Equivalence` | const | `node_modules/effect/dist/Boolean.d.ts:159` | An `Equivalence` instance for booleans using strict equality (`===`). |
+| `@beep/utils/Bool` | `eqv` | const | `node_modules/effect/dist/Boolean.d.ts:485` | Combines two booleans using EQV (aka XNOR): `!xor(self, that)`. |
+| `@beep/utils/Bool` | `every` | const | `node_modules/effect/dist/Boolean.d.ts:599` | This utility function is used to check if all the elements in a collection of boolean values are `true`. |
+| `@beep/utils/Bool` | `implies` | const | `node_modules/effect/dist/Boolean.d.ts:543` | Combines two booleans using an implication: `(!self \|\| that)`. |
+| `@beep/utils/Bool` | `isBoolean` | const | `node_modules/effect/dist/Boolean.d.ts:49` | Tests if a value is a `boolean`. |
+| `@beep/utils/Bool` | `match` | const | `node_modules/effect/dist/Boolean.d.ts:72` | This function returns the result of either of the given functions depending on the value of the boolean parameter. |
+| `@beep/utils/Bool` | `nand` | const | `node_modules/effect/dist/Boolean.d.ts:253` | Combines two boolean using NAND: `!(self && that)`. |
+| `@beep/utils/Bool` | `nor` | const | `node_modules/effect/dist/Boolean.d.ts:369` | Combines two booleans using NOR: `!(self \|\| that)`. |
+| `@beep/utils/Bool` | `not` | const | `node_modules/effect/dist/Boolean.d.ts:176` | Negates the given boolean: `!self` |
+| `@beep/utils/Bool` | `or` | const | `node_modules/effect/dist/Boolean.d.ts:311` | Combines two boolean using OR: `self \|\| that`. |
+| `@beep/utils/Bool` | `Order` | const | `node_modules/effect/dist/Boolean.d.ts:143` | Provides an `Order` instance for `boolean` that allows comparing and sorting boolean values. |
+| `@beep/utils/Bool` | `ReducerAnd` | const | `node_modules/effect/dist/Boolean.d.ts:625` | A `Reducer` for combining `boolean`s using AND. |
+| `@beep/utils/Bool` | `ReducerOr` | const | `node_modules/effect/dist/Boolean.d.ts:634` | A `Reducer` for combining `boolean`s using OR. |
+| `@beep/utils/Bool` | `some` | const | `node_modules/effect/dist/Boolean.d.ts:616` | This utility function is used to check if at least one of the elements in a collection of boolean values is `true`. |
+| `@beep/utils/Bool` | `xor` | const | `node_modules/effect/dist/Boolean.d.ts:427` | Combines two booleans using XOR: `(!self && that) \|\| (self && !that)`. |
+| `@beep/utils/DateTime` | `add` | const | `node_modules/effect/dist/DateTime.d.ts:3116` | Add the given `amount` of `unit`'s to a `DateTime`. |
+| `@beep/utils/DateTime` | `addDuration` | const | `node_modules/effect/dist/DateTime.d.ts:3003` | Add the given `Duration` to a `DateTime`. |
+| `@beep/utils/DateTime` | `between` | const | `node_modules/effect/dist/DateTime.d.ts:1691` | Checks if a `DateTime` is between two other `DateTime` values (inclusive). |
+| `@beep/utils/DateTime` | `clamp` | const | `node_modules/effect/dist/DateTime.d.ts:482` | Clamp a `DateTime` between a minimum and maximum value. |
+| `@beep/utils/DateTime` | `CurrentTimeZone` | class | `node_modules/effect/dist/DateTime.d.ts:2301` | Context service that supplies the ambient `TimeZone` for APIs that work in |
+| `@beep/utils/DateTime` | `DateTime` | namespace | `node_modules/effect/dist/DateTime.d.ts:112` | Companion namespace containing the public helper types used by `DateTime` |
+| `@beep/utils/DateTime` | `DateTime` | type | `node_modules/effect/dist/DateTime.d.ts:73` | A `DateTime` represents a point in time. It can optionally have a time zone |
 | `@beep/utils/DateTime` | `DateTimes` | class | `packages/foundation/modeling/utils/src/DateTime.ts:57` | Time service with live and fixed clock-backed helpers. |
-| `@beep/utils/DateTime` | `Disambiguation` | type | `node_modules/effect/dist/DateTime.d.ts:234` | A `Disambiguation` is used to resolve ambiguities when a `DateTime` is |
-| `@beep/utils/DateTime` | `distance` | const | `node_modules/effect/dist/DateTime.d.ts:1040` | Calulate the difference between two `DateTime` values, returning a |
-| `@beep/utils/DateTime` | `endOf` | const | `node_modules/effect/dist/DateTime.d.ts:2915` | Converts a `DateTime` to the end of the given `part`. |
-| `@beep/utils/DateTime` | `Equivalence` | const | `node_modules/effect/dist/DateTime.d.ts:296` | An `Equivalence` for comparing two `DateTime` values for equality. |
-| `@beep/utils/DateTime` | `format` | const | `node_modules/effect/dist/DateTime.d.ts:3054` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
-| `@beep/utils/DateTime` | `formatIntl` | const | `node_modules/effect/dist/DateTime.d.ts:3325` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
-| `@beep/utils/DateTime` | `formatIso` | const | `node_modules/effect/dist/DateTime.d.ts:3402` | Format a `DateTime` as a UTC ISO string. |
-| `@beep/utils/DateTime` | `formatIsoDate` | const | `node_modules/effect/dist/DateTime.d.ts:3424` | Format a `DateTime` as a time zone adjusted ISO date string. |
-| `@beep/utils/DateTime` | `formatIsoDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:3446` | Format a `DateTime` as a UTC ISO date string. |
-| `@beep/utils/DateTime` | `formatIsoOffset` | const | `node_modules/effect/dist/DateTime.d.ts:3469` | Format a `DateTime.Zoned` as an ISO string with an offset. |
-| `@beep/utils/DateTime` | `formatIsoZoned` | const | `node_modules/effect/dist/DateTime.d.ts:3497` | Format a `DateTime.Zoned` as a string. |
-| `@beep/utils/DateTime` | `formatLocal` | const | `node_modules/effect/dist/DateTime.d.ts:3144` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
-| `@beep/utils/DateTime` | `formatUtc` | const | `node_modules/effect/dist/DateTime.d.ts:3233` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
-| `@beep/utils/DateTime` | `fromDateUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:415` | Create a `DateTime` from a `Date`. |
-| `@beep/utils/DateTime` | `getPart` | const | `node_modules/effect/dist/DateTime.d.ts:1826` | Get a part of a `DateTime` as a number. |
-| `@beep/utils/DateTime` | `getPartUtc` | const | `node_modules/effect/dist/DateTime.d.ts:1769` | Get a part of a `DateTime` as a number. |
-| `@beep/utils/DateTime` | `isDateTime` | const | `node_modules/effect/dist/DateTime.d.ts:239` |  |
-| `@beep/utils/DateTime` | `isFuture` | const | `node_modules/effect/dist/DateTime.d.ts:1512` | Checks if a `DateTime` is in the future compared to the current time. |
-| `@beep/utils/DateTime` | `isFutureUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1532` | Checks if a `DateTime` is in the future compared to the current time. |
-| `@beep/utils/DateTime` | `isGreaterThan` | const | `node_modules/effect/dist/DateTime.d.ts:1217` | Checks if the first `DateTime` is after the second `DateTime`. |
-| `@beep/utils/DateTime` | `isGreaterThanOrEqualTo` | const | `node_modules/effect/dist/DateTime.d.ts:1274` | Checks if the first `DateTime` is after or equal to the second `DateTime`. |
-| `@beep/utils/DateTime` | `isLessThan` | const | `node_modules/effect/dist/DateTime.d.ts:1333` | Checks if the first `DateTime` is before the second `DateTime`. |
-| `@beep/utils/DateTime` | `isLessThanOrEqualTo` | const | `node_modules/effect/dist/DateTime.d.ts:1390` | Checks if the first `DateTime` is before or equal to the second `DateTime`. |
-| `@beep/utils/DateTime` | `isPast` | const | `node_modules/effect/dist/DateTime.d.ts:1552` | Checks if a `DateTime` is in the past compared to the current time. |
-| `@beep/utils/DateTime` | `isPastUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1572` | Checks if a `DateTime` is in the past compared to the current time. |
-| `@beep/utils/DateTime` | `isTimeZone` | const | `node_modules/effect/dist/DateTime.d.ts:246` | Checks if a value is a `TimeZone`. |
-| `@beep/utils/DateTime` | `isTimeZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:260` | Checks if a value is a named `TimeZone` (IANA time zone). |
-| `@beep/utils/DateTime` | `isTimeZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:253` | Checks if a value is an offset-based `TimeZone`. |
-| `@beep/utils/DateTime` | `isUtc` | const | `node_modules/effect/dist/DateTime.d.ts:267` | Checks if a `DateTime` is a UTC `DateTime` (no time zone information). |
-| `@beep/utils/DateTime` | `isZoned` | const | `node_modules/effect/dist/DateTime.d.ts:274` | Checks if a `DateTime` is a zoned `DateTime` (has time zone information). |
-| `@beep/utils/DateTime` | `layerCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:3522` | Create a Layer from the given time zone. |
-| `@beep/utils/DateTime` | `layerCurrentZoneLocal` | const | `node_modules/effect/dist/DateTime.d.ts:3593` | Create a Layer from the system's local time zone. |
-| `@beep/utils/DateTime` | `layerCurrentZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:3570` | Create a Layer from the given IANA time zone identifier. |
-| `@beep/utils/DateTime` | `layerCurrentZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:3546` | Create a Layer from the given time zone offset. |
-| `@beep/utils/DateTime` | `make` | const | `node_modules/effect/dist/DateTime.d.ts:527` | Create a `DateTime` from one of the following: |
-| `@beep/utils/DateTime` | `makeUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:441` | Create a `DateTime` from one of the following: |
+| `@beep/utils/DateTime` | `Disambiguation` | type | `node_modules/effect/dist/DateTime.d.ts:368` | A `Disambiguation` is used to resolve ambiguities when a `DateTime` is |
+| `@beep/utils/DateTime` | `distance` | const | `node_modules/effect/dist/DateTime.d.ts:1259` | Calulate the difference between two `DateTime` values, returning a |
+| `@beep/utils/DateTime` | `endOf` | const | `node_modules/effect/dist/DateTime.d.ts:3307` | Converts a `DateTime` to the end of the given `part`. |
+| `@beep/utils/DateTime` | `Equivalence` | const | `node_modules/effect/dist/DateTime.d.ts:433` | An `Equivalence` for comparing two `DateTime` values for equality. |
+| `@beep/utils/DateTime` | `format` | const | `node_modules/effect/dist/DateTime.d.ts:3459` | Formats a `DateTime` with `Intl.DateTimeFormat`. |
+| `@beep/utils/DateTime` | `formatIntl` | const | `node_modules/effect/dist/DateTime.d.ts:3743` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
+| `@beep/utils/DateTime` | `formatIso` | const | `node_modules/effect/dist/DateTime.d.ts:3823` | Format a `DateTime` as a UTC ISO string. |
+| `@beep/utils/DateTime` | `formatIsoDate` | const | `node_modules/effect/dist/DateTime.d.ts:3846` | Format a `DateTime` as a time zone adjusted ISO date string. |
+| `@beep/utils/DateTime` | `formatIsoDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:3869` | Format a `DateTime` as a UTC ISO date string. |
+| `@beep/utils/DateTime` | `formatIsoOffset` | const | `node_modules/effect/dist/DateTime.d.ts:3893` | Format a `DateTime.Zoned` as an ISO string with an offset. |
+| `@beep/utils/DateTime` | `formatIsoZoned` | const | `node_modules/effect/dist/DateTime.d.ts:3922` | Format a `DateTime.Zoned` as a string. |
+| `@beep/utils/DateTime` | `formatLocal` | const | `node_modules/effect/dist/DateTime.d.ts:3556` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
+| `@beep/utils/DateTime` | `formatUtc` | const | `node_modules/effect/dist/DateTime.d.ts:3648` | Format a `DateTime` as a string using the `DateTimeFormat` API. |
+| `@beep/utils/DateTime` | `fromDateUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:557` | Create a `DateTime` from a `Date`. |
+| `@beep/utils/DateTime` | `getPart` | const | `node_modules/effect/dist/DateTime.d.ts:2086` | Get a part of a `DateTime` as a number. |
+| `@beep/utils/DateTime` | `getPartUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2026` | Get a part of a `DateTime` as a number. |
+| `@beep/utils/DateTime` | `isDateTime` | const | `node_modules/effect/dist/DateTime.d.ts:375` | Checks whether a value is a `DateTime`. |
+| `@beep/utils/DateTime` | `isFuture` | const | `node_modules/effect/dist/DateTime.d.ts:1757` | Checks if a `DateTime` is in the future compared to the current time. |
+| `@beep/utils/DateTime` | `isFutureUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1778` | Checks if a `DateTime` is in the future compared to the current time. |
+| `@beep/utils/DateTime` | `isGreaterThan` | const | `node_modules/effect/dist/DateTime.d.ts:1447` | Checks if the first `DateTime` is after the second `DateTime`. |
+| `@beep/utils/DateTime` | `isGreaterThanOrEqualTo` | const | `node_modules/effect/dist/DateTime.d.ts:1507` | Checks if the first `DateTime` is after or equal to the second `DateTime`. |
+| `@beep/utils/DateTime` | `isLessThan` | const | `node_modules/effect/dist/DateTime.d.ts:1569` | Checks if the first `DateTime` is before the second `DateTime`. |
+| `@beep/utils/DateTime` | `isLessThanOrEqualTo` | const | `node_modules/effect/dist/DateTime.d.ts:1629` | Checks if the first `DateTime` is before or equal to the second `DateTime`. |
+| `@beep/utils/DateTime` | `isPast` | const | `node_modules/effect/dist/DateTime.d.ts:1799` | Checks if a `DateTime` is in the past compared to the current time. |
+| `@beep/utils/DateTime` | `isPastUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1820` | Checks if a `DateTime` is in the past compared to the current time. |
+| `@beep/utils/DateTime` | `isTimeZone` | const | `node_modules/effect/dist/DateTime.d.ts:382` | Checks if a value is a `TimeZone`. |
+| `@beep/utils/DateTime` | `isTimeZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:396` | Checks if a value is a named `TimeZone` (IANA time zone). |
+| `@beep/utils/DateTime` | `isTimeZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:389` | Checks if a value is an offset-based `TimeZone`. |
+| `@beep/utils/DateTime` | `isUtc` | const | `node_modules/effect/dist/DateTime.d.ts:403` | Checks if a `DateTime` is a UTC `DateTime` (no time zone information). |
+| `@beep/utils/DateTime` | `isZoned` | const | `node_modules/effect/dist/DateTime.d.ts:410` | Checks if a `DateTime` is a zoned `DateTime` (has time zone information). |
+| `@beep/utils/DateTime` | `layerCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:3948` | Create a Layer from the given time zone. |
+| `@beep/utils/DateTime` | `layerCurrentZoneLocal` | const | `node_modules/effect/dist/DateTime.d.ts:4022` | Create a Layer from the system's local time zone. |
+| `@beep/utils/DateTime` | `layerCurrentZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:3998` | Create a Layer from the given IANA time zone identifier. |
+| `@beep/utils/DateTime` | `layerCurrentZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:3973` | Create a Layer from the given time zone offset. |
+| `@beep/utils/DateTime` | `make` | const | `node_modules/effect/dist/DateTime.d.ts:702` | Creates a `DateTime` from one of the following: |
+| `@beep/utils/DateTime` | `makeUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:588` | Create a `DateTime` from one of the following: |
 | `@beep/utils/DateTime` | `makeUnsafeUtc` | const | `packages/foundation/modeling/utils/src/DateTime.ts:26` | Constructs a `DateTime.Utc` from any supported `DateTime` input. |
-| `@beep/utils/DateTime` | `makeZoned` | const | `node_modules/effect/dist/DateTime.d.ts:495` | Create a `DateTime.Zoned` using `DateTime.make` and a time zone. |
-| `@beep/utils/DateTime` | `makeZonedFromString` | const | `node_modules/effect/dist/DateTime.d.ts:552` | Create a `DateTime.Zoned` from a string. |
-| `@beep/utils/DateTime` | `makeZonedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:465` | Create a `DateTime.Zoned` using `DateTime.makeUnsafe` and a time zone. |
-| `@beep/utils/DateTime` | `mapEpochMillis` | const | `node_modules/effect/dist/DateTime.d.ts:2404` | Transform a `DateTime` by applying a function to the number of milliseconds |
-| `@beep/utils/DateTime` | `match` | const | `node_modules/effect/dist/DateTime.d.ts:2568` | Pattern match on a `DateTime` to handle `Utc` and `Zoned` cases differently. |
-| `@beep/utils/DateTime` | `max` | const | `node_modules/effect/dist/DateTime.d.ts:1162` | Returns the later of two `DateTime` values. |
-| `@beep/utils/DateTime` | `min` | const | `node_modules/effect/dist/DateTime.d.ts:1107` | Returns the earlier of two `DateTime` values. |
-| `@beep/utils/DateTime` | `mutate` | const | `node_modules/effect/dist/DateTime.d.ts:2263` | Modify a `DateTime` by applying a function to a cloned `Date` instance. |
-| `@beep/utils/DateTime` | `mutateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2342` | Modify a `DateTime` by applying a function to a cloned UTC `Date` instance. |
-| `@beep/utils/DateTime` | `nearest` | const | `node_modules/effect/dist/DateTime.d.ts:2980` | Converts a `DateTime` to the nearest given `part`. |
-| `@beep/utils/DateTime` | `now` | const | `node_modules/effect/dist/DateTime.d.ts:567` | Get the current time using the `Clock` service and convert it to a `DateTime`. |
-| `@beep/utils/DateTime` | `nowAsDate` | const | `node_modules/effect/dist/DateTime.d.ts:582` | Get the current time using the `Clock` service and convert it to a `DateTime`. |
-| `@beep/utils/DateTime` | `nowInCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:2237` | Get the current time as a `DateTime.Zoned`, using the `CurrentTimeZone`. |
-| `@beep/utils/DateTime` | `nowUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:600` | Get the current time using `Date.now`. |
-| `@beep/utils/DateTime` | `Order` | const | `node_modules/effect/dist/DateTime.d.ts:320` | An `Order` for comparing and sorting `DateTime` values. |
-| `@beep/utils/DateTime` | `removeTime` | const | `node_modules/effect/dist/DateTime.d.ts:1700` | Remove the time aspect of a `DateTime`, first adjusting for the time |
-| `@beep/utils/DateTime` | `setParts` | const | `node_modules/effect/dist/DateTime.d.ts:1890` | Set the different parts of a `DateTime` as an object. |
-| `@beep/utils/DateTime` | `setPartsUtc` | const | `node_modules/effect/dist/DateTime.d.ts:1959` | Set the different parts of a `DateTime` as an object. |
-| `@beep/utils/DateTime` | `setZone` | const | `node_modules/effect/dist/DateTime.d.ts:637` | Set the time zone of a `DateTime`, returning a new `DateTime.Zoned`. |
-| `@beep/utils/DateTime` | `setZoneCurrent` | const | `node_modules/effect/dist/DateTime.d.ts:2045` | Set the time zone of a `DateTime` to the current time zone, which is |
-| `@beep/utils/DateTime` | `setZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:912` | Set the time zone of a `DateTime` from an IANA time zone identifier. If the |
-| `@beep/utils/DateTime` | `setZoneNamedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:973` | Set the time zone of a `DateTime` from an IANA time zone identifier. If the |
-| `@beep/utils/DateTime` | `setZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:702` | Add a fixed offset time zone to a `DateTime`. |
-| `@beep/utils/DateTime` | `startOf` | const | `node_modules/effect/dist/DateTime.d.ts:2850` | Converts a `DateTime` to the start of the given `part`. |
-| `@beep/utils/DateTime` | `subtract` | const | `node_modules/effect/dist/DateTime.d.ts:2797` | Subtract the given `amount` of `unit`'s from a `DateTime`. |
-| `@beep/utils/DateTime` | `subtractDuration` | const | `node_modules/effect/dist/DateTime.d.ts:2690` | Subtract the given `Duration` from a `DateTime`. |
-| `@beep/utils/DateTime` | `TimeZone` | namespace | `node_modules/effect/dist/DateTime.d.ts:149` |  |
-| `@beep/utils/DateTime` | `TimeZone` | type | `node_modules/effect/dist/DateTime.d.ts:144` |  |
-| `@beep/utils/DateTime` | `toDate` | const | `node_modules/effect/dist/DateTime.d.ts:1616` | Convert a `DateTime` to a `Date`, applying the time zone first. |
-| `@beep/utils/DateTime` | `toDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:1593` | Get the UTC `Date` of a `DateTime`. |
-| `@beep/utils/DateTime` | `toEpochMillis` | const | `node_modules/effect/dist/DateTime.d.ts:1679` | Get the milliseconds since the Unix epoch of a `DateTime`. |
-| `@beep/utils/DateTime` | `toParts` | const | `node_modules/effect/dist/DateTime.d.ts:1729` | Get the different parts of a `DateTime` as an object. |
-| `@beep/utils/DateTime` | `toPartsUtc` | const | `node_modules/effect/dist/DateTime.d.ts:1751` | Get the different parts of a `DateTime` as an object. |
-| `@beep/utils/DateTime` | `toUtc` | const | `node_modules/effect/dist/DateTime.d.ts:618` | For a `DateTime` returns a new `DateTime.Utc`. |
-| `@beep/utils/DateTime` | `Utc` | interface | `node_modules/effect/dist/DateTime.d.ts:29` |  |
-| `@beep/utils/DateTime` | `withCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:2062` | Provide the `CurrentTimeZone` to an effect. |
-| `@beep/utils/DateTime` | `withCurrentZoneLocal` | const | `node_modules/effect/dist/DateTime.d.ts:2114` | Provide the `CurrentTimeZone` to an effect, using the system's local time |
-| `@beep/utils/DateTime` | `withCurrentZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:2182` | Provide the `CurrentTimeZone` to an effect using an IANA time zone |
-| `@beep/utils/DateTime` | `withCurrentZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:2130` | Provide the `CurrentTimeZone` to an effect, using a offset. |
-| `@beep/utils/DateTime` | `withDate` | const | `node_modules/effect/dist/DateTime.d.ts:2456` | Using the time zone adjusted `Date`, apply a function to the `Date` and |
-| `@beep/utils/DateTime` | `withDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2508` | Using the time zone adjusted `Date`, apply a function to the `Date` and |
-| `@beep/utils/DateTime` | `Zoned` | interface | `node_modules/effect/dist/DateTime.d.ts:38` |  |
-| `@beep/utils/DateTime` | `zonedOffset` | const | `node_modules/effect/dist/DateTime.d.ts:1638` | Calculate the time zone offset of a `DateTime.Zoned` in milliseconds. |
-| `@beep/utils/DateTime` | `zonedOffsetIso` | const | `node_modules/effect/dist/DateTime.d.ts:1659` | Format the time zone offset of a `DateTime.Zoned` as an ISO string. |
-| `@beep/utils/DateTime` | `zoneFromString` | const | `node_modules/effect/dist/DateTime.d.ts:877` | Try to parse a `TimeZone` from a string. |
-| `@beep/utils/DateTime` | `zoneMakeLocal` | const | `node_modules/effect/dist/DateTime.d.ts:855` | Create a named time zone from the system's local time zone. |
-| `@beep/utils/DateTime` | `zoneMakeNamed` | const | `node_modules/effect/dist/DateTime.d.ts:814` | Create a named time zone from a IANA time zone identifier. |
-| `@beep/utils/DateTime` | `zoneMakeNamedEffect` | const | `node_modules/effect/dist/DateTime.d.ts:834` | Create a named time zone from a IANA time zone identifier. |
-| `@beep/utils/DateTime` | `zoneMakeNamedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:772` | Attempt to create a named time zone from a IANA time zone identifier. |
-| `@beep/utils/DateTime` | `zoneMakeOffset` | const | `node_modules/effect/dist/DateTime.d.ts:794` | Create a fixed offset time zone. |
-| `@beep/utils/DateTime` | `zoneToString` | const | `node_modules/effect/dist/DateTime.d.ts:894` | Format a `TimeZone` as a string. |
-| `@beep/utils/Event` | `AnyEvent` | type | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:152` |  |
-| `@beep/utils/Event` | `decode` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:14` |  |
-| `@beep/utils/Event` | `decodeDataSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:28` |  |
-| `@beep/utils/Event` | `decodeSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:19` |  |
-| `@beep/utils/Event` | `encode` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:54` |  |
-| `@beep/utils/Event` | `encoder` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:157` |  |
-| `@beep/utils/Event` | `Encoder` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:68` |  |
-| `@beep/utils/Event` | `encodeSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:59` |  |
-| `@beep/utils/Event` | `Event` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:94` |  |
-| `@beep/utils/Event` | `Event` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:75` |  |
-| `@beep/utils/Event` | `EventEncoded` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:85` |  |
-| `@beep/utils/Event` | `EventEncoded` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:118` |  |
+| `@beep/utils/DateTime` | `makeZoned` | const | `node_modules/effect/dist/DateTime.d.ts:660` | Creates a `DateTime.Zoned` from an input and a time zone. |
+| `@beep/utils/DateTime` | `makeZonedFromString` | const | `node_modules/effect/dist/DateTime.d.ts:731` | Parses an ISO zoned date-time string into a `DateTime.Zoned`. |
+| `@beep/utils/DateTime` | `makeZonedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:618` | Create a `DateTime.Zoned` using `DateTime.makeUnsafe` and a time zone. |
+| `@beep/utils/DateTime` | `mapEpochMillis` | const | `node_modules/effect/dist/DateTime.d.ts:2712` | Transform a `DateTime` by applying a function to the number of milliseconds |
+| `@beep/utils/DateTime` | `match` | const | `node_modules/effect/dist/DateTime.d.ts:2916` | Pattern match on a `DateTime` to handle `Utc` and `Zoned` cases differently. |
+| `@beep/utils/DateTime` | `max` | const | `node_modules/effect/dist/DateTime.d.ts:1389` | Returns the later of two `DateTime` values. |
+| `@beep/utils/DateTime` | `min` | const | `node_modules/effect/dist/DateTime.d.ts:1331` | Returns the earlier of two `DateTime` values. |
+| `@beep/utils/DateTime` | `mutate` | const | `node_modules/effect/dist/DateTime.d.ts:2564` | Modify a `DateTime` by applying a function to a cloned `Date` instance. |
+| `@beep/utils/DateTime` | `mutateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2646` | Modify a `DateTime` by applying a function to a cloned UTC `Date` instance. |
+| `@beep/utils/DateTime` | `nearest` | const | `node_modules/effect/dist/DateTime.d.ts:3378` | Converts a `DateTime` to the nearest given `part`. |
+| `@beep/utils/DateTime` | `now` | const | `node_modules/effect/dist/DateTime.d.ts:749` | Get the current time using the `Clock` service and convert it to a `DateTime`. |
+| `@beep/utils/DateTime` | `nowAsDate` | const | `node_modules/effect/dist/DateTime.d.ts:767` | Gets the current time from the `Clock` service and returns it as a |
+| `@beep/utils/DateTime` | `nowInCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:2537` | Get the current time as a `DateTime.Zoned`, using the `CurrentTimeZone`. |
+| `@beep/utils/DateTime` | `nowUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:786` | Get the current time using `Date.now`. |
+| `@beep/utils/DateTime` | `Order` | const | `node_modules/effect/dist/DateTime.d.ts:458` | An `Order` for comparing and sorting `DateTime` values. |
+| `@beep/utils/DateTime` | `removeTime` | const | `node_modules/effect/dist/DateTime.d.ts:1954` | Remove the time aspect of a `DateTime`, first adjusting for the time |
+| `@beep/utils/DateTime` | `setParts` | const | `node_modules/effect/dist/DateTime.d.ts:2153` | Set the different parts of a `DateTime` as an object. |
+| `@beep/utils/DateTime` | `setPartsUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2225` | Set the different parts of a `DateTime` as an object. |
+| `@beep/utils/DateTime` | `setZone` | const | `node_modules/effect/dist/DateTime.d.ts:827` | Set the time zone of a `DateTime`, returning a new `DateTime.Zoned`. |
+| `@beep/utils/DateTime` | `setZoneCurrent` | const | `node_modules/effect/dist/DateTime.d.ts:2323` | Set the time zone of a `DateTime` to the current time zone, which is |
+| `@beep/utils/DateTime` | `setZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:1119` | Set the time zone of a `DateTime` from an IANA time zone identifier. If the |
+| `@beep/utils/DateTime` | `setZoneNamedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:1186` | Set the time zone of a `DateTime` from an IANA time zone identifier. If the |
+| `@beep/utils/DateTime` | `setZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:898` | Add a fixed offset time zone to a `DateTime`. |
+| `@beep/utils/DateTime` | `startOf` | const | `node_modules/effect/dist/DateTime.d.ts:3236` | Converts a `DateTime` to the start of the given `part`. |
+| `@beep/utils/DateTime` | `subtract` | const | `node_modules/effect/dist/DateTime.d.ts:3177` | Subtract the given `amount` of `unit`'s from a `DateTime`. |
+| `@beep/utils/DateTime` | `subtractDuration` | const | `node_modules/effect/dist/DateTime.d.ts:3058` | Subtract the given `Duration` from a `DateTime`. |
+| `@beep/utils/DateTime` | `TimeZone` | namespace | `node_modules/effect/dist/DateTime.d.ts:268` | Companion namespace containing the public variant and protocol types for |
+| `@beep/utils/DateTime` | `TimeZone` | type | `node_modules/effect/dist/DateTime.d.ts:261` | Represents a time zone used by `DateTime.Zoned`. |
+| `@beep/utils/DateTime` | `toDate` | const | `node_modules/effect/dist/DateTime.d.ts:1866` | Convert a `DateTime` to a `Date`, applying the time zone first. |
+| `@beep/utils/DateTime` | `toDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:1842` | Get the UTC `Date` of a `DateTime`. |
+| `@beep/utils/DateTime` | `toEpochMillis` | const | `node_modules/effect/dist/DateTime.d.ts:1931` | Get the milliseconds since the Unix epoch of a `DateTime`. |
+| `@beep/utils/DateTime` | `toParts` | const | `node_modules/effect/dist/DateTime.d.ts:1984` | Get the different parts of a `DateTime` as an object. |
+| `@beep/utils/DateTime` | `toPartsUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2007` | Get the different parts of a `DateTime` as an object. |
+| `@beep/utils/DateTime` | `toUtc` | const | `node_modules/effect/dist/DateTime.d.ts:806` | For a `DateTime` returns a new `DateTime.Utc`. |
+| `@beep/utils/DateTime` | `Utc` | interface | `node_modules/effect/dist/DateTime.d.ts:83` | Represents a `DateTime` stored as an absolute UTC instant with no associated |
+| `@beep/utils/DateTime` | `withCurrentZone` | const | `node_modules/effect/dist/DateTime.d.ts:2342` | Provide the `CurrentTimeZone` to an effect. |
+| `@beep/utils/DateTime` | `withCurrentZoneLocal` | const | `node_modules/effect/dist/DateTime.d.ts:2400` | Provide the `CurrentTimeZone` to an effect, using the system's local time |
+| `@beep/utils/DateTime` | `withCurrentZoneNamed` | const | `node_modules/effect/dist/DateTime.d.ts:2476` | Provide the `CurrentTimeZone` to an effect using an IANA time zone |
+| `@beep/utils/DateTime` | `withCurrentZoneOffset` | const | `node_modules/effect/dist/DateTime.d.ts:2418` | Provide the `CurrentTimeZone` to an effect, using a offset. |
+| `@beep/utils/DateTime` | `withDate` | const | `node_modules/effect/dist/DateTime.d.ts:2773` | Applies a function to a JavaScript `Date` representing the `DateTime`'s UTC |
+| `@beep/utils/DateTime` | `withDateUtc` | const | `node_modules/effect/dist/DateTime.d.ts:2840` | Applies a function to a JavaScript `Date` representing the `DateTime`'s UTC |
+| `@beep/utils/DateTime` | `Zoned` | interface | `node_modules/effect/dist/DateTime.d.ts:98` | Represents a `DateTime` with an associated `TimeZone`. |
+| `@beep/utils/DateTime` | `zonedOffset` | const | `node_modules/effect/dist/DateTime.d.ts:1889` | Calculate the time zone offset of a `DateTime.Zoned` in milliseconds. |
+| `@beep/utils/DateTime` | `zonedOffsetIso` | const | `node_modules/effect/dist/DateTime.d.ts:1911` | Format the time zone offset of a `DateTime.Zoned` as an ISO string. |
+| `@beep/utils/DateTime` | `zoneFromString` | const | `node_modules/effect/dist/DateTime.d.ts:1080` | Try to parse a `TimeZone` from a string. |
+| `@beep/utils/DateTime` | `zoneMakeLocal` | const | `node_modules/effect/dist/DateTime.d.ts:1057` | Create a named time zone from the system's local time zone. |
+| `@beep/utils/DateTime` | `zoneMakeNamed` | const | `node_modules/effect/dist/DateTime.d.ts:1017` | Create a named time zone from a IANA time zone identifier. |
+| `@beep/utils/DateTime` | `zoneMakeNamedEffect` | const | `node_modules/effect/dist/DateTime.d.ts:1038` | Create a named time zone from a IANA time zone identifier. |
+| `@beep/utils/DateTime` | `zoneMakeNamedUnsafe` | const | `node_modules/effect/dist/DateTime.d.ts:973` | Attempt to create a named time zone from a IANA time zone identifier. |
+| `@beep/utils/DateTime` | `zoneMakeOffset` | const | `node_modules/effect/dist/DateTime.d.ts:996` | Create a fixed offset time zone. |
+| `@beep/utils/DateTime` | `zoneToString` | const | `node_modules/effect/dist/DateTime.d.ts:1099` | Format a `TimeZone` as a string. |
+| `@beep/utils/Event` | `AnyEvent` | type | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:238` | Union of SSE values that can be rendered by an `Encoder`: regular events and |
+| `@beep/utils/Event` | `decode` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:37` | Creates a channel that parses Server-Sent Events text chunks into `Event` |
+| `@beep/utils/Event` | `decodeDataSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:62` | Creates an SSE decoder channel that JSON-decodes each event `data` field with |
+| `@beep/utils/Event` | `decodeSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:47` | Creates an SSE decoder channel that decodes each parsed event with a schema. |
+| `@beep/utils/Event` | `encode` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:98` | Creates a channel that encodes `Event` values as Server-Sent Events text. |
+| `@beep/utils/Event` | `encoder` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:248` | Default Server-Sent Events encoder. |
+| `@beep/utils/Event` | `Encoder` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:120` | Encoder capable of rendering an `Event` or `Retry` value as Server-Sent |
+| `@beep/utils/Event` | `encodeSchema` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:108` | Creates an SSE encoder channel for values accepted by a schema. |
+| `@beep/utils/Event` | `Event` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:159` | Schema for the tagged Server-Sent Events message model. |
+| `@beep/utils/Event` | `Event` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:131` | Tagged model for a Server-Sent Events message. |
+| `@beep/utils/Event` | `EventEncoded` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:145` | Schema for the untagged Server-Sent Events payload shape. |
+| `@beep/utils/Event` | `EventEncoded` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:190` | Untagged Server-Sent Events payload shape. |
 | `@beep/utils/Event` | `makeEvent` | const | `packages/foundation/modeling/utils/src/Event.ts:89` | Creates a typed server-sent event schema. |
-| `@beep/utils/Event` | `makeParser` | function | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:41` | Create a SSE parser. |
-| `@beep/utils/Event` | `Parser` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:46` |  |
-| `@beep/utils/Event` | `Retry` | class | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:131` |  |
-| `@beep/utils/Event` | `transformEvent` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:104` |  |
+| `@beep/utils/Event` | `makeParser` | function | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:76` | Creates a stateful Server-Sent Events parser. |
+| `@beep/utils/Event` | `Parser` | interface | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:85` | Stateful Server-Sent Events parser returned by `makeParser`. |
+| `@beep/utils/Event` | `Retry` | class | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:208` | Server-Sent Events retry directive. |
+| `@beep/utils/Event` | `transformEvent` | const | `node_modules/effect/dist/unstable/encoding/Sse.d.ts:172` | Schema transformation between the untagged SSE event shape and the tagged |
 | `@beep/utils/FileSystem` | `makeWaitForFile` | const | `packages/foundation/modeling/utils/src/FileSystem.ts:42` | Creates a dual API helper that waits for the first file-system watch event |
-| `@beep/utils/Function` | `absurd` | const | `node_modules/effect/dist/Function.d.ts:544` | The `absurd` function is a stub for cases where a value of type `never` is encountered in your code, |
-| `@beep/utils/Function` | `apply` | const | `node_modules/effect/dist/Function.d.ts:280` | Apply a function to a given value. |
-| `@beep/utils/Function` | `cast` | const | `node_modules/effect/dist/Function.d.ts:354` | Casts the result to the specified type. |
-| `@beep/utils/Function` | `compose` | const | `node_modules/effect/dist/Function.d.ts:486` | Composes two functions, `ab` and `bc` into a single function that takes in an argument `a` of type `A` and returns a result of type `C`. |
-| `@beep/utils/Function` | `constant` | const | `node_modules/effect/dist/Function.d.ts:375` | Creates a constant value that never changes. |
-| `@beep/utils/Function` | `constFalse` | const | `node_modules/effect/dist/Function.d.ts:405` | A thunk that returns always `false`. |
-| `@beep/utils/Function` | `constNull` | const | `node_modules/effect/dist/Function.d.ts:420` | A thunk that returns always `null`. |
-| `@beep/utils/Function` | `constTrue` | const | `node_modules/effect/dist/Function.d.ts:390` | A thunk that returns always `true`. |
-| `@beep/utils/Function` | `constUndefined` | const | `node_modules/effect/dist/Function.d.ts:435` | A thunk that returns always `undefined`. |
-| `@beep/utils/Function` | `constVoid` | const | `node_modules/effect/dist/Function.d.ts:450` | A thunk that returns always `void`. |
+| `@beep/utils/Function` | `absurd` | const | `node_modules/effect/dist/Function.d.ts:565` | The `absurd` function is a stub for cases where a value of type `never` is encountered in your code, |
+| `@beep/utils/Function` | `apply` | const | `node_modules/effect/dist/Function.d.ts:283` | Apply a function to a given value. |
+| `@beep/utils/Function` | `cast` | const | `node_modules/effect/dist/Function.d.ts:364` | Returns the input value with a different static type. |
+| `@beep/utils/Function` | `compose` | const | `node_modules/effect/dist/Function.d.ts:504` | Composes two functions, `ab` and `bc` into a single function that takes in an argument `a` of type `A` and returns a result of type `C`. |
+| `@beep/utils/Function` | `constant` | const | `node_modules/effect/dist/Function.d.ts:386` | Creates a zero-argument function that always returns the provided value. |
+| `@beep/utils/Function` | `constFalse` | const | `node_modules/effect/dist/Function.d.ts:418` | A thunk that returns always `false`. |
+| `@beep/utils/Function` | `constNull` | const | `node_modules/effect/dist/Function.d.ts:434` | A thunk that returns always `null`. |
+| `@beep/utils/Function` | `constTrue` | const | `node_modules/effect/dist/Function.d.ts:402` | A thunk that returns always `true`. |
+| `@beep/utils/Function` | `constUndefined` | const | `node_modules/effect/dist/Function.d.ts:450` | A thunk that returns always `undefined`. |
+| `@beep/utils/Function` | `constVoid` | const | `node_modules/effect/dist/Function.d.ts:466` | A thunk that returns always `void`. |
 | `@beep/utils/Function` | `curry` | function | `packages/foundation/modeling/utils/src/Function.ts:137` | Convert a two-argument function into a curried function. |
-| `@beep/utils/Function` | `dual` | const | `node_modules/effect/dist/Function.d.ts:103` | Creates a function that can be used in a data-last (aka `pipe`able) or |
-| `@beep/utils/Function` | `flip` | const | `node_modules/effect/dist/Function.d.ts:467` | Reverses the order of arguments for a curried function. |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:704` | Performs left-to-right function composition. The first argument may have any arity, the remaining arguments must be unary. |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:705` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:706` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:707` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:708` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:709` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:710` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:711` |  |
-| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:712` |  |
-| `@beep/utils/Function` | `FunctionN` | type | `node_modules/effect/dist/Function.d.ts:310` | Represents a function with multiple arguments. |
-| `@beep/utils/Function` | `FunctionTypeLambda` | interface | `node_modules/effect/dist/Function.d.ts:21` | Type lambda for function types, used for higher-kinded type operations. |
-| `@beep/utils/Function` | `hole` | const | `node_modules/effect/dist/Function.d.ts:727` | Type hole simulation. Creates a placeholder for any type, primarily used during development. |
-| `@beep/utils/Function` | `identity` | const | `node_modules/effect/dist/Function.d.ts:325` | The identity function, i.e. A function that returns its input argument. |
+| `@beep/utils/Function` | `dual` | const | `node_modules/effect/dist/Function.d.ts:134` | Creates a function that can be used in a data-last (aka `pipe`able) or |
+| `@beep/utils/Function` | `flip` | const | `node_modules/effect/dist/Function.d.ts:484` | Reverses the order of arguments for a curried function. |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:757` | Performs left-to-right function composition. The first argument may have any arity, the remaining arguments must be unary. |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:758` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:759` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:760` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:761` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:762` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:763` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:764` |  |
+| `@beep/utils/Function` | `flow` | function | `node_modules/effect/dist/Function.d.ts:765` |  |
+| `@beep/utils/Function` | `FunctionN` | type | `node_modules/effect/dist/Function.d.ts:315` | Represents a function with multiple arguments. |
+| `@beep/utils/Function` | `FunctionTypeLambda` | interface | `node_modules/effect/dist/Function.d.ts:66` | Type lambda for function types, used for higher-kinded type operations. |
+| `@beep/utils/Function` | `hole` | const | `node_modules/effect/dist/Function.d.ts:789` | Creates a compile-time placeholder for a value of any type. |
+| `@beep/utils/Function` | `identity` | const | `node_modules/effect/dist/Function.d.ts:331` | The identity function, i.e. A function that returns its input argument. |
 | `@beep/utils/Function` | `lazy` | function | `packages/foundation/modeling/utils/src/Function.ts:192` | Memoize a nullary function and return the cached result after the first call. |
-| `@beep/utils/Function` | `LazyArg` | type | `node_modules/effect/dist/Function.d.ts:294` | A lazy argument. |
-| `@beep/utils/Function` | `memoize` | function | `node_modules/effect/dist/Function.d.ts:749` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:663` | Pipes the value of an expression into a pipeline of functions. |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:664` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:665` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:666` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:667` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:668` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:669` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:670` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:671` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:672` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:673` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:674` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:675` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:676` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:677` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:678` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:679` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:680` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:681` |  |
-| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:682` |  |
+| `@beep/utils/Function` | `LazyArg` | type | `node_modules/effect/dist/Function.d.ts:298` | A zero-argument function that produces a value when invoked. |
+| `@beep/utils/Function` | `memoize` | function | `node_modules/effect/dist/Function.d.ts:816` | Memoizes a function whose input is an object, caching results by object |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:715` | Pipes the value of an expression into a pipeline of functions. |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:716` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:717` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:718` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:719` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:720` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:721` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:722` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:723` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:724` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:725` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:726` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:727` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:728` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:729` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:730` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:731` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:732` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:733` |  |
+| `@beep/utils/Function` | `pipe` | function | `node_modules/effect/dist/Function.d.ts:734` |  |
 | `@beep/utils/Function` | `reverseCurry` | function | `packages/foundation/modeling/utils/src/Function.ts:112` | Reverse the argument order of a two-argument curried function. |
-| `@beep/utils/Function` | `satisfies` | const | `node_modules/effect/dist/Function.d.ts:347` | A function that ensures that the type of an expression matches some type, |
-| `@beep/utils/Function` | `SK` | const | `node_modules/effect/dist/Function.d.ts:745` | The SK combinator, also known as the "S-K combinator" or "S-combinator", is a fundamental combinator in the |
+| `@beep/utils/Function` | `satisfies` | const | `node_modules/effect/dist/Function.d.ts:354` | A function that ensures that the type of an expression matches some type, |
+| `@beep/utils/Function` | `SK` | const | `node_modules/effect/dist/Function.d.ts:808` | The SK combinator, also known as the "S-K combinator" or "S-combinator", is a fundamental combinator in the |
 | `@beep/utils/Function` | `tuple` | function | `packages/foundation/modeling/utils/src/Function.ts:60` | Construct a readonly tuple from the provided elements. |
-| `@beep/utils/Function` | `tupled` | const | `node_modules/effect/dist/Function.d.ts:561` | Creates a tupled version of this function: instead of `n` arguments, it accepts a single tuple argument. |
+| `@beep/utils/Function` | `tupled` | const | `node_modules/effect/dist/Function.d.ts:583` | Creates a tupled version of this function: instead of `n` arguments, it accepts a single tuple argument. |
 | `@beep/utils/Function` | `tupledCurry` | function | `packages/foundation/modeling/utils/src/Function.ts:86` | Convert a curried two-argument function into a tuple-consuming function. |
 | `@beep/utils/Function` | `uncurry` | function | `packages/foundation/modeling/utils/src/Function.ts:162` | Convert a curried two-argument function into an uncurried function. |
-| `@beep/utils/Function` | `untupled` | const | `node_modules/effect/dist/Function.d.ts:578` | Inverse function of `tupled` |
+| `@beep/utils/Function` | `untupled` | const | `node_modules/effect/dist/Function.d.ts:601` | Inverse function of `tupled` |
 | `@beep/utils/Glob` | `Glob` | const | `packages/foundation/modeling/utils/src/Glob.ts:196` | Service tag for the {@link Glob} capability. |
 | `@beep/utils/Glob` | `Glob` | interface | `packages/foundation/modeling/utils/src/Glob.ts:178` | Service interface for performing glob-based file matching. |
 | `@beep/utils/Glob` | `GlobError` | class | `packages/foundation/modeling/utils/src/Glob.ts:131` | An error raised when glob pattern matching fails. |
@@ -911,238 +911,238 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/NodeUrl` | `fileURLToPath` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:127` | Converts a `file:` URL back into a platform path string. |
 | `@beep/utils/NodeUrl` | `fromFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:53` | Converts a `file:` URL into a platform path string. |
 | `@beep/utils/NodeUrl` | `toFileUrl` | const | `packages/foundation/modeling/utils/src/NodeUrl.ts:102` | Converts a platform path string into a `file:` URL. |
-| `@beep/utils/Number` | `between` | const | `node_modules/effect/dist/Number.d.ts:584` | Checks if a `number` is between a `minimum` and `maximum` value (inclusive). |
-| `@beep/utils/Number` | `clamp` | const | `node_modules/effect/dist/Number.d.ts:652` | Restricts the given `number` to be within the range specified by the `minimum` and `maximum` values. |
-| `@beep/utils/Number` | `decrement` | const | `node_modules/effect/dist/Number.d.ts:323` | Decrements a number by `1`. |
-| `@beep/utils/Number` | `divide` | const | `node_modules/effect/dist/Number.d.ts:201` | Provides a division operation on `number`s. |
-| `@beep/utils/Number` | `divideUnsafe` | const | `node_modules/effect/dist/Number.d.ts:256` | Provides an unsafe division operation on `number`s. |
-| `@beep/utils/Number` | `Equivalence` | const | `node_modules/effect/dist/Number.d.ts:357` | An `Equivalence` instance for numbers. |
-| `@beep/utils/Number` | `increment` | const | `node_modules/effect/dist/Number.d.ts:308` | Returns the result of adding `1` to a given number. |
-| `@beep/utils/Number` | `isGreaterThan` | const | `node_modules/effect/dist/Number.d.ts:478` | Returns `true` if the first argument is greater than the second, otherwise `false`. |
-| `@beep/utils/Number` | `isGreaterThanOrEqualTo` | const | `node_modules/effect/dist/Number.d.ts:530` | Returns a function that checks if a given `number` is greater than or equal to the provided one. |
+| `@beep/utils/Number` | `between` | const | `node_modules/effect/dist/Number.d.ts:615` | Checks if a `number` is between a `minimum` and `maximum` value (inclusive). |
+| `@beep/utils/Number` | `clamp` | const | `node_modules/effect/dist/Number.d.ts:686` | Restricts the given `number` to be within the range specified by the `minimum` and `maximum` values. |
+| `@beep/utils/Number` | `decrement` | const | `node_modules/effect/dist/Number.d.ts:339` | Decrements a number by `1`. |
+| `@beep/utils/Number` | `divide` | const | `node_modules/effect/dist/Number.d.ts:212` | Provides a division operation on `number`s. |
+| `@beep/utils/Number` | `divideUnsafe` | const | `node_modules/effect/dist/Number.d.ts:268` | Provides an unsafe division operation on `number`s. |
+| `@beep/utils/Number` | `Equivalence` | const | `node_modules/effect/dist/Number.d.ts:375` | An `Equivalence` instance for numbers. |
+| `@beep/utils/Number` | `increment` | const | `node_modules/effect/dist/Number.d.ts:323` | Returns the result of adding `1` to a given number. |
+| `@beep/utils/Number` | `isGreaterThan` | const | `node_modules/effect/dist/Number.d.ts:503` | Returns `true` if the first argument is greater than the second, otherwise `false`. |
+| `@beep/utils/Number` | `isGreaterThanOrEqualTo` | const | `node_modules/effect/dist/Number.d.ts:558` | Returns a function that checks if a given `number` is greater than or equal to the provided one. |
 | `@beep/utils/Number` | `isInteger` | const | `packages/foundation/modeling/utils/src/Number.ts:83` | Type guard that checks whether a value is a `number` and an integer. |
-| `@beep/utils/Number` | `isLessThan` | const | `node_modules/effect/dist/Number.d.ts:374` | Returns `true` if the first argument is less than the second, otherwise `false`. |
-| `@beep/utils/Number` | `isLessThanOrEqualTo` | const | `node_modules/effect/dist/Number.d.ts:426` | Returns a function that checks if a given `number` is less than or equal to the provided one. |
-| `@beep/utils/Number` | `isNumber` | const | `node_modules/effect/dist/Number.d.ts:45` | Tests if a value is a `number`. |
+| `@beep/utils/Number` | `isLessThan` | const | `node_modules/effect/dist/Number.d.ts:393` | Returns `true` if the first argument is less than the second, otherwise `false`. |
+| `@beep/utils/Number` | `isLessThanOrEqualTo` | const | `node_modules/effect/dist/Number.d.ts:448` | Returns a function that checks if a given `number` is less than or equal to the provided one. |
+| `@beep/utils/Number` | `isNumber` | const | `node_modules/effect/dist/Number.d.ts:47` | Tests if a value is a `number`. |
 | `@beep/utils/Number` | `isPositive` | const | `packages/foundation/modeling/utils/src/Number.ts:41` | Determines if the given input is a number and is positive (greater than or equal to 0). |
-| `@beep/utils/Number` | `max` | const | `node_modules/effect/dist/Number.d.ts:766` | Returns the maximum between two `number`s. |
-| `@beep/utils/Number` | `min` | const | `node_modules/effect/dist/Number.d.ts:720` | Returns the minimum between two `number`s. |
-| `@beep/utils/Number` | `multiply` | const | `node_modules/effect/dist/Number.d.ts:106` | Provides a multiplication operation on `number`s. |
-| `@beep/utils/Number` | `multiplyAll` | const | `node_modules/effect/dist/Number.d.ts:844` | Takes an `Iterable` of `number`s and returns their multiplication as a single `number`. |
-| `@beep/utils/Number` | `nextPow2` | const | `node_modules/effect/dist/Number.d.ts:918` | Returns the next power of 2 from the given number. |
-| `@beep/utils/Number` | `Number` | const | `node_modules/effect/dist/Number.d.ts:29` | The global `Number` constructor. |
-| `@beep/utils/Number` | `Order` | const | `node_modules/effect/dist/Number.d.ts:339` | An `Order` instance for `number` values. |
-| `@beep/utils/Number` | `parse` | const | `node_modules/effect/dist/Number.d.ts:939` | Tries to parse a `number` from a `string` using the `Number()` function. |
-| `@beep/utils/Number` | `ReducerMax` | const | `node_modules/effect/dist/Number.d.ts:1006` | A `Combiner` that returns the maximum `number`. |
-| `@beep/utils/Number` | `ReducerMin` | const | `node_modules/effect/dist/Number.d.ts:1012` | A `Combiner` that returns the minimum `number`. |
-| `@beep/utils/Number` | `ReducerMultiply` | const | `node_modules/effect/dist/Number.d.ts:1000` | A `Reducer` for combining `number`s using multiplication. |
-| `@beep/utils/Number` | `ReducerSum` | const | `node_modules/effect/dist/Number.d.ts:994` | A `Reducer` for combining `number`s using addition. |
-| `@beep/utils/Number` | `remainder` | const | `node_modules/effect/dist/Number.d.ts:863` | Returns the remainder left over when one operand is divided by a second operand. |
-| `@beep/utils/Number` | `round` | const | `node_modules/effect/dist/Number.d.ts:955` | Returns the number rounded with the given precision. |
-| `@beep/utils/Number` | `sign` | const | `node_modules/effect/dist/Number.d.ts:814` | Determines the sign of a given `number`. |
-| `@beep/utils/Number` | `subtract` | const | `node_modules/effect/dist/Number.d.ts:152` | Provides a subtraction operation on `number`s. |
-| `@beep/utils/Number` | `sum` | const | `node_modules/effect/dist/Number.d.ts:60` | Provides an addition operation on `number`s. |
-| `@beep/utils/Number` | `sumAll` | const | `node_modules/effect/dist/Number.d.ts:829` | Takes an `Iterable` of `number`s and returns their sum as a single `number`. |
-| `@beep/utils/Option` | `all` | const | `node_modules/effect/dist/Option.d.ts:2904` | Combines a structure of `Option`s (tuple, struct, or iterable) into a single |
-| `@beep/utils/Option` | `andThen` | const | `node_modules/effect/dist/Option.d.ts:1886` | Chains a second computation onto an `Option`. The second value can be a |
-| `@beep/utils/Option` | `as` | const | `node_modules/effect/dist/Option.d.ts:1588` | Replaces the value inside a `Some` with a constant, leaving `None` unchanged. |
-| `@beep/utils/Option` | `asVoid` | const | `node_modules/effect/dist/Option.d.ts:1682` | Replaces the value inside a `Some` with `void` (`undefined`), leaving `None` |
-| `@beep/utils/Option` | `bind` | const | `node_modules/effect/dist/Option.d.ts:4285` | Adds an `Option` value to the do notation record under a given name. If the |
-| `@beep/utils/Option` | `bindTo` | const | `node_modules/effect/dist/Option.d.ts:4147` | Gives a name to the value of an `Option`, creating a single-key record |
-| `@beep/utils/Option` | `composeK` | const | `node_modules/effect/dist/Option.d.ts:2600` | Composes two `Option`-returning functions into a single function that chains |
-| `@beep/utils/Option` | `contains` | const | `node_modules/effect/dist/Option.d.ts:3854` | Checks if an `Option` contains a value equal to the given one, using default |
-| `@beep/utils/Option` | `containsWith` | const | `node_modules/effect/dist/Option.d.ts:3816` | Checks if an `Option` contains a value equivalent to the given one, using a |
-| `@beep/utils/Option` | `Do` | const | `node_modules/effect/dist/Option.d.ts:4386` | An `Option` containing an empty record `{}`, used as the starting point for |
-| `@beep/utils/Option` | `exists` | const | `node_modules/effect/dist/Option.d.ts:3963` | Tests if the value in a `Some` satisfies a predicate or refinement. |
-| `@beep/utils/Option` | `filter` | const | `node_modules/effect/dist/Option.d.ts:3365` | Filters an `Option` using a predicate. Returns `None` if the predicate is |
-| `@beep/utils/Option` | `filterMap` | const | `node_modules/effect/dist/Option.d.ts:3273` | Transforms and filters an `Option` using a `Filter` callback. |
-| `@beep/utils/Option` | `firstSomeOf` | const | `node_modules/effect/dist/Option.d.ts:1087` | Returns the first `Some` found in an iterable of `Option`s, or `None` if |
-| `@beep/utils/Option` | `flatMap` | const | `node_modules/effect/dist/Option.d.ts:1752` | Applies a function that returns an `Option` to the value of a `Some`, |
-| `@beep/utils/Option` | `flatMapNullishOr` | const | `node_modules/effect/dist/Option.d.ts:2257` | Combines {@link flatMap} with {@link fromNullishOr}: applies a function that |
-| `@beep/utils/Option` | `flatten` | const | `node_modules/effect/dist/Option.d.ts:2373` | Flattens a nested `Option<Option<A>>` into `Option<A>`. |
-| `@beep/utils/Option` | `fromIterable` | const | `node_modules/effect/dist/Option.d.ts:601` | Wraps the first element of an `Iterable` in a `Some`, or returns `None` if |
-| `@beep/utils/Option` | `fromNullishOr` | const | `node_modules/effect/dist/Option.d.ts:1123` | Converts a nullable value (`null` or `undefined`) into an `Option`. |
-| `@beep/utils/Option` | `fromNullOr` | const | `node_modules/effect/dist/Option.d.ts:1193` | Converts a possibly `null` value into an `Option`, leaving `undefined` |
-| `@beep/utils/Option` | `fromUndefinedOr` | const | `node_modules/effect/dist/Option.d.ts:1158` | Converts a possibly `undefined` value into an `Option`, leaving `null` |
-| `@beep/utils/Option` | `gen` | const | `node_modules/effect/dist/Option.d.ts:4426` | Generator-based syntax for `Option`, similar to `async`/`await` but for |
-| `@beep/utils/Option` | `getFailure` | const | `node_modules/effect/dist/Option.d.ts:661` | Converts a `Result` into an `Option`, keeping only the error value. |
-| `@beep/utils/Option` | `getOrElse` | const | `node_modules/effect/dist/Option.d.ts:695` | Extracts the value from a `Some`, or evaluates a fallback thunk on `None`. |
-| `@beep/utils/Option` | `getOrNull` | const | `node_modules/effect/dist/Option.d.ts:1263` | Extracts the value from a `Some`, or returns `null` for `None`. |
-| `@beep/utils/Option` | `getOrThrow` | const | `node_modules/effect/dist/Option.d.ts:1454` | Extracts the value from a `Some`, or throws a default `Error` for `None`. |
-| `@beep/utils/Option` | `getOrThrowWith` | const | `node_modules/effect/dist/Option.d.ts:1358` | Extracts the value from a `Some`, or throws a custom error for `None`. |
-| `@beep/utils/Option` | `getOrUndefined` | const | `node_modules/effect/dist/Option.d.ts:1294` | Extracts the value from a `Some`, or returns `undefined` for `None`. |
-| `@beep/utils/Option` | `getSuccess` | const | `node_modules/effect/dist/Option.d.ts:631` | Converts a `Result` into an `Option`, keeping only the success value. |
-| `@beep/utils/Option` | `isNone` | const | `node_modules/effect/dist/Option.d.ts:390` | Checks whether an `Option` is `None` (absent). |
-| `@beep/utils/Option` | `isOption` | const | `node_modules/effect/dist/Option.d.ts:361` | Determines whether the given value is an `Option`. |
-| `@beep/utils/Option` | `isSome` | const | `node_modules/effect/dist/Option.d.ts:419` | Checks whether an `Option` contains a value (`Some`). |
-| `@beep/utils/Option` | `let` | const | `node_modules/effect/dist/Option.d.ts:4215` |  |
-| `@beep/utils/Option` | `lift2` | const | `node_modules/effect/dist/Option.d.ts:3631` | Lifts a binary function to operate on two `Option` values. |
-| `@beep/utils/Option` | `liftNullishOr` | const | `node_modules/effect/dist/Option.d.ts:1232` | Lifts a function that may return `null` or `undefined` into one that returns |
-| `@beep/utils/Option` | `liftPredicate` | const | `node_modules/effect/dist/Option.d.ts:3670` | Lifts a `Predicate` or `Refinement` into the `Option` context: returns |
-| `@beep/utils/Option` | `liftThrowable` | const | `node_modules/effect/dist/Option.d.ts:1326` | Lifts a function that may throw into one that returns an `Option`. |
-| `@beep/utils/Option` | `makeCombinerFailFast` | function | `node_modules/effect/dist/Option.d.ts:4490` | Creates a `Combiner` for `Option<A>` with fail-fast semantics: returns `None` |
-| `@beep/utils/Option` | `makeEquivalence` | const | `node_modules/effect/dist/Option.d.ts:3564` | Creates an `Equivalence` for `Option<A>` from an `Equivalence` for `A`. |
-| `@beep/utils/Option` | `makeOrder` | const | `node_modules/effect/dist/Option.d.ts:3599` | Creates an `Order` for `Option<A>` from an `Order` for `A`. |
-| `@beep/utils/Option` | `makeReducer` | function | `node_modules/effect/dist/Option.d.ts:4458` | Creates a `Reducer` for `Option<A>` that prioritizes the first non-`None` |
-| `@beep/utils/Option` | `makeReducerFailFast` | function | `node_modules/effect/dist/Option.d.ts:4524` | Creates a `Reducer` for `Option<A>` by lifting an existing `Reducer` with |
-| `@beep/utils/Option` | `map` | const | `node_modules/effect/dist/Option.d.ts:1488` | Transforms the value inside a `Some` using the provided function, leaving |
-| `@beep/utils/Option` | `match` | const | `node_modules/effect/dist/Option.d.ts:453` | Pattern-matches on an `Option`, handling both `None` and `Some` cases. |
-| `@beep/utils/Option` | `none` | const | `node_modules/effect/dist/Option.d.ts:294` | Creates an `Option` representing the absence of a value. |
-| `@beep/utils/Option` | `None` | interface | `node_modules/effect/dist/Option.d.ts:143` | Represents the absence of a value within an {@link Option}. |
-| `@beep/utils/Option` | `Option` | namespace | `node_modules/effect/dist/Option.d.ts:225` | Namespace containing utility types for `Option`. |
-| `@beep/utils/Option` | `Option` | type | `node_modules/effect/dist/Option.d.ts:124` | The `Option` data type represents optional values. An `Option<A>` is either |
-| `@beep/utils/Option` | `OptionIterator` | interface | `node_modules/effect/dist/Option.d.ts:159` |  |
-| `@beep/utils/Option` | `OptionTypeLambda` | interface | `node_modules/effect/dist/Option.d.ts:260` | Type lambda interface for higher-kinded type encodings with `Option`. |
-| `@beep/utils/Option` | `OptionUnify` | interface | `node_modules/effect/dist/Option.d.ts:202` | Internal unification interface for `Option` types. Used by the Effect |
-| `@beep/utils/Option` | `OptionUnifyIgnore` | interface | `node_modules/effect/dist/Option.d.ts:252` | Internal interface for type unification ignore behavior. |
-| `@beep/utils/Option` | `orElse` | const | `node_modules/effect/dist/Option.d.ts:797` | Returns the fallback `Option` if `self` is `None`; otherwise returns `self`. |
-| `@beep/utils/Option` | `orElseResult` | const | `node_modules/effect/dist/Option.d.ts:990` | Like {@link orElse}, but wraps the result in a `Result` to indicate the |
-| `@beep/utils/Option` | `orElseSome` | const | `node_modules/effect/dist/Option.d.ts:895` | Returns `Some` of the fallback value if `self` is `None`; otherwise returns |
-| `@beep/utils/Option` | `partitionMap` | const | `node_modules/effect/dist/Option.d.ts:3169` | Splits an `Option` into two `Option`s using a function that returns a `Result`. |
-| `@beep/utils/Option` | `product` | const | `node_modules/effect/dist/Option.d.ts:2823` | Combines two `Option`s into a `Some` containing a tuple `[A, B]` if both |
-| `@beep/utils/Option` | `productMany` | const | `node_modules/effect/dist/Option.d.ts:2858` | Combines a primary `Option` with an iterable of `Option`s into a tuple if |
+| `@beep/utils/Number` | `max` | const | `node_modules/effect/dist/Number.d.ts:806` | Returns the maximum between two `number`s. |
+| `@beep/utils/Number` | `min` | const | `node_modules/effect/dist/Number.d.ts:757` | Returns the minimum between two `number`s. |
+| `@beep/utils/Number` | `multiply` | const | `node_modules/effect/dist/Number.d.ts:112` | Provides a multiplication operation on `number`s. |
+| `@beep/utils/Number` | `multiplyAll` | const | `node_modules/effect/dist/Number.d.ts:889` | Takes an `Iterable` of `number`s and returns their multiplication as a single `number`. |
+| `@beep/utils/Number` | `nextPow2` | const | `node_modules/effect/dist/Number.d.ts:967` | Returns the next power of 2 from the given number. |
+| `@beep/utils/Number` | `Number` | const | `node_modules/effect/dist/Number.d.ts:30` | The global `Number` constructor. |
+| `@beep/utils/Number` | `Order` | const | `node_modules/effect/dist/Number.d.ts:356` | An `Order` instance for `number` values. |
+| `@beep/utils/Number` | `parse` | const | `node_modules/effect/dist/Number.d.ts:988` | Tries to parse a `number` from a `string` using the `Number()` function. |
+| `@beep/utils/Number` | `ReducerMax` | const | `node_modules/effect/dist/Number.d.ts:1061` | A `Reducer` for reducing `number`s by keeping the maximum value. |
+| `@beep/utils/Number` | `ReducerMin` | const | `node_modules/effect/dist/Number.d.ts:1068` | A `Reducer` for reducing `number`s by keeping the minimum value. |
+| `@beep/utils/Number` | `ReducerMultiply` | const | `node_modules/effect/dist/Number.d.ts:1054` | A `Reducer` for combining `number`s using multiplication. |
+| `@beep/utils/Number` | `ReducerSum` | const | `node_modules/effect/dist/Number.d.ts:1047` | A `Reducer` for combining `number`s using addition. |
+| `@beep/utils/Number` | `remainder` | const | `node_modules/effect/dist/Number.d.ts:909` | Returns the remainder left over when one operand is divided by a second operand. |
+| `@beep/utils/Number` | `round` | const | `node_modules/effect/dist/Number.d.ts:1005` | Returns the number rounded with the given precision. |
+| `@beep/utils/Number` | `sign` | const | `node_modules/effect/dist/Number.d.ts:857` | Determines the sign of a given `number`. |
+| `@beep/utils/Number` | `subtract` | const | `node_modules/effect/dist/Number.d.ts:161` | Provides a subtraction operation on `number`s. |
+| `@beep/utils/Number` | `sum` | const | `node_modules/effect/dist/Number.d.ts:63` | Provides an addition operation on `number`s. |
+| `@beep/utils/Number` | `sumAll` | const | `node_modules/effect/dist/Number.d.ts:873` | Takes an `Iterable` of `number`s and returns their sum as a single `number`. |
+| `@beep/utils/Option` | `all` | const | `node_modules/effect/dist/Option.d.ts:2882` | Combines a structure of `Option`s (tuple, struct, or iterable) into a single |
+| `@beep/utils/Option` | `andThen` | const | `node_modules/effect/dist/Option.d.ts:1864` | Chains a second computation onto an `Option`. The second value can be a |
+| `@beep/utils/Option` | `as` | const | `node_modules/effect/dist/Option.d.ts:1566` | Replaces the value inside a `Some` with a constant, leaving `None` unchanged. |
+| `@beep/utils/Option` | `asVoid` | const | `node_modules/effect/dist/Option.d.ts:1660` | Replaces the value inside a `Some` with `void` (`undefined`), leaving `None` |
+| `@beep/utils/Option` | `bind` | const | `node_modules/effect/dist/Option.d.ts:4259` | Adds an `Option` value to the do notation record under a given name. If the |
+| `@beep/utils/Option` | `bindTo` | const | `node_modules/effect/dist/Option.d.ts:4121` | Gives a name to the value of an `Option`, creating a single-key record |
+| `@beep/utils/Option` | `composeK` | const | `node_modules/effect/dist/Option.d.ts:2578` | Composes two `Option`-returning functions into a single function that chains |
+| `@beep/utils/Option` | `contains` | const | `node_modules/effect/dist/Option.d.ts:3828` | Checks if an `Option` contains a value equal to the given one, using default |
+| `@beep/utils/Option` | `containsWith` | const | `node_modules/effect/dist/Option.d.ts:3790` | Checks if an `Option` contains a value equivalent to the given one, using a |
+| `@beep/utils/Option` | `Do` | const | `node_modules/effect/dist/Option.d.ts:4360` | An `Option` containing an empty record `{}`, used as the starting point for |
+| `@beep/utils/Option` | `exists` | const | `node_modules/effect/dist/Option.d.ts:3937` | Tests if the value in a `Some` satisfies a predicate or refinement. |
+| `@beep/utils/Option` | `filter` | const | `node_modules/effect/dist/Option.d.ts:3340` | Filters an `Option` using a predicate. Returns `None` if the predicate is |
+| `@beep/utils/Option` | `filterMap` | const | `node_modules/effect/dist/Option.d.ts:3250` | Transforms and filters an `Option` using a `Filter` callback. |
+| `@beep/utils/Option` | `firstSomeOf` | const | `node_modules/effect/dist/Option.d.ts:1065` | Returns the first `Some` found in an iterable of `Option`s, or `None` if |
+| `@beep/utils/Option` | `flatMap` | const | `node_modules/effect/dist/Option.d.ts:1730` | Applies a function that returns an `Option` to the value of a `Some`, |
+| `@beep/utils/Option` | `flatMapNullishOr` | const | `node_modules/effect/dist/Option.d.ts:2235` | Combines {@link flatMap} with {@link fromNullishOr}: applies a function that |
+| `@beep/utils/Option` | `flatten` | const | `node_modules/effect/dist/Option.d.ts:2351` | Flattens a nested `Option<Option<A>>` into `Option<A>`. |
+| `@beep/utils/Option` | `fromIterable` | const | `node_modules/effect/dist/Option.d.ts:579` | Wraps the first element of an `Iterable` in a `Some`, or returns `None` if |
+| `@beep/utils/Option` | `fromNullishOr` | const | `node_modules/effect/dist/Option.d.ts:1101` | Converts a nullable value (`null` or `undefined`) into an `Option`. |
+| `@beep/utils/Option` | `fromNullOr` | const | `node_modules/effect/dist/Option.d.ts:1171` | Converts a possibly `null` value into an `Option`, leaving `undefined` |
+| `@beep/utils/Option` | `fromUndefinedOr` | const | `node_modules/effect/dist/Option.d.ts:1136` | Converts a possibly `undefined` value into an `Option`, leaving `null` |
+| `@beep/utils/Option` | `gen` | const | `node_modules/effect/dist/Option.d.ts:4400` | Generator-based syntax for `Option`, similar to `async`/`await` but for |
+| `@beep/utils/Option` | `getFailure` | const | `node_modules/effect/dist/Option.d.ts:639` | Converts a `Result` into an `Option`, keeping only the failure value. |
+| `@beep/utils/Option` | `getOrElse` | const | `node_modules/effect/dist/Option.d.ts:673` | Extracts the value from a `Some`, or evaluates a fallback thunk on `None`. |
+| `@beep/utils/Option` | `getOrNull` | const | `node_modules/effect/dist/Option.d.ts:1241` | Extracts the value from a `Some`, or returns `null` for `None`. |
+| `@beep/utils/Option` | `getOrThrow` | const | `node_modules/effect/dist/Option.d.ts:1432` | Extracts the value from a `Some`, or throws a default `Error` for `None`. |
+| `@beep/utils/Option` | `getOrThrowWith` | const | `node_modules/effect/dist/Option.d.ts:1336` | Extracts the value from a `Some`, or throws a custom error for `None`. |
+| `@beep/utils/Option` | `getOrUndefined` | const | `node_modules/effect/dist/Option.d.ts:1272` | Extracts the value from a `Some`, or returns `undefined` for `None`. |
+| `@beep/utils/Option` | `getSuccess` | const | `node_modules/effect/dist/Option.d.ts:609` | Converts a `Result` into an `Option`, keeping only the success value. |
+| `@beep/utils/Option` | `isNone` | const | `node_modules/effect/dist/Option.d.ts:368` | Checks whether an `Option` is `None` (absent). |
+| `@beep/utils/Option` | `isOption` | const | `node_modules/effect/dist/Option.d.ts:339` | Determines whether the given value is an `Option`. |
+| `@beep/utils/Option` | `isSome` | const | `node_modules/effect/dist/Option.d.ts:397` | Checks whether an `Option` contains a value (`Some`). |
+| `@beep/utils/Option` | `let` | const | `node_modules/effect/dist/Option.d.ts:4189` |  |
+| `@beep/utils/Option` | `lift2` | const | `node_modules/effect/dist/Option.d.ts:3605` | Lifts a binary function to operate on two `Option` values. |
+| `@beep/utils/Option` | `liftNullishOr` | const | `node_modules/effect/dist/Option.d.ts:1210` | Lifts a function that may return `null` or `undefined` into one that returns |
+| `@beep/utils/Option` | `liftPredicate` | const | `node_modules/effect/dist/Option.d.ts:3644` | Lifts a `Predicate` or `Refinement` into the `Option` context: returns |
+| `@beep/utils/Option` | `liftThrowable` | const | `node_modules/effect/dist/Option.d.ts:1304` | Lifts a function that may throw into one that returns an `Option`. |
+| `@beep/utils/Option` | `makeCombinerFailFast` | function | `node_modules/effect/dist/Option.d.ts:4466` | Creates a `Combiner` for `Option<A>` with fail-fast semantics: returns `None` |
+| `@beep/utils/Option` | `makeEquivalence` | const | `node_modules/effect/dist/Option.d.ts:3539` | Creates an `Equivalence` for `Option<A>` from an `Equivalence` for `A`. |
+| `@beep/utils/Option` | `makeOrder` | const | `node_modules/effect/dist/Option.d.ts:3573` | Creates an `Order` for `Option<A>` from an `Order` for `A`. |
+| `@beep/utils/Option` | `makeReducer` | function | `node_modules/effect/dist/Option.d.ts:4433` | Creates a `Reducer` for `Option<A>` that prioritizes the first non-`None` |
+| `@beep/utils/Option` | `makeReducerFailFast` | function | `node_modules/effect/dist/Option.d.ts:4501` | Creates a `Reducer` for `Option<A>` by lifting an existing `Reducer` with |
+| `@beep/utils/Option` | `map` | const | `node_modules/effect/dist/Option.d.ts:1466` | Transforms the value inside a `Some` using the provided function, leaving |
+| `@beep/utils/Option` | `match` | const | `node_modules/effect/dist/Option.d.ts:431` | Pattern-matches on an `Option`, handling both `None` and `Some` cases. |
+| `@beep/utils/Option` | `none` | const | `node_modules/effect/dist/Option.d.ts:272` | Creates an `Option` representing the absence of a value. |
+| `@beep/utils/Option` | `None` | interface | `node_modules/effect/dist/Option.d.ts:125` | Represents the absence of a value within an {@link Option}. |
+| `@beep/utils/Option` | `Option` | namespace | `node_modules/effect/dist/Option.d.ts:200` | Namespace containing utility types for `Option`. |
+| `@beep/utils/Option` | `Option` | type | `node_modules/effect/dist/Option.d.ts:106` | The `Option` data type represents optional values. An `Option<A>` is either |
+| `@beep/utils/Option` | `OptionIterator` | interface | `node_modules/effect/dist/Option.d.ts:144` | Iterator protocol used to yield an `Option` inside {@link gen}, returning the |
+| `@beep/utils/Option` | `OptionTypeLambda` | interface | `node_modules/effect/dist/Option.d.ts:238` | Type lambda interface for higher-kinded type encodings with `Option`. |
+| `@beep/utils/Option` | `OptionUnify` | interface | `node_modules/effect/dist/Option.d.ts:190` | Type-level unification support for `Option` values. |
+| `@beep/utils/Option` | `OptionUnifyIgnore` | interface | `node_modules/effect/dist/Option.d.ts:230` | Marker interface used by Effect's `Unify` machinery for `Option` values. |
+| `@beep/utils/Option` | `orElse` | const | `node_modules/effect/dist/Option.d.ts:775` | Returns the fallback `Option` if `self` is `None`; otherwise returns `self`. |
+| `@beep/utils/Option` | `orElseResult` | const | `node_modules/effect/dist/Option.d.ts:968` | Like {@link orElse}, but wraps the result in a `Result` to indicate the |
+| `@beep/utils/Option` | `orElseSome` | const | `node_modules/effect/dist/Option.d.ts:873` | Returns `Some` of the fallback value if `self` is `None`; otherwise returns |
+| `@beep/utils/Option` | `partitionMap` | const | `node_modules/effect/dist/Option.d.ts:3147` | Splits an `Option` into two `Option`s using a function that returns a `Result`. |
+| `@beep/utils/Option` | `product` | const | `node_modules/effect/dist/Option.d.ts:2801` | Combines two `Option`s into a `Some` containing a tuple `[A, B]` if both |
+| `@beep/utils/Option` | `productMany` | const | `node_modules/effect/dist/Option.d.ts:2836` | Combines a primary `Option` with an iterable of `Option`s into a tuple if |
 | `@beep/utils/Option` | `propFromNullishOr` | const | `packages/foundation/modeling/utils/src/Option.ts:51` | Retrieves a value from a struct by path and converts missing or nullish |
-| `@beep/utils/Option` | `reduceCompact` | const | `node_modules/effect/dist/Option.d.ts:3042` | Reduces an iterable of `Option`s to a single value, skipping `None` entries. |
-| `@beep/utils/Option` | `some` | const | `node_modules/effect/dist/Option.d.ts:326` | Wraps the given value into an `Option` to represent its presence. |
-| `@beep/utils/Option` | `Some` | interface | `node_modules/effect/dist/Option.d.ts:182` | Represents the presence of a value within an {@link Option}. |
-| `@beep/utils/Option` | `tap` | const | `node_modules/effect/dist/Option.d.ts:2716` | Runs a side-effecting `Option`-returning function on the value of a `Some`, |
-| `@beep/utils/Option` | `toArray` | const | `node_modules/effect/dist/Option.d.ts:3130` | Converts an `Option` into an `Array`. |
-| `@beep/utils/Option` | `toRefinement` | const | `node_modules/effect/dist/Option.d.ts:569` | Converts an `Option`-returning function into a type guard (refinement). |
-| `@beep/utils/Option` | `void` | const | `node_modules/effect/dist/Option.d.ts:1683` |  |
-| `@beep/utils/Option` | `zipLeft` | const | `node_modules/effect/dist/Option.d.ts:2498` | Sequences two `Option`s, keeping the value from the first if both are `Some`. |
-| `@beep/utils/Option` | `zipRight` | const | `node_modules/effect/dist/Option.d.ts:2404` | Sequences two `Option`s, keeping the value from the second if both are `Some`. |
-| `@beep/utils/Option` | `zipWith` | const | `node_modules/effect/dist/Option.d.ts:2943` | Combines two `Option`s using a provided function. |
-| `@beep/utils/Predicate` | `and` | const | `node_modules/effect/dist/Predicate.d.ts:1929` | Creates a predicate that returns `true` only if both predicates are `true`. |
-| `@beep/utils/Predicate` | `compose` | const | `node_modules/effect/dist/Predicate.d.ts:1530` | Composes two predicates or refinements into one. |
-| `@beep/utils/Predicate` | `eqv` | const | `node_modules/effect/dist/Predicate.d.ts:2186` | Creates a predicate that returns `true` when both predicates agree. |
-| `@beep/utils/Predicate` | `every` | function | `node_modules/effect/dist/Predicate.d.ts:2514` | Creates a predicate that returns `true` if all predicates in the collection return `true`. |
+| `@beep/utils/Option` | `reduceCompact` | const | `node_modules/effect/dist/Option.d.ts:3020` | Reduces an iterable of `Option`s to a single value, skipping `None` entries. |
+| `@beep/utils/Option` | `some` | const | `node_modules/effect/dist/Option.d.ts:304` | Wraps the given value into an `Option` to represent its presence. |
+| `@beep/utils/Option` | `Some` | interface | `node_modules/effect/dist/Option.d.ts:167` | Represents the presence of a value within an {@link Option}. |
+| `@beep/utils/Option` | `tap` | const | `node_modules/effect/dist/Option.d.ts:2694` | Runs a side-effecting `Option`-returning function on the value of a `Some`, |
+| `@beep/utils/Option` | `toArray` | const | `node_modules/effect/dist/Option.d.ts:3108` | Converts an `Option` into an `Array`. |
+| `@beep/utils/Option` | `toRefinement` | const | `node_modules/effect/dist/Option.d.ts:547` | Converts an `Option`-returning function into a type guard (refinement). |
+| `@beep/utils/Option` | `void` | const | `node_modules/effect/dist/Option.d.ts:1661` |  |
+| `@beep/utils/Option` | `zipLeft` | const | `node_modules/effect/dist/Option.d.ts:2476` | Sequences two `Option`s, keeping the value from the first if both are `Some`. |
+| `@beep/utils/Option` | `zipRight` | const | `node_modules/effect/dist/Option.d.ts:2382` | Sequences two `Option`s, keeping the value from the second if both are `Some`. |
+| `@beep/utils/Option` | `zipWith` | const | `node_modules/effect/dist/Option.d.ts:2921` | Combines two `Option`s using a provided function. |
+| `@beep/utils/Predicate` | `and` | const | `node_modules/effect/dist/Predicate.d.ts:1922` | Creates a predicate that returns `true` only if both predicates are `true`. |
+| `@beep/utils/Predicate` | `compose` | const | `node_modules/effect/dist/Predicate.d.ts:1523` | Composes two predicates or refinements into one. |
+| `@beep/utils/Predicate` | `eqv` | const | `node_modules/effect/dist/Predicate.d.ts:2179` | Creates a predicate that returns `true` when both predicates agree. |
+| `@beep/utils/Predicate` | `every` | function | `node_modules/effect/dist/Predicate.d.ts:2507` | Creates a predicate that returns `true` if all predicates in the collection return `true`. |
 | `@beep/utils/Predicate` | `hasProperties` | const | `packages/foundation/modeling/utils/src/Predicate.ts:54` | Returns a predicate that succeeds when an unknown value is an object with all |
-| `@beep/utils/Predicate` | `hasProperty` | const | `node_modules/effect/dist/Predicate.d.ts:1163` | Checks whether a value has a given property key. |
-| `@beep/utils/Predicate` | `implies` | const | `node_modules/effect/dist/Predicate.d.ts:2270` | Creates a predicate representing logical implication: if `antecedent`, then `consequent`. |
-| `@beep/utils/Predicate` | `isBigInt` | function | `node_modules/effect/dist/Predicate.d.ts:732` | Checks whether a value is a `bigint`. |
-| `@beep/utils/Predicate` | `isBoolean` | function | `node_modules/effect/dist/Predicate.d.ts:704` | Checks whether a value is a `boolean`. |
-| `@beep/utils/Predicate` | `isDate` | function | `node_modules/effect/dist/Predicate.d.ts:1394` | Checks whether a value is a `Date`. |
-| `@beep/utils/Predicate` | `isError` | function | `node_modules/effect/dist/Predicate.d.ts:1342` | Checks whether a value is an `Error`. |
-| `@beep/utils/Predicate` | `isFunction` | function | `node_modules/effect/dist/Predicate.d.ts:817` | Checks whether a value is a `function`. |
-| `@beep/utils/Predicate` | `isIterable` | function | `node_modules/effect/dist/Predicate.d.ts:1421` | Checks whether a value is iterable. |
-| `@beep/utils/Predicate` | `isMap` | function | `node_modules/effect/dist/Predicate.d.ts:618` | Checks whether a value is a `Map`. |
-| `@beep/utils/Predicate` | `isNever` | function | `node_modules/effect/dist/Predicate.d.ts:1001` | A guard that always returns `false`. |
-| `@beep/utils/Predicate` | `isNotNull` | function | `node_modules/effect/dist/Predicate.d.ts:923` | Checks whether a value is not `null`. |
-| `@beep/utils/Predicate` | `isNotNullish` | function | `node_modules/effect/dist/Predicate.d.ts:977` | Checks whether a value is not `null` and not `undefined`. |
-| `@beep/utils/Predicate` | `isNotUndefined` | function | `node_modules/effect/dist/Predicate.d.ts:870` | Checks whether a value is not `undefined`. |
-| `@beep/utils/Predicate` | `isNull` | function | `node_modules/effect/dist/Predicate.d.ts:896` | Checks whether a value is `null`. |
-| `@beep/utils/Predicate` | `isNullish` | function | `node_modules/effect/dist/Predicate.d.ts:950` | Checks whether a value is `null` or `undefined`. |
-| `@beep/utils/Predicate` | `isNumber` | function | `node_modules/effect/dist/Predicate.d.ts:676` | Checks whether a value is a `number`. |
-| `@beep/utils/Predicate` | `isObject` | function | `node_modules/effect/dist/Predicate.d.ts:1077` | Checks whether a value is a plain object (not an array, not `null`). |
-| `@beep/utils/Predicate` | `isObjectKeyword` | function | `node_modules/effect/dist/Predicate.d.ts:1132` | Checks whether a value is an `object` in the JavaScript sense (objects, arrays, functions). |
-| `@beep/utils/Predicate` | `isObjectOrArray` | function | `node_modules/effect/dist/Predicate.d.ts:1050` | Checks whether a value is an object or an array (non-null object). |
-| `@beep/utils/Predicate` | `isPromise` | function | `node_modules/effect/dist/Predicate.d.ts:1447` | Checks whether a value is a `Promise`-like object with `then` and `catch`. |
-| `@beep/utils/Predicate` | `isPromiseLike` | function | `node_modules/effect/dist/Predicate.d.ts:1473` | Checks whether a value is `PromiseLike` (has a `then` method). |
-| `@beep/utils/Predicate` | `isPropertyKey` | function | `node_modules/effect/dist/Predicate.d.ts:789` | Checks whether a value is a valid `PropertyKey` (string, number, or symbol). |
-| `@beep/utils/Predicate` | `isReadonlyObject` | function | `node_modules/effect/dist/Predicate.d.ts:1105` | Checks whether a value is a readonly object. |
-| `@beep/utils/Predicate` | `isRegExp` | function | `node_modules/effect/dist/Predicate.d.ts:1499` | Checks whether a value is a `RegExp`. |
-| `@beep/utils/Predicate` | `isSet` | function | `node_modules/effect/dist/Predicate.d.ts:590` | Checks whether a value is a `Set`. |
-| `@beep/utils/Predicate` | `isString` | function | `node_modules/effect/dist/Predicate.d.ts:647` | Checks whether a value is a `string`. |
-| `@beep/utils/Predicate` | `isSymbol` | function | `node_modules/effect/dist/Predicate.d.ts:760` | Checks whether a value is a `symbol`. |
-| `@beep/utils/Predicate` | `isTagged` | const | `node_modules/effect/dist/Predicate.d.ts:1257` | Checks whether a value has a `_tag` property equal to the given tag. |
-| `@beep/utils/Predicate` | `isTruthy` | function | `node_modules/effect/dist/Predicate.d.ts:562` | Checks whether a value is truthy. |
-| `@beep/utils/Predicate` | `isTupleOf` | const | `node_modules/effect/dist/Predicate.d.ts:391` | Checks whether a readonly array has exactly `n` elements. |
-| `@beep/utils/Predicate` | `isTupleOfAtLeast` | const | `node_modules/effect/dist/Predicate.d.ts:476` | Checks whether a readonly array has at least `n` elements. |
-| `@beep/utils/Predicate` | `isUint8Array` | function | `node_modules/effect/dist/Predicate.d.ts:1368` | Checks whether a value is a `Uint8Array`. |
-| `@beep/utils/Predicate` | `isUndefined` | function | `node_modules/effect/dist/Predicate.d.ts:843` | Checks whether a value is `undefined`. |
-| `@beep/utils/Predicate` | `isUnknown` | function | `node_modules/effect/dist/Predicate.d.ts:1025` | A guard that always returns `true`. |
-| `@beep/utils/Predicate` | `mapInput` | const | `node_modules/effect/dist/Predicate.d.ts:302` | Transforms the input of a predicate using a mapping function. |
-| `@beep/utils/Predicate` | `nand` | const | `node_modules/effect/dist/Predicate.d.ts:2434` | Creates a predicate that returns `true` unless both predicates are `true`. |
-| `@beep/utils/Predicate` | `nor` | const | `node_modules/effect/dist/Predicate.d.ts:2355` | Creates a predicate that returns `true` when neither predicate is `true`. |
-| `@beep/utils/Predicate` | `not` | function | `node_modules/effect/dist/Predicate.d.ts:1752` | Negates a predicate. |
-| `@beep/utils/Predicate` | `or` | const | `node_modules/effect/dist/Predicate.d.ts:1780` | Creates a predicate that returns `true` if either predicate is `true`. |
+| `@beep/utils/Predicate` | `hasProperty` | const | `node_modules/effect/dist/Predicate.d.ts:1156` | Checks whether a value has a given property key. |
+| `@beep/utils/Predicate` | `implies` | const | `node_modules/effect/dist/Predicate.d.ts:2263` | Creates a predicate representing logical implication: if `antecedent`, then `consequent`. |
+| `@beep/utils/Predicate` | `isBigInt` | function | `node_modules/effect/dist/Predicate.d.ts:730` | Checks whether a value is a `bigint`. |
+| `@beep/utils/Predicate` | `isBoolean` | function | `node_modules/effect/dist/Predicate.d.ts:702` | Checks whether a value is a `boolean`. |
+| `@beep/utils/Predicate` | `isDate` | function | `node_modules/effect/dist/Predicate.d.ts:1387` | Checks whether a value is a `Date`. |
+| `@beep/utils/Predicate` | `isError` | function | `node_modules/effect/dist/Predicate.d.ts:1335` | Checks whether a value is an `Error`. |
+| `@beep/utils/Predicate` | `isFunction` | function | `node_modules/effect/dist/Predicate.d.ts:815` | Checks whether a value is a `function`. |
+| `@beep/utils/Predicate` | `isIterable` | function | `node_modules/effect/dist/Predicate.d.ts:1414` | Checks whether a value is iterable. |
+| `@beep/utils/Predicate` | `isMap` | function | `node_modules/effect/dist/Predicate.d.ts:616` | Checks whether a value is a `Map`. |
+| `@beep/utils/Predicate` | `isNever` | function | `node_modules/effect/dist/Predicate.d.ts:999` | A guard that always returns `false`. |
+| `@beep/utils/Predicate` | `isNotNull` | function | `node_modules/effect/dist/Predicate.d.ts:921` | Checks whether a value is not `null`. |
+| `@beep/utils/Predicate` | `isNotNullish` | function | `node_modules/effect/dist/Predicate.d.ts:975` | Checks whether a value is not `null` and not `undefined`. |
+| `@beep/utils/Predicate` | `isNotUndefined` | function | `node_modules/effect/dist/Predicate.d.ts:868` | Checks whether a value is not `undefined`. |
+| `@beep/utils/Predicate` | `isNull` | function | `node_modules/effect/dist/Predicate.d.ts:894` | Checks whether a value is `null`. |
+| `@beep/utils/Predicate` | `isNullish` | function | `node_modules/effect/dist/Predicate.d.ts:948` | Checks whether a value is `null` or `undefined`. |
+| `@beep/utils/Predicate` | `isNumber` | function | `node_modules/effect/dist/Predicate.d.ts:674` | Checks whether a value is a `number`. |
+| `@beep/utils/Predicate` | `isObject` | function | `node_modules/effect/dist/Predicate.d.ts:1072` | Checks whether a value is a non-null object value that is not an array. |
+| `@beep/utils/Predicate` | `isObjectKeyword` | function | `node_modules/effect/dist/Predicate.d.ts:1125` | Checks whether a value is an `object` in the JavaScript sense (objects, arrays, functions). |
+| `@beep/utils/Predicate` | `isObjectOrArray` | function | `node_modules/effect/dist/Predicate.d.ts:1048` | Checks whether a value is an object or an array (non-null object). |
+| `@beep/utils/Predicate` | `isPromise` | function | `node_modules/effect/dist/Predicate.d.ts:1440` | Checks whether a value is a `Promise`-like object with `then` and `catch`. |
+| `@beep/utils/Predicate` | `isPromiseLike` | function | `node_modules/effect/dist/Predicate.d.ts:1466` | Checks whether a value is `PromiseLike` (has a `then` method). |
+| `@beep/utils/Predicate` | `isPropertyKey` | function | `node_modules/effect/dist/Predicate.d.ts:787` | Checks whether a value is a valid `PropertyKey` (string, number, or symbol). |
+| `@beep/utils/Predicate` | `isReadonlyObject` | function | `node_modules/effect/dist/Predicate.d.ts:1098` | Checks whether a value is a non-null, non-array object and narrows it to a |
+| `@beep/utils/Predicate` | `isRegExp` | function | `node_modules/effect/dist/Predicate.d.ts:1492` | Checks whether a value is a `RegExp`. |
+| `@beep/utils/Predicate` | `isSet` | function | `node_modules/effect/dist/Predicate.d.ts:588` | Checks whether a value is a `Set`. |
+| `@beep/utils/Predicate` | `isString` | function | `node_modules/effect/dist/Predicate.d.ts:645` | Checks whether a value is a `string`. |
+| `@beep/utils/Predicate` | `isSymbol` | function | `node_modules/effect/dist/Predicate.d.ts:758` | Checks whether a value is a `symbol`. |
+| `@beep/utils/Predicate` | `isTagged` | const | `node_modules/effect/dist/Predicate.d.ts:1250` | Checks whether a value has a `_tag` property equal to the given tag. |
+| `@beep/utils/Predicate` | `isTruthy` | function | `node_modules/effect/dist/Predicate.d.ts:560` | Checks whether a value is truthy. |
+| `@beep/utils/Predicate` | `isTupleOf` | const | `node_modules/effect/dist/Predicate.d.ts:389` | Checks whether a readonly array has exactly `n` elements. |
+| `@beep/utils/Predicate` | `isTupleOfAtLeast` | const | `node_modules/effect/dist/Predicate.d.ts:474` | Checks whether a readonly array has at least `n` elements. |
+| `@beep/utils/Predicate` | `isUint8Array` | function | `node_modules/effect/dist/Predicate.d.ts:1361` | Checks whether a value is a `Uint8Array`. |
+| `@beep/utils/Predicate` | `isUndefined` | function | `node_modules/effect/dist/Predicate.d.ts:841` | Checks whether a value is `undefined`. |
+| `@beep/utils/Predicate` | `isUnknown` | function | `node_modules/effect/dist/Predicate.d.ts:1023` | A guard that always returns `true`. |
+| `@beep/utils/Predicate` | `mapInput` | const | `node_modules/effect/dist/Predicate.d.ts:300` | Transforms the input of a predicate using a mapping function. |
+| `@beep/utils/Predicate` | `nand` | const | `node_modules/effect/dist/Predicate.d.ts:2427` | Creates a predicate that returns `true` unless both predicates are `true`. |
+| `@beep/utils/Predicate` | `nor` | const | `node_modules/effect/dist/Predicate.d.ts:2348` | Creates a predicate that returns `true` when neither predicate is `true`. |
+| `@beep/utils/Predicate` | `not` | function | `node_modules/effect/dist/Predicate.d.ts:1745` | Negates a predicate. |
+| `@beep/utils/Predicate` | `or` | const | `node_modules/effect/dist/Predicate.d.ts:1773` | Creates a predicate that returns `true` if either predicate is `true`. |
 | `@beep/utils/Predicate` | `Predicate` | interface | `node_modules/effect/dist/Predicate.d.ts:31` | A function that decides whether a value of type `A` satisfies a condition. |
-| `@beep/utils/Predicate` | `Predicate` | namespace | `node_modules/effect/dist/Predicate.d.ts:121` | Type-level utilities for working with {@link Predicate} types. |
+| `@beep/utils/Predicate` | `Predicate` | namespace | `node_modules/effect/dist/Predicate.d.ts:120` | Type-level utilities for working with {@link Predicate} types. |
 | `@beep/utils/Predicate` | `PredicateTypeLambda` | interface | `node_modules/effect/dist/Predicate.d.ts:59` | Type-level lambda for higher-kinded usage of {@link Predicate}. |
 | `@beep/utils/Predicate` | `Refinement` | interface | `node_modules/effect/dist/Predicate.d.ts:93` | A predicate that also narrows the input type when it returns `true`. |
-| `@beep/utils/Predicate` | `Refinement` | namespace | `node_modules/effect/dist/Predicate.d.ts:198` | Type-level utilities for working with {@link Refinement} types. |
-| `@beep/utils/Predicate` | `some` | function | `node_modules/effect/dist/Predicate.d.ts:2541` | Creates a predicate that returns `true` if any predicate in the collection returns `true`. |
-| `@beep/utils/Predicate` | `Struct` | function | `node_modules/effect/dist/Predicate.d.ts:1720` | Creates a predicate for objects by applying predicates to named properties. |
-| `@beep/utils/Predicate` | `Tuple` | function | `node_modules/effect/dist/Predicate.d.ts:1683` | Creates a predicate for tuples by applying predicates to each element. |
-| `@beep/utils/Predicate` | `xor` | const | `node_modules/effect/dist/Predicate.d.ts:2102` | Creates a predicate that returns `true` if exactly one predicate is `true`. |
+| `@beep/utils/Predicate` | `Refinement` | namespace | `node_modules/effect/dist/Predicate.d.ts:196` | Type-level utilities for working with {@link Refinement} types. |
+| `@beep/utils/Predicate` | `some` | function | `node_modules/effect/dist/Predicate.d.ts:2534` | Creates a predicate that returns `true` if any predicate in the collection returns `true`. |
+| `@beep/utils/Predicate` | `Struct` | function | `node_modules/effect/dist/Predicate.d.ts:1713` | Creates a predicate for objects by applying predicates to named properties. |
+| `@beep/utils/Predicate` | `Tuple` | function | `node_modules/effect/dist/Predicate.d.ts:1676` | Creates a predicate for tuples by applying predicates to each element. |
+| `@beep/utils/Predicate` | `xor` | const | `node_modules/effect/dist/Predicate.d.ts:2095` | Creates a predicate that returns `true` if exactly one predicate is `true`. |
 | `@beep/utils/Random` | `RandomValues` | class | `packages/foundation/modeling/utils/src/Random.ts:26` | Service that yields random byte arrays. |
-| `@beep/utils/Str` | `at` | const | `node_modules/effect/dist/String.d.ts:570` | Returns the character at the specified index, or `None` if the index is out of bounds. |
+| `@beep/utils/Str` | `at` | const | `node_modules/effect/dist/String.d.ts:602` | Returns the character at the specified index, or `None` if the index is out of bounds. |
 | `@beep/utils/Str` | `camelCase` | const | `packages/foundation/modeling/utils/src/Str.ts:263` | Converts a string to `camelCase` with a type-level `CamelCase` return. |
 | `@beep/utils/Str` | `camelToSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:404` | Converts a `camelCase` string to `snake_case` at both type and value level. |
-| `@beep/utils/Str` | `capitalize` | const | `node_modules/effect/dist/String.d.ts:200` | Capitalizes the first character of a string. |
-| `@beep/utils/Str` | `charAt` | const | `node_modules/effect/dist/String.d.ts:619` | Returns the character at the specified index, or `None` if the index is out of bounds. |
-| `@beep/utils/Str` | `charCodeAt` | const | `node_modules/effect/dist/String.d.ts:505` | Returns the character code at the specified index, or `None` if the index is out of bounds. |
-| `@beep/utils/Str` | `codePointAt` | const | `node_modules/effect/dist/String.d.ts:668` | Returns the Unicode code point at the specified index, or `None` if the index is out of bounds. |
-| `@beep/utils/Str` | `concat` | const | `node_modules/effect/dist/String.d.ts:115` | Concatenates two strings at runtime. |
-| `@beep/utils/Str` | `Concat` | type | `node_modules/effect/dist/String.d.ts:97` | Concatenates two strings at the type level. |
-| `@beep/utils/Str` | `constantCase` | const | `node_modules/effect/dist/String.d.ts:1343` | Converts a string to CONSTANT_CASE (uppercase with underscores). |
+| `@beep/utils/Str` | `capitalize` | const | `node_modules/effect/dist/String.d.ts:211` | Capitalizes the first character of a string. |
+| `@beep/utils/Str` | `charAt` | const | `node_modules/effect/dist/String.d.ts:651` | Returns the character at the specified index, or `None` if the index is out of bounds. |
+| `@beep/utils/Str` | `charCodeAt` | const | `node_modules/effect/dist/String.d.ts:537` | Returns the character code at the specified index, or `None` if the index is out of bounds. |
+| `@beep/utils/Str` | `codePointAt` | const | `node_modules/effect/dist/String.d.ts:700` | Returns the Unicode code point at the specified index, or `None` if the index is out of bounds. |
+| `@beep/utils/Str` | `concat` | const | `node_modules/effect/dist/String.d.ts:121` | Concatenates two strings at runtime. |
+| `@beep/utils/Str` | `Concat` | type | `node_modules/effect/dist/String.d.ts:102` | Concatenates two strings at the type level. |
+| `@beep/utils/Str` | `constantCase` | const | `node_modules/effect/dist/String.d.ts:1419` | Converts a string to CONSTANT_CASE (uppercase with underscores). |
 | `@beep/utils/Str` | `contains` | const | `packages/foundation/modeling/utils/src/Str.ts:543` | Type-narrowing predicate that checks whether a string contains `searchString`. |
-| `@beep/utils/Str` | `empty` | const | `node_modules/effect/dist/String.d.ts:82` | The empty string `""`. |
+| `@beep/utils/Str` | `empty` | const | `node_modules/effect/dist/String.d.ts:86` | The empty string `""`. |
 | `@beep/utils/Str` | `endsWith` | const | `packages/foundation/modeling/utils/src/Str.ts:501` | Type-narrowing predicate that checks whether a string ends with `searchString`. |
-| `@beep/utils/Str` | `Equivalence` | const | `node_modules/effect/dist/String.d.ts:67` | An `Equivalence` instance for strings using strict equality (`===`). |
+| `@beep/utils/Str` | `Equivalence` | const | `node_modules/effect/dist/String.d.ts:70` | An `Equivalence` instance for strings using strict equality (`===`). |
 | `@beep/utils/Str` | `fromNumber` | const | `packages/foundation/modeling/utils/src/Str.ts:728` | Convert a numeric literal into its string-literal representation. |
-| `@beep/utils/Str` | `includes` | const | `node_modules/effect/dist/String.d.ts:457` | Returns `true` if `searchString` appears as a substring of `self`, at one or more positions that are |
-| `@beep/utils/Str` | `indexOf` | const | `node_modules/effect/dist/String.d.ts:717` | Returns the index of the first occurrence of a substring, or `None` if not found. |
-| `@beep/utils/Str` | `isEmpty` | const | `node_modules/effect/dist/String.d.ts:357` | Test whether a `string` is empty. |
-| `@beep/utils/Str` | `isNonEmpty` | const | `node_modules/effect/dist/String.d.ts:373` | Test whether a `string` is non empty. |
-| `@beep/utils/Str` | `isString` | const | `node_modules/effect/dist/String.d.ts:36` | Tests if a value is a `string`. |
+| `@beep/utils/Str` | `includes` | const | `node_modules/effect/dist/String.d.ts:487` | Returns `true` if `searchString` appears as a substring of `self`, at one or more positions that are |
+| `@beep/utils/Str` | `indexOf` | const | `node_modules/effect/dist/String.d.ts:749` | Returns the index of the first occurrence of a substring, or `None` if not found. |
+| `@beep/utils/Str` | `isEmpty` | const | `node_modules/effect/dist/String.d.ts:381` | Test whether a `string` is empty. |
+| `@beep/utils/Str` | `isNonEmpty` | const | `node_modules/effect/dist/String.d.ts:398` | Test whether a `string` is non empty. |
+| `@beep/utils/Str` | `isString` | const | `node_modules/effect/dist/String.d.ts:37` | Tests if a value is a `string`. |
 | `@beep/utils/Str` | `kebabCase` | const | `packages/foundation/modeling/utils/src/Str.ts:297` | Converts a string to `kebab-case` with a type-level `KebabCase` return. |
 | `@beep/utils/Str` | `kebabToSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:440` | Converts a `kebab-case` string to `snake_case` at both type and value level. |
-| `@beep/utils/Str` | `lastIndexOf` | const | `node_modules/effect/dist/String.d.ts:733` | Returns the index of the last occurrence of a substring, or `None` if not found. |
-| `@beep/utils/Str` | `length` | const | `node_modules/effect/dist/String.d.ts:388` | Calculate the number of characters in a `string`. |
-| `@beep/utils/Str` | `linesIterator` | const | `node_modules/effect/dist/String.d.ts:1102` | Returns an `IterableIterator` which yields each line contained within the |
-| `@beep/utils/Str` | `linesWithSeparators` | const | `node_modules/effect/dist/String.d.ts:1118` | Returns an `IterableIterator` which yields each line contained within the |
-| `@beep/utils/Str` | `localeCompare` | const | `node_modules/effect/dist/String.d.ts:750` | Compares two strings according to the current locale. |
+| `@beep/utils/Str` | `lastIndexOf` | const | `node_modules/effect/dist/String.d.ts:765` | Returns the index of the last occurrence of a substring, or `None` if not found. |
+| `@beep/utils/Str` | `length` | const | `node_modules/effect/dist/String.d.ts:414` | Returns the JavaScript string length, measured in UTF-16 code units. |
+| `@beep/utils/Str` | `linesIterator` | const | `node_modules/effect/dist/String.d.ts:1164` | Returns an `IterableIterator` which yields each line contained within the |
+| `@beep/utils/Str` | `linesWithSeparators` | const | `node_modules/effect/dist/String.d.ts:1181` | Returns an `IterableIterator` which yields each line contained within the |
+| `@beep/utils/Str` | `localeCompare` | const | `node_modules/effect/dist/String.d.ts:785` | Compares two strings using locale-aware collation, with optional locales and |
 | `@beep/utils/Str` | `mapPostfix` | const | `packages/foundation/modeling/utils/src/Str.ts:229` | Maps a non-empty string array by appending each element with `postfix`. |
 | `@beep/utils/Str` | `mapPrefix` | const | `packages/foundation/modeling/utils/src/Str.ts:183` | Maps a non-empty string array by prepending each element with `prefix`. |
-| `@beep/utils/Str` | `match` | const | `node_modules/effect/dist/String.d.ts:766` | A `pipe`-able version of the native `match` method. |
-| `@beep/utils/Str` | `matchAll` | const | `node_modules/effect/dist/String.d.ts:781` | It is the `pipe`-able version of the native `matchAll` method. |
-| `@beep/utils/Str` | `noCase` | const | `node_modules/effect/dist/String.d.ts:1297` | Normalize a string to a specific case format |
-| `@beep/utils/Str` | `normalize` | const | `node_modules/effect/dist/String.d.ts:804` | Normalizes a string according to the specified Unicode normalization form. |
-| `@beep/utils/Str` | `Order` | const | `node_modules/effect/dist/String.d.ts:52` | `Order` instance for comparing strings using lexicographic ordering. |
-| `@beep/utils/Str` | `padEnd` | const | `node_modules/effect/dist/String.d.ts:820` | Pads the string from the end with a given fill string to a specified length. |
-| `@beep/utils/Str` | `padStart` | const | `node_modules/effect/dist/String.d.ts:836` | Pads the string from the start with a given fill string to a specified length. |
+| `@beep/utils/Str` | `match` | const | `node_modules/effect/dist/String.d.ts:807` | Matches a string against a pattern and returns `Option.some` with the match |
+| `@beep/utils/Str` | `matchAll` | const | `node_modules/effect/dist/String.d.ts:826` | Returns an iterator over all regular expression matches in the string using |
+| `@beep/utils/Str` | `noCase` | const | `node_modules/effect/dist/String.d.ts:1371` | Normalizes a string by splitting it into word parts, transforming each part, |
+| `@beep/utils/Str` | `normalize` | const | `node_modules/effect/dist/String.d.ts:850` | Normalizes a string according to the specified Unicode normalization form. |
+| `@beep/utils/Str` | `Order` | const | `node_modules/effect/dist/String.d.ts:54` | `Order` instance for comparing strings using lexicographic ordering. |
+| `@beep/utils/Str` | `padEnd` | const | `node_modules/effect/dist/String.d.ts:867` | Pads the string from the end with a given fill string to a specified length. |
+| `@beep/utils/Str` | `padStart` | const | `node_modules/effect/dist/String.d.ts:884` | Pads the string from the start with a given fill string to a specified length. |
 | `@beep/utils/Str` | `pascalCase` | const | `packages/foundation/modeling/utils/src/Str.ts:333` | Converts a string to `PascalCase` with a type-level `PascalCase` return. |
 | `@beep/utils/Str` | `pascalToSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:350` | Converts a `PascalCase` string to `snake_case` at both type and value level. |
 | `@beep/utils/Str` | `postfix` | const | `packages/foundation/modeling/utils/src/Str.ts:109` | Appends `postfix` to a string, preserving template-literal types. |
 | `@beep/utils/Str` | `postfixThunk` | const | `packages/foundation/modeling/utils/src/Str.ts:146` | Appends `postfix` to a string and returns a thunk of the result. |
 | `@beep/utils/Str` | `prefix` | const | `packages/foundation/modeling/utils/src/Str.ts:38` | Prepends `prefix` to a string, preserving template-literal types. |
 | `@beep/utils/Str` | `prefixThunk` | const | `packages/foundation/modeling/utils/src/Str.ts:74` | Prepends `prefix` to a string and returns a thunk of the result. |
-| `@beep/utils/Str` | `ReducerConcat` | const | `node_modules/effect/dist/String.d.ts:1363` | A `Reducer` for concatenating `string`s. |
+| `@beep/utils/Str` | `ReducerConcat` | const | `node_modules/effect/dist/String.d.ts:1440` | A `Reducer` for concatenating `string`s. |
 | `@beep/utils/Str` | `repeat` | const | `packages/foundation/modeling/utils/src/Str.ts:584` | Repeats a string `count` times with a type-level `StringRepeat` return. |
-| `@beep/utils/Str` | `replace` | const | `node_modules/effect/dist/String.d.ts:235` | Replaces the first occurrence of a substring or pattern in a string. |
-| `@beep/utils/Str` | `replaceAll` | const | `node_modules/effect/dist/String.d.ts:868` | Replaces all occurrences of a substring or pattern in a string. |
+| `@beep/utils/Str` | `replace` | const | `node_modules/effect/dist/String.d.ts:251` | Replaces matches in a string using `String.prototype.replace`. |
+| `@beep/utils/Str` | `replaceAll` | const | `node_modules/effect/dist/String.d.ts:918` | Replaces all occurrences of a substring or pattern in a string. |
 | `@beep/utils/Str` | `replaceAllWith` | const | `packages/foundation/modeling/utils/src/Str.ts:658` | Replaces every occurrence of `searchValue` using a callback replacer. |
 | `@beep/utils/Str` | `replaceWith` | const | `packages/foundation/modeling/utils/src/Str.ts:617` | Replaces the first occurrence of `searchValue` using a callback replacer. |
 | `@beep/utils/Str` | `screamingSnake` | const | `packages/foundation/modeling/utils/src/Str.ts:315` | Converts a string to `SCREAMING_SNAKE_CASE` with a type-level |
-| `@beep/utils/Str` | `search` | const | `node_modules/effect/dist/String.d.ts:885` | Searches for a match between a regular expression and the string. |
-| `@beep/utils/Str` | `slice` | const | `node_modules/effect/dist/String.d.ts:341` | Extracts a section of a string and returns it as a new string. |
+| `@beep/utils/Str` | `search` | const | `node_modules/effect/dist/String.d.ts:936` | Returns the index of the first match for a string or regular expression, or |
+| `@beep/utils/Str` | `slice` | const | `node_modules/effect/dist/String.d.ts:364` | Extracts a section of a string and returns it as a new string. |
 | `@beep/utils/Str` | `snakeCase` | const | `packages/foundation/modeling/utils/src/Str.ts:280` | Converts a string to `snake_case` with a type-level `SnakeCase` return. |
 | `@beep/utils/Str` | `snakeToCamel` | const | `packages/foundation/modeling/utils/src/Str.ts:368` | Converts a `snake_case` string to `camelCase` at both type and value level. |
 | `@beep/utils/Str` | `snakeToKebab` | const | `packages/foundation/modeling/utils/src/Str.ts:386` | Converts a `snake_case` string to `kebab-case` at both type and value level. |
 | `@beep/utils/Str` | `snakeToPascal` | const | `packages/foundation/modeling/utils/src/Str.ts:422` | Converts a `snake_case` string to `PascalCase` at both type and value level. |
-| `@beep/utils/Str` | `split` | const | `node_modules/effect/dist/String.d.ts:405` | Splits a string into an array of substrings using a separator. |
+| `@beep/utils/Str` | `split` | const | `node_modules/effect/dist/String.d.ts:432` | Splits a string into an array of substrings using a separator. |
 | `@beep/utils/Str` | `startsWith` | const | `packages/foundation/modeling/utils/src/Str.ts:464` | Type-narrowing predicate that checks whether a string starts with `searchString`. |
 | `@beep/utils/Str` | `String` | const | `node_modules/effect/dist/String.d.ts:20` | Reference to the global `String` constructor. |
-| `@beep/utils/Str` | `stripMargin` | const | `node_modules/effect/dist/String.d.ts:1190` | For every line in this string, strip a leading prefix consisting of blanks |
-| `@beep/utils/Str` | `stripMarginWith` | const | `node_modules/effect/dist/String.d.ts:1136` | For every line in this string, strip a leading prefix consisting of blanks |
-| `@beep/utils/Str` | `substring` | const | `node_modules/effect/dist/String.d.ts:554` | Extracts characters from a string between two specified indices. |
-| `@beep/utils/Str` | `takeLeft` | const | `node_modules/effect/dist/String.d.ts:974` | Keep the specified number of characters from the start of a string. |
-| `@beep/utils/Str` | `takeRight` | const | `node_modules/effect/dist/String.d.ts:1041` | Keep the specified number of characters from the end of a string. |
-| `@beep/utils/Str` | `toLocaleLowerCase` | const | `node_modules/effect/dist/String.d.ts:936` | Converts the string to lowercase according to the specified locale. |
-| `@beep/utils/Str` | `toLocaleUpperCase` | const | `node_modules/effect/dist/String.d.ts:952` | Converts the string to uppercase according to the specified locale. |
-| `@beep/utils/Str` | `toLowerCase` | const | `node_modules/effect/dist/String.d.ts:184` | Converts a string to lowercase. |
+| `@beep/utils/Str` | `stripMargin` | const | `node_modules/effect/dist/String.d.ts:1257` | For every line in this string, strip a leading prefix consisting of blanks |
+| `@beep/utils/Str` | `stripMarginWith` | const | `node_modules/effect/dist/String.d.ts:1200` | For every line in this string, strip a leading prefix consisting of blanks |
+| `@beep/utils/Str` | `substring` | const | `node_modules/effect/dist/String.d.ts:586` | Extracts characters from a string between two specified indices. |
+| `@beep/utils/Str` | `takeLeft` | const | `node_modules/effect/dist/String.d.ts:1030` | Keep the specified number of characters from the start of a string. |
+| `@beep/utils/Str` | `takeRight` | const | `node_modules/effect/dist/String.d.ts:1100` | Keep the specified number of characters from the end of a string. |
+| `@beep/utils/Str` | `toLocaleLowerCase` | const | `node_modules/effect/dist/String.d.ts:990` | Converts the string to lowercase according to the specified locale. |
+| `@beep/utils/Str` | `toLocaleUpperCase` | const | `node_modules/effect/dist/String.d.ts:1007` | Converts the string to uppercase according to the specified locale. |
+| `@beep/utils/Str` | `toLowerCase` | const | `node_modules/effect/dist/String.d.ts:194` | Converts a string to lowercase. |
 | `@beep/utils/Str` | `toSlug` | const | `packages/foundation/modeling/utils/src/Str.ts:744` | Converts arbitrary text into a lowercase kebab-case slug. |
-| `@beep/utils/Str` | `toUpperCase` | const | `node_modules/effect/dist/String.d.ts:168` | Converts a string to uppercase. |
-| `@beep/utils/Str` | `trim` | const | `node_modules/effect/dist/String.d.ts:265` | Removes whitespace from both ends of a string. |
-| `@beep/utils/Str` | `Trim` | type | `node_modules/effect/dist/String.d.ts:249` | Type-level representation of trimming whitespace from both ends of a string. |
-| `@beep/utils/Str` | `trimEnd` | const | `node_modules/effect/dist/String.d.ts:325` | Removes whitespace from the end of a string. |
-| `@beep/utils/Str` | `TrimEnd` | type | `node_modules/effect/dist/String.d.ts:309` | Type-level representation of trimming whitespace from the end of a string. |
-| `@beep/utils/Str` | `trimStart` | const | `node_modules/effect/dist/String.d.ts:295` | Removes whitespace from the start of a string. |
-| `@beep/utils/Str` | `TrimStart` | type | `node_modules/effect/dist/String.d.ts:279` | Type-level representation of trimming whitespace from the start of a string. |
+| `@beep/utils/Str` | `toUpperCase` | const | `node_modules/effect/dist/String.d.ts:177` | Converts a string to uppercase. |
+| `@beep/utils/Str` | `trim` | const | `node_modules/effect/dist/String.d.ts:283` | Removes whitespace from both ends of a string. |
+| `@beep/utils/Str` | `Trim` | type | `node_modules/effect/dist/String.d.ts:266` | Type-level representation of trimming whitespace from both ends of a string. |
+| `@beep/utils/Str` | `trimEnd` | const | `node_modules/effect/dist/String.d.ts:347` | Removes whitespace from the end of a string. |
+| `@beep/utils/Str` | `TrimEnd` | type | `node_modules/effect/dist/String.d.ts:330` | Type-level representation of trimming whitespace from the end of a string. |
+| `@beep/utils/Str` | `trimStart` | const | `node_modules/effect/dist/String.d.ts:315` | Removes whitespace from the start of a string. |
+| `@beep/utils/Str` | `TrimStart` | type | `node_modules/effect/dist/String.d.ts:298` | Type-level representation of trimming whitespace from the start of a string. |
 | `@beep/utils/Str` | `trimThunk` | const | `packages/foundation/modeling/utils/src/Str.ts:709` | Returns a thunk that lazily trims whitespace from both ends of a string. |
 | `@beep/utils/Str` | `truncate` | const | `packages/foundation/modeling/utils/src/Str.ts:779` | Trim text and truncate it to the requested visible character count. |
-| `@beep/utils/Str` | `uncapitalize` | const | `node_modules/effect/dist/String.d.ts:216` | Uncapitalizes the first character of a string. |
+| `@beep/utils/Str` | `uncapitalize` | const | `node_modules/effect/dist/String.d.ts:228` | Uncapitalizes the first character of a string. |
 | `@beep/utils/Stream` | `streamFilterJson` | const | `packages/foundation/modeling/utils/src/Stream.ts:43` | Splits a text stream into lines, decodes each line as JSON with `schema`, |
 | `@beep/utils/Struct` | `Apply` | type | `node_modules/effect/dist/Struct.d.ts:991` | Applies a {@link Lambda} type-level function to a value type `V`, producing |
 | `@beep/utils/Struct` | `assign` | const | `node_modules/effect/dist/Struct.d.ts:424` | Merges two structs into a new struct. When both structs share a key, the |
@@ -1162,10 +1162,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Struct` | `keysNonEmpty` | const | `packages/foundation/modeling/utils/src/Struct.ts:566` | Returns the string keys of a non-empty object in a type-safe manner. |
 | `@beep/utils/Struct` | `lambda` | const | `node_modules/effect/dist/Struct.d.ts:1024` | Wraps a plain function as a {@link Lambda} value so it can be used with |
 | `@beep/utils/Struct` | `Lambda` | interface | `node_modules/effect/dist/Struct.d.ts:960` | Interface for type-level functions used by {@link map}, {@link mapPick}, and |
-| `@beep/utils/Struct` | `makeCombiner` | function | `node_modules/effect/dist/Struct.d.ts:1357` | Creates a `Combiner` for a struct shape by providing a `Combiner` for each |
+| `@beep/utils/Struct` | `makeCombiner` | function | `node_modules/effect/dist/Struct.d.ts:1358` | Creates a `Combiner` for a struct shape by providing a `Combiner` for each |
 | `@beep/utils/Struct` | `makeEquivalence` | const | `node_modules/effect/dist/Struct.d.ts:903` | Creates an `Equivalence` for a struct by providing an `Equivalence` for each |
 | `@beep/utils/Struct` | `makeOrder` | const | `node_modules/effect/dist/Struct.d.ts:934` | Creates an `Order` for a struct by providing an `Order` for each property. |
-| `@beep/utils/Struct` | `makeReducer` | function | `node_modules/effect/dist/Struct.d.ts:1395` | Creates a `Reducer` for a struct shape by providing a `Reducer` for each |
+| `@beep/utils/Struct` | `makeReducer` | function | `node_modules/effect/dist/Struct.d.ts:1397` | Creates a `Reducer` for a struct shape by providing a `Reducer` for each |
 | `@beep/utils/Struct` | `map` | const | `node_modules/effect/dist/Struct.d.ts:1055` | Applies a {@link Lambda} transformation to every value in a struct. |
 | `@beep/utils/Struct` | `mapOmit` | const | `node_modules/effect/dist/Struct.d.ts:1258` | Applies a {@link Lambda} transformation to all keys except the specified |
 | `@beep/utils/Struct` | `mapPath` | const | `packages/foundation/modeling/utils/src/Struct.ts:220` | Applies a unary function to a value retrieved from a struct by path. |
@@ -1176,7 +1176,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Struct` | `PathLookup` | type | `packages/foundation/modeling/utils/src/Struct.ts:99` | Result of a runtime struct path lookup. |
 | `@beep/utils/Struct` | `pathsOf` | const | `packages/foundation/modeling/utils/src/Struct.ts:407` | Returns all type-level `Paths` of a struct as a `NonEmptyReadonlyArray` of |
 | `@beep/utils/Struct` | `pick` | const | `node_modules/effect/dist/Struct.d.ts:279` | Creates a new struct containing only the specified keys. |
-| `@beep/utils/Struct` | `Record` | function | `node_modules/effect/dist/Struct.d.ts:1415` | Creates a record with the given keys and value. |
+| `@beep/utils/Struct` | `Record` | function | `node_modules/effect/dist/Struct.d.ts:1417` | Creates a record with the given keys and value. |
 | `@beep/utils/Struct` | `renameKeys` | const | `node_modules/effect/dist/Struct.d.ts:807` | Renames keys in a struct using a static `{ oldKey: newKey }` mapping. Keys |
 | `@beep/utils/Struct` | `reverse` | const | `packages/foundation/modeling/utils/src/Struct.ts:700` | Reverses a struct mapping, producing a new struct where original values |
 | `@beep/utils/Struct` | `ReverseableStruct` | type | `packages/foundation/modeling/utils/src/Struct.ts:644` | Struct shape accepted by {@link reverse}. |
@@ -4638,68 +4638,68 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:992` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1134` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:714` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:507` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1042` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1086` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:207` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:242` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:250` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:258` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:439` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1064` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:993` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1135` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:715` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:508` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1043` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1087` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:208` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:243` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:251` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:259` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:440` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1065` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:190` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:344` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:300` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:325` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:278` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:36` | Package version marker for test utilities. |
-| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:992` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1134` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:714` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:507` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1042` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1086` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:207` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:242` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:250` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:258` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:439` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1064` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:993` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1135` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:715` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:508` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1043` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1087` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:208` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:243` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:251` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:259` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:440` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1065` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:190` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/index` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:344` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils/index` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:300` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils/index` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:325` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:278` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:36` | Package version marker for test utilities. |
 | `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:992` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1134` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
-| `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:714` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
-| `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:507` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1042` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1086` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:207` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:242` | Constructor input accepted by the external PostgreSQL SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:250` | Mode selector for the public PGLite SQL test layer helper. |
-| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:258` | Options for `makePgliteSqlTestLayer`. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:439` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1064` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:149` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:189` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
-| `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:343` | Driver contract for reusable SQL integration-test layers. |
-| `@beep/test-utils/SqlTest` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:299` | Typed harness error surfaced while provisioning or preparing a test database. |
-| `@beep/test-utils/SqlTest` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:324` | Optional database setup hooks executed after the driver layer has been built. |
-| `@beep/test-utils/SqlTest` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:277` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils/SqlTest` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:119` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:993` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1135` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:715` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
+| `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:508` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
+| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1043` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1087` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:208` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:243` | Constructor input accepted by the external PostgreSQL SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:251` | Mode selector for the public PGLite SQL test layer helper. |
+| `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:259` | Options for `makePgliteSqlTestLayer`. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:440` | Scoped PGLite Testcontainers resource metadata. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1065` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:190` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
+| `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:344` | Driver contract for reusable SQL integration-test layers. |
+| `@beep/test-utils/SqlTest` | `SqlTestHarnessError` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:300` | Typed harness error surfaced while provisioning or preparing a test database. |
+| `@beep/test-utils/SqlTest` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:325` | Optional database setup hooks executed after the driver layer has been built. |
+| `@beep/test-utils/SqlTest` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:278` | Runtime metadata for an ephemeral integration-test database instance. |
+| `@beep/test-utils/SqlTest` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 
 ### @beep/installer-security-domain
 
@@ -9948,8 +9948,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/db-admin/index` | `VERSION` | const | `packages/_internal/db-admin/src/index.ts:21` | Current package version. |
 | `@beep/db-admin/migrations/ArchitectureLab` | `ArchitectureLabMigrationTarget` | const | `packages/_internal/db-admin/src/migrations/ArchitectureLab.ts:42` | Architecture lab migration target used to prove current db-admin aggregation. |
 | `@beep/db-admin/migrations/ArchitectureLab` | `DbAdminMigrationTarget` | class | `packages/_internal/db-admin/src/migrations/ArchitectureLab.ts:23` | db-admin migration target metadata. |
-| `@beep/db-admin/schema` | `DbSchema` | const | `packages/architecture-lab/tables/src/tables.ts:23` | Architecture lab drizzle schema. |
-| `@beep/db-admin/schema` | `DbSchema` | type | `packages/architecture-lab/tables/src/tables.ts:34` | Architecture lab drizzle schema type. |
 | `@beep/db-admin/targets` | `ArchitectureLabMigrationTarget` | const | `packages/_internal/db-admin/src/migrations/ArchitectureLab.ts:42` | Architecture lab migration target used to prove current db-admin aggregation. |
 | `@beep/db-admin/targets` | `DbAdminMigrationTargets` | const | `packages/_internal/db-admin/src/targets.ts:27` | All db-admin migration targets owned by the current repo. |
 | `@beep/db-admin/targets` | `listDbAdminMigrationTargets` | const | `packages/_internal/db-admin/src/targets.ts:35` | List registered db-admin migration targets. |
@@ -11645,7 +11643,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-tables/Schema` | `DbSchema` | const | `packages/shared/tables/src/Schema.ts:22` | Shared-kernel Drizzle schema aggregate. |
 | `@beep/shared-tables/Schema` | `DbSchema` | type | `packages/shared/tables/src/Schema.ts:34` | Type for {@link DbSchema}. |
 | `@beep/shared-tables/table/index` | `Table` | SourceFile | `packages/shared/tables/src/table/Table.ts:14` |  |
-| `@beep/shared-tables/table/Table` | `EntityTable` | SourceFile | `packages/drivers/drizzle/src/EntityTable.ts:8` |  |
 
 ### @beep/md
 

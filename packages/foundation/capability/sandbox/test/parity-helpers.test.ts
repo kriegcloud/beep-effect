@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import {
   buildRecoveryMessage,
@@ -12,7 +13,7 @@ import {
 import { A } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Effect, Layer, Random } from "effect";
+import { Effect, Layer } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const provideScopedLayer =
@@ -34,7 +35,7 @@ const runFileCommand = (command: string, args: ReadonlyArray<string>) =>
     )
   );
 const makeTempDirectory = Effect.fn("SandboxParity.makeTempDirectory")(function* (prefix: string) {
-  const suffix = yield* Random.nextUUIDv4;
+  const suffix = randomUUID();
   const dir = joinPath(tmpdir(), `${prefix}${suffix}`);
   yield* runFileCommand("mkdir", ["-p", dir]);
   return dir;

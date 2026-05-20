@@ -403,10 +403,14 @@ const generateCommand = Command.make(
 
 const runtimeLayer = Layer.mergeAll(Logger.layer([Logger.consolePretty()]), NodeServices.layer, FetchHttpClient.layer);
 
-Command.run(generateCommand, { version: "0.0.0" }).pipe(
-  Effect.scoped,
-  // @effect-diagnostics-next-line strictEffectProvide:off
-  // Entry point script: the diagnostic is expected and documented as safe for application entry points.
-  Effect.provide(runtimeLayer),
-  NodeRuntime.runMain
+const program = Effect.scoped(
+  Layer.build(runtimeLayer).pipe(
+    Effect.flatMap(
+      Effect.fnUntraced(function* (context) {
+        return yield* Command.run(generateCommand, { version: "0.0.0" }).pipe(Effect.provide(context));
+      })
+    )
+  )
 );
+
+NodeRuntime.runMain(program);

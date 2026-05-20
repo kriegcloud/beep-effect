@@ -63,8 +63,9 @@ const NonEmptyArraySchema = NonEmptyReadonlyArraySchema.pipe(S.mutable);
  * @category guards
  * @since 0.0.0
  */
-export const assertNonEmptyArray: (input: unknown) => asserts input is A.NonEmptyArray<TUnsafe.Any> =
-  S.asserts(NonEmptyArraySchema);
+export const assertNonEmptyArray: (input: unknown) => asserts input is A.NonEmptyArray<TUnsafe.Any> = (input) => {
+  S.asserts(NonEmptyArraySchema, input);
+};
 /**
  * Asserts that `input` is a readonly non-empty array, throwing on failure.
  *
@@ -83,8 +84,11 @@ export const assertNonEmptyArray: (input: unknown) => asserts input is A.NonEmpt
  * @category guards
  * @since 0.0.0
  */
-export const assertNonEmptyReadonlyArray: (input: unknown) => asserts input is A.NonEmptyReadonlyArray<TUnsafe.Any> =
-  S.asserts(NonEmptyReadonlyArraySchema);
+export const assertNonEmptyReadonlyArray: (input: unknown) => asserts input is A.NonEmptyReadonlyArray<TUnsafe.Any> = (
+  input
+) => {
+  S.asserts(NonEmptyReadonlyArraySchema, input);
+};
 
 function asNonEmptyArray<T>(out: Array<T>): A.NonEmptyArray<T> {
   assertNonEmptyArray(out);

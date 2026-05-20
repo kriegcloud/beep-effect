@@ -5,8 +5,9 @@
  * @since 0.0.0
  */
 
+import { randomUUID } from "node:crypto";
 import { A } from "@beep/utils";
-import { Config, Effect, pipe, Random } from "effect";
+import { Config, Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
@@ -68,7 +69,7 @@ const withCsp = (cspHeader: string) => (response: NextResponse) => {
  * @since 0.0.0
  */
 export function proxy(request: NextRequest): NextResponse {
-  const nonce = btoa(Effect.runSync(Random.nextUUIDv4));
+  const nonce = btoa(randomUUID());
   const cspHeader = buildCspHeader(nonce);
   const requestHeaders = new Headers(request.headers);
 

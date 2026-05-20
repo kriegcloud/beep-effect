@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { randomUUID } from "node:crypto";
 import { $TestUtilsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { O, Str } from "@beep/utils";
@@ -12,7 +13,7 @@ import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import type * as PgClient from "@effect/sql-pg/PgClient";
 import { SqliteClient as NodeSqliteClient } from "@effect/sql-sqlite-node";
-import { Config, Context, Duration, Effect, FileSystem, Layer, Path, pipe, Random, Redacted, Schedule } from "effect";
+import { Config, Context, Duration, Effect, FileSystem, Layer, Path, pipe, Redacted, Schedule } from "effect";
 import * as S from "effect/Schema";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
@@ -751,7 +752,7 @@ const parsePgExternalConnectionUri = Effect.fn("SqlTest.PgExternalTestDriver.par
 });
 
 const makePgExternalSchemaName = Effect.fn("SqlTest.PgExternalTestDriver.makeSchemaName")(function* (prefix: string) {
-  const uuid = yield* Random.nextUUIDv4;
+  const uuid = randomUUID();
   return `${prefix}_${pipe(uuid, Str.replaceAll("-", "_"))}`;
 });
 
@@ -852,7 +853,13 @@ const buildPgliteTestcontainersLayer = Effect.fn("SqlTest.PgliteTestcontainersTe
   Effect.withSpan("SqlTest.PgliteTestcontainersTestDriver.build")
 );
 
-const buildPgExternalLayer = Effect.fn("SqlTest.PgExternalTestDriver.build")(
+const buildPgExternalLayer: (
+  configInput: PgExternalTestDriverConfigInput
+) => Effect.Effect<
+  Layer.Layer<PgClient.PgClient | SqlClient.SqlClient | TestDatabaseInfo, SqlTestHarnessError>,
+  SqlTestHarnessError,
+  never
+> = Effect.fn("SqlTest.PgExternalTestDriver.build")(
   function* (configInput: PgExternalTestDriverConfigInput) {
     const config = yield* makePgExternalConfig(configInput);
     const parsed = yield* parsePgExternalConnectionUri(config.connectionUri);

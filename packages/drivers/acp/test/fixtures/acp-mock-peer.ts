@@ -2,21 +2,32 @@ import * as AcpAgent from "@beep/acp/agent";
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 
 import * as NodeServices from "@effect/platform-node/NodeServices";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-
-if (process.env.ACP_MOCK_MALFORMED_OUTPUT === "1") {
-  process.stdout.write("{not-json}\n");
-  process.exit(Number(process.env.ACP_MOCK_MALFORMED_OUTPUT_EXIT_CODE ?? "0"));
-}
-
-if (process.env.ACP_MOCK_EXIT_IMMEDIATELY_CODE !== undefined) {
-  process.exit(Number(process.env.ACP_MOCK_EXIT_IMMEDIATELY_CODE));
-}
+import * as O from "effect/Option";
 
 const sessionId = "mock-session-1";
 
 const program = Effect.gen(function* () {
+  const malformedOutput = yield* Config.option(Config.string("ACP_MOCK_MALFORMED_OUTPUT"));
+  if (O.isSome(malformedOutput) && malformedOutput.value === "1") {
+    const exitCode = yield* Config.string("ACP_MOCK_MALFORMED_OUTPUT_EXIT_CODE").pipe(Config.withDefault("0"));
+
+    return yield* Effect.sync(() => {
+      process.stdout.write("{not-json}\n");
+      process.exit(Number(exitCode));
+    });
+  }
+
+  const immediateExitCode = yield* Config.option(Config.string("ACP_MOCK_EXIT_IMMEDIATELY_CODE"));
+  if (O.isSome(immediateExitCode)) {
+    return yield* Effect.sync(() => {
+      process.exit(Number(immediateExitCode.value));
+    });
+  }
+
+  const badTypedRequest = yield* Config.option(Config.string("ACP_MOCK_BAD_TYPED_REQUEST"));
   const agent = yield* AcpAgent.AcpAgent;
 
   yield* agent.handleInitialize(() =>
@@ -106,7 +117,7 @@ const program = Effect.gen(function* () {
       });
 
       yield* agent.client.extRequest("x/typed_request", {
-        message: process.env.ACP_MOCK_BAD_TYPED_REQUEST === "1" ? 123 : "hello from typed request",
+        message: O.isSome(badTypedRequest) && badTypedRequest.value === "1" ? 123 : "hello from typed request",
       });
 
       yield* agent.client.extNotification("x/typed_notification", {
@@ -129,4 +140,17 @@ const program = Effect.gen(function* () {
   return yield* Effect.never;
 });
 
-program.pipe(Effect.provide(Layer.provide(AcpAgent.layerStdio(), NodeServices.layer)), NodeRuntime.runMain);
+const runtimeLayer = AcpAgent.layerStdio().pipe(Layer.provide(NodeServices.layer));
+
+const main = Effect.scoped(
+  runtimeLayer.pipe(
+    Layer.build,
+    Effect.flatMap(
+      Effect.fnUntraced(function* (context) {
+        return yield* program.pipe(Effect.provide(context));
+      })
+    )
+  )
+);
+
+NodeRuntime.runMain(main);

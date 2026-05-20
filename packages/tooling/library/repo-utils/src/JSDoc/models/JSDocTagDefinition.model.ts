@@ -150,8 +150,11 @@ export declare namespace JSDocTagDefinition {
  * @category models
  * @since 0.0.0
  */
-export const assertJsDoc: <const Def extends JSDocTagDefinition.Encoded>(input: Def) => asserts input is Def =
-  S.asserts(S.toEncoded(JSDocTagDefinition));
+export const assertJsDoc: <const Def extends JSDocTagDefinition.Encoded>(input: Def) => asserts input is Def = (
+  input
+) => {
+  S.asserts(S.toEncoded(JSDocTagDefinition), input);
+};
 
 /**
  * Builds a JSDoc tag definition schema for a concrete tag payload.
