@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 68 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 882 |
-| publicExportEntries | 13018 |
-| uniquePackageSymbols | 5232 |
+| importSpecifiers | 883 |
+| publicExportEntries | 13029 |
+| uniquePackageSymbols | 5242 |
 
 ## Seed Discovery Proof
 
@@ -84,7 +84,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 45 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 46 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 47 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 48 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 81 | 841 | 509 |
+| 48 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 82 | 852 | 519 |
 | 49 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 50 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 51 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
@@ -8853,39 +8853,39 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:699` | Discord-channel concept layer. |
-| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:675` | Host-dependency concept layer. |
-| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:715` | Concept-local installer services. |
-| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:737` | Complete installer server layer. |
-| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:441` | Build the Discord-channel concept server. |
-| `@beep/installer-server` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:327` | Build the host-dependency concept server. |
-| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:512` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:399` | Build the provider-account concept server. |
-| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:344` | Build the secret-reference concept server. |
-| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:498` | Build the stack-manifest concept server. |
-| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:729` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:758` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:691` | Provider-account concept layer. |
-| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:745` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:683` | Secret-reference concept layer. |
-| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:707` | Stack-manifest concept layer. |
+| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:693` | Discord-channel concept layer. |
+| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:669` | Host-dependency concept layer. |
+| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:709` | Concept-local installer services. |
+| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:731` | Complete installer server layer. |
+| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:435` | Build the Discord-channel concept server. |
+| `@beep/installer-server` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
+| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:506` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:393` | Build the provider-account concept server. |
+| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
+| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:492` | Build the stack-manifest concept server. |
+| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:723` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:752` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:685` | Provider-account concept layer. |
+| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:739` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:677` | Secret-reference concept layer. |
+| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:701` | Stack-manifest concept layer. |
 | `@beep/installer-server` | `VERSION` | const | `packages/installer/server/src/index.ts:15` | Package version for `@beep/installer-server`. |
-| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:699` | Discord-channel concept layer. |
-| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:675` | Host-dependency concept layer. |
-| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:715` | Concept-local installer services. |
-| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:737` | Complete installer server layer. |
-| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:441` | Build the Discord-channel concept server. |
-| `@beep/installer-server/layer` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:327` | Build the host-dependency concept server. |
-| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:512` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:399` | Build the provider-account concept server. |
-| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:344` | Build the secret-reference concept server. |
-| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:498` | Build the stack-manifest concept server. |
-| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:729` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:758` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:691` | Provider-account concept layer. |
-| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:745` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:683` | Secret-reference concept layer. |
-| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:707` | Stack-manifest concept layer. |
+| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:693` | Discord-channel concept layer. |
+| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:669` | Host-dependency concept layer. |
+| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:709` | Concept-local installer services. |
+| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:731` | Complete installer server layer. |
+| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:435` | Build the Discord-channel concept server. |
+| `@beep/installer-server/layer` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
+| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:506` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:393` | Build the provider-account concept server. |
+| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
+| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:492` | Build the stack-manifest concept server. |
+| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:723` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:752` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:685` | Provider-account concept layer. |
+| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:739` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:677` | Secret-reference concept layer. |
+| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:701` | Stack-manifest concept layer. |
 | `@beep/installer-server/test` | `InstallerServerTest` | const | `packages/installer/server/src/test.ts:17` | Deterministic test layer for the installer slice. |
 
 ### @beep/ui
@@ -9851,7 +9851,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1114` | Human-first docgen command suite. |
+| `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1170` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
@@ -10004,7 +10004,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:23` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:39` | Supported AST mutation categories required by create-package. |
 | `@beep/repo-cli/commands/CreatePackage/TsMorphIntegrationService` | `TsMorphMutationOutcome` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:184` | Outcome for one mutation. |
-| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1114` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1170` | Human-first docgen command suite. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:829` | Build a local docgen plan from repository state and command options. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalFullReason` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:187` | Reason local docgen must escalate to the full proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalFullReasonsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:801` | Resolve changed files that require the full docgen proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:122` | Local docgen execution mode selected by the planner. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:141` | Local docgen execution mode selected by the planner. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalPlan` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:220` | Planned local docgen proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalSelectedPackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:160` | Package selected for a local docgen run. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalTurboArgsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:781` | Build Turbo argv for local docgen targets. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalTurboTask` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:255` | Turbo dry-run package summary used by local docgen. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `runDocgenLocal` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:865` | Run the bounded local docgen proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `selectDocgenLocalPackagesForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:752` | Select package-local docgen targets for changed files. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1478` | Aggregate generated package docs into the current root docs layout. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1303` | Analyze a package for missing docgen-required JSDoc. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:465` | Fail when stale package-local docgen configs exist outside current workspaces. |
@@ -10673,7 +10684,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `codegenCommand` | const | `packages/tooling/tool/cli/src/commands/Codegen.ts:257` | CLI command that scans a package's `src/` directory and generates (or previews) |
 | `@beep/repo-cli/index` | `codexCommand` | const | `packages/tooling/tool/cli/src/commands/Codex.ts:134` | Codex helper command group. |
 | `@beep/repo-cli/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/index.ts:16` | Package creation command. |
-| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1114` | Human-first docgen command suite. |
+| `@beep/repo-cli/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/index.ts:1170` | Human-first docgen command suite. |
 | `@beep/repo-cli/index` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:447` | File curation command group. |
 | `@beep/repo-cli/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/index.ts:96` | Graphiti command group. |
@@ -12161,9 +12172,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:737` | Complete installer server layer. |
-| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:758` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:745` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:731` | Complete installer server layer. |
+| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:752` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:739` | Run the live P1 Manual Mode proof and return sanitized evidence. |
 | `@beep/stack-installer` | `VERSION` | const | `apps/stack-installer/src/index.ts:15` | App version marker. |
 
 ### @beep/professional-desktop
