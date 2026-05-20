@@ -72,6 +72,17 @@
         "@types/node": "catalog:",
       },
     },
+    "apps/canvas": {
+      "name": "@beep/canvas",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "apps/codedank-web": {
       "name": "@beep/codedank-web",
       "version": "0.0.0",
@@ -405,6 +416,81 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/canvas/client": {
+      "name": "@beep/canvas-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/canvas-domain": "workspace:^",
+        "@beep/canvas-use-cases": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/canvas/domain": {
+      "name": "@beep/canvas-domain",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/canvas/server": {
+      "name": "@beep/canvas-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/canvas-domain": "workspace:^",
+        "@beep/canvas-use-cases": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/canvas/ui": {
+      "name": "@beep/canvas-ui",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/canvas-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/canvas/use-cases": {
+      "name": "@beep/canvas-use-cases",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/canvas-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/acp": {
       "name": "@beep/acp",
       "version": "0.0.0",
@@ -520,6 +606,17 @@
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/konva": {
+      "name": "@beep/konva",
+      "version": "0.0.0",
+      "dependencies": {
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1485,6 +1582,7 @@
     "jsonld": "^9.0.0",
     "jsonld-streaming-parser": "^5.0.1",
     "jsonld-streaming-serializer": "^4.0.0",
+    "konva": "^10.3.0",
     "lefthook": "^2.1.8",
     "lexical": "^0.44.0",
     "lodash": "^4.18.1",
@@ -1503,6 +1601,7 @@
     "react": "19.2.6",
     "react-day-picker": "^10.0.1",
     "react-dom": "19.2.6",
+    "react-konva": "^19.2.4",
     "react-resizable-panels": "^4.11.1",
     "shacl-engine": "^1.1.0",
     "shadcn": "^4.7.0",
@@ -1858,6 +1957,18 @@
 
     "@beep/architecture-lab-use-cases": ["@beep/architecture-lab-use-cases@workspace:packages/architecture-lab/use-cases"],
 
+    "@beep/canvas": ["@beep/canvas@workspace:apps/canvas"],
+
+    "@beep/canvas-client": ["@beep/canvas-client@workspace:packages/canvas/client"],
+
+    "@beep/canvas-domain": ["@beep/canvas-domain@workspace:packages/canvas/domain"],
+
+    "@beep/canvas-server": ["@beep/canvas-server@workspace:packages/canvas/server"],
+
+    "@beep/canvas-ui": ["@beep/canvas-ui@workspace:packages/canvas/ui"],
+
+    "@beep/canvas-use-cases": ["@beep/canvas-use-cases@workspace:packages/canvas/use-cases"],
+
     "@beep/chalk": ["@beep/chalk@workspace:packages/foundation/capability/chalk"],
 
     "@beep/codedank-web": ["@beep/codedank-web@workspace:apps/codedank-web"],
@@ -1891,6 +2002,8 @@
     "@beep/installer-server": ["@beep/installer-server@workspace:packages/installer/server"],
 
     "@beep/installer-use-cases": ["@beep/installer-use-cases@workspace:packages/installer/use-cases"],
+
+    "@beep/konva": ["@beep/konva@workspace:packages/drivers/konva"],
 
     "@beep/law-practice-domain": ["@beep/law-practice-domain@workspace:packages/law-practice/domain"],
 

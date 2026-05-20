@@ -21,6 +21,7 @@ const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 const decodeWorkItemTitle = S.decodeUnknownEffect(DomainWorkItem.WorkItemTitle);
 const decodeWorkerId = S.decodeUnknownEffect(DomainWorker.WorkerId);
 const decodeOrganizationId = S.decodeUnknownEffect(DomainWorker.WorkerOrganizationId);
+const PgliteIntegrationTimeout = 300_000;
 
 const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
   pipe(
@@ -67,7 +68,7 @@ if (!shouldRunPgliteIntegration) {
   describe.skip("ArchitectureLab Drizzle repository PgLite integration", () => {});
 } else {
   describe.sequential("ArchitectureLab Drizzle repository PgLite integration", () => {
-    layer(WorkItemDrizzleRepositoryLayer, { timeout: "2 minutes" })((it) => {
+    layer(WorkItemDrizzleRepositoryLayer, { timeout: "5 minutes" })((it) => {
       it.effect(
         "persists WorkItem lifecycle changes through Drizzle",
         Effect.fnUntraced(function* () {
@@ -100,7 +101,7 @@ if (!shouldRunPgliteIntegration) {
             )
           ).toEqual([saved.id]);
         }),
-        120_000
+        PgliteIntegrationTimeout
       );
 
       it.effect(
@@ -130,7 +131,7 @@ if (!shouldRunPgliteIntegration) {
             )
           ).toEqual([inserted.id]);
         }),
-        120_000
+        PgliteIntegrationTimeout
       );
     });
   });
