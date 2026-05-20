@@ -569,6 +569,12 @@
       "@beep/opip-web/app/manifest": ["./apps/opip-web/src/app/manifest.ts"],
       "@beep/opip-web/app/robots": ["./apps/opip-web/src/app/robots.ts"],
       "@beep/opip-web/app/sitemap": ["./apps/opip-web/src/app/sitemap.ts"],
+      "@beep/repo-codegraph": [
+        "./packages/tooling/library/repo-codegraph/src/index.ts"
+      ],
+      "@beep/repo-codegraph/*": [
+        "./packages/tooling/library/repo-codegraph/src/*"
+      ],
       "@beep/konva": ["./packages/drivers/konva/src/index.ts"],
       "@beep/konva/*": ["./packages/drivers/konva/src/*"],
       "@beep/canvas": ["./apps/canvas/src/index.ts"],

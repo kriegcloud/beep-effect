@@ -45,6 +45,9 @@
       "path": "../../library/ai-metrics/tsconfig.json"
     },
     {
+      "path": "../../library/repo-codegraph/tsconfig.json"
+    },
+    {
       "path": "../../library/repo-utils/tsconfig.json"
     },
     {

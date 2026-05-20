@@ -1222,6 +1222,22 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/tooling/library/repo-codegraph": {
+      "name": "@beep/repo-codegraph",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+        "jsonc-parser": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/tooling/library/repo-utils": {
       "name": "@beep/repo-utils",
       "version": "0.0.0",
@@ -1311,6 +1327,7 @@
         "@beep/observability": "workspace:^",
         "@beep/phoenix": "workspace:^",
         "@beep/repo-ai-metrics": "workspace:^",
+        "@beep/repo-codegraph": "workspace:^",
         "@beep/repo-configs": "workspace:^",
         "@beep/repo-docgen": "workspace:^",
         "@beep/repo-utils": "workspace:^",
@@ -2036,6 +2053,8 @@
     "@beep/repo-ai-metrics": ["@beep/repo-ai-metrics@workspace:packages/tooling/library/ai-metrics"],
 
     "@beep/repo-cli": ["@beep/repo-cli@workspace:packages/tooling/tool/cli"],
+
+    "@beep/repo-codegraph": ["@beep/repo-codegraph@workspace:packages/tooling/library/repo-codegraph"],
 
     "@beep/repo-configs": ["@beep/repo-configs@workspace:packages/tooling/policy-pack/repo-configs"],
 

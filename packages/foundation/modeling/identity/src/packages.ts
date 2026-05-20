@@ -138,7 +138,8 @@ const composers = $I.compose(
   "hubspot",
   "phoenix",
   "konva",
-  "canvas"
+  "canvas",
+  "repo-codegraph"
 );
 
 // --- foundation ---
@@ -1348,3 +1349,19 @@ export const $CanvasUiId: Identity.IdentityComposer<"@beep/canvas-ui"> = compose
  * @category configuration
  */
 export const $CanvasId: Identity.IdentityComposer<"@beep/canvas"> = composers.$CanvasId;
+
+/**
+ * Identity composer for `@beep/repo-codegraph`.
+ *
+ * @example
+ * ```typescript
+ * import { $RepoCodegraphId } from "@beep/identity"
+ *
+ * const id = $RepoCodegraphId.make("RepoCodegraph")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $RepoCodegraphId: Identity.IdentityComposer<"@beep/repo-codegraph"> = composers.$RepoCodegraphId;

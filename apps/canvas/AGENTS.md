@@ -1,7 +1,7 @@
 # @beep/canvas Agent Guide
 
 ## Purpose & Fit
-- 
+-
 
 ## Surface Map
 | Surface | Key exports | Notes |

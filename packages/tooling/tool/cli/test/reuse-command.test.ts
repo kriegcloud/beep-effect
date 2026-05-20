@@ -1,5 +1,6 @@
 import { reuseCommand } from "@beep/repo-cli/commands/Reuse/index";
 import { CodexSmokeResult } from "@beep/repo-cli/commands/Reuse/internal/CodexRunner";
+import { RepoCodegraphLookupResult } from "@beep/repo-codegraph";
 import {
   FsUtilsLive,
   ReuseDiscoveryService,
@@ -9,7 +10,7 @@ import {
   TSMorphServiceLive,
 } from "@beep/repo-utils";
 import { A } from "@beep/utils";
-import { NodeServices } from "@effect/platform-node";
+import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { type Context, Effect, Exit, Layer, Scope } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -29,12 +30,14 @@ const TOOLING_CLI_FILE = "packages/tooling/tool/cli/src/commands/Docgen/index.ts
 
 const CommandTestLayer = Layer.mergeAll(
   NodeServices.layer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer)),
   TestConsole.layer,
   FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer)),
   TSMorphServiceLive.pipe(Layer.provideMerge(NodeServices.layer))
 );
 
 const decodeCodexSmokeResultJson = S.decodeUnknownSync(S.fromJsonString(CodexSmokeResult));
+const decodeRepoCodegraphLookupResultJson = S.decodeUnknownSync(S.fromJsonString(RepoCodegraphLookupResult));
 
 const parseLoggedJson = Effect.fn(function* <A>(decodeJson: (value: string) => A) {
   const logLines = yield* TestConsole.logLines;
@@ -241,5 +244,44 @@ describe("reuse command", () => {
         }).pipe(provideScopedLayer(CommandTestLayer))
       ),
     120_000
+  );
+
+  it(
+    "emits machine-readable lookup results for existing public exports",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          yield* runReuseCommand(["lookup", "--query", "UnknownRecord", "--json"]);
+
+          const result = yield* parseLoggedJson(decodeRepoCodegraphLookupResultJson);
+
+          expect(result.query).toBe("UnknownRecord");
+          expect(result.freshnessStatus).toBe("unchecked");
+          expect(
+            A.some(
+              result.matches,
+              (match) => match.packageName === "@beep/schema" && match.symbolName === "UnknownRecord"
+            )
+          ).toBe(true);
+        }).pipe(provideScopedLayer(CommandTestLayer))
+      ),
+    120_000
+  );
+
+  it(
+    "runs strict lookup through the command child-process spawner",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          yield* runReuseCommand(["lookup", "--query", "UnknownRecord", "--strict", "--json"]);
+
+          const result = yield* parseLoggedJson(decodeRepoCodegraphLookupResultJson);
+
+          expect(result.query).toBe("UnknownRecord");
+          expect(result.freshnessStatus).toBe("current");
+          expect(result.warnings).toEqual([]);
+        }).pipe(provideScopedLayer(CommandTestLayer))
+      ),
+    180_000
   );
 });
