@@ -7,58 +7,53 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { A } from "@beep/utils";
-import { Effect, flow, Match, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, flow, Result, SchemaGetter, SchemaIssue } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {
-  getGlobalYamlRuntime,
-  loadYamlModule,
-  makeParseYaml,
-  makeParseYamlForSchema,
-  type YamlParseResult,
-} from "./internal/yaml.ts";
+import { getGlobalYamlRuntime, loadYamlModule, makeParseYaml, makeParseYamlForSchema } from "./internal/yaml.ts";
 
 const $I = $SchemaId.create("Yaml");
 const yamlRuntime = getGlobalYamlRuntime();
 
 const parseYamlResult = makeParseYamlForSchema(yamlRuntime, loadYamlModule);
 
-const encodeUnsupported = (value: unknown): Effect.Effect<string, SchemaIssue.Issue> =>
-  Effect.fail(
-    new SchemaIssue.InvalidValue(O.some(value), {
-      message: "Encoding unknown values to YAML text is not supported by YamlTextToUnknown.",
+const invalidYamlInput: {
+  (content: unknown, message: string): SchemaIssue.InvalidValue;
+  (message: string): (content: unknown) => SchemaIssue.InvalidValue;
+} = dual(
+  2,
+  (content: unknown, message: string): SchemaIssue.InvalidValue =>
+    new SchemaIssue.InvalidValue(O.some(content), {
+      message,
     })
-  );
+);
+
+const encodeUnsupported = (value: unknown): Effect.Effect<string, SchemaIssue.Issue> =>
+  Effect.fail(invalidYamlInput(value, "Encoding unknown values to YAML text is not supported by YamlTextToUnknown."));
 
 const renderYamlIssueMessage = (messages: ReadonlyArray<string>): string =>
   `Invalid YAML input (${A.join(messages, "; ")}).`;
 
 const toYamlIssue = (input: string, cause: unknown): SchemaIssue.InvalidValue =>
-  new SchemaIssue.InvalidValue(O.some(input), {
-    message: P.isError(cause) ? cause.message : "Invalid YAML input.",
-  });
+  invalidYamlInput(input, P.isError(cause) ? cause.message : "Invalid YAML input.");
 
-const decodeYamlUnknown = Effect.fn("Yaml.decodeYamlUnknown")(function* (input: string) {
-  const parsed = yield* Effect.try({
+const decodeYamlUnknown = (input: string): Effect.Effect<unknown, SchemaIssue.Issue> =>
+  Effect.try({
     try: () => parseYamlResult(input),
     catch: (cause) => toYamlIssue(input, cause),
-  });
-
-  const matchParsedYaml = Match.type<YamlParseResult>().pipe(
-    Match.tag("success", ({ value }) => Effect.succeed(value)),
-    Match.tag("failure", ({ messages }) =>
-      Effect.fail(
-        new SchemaIssue.InvalidValue(O.some(input), {
-          message: renderYamlIssueMessage(messages),
+  }).pipe(
+    Effect.flatMap((parsed) =>
+      parsed.pipe(
+        Result.mapError((messages) => invalidYamlInput(input, renderYamlIssueMessage(messages))),
+        Result.match({
+          onSuccess: Effect.succeed,
+          onFailure: Effect.fail,
         })
       )
-    ),
-    Match.exhaustive
+    )
   );
-
-  return yield* matchParsedYaml(parsed);
-});
 
 /**
  * Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available
@@ -99,13 +94,10 @@ export const parseYaml = makeParseYaml(yamlRuntime, loadYamlModule);
  * @since 0.0.0
  */
 export const YamlTextToUnknown = S.String.pipe(
-  S.decodeTo(
-    S.Unknown,
-    SchemaTransformation.transformOrFail({
-      decode: decodeYamlUnknown,
-      encode: encodeUnsupported,
-    })
-  ),
+  S.decodeTo(S.Unknown, {
+    decode: SchemaGetter.transformOrFail(decodeYamlUnknown),
+    encode: SchemaGetter.transformOrFail(encodeUnsupported),
+  }),
   S.annotate(
     $I.annote("YamlTextToUnknown", {
       description: "Schema transformation that parses YAML text into unknown values.",
@@ -141,9 +133,6 @@ export const YamlTextToUnknown = S.String.pipe(
 export const decodeYamlTextAs = <Schema extends S.Top>(schema: Schema) => {
   const decodeYamlUnknownText = S.decodeUnknownEffect(YamlTextToUnknown);
   const decodeTargetSchema = S.decodeUnknownEffect(schema);
-  const decodeTarget = Effect.fnUntraced(function* (input: Parameters<typeof decodeTargetSchema>[0]) {
-    return yield* decodeTargetSchema(input);
-  });
 
-  return flow(decodeYamlUnknownText, Effect.flatMap(decodeTarget));
+  return flow(decodeYamlUnknownText, Effect.flatMap(decodeTargetSchema));
 };

@@ -5,11 +5,20 @@
  * @since 0.0.0
  */
 
+import { randomUUID } from "node:crypto";
 import { A } from "@beep/utils";
+import { Config, Effect, pipe } from "effect";
+import * as O from "effect/Option";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const isDevelopment = process.env.NODE_ENV !== "production";
+const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
+const configStringEqualsSync = (name: string, expected: string): boolean =>
+  pipe(
+    configStringOptionSync(name),
+    O.exists((value) => value === expected)
+  );
+const isDevelopment = !configStringEqualsSync("NODE_ENV", "production");
 const developmentScriptSources = isDevelopment ? " 'unsafe-eval' https://unpkg.com" : "";
 const developmentConnectSources = isDevelopment ? " http://localhost:* https://*.localhost:* ws: wss:" : "";
 const vercelLiveSource = " https://vercel.live";
@@ -60,7 +69,7 @@ const withCsp = (cspHeader: string) => (response: NextResponse) => {
  * @since 0.0.0
  */
 export function proxy(request: NextRequest): NextResponse {
-  const nonce = btoa(crypto.randomUUID());
+  const nonce = btoa(randomUUID());
   const cspHeader = buildCspHeader(nonce);
   const requestHeaders = new Headers(request.headers);
 

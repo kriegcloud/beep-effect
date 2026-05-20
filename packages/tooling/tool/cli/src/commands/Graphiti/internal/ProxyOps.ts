@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Clock, Console, Duration, Effect, FileSystem, Path, pipe, Stream } from "effect";
+import { Clock, Config, Console, Duration, Effect, FileSystem, Path, pipe, Stream } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
@@ -72,22 +72,28 @@ const commandText = (command: string, args: ReadonlyArray<string>) => A.join([co
 
 const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 
-const homeDirectory = (): string => process.env.HOME ?? process.cwd();
+const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
+
+const homeDirectory = (): string =>
+  pipe(
+    configStringOptionSync("HOME"),
+    O.getOrElse(() => process.cwd())
+  );
 
 const envValue = (name: string, fallback: string): string =>
   pipe(
-    O.fromUndefinedOr(process.env[name]),
+    configStringOptionSync(name),
     O.filter(Str.isNonEmpty),
     O.getOrElse(() => fallback)
   );
 
 const intEnvValue = (name: string, fallback: number): number => {
-  const parsed = Number.parseInt(process.env[name] ?? "", 10);
+  const parsed = Number.parseInt(envValue(name, ""), 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 };
 
 const booleanEnvValue = (name: string, fallback: boolean): boolean => {
-  const normalized = Str.toLowerCase(Str.trim(process.env[name] ?? ""));
+  const normalized = Str.toLowerCase(Str.trim(envValue(name, "")));
   if (normalized === "true" || normalized === "1" || normalized === "yes") {
     return true;
   }

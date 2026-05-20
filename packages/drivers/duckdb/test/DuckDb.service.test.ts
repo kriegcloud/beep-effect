@@ -1,7 +1,12 @@
 import { DuckDb, DuckDbConnectionOptions, DuckDbError, DuckDbParquetExport } from "@beep/duckdb";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Exit, FileSystem, Path } from "effect";
+import { Effect, Exit, FileSystem, Layer, Path } from "effect";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -80,9 +85,9 @@ describe("@beep/duckdb", () => {
               })
             );
             expect(yield* fs.exists(parquetPath)).toBe(true);
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 
@@ -96,7 +101,7 @@ describe("@beep/duckdb", () => {
 
         const rows = yield* duckdb.query("SELECT id, value FROM memory_events ORDER BY id");
         expect(rows).toEqual([{ id: "memory-1", value: 7 }]);
-      }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
+      }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath: ":memory:" }))));
     })
   );
 
@@ -128,9 +133,9 @@ describe("@beep/duckdb", () => {
             expect(Exit.isFailure(exit)).toBe(true);
             const rows = yield* duckdb.query("SELECT count(*) AS count FROM tx_events");
             expect(rows).toEqual([{ count: "0" }]);
-          }).pipe(Effect.provide(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath }))));
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(new DuckDbConnectionOptions({ databasePath }))));
         })
-      ).pipe(Effect.provide(NodeServices.layer));
+      ).pipe(provideScopedLayer(NodeServices.layer));
     })
   );
 });

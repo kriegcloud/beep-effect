@@ -18,6 +18,12 @@ const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
+const randomIntBelow = (maxExclusive: number): number => {
+  const values = new Uint32Array(1);
+  globalThis.crypto?.getRandomValues(values);
+  return (values[0] ?? 0) % maxExclusive;
+};
+
 type SidebarContextValue = {
   readonly state: "expanded" | "collapsed";
   readonly open: boolean;
@@ -662,9 +668,7 @@ function SidebarMenuSkeleton({
 }: React.ComponentPropsWithoutRef<"div"> & {
   readonly showIcon?: undefined | boolean;
 }) {
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, A.empty());
+  const width = React.useMemo(() => `${randomIntBelow(40) + 50}%`, A.empty());
 
   return (
     <div

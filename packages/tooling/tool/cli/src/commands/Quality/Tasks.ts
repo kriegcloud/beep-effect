@@ -16,6 +16,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { configStringEqualsSync, configStringOption } from "./internal/Config.js";
 
 const $I = $RepoCliId.create("commands/Quality/Tasks");
 
@@ -462,7 +463,7 @@ const isExplicitTurboScopeArg = (arg: string): boolean =>
 const shouldRunRepoWideSteps = (args: ReadonlyArray<string>): boolean => !A.some(args, isExplicitTurboScopeArg);
 
 const localTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
-  process.env.CI === "true" || A.some(args, isTurboCacheControlArg) ? A.empty() : ["--cache=local:rw"];
+  configStringEqualsSync("CI", "true") || A.some(args, isTurboCacheControlArg) ? A.empty() : ["--cache=local:rw"];
 
 const turboRunArgs = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>): ReadonlyArray<string> => [
   "turbo",
@@ -498,7 +499,10 @@ const sqlIntegrationConnectionUriFromEnv = (env: Record<string, string | undefin
     O.orElse(() => usableSqlConnectionUri(env.DATABASE_URL_UNPOOLED))
   );
 
-const turboEnvOverrides = (command: string, args: ReadonlyArray<string>): Record<string, string | undefined> => {
+const turboEnvOverrides = Effect.fn("QualityTasks.turboEnvOverrides")(function* (
+  command: string,
+  args: ReadonlyArray<string>
+) {
   if (
     command !== "bunx" ||
     !pipe(
@@ -509,11 +513,15 @@ const turboEnvOverrides = (command: string, args: ReadonlyArray<string>): Record
     return {};
   }
 
+  const turboToken = yield* configStringOption("TURBO_TOKEN");
+  const turboTeam = yield* configStringOption("TURBO_TEAM");
+  const turboTokenValue = pipe(turboToken, O.getOrUndefined);
+  const turboTeamValue = pipe(turboTeam, O.getOrUndefined);
   return {
-    ...(isUnresolvedSecretReference(process.env.TURBO_TOKEN) ? { TURBO_TOKEN: undefined } : {}),
-    ...(isUnresolvedSecretReference(process.env.TURBO_TEAM) ? { TURBO_TEAM: undefined } : {}),
+    ...(isUnresolvedSecretReference(turboTokenValue) ? { TURBO_TOKEN: undefined } : {}),
+    ...(isUnresolvedSecretReference(turboTeamValue) ? { TURBO_TEAM: undefined } : {}),
   };
-};
+});
 
 const runExitCode = Effect.fn("QualityTasks.runExitCode")(function* (
   command: string,
@@ -535,7 +543,13 @@ const runExitCode = Effect.fn("QualityTasks.runExitCode")(function* (
 const canUseLocalEnv = Effect.fn("QualityTasks.canUseLocalEnv")(function* (
   repoRoot: string
 ): Effect.fn.Return<boolean, never, FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner> {
-  if (process.env.CI === "true") {
+  const ci = yield* configStringOption("CI");
+  if (
+    pipe(
+      ci,
+      O.exists((value) => value === "true")
+    )
+  ) {
     return false;
   }
 
@@ -569,13 +583,14 @@ const withLocalEnv = Effect.fn("QualityTasks.withLocalEnv")(function* (step: Qua
 
 const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskStep) {
   const resolved = yield* withLocalEnv(step);
+  const envOverrides = yield* turboEnvOverrides(resolved.command, resolved.args);
   yield* Console.log(`[beep-cli] ${resolved.label}: ${commandText(resolved.command, resolved.args)}`);
   const exitCode = yield* Effect.scoped(
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(resolved.command, [...resolved.args], {
         cwd: resolved.cwd,
         env: {
-          ...turboEnvOverrides(resolved.command, resolved.args),
+          ...envOverrides,
           ...(resolved.env ?? {}),
         },
         extendEnv: true,
@@ -609,12 +624,13 @@ const collectResolvedStepOutput = Effect.fn("QualityTasks.collectResolvedStepOut
   step: QualityTaskStep
 ): Effect.fn.Return<QualityTaskStepOutput, QualityTaskConfigurationError, ChildProcessSpawner.ChildProcessSpawner> {
   const command = commandText(step.command, step.args);
+  const envOverrides = yield* turboEnvOverrides(step.command, step.args);
   const result = yield* Effect.scoped(
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(step.command, [...step.args], {
         cwd: step.cwd,
         env: {
-          ...turboEnvOverrides(step.command, step.args),
+          ...envOverrides,
           ...(step.env ?? {}),
         },
         extendEnv: true,
@@ -765,19 +781,21 @@ const sqlIntegrationChildCommand = (args: ReadonlyArray<string>): SqlIntegration
 const withRyukDisabledDuringAcquire = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
   Effect.acquireUseRelease(
     Effect.sync(() => {
-      const previous = process.env.TESTCONTAINERS_RYUK_DISABLED;
+      const env = globalThis.process.env;
+      const previous = env.TESTCONTAINERS_RYUK_DISABLED;
       if (previous === undefined) {
-        process.env.TESTCONTAINERS_RYUK_DISABLED = "true";
+        env.TESTCONTAINERS_RYUK_DISABLED = "true";
       }
       return previous;
     }),
     () => effect,
     (previous) =>
       Effect.sync(() => {
+        const env = globalThis.process.env;
         if (previous === undefined) {
-          delete process.env.TESTCONTAINERS_RYUK_DISABLED;
+          delete env.TESTCONTAINERS_RYUK_DISABLED;
         } else {
-          process.env.TESTCONTAINERS_RYUK_DISABLED = previous;
+          env.TESTCONTAINERS_RYUK_DISABLED = previous;
         }
       })
   );
@@ -810,15 +828,23 @@ const acquireTestcontainersSqlIntegrationResource = withRyukDisabledDuringAcquir
 const acquireExternalSqlIntegrationResource = (connectionUri: string): Effect.Effect<SqlIntegrationLaneResource> =>
   Effect.succeed({ connectionUri });
 
-const acquireDefaultSqlIntegrationResource = Effect.suspend(() =>
-  pipe(
-    sqlIntegrationConnectionUriFromEnv(process.env),
+const acquireDefaultSqlIntegrationResource = Effect.gen(function* () {
+  const beepTestDatabaseUrl = yield* configStringOption("BEEP_TEST_DATABASE_URL");
+  const databaseUrl = yield* configStringOption("DATABASE_URL");
+  const databaseUrlUnpooled = yield* configStringOption("DATABASE_URL_UNPOOLED");
+
+  return yield* pipe(
+    sqlIntegrationConnectionUriFromEnv({
+      BEEP_TEST_DATABASE_URL: O.getOrUndefined(beepTestDatabaseUrl),
+      DATABASE_URL: O.getOrUndefined(databaseUrl),
+      DATABASE_URL_UNPOOLED: O.getOrUndefined(databaseUrlUnpooled),
+    }),
     O.match({
       onNone: () => acquireTestcontainersSqlIntegrationResource,
       onSome: acquireExternalSqlIntegrationResource,
     })
-  )
-);
+  );
+});
 
 const runSqlIntegrationTestLane = Effect.fn("QualityTasks.runSqlIntegrationTestLane")(function* (
   options: SqlIntegrationLaneOptions
@@ -933,6 +959,7 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   repoCliStep(repoRoot, "lint:native-runtime", ["laws", "native-runtime", "--check"]),
   repoCliStep(repoRoot, "lint:dual-arity", ["laws", "dual-arity", "--check"]),
   repoCliStep(repoRoot, "lint:allowlist", ["laws", "allowlist-check"]),
+  repoCliStep(repoRoot, "lint:tsgo-rules", ["quality", "tsgo-rules"]),
   repoCliStep(repoRoot, "lint:package-test-imports", ["lint", "package-test-imports"]),
   repoCliStep(repoRoot, "lint:schema-first", ["lint", "schema-first"]),
   bunxStep(repoRoot, "lint:jsdoc", ["eslint", "."]),

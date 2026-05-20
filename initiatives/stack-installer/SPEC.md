@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-14
-- **Updated:** 2026-05-14
+- **Updated:** 2026-05-16
 
 ## Purpose
 
@@ -257,12 +257,15 @@ and does not close P1.
 
 P1D is complete when the Tauri app becomes the primary operator surface for a
 Linux-first proof run and completes one real machine-changing dependency
-install or repair action through installer-owned code, with proof artifacts and
-validation showing the before and after state.
+repair action through installer-owned code, with proof artifacts and
+validation showing the before and after state. For this milestone, the Bun flow
+is repair-only for an existing Bun install, and the required Bun version is an
+installer-owned config contract rather than an app-local repo metadata read.
 
 P2 is complete when the same flow runs in AI Mode for Claude and Codex, with
 screencasts, structured action logs, and a byte-identical-manifest gate modulo
-timestamps between P1D and P2.
+timestamps between P1D and P2. P2 does not start until the real Windows proof
+artifact is returned and audited, closing the remaining P1 debt.
 
 P3 is complete when AI Mode repairs salted broken states for wrong Node
 version, invalid Discord token, and missing 1Password reference, with

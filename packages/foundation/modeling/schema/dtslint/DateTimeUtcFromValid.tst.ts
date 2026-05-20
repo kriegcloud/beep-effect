@@ -27,7 +27,7 @@ describe("DateTimeUtcFromValid", () => {
   it("tracks tagged primitive helper types", () => {
     const taggedString = DateTimeInputString.makeTagged("2024-01-01T00:00:00.000Z");
     const taggedNumber = DateTimeInputNumber.makeTagged(1_704_067_200_000);
-    const taggedDate = DateTimeInputDate.makeTagged(new Date("2024-01-01T00:00:00.000Z"));
+    const taggedDate = DateTimeInputDate.makeTagged({} as Date);
 
     expect(taggedString).type.toBe<{
       readonly _tag: "string";

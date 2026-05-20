@@ -52,9 +52,9 @@ const errorMessage = (error: unknown, fallback: string): string =>
 const isDesktopShellRuntime = (): boolean =>
   P.hasProperty(globalThis, "__TAURI__") || P.hasProperty(globalThis, "__TAURI_INTERNALS__");
 
-const defaultLoadDesktopHealth: LoadDesktopHealth = async () => {
+const defaultLoadDesktopHealth: LoadDesktopHealth = () => {
   if (!isDesktopShellRuntime()) {
-    return previewHealth;
+    return Promise.resolve(previewHealth);
   }
 
   // In a real Tauri shell we surface bridge failures to the UI instead of

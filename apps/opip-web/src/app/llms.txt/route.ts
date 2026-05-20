@@ -21,12 +21,13 @@ import { getOpipSiteContent, makeLlmsText } from "../../content";
  * @category constructors
  * @since 0.0.0
  */
-export async function GET() {
-  const content = await getOpipSiteContent();
-
-  return new Response(makeLlmsText(content), {
-    headers: {
-      "content-type": "text/plain; charset=utf-8",
-    },
-  });
+export function GET(): Promise<Response> {
+  return getOpipSiteContent().then(
+    (content) =>
+      new Response(makeLlmsText(content), {
+        headers: {
+          "content-type": "text/plain; charset=utf-8",
+        },
+      })
+  );
 }

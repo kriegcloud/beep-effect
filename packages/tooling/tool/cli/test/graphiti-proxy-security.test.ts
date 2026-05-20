@@ -16,15 +16,22 @@ import {
 const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) =>
   HttpClient.make((request, url) =>
     Effect.tryPromise({
-      try: async () => {
-        const response = await handler(
-          new Request(url.toString(), {
-            method: request.method,
-            headers: request.headers,
+      try: () =>
+        Effect.runPromise(
+          Effect.gen(function* () {
+            const response = yield* Effect.promise(() =>
+              Promise.resolve(
+                handler(
+                  new Request(url.toString(), {
+                    method: request.method,
+                    headers: request.headers,
+                  })
+                )
+              )
+            );
+            return HttpClientResponse.fromWeb(request, response);
           })
-        );
-        return HttpClientResponse.fromWeb(request, response);
-      },
+        ),
       catch: (cause) =>
         new HttpClientError.HttpClientError({
           reason: new HttpClientError.TransportError({ request, cause }),
@@ -41,6 +48,10 @@ const makeProxyConfig = () =>
 const makeServerRequest = (url: string) => HttpServerRequest.fromWeb(new Request(`http://proxy.local${url}`));
 const readResponseText = (response: HttpServerResponse.HttpServerResponse) =>
   Effect.promise(() => HttpServerResponse.toWeb(response).text());
+const provideWebHandlerClient =
+  (handler: (request: Request) => Promise<Response>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, Exclude<R, HttpClient.HttpClient>> =>
+    effect.pipe(Effect.provideService(HttpClient.HttpClient, makeWebHandlerClient(handler)));
 
 layer(NodeServices.layer)("Graphiti proxy security", (it) => {
   it.effect(
@@ -49,13 +60,10 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
       let capturedUrl = "";
       const forwarder = makeGraphitiProxyForwarderService(makeProxyConfig());
       const response = yield* forwarder.forward(makeServerRequest("/mcp?cursor=abc")).pipe(
-        Effect.provideService(
-          HttpClient.HttpClient,
-          makeWebHandlerClient(async (request) => {
-            capturedUrl = request.url;
-            return new Response("ok", { status: 200 });
-          })
-        )
+        provideWebHandlerClient((request) => {
+          capturedUrl = request.url;
+          return Promise.resolve(new Response("ok", { status: 200 }));
+        })
       );
 
       expect(capturedUrl).toBe("http://127.0.0.1:8000/mcp?cursor=abc");
@@ -71,13 +79,10 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
       let capturedUrl = "";
       const forwarder = makeGraphitiProxyForwarderService(makeProxyConfig());
       const response = yield* forwarder.forward(makeServerRequest("/mcp/resources?cursor=abc")).pipe(
-        Effect.provideService(
-          HttpClient.HttpClient,
-          makeWebHandlerClient(async (request) => {
-            capturedUrl = request.url;
-            return new Response("nested", { status: 200 });
-          })
-        )
+        provideWebHandlerClient((request) => {
+          capturedUrl = request.url;
+          return Promise.resolve(new Response("nested", { status: 200 }));
+        })
       );
 
       expect(capturedUrl).toBe("http://127.0.0.1:8000/mcp/resources?cursor=abc");
@@ -97,14 +102,11 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
           dependencyHealthEnabled: false,
         })
       );
-      const response = yield* forwarder.forward(makeServerRequest("/mcp/?cursor=abc")).pipe(
-        Effect.provideService(
-          HttpClient.HttpClient,
-          makeWebHandlerClient(async (request) => {
-            capturedUrl = request.url;
-            return new Response("normalized", { status: 200 });
-          })
-        )
+      const response = yield* forwarder.forward(makeServerRequest("/mcp?cursor=abc")).pipe(
+        provideWebHandlerClient((request) => {
+          capturedUrl = request.url;
+          return Promise.resolve(new Response("normalized", { status: 200 }));
+        })
       );
 
       expect(capturedUrl).toBe("http://127.0.0.1:8000/mcp?cursor=abc");
@@ -151,14 +153,11 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
     Effect.fn(function* () {
       let forwarded = false;
       const forwarder = makeGraphitiProxyForwarderService(makeProxyConfig());
-      const response = yield* forwarder.forward(makeServerRequest("/metrics")).pipe(
-        Effect.provideService(
-          HttpClient.HttpClient,
-          makeWebHandlerClient(async () => {
-            forwarded = true;
-            return new Response("unexpected", { status: 200 });
-          })
-        )
+      const response = yield* forwarder.forward(makeServerRequest("/other")).pipe(
+        provideWebHandlerClient(() => {
+          forwarded = true;
+          return Promise.resolve(new Response("unexpected", { status: 200 }));
+        })
       );
 
       expect(forwarded).toBe(false);
@@ -175,13 +174,10 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
       const forwarder = makeGraphitiProxyForwarderService(makeProxyConfig());
       const request = makeServerRequest("/mcp").modify({ url: "https://evil.invalid/mcp" });
       const response = yield* forwarder.forward(request).pipe(
-        Effect.provideService(
-          HttpClient.HttpClient,
-          makeWebHandlerClient(async () => {
-            forwarded = true;
-            return new Response("unexpected", { status: 200 });
-          })
-        )
+        provideWebHandlerClient(() => {
+          forwarded = true;
+          return Promise.resolve(new Response("unexpected", { status: 200 }));
+        })
       );
 
       expect(forwarded).toBe(false);

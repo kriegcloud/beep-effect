@@ -2500,16 +2500,16 @@ const hashFileSha256 = Effect.fn("Files.hashFileSha256")(function* (
     .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read file for hashing", filePath, { cause })));
 
   return yield* Effect.tryPromise({
-    try: async () => {
-      const digest = await crypto.subtle.digest("SHA-256", new Uint8Array(data));
-      const hex = pipe(
-        A.fromIterable(new Uint8Array(digest)),
-        A.map((value) => Str.padStart(2, "0")(value.toString(16))),
-        A.join("")
-      );
+    try: (): Promise<FileSha256Hash> =>
+      crypto.subtle.digest("SHA-256", new Uint8Array(data)).then((digest) => {
+        const hex = pipe(
+          A.fromIterable(new Uint8Array(digest)),
+          A.map((value) => Str.padStart(2, "0")(value.toString(16))),
+          A.join("")
+        );
 
-      return `sha256:${hex}`;
-    },
+        return `sha256:${hex}`;
+      }),
     catch: (cause) =>
       new FilesCommandError({
         message: `Failed to hash normalized file "${filePath}"`,

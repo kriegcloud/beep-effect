@@ -217,32 +217,36 @@ const submitConfiguredContact = (
   },
   submission: ContactSubmission
 ) =>
-  Effect.gen(function* () {
-    const hubspot = yield* HubSpot;
-    if (O.isSome(settings.formGuid)) {
-      return yield* hubspot.submitForm(
-        new HubSpotSubmitFormRequest({
-          fields: submissionFields(submission),
-          formGuid: settings.formGuid.value,
-          submittedAt: submission.submittedAt,
-          context: {
-            pageName: "opip.law contact",
-            pageUri: "https://opip.law/#contact",
-          },
-        })
-      );
-    }
+  Effect.scoped(
+    Layer.build(HubSpot.makeLayer(settings.config).pipe(Layer.provide(FetchHttpClient.layer))).pipe(
+      Effect.flatMap((context) =>
+        Effect.gen(function* () {
+          const hubspot = yield* HubSpot;
+          if (O.isSome(settings.formGuid)) {
+            return yield* hubspot.submitForm(
+              new HubSpotSubmitFormRequest({
+                fields: submissionFields(submission),
+                formGuid: settings.formGuid.value,
+                submittedAt: submission.submittedAt,
+                context: {
+                  pageName: "opip.law contact",
+                  pageUri: "https://opip.law/#contact",
+                },
+              })
+            );
+          }
 
-    return yield* hubspot.upsertContact(
-      new HubSpotUpsertContactRequest({
-        email: submission.email,
-        objectWriteTraceId: "opip-contact-form",
-        properties: contactProperties(submission),
-      })
-    );
-  }).pipe(
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(HubSpot.makeLayer(settings.config).pipe(Layer.provide(FetchHttpClient.layer))),
+          return yield* hubspot.upsertContact(
+            new HubSpotUpsertContactRequest({
+              email: submission.email,
+              objectWriteTraceId: "opip-contact-form",
+              properties: contactProperties(submission),
+            })
+          );
+        }).pipe(Effect.provide(context))
+      )
+    )
+  ).pipe(
     Effect.mapError((error: HubSpotError) =>
       ContactSubmissionError.fromReason("provider", {
         provider: "hubspot",

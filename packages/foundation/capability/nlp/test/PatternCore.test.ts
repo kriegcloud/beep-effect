@@ -104,24 +104,23 @@ describe("Core Pattern", () => {
     expect(length(combined)).toBe(4);
   });
 
-  it("encodes and decodes element schemas", async () => {
-    const posResult = await Effect.runPromise(
-      Schema.decodeUnknownEffect(BracketStringToPOSPatternElement)("[ADJ|NOUN]")
-    );
-    const entityResult = await Effect.runPromise(
-      Schema.decodeUnknownEffect(BracketStringToEntityPatternElement)("[DATE|TIME]")
-    );
-    const literalResult = await Effect.runPromise(
-      Schema.decodeUnknownEffect(BracketStringToLiteralPatternElement)("[|Apple|Google]")
-    );
+  it("encodes and decodes element schemas", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const posResult = yield* Schema.decodeUnknownEffect(BracketStringToPOSPatternElement)("[ADJ|NOUN]");
+        const entityResult = yield* Schema.decodeUnknownEffect(BracketStringToEntityPatternElement)("[DATE|TIME]");
+        const literalResult = yield* Schema.decodeUnknownEffect(BracketStringToLiteralPatternElement)(
+          "[|Apple|Google]"
+        );
 
-    expect(posResult.value).toEqual(["ADJ", "NOUN"]);
-    expect(entityResult.value).toEqual(["DATE", "TIME"]);
-    expect(literalResult.value).toEqual(["", "Apple", "Google"]);
-    expect(Pattern.POS.toBracketString(posResult.value)).toBe("[ADJ|NOUN]");
-    expect(Pattern.Entity.toBracketString(entityResult.value)).toBe("[DATE|TIME]");
-    expect(Pattern.Literal.toBracketString(literalResult.value)).toBe("[|Apple|Google]");
-  });
+        expect(posResult.value).toEqual(["ADJ", "NOUN"]);
+        expect(entityResult.value).toEqual(["DATE", "TIME"]);
+        expect(literalResult.value).toEqual(["", "Apple", "Google"]);
+        expect(Pattern.POS.toBracketString(posResult.value)).toBe("[ADJ|NOUN]");
+        expect(Pattern.Entity.toBracketString(entityResult.value)).toBe("[DATE|TIME]");
+        expect(Pattern.Literal.toBracketString(literalResult.value)).toBe("[|Apple|Google]");
+      })
+    ));
 
   it("parses mixed pattern strings in order", () => {
     const elements = PatternFromString(["[ADJ|NOUN]", "[DATE]", "[|the]"]);

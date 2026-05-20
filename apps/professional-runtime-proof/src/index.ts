@@ -177,8 +177,10 @@ const fixtureRoot = new URL(
   import.meta.url
 );
 
-const readJson = async <A>(schema: S.Decoder<A, never>, scenarioId: string, fileName: string): Promise<A> =>
-  S.decodeUnknownSync(schema)(await Bun.file(new URL(`${scenarioId}/${fileName}`, fixtureRoot)).json());
+const readJson = <A>(schema: S.Decoder<A, never>, scenarioId: string, fileName: string): Promise<A> =>
+  Bun.file(new URL(`${scenarioId}/${fileName}`, fixtureRoot))
+    .json()
+    .then((value) => S.decodeUnknownSync(schema)(value));
 
 const readBody = (scenarioId: string): Promise<string> =>
   Bun.file(new URL(`${scenarioId}/body.md`, fixtureRoot)).text();
@@ -528,51 +530,67 @@ const decodeCandidateModels = (output: CandidateOutputSet): void => {
  * @category workflows
  * @since 0.0.0
  */
-export const runProfessionalRuntimeScenario = async (scenarioId: ScenarioId) => {
-  const seed = await readJson(SeedFixture, scenarioId, "seed.json");
-  const email = await readJson(EmailFixture, scenarioId, "input.email.json");
-  const body = await readBody(scenarioId);
-  const expectedApprovalGates = await readJson(ExpectedApprovalGates, scenarioId, "expected.approval-gates.json");
-  const expectedClaims = await readJson(ExpectedClaims, scenarioId, "expected.claims.json");
-  const expectedContextPacket = await readJson(ExpectedContextPacket, scenarioId, "expected.context-packet.json");
-  const expectedDrafts = await readJson(ExpectedDrafts, scenarioId, "expected.drafts.json");
-  const expectedTasks = await readJson(ExpectedTasks, scenarioId, "expected.tasks.json");
+export const runProfessionalRuntimeScenario = (scenarioId: ScenarioId) =>
+  Promise.all([
+    readJson(SeedFixture, scenarioId, "seed.json"),
+    readJson(EmailFixture, scenarioId, "input.email.json"),
+    readBody(scenarioId),
+    readJson(ExpectedApprovalGates, scenarioId, "expected.approval-gates.json"),
+    readJson(ExpectedClaims, scenarioId, "expected.claims.json"),
+    readJson(ExpectedContextPacket, scenarioId, "expected.context-packet.json"),
+    readJson(ExpectedDrafts, scenarioId, "expected.drafts.json"),
+    readJson(ExpectedTasks, scenarioId, "expected.tasks.json"),
+  ]).then(
+    ([
+      seed,
+      email,
+      body,
+      expectedApprovalGates,
+      expectedClaims,
+      expectedContextPacket,
+      expectedDrafts,
+      expectedTasks,
+    ]) => {
+      decodeSeedModels(seed, email, body);
+      decodeVerticalModels(seed);
 
-  decodeSeedModels(seed, email, body);
-  decodeVerticalModels(seed);
+      const input = { body, email, seed } satisfies RuntimeFixtureInput;
+      const scope = runtimeScopeFrom(seed, email);
+      const sdk = makeInMemoryProfessionalRuntimeSdk([input]);
 
-  const input = { body, email, seed } satisfies RuntimeFixtureInput;
-  const scope = runtimeScopeFrom(seed, email);
-  const sdk = makeInMemoryProfessionalRuntimeSdk([input]);
-  const contextPacket = await Effect.runPromise(
-    sdk.getContextPacket(new GetContextPacket({ artifactId: email.artifactId, scenarioId, scope }))
+      return Effect.runPromise(
+        sdk.getContextPacket(new GetContextPacket({ artifactId: email.artifactId, scenarioId, scope }))
+      ).then((contextPacket) => {
+        const outputSet = decodeCandidateOutputSet({
+          approvalGates: expectedApprovalGates.approvalGates,
+          candidateProject: expectedTasks.candidateProject,
+          claims: expectedClaims.claims,
+          contextPacket,
+          drafts: expectedDrafts.drafts,
+          scenarioId,
+          tasks: expectedTasks.tasks,
+        });
+
+        return Effect.runPromise(
+          sdk.proposeCandidateOutputSet(
+            new ProposeCandidateOutputSet({
+              outputSet,
+              producedByPrincipalId: runtimeAgentPrincipalId(seed),
+              scope,
+            })
+          )
+        ).then((output) => {
+          decodeCandidateModels(output);
+
+          return {
+            expectedApprovalGates,
+            expectedClaims,
+            expectedContextPacket,
+            expectedDrafts,
+            expectedTasks,
+            output,
+          };
+        });
+      });
+    }
   );
-  const outputSet = decodeCandidateOutputSet({
-    approvalGates: expectedApprovalGates.approvalGates,
-    candidateProject: expectedTasks.candidateProject,
-    claims: expectedClaims.claims,
-    contextPacket,
-    drafts: expectedDrafts.drafts,
-    scenarioId,
-    tasks: expectedTasks.tasks,
-  });
-  const output = await Effect.runPromise(
-    sdk.proposeCandidateOutputSet(
-      new ProposeCandidateOutputSet({
-        outputSet,
-        producedByPrincipalId: runtimeAgentPrincipalId(seed),
-        scope,
-      })
-    )
-  );
-  decodeCandidateModels(output);
-
-  return {
-    expectedApprovalGates,
-    expectedClaims,
-    expectedContextPacket,
-    expectedDrafts,
-    expectedTasks,
-    output,
-  };
-};

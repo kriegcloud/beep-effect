@@ -641,6 +641,4 @@ export interface MakeReturn<Variants extends ReadonlyArray<string>, Default exte
  */
 export const make = <const Variants extends ReadonlyArray<string>, const Default extends Variants[number]>(
   options: MakeOptions<Variants, Default>
-): MakeReturn<Variants, Default> => {
-  return VariantSchema.make(options);
-};
+): MakeReturn<Variants, Default> => VariantSchema.make(options);

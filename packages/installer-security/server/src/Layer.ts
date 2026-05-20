@@ -15,6 +15,8 @@ import {
 } from "@beep/installer-security-use-cases/public";
 import { InstallerSecurityUseCases } from "@beep/installer-security-use-cases/server";
 import { OnePasswordCli } from "@beep/onepassword-cli";
+import type { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
+import type { TUnsafe } from "@beep/types";
 import { Effect, Layer } from "effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -65,7 +67,9 @@ export const makeInstallerSecurityServer = Effect.fn("InstallerSecurityServer.ma
 
   return {
     previewSecretReferences: () => Effect.succeed(plan),
-    readSecretReference: Effect.fn("InstallerSecurityServer.readSecretReference")(function* (reference) {
+    readSecretReference: Effect.fn("InstallerSecurityServer.readSecretReference")(function* (
+      reference: OnePasswordReference
+    ) {
       return yield* onePassword.read(reference).pipe(
         Effect.mapError(
           () =>
@@ -76,7 +80,9 @@ export const makeInstallerSecurityServer = Effect.fn("InstallerSecurityServer.ma
         )
       );
     }),
-    validateSecretReference: Effect.fn("InstallerSecurityServer.validateSecretReference")(function* (rawRequest) {
+    validateSecretReference: Effect.fn("InstallerSecurityServer.validateSecretReference")(function* (
+      rawRequest: SecretReferenceValidationRequest
+    ) {
       const request = yield* decodeSecretReferenceValidationRequest(rawRequest);
 
       return yield* onePassword.probeReference(request.reference).pipe(
@@ -106,10 +112,14 @@ export const makeInstallerSecurityServer = Effect.fn("InstallerSecurityServer.ma
   };
 });
 
+const installerSecurityServerEffect: Effect.Effect<TUnsafe.Any, S.SchemaError, OnePasswordCli> =
+  makeInstallerSecurityServer();
+
 /**
  * Deterministic security server layer for P1A.
  *
  * @category layers
  * @since 0.0.0
  */
-export const InstallerSecurityServerLive = Layer.effect(InstallerSecurityUseCases, makeInstallerSecurityServer());
+export const InstallerSecurityServerLive: Layer.Layer<InstallerSecurityUseCases, S.SchemaError, OnePasswordCli> =
+  Layer.effect(InstallerSecurityUseCases, installerSecurityServerEffect);

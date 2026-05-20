@@ -283,21 +283,17 @@ export const codegenCommand = Command.make(
 
     // Read package.json to extract the package name for the header
     const packageJsonPath = pathSvc.join(packageDir, "package.json");
-    const packageName = yield* Effect.gen(function* () {
-      const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(O.none));
-      if (
-        O.isSome(json) &&
-        P.isObject(json.value) &&
-        P.isNotNull(json.value) &&
-        P.hasProperty(json.value, "name") &&
-        P.Struct({
-          name: P.isString,
-        })(json.value)
-      ) {
-        return json.value.name;
-      }
-      return pathSvc.basename(packageDir);
-    });
+    const packageJson = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(O.none));
+    const packageName =
+      O.isSome(packageJson) &&
+      P.isObject(packageJson.value) &&
+      P.isNotNull(packageJson.value) &&
+      P.hasProperty(packageJson.value, "name") &&
+      P.Struct({
+        name: P.isString,
+      })(packageJson.value)
+        ? packageJson.value.name
+        : pathSvc.basename(packageDir);
 
     yield* Console.log(`Scanning ${srcDir} for modules...`);
 

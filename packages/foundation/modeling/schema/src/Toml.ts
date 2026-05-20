@@ -7,30 +7,41 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { Effect, flow, SchemaGetter, SchemaIssue } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { UnknownRecord } from "./Record.ts";
 
 const $I = $SchemaId.create("Toml");
-const UnknownTomlDocument = S.Record(S.String, S.Unknown);
-const decodeUnknownTomlDocument = S.decodeUnknownEffect(UnknownTomlDocument);
 
-const encodeUnsupported = (value: typeof UnknownTomlDocument.Type): Effect.Effect<string, SchemaIssue.Issue> =>
+const decodeUnknownRecord = S.decodeUnknownEffect(UnknownRecord);
+
+const encodeUnsupported = (value: typeof UnknownRecord.Type): Effect.Effect<string, SchemaIssue.Issue> =>
   Effect.fail(
     new SchemaIssue.InvalidValue(O.some(value), {
       message: "Encoding unknown values to TOML text is not supported by TomlTextToUnknown.",
     })
   );
 
-const invalidTomlInput = (content: string, message: string): SchemaIssue.InvalidValue =>
-  new SchemaIssue.InvalidValue(O.some(content), {
-    message,
-  });
+const invalidTomlInput: {
+  (content: string, message: string): SchemaIssue.InvalidValue;
+  (message: string): (content: string) => SchemaIssue.InvalidValue;
+} = dual(
+  2,
+  (content: string, message: string): SchemaIssue.InvalidValue =>
+    new SchemaIssue.InvalidValue(O.some(content), {
+      message,
+    })
+);
 
 type TomlParse = (content: string) => unknown;
 
-const hasMessage = (input: unknown): input is { readonly message: string } =>
-  P.isObject(input) && P.hasProperty(input, "message") && P.isString(input.message);
+const hasMessage = (
+  input: unknown
+): input is {
+  readonly message: string;
+} => P.isObject(input) && P.hasProperty(input, "message") && P.isString(input.message);
 
 const getTomlParse = (): O.Option<TomlParse> => {
   const bunRuntime = Reflect.get(globalThis, "Bun");
@@ -43,21 +54,25 @@ const getTomlParse = (): O.Option<TomlParse> => {
   return O.none();
 };
 
-const decodeTomlUnknown = Effect.fn("Toml.decodeTomlUnknown")(function* (content: string) {
-  const parseToml = yield* O.match(getTomlParse(), {
-    onNone: () => Effect.fail(invalidTomlInput(content, "Bun.TOML.parse is unavailable in the current runtime.")),
-    onSome: Effect.succeed,
-  });
-  const parsed = yield* Effect.try({
-    try: () => parseToml(content),
-    catch: (cause) =>
-      invalidTomlInput(content, hasMessage(cause) ? `Invalid TOML input (${cause.message}).` : "Invalid TOML input."),
-  });
-
-  return yield* decodeUnknownTomlDocument(parsed).pipe(
-    Effect.mapError(() => invalidTomlInput(content, "Invalid TOML input (Expected TOML object output)."))
+const decodeTomlUnknown = (content: string) => {
+  const makeInvalid = (message: string) => invalidTomlInput(content, message);
+  return getTomlParse().pipe(
+    Effect.fromOption,
+    Effect.mapError(() => makeInvalid("Bun.TOML.parse is" + " unavailable in the current runtime.")),
+    Effect.flatMap((parse) =>
+      Effect.try({
+        try: () => parse(content),
+        catch: (cause) =>
+          makeInvalid(hasMessage(cause) ? `Invalid TOML input (${cause.message}).` : "Invalid TOML input."),
+      })
+    ),
+    Effect.flatMap((parsed) =>
+      decodeUnknownRecord(parsed).pipe(
+        Effect.mapError(() => makeInvalid("Invalid TOML input (Expected TOML object output)."))
+      )
+    )
   );
-});
+};
 
 /**
  * Schema transformation that decodes TOML text into an unknown record using
@@ -69,12 +84,7 @@ const decodeTomlUnknown = Effect.fn("Toml.decodeTomlUnknown")(function* (content
  * import * as S from "effect/Schema"
  * import { TomlTextToUnknown } from "@beep/schema/Toml"
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- * })
+ * const program = Effect.gen(function* () {})
  * void program
  * ```
  *
@@ -82,7 +92,7 @@ const decodeTomlUnknown = Effect.fn("Toml.decodeTomlUnknown")(function* (content
  * @since 0.0.0
  */
 export const TomlTextToUnknown = S.String.pipe(
-  S.decodeTo(UnknownTomlDocument, {
+  S.decodeTo(UnknownRecord, {
     decode: SchemaGetter.transformOrFail(decodeTomlUnknown),
     encode: SchemaGetter.transformOrFail(encodeUnsupported),
   }),
@@ -106,12 +116,7 @@ export const TomlTextToUnknown = S.String.pipe(
  * const ServerConfig = S.Struct({ port: S.Number, host: S.String })
  * const decodeConfig = decodeTomlTextAs(S.Struct({ server: ServerConfig }))
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- * })
+ * const program = Effect.gen(function* () {})
  * void program
  * ```
  *
@@ -123,9 +128,5 @@ export const TomlTextToUnknown = S.String.pipe(
 export const decodeTomlTextAs = <Schema extends S.Top>(schema: Schema) => {
   const decodeTomlUnknownText = S.decodeUnknownEffect(TomlTextToUnknown);
   const decodeTargetSchema = S.decodeUnknownEffect(schema);
-  const decodeTarget = Effect.fnUntraced(function* (input: Parameters<typeof decodeTargetSchema>[0]) {
-    return yield* decodeTargetSchema(input);
-  });
-
-  return flow(decodeTomlUnknownText, Effect.flatMap(decodeTarget));
+  return flow(decodeTomlUnknownText, Effect.flatMap(decodeTargetSchema));
 };

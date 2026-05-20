@@ -53,6 +53,12 @@
       "@beep/schema/*": [
         "../../../../packages/foundation/modeling/schema/src/*.ts"
       ],
+      "@beep/test-utils": [
+        "../../../../packages/tooling/test-kit/test-utils/src/index.ts"
+      ],
+      "@beep/test-utils/*": [
+        "../../../../packages/tooling/test-kit/test-utils/src/*.ts"
+      ],
       "@beep/types": [
         "../../../../packages/foundation/primitive/types/src/index.ts"
       ],

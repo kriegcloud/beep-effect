@@ -6,6 +6,8 @@
  */
 
 import { AppThemeInitScript } from "@beep/ui/themes/theme-init-script";
+import { Config, Effect, pipe } from "effect";
+import * as O from "effect/Option";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Script from "next/script";
@@ -16,8 +18,17 @@ import "./globals.css";
 
 const { metadata: siteMetadata } = opipSiteContent;
 const REACT_GRAB_VERSION = "0.1.34";
-const shouldLoadReactGrab = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_REACT_GRAB === "1";
-const shouldLoadVercelInsights = process.env.VERCEL === "1" && process.env.NEXT_PUBLIC_ENABLE_VERCEL_INSIGHTS === "1";
+const REACT_GRAB_INTEGRITY = "sha384-J3uUkSxoVuSuDgef6b1qRkPjoviSf3OhttzqVTJd98rv0/hPenLy8KfgE7UEulp2";
+const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
+const configStringEqualsSync = (name: string, expected: string): boolean =>
+  pipe(
+    configStringOptionSync(name),
+    O.exists((value) => value === expected)
+  );
+const shouldLoadReactGrab =
+  configStringEqualsSync("NODE_ENV", "development") && configStringEqualsSync("NEXT_PUBLIC_REACT_GRAB", "1");
+const shouldLoadVercelInsights =
+  configStringEqualsSync("VERCEL", "1") && configStringEqualsSync("NEXT_PUBLIC_ENABLE_VERCEL_INSIGHTS", "1");
 const opipThemeToggleScript = `
 (() => {
   const opipKey = "opip-theme-mode";
@@ -87,21 +98,18 @@ const opipThemeToggleScript = `
 })();
 `;
 
-async function VercelInsights() {
+function VercelInsights() {
   if (!shouldLoadVercelInsights) {
     return null;
   }
 
-  const [{ Analytics }, { SpeedInsights }] = await Promise.all([
-    import("@vercel/analytics/next"),
-    import("@vercel/speed-insights/next"),
-  ]);
-
-  return (
-    <>
-      <Analytics />
-      <SpeedInsights />
-    </>
+  return Promise.all([import("@vercel/analytics/next"), import("@vercel/speed-insights/next")]).then(
+    ([{ Analytics }, { SpeedInsights }]) => (
+      <>
+        <Analytics />
+        <SpeedInsights />
+      </>
+    )
   );
 }
 
@@ -205,33 +213,41 @@ export const metadata: Metadata = {
  * @category constructors
  * @since 0.0.0
  */
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
-}>) {
-  await connection();
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
+}>): Promise<ReactNode> {
+  return connection()
+    .then(() => headers())
+    .then((requestHeaders) => {
+      const nonce = requestHeaders.get("x-nonce") ?? undefined;
 
-  return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <head>
-        <AppThemeInitScript attribute="class" defaultMode="light" modeStorageKey="mui-mode" nonce={nonce} />
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static theme controller without user input */}
-        <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: opipThemeToggleScript }} />
-        {shouldLoadReactGrab && (
-          <Script
-            src={`https://unpkg.com/react-grab@${REACT_GRAB_VERSION}/dist/index.global.js`}
-            crossOrigin="anonymous"
-            nonce={nonce}
-            strategy="beforeInteractive"
-          />
-        )}
-      </head>
-      <body className="min-h-full flex flex-col">
-        {children}
-        <VercelInsights />
-      </body>
-    </html>
-  );
+      return (
+        <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+          <head>
+            <AppThemeInitScript attribute="class" defaultMode="light" modeStorageKey="mui-mode" nonce={nonce} />
+            <script
+              nonce={nonce}
+              suppressHydrationWarning
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: static theme controller without user input
+              dangerouslySetInnerHTML={{ __html: opipThemeToggleScript }}
+            />
+            {shouldLoadReactGrab && (
+              <Script
+                src={`https://unpkg.com/react-grab@${REACT_GRAB_VERSION}/dist/index.global.js`}
+                crossOrigin="anonymous"
+                integrity={REACT_GRAB_INTEGRITY}
+                nonce={nonce}
+                strategy="beforeInteractive"
+              />
+            )}
+          </head>
+          <body className="min-h-full flex flex-col">
+            {children}
+            <VercelInsights />
+          </body>
+        </html>
+      );
+    });
 }

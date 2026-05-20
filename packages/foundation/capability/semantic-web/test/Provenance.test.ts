@@ -8,9 +8,14 @@ import {
   SummarizeProvenanceRequest,
 } from "@beep/semantic-web/services/provenance";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 
@@ -46,7 +51,7 @@ const rawBundle = {
 } as const;
 
 const runProvenance = <A>(effect: Effect.Effect<A, unknown, ProvenanceService>) =>
-  Effect.runPromise(effect.pipe(Effect.provide(ProvenanceServiceLive)));
+  Effect.runPromise(effect.pipe(provideScopedLayer(ProvenanceServiceLive)));
 
 describe("Provenance", () => {
   it("decodes the bounded semantic-web ProvO surface", () => {
@@ -59,110 +64,128 @@ describe("Provenance", () => {
     }
   });
 
-  it("rejects bounded projections without evidence anchors when records are present", async () => {
-    await expect(
-      runProvenance(
-        Effect.gen(function* () {
-          const service = yield* ProvenanceService;
-          return yield* service.project(
-            decodeUnknownSync(ProjectProvenanceRequest)({
-              bundle: rawBundle,
-              anchors: [],
-              maxItems: 2,
+  it("rejects bounded projections without evidence anchors when records are present", () =>
+    Effect.promise(() =>
+      Promise.resolve(
+        expect(
+          runProvenance(
+            Effect.gen(function* () {
+              const service = yield* ProvenanceService;
+              return yield* service.project(
+                decodeUnknownSync(ProjectProvenanceRequest)({
+                  bundle: rawBundle,
+                  anchors: [],
+                  maxItems: 2,
+                })
+              );
             })
-          );
-        })
+          )
+        ).rejects.toThrow("Bounded provenance projections require explicit evidence anchors.")
       )
-    ).rejects.toThrow("Bounded provenance projections require explicit evidence anchors.");
-  });
+    ));
 
-  it("summarizes record counts and preserves lifecycle fields in bounded projections", async () => {
-    const summary = await runProvenance(
-      Effect.gen(function* () {
-        const service = yield* ProvenanceService;
-        return yield* service.summarize(
-          decodeUnknownSync(SummarizeProvenanceRequest)({
-            bundle: rawBundle,
-            anchors: [rawAnchor],
-          })
-        );
-      })
-    );
+  it("summarizes record counts and preserves lifecycle fields in bounded projections", () =>
+    Effect.gen(function* () {
+      const summary = yield* Effect.promise(() =>
+        Promise.resolve(
+          runProvenance(
+            Effect.gen(function* () {
+              const service = yield* ProvenanceService;
+              return yield* service.summarize(
+                decodeUnknownSync(SummarizeProvenanceRequest)({
+                  bundle: rawBundle,
+                  anchors: [rawAnchor],
+                })
+              );
+            })
+          )
+        )
+      );
 
-    expect(summary.recordCount).toBe(3);
-    expect(summary.entityCount).toBe(1);
-    expect(summary.activityCount).toBe(1);
-    expect(summary.agentCount).toBe(1);
-    expect(summary.anchorCount).toBe(1);
+      expect(summary.recordCount).toBe(3);
+      expect(summary.entityCount).toBe(1);
+      expect(summary.activityCount).toBe(1);
+      expect(summary.agentCount).toBe(1);
+      expect(summary.anchorCount).toBe(1);
 
-    const projection = await runProvenance(
-      Effect.gen(function* () {
-        const service = yield* ProvenanceService;
-        return yield* service.project(
-          decodeUnknownSync(ProjectProvenanceRequest)({
-            bundle: rawBundle,
-            anchors: [rawAnchor],
-            maxItems: 1,
-          })
-        );
-      })
-    );
+      const projection = yield* Effect.promise(() =>
+        Promise.resolve(
+          runProvenance(
+            Effect.gen(function* () {
+              const service = yield* ProvenanceService;
+              return yield* service.project(
+                decodeUnknownSync(ProjectProvenanceRequest)({
+                  bundle: rawBundle,
+                  anchors: [rawAnchor],
+                  maxItems: 1,
+                })
+              );
+            })
+          )
+        )
+      );
 
-    expect(projection.truncated).toBe(true);
-    expect(projection.bundle.records).toHaveLength(1);
-    expect(projection.evidence.anchors).toHaveLength(1);
-    expect(O.isSome(projection.bundle.lifecycle)).toBe(true);
-  });
+      expect(projection.truncated).toBe(true);
+      expect(projection.bundle.records).toHaveLength(1);
+      expect(projection.evidence.anchors).toHaveLength(1);
+      expect(O.isSome(projection.bundle.lifecycle)).toBe(true);
+    }));
 
-  it("rejects extension-tier exports from the core-only profile", async () => {
-    await expect(
-      runProvenance(
-        Effect.gen(function* () {
-          const service = yield* ProvenanceService;
-          return yield* service.exportBundle(
-            decodeUnknownSync(ExportProvenanceRequest)({
-              bundle: {
-                records: [
-                  {
-                    provType: "Plan",
-                    id: "plan:1",
+  it("rejects extension-tier exports from the core-only profile", () =>
+    Effect.promise(() =>
+      Promise.resolve(
+        expect(
+          runProvenance(
+            Effect.gen(function* () {
+              const service = yield* ProvenanceService;
+              return yield* service.exportBundle(
+                decodeUnknownSync(ExportProvenanceRequest)({
+                  bundle: {
+                    records: [
+                      {
+                        provType: "Plan",
+                        id: "plan:1",
+                      },
+                    ],
                   },
-                ],
-              },
-              anchors: [rawAnchor],
-              profile: "prov-core-v1",
-              maxItems: 5,
+                  anchors: [rawAnchor],
+                  profile: "prov-core-v1",
+                  maxItems: 5,
+                })
+              );
             })
-          );
-        })
+          )
+        ).rejects.toThrow("prov-core-v1 does not include extension-tier provenance records.")
       )
-    ).rejects.toThrow("prov-core-v1 does not include extension-tier provenance records.");
-  });
+    ));
 
-  it("rejects extension-tier relations from the core-only profile", async () => {
-    await expect(
-      runProvenance(
-        Effect.gen(function* () {
-          const service = yield* ProvenanceService;
-          return yield* service.exportBundle(
-            decodeUnknownSync(ExportProvenanceRequest)({
-              bundle: {
-                records: [
-                  {
-                    entity: "thing:alice",
-                    agent: "agent:semantic-web",
+  it("rejects extension-tier relations from the core-only profile", () =>
+    Effect.promise(() =>
+      Promise.resolve(
+        expect(
+          runProvenance(
+            Effect.gen(function* () {
+              const service = yield* ProvenanceService;
+              return yield* service.exportBundle(
+                decodeUnknownSync(ExportProvenanceRequest)({
+                  bundle: {
+                    records: [
+                      {
+                        entity: "thing:alice",
+                        agent: "agent:semantic-web",
+                      },
+                    ],
                   },
-                ],
-              },
-              anchors: [rawAnchor],
-              profile: "prov-core-v1",
-              maxItems: 5,
+                  anchors: [rawAnchor],
+                  profile: "prov-core-v1",
+                  maxItems: 5,
+                })
+              );
             })
-          );
-        })
+          )
+        ).rejects.toThrow("prov-core-v1 does not include extension-tier provenance records.")
       )
-    ).rejects.toThrow("prov-core-v1 does not include extension-tier provenance records.");
-  });
+    ));
 
   it("decodes evidence anchors through the public surface", () => {
     const anchor = decodeUnknownSync(EvidenceAnchor)(rawAnchor);

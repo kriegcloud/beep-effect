@@ -572,6 +572,9 @@ const makeBucketBaseline = (
 
 const optionalTeamArgs = (teamId: string | undefined) => (teamId === undefined ? {} : { teamId });
 
+const makeRuntimeEnvironmentVariableTargets = (sensitive: boolean): Array<"production" | "preview"> =>
+  sensitive ? ["production"] : ["production", "preview"];
+
 const makeRuntimeEnvironmentVariable = (
   name: string,
   project: vercel.Project,
@@ -590,7 +593,7 @@ const makeRuntimeEnvironmentVariable = (
           key,
           projectId: project.id,
           sensitive,
-          targets: ["production", "preview"],
+          targets: makeRuntimeEnvironmentVariableTargets(sensitive),
           value,
         },
         opts

@@ -19,6 +19,11 @@ import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const runAiMetricsCommand = Command.runWith(aiMetricsCommand, { version: "0.0.0" });
 const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 const decodeForwarderResult = S.decodeUnknownEffect(S.fromJsonString(AiMetricsForwarderRunResult));
@@ -54,7 +59,7 @@ const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E,
         process.exitCode = 0;
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
-  ).pipe(Effect.provide(CommandTestLayer));
+  ).pipe(provideScopedLayer(CommandTestLayer));
 
 const writeText = Effect.fn("AIMetricsCommandTest.writeText")(function* (filePath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -77,14 +82,13 @@ const lastLoggedLine = Effect.fn("AIMetricsCommandTest.lastLoggedLine")(function
 });
 
 const withRawArchiveKeyEnv = <A, E, R>(rawArchiveKey: string, use: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
-  Effect.provide(
-    use,
+  provideScopedLayer(
     ConfigProvider.layer(
       ConfigProvider.fromUnknown({
         BEEP_AI_METRICS_RAW_ARCHIVE_KEY: rawArchiveKey,
       })
     )
-  );
+  )(use);
 
 const seedAiMetricsData = Effect.fn("AIMetricsCommandTest.seedAiMetricsData")(function* (tmpDir: string) {
   const path = yield* Path.Path;
@@ -127,17 +131,17 @@ const seedAiMetricsData = Effect.fn("AIMetricsCommandTest.seedAiMetricsData")(fu
 const withPrependedPath = <A, E, R>(binDir: string, use: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
   Effect.acquireUseRelease(
     Effect.sync(() => {
-      const previousPath = process.env.PATH;
-      process.env.PATH = previousPath === undefined ? binDir : `${binDir}:${previousPath}`;
+      const previousPath = Bun.env.PATH;
+      Bun.env.PATH = previousPath === undefined ? binDir : `${binDir}:${previousPath}`;
       return previousPath;
     }),
     () => use,
     (previousPath) =>
       Effect.sync(() => {
         if (previousPath === undefined) {
-          delete process.env.PATH;
+          delete Bun.env.PATH;
         } else {
-          process.env.PATH = previousPath;
+          Bun.env.PATH = previousPath;
         }
       })
   );
@@ -162,16 +166,19 @@ const withOtlpSink = <A, E, R>(
     Effect.sync(() => {
       const requests: Array<CapturedOtlpRequest> = [];
       const server = Bun.serve({
-        fetch: async (request) => {
-          const body = await request.arrayBuffer();
-          A.appendInPlace(requests, {
-            bodyByteLength: body.byteLength,
-            bodyText: new TextDecoder().decode(body),
-            contentType: request.headers.get("content-type") ?? "",
-            path: new URL(request.url).pathname,
-          });
-          return new Response(null, { status: responseStatus });
-        },
+        fetch: (request) =>
+          Effect.runPromise(
+            Effect.gen(function* () {
+              const body = yield* Effect.promise(() => Promise.resolve(request.arrayBuffer()));
+              A.appendInPlace(requests, {
+                bodyByteLength: body.byteLength,
+                bodyText: new TextDecoder().decode(body),
+                contentType: request.headers.get("content-type") ?? "",
+                path: new URL(request.url).pathname,
+              });
+              return new Response(null, { status: responseStatus });
+            })
+          ),
         hostname: "127.0.0.1",
         port: 0,
       });
@@ -204,8 +211,8 @@ const waitForCapturedOtlpTraceRequest = (
   );
 
 describe("ai-metrics command", () => {
-  it("emits ingest JSON without raw local paths or Claude private identifiers", async () => {
-    await Effect.runPromise(
+  it("emits ingest JSON without raw local paths or Claude private identifiers", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -243,11 +250,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("does not expose input paths when ingest cannot read transcript input", async () => {
-    await Effect.runPromise(
+  it("does not expose input paths when ingest cannot read transcript input", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -271,11 +277,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("requires a hash salt secret reference for non-local install previews", async () => {
-    await Effect.runPromise(
+  it("requires a hash salt secret reference for non-local install previews", () =>
+    Effect.runPromise(
       withTempDirectory(() =>
         Effect.gen(function* () {
           yield* runAiMetricsCommand(["install", "preview", "--target", "dankserver"]);
@@ -285,11 +290,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("emits dankserver install preview JSON with a hash salt secret reference", async () => {
-    await Effect.runPromise(
+  it("emits dankserver install preview JSON with a hash salt secret reference", () =>
+    Effect.runPromise(
       withTempDirectory(() =>
         Effect.gen(function* () {
           yield* runAiMetricsCommand([
@@ -313,11 +317,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("renders a bounded dankserver forwarder timer command", async () => {
-    await Effect.runPromise(
+  it("renders a bounded dankserver forwarder timer command", () =>
+    Effect.runPromise(
       withTempDirectory(() =>
         Effect.gen(function* () {
           yield* runAiMetricsCommand([
@@ -347,11 +350,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("renders a dedicated local Phoenix compose target", async () => {
-    await Effect.runPromise(
+  it("renders a dedicated local Phoenix compose target", () =>
+    Effect.runPromise(
       withTempDirectory(() =>
         Effect.gen(function* () {
           yield* runAiMetricsCommand(["install", "compose", "--target", "local", "--json"]);
@@ -363,11 +365,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("emits typed install plan JSON", async () => {
-    await Effect.runPromise(
+  it("emits typed install plan JSON", () =>
+    Effect.runPromise(
       withTempDirectory(() =>
         Effect.gen(function* () {
           yield* runAiMetricsCommand(["install", "plan", "--target", "local", "--json"]);
@@ -385,11 +386,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("runs install doctor with one source and missing-source warnings", async () => {
-    await Effect.runPromise(
+  it("runs install doctor with one source and missing-source warnings", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -423,11 +423,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("fails install doctor when no local sources are available", async () => {
-    await Effect.runPromise(
+  it("fails install doctor when no local sources are available", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -453,11 +452,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("dry-runs dankserver install apply without remote mutation", async () => {
-    await Effect.runPromise(
+  it("dry-runs dankserver install apply without remote mutation", () =>
+    Effect.runPromise(
       withTempDirectory(() =>
         Effect.gen(function* () {
           yield* runAiMetricsCommand([
@@ -487,11 +485,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("refuses install apply without dry-run in P5a", async () => {
-    await Effect.runPromise(
+  it("refuses install apply without dry-run in P5a", () =>
+    Effect.runPromise(
       withTempDirectory(() =>
         Effect.gen(function* () {
           yield* runAiMetricsCommand(["install", "apply", "--target", "local"]);
@@ -501,11 +498,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("emits config snapshot JSON for repo-owned agent files", async () => {
-    await Effect.runPromise(
+  it("emits config snapshot JSON for repo-owned agent files", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -522,11 +518,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("does not expose repo paths when config snapshot cannot read an agent file", async () => {
-    await Effect.runPromise(
+  it("does not expose repo paths when config snapshot cannot read an agent file", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -544,11 +539,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("emits privacy check JSON without raw transcript text", async () => {
-    await Effect.runPromise(
+  it("emits privacy check JSON without raw transcript text", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -586,11 +580,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("does not expose input paths when privacy check cannot inspect input", async () => {
-    await Effect.runPromise(
+  it("does not expose input paths when privacy check cannot inspect input", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -615,11 +608,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("discovers local sources without exposing private paths or OpenClaw secrets", async () => {
-    await Effect.runPromise(
+  it("discovers local sources without exposing private paths or OpenClaw secrets", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -679,11 +671,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("runs durable local forwarder without exposing raw transcript text", async () => {
-    await Effect.runPromise(
+  it("runs durable local forwarder without exposing raw transcript text", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -731,11 +722,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode ?? 0).toBe(0);
         })
       )
-    );
-  });
+    ));
 
-  it("runs forwarder with derived OTLP export status without exposing raw transcript text", async () => {
-    await Effect.runPromise(
+  it("runs forwarder with derived OTLP export status without exposing raw transcript text", () =>
+    Effect.runPromise(
       withOtlpSink((otlpBaseUrl, requests) =>
         withTempDirectory((tmpDir) =>
           Effect.gen(function* () {
@@ -804,11 +794,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("keeps forwarder successful when derived OTLP export reports a sanitized failure", async () => {
-    await Effect.runPromise(
+  it("keeps forwarder successful when derived OTLP export reports a sanitized failure", () =>
+    Effect.runPromise(
       withOtlpSink(
         (otlpBaseUrl) =>
           withTempDirectory((tmpDir) =>
@@ -881,11 +870,10 @@ describe("ai-metrics command", () => {
           ),
         500
       )
-    );
-  });
+    ));
 
-  it("does not expose raw source paths or archive keys on forwarder read failures", async () => {
-    await Effect.runPromise(
+  it("does not expose raw source paths or archive keys on forwarder read failures", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -926,153 +914,155 @@ describe("ai-metrics command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("runs the scriptable P4 label, benchmark, and weekly report workflow", async () => {
-    await Effect.runPromise(
-      withTempDirectory((tmpDir) =>
-        Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const homeDir = path.join(tmpDir, "home");
-          const repoRoot = path.join(tmpDir, "repo");
-          const dataRoot = path.join(tmpDir, "metrics");
-          const rawArchiveKey = Encoding.encodeBase64(new Uint8Array(32).fill(19));
+  it(
+    "runs the scriptable P4 label, benchmark, and weekly report workflow",
+    () =>
+      Effect.runPromise(
+        withTempDirectory((tmpDir) =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const homeDir = path.join(tmpDir, "home");
+            const repoRoot = path.join(tmpDir, "repo");
+            const dataRoot = path.join(tmpDir, "metrics");
+            const rawArchiveKey = Encoding.encodeBase64(new Uint8Array(32).fill(19));
 
-          yield* writeText(
-            path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
-            A.join(
-              [
-                '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
-                '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private-cli-report-text"}',
-              ],
-              "\n"
-            )
-          );
-          yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
+            yield* writeText(
+              path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
+              A.join(
+                [
+                  '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                  '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","message":"private-cli-report-text"}',
+                ],
+                "\n"
+              )
+            );
+            yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
 
-          yield* withRawArchiveKeyEnv(
-            rawArchiveKey,
-            runAiMetricsCommand([
-              "forwarder",
-              "run",
-              "--repo-root",
-              repoRoot,
-              "--home-dir",
-              homeDir,
+            yield* withRawArchiveKeyEnv(
+              rawArchiveKey,
+              runAiMetricsCommand([
+                "forwarder",
+                "run",
+                "--repo-root",
+                repoRoot,
+                "--home-dir",
+                homeDir,
+                "--data-root",
+                dataRoot,
+                "--all",
+                "--hash-salt",
+                "test-salt",
+                "--json",
+              ])
+            );
+            const forwarder = yield* decodeForwarderResult(yield* lastLoggedLine());
+
+            yield* runAiMetricsCommand([
+              "label",
+              "queue",
               "--data-root",
               dataRoot,
-              "--all",
-              "--hash-salt",
-              "test-salt",
+              "--since",
+              "0",
+              "--until",
+              String(farFutureUntilEpochMs),
               "--json",
-            ])
-          );
-          const forwarder = yield* decodeForwarderResult(yield* lastLoggedLine());
+            ]);
+            const queue = yield* decodeLabelQueue(yield* lastLoggedLine());
+            const firstTask = A.head(queue.items);
+            expect(O.isSome(firstTask)).toBe(true);
+            if (O.isNone(firstTask)) {
+              return;
+            }
 
-          yield* runAiMetricsCommand([
-            "label",
-            "queue",
-            "--data-root",
-            dataRoot,
-            "--since",
-            "0",
-            "--until",
-            String(farFutureUntilEpochMs),
-            "--json",
-          ]);
-          const queue = yield* decodeLabelQueue(yield* lastLoggedLine());
-          const firstTask = A.head(queue.items);
-          expect(O.isSome(firstTask)).toBe(true);
-          if (O.isNone(firstTask)) {
-            return;
-          }
+            yield* runAiMetricsCommand([
+              "label",
+              "add",
+              "--data-root",
+              dataRoot,
+              "--task",
+              firstTask.value.agentTaskId,
+              "--passed",
+              "true",
+              "--rating",
+              "5",
+              "--quality-gate",
+              "passed",
+              "--interventions",
+              "1",
+              "--follow-up-fix",
+              "false",
+              "--note",
+              "OPENAI_API_KEY=secret-cli-report-fixture",
+              "--json",
+            ]);
 
-          yield* runAiMetricsCommand([
-            "label",
-            "add",
-            "--data-root",
-            dataRoot,
-            "--task",
-            firstTask.value.agentTaskId,
-            "--passed",
-            "true",
-            "--rating",
-            "5",
-            "--quality-gate",
-            "passed",
-            "--interventions",
-            "1",
-            "--follow-up-fix",
-            "false",
-            "--note",
-            "OPENAI_API_KEY=secret-cli-report-fixture",
-            "--json",
-          ]);
+            yield* runAiMetricsCommand([
+              "benchmark",
+              "case",
+              "add",
+              "--data-root",
+              dataRoot,
+              "--case",
+              "case-cli",
+              "--title",
+              "CLI proof",
+              "--prompt-hash",
+              "prompt-hash-only",
+              "--checks",
+              "bun run check",
+              "--json",
+            ]);
 
-          yield* runAiMetricsCommand([
-            "benchmark",
-            "case",
-            "add",
-            "--data-root",
-            dataRoot,
-            "--case",
-            "case-cli",
-            "--title",
-            "CLI proof",
-            "--prompt-hash",
-            "prompt-hash-only",
-            "--checks",
-            "bun run check",
-            "--json",
-          ]);
+            yield* runAiMetricsCommand([
+              "benchmark",
+              "run",
+              "--data-root",
+              dataRoot,
+              "--case",
+              "case-cli",
+              "--config",
+              forwarder.configSnapshotId,
+              "--elapsed-ms",
+              "1200",
+              "--passed",
+              "true",
+              "--quality-gate",
+              "passed",
+              "--json",
+            ]);
 
-          yield* runAiMetricsCommand([
-            "benchmark",
-            "run",
-            "--data-root",
-            dataRoot,
-            "--case",
-            "case-cli",
-            "--config",
-            forwarder.configSnapshotId,
-            "--elapsed-ms",
-            "1200",
-            "--passed",
-            "true",
-            "--quality-gate",
-            "passed",
-            "--json",
-          ]);
+            yield* runAiMetricsCommand([
+              "report",
+              "weekly",
+              "--data-root",
+              dataRoot,
+              "--since",
+              "0",
+              "--until",
+              String(farFutureUntilEpochMs),
+              "--json",
+            ]);
+            const report = yield* decodeWeeklyReport(yield* lastLoggedLine());
+            const reportJson = yield* fs.readFileString(report.jsonPath);
 
-          yield* runAiMetricsCommand([
-            "report",
-            "weekly",
-            "--data-root",
-            dataRoot,
-            "--since",
-            "0",
-            "--until",
-            String(farFutureUntilEpochMs),
-            "--json",
-          ]);
-          const report = yield* decodeWeeklyReport(yield* lastLoggedLine());
-          const reportJson = yield* fs.readFileString(report.jsonPath);
+            expect(report.document.scores).toHaveLength(1);
+            expect(reportJson).toContain(forwarder.configSnapshotId);
+            expect(reportJson).not.toContain("private-cli-report-text");
+            expect(reportJson).not.toContain("secret-cli-report-fixture");
+            expect(reportJson).not.toContain(tmpDir);
+            expect(process.exitCode ?? 0).toBe(0);
+          })
+        )
+      ),
+    90_000
+  );
 
-          expect(report.document.scores).toHaveLength(1);
-          expect(reportJson).toContain(forwarder.configSnapshotId);
-          expect(reportJson).not.toContain("private-cli-report-text");
-          expect(reportJson).not.toContain("secret-cli-report-fixture");
-          expect(reportJson).not.toContain(tmpDir);
-          expect(process.exitCode ?? 0).toBe(0);
-        })
-      )
-    );
-  }, 90_000);
-
-  it("reports sanitized OTLP export failures when no derived runs exist", async () => {
-    await Effect.runPromise(
+  it("reports sanitized OTLP export failures when no derived runs exist", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -1097,11 +1087,10 @@ describe("ai-metrics command", () => {
           expect(process.exitCode).toBe(1);
         })
       )
-    );
-  });
+    ));
 
-  it("exports local derived OTLP spans as protobuf without raw transcript leakage", async () => {
-    await Effect.runPromise(
+  it("exports local derived OTLP spans as protobuf without raw transcript leakage", () =>
+    Effect.runPromise(
       withOtlpSink((otlpBaseUrl, requests) =>
         withTempDirectory((tmpDir) =>
           Effect.gen(function* () {
@@ -1172,11 +1161,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("accepts non-local OTLP export install secret references before reading derived runs", async () => {
-    await Effect.runPromise(
+  it("accepts non-local OTLP export install secret references before reading derived runs", () =>
+    Effect.runPromise(
       withOtlpSink((otlpBaseUrl) =>
         withTempDirectory((tmpDir) =>
           Effect.gen(function* () {
@@ -1211,11 +1199,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("builds a sanitized mirror bundle and plans rsync by default", async () => {
-    await Effect.runPromise(
+  it("builds a sanitized mirror bundle and plans rsync by default", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         withRawArchiveKeyEnv(
           Encoding.encodeBase64(new Uint8Array(32).fill(9)),
@@ -1255,11 +1242,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("rejects unsafe mirror bundles before confirmed sync", async () => {
-    await Effect.runPromise(
+  it("rejects unsafe mirror bundles before confirmed sync", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         withRawArchiveKeyEnv(
           Encoding.encodeBase64(new Uint8Array(32).fill(12)),
@@ -1295,11 +1281,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("rejects mirror bundles with undeclared parquet files before sync", async () => {
-    await Effect.runPromise(
+  it("rejects mirror bundles with undeclared parquet files before sync", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         withRawArchiveKeyEnv(
           Encoding.encodeBase64(new Uint8Array(32).fill(17)),
@@ -1335,11 +1320,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("runs confirmed mirror sync only after local manifest validation", async () => {
-    await Effect.runPromise(
+  it("runs confirmed mirror sync only after local manifest validation", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         withRawArchiveKeyEnv(
           Encoding.encodeBase64(new Uint8Array(32).fill(13)),
@@ -1393,11 +1377,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("runs a retention restore drill without printing transcript text", async () => {
-    await Effect.runPromise(
+  it("runs a retention restore drill without printing transcript text", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         withRawArchiveKeyEnv(
           Encoding.encodeBase64(new Uint8Array(32).fill(10)),
@@ -1435,11 +1418,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("keeps retention delete in dry-run mode until confirmed", async () => {
-    await Effect.runPromise(
+  it("keeps retention delete in dry-run mode until confirmed", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         withRawArchiveKeyEnv(
           Encoding.encodeBase64(new Uint8Array(32).fill(11)),
@@ -1469,11 +1451,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("rejects invalid retention confirmations and unbounded confirmed windows", async () => {
-    await Effect.runPromise(
+  it("rejects invalid retention confirmations and unbounded confirmed windows", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         withRawArchiveKeyEnv(
           Encoding.encodeBase64(new Uint8Array(32).fill(14)),
@@ -1511,11 +1492,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("runs confirmed retention compact and preserves raw archive objects", async () => {
-    await Effect.runPromise(
+  it("runs confirmed retention compact and preserves raw archive objects", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         withRawArchiveKeyEnv(
           Encoding.encodeBase64(new Uint8Array(32).fill(15)),
@@ -1550,11 +1530,10 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 
-  it("runs confirmed retention delete with an explicit bounded window", async () => {
-    await Effect.runPromise(
+  it("runs confirmed retention delete with an explicit bounded window", () =>
+    Effect.runPromise(
       withTempDirectory((tmpDir) =>
         withRawArchiveKeyEnv(
           Encoding.encodeBase64(new Uint8Array(32).fill(16)),
@@ -1591,6 +1570,5 @@ describe("ai-metrics command", () => {
           })
         )
       )
-    );
-  });
+    ));
 });

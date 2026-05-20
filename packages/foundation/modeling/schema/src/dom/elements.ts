@@ -172,13 +172,12 @@ export const isReactRef = <T>(u: unknown): u is React.Ref<T> => {
  * @category models
  * @returns A Schema for React.Ref<T>
  */
-export const createDOMRefSchema = <T extends HTMLElement>() => {
-  return S.declare(isReactRef<T>).pipe(
+export const createDOMRefSchema = <T extends HTMLElement>() =>
+  S.declare(isReactRef<T>).pipe(
     $I.annoteSchema("DOMRef", {
       description: "A React.Ref for an HTMLElement",
     })
   );
-};
 
 /**
  * Type guard for DragEvent

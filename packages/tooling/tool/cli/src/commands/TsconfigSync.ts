@@ -710,9 +710,11 @@ const byPlannedChangeAscending = Order.combine(byPlannedChangeFileAscending, byP
 
 const toPosixPath = normalizePath;
 
-const uniqueSorted = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
-  return pipe(values, HashSet.fromIterable, A.fromIterable, A.sort(byStringAscending));
-};
+const uniqueSorted: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  HashSet.fromIterable,
+  A.fromIterable,
+  A.sort(byStringAscending)
+);
 
 const arraysEqual = (left: ReadonlyArray<string>, right: ReadonlyArray<string>): boolean =>
   stringArrayEquivalence(left, right);
@@ -1200,13 +1202,12 @@ const buildPackageSubpathAliasTargets = (
     R.keys,
     A.filter(isConcretePackageSubpathExport),
     A.flatMap((exportKey) =>
-      pipe(
-        resolveSubpathExportTarget(exportsField, exportKey),
-        O.map((exportTarget) => [
+      O.match(resolveSubpathExportTarget(exportsField, exportKey), {
+        onNone: () => [],
+        onSome: (exportTarget) => [
           [packageSubpathAlias(packageName, exportKey), sourceAliasTarget(packageRelativePath, exportTarget)] as const,
-        ]),
-        O.getOrElse(() => [])
-      )
+        ],
+      })
     ),
     R.fromEntries
   );

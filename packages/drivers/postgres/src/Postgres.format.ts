@@ -253,8 +253,8 @@ const queryType = (query: string): string => {
   return Str.toUpperCase(first);
 };
 
-const formatStatement = (statement: string): string => {
-  return pipe(
+const formatStatement = (statement: string): string =>
+  pipe(
     Result.try(() =>
       format(statement, {
         language: "postgresql",
@@ -265,7 +265,6 @@ const formatStatement = (statement: string): string => {
     ),
     Result.getOrElse(() => statement)
   );
-};
 
 const postgresErrorFromReason = (reason: Cause.Reason<unknown>): O.Option<PostgresError> =>
   pipe(

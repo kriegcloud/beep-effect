@@ -28,6 +28,11 @@ import { describe, expect, it } from "@effect/vitest";
 import { Duration, Effect, Fiber, Layer, Ref } from "effect";
 import { TestClock } from "effect/testing";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 describe("@beep/sandbox lifecycle foundation", () => {
   it.effect(
     "expands marked prompt shell expressions inside the sandbox only",
@@ -52,14 +57,14 @@ describe("@beep/sandbox lifecycle foundation", () => {
       };
       const prompt = yield* substitutePromptArgs("Context: !`echo sandbox` {{VALUE}}", {
         VALUE: "!`echo substituted`",
-      }).pipe(Effect.provide(DisplayLayer));
+      }).pipe(provideScopedLayer(DisplayLayer));
       const expanded = yield* expandPromptShellExpressions(
         sandbox,
         new ExpandPromptShellExpressionsOptions({
           cwd: "/sandbox/repo",
           prompt,
         })
-      ).pipe(Effect.provide(DisplayLayer));
+      ).pipe(provideScopedLayer(DisplayLayer));
 
       expect(expanded).toBe("Context: sandbox !`echo substituted`");
       expect(commands).toEqual([{ command: "echo sandbox", cwd: "/sandbox/repo" }]);
@@ -131,7 +136,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
           hostWorktreePath: "/host/worktree",
           sandboxRepoDir: "/sandbox/repo",
         })
-      ).pipe(Effect.provide(Layer.mergeAll(DisplayLayer, ProcessLayer)));
+      ).pipe(provideScopedLayer(Layer.mergeAll(DisplayLayer, ProcessLayer)));
 
       expect(A.map(sandboxExecCalls, (call) => call.command)).toEqual([
         "git config --global --add safe.directory '/sandbox/repo'",
@@ -159,7 +164,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
       const fiber = yield* runHostHooks(
         [new HostLifecycleHookCommand({ command: "slow-hook", timeoutMs: Duration.millis(5) })],
         "/repo"
-      ).pipe(Effect.flip, Effect.provide(ProcessLayer), Effect.forkChild);
+      ).pipe(Effect.flip, provideScopedLayer(ProcessLayer), Effect.forkChild);
 
       yield* TestClock.adjust(Duration.millis(5));
       const error = yield* Fiber.join(fiber);
@@ -203,7 +208,7 @@ describe("@beep/sandbox lifecycle foundation", () => {
           targetBranch: "main",
           worktreePath: "/host/repo/.sandcastle/worktrees/test",
         })
-      ).pipe(Effect.provide(Layer.mergeAll(DisplayLayer, ProcessLayer)));
+      ).pipe(provideScopedLayer(Layer.mergeAll(DisplayLayer, ProcessLayer)));
 
       expect(merged).toBe(true);
       expect(gitCalls).toEqual([

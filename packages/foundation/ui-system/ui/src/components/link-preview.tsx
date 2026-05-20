@@ -3,7 +3,7 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { Str } from "@beep/utils";
 import { ArrowSquareOutIcon, InfoIcon } from "@phosphor-icons/react";
-import { pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
@@ -80,6 +80,12 @@ const canFetchMetadata = (href: string): boolean => {
 
 const hasText = (value: null | string | undefined): value is string => P.isString(value) && value.length > 0;
 
+const fetchMetadataHtml = (href: string): Effect.Effect<O.Option<string>> =>
+  Effect.tryPromise({
+    try: () => window.fetch(href).then((response) => (response.ok ? response.text().then(O.some) : O.none<string>())),
+    catch: () => undefined,
+  }).pipe(Effect.catch(() => Effect.succeed(O.none<string>())));
+
 const getFallbackMetadata = (href: string): UrlMetadata => {
   let origin = href;
 
@@ -123,46 +129,44 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
       return;
     }
 
-    const controller = new AbortController();
+    let disposed = false;
+    setIsLoading(true);
+    setError(null);
 
-    const run = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch(href, { signal: controller.signal });
-        if (!response.ok) {
-          setError("Preview unavailable");
-          return;
-        }
-
-        const html = await response.text();
-        const titleMatch = O.getOrUndefined(Str.match(/<title[^>]*>([^<]+)<\/title>/i)(html));
-        const parsed = new URL(href);
-
-        setFetchedMetadata({
-          title: extractMetaTag(html, "og:title") ?? extractMetaTag(html, "twitter:title") ?? titleMatch?.[1] ?? null,
-          description:
-            extractMetaTag(html, "og:description") ??
-            extractMetaTag(html, "twitter:description") ??
-            extractMetaTag(html, "description") ??
-            null,
-          websiteImage: extractMetaTag(html, "og:image") ?? extractMetaTag(html, "twitter:image") ?? null,
-          favicon:
-            extractMetaTag(html, "icon") ?? extractMetaTag(html, "shortcut icon") ?? `${parsed.origin}/favicon.ico`,
-          websiteName: extractMetaTag(html, "og:site_name") ?? parsed.hostname,
-          url: href,
-        });
-      } catch {
-        setError("Preview unavailable");
-      } finally {
-        setIsLoading(false);
+    void Effect.runPromise(fetchMetadataHtml(href)).then((htmlOption) => {
+      if (disposed) {
+        return;
       }
+
+      if (O.isNone(htmlOption)) {
+        setError("Preview unavailable");
+        setIsLoading(false);
+        return;
+      }
+
+      const html = htmlOption.value;
+      const titleMatch = O.getOrUndefined(Str.match(/<title[^>]*>([^<]+)<\/title>/i)(html));
+      const parsed = new URL(href);
+
+      setFetchedMetadata({
+        title: extractMetaTag(html, "og:title") ?? extractMetaTag(html, "twitter:title") ?? titleMatch?.[1] ?? null,
+        description:
+          extractMetaTag(html, "og:description") ??
+          extractMetaTag(html, "twitter:description") ??
+          extractMetaTag(html, "description") ??
+          null,
+        websiteImage: extractMetaTag(html, "og:image") ?? extractMetaTag(html, "twitter:image") ?? null,
+        favicon:
+          extractMetaTag(html, "icon") ?? extractMetaTag(html, "shortcut icon") ?? `${parsed.origin}/favicon.ico`,
+        websiteName: extractMetaTag(html, "og:site_name") ?? parsed.hostname,
+        url: href,
+      });
+      setIsLoading(false);
+    });
+
+    return () => {
+      disposed = true;
     };
-
-    void run();
-
-    return () => void controller.abort();
   }, [fetchedMetadata, href, isInView, shouldFetch]);
 
   useEffect(() => {

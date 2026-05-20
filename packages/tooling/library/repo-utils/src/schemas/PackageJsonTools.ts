@@ -129,8 +129,8 @@ const canonicalizePublishConfig = (
   return Result.getOrThrowWith(decodePublishConfigResult(out), schemaIssueToError);
 };
 
-const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJson.Encoded => {
-  return {
+const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJson.Encoded =>
+  ({
     name: encoded.name,
     ...(encoded.version === undefined ? {} : { version: encoded.version }),
     ...(encoded.description === undefined ? {} : { description: encoded.description }),
@@ -224,8 +224,7 @@ const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJs
             schemaIssueToError
           ),
         }),
-  };
-};
+  }) satisfies PackageJson.Encoded;
 
 const toPointer = (path: ReadonlyArray<string>): string =>
   A.isReadonlyArrayEmpty(path) ? "" : `/${pipe(path, A.map(JsonPointer.escapeToken), A.join("/"))}`;

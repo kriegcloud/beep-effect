@@ -133,9 +133,7 @@ export const dotGet: {
   <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => Get<S, P>;
   <S extends object, const P extends string & Paths<S>>(self: S, path: P): Get<S, P>;
   <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): Get<S, P>;
-} = dual(2, <S extends object>(self: S, path: PathInput): unknown => {
-  return unsafeDotGet(self, path);
-}) as {
+} = dual(2, <S extends object>(self: S, path: PathInput): unknown => unsafeDotGet(self, path)) as {
   <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => Get<S, P>;
   <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => Get<S, P>;
   <S extends object, const P extends string & Paths<S>>(self: S, path: P): Get<S, P>;

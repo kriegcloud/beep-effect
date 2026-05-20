@@ -7,8 +7,9 @@ import {
   OpenAiCompatClient,
   OpenAiCompatClientOptions,
 } from "@beep/openai-compat";
+import type { TUnsafe } from "@beep/types";
 import { A } from "@beep/utils";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -20,6 +21,11 @@ import * as HttpClient from "effect/unstable/http/HttpClient";
 import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 import type * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const makeResponse = (content: string, finishReason: string | null = "stop"): OpenAiCompatChatCompletionResponse => ({
   choices: [
@@ -63,7 +69,7 @@ const makeOpenAiCompatClientLayer = (respond: TestRespond) =>
     Layer.provide(makeHttpClientLayer(respond))
   );
 
-describe("OpenAiCompat language model", () => {
+layer(Layer.empty as Layer.Layer<TUnsafe.Any>)("OpenAiCompat language model", (it) => {
   it.effect("translates Effect prompts into chat completion requests", () =>
     Effect.gen(function* () {
       const requests = yield* Ref.make<ReadonlyArray<OpenAiCompatChatCompletionRequest>>([]);
@@ -474,7 +480,7 @@ describe("OpenAiCompat language model", () => {
           const client = yield* OpenAiCompatClient;
           return yield* client.createChatCompletion(request).pipe(Effect.flip);
         }),
-        Effect.provide(makeOpenAiCompatClientLayer(() => Effect.die("body encoding should fail before execute")))
+        provideScopedLayer(makeOpenAiCompatClientLayer(() => Effect.die("body encoding should fail before execute")))
       );
 
       expect(AiError.isAiError(error)).toBe(true);
@@ -495,7 +501,7 @@ describe("OpenAiCompat language model", () => {
           const client = yield* OpenAiCompatClient;
           return yield* client.createChatCompletion(request).pipe(Effect.flip);
         }),
-        Effect.provide(
+        provideScopedLayer(
           makeOpenAiCompatClientLayer(() =>
             Effect.succeed(
               new Response('{"secret":"prompt text"}', {
@@ -525,7 +531,7 @@ describe("OpenAiCompat language model", () => {
           const client = yield* OpenAiCompatClient;
           return yield* client.streamChatCompletion(request).pipe(Stream.runCollect, Effect.flip);
         }),
-        Effect.provide(
+        provideScopedLayer(
           makeOpenAiCompatClientLayer(() =>
             Effect.succeed(
               new Response("{}", {
@@ -580,7 +586,7 @@ describe("OpenAiCompat language model", () => {
           yield* client.createChatCompletion(request);
           yield* client.streamChatCompletion(request).pipe(Stream.runCollect);
         }),
-        Effect.provide(defaultLayer)
+        provideScopedLayer(defaultLayer)
       );
 
       const defaults = yield* Ref.get(capturedHeaders);
@@ -613,7 +619,7 @@ describe("OpenAiCompat language model", () => {
           const client = yield* OpenAiCompatClient;
           yield* client.createChatCompletion(request);
         }),
-        Effect.provide(overrideLayer)
+        provideScopedLayer(overrideLayer)
       );
 
       const overridden = yield* Ref.get(overrideHeaders);
@@ -633,7 +639,7 @@ describe("OpenAiCompat language model", () => {
           const client = yield* OpenAiCompatClient;
           return yield* client.streamChatCompletion(request).pipe(Stream.runCollect, Effect.flip);
         }),
-        Effect.provide(
+        provideScopedLayer(
           makeOpenAiCompatClientLayer(() =>
             Effect.succeed(
               new Response("retry: 1000\n\n", {

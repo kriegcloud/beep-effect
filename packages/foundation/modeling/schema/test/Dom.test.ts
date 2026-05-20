@@ -13,6 +13,7 @@ import {
   isReactRef,
 } from "@beep/schema/dom";
 import { describe, expect, it } from "@effect/vitest";
+import { DateTime } from "effect";
 import * as S from "effect/Schema";
 
 class TestHTMLElement {}
@@ -51,7 +52,7 @@ describe("DOM element and event guards", () => {
     expect(isCSSProperties(null)).toBe(false);
     expect(isCSSProperties("color: red")).toBe(false);
     expect(isCSSProperties(["color"])).toBe(false);
-    expect(isCSSProperties(new Date())).toBe(false);
+    expect(isCSSProperties(DateTime.toDateUtc(DateTime.makeUnsafe(0)))).toBe(false);
   });
 
   it("recognizes React node shapes", () => {

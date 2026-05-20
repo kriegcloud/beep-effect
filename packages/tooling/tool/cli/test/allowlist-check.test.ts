@@ -4,6 +4,11 @@ import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const testLayer = Layer.mergeAll(NodeServices.layer);
 
 const withTempRepo = <A, E>(use: (tmpDir: string) => Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>) =>
@@ -36,8 +41,8 @@ const writeRepoFile: (
 );
 
 describe("allowlist-check", () => {
-  it("passes when all referenced files exist", async () => {
-    await Effect.runPromise(
+  it("passes when all referenced files exist", () =>
+    Effect.runPromise(
       withTempRepo((tmpDir) =>
         Effect.gen(function* () {
           yield* writeRepoFile(
@@ -78,12 +83,11 @@ describe("allowlist-check", () => {
           expect(summary.ok).toBe(true);
           expect(summary.diagnostics).toEqual([]);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("fails when an allowlist entry points at a missing file", async () => {
-    await Effect.runPromise(
+  it("fails when an allowlist entry points at a missing file", () =>
+    Effect.runPromise(
       withTempRepo((tmpDir) =>
         Effect.gen(function* () {
           yield* writeRepoFile(
@@ -121,12 +125,11 @@ describe("allowlist-check", () => {
             "entries.0.file: Referenced file does not exist: packages/demo/src/missing.ts",
           ]);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 
-  it("resolves allowlist paths from the repository root when started in a subdirectory", async () => {
-    await Effect.runPromise(
+  it("resolves allowlist paths from the repository root when started in a subdirectory", () =>
+    Effect.runPromise(
       withTempRepo((tmpDir) =>
         Effect.gen(function* () {
           const path = yield* Path.Path;
@@ -170,7 +173,6 @@ describe("allowlist-check", () => {
           expect(summary.ok).toBe(true);
           expect(summary.diagnostics).toEqual([]);
         })
-      ).pipe(Effect.provide(testLayer))
-    );
-  });
+      ).pipe(provideScopedLayer(testLayer))
+    ));
 });

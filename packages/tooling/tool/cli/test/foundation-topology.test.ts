@@ -1,118 +1,122 @@
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { A, Str } from "@beep/utils";
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
-const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
+const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url)).replace(/\/$/u, "");
+const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
+  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+    .filter((segment) => segment.length > 0)
+    .join("/");
+const relativeToRepo = (path: string): string =>
+  Str.startsWith(`${repoRoot}/`)(path) ? Str.replace(`${repoRoot}/`, "")(path) : path;
+const pathExistsSync = (path: string): boolean =>
+  Bun.spawnSync(["test", "-e", path], { stderr: "ignore", stdout: "ignore" }).exitCode === 0;
 
-const readJsonFile = (path: string): unknown => JSON.parse(readFileSync(path, "utf8"));
+const readJsonFile = (path: string) => Effect.promise(() => Bun.file(path).json() as Promise<unknown>);
 
 const packageJsonPathsUnder = (directory: string): ReadonlyArray<string> =>
-  A.flatMap(readdirSync(directory), (entry) => {
-    const entryPath = join(directory, entry);
-    const stats = statSync(entryPath);
-
-    if (stats.isDirectory()) {
-      return packageJsonPathsUnder(entryPath);
-    }
-
-    return entry === "package.json" ? [entryPath] : [];
-  });
+  Array.from(new Bun.Glob("**/package.json").scanSync({ absolute: true, cwd: directory }));
 
 const isCanonicalToolingPackageRoot = (packageJsonPath: string): boolean =>
-  /^packages\/tooling\/[^/]+\/[^/]+\/package\.json$/u.test(relative(repoRoot, packageJsonPath));
+  /^packages\/tooling\/[^/]+\/[^/]+\/package\.json$/u.test(relativeToRepo(packageJsonPath));
 
 describe("foundation package topology", () => {
-  it("keeps foundation packages canonical and leaves no legacy common workspace", () => {
-    const rootPackage = readJsonFile(join(repoRoot, "package.json")) as {
-      readonly workspaces?: ReadonlyArray<string>;
-    };
-
-    expect(rootPackage.workspaces).toEqual(
-      expect.arrayContaining([
-        "packages/foundation/capability/*",
-        "packages/foundation/modeling/*",
-        "packages/foundation/primitive/*",
-        "packages/foundation/ui-system/*",
-      ])
-    );
-    expect(rootPackage.workspaces).not.toContain("packages/common/*");
-    expect(existsSync(join(repoRoot, "packages", "common"))).toBe(false);
-
-    const packageJsonPaths = packageJsonPathsUnder(join(repoRoot, "packages", "foundation"));
-    expect(packageJsonPaths.length).toBeGreaterThan(0);
-
-    for (const packageJsonPath of packageJsonPaths) {
-      const workspacePath = Str.replace(/\/package\.json$/u, "")(relative(repoRoot, packageJsonPath));
-      const [, family, kind] = Str.split("/")(workspacePath);
-      const packageJson = readJsonFile(packageJsonPath) as {
-        readonly name?: string;
-        readonly homepage?: string;
-        readonly repository?: {
-          readonly directory?: string;
+  it("keeps foundation packages canonical and leaves no legacy common workspace", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const rootPackage = (yield* readJsonFile(joinPath(repoRoot, "package.json"))) as {
+          readonly workspaces?: ReadonlyArray<string>;
         };
-        readonly beep?: {
-          readonly family?: string;
-          readonly kind?: string;
-        };
-      };
 
-      expect(family, `${workspacePath} family segment`).toBe("foundation");
-      expect(packageJson.beep, `${workspacePath} beep metadata`).toEqual({
-        family: "foundation",
-        kind,
-      });
-      expect(packageJson.repository?.directory, `${workspacePath} repository.directory`).toBe(workspacePath);
-      expect(packageJson.homepage, `${workspacePath} homepage`).toMatch(new RegExp(`/${workspacePath}$`, "u"));
-    }
-  });
+        expect(rootPackage.workspaces).toEqual(
+          expect.arrayContaining([
+            "packages/foundation/capability/*",
+            "packages/foundation/modeling/*",
+            "packages/foundation/primitive/*",
+            "packages/foundation/ui-system/*",
+          ])
+        );
+        expect(rootPackage.workspaces).not.toContain("packages/common/*");
+        expect(pathExistsSync(joinPath(repoRoot, "packages", "common"))).toBe(false);
+
+        const packageJsonPaths = packageJsonPathsUnder(joinPath(repoRoot, "packages", "foundation"));
+        expect(packageJsonPaths.length).toBeGreaterThan(0);
+
+        for (const packageJsonPath of packageJsonPaths) {
+          const workspacePath = Str.replace(/\/package\.json$/u, "")(relativeToRepo(packageJsonPath));
+          const [, family, kind] = Str.split("/")(workspacePath);
+          const packageJson = (yield* readJsonFile(packageJsonPath)) as {
+            readonly name?: string;
+            readonly homepage?: string;
+            readonly repository?: {
+              readonly directory?: string;
+            };
+            readonly beep?: {
+              readonly family?: string;
+              readonly kind?: string;
+            };
+          };
+
+          expect(family, `${workspacePath} family segment`).toBe("foundation");
+          expect(packageJson.beep, `${workspacePath} beep metadata`).toEqual({
+            family: "foundation",
+            kind,
+          });
+          expect(packageJson.repository?.directory, `${workspacePath} repository.directory`).toBe(workspacePath);
+          expect(packageJson.homepage, `${workspacePath} homepage`).toMatch(new RegExp(`/${workspacePath}$`, "u"));
+        }
+      })
+    ));
 });
 
 describe("tooling package topology", () => {
-  it("keeps tooling packages canonical and leaves no legacy tooling workspace", () => {
-    const rootPackage = readJsonFile(join(repoRoot, "package.json")) as {
-      readonly workspaces?: ReadonlyArray<string>;
-    };
-
-    expect(rootPackage.workspaces).toEqual(
-      expect.arrayContaining([
-        "packages/tooling/library/*",
-        "packages/tooling/policy-pack/*",
-        "packages/tooling/test-kit/*",
-        "packages/tooling/tool/*",
-      ])
-    );
-    expect(rootPackage.workspaces).not.toEqual(expect.arrayContaining(["tooling/cli", "tooling/repo-checks"]));
-    expect(existsSync(join(repoRoot, "tooling"))).toBe(false);
-
-    const packageJsonPaths = A.filter(
-      packageJsonPathsUnder(join(repoRoot, "packages", "tooling")),
-      isCanonicalToolingPackageRoot
-    );
-    expect(packageJsonPaths.length).toBeGreaterThan(0);
-
-    for (const packageJsonPath of packageJsonPaths) {
-      const workspacePath = Str.replace(/\/package\.json$/u, "")(relative(repoRoot, packageJsonPath));
-      const [, family, kind] = Str.split("/")(workspacePath);
-      const packageJson = readJsonFile(packageJsonPath) as {
-        readonly homepage?: string;
-        readonly repository?: {
-          readonly directory?: string;
+  it("keeps tooling packages canonical and leaves no legacy tooling workspace", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const rootPackage = (yield* readJsonFile(joinPath(repoRoot, "package.json"))) as {
+          readonly workspaces?: ReadonlyArray<string>;
         };
-        readonly beep?: {
-          readonly family?: string;
-          readonly kind?: string;
-        };
-      };
 
-      expect(family, `${workspacePath} family segment`).toBe("tooling");
-      expect(packageJson.beep, `${workspacePath} beep metadata`).toEqual({
-        family: "tooling",
-        kind,
-      });
-      expect(packageJson.repository?.directory, `${workspacePath} repository.directory`).toBe(workspacePath);
-      expect(packageJson.homepage, `${workspacePath} homepage`).toMatch(new RegExp(`/${workspacePath}$`, "u"));
-    }
-  });
+        expect(rootPackage.workspaces).toEqual(
+          expect.arrayContaining([
+            "packages/tooling/library/*",
+            "packages/tooling/policy-pack/*",
+            "packages/tooling/test-kit/*",
+            "packages/tooling/tool/*",
+          ])
+        );
+        expect(rootPackage.workspaces).not.toEqual(expect.arrayContaining(["tooling/cli", "tooling/repo-checks"]));
+        expect(pathExistsSync(joinPath(repoRoot, "tooling"))).toBe(false);
+
+        const packageJsonPaths = A.filter(
+          packageJsonPathsUnder(joinPath(repoRoot, "packages", "tooling")),
+          isCanonicalToolingPackageRoot
+        );
+        expect(packageJsonPaths.length).toBeGreaterThan(0);
+
+        for (const packageJsonPath of packageJsonPaths) {
+          const workspacePath = Str.replace(/\/package\.json$/u, "")(relativeToRepo(packageJsonPath));
+          const [, family, kind] = Str.split("/")(workspacePath);
+          const packageJson = (yield* readJsonFile(packageJsonPath)) as {
+            readonly homepage?: string;
+            readonly repository?: {
+              readonly directory?: string;
+            };
+            readonly beep?: {
+              readonly family?: string;
+              readonly kind?: string;
+            };
+          };
+
+          expect(family, `${workspacePath} family segment`).toBe("tooling");
+          expect(packageJson.beep, `${workspacePath} beep metadata`).toEqual({
+            family: "tooling",
+            kind,
+          });
+          expect(packageJson.repository?.directory, `${workspacePath} repository.directory`).toBe(workspacePath);
+          expect(packageJson.homepage, `${workspacePath} homepage`).toMatch(new RegExp(`/${workspacePath}$`, "u"));
+        }
+      })
+    ));
 });
