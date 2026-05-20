@@ -135,7 +135,7 @@ import * as Issue from "./SchemaIssue.ts"
  * See also:
  * - {@link Transformation} — value-level bidirectional transformation
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Middleware<in out T, in out E, RDE, RDT, RET, REE> {
@@ -206,7 +206,7 @@ const TypeId = "~effect/SchemaTransformation/Transformation"
  * - {@link transformOrFail} — construct from effectful functions
  * - {@link Middleware} — effect-pipeline-level alternative
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Transformation<in out T, in out E, RD = never, RE = never> {
@@ -259,6 +259,7 @@ export class Transformation<in out T, in out E, RD = never, RE = never> {
  * - {@link Transformation}
  * - {@link make}
  *
+ * @category guards
  * @since 4.0.0
  */
 export function isTransformation(u: unknown): u is Transformation<any, any, unknown, unknown> {
@@ -293,7 +294,8 @@ export function isTransformation(u: unknown): u is Transformation<any, any, unkn
  * - {@link transformOrFail} — constructor from effectful functions
  * - {@link Transformation}
  *
- * @since 4.0.0
+ * @category constructors
+ * @since 3.10.0
  */
 export const make = <T, E, RD = never, RE = never>(options: {
   readonly decode: Getter.Getter<T, E, RD>
@@ -344,7 +346,8 @@ export const make = <T, E, RD = never, RE = never>(options: {
  * - {@link transformOptional} — for transformations that handle missing keys
  * - {@link make} — for transformations from existing Getters
  *
- * @since 4.0.0
+ * @category constructors
+ * @since 3.10.0
  */
 export function transformOrFail<T, E, RD = never, RE = never>(options: {
   readonly decode: (e: E, options: AST.ParseOptions) => Effect.Effect<T, Issue.Issue, RD>
@@ -390,7 +393,8 @@ export function transformOrFail<T, E, RD = never, RE = never>(options: {
  * - {@link transformOptional} — for transformations that handle missing keys
  * - {@link passthrough} — when no conversion is needed
  *
- * @since 4.0.0
+ * @category constructors
+ * @since 3.10.0
  */
 export function transform<T, E>(options: {
   readonly decode: (input: E) => T
@@ -439,6 +443,7 @@ export function transform<T, E>(options: {
  * - {@link optionFromOptionalKey} — built-in for the common optional-key-to-Option pattern
  * - {@link optionFromOptional} — built-in for optional (undefined) to Option
  *
+ * @category constructors
  * @since 4.0.0
  */
 export function transformOptional<T, E>(options: {
@@ -745,6 +750,7 @@ const passthrough_ = new Transformation(
  * - {@link passthroughSubtype}
  * - {@link transform}
  *
+ * @category constructors
  * @since 4.0.0
  */
 export function passthrough<T, E>(options: { readonly strict: false }): Transformation<T, E>
@@ -754,15 +760,12 @@ export function passthrough<T>(): Transformation<T, T> {
 }
 
 /**
- * A passthrough transformation typed so that `T extends E` — the decoded
- * type is a supertype of the encoded type.
+ * A passthrough transformation typed so that `T extends E`, where the decoded
+ * type `T` is a subtype of the encoded type `E`.
  *
- * When to use this:
- * - Widening: the decoded side accepts a broader type than the encoded side.
- *
- * Behavior:
- * - Both decode and encode are no-ops (same as {@link passthrough}).
- * - Returns a shared singleton instance.
+ * Use this when the runtime value is unchanged but the decoded side should be
+ * narrower than the encoded side. Both decode and encode are no-ops and return a
+ * shared singleton transformation.
  *
  * **Example** (Supertype passthrough)
  *
@@ -776,6 +779,7 @@ export function passthrough<T>(): Transformation<T, T> {
  * - {@link passthrough}
  * - {@link passthroughSubtype}
  *
+ * @category constructors
  * @since 4.0.0
  */
 export function passthroughSupertype<T extends E, E>(): Transformation<T, E>
@@ -806,6 +810,7 @@ export function passthroughSupertype<T>(): Transformation<T, T> {
  * - {@link passthrough}
  * - {@link passthroughSupertype}
  *
+ * @category constructors
  * @since 4.0.0
  */
 export function passthroughSubtype<T, E extends T>(): Transformation<T, E>
@@ -942,6 +947,7 @@ export const dateFromString: Transformation<globalThis.Date, string> = new Trans
  * - {@link durationFromNanos}
  * - {@link durationFromMillis}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export const durationFromString: Transformation<Duration.Duration, string> = transformOrFail<
@@ -981,6 +987,7 @@ export const durationFromString: Transformation<Duration.Duration, string> = tra
  * See also:
  * - {@link durationFromMillis}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export const durationFromNanos: Transformation<Duration.Duration, bigint> = transformOrFail({
@@ -996,15 +1003,12 @@ export const durationFromNanos: Transformation<Duration.Duration, bigint> = tran
 })
 
 /**
- * Decodes a `number` (milliseconds) into a `Duration` and encodes a
- * `Duration` back to `number` milliseconds.
+ * Decodes a `number` of milliseconds into a `Duration` and encodes a `Duration`
+ * back to milliseconds.
  *
- * When to use this:
- * - Working with millisecond-precision timestamps (e.g. `Date.now()`).
- *
- * Behavior:
- * - Decode: creates a Duration from milliseconds. Always succeeds.
- * - Encode: converts a Duration to milliseconds. Always succeeds.
+ * Use this for timeouts, delays, elapsed intervals, or other duration values
+ * stored as millisecond counts. Decode creates a duration from the number, and
+ * encode returns the duration length in milliseconds.
  *
  * **Example** (Duration from milliseconds)
  *
@@ -1019,6 +1023,7 @@ export const durationFromNanos: Transformation<Duration.Duration, bigint> = tran
  * See also:
  * - {@link durationFromNanos}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export const durationFromMillis: Transformation<Duration.Duration, number> = transform({
@@ -1085,6 +1090,7 @@ export const errorFromErrorJsonEncoded = (options?: {
  * See also:
  * - {@link optionFromNullishOr}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export function optionFromNullOr<T>(): Transformation<Option.Option<T>, T | null> {
@@ -1123,6 +1129,7 @@ export function optionFromNullOr<T>(): Transformation<Option.Option<T>, T | null
  * - {@link optionFromOptionalKey}
  * - {@link optionFromOptional}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export function optionFromUndefinedOr<T>(): Transformation<Option.Option<T>, T | undefined> {
@@ -1163,6 +1170,7 @@ export function optionFromUndefinedOr<T>(): Transformation<Option.Option<T>, T |
  * - {@link optionFromNullOr}
  * - {@link optionFromUndefinedOr}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export function optionFromNullishOr<T>(
@@ -1209,6 +1217,7 @@ export function optionFromNullishOr<T>(
  * - {@link optionFromUndefinedOr}
  * - {@link transformOptional}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export function optionFromOptionalKey<T>(): Transformation<Option.Option<T>, T> {
@@ -1250,6 +1259,7 @@ export function optionFromOptionalKey<T>(): Transformation<Option.Option<T>, T> 
  * - {@link optionFromUndefinedOr}
  * - {@link transformOptional}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export function optionFromOptional<T>(): Transformation<Option.Option<T>, T | undefined> {
@@ -1285,6 +1295,7 @@ export function optionFromOptional<T>(): Transformation<Option.Option<T>, T | un
  * - {@link numberFromString}
  * - {@link transformOrFail}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export const urlFromString: Transformation<URL, string> = transformOrFail<URL, string>({
@@ -1308,6 +1319,7 @@ export const urlFromString: Transformation<URL, string> = transformOrFail<URL, s
  *   string is not a valid BigDecimal representation.
  * - Encode: returns `BigDecimal.format(bd)`.
  *
+ * @category transforming
  * @since 4.0.0
  */
 export const bigDecimalFromString: Transformation<BigDecimal.BigDecimal, string> = transformOrFail<
@@ -1349,6 +1361,7 @@ export const bigDecimalFromString: Transformation<BigDecimal.BigDecimal, string>
  * - {@link fromJsonString}
  * - `Schema.Uint8ArrayFromBase64` - a ready-made schema wrapping this transformation.
  *
+ * @category encoding
  * @since 4.0.0
  */
 export const uint8ArrayFromBase64String: Transformation<Uint8Array<ArrayBufferLike>, string> = new Transformation(
@@ -1381,6 +1394,7 @@ export const uint8ArrayFromBase64String: Transformation<Uint8Array<ArrayBufferLi
  * - {@link uint8ArrayFromBase64String}
  * - `Schema.StringFromBase64` - a ready-made schema wrapping this transformation.
  *
+ * @category encoding
  * @since 4.0.0
  */
 export const stringFromBase64String: Transformation<string, string> = new Transformation(
@@ -1412,6 +1426,7 @@ export const stringFromBase64String: Transformation<string, string> = new Transf
  * - {@link stringFromBase64String}
  * - `Schema.StringFromBase64Url` - a ready-made schema wrapping this transformation.
  *
+ * @category encoding
  * @since 4.0.0
  */
 export const stringFromBase64UrlString: Transformation<string, string> = new Transformation(
@@ -1443,6 +1458,7 @@ export const stringFromBase64UrlString: Transformation<string, string> = new Tra
  * - {@link stringFromBase64String}
  * - `Schema.StringFromHex` - a ready-made schema wrapping this transformation.
  *
+ * @category encoding
  * @since 4.0.0
  */
 export const stringFromHexString: Transformation<string, string> = new Transformation(
@@ -1477,6 +1493,7 @@ export const stringFromHexString: Transformation<string, string> = new Transform
  * - {@link stringFromBase64String}
  * - `Schema.StringFromUriComponent` - a ready-made schema wrapping this transformation.
  *
+ * @category encoding
  * @since 4.0.0
  */
 export const stringFromUriComponent: Transformation<string, string> = new Transformation(
@@ -1485,16 +1502,13 @@ export const stringFromUriComponent: Transformation<string, string> = new Transf
 )
 
 /**
- * Decodes a JSON `string` into an `unknown` value and encodes an `unknown`
- * value back to a JSON string.
+ * Decodes a JSON string with `JSON.parse` and encodes a value with
+ * `JSON.stringify`.
  *
- * When to use this:
- * - Parsing JSON strings from HTTP bodies, message queues, or storage.
- * - Typically composed with a further schema to validate the parsed structure.
- *
- * Behavior:
- * - Decode: calls `JSON.parse`. Fails if the string is not valid JSON.
- * - Encode: calls `JSON.stringify`.
+ * Use this for JSON stored or transmitted as a string, usually before composing
+ * with another schema that validates the parsed structure. Decode fails with
+ * `InvalidValue` for invalid JSON, and encode can fail with `InvalidValue` when
+ * `JSON.stringify` cannot serialize the value.
  *
  * **Example** (Parsing JSON)
  *
@@ -1510,6 +1524,7 @@ export const stringFromUriComponent: Transformation<string, string> = new Transf
  * - {@link uint8ArrayFromBase64String}
  * - {@link fromFormData}
  *
+ * @category decoding
  * @since 4.0.0
  */
 export const fromJsonString = new Transformation<unknown, string>(
@@ -1518,15 +1533,13 @@ export const fromJsonString = new Transformation<unknown, string>(
 )
 
 /**
- * Decodes a `FormData` instance into an `unknown` record and encodes an
- * `unknown` record back to `FormData`.
+ * Decodes a `FormData` instance into a nested record using bracket-path keys and
+ * encodes object-like values back into `FormData`.
  *
- * When to use this:
- * - Handling HTML form submissions or multipart API requests.
- *
- * Behavior:
- * - Decode: extracts entries from the FormData into a plain object.
- * - Encode: constructs a FormData from the record's entries.
+ * Use this for form or multipart payloads where keys such as `user[name]` or
+ * `items[0]` should become nested data. Decode preserves string and `Blob`
+ * leaves. Encode flattens nested objects and arrays into bracket-path entries
+ * and returns an empty `FormData` for non-object inputs.
  *
  * **Example** (Decoding FormData)
  *
@@ -1542,6 +1555,7 @@ export const fromJsonString = new Transformation<unknown, string>(
  * - {@link fromURLSearchParams}
  * - {@link fromJsonString}
  *
+ * @category decoding
  * @since 4.0.0
  */
 export const fromFormData = new Transformation<unknown, FormData>(
@@ -1550,15 +1564,13 @@ export const fromFormData = new Transformation<unknown, FormData>(
 )
 
 /**
- * Decodes a `URLSearchParams` instance into an `unknown` record and encodes
- * an `unknown` record back to `URLSearchParams`.
+ * Decodes `URLSearchParams` into a nested record using bracket-path keys and
+ * encodes object-like values back into `URLSearchParams`.
  *
- * When to use this:
- * - Parsing URL query parameters.
- *
- * Behavior:
- * - Decode: extracts entries from URLSearchParams into a plain object.
- * - Encode: constructs URLSearchParams from the record's entries.
+ * Use this for query strings where keys such as `filter[name]` or `items[0]`
+ * should become nested data. Decode produces string leaves. Encode flattens
+ * nested objects and arrays into bracket-path entries and returns empty
+ * `URLSearchParams` for non-object inputs.
  *
  * **Example** (Decoding URLSearchParams)
  *
@@ -1574,6 +1586,7 @@ export const fromFormData = new Transformation<unknown, FormData>(
  * - {@link fromFormData}
  * - {@link fromJsonString}
  *
+ * @category decoding
  * @since 4.0.0
  */
 export const fromURLSearchParams = new Transformation<unknown, URLSearchParams>(
@@ -1582,6 +1595,13 @@ export const fromURLSearchParams = new Transformation<unknown, URLSearchParams>(
 )
 
 /**
+ * Decodes a numeric time-zone offset in milliseconds into a
+ * `DateTime.TimeZone.Offset` and encodes it back to the offset number.
+ *
+ * Decode uses `DateTime.zoneMakeOffset`; encode returns the offset's `offset`
+ * field.
+ *
+ * @category transforming
  * @since 4.0.0
  */
 export const timeZoneOffsetFromNumber: Transformation<DateTime.TimeZone.Offset, number> = transform<
@@ -1593,6 +1613,13 @@ export const timeZoneOffsetFromNumber: Transformation<DateTime.TimeZone.Offset, 
 })
 
 /**
+ * Decodes an IANA time-zone identifier string into a
+ * `DateTime.TimeZone.Named` and encodes a named time zone back to its `id`.
+ *
+ * Decode fails with `InvalidValue` when the string is not a valid IANA time-zone
+ * identifier.
+ *
+ * @category transforming
  * @since 4.0.0
  */
 export const timeZoneNamedFromString: Transformation<DateTime.TimeZone.Named, string> = transformOrFail<
@@ -1609,6 +1636,14 @@ export const timeZoneNamedFromString: Transformation<DateTime.TimeZone.Named, st
 })
 
 /**
+ * Decodes a string into a `DateTime.TimeZone` and encodes a time zone back to
+ * its string representation.
+ *
+ * Accepted decode inputs include valid IANA identifiers and offset strings such
+ * as `"+03:00"`. Decode fails with `InvalidValue` when the string cannot be
+ * parsed as a time zone.
+ *
+ * @category transforming
  * @since 4.0.0
  */
 export const timeZoneFromString: Transformation<DateTime.TimeZone, string> = transformOrFail<
@@ -1625,6 +1660,14 @@ export const timeZoneFromString: Transformation<DateTime.TimeZone, string> = tra
 })
 
 /**
+ * Decodes a date-time string into a `DateTime.Utc` and encodes it back to an ISO
+ * string.
+ *
+ * Decode accepts strings supported by `DateTime.make`, converts the result to
+ * UTC, and fails with `InvalidValue` when parsing fails. Encode uses
+ * `DateTime.formatIso`.
+ *
+ * @category transforming
  * @since 4.0.0
  */
 export const dateTimeUtcFromString: Transformation<DateTime.Utc, string> = transformOrFail<
@@ -1642,6 +1685,14 @@ export const dateTimeUtcFromString: Transformation<DateTime.Utc, string> = trans
 })
 
 /**
+ * Decodes a zoned date-time string into a `DateTime.Zoned` and encodes it back
+ * to an ISO zoned string.
+ *
+ * Decode uses `DateTime.makeZonedFromString` and fails with `InvalidValue` when
+ * the input is not a valid zoned date-time. Encode uses
+ * `DateTime.formatIsoZoned`.
+ *
+ * @category transforming
  * @since 4.0.0
  */
 export const dateTimeZonedFromString: Transformation<DateTime.Zoned, string> = transformOrFail<

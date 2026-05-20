@@ -80,7 +80,7 @@ import { getRedacted, redact, symbolRedactable } from "./Redactable.ts"
  *
  * See also: {@link format}, {@link formatJson}
  *
- * @category Model
+ * @category models
  * @since 4.0.0
  */
 export interface Formatter<in Value, out Format = string> {
@@ -156,7 +156,8 @@ export interface Formatter<in Value, out Format = string> {
  *
  * See also: {@link formatJson}, {@link Formatter}
  *
- * @since 4.0.0
+ * @category formatting
+ * @since 2.0.0
  */
 export function format(input: unknown, options?: {
   readonly space?: number | string | undefined
@@ -246,30 +247,6 @@ export function format(input: unknown, options?: {
 const CIRCULAR = "[Circular]"
 
 /**
- * Formats a single property key for display.
- *
- * When to use:
- * - You are building a custom formatter that needs to render object keys.
- *
- * Behavior:
- * - String keys are JSON-quoted (e.g. `"foo"`).
- * - Symbol and number keys are converted with `String()`.
- * - Pure function; does not mutate input.
- *
- * **Example** (Format property keys)
- *
- * ```ts
- * import { Formatter } from "effect"
- *
- * console.log(Formatter.formatPropertyKey("name"))
- * // "name"
- *
- * console.log(Formatter.formatPropertyKey(Symbol.for("id")))
- * // Symbol(id)
- * ```
- *
- * See also: {@link formatPath}, {@link format}
- *
  * @internal
  */
 export function formatPropertyKey(name: PropertyKey): string {
@@ -278,27 +255,6 @@ export function formatPropertyKey(name: PropertyKey): string {
 
 /**
  * Formats an array of property keys as a bracket-notation path string.
- *
- * When to use:
- * - You need to display a path through a nested object (e.g. in error
- *   messages or schema validation output).
- *
- * Behavior:
- * - Each key is wrapped in brackets and formatted via
- *   {@link formatPropertyKey}.
- * - Returns an empty string for an empty path.
- * - Pure function; does not mutate input.
- *
- * **Example** (Render a property path)
- *
- * ```ts
- * import { Formatter } from "effect"
- *
- * console.log(Formatter.formatPath(["users", 0, "name"]))
- * // ["users"][0]["name"]
- * ```
- *
- * See also: {@link formatPropertyKey}, {@link format}
  *
  * @internal
  */
@@ -309,29 +265,6 @@ export function formatPath(path: ReadonlyArray<PropertyKey>): string {
 /**
  * Formats a `Date` as an ISO 8601 string, returning `"Invalid Date"` for
  * invalid dates instead of throwing.
- *
- * When to use:
- * - You want a safe `toISOString()` that never throws.
- *
- * Behavior:
- * - Returns `date.toISOString()` on success.
- * - Returns `"Invalid Date"` if `toISOString()` throws (e.g. for
- *   `new Date(NaN)`).
- * - Pure function; does not mutate input.
- *
- * **Example** (Safe date formatting)
- *
- * ```ts
- * import { Formatter } from "effect"
- *
- * console.log(Formatter.formatDate(new Date("2024-01-15T10:30:00Z")))
- * // 2024-01-15T10:30:00.000Z
- *
- * console.log(Formatter.formatDate(new Date("invalid")))
- * // Invalid Date
- * ```
- *
- * See also: {@link format}
  *
  * @internal
  */
@@ -409,6 +342,7 @@ function safeToString(input: any): string {
  *
  * See also: {@link format}, {@link Formatter}
  *
+ * @category serialization
  * @since 4.0.0
  */
 export function formatJson(input: unknown, options?: {

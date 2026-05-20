@@ -132,7 +132,7 @@ import * as Str from "./String.ts"
  * - {@link passthrough} — identity getter
  * - {@link transformOrFail} — fallible transformation
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Getter<out T, in E, R = never> extends Pipeable.Class {
@@ -188,7 +188,7 @@ export class Getter<out T, in E, R = never> extends Pipeable.Class {
  * - {@link transform} — when you need to use the input value
  * - {@link passthrough} — when you want to keep the input as-is
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function succeed<const T, E>(t: T): Getter<T, E> {
@@ -209,7 +209,7 @@ export function succeed<const T, E>(t: T): Getter<T, E> {
  * **Example** (Always-failing getter)
  *
  * ```ts
- * import { SchemaGetter, SchemaIssue, Option } from "effect"
+ * import { Option, SchemaGetter, SchemaIssue } from "effect"
  *
  * const rejectAll = SchemaGetter.fail<string, string>(
  *   (oe) => new SchemaIssue.InvalidValue(oe, { message: "not allowed" })
@@ -220,7 +220,7 @@ export function succeed<const T, E>(t: T): Getter<T, E> {
  * - {@link forbidden} — convenience for `Forbidden` issues
  * - {@link checkEffect} — fail conditionally based on input value
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function fail<T, E>(f: (oe: Option.Option<E>) => Issue.Issue): Getter<T, E> {
@@ -251,7 +251,7 @@ export function fail<T, E>(f: (oe: Option.Option<E>) => Issue.Issue): Getter<T, 
  * See also:
  * - {@link fail} — fail with a custom issue type
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function forbidden<T, E>(message: (oe: Option.Option<E>) => string): Getter<T, E> {
@@ -296,7 +296,7 @@ function isPassthrough<T, E, R>(getter: Getter<T, E, R>): getter is typeof passt
  * - {@link passthroughSubtype} — when `E extends T`
  * - {@link transform} — when you need to change the value
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function passthrough<T, E>(options: { readonly strict: false }): Getter<T, E>
@@ -306,11 +306,11 @@ export function passthrough<T>(): Getter<T, T> {
 }
 
 /**
- * Returns the identity getter, typed for when the decoded type `T` is a supertype of `E`.
+ * Returns the identity getter typed for the relationship `T extends E`.
  *
- * Use this when:
- * - The decoded type is wider than the encoded type (e.g. `string` from a string literal).
- * - You need type-safe passthrough without `{ strict: false }`.
+ * Use this when no runtime conversion is needed but the getter should be typed
+ * as producing a decoded/output type that is narrower than the encoded/input
+ * type.
  *
  * Behavior:
  * - Same singleton as {@link passthrough} — no allocation, optimized in composition.
@@ -328,7 +328,7 @@ export function passthrough<T>(): Getter<T, T> {
  * - {@link passthrough} — when types are identical
  * - {@link passthroughSubtype} — when `E extends T`
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function passthroughSupertype<T extends E, E>(): Getter<T, E>
@@ -359,7 +359,7 @@ export function passthroughSupertype<T>(): Getter<T, T> {
  * - {@link passthrough} — when types are identical
  * - {@link passthroughSupertype} — when `T extends E`
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function passthroughSubtype<T, E extends T>(): Getter<T, E>
@@ -382,7 +382,7 @@ export function passthroughSubtype<T>(): Getter<T, T> {
  * **Example** (Default timestamp for missing field)
  *
  * ```ts
- * import { SchemaGetter, Effect, Option } from "effect"
+ * import { Effect, Option, SchemaGetter } from "effect"
  *
  * const withTimestamp = SchemaGetter.onNone<number>(() =>
  *   Effect.succeed(Option.some(Date.now()))
@@ -394,7 +394,7 @@ export function passthroughSubtype<T>(): Getter<T, T> {
  * - {@link withDefault} — simpler default value for undefined inputs
  * - {@link onSome} — handle only present values
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function onNone<T, E extends T = T, R = never>(
@@ -427,7 +427,7 @@ export function onNone<T, E extends T = T, R = never>(
  * - {@link onNone} — provide a fallback instead of failing
  * - {@link withDefault} — substitute a default for undefined values
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function required<T, E extends T = T>(annotations?: Schema.Annotations.Key<T>): Getter<T, E> {
@@ -449,7 +449,7 @@ export function required<T, E extends T = T>(annotations?: Schema.Annotations.Ke
  * **Example** (Transform only present values)
  *
  * ```ts
- * import { SchemaGetter, Effect, Option } from "effect"
+ * import { Effect, Option, SchemaGetter } from "effect"
  *
  * const parseIfPresent = SchemaGetter.onSome<number, string>(
  *   (s) => Effect.succeed(Option.some(Number(s)))
@@ -461,7 +461,7 @@ export function required<T, E extends T = T>(annotations?: Schema.Annotations.Ke
  * - {@link transform} — simpler pure transformation of present values
  * - {@link transformOrFail} — fallible transformation of present values
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function onSome<T, E, R = never>(
@@ -490,7 +490,7 @@ export function onSome<T, E, R = never>(
  * **Example** (Effectful validation)
  *
  * ```ts
- * import { SchemaGetter, Effect } from "effect"
+ * import { Effect, SchemaGetter } from "effect"
  *
  * const nonNegative = SchemaGetter.checkEffect<number>((n) =>
  *   Effect.succeed(n >= 0 ? undefined : "must be non-negative")
@@ -501,7 +501,7 @@ export function onSome<T, E, R = never>(
  * - {@link transform} — when you need to change the value, not just validate
  * - {@link fail} — unconditional failure
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function checkEffect<T, R = never>(
@@ -554,7 +554,7 @@ export function checkEffect<T, R = never>(
  * - {@link transformOptional} — when you need to handle `None` inputs
  * - {@link passthrough} — when no transformation is needed
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function transform<T, E>(f: (e: E) => T): Getter<T, E> {
@@ -576,7 +576,7 @@ export function transform<T, E>(f: (e: E) => T): Getter<T, E> {
  * **Example** (Parsing with failure)
  *
  * ```ts
- * import { SchemaGetter, SchemaIssue, Effect, Option } from "effect"
+ * import { Effect, Option, SchemaGetter, SchemaIssue } from "effect"
  *
  * const safeParseInt = SchemaGetter.transformOrFail<number, string>(
  *   (s) => {
@@ -592,7 +592,7 @@ export function transform<T, E>(f: (e: E) => T): Getter<T, E> {
  * - {@link transform} — when transformation cannot fail
  * - {@link onSome} — when you need full `Option` control over the output
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function transformOrFail<T, E, R = never>(
@@ -615,7 +615,7 @@ export function transformOrFail<T, E, R = never>(
  * **Example** (Filter out empty strings)
  *
  * ```ts
- * import { SchemaGetter, Option } from "effect"
+ * import { Option, SchemaGetter } from "effect"
  *
  * const skipEmpty = SchemaGetter.transformOptional<string, string>((o) =>
  *   Option.filter(o, (s) => s.length > 0)
@@ -626,7 +626,7 @@ export function transformOrFail<T, E, R = never>(
  * - {@link transform} — simpler, only handles present values
  * - {@link omit} — always returns `None`
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function transformOptional<T, E>(f: (oe: Option.Option<E>) => Option.Option<T>): Getter<T, E> {
@@ -655,7 +655,7 @@ export function transformOptional<T, E>(f: (oe: Option.Option<E>) => Option.Opti
  * - {@link transformOptional} — when you want conditional omission
  * - {@link forbidden} — when you want to fail instead of silently omit
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function omit<T>(): Getter<never, T> {
@@ -686,7 +686,7 @@ export function omit<T>(): Getter<never, T> {
  * - {@link onNone} — handle only absent keys (not `undefined` values)
  * - {@link required} — fail instead of providing a default
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function withDefault<T, R = never>(
@@ -1044,15 +1044,20 @@ type StringifyJsonOptions = {
 }
 
 /**
- * Stringifies a value to JSON.
+ * Stringifies a present value using `JSON.stringify`.
  *
  * Use this when:
- * - A decoded value needs to be serialized to a JSON string during encoding.
+ * - A decoded value needs to be serialized to JSON text during encoding.
  *
  * Behavior:
  * - Skips `None` inputs.
- * - On stringify failure (e.g. circular references), fails with `Issue.InvalidValue`.
- * - Supports optional `replacer` and `space` options (same as `JSON.stringify`).
+ * - On thrown stringify failures, such as circular references, fails with
+ *   `Issue.InvalidValue`.
+ * - Supports optional `replacer` and `space` options, matching
+ *   `JSON.stringify`.
+ * - If `JSON.stringify` returns `undefined`, such as for `undefined`,
+ *   functions, symbols, or a replacer that removes the root value, that
+ *   `undefined` result is returned rather than converted into an `Issue`.
  *
  * **Example** (Stringify JSON)
  *
@@ -1456,10 +1461,12 @@ export function decodeHexString<E extends string>(): Getter<string, E> {
 }
 
 /**
- * Encodes a string using `encodeURIComponent`.
+ * Encodes a present string using `encodeURIComponent`.
  *
  * Behavior:
- * - Pure, never fails.
+ * - Skips `None` inputs.
+ * - May throw a `URIError` for malformed surrogate pairs; this exception is not
+ *   converted into an `Issue`.
  *
  * **Example** (Encode a URI component)
  *
@@ -1515,13 +1522,19 @@ export function decodeUriComponent<E extends string>(): Getter<string, E> {
 }
 
 /**
- * Parses a `DateTime.Input` value (string, number, or Date) into a `DateTime.Utc`.
+ * Parses a `DateTime.Input` value into a `DateTime.Utc`.
+ *
+ * Accepted input includes existing `DateTime` values, partial date/time parts,
+ * instant objects, zoned instant objects, JavaScript `Date` instances, epoch
+ * milliseconds, and date strings.
  *
  * Use this when:
  * - An encoded value represents a date/time and should be decoded to a `DateTime.Utc`.
  *
  * Behavior:
- * - Fails with `Issue.InvalidValue` if the input cannot be parsed as a valid DateTime.
+ * - Converts successfully parsed values to UTC.
+ * - Fails with `Issue.InvalidValue` if the input cannot be parsed as a valid
+ *   `DateTime`.
  *
  * **Example** (Parse DateTime)
  *
@@ -1827,7 +1840,7 @@ export function makeTreeRecord<A>(
  * **Example** (Flatten object to bracket paths)
  *
  * ```ts
- * import { SchemaGetter, Predicate } from "effect"
+ * import { Predicate, SchemaGetter } from "effect"
  *
  * const collectStrings = SchemaGetter.collectBracketPathEntries(Predicate.isString)
  * const entries = collectStrings({ user: { name: "Alice", tags: ["admin", "editor"] } })

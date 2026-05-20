@@ -27,7 +27,7 @@
  * **Example** (Filter by a predicate)
  *
  * ```ts
- * import * as Predicate from "effect/Predicate"
+ * import { Predicate } from "effect"
  *
  * const isPositive = (n: number) => n > 0
  * const data = [2, -1, 3]
@@ -162,7 +162,6 @@ export interface Refinement<in A, out B extends A> {
  * See also: {@link Predicate}, {@link Refinement}
  *
  * @since 3.6.0
- * @category type-level
  */
 export declare namespace Predicate {
   /**
@@ -187,8 +186,8 @@ export declare namespace Predicate {
    *
    * See also: {@link Predicate.Any}, {@link Refinement.In}
    *
-   * @since 3.6.0
    * @category type-level
+   * @since 3.6.0
    */
   export type In<T extends Any> = [T] extends [Predicate<infer _A>] ? _A : never
 
@@ -211,8 +210,8 @@ export declare namespace Predicate {
    *
    * See also: {@link Predicate.In}
    *
-   * @since 3.6.0
    * @category type-level
+   * @since 3.6.0
    */
   export type Any = Predicate<any>
 }
@@ -241,7 +240,6 @@ export declare namespace Predicate {
  * See also: {@link Refinement}, {@link Predicate}
  *
  * @since 3.6.0
- * @category type-level
  */
 export declare namespace Refinement {
   /**
@@ -265,8 +263,8 @@ export declare namespace Refinement {
    *
    * See also: {@link Refinement.Out}, {@link Predicate.In}
    *
-   * @since 3.6.0
    * @category type-level
+   * @since 3.6.0
    */
 
   export type In<T extends Any> = [T] extends [Refinement<infer _A, infer _>] ? _A : never
@@ -292,8 +290,8 @@ export declare namespace Refinement {
    *
    * See also: {@link Refinement.In}
    *
-   * @since 3.6.0
    * @category type-level
+   * @since 3.6.0
    */
   export type Out<T extends Any> = [T] extends [Refinement<infer _, infer _B>] ? _B : never
 
@@ -316,8 +314,8 @@ export declare namespace Refinement {
    *
    * See also: {@link Refinement.In}, {@link Refinement.Out}
    *
-   * @since 3.6.0
    * @category type-level
+   * @since 3.6.0
    */
   export type Any = Refinement<any, any>
 }
@@ -995,14 +993,11 @@ export function isObjectOrArray(input: unknown): input is { [x: PropertyKey]: un
 }
 
 /**
- * Checks whether a value is a plain object (not an array, not `null`).
+ * Checks whether a value is a non-null object value that is not an array.
  *
- * When to use:
- * - You need to accept objects but exclude arrays.
- *
- * Behavior:
- * - Pure; does not mutate input.
- * - Uses `typeof input === "object" && input !== null && !Array.isArray(input)`.
+ * This is a structural runtime check using `typeof input === "object"`, so it
+ * also accepts object instances such as `Date`, `Map`, class instances, and
+ * typed arrays. It excludes `null` and arrays.
  *
  * **Example** (Guard object)
  *
@@ -1016,21 +1011,19 @@ export function isObjectOrArray(input: unknown): input is { [x: PropertyKey]: un
  * See also: {@link isObjectOrArray}, {@link isReadonlyObject}
  *
  * @category guards
- * @since 4.0.0
+ * @since 2.0.0
  */
 export function isObject(input: unknown): input is { [x: PropertyKey]: unknown } {
   return typeof input === "object" && input !== null && !Array.isArray(input)
 }
 
 /**
- * Checks whether a value is a readonly object.
+ * Checks whether a value is a non-null, non-array object and narrows it to a
+ * readonly indexable object type.
  *
- * When to use:
- * - You need a guard for object-like values and do not care about mutability.
- *
- * Behavior:
- * - Pure; does not mutate input.
- * - Delegates to {@link isObject}.
+ * Readonly-ness is a TypeScript type-level view; it is not observable at
+ * runtime. This delegates to `isObject`, so class instances and built-in object
+ * instances are accepted.
  *
  * **Example** (Readonly object)
  *
@@ -1073,7 +1066,7 @@ export function isReadonlyObject(input: unknown): input is { readonly [x: Proper
  * See also: {@link isObject}, {@link isObjectOrArray}
  *
  * @category guards
- * @since 2.0.0
+ * @since 4.0.0
  */
 export function isObjectKeyword(input: unknown): input is object {
   return (typeof input === "object" && input !== null) || isFunction(input)

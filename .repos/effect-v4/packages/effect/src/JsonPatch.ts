@@ -33,7 +33,7 @@
  * **Example** (Computing and applying a patch)
  *
  * ```ts
- * import * as JsonPatch from "effect/JsonPatch"
+ * import { JsonPatch } from "effect"
  *
  * const oldValue = { name: "Alice", age: 30 }
  * const newValue = { name: "Alice", age: 31, city: "NYC" }
@@ -78,7 +78,7 @@ import type * as Schema from "./Schema.ts"
  * **Example** (All operation types)
  *
  * ```ts
- * import * as JsonPatch from "effect/JsonPatch"
+ * import { JsonPatch } from "effect"
  *
  * const addOp: JsonPatch.JsonPatchOperation = {
  *   op: "add",
@@ -104,7 +104,7 @@ import type * as Schema from "./Schema.ts"
  * - {@link get} - Computes operations automatically from value differences
  * - {@link apply} - Applies operations to transform documents
  *
- * @category Model
+ * @category models
  * @since 4.0.0
  */
 export type JsonPatchOperation =
@@ -155,7 +155,7 @@ export type JsonPatchOperation =
  * **Example** (Multi-operation patch)
  *
  * ```ts
- * import * as JsonPatch from "effect/JsonPatch"
+ * import { JsonPatch } from "effect"
  *
  * const patch: JsonPatch.JsonPatch = [
  *   { op: "add", path: "/items/-", value: "apple" },
@@ -173,22 +173,23 @@ export type JsonPatchOperation =
  * - {@link get} - Generates patches from value differences
  * - {@link apply} - Executes patches to transform documents
  *
- * @category Model
+ * @category models
  * @since 4.0.0
  */
 export type JsonPatch = ReadonlyArray<JsonPatchOperation>
 
 /**
- * Compute a patch that transforms `oldValue` into `newValue`.
+ * Computes a patch that transforms `oldValue` into `newValue`.
  *
- * Generates a structural diff between two JSON values, producing a patch that when applied to `oldValue` yields `newValue`.
+ * Generates a structural diff between two JSON values, producing a patch that
+ * yields `newValue` when applied to `oldValue`.
  *
  * ## When to use this
  *
  * - Computing differences between JSON documents
  * - Detecting changes in data structures
  * - Generating patches for synchronization or version control
- * - Creating minimal update operations from before/after states
+ * - Creating deterministic update operations from before/after states
  *
  * ## Behavior
  *
@@ -204,7 +205,7 @@ export type JsonPatch = ReadonlyArray<JsonPatchOperation>
  * **Example** (Computing object diff)
  *
  * ```ts
- * import * as JsonPatch from "effect/JsonPatch"
+ * import { JsonPatch } from "effect"
  *
  * const oldValue = { users: [{ id: 1, name: "Alice" }], count: 1 }
  * const newValue = { users: [{ id: 1, name: "Bob" }, { id: 2, name: "Charlie" }], count: 2 }
@@ -222,6 +223,7 @@ export type JsonPatch = ReadonlyArray<JsonPatchOperation>
  * - {@link apply} - Applies the generated patch to a document
  * - {@link JsonPatchOperation} - The operation types in the patch
  *
+ * @category transforming
  * @since 4.0.0
  */
 export function get(oldValue: Schema.Json, newValue: Schema.Json): JsonPatch {
@@ -312,7 +314,7 @@ export function get(oldValue: Schema.Json, newValue: Schema.Json): JsonPatch {
  * **Example** (Applying a patch)
  *
  * ```ts
- * import * as JsonPatch from "effect/JsonPatch"
+ * import { JsonPatch } from "effect"
  *
  * const document = { items: [1, 2, 3], total: 6 }
  * const patch: JsonPatch.JsonPatch = [
@@ -329,6 +331,7 @@ export function get(oldValue: Schema.Json, newValue: Schema.Json): JsonPatch {
  * - {@link get} - Generates patches from value differences
  * - {@link JsonPatchOperation} - The operation types being applied
  *
+ * @category transforming
  * @since 4.0.0
  */
 export function apply(patch: JsonPatch, oldValue: Schema.Json): Schema.Json {

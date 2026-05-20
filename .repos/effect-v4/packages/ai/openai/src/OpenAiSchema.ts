@@ -1,7 +1,7 @@
 /**
  * Minimal local OpenAI schemas used by the handwritten Responses client path.
  *
- * @since 1.0.0
+ * @since 4.0.0
  */
 import * as Predicate from "effect/Predicate"
 import * as Schema from "effect/Schema"
@@ -15,7 +15,13 @@ const MessageRole = Schema.Literals(["system", "developer", "user", "assistant"]
 const ImageDetail = Schema.Literals(["low", "high", "auto"])
 
 /**
- * @since 1.0.0
+ * Schema for optional `include` values on OpenAI Responses requests.
+ *
+ * **Details**
+ * These values request additional response fields such as image URLs, encrypted reasoning content, output logprobs, code interpreter outputs, or web search sources.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const IncludeEnum = Schema.Literals([
   "message.input_image.image_url",
@@ -26,17 +32,26 @@ export const IncludeEnum = Schema.Literals([
 ])
 
 /**
- * @since 1.0.0
+ * Type of optional `include` values accepted by OpenAI Responses requests.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type IncludeEnum = typeof IncludeEnum.Type
 
 /**
- * @since 1.0.0
+ * Schema for lifecycle statuses shared by messages, reasoning items, and tool calls.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const MessageStatus = Schema.Literals(["in_progress", "completed", "incomplete"])
 
 /**
- * @since 1.0.0
+ * Lifecycle status shared by messages, reasoning items, and tool calls.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type MessageStatus = typeof MessageStatus.Type
 
@@ -61,7 +76,10 @@ const InputFileContent = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * Schema for content blocks accepted in OpenAI Responses input messages.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const InputContent = Schema.Union([
   InputTextContent,
@@ -70,12 +88,18 @@ export const InputContent = Schema.Union([
 ])
 
 /**
- * @since 1.0.0
+ * Content block accepted in OpenAI Responses input messages.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type InputContent = typeof InputContent.Type
 
 /**
- * @since 1.0.0
+ * Schema for a text block containing a model-provided reasoning summary.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const SummaryTextContent = Schema.Struct({
   type: Schema.Literal("summary_text"),
@@ -83,7 +107,10 @@ export const SummaryTextContent = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * Text content block used for model-provided reasoning summaries.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type SummaryTextContent = typeof SummaryTextContent.Type
 
@@ -139,7 +166,10 @@ const FilePathAnnotation = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * Schema for citation and file-path annotations attached to output text content.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const Annotation = Schema.Union([
   FileCitationAnnotation,
@@ -149,7 +179,10 @@ export const Annotation = Schema.Union([
 ])
 
 /**
- * @since 1.0.0
+ * Citation or file-path annotation attached to output text content.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type Annotation = typeof Annotation.Type
 
@@ -181,7 +214,10 @@ const OutputMessage = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * Schema for a reasoning output item containing encrypted content, summaries, and optional reasoning text.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const ReasoningItem = Schema.Struct({
   type: Schema.Literal("reasoning"),
@@ -193,7 +229,10 @@ export const ReasoningItem = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * Reasoning output item containing encrypted content, summaries, and optional reasoning text.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type ReasoningItem = typeof ReasoningItem.Type
 
@@ -279,7 +318,10 @@ const RequestMessageItem = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * Schema for item shapes accepted by an OpenAI Responses request `input` field.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const InputItem = Schema.Union([
   RequestMessageItem,
@@ -297,7 +339,10 @@ export const InputItem = Schema.Union([
 ])
 
 /**
- * @since 1.0.0
+ * Item shape accepted by an OpenAI Responses request `input` field.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type InputItem = typeof InputItem.Type
 
@@ -334,7 +379,10 @@ const ProviderDefinedTool = Schema.StructWithRest(
 )
 
 /**
- * @since 1.0.0
+ * Schema for tool definitions that can be supplied to an OpenAI Responses request.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const Tool = Schema.Union([
   FunctionTool,
@@ -343,12 +391,18 @@ export const Tool = Schema.Union([
 ])
 
 /**
- * @since 1.0.0
+ * Tool definition that can be supplied to an OpenAI Responses request.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type Tool = typeof Tool.Type
 
 /**
- * @since 1.0.0
+ * Schema for selecting whether and which tools the model may call in a Responses request.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const ToolChoice = Schema.Union([
   Schema.Literals(["none", "auto", "required"]),
@@ -384,12 +438,18 @@ export const ToolChoice = Schema.Union([
 ])
 
 /**
- * @since 1.0.0
+ * Tool selection mode or named tool choice for a Responses request.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type ToolChoice = typeof ToolChoice.Type
 
 /**
- * @since 1.0.0
+ * Schema for text output format configuration, including plain text, JSON object, and JSON Schema responses.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const TextResponseFormatConfiguration = Schema.Union([
   Schema.Struct({ type: Schema.Literal("text") }),
@@ -404,12 +464,18 @@ export const TextResponseFormatConfiguration = Schema.Union([
 ])
 
 /**
- * @since 1.0.0
+ * Text output format configuration for plain text, JSON object, or JSON Schema responses.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type TextResponseFormatConfiguration = typeof TextResponseFormatConfiguration.Type
 
 /**
- * @since 1.0.0
+ * Schema for request options used to create an OpenAI Responses API response.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const CreateResponse = Schema.Struct({
   metadata: Schema.optional(Schema.Record(Schema.String, Schema.String)),
@@ -454,12 +520,18 @@ export const CreateResponse = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * Request options used to create an OpenAI Responses API response.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type CreateResponse = typeof CreateResponse.Type
 
 /**
- * @since 1.0.0
+ * Schema for token accounting reported on OpenAI Responses API response objects.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const ResponseUsage = Schema.StructWithRest(
   Schema.Struct({
@@ -473,7 +545,10 @@ export const ResponseUsage = Schema.StructWithRest(
 )
 
 /**
- * @since 1.0.0
+ * Token accounting reported on OpenAI Responses API response objects.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type ResponseUsage = typeof ResponseUsage.Type
 
@@ -570,7 +645,10 @@ const OutputItem = Schema.Union([
 ])
 
 /**
- * @since 1.0.0
+ * Schema for an OpenAI Responses API response object.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const Response = Schema.Struct({
   id: Schema.String,
@@ -590,7 +668,10 @@ export const Response = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * OpenAI Responses API response object.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type Response = typeof Response.Type
 
@@ -767,7 +848,10 @@ const knownResponseStreamEventTypes = new Set([
 ])
 
 /**
- * @since 1.0.0
+ * Fallback event shape for future or provider-specific response stream events.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type UnknownResponseStreamEvent = {
   readonly type: string
@@ -786,7 +870,10 @@ const UnknownResponseStreamEvent = Schema.declare<UnknownResponseStreamEvent>(
 )
 
 /**
- * @since 1.0.0
+ * Schema for server-sent event shapes emitted by OpenAI Responses API streams.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const ResponseStreamEvent = Schema.Union([
   ResponseCreatedEvent,
@@ -812,12 +899,18 @@ export const ResponseStreamEvent = Schema.Union([
 ])
 
 /**
- * @since 1.0.0
+ * Server-sent event shape emitted by OpenAI Responses API streams.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type ResponseStreamEvent = typeof ResponseStreamEvent.Type
 
 /**
- * @since 1.0.0
+ * Schema for one embedding item returned by the OpenAI embeddings API.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const Embedding = Schema.Struct({
   embedding: Schema.Union([
@@ -829,12 +922,18 @@ export const Embedding = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * One embedding item returned by the OpenAI embeddings API.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type Embedding = typeof Embedding.Type
 
 /**
- * @since 1.0.0
+ * Schema for the request payload sent to the OpenAI embeddings endpoint.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const CreateEmbeddingRequest = Schema.Struct({
   input: Schema.Union([
@@ -850,12 +949,18 @@ export const CreateEmbeddingRequest = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * Request payload sent to the OpenAI embeddings endpoint.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type CreateEmbeddingRequest = typeof CreateEmbeddingRequest.Type
 
 /**
- * @since 1.0.0
+ * Schema for a successful response payload returned by the OpenAI embeddings endpoint.
+ *
+ * @category schemas
+ * @since 4.0.0
  */
 export const CreateEmbeddingResponse = Schema.Struct({
   data: Schema.Array(Embedding),
@@ -870,6 +975,9 @@ export const CreateEmbeddingResponse = Schema.Struct({
 })
 
 /**
- * @since 1.0.0
+ * Successful response payload returned by the OpenAI embeddings endpoint.
+ *
+ * @category models
+ * @since 4.0.0
  */
 export type CreateEmbeddingResponse = typeof CreateEmbeddingResponse.Type
