@@ -57,7 +57,8 @@
     "packages/drivers/discord",
     "packages/drivers/ai-provider-cli",
     "packages/drivers/sanity",
-    "packages/drivers/hubspot"
+    "packages/drivers/hubspot",
+    "packages/drivers/phoenix"
   ],
   "repository": {
     "type": "git",
@@ -189,6 +190,7 @@
     "uuid": "catalog:"
   },
   "catalog": {
+    "@arizeai/phoenix-client": "6.10.0",
     "@noble/hashes": "^2.2.0",
     "@scure/base": "^2.2.0",
     "eslint-plugin-tsdoc": "^0.5.2",

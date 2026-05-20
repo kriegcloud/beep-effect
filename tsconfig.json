@@ -605,7 +605,9 @@
       ],
       "@beep/installer-use-cases/server": [
         "./packages/installer/use-cases/src/server.ts"
-      ]
+      ],
+      "@beep/phoenix": ["./packages/drivers/phoenix/src/index.ts"],
+      "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"]
     }
   }
 }

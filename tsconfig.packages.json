@@ -91,6 +91,9 @@
       "path": "packages/drivers/openai-compat"
     },
     {
+      "path": "packages/drivers/phoenix"
+    },
+    {
       "path": "packages/drivers/postgres"
     },
     {
