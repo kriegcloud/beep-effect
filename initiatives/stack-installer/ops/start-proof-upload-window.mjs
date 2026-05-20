@@ -63,7 +63,7 @@ const readProcessCommand = async (pid) =>
         ]);
       }
 
-      return await execFileText("ps", ["-o", "command=", "-p", String(pid)]);
+      return await execFileText("ps", ["-ww", "-o", "command=", "-p", String(pid)]);
     });
 
 const isExpectedUploadServerProcess = async (pid) => {

@@ -363,16 +363,40 @@ const validateExtractedBundleEntries = Effect.fn("StackInstaller.validateExtract
   extractionRoot: string
 ) {
   const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
   const entries = yield* fs.readDirectory(extractionRoot, { recursive: true });
   const unsafeEntries = pipe(
     entries,
     A.filter((entry) => !isSafeBundleEntry(platform, entry))
   );
+  const unsafeSpecialEntries = yield* Effect.forEach(
+    entries,
+    Effect.fnUntraced(function* (entry) {
+      const entryPath = path.join(extractionRoot, entry);
+      const symlinkTarget = yield* fs.readLink(entryPath).pipe(Effect.option);
+
+      if (O.isSome(symlinkTarget)) {
+        return O.some(`${entry} (SymbolicLink)`);
+      }
+
+      const info = yield* fs.stat(entryPath);
+      return info.type === "File" || info.type === "Directory" ? O.none<string>() : O.some(`${entry} (${info.type})`);
+    }),
+    { concurrency: 8 }
+  ).pipe(Effect.map(A.getSomes));
 
   yield* requireAudit(
     A.isReadonlyArrayEmpty(unsafeEntries),
     `Refusing extracted bundle; extracted paths must stay under ${platform}/ and avoid traversal segments: ${pipe(
       unsafeEntries,
+      A.take(10),
+      A.join(", ")
+    )}`
+  );
+  yield* requireAudit(
+    A.isReadonlyArrayEmpty(unsafeSpecialEntries),
+    `Refusing extracted bundle; extracted entries must be regular files or directories: ${pipe(
+      unsafeSpecialEntries,
       A.take(10),
       A.join(", ")
     )}`

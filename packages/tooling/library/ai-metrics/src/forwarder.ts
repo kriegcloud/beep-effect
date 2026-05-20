@@ -31,6 +31,31 @@ import { shellQuote } from "./shell.ts";
 
 const $I = $RepoAiMetricsId.create("forwarder");
 const DEFAULT_MAX_FILES = 200;
+const absoluteExecutablePathPattern = /^(?:[A-Za-z]:[\\/]|\\\\|\/)/u;
+const isAbsoluteExecutablePath = (value: string): boolean => absoluteExecutablePathPattern.test(value);
+const AiMetricsForwarderTimerCommandBase = S.NonEmptyArray(S.String);
+const AiMetricsForwarderTimerCommand = AiMetricsForwarderTimerCommandBase.pipe(
+  S.check(
+    S.makeFilter<typeof AiMetricsForwarderTimerCommandBase.Type>(
+      (command) =>
+        isAbsoluteExecutablePath(command[0])
+          ? true
+          : {
+              path: [0],
+              issue: "Forwarder timer command[0] must be an absolute executable path.",
+            },
+      {
+        identifier: $I`AiMetricsForwarderTimerCommandAbsoluteExecutableCheck`,
+        title: "AI Metrics Forwarder Timer Command Absolute Executable",
+        description: "A forwarder timer command whose executable is pinned to an absolute path.",
+        message: "Forwarder timer command[0] must be an absolute executable path.",
+      }
+    )
+  ),
+  $I.annoteSchema("AiMetricsForwarderTimerCommand", {
+    description: "Forwarder timer command argv with an absolute executable path.",
+  })
+);
 
 /**
  * Error raised by the durable AI metrics forwarder.
@@ -267,7 +292,7 @@ export class AiMetricsForwarderTimerInput extends S.Class<AiMetricsForwarderTime
   $I`AiMetricsForwarderTimerInput`
 )(
   {
-    command: S.NonEmptyArray(S.String),
+    command: AiMetricsForwarderTimerCommand,
     hashSaltSecretRef: S.optionalKey(S.String),
     intervalMinutes: S.Number.pipe(
       S.withConstructorDefault(Effect.succeed(30)),
@@ -387,25 +412,26 @@ const shellCommandFromArgv: (argv: ReadonlyArray<string>) => string = flow(A.map
  * @since 0.0.0
  */
 export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimerInput): AiMetricsForwarderTimerPlan => {
-  const serviceName = safeSystemdUnitNameStem(input.serviceName);
+  const timerInput = new AiMetricsForwarderTimerInput(input);
+  const serviceName = safeSystemdUnitNameStem(timerInput.serviceName);
   const serviceUnitName = `${serviceName}.service`;
   const timerUnitName = `${serviceName}.timer`;
-  const statusTmpPath = `${input.statusPath}.tmp`;
-  const stderrTmpPath = `${input.statusPath}.stderr.tmp`;
+  const statusTmpPath = `${timerInput.statusPath}.tmp`;
+  const stderrTmpPath = `${timerInput.statusPath}.stderr.tmp`;
   const envFileShellPath = "~/.config/beep/ai-metrics.env";
   const envFileUnitPath = "%h/.config/beep/ai-metrics.env";
-  const command = shellCommandFromArgv(input.command);
+  const command = shellCommandFromArgv(timerInput.command);
   const failureStatusPython =
     'import json,sys; data=open(sys.argv[2],"rb").read(2000).decode("utf-8","replace"); print(json.dumps({"status":"failed","exitCode":int(sys.argv[1]),"stderr":data},separators=(",",":")))';
   const execCommand = pipe(
     [
       "set -euo pipefail",
-      `mkdir -p "$(dirname ${shellQuote(input.statusPath)})" "$(dirname ${shellQuote(input.lockPath)})"`,
+      `mkdir -p "$(dirname ${shellQuote(timerInput.statusPath)})" "$(dirname ${shellQuote(timerInput.lockPath)})"`,
       "exit_code=0",
       `> ${shellQuote(stderrTmpPath)}`,
-      `if flock -n ${shellQuote(input.lockPath)} ${command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
+      `if flock -n ${shellQuote(timerInput.lockPath)} ${command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
       `rm -f ${shellQuote(stderrTmpPath)}`,
-      `mv ${shellQuote(statusTmpPath)} ${shellQuote(input.statusPath)}`,
+      `mv ${shellQuote(statusTmpPath)} ${shellQuote(timerInput.statusPath)}`,
       'exit "$exit_code"',
     ],
     A.join("; ")
@@ -419,7 +445,7 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
       "",
       "[Service]",
       "Type=oneshot",
-      `WorkingDirectory=${systemdUnitFieldValue(input.workingDirectory)}`,
+      `WorkingDirectory=${systemdUnitFieldValue(timerInput.workingDirectory)}`,
       `EnvironmentFile=${envFileUnitPath}`,
       "# The command pins the Bun executable path captured when this timer was rendered; rerender after changing Bun install paths.",
       `ExecStart=/usr/bin/env bash -lc ${shellQuote(execCommand)}`,
@@ -436,7 +462,7 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
       "",
       "[Timer]",
       "OnBootSec=5m",
-      `OnUnitInactiveSec=${input.intervalMinutes}m`,
+      `OnUnitInactiveSec=${timerInput.intervalMinutes}m`,
       "RandomizedDelaySec=2m",
       "Persistent=true",
       "",
@@ -448,21 +474,21 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
   );
   const writeEnvFileCommands = [
     `install -m 0600 /dev/null ${envFileShellPath}`,
-    ...(input.hashSaltSecretRef === undefined
+    ...(timerInput.hashSaltSecretRef === undefined
       ? []
       : [
-          `printf 'BEEP_AI_METRICS_HASH_SALT=%s\\n' "$(op read ${shellQuote(input.hashSaltSecretRef)})" >> ${envFileShellPath}`,
+          `printf 'BEEP_AI_METRICS_HASH_SALT=%s\\n' "$(op read ${shellQuote(timerInput.hashSaltSecretRef)})" >> ${envFileShellPath}`,
         ]),
-    ...(input.rawArchiveKeySecretRef === undefined
+    ...(timerInput.rawArchiveKeySecretRef === undefined
       ? []
       : [
-          `printf 'BEEP_AI_METRICS_RAW_ARCHIVE_KEY=%s\\n' "$(op read ${shellQuote(input.rawArchiveKeySecretRef)})" >> ${envFileShellPath}`,
+          `printf 'BEEP_AI_METRICS_RAW_ARCHIVE_KEY=%s\\n' "$(op read ${shellQuote(timerInput.rawArchiveKeySecretRef)})" >> ${envFileShellPath}`,
         ]),
   ];
 
   return new AiMetricsForwarderTimerPlan({
     installCommands: [
-      `mkdir -p ~/.config/systemd/user ~/.config/beep "$(dirname ${shellQuote(input.statusPath)})"`,
+      `mkdir -p ~/.config/systemd/user ~/.config/beep "$(dirname ${shellQuote(timerInput.statusPath)})"`,
       ...writeEnvFileCommands,
       `printf '%s\\n' ${shellQuote(serviceUnit)} > ~/.config/systemd/user/${serviceUnitName}`,
       `printf '%s\\n' ${shellQuote(timerUnit)} > ~/.config/systemd/user/${timerUnitName}`,
@@ -471,10 +497,10 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
       `systemctl --user status ${timerUnitName}`,
       `journalctl --user -u ${serviceUnitName} -n 80 --no-pager`,
     ],
-    lockPath: input.lockPath,
+    lockPath: timerInput.lockPath,
     serviceUnit,
     serviceUnitName,
-    statusPath: input.statusPath,
+    statusPath: timerInput.statusPath,
     timerUnit,
     timerUnitName,
   });

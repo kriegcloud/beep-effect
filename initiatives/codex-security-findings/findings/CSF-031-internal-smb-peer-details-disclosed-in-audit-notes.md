@@ -23,7 +23,7 @@ Introduced a low-severity information disclosure in documentation by committing 
 - Verdict: `fixed`
 - Rationale: The committed audit note now redacts the concrete Windows proof peer MagicDNS host while preserving the operational note about denied anonymous SMB access.
 - Remediation status: `fixed-in-branch`
-- Verification command: `rg -n '<redacted-tailnet-ip>|<redacted-tailnet-host>|<redacted-tailnet-suffix>' initiatives/stack-installer apps/stack-installer || true`
+- Verification command: `! rg -n '(100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.[0-9]{1,3}\.[0-9]{1,3}|[A-Za-z0-9-]+\.[A-Za-z0-9-]+\.ts\.net)' initiatives/stack-installer apps/stack-installer`
 - Changed files:
   - initiatives/stack-installer/history/outputs/p1-completion-audit.md
 - Verification notes:

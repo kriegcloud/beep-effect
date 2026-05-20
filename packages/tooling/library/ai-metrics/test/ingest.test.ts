@@ -737,6 +737,21 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
   );
 
   it.effect(
+    "rejects relative timer executable paths",
+    Effect.fn(function* () {
+      expect(
+        () =>
+          new AiMetricsForwarderTimerInput({
+            command: ["bun", "run", "beep"],
+            lockPath: "%t/beep-ai-metrics-forwarder.lock",
+            statusPath: ".beep/ai-metrics/forwarder/status/latest.json",
+            workingDirectory: "/repo/beep-effect",
+          })
+      ).toThrow("absolute executable path");
+    })
+  );
+
+  it.effect(
     "adds Phoenix OTLP contracts and renders a dedicated local compose file",
     Effect.fn(function* () {
       const spec = yield* makeAiMetricsInstallSpec();

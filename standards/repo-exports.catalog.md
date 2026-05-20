@@ -847,7 +847,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Glob` | `GlobError` | class | `packages/foundation/modeling/utils/src/Glob.ts:131` | An error raised when glob pattern matching fails. |
 | `@beep/utils/Glob` | `GlobError` | namespace | `packages/foundation/modeling/utils/src/Glob.ts:97` | Namespace for the encoded form of {@link GlobError}. |
 | `@beep/utils/Glob` | `GlobOptions` | class | `packages/foundation/modeling/utils/src/Glob.ts:70` | Optional runtime flags for glob scans. |
-| `@beep/utils/Glob` | `layer` | const | `packages/foundation/modeling/utils/src/Glob.ts:532` | Live `Layer` providing the {@link Glob} service backed by `Bun.Glob` when |
+| `@beep/utils/Glob` | `layer` | const | `packages/foundation/modeling/utils/src/Glob.ts:534` | Live `Layer` providing the {@link Glob} service backed by `Bun.Glob` when |
 | `@beep/utils/Glob` | `Pattern` | const | `packages/foundation/modeling/utils/src/Glob.ts:34` | Schema for a glob pattern: either a single string or an array of strings. |
 | `@beep/utils/Glob` | `Pattern` | type | `packages/foundation/modeling/utils/src/Glob.ts:54` | A glob pattern: either a single string or an array of strings. |
 | `@beep/utils/Html` | `escapeHtml` | const | `packages/foundation/modeling/utils/src/Html.ts:27` | Escapes the HTML-sensitive characters in `text`. |
@@ -7373,16 +7373,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsDiscoveredSource` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:149` | Source-level discovery summary. |
 | `@beep/repo-ai-metrics` | `AiMetricsDiscoveredTranscriptFile` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:116` | One transcript or source metadata file discovered for AI metrics. |
 | `@beep/repo-ai-metrics` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:50` | Error raised by the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:72` | Input for the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Tagged derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:219` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:144` | Successful derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:172` | Failed derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:232` | Safe result emitted by one durable AI metrics forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:115` | Per-source coverage selected by one durable forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:266` | Input for rendering a workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:301` | Rendered systemd user units for the workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:75` | Error raised by the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:97` | Input for the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:223` | Tagged derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:244` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:169` | Successful derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:197` | Failed derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:257` | Safe result emitted by one durable AI metrics forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:140` | Per-source coverage selected by one durable forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:291` | Input for rendering a workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:326` | Rendered systemd user units for the workstation-owned forwarder timer. |
 | `@beep/repo-ai-metrics` | `AiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:60` | Whether private identifier hashes used an operator-provided salt or a local smoke fallback. |
 | `@beep/repo-ai-metrics` | `AiMetricsHashSaltStatus` | type | `packages/tooling/library/ai-metrics/src/privacy.ts:78` | Runtime type for {@link AiMetricsHashSaltStatus}. |
 | `@beep/repo-ai-metrics` | `AiMetricsIngestError` | class | `packages/tooling/library/ai-metrics/src/ingest.ts:43` | Error raised by AI metrics ingest helpers. |
@@ -7484,8 +7484,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:35` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
 | `@beep/repo-ai-metrics` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:690` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:871` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:892` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:897` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:918` | Render a forwarder timer plan as JSON. |
 | `@beep/repo-ai-metrics` | `generateAiMetricsWeeklyReport` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1224` | Generate and persist a weekly config-impact report. |
 | `@beep/repo-ai-metrics` | `hashPrivateIdentifier` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:351` | Compute a salted SHA-256 digest for private identifiers such as local paths and session ids. |
 | `@beep/repo-ai-metrics` | `hashPublicTextSha256` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:327` | Compute a deterministic public SHA-256 digest for non-private content identity. |
@@ -7513,11 +7513,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `readEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:399` | Read and decode an encrypted raw archive envelope from disk. |
 | `@beep/repo-ai-metrics` | `recordAiMetricsBenchmarkRun` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:796` | Record an observed benchmark run for one config snapshot. |
 | `@beep/repo-ai-metrics` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:506` | Redact secret-shaped text before any diagnostic rendering. |
-| `@beep/repo-ai-metrics` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:389` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:414` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics` | `renderAiMetricsLocalPhoenixCompose` | const | `packages/tooling/library/ai-metrics/src/compose.ts:45` | Render a dedicated Docker Compose file for local Phoenix smoke tests. |
 | `@beep/repo-ai-metrics` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:311` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:295` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:767` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:793` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics` | `runAiMetricsOtlpExport` | const | `packages/tooling/library/ai-metrics/src/otlp.ts:474` | Emit redacted AI metrics derived spans through the active Effect tracer. |
 | `@beep/repo-ai-metrics` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:779` | Compact selected AI metrics derived Parquet and report outputs. |
 | `@beep/repo-ai-metrics` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:754` | Delete selected AI metrics raw, derived, and report data. |
@@ -7583,20 +7583,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:497` | One sanitized transcript ready for derived storage projection. |
 | `@beep/repo-ai-metrics/derived-storage` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:690` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
 | `@beep/repo-ai-metrics/derived-storage` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1071` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:50` | Error raised by the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:72` | Input for the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Tagged derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:219` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:144` | Successful derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:172` | Failed derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:232` | Safe result emitted by one durable AI metrics forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:115` | Per-source coverage selected by one durable forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:266` | Input for rendering a workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:301` | Rendered systemd user units for the workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/forwarder` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:871` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics/forwarder` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:892` | Render a forwarder timer plan as JSON. |
-| `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:389` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
-| `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:767` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:75` | Error raised by the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:97` | Input for the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:223` | Tagged derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:244` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:169` | Successful derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:197` | Failed derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:257` | Safe result emitted by one durable AI metrics forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:140` | Per-source coverage selected by one durable forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:291` | Input for rendering a workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:326` | Rendered systemd user units for the workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/forwarder` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:897` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics/forwarder` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:918` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:414` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:793` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessAiMetricsSection` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:359` | AI-metrics local evidence section for the doctor report. |
 | `@beep/repo-ai-metrics/index` | `AgentEffectivenessAnnotationCheckFinding` | class | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:535` | One validation finding for an annotation plan. |
@@ -7647,16 +7647,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsDiscoveredSource` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:149` | Source-level discovery summary. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDiscoveredTranscriptFile` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:116` | One transcript or source metadata file discovered for AI metrics. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:50` | Error raised by the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:72` | Input for the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Tagged derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:219` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:144` | Successful derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:172` | Failed derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:232` | Safe result emitted by one durable AI metrics forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:115` | Per-source coverage selected by one durable forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:266` | Input for rendering a workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:301` | Rendered systemd user units for the workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:75` | Error raised by the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:97` | Input for the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:223` | Tagged derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:244` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:169` | Successful derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:197` | Failed derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:257` | Safe result emitted by one durable AI metrics forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:140` | Per-source coverage selected by one durable forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:291` | Input for rendering a workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:326` | Rendered systemd user units for the workstation-owned forwarder timer. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:60` | Whether private identifier hashes used an operator-provided salt or a local smoke fallback. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsHashSaltStatus` | type | `packages/tooling/library/ai-metrics/src/privacy.ts:78` | Runtime type for {@link AiMetricsHashSaltStatus}. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsIngestError` | class | `packages/tooling/library/ai-metrics/src/ingest.ts:43` | Error raised by AI metrics ingest helpers. |
@@ -7758,8 +7758,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:35` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics/index` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:617` | Discover local AI metrics transcript sources for the smoke target. |
 | `@beep/repo-ai-metrics/index` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:690` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:871` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics/index` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:892` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:897` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics/index` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:918` | Render a forwarder timer plan as JSON. |
 | `@beep/repo-ai-metrics/index` | `generateAiMetricsWeeklyReport` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1224` | Generate and persist a weekly config-impact report. |
 | `@beep/repo-ai-metrics/index` | `hashPrivateIdentifier` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:351` | Compute a salted SHA-256 digest for private identifiers such as local paths and session ids. |
 | `@beep/repo-ai-metrics/index` | `hashPublicTextSha256` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:327` | Compute a deterministic public SHA-256 digest for non-private content identity. |
@@ -7787,11 +7787,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `readEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:399` | Read and decode an encrypted raw archive envelope from disk. |
 | `@beep/repo-ai-metrics/index` | `recordAiMetricsBenchmarkRun` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:796` | Record an observed benchmark run for one config snapshot. |
 | `@beep/repo-ai-metrics/index` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:506` | Redact secret-shaped text before any diagnostic rendering. |
-| `@beep/repo-ai-metrics/index` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:389` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics/index` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:414` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics/index` | `renderAiMetricsLocalPhoenixCompose` | const | `packages/tooling/library/ai-metrics/src/compose.ts:45` | Render a dedicated Docker Compose file for local Phoenix smoke tests. |
 | `@beep/repo-ai-metrics/index` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:311` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics/index` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:295` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:767` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:793` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `runAiMetricsOtlpExport` | const | `packages/tooling/library/ai-metrics/src/otlp.ts:474` | Emit redacted AI metrics derived spans through the active Effect tracer. |
 | `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:779` | Compact selected AI metrics derived Parquet and report outputs. |
 | `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:754` | Delete selected AI metrics raw, derived, and report data. |

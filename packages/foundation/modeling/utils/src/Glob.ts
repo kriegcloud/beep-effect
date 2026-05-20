@@ -365,7 +365,9 @@ const scanDirectoryWithNodeFs = (
     A.flatMap((entry) => {
       const relativePath = relativeDirectoryPath.length === 0 ? entry.name : `${relativeDirectoryPath}/${entry.name}`;
       const normalizedRelativePath = normalizePathSeparators(relativePath);
-      const absolutePath = fileURLToPath(new URL(normalizedRelativePath, cwdUrl));
+      const absolutePath = absolutePathPattern.test(normalizedRelativePath)
+        ? normalizedRelativePath
+        : fileURLToPath(new URL(normalizedRelativePath, cwdUrl));
       const isHiddenPath = options?.dot !== true && hasDotSegment(normalizedRelativePath);
 
       if (isHiddenPath) {
