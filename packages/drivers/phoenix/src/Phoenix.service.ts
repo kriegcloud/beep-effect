@@ -138,7 +138,7 @@ const resolvedHeaders = (config: ResolvedPhoenixConfig): Readonly<Record<string,
   ...pipe(
     config.apiKey,
     O.map((apiKey) => ({ Authorization: `Bearer ${Redacted.value(apiKey)}` })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty<string, string>)
   ),
 });
 

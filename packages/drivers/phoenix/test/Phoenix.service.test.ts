@@ -113,8 +113,8 @@ const failingSdk: PhoenixSdkShape = {
 };
 
 describe("@beep/phoenix", () => {
-  it.effect("delegates dataset, prompt, and doctor operations through the Effect service", () =>
-    Effect.gen(function* () {
+  it.effect("delegates dataset, prompt, and doctor operations through the Effect service",
+    Effect.fnUntraced(function* () {
       const phoenix = yield* Phoenix;
 
       const doctor = yield* phoenix.doctor;
@@ -136,11 +136,11 @@ describe("@beep/phoenix", () => {
       expect(doctor.version).toBe("1.2.3");
       expect(dataset.datasetId).toBe("dataset:agent-loop-health-v1:1");
       expect(prompt.promptVersionId).toBe("prompt-version-id:OPENAI");
-    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
+    }, provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
   );
 
-  it.effect("writes annotations through the injected SDK adapter", () =>
-    Effect.gen(function* () {
+  it.effect("writes annotations through the injected SDK adapter",
+    Effect.fnUntraced(function* () {
       const phoenix = yield* Phoenix;
       const result = yield* phoenix.addAnnotation(
         new PhoenixAnnotationInput({
@@ -153,11 +153,11 @@ describe("@beep/phoenix", () => {
 
       expect(result.annotationId).toBe("annotation-id");
       expect(result.targetKind).toBe("trace");
-    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
+    }, provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
   );
 
-  it.effect("maps SDK promise failures into PhoenixError", () =>
-    Effect.gen(function* () {
+  it.effect("maps SDK promise failures into PhoenixError",
+    Effect.fnUntraced(function* () {
       const phoenix = yield* Phoenix;
       const error = yield* pipe(phoenix.doctor, Effect.flip);
 
@@ -165,11 +165,11 @@ describe("@beep/phoenix", () => {
       expect(error.operation).toBe("doctor");
       expect(error.reason).toBe("transport");
       expect(error.cause).toBe("offline");
-    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(failingSdk)))
+    }, provideScopedLayer(Phoenix.makeLayerWithSdk(failingSdk)))
   );
 
-  it.effect("reads back dataset, prompt, and experiment summaries", () =>
-    Effect.gen(function* () {
+  it.effect("reads back dataset, prompt, and experiment summaries",
+    Effect.fnUntraced(function* () {
       const phoenix = yield* Phoenix;
       const selector = new PhoenixDatasetSelector({ kind: "dataset-name", value: "agent-outcomes-v1" });
       const promptSelector = new PhoenixPromptSelector({ name: "agent-effectiveness-review-evaluator-v1" });
@@ -184,17 +184,17 @@ describe("@beep/phoenix", () => {
       expect(examples.versionId).toBe("version-id");
       expect(prompt.exists).toBe(true);
       expect(experiment.experimentId).toBe("experiment-id");
-    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
+    }, provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
   );
 
-  it.effect("rejects empty prompt selectors before calling the SDK", () =>
-    Effect.gen(function* () {
+  it.effect("rejects empty prompt selectors before calling the SDK",
+    Effect.fnUntraced(function* () {
       const phoenix = yield* Phoenix;
       const error = yield* pipe(phoenix.getPrompt(new PhoenixPromptSelector({})), Effect.flip);
 
       expect(error).toBeInstanceOf(PhoenixError);
       expect(error.operation).toBe("getPrompt");
       expect(error.reason).toBe("config");
-    }).pipe(provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
+    }, provideScopedLayer(Phoenix.makeLayerWithSdk(okSdk)))
   );
 });

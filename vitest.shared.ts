@@ -1,4 +1,4 @@
-import { A } from "@beep/utils";
+import { A, P, Str, Struct } from "@beep/utils";
 import { Config, Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -34,12 +34,12 @@ const coverageThresholds = vitestCoverageReportOnly
       statements: 30,
     };
 
-const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegExp = Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const readRootTsconfigPaths = (): Readonly<Record<string, readonly string[]>> => {
   const fileText = ts.sys.readFile(rootTsconfigPath);
 
-  if (fileText === undefined) {
+  if (P.isUndefined(fileText)) {
     return {};
   }
 
@@ -47,11 +47,11 @@ const readRootTsconfigPaths = (): Readonly<Record<string, readonly string[]>> =>
 
   if (
     typeof parsed.config !== "object" ||
-    parsed.config === null ||
+    P.isNull(parsed.config) ||
     typeof parsed.config.compilerOptions !== "object" ||
-    parsed.config.compilerOptions === null ||
+    P.isNull(parsed.config.compilerOptions) ||
     typeof parsed.config.compilerOptions.paths !== "object" ||
-    parsed.config.compilerOptions.paths === null
+    P.isNull(parsed.config.compilerOptions.paths)
   ) {
     return {};
   }
@@ -62,7 +62,7 @@ const readRootTsconfigPaths = (): Readonly<Record<string, readonly string[]>> =>
 const toAliasEntry = (find: string, replacement: string): AliasEntry => {
   const absoluteReplacement = new URL(replacement, projectRootDirectory).pathname;
 
-  if (!find.includes("*")) {
+  if (!Str.includes("*")(find)) {
     return {
       find: new RegExp(`^${escapeRegExp(find)}$`),
       replacement: absoluteReplacement,
@@ -70,12 +70,12 @@ const toAliasEntry = (find: string, replacement: string): AliasEntry => {
   }
 
   return {
-    find: new RegExp(`^${escapeRegExp(find).replace("\\*", "(.*)")}$`),
-    replacement: absoluteReplacement.replaceAll("*", "$1"),
+    find: new RegExp(`^${Str.replace("\\*", "(.*)")(escapeRegExp(find))}$`),
+    replacement: Str.replaceAll("*", "$1")(absoluteReplacement),
   };
 };
 
-const rootTsconfigPathEntries: Array<[string, readonly string[]]> = Object.entries(readRootTsconfigPaths());
+const rootTsconfigPathEntries = Struct.entries(readRootTsconfigPaths());
 
 const rootTsconfigAliases = A.flatMap(
   A.sortWith(rootTsconfigPathEntries, ([find]) => find.length, Order.flip(Order.Number)),

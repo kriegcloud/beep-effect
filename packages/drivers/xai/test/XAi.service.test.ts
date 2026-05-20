@@ -1,6 +1,5 @@
 import { inspect } from "node:util";
 import { encodeJsonString } from "@beep/schema/Json";
-import type { TUnsafe } from "@beep/types";
 import { A, Str } from "@beep/utils";
 import {
   XAI_API_URL,
@@ -12,6 +11,7 @@ import {
   XAiConfigInput,
   XAiEndpoint,
   type XAiEndpointDescriptor,
+  type XAiHttpEndpointMethodName,
   XAiError,
   XAiLanguageModel,
   XAiRequestOptions,
@@ -26,6 +26,11 @@ import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+
+type XAiHttpEndpointDescriptor = XAiEndpointDescriptor & {
+  readonly methodName: XAiHttpEndpointMethodName;
+  readonly response: Exclude<XAiEndpointDescriptor["response"], "websocket">;
+};
 
 type CapturedRequest = {
   readonly bodyTag: string;
@@ -59,10 +64,13 @@ const endpointMethodNames = () => sortStrings(A.map(XAI_ENDPOINTS, (descriptor) 
 
 const uniqueStrings = (values: ReadonlyArray<string>): ReadonlyArray<string> => pipe(values, sortStrings, A.dedupe);
 
-const httpDescriptors = (): ReadonlyArray<XAiEndpointDescriptor> =>
+const isHttpEndpointDescriptor = (descriptor: XAiEndpointDescriptor): descriptor is XAiHttpEndpointDescriptor =>
+  descriptor.response !== "websocket";
+
+const httpDescriptors = (): ReadonlyArray<XAiHttpEndpointDescriptor> =>
   pipe(
     XAI_ENDPOINTS,
-    A.filter((descriptor) => descriptor.response !== "websocket")
+    A.filter(isHttpEndpointDescriptor)
   );
 
 const realtimeVoiceDescriptor = (): Effect.Effect<XAiEndpointDescriptor, XAiError> =>
@@ -104,7 +112,7 @@ const XAiTestHttpLayer = Layer.effect(
           capturesRef,
           A.append({
             bodyTag: request.body._tag,
-            contentType: request.body.contentType,
+            contentType: "contentType" in request.body ? request.body.contentType : undefined,
             headers: request.headers,
             method: request.method,
             url,
@@ -188,23 +196,38 @@ const concretePathFor = (path: string): string =>
 const requestFor = (descriptor: XAiEndpointDescriptor): XAiRequestOptions => {
   const formData = new FormData();
   formData.append("file", new File(["hello"], "hello.txt", { type: "text/plain" }));
-
-  return new XAiRequestOptions({
-    ...R.getSomes({
-      body: descriptor.body === "json" ? O.some({ model: "grok-4", prompt: "hello" }) : O.none(),
-      bytes: descriptor.body === "binary" ? O.some(new Uint8Array([1, 2, 3])) : O.none(),
-      contentType: descriptor.body === "binary" ? O.some("application/octet-stream") : O.none(),
-      formData: descriptor.body === "multipart" ? O.some(formData) : O.none(),
-    }),
+  const baseRequest = {
     path: pathParamsFor(descriptor.path),
     query: {
       limit: 1,
     },
+  } satisfies ConstructorParameters<typeof XAiRequestOptions>[0];
+
+  if (descriptor.body === "json") {
+    return new XAiRequestOptions({
+      ...baseRequest,
+      body: { model: "grok-4", prompt: "hello" },
+    });
+  }
+
+  if (descriptor.body === "binary") {
+    return new XAiRequestOptions({
+      ...baseRequest,
+      bytes: new Uint8Array([1, 2, 3]),
+      contentType: "application/octet-stream",
+    });
+  }
+
+  return new XAiRequestOptions({
+    ...baseRequest,
+    ...R.getSomes({
+      formData: descriptor.body === "multipart" ? O.some(formData) : O.none(),
+    }),
   });
 };
 
 describe("@beep/xai", () => {
-  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
+  layer(makeXAiUnitLayer())((it) =>
     it.effect("keeps endpoint manifest and service surface aligned", () =>
       Effect.gen(function* () {
         expect(XAI_ENDPOINTS).toHaveLength(XAI_ENDPOINT_COUNT);
@@ -233,7 +256,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
+  layer(makeXAiUnitLayer())((it) =>
     it.effect("sends every HTTP endpoint with the expected method, path, auth, query, and body mode", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -275,7 +298,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
+  layer(makeXAiUnitLayer())((it) =>
     it.effect("maps status, malformed JSON, multipart, and SSE failures", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -334,7 +357,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
+  layer(makeXAiUnitLayer())((it) =>
     it.effect("redacts xAI transport and WebSocket failure causes before rendering", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -403,7 +426,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
+  layer(makeXAiUnitLayer())((it) =>
     it.effect("maps language-model transport failures to retryable network errors", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -433,7 +456,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
+  layer(makeXAiUnitLayer())((it) =>
     it.effect("rejects non-JSON chat completion responses in the language model adapter", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;
@@ -458,7 +481,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
+  layer(makeXAiUnitLayer())((it) =>
     it.effect("rejects request payloads that do not match the endpoint body mode", () =>
       Effect.gen(function* () {
         const xai = yield* XAi;
@@ -482,7 +505,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeInvalidWebSocketUrlLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
+  layer(makeInvalidWebSocketUrlLayer())((it) =>
     it.effect("maps invalid WebSocket URL configuration into a typed driver error", () =>
       Effect.gen(function* () {
         const xai = yield* XAi;
@@ -494,7 +517,7 @@ describe("@beep/xai", () => {
     )
   );
 
-  layer(makeXAiUnitLayer() as Layer.Layer<TUnsafe.Any, TUnsafe.Any>)((it) =>
+  layer(makeXAiUnitLayer())((it) =>
     it.effect("parses SSE streams for chat, responses, and legacy-compatible endpoints", () =>
       Effect.gen(function* () {
         const testHttp = yield* XAiTestHttp;

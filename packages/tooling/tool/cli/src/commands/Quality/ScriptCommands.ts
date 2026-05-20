@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Config, Console, Effect, FileSystem, Match, Order, Path, pipe, Runtime, Stream } from "effect";
+import { Console, Effect, FileSystem, Match, Order, Path, pipe, Runtime, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -1199,10 +1199,6 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
   const effectDiagnosticLines = A.filter(outputLines, (line) =>
     /\b(?:error|warning) TS\d+: .* effect\([^)]+\)/u.test(line)
   );
-  const fileDiagnosticLines = A.filter(outputLines, (line) =>
-    /^[^(]+\(\d+,\d+\): (?:error|warning) TS\d+:/u.test(line)
-  );
-
   if (A.isReadonlyArrayNonEmpty(effectDiagnosticLines)) {
     yield* Console.error(
       `[check:tsgo:tests] found ${A.length(effectDiagnosticLines)} Effect diagnostic(s) in test files`
@@ -1215,7 +1211,7 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
     });
   }
 
-  if (result.exitCode !== 0 && A.isReadonlyArrayEmpty(fileDiagnosticLines)) {
+  if (result.exitCode !== 0) {
     if (Str.isNonEmpty(result.output)) {
       yield* Console.error(result.output);
     }
@@ -1225,24 +1221,6 @@ export const runTestTsgoChecks = Effect.fn("QualityScriptCommands.runTestTsgoChe
       ["-p", syntheticConfigPath],
       result.exitCode
     );
-  }
-
-  if (result.exitCode !== 0) {
-    yield* Console.log(
-      `[check:tsgo:tests] ignored ${A.length(fileDiagnosticLines)} non-Effect TypeScript diagnostic(s); this lane only gates Effect diagnostics`
-    );
-    const verbose = yield* Config.option(Config.string("BEEP_TSGO_TEST_CHECK_VERBOSE")).pipe(
-      Effect.orElseSucceed(O.none<string>)
-    );
-    if (
-      pipe(
-        verbose,
-        O.exists((value) => value === "1")
-      ) &&
-      Str.isNonEmpty(result.output)
-    ) {
-      yield* Console.log(result.output);
-    }
   }
 });
 

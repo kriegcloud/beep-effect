@@ -207,6 +207,7 @@ const isPackageName = S.is(PackageName);
  */
 const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
   new TemplateSpec({ templateName: "tsconfig.json.hbs", outputPath: "tsconfig.json" }),
+  new TemplateSpec({ templateName: "tsconfig.test.json.hbs", outputPath: "tsconfig.test.json" }),
   new TemplateSpec({ templateName: "src-index.ts.hbs", outputPath: "src/index.ts" }),
   new TemplateSpec({ templateName: "LICENSE.hbs", outputPath: "LICENSE" }),
   new TemplateSpec({ templateName: "README.md.hbs", outputPath: "README.md" }),
@@ -225,6 +226,7 @@ const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
 const ALL_FILES = [
   "package.json",
   "tsconfig.json",
+  "tsconfig.test.json",
   "src/index.ts",
   "test/.gitkeep",
   "dtslint/.gitkeep",
@@ -932,7 +934,8 @@ const generatePackageJson: (
         "beep:audit":
           "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
         "beep:build": "tsc -b tsconfig.json && bun run babel",
-        "beep:check": "tsgo -b tsconfig.json",
+        "beep:check": "tsgo -b tsconfig.json && bun run beep:check:tests",
+        "beep:check:tests": "tsgo -p tsconfig.test.json --noEmit",
         "beep:lint": "biome check .",
         "beep:lint:fix": "biome check . --write",
         "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",

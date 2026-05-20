@@ -3,13 +3,14 @@ import { imageCommand } from "@beep/repo-cli";
 import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Cause, Effect, Exit, FileSystem, Layer, Order, Path, pipe } from "effect";
-import * as Chunk from "effect/Chunk";
 import * as O from "effect/Option";
+import type * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { ChildProcess } from "effect/unstable/process";
+import { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import { describe, expect, it } from "vitest";
 
 const provideScopedLayer =
@@ -104,12 +105,16 @@ printf '%s\\n' 'frame=1' 'progress=continue' 'frame=2' 'progress=end'
   yield* fs.chmod(shimPath, 0o755);
 });
 
-const runCliCommand = Effect.fn("ImageTest.runCliCommand")(function* (
+const runCliCommand = (
   cwd: string,
   pathPrefix: string,
   ...args: ReadonlyArray<string>
-) {
-  return yield* Effect.scoped(
+): Effect.Effect<
+  { readonly exitCode: number; readonly output: string },
+  PlatformError.PlatformError,
+  ChildProcessSpawner
+> =>
+  Effect.scoped(
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make("bun", ["run", CLI_ENTRYPOINT, "--", ...args], {
         cwd,
@@ -119,12 +124,11 @@ const runCliCommand = Effect.fn("ImageTest.runCliCommand")(function* (
         stdout: "pipe",
         stderr: "pipe",
       });
-      const output = yield* handle.all.pipe(Stream.decodeText(), Stream.runCollect, Effect.map(Chunk.join("")));
+      const output = yield* handle.all.pipe(Stream.decodeText(), Stream.runCollect, Effect.map(A.join("")));
       const exitCode = yield* handle.exitCode;
       return { exitCode, output } as const;
     })
   );
-});
 
 describe.sequential("image command", () => {
   it("extracts frames, writes the default manifest, and prints a non-TTY summary", () =>

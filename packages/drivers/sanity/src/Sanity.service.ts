@@ -7,7 +7,7 @@
 
 import { $SanityId } from "@beep/identity";
 import { Str } from "@beep/utils";
-import { Config, Context, Effect, Layer, pipe, type Redacted as RedactedType } from "effect";
+import { Config, Context, Effect, Layer, pipe, Redacted, type Redacted as RedactedType } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -232,8 +232,17 @@ const makeRequest = Effect.fn("Sanity.makeRequest")(function* (
   return yield* pipe(
     HttpClientRequest.post(url),
     (base) => addHeaders(base, config),
-    (base) => HttpClientRequest.bodyJson(base, { query: decoded.query, params: decoded.params ?? {} }),
-    Effect.mapError((cause) => SanityError.fromReason("request encoding", { cause, url }))
+    (base) =>
+      HttpClientRequest.bodyJson(base, {
+        query: decoded.query,
+        params: decoded.params ?? {},
+      }),
+    Effect.mapError((cause) =>
+      SanityError.fromReason("request encoding", {
+        cause,
+        url,
+      })
+    )
   );
 });
 
@@ -245,7 +254,10 @@ const ensureSuccess = Effect.fnUntraced(function* (
     return response;
   }
 
-  return yield* SanityError.fromReason("response status", { status: response.status, url });
+  return yield* SanityError.fromReason("response status", {
+    status: response.status,
+    url,
+  });
 });
 
 const decodeResponse = Effect.fnUntraced(function* (
@@ -253,12 +265,22 @@ const decodeResponse = Effect.fnUntraced(function* (
   response: HttpClientResponse.HttpClientResponse
 ): Effect.fn.Return<SanityQueryResponse, SanityError> {
   const body = yield* response.json.pipe(
-    Effect.mapError((cause) => SanityError.fromReason("response decoding", { cause, url }))
+    Effect.mapError((cause) =>
+      SanityError.fromReason("response decoding", {
+        cause,
+        url,
+      })
+    )
   );
 
   return yield* pipe(
     decodeQueryResponse(body),
-    Effect.mapError((cause) => SanityError.fromReason("response decoding", { cause, url }))
+    Effect.mapError((cause) =>
+      SanityError.fromReason("response decoding", {
+        cause,
+        url,
+      })
+    )
   );
 });
 
@@ -266,9 +288,14 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedSanityConfig
   fetch: Effect.fn("Sanity.fetch")(function* (request) {
     const httpRequest = yield* makeRequest(config, request);
     const url = queryUrl(config);
-    const response = yield* client
-      .execute(httpRequest)
-      .pipe(Effect.mapError((cause) => SanityError.fromReason("transport", { cause, url })));
+    const response = yield* client.execute(httpRequest).pipe(
+      Effect.mapError((cause) =>
+        SanityError.fromReason("transport", {
+          cause,
+          url,
+        })
+      )
+    );
     const success = yield* ensureSuccess(url, response);
     return yield* decodeResponse(url, success);
   }),
@@ -359,13 +386,15 @@ export class Sanity extends Context.Service<Sanity, SanityShape>()($I`Sanity`) {
 
       const client = yield* HttpClient.HttpClient;
       const resolved = yield* resolveConfig(
-        new SanityConfigInput({
-          ...R.getSomes({ apiHost }),
-          ...R.getSomes({ apiToken }),
-          ...R.getSomes({ apiVersion }),
-          ...R.getSomes({ dataset }),
-          ...R.getSomes({ projectId }),
-        })
+        new SanityConfigInput(
+          R.getSomes({
+            apiHost,
+            projectId,
+            apiToken: apiToken.pipe(O.map(Redacted.value)),
+            apiVersion,
+            dataset,
+          })
+        )
       );
 
       return Sanity.of(makeService(client, resolved));
