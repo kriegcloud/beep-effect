@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 80 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 912 |
-| publicExportEntries | 13076 |
-| uniquePackageSymbols | 5270 |
+| importSpecifiers | 914 |
+| publicExportEntries | 13079 |
+| uniquePackageSymbols | 5272 |
 
 ## Seed Discovery Proof
 
@@ -93,14 +93,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 54 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
 | 55 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
 | 56 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
-| 57 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 4 | 13 | 5 |
+| 57 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
 | 58 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
 | 59 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 81 | 841 | 509 |
 | 60 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 61 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 62 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
 | 63 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
-| 64 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 13 | 18 | 6 |
+| 64 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
 | 65 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
 | 66 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
 | 67 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
@@ -518,11 +518,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `allocate` | const | `node_modules/effect/dist/Array.d.ts:128` | Creates a new `Array` of the specified length with all slots uninitialized. |
 | `@beep/utils/Array` | `append` | const | `node_modules/effect/dist/Array.d.ts:836` | Adds a single element to the end of an iterable, returning a `NonEmptyArray`. |
 | `@beep/utils/Array` | `appendAll` | const | `node_modules/effect/dist/Array.d.ts:903` | Concatenates two iterables into a single array. |
-| `@beep/utils/Array` | `appendAllInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:456` | Appends all `values` to a mutable array and returns the same array reference. |
-| `@beep/utils/Array` | `appendInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:429` | Appends `value` to a mutable array and returns the same array reference. |
+| `@beep/utils/Array` | `appendAllInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:442` | Appends all `values` to a mutable array and returns the same array reference. |
+| `@beep/utils/Array` | `appendInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:415` | Appends `value` to a mutable array and returns the same array reference. |
 | `@beep/utils/Array` | `Array` | const | `node_modules/effect/dist/Array.d.ts:29` | Reference to the global `Array` constructor. |
 | `@beep/utils/Array` | `assertNonEmptyArray` | const | `packages/foundation/modeling/utils/src/Array.ts:66` | Asserts that `input` is a mutable non-empty array, throwing on failure. |
-| `@beep/utils/Array` | `assertNonEmptyReadonlyArray` | const | `packages/foundation/modeling/utils/src/Array.ts:94` | Asserts that `input` is a readonly non-empty array, throwing on failure. |
+| `@beep/utils/Array` | `assertNonEmptyReadonlyArray` | const | `packages/foundation/modeling/utils/src/Array.ts:87` | Asserts that `input` is a readonly non-empty array, throwing on failure. |
 | `@beep/utils/Array` | `bind` | const | `node_modules/effect/dist/Array.d.ts:7104` | Introduces a new array variable into a do-notation scope, producing the cartesian product with all previous bindings. |
 | `@beep/utils/Array` | `bindTo` | const | `node_modules/effect/dist/Array.d.ts:7192` | Names the elements of an array by wrapping each in an object with the given key, starting a do-notation scope. |
 | `@beep/utils/Array` | `cartesian` | const | `node_modules/effect/dist/Array.d.ts:7002` | Computes the cartesian product of two arrays, returning all pairs as tuples. |
@@ -546,7 +546,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `dropWhileFilter` | const | `node_modules/effect/dist/Array.d.ts:2227` | Drops elements from the start while a `Filter` succeeds. |
 | `@beep/utils/Array` | `empty` | const | `node_modules/effect/dist/Array.d.ts:5261` | Creates an empty array. |
 | `@beep/utils/Array` | `ensure` | const | `node_modules/effect/dist/Array.d.ts:335` | Normalizes a value that is either a single element or an array into an array. |
-| `@beep/utils/Array` | `entries` | const | `packages/foundation/modeling/utils/src/Array.ts:373` | Materializes array entries as readonly `[index, value]` pairs. |
+| `@beep/utils/Array` | `entries` | const | `packages/foundation/modeling/utils/src/Array.ts:359` | Materializes array entries as readonly `[index, value]` pairs. |
 | `@beep/utils/Array` | `every` | const | `node_modules/effect/dist/Array.d.ts:6195` | Tests whether all elements satisfy the predicate. Supports refinements for |
 | `@beep/utils/Array` | `extend` | const | `node_modules/effect/dist/Array.d.ts:6351` | Applies a function to each suffix of the array (starting from each index), |
 | `@beep/utils/Array` | `filter` | const | `node_modules/effect/dist/Array.d.ts:5681` | Keeps only elements satisfying a predicate (or refinement). |
@@ -557,13 +557,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `findLast` | const | `node_modules/effect/dist/Array.d.ts:2717` | Returns the last element matching a predicate, refinement, or mapping |
 | `@beep/utils/Array` | `findLastIndex` | const | `node_modules/effect/dist/Array.d.ts:2325` | Returns the index of the last element matching the predicate, wrapped in an |
 | `@beep/utils/Array` | `flatMap` | const | `node_modules/effect/dist/Array.d.ts:5458` | Maps each element to an array and flattens the results into a single array. |
-| `@beep/utils/Array` | `flatMapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:179` | Like `Array.flatMap` but asserts the result as `NonEmptyArray`. |
-| `@beep/utils/Array` | `flatMapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:259` | Like `Array.flatMap` but asserts the result as `NonEmptyReadonlyArray`. |
+| `@beep/utils/Array` | `flatMapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:165` | Like `Array.flatMap` but asserts the result as `NonEmptyArray`. |
+| `@beep/utils/Array` | `flatMapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:245` | Like `Array.flatMap` but asserts the result as `NonEmptyReadonlyArray`. |
 | `@beep/utils/Array` | `flatMapNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6115` | Maps each element with a nullable-returning function, keeping only non-null / |
 | `@beep/utils/Array` | `flatten` | const | `node_modules/effect/dist/Array.d.ts:5539` | Flattens a nested array of arrays into a single array. |
 | `@beep/utils/Array` | `forEach` | const | `node_modules/effect/dist/Array.d.ts:6580` | Runs a side-effect for each element. The callback receives `(element, index)`. |
 | `@beep/utils/Array` | `fromIterable` | const | `node_modules/effect/dist/Array.d.ts:312` | Converts an `Iterable` to an `Array`. |
-| `@beep/utils/Array` | `fromIterableNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:589` | Converts an iterable into a `NonEmptyReadonlyArray`, asserting that at |
+| `@beep/utils/Array` | `fromIterableNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:575` | Converts an iterable into a `NonEmptyReadonlyArray`, asserting that at |
 | `@beep/utils/Array` | `fromNullishOr` | const | `node_modules/effect/dist/Array.d.ts:6074` | Converts a nullable value to an array: `null`/`undefined` becomes `[]`, |
 | `@beep/utils/Array` | `fromOption` | const | `node_modules/effect/dist/Array.d.ts:372` | Converts an `Option` to an array: `Some(a)` becomes `[a]`, `None` becomes `[]`. |
 | `@beep/utils/Array` | `fromRecord` | const | `node_modules/effect/dist/Array.d.ts:354` | Converts a record into an array of `[key, value]` tuples. |
@@ -578,7 +578,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `groupWith` | const | `node_modules/effect/dist/Array.d.ts:4709` | Groups consecutive equal elements using a custom equivalence function. |
 | `@beep/utils/Array` | `head` | const | `node_modules/effect/dist/Array.d.ts:1493` | Returns the first element of an array wrapped in `Option.some`, or |
 | `@beep/utils/Array` | `headNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1511` | Returns the first element of a `NonEmptyReadonlyArray` directly (no `Option` |
-| `@beep/utils/Array` | `indexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:293` | Finds the first index where `value` appears in `self`. |
+| `@beep/utils/Array` | `indexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:279` | Finds the first index where `value` appears in `self`. |
 | `@beep/utils/Array` | `init` | function | `node_modules/effect/dist/Array.d.ts:1611` | Returns all elements except the last, wrapped in an `Option`. |
 | `@beep/utils/Array` | `initNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1629` | Returns all elements except the last of a `NonEmptyReadonlyArray`. |
 | `@beep/utils/Array` | `insertAt` | const | `node_modules/effect/dist/Array.d.ts:2872` | Inserts an element at the specified index, returning a new `NonEmptyArray` |
@@ -591,9 +591,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `isReadonlyArrayEmpty` | const | `node_modules/effect/dist/Array.d.ts:1234` | Tests whether a `ReadonlyArray` is empty, narrowing the type to `readonly []`. |
 | `@beep/utils/Array` | `isReadonlyArrayNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1274` | Tests whether a `ReadonlyArray` is non-empty, narrowing the type to |
 | `@beep/utils/Array` | `join` | const | `node_modules/effect/dist/Array.d.ts:6806` | Joins string elements with a separator. |
-| `@beep/utils/Array` | `keys` | const | `packages/foundation/modeling/utils/src/Array.ts:390` | Materializes the numeric indexes of `self`. |
+| `@beep/utils/Array` | `keys` | const | `packages/foundation/modeling/utils/src/Array.ts:376` | Materializes the numeric indexes of `self`. |
 | `@beep/utils/Array` | `last` | const | `node_modules/effect/dist/Array.d.ts:1531` | Returns the last element of an array wrapped in `Option.some`, or |
-| `@beep/utils/Array` | `lastIndexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:322` | Finds the last index where `value` appears in `self`. |
+| `@beep/utils/Array` | `lastIndexOf` | const | `packages/foundation/modeling/utils/src/Array.ts:308` | Finds the last index where `value` appears in `self`. |
 | `@beep/utils/Array` | `lastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:1549` | Returns the last element of a `NonEmptyReadonlyArray` directly (no `Option` |
 | `@beep/utils/Array` | `length` | const | `node_modules/effect/dist/Array.d.ts:1289` | Returns the number of elements in a `ReadonlyArray`. |
 | `@beep/utils/Array` | `let` | const | `node_modules/effect/dist/Array.d.ts:7248` |  |
@@ -605,12 +605,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `makeBy` | const | `node_modules/effect/dist/Array.d.ts:151` | Creates a `NonEmptyArray` of length `n` where element `i` is computed by `f(i)`. |
 | `@beep/utils/Array` | `makeEquivalence` | const | `node_modules/effect/dist/Array.d.ts:6565` | Creates an `Equivalence` for arrays based on an element `Equivalence`. Two |
 | `@beep/utils/Array` | `makeOrder` | const | `node_modules/effect/dist/Array.d.ts:6545` | Creates an `Order` for arrays based on an element `Order`. Arrays are |
-| `@beep/utils/Array` | `makeReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:569` | Normalizes a value-or-array into a `ReadonlyArray`. |
+| `@beep/utils/Array` | `makeReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:555` | Normalizes a value-or-array into a `ReadonlyArray`. |
 | `@beep/utils/Array` | `makeReducerConcat` | function | `node_modules/effect/dist/Array.d.ts:7301` | Returns a `Reducer` that combines `Array` values by concatenation. |
 | `@beep/utils/Array` | `map` | const | `node_modules/effect/dist/Array.d.ts:5396` | Transforms each element using a function, returning a new array. |
 | `@beep/utils/Array` | `mapAccum` | const | `node_modules/effect/dist/Array.d.ts:6865` | Maps over an array while threading an accumulator through each step, returning both the final state and the mapped array. |
-| `@beep/utils/Array` | `mapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:143` | Like `Array.map` but asserts the result as `NonEmptyArray`. |
-| `@beep/utils/Array` | `mapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:217` | Like `Array.map` but asserts the result as `NonEmptyReadonlyArray`. |
+| `@beep/utils/Array` | `mapNonEmpty` | const | `packages/foundation/modeling/utils/src/Array.ts:129` | Like `Array.map` but asserts the result as `NonEmptyArray`. |
+| `@beep/utils/Array` | `mapNonEmptyReadonly` | const | `packages/foundation/modeling/utils/src/Array.ts:203` | Like `Array.map` but asserts the result as `NonEmptyReadonlyArray`. |
 | `@beep/utils/Array` | `match` | const | `node_modules/effect/dist/Array.d.ts:399` | Pattern-matches on an array, handling empty and non-empty cases separately. |
 | `@beep/utils/Array` | `matchLeft` | const | `node_modules/effect/dist/Array.d.ts:487` | Pattern-matches on an array from the left, providing the first element and |
 | `@beep/utils/Array` | `matchRight` | const | `node_modules/effect/dist/Array.d.ts:575` | Pattern-matches on an array from the right, providing all elements except the |
@@ -642,14 +642,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `separate` | const | `node_modules/effect/dist/Array.d.ts:5860` | Separates an iterable of `Result`s into failure values and success values. |
 | `@beep/utils/Array` | `setHeadNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3735` | Replaces the first element of a non-empty array with a new value. |
 | `@beep/utils/Array` | `setLastNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:3848` | Replaces the last element of a non-empty array with a new value. |
-| `@beep/utils/Array` | `slice` | const | `packages/foundation/modeling/utils/src/Array.ts:351` | Returns an immutable copy of the selected range from `self`. |
+| `@beep/utils/Array` | `slice` | const | `packages/foundation/modeling/utils/src/Array.ts:337` | Returns an immutable copy of the selected range from `self`. |
 | `@beep/utils/Array` | `some` | const | `node_modules/effect/dist/Array.d.ts:6292` | Tests whether at least one element satisfies the predicate. Narrows the type |
 | `@beep/utils/Array` | `sort` | const | `node_modules/effect/dist/Array.d.ts:3165` | Sorts an array by the given `Order`, returning a new array. |
 | `@beep/utils/Array` | `sortBy` | const | `node_modules/effect/dist/Array.d.ts:3364` | Sorts an array by multiple `Order`s applied in sequence: the first order is |
-| `@beep/utils/Array` | `sortInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:487` | Sorts a mutable array in place using an explicit `Order`. |
+| `@beep/utils/Array` | `sortInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:473` | Sorts a mutable array in place using an explicit `Order`. |
 | `@beep/utils/Array` | `sortWith` | const | `node_modules/effect/dist/Array.d.ts:3258` | Sorts an array by a derived key using a mapping function and an `Order` for |
 | `@beep/utils/Array` | `span` | const | `node_modules/effect/dist/Array.d.ts:1931` | Splits an iterable into two arrays: the longest prefix where the predicate |
-| `@beep/utils/Array` | `spliceInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:517` | Removes and inserts items in a mutable array and returns the removed values. |
+| `@beep/utils/Array` | `spliceInPlace` | const | `packages/foundation/modeling/utils/src/Array.ts:503` | Removes and inserts items in a mutable array and returns the removed values. |
 | `@beep/utils/Array` | `split` | const | `node_modules/effect/dist/Array.d.ts:4297` | Splits an iterable into `n` roughly equal-sized chunks. |
 | `@beep/utils/Array` | `splitAt` | const | `node_modules/effect/dist/Array.d.ts:4176` | Splits an iterable into two arrays at the given index. |
 | `@beep/utils/Array` | `splitAtNonEmpty` | const | `node_modules/effect/dist/Array.d.ts:4238` | Splits a non-empty array into two parts at the given index. The first part |
@@ -666,7 +666,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Array` | `unionWith` | const | `node_modules/effect/dist/Array.d.ts:4888` | Computes the union of two arrays using a custom equivalence, removing |
 | `@beep/utils/Array` | `unprepend` | const | `node_modules/effect/dist/Array.d.ts:1449` | Splits a non-empty array into its first element and the remaining elements. |
 | `@beep/utils/Array` | `unzip` | const | `node_modules/effect/dist/Array.d.ts:3578` | Splits an array of pairs into two arrays. Inverse of {@link zip}. |
-| `@beep/utils/Array` | `values` | const | `packages/foundation/modeling/utils/src/Array.ts:406` | Returns a shallow immutable copy of the values in `self`. |
+| `@beep/utils/Array` | `values` | const | `packages/foundation/modeling/utils/src/Array.ts:392` | Returns a shallow immutable copy of the values in `self`. |
 | `@beep/utils/Array` | `window` | const | `node_modules/effect/dist/Array.d.ts:4644` | Creates overlapping sliding windows of size `n`. |
 | `@beep/utils/Array` | `zip` | const | `node_modules/effect/dist/Array.d.ts:3385` | Pairs elements from two iterables by position. If the iterables differ in |
 | `@beep/utils/Array` | `zipWith` | const | `node_modules/effect/dist/Array.d.ts:3488` | Combines elements from two iterables pairwise using a function. If the |
@@ -4638,18 +4638,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:993` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1135` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:999` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1141` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:715` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
 | `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:508` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1043` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1087` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1049` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1093` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
 | `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:208` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
 | `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:243` | Constructor input accepted by the external PostgreSQL SQL test driver. |
 | `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:251` | Mode selector for the public PGLite SQL test layer helper. |
 | `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:259` | Options for `makePgliteSqlTestLayer`. |
 | `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:440` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1065` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1071` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:190` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
@@ -4659,18 +4659,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:278` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:36` | Package version marker for test utilities. |
-| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:993` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1135` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:999` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1141` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:715` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
 | `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:508` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1043` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1087` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1049` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1093` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
 | `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:208` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
 | `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:243` | Constructor input accepted by the external PostgreSQL SQL test driver. |
 | `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:251` | Mode selector for the public PGLite SQL test layer helper. |
 | `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:259` | Options for `makePgliteSqlTestLayer`. |
 | `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:440` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1065` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1071` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:190` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
@@ -4681,18 +4681,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `VERSION` | const | `packages/tooling/test-kit/test-utils/src/index.ts:36` | Package version marker for test utilities. |
 | `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:993` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1135` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:999` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1141` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:715` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
 | `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:508` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1043` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1087` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1049` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1093` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
 | `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:208` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:243` | Constructor input accepted by the external PostgreSQL SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:251` | Mode selector for the public PGLite SQL test layer helper. |
 | `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:259` | Options for `makePgliteSqlTestLayer`. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:440` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1065` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1071` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:190` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:344` | Driver contract for reusable SQL integration-test layers. |
@@ -5727,10 +5727,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/JSDoc/models/index` | `YieldsValue` | class | `packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/StructuralTagValues.ts:261` | import { YieldsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues" |
 | `@beep/repo-utils/JSDoc/models/JSDocTagAnnotation.model` | `getJSDocTagMetadata` | const | `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagAnnotation.model.ts:49` | Retrieve the JSDoc tag metadata annotation from a schema, if present. |
 | `@beep/repo-utils/JSDoc/models/JSDocTagAnnotation.model` | `JSDocTagAnnotationPayload` | type | `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagAnnotation.model.ts:25` | The payload type stored in the `jsDocTagMetadata` annotation key. |
-| `@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model` | `assertJsDoc` | const | `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts:153` | JSDoc model export. |
+| `@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model` | `assertJsDoc` | const | `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts:154` | Asserts that a value matches the encoded JSDoc tag definition shape. |
 | `@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model` | `JSDocTagDefinition` | class | `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts:38` | Complete metadata for a single JSDoc/TSDoc tag. |
 | `@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model` | `JSDocTagDefinition` | namespace | `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts:116` | JSDoc model export. |
-| `@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model` | `make` | const | `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts:171` | Builds a JSDoc tag definition schema for a concrete tag payload. |
+| `@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model` | `make` | const | `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts:175` | Builds a JSDoc tag definition schema for a concrete tag payload. |
 | `@beep/repo-utils/JSDoc/models/Specification.model` | `Specification` | const | `packages/tooling/library/repo-utils/src/JSDoc/models/Specification.model.ts:24` | Enumerates canonical standards that define a documentation tag. |
 | `@beep/repo-utils/JSDoc/models/Specification.model` | `Specification` | type | `packages/tooling/library/repo-utils/src/JSDoc/models/Specification.model.ts:63` | Union of canonical documentation standards represented by {@link Specification}. |
 | `@beep/repo-utils/JSDoc/models/tag-values` | `AbstractValue` | class | `packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/AccessModifierTagValues.ts:127` | import { AbstractValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues" |
@@ -9948,6 +9948,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/db-admin/index` | `VERSION` | const | `packages/_internal/db-admin/src/index.ts:21` | Current package version. |
 | `@beep/db-admin/migrations/ArchitectureLab` | `ArchitectureLabMigrationTarget` | const | `packages/_internal/db-admin/src/migrations/ArchitectureLab.ts:42` | Architecture lab migration target used to prove current db-admin aggregation. |
 | `@beep/db-admin/migrations/ArchitectureLab` | `DbAdminMigrationTarget` | class | `packages/_internal/db-admin/src/migrations/ArchitectureLab.ts:23` | db-admin migration target metadata. |
+| `@beep/db-admin/schema` | `DbSchema` | const | `packages/architecture-lab/tables/src/tables.ts:23` | Architecture lab drizzle schema. |
+| `@beep/db-admin/schema` | `DbSchema` | type | `packages/architecture-lab/tables/src/tables.ts:34` | Architecture lab drizzle schema type. |
 | `@beep/db-admin/targets` | `ArchitectureLabMigrationTarget` | const | `packages/_internal/db-admin/src/migrations/ArchitectureLab.ts:42` | Architecture lab migration target used to prove current db-admin aggregation. |
 | `@beep/db-admin/targets` | `DbAdminMigrationTargets` | const | `packages/_internal/db-admin/src/targets.ts:27` | All db-admin migration targets owned by the current repo. |
 | `@beep/db-admin/targets` | `listDbAdminMigrationTargets` | const | `packages/_internal/db-admin/src/targets.ts:35` | List registered db-admin migration targets. |
@@ -9984,7 +9986,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1830` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/index.ts:48` | CLI command for synchronizing version pins across the monorepo. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocKind` | const | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:37` | Supported external documentation source formats for AI documentation. |
 | `@beep/repo-cli/commands/AIDocs/AIDocs` | `AIDocKind` | type | `packages/tooling/tool/cli/src/commands/AIDocs/AIDocs.ts:87` | Union type for supported external documentation source formats. |
@@ -10190,15 +10192,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1336` | Render a worker eval report as stable JSON. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1145` | Compute the source packet limit used for generated quality reports. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:736` | Select remediation packets for a capped worker eval run. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpBaseUrl` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1013` | Default Phoenix-compatible OTLP base URL for remote worker eval traces. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1028` | Default Phoenix project for remote worker eval traces. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:998` | Default packet cap for Runpod-backed worker eval runs. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalReadinessTimeoutMs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1043` | Default readiness timeout for remote Ollama bootstrap. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpBaseUrl` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1016` | Default Phoenix-compatible OTLP base URL for remote worker eval traces. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1031` | Default Phoenix project for remote worker eval traces. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1001` | Default packet cap for Runpod-backed worker eval runs. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalReadinessTimeoutMs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1046` | Default readiness timeout for remote Ollama bootstrap. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `DocgenQualityWorkerRunpodEvalReport` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:230` | JSON wrapper report emitted by `docgen quality-worker-eval-runpod`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `generateQualityWorkerRunpodEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1163` | Render a Runpod worker eval wrapper report as stable JSON. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `makeQualityWorkerRunpodEvalPodCreateInput` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:438` | Build the Runpod create-pod body for an Ollama worker eval host. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `requiredQualityWorkerRunpodEvalModel` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:983` | Required v1 model id for Runpod-backed Qwen worker evals. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `runDocgenQualityWorkerRunpodEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1063` | Run a read-only JSDoc quality worker eval on an ephemeral Runpod pod. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `generateQualityWorkerRunpodEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1166` | Render a Runpod worker eval wrapper report as stable JSON. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `makeQualityWorkerRunpodEvalPodCreateInput` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:441` | Build the Runpod create-pod body for an Ollama worker eval host. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `requiredQualityWorkerRunpodEvalModel` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:986` | Required v1 model id for Runpod-backed Qwen worker evals. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `runDocgenQualityWorkerRunpodEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1066` | Run a read-only JSDoc quality worker eval on an ephemeral Runpod pod. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `RunDocgenQualityWorkerRunpodEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:267` | Options for a Runpod-backed quality worker eval run. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `selectQualityWorkerRunpodTemplate` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:399` | Select the first suitable Ollama template from live Runpod templates. |
 | `@beep/repo-cli/commands/Docs` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
@@ -10713,10 +10715,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:524` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:548` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/tool/cli/src/commands/Shared/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1695` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1697` | Synchronize tsconfig references and root aliases under a specific repository root. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:399` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:423` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1830` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:169` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:151` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:187` | Filter error raised when `--filter` does not match any workspace package. |
@@ -10806,7 +10808,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/index` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:44` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/index` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts:460` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort.ts:32` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1830` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync.ts:1832` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/index` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/index.ts:48` | CLI command for synchronizing version pins across the monorepo. |
 
 ### @beep/shared-server
@@ -11643,6 +11645,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-tables/Schema` | `DbSchema` | const | `packages/shared/tables/src/Schema.ts:22` | Shared-kernel Drizzle schema aggregate. |
 | `@beep/shared-tables/Schema` | `DbSchema` | type | `packages/shared/tables/src/Schema.ts:34` | Type for {@link DbSchema}. |
 | `@beep/shared-tables/table/index` | `Table` | SourceFile | `packages/shared/tables/src/table/Table.ts:14` |  |
+| `@beep/shared-tables/table/Table` | `EntityTable` | SourceFile | `packages/drivers/drizzle/src/EntityTable.ts:8` |  |
 
 ### @beep/md
 
@@ -13574,8 +13577,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/opip-web/content` | `SiteAsset` | class | `apps/opip-web/src/content/OpipContent.model.ts:124` | Runtime asset reference served from the OPIP app public folder. |
 | `@beep/opip-web/content` | `SiteMetadataContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:159` | Top-level metadata used by Next.js and JSON-LD generation. |
 | `@beep/opip-web/mdx-components` | `useMDXComponents` | function | `apps/opip-web/src/mdx-components.tsx:26` | Returns the MDX component overrides used by opip web. |
-| `@beep/opip-web/proxy` | `config` | const | `apps/opip-web/src/proxy.ts:101` | Route matcher for the OPIP CSP proxy. |
-| `@beep/opip-web/proxy` | `proxy` | function | `apps/opip-web/src/proxy.ts:70` | Adds a per-request CSP nonce to OPIP document responses. |
+| `@beep/opip-web/proxy` | `config` | const | `apps/opip-web/src/proxy.ts:102` | Route matcher for the OPIP CSP proxy. |
+| `@beep/opip-web/proxy` | `proxy` | function | `apps/opip-web/src/proxy.ts:71` | Adds a per-request CSP nonce to OPIP document responses. |
 
 ### @beep/shared-ui
 
