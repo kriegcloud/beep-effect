@@ -37,6 +37,9 @@ jobs:
         with:
           cache-turbo: false
 
+      - name: Validate changeset package graph
+        run: bun run beep quality changeset-graph
+
       - name: Create or update release pull request
         uses: changesets/action@v1
         with:

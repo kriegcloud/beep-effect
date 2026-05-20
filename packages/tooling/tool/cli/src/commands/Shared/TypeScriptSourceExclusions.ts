@@ -25,6 +25,7 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS = [
   "/storybook-static/",
   "/.next/",
   "/.turbo/",
+  "/docs/",
   "/_generated/",
   "/generated/",
   "/initiatives/",

@@ -5,6 +5,7 @@ import {
   PlannedFile,
   PlannedSymlink,
 } from "@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService";
+import { isExcludedTypeScriptSourcePath } from "@beep/repo-cli/commands/Shared/TypeScriptSourceExclusions";
 import { VersionSyncOptions } from "@beep/repo-cli/commands/VersionSync/internal/Models";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
@@ -73,5 +74,12 @@ describe("packages/tooling/tool/cli schema-first models", () => {
     });
 
     expect(modeLabel).toBe("dry-run");
+  });
+
+  it("excludes generated docs examples from source-law scans", () => {
+    expect(
+      isExcludedTypeScriptSourcePath("packages/foundation/modeling/schema/docs/examples/src-Yaml.ts-example.ts")
+    ).toBe(true);
+    expect(isExcludedTypeScriptSourcePath("packages/foundation/modeling/schema/src/Yaml.ts")).toBe(false);
   });
 });

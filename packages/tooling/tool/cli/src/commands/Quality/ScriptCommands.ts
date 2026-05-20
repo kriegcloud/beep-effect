@@ -18,6 +18,7 @@ import { Argument, Command, Flag } from "effect/unstable/cli";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { XMLParser } from "fast-xml-parser";
 import { type ParseError, parse } from "jsonc-parser";
+import { runChangesetGraphCheck } from "./ChangesetGraph.js";
 import { configStringEqualsSync } from "./internal/Config.js";
 import { QualityTaskStep } from "./Tasks.js";
 
@@ -385,6 +386,19 @@ export const runBunAudit = Effect.fn("QualityScriptCommands.runBunAudit")(functi
 const runRepoSanity = Effect.fn("QualityScriptCommands.runRepoSanity")(function* (
   repoRoot: string
 ): Effect.fn.Return<void, QualityScriptCommandError, QualityScriptEnvironment> {
+  yield* Console.log("[github-checks] repo-sanity: changeset graph");
+  yield* runChangesetGraphCheck(repoRoot).pipe(
+    Effect.mapError(
+      (error) =>
+        new QualityScriptCommandError({
+          message: error.message,
+          command: "bun run beep quality changeset-graph",
+          exitCode: 1,
+          cause: error,
+        })
+    )
+  );
+
   yield* Console.log("[github-checks] repo-sanity: tsconfig sync");
   yield* runBun(repoRoot, "repo-sanity:tsconfig-sync", ["config-sync:check"]);
 
@@ -1539,6 +1553,29 @@ const repoExportsCatalogCommand = Command.make(
   ({ check }) => runQualityProgram(runRepoExportsCatalog(check))
 ).pipe(Command.withDescription("Generate or check the tracked repo export catalog"));
 
+const changesetGraphCommand = Command.make("changeset-graph", {}, () =>
+  runQualityProgram(
+    findRepoRoot().pipe(
+      Effect.mapError(
+        (cause) => new QualityScriptCommandError({ message: "Failed to locate repository root.", cause })
+      ),
+      Effect.flatMap((repoRoot) =>
+        runChangesetGraphCheck(repoRoot).pipe(
+          Effect.mapError(
+            (error) =>
+              new QualityScriptCommandError({
+                message: error.message,
+                command: "bun run beep quality changeset-graph",
+                exitCode: 1,
+                cause: error,
+              })
+          )
+        )
+      )
+    )
+  )
+).pipe(Command.withDescription("Validate changesets against the current workspace package graph"));
+
 /**
  * Quality command group for repo operational checks.
  *
@@ -1564,6 +1601,7 @@ export const qualityCommand = Command.make(
     yield* Console.log("- bun run beep quality jsdoc-module-tags");
     yield* Console.log("- bun run beep quality jsdoc-inventory");
     yield* Console.log("- bun run beep quality repo-exports-catalog");
+    yield* Console.log("- bun run beep quality changeset-graph");
   })
 ).pipe(
   Command.withDescription("Repository operational quality commands"),
@@ -1577,5 +1615,6 @@ export const qualityCommand = Command.make(
     jsdocModuleTagsCommand,
     jsdocInventoryCommand,
     repoExportsCatalogCommand,
+    changesetGraphCommand,
   ])
 );
