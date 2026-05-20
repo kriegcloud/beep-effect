@@ -179,6 +179,8 @@ const readPackagePolicy = Effect.fn("RepoCodegraph.readPackagePolicy")(function*
 /**
  * Resolve the generated export catalog path for a repo root.
  *
+ * @param repoRoot - Absolute or relative repository root used as the catalog base.
+ * @returns Effect resolving the generated repo export catalog path.
  * @example
  * ```ts
  * import { repoExportsCatalogPath } from "@beep/repo-codegraph"
@@ -187,11 +189,12 @@ const readPackagePolicy = Effect.fn("RepoCodegraph.readPackagePolicy")(function*
  * @category utilities
  * @since 0.0.0
  */
-export const repoExportsCatalogPath = (repoRoot: string): Effect.Effect<string, never, Path.Path> =>
-  Effect.gen(function* () {
-    const pathApi = yield* Path.Path;
-    return pathApi.join(repoRoot, catalogRelativePath);
-  });
+export const repoExportsCatalogPath = Effect.fn("RepoCodegraph.repoExportsCatalogPath")(function* (
+  repoRoot: string
+): Effect.fn.Return<string, never, Path.Path> {
+  const pathApi = yield* Path.Path;
+  return pathApi.join(repoRoot, catalogRelativePath);
+});
 
 /**
  * Read and decode the generated repo export catalog from a repo root.

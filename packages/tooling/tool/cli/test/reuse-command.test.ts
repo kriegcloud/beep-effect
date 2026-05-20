@@ -10,7 +10,7 @@ import {
   TSMorphServiceLive,
 } from "@beep/repo-utils";
 import { A } from "@beep/utils";
-import { NodeServices } from "@effect/platform-node";
+import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { type Context, Effect, Exit, Layer, Scope } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -30,6 +30,7 @@ const TOOLING_CLI_FILE = "packages/tooling/tool/cli/src/commands/Docgen/index.ts
 
 const CommandTestLayer = Layer.mergeAll(
   NodeServices.layer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer)),
   TestConsole.layer,
   FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer)),
   TSMorphServiceLive.pipe(Layer.provideMerge(NodeServices.layer))

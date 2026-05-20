@@ -9,6 +9,7 @@ import {
   RepoExportsCatalogSource,
   RepoExportsCatalogTotals,
 } from "@beep/repo-codegraph";
+import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
@@ -57,6 +58,43 @@ const reusePacketEntry = new RepoExportsCatalogEntry({
   topoOrder: 20,
 });
 
+const sharedDomainEntry = new RepoExportsCatalogEntry({
+  categories: ["models"],
+  exportKind: "class",
+  exportSubpath: ".",
+  exportedFromPath: "packages/shared/domain/src/index.ts",
+  importSpecifier: "@beep/shared-domain",
+  packageName: "@beep/shared-domain",
+  packagePath: "packages/shared/domain",
+  searchText: "@beep/shared-domain packages/shared/domain @beep/shared-domain . sharedentity class shared entity.",
+  since: ["0.0.0"],
+  sourceLine: 10,
+  sourcePath: "packages/shared/domain/src/entities/SharedEntity.ts",
+  summary: "Shared entity.",
+  symbolName: "SharedEntity",
+  tags: ["@example", "@category", "@since"],
+  topoOrder: 10,
+});
+
+const driverEntry = new RepoExportsCatalogEntry({
+  categories: ["services"],
+  exportKind: "class",
+  exportSubpath: ".",
+  exportedFromPath: "packages/drivers/example/src/index.ts",
+  importSpecifier: "@beep/example-driver",
+  packageName: "@beep/example-driver",
+  packagePath: "packages/drivers/example",
+  searchText:
+    "@beep/example-driver packages/drivers/example @beep/example-driver . driveradapter class external service adapter.",
+  since: ["0.0.0"],
+  sourceLine: 12,
+  sourcePath: "packages/drivers/example/src/DriverAdapter.ts",
+  summary: "External service adapter.",
+  symbolName: "DriverAdapter",
+  tags: ["@example", "@category", "@since"],
+  topoOrder: 30,
+});
+
 const catalog = new RepoExportsCatalog({
   authority: new RepoExportsCatalogAuthority({
     boundaryDoctrine: ["standards/ARCHITECTURE.md"],
@@ -92,6 +130,32 @@ const catalog = new RepoExportsCatalog({
       status: "has-public-exports",
       topoOrder: 20,
     }),
+    new RepoExportsCatalogPackage({
+      counts: new RepoExportsCatalogPackageCounts({
+        publicExportEntries: 1,
+        sourceFiles: 1,
+        uniqueSymbols: 1,
+      }),
+      exports: [sharedDomainEntry],
+      importSpecifiers: ["@beep/shared-domain"],
+      packageName: "@beep/shared-domain",
+      packagePath: "packages/shared/domain",
+      status: "has-public-exports",
+      topoOrder: 10,
+    }),
+    new RepoExportsCatalogPackage({
+      counts: new RepoExportsCatalogPackageCounts({
+        publicExportEntries: 1,
+        sourceFiles: 1,
+        uniqueSymbols: 1,
+      }),
+      exports: [driverEntry],
+      importSpecifiers: ["@beep/example-driver"],
+      packageName: "@beep/example-driver",
+      packagePath: "packages/drivers/example",
+      status: "has-public-exports",
+      topoOrder: 30,
+    }),
   ],
   schemaVersion: "repo-exports-catalog/v1",
   source: new RepoExportsCatalogSource({
@@ -103,11 +167,11 @@ const catalog = new RepoExportsCatalog({
   totals: new RepoExportsCatalogTotals({
     importSpecifiers: 3,
     missingWorkspaceMetadata: 0,
-    packages: 2,
-    packagesWithPublicExports: 2,
+    packages: 4,
+    packagesWithPublicExports: 4,
     packagesWithoutPublicExports: 0,
-    publicExportEntries: 3,
-    uniquePackageSymbols: 2,
+    publicExportEntries: 5,
+    uniquePackageSymbols: 4,
   }),
 });
 
@@ -116,7 +180,7 @@ describe("lookupRepoExports", () => {
     const result = lookupRepoExports(
       catalog,
       new RepoCodegraphLookupRequest({
-        fromPackage: O.some("packages/tooling/tool/cli"),
+        fromPackage: O.some("packages/tooling/library/repo-utils"),
         limit: 8,
         query: "UnknownRecord",
       }),
@@ -146,5 +210,60 @@ describe("lookupRepoExports", () => {
     expect(
       A.some(result.matches, (match) => match.packageName === "@beep/schema" && match.symbolName === "UnknownRecord")
     ).toBe(true);
+  });
+
+  it("blocks shared domain lookups that would depend on driver packages", () => {
+    const result = lookupRepoExports(
+      catalog,
+      new RepoCodegraphLookupRequest({
+        fromPackage: O.some("packages/shared/domain"),
+        limit: 8,
+        query: "DriverAdapter",
+      }),
+      { freshnessStatus: "current", importPolicies: [] }
+    );
+
+    const driverMatch = A.findFirst(result.matches, (match) => match.symbolName === "DriverAdapter");
+
+    expect(O.isSome(driverMatch)).toBe(true);
+    if (O.isSome(driverMatch)) {
+      expect(driverMatch.value.boundary.status).toBe("blocked");
+    }
+  });
+
+  it("warns when a caller package selector does not match the catalog", () => {
+    const result = lookupRepoExports(
+      catalog,
+      new RepoCodegraphLookupRequest({
+        fromPackage: O.some("packages/missing/domain"),
+        limit: 8,
+        query: "UnknownRecord",
+      }),
+      { freshnessStatus: "current", importPolicies: [] }
+    );
+
+    expect(result.warnings).toEqual([
+      'Caller package selector "packages/missing/domain" did not match any catalog package.',
+    ]);
+    expect(result.matches[0]?.boundary.status).toBe("unknown");
+    expect(result.matches[0]?.boundary.reason).toBe(
+      'Caller package selector "packages/missing/domain" did not match any catalog package.'
+    );
+  });
+
+  it("supports data-last lookup composition", () => {
+    const result = pipe(
+      catalog,
+      lookupRepoExports(
+        new RepoCodegraphLookupRequest({
+          fromPackage: O.some("packages/tooling/library/repo-utils"),
+          limit: 8,
+          query: "UnknownRecord",
+        }),
+        { freshnessStatus: "current", importPolicies: [] }
+      )
+    );
+
+    expect(result.matches[0]?.symbolName).toBe("UnknownRecord");
   });
 });

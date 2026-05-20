@@ -340,6 +340,8 @@ export const encodeRepoExportsCatalog = S.encodeEffect(RepoExportsCatalog);
 /**
  * Decode JSON text into a generated repo export catalog.
  *
+ * @param content - JSON text containing a generated repo export catalog.
+ * @returns Effect that decodes the JSON text into a catalog model.
  * @example
  * ```ts
  * import { decodeRepoExportsCatalogJson } from "@beep/repo-codegraph"

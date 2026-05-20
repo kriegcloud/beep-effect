@@ -55,7 +55,7 @@ export type RepoCodegraphLookupSchemaVersion = typeof RepoCodegraphLookupSchemaV
  * @category models
  * @since 0.0.0
  */
-export const RepoCodegraphFreshnessStatus = LiteralKit(["unchecked", "current", "stale"] as const).annotate(
+export const RepoCodegraphFreshnessStatus = LiteralKit(["unchecked", "current"] as const).annotate(
   $I.annote("RepoCodegraphFreshnessStatus", {
     description: "Freshness posture of the export catalog used by a lookup request.",
   })

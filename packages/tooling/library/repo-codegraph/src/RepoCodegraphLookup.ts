@@ -7,7 +7,9 @@
 
 import { A, Str } from "@beep/utils";
 import { flow, Order, pipe } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import {
   RepoCodegraphBoundaryAdvice,
   type RepoCodegraphBoundaryStatus,
@@ -35,6 +37,16 @@ type ScoredEntry = {
   readonly entry: RepoExportsCatalogEntry;
   readonly score: RepoCodegraphLookupScore;
   readonly boundary: RepoCodegraphBoundaryAdvice;
+};
+
+type FromPackageResolution = {
+  readonly package: O.Option<RepoExportsCatalogPackage>;
+  readonly selector: O.Option<string>;
+};
+
+type LookupOptions = {
+  readonly freshnessStatus?: RepoCodegraphFreshnessStatus;
+  readonly importPolicies?: ReadonlyArray<RepoCodegraphPackageImportPolicy>;
 };
 
 const normalizeCamelCase = Str.replace(/([a-z0-9])([A-Z])/gu, "$1 $2");
@@ -135,6 +147,8 @@ const scoreEntry = (
 };
 
 const packageFamily = (packagePath: string): string => {
+  const pathSegments = pipe(packagePath, Str.split("/"));
+
   if (Str.startsWith("packages/foundation/")(packagePath)) {
     return "foundation";
   }
@@ -147,26 +161,26 @@ const packageFamily = (packagePath: string): string => {
   if (Str.startsWith("apps/")(packagePath)) {
     return "app";
   }
-  if (Str.includes("-domain")(packagePath)) {
+  if (A.contains(pathSegments, "domain")) {
     return "domain";
   }
-  if (Str.includes("-use-cases")(packagePath)) {
+  if (A.contains(pathSegments, "use-cases")) {
     return "use-cases";
   }
-  if (Str.includes("-server")(packagePath)) {
+  if (A.contains(pathSegments, "server")) {
     return "server";
   }
-  if (Str.includes("-client")(packagePath) || Str.includes("-ui")(packagePath)) {
+  if (A.contains(pathSegments, "client") || A.contains(pathSegments, "ui")) {
     return "client";
   }
   return "unknown";
 };
 
-const resolveFromPackage = (
-  catalog: RepoExportsCatalog,
-  fromPackage: O.Option<string>
-): O.Option<RepoExportsCatalogPackage> =>
-  pipe(
+const isRepoExportsCatalogArgument = (value: unknown): value is RepoExportsCatalog =>
+  P.hasProperty(value, "packages") && P.hasProperty(value, "schemaVersion");
+
+const resolveFromPackage = (catalog: RepoExportsCatalog, fromPackage: O.Option<string>): FromPackageResolution => ({
+  package: pipe(
     fromPackage,
     O.flatMap((selector) =>
       pipe(
@@ -179,21 +193,28 @@ const resolveFromPackage = (
         )
       )
     )
-  );
+  ),
+  selector: fromPackage,
+});
 
 const boundaryAdvice = (
-  fromPackage: O.Option<RepoExportsCatalogPackage>,
+  fromPackage: FromPackageResolution,
   target: RepoExportsCatalogEntry
 ): RepoCodegraphBoundaryAdvice => {
-  if (O.isNone(fromPackage)) {
+  if (O.isNone(fromPackage.package)) {
+    const reason = pipe(
+      fromPackage.selector,
+      O.map((selector) => `Caller package selector "${selector}" did not match any catalog package.`),
+      O.getOrElse(() => "No caller package was supplied; lookup can only show legal public exports.")
+    );
     return new RepoCodegraphBoundaryAdvice({
       citations: [],
-      reason: "No caller package was supplied; lookup can only show legal public exports.",
+      reason,
       status: "unknown",
     });
   }
 
-  if (fromPackage.value.packageName === target.packageName) {
+  if (fromPackage.package.value.packageName === target.packageName) {
     return new RepoCodegraphBoundaryAdvice({
       citations: [...boundaryCitations],
       reason: "Caller and target are the same package.",
@@ -201,7 +222,7 @@ const boundaryAdvice = (
     });
   }
 
-  const sourceFamily = packageFamily(fromPackage.value.packagePath);
+  const sourceFamily = packageFamily(fromPackage.package.value.packagePath);
   const targetFamily = packageFamily(target.packagePath);
 
   if (targetFamily === "foundation") {
@@ -286,8 +307,16 @@ const preferredImportForSymbol = (
     )
   );
 
-const fallbackRecommendedEntry = (entries: ReadonlyArray<RepoExportsCatalogEntry>): RepoExportsCatalogEntry =>
-  pipe(entries, A.sort(entryImportOrder), A.head, O.getOrThrow);
+const fallbackRecommendedEntry = (
+  entry: RepoExportsCatalogEntry,
+  entries: ReadonlyArray<RepoExportsCatalogEntry>
+): RepoExportsCatalogEntry =>
+  pipe(
+    entries,
+    A.sort(entryImportOrder),
+    A.head,
+    O.getOrElse(() => entry)
+  );
 
 const reasonForCandidate = (
   recommendedSpecifier: string,
@@ -310,12 +339,19 @@ const legalImportCandidates = (
   policies: ReadonlyArray<RepoCodegraphPackageImportPolicy>,
   entry: RepoExportsCatalogEntry
 ): ReadonlyArray<RepoCodegraphImportCandidate> => {
-  const entries = pipe(
+  const matchingEntries = pipe(
     catalog.packages,
     A.flatMap((pkg) => pkg.exports),
     A.filter((candidate) => entryIdentity(candidate) === entryIdentity(entry)),
     A.sort(entryImportOrder),
     A.dedupeWith((left, right) => left.importSpecifier === right.importSpecifier)
+  );
+  const entries = pipe(
+    matchingEntries,
+    A.match({
+      onEmpty: () => [entry],
+      onNonEmpty: (nonEmptyEntries) => nonEmptyEntries,
+    })
   );
   const importSpecifiers = pipe(
     entries,
@@ -329,10 +365,10 @@ const legalImportCandidates = (
       pipe(
         entries,
         A.findFirst((candidate) => candidate.importSpecifier === rule.importSpecifier),
-        O.getOrElse(() => fallbackRecommendedEntry(entries))
+        O.getOrElse(() => fallbackRecommendedEntry(entry, entries))
       )
     ),
-    O.getOrElse(() => fallbackRecommendedEntry(entries))
+    O.getOrElse(() => fallbackRecommendedEntry(entry, entries))
   );
 
   return pipe(
@@ -356,7 +392,19 @@ const toLookupMatch = (
   scored: ScoredEntry
 ): RepoCodegraphLookupMatch => {
   const legalImports = legalImportCandidates(catalog, policies, scored.entry);
-  const recommendedImport = pipe(legalImports, A.head, O.getOrThrow);
+  const recommendedImport = pipe(
+    legalImports,
+    A.head,
+    O.getOrElse(
+      () =>
+        new RepoCodegraphImportCandidate({
+          exportSubpath: scored.entry.exportSubpath,
+          importSpecifier: scored.entry.importSpecifier,
+          isRecommended: true,
+          reason: O.some("Catalog entry import is the only available public import surface."),
+        })
+    )
+  );
   const summary = Str.isNonEmpty(Str.trim(scored.entry.summary)) ? O.some(scored.entry.summary) : O.none<string>();
 
   return new RepoCodegraphLookupMatch({
@@ -385,28 +433,20 @@ const scoredEntryOrder: Order.Order<ScoredEntry> = Order.combine(
   )
 );
 
-/**
- * Lookup public repo exports by symbol name or free-text intent.
- *
- * @example
- * ```ts
- * import { lookupRepoExports } from "@beep/repo-codegraph"
- * console.log(lookupRepoExports)
- * ```
- * @category utilities
- * @since 0.0.0
- */
-export const lookupRepoExports = (
+const lookupRepoExportsBody = (
   catalog: RepoExportsCatalog,
   request: RepoCodegraphLookupRequest,
-  options?: {
-    readonly freshnessStatus?: RepoCodegraphFreshnessStatus;
-    readonly importPolicies?: ReadonlyArray<RepoCodegraphPackageImportPolicy>;
-  }
+  options?: LookupOptions
 ): RepoCodegraphLookupResult => {
   const queryTokens = tokenize(request.query);
   const fromPackage = resolveFromPackage(catalog, request.fromPackage);
   const importPolicies = options?.importPolicies ?? [];
+  const fromPackageWarning = pipe(
+    fromPackage.selector,
+    O.filter(() => O.isNone(fromPackage.package)),
+    O.map((selector) => `Caller package selector "${selector}" did not match any catalog package.`),
+    A.fromOption
+  );
   const entries = pipe(
     catalog.packages,
     A.flatMap((pkg) => pkg.exports)
@@ -431,7 +471,8 @@ export const lookupRepoExports = (
     A.map((entry) => toLookupMatch(catalog, importPolicies, entry))
   );
   const freshnessStatus = options?.freshnessStatus ?? "unchecked";
-  const warnings = freshnessStatus === "unchecked" ? [defaultFreshnessWarning] : [];
+  const warnings =
+    freshnessStatus === "unchecked" ? [defaultFreshnessWarning, ...fromPackageWarning] : fromPackageWarning;
 
   return new RepoCodegraphLookupResult({
     freshnessStatus,
@@ -448,3 +489,30 @@ export const lookupRepoExports = (
     warnings,
   });
 };
+
+/**
+ * Lookup public repo exports by symbol name or free-text intent.
+ *
+ * @param catalog - Generated export catalog to score.
+ * @param request - Lookup query, optional caller package, and result limit.
+ * @param options - Optional catalog freshness and package import-policy context.
+ * @returns Scored public export matches with import and boundary guidance.
+ * @example
+ * ```ts
+ * import { lookupRepoExports } from "@beep/repo-codegraph"
+ * console.log(lookupRepoExports)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const lookupRepoExports: {
+  (
+    catalog: RepoExportsCatalog,
+    request: RepoCodegraphLookupRequest,
+    options?: LookupOptions
+  ): RepoCodegraphLookupResult;
+  (
+    request: RepoCodegraphLookupRequest,
+    options?: LookupOptions
+  ): (catalog: RepoExportsCatalog) => RepoCodegraphLookupResult;
+} = dual((args) => args.length >= 2 && isRepoExportsCatalogArgument(args[0]), lookupRepoExportsBody);

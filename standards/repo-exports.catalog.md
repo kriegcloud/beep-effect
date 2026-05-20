@@ -6991,12 +6991,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/repo-codegraph` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:325` | Decode unknown input into a generated repo export catalog. |
-| `@beep/repo-codegraph` | `decodeRepoExportsCatalogJson` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:351` | Decode JSON text into a generated repo export catalog. |
+| `@beep/repo-codegraph` | `decodeRepoExportsCatalogJson` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:353` | Decode JSON text into a generated repo export catalog. |
 | `@beep/repo-codegraph` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
 | `@beep/repo-codegraph` | `encodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:338` | Encode a repo export catalog into its JSON-safe representation. |
-| `@beep/repo-codegraph` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:399` | Lookup public repo exports by symbol name or free-text intent. |
-| `@beep/repo-codegraph` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:231` | Read package-local import policies from package.json metadata. |
-| `@beep/repo-codegraph` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:207` | Read and decode the generated repo export catalog from a repo root. |
+| `@beep/repo-codegraph` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:508` | Lookup public repo exports by symbol name or free-text intent. |
+| `@beep/repo-codegraph` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:234` | Read package-local import policies from package.json metadata. |
+| `@beep/repo-codegraph` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:210` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:89` | Advisory boundary status for a candidate import. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryStatus` | type | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:107` | Runtime type for {@link RepoCodegraphBoundaryStatus}. |
@@ -7018,21 +7018,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph` | `RepoExportsCatalogEntry` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:225` | One legal public export fact from the generated catalog. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:273` | Per-package export catalog entry. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogPackageCounts` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:184` | Per-package counts in the generated export catalog. |
-| `@beep/repo-codegraph` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:190` | Resolve the generated export catalog path for a repo root. |
+| `@beep/repo-codegraph` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:192` | Resolve the generated export catalog path for a repo root. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:57` | Generated export catalog schema version. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:75` | Runtime type for {@link RepoExportsCatalogSchemaVersion}. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogSource` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:122` | Source metadata for the generated export catalog. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:26` | Generated export catalog standard identifier. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:44` | Runtime type for {@link RepoExportsCatalogStandard}. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:153` | Count metadata recorded in the generated export catalog. |
-| `@beep/repo-codegraph` | `VERSION` | const | `packages/tooling/library/repo-codegraph/src/index.ts:11` |  |
+| `@beep/repo-codegraph` | `VERSION` | const | `packages/tooling/library/repo-codegraph/src/index.ts:19` | Package version for `@beep/repo-codegraph`. |
 | `@beep/repo-codegraph/index` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:325` | Decode unknown input into a generated repo export catalog. |
-| `@beep/repo-codegraph/index` | `decodeRepoExportsCatalogJson` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:351` | Decode JSON text into a generated repo export catalog. |
+| `@beep/repo-codegraph/index` | `decodeRepoExportsCatalogJson` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:353` | Decode JSON text into a generated repo export catalog. |
 | `@beep/repo-codegraph/index` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
 | `@beep/repo-codegraph/index` | `encodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:338` | Encode a repo export catalog into its JSON-safe representation. |
-| `@beep/repo-codegraph/index` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:399` | Lookup public repo exports by symbol name or free-text intent. |
-| `@beep/repo-codegraph/index` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:231` | Read package-local import policies from package.json metadata. |
-| `@beep/repo-codegraph/index` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:207` | Read and decode the generated repo export catalog from a repo root. |
+| `@beep/repo-codegraph/index` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:508` | Lookup public repo exports by symbol name or free-text intent. |
+| `@beep/repo-codegraph/index` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:234` | Read package-local import policies from package.json metadata. |
+| `@beep/repo-codegraph/index` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:210` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:89` | Advisory boundary status for a candidate import. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryStatus` | type | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:107` | Runtime type for {@link RepoCodegraphBoundaryStatus}. |
@@ -7054,15 +7054,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogEntry` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:225` | One legal public export fact from the generated catalog. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:273` | Per-package export catalog entry. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogPackageCounts` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:184` | Per-package counts in the generated export catalog. |
-| `@beep/repo-codegraph/index` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:190` | Resolve the generated export catalog path for a repo root. |
+| `@beep/repo-codegraph/index` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:192` | Resolve the generated export catalog path for a repo root. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:57` | Generated export catalog schema version. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:75` | Runtime type for {@link RepoExportsCatalogSchemaVersion}. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogSource` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:122` | Source metadata for the generated export catalog. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:26` | Generated export catalog standard identifier. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:44` | Runtime type for {@link RepoExportsCatalogStandard}. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:153` | Count metadata recorded in the generated export catalog. |
-| `@beep/repo-codegraph/index` | `VERSION` | const | `packages/tooling/library/repo-codegraph/src/index.ts:11` |  |
-| `@beep/repo-codegraph/RepoCodegraphLookup` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:399` | Lookup public repo exports by symbol name or free-text intent. |
+| `@beep/repo-codegraph/index` | `VERSION` | const | `packages/tooling/library/repo-codegraph/src/index.ts:19` | Package version for `@beep/repo-codegraph`. |
+| `@beep/repo-codegraph/RepoCodegraphLookup` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:508` | Lookup public repo exports by symbol name or free-text intent. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphBoundaryStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:89` | Advisory boundary status for a candidate import. |
@@ -7079,12 +7079,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphLookupTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:278` | Aggregate match counts for a lookup result. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphPackageImportPolicy` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:365` | Package-local import policy consumed by lookup. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphPreferredImport` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:333` | Preferred import rule recorded in package-local repo-codegraph policy. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:231` | Read package-local import policies from package.json metadata. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:207` | Read and decode the generated repo export catalog from a repo root. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:234` | Read package-local import policies from package.json metadata. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:210` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph/RepoExportsCatalog` | `RepoCodegraphCatalogReadError` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:39` | Typed failure raised while reading repo-codegraph inputs. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:190` | Resolve the generated export catalog path for a repo root. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:192` | Resolve the generated export catalog path for a repo root. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:325` | Decode unknown input into a generated repo export catalog. |
-| `@beep/repo-codegraph/RepoExportsCatalog.model` | `decodeRepoExportsCatalogJson` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:351` | Decode JSON text into a generated repo export catalog. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `decodeRepoExportsCatalogJson` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:353` | Decode JSON text into a generated repo export catalog. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `encodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:338` | Encode a repo export catalog into its JSON-safe representation. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalog` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:299` | Generated repo export catalog. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogAuthority` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:94` | Current authority posture recorded by the export catalog. |
