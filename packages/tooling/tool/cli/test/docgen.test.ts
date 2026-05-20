@@ -1,5 +1,12 @@
 import { docgenCommand } from "@beep/repo-cli/commands/Docgen/index";
 import {
+  buildDocgenLocalPlan,
+  DocgenLocalSelectedPackage,
+  docgenLocalFullReasonsForTesting,
+  docgenLocalTurboArgsForTesting,
+  selectDocgenLocalPackagesForTesting,
+} from "@beep/repo-cli/commands/Docgen/internal/Local";
+import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
   createDocgenConfigDocument,
@@ -51,6 +58,7 @@ const provideScopedLayer =
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = Layer.mergeAll(
   PlatformLayer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(PlatformLayer)),
   FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)),
   TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer))
 );
@@ -130,6 +138,191 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   ).pipe(provideScopedLayer(CommandTestLayer));
 
 describe("Docgen operations", () => {
+  it("selects package-local inputs for the bounded local docgen lane", () =>
+    Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const schemaDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          const utilsDir = path.join(tmpDir, "packages", "foundation", "modeling", "utils");
+          yield* fs.makeDirectory(path.join(schemaDir, "src"), { recursive: true });
+          yield* fs.makeDirectory(path.join(utilsDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(schemaDir, "package.json"),
+            encodeJson({ name: "@beep/schema", version: "0.0.0" })
+          );
+          yield* fs.writeFileString(path.join(schemaDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(utilsDir, "package.json"),
+            encodeJson({ name: "@beep/utils", version: "0.0.0" })
+          );
+          yield* fs.writeFileString(path.join(utilsDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const selected = selectDocgenLocalPackagesForTesting(packages, [
+            "packages/foundation/modeling/schema/src/index.ts",
+            "packages/foundation/modeling/schema/test/schema.test.ts",
+            "packages/foundation/modeling/utils/README.md",
+            "turbo.json",
+          ]);
+
+          expect(A.map(selected, (pkg) => pkg.name)).toEqual(["@beep/schema", "@beep/utils"]);
+          expect(selected[0]?.reasons).toEqual(["packages/foundation/modeling/schema/src/index.ts"]);
+          expect(selected[1]?.reasons).toEqual(["packages/foundation/modeling/utils/README.md"]);
+        })
+      )
+    ));
+
+  it("identifies global docgen inputs that require the full proof", () => {
+    const reasons = docgenLocalFullReasonsForTesting([
+      "packages/tooling/tool/docgen/src/bin.ts",
+      "packages/foundation/modeling/schema/src/index.ts",
+      "turbo.json",
+    ]);
+
+    expect(A.map(reasons, (reason) => reason.filePath)).toEqual([
+      "packages/tooling/tool/docgen/src/bin.ts",
+      "turbo.json",
+    ]);
+  });
+
+  it("builds changed-plus-dependent Turbo filters for local docgen", () => {
+    const args = docgenLocalTurboArgsForTesting(
+      [
+        new DocgenLocalSelectedPackage({
+          name: "@beep/schema",
+          path: "packages/foundation/modeling/schema",
+          reasons: ["packages/foundation/modeling/schema/src/index.ts"],
+        }),
+      ],
+      0
+    );
+
+    expect(args).toEqual([
+      "turbo",
+      "run",
+      "docgen",
+      "--filter=...@beep/schema",
+      "--concurrency=1",
+      "--summarize",
+      "--ui=stream",
+    ]);
+  });
+
+  it("builds a package-selected local docgen plan without git discovery", () =>
+    Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({ name: "@beep/schema", version: "0.0.0" })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+
+          const plan = yield* buildDocgenLocalPlan({
+            base: "origin/main",
+            full: false,
+            head: "HEAD",
+            json: false,
+            packageSelector: O.some("@beep/schema"),
+            parallel: 1,
+            plan: true,
+          });
+
+          expect(plan.mode).toBe("scoped");
+          expect(A.map(plan.selectedPackages, (pkg) => pkg.name)).toEqual(["@beep/schema"]);
+          expect(plan.turboArgs).toContain("--filter=...@beep/schema");
+        })
+      )
+    ));
+
+  it(
+    "prints a local docgen package plan from the command surface",
+    {
+      timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+    },
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const tmpDir = process.cwd();
+            yield* fs.writeFileString(
+              path.join(tmpDir, "package.json"),
+              encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                workspaces: ["packages/foundation/*/*"],
+              })
+            );
+
+            const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+            yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join(packageDir, "package.json"),
+              encodeJson({ name: "@beep/schema", version: "0.0.0" })
+            );
+            yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+
+            yield* runDocgenCommand(["local", "--plan", "-p", "@beep/schema"]);
+
+            const output = A.join(yield* TestConsole.logLines, "\n");
+            expect(output).toContain("docgen:local plan");
+            expect(output).toContain("- mode: scoped");
+            expect(output).toContain("--filter=...@beep/schema");
+            expect(process.exitCode).toBe(0);
+          })
+        )
+      )
+  );
+
+  it(
+    "rejects local docgen JSON output without plan mode",
+    {
+      timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+    },
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            yield* runDocgenCommand(["local", "--json"]);
+
+            expect(yield* TestConsole.logLines).toEqual([]);
+            expect(A.join(yield* TestConsole.errorLines, "\n")).toContain(
+              "--json requires --plan for docgen:local so stdout remains machine-readable."
+            );
+            expect(process.exitCode).toBe(1);
+          })
+        )
+      )
+  );
+
   it("parses current schema flags and classifies a configured package that has not generated docs", () =>
     Effect.runPromise(
       withTempRepo(

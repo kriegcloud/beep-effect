@@ -14,6 +14,10 @@ Build and maintain features with effect first development.
 - In `packages/**/{test,dtslint}/**/*.{ts,tsx}`, import package source through `@beep/*` package aliases instead of relative paths into any workspace `src/`; keep relatives only for local helpers, fixtures, snapshots, and other non-`src` test files.
 - Keep service boundaries explicit.
 - Keep repo quality commands green.
+- For local docgen edit loops, prefer `bun run docgen:local`. It plans from
+  `origin/main...HEAD` plus dirty/untracked files, runs bounded package-scoped
+  docgen through Turbo, and aggregates only selected packages. Use
+  `bun run docgen` when the full repo docgen proof is required.
 - Before recreating a shared helper, schema, utility, model, or known symbol,
   search the repo export catalog first:
   `rg -i "<symbol-or-intent>" standards/repo-exports.catalog.{md,jsonc}`.

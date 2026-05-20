@@ -25,6 +25,14 @@ Candidate work must be chosen from Phase 0 evidence. Expected categories:
 Phase 1 should favor small workflow or repo-cli changes with clear before/after
 timing proof and low semantic risk.
 
+Initial Phase 1 implementation:
+
+- add `bun run docgen:local` as a bounded local-agent docgen lane;
+- keep `bun run docgen`, `bun run docgen:affected`, lint/check, and CI docgen
+  semantics unchanged as full or existing proofs;
+- move Turbo remote-cache credentials to pass-through env so credential changes
+  do not invalidate every task hash.
+
 ## Phase 2 - Repo-Cli Quality Orchestration
 
 Use Phase 0 evidence to decide whether `@beep/repo-cli` should add bounded
