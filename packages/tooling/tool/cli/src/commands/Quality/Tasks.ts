@@ -473,8 +473,13 @@ const isExplicitTurboScopeArg = (arg: string): boolean =>
 
 const shouldRunRepoWideSteps = (args: ReadonlyArray<string>): boolean => !A.some(args, isExplicitTurboScopeArg);
 
+const isCi = (): boolean => Bun.env.CI === "true" || configStringEqualsSync("CI", "true");
+
 const localTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
-  configStringEqualsSync("CI", "true") || A.some(args, isTurboCacheControlArg) ? A.empty() : ["--cache=local:rw"];
+  isCi() || A.some(args, isTurboCacheControlArg) ? A.empty() : ["--cache=local:rw"];
+
+const ciFreshTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
+  isCi() && !A.some(args, isTurboCacheControlArg) ? ["--force", ...args] : args;
 
 const turboRunArgs = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>): ReadonlyArray<string> => [
   "turbo",
@@ -1049,7 +1054,7 @@ const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   const selection = parseRootAuditSelection(args);
 
   if (selection.mode === "packages") {
-    return [turboStep(repoRoot, "audit:packages", ["audit"], selection.args)];
+    return [turboStep(repoRoot, "audit:packages", ["audit"], ciFreshTurboArgs(selection.args))];
   }
 
   const auditArgs = selection.args;

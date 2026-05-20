@@ -64,11 +64,49 @@ const getInvocation = (argv: ReadonlyArray<string>): QualityTaskInvocation => {
   }
   return invocation.value;
 };
+
+const withEnvVar = <A>(name: string, value: string | undefined, use: () => A): A => {
+  const previousValue = Bun.env[name];
+  const previousProcessValue = process.env[name];
+  if (value === undefined) {
+    delete Bun.env[name];
+    delete process.env[name];
+  } else {
+    Bun.env[name] = value;
+    process.env[name] = value;
+  }
+
+  try {
+    return use();
+  } finally {
+    if (previousValue === undefined) {
+      delete Bun.env[name];
+    } else {
+      Bun.env[name] = previousValue;
+    }
+    if (previousProcessValue === undefined) {
+      delete process.env[name];
+    } else {
+      process.env[name] = previousProcessValue;
+    }
+  }
+};
+
+const isTurboCacheControlArg = (arg: string): boolean =>
+  arg === "--no-cache" ||
+  arg === "--force" ||
+  Str.startsWith("--force=")(arg) ||
+  arg === "--remote-only" ||
+  Str.startsWith("--remote-only=")(arg) ||
+  arg === "--remote-cache-read-only" ||
+  Str.startsWith("--remote-cache-read-only=")(arg) ||
+  Str.startsWith("--cache=")(arg);
+
 const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> => [
   "turbo",
   "run",
   task,
-  ...(Bun.env.CI === "true" || A.some(args, (arg) => Str.startsWith("--cache=")(arg)) ? [] : ["--cache=local:rw"]),
+  ...(Bun.env.CI === "true" || A.some(args, isTurboCacheControlArg) ? [] : ["--cache=local:rw"]),
   ...args,
 ];
 const bunScriptStep = (label: string, source: string) =>
@@ -126,6 +164,36 @@ describe("quality task adapter", () => {
       cwd: "/repo",
     });
   });
+
+  it("keeps package audit cacheable by default for local runs", () =>
+    withEnvVar("CI", undefined, () => {
+      const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "--filter=@beep/schema"]));
+
+      expect(steps).toHaveLength(1);
+      expect(steps[0]?.args).toEqual(expectedTurboArgs("audit", ["--filter=@beep/schema"]));
+    }));
+
+  it("forces package audit execution in CI unless cache behavior is explicit", () =>
+    withEnvVar("CI", "true", () => {
+      const steps = rootQualityStepsForTesting(
+        "/repo",
+        getInvocation(["audit", "--filter=@beep/schema", "--dry=json"])
+      );
+
+      expect(steps).toHaveLength(1);
+      expect(steps[0]?.args).toEqual(["turbo", "run", "audit", "--force", "--filter=@beep/schema", "--dry=json"]);
+    }));
+
+  it("honors explicit audit cache-control args in CI", () =>
+    withEnvVar("CI", "true", () => {
+      const steps = rootQualityStepsForTesting(
+        "/repo",
+        getInvocation(["audit", "--cache=local:rw", "--filter=@beep/schema"])
+      );
+
+      expect(steps).toHaveLength(1);
+      expect(steps[0]?.args).toEqual(["turbo", "run", "audit", "--cache=local:rw", "--filter=@beep/schema"]);
+    }));
 
   it("routes explicit and legacy github audit modes to script checks", () => {
     const explicitSteps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "github", "repo-sanity"]));
