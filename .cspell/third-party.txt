@@ -16,6 +16,7 @@ ghostty
 gitea
 gitleaks
 Kuzu
+konva
 kysely
 lefthook
 markdownlint
