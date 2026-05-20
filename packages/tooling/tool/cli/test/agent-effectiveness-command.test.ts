@@ -41,7 +41,7 @@ const workerReportJsonWithSecretShapedPolicyCode = `{
   "otlp": { "status": "exported" },
   "workerEval": {
     "summary": { "completed": 1, "failed": 0, "selectedPackets": 1, "timedOut": 0 },
-    "policyViolations": [{ "code": "api_key" }]
+    "policyViolations": [{ "code": "API_KEY=oops" }]
   }
 }`;
 

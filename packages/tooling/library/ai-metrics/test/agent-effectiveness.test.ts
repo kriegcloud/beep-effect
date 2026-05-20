@@ -187,7 +187,7 @@ const unsafeWorkerReportJson = `{
   "otlp": { "status": "exported" },
   "workerEval": {
     "summary": { "completed": 2, "failed": 0, "selectedPackets": 2, "timedOut": 0 },
-    "policyViolations": [{ "code": "API_KEY" }]
+    "policyViolations": [{ "code": "API_KEY=oops" }]
   }
 }`;
 
@@ -876,6 +876,38 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
     ).pipe(provideScopedLayer(NodeServices.layer))
   );
 
+  it.effect("rejects forbidden private content in the embedded doctor report", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const plan = yield* makeAgentEffectivenessAnnotationPlan(
+          new AgentEffectivenessAnnotationPlanInput({
+            doctor: new AgentEffectivenessDoctorInput({
+              dataRoot: "/home/beep-private/metrics",
+              noPhoenix: true,
+              workerEvalReportPath: "/home/beep-private/worker-eval.json",
+            }),
+          })
+        );
+
+        const report = makeAgentEffectivenessAnnotationCheckReport(plan);
+
+        expect(report.status).toBe(AgentEffectivenessStatus.Enum.failed);
+        expect(
+          pipe(
+            report.findings,
+            A.map((finding) => finding.annotationId)
+          )
+        ).toContain("plan.doctor.dataRoot");
+        expect(
+          pipe(
+            report.findings,
+            A.map((finding) => finding.code)
+          )
+        ).toContain("private-home-path");
+      }).pipe(provideScopedLayer(runtimeLayer(`${tmpDir}/metrics/derived/ai-metrics.duckdb`)))
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
   it.effect("blocks confirmed Phoenix sync when annotation privacy checks fail", () =>
     withTempDirectory((tmpDir) =>
       Effect.gen(function* () {
@@ -926,7 +958,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
     ).pipe(provideScopedLayer(NodeServices.layer))
   );
 
-  it.effect("blocks confirmed Phoenix sync when dataset payload privacy checks fail", () =>
+  it.effect("blocks confirmed Phoenix sync when the embedded doctor report contains private paths", () =>
     withTempDirectory((tmpDir) =>
       Effect.gen(function* () {
         const path = yield* Path.Path;
@@ -955,7 +987,7 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           );
 
           expect(blocked.status).toBe(AgentEffectivenessStatus.Enum.failed);
-          expect(blocked.mutationPolicy).toBe("blocked-dataset-check-failed");
+          expect(blocked.mutationPolicy).toBe("blocked-annotation-check-failed");
           expect(calls.appends).toEqual([]);
           expect(calls.datasets).toEqual([]);
           expect(calls.prompts).toEqual([]);

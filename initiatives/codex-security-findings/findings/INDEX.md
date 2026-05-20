@@ -1,6 +1,6 @@
 # Codex Security Findings Index
 
-Captured from Codex Security on 2026-05-19. This index covers all 64 findings visible in the authenticated Codex Security UI for `kriegcloud/beep-effect` with severities `critical,high,medium,low,informational`.
+Captured from Codex Security on 2026-05-19, with a 2026-05-20 follow-up after PR #164 merged. This index covers all 67 tracked findings visible in the authenticated Codex Security UI for `kriegcloud/beep-effect` with severities `critical,high,medium,low,informational`.
 
 ## Queue Summary
 
@@ -9,16 +9,16 @@ Captured from Codex Security on 2026-05-19. This index covers all 64 findings vi
 | needs-current-head-review | 0 |
 | active | 0 |
 | dismissed | 1 |
-| fixed | 63 |
+| fixed | 66 |
 
 ## Severity Summary
 
 | Severity | Count |
 |---|---:|
 | High | 1 |
-| Medium | 20 |
-| Low | 21 |
-| Informational | 22 |
+| Medium | 21 |
+| Low | 22 |
+| Informational | 23 |
 
 ## Findings
 
@@ -88,3 +88,6 @@ Captured from Codex Security on 2026-05-19. This index covers all 64 findings vi
 | CSF-062 | Informational | fixed | Closed | [Custom glob walker now traverses full tree, enabling DoS](./CSF-062-custom-glob-walker-now-traverses-full-tree-enabling-dos.md) | packages/foundation/modeling/utils/src | d70aed0 |
 | CSF-063 | Informational | fixed | Closed | [Markdown-to-HTML schema allows raw script tags by default](./CSF-063-markdown-to-html-schema-allows-raw-script-tags-by-default.md) | packages/common/schema/src | 0cf18c4 |
 | CSF-064 | Informational | fixed | Closed | [IntelliJ shared index auto-consent to external server](./CSF-064-intellij-shared-index-auto-consent-to-external-server.md) | intellij.yaml | a6dd7e3 |
+| CSF-065 | Medium | fixed | New | [Unsanitized catalog text reaches terminal output](./CSF-065-unsanitized-catalog-text-reaches-terminal-output.md) | packages/tooling/tool/cli | cf8d0be |
+| CSF-066 | Low | fixed | New | [Annotation privacy check ignores embedded doctor report](./CSF-066-annotation-privacy-check-ignores-embedded-doctor-report.md) | packages/tooling/library/ai-metrics | 65a4a92 |
+| CSF-067 | Informational | fixed | New | [Path normalization accepts traversal above repo root](./CSF-067-path-normalization-accepts-traversal-above-repo-root.md) | packages/tooling/library/repo-codegraph | 8d4dfb8 |

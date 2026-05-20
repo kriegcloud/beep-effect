@@ -819,5 +819,48 @@
     "verificationNotes": [
       "The auto-consent fields are absent from intellij.yaml after the patch."
     ]
+  },
+  "CSF-065": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-follow-up-branch",
+    "rationale": "The reuse lookup human renderer now strips C0/C1 controls and ANSI/OSC escape sequences from displayed query, warning, catalog, summary, import, source, and boundary text while preserving raw JSON output for machine consumers.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/tool/cli/test/reuse-command.test.ts -t \"terminal control\" --testTimeout=30000",
+    "changedFiles": [
+      "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
+      "packages/tooling/tool/cli/test/reuse-command.test.ts"
+    ],
+    "verificationNotes": [
+      "The focused CLI regression injects OSC-52, ANSI color, and carriage-return controls and verifies human output is stripped."
+    ]
+  },
+  "CSF-066": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-follow-up-branch",
+    "rationale": "The annotation privacy report now scans the emitted JSON-shaped plan payload outside annotations, including embedded doctor path, summary, message, and inventory fields. The secret-shaped matcher was tightened so benign metric names such as provider_model_token_cost are not treated as secrets.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/library/ai-metrics/test/agent-effectiveness.test.ts -t \"forbidden private content|plans sanitized worker annotations\" --testTimeout=30000",
+    "changedFiles": [
+      "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
+      "packages/tooling/library/ai-metrics/test/agent-effectiveness.test.ts"
+    ],
+    "verificationNotes": [
+      "The doctor-payload regression fails a plan containing /home paths in the embedded doctor report.",
+      "The existing safe worker-annotation case still passes."
+    ]
+  },
+  "CSF-067": {
+    "verdict": "fixed",
+    "closeReason": "Already fixed",
+    "remediationStatus": "fixed-in-follow-up-branch",
+    "rationale": "The repo-codegraph caller selector normalizer now tracks traversal above the synthetic repo root and leaves escaped selectors unmatched instead of collapsing them into in-repo package paths.",
+    "verificationCommand": "bunx --bun vitest run packages/tooling/library/repo-codegraph/test/lookup.test.ts",
+    "changedFiles": [
+      "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+      "packages/tooling/library/repo-codegraph/test/lookup.test.ts"
+    ],
+    "verificationNotes": [
+      "The lookup regression verifies ../../packages/... receives an unknown boundary and unmatched-selector warning."
+    ]
   }
 }

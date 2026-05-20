@@ -266,6 +266,23 @@ describe("lookupRepoExports", () => {
     expect(result.matches[0]?.boundary.status).toBe("allowed");
   });
 
+  it("does not normalize caller selectors that traverse above the repo root into in-repo packages", () => {
+    const result = lookupRepoExports(
+      catalog,
+      new RepoCodegraphLookupRequest({
+        fromPackage: O.some("../../packages/foundation/modeling/schema/src/Record.ts"),
+        limit: 8,
+        query: "UnknownRecord",
+      }),
+      { freshnessStatus: "current", importPolicies: [] }
+    );
+
+    expect(result.warnings).toEqual([
+      'Caller package selector "../../packages/foundation/modeling/schema/src/Record.ts" did not match any catalog package.',
+    ]);
+    expect(result.matches[0]?.boundary.status).toBe("unknown");
+  });
+
   it("supports data-last lookup composition", () => {
     const result = pipe(
       catalog,
