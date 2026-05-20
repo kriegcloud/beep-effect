@@ -302,6 +302,27 @@ describe("Docgen operations", () => {
       )
   );
 
+  it(
+    "rejects local docgen JSON output without plan mode",
+    {
+      timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+    },
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            yield* runDocgenCommand(["local", "--json"]);
+
+            expect(yield* TestConsole.logLines).toEqual([]);
+            expect(A.join(yield* TestConsole.errorLines, "\n")).toContain(
+              "--json requires --plan for docgen:local so stdout remains machine-readable."
+            );
+            expect(process.exitCode).toBe(1);
+          })
+        )
+      )
+  );
+
   it("parses current schema flags and classifies a configured package that has not generated docs", () =>
     Effect.runPromise(
       withTempRepo(

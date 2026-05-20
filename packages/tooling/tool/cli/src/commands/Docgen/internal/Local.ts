@@ -367,6 +367,12 @@ const turboArgsForSelectedPackages = (
   "--ui=stream",
 ];
 
+const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
+  );
+
 const runGitLines = Effect.fn("DocgenLocal.runGitLines")(function* (repoRoot: string, args: ReadonlyArray<string>) {
   const output = yield* Effect.scoped(
     Effect.gen(function* () {
@@ -375,10 +381,7 @@ const runGitLines = Effect.fn("DocgenLocal.runGitLines")(function* (repoRoot: st
         stderr: "ignore",
         stdout: "pipe",
       });
-      const text = yield* handle.stdout.pipe(
-        Stream.decodeText(),
-        Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
-      );
+      const text = yield* collectText(handle.stdout);
       const exitCode = yield* handle.exitCode;
       if (exitCode !== 0) {
         return yield* new DomainError({
@@ -542,17 +545,20 @@ const collectStepOutput = Effect.fn("DocgenLocal.collectStepOutput")(function* (
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(command, [...args], {
         cwd,
-        stderr: "ignore",
+        stderr: "pipe",
         stdout: "pipe",
       });
-      const output = yield* handle.stdout.pipe(
-        Stream.decodeText(),
-        Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
+      const [output, errorOutput, exitCode] = yield* Effect.all(
+        [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
+        { concurrency: "unbounded" }
       );
-      const exitCode = yield* handle.exitCode;
       if (exitCode !== 0) {
+        const details = pipe([Str.trim(output), Str.trim(errorOutput)], A.filter(Str.isNonEmpty), A.join("\n"));
         return yield* new DomainError({
-          message: `${label} failed with exit code ${exitCode}: ${Str.trim(output)}`,
+          message:
+            details.length > 0
+              ? `${label} failed with exit code ${exitCode}: ${details}`
+              : `${label} failed with exit code ${exitCode}.`,
         });
       }
       return output;
@@ -897,6 +903,12 @@ export const runDocgenLocal: (
 ) => Effect.Effect<DocgenLocalPlan, DomainError | NoSuchFileError, DocgenLocalEnvironment> = Effect.fn(
   "DocgenLocal.runDocgenLocal"
 )(function* (options) {
+  if (options.json && !options.plan) {
+    return yield* new DomainError({
+      message: "--json requires --plan for docgen:local so stdout remains machine-readable.",
+    });
+  }
+
   const repoRoot = yield* findRepoRoot();
   const plan = yield* buildDocgenLocalPlanWithRepoRoot(options, repoRoot);
 
