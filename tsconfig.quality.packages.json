@@ -205,6 +205,9 @@
       "path": "packages/tooling/library/ai-metrics"
     },
     {
+      "path": "packages/tooling/library/repo-codegraph"
+    },
+    {
       "path": "packages/tooling/library/repo-utils"
     },
     {

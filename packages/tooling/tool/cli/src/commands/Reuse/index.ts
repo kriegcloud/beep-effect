@@ -6,8 +6,19 @@
  */
 
 import {
-  type DomainError,
+  encodeRepoCodegraphLookupResult,
+  lookupRepoExports,
+  type RepoCodegraphCatalogReadError,
+  type RepoCodegraphFreshnessStatus,
+  RepoCodegraphLookupRequest,
+  type RepoCodegraphLookupResult,
+  readRepoCodegraphImportPolicies,
+  readRepoExportsCatalog,
+} from "@beep/repo-codegraph";
+import {
+  DomainError,
   type FsUtils,
+  findRepoRoot,
   jsonStringifyPretty,
   type NoSuchFileError,
   type ReuseAnalysisError,
@@ -23,10 +34,12 @@ import {
   type TSMorphService,
 } from "@beep/repo-utils";
 import { A } from "@beep/utils";
-import { Console, Effect, type FileSystem, Layer, type Path } from "effect";
+import { Console, Effect, type FileSystem, Layer, type Path, pipe } from "effect";
 import * as Bool from "effect/Boolean";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
+import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { type CodexRunnerError, CodexSmokeResult, runCodexSmoke } from "./internal/CodexRunner.js";
 
 const scopeFlag = Flag.string("scope").pipe(
@@ -39,6 +52,23 @@ const queryFlag = Flag.string("query").pipe(
   Flag.withDescription("Optional free-text query used to rank likely reuse matches"),
   Flag.optional
 );
+const lookupQueryFlag = Flag.string("query").pipe(
+  Flag.withDescription("Symbol name or natural-language intent to search in public repo exports")
+);
+const lookupFromFlag = Flag.string("from").pipe(
+  Flag.withDescription("Optional source package name, package path, or repo-relative file path for boundary advice"),
+  Flag.optional
+);
+const lookupLimitFlag = Flag.integer("limit").pipe(
+  Flag.withDescription("Maximum number of lookup matches to return"),
+  Flag.withDefault(8)
+);
+const strictCatalogFlag = Flag.boolean("strict").pipe(
+  Flag.withDescription("Run repo-exports:catalog:check before lookup and fail if the catalog is stale")
+);
+const snippetFlag = Flag.boolean("snippet").pipe(
+  Flag.withDescription("Print import snippets in human-readable output")
+);
 const symbolIdFlag = Flag.string("symbol-id").pipe(
   Flag.withDescription("Optional TSMorph symbol id used to anchor a precise reuse lookup"),
   Flag.optional
@@ -46,6 +76,9 @@ const symbolIdFlag = Flag.string("symbol-id").pipe(
 const candidateIdFlag = Flag.string("candidate-id").pipe(
   Flag.withDescription("Candidate id from `beep reuse inventory --json`")
 );
+const typeOnlyExportKinds = ["interface", "type"] as const;
+
+const isTypeOnlyExportKind = (exportKind: string): boolean => A.contains(typeOnlyExportKinds, exportKind);
 
 const printJson = Effect.fn(function* (value: unknown) {
   const rendered = yield* jsonStringifyPretty(value);
@@ -69,6 +102,7 @@ const printSelectedOutput = <EJson, RJson, EHuman, RHuman>(
 type ReuseProgramError =
   | DomainError
   | NoSuchFileError
+  | RepoCodegraphCatalogReadError
   | ReuseAnalysisError
   | ReuseCandidateNotFoundError
   | S.SchemaError;
@@ -77,12 +111,18 @@ type ReuseProgramDependencies =
   | FileSystem.FileSystem
   | FsUtils
   | Path.Path
+  | ChildProcessSpawner.ChildProcessSpawner
   | ReuseDiscoveryService
   | ReuseInventoryService
   | ReusePartitionPlannerService
   | TSMorphService;
 
-type ReuseRuntimeContext = FileSystem.FileSystem | FsUtils | Path.Path | TSMorphService;
+type ReuseRuntimeContext =
+  | FileSystem.FileSystem
+  | FsUtils
+  | Path.Path
+  | ChildProcessSpawner.ChildProcessSpawner
+  | TSMorphService;
 
 const provideReuseServices = <A>(effect: Effect.Effect<A, ReuseProgramError, ReuseProgramDependencies>) =>
   Effect.scoped(
@@ -117,6 +157,10 @@ const runReuseProgram = <A>(
       NoSuchFileError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`[reuse] missing file while preparing analysis context: ${error.path}`);
+      }),
+      RepoCodegraphCatalogReadError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`[reuse] ${error.operation}: ${error.message}`);
       }),
       SchemaError: Effect.fn(function* (error) {
         process.exitCode = 1;
@@ -221,6 +265,78 @@ const printPacket = Effect.fn(function* (packet: ReusePacket) {
   );
 });
 
+const ensureRepoExportsCatalogFresh = Effect.fn("Reuse.ensureRepoExportsCatalogFresh")(function* (
+  repoRoot: string,
+  strict: boolean
+): Effect.fn.Return<RepoCodegraphFreshnessStatus, DomainError, ChildProcessSpawner.ChildProcessSpawner> {
+  // Strict mode hard-fails stale catalogs, so successful lookup output is only unchecked or current.
+  if (!strict) {
+    return "unchecked";
+  }
+
+  const exitCode = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make("bun", ["run", "repo-exports:catalog:check"], {
+        cwd: repoRoot,
+        stderr: "inherit",
+        stdout: "ignore",
+      });
+      return yield* handle.exitCode;
+    })
+  ).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Failed to run repo-exports:catalog:check: ${cause.message}`,
+        })
+    )
+  );
+
+  if (exitCode !== 0) {
+    return yield* new DomainError({
+      message: `repo-exports:catalog:check failed with exit code ${exitCode}`,
+    });
+  }
+
+  return "current";
+});
+
+const printLookupSummary = Effect.fn(function* (result: RepoCodegraphLookupResult, snippet: boolean) {
+  yield* Console.log(`Query: ${result.query}`);
+  yield* Console.log(
+    `Matches: ${A.length(result.matches)} returned, ${result.totals.matchedEntries} matched, ${result.totals.catalogEntries} catalog entries`
+  );
+  yield* Console.log(`Catalog freshness: ${result.freshnessStatus}`);
+  yield* Effect.forEach(result.warnings, (warning) => Console.log(`Warning: ${warning}`), {
+    concurrency: 1,
+    discard: true,
+  });
+  yield* Effect.forEach(
+    result.matches,
+    Effect.fn(function* (match) {
+      yield* Console.log(`- ${match.symbolName} (${match.exportKind}) :: ${match.packageName}`);
+      yield* Console.log(`  recommended: ${match.recommendedImport.importSpecifier}`);
+      if (snippet) {
+        const importKeyword = isTypeOnlyExportKind(match.exportKind) ? "import type" : "import";
+        yield* Console.log(
+          `  ${importKeyword} { ${match.symbolName} } from "${match.recommendedImport.importSpecifier}";`
+        );
+      }
+      yield* Console.log(`  source: ${match.sourcePath}:${match.sourceLine}`);
+      yield* pipe(
+        match.summary,
+        O.map((summary) => Console.log(`  summary: ${summary}`)),
+        O.getOrElse(() => Effect.void)
+      );
+      yield* Console.log(
+        `  score: ${match.score.total.toFixed(1)} (exact ${match.score.exact.toFixed(1)}, lexical ${match.score.lexical.toFixed(1)}, semantic ${match.score.semantic.toFixed(1)}, graph ${match.score.graph.toFixed(1)}, boundary ${match.score.boundary.toFixed(1)})`
+      );
+      yield* Console.log(`  boundary: ${match.boundary.status} - ${match.boundary.reason}`);
+    }),
+    { concurrency: 1, discard: true }
+  );
+});
+
 const reusePartitionsCommand = Command.make(
   "partitions",
   {
@@ -312,6 +428,45 @@ const reusePacketCommand = Command.make(
     )
 ).pipe(Command.withDescription("Materialize a structured implementation packet for one reuse candidate"));
 
+const reuseLookupCommand = Command.make(
+  "lookup",
+  {
+    query: lookupQueryFlag,
+    from: lookupFromFlag,
+    limit: lookupLimitFlag,
+    strict: strictCatalogFlag,
+    snippet: snippetFlag,
+    json: jsonFlag,
+  },
+  ({ query, from, limit, strict, snippet, json }) =>
+    runReuseProgram(
+      Effect.gen(function* () {
+        const repoRoot = yield* findRepoRoot();
+        const freshnessStatus = yield* ensureRepoExportsCatalogFresh(repoRoot, strict);
+        const catalog = yield* readRepoExportsCatalog(repoRoot);
+        const importPolicies = yield* readRepoCodegraphImportPolicies(repoRoot, catalog);
+        const result = lookupRepoExports(
+          catalog,
+          new RepoCodegraphLookupRequest({
+            fromPackage: from,
+            limit,
+            query,
+          }),
+          {
+            freshnessStatus,
+            importPolicies,
+          }
+        );
+
+        yield* printSelectedOutput(
+          json,
+          encodeRepoCodegraphLookupResult(result).pipe(Effect.flatMap(printEncodedJson)),
+          printLookupSummary(result, snippet)
+        );
+      })
+    )
+).pipe(Command.withDescription("Look up reusable public exports by symbol name or natural-language intent"));
+
 const reuseCodexSmokeCommand = Command.make(
   "codex-smoke",
   {
@@ -348,6 +503,7 @@ const printReuseIndex = Effect.fn(function* () {
   yield* Console.log(
     "- bun run beep reuse find --file packages/tooling/tool/cli/src/commands/Docgen/index.ts --query json --json"
   );
+  yield* Console.log("- bun run beep reuse lookup --query UnknownRecord --from packages/tooling/tool/cli --json");
   yield* Console.log("- bun run beep reuse packet --candidate-id reuse-pattern:schema-json-encode-sync --json");
   yield* Console.log("- bun run beep reuse codex-smoke --json");
 });
@@ -364,6 +520,7 @@ export const reuseCommand = Command.make("reuse", {}, printReuseIndex).pipe(
     reusePartitionsCommand,
     reuseFindCommand,
     reuseInventoryCommand,
+    reuseLookupCommand,
     reusePacketCommand,
     reuseCodexSmokeCommand,
   ])
