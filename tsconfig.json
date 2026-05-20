@@ -575,6 +575,44 @@
       "@beep/repo-codegraph/*": [
         "./packages/tooling/library/repo-codegraph/src/*"
       ],
+      "@beep/konva": ["./packages/drivers/konva/src/index.ts"],
+      "@beep/konva/*": ["./packages/drivers/konva/src/*"],
+      "@beep/canvas": ["./apps/canvas/src/index.ts"],
+      "@beep/canvas/*": ["./apps/canvas/src/*"],
+      "@beep/canvas-client": ["./packages/canvas/client/src/index.ts"],
+      "@beep/canvas-domain": ["./packages/canvas/domain/src/index.ts"],
+      "@beep/canvas-server": ["./packages/canvas/server/src/index.ts"],
+      "@beep/canvas-ui": ["./packages/canvas/ui/src/index.ts"],
+      "@beep/canvas-use-cases": ["./packages/canvas/use-cases/src/index.ts"],
+      "@beep/canvas-domain/aggregates": [
+        "./packages/canvas/domain/src/aggregates/index.ts"
+      ],
+      "@beep/canvas-domain/aggregates/CanvasProject": [
+        "./packages/canvas/domain/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-domain/identity": [
+        "./packages/canvas/domain/src/identity/index.ts"
+      ],
+      "@beep/canvas-domain/identity/Canvas": [
+        "./packages/canvas/domain/src/identity/Canvas.ts"
+      ],
+      "@beep/canvas-server/aggregates/CanvasProject": [
+        "./packages/canvas/server/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-server/layer": ["./packages/canvas/server/src/Layer.ts"],
+      "@beep/canvas-server/test": ["./packages/canvas/server/src/test.ts"],
+      "@beep/canvas-use-cases/aggregates/CanvasProject": [
+        "./packages/canvas/use-cases/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-use-cases/aggregates/CanvasProject/server": [
+        "./packages/canvas/use-cases/src/aggregates/CanvasProject/server.ts"
+      ],
+      "@beep/canvas-use-cases/public": [
+        "./packages/canvas/use-cases/src/public.ts"
+      ],
+      "@beep/canvas-use-cases/server": [
+        "./packages/canvas/use-cases/src/server.ts"
+      ],
       "@beep/installer-domain": ["./packages/installer/domain/src/index.ts"],
       "@beep/installer-domain/aggregates": [
         "./packages/installer/domain/src/aggregates/index.ts"

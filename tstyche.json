@@ -47,13 +47,20 @@
     "packages/architecture-lab/tables/dtslint/**/*.tst.*",
     "packages/architecture-lab/client/dtslint/**/*.tst.*",
     "packages/architecture-lab/ui/dtslint/**/*.tst.*",
+    "packages/canvas/domain/dtslint/**/*.tst.*",
+    "packages/canvas/use-cases/dtslint/**/*.tst.*",
+    "packages/canvas/server/dtslint/**/*.tst.*",
+    "packages/canvas/client/dtslint/**/*.tst.*",
+    "packages/canvas/ui/dtslint/**/*.tst.*",
     "apps/architecture-lab-proof/dtslint/**/*.tst.*",
     "packages/drivers/runpod/dtslint/**/*.tst.*",
     "packages/drivers/onepassword-cli/dtslint/**/*.tst.*",
     "packages/drivers/discord/dtslint/**/*.tst.*",
     "packages/drivers/ai-provider-cli/dtslint/**/*.tst.*",
     "packages/drivers/sanity/dtslint/**/*.tst.*",
-    "packages/drivers/hubspot/dtslint/**/*.tst.*"
+    "packages/drivers/hubspot/dtslint/**/*.tst.*",
+    "packages/drivers/konva/dtslint/**/*.tst.*",
+    "apps/canvas/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }
