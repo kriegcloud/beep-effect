@@ -1,4 +1,5 @@
 arktype
+arizeai
 attw
 biome
 biomejs

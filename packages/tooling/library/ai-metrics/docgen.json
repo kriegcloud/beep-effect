@@ -44,6 +44,8 @@
       "@beep/identity/packages": [
         "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
+      "@beep/phoenix": ["../../../../packages/drivers/phoenix/src/index.ts"],
+      "@beep/phoenix/*": ["../../../../packages/drivers/phoenix/src/*.ts"],
       "@beep/schema": [
         "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],

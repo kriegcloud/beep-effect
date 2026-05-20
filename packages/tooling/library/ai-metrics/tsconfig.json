@@ -12,6 +12,9 @@
       "path": "../../../drivers/duckdb/tsconfig.json"
     },
     {
+      "path": "../../../drivers/phoenix/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/identity/tsconfig.json"
     },
     {

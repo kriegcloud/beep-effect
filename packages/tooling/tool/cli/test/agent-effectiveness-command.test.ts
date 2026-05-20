@@ -1,4 +1,10 @@
-import { AgentEffectivenessAnnotationCheckReport, AgentEffectivenessDoctorReport } from "@beep/repo-ai-metrics";
+import {
+  AgentEffectivenessAnnotationCheckReport,
+  AgentEffectivenessDatasetBundle,
+  AgentEffectivenessDoctorReport,
+  AgentEffectivenessPhoenixSyncResult,
+  AgentEffectivenessPromptBundle,
+} from "@beep/repo-ai-metrics";
 import { agentEffectivenessCommand } from "@beep/repo-cli/commands/AgentEffectiveness/index";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
@@ -12,6 +18,9 @@ const runAgentEffectivenessCommand = Command.runWith(agentEffectivenessCommand, 
 const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 const decodeDoctorReport = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessDoctorReport));
 const decodeAnnotationCheckReport = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationCheckReport));
+const decodeDatasetBundle = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessDatasetBundle));
+const decodePhoenixSyncResult = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessPhoenixSyncResult));
+const decodePromptBundle = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessPromptBundle));
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
@@ -153,6 +162,81 @@ describe("agent-effectiveness command", () => {
           )
         ).toContain("secret-shaped-value");
         expect(process.exitCode).toBe(1);
+      })
+    )
+  );
+
+  it.effect("emits sanitized Phoenix dataset bundle JSON", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        const dataRoot = path.join(tmpDir, "metrics");
+        const workerReportPath = path.join(tmpDir, "worker-eval.json");
+        yield* writeText(workerReportPath, workerReportJson);
+
+        yield* runAgentEffectivenessCommand([
+          "datasets",
+          "bundle",
+          "--data-root",
+          dataRoot,
+          "--worker-eval-report",
+          workerReportPath,
+          "--no-phoenix",
+          "--json",
+        ]);
+
+        const output = yield* lastLoggedLine();
+        const bundle = yield* decodeDatasetBundle(output);
+        expect(bundle.datasets.length).toBe(5);
+        expect(output).not.toContain("draftJsDoc");
+        expect(output).not.toContain("@example");
+        expect(process.exitCode).toBe(0);
+      })
+    )
+  );
+
+  it.effect("emits static Phoenix prompt bundle JSON without doctor inputs", () =>
+    withTempDirectory(() =>
+      Effect.gen(function* () {
+        yield* runAgentEffectivenessCommand(["prompts", "bundle", "--json"]);
+
+        const output = yield* lastLoggedLine();
+        const bundle = yield* decodePromptBundle(output);
+        expect(bundle.prompts.length).toBe(2);
+        expect(bundle.projectName).toBe("beep-agent-effectiveness");
+        expect(process.exitCode).toBe(0);
+      })
+    )
+  );
+
+  it.effect("defaults Phoenix sync to dry-run JSON", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        const dataRoot = path.join(tmpDir, "metrics");
+        const workerReportPath = path.join(tmpDir, "worker-eval.json");
+        yield* writeText(workerReportPath, workerReportJson);
+
+        yield* runAgentEffectivenessCommand([
+          "phoenix",
+          "sync",
+          "--data-root",
+          dataRoot,
+          "--worker-eval-report",
+          workerReportPath,
+          "--no-phoenix",
+          "--json",
+        ]);
+
+        const output = yield* lastLoggedLine();
+        const result = yield* decodePhoenixSyncResult(output);
+        expect(result.status).toBe("passed");
+        expect(result.dryRun).toBe(true);
+        expect(result.datasetCount).toBe(5);
+        expect(result.promptCount).toBe(2);
+        expect(result.experimentCount).toBe(5);
+        expect(result.writtenDatasetIds).toEqual([]);
+        expect(process.exitCode).toBe(0);
       })
     )
   );
