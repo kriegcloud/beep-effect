@@ -30,10 +30,18 @@ const isAcpRequestError = S.is(AcpError.AcpRequestError);
 const ACP_PROTOCOL_QUEUE_CAPACITY = 1_024;
 const ACP_PROTOCOL_DISCONNECT_QUEUE_CAPACITY = 16;
 const ACP_STDIO_CLIENT_ID = 0;
-const singleValueSetIterator = <A>(value: A): SetIterator<A> => {
+type MinimalReadonlySet<T> = Iterable<T> & {
+  readonly entries: () => IterableIterator<[T, T]>;
+  readonly forEach: (callbackfn: (value: T, value2: T, set: ReadonlySet<T>) => void, thisArg?: unknown) => void;
+  readonly has: (value: T) => boolean;
+  readonly keys: () => IterableIterator<T>;
+  readonly size: number;
+  readonly values: () => IterableIterator<T>;
+};
+
+const singleValueSetIterator = <A>(value: A): IterableIterator<A> => {
   let isDone = false;
-  const iterator: SetIterator<A> = {
-    [Symbol.dispose]: () => {},
+  const iterator: IterableIterator<A> = {
     [Symbol.iterator]: () => iterator,
     next: () => {
       if (isDone) {
@@ -51,7 +59,7 @@ const singleValueSetIterator = <A>(value: A): SetIterator<A> => {
   };
   return iterator;
 };
-const ACP_STDIO_CLIENT_IDS: ReadonlySet<number> = {
+const ACP_STDIO_CLIENT_IDS = {
   [Symbol.iterator]: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
   entries: () => singleValueSetIterator<[number, number]>([ACP_STDIO_CLIENT_ID, ACP_STDIO_CLIENT_ID]),
   forEach: (callbackfn, thisArg?: unknown) => {
@@ -61,7 +69,7 @@ const ACP_STDIO_CLIENT_IDS: ReadonlySet<number> = {
   keys: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
   size: 1,
   values: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
-};
+} satisfies MinimalReadonlySet<number> as unknown as ReadonlySet<number>;
 
 /**
  * Structured log event emitted by the ACP protocol adapter.
