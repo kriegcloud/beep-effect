@@ -95,9 +95,9 @@ language and the encoded side is the persistence row shape.
 
 - **Date promoted:** 2026-05-14
 - **Shared product semantics:** A credential input in installer flows is a reference to a 1Password item field, never a plaintext secret.
-- **Current consumers:** `@beep/installer-security-domain`, `@beep/installer-providers-domain`, `@beep/installer-channels-domain`, `@beep/installer-workspace-domain`.
+- **Current consumers:** `@beep/installer-domain`, `@beep/installer-use-cases`, `@beep/installer-server`.
 - **Rejected homes:**
-  - Owning slice - `installer-security` owns validation and resolution behavior, but provider, channel, and workspace contracts also need the same credential-reference meaning without importing the security slice directly.
+  - Owning slice - `installer` owns validation and resolution behavior, but the reference is shared with driver and app contracts without importing installer internals directly.
   - Foundation - this is product security language for the Stack Installer, not a domain-agnostic string primitive.
 - **Surface:** `@beep/shared-domain/values`, `@beep/shared-domain/values/OnePasswordReference`, `Values.OnePasswordReference.OnePasswordReference`.
 - **Runtime limits:** no live Layers.

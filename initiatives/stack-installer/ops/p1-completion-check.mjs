@@ -32,7 +32,7 @@ const allowedFuturePhaseStubs = new Set([
 const forbiddenP2ImplementationPathPatterns = [
   /^apps\/stack-installer\/src\/(?:ai-mode|ai_mode|mcp|runtime|skills?|skill-bundles?|executors?)\//i,
   /^apps\/stack-installer\/src-tauri\/src\/(?:ai-mode|ai_mode|mcp|runtime|skills?|skill-bundles?|executors?)\//i,
-  /^packages\/installer-runtime\//i,
+  /^packages\/installer\/(?:domain|use-cases|server)\/src\/(?:ai-mode|ai_mode|mcp|runtime|skills?|skill-bundles?|executors?)\//i,
   /^packages\/[^/]+\/(?:mcp|ai-mode|ai_mode|runtime|skills?|skill-bundles?|executors?)\//i,
   /^tooling\/.*(?:mcp|ai-mode|ai_mode|skill-bundle|executor)/i,
 ];

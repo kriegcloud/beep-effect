@@ -14,9 +14,9 @@ Implemented P1 behavior:
 - `OnePasswordCli.probeReference` proves a reference can be resolved and
   returns only status plus byte length.
 - `OnePasswordCli.read` returns `Redacted<string>` for downstream live calls.
-- `@beep/installer-security-use-cases` exposes
+- `@beep/installer-use-cases` exposes
   `validateSecretReference` and `readSecretReference`.
-- `@beep/installer-security-server` maps the driver into slice-owned use-case
+- `@beep/installer-server` maps the driver into installer-owned use-case
   contracts.
 
 Safety contract:

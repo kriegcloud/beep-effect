@@ -5,7 +5,7 @@
     "title": "Stack Installer",
     "status": "active-p1d-with-open-p1-windows-proof-debt",
     "created": "2026-05-14",
-    "updated": "2026-05-16",
+    "updated": "2026-05-20",
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
@@ -83,20 +83,20 @@
   "publicContracts": {
     "appPackage": "@beep/stack-installer",
     "appPath": "apps/stack-installer",
-    "installerSlicePackagePattern": "@beep/installer-<category>-<role>",
-    "installerSlicePathPattern": "packages/installer-<category>/<role>",
-    "implementedP1aCategories": [
-      "dependencies",
-      "providers",
-      "channels",
-      "security",
-      "workspace"
+    "installerSlicePackagePattern": "@beep/installer-<role>",
+    "installerSlicePathPattern": "packages/installer/<role>",
+    "implementedP1aConcepts": [
+      "host-dependencies",
+      "provider-accounts",
+      "discord-channel",
+      "secret-references",
+      "stack-manifest"
     ],
-    "futureCategories": [
-      "dependencies",
-      "providers",
+    "futureInstallerConcepts": [
+      "host-dependencies",
+      "provider-accounts",
       "channels",
-      "security",
+      "secret-references",
       "runtime",
       "workspace"
     ],
@@ -163,43 +163,26 @@
         ]
       }
     },
-    "installer-dependencies": {
-      "rolePackagePattern": "packages/installer-dependencies/<role>",
-      "packageNamePattern": "@beep/installer-dependencies-<role>",
-      "owns": ["OS dependencies", "build chains", "package managers", "CLIs"]
-    },
-    "installer-providers": {
-      "rolePackagePattern": "packages/installer-providers/<role>",
-      "packageNamePattern": "@beep/installer-providers-<role>",
-      "owns": ["AI provider auth", "credential modes", "provider validation"]
-    },
-    "installer-channels": {
-      "rolePackagePattern": "packages/installer-channels/<role>",
-      "packageNamePattern": "@beep/installer-channels-<role>",
-      "owns": ["Discord v1", "future channel contracts", "channel validators"]
-    },
-    "installer-security": {
-      "rolePackagePattern": "packages/installer-security/<role>",
-      "packageNamePattern": "@beep/installer-security-<role>",
-      "owns": ["1Password", "SSH agent", "commit signing", "secret bus"]
-    },
-    "installer-runtime": {
-      "rolePackagePattern": "packages/installer-runtime/<role>",
-      "packageNamePattern": "@beep/installer-runtime-<role>",
+    "installer": {
+      "rolePackagePattern": "packages/installer/<role>",
+      "packageNamePattern": "@beep/installer-<role>",
+      "rolePackages": [
+        "@beep/installer-domain",
+        "@beep/installer-use-cases",
+        "@beep/installer-server"
+      ],
       "owns": [
-        "Claude Desktop config",
-        "Codex Desktop config",
+        "OS dependency validation",
+        "AI provider auth validation",
+        "Discord v1 channel validation",
+        "1Password reference validation",
+        "manifest-level workspace intent",
+        "P1 Manual Mode proof workflow"
+      ],
+      "deferredConcepts": [
+        "runtime configuration",
         "MCP wiring",
         "skill and instruction bundle contracts"
-      ]
-    },
-    "installer-workspace": {
-      "rolePackagePattern": "packages/installer-workspace/<role>",
-      "packageNamePattern": "@beep/installer-workspace-<role>",
-      "owns": [
-        "first-session experience",
-        "end-to-end gate",
-        "manifest-level workspace intent"
       ]
     },
     "tooling": {
@@ -311,11 +294,9 @@
         "packages/drivers/onepassword-cli",
         "packages/drivers/ai-provider-cli",
         "packages/drivers/discord",
-        "packages/installer-dependencies",
-        "packages/installer-security",
-        "packages/installer-providers",
-        "packages/installer-channels",
-        "packages/installer-workspace",
+        "packages/installer/domain",
+        "packages/installer/use-cases",
+        "packages/installer/server",
         "output/playwright/stack-installer-p1a/workbench.png",
         "future evidence: macOS screencast",
         "future evidence: Windows screencast",
@@ -392,9 +373,9 @@
     "p1a": [
       "bun install",
       "bun run config-sync",
-      "bunx turbo run check --filter=@beep/shared-domain --filter=@beep/identity --filter=@beep/installer-dependencies-domain --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-security-domain --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-domain --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-domain --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases --filter=@beep/installer-workspace-server --filter=@beep/stack-installer",
-      "bunx turbo run test --filter=@beep/shared-domain --filter=@beep/identity --filter=@beep/installer-dependencies-domain --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-security-domain --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-domain --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-domain --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases --filter=@beep/installer-workspace-server --filter=@beep/stack-installer",
-      "bunx turbo run lint --filter=@beep/shared-domain --filter=@beep/identity --filter=@beep/installer-dependencies-domain --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-security-domain --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-domain --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-domain --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases --filter=@beep/installer-workspace-server --filter=@beep/stack-installer",
+      "bunx turbo run check --filter=@beep/shared-domain --filter=@beep/identity --filter=@beep/installer-domain --filter=@beep/installer-use-cases --filter=@beep/installer-server --filter=@beep/stack-installer",
+      "bunx turbo run test --filter=@beep/shared-domain --filter=@beep/identity --filter=@beep/installer-domain --filter=@beep/installer-use-cases --filter=@beep/installer-server --filter=@beep/stack-installer",
+      "bunx turbo run lint --filter=@beep/shared-domain --filter=@beep/identity --filter=@beep/installer-domain --filter=@beep/installer-use-cases --filter=@beep/installer-server --filter=@beep/stack-installer",
       "bunx tstyche OnePasswordReference --config tstyche.json --tsconfig tsconfig.dtslint.json",
       "bunx tstyche Identity --config tstyche.json --tsconfig tsconfig.dtslint.json",
       "bun run config-sync:check",
@@ -402,7 +383,7 @@
       "Playwright snapshot and screenshot against http://127.0.0.1:4177/"
     ],
     "p1LiveHarness": [
-      "bun run turbo run check test lint --filter=@beep/stack-installer --filter=@beep/onepassword-cli --filter=@beep/discord --filter=@beep/ai-provider-cli --filter=@beep/installer-security-use-cases --filter=@beep/installer-security-server --filter=@beep/installer-providers-use-cases --filter=@beep/installer-providers-server --filter=@beep/installer-channels-use-cases --filter=@beep/installer-channels-server --filter=@beep/installer-dependencies-use-cases --filter=@beep/installer-dependencies-server --filter=@beep/installer-workspace-domain --filter=@beep/installer-workspace-use-cases",
+      "bun run turbo run check test lint --filter=@beep/stack-installer --filter=@beep/onepassword-cli --filter=@beep/discord --filter=@beep/ai-provider-cli --filter=@beep/installer-domain --filter=@beep/installer-use-cases --filter=@beep/installer-server",
       "bun run config-sync:check",
       "cd apps/stack-installer && bun run build",
       "cd apps/stack-installer/src-tauri && cargo check",
@@ -452,13 +433,10 @@
       "bun run docgen",
       "bun run config-sync"
     ],
-    "futureSlicePackagePlaceholders": [
-      "bun run --filter @beep/installer-dependencies-domain check",
-      "bun run --filter @beep/installer-providers-domain check",
-      "bun run --filter @beep/installer-channels-domain check",
-      "bun run --filter @beep/installer-security-domain check",
-      "bun run --filter @beep/installer-runtime-domain check",
-      "bun run --filter @beep/installer-workspace-domain check"
+    "futureInstallerPackagePlaceholders": [
+      "bun run --filter @beep/installer-domain check",
+      "bun run --filter @beep/installer-use-cases check",
+      "bun run --filter @beep/installer-server check"
     ],
     "phaseSpecificPlaceholders": [
       "future: fresh-OS smoke wrapper for macOS",
@@ -490,14 +468,14 @@
     "P0 creates documentation and manifest only",
     "future app package is @beep/stack-installer under apps/stack-installer",
     "UI baseline is @beep/ui from packages/foundation/ui-system/ui",
-    "installer category packages use sibling slice slugs such as installer-dependencies",
-    "verb registry contracts are slice-owned and composed by app/tooling",
+    "installer category packages were retired before v1 in favor of one installer slice with domain/use-cases/server roles",
+    "verb registry contracts are installer-owned and consumed by app/tooling",
     "MCP executor is app-local runtime adapter code under apps/stack-installer",
     "credential parameters are typed 1Password references only",
     "Discord is the only v1 channel",
     "macOS and Windows are v1 parity targets",
-    "P1 live drivers live under packages/drivers and are consumed by slice server packages",
-    "P1 live proof remains app-local runtime composition, not a tooling God Layer"
+    "P1 live drivers live under packages/drivers and are consumed by @beep/installer-server",
+    "P1 live proof workflow is installer-owned; app runtime composition remains app-local"
   ],
   "nextAction": "Keep P1 explicitly open on the missing Windows proof while making P1D the active execution lane. Resume the dedicated P1D branch/worktree from this packet truth, record the successful Linux-first repair-only Bun proof with installer-owned config and visible app-state evidence, then close and publish P1D. After P1D closes, run the real Windows proof intake/audit before starting P2."
 }

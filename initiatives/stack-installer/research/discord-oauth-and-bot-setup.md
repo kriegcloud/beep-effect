@@ -13,10 +13,10 @@ Implemented P1 behavior:
 - `Discord.createMessage` sends the deterministic P1 proof message.
 - Message creation disables broad mentions with `allowed_mentions: { parse:
   [] }`.
-- `@beep/installer-channels-use-cases` exposes
+- `@beep/installer-use-cases` exposes
   `validateDiscordChannel`.
-- `@beep/installer-channels-server` composes the Discord driver into the
-  channel slice.
+- `@beep/installer-server` composes the Discord driver into the installer
+  slice.
 - The sanitized proof includes the Discord channel identity and returned
   message ID when Discord accepts the test message.
 
