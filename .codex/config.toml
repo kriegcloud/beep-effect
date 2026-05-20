@@ -5,8 +5,9 @@
 # linked to that Claude tree.
 
 [mcp_servers.shadcn]
+# Pin the MCP server package instead of executing mutable npx latest.
 command = "npx"
-args = ["shadcn@latest", "mcp"]
+args = ["-y", "shadcn@4.7.0", "mcp"]
 
 [skills]
 include_instructions = true
