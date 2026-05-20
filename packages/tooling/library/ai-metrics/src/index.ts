@@ -6,6 +6,18 @@
  */
 
 /**
+ * Agent-effectiveness doctor and annotation-plan helpers.
+ *
+ * @example
+ * ```ts
+ * import { makeAgentEffectivenessDoctorReport } from "@beep/repo-ai-metrics"
+ * console.log(makeAgentEffectivenessDoctorReport)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./agent-effectiveness.ts";
+/**
  * Encrypted raw archive helpers.
  *
  * @example
