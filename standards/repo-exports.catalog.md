@@ -199,7 +199,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` | Identity composer for the `@beep/professional-runtime-proof` package. |
 | `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:269` | Identity composer for the `@beep/repo-ai-metrics` package. |
 | `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:284` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1367` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1368` | Identity composer for `@beep/repo-codegraph`. |
 | `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:299` | Identity composer for the `@beep/repo-configs` package. |
 | `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:511` | Identity composer for the `@beep/repo-docgen` package. |
 | `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:314` | Identity composer for the `@beep/repo-utils` package. |
@@ -325,7 +325,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` | Identity composer for the `@beep/professional-runtime-proof` package. |
 | `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:269` | Identity composer for the `@beep/repo-ai-metrics` package. |
 | `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:284` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1367` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1368` | Identity composer for `@beep/repo-codegraph`. |
 | `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:299` | Identity composer for the `@beep/repo-configs` package. |
 | `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:511` | Identity composer for the `@beep/repo-docgen` package. |
 | `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:314` | Identity composer for the `@beep/repo-utils` package. |
@@ -431,7 +431,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:668` | Identity composer for the `@beep/professional-runtime-proof` package. |
 | `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:269` | Identity composer for the `@beep/repo-ai-metrics` package. |
 | `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:284` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1367` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1368` | Identity composer for `@beep/repo-codegraph`. |
 | `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:299` | Identity composer for the `@beep/repo-configs` package. |
 | `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:511` | Identity composer for the `@beep/repo-docgen` package. |
 | `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:314` | Identity composer for the `@beep/repo-utils` package. |
@@ -11240,9 +11240,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1295` | Run repo-wide Effect diagnostics for test files. |
 | `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1032` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
 | `@beep/repo-cli/commands/Quality/ScriptCommands` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ScriptCommands.ts:1390` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1302` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1307` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:82` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1196` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1201` | Parse a raw argv vector into a quality task invocation when the first token is |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:226` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:164` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:199` | Error raised when a bounded quality task group completes with failed steps. |
@@ -11250,13 +11250,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:48` | Canonical quality task name. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:65` | Canonical quality task name. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Planned subprocess invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1093` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1240` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1270` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1314` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:927` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:936` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:913` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1098` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1245` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1275` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1319` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:932` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:941` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:918` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:251` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Reuse/index` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/index.ts:479` | Reuse-discovery command group. |
 | `@beep/repo-cli/commands/Reuse/internal/CodexRunner` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts:64` | Structured error emitted when the Codex SDK smoke path fails. |
