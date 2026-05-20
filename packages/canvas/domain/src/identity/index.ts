@@ -1,5 +1,5 @@
 /**
- * Architecture lab identity exports.
+ * Canvas identity exports.
  *
  * @packageDocumentation
  * @category entity-ids

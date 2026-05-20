@@ -1,7 +1,7 @@
 {
   "name": "@beep/canvas-use-cases",
   "version": "0.0.0",
-  "description": "Architecture-lab use-case package for CanvasProject commands, queries, ports, and public action contracts.",
+  "description": "Canvas use-case package for scene commands, repository ports, and public action contracts.",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -36,8 +36,6 @@
     "./server": "./src/server.ts",
     "./aggregates/CanvasProject": "./src/aggregates/CanvasProject/index.ts",
     "./aggregates/CanvasProject/server": "./src/aggregates/CanvasProject/server.ts",
-    "./entities/Worker": "./src/entities/Worker/index.ts",
-    "./entities/Worker/server": "./src/entities/Worker/server.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -58,8 +56,6 @@
       "./server": "./dist/server.js",
       "./aggregates/CanvasProject": "./dist/aggregates/CanvasProject/index.js",
       "./aggregates/CanvasProject/server": "./dist/aggregates/CanvasProject/server.js",
-      "./entities/Worker": "./dist/entities/Worker/index.js",
-      "./entities/Worker/server": "./dist/entities/Worker/server.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }

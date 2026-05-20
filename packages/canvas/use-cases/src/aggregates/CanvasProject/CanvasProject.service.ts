@@ -12,13 +12,12 @@ import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type {
+  AddCanvasNodeCommand,
   ArchiveCanvasProjectCommand,
-  AssignCanvasProjectCommand,
-  CompleteCanvasProjectCommand,
   CreateCanvasProjectCommand,
   GetCanvasProjectQuery,
   ListCanvasProjectsQuery,
-  ReopenCanvasProjectCommand,
+  RemoveCanvasNodeCommand,
 } from "./CanvasProject.commands.js";
 import {
   CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON,
@@ -86,26 +85,20 @@ const mutateStoredCanvasProject = (
  * @since 0.0.0
  */
 export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositoryShape): CanvasProjectUseCasesShape => ({
+  addNode: Effect.fn("Canvas.CanvasProjectUseCases.addNode")(function* (command: AddCanvasNodeCommand) {
+    return yield* mutateStoredCanvasProject(repository, command.id, (canvasProject) =>
+      DomainCanvasProject.addNode(canvasProject, command.node)
+    );
+  }),
+  archive: Effect.fn("Canvas.CanvasProjectUseCases.archive")(function* (command: ArchiveCanvasProjectCommand) {
+    return yield* mutateStoredCanvasProject(repository, command.id, DomainCanvasProject.archive);
+  }),
   create: Effect.fn("Canvas.CanvasProjectUseCases.create")(function* (command: CreateCanvasProjectCommand) {
     return yield* pipe(
       Effect.succeed(DomainCanvasProject.create(new DomainCanvasProject.CreateCanvasProjectInput(command))),
       Effect.flatMap(repository.create),
       Effect.mapError(toCanvasProjectActionError)
     );
-  }),
-  assign: Effect.fn("Canvas.CanvasProjectUseCases.assign")(function* (command: AssignCanvasProjectCommand) {
-    return yield* mutateStoredCanvasProject(repository, command.id, (canvasProject) =>
-      DomainCanvasProject.assign(canvasProject, command.assignee)
-    );
-  }),
-  complete: Effect.fn("Canvas.CanvasProjectUseCases.complete")(function* (command: CompleteCanvasProjectCommand) {
-    return yield* mutateStoredCanvasProject(repository, command.id, DomainCanvasProject.complete);
-  }),
-  reopen: Effect.fn("Canvas.CanvasProjectUseCases.reopen")(function* (command: ReopenCanvasProjectCommand) {
-    return yield* mutateStoredCanvasProject(repository, command.id, DomainCanvasProject.reopen);
-  }),
-  archive: Effect.fn("Canvas.CanvasProjectUseCases.archive")(function* (command: ArchiveCanvasProjectCommand) {
-    return yield* mutateStoredCanvasProject(repository, command.id, DomainCanvasProject.archive);
   }),
   get: Effect.fn("Canvas.CanvasProjectUseCases.get")(function* (query: GetCanvasProjectQuery) {
     return yield* pipe(repository.get(query.id), Effect.mapError(toCanvasProjectActionError));
@@ -123,6 +116,11 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
         )
       ),
       Effect.mapError(toCanvasProjectActionError)
+    );
+  }),
+  removeNode: Effect.fn("Canvas.CanvasProjectUseCases.removeNode")(function* (command: RemoveCanvasNodeCommand) {
+    return yield* mutateStoredCanvasProject(repository, command.id, (canvasProject) =>
+      DomainCanvasProject.removeNode(canvasProject, command.nodeId)
     );
   }),
 });

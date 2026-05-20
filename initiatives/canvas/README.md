@@ -2,7 +2,7 @@
 
 ## Status
 
-**ACTIVE — P0/P1 bootstrap planning**
+**ACTIVE — P0 complete; P1 ready**
 
 ## Owner
 
@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-16
-- **Updated:** 2026-05-16
+- **Updated:** 2026-05-19
 
 ## Purpose
 
@@ -49,8 +49,8 @@ verified, doctrine-safe minimal surface that can be evolved toward the PRD inven
 
 ## Current Plan Phase
 
-- P0: initiative package-level bootstrap and architecture repair
-- P1: slice + Tauri shell bootstrapping in repo
-- P2: contract surfaces and minimal canvas behavior hardening
+- P0: complete — package-level bootstrap and architecture repair
+- P1: ready — slice + Tauri shell bootstrapping in repo
+- P2: blocked behind P1 — contract surfaces and minimal canvas behavior hardening
 
-Until P0 is complete, implementation remains scoped to plan creation and review.
+P1 starts with the minimal `apps/canvas` shell and typed Tauri command bridge.

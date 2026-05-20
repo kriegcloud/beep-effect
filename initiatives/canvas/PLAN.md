@@ -12,7 +12,7 @@ This plan executes [SPEC.md](./SPEC.md) for bootstrap only.
   - existing scaffold is synthetic and inconsistent with architecture conventions
     (missing concept files, stale exports, incomplete role coverage),
   - `apps/canvas` exists but has only placeholder `src/index.ts`.
-- [ ] Capture all architecture corrections in this plan before any implementation.
+- [x] Capture all architecture corrections in this plan before declaring P0 complete.
 
 ## B. Scope Gate: Bootstrap Surface Lock
 
@@ -77,10 +77,10 @@ Goal: make the `canvas` packages internally coherent and schema-first before the
 
 ### C.5 Exit Criteria for P0
 
-- [ ] All `canvas` package exports are present and align with current files.
-- [ ] No imports reference non-existent canvas subpath modules.
-- [ ] All checked contract tests in touched packages pass.
-- [ ] Manifest shows phase status as “P0 complete”.
+- [x] All `canvas` package exports are present and align with current files.
+- [x] No imports reference non-existent canvas subpath modules.
+- [x] All checked contract tests in touched packages pass.
+- [x] Manifest shows phase status as “P0 complete”.
 
 ## D. Phase 1 — App Shell + Bridge
 

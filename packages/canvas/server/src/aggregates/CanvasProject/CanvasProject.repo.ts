@@ -6,20 +6,13 @@
  * @since 0.0.0
  */
 
-import { CanvasProjectConfig } from "@beep/canvas-config/layer";
 import type * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
-import {
-  CANVAS_PROJECT_TABLE_NAME,
-  canvasProjectTable,
-  fromCanvasProjectRow,
-  toCanvasProjectInsert,
-} from "@beep/canvas-tables/aggregates/CanvasProject";
 import * as CanvasProjectUseCaseServer from "@beep/canvas-use-cases/server";
-import { PostgresDrizzle, type PostgresDrizzleDatabase } from "@beep/postgres";
 import { A } from "@beep/utils";
-import { eq } from "drizzle-orm";
-import { Effect, HashMap, pipe, Ref } from "effect";
+import { Effect, HashMap, Ref } from "effect";
 import * as O from "effect/Option";
+
+const CANVAS_PROJECT_STORE_NAME = "canvas_project";
 
 type CanvasProjectStore = HashMap.HashMap<DomainCanvasProject.CanvasProjectId, DomainCanvasProject.CanvasProject>;
 
@@ -43,7 +36,6 @@ const getStoredCanvasProject = Effect.fn("Canvas.CanvasProjectRepository.getStor
  */
 export const makeInMemoryCanvasProjectRepository = Effect.fn("Canvas.CanvasProjectRepository.makeInMemory")(
   function* () {
-    const config = yield* CanvasProjectConfig;
     const store = yield* Ref.make(
       HashMap.empty<DomainCanvasProject.CanvasProjectId, DomainCanvasProject.CanvasProject>()
     );
@@ -54,7 +46,7 @@ export const makeInMemoryCanvasProjectRepository = Effect.fn("Canvas.CanvasProje
         if (O.isSome(HashMap.get(canvasProjects, canvasProject.id))) {
           return yield* new CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryConflict({
             canvasProjectId: canvasProject.id,
-            reason: `${config.serverConfig.repositoryName} already contains ${CANVAS_PROJECT_TABLE_NAME}`,
+            reason: `${CANVAS_PROJECT_STORE_NAME} already contains ${canvasProject.id}`,
           });
         }
         yield* Ref.update(store, (current) => HashMap.set(current, canvasProject.id, canvasProject));
@@ -75,108 +67,6 @@ export const makeInMemoryCanvasProjectRepository = Effect.fn("Canvas.CanvasProje
     });
   }
 );
-
-const repositoryUnavailable =
-  (operation: string) =>
-  <A, E, R>(
-    effect: Effect.Effect<A, E, R>
-  ): Effect.Effect<A, CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryUnavailable, R> =>
-    effect.pipe(
-      Effect.tapError((cause) =>
-        Effect.logDebug("Canvas CanvasProject repository adapter dropped driver failure").pipe(
-          Effect.annotateLogs({ operation, table: CANVAS_PROJECT_TABLE_NAME, cause })
-        )
-      ),
-      Effect.mapError(
-        () =>
-          new CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryUnavailable({
-            reason: `${operation} failed against ${CANVAS_PROJECT_TABLE_NAME}`,
-          })
-      )
-    );
-
-const findDrizzleCanvasProject = Effect.fn("Canvas.CanvasProjectRepository.findDrizzle")(function* (
-  db: PostgresDrizzleDatabase,
-  id: DomainCanvasProject.CanvasProjectId
-) {
-  const rows = yield* db
-    .select()
-    .from(canvasProjectTable)
-    .where(eq(canvasProjectTable.id, id))
-    .limit(1)
-    .pipe(repositoryUnavailable("select CanvasProject"));
-
-  return pipe(rows, A.head, O.map(fromCanvasProjectRow));
-});
-
-const getDrizzleCanvasProject = Effect.fn("Canvas.CanvasProjectRepository.getDrizzle")(function* (
-  db: PostgresDrizzleDatabase,
-  id: DomainCanvasProject.CanvasProjectId
-) {
-  const found = yield* findDrizzleCanvasProject(db, id);
-  if (O.isNone(found)) {
-    return yield* new CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId: id });
-  }
-  return found.value;
-});
-
-/**
- * Build a Drizzle-backed CanvasProject repository used by live persistence tests.
- *
- * @category repositories
- * @since 0.0.0
- */
-export const makeDrizzleCanvasProjectRepository = Effect.fn("Canvas.CanvasProjectRepository.makeDrizzle")(function* () {
-  const db = yield* PostgresDrizzle;
-
-  return CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepository.of({
-    create: Effect.fn("Canvas.CanvasProjectRepository.drizzleCreate")(function* (canvasProject) {
-      const existing = yield* findDrizzleCanvasProject(db, canvasProject.id);
-      if (O.isSome(existing)) {
-        return yield* new CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryConflict({
-          canvasProjectId: canvasProject.id,
-          reason: `${CANVAS_PROJECT_TABLE_NAME} already contains ${canvasProject.id}`,
-        });
-      }
-
-      const rows = yield* db
-        .insert(canvasProjectTable)
-        .values(toCanvasProjectInsert(canvasProject))
-        .returning()
-        .pipe(repositoryUnavailable("insert CanvasProject"));
-
-      return pipe(
-        rows,
-        A.head,
-        O.map(fromCanvasProjectRow),
-        O.getOrElse(() => canvasProject)
-      );
-    }),
-    get: Effect.fn("Canvas.CanvasProjectRepository.drizzleGet")(function* (id) {
-      return yield* getDrizzleCanvasProject(db, id);
-    }),
-    list: Effect.fn("Canvas.CanvasProjectRepository.drizzleList")(function* () {
-      const rows = yield* db.select().from(canvasProjectTable).pipe(repositoryUnavailable("list CanvasProject"));
-      return A.map(rows, fromCanvasProjectRow);
-    }),
-    save: Effect.fn("Canvas.CanvasProjectRepository.drizzleSave")(function* (canvasProject) {
-      yield* getDrizzleCanvasProject(db, canvasProject.id);
-      const rows = yield* db
-        .update(canvasProjectTable)
-        .set(toCanvasProjectInsert(canvasProject))
-        .where(eq(canvasProjectTable.id, canvasProject.id))
-        .returning()
-        .pipe(repositoryUnavailable("update CanvasProject"));
-
-      return pipe(
-        rows,
-        A.head,
-        O.map(fromCanvasProjectRow),
-        O.getOrElse(() => canvasProject)
-      );
-    }),
-  });
-});
 
 /**
  * Build the default CanvasProject repository for normal slice tests.

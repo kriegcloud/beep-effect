@@ -10,13 +10,12 @@ import type * as DomainCanvasProject from "@beep/canvas-domain/aggregates/Canvas
 import { $CanvasUseCasesId } from "@beep/identity/packages";
 import { Context, type Effect } from "effect";
 import type {
+  AddCanvasNodeCommand,
   ArchiveCanvasProjectCommand,
-  AssignCanvasProjectCommand,
-  CompleteCanvasProjectCommand,
   CreateCanvasProjectCommand,
   GetCanvasProjectQuery,
   ListCanvasProjectsQuery,
-  ReopenCanvasProjectCommand,
+  RemoveCanvasNodeCommand,
 } from "./CanvasProject.commands.js";
 import type { CanvasProjectActionError } from "./CanvasProject.errors.js";
 
@@ -29,14 +28,11 @@ const $I = $CanvasUseCasesId.create("aggregates/CanvasProject/CanvasProject.use-
  * @since 0.0.0
  */
 export interface CanvasProjectUseCasesShape {
+  readonly addNode: (
+    command: AddCanvasNodeCommand
+  ) => Effect.Effect<DomainCanvasProject.CanvasProject, CanvasProjectActionError>;
   readonly archive: (
     command: ArchiveCanvasProjectCommand
-  ) => Effect.Effect<DomainCanvasProject.CanvasProject, CanvasProjectActionError>;
-  readonly assign: (
-    command: AssignCanvasProjectCommand
-  ) => Effect.Effect<DomainCanvasProject.CanvasProject, CanvasProjectActionError>;
-  readonly complete: (
-    command: CompleteCanvasProjectCommand
   ) => Effect.Effect<DomainCanvasProject.CanvasProject, CanvasProjectActionError>;
   readonly create: (
     command: CreateCanvasProjectCommand
@@ -47,8 +43,8 @@ export interface CanvasProjectUseCasesShape {
   readonly list: (
     query: ListCanvasProjectsQuery
   ) => Effect.Effect<ReadonlyArray<DomainCanvasProject.CanvasProject>, CanvasProjectActionError>;
-  readonly reopen: (
-    command: ReopenCanvasProjectCommand
+  readonly removeNode: (
+    command: RemoveCanvasNodeCommand
   ) => Effect.Effect<DomainCanvasProject.CanvasProject, CanvasProjectActionError>;
 }
 

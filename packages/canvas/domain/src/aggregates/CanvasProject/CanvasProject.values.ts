@@ -13,67 +13,133 @@ import * as S from "effect/Schema";
 const $I = $CanvasDomainId.create("aggregates/CanvasProject/CanvasProject.values");
 
 /**
- * Architecture lab CanvasProject identity.
+ * CanvasProject identity.
  *
  * @category value-objects
  * @since 0.0.0
  */
 export const CanvasProjectId = S.String.pipe(
-  S.brand("CanvasCanvasProjectId"),
+  S.brand("CanvasProjectId"),
   $I.annoteSchema("CanvasProjectId", {
     identifier: "CanvasProjectId",
     title: "CanvasProject ID",
-    description: "Stable identifier for the canonical canvas CanvasProject aggregate.",
+    description: "Stable identifier for a canvas scene container.",
   })
 );
 
 /**
- * Architecture lab CanvasProject identity type.
+ * CanvasProject identity type.
  *
  * @category value-objects
  * @since 0.0.0
  */
-export type CanvasProjectId = S.Schema.Type<typeof CanvasProjectId>;
+export type CanvasProjectId = typeof CanvasProjectId.Type;
 
 /**
- * Architecture lab CanvasProject title.
+ * CanvasProject title.
  *
  * @category value-objects
  * @since 0.0.0
  */
-export const CanvasProjectTitle = S.String.pipe(
+export const CanvasProjectTitle = S.NonEmptyString.pipe(
   $I.annoteSchema("CanvasProjectTitle", {
     identifier: "CanvasProjectTitle",
     title: "CanvasProject title",
-    description: "Human-readable CanvasProject title.",
+    description: "Human-readable canvas scene title.",
   })
 );
 
 /**
- * Architecture lab CanvasProject title type.
+ * CanvasProject title type.
  *
  * @category value-objects
  * @since 0.0.0
  */
-export type CanvasProjectTitle = S.Schema.Type<typeof CanvasProjectTitle>;
+export type CanvasProjectTitle = typeof CanvasProjectTitle.Type;
 
 /**
- * Architecture lab CanvasProject lifecycle values.
+ * CanvasProject lifecycle values.
  *
  * @category value-objects
  * @since 0.0.0
  */
-export const CanvasProjectStatus = LiteralKit(["open", "assigned", "completed", "archived"] as const).pipe(
+export const CanvasProjectStatus = LiteralKit(["open", "archived"] as const).pipe(
   $I.annoteSchema("CanvasProjectStatus", {
     title: "CanvasProject status",
-    description: "Canonical lifecycle status for the canvas CanvasProject aggregate.",
+    description: "Lifecycle status for the bootstrap canvas scene container.",
   })
 );
 
 /**
- * Architecture lab CanvasProject lifecycle value.
+ * CanvasProject lifecycle value.
  *
  * @category value-objects
  * @since 0.0.0
  */
 export type CanvasProjectStatus = typeof CanvasProjectStatus.Type;
+
+/**
+ * CanvasNode identity.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export const CanvasNodeId = S.String.pipe(
+  S.brand("CanvasNodeId"),
+  $I.annoteSchema("CanvasNodeId", {
+    identifier: "CanvasNodeId",
+    title: "CanvasNode ID",
+    description: "Stable identifier for a lightweight canvas node metadata entry.",
+  })
+);
+
+/**
+ * CanvasNode identity type.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export type CanvasNodeId = typeof CanvasNodeId.Type;
+
+/**
+ * Bootstrap CanvasNode kinds.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export const CanvasNodeKind = LiteralKit(["note", "shape", "asset"] as const).pipe(
+  $I.annoteSchema("CanvasNodeKind", {
+    title: "CanvasNode kind",
+    description: "Small bootstrap node metadata vocabulary for canvas scenes.",
+  })
+);
+
+/**
+ * Bootstrap CanvasNode kind.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export type CanvasNodeKind = typeof CanvasNodeKind.Type;
+
+/**
+ * CanvasNode label.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export const CanvasNodeLabel = S.NonEmptyString.pipe(
+  $I.annoteSchema("CanvasNodeLabel", {
+    identifier: "CanvasNodeLabel",
+    title: "CanvasNode label",
+    description: "Human-readable label for a bootstrap canvas node metadata entry.",
+  })
+);
+
+/**
+ * CanvasNode label type.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export type CanvasNodeLabel = typeof CanvasNodeLabel.Type;

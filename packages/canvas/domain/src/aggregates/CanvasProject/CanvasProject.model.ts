@@ -7,22 +7,47 @@
  */
 
 import { $CanvasDomainId } from "@beep/identity/packages";
-import { Effect } from "effect";
+import { Effect, pipe } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { WorkerId } from "../../entities/Worker/index.js";
-import { defaultWorkPriority, WorkPriority } from "../../values/WorkPriority/index.js";
 import {
+  CanvasNodeAlreadyExists,
+  CanvasNodeNotFound,
   CanvasProjectAlreadyArchived,
-  CanvasProjectAssigneeRequired,
   CanvasProjectInvalidTransition,
 } from "./CanvasProject.errors.js";
-import { CanvasProjectId, CanvasProjectStatus, CanvasProjectTitle } from "./CanvasProject.values.js";
+import {
+  CanvasNodeId,
+  CanvasNodeKind,
+  CanvasNodeLabel,
+  CanvasProjectId,
+  CanvasProjectStatus,
+  CanvasProjectTitle,
+} from "./CanvasProject.values.js";
 
 const $I = $CanvasDomainId.create("aggregates/CanvasProject/CanvasProject.model");
 
 /**
- * Architecture lab CanvasProject aggregate.
+ * Lightweight node metadata stored inside a bootstrap canvas scene.
+ *
+ * @category aggregates
+ * @since 0.0.0
+ */
+export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
+  {
+    id: CanvasNodeId,
+    kind: CanvasNodeKind,
+    label: CanvasNodeLabel,
+  },
+  $I.annote("CanvasNode", {
+    title: "CanvasNode",
+    description: "Non-rendering metadata entry for a bootstrap canvas scene.",
+  })
+) {}
+
+/**
+ * CanvasProject aggregate.
  *
  * @category aggregates
  * @since 0.0.0
@@ -32,12 +57,11 @@ export class CanvasProject extends S.Class<CanvasProject>($I`CanvasProject`)(
     id: CanvasProjectId,
     title: CanvasProjectTitle,
     status: CanvasProjectStatus,
-    assignee: S.OptionFromOptionalKey(WorkerId),
-    priority: S.OptionFromOptionalKey(WorkPriority),
+    nodes: S.Array(CanvasNode),
   },
   $I.annote("CanvasProject", {
     title: "CanvasProject",
-    description: "Canonical canvas aggregate used to prove slice topology.",
+    description: "Scene container aggregate for the bootstrap canvas slice.",
   })
 ) {}
 
@@ -51,13 +75,15 @@ export class CreateCanvasProjectInput extends S.Class<CreateCanvasProjectInput>(
   {
     id: CanvasProjectId,
     title: CanvasProjectTitle,
-    priority: S.OptionFromOptionalKey(WorkPriority).pipe(
-      S.withConstructorDefault(Effect.succeed(O.none<WorkPriority>()))
+    nodes: CanvasNode.pipe(
+      S.Array,
+      S.OptionFromOptionalKey,
+      S.withConstructorDefault(Effect.succeed(O.none<ReadonlyArray<CanvasNode>>()))
     ),
   },
   $I.annote("CreateCanvasProjectInput", {
     title: "Create CanvasProject input",
-    description: "Input required to create an open canvas CanvasProject.",
+    description: "Input required to create an open canvas scene container.",
   })
 ) {}
 
@@ -72,8 +98,7 @@ export const create = (input: CreateCanvasProjectInput): CanvasProject =>
     id: input.id,
     title: input.title,
     status: "open",
-    assignee: O.none(),
-    priority: O.some(O.getOrElse(input.priority, () => defaultWorkPriority)),
+    nodes: O.getOrElse(input.nodes, () => []),
   });
 
 const requireMutable = (canvasProject: CanvasProject): Effect.Effect<void, CanvasProjectAlreadyArchived> =>
@@ -81,74 +106,55 @@ const requireMutable = (canvasProject: CanvasProject): Effect.Effect<void, Canva
     ? Effect.fail(new CanvasProjectAlreadyArchived({ canvasProjectId: canvasProject.id }))
     : Effect.void;
 
+const findNode = (canvasProject: CanvasProject, canvasNodeId: CanvasNodeId): O.Option<CanvasNode> =>
+  pipe(
+    canvasProject.nodes,
+    A.findFirst((node) => node.id === canvasNodeId)
+  );
+
 /**
- * Assign an open CanvasProject to a concrete assignee.
+ * Add lightweight node metadata to an open CanvasProject.
  *
  * @category aggregates
  * @since 0.0.0
  */
-export const assign = Effect.fn("CanvasProject.assign")(function* (canvasProject: CanvasProject, assignee: WorkerId) {
+export const addNode = Effect.fn("CanvasProject.addNode")(function* (
+  canvasProject: CanvasProject,
+  canvasNode: CanvasNode
+) {
   yield* requireMutable(canvasProject);
-  if (assignee <= 0) {
-    return yield* new CanvasProjectAssigneeRequired({ canvasProjectId: canvasProject.id });
-  }
-  if (canvasProject.status !== "open" && canvasProject.status !== "assigned") {
-    return yield* CanvasProjectInvalidTransition.fromStatus({
+  if (O.isSome(findNode(canvasProject, canvasNode.id))) {
+    return yield* new CanvasNodeAlreadyExists({
       canvasProjectId: canvasProject.id,
-      from: canvasProject.status,
-      to: "assigned",
+      canvasNodeId: canvasNode.id,
     });
   }
   return new CanvasProject({
     ...canvasProject,
-    status: "assigned",
-    assignee: O.some(assignee),
+    nodes: A.append(canvasProject.nodes, canvasNode),
   });
 });
 
 /**
- * Complete an open or assigned CanvasProject.
+ * Remove lightweight node metadata from an open CanvasProject.
  *
  * @category aggregates
  * @since 0.0.0
  */
-export const complete = Effect.fn("CanvasProject.complete")(function* (canvasProject: CanvasProject) {
+export const removeNode = Effect.fn("CanvasProject.removeNode")(function* (
+  canvasProject: CanvasProject,
+  canvasNodeId: CanvasNodeId
+) {
   yield* requireMutable(canvasProject);
-  if (canvasProject.status === "completed") {
-    return canvasProject;
-  }
-  if (canvasProject.status !== "open" && canvasProject.status !== "assigned") {
-    return yield* CanvasProjectInvalidTransition.fromStatus({
+  if (O.isNone(findNode(canvasProject, canvasNodeId))) {
+    return yield* new CanvasNodeNotFound({
       canvasProjectId: canvasProject.id,
-      from: canvasProject.status,
-      to: "completed",
+      canvasNodeId,
     });
   }
   return new CanvasProject({
     ...canvasProject,
-    status: "completed",
-  });
-});
-
-/**
- * Reopen a completed CanvasProject.
- *
- * @category aggregates
- * @since 0.0.0
- */
-export const reopen = Effect.fn("CanvasProject.reopen")(function* (canvasProject: CanvasProject) {
-  yield* requireMutable(canvasProject);
-  if (canvasProject.status !== "completed") {
-    return yield* CanvasProjectInvalidTransition.fromStatus({
-      canvasProjectId: canvasProject.id,
-      from: canvasProject.status,
-      to: "open",
-    });
-  }
-  return new CanvasProject({
-    ...canvasProject,
-    status: "open",
-    assignee: O.none(),
+    nodes: A.filter(canvasProject.nodes, (node) => node.id !== canvasNodeId),
   });
 });
 
@@ -163,5 +169,25 @@ export const archive = Effect.fn("CanvasProject.archive")(function* (canvasProje
   return new CanvasProject({
     ...canvasProject,
     status: "archived",
+  });
+});
+
+/**
+ * Reopen an archived CanvasProject.
+ *
+ * @category aggregates
+ * @since 0.0.0
+ */
+export const reopen = Effect.fn("CanvasProject.reopen")(function* (canvasProject: CanvasProject) {
+  if (canvasProject.status !== "archived") {
+    return yield* CanvasProjectInvalidTransition.fromStatus({
+      canvasProjectId: canvasProject.id,
+      from: canvasProject.status,
+      to: "open",
+    });
+  }
+  return new CanvasProject({
+    ...canvasProject,
+    status: "open",
   });
 });

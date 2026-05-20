@@ -1,7 +1,7 @@
 {
   "name": "@beep/canvas-ui",
   "version": "0.0.0",
-  "description": "canvas UI package.",
+  "description": "Canvas UI package.",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -32,7 +32,6 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./aggregates/*": "./src/aggregates/*/index.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -49,13 +48,11 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.js",
-      "./aggregates/*": "./dist/aggregates/*/index.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
-    "@beep/canvas-config": "workspace:^",
     "@beep/canvas-domain": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",

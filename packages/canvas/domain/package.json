@@ -1,7 +1,7 @@
 {
   "name": "@beep/canvas-domain",
   "version": "0.0.0",
-  "description": "Architecture-lab domain package for the synthetic CanvasProject aggregate.",
+  "description": "Canvas domain package for the bootstrap scene container aggregate.",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -34,14 +34,10 @@
     ".": "./src/index.ts",
     "./aggregates": "./src/aggregates/index.ts",
     "./aggregates/CanvasProject": "./src/aggregates/CanvasProject/index.ts",
-    "./entities": "./src/entities/index.ts",
-    "./entities/Worker": "./src/entities/Worker/index.ts",
     "./identity": "./src/identity/index.ts",
     "./identity/Canvas": "./src/identity/Canvas.ts",
     "./internal/*": null,
-    "./package.json": "./package.json",
-    "./values": "./src/values/index.ts",
-    "./values/WorkPriority": "./src/values/WorkPriority/index.ts"
+    "./package.json": "./package.json"
   },
   "files": [
     "src/**/*.ts",
@@ -58,14 +54,10 @@
       ".": "./dist/index.ts",
       "./aggregates": "./dist/aggregates/index.js",
       "./aggregates/CanvasProject": "./dist/aggregates/CanvasProject/index.js",
-      "./entities": "./dist/entities/index.js",
-      "./entities/Worker": "./dist/entities/Worker/index.js",
       "./identity": "./dist/identity/index.js",
       "./identity/Canvas": "./dist/identity/Canvas.js",
       "./internal/*": null,
-      "./package.json": "./package.json",
-      "./values": "./dist/values/index.js",
-      "./values/WorkPriority": "./dist/values/WorkPriority/index.js"
+      "./package.json": "./package.json"
     }
   },
   "dependencies": {

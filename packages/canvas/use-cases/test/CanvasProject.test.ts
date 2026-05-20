@@ -6,6 +6,7 @@ import { Effect } from "effect";
 import * as S from "effect/Schema";
 
 const decodeCanvasProjectId = S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId);
+const decodeCanvasNodeId = S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeId);
 
 const makeRepository = (
   canvasProjectId: DomainCanvasProject.CanvasProjectId
@@ -44,25 +45,25 @@ describe("CanvasProject use-cases", () => {
         create: () =>
           Effect.fail(
             new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
-              reason: "insert CanvasProject failed against canvas_canvas_project",
+              reason: "insert CanvasProject failed against canvas_project",
             })
           ),
         get: () =>
           Effect.fail(
             new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
-              reason: "select CanvasProject failed against canvas_canvas_project",
+              reason: "select CanvasProject failed against canvas_project",
             })
           ),
         list: () =>
           Effect.fail(
             new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
-              reason: "list CanvasProject failed against canvas_canvas_project",
+              reason: "list CanvasProject failed against canvas_project",
             })
           ),
         save: () =>
           Effect.fail(
             new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryUnavailable({
-              reason: "update CanvasProject failed against canvas_canvas_project",
+              reason: "update CanvasProject failed against canvas_project",
             })
           ),
       });
@@ -98,14 +99,24 @@ describe("CanvasProject use-cases", () => {
     })
   );
 
-  it.effect("keeps archive terminal at the use-case boundary", () =>
+  it.effect("keeps archived projects terminal at the use-case boundary", () =>
     Effect.gen(function* () {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
+      const canvasNodeId = yield* decodeCanvasNodeId("node-1");
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(makeRepository(canvasProjectId));
       yield* useCases.archive(new CanvasProject.ArchiveCanvasProjectCommand({ id: canvasProjectId }));
 
       const error = yield* useCases
-        .reopen(new CanvasProject.ReopenCanvasProjectCommand({ id: canvasProjectId }))
+        .addNode(
+          new CanvasProject.AddCanvasNodeCommand({
+            id: canvasProjectId,
+            node: new DomainCanvasProject.CanvasNode({
+              id: canvasNodeId,
+              kind: "note",
+              label: "Archived node",
+            }),
+          })
+        )
         .pipe(Effect.flip);
       expect(error._tag).toBe("CanvasProjectActionRejected");
     })

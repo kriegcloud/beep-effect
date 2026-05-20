@@ -1,7 +1,7 @@
 {
   "name": "@beep/canvas-client",
   "version": "0.0.0",
-  "description": "canvas client adapter package.",
+  "description": "Canvas client adapter package.",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -32,7 +32,6 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./aggregates/*": "./src/aggregates/*/index.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -49,7 +48,6 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.js",
-      "./aggregates/*": "./dist/aggregates/*/index.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }

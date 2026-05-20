@@ -29,14 +29,7 @@ export const VERSION = "0.0.0" as const;
  */
 export * as CanvasProject from "./aggregates/CanvasProject/index.js";
 /**
- * Direct Worker server namespace export.
- *
- * @category handlers
- * @since 0.0.0
- */
-export * as Worker from "./entities/Worker/index.js";
-/**
- * Architecture lab server layer export.
+ * Canvas server layer export.
  *
  * @category layers
  * @since 0.0.0

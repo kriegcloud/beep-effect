@@ -36,23 +36,11 @@
       "@beep/canvas-domain/aggregates/CanvasProject": [
         "../../../packages/canvas/domain/src/aggregates/CanvasProject/index.ts"
       ],
-      "@beep/canvas-domain/entities": [
-        "../../../packages/canvas/domain/src/entities/index.ts"
-      ],
-      "@beep/canvas-domain/entities/Worker": [
-        "../../../packages/canvas/domain/src/entities/Worker/index.ts"
-      ],
       "@beep/canvas-domain/identity": [
         "../../../packages/canvas/domain/src/identity/index.ts"
       ],
       "@beep/canvas-domain/identity/Canvas": [
         "../../../packages/canvas/domain/src/identity/Canvas.ts"
-      ],
-      "@beep/canvas-domain/values": [
-        "../../../packages/canvas/domain/src/values/index.ts"
-      ],
-      "@beep/canvas-domain/values/WorkPriority": [
-        "../../../packages/canvas/domain/src/values/WorkPriority/index.ts"
       ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"

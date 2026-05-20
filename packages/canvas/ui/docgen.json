@@ -1,5 +1,67 @@
 {
   "$schema": "../../../packages/tooling/tool/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/canvas/ui/src/"
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/canvas/ui/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/canvas-ui": ["../../../packages/canvas/ui/src/index.ts"],
+      "@beep/canvas-domain": ["../../../packages/canvas/domain/src/index.ts"],
+      "@beep/canvas-domain/aggregates": [
+        "../../../packages/canvas/domain/src/aggregates/index.ts"
+      ],
+      "@beep/canvas-domain/aggregates/CanvasProject": [
+        "../../../packages/canvas/domain/src/aggregates/CanvasProject/index.ts"
+      ],
+      "@beep/canvas-domain/identity": [
+        "../../../packages/canvas/domain/src/identity/index.ts"
+      ],
+      "@beep/canvas-domain/identity/Canvas": [
+        "../../../packages/canvas/domain/src/identity/Canvas.ts"
+      ],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/foundation/modeling/schema/src/*.ts"
+      ],
+      "@beep/utils": [
+        "../../../packages/foundation/modeling/utils/src/index.ts"
+      ],
+      "@beep/utils/*": ["../../../packages/foundation/modeling/utils/src/*.ts"]
+    }
+  }
 }

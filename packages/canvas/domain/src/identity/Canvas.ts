@@ -1,5 +1,5 @@
 /**
- * Architecture lab slice-local entity identifiers.
+ * Canvas slice-local entity identifiers.
  *
  * @packageDocumentation
  * @category entity-ids
@@ -13,19 +13,19 @@ const $I = $CanvasDomainId.create("identity/Canvas");
 const make = EntityId.factory("canvas", $I);
 
 /**
- * Architecture lab Worker entity identifier.
+ * Canvas operator entity identifier.
  *
  * @category entity-ids
  * @since 0.0.0
  */
-export const WorkerId = make("worker", {
-  description: "Identifier for an canvas Worker entity.",
+export const CanvasOperatorId = make("operator", {
+  description: "Identifier for a canvas operator in local proof metadata.",
 });
 
 /**
- * Runtime type for {@link WorkerId}.
+ * Runtime type for {@link CanvasOperatorId}.
  *
  * @category entity-ids
  * @since 0.0.0
  */
-export type WorkerId = typeof WorkerId.Type;
+export type CanvasOperatorId = typeof CanvasOperatorId.Type;

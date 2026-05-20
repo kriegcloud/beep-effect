@@ -3,27 +3,32 @@ import { CanvasProjectServer, makeCanvasProjectHttpHandlers } from "@beep/canvas
 import { CanvasServerTest } from "@beep/canvas-server/test";
 import { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Option as O } from "effect";
+import { Effect, Layer } from "effect";
 import * as S from "effect/Schema";
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const decodeCanvasProjectId = S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId);
+const decodeCanvasNodeId = S.decodeUnknownEffect(DomainCanvasProject.CanvasNodeId);
 
 describe("CanvasProject server", () => {
   it.effect("redacts unavailable details from HTTP failure bodies", () =>
     Effect.gen(function* () {
       const id = yield* decodeCanvasProjectId("canvas-project-1");
       const unavailable = new CanvasProjectUseCases.CanvasProjectActionFailed({
-        reason: "select CanvasProject failed against canvas_canvas_project",
+        reason: "select CanvasProject failed against canvas_project",
       });
       const failUnavailable = () => Effect.fail(unavailable);
       const handlers = makeCanvasProjectHttpHandlers({
+        addNode: failUnavailable,
         archive: failUnavailable,
-        assign: failUnavailable,
-        complete: failUnavailable,
         create: failUnavailable,
         get: failUnavailable,
         list: failUnavailable,
-        reopen: failUnavailable,
+        removeNode: failUnavailable,
       });
 
       const response = yield* handlers.get(new CanvasProjectUseCases.GetCanvasProjectQuery({ id }));
@@ -32,7 +37,7 @@ describe("CanvasProject server", () => {
       expect(response.status).toBe(503);
       expect(body._tag).toBe("CanvasProjectActionFailed");
       expect(body.reason).toBe(CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON);
-      expect(body.reason).not.toContain("canvas_canvas_project");
+      expect(body.reason).not.toContain("canvas_project");
     })
   );
 
@@ -40,15 +45,26 @@ describe("CanvasProject server", () => {
     Effect.gen(function* () {
       const server = yield* CanvasProjectServer;
       const id = yield* decodeCanvasProjectId("canvas-project-1");
+      const nodeId = yield* decodeCanvasNodeId("node-1");
       const canvasProject = yield* server.create(
         new CanvasProjectUseCases.CreateCanvasProjectCommand({
           id,
           title: "Document topology",
         })
       );
+      const withNode = yield* server.addNode(
+        new CanvasProjectUseCases.AddCanvasNodeCommand({
+          id: canvasProject.id,
+          node: new DomainCanvasProject.CanvasNode({
+            id: nodeId,
+            kind: "note",
+            label: "Opening note",
+          }),
+        })
+      );
 
       expect(canvasProject.status).toBe("open");
-      expect(O.isNone(canvasProject.assignee)).toBe(true);
-    }).pipe(Effect.provide(CanvasServerTest))
+      expect(withNode.nodes).toHaveLength(1);
+    }).pipe(provideScopedLayer(CanvasServerTest))
   );
 });

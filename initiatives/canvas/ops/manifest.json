@@ -3,25 +3,25 @@
   "initiative": {
     "id": "canvas",
     "title": "@beep/canvas",
-    "status": "active-p0",
+    "status": "active-p1",
     "created": "2026-05-16",
-    "updated": "2026-05-16",
+    "updated": "2026-05-19",
     "packetAnchorDocument": "SPEC.md"
   },
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P0",
+  "currentTargetPhase": "P1",
   "reportDirectory": "research",
   "rawOutputDirectory": "history/outputs",
   "completionEvidence": {
     "p0": {
-      "status": "in_progress",
+      "status": "completed",
       "output": "initiatives/canvas/PLAN.md",
-      "summary": "Initiative packet exists and bootstrap scope is bounded against PRD and standards."
+      "summary": "Canvas package roles, exports, aliases, in-memory server repository, protocol handlers, and focused contract tests are coherent with the P0 scaffold scope."
     },
     "p1": {
-      "status": "blocked",
+      "status": "pending",
       "output": "apps/canvas shell not yet implemented",
-      "summary": "Waiting on P0 package-path and boundary repair."
+      "summary": "Ready to implement the minimal Tauri shell and typed command bridge."
     },
     "p2": {
       "status": "blocked",
@@ -64,7 +64,7 @@
     {
       "id": "P0",
       "name": "Boundary-aligned scaffold cleanup",
-      "status": "in_progress",
+      "status": "completed",
       "output": "initiatives/canvas/PLAN.md",
       "exitCriteriaSummary": "Packages and exports are coherent with architecture laws and existing files."
     },
@@ -78,7 +78,7 @@
     {
       "id": "P2",
       "name": "End-to-end contract proof",
-      "status": "pending",
+      "status": "blocked",
       "output": "history/outputs/p1-protocol-proof.md",
       "exitCriteriaSummary": "Roundtrip create/list/get/save/load works through boundary translations."
     }
@@ -101,5 +101,5 @@
       "boundary translation tests for at least one domain error and one repository error"
     ]
   },
-  "nextAction": "Complete P0 package contract repairs first, then implement minimal Tauri shell + command bridge in `apps/canvas`."
+  "nextAction": "Implement the minimal Tauri shell + command bridge in `apps/canvas` for P1."
 }

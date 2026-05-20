@@ -44,12 +44,6 @@
       "@beep/canvas-use-cases/aggregates/CanvasProject/server": [
         "../../../packages/canvas/use-cases/src/aggregates/CanvasProject/server.ts"
       ],
-      "@beep/canvas-use-cases/entities/Worker": [
-        "../../../packages/canvas/use-cases/src/entities/Worker/index.ts"
-      ],
-      "@beep/canvas-use-cases/entities/Worker/server": [
-        "../../../packages/canvas/use-cases/src/entities/Worker/server.ts"
-      ],
       "@beep/canvas-domain": ["../../../packages/canvas/domain/src/index.ts"],
       "@beep/canvas-domain/aggregates": [
         "../../../packages/canvas/domain/src/aggregates/index.ts"
@@ -57,23 +51,11 @@
       "@beep/canvas-domain/aggregates/CanvasProject": [
         "../../../packages/canvas/domain/src/aggregates/CanvasProject/index.ts"
       ],
-      "@beep/canvas-domain/entities": [
-        "../../../packages/canvas/domain/src/entities/index.ts"
-      ],
-      "@beep/canvas-domain/entities/Worker": [
-        "../../../packages/canvas/domain/src/entities/Worker/index.ts"
-      ],
       "@beep/canvas-domain/identity": [
         "../../../packages/canvas/domain/src/identity/index.ts"
       ],
       "@beep/canvas-domain/identity/Canvas": [
         "../../../packages/canvas/domain/src/identity/Canvas.ts"
-      ],
-      "@beep/canvas-domain/values": [
-        "../../../packages/canvas/domain/src/values/index.ts"
-      ],
-      "@beep/canvas-domain/values/WorkPriority": [
-        "../../../packages/canvas/domain/src/values/WorkPriority/index.ts"
       ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"

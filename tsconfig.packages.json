@@ -61,6 +61,21 @@
       "path": "packages/architecture-lab/use-cases"
     },
     {
+      "path": "packages/canvas/client"
+    },
+    {
+      "path": "packages/canvas/domain"
+    },
+    {
+      "path": "packages/canvas/server"
+    },
+    {
+      "path": "packages/canvas/ui"
+    },
+    {
+      "path": "packages/canvas/use-cases"
+    },
+    {
       "path": "packages/drivers/acp"
     },
     {

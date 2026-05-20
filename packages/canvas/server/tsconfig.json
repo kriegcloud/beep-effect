@@ -9,19 +9,10 @@
   },
   "references": [
     {
-      "path": "../config/tsconfig.json"
-    },
-    {
       "path": "../domain/tsconfig.json"
     },
     {
-      "path": "../tables/tsconfig.json"
-    },
-    {
       "path": "../use-cases/tsconfig.json"
-    },
-    {
-      "path": "../../drivers/postgres/tsconfig.json"
     },
     {
       "path": "../../foundation/modeling/identity/tsconfig.json"

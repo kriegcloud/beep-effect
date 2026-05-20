@@ -10,7 +10,7 @@ import { $CanvasDomainId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
 
-import { CanvasProjectId, CanvasProjectStatus } from "./CanvasProject.values.js";
+import { CanvasNodeId, CanvasProjectId, CanvasProjectStatus } from "./CanvasProject.values.js";
 
 const $I = $CanvasDomainId.create("aggregates/CanvasProject/CanvasProject.errors");
 
@@ -73,21 +73,38 @@ export class CanvasProjectInvalidTransition extends TaggedErrorClass<CanvasProje
 }
 
 /**
- * Failure raised when an assignment command omits a valid assignee.
+ * Failure raised when a CanvasNode id is already present in a CanvasProject.
  *
  * @category errors
  * @since 0.0.0
  */
-export class CanvasProjectAssigneeRequired extends TaggedErrorClass<CanvasProjectAssigneeRequired>(
-  $I`CanvasProjectAssigneeRequired`
-)(
-  "CanvasProjectAssigneeRequired",
+export class CanvasNodeAlreadyExists extends TaggedErrorClass<CanvasNodeAlreadyExists>($I`CanvasNodeAlreadyExists`)(
+  "CanvasNodeAlreadyExists",
   {
     canvasProjectId: CanvasProjectId,
+    canvasNodeId: CanvasNodeId,
   },
-  $I.annote("CanvasProjectAssigneeRequired", {
-    title: "CanvasProject assignee required",
-    description: "Assigning a CanvasProject requires a valid Worker identity.",
+  $I.annote("CanvasNodeAlreadyExists", {
+    title: "CanvasNode already exists",
+    description: "A CanvasProject already contains the requested CanvasNode id.",
+  })
+) {}
+
+/**
+ * Failure raised when a CanvasNode id is absent from a CanvasProject.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class CanvasNodeNotFound extends TaggedErrorClass<CanvasNodeNotFound>($I`CanvasNodeNotFound`)(
+  "CanvasNodeNotFound",
+  {
+    canvasProjectId: CanvasProjectId,
+    canvasNodeId: CanvasNodeId,
+  },
+  $I.annote("CanvasNodeNotFound", {
+    title: "CanvasNode not found",
+    description: "A CanvasProject does not contain the requested CanvasNode id.",
   })
 ) {}
 
@@ -100,7 +117,8 @@ export class CanvasProjectAssigneeRequired extends TaggedErrorClass<CanvasProjec
 export type CanvasProjectDomainError =
   | CanvasProjectAlreadyArchived
   | CanvasProjectInvalidTransition
-  | CanvasProjectAssigneeRequired;
+  | CanvasNodeAlreadyExists
+  | CanvasNodeNotFound;
 
 /**
  * CanvasProject aggregate domain failure schema.
@@ -111,5 +129,6 @@ export type CanvasProjectDomainError =
 export const CanvasProjectDomainError = S.Union([
   CanvasProjectAlreadyArchived,
   CanvasProjectInvalidTransition,
-  CanvasProjectAssigneeRequired,
+  CanvasNodeAlreadyExists,
+  CanvasNodeNotFound,
 ]);
