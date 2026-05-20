@@ -22,6 +22,14 @@ const $I = $CanvasUseCasesId.create("aggregates/CanvasProject/CanvasProject.erro
 export const CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON = "CanvasProject service is unavailable." as const;
 
 /**
+ * Generic public reason used when internal CanvasProject conflict details are redacted.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const CANVAS_PROJECT_CONFLICT_REASON = "CanvasProject already exists." as const;
+
+/**
  * Public failure raised when a requested CanvasProject is absent.
  *
  * @category errors

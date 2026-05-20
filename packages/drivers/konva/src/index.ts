@@ -1,5 +1,5 @@
 /**
- * @beep/konva
+ * Package entry point for `@beep/konva`.
  *
  * @since 0.0.0
  */

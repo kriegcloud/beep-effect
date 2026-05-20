@@ -123,19 +123,21 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
       const result = yield* forwarder.forward(makeServerRequest("/mcp")).pipe(
         Effect.provideService(
           HttpClient.HttpClient,
-          makeWebHandlerClient(async () => {
+          makeWebHandlerClient(() => {
             const body = new ReadableStream<Uint8Array>({
               start: (controller) => {
                 controller.enqueue(new TextEncoder().encode("event: message\ndata: {}\n\n"));
               },
             });
 
-            return new Response(body, {
-              status: 200,
-              headers: {
-                "content-type": "text/event-stream",
-              },
-            });
+            return Promise.resolve(
+              new Response(body, {
+                status: 200,
+                headers: {
+                  "content-type": "text/event-stream",
+                },
+              })
+            );
           })
         ),
         Effect.timeoutOption(Duration.millis(250))

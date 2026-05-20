@@ -8,7 +8,7 @@
 
 import * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 import { A } from "@beep/utils";
-import { Effect, pipe } from "effect";
+import { Effect, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type {
@@ -21,6 +21,7 @@ import type {
 } from "./CanvasProject.commands.js";
 import {
   CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON,
+  CANVAS_PROJECT_CONFLICT_REASON,
   type CanvasProjectActionError,
   CanvasProjectActionFailed,
   CanvasProjectActionRejected,
@@ -48,21 +49,29 @@ const isRepositoryUnavailable = S.is(CanvasProjectRepositoryUnavailable);
  */
 export const toCanvasProjectActionError = (
   error: CanvasProjectRepositoryError | DomainCanvasProject.CanvasProjectDomainError
-): CanvasProjectActionError => {
-  if (isRepositoryNotFound(error)) {
-    return new CanvasProjectNotFound({ canvasProjectId: error.canvasProjectId });
-  }
-  if (isRepositoryConflict(error)) {
-    return new CanvasProjectConflict({ canvasProjectId: error.canvasProjectId, reason: error.reason });
-  }
-  if (isRepositoryUnavailable(error)) {
-    return new CanvasProjectActionFailed({ reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON });
-  }
-  return new CanvasProjectActionRejected({
-    canvasProjectId: error.canvasProjectId,
-    reason: error._tag,
-  });
-};
+): CanvasProjectActionError =>
+  Match.value(error).pipe(
+    Match.when(isRepositoryNotFound, (error) => new CanvasProjectNotFound({ canvasProjectId: error.canvasProjectId })),
+    Match.when(
+      isRepositoryConflict,
+      (error) =>
+        new CanvasProjectConflict({
+          canvasProjectId: error.canvasProjectId,
+          reason: CANVAS_PROJECT_CONFLICT_REASON,
+        })
+    ),
+    Match.when(
+      isRepositoryUnavailable,
+      () => new CanvasProjectActionFailed({ reason: CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON })
+    ),
+    Match.orElse(
+      (error) =>
+        new CanvasProjectActionRejected({
+          canvasProjectId: error.canvasProjectId,
+          reason: error._tag,
+        })
+    )
+  );
 
 const mutateStoredCanvasProject = (
   repository: CanvasProjectRepositoryShape,

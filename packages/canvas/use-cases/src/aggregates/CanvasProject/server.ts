@@ -19,4 +19,10 @@ export * from "./CanvasProject.repository.js";
  * @since 0.0.0
  */
 export { makeCanvasProjectUseCases, toCanvasProjectActionError } from "./CanvasProject.service.js";
+/**
+ * Shared CanvasProject use-case contracts re-exported for server adapters.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
 export * from "./index.js";

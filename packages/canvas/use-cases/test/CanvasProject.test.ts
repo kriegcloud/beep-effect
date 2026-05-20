@@ -82,6 +82,39 @@ describe("CanvasProject use-cases", () => {
     })
   );
 
+  it.effect("redacts repository conflict details at the public action boundary", () =>
+    Effect.gen(function* () {
+      const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
+      const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases({
+        create: () =>
+          Effect.fail(
+            new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryConflict({
+              canvasProjectId,
+              reason: "canvas_project already contains canvas-project-1",
+            })
+          ),
+        get: () =>
+          Effect.fail(new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId })),
+        list: () => Effect.succeed([]),
+        save: () =>
+          Effect.fail(new CanvasProjectServer.CanvasProject.CanvasProjectRepositoryNotFound({ canvasProjectId })),
+      });
+
+      const error = yield* useCases
+        .create(
+          new CanvasProject.CreateCanvasProjectCommand({
+            id: canvasProjectId,
+            title: "Document topology",
+          })
+        )
+        .pipe(Effect.flip);
+
+      expect(error._tag).toBe("CanvasProjectConflict");
+      expect(error.reason).toBe(CanvasProject.CANVAS_PROJECT_CONFLICT_REASON);
+      expect(error.reason).not.toContain("canvas_project");
+    })
+  );
+
   it.effect("translates repository not-found failures to public failures", () =>
     Effect.gen(function* () {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");

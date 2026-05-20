@@ -169,7 +169,6 @@ Run in this order before phase declaration:
 2. `bun run test --filter @beep/canvas-domain @beep/canvas-use-cases @beep/canvas-server`
 3. `bun run lint --filter @beep/canvas-domain @beep/canvas-use-cases @beep/canvas-server`
 4. `cd apps/canvas && bun run build`
-5. `cd apps/canvas && bun run build` (post shell changes)
-6. `cd apps/canvas/src-tauri && cargo check`
+5. `cd apps/canvas/src-tauri && cargo check`
 
 No later-phase implementation before both P0 and P1 exit criteria are met.

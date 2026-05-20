@@ -93,6 +93,7 @@
     "p1": [
       "cd apps/canvas && bun run build",
       "cd apps/canvas/src-tauri && cargo check",
+      "bunx turbo run lint --filter=@beep/canvas --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server",
       "bunx turbo run check --filter=@beep/canvas --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server",
       "bunx turbo run test --filter=@beep/canvas-domain --filter=@beep/canvas-use-cases --filter=@beep/canvas-server"
     ],

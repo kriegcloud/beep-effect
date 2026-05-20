@@ -1,5 +1,5 @@
 /**
- * @beep/canvas
+ * Package entry point for `@beep/canvas`.
  *
  * @since 0.0.0
  */

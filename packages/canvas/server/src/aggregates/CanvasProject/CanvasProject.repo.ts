@@ -42,15 +42,19 @@ export const makeInMemoryCanvasProjectRepository = Effect.fn("Canvas.CanvasProje
 
     return CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepository.of({
       create: Effect.fn("Canvas.CanvasProjectRepository.create")(function* (canvasProject) {
-        const canvasProjects = yield* Ref.get(store);
-        if (O.isSome(HashMap.get(canvasProjects, canvasProject.id))) {
+        const inserted = yield* Ref.modify(store, (current) => {
+          if (O.isSome(HashMap.get(current, canvasProject.id))) {
+            return [O.none<DomainCanvasProject.CanvasProject>(), current] as const;
+          }
+          return [O.some(canvasProject), HashMap.set(current, canvasProject.id, canvasProject)] as const;
+        });
+        if (O.isNone(inserted)) {
           return yield* new CanvasProjectUseCaseServer.CanvasProject.CanvasProjectRepositoryConflict({
             canvasProjectId: canvasProject.id,
             reason: `${CANVAS_PROJECT_STORE_NAME} already contains ${canvasProject.id}`,
           });
         }
-        yield* Ref.update(store, (current) => HashMap.set(current, canvasProject.id, canvasProject));
-        return canvasProject;
+        return inserted.value;
       }),
       get: Effect.fn("Canvas.CanvasProjectRepository.get")(function* (id) {
         return yield* getStoredCanvasProject(store, id);

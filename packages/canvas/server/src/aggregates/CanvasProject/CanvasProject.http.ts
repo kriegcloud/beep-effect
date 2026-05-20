@@ -9,7 +9,7 @@
 import { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public";
 import { $CanvasServerId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $CanvasServerId.create("aggregates/CanvasProject/CanvasProject.http");
@@ -67,18 +67,13 @@ export class CanvasProjectHttpResponse extends S.Class<CanvasProjectHttpResponse
  */
 export const toCanvasProjectHttpError = (
   error: CanvasProjectUseCases.CanvasProjectActionError
-): CanvasProjectHttpResponse => {
-  if (isNotFound(error)) {
-    return new CanvasProjectHttpResponse({ status: 404, body: error });
-  }
-  if (isConflict(error)) {
-    return new CanvasProjectHttpResponse({ status: 409, body: error });
-  }
-  if (isActionRejected(error)) {
-    return new CanvasProjectHttpResponse({ status: 422, body: error });
-  }
-  return new CanvasProjectHttpResponse({ status: 503, body: serviceUnavailableBody });
-};
+): CanvasProjectHttpResponse =>
+  Match.value(error).pipe(
+    Match.when(isNotFound, (error) => new CanvasProjectHttpResponse({ status: 404, body: error })),
+    Match.when(isConflict, (error) => new CanvasProjectHttpResponse({ status: 409, body: error })),
+    Match.when(isActionRejected, (error) => new CanvasProjectHttpResponse({ status: 422, body: error })),
+    Match.orElse(() => new CanvasProjectHttpResponse({ status: 503, body: serviceUnavailableBody }))
+  );
 
 const toSuccess =
   (status: 200 | 201) =>
