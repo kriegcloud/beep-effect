@@ -724,7 +724,7 @@ contract harness. `WorkItem` is the full aggregate proof at
 
 The old `fixture-lab/Specimen` proof and repo-architecture-automation fixture
 are retired as active topology. Retained lessons live in
-`initiatives/canonical-slice-factory/history/repo-architecture-automation-reference.md`;
+`goals/canonical-slice-factory/history/repo-architecture-automation-reference.md`;
 the deleted package and fixture files are available only through git history.
 
 The strict action-error doctrine from 2026-05-01 remains active: driver/internal

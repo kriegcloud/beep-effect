@@ -47,7 +47,7 @@ const defaultDataRoot = ".beep/ai-metrics";
  * @category constants
  * @since 0.0.0
  */
-export const DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH = "initiatives/jsdoc-worker-eval/ops/manifest.json";
+export const DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH = "goals/jsdoc-worker-eval/ops/manifest.json";
 const defaultAnnotationLimit = 50;
 
 const phoenixInventoryQuery = `
