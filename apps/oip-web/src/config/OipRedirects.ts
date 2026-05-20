@@ -18,7 +18,7 @@ import type { Redirect } from "next/dist/lib/load-custom-routes";
  * console.log(redirects.length)
  * ```
  *
- * @category config
+ * @category configuration
  * @since 0.0.0
  */
 export const oipRedirects = (): Array<Redirect> => [

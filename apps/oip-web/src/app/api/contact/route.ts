@@ -7,6 +7,7 @@
 
 import { Str } from "@beep/utils";
 import { Effect, Exit } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { NextResponse } from "next/server";
@@ -74,29 +75,29 @@ const redirectToContact = (request: Request, response: ContactSubmissionResponse
  * @category workflows
  * @since 0.0.0
  */
-export const contactRequestResponseWithSubmit: (
-  request: Request,
-  submit: SubmitContact
-) => Effect.Effect<NextResponse> = Effect.fn("OipContact.contactRequestResponseWithSubmit")(function* (
-  request: Request,
-  submit: SubmitContact
-) {
-  const contentType = request.headers.get("content-type") ?? "";
-  const isJsonSubmission = Str.includes("application/json")(contentType);
-  const payload = yield* Effect.promise(() =>
-    isJsonSubmission ? request.json() : request.formData().then(formDataPayload)
-  );
-  const exit = yield* Effect.exit(submit(payload));
-  const response = Exit.isSuccess(exit) ? exit.value : rejected;
+export const contactRequestResponseWithSubmit: {
+  (request: Request, submit: SubmitContact): Effect.Effect<NextResponse>;
+  (submit: SubmitContact): (request: Request) => Effect.Effect<NextResponse>;
+} = dual(
+  2,
+  Effect.fn("OipContact.contactRequestResponseWithSubmit")(function* (request: Request, submit: SubmitContact) {
+    const contentType = request.headers.get("content-type") ?? "";
+    const isJsonSubmission = Str.includes("application/json")(contentType);
+    const payload = yield* Effect.promise(() =>
+      isJsonSubmission ? request.json() : request.formData().then(formDataPayload)
+    );
+    const exit = yield* Effect.exit(submit(payload));
+    const response = Exit.isSuccess(exit) ? exit.value : rejected;
 
-  if (!isJsonSubmission) {
-    return redirectToContact(request, response);
-  }
+    if (!isJsonSubmission) {
+      return redirectToContact(request, response);
+    }
 
-  return NextResponse.json(contactResponseBody(response), {
-    status: Exit.isFailure(exit) ? 500 : response.status === "accepted" ? 202 : 400,
-  });
-});
+    return NextResponse.json(contactResponseBody(response), {
+      status: Exit.isFailure(exit) ? 500 : response.status === "accepted" ? 202 : 400,
+    });
+  })
+);
 
 /**
  * Builds an OIP contact route response inside an Effect runtime.

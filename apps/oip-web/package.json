@@ -43,6 +43,7 @@
     "./app/sitemap": "./src/app/sitemap.ts",
     "./app/*": "./src/app/*",
     "./components/*": "./src/components/*",
+    "./config/OipRedirects": "./src/config/OipRedirects.ts",
     "./contact": "./src/contact/index.ts",
     "./content": "./src/content/index.ts",
     "./mdx-components": "./src/mdx-components.tsx",
