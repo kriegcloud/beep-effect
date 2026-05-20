@@ -20,7 +20,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 77 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 919 |
+| importSpecifiers | 920 |
 | publicExportEntries | 13568 |
 | uniquePackageSymbols | 5445 |
 
@@ -94,7 +94,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 55 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 56 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
 | 57 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
-| 58 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 11 | 42 | 38 |
+| 58 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 12 | 42 | 38 |
 | 59 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
 | 60 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
 | 61 | `@beep/canvas` | `apps/canvas` | has-public-exports | 2 | 2 | 1 |
@@ -12081,9 +12081,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/oip-web` | `VERSION` | const | `apps/oip-web/src/index.ts:21` | Package version for the oip web app. |
-| `@beep/oip-web/app/api/contact/route` | `contactRequestResponse` | const | `apps/oip-web/src/app/api/contact/route.ts:121` | Builds an OIP contact route response inside an Effect runtime. |
-| `@beep/oip-web/app/api/contact/route` | `contactRequestResponseWithSubmit` | const | `apps/oip-web/src/app/api/contact/route.ts:78` | Builds an OIP contact route response using an injected contact workflow. |
-| `@beep/oip-web/app/api/contact/route` | `POST` | function | `apps/oip-web/src/app/api/contact/route.ts:139` | Handles OIP contact submissions at the Next.js route boundary. |
+| `@beep/oip-web/app/api/contact/ContactRouteResponse` | `contactRequestResponse` | const | `apps/oip-web/src/app/api/contact/ContactRouteResponse.ts:134` | Builds an OIP contact route response inside an Effect runtime. |
+| `@beep/oip-web/app/api/contact/ContactRouteResponse` | `contactRequestResponseWithSubmit` | const | `apps/oip-web/src/app/api/contact/ContactRouteResponse.ts:83` | Builds an OIP contact route response using an injected contact workflow. |
+| `@beep/oip-web/app/api/contact/route` | `POST` | function | `apps/oip-web/src/app/api/contact/route.ts:26` | Handles OIP contact submissions at the Next.js route boundary. |
 | `@beep/oip-web/app/llms.txt/route` | `GET` | function | `apps/oip-web/src/app/llms.txt/route.ts:24` | Returns `llms.txt` for oip.law. |
 | `@beep/oip-web/app/manifest` | `default` | function | `apps/oip-web/src/app/manifest.ts:23` | Returns the static web manifest for oip web. |
 | `@beep/oip-web/app/robots` | `default` | function | `apps/oip-web/src/app/robots.ts:24` | Returns the robots policy for OIP. |

@@ -30,6 +30,9 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/oip-web": ["../../apps/oip-web/src/index.ts"],
+      "@beep/oip-web/app/api/contact/ContactRouteResponse": [
+        "../../apps/oip-web/src/app/api/contact/ContactRouteResponse.ts"
+      ],
       "@beep/oip-web/app/api/contact/route": [
         "../../apps/oip-web/src/app/api/contact/route.ts"
       ],

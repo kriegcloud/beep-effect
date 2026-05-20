@@ -21,8 +21,8 @@ Provider preflight on 2026-05-20 found:
 - Cloudflare zone `oip.law` is active.
 - Cloudflare zone `opip.law` is active.
 - `oip.law` has existing Cloudflare-proxied apex A records.
-- `www.oip.law` has no DNS answer yet.
-- `staging.oip.law` has no DNS answer yet.
+- `www.oip.law` is not resolving yet.
+- `staging.oip.law` is still pending DNS publication.
 - `staging.opip.law` still resolves to Vercel through `cname.vercel-dns.com`.
 - `OIP_SECRETS` was created in the Shared 1Password vault by duplicating the
   existing `OPIP_SECRETS` item, then updating `APP_VOICE_HOSTNAME` to

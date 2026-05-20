@@ -12,7 +12,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Script from "next/script";
 import { connection } from "next/server";
-import type { ReactNode } from "react";
+import { type ReactNode, use } from "react";
 import { oipSiteContent } from "../content";
 import "./globals.css";
 
@@ -103,13 +103,15 @@ function VercelInsights() {
     return null;
   }
 
-  return Promise.all([import("@vercel/analytics/next"), import("@vercel/speed-insights/next")]).then(
-    ([{ Analytics }, { SpeedInsights }]) => (
-      <>
-        <Analytics />
-        <SpeedInsights />
-      </>
-    )
+  const [{ Analytics }, { SpeedInsights }] = use(
+    Promise.all([import("@vercel/analytics/next"), import("@vercel/speed-insights/next")])
+  );
+
+  return (
+    <>
+      <Analytics />
+      <SpeedInsights />
+    </>
   );
 }
 

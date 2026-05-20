@@ -644,6 +644,9 @@
       "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"],
       "@beep/oip-web/config/OipRedirects": [
         "./apps/oip-web/src/config/OipRedirects.ts"
+      ],
+      "@beep/oip-web/app/api/contact/ContactRouteResponse": [
+        "./apps/oip-web/src/app/api/contact/ContactRouteResponse.ts"
       ]
     }
   }

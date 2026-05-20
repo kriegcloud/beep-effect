@@ -48,7 +48,7 @@ export const oipRedirects = (): Array<Redirect> => [
   {
     source: "/:path*",
     destination: "https://staging.oip.law/:path*",
-    permanent: true,
+    permanent: false,
     has: [{ type: "host", value: "staging.opip.law" }],
   },
 ];

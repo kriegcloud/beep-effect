@@ -1,5 +1,6 @@
 import { VERSION } from "@beep/oip-web";
-import { contactRequestResponseWithSubmit, POST } from "@beep/oip-web/app/api/contact/route";
+import { contactRequestResponseWithSubmit } from "@beep/oip-web/app/api/contact/ContactRouteResponse";
+import { POST } from "@beep/oip-web/app/api/contact/route";
 import { ContactSubmissionResponse, decodeContactSubmission, submitContact } from "@beep/oip-web/contact";
 import { decodeOipSiteContentResult, launchReviewGates, oipSiteContent, ReviewStatus } from "@beep/oip-web/content";
 import { Button } from "@beep/ui/components/ui/button";
@@ -196,7 +197,7 @@ describe.sequential("@beep/oip-web", () => {
       expect(redirects).toContainEqual({
         destination: "https://staging.oip.law/:path*",
         has: [{ type: "host", value: "staging.opip.law" }],
-        permanent: true,
+        permanent: false,
         source: "/:path*",
       });
     }));
@@ -329,6 +330,32 @@ describe.sequential("@beep/oip-web", () => {
           });
         })
       ));
+
+  it("returns a JSON rejected response for unreadable contact route submissions", () =>
+    Effect.runPromise(
+      contactRequestResponseWithSubmit(
+        new Request("https://oip.law/api/contact", {
+          body: "{",
+          headers: { "content-type": "application/json" },
+          method: "POST",
+        }),
+        () =>
+          Effect.succeed(
+            new ContactSubmissionResponse({
+              message: "Should not submit.",
+              status: "accepted",
+            })
+          )
+      )
+    ).then((response) =>
+      response.json().then((body) => {
+        expect(response.status).toBe(400);
+        expect(body).toEqual({
+          message: "The submission could not be accepted.",
+          status: "rejected",
+        });
+      })
+    ));
 
   it("redirects browser form contact submissions back to the contact section", () =>
     POST(formContactRequest()).then((response) => {

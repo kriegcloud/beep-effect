@@ -36,6 +36,7 @@
   },
   "exports": {
     "./package.json": "./package.json",
+    "./app/api/contact/ContactRouteResponse": "./src/app/api/contact/ContactRouteResponse.ts",
     "./app/api/contact/route": "./src/app/api/contact/route.ts",
     "./app/llms.txt/route": "./src/app/llms.txt/route.ts",
     "./app/manifest": "./src/app/manifest.ts",

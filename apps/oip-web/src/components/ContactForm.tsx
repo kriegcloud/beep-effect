@@ -5,7 +5,9 @@
  * @since 0.0.0
  */
 
-import { Clock, Effect } from "effect";
+"use client";
+
+import { useEffect, useState } from "react";
 import type { ContactSubmissionStatus } from "../contact";
 
 const inputClass =
@@ -35,7 +37,11 @@ export function ContactForm({
   readonly email: string;
   readonly status: ContactSubmissionStatus | undefined;
 }) {
-  const submittedAt = Effect.runSync(Clock.currentTimeMillis);
+  const [submittedAt, setSubmittedAt] = useState(0);
+
+  useEffect(() => {
+    setSubmittedAt(Math.trunc(performance.timeOrigin + performance.now()));
+  }, []);
 
   return (
     <form

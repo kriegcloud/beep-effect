@@ -28,6 +28,7 @@
   --oip-figure-caption: #3a2a1b;
   --oip-portrait-ground: #1f1d1a;
   --oip-client-logo-filter: grayscale(1) brightness(0) contrast(1.14);
+
   color-scheme: light;
 }
 
@@ -52,6 +53,7 @@
   --oip-figure-caption: #33281d;
   --oip-portrait-ground: #11100e;
   --oip-client-logo-filter: grayscale(1) brightness(0) invert(1) contrast(1.05);
+
   color-scheme: dark;
 }
 

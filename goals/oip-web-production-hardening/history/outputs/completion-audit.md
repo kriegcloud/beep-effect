@@ -1,10 +1,10 @@
-# OPIP Web Production Hardening Completion Audit
+# OIP Web Production Hardening Completion Audit
 
 ## Objective
 
 Complete `goals/oip-web-production-hardening` end to end: create and
 fill the initiative packet and research reports; implement Sanity and HubSpot
-drivers; harden `@beep/opip-web` with CMS-backed content, native HubSpot contact
+drivers; harden `@beep/oip-web` with CMS-backed content, native HubSpot contact
 form, security/PWA/SEO/AEO/`llms.txt` improvements; add a temporary encrypted
 S3 Pulumi backend plus Vercel/Cloudflare staging/prod IaC; verify quality,
 browser QA, Lighthouse/staging proof; and leave a clean working tree without
@@ -18,10 +18,10 @@ exposing secrets or cutting over production DNS.
 | Research reports exist | `research/aeo-seo-llms.md`, `research/cms-crm-contact-analytics.md`, `research/deployment-iac-vercel-cloudflare-pulumi.md`, `research/security-pwa-lighthouse.md`, `research/synthesis-and-decisions.md` | Complete |
 | Sanity driver implemented with tests | `packages/drivers/sanity/src/*`, `packages/drivers/sanity/test/Sanity.service.test.ts`, package quality commands recorded as passing | Complete |
 | HubSpot driver implemented with tests | `packages/drivers/hubspot/src/*`, `packages/drivers/hubspot/test/HubSpot.service.test.ts`, package quality commands recorded as passing | Complete |
-| CMS-backed OPIP content with fallback | `apps/opip-web/src/content/OpipContent.runtime.ts` loads Sanity when configured and falls back to checked-in launch content | Complete |
-| Native HubSpot contact form | `apps/opip-web/src/contact/ContactSubmission.service.ts` and `apps/opip-web/src/app/api/contact/route.ts` validate submissions and call HubSpot Forms or CRM upsert through the driver | Complete |
-| Security headers and CSP | `apps/opip-web/next.config.ts`; local portless and public staging header proof recorded in `local-closure-evidence.md` | Complete with Observatory caveat |
-| PWA support | `apps/opip-web/src/app/manifest.ts`, app icons, `next-pwa` build path, and `bun run --cwd apps/opip-web build:pwa` proof | Complete |
+| CMS-backed OIP content with fallback | `apps/oip-web/src/content/OipContent.runtime.ts` loads Sanity when configured and falls back to checked-in launch content | Complete |
+| Native HubSpot contact form | `apps/oip-web/src/contact/ContactSubmission.service.ts` and `apps/oip-web/src/app/api/contact/route.ts` validate submissions and call HubSpot Forms or CRM upsert through the driver | Complete |
+| Security headers and CSP | `apps/oip-web/next.config.ts`; local portless and public staging header proof recorded in `local-closure-evidence.md` | Complete with Observatory caveat |
+| PWA support | `apps/oip-web/src/app/manifest.ts`, app icons, `next-pwa` build path, and `bun run --cwd apps/oip-web build:pwa` proof | Complete |
 | SEO/AEO and `llms.txt` | `robots.ts`, `sitemap.ts`, JSON-LD in `page.tsx`, `llms.txt` route, and Markdown-link `llms.txt` content | Complete |
 | Temporary encrypted S3 Pulumi backend | AWS proof confirms `opip-law-pulumi-state` has SSE-S3 encryption, public access block, and versioning enabled | Complete |
 | Vercel/Cloudflare staging IaC | `infra/src/OpipWeb.ts`, `infra/opip-web/Pulumi.staging.yaml`, applied staging stack, `staging.opip.law` HTTPS proof | Complete |
@@ -37,7 +37,7 @@ exposing secrets or cutting over production DNS.
 - MDN HTTP Observatory is B+ / 80 because a static `next.config.ts` CSP still
   needs `unsafe-inline` for the current Next app. A+ requires request-bound
   nonces or generated hashes.
-- OPIP Sanity live project credentials are not present yet, so live Sanity
+- OIP Sanity live project credentials are not present yet, so live Sanity
   publishing is blocked while the driver and app fallback path are complete.
 - HubSpot Forms are deferred until a form GUID/scope exists; CRM contact upsert
   is active through the service key path.
