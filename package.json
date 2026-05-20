@@ -63,6 +63,7 @@
     "packages/drivers/ai-provider-cli",
     "packages/drivers/sanity",
     "packages/drivers/hubspot",
+    "packages/drivers/phoenix",
     "packages/drivers/konva",
     "apps/canvas"
   ],
@@ -198,6 +199,7 @@
     "uuid": "catalog:"
   },
   "catalog": {
+    "@arizeai/phoenix-client": "6.10.0",
     "@noble/hashes": "^2.2.0",
     "@scure/base": "^2.2.0",
     "eslint-plugin-tsdoc": "^0.5.2",

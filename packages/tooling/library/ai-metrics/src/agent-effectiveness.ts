@@ -7,9 +7,23 @@
 
 import { DuckDb } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
+import {
+  Phoenix,
+  PhoenixAnnotationInput,
+  PhoenixAnnotationTargetKind,
+  type PhoenixAnnotationTargetKind as PhoenixAnnotationTargetKindType,
+  PhoenixDatasetAppendInput,
+  PhoenixDatasetCreateInput,
+  PhoenixDatasetExample,
+  PhoenixDatasetSelector,
+  PhoenixExperimentCreateInput,
+  PhoenixPromptChatMessage,
+  PhoenixPromptCreateInput,
+  type PhoenixShape,
+} from "@beep/phoenix";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, O, P, Str } from "@beep/utils";
-import { DateTime, Effect, FileSystem, flow, Path, pipe } from "effect";
+import { DateTime, Effect, FileSystem, flow, Match, Path, pipe } from "effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as HttpClient from "effect/unstable/http/HttpClient";
@@ -571,6 +585,427 @@ export class AgentEffectivenessAnnotationCheckReport extends S.Class<AgentEffect
   })
 ) {}
 
+/**
+ * Dedicated Phoenix project namespace for the agent-effectiveness loop.
+ *
+ * @example
+ * ```ts
+ * import { AGENT_EFFECTIVENESS_PHOENIX_PROJECT } from "@beep/repo-ai-metrics"
+ *
+ * console.log(AGENT_EFFECTIVENESS_PHOENIX_PROJECT)
+ * ```
+ * @category constants
+ * @since 0.0.0
+ */
+export const AGENT_EFFECTIVENESS_PHOENIX_PROJECT = "beep-agent-effectiveness";
+
+/**
+ * Confirmation token required before live Phoenix writes.
+ *
+ * @example
+ * ```ts
+ * import { AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION } from "@beep/repo-ai-metrics"
+ *
+ * console.log(AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION)
+ * ```
+ * @category constants
+ * @since 0.0.0
+ */
+export const AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION = "agent-effectiveness-phoenix-write";
+
+/**
+ * Phoenix dataset kinds owned by the agent-effectiveness loop.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessDatasetKind } from "@beep/repo-ai-metrics"
+ *
+ * console.log(AgentEffectivenessDatasetKind.Enum["agent-loop-health"])
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const AgentEffectivenessDatasetKind = LiteralKit([
+  "agent-config-snapshots",
+  "agent-loop-health",
+  "agent-outcomes",
+  "jsdoc-worker-model-suitability",
+  "source-coverage",
+] as const).annotate(
+  $I.annote("AgentEffectivenessDatasetKind", {
+    description: "Phoenix dataset kinds owned by the agent-effectiveness loop.",
+  })
+);
+
+/**
+ * Type for {@link AgentEffectivenessDatasetKind}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AgentEffectivenessDatasetKind = typeof AgentEffectivenessDatasetKind.Type;
+
+/**
+ * One sanitized example destined for a Phoenix dataset.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessDatasetExample } from "@beep/repo-ai-metrics"
+ *
+ * const example = new AgentEffectivenessDatasetExample({ id: "loop", input: { status: "passed" } })
+ * console.log(example.id)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessDatasetExample extends S.Class<AgentEffectivenessDatasetExample>(
+  $I`AgentEffectivenessDatasetExample`
+)(
+  {
+    id: S.String,
+    input: S.Record(S.String, S.Unknown),
+    metadata: S.Record(S.String, S.Unknown).pipe(
+      S.withConstructorDefault(Effect.succeed({})),
+      S.withDecodingDefaultKey(Effect.succeed({}))
+    ),
+    output: S.Record(S.String, S.Unknown).pipe(
+      S.withConstructorDefault(Effect.succeed({})),
+      S.withDecodingDefaultKey(Effect.succeed({}))
+    ),
+    split: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("current")),
+      S.withDecodingDefaultKey(Effect.succeed("current"))
+    ),
+  },
+  $I.annote("AgentEffectivenessDatasetExample", {
+    description: "Sanitized, aggregate-only example destined for a Phoenix dataset.",
+  })
+) {}
+
+/**
+ * One repo-owned Phoenix dataset specification.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessDatasetSpec } from "@beep/repo-ai-metrics"
+ *
+ * const spec = new AgentEffectivenessDatasetSpec({
+ *   description: "Loop health.",
+ *   examples: [],
+ *   kind: "agent-loop-health",
+ *   name: "agent-loop-health-v1"
+ * })
+ * console.log(spec.name)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessDatasetSpec extends S.Class<AgentEffectivenessDatasetSpec>(
+  $I`AgentEffectivenessDatasetSpec`
+)(
+  {
+    description: S.String,
+    examples: S.Array(AgentEffectivenessDatasetExample),
+    kind: AgentEffectivenessDatasetKind,
+    name: S.String,
+  },
+  $I.annote("AgentEffectivenessDatasetSpec", {
+    description: "Repo-owned Phoenix dataset specification for the agent-effectiveness loop.",
+  })
+) {}
+
+/**
+ * Full Phoenix dataset bundle derived from a doctor report.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessDatasetBundle } from "@beep/repo-ai-metrics"
+ *
+ * const bundle = new AgentEffectivenessDatasetBundle({
+ *   datasets: [],
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   projectName: "beep-agent-effectiveness",
+ *   schemaVersion: "agent-effectiveness-datasets/v1"
+ * })
+ * console.log(bundle.projectName)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessDatasetBundle extends S.Class<AgentEffectivenessDatasetBundle>(
+  $I`AgentEffectivenessDatasetBundle`
+)(
+  {
+    datasets: S.Array(AgentEffectivenessDatasetSpec),
+    generatedAt: S.String,
+    projectName: S.String,
+    schemaVersion: S.String,
+  },
+  $I.annote("AgentEffectivenessDatasetBundle", {
+    description: "Full Phoenix dataset bundle derived from agent-effectiveness doctor evidence.",
+  })
+) {}
+
+/**
+ * Prompt roles used by repo-owned agent-effectiveness prompt templates.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessPromptRole } from "@beep/repo-ai-metrics"
+ *
+ * console.log(AgentEffectivenessPromptRole.Enum.user)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const AgentEffectivenessPromptRole = LiteralKit(["system", "user"] as const).annotate(
+  $I.annote("AgentEffectivenessPromptRole", {
+    description: "Prompt roles used by repo-owned agent-effectiveness prompt templates.",
+  })
+);
+
+/**
+ * Type for {@link AgentEffectivenessPromptRole}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AgentEffectivenessPromptRole = typeof AgentEffectivenessPromptRole.Type;
+
+/**
+ * One repo-owned Phoenix prompt message.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessPromptMessage } from "@beep/repo-ai-metrics"
+ *
+ * const message = new AgentEffectivenessPromptMessage({ content: "Review {{caseId}}", role: "user" })
+ * console.log(message.role)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessPromptMessage extends S.Class<AgentEffectivenessPromptMessage>(
+  $I`AgentEffectivenessPromptMessage`
+)(
+  {
+    content: S.String,
+    role: AgentEffectivenessPromptRole,
+  },
+  $I.annote("AgentEffectivenessPromptMessage", {
+    description: "One repo-owned Phoenix prompt message.",
+  })
+) {}
+
+/**
+ * Repo-owned Phoenix prompt specification.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessPromptSpec } from "@beep/repo-ai-metrics"
+ *
+ * const spec = new AgentEffectivenessPromptSpec({
+ *   description: "Review evaluator.",
+ *   messages: [],
+ *   modelName: "gpt-4o-mini",
+ *   name: "agent-effectiveness-review-evaluator-v1"
+ * })
+ * console.log(spec.name)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessPromptSpec extends S.Class<AgentEffectivenessPromptSpec>(
+  $I`AgentEffectivenessPromptSpec`
+)(
+  {
+    description: S.String,
+    messages: S.Array(AgentEffectivenessPromptMessage),
+    modelName: S.String,
+    name: S.String,
+  },
+  $I.annote("AgentEffectivenessPromptSpec", {
+    description: "Repo-owned Phoenix prompt specification for deterministic evaluation workflows.",
+  })
+) {}
+
+/**
+ * Full repo-owned Phoenix prompt bundle.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessPromptBundle } from "@beep/repo-ai-metrics"
+ *
+ * const bundle = new AgentEffectivenessPromptBundle({
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   projectName: "beep-agent-effectiveness",
+ *   prompts: [],
+ *   schemaVersion: "agent-effectiveness-prompts/v1"
+ * })
+ * console.log(bundle.projectName)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessPromptBundle extends S.Class<AgentEffectivenessPromptBundle>(
+  $I`AgentEffectivenessPromptBundle`
+)(
+  {
+    generatedAt: S.String,
+    projectName: S.String,
+    prompts: S.Array(AgentEffectivenessPromptSpec),
+    schemaVersion: S.String,
+  },
+  $I.annote("AgentEffectivenessPromptBundle", {
+    description: "Full repo-owned Phoenix prompt bundle for the agent-effectiveness loop.",
+  })
+) {}
+
+/**
+ * Deterministic experiment plan entry.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessExperimentSpec } from "@beep/repo-ai-metrics"
+ *
+ * const spec = new AgentEffectivenessExperimentSpec({
+ *   datasetName: "agent-loop-health-v1",
+ *   description: "Deterministic loop-health readback.",
+ *   name: "agent-loop-health-deterministic-v1"
+ * })
+ * console.log(spec.datasetName)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessExperimentSpec extends S.Class<AgentEffectivenessExperimentSpec>(
+  $I`AgentEffectivenessExperimentSpec`
+)(
+  {
+    datasetName: S.String,
+    description: S.String,
+    metadata: S.Record(S.String, S.Unknown).pipe(
+      S.withConstructorDefault(Effect.succeed({})),
+      S.withDecodingDefaultKey(Effect.succeed({}))
+    ),
+    name: S.String,
+  },
+  $I.annote("AgentEffectivenessExperimentSpec", {
+    description: "Deterministic experiment plan entry that performs no new model work.",
+  })
+) {}
+
+/**
+ * Deterministic experiment bundle derived from dataset specs.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessExperimentBundle } from "@beep/repo-ai-metrics"
+ *
+ * const bundle = new AgentEffectivenessExperimentBundle({
+ *   experiments: [],
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   projectName: "beep-agent-effectiveness",
+ *   schemaVersion: "agent-effectiveness-experiments/v1"
+ * })
+ * console.log(bundle.projectName)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessExperimentBundle extends S.Class<AgentEffectivenessExperimentBundle>(
+  $I`AgentEffectivenessExperimentBundle`
+)(
+  {
+    experiments: S.Array(AgentEffectivenessExperimentSpec),
+    generatedAt: S.String,
+    projectName: S.String,
+    schemaVersion: S.String,
+  },
+  $I.annote("AgentEffectivenessExperimentBundle", {
+    description: "Deterministic experiment bundle derived from agent-effectiveness dataset specs.",
+  })
+) {}
+
+/**
+ * Input for syncing agent-effectiveness evidence to Phoenix.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessPhoenixSyncInput } from "@beep/repo-ai-metrics"
+ *
+ * const input = new AgentEffectivenessPhoenixSyncInput({ dryRun: true })
+ * console.log(input.dryRun)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessPhoenixSyncInput extends S.Class<AgentEffectivenessPhoenixSyncInput>(
+  $I`AgentEffectivenessPhoenixSyncInput`
+)(
+  {
+    annotationPlan: AgentEffectivenessAnnotationPlanInput.pipe(
+      S.withConstructorDefault(Effect.succeed(new AgentEffectivenessAnnotationPlanInput({}))),
+      S.withDecodingDefaultKey(Effect.succeed(new AgentEffectivenessAnnotationPlanInput({})))
+    ),
+    confirmToken: S.String.pipe(S.optionalKey),
+    dryRun: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(true)),
+      S.withDecodingDefaultKey(Effect.succeed(true))
+    ),
+  },
+  $I.annote("AgentEffectivenessPhoenixSyncInput", {
+    description:
+      "Input for guarded Phoenix sync of agent-effectiveness datasets, prompts, experiments, and annotations.",
+  })
+) {}
+
+/**
+ * Result from a guarded Phoenix sync attempt.
+ *
+ * @example
+ * ```ts
+ * import { AgentEffectivenessPhoenixSyncResult } from "@beep/repo-ai-metrics"
+ *
+ * const result = new AgentEffectivenessPhoenixSyncResult({
+ *   annotationCount: 0,
+ *   datasetCount: 0,
+ *   dryRun: true,
+ *   experimentCount: 0,
+ *   mutationPolicy: "dry-run",
+ *   promptCount: 0,
+ *   skippedAnnotationCount: 0,
+ *   status: "passed",
+ *   writtenDatasetIds: [],
+ *   writtenExperimentIds: [],
+ *   writtenPromptVersionIds: []
+ * })
+ * console.log(result.mutationPolicy)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentEffectivenessPhoenixSyncResult extends S.Class<AgentEffectivenessPhoenixSyncResult>(
+  $I`AgentEffectivenessPhoenixSyncResult`
+)(
+  {
+    annotationCount: S.Number,
+    datasetCount: S.Number,
+    dryRun: S.Boolean,
+    experimentCount: S.Number,
+    mutationPolicy: S.String,
+    promptCount: S.Number,
+    skippedAnnotationCount: S.Number,
+    status: AgentEffectivenessStatus,
+    writtenDatasetIds: S.Array(S.String),
+    writtenExperimentIds: S.Array(S.String),
+    writtenPromptVersionIds: S.Array(S.String),
+  },
+  $I.annote("AgentEffectivenessPhoenixSyncResult", {
+    description: "Result from a guarded Phoenix sync attempt.",
+  })
+) {}
+
 class SourceCoverageRow extends S.Class<SourceCoverageRow>($I`SourceCoverageRow`)(
   {
     acceptedEvents: S.Number,
@@ -841,6 +1276,10 @@ const decodePhoenixGraphqlResponse = S.decodeUnknownEffect(PhoenixGraphqlRespons
 const encodeDoctorReportJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDoctorReport));
 const encodeAnnotationPlanJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationPlan));
 const encodeAnnotationCheckJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationCheckReport));
+const encodeDatasetBundleJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDatasetBundle));
+const encodePromptBundleJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessPromptBundle));
+const encodeExperimentBundleJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessExperimentBundle));
+const encodePhoenixSyncResultJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessPhoenixSyncResult));
 const decodeCoverageGapsJson = S.decodeUnknownEffect(S.fromJsonString(S.Array(S.String)));
 const currentIsoTimestamp = DateTime.now.pipe(Effect.map(DateTime.formatIso));
 
@@ -1688,6 +2127,597 @@ export const makeAgentEffectivenessAnnotationPlan: (
   });
 });
 
+const datasetNameFor = Match.type<AgentEffectivenessDatasetKind>().pipe(
+  Match.when("agent-config-snapshots", () => "agent-config-snapshots-v1"),
+  Match.when("agent-loop-health", () => "agent-loop-health-v1"),
+  Match.when("agent-outcomes", () => "agent-outcomes-v1"),
+  Match.when("jsdoc-worker-model-suitability", () => "jsdoc-worker-model-suitability-v1"),
+  Match.when("source-coverage", () => "source-coverage-v1"),
+  Match.exhaustive
+);
+
+const datasetExample = ({
+  id,
+  input,
+  metadata = {},
+  output = {},
+  split = "current",
+}: {
+  readonly id: string;
+  readonly input: Record<string, unknown>;
+  readonly metadata?: Record<string, unknown>;
+  readonly output?: Record<string, unknown>;
+  readonly split?: string;
+}): AgentEffectivenessDatasetExample =>
+  new AgentEffectivenessDatasetExample({
+    id,
+    input,
+    metadata,
+    output,
+    split,
+  });
+
+const datasetSpec = ({
+  description,
+  examples,
+  kind,
+}: {
+  readonly description: string;
+  readonly examples: ReadonlyArray<AgentEffectivenessDatasetExample>;
+  readonly kind: AgentEffectivenessDatasetKind;
+}): AgentEffectivenessDatasetSpec =>
+  new AgentEffectivenessDatasetSpec({
+    description,
+    examples,
+    kind,
+    name: datasetNameFor(kind),
+  });
+
+const loopHealthDataset = (doctor: AgentEffectivenessDoctorReport): AgentEffectivenessDatasetSpec =>
+  datasetSpec({
+    description: "Aggregate loop health for the repo agent-effectiveness initiative.",
+    examples: [
+      datasetExample({
+        id: "loop-health-current",
+        input: {
+          generatedAt: doctor.generatedAt,
+          schemaVersion: doctor.schemaVersion,
+          target: doctor.target,
+        },
+        output: {
+          failureCount: A.length(doctor.summary.failures),
+          status: doctor.summary.status,
+          unavailableCount: A.length(doctor.summary.unavailable),
+          warningCount: A.length(doctor.summary.warnings),
+        },
+      }),
+    ],
+    kind: "agent-loop-health",
+  });
+
+const outcomesDataset = (doctor: AgentEffectivenessDoctorReport): AgentEffectivenessDatasetSpec => {
+  const scorecard = doctor.aiMetrics.latestScorecard;
+  return datasetSpec({
+    description: "Aggregate outcome-label and scorecard readiness evidence.",
+    examples: [
+      datasetExample({
+        id: "agent-outcomes-current",
+        input: {
+          benchmarkRunCount: doctor.aiMetrics.benchmarkRunCount,
+          labelCount: doctor.aiMetrics.labelCount,
+        },
+        output:
+          scorecard === null
+            ? { completionReady: false, scorecardPresent: false }
+            : {
+                completionReady: scorecard.completionReady,
+                scorecardId: scorecard.scorecardId,
+                scorecardPresent: true,
+                totalScore: scorecard.totalScore,
+              },
+      }),
+    ],
+    kind: "agent-outcomes",
+  });
+};
+
+const configSnapshotsDataset = (doctor: AgentEffectivenessDoctorReport): AgentEffectivenessDatasetSpec => {
+  const forwarder = doctor.aiMetrics.latestForwarder;
+  return datasetSpec({
+    description: "Aggregate configuration snapshot evidence for ingested agent metrics.",
+    examples: [
+      datasetExample({
+        id: "config-snapshot-current",
+        input: {
+          dataRoot: doctor.dataRoot,
+          target: doctor.target,
+        },
+        output:
+          forwarder === null
+            ? { configSnapshotPresent: false }
+            : {
+                archiveObjectCount: forwarder.archiveObjectCount,
+                configSnapshotId: forwarder.configSnapshotId,
+                configSnapshotPresent: true,
+                ingestRunId: forwarder.ingestRunId,
+                turnCount: forwarder.turnCount,
+              },
+      }),
+    ],
+    kind: "agent-config-snapshots",
+  });
+};
+
+const sourceCoverageDataset = (doctor: AgentEffectivenessDoctorReport): AgentEffectivenessDatasetSpec =>
+  datasetSpec({
+    description: "Aggregate source coverage evidence for local AI-metrics ingestion.",
+    examples: pipe(
+      doctor.aiMetrics.sourceCoverage,
+      A.map((coverage) =>
+        datasetExample({
+          id: `source-coverage-${annotationIdSuffixPart(coverage.sourceKind)}`,
+          input: {
+            sourceKind: coverage.sourceKind,
+          },
+          output: {
+            acceptedEvents: coverage.acceptedEvents,
+            lastTimestamp: coverage.lastTimestamp,
+            rejectedLines: coverage.rejectedLines,
+            sourceFileCount: coverage.sourceFileCount,
+            totalLines: coverage.totalLines,
+          },
+        })
+      )
+    ),
+    kind: "source-coverage",
+  });
+
+const jsdocWorkerDataset = (doctor: AgentEffectivenessDoctorReport): AgentEffectivenessDatasetSpec =>
+  datasetSpec({
+    description: "Aggregate JSDoc worker-eval suitability evidence without raw draft bodies.",
+    examples: [
+      datasetExample({
+        id: "jsdoc-worker-model-suitability-current",
+        input: {
+          reportPathHash: "repo-relative-jsdoc-worker-eval-report",
+        },
+        output: {
+          completedPackets: doctor.jsdocWorkerEval.completedPackets,
+          failedPackets: doctor.jsdocWorkerEval.failedPackets,
+          policyViolationCodes: doctor.jsdocWorkerEval.policyViolationCodes,
+          selectedPackets: doctor.jsdocWorkerEval.selectedPackets,
+          status: doctor.jsdocWorkerEval.status,
+          timedOutPackets: doctor.jsdocWorkerEval.timedOutPackets,
+        },
+      }),
+    ],
+    kind: "jsdoc-worker-model-suitability",
+  });
+
+/**
+ * Build the Phoenix dataset bundle from a doctor report.
+ *
+ * @example
+ * ```ts
+ * import { makeAgentEffectivenessDatasetBundle } from "@beep/repo-ai-metrics"
+ * console.log(makeAgentEffectivenessDatasetBundle)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const makeAgentEffectivenessDatasetBundle: (
+  doctor: AgentEffectivenessDoctorReport
+) => AgentEffectivenessDatasetBundle = (doctor) =>
+  new AgentEffectivenessDatasetBundle({
+    datasets: [
+      loopHealthDataset(doctor),
+      outcomesDataset(doctor),
+      configSnapshotsDataset(doctor),
+      sourceCoverageDataset(doctor),
+      jsdocWorkerDataset(doctor),
+    ],
+    generatedAt: doctor.generatedAt,
+    projectName: AGENT_EFFECTIVENESS_PHOENIX_PROJECT,
+    schemaVersion: "agent-effectiveness-datasets/v1",
+  });
+
+/**
+ * Build the repo-owned Phoenix prompt bundle.
+ *
+ * @example
+ * ```ts
+ * import { makeAgentEffectivenessPromptBundle } from "@beep/repo-ai-metrics"
+ * console.log(makeAgentEffectivenessPromptBundle)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const makeAgentEffectivenessPromptBundle: (generatedAt: string) => AgentEffectivenessPromptBundle = (
+  generatedAt
+) =>
+  new AgentEffectivenessPromptBundle({
+    generatedAt,
+    projectName: AGENT_EFFECTIVENESS_PHOENIX_PROJECT,
+    prompts: [
+      new AgentEffectivenessPromptSpec({
+        description: "Repo-owned review prompt for deterministic agent-effectiveness case summaries.",
+        messages: [
+          new AgentEffectivenessPromptMessage({
+            content: "You review sanitized aggregate agent-effectiveness evidence. Do not request raw transcripts.",
+            role: "system",
+          }),
+          new AgentEffectivenessPromptMessage({
+            content: "Evaluate {{datasetName}} example {{exampleId}} using only aggregate fields.",
+            role: "user",
+          }),
+        ],
+        modelName: "gpt-4o-mini",
+        name: "agent-effectiveness-review-evaluator-v1",
+      }),
+      new AgentEffectivenessPromptSpec({
+        description: "Repo-owned prompt for source coverage review over sanitized source aggregates.",
+        messages: [
+          new AgentEffectivenessPromptMessage({
+            content: "You review source coverage aggregates and identify coverage gaps.",
+            role: "system",
+          }),
+          new AgentEffectivenessPromptMessage({
+            content: "Review source kind {{sourceKind}} with accepted event count {{acceptedEvents}}.",
+            role: "user",
+          }),
+        ],
+        modelName: "gpt-4o-mini",
+        name: "agent-effectiveness-source-coverage-review-v1",
+      }),
+    ],
+    schemaVersion: "agent-effectiveness-prompts/v1",
+  });
+
+/**
+ * Build deterministic experiment specs from a dataset bundle.
+ *
+ * @example
+ * ```ts
+ * import { makeAgentEffectivenessExperimentBundle } from "@beep/repo-ai-metrics"
+ * console.log(makeAgentEffectivenessExperimentBundle)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const makeAgentEffectivenessExperimentBundle: (
+  datasetBundle: AgentEffectivenessDatasetBundle
+) => AgentEffectivenessExperimentBundle = (datasetBundle) =>
+  new AgentEffectivenessExperimentBundle({
+    experiments: pipe(
+      datasetBundle.datasets,
+      A.map(
+        (dataset) =>
+          new AgentEffectivenessExperimentSpec({
+            datasetName: dataset.name,
+            description: `Deterministic readback experiment for ${dataset.name}.`,
+            metadata: {
+              datasetKind: dataset.kind,
+              projectName: datasetBundle.projectName,
+              source: "agent-effectiveness-loop",
+            },
+            name: `${dataset.kind}-deterministic-v1`,
+          })
+      )
+    ),
+    generatedAt: datasetBundle.generatedAt,
+    projectName: datasetBundle.projectName,
+    schemaVersion: "agent-effectiveness-experiments/v1",
+  });
+
+const toPhoenixDatasetCreateInput = (dataset: AgentEffectivenessDatasetSpec): PhoenixDatasetCreateInput =>
+  new PhoenixDatasetCreateInput({
+    description: dataset.description,
+    examples: pipe(
+      dataset.examples,
+      A.map(
+        (example) =>
+          new PhoenixDatasetExample({
+            id: example.id,
+            input: example.input,
+            metadata: example.metadata,
+            output: example.output,
+            splits: example.split,
+          })
+      )
+    ),
+    name: dataset.name,
+  });
+
+const datasetSelectorFor = (dataset: AgentEffectivenessDatasetSpec): PhoenixDatasetSelector =>
+  new PhoenixDatasetSelector({ kind: "dataset-name", value: dataset.name });
+
+const syncPhoenixDataset = Effect.fn("AiMetrics.syncPhoenixDataset")(function* (
+  phoenix: PhoenixShape,
+  dataset: AgentEffectivenessDatasetSpec
+) {
+  const input = toPhoenixDatasetCreateInput(dataset);
+  const selector = datasetSelectorFor(dataset);
+  const existing = yield* phoenix.getDatasetInfo(selector).pipe(Effect.option);
+
+  if (O.isSome(existing)) {
+    const appended = yield* phoenix.appendDatasetExamples(
+      new PhoenixDatasetAppendInput({
+        dataset: selector,
+        examples: input.examples,
+      })
+    );
+    return {
+      createExperiment: false,
+      datasetId: appended.datasetId,
+    };
+  }
+
+  const created = yield* phoenix.createDataset(input);
+  return {
+    createExperiment: true,
+    datasetId: created.datasetId,
+  };
+});
+
+const toPhoenixPromptCreateInput = (prompt: AgentEffectivenessPromptSpec): PhoenixPromptCreateInput =>
+  new PhoenixPromptCreateInput({
+    description: prompt.description,
+    metadata: {
+      projectName: AGENT_EFFECTIVENESS_PHOENIX_PROJECT,
+      source: "agent-effectiveness-loop",
+    },
+    modelName: prompt.modelName,
+    name: prompt.name,
+    template: pipe(
+      prompt.messages,
+      A.map((message) => new PhoenixPromptChatMessage({ content: message.content, role: message.role }))
+    ),
+    versionDescription: `${prompt.name} checked in by @beep/repo-ai-metrics.`,
+  });
+
+const isPhoenixAnnotationTargetKind = (value: string): value is PhoenixAnnotationTargetKindType =>
+  PhoenixAnnotationTargetKind.is.span(value) ||
+  PhoenixAnnotationTargetKind.is.session(value) ||
+  PhoenixAnnotationTargetKind.is.trace(value);
+
+const plannedAnnotationToPhoenix = (
+  annotation: AgentEffectivenessPlannedAnnotation
+): O.Option<PhoenixAnnotationInput> => {
+  if (!isPhoenixAnnotationTargetKind(annotation.targetKind)) {
+    return O.none();
+  }
+
+  const valueFields = P.isNumber(annotation.value)
+    ? { score: annotation.value }
+    : { label: P.isBoolean(annotation.value) ? (annotation.value ? "true" : "false") : annotation.value };
+
+  return O.some(
+    new PhoenixAnnotationInput({
+      identifier: annotation.annotationId,
+      metadata: {
+        optimization: annotation.optimization,
+        source: annotation.source,
+        ...annotation.metadata,
+      },
+      name: annotation.name,
+      targetId: annotation.targetRef,
+      targetKind: annotation.targetKind,
+      ...valueFields,
+    })
+  );
+};
+
+const unconfirmedSyncResult = ({
+  datasetBundle,
+  dryRun,
+  experimentBundle,
+  mutationPolicy,
+  phoenixAnnotations,
+  plannedAnnotationCount,
+  promptBundle,
+  status,
+}: {
+  readonly datasetBundle: AgentEffectivenessDatasetBundle;
+  readonly dryRun: boolean;
+  readonly experimentBundle: AgentEffectivenessExperimentBundle;
+  readonly mutationPolicy: string;
+  readonly phoenixAnnotations: ReadonlyArray<PhoenixAnnotationInput>;
+  readonly plannedAnnotationCount: number;
+  readonly promptBundle: AgentEffectivenessPromptBundle;
+  readonly status: AgentEffectivenessStatus;
+}): AgentEffectivenessPhoenixSyncResult =>
+  new AgentEffectivenessPhoenixSyncResult({
+    annotationCount: A.length(phoenixAnnotations),
+    datasetCount: A.length(datasetBundle.datasets),
+    dryRun,
+    experimentCount: A.length(experimentBundle.experiments),
+    mutationPolicy,
+    promptCount: A.length(promptBundle.prompts),
+    skippedAnnotationCount: plannedAnnotationCount - A.length(phoenixAnnotations),
+    status,
+    writtenDatasetIds: [],
+    writtenExperimentIds: [],
+    writtenPromptVersionIds: [],
+  });
+
+/**
+ * Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix.
+ *
+ * @remarks
+ * This function defaults to dry-run. Live writes require
+ * {@link AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION}.
+ *
+ * @example
+ * ```ts
+ * import { syncAgentEffectivenessPhoenix } from "@beep/repo-ai-metrics"
+ * console.log(syncAgentEffectivenessPhoenix)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const syncAgentEffectivenessPhoenix: (
+  input?: AgentEffectivenessPhoenixSyncInput
+) => Effect.Effect<
+  AgentEffectivenessPhoenixSyncResult,
+  AgentEffectivenessError,
+  DuckDb | FileSystem.FileSystem | HttpClient.HttpClient | Path.Path | Phoenix
+> = Effect.fn("AiMetrics.syncAgentEffectivenessPhoenix")(function* (
+  input: AgentEffectivenessPhoenixSyncInput = new AgentEffectivenessPhoenixSyncInput({})
+) {
+  const plan = yield* makeAgentEffectivenessAnnotationPlan(input.annotationPlan);
+  const datasetBundle = makeAgentEffectivenessDatasetBundle(plan.doctor);
+  const promptBundle = makeAgentEffectivenessPromptBundle(plan.generatedAt);
+  const experimentBundle = makeAgentEffectivenessExperimentBundle(datasetBundle);
+  const phoenixAnnotations = pipe(plan.annotations, A.map(plannedAnnotationToPhoenix), A.getSomes);
+  const confirmed = !input.dryRun && input.confirmToken === AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION;
+  const annotationCheck = makeAgentEffectivenessAnnotationCheckReport(plan);
+
+  if (annotationCheck.status === AgentEffectivenessStatus.Enum.failed) {
+    return unconfirmedSyncResult({
+      datasetBundle,
+      dryRun: input.dryRun,
+      experimentBundle,
+      mutationPolicy: input.dryRun ? "dry-run-annotation-check-failed" : "blocked-annotation-check-failed",
+      phoenixAnnotations,
+      plannedAnnotationCount: A.length(plan.annotations),
+      promptBundle,
+      status: AgentEffectivenessStatus.Enum.failed,
+    });
+  }
+
+  const datasetFindings = checkDatasetBundle(datasetBundle);
+  if (A.isReadonlyArrayNonEmpty(datasetFindings)) {
+    return unconfirmedSyncResult({
+      datasetBundle,
+      dryRun: input.dryRun,
+      experimentBundle,
+      mutationPolicy: input.dryRun ? "dry-run-dataset-check-failed" : "blocked-dataset-check-failed",
+      phoenixAnnotations,
+      plannedAnnotationCount: A.length(plan.annotations),
+      promptBundle,
+      status: AgentEffectivenessStatus.Enum.failed,
+    });
+  }
+
+  if (input.dryRun) {
+    return unconfirmedSyncResult({
+      datasetBundle,
+      dryRun: true,
+      experimentBundle,
+      mutationPolicy: "dry-run-no-phoenix-mutation",
+      phoenixAnnotations,
+      plannedAnnotationCount: A.length(plan.annotations),
+      promptBundle,
+      status: AgentEffectivenessStatus.Enum.passed,
+    });
+  }
+
+  if (!confirmed) {
+    return unconfirmedSyncResult({
+      datasetBundle,
+      dryRun: false,
+      experimentBundle,
+      mutationPolicy: "blocked-missing-confirmation-token",
+      phoenixAnnotations,
+      plannedAnnotationCount: A.length(plan.annotations),
+      promptBundle,
+      status: AgentEffectivenessStatus.Enum.failed,
+    });
+  }
+
+  const phoenix = yield* Phoenix;
+  const datasetResults = yield* Effect.forEach(
+    datasetBundle.datasets,
+    (dataset) => syncPhoenixDataset(phoenix, dataset),
+    { concurrency: 1 }
+  ).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AgentEffectivenessError({
+          cause,
+          message: "Failed to sync agent-effectiveness datasets to Phoenix.",
+        })
+    )
+  );
+  const promptResults = yield* Effect.forEach(
+    promptBundle.prompts,
+    (prompt) => phoenix.createPrompt(toPhoenixPromptCreateInput(prompt)),
+    { concurrency: 1 }
+  ).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AgentEffectivenessError({
+          cause,
+          message: "Failed to write agent-effectiveness prompts to Phoenix.",
+        })
+    )
+  );
+  const experimentResults = yield* Effect.forEach(
+    pipe(
+      datasetBundle.datasets,
+      A.zip(datasetResults),
+      A.map(([dataset, result]) =>
+        result.createExperiment ? O.some({ dataset, datasetId: result.datasetId }) : O.none()
+      ),
+      A.getSomes
+    ),
+    ({ dataset, datasetId }) =>
+      phoenix.createExperiment(
+        new PhoenixExperimentCreateInput({
+          datasetId,
+          experimentDescription: `Deterministic readback experiment for ${dataset.name}.`,
+          experimentMetadata: {
+            datasetKind: dataset.kind,
+            projectName: datasetBundle.projectName,
+            source: "agent-effectiveness-loop",
+          },
+          experimentName: `${dataset.kind}-deterministic-v1`,
+        })
+      ),
+    { concurrency: 1 }
+  ).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AgentEffectivenessError({
+          cause,
+          message: "Failed to create agent-effectiveness Phoenix experiments.",
+        })
+    )
+  );
+  const annotationResults = yield* Effect.forEach(phoenixAnnotations, phoenix.addAnnotation, { concurrency: 1 }).pipe(
+    Effect.mapError(
+      (cause) =>
+        new AgentEffectivenessError({
+          cause,
+          message: "Failed to write resolved agent-effectiveness annotations to Phoenix.",
+        })
+    )
+  );
+
+  return new AgentEffectivenessPhoenixSyncResult({
+    annotationCount: A.length(annotationResults),
+    datasetCount: A.length(datasetResults),
+    dryRun: false,
+    experimentCount: A.length(experimentResults),
+    mutationPolicy: "confirmed-phoenix-write",
+    promptCount: A.length(promptResults),
+    skippedAnnotationCount: A.length(plan.annotations) - A.length(phoenixAnnotations),
+    status: AgentEffectivenessStatus.Enum.passed,
+    writtenDatasetIds: pipe(
+      datasetResults,
+      A.map((result) => result.datasetId)
+    ),
+    writtenExperimentIds: pipe(
+      experimentResults,
+      A.map((result) => result.experimentId)
+    ),
+    writtenPromptVersionIds: pipe(
+      promptResults,
+      A.map((result) => result.promptVersionId)
+    ),
+  });
+});
+
 const forbiddenPatterns = [
   { code: "private-home-path", pattern: /\/home\/[A-Za-z0-9_.-]+/u },
   { code: "onepassword-ref", pattern: /op:\/\//u },
@@ -1713,111 +2743,157 @@ const checkText = (
     )
   );
 
-const checkPlanPayloadText = (
-  annotationId: string,
-  value: unknown
+const checkUnknownText = (
+  subjectId: string,
+  value: unknown,
+  subject: string
 ): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => {
   if (P.isString(value)) {
-    return checkText(annotationId, value, "Plan payload");
+    return checkText(subjectId, value, subject);
   }
+
   if (A.isArray(value)) {
     return pipe(
       value,
-      A.flatMap((entry, index) => checkPlanPayloadText(`${annotationId}[${index}]`, entry))
+      A.flatMap((entry, index) => checkUnknownText(`${subjectId}[${index}]`, entry, subject))
     );
   }
+
   if (P.isObject(value)) {
-    return pipe(
-      R.toEntries(value as Readonly<Record<string, unknown>>),
-      A.flatMap(([key, entry]) => [
-        ...checkText(annotationId, key, "Plan payload"),
-        ...checkPlanPayloadText(`${annotationId}.${key}`, entry),
-      ])
-    );
+    return checkRecordText(subjectId, value as Readonly<Record<string, unknown>>, subject);
   }
+
   return [];
 };
+
+const checkRecordText = (
+  subjectId: string,
+  record: Readonly<Record<string, unknown>>,
+  subject: string
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
+  pipe(
+    R.toEntries(record),
+    A.flatMap(([key, value]) => [
+      ...checkText(subjectId, key, subject),
+      ...checkUnknownText(`${subjectId}.${key}`, value, subject),
+    ])
+  );
 
 const checkPlanPayload = (
   plan: AgentEffectivenessAnnotationPlan
 ): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
-  checkPlanPayloadText("plan", {
-    doctor: {
-      aiMetrics: {
-        dataRoot: plan.doctor.aiMetrics.dataRoot,
-        derivedDuckDbPath: plan.doctor.aiMetrics.derivedDuckDbPath,
-        latestForwarder:
-          plan.doctor.aiMetrics.latestForwarder === null
-            ? null
-            : {
-                configSnapshotId: plan.doctor.aiMetrics.latestForwarder.configSnapshotId,
-                ingestRunId: plan.doctor.aiMetrics.latestForwarder.ingestRunId,
-                target: plan.doctor.aiMetrics.latestForwarder.target,
-              },
-        latestScorecard:
-          plan.doctor.aiMetrics.latestScorecard === null
-            ? null
-            : {
-                configSnapshotId: plan.doctor.aiMetrics.latestScorecard.configSnapshotId,
-                coverageGaps: plan.doctor.aiMetrics.latestScorecard.coverageGaps,
-                scorecardId: plan.doctor.aiMetrics.latestScorecard.scorecardId,
-              },
-        message: plan.doctor.aiMetrics.message,
-        sourceCoverage: pipe(
-          plan.doctor.aiMetrics.sourceCoverage,
-          A.map((coverage) => ({
-            lastTimestamp: coverage.lastTimestamp,
-            sourceKind: coverage.sourceKind,
-          }))
-        ),
-        status: plan.doctor.aiMetrics.status,
-        unavailableMetrics: plan.doctor.aiMetrics.unavailableMetrics,
+  checkUnknownText(
+    "plan",
+    {
+      doctor: {
+        aiMetrics: {
+          dataRoot: plan.doctor.aiMetrics.dataRoot,
+          derivedDuckDbPath: plan.doctor.aiMetrics.derivedDuckDbPath,
+          latestForwarder:
+            plan.doctor.aiMetrics.latestForwarder === null
+              ? null
+              : {
+                  configSnapshotId: plan.doctor.aiMetrics.latestForwarder.configSnapshotId,
+                  ingestRunId: plan.doctor.aiMetrics.latestForwarder.ingestRunId,
+                  target: plan.doctor.aiMetrics.latestForwarder.target,
+                },
+          latestScorecard:
+            plan.doctor.aiMetrics.latestScorecard === null
+              ? null
+              : {
+                  configSnapshotId: plan.doctor.aiMetrics.latestScorecard.configSnapshotId,
+                  coverageGaps: plan.doctor.aiMetrics.latestScorecard.coverageGaps,
+                  scorecardId: plan.doctor.aiMetrics.latestScorecard.scorecardId,
+                },
+          message: plan.doctor.aiMetrics.message,
+          sourceCoverage: pipe(
+            plan.doctor.aiMetrics.sourceCoverage,
+            A.map((coverage) => ({
+              lastTimestamp: coverage.lastTimestamp,
+              sourceKind: coverage.sourceKind,
+            }))
+          ),
+          status: plan.doctor.aiMetrics.status,
+          unavailableMetrics: plan.doctor.aiMetrics.unavailableMetrics,
+        },
+        dataRoot: plan.doctor.dataRoot,
+        generatedAt: plan.doctor.generatedAt,
+        jsdocWorkerEval: {
+          cleanupDeleteStatus: plan.doctor.jsdocWorkerEval.cleanupDeleteStatus,
+          cleanupStopStatus: plan.doctor.jsdocWorkerEval.cleanupStopStatus,
+          message: plan.doctor.jsdocWorkerEval.message,
+          otlpStatus: plan.doctor.jsdocWorkerEval.otlpStatus,
+          policyViolationCodes: plan.doctor.jsdocWorkerEval.policyViolationCodes,
+          reportPath: plan.doctor.jsdocWorkerEval.reportPath,
+          status: plan.doctor.jsdocWorkerEval.status,
+        },
+        phoenix: {
+          baseUrl: plan.doctor.phoenix.baseUrl,
+          message: plan.doctor.phoenix.message,
+          projects: pipe(
+            plan.doctor.phoenix.projects,
+            A.map((project) => ({
+              name: project.name,
+              sessionAnnotationNames: project.sessionAnnotationNames,
+              spanAnnotationNames: project.spanAnnotationNames,
+              traceAnnotationNames: project.traceAnnotationNames,
+            }))
+          ),
+          status: plan.doctor.phoenix.status,
+          version: plan.doctor.phoenix.version,
+        },
+        schemaVersion: plan.doctor.schemaVersion,
+        summary: {
+          failures: plan.doctor.summary.failures,
+          status: plan.doctor.summary.status,
+          unavailable: plan.doctor.summary.unavailable,
+          warnings: plan.doctor.summary.warnings,
+        },
+        target: plan.doctor.target,
       },
-      dataRoot: plan.doctor.dataRoot,
-      generatedAt: plan.doctor.generatedAt,
-      jsdocWorkerEval: {
-        cleanupDeleteStatus: plan.doctor.jsdocWorkerEval.cleanupDeleteStatus,
-        cleanupStopStatus: plan.doctor.jsdocWorkerEval.cleanupStopStatus,
-        message: plan.doctor.jsdocWorkerEval.message,
-        otlpStatus: plan.doctor.jsdocWorkerEval.otlpStatus,
-        policyViolationCodes: plan.doctor.jsdocWorkerEval.policyViolationCodes,
-        reportPath: plan.doctor.jsdocWorkerEval.reportPath,
-        status: plan.doctor.jsdocWorkerEval.status,
-      },
-      phoenix: {
-        baseUrl: plan.doctor.phoenix.baseUrl,
-        message: plan.doctor.phoenix.message,
-        projects: pipe(
-          plan.doctor.phoenix.projects,
-          A.map((project) => ({
-            name: project.name,
-            sessionAnnotationNames: project.sessionAnnotationNames,
-            spanAnnotationNames: project.spanAnnotationNames,
-            traceAnnotationNames: project.traceAnnotationNames,
-          }))
-        ),
-        status: plan.doctor.phoenix.status,
-        version: plan.doctor.phoenix.version,
-      },
-      schemaVersion: plan.doctor.schemaVersion,
+      generatedAt: plan.generatedAt,
+      mutationPolicy: plan.mutationPolicy,
+      schemaVersion: plan.schemaVersion,
       summary: {
-        failures: plan.doctor.summary.failures,
-        status: plan.doctor.summary.status,
-        unavailable: plan.doctor.summary.unavailable,
-        warnings: plan.doctor.summary.warnings,
+        failures: plan.summary.failures,
+        status: plan.summary.status,
+        unavailable: plan.summary.unavailable,
+        warnings: plan.summary.warnings,
       },
-      target: plan.doctor.target,
     },
-    generatedAt: plan.generatedAt,
-    mutationPolicy: plan.mutationPolicy,
-    schemaVersion: plan.schemaVersion,
-    summary: {
-      failures: plan.summary.failures,
-      status: plan.summary.status,
-      unavailable: plan.summary.unavailable,
-      warnings: plan.summary.warnings,
-    },
-  });
+    "Plan payload"
+  );
+
+const checkDatasetExample = (
+  dataset: AgentEffectivenessDatasetSpec,
+  example: AgentEffectivenessDatasetExample
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => {
+  const subject = "Dataset example";
+  const subjectId = `dataset:${dataset.name}:example:${example.id}`;
+  return [
+    ...checkText(subjectId, dataset.description, subject),
+    ...checkText(subjectId, dataset.kind, subject),
+    ...checkText(subjectId, dataset.name, subject),
+    ...checkText(subjectId, example.id, subject),
+    ...checkText(subjectId, example.split, subject),
+    ...checkRecordText(subjectId, example.input, subject),
+    ...checkRecordText(subjectId, example.metadata, subject),
+    ...checkRecordText(subjectId, example.output, subject),
+  ];
+};
+
+const checkDatasetBundle = (
+  bundle: AgentEffectivenessDatasetBundle
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
+  pipe(
+    bundle.datasets,
+    A.flatMap((dataset) =>
+      pipe(
+        dataset.examples,
+        A.flatMap((example) => checkDatasetExample(dataset, example))
+      )
+    )
+  );
 
 const checkAnnotation = (
   annotation: AgentEffectivenessPlannedAnnotation
@@ -1977,4 +3053,108 @@ export const agentEffectivenessAnnotationCheckReportToJson: (
         })
     )
   )
+);
+
+/**
+ * Encode a dataset bundle as JSON.
+ *
+ * @example
+ * ```ts
+ * import { agentEffectivenessDatasetBundleToJson } from "@beep/repo-ai-metrics"
+ * console.log(agentEffectivenessDatasetBundleToJson)
+ * ```
+ * @category encoding
+ * @since 0.0.0
+ */
+export const agentEffectivenessDatasetBundleToJson: (
+  bundle: AgentEffectivenessDatasetBundle
+) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessDatasetBundleToJson")(
+  (bundle) =>
+    encodeDatasetBundleJson(bundle).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AgentEffectivenessError({
+            cause,
+            message: "Failed to encode agent-effectiveness dataset bundle as JSON.",
+          })
+      )
+    )
+);
+
+/**
+ * Encode a prompt bundle as JSON.
+ *
+ * @example
+ * ```ts
+ * import { agentEffectivenessPromptBundleToJson } from "@beep/repo-ai-metrics"
+ * console.log(agentEffectivenessPromptBundleToJson)
+ * ```
+ * @category encoding
+ * @since 0.0.0
+ */
+export const agentEffectivenessPromptBundleToJson: (
+  bundle: AgentEffectivenessPromptBundle
+) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessPromptBundleToJson")(
+  (bundle) =>
+    encodePromptBundleJson(bundle).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AgentEffectivenessError({
+            cause,
+            message: "Failed to encode agent-effectiveness prompt bundle as JSON.",
+          })
+      )
+    )
+);
+
+/**
+ * Encode an experiment bundle as JSON.
+ *
+ * @example
+ * ```ts
+ * import { agentEffectivenessExperimentBundleToJson } from "@beep/repo-ai-metrics"
+ * console.log(agentEffectivenessExperimentBundleToJson)
+ * ```
+ * @category encoding
+ * @since 0.0.0
+ */
+export const agentEffectivenessExperimentBundleToJson: (
+  bundle: AgentEffectivenessExperimentBundle
+) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessExperimentBundleToJson")(
+  (bundle) =>
+    encodeExperimentBundleJson(bundle).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AgentEffectivenessError({
+            cause,
+            message: "Failed to encode agent-effectiveness experiment bundle as JSON.",
+          })
+      )
+    )
+);
+
+/**
+ * Encode a Phoenix sync result as JSON.
+ *
+ * @example
+ * ```ts
+ * import { agentEffectivenessPhoenixSyncResultToJson } from "@beep/repo-ai-metrics"
+ * console.log(agentEffectivenessPhoenixSyncResultToJson)
+ * ```
+ * @category encoding
+ * @since 0.0.0
+ */
+export const agentEffectivenessPhoenixSyncResultToJson: (
+  result: AgentEffectivenessPhoenixSyncResult
+) => Effect.Effect<string, AgentEffectivenessError> = Effect.fn("AiMetrics.agentEffectivenessPhoenixSyncResultToJson")(
+  (result) =>
+    encodePhoenixSyncResultJson(result).pipe(
+      Effect.mapError(
+        (cause) =>
+          new AgentEffectivenessError({
+            cause,
+            message: "Failed to encode agent-effectiveness Phoenix sync result as JSON.",
+          })
+      )
+    )
 );

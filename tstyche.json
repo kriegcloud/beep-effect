@@ -59,6 +59,7 @@
     "packages/drivers/ai-provider-cli/dtslint/**/*.tst.*",
     "packages/drivers/sanity/dtslint/**/*.tst.*",
     "packages/drivers/hubspot/dtslint/**/*.tst.*",
+    "packages/drivers/phoenix/dtslint/**/*.tst.*",
     "packages/drivers/konva/dtslint/**/*.tst.*",
     "apps/canvas/dtslint/**/*.tst.*"
   ],
