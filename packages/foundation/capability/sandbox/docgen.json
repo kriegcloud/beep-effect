@@ -62,6 +62,21 @@
       "@beep/schema/*": [
         "../../../../packages/foundation/modeling/schema/src/*.ts"
       ],
+      "@beep/schema/color": [
+        "../../../../packages/foundation/modeling/schema/src/color/index.ts"
+      ],
+      "@beep/schema/csv/parse": [
+        "../../../../packages/foundation/modeling/schema/src/csv/parse/index.ts"
+      ],
+      "@beep/schema/dom": [
+        "../../../../packages/foundation/modeling/schema/src/dom/index.ts"
+      ],
+      "@beep/schema/internal/markdown": [
+        "../../../../packages/foundation/modeling/schema/src/internal/markdown.ts"
+      ],
+      "@beep/schema/internal/yaml": [
+        "../../../../packages/foundation/modeling/schema/src/internal/yaml.ts"
+      ],
       "@beep/utils": [
         "../../../../packages/foundation/modeling/utils/src/index.ts"
       ],
