@@ -10,7 +10,7 @@
 
 import { AiProviderCli } from "@beep/ai-provider-cli";
 import { Discord } from "@beep/discord";
-import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-workspace-use-cases";
+import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-use-cases";
 import { OnePasswordCli } from "@beep/onepassword-cli";
 import { Sha256HexFromBytes } from "@beep/schema/Sha256";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
