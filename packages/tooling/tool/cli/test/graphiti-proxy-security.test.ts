@@ -3,7 +3,8 @@ import { shouldRecoverGraphitiStackForTesting } from "@beep/repo-cli/commands/Gr
 import { makeGraphitiProxyForwarderService } from "@beep/repo-cli/commands/Graphiti/internal/ProxyServices";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
-import { Effect } from "effect";
+import { Duration, Effect } from "effect";
+import * as O from "effect/Option";
 import {
   HttpClient,
   HttpClientError,
@@ -112,6 +113,40 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
       expect(response.status).toBe(200);
       const responseText = yield* readResponseText(response);
       expect(responseText).toBe("normalized");
+    })
+  );
+
+  it.effect(
+    "returns streaming upstream responses without waiting for the body to close",
+    Effect.fn(function* () {
+      const forwarder = makeGraphitiProxyForwarderService(makeProxyConfig());
+      const result = yield* forwarder.forward(makeServerRequest("/mcp")).pipe(
+        Effect.provideService(
+          HttpClient.HttpClient,
+          makeWebHandlerClient(() => {
+            const body = new ReadableStream<Uint8Array>({
+              start: (controller) => {
+                controller.enqueue(new TextEncoder().encode("event: message\ndata: {}\n\n"));
+              },
+            });
+
+            return Promise.resolve(
+              new Response(body, {
+                status: 200,
+                headers: {
+                  "content-type": "text/event-stream",
+                },
+              })
+            );
+          })
+        ),
+        Effect.timeoutOption(Duration.millis(250))
+      );
+
+      expect(O.isSome(result)).toBe(true);
+      if (O.isSome(result)) {
+        expect(result.value.status).toBe(200);
+      }
     })
   );
 

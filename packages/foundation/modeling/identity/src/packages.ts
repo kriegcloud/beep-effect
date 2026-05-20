@@ -120,6 +120,11 @@ const composers = $I.compose(
   "architecture-lab-tables",
   "architecture-lab-client",
   "architecture-lab-ui",
+  "canvas-domain",
+  "canvas-use-cases",
+  "canvas-server",
+  "canvas-client",
+  "canvas-ui",
   "architecture-lab-proof",
   "stack-installer",
   "installer-domain",
@@ -130,7 +135,9 @@ const composers = $I.compose(
   "discord",
   "ai-provider-cli",
   "sanity",
-  "hubspot"
+  "hubspot",
+  "konva",
+  "canvas"
 );
 
 // --- foundation ---
@@ -1212,3 +1219,115 @@ export const $SanityId: Identity.IdentityComposer<"@beep/sanity"> = composers.$S
  * @category configuration
  */
 export const $HubspotId: Identity.IdentityComposer<"@beep/hubspot"> = composers.$HubspotId;
+
+/**
+ * Identity composer for `@beep/konva`.
+ *
+ * @example
+ * ```typescript
+ * import { $KonvaId } from "@beep/identity"
+ *
+ * const id = $KonvaId.make("Konva")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $KonvaId: Identity.IdentityComposer<"@beep/konva"> = composers.$KonvaId;
+
+/**
+ * Identity composer for `@beep/canvas-domain`.
+ *
+ * @example
+ * ```typescript
+ * import { $CanvasDomainId } from "@beep/identity"
+ *
+ * const id = $CanvasDomainId.make("CanvasProject")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $CanvasDomainId: Identity.IdentityComposer<"@beep/canvas-domain"> = composers.$CanvasDomainId;
+
+/**
+ * Identity composer for `@beep/canvas-use-cases`.
+ *
+ * @example
+ * ```typescript
+ * import { $CanvasUseCasesId } from "@beep/identity"
+ *
+ * const id = $CanvasUseCasesId.make("CanvasProjectUseCases")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $CanvasUseCasesId: Identity.IdentityComposer<"@beep/canvas-use-cases"> = composers.$CanvasUseCasesId;
+
+/**
+ * Identity composer for `@beep/canvas-server`.
+ *
+ * @example
+ * ```typescript
+ * import { $CanvasServerId } from "@beep/identity"
+ *
+ * const id = $CanvasServerId.make("CanvasProjectBundleRepository")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $CanvasServerId: Identity.IdentityComposer<"@beep/canvas-server"> = composers.$CanvasServerId;
+
+/**
+ * Identity composer for `@beep/canvas-client`.
+ *
+ * @example
+ * ```typescript
+ * import { $CanvasClientId } from "@beep/identity"
+ *
+ * const id = $CanvasClientId.make("CanvasEditorState")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $CanvasClientId: Identity.IdentityComposer<"@beep/canvas-client"> = composers.$CanvasClientId;
+
+/**
+ * Identity composer for `@beep/canvas-ui`.
+ *
+ * @example
+ * ```typescript
+ * import { $CanvasUiId } from "@beep/identity"
+ *
+ * const id = $CanvasUiId.make("CanvasEditor")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $CanvasUiId: Identity.IdentityComposer<"@beep/canvas-ui"> = composers.$CanvasUiId;
+
+/**
+ * Identity composer for `@beep/canvas`.
+ *
+ * @example
+ * ```typescript
+ * import { $CanvasId } from "@beep/identity"
+ *
+ * const id = $CanvasId.make("Canvas")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $CanvasId: Identity.IdentityComposer<"@beep/canvas"> = composers.$CanvasId;

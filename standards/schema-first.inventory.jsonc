@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-16",
+  "generatedOn": "2026-05-20",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -71,6 +71,22 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/architecture-lab-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts",
+      "symbol": "CanvasProjectRepositoryShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/canvas-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts",
+      "symbol": "CanvasProjectUseCasesShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/canvas-use-cases",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
