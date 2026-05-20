@@ -202,13 +202,7 @@ const p1CommandProbes = [
 const p1ProviderAuthProviders = ["claude", "codex"] as const satisfies ReadonlyArray<AiProviderCliProvider>;
 
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
-  stream.pipe(
-    Stream.decodeText(),
-    Stream.runFold(
-      () => "",
-      (acc, chunk) => `${acc}${chunk}`
-    )
-  );
+  stream.pipe(Stream.decodeText(), Stream.runCollect, Effect.map(A.join("")));
 
 const probeCommand = (
   spawner: ChildProcessSpawner.ChildProcessSpawner["Service"],
