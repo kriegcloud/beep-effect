@@ -10,7 +10,7 @@ import {
 } from "@beep/repo-cli/commands/Files/index";
 import { A, O, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
-import { Data, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
+import { ConfigProvider, Data, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -308,7 +308,7 @@ const withEnvVar = <A, E, R>(name: string, value: string, use: Effect.Effect<A, 
       Bun.env[name] = value;
       return previousValue;
     }),
-    () => use,
+    () => provideScopedLayer(ConfigProvider.layer(ConfigProvider.fromUnknown({ [name]: value })))(use),
     (previousValue) =>
       Effect.sync(() => {
         if (previousValue === undefined) {

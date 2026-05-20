@@ -358,20 +358,68 @@ const validateBundleEntries = Effect.fn("StackInstaller.validateBundleEntries")(
   );
 });
 
+const validateExtractedBundleEntries = Effect.fn("StackInstaller.validateExtractedBundleEntries")(function* (
+  platform: P1RequiredPlatform,
+  extractionRoot: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const entries = yield* fs.readDirectory(extractionRoot, { recursive: true });
+  const unsafeEntries = pipe(
+    entries,
+    A.filter((entry) => !isSafeBundleEntry(platform, entry))
+  );
+
+  yield* requireAudit(
+    A.isReadonlyArrayEmpty(unsafeEntries),
+    `Refusing extracted bundle; extracted paths must stay under ${platform}/ and avoid traversal segments: ${pipe(
+      unsafeEntries,
+      A.take(10),
+      A.join(", ")
+    )}`
+  );
+});
+
 const runExtractionProcess = Effect.fn("StackInstaller.runExtractionProcess")(function* (
   platform: P1RequiredPlatform,
   bundlePath: string,
   outputRoot: string
 ) {
-  const process = p1ProofBundleExtractionProcess(platform, { bundlePath, outputRoot });
-  // Listing and extraction are separate native-process calls; keep bundlePath under the operator-owned output root.
-  yield* validateBundleEntries(platform, bundlePath);
-  const [stdout, stderr, exitCode] = yield* runNativeProcess(process);
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const stagingDir = yield* fs.makeTempDirectory({ directory: outputRoot, prefix: `.p1-proof-${platform}-` });
 
-  yield* requireAudit(
-    exitCode === 0,
-    `Failed to extract ${bundlePath} with ${process.command}; exitCode=${exitCode}; stderr=${stderr}; stdout=${stdout}`
-  );
+  yield* Effect.gen(function* () {
+    const stagedBundlePath = path.join(stagingDir, p1ProofBundleFileNameForPlatform(platform));
+    const stagedExtractionRoot = path.join(stagingDir, "extract");
+    const stagedOutputDir = path.join(stagedExtractionRoot, platform);
+    const outputDir = path.join(outputRoot, platform);
+
+    yield* fs.makeDirectory(stagedExtractionRoot, { recursive: true });
+    yield* fs.copyFile(bundlePath, stagedBundlePath);
+    yield* validateBundleEntries(platform, stagedBundlePath);
+
+    const process = p1ProofBundleExtractionProcess(platform, {
+      bundlePath: stagedBundlePath,
+      outputRoot: stagedExtractionRoot,
+    });
+    const [stdout, stderr, exitCode] = yield* runNativeProcess(process);
+
+    yield* requireAudit(
+      exitCode === 0,
+      `Failed to extract ${bundlePath} with ${process.command}; exitCode=${exitCode}; stderr=${stderr}; stdout=${stdout}`
+    );
+    yield* validateExtractedBundleEntries(platform, stagedExtractionRoot);
+
+    const stagedOutputDirExists = yield* fs.exists(stagedOutputDir).pipe(Effect.orElseSucceed(() => false));
+    yield* requireAudit(
+      stagedOutputDirExists,
+      `Extracted bundle did not create expected proof directory: ${outputDir}`
+    );
+
+    const outputDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+    yield* requireAudit(!outputDirExists, `Refusing to replace existing proof directory: ${outputDir}`);
+    yield* fs.rename(stagedOutputDir, outputDir);
+  }).pipe(Effect.ensuring(fs.remove(stagingDir, { force: true, recursive: true }).pipe(Effect.ignore)));
 });
 
 const intakePlatformBundle = Effect.fn("StackInstaller.intakePlatformBundle")(function* (
