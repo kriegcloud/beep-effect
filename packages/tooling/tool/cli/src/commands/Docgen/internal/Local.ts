@@ -10,6 +10,7 @@ import { DomainError, type FsUtils, findRepoRoot, type NoSuchFileError } from "@
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Console, Effect, type FileSystem, Order, type Path, pipe, Stream } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -50,21 +51,35 @@ const DOCGEN_LOCAL_FULL_INPUT_PREFIXES = [
   "packages/tooling/tool/docgen/",
   "packages/tooling/tool/cli/src/commands/Docgen/",
 ] as const;
-const TURBO_DRY_RUN_TASK = S.Struct({
-  package: S.optionalKey(S.String),
-  task: S.optionalKey(S.String),
-  taskId: S.optionalKey(S.String),
-  cache: S.optionalKey(
-    S.Struct({
-      status: S.optionalKey(S.String),
-      source: S.optionalKey(S.String),
-    })
-  ),
-});
-const TURBO_DRY_RUN_DOCUMENT = S.Struct({
-  tasks: S.Array(TURBO_DRY_RUN_TASK),
-});
-const decodeTurboDryRunDocument = S.decodeUnknownEffect(S.fromJsonString(TURBO_DRY_RUN_DOCUMENT));
+class TurboDryRunTaskCache extends S.Class<TurboDryRunTaskCache>($I`TurboDryRunTaskCache`)(
+  {
+    source: S.optionalKey(S.String),
+    status: S.optionalKey(S.String),
+  },
+  $I.annote("TurboDryRunTaskCache", {
+    description: "Turbo dry-run cache metadata for one task.",
+  })
+) {}
+class TurboDryRunTask extends S.Class<TurboDryRunTask>($I`TurboDryRunTask`)(
+  {
+    cache: S.optionalKey(TurboDryRunTaskCache),
+    package: S.optionalKey(S.String),
+    task: S.optionalKey(S.String),
+    taskId: S.optionalKey(S.String),
+  },
+  $I.annote("TurboDryRunTask", {
+    description: "Turbo dry-run task record decoded from JSON output.",
+  })
+) {}
+class TurboDryRunDocument extends S.Class<TurboDryRunDocument>($I`TurboDryRunDocument`)(
+  {
+    tasks: S.Array(TurboDryRunTask),
+  },
+  $I.annote("TurboDryRunDocument", {
+    description: "Turbo dry-run JSON document.",
+  })
+) {}
+const decodeTurboDryRunDocument = S.decodeUnknownEffect(S.fromJsonString(TurboDryRunDocument));
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 
 type DocgenLocalEnvironment = FileSystem.FileSystem | Path.Path | FsUtils | ChildProcessSpawner;
@@ -565,7 +580,7 @@ const decodeTurboDryRun = Effect.fn("DocgenLocal.decodeTurboDryRun")(function* (
   );
 });
 
-const summarizeTurboTasks = (output: typeof TURBO_DRY_RUN_DOCUMENT.Type): ReadonlyArray<DocgenLocalTurboTask> =>
+const summarizeTurboTasks = (output: typeof TurboDryRunDocument.Type): ReadonlyArray<DocgenLocalTurboTask> =>
   pipe(
     output.tasks,
     A.map((task) => {
@@ -749,16 +764,22 @@ const runScopedDocgen = Effect.fn("DocgenLocal.runScopedDocgen")(function* (plan
  * @category testing
  * @since 0.0.0
  */
-export const selectDocgenLocalPackagesForTesting = (
-  packages: ReadonlyArray<DocgenWorkspacePackage>,
-  changedFiles: ReadonlyArray<string>
-): ReadonlyArray<DocgenLocalSelectedPackage> =>
+export const selectDocgenLocalPackagesForTesting: {
+  (
+    changedFiles: ReadonlyArray<string>
+  ): (packages: ReadonlyArray<DocgenWorkspacePackage>) => ReadonlyArray<DocgenLocalSelectedPackage>;
+  (
+    packages: ReadonlyArray<DocgenWorkspacePackage>,
+    changedFiles: ReadonlyArray<string>
+  ): ReadonlyArray<DocgenLocalSelectedPackage>;
+} = dual(2, (packages: ReadonlyArray<DocgenWorkspacePackage>, changedFiles: ReadonlyArray<string>) =>
   pipe(
     packages,
     A.map((pkg) => selectPackage(pkg, pipe(changedFiles, A.map(normalizedFilePath)))),
     collectOptions,
     A.sort(bySelectedPackagePathAscending)
-  );
+  )
+);
 
 /**
  * Build Turbo argv for local docgen targets.
@@ -778,10 +799,12 @@ export const selectDocgenLocalPackagesForTesting = (
  * @category testing
  * @since 0.0.0
  */
-export const docgenLocalTurboArgsForTesting = (
-  selectedPackages: ReadonlyArray<DocgenLocalSelectedPackage>,
-  parallel: number
-): ReadonlyArray<string> => turboArgsForSelectedPackages(selectedPackages, parallel);
+export const docgenLocalTurboArgsForTesting: {
+  (parallel: number): (selectedPackages: ReadonlyArray<DocgenLocalSelectedPackage>) => ReadonlyArray<string>;
+  (selectedPackages: ReadonlyArray<DocgenLocalSelectedPackage>, parallel: number): ReadonlyArray<string>;
+} = dual(2, (selectedPackages: ReadonlyArray<DocgenLocalSelectedPackage>, parallel: number) =>
+  turboArgsForSelectedPackages(selectedPackages, parallel)
+);
 
 /**
  * Resolve changed files that require the full docgen proof.
