@@ -117,8 +117,8 @@
         "typescript": "catalog:",
       },
     },
-    "apps/opip-web": {
-      "name": "@beep/opip-web",
+    "apps/oip-web": {
+      "name": "@beep/oip-web",
       "version": "0.0.0",
       "dependencies": {
         "@beep/hubspot": "workspace:^",
@@ -2041,7 +2041,7 @@
 
     "@beep/openai-compat": ["@beep/openai-compat@workspace:packages/drivers/openai-compat"],
 
-    "@beep/opip-web": ["@beep/opip-web@workspace:apps/opip-web"],
+    "@beep/oip-web": ["@beep/oip-web@workspace:apps/oip-web"],
 
     "@beep/phoenix": ["@beep/phoenix@workspace:packages/drivers/phoenix"],
 

@@ -43,8 +43,8 @@ intentionally preserved until a dedicated manifest migration is planned.
 - `canvas`
 - `codex-security-findings` — local Codex Security finding catalog, current-HEAD triage, and remediation queue.
 - `ip-law-knowledge-graph`
-- `opip-web-production-hardening`
-- `opip-web-launch` — implementation complete; launch review pending.
+- `oip-web-production-hardening`
+- `oip-web-launch` — implementation complete; launch review pending.
 - `repo-codegraph` — deterministic-first codegraph lookup and retrieval
   implementation packet.
 - `repo-quality-acceleration` — research-first quality feedback speedup packet.

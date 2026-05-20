@@ -93,7 +93,7 @@
       "@beep/infra": ["./infra/src/index.ts"],
       "@beep/md": ["./packages/foundation/capability/md/src/index.ts"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
-      "@beep/opip-web": ["./apps/opip-web/src/index.ts"],
+      "@beep/oip-web": ["./apps/oip-web/src/index.ts"],
       "@beep/professional-desktop": [
         "./apps/professional-desktop/src/index.ts"
       ],
@@ -554,21 +554,19 @@
       "@beep/hubspot/*": ["./packages/drivers/hubspot/src/*"],
       "@beep/sanity": ["./packages/drivers/sanity/src/index.ts"],
       "@beep/sanity/*": ["./packages/drivers/sanity/src/*"],
-      "@beep/opip-web/contact": ["./apps/opip-web/src/contact/index.ts"],
-      "@beep/opip-web/content": ["./apps/opip-web/src/content/index.ts"],
-      "@beep/opip-web/mdx-components": [
-        "./apps/opip-web/src/mdx-components.tsx"
+      "@beep/oip-web/contact": ["./apps/oip-web/src/contact/index.ts"],
+      "@beep/oip-web/content": ["./apps/oip-web/src/content/index.ts"],
+      "@beep/oip-web/mdx-components": ["./apps/oip-web/src/mdx-components.tsx"],
+      "@beep/oip-web/proxy": ["./apps/oip-web/src/proxy.ts"],
+      "@beep/oip-web/app/api/contact/route": [
+        "./apps/oip-web/src/app/api/contact/route.ts"
       ],
-      "@beep/opip-web/proxy": ["./apps/opip-web/src/proxy.ts"],
-      "@beep/opip-web/app/api/contact/route": [
-        "./apps/opip-web/src/app/api/contact/route.ts"
+      "@beep/oip-web/app/llms.txt/route": [
+        "./apps/oip-web/src/app/llms.txt/route.ts"
       ],
-      "@beep/opip-web/app/llms.txt/route": [
-        "./apps/opip-web/src/app/llms.txt/route.ts"
-      ],
-      "@beep/opip-web/app/manifest": ["./apps/opip-web/src/app/manifest.ts"],
-      "@beep/opip-web/app/robots": ["./apps/opip-web/src/app/robots.ts"],
-      "@beep/opip-web/app/sitemap": ["./apps/opip-web/src/app/sitemap.ts"],
+      "@beep/oip-web/app/manifest": ["./apps/oip-web/src/app/manifest.ts"],
+      "@beep/oip-web/app/robots": ["./apps/oip-web/src/app/robots.ts"],
+      "@beep/oip-web/app/sitemap": ["./apps/oip-web/src/app/sitemap.ts"],
       "@beep/repo-codegraph": [
         "./packages/tooling/library/repo-codegraph/src/index.ts"
       ],
@@ -643,7 +641,13 @@
         "./packages/installer/use-cases/src/server.ts"
       ],
       "@beep/phoenix": ["./packages/drivers/phoenix/src/index.ts"],
-      "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"]
+      "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"],
+      "@beep/oip-web/config/OipRedirects": [
+        "./apps/oip-web/src/config/OipRedirects.ts"
+      ],
+      "@beep/oip-web/app/api/contact/ContactRouteResponse": [
+        "./apps/oip-web/src/app/api/contact/ContactRouteResponse.ts"
+      ]
     }
   }
 }

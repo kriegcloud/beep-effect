@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 77 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 0 |
-| importSpecifiers | 918 |
-| publicExportEntries | 13565 |
-| uniquePackageSymbols | 5442 |
+| importSpecifiers | 920 |
+| publicExportEntries | 13568 |
+| uniquePackageSymbols | 5445 |
 
 ## Seed Discovery Proof
 
@@ -72,18 +72,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 33 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 34 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
 | 35 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | has-public-exports | 5 | 44 | 25 |
-| 36 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 5 | 140 | 42 |
-| 37 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
-| 38 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
-| 39 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
-| 40 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
-| 41 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
-| 42 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
-| 43 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
-| 44 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
-| 45 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
-| 46 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 50 | 16 |
-| 47 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 36 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 50 | 16 |
+| 37 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 114 | 525 | 445 |
+| 38 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 39 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 5 | 140 | 42 |
+| 40 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
+| 41 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
+| 42 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
+| 43 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
+| 44 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
+| 45 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
+| 46 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
+| 47 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
 | 48 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
 | 49 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 50 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 15 | 6 |
@@ -94,25 +94,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 55 | `@beep/shared-config` | `packages/shared/config` | has-public-exports | 2 | 2 | 1 |
 | 56 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | has-public-exports | 30 | 786 | 238 |
 | 57 | `@beep/shared-use-cases` | `packages/shared/use-cases` | has-public-exports | 2 | 2 | 1 |
-| 58 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
-| 59 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
-| 60 | `@beep/canvas` | `apps/canvas` | has-public-exports | 2 | 2 | 1 |
-| 61 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
-| 62 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
-| 63 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
-| 64 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
-| 65 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
-| 66 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
-| 67 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
-| 68 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
-| 69 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
-| 70 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 8 | 161 | 44 |
-| 71 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
-| 72 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
-| 73 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 74 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
-| 75 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
-| 76 | `@beep/opip-web` | `apps/opip-web` | has-public-exports | 10 | 39 | 35 |
+| 58 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 12 | 42 | 38 |
+| 59 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
+| 60 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
+| 61 | `@beep/canvas` | `apps/canvas` | has-public-exports | 2 | 2 | 1 |
+| 62 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
+| 63 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 4 | 92 | 28 |
+| 64 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
+| 65 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
+| 66 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
+| 67 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 229 |
+| 68 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 53 | 589 | 178 |
+| 69 | `@beep/infra` | `infra` | has-public-exports | 1 | 20 | 20 |
+| 70 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
+| 71 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 8 | 161 | 44 |
+| 72 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
+| 73 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
+| 74 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
+| 75 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
+| 76 | `@beep/openai` | `packages/drivers/openai` | has-public-exports | 2 | 2 | 1 |
 | 77 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
 | 78 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
@@ -189,10 +189,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:190` | Identity composer for the `@beep/messages` package. |
 | `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:451` | Identity composer for the `@beep/nlp` package. |
 | `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:466` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:695` |  |
 | `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1159` | Identity composer for `@beep/onepassword-cli`. |
 | `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:932` | Identity composer for `@beep/openai-compat`. |
 | `@beep/identity` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:888` |  |
-| `@beep/identity` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:695` |  |
 | `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1239` | Identity composer for `@beep/phoenix`. |
 | `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:725` |  |
 | `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:652` | Identity composer for the `@beep/professional-desktop` package. |
@@ -315,10 +315,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:190` | Identity composer for the `@beep/messages` package. |
 | `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:451` | Identity composer for the `@beep/nlp` package. |
 | `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:466` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:695` |  |
 | `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1159` | Identity composer for `@beep/onepassword-cli`. |
 | `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:932` | Identity composer for `@beep/openai-compat`. |
 | `@beep/identity/index` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:888` |  |
-| `@beep/identity/index` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:695` |  |
 | `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1239` | Identity composer for `@beep/phoenix`. |
 | `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:725` |  |
 | `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:652` | Identity composer for the `@beep/professional-desktop` package. |
@@ -421,10 +421,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:190` | Identity composer for the `@beep/messages` package. |
 | `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:451` | Identity composer for the `@beep/nlp` package. |
 | `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:466` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:695` |  |
 | `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1159` | Identity composer for `@beep/onepassword-cli`. |
 | `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:932` | Identity composer for `@beep/openai-compat`. |
 | `@beep/identity/packages` | `$OpenaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:888` |  |
-| `@beep/identity/packages` | `$OpipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:695` |  |
 | `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1239` | Identity composer for `@beep/phoenix`. |
 | `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:725` |  |
 | `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:652` | Identity composer for the `@beep/professional-desktop` package. |
@@ -9235,189 +9235,60 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/canvas-use-cases/public` | `CanvasProject` | SourceFile | `packages/canvas/use-cases/src/aggregates/CanvasProject/index.ts:7` |  |
 | `@beep/canvas-use-cases/server` | `CanvasProject` | SourceFile | `packages/canvas/use-cases/src/aggregates/CanvasProject/server.ts:14` |  |
 
-### @beep/openai-compat
+### @beep/hubspot
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/openai-compat` | `decodeChatCompletionChunk` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:1003` | Decodes an unknown value into an OpenAI-compatible chat completion stream chunk. |
-| `@beep/openai-compat` | `decodeChatCompletionResponse` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:985` | Decodes an unknown value into an OpenAI-compatible chat completion response. |
-| `@beep/openai-compat` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:953` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:902` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
-| `@beep/openai-compat` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:921` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:854` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
-| `@beep/openai-compat` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:973` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
-| `@beep/openai-compat` | `OpenAiCompatAssistantChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:372` | Assistant chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatAssistantDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:766` | Delta message returned by OpenAI-compatible chat completion streams. |
-| `@beep/openai-compat` | `OpenAiCompatAssistantMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:730` | Assistant message returned by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatChatCompletionChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:833` | Chat completion choice returned by OpenAI-compatible endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatChatCompletionChunk` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:953` | Stream chunk returned by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatChatCompletionChunkChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:911` | Stream chunk choice returned by OpenAI-compatible endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatChatCompletionRequest` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:685` | Chat completion request sent to OpenAI-compatible providers. |
-| `@beep/openai-compat` | `OpenAiCompatChatCompletionResponse` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:876` | Chat completion response returned by OpenAI-compatible endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatChatMessage` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:435` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatChatMessage` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:467` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatChatRole` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:41` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatChatRole` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:62` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatClient` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:322` | OpenAI-compatible HTTP client service. |
-| `@beep/openai-compat` | `OpenAiCompatClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:53` | Runtime configuration accepted by {@link OpenAiCompatClient.makeLayer}. |
-| `@beep/openai-compat` | `OpenAiCompatClientShape` | interface | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:87` | OpenAI-compatible HTTP client service shape. |
-| `@beep/openai-compat` | `OpenAiCompatFinishReason` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:79` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatFinishReason` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:106` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatFunctionTool` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:278` | Function declaration sent to OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatFunctionToolDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:246` | Function details sent to OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatJsonObjectResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:611` | JSON object response format configuration. |
-| `@beep/openai-compat` | `OpenAiCompatJsonSchemaDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:488` | JSON schema response-format details for chat completion requests. |
-| `@beep/openai-compat` | `OpenAiCompatJsonSchemaResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:520` | Structured response format configuration for chat completion requests. |
-| `@beep/openai-compat` | `OpenAiCompatLanguageModelClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:149` | Options accepted by the default OpenAI-compatible language-model constructor. |
-| `@beep/openai-compat` | `OpenAiCompatLanguageModelConfig` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:62` | Request-time tuning options shared by OpenAI-compatible language-model adapters. |
-| `@beep/openai-compat` | `OpenAiCompatLanguageModelOptions` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:126` | Options accepted by {@link makeFromProvider}. |
-| `@beep/openai-compat` | `OpenAiCompatProvider` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:99` | Provider callbacks used by the OpenAI-compatible language-model factory. |
-| `@beep/openai-compat` | `OpenAiCompatResponseFormat` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:637` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
-| `@beep/openai-compat` | `OpenAiCompatResponseFormat` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:665` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
-| `@beep/openai-compat` | `OpenAiCompatResponseFormatKind` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:547` | Response format discriminator accepted by OpenAI-compatible chat completion requests. |
-| `@beep/openai-compat` | `OpenAiCompatResponseFormatKind` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:568` | Type for {@link OpenAiCompatResponseFormatKind}. |
-| `@beep/openai-compat` | `OpenAiCompatSystemChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:312` | System chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatTextResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:585` | Text response format configuration. |
-| `@beep/openai-compat` | `OpenAiCompatToolCall` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:157` | Tool call payload emitted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatToolCallDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:216` | Incremental tool-call payload emitted by OpenAI-compatible chat completion streams. |
-| `@beep/openai-compat` | `OpenAiCompatToolCallFunction` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:126` | Function payload inside an OpenAI-compatible tool call. |
-| `@beep/openai-compat` | `OpenAiCompatToolCallFunctionDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:186` | Incremental function payload inside an OpenAI-compatible streaming tool-call delta. |
-| `@beep/openai-compat` | `OpenAiCompatToolChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:405` | Tool chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatUsage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:801` | Token usage returned by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat` | `VERSION` | const | `packages/drivers/openai-compat/src/index.ts:23` | OpenAI-compatible driver package version. |
-| `@beep/openai-compat/index` | `decodeChatCompletionChunk` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:1003` | Decodes an unknown value into an OpenAI-compatible chat completion stream chunk. |
-| `@beep/openai-compat/index` | `decodeChatCompletionResponse` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:985` | Decodes an unknown value into an OpenAI-compatible chat completion response. |
-| `@beep/openai-compat/index` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:953` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat/index` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:902` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
-| `@beep/openai-compat/index` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:921` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat/index` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:854` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
-| `@beep/openai-compat/index` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:973` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
-| `@beep/openai-compat/index` | `OpenAiCompatAssistantChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:372` | Assistant chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatAssistantDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:766` | Delta message returned by OpenAI-compatible chat completion streams. |
-| `@beep/openai-compat/index` | `OpenAiCompatAssistantMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:730` | Assistant message returned by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:833` | Chat completion choice returned by OpenAI-compatible endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionChunk` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:953` | Stream chunk returned by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionChunkChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:911` | Stream chunk choice returned by OpenAI-compatible endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionRequest` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:685` | Chat completion request sent to OpenAI-compatible providers. |
-| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionResponse` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:876` | Chat completion response returned by OpenAI-compatible endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatChatMessage` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:435` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatChatMessage` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:467` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatChatRole` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:41` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatChatRole` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:62` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatClient` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:322` | OpenAI-compatible HTTP client service. |
-| `@beep/openai-compat/index` | `OpenAiCompatClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:53` | Runtime configuration accepted by {@link OpenAiCompatClient.makeLayer}. |
-| `@beep/openai-compat/index` | `OpenAiCompatClientShape` | interface | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:87` | OpenAI-compatible HTTP client service shape. |
-| `@beep/openai-compat/index` | `OpenAiCompatFinishReason` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:79` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatFinishReason` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:106` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatFunctionTool` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:278` | Function declaration sent to OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatFunctionToolDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:246` | Function details sent to OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatJsonObjectResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:611` | JSON object response format configuration. |
-| `@beep/openai-compat/index` | `OpenAiCompatJsonSchemaDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:488` | JSON schema response-format details for chat completion requests. |
-| `@beep/openai-compat/index` | `OpenAiCompatJsonSchemaResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:520` | Structured response format configuration for chat completion requests. |
-| `@beep/openai-compat/index` | `OpenAiCompatLanguageModelClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:149` | Options accepted by the default OpenAI-compatible language-model constructor. |
-| `@beep/openai-compat/index` | `OpenAiCompatLanguageModelConfig` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:62` | Request-time tuning options shared by OpenAI-compatible language-model adapters. |
-| `@beep/openai-compat/index` | `OpenAiCompatLanguageModelOptions` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:126` | Options accepted by {@link makeFromProvider}. |
-| `@beep/openai-compat/index` | `OpenAiCompatProvider` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:99` | Provider callbacks used by the OpenAI-compatible language-model factory. |
-| `@beep/openai-compat/index` | `OpenAiCompatResponseFormat` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:637` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
-| `@beep/openai-compat/index` | `OpenAiCompatResponseFormat` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:665` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
-| `@beep/openai-compat/index` | `OpenAiCompatResponseFormatKind` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:547` | Response format discriminator accepted by OpenAI-compatible chat completion requests. |
-| `@beep/openai-compat/index` | `OpenAiCompatResponseFormatKind` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:568` | Type for {@link OpenAiCompatResponseFormatKind}. |
-| `@beep/openai-compat/index` | `OpenAiCompatSystemChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:312` | System chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatTextResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:585` | Text response format configuration. |
-| `@beep/openai-compat/index` | `OpenAiCompatToolCall` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:157` | Tool call payload emitted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatToolCallDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:216` | Incremental tool-call payload emitted by OpenAI-compatible chat completion streams. |
-| `@beep/openai-compat/index` | `OpenAiCompatToolCallFunction` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:126` | Function payload inside an OpenAI-compatible tool call. |
-| `@beep/openai-compat/index` | `OpenAiCompatToolCallFunctionDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:186` | Incremental function payload inside an OpenAI-compatible streaming tool-call delta. |
-| `@beep/openai-compat/index` | `OpenAiCompatToolChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:405` | Tool chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatUsage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:801` | Token usage returned by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/index` | `VERSION` | const | `packages/drivers/openai-compat/src/index.ts:23` | OpenAI-compatible driver package version. |
-| `@beep/openai-compat/OpenAiCompat.client` | `OpenAiCompatClient` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:322` | OpenAI-compatible HTTP client service. |
-| `@beep/openai-compat/OpenAiCompat.client` | `OpenAiCompatClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:53` | Runtime configuration accepted by {@link OpenAiCompatClient.makeLayer}. |
-| `@beep/openai-compat/OpenAiCompat.client` | `OpenAiCompatClientShape` | interface | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:87` | OpenAI-compatible HTTP client service shape. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:953` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:902` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:921` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:854` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:973` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatLanguageModelClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:149` | Options accepted by the default OpenAI-compatible language-model constructor. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatLanguageModelConfig` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:62` | Request-time tuning options shared by OpenAI-compatible language-model adapters. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatLanguageModelOptions` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:126` | Options accepted by {@link makeFromProvider}. |
-| `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatProvider` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:99` | Provider callbacks used by the OpenAI-compatible language-model factory. |
-| `@beep/openai-compat/OpenAiCompat.models` | `decodeChatCompletionChunk` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:1003` | Decodes an unknown value into an OpenAI-compatible chat completion stream chunk. |
-| `@beep/openai-compat/OpenAiCompat.models` | `decodeChatCompletionResponse` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:985` | Decodes an unknown value into an OpenAI-compatible chat completion response. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatAssistantChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:372` | Assistant chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatAssistantDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:766` | Delta message returned by OpenAI-compatible chat completion streams. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatAssistantMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:730` | Assistant message returned by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:833` | Chat completion choice returned by OpenAI-compatible endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionChunk` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:953` | Stream chunk returned by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionChunkChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:911` | Stream chunk choice returned by OpenAI-compatible endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionRequest` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:685` | Chat completion request sent to OpenAI-compatible providers. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionResponse` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:876` | Chat completion response returned by OpenAI-compatible endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatMessage` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:435` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatMessage` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:467` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatRole` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:41` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatRole` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:62` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatFinishReason` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:79` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatFinishReason` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:106` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatFunctionTool` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:278` | Function declaration sent to OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatFunctionToolDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:246` | Function details sent to OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatJsonObjectResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:611` | JSON object response format configuration. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatJsonSchemaDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:488` | JSON schema response-format details for chat completion requests. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatJsonSchemaResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:520` | Structured response format configuration for chat completion requests. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatResponseFormat` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:637` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatResponseFormat` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:665` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatResponseFormatKind` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:547` | Response format discriminator accepted by OpenAI-compatible chat completion requests. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatResponseFormatKind` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:568` | Type for {@link OpenAiCompatResponseFormatKind}. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatSystemChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:312` | System chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatTextResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:585` | Text response format configuration. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolCall` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:157` | Tool call payload emitted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolCallDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:216` | Incremental tool-call payload emitted by OpenAI-compatible chat completion streams. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolCallFunction` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:126` | Function payload inside an OpenAI-compatible tool call. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolCallFunctionDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:186` | Incremental function payload inside an OpenAI-compatible streaming tool-call delta. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:405` | Tool chat message accepted by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUsage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:801` | Token usage returned by OpenAI-compatible chat completion endpoints. |
-| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
-
-### @beep/installer-server
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:722` | Discord-channel concept layer. |
-| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:698` | Host-dependency concept layer. |
-| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:738` | Concept-local installer services. |
-| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:760` | Complete installer server layer. |
-| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:464` | Build the Discord-channel concept server. |
-| `@beep/installer-server` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
-| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:535` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:422` | Build the provider-account concept server. |
-| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
-| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:521` | Build the stack-manifest concept server. |
-| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:752` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:781` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:714` | Provider-account concept layer. |
-| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:768` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:706` | Secret-reference concept layer. |
-| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:730` | Stack-manifest concept layer. |
-| `@beep/installer-server` | `VERSION` | const | `packages/installer/server/src/index.ts:15` | Package version for `@beep/installer-server`. |
-| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:722` | Discord-channel concept layer. |
-| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:698` | Host-dependency concept layer. |
-| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:738` | Concept-local installer services. |
-| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:760` | Complete installer server layer. |
-| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:464` | Build the Discord-channel concept server. |
-| `@beep/installer-server/layer` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
-| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:535` | Build the P1 Manual Mode proof workflow. |
-| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:422` | Build the provider-account concept server. |
-| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
-| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:521` | Build the stack-manifest concept server. |
-| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:752` | P1 Manual Mode proof workflow layer. |
-| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:781` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:714` | Provider-account concept layer. |
-| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:768` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:706` | Secret-reference concept layer. |
-| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:730` | Stack-manifest concept layer. |
-| `@beep/installer-server/test` | `InstallerServerTest` | const | `packages/installer/server/src/test.ts:17` | Deterministic test layer for the installer slice. |
+| `@beep/hubspot` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
+| `@beep/hubspot` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
+| `@beep/hubspot` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
+| `@beep/hubspot` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
+| `@beep/hubspot` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
+| `@beep/hubspot` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
+| `@beep/hubspot` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
+| `@beep/hubspot` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
+| `@beep/hubspot` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
+| `@beep/hubspot` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
+| `@beep/hubspot` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
+| `@beep/hubspot` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
+| `@beep/hubspot` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
+| `@beep/hubspot` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
+| `@beep/hubspot/HubSpot.config` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
+| `@beep/hubspot/HubSpot.config` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
+| `@beep/hubspot/HubSpot.config` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
+| `@beep/hubspot/HubSpot.service` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
+| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
+| `@beep/hubspot/index` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
+| `@beep/hubspot/index` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
+| `@beep/hubspot/index` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
+| `@beep/hubspot/index` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
+| `@beep/hubspot/index` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
+| `@beep/hubspot/index` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot/index` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
+| `@beep/hubspot/index` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
+| `@beep/hubspot/index` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
+| `@beep/hubspot/index` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
+| `@beep/hubspot/index` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
+| `@beep/hubspot/index` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
+| `@beep/hubspot/index` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
+| `@beep/hubspot/index` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
+| `@beep/hubspot/index` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
 
 ### @beep/ui
 
@@ -9949,6 +9820,233 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/themes/typography` | `typography` | const | `packages/foundation/ui-system/ui/src/themes/typography.ts:89` | Typography scale for the shared theme. |
 | `@beep/ui/themes/typography` | `typographyTheme` | const | `packages/foundation/ui-system/ui/src/themes/typography.ts:113` | Typography component overrides for the shared theme. |
 
+### @beep/sanity
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
+| `@beep/sanity` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
+| `@beep/sanity` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
+| `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
+| `@beep/sanity` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
+| `@beep/sanity` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
+| `@beep/sanity` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
+| `@beep/sanity` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
+| `@beep/sanity` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
+| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
+| `@beep/sanity/index` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
+| `@beep/sanity/index` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
+| `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity/index` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity/index` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity/index` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity/index` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
+| `@beep/sanity/index` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
+| `@beep/sanity/index` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
+| `@beep/sanity/index` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
+| `@beep/sanity/index` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
+| `@beep/sanity/index` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
+| `@beep/sanity/Sanity.config` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
+| `@beep/sanity/Sanity.config` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
+| `@beep/sanity/Sanity.errors` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
+| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
+| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
+| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
+| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
+| `@beep/sanity/Sanity.service` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
+| `@beep/sanity/Sanity.service` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
+| `@beep/sanity/Sanity.service` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
+
+### @beep/openai-compat
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/openai-compat` | `decodeChatCompletionChunk` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:1003` | Decodes an unknown value into an OpenAI-compatible chat completion stream chunk. |
+| `@beep/openai-compat` | `decodeChatCompletionResponse` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:985` | Decodes an unknown value into an OpenAI-compatible chat completion response. |
+| `@beep/openai-compat` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:953` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:902` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
+| `@beep/openai-compat` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:921` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:854` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
+| `@beep/openai-compat` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:973` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
+| `@beep/openai-compat` | `OpenAiCompatAssistantChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:372` | Assistant chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatAssistantDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:766` | Delta message returned by OpenAI-compatible chat completion streams. |
+| `@beep/openai-compat` | `OpenAiCompatAssistantMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:730` | Assistant message returned by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatChatCompletionChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:833` | Chat completion choice returned by OpenAI-compatible endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatChatCompletionChunk` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:953` | Stream chunk returned by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatChatCompletionChunkChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:911` | Stream chunk choice returned by OpenAI-compatible endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatChatCompletionRequest` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:685` | Chat completion request sent to OpenAI-compatible providers. |
+| `@beep/openai-compat` | `OpenAiCompatChatCompletionResponse` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:876` | Chat completion response returned by OpenAI-compatible endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatChatMessage` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:435` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatChatMessage` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:467` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatChatRole` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:41` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatChatRole` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:62` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatClient` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:322` | OpenAI-compatible HTTP client service. |
+| `@beep/openai-compat` | `OpenAiCompatClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:53` | Runtime configuration accepted by {@link OpenAiCompatClient.makeLayer}. |
+| `@beep/openai-compat` | `OpenAiCompatClientShape` | interface | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:87` | OpenAI-compatible HTTP client service shape. |
+| `@beep/openai-compat` | `OpenAiCompatFinishReason` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:79` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatFinishReason` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:106` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatFunctionTool` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:278` | Function declaration sent to OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatFunctionToolDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:246` | Function details sent to OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatJsonObjectResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:611` | JSON object response format configuration. |
+| `@beep/openai-compat` | `OpenAiCompatJsonSchemaDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:488` | JSON schema response-format details for chat completion requests. |
+| `@beep/openai-compat` | `OpenAiCompatJsonSchemaResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:520` | Structured response format configuration for chat completion requests. |
+| `@beep/openai-compat` | `OpenAiCompatLanguageModelClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:149` | Options accepted by the default OpenAI-compatible language-model constructor. |
+| `@beep/openai-compat` | `OpenAiCompatLanguageModelConfig` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:62` | Request-time tuning options shared by OpenAI-compatible language-model adapters. |
+| `@beep/openai-compat` | `OpenAiCompatLanguageModelOptions` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:126` | Options accepted by {@link makeFromProvider}. |
+| `@beep/openai-compat` | `OpenAiCompatProvider` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:99` | Provider callbacks used by the OpenAI-compatible language-model factory. |
+| `@beep/openai-compat` | `OpenAiCompatResponseFormat` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:637` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
+| `@beep/openai-compat` | `OpenAiCompatResponseFormat` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:665` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
+| `@beep/openai-compat` | `OpenAiCompatResponseFormatKind` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:547` | Response format discriminator accepted by OpenAI-compatible chat completion requests. |
+| `@beep/openai-compat` | `OpenAiCompatResponseFormatKind` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:568` | Type for {@link OpenAiCompatResponseFormatKind}. |
+| `@beep/openai-compat` | `OpenAiCompatSystemChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:312` | System chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatTextResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:585` | Text response format configuration. |
+| `@beep/openai-compat` | `OpenAiCompatToolCall` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:157` | Tool call payload emitted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatToolCallDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:216` | Incremental tool-call payload emitted by OpenAI-compatible chat completion streams. |
+| `@beep/openai-compat` | `OpenAiCompatToolCallFunction` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:126` | Function payload inside an OpenAI-compatible tool call. |
+| `@beep/openai-compat` | `OpenAiCompatToolCallFunctionDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:186` | Incremental function payload inside an OpenAI-compatible streaming tool-call delta. |
+| `@beep/openai-compat` | `OpenAiCompatToolChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:405` | Tool chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatUsage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:801` | Token usage returned by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat` | `VERSION` | const | `packages/drivers/openai-compat/src/index.ts:23` | OpenAI-compatible driver package version. |
+| `@beep/openai-compat/index` | `decodeChatCompletionChunk` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:1003` | Decodes an unknown value into an OpenAI-compatible chat completion stream chunk. |
+| `@beep/openai-compat/index` | `decodeChatCompletionResponse` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:985` | Decodes an unknown value into an OpenAI-compatible chat completion response. |
+| `@beep/openai-compat/index` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:953` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat/index` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:902` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
+| `@beep/openai-compat/index` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:921` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat/index` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:854` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
+| `@beep/openai-compat/index` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:973` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
+| `@beep/openai-compat/index` | `OpenAiCompatAssistantChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:372` | Assistant chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatAssistantDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:766` | Delta message returned by OpenAI-compatible chat completion streams. |
+| `@beep/openai-compat/index` | `OpenAiCompatAssistantMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:730` | Assistant message returned by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:833` | Chat completion choice returned by OpenAI-compatible endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionChunk` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:953` | Stream chunk returned by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionChunkChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:911` | Stream chunk choice returned by OpenAI-compatible endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionRequest` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:685` | Chat completion request sent to OpenAI-compatible providers. |
+| `@beep/openai-compat/index` | `OpenAiCompatChatCompletionResponse` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:876` | Chat completion response returned by OpenAI-compatible endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatChatMessage` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:435` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatChatMessage` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:467` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatChatRole` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:41` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatChatRole` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:62` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatClient` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:322` | OpenAI-compatible HTTP client service. |
+| `@beep/openai-compat/index` | `OpenAiCompatClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:53` | Runtime configuration accepted by {@link OpenAiCompatClient.makeLayer}. |
+| `@beep/openai-compat/index` | `OpenAiCompatClientShape` | interface | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:87` | OpenAI-compatible HTTP client service shape. |
+| `@beep/openai-compat/index` | `OpenAiCompatFinishReason` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:79` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatFinishReason` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:106` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatFunctionTool` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:278` | Function declaration sent to OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatFunctionToolDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:246` | Function details sent to OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatJsonObjectResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:611` | JSON object response format configuration. |
+| `@beep/openai-compat/index` | `OpenAiCompatJsonSchemaDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:488` | JSON schema response-format details for chat completion requests. |
+| `@beep/openai-compat/index` | `OpenAiCompatJsonSchemaResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:520` | Structured response format configuration for chat completion requests. |
+| `@beep/openai-compat/index` | `OpenAiCompatLanguageModelClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:149` | Options accepted by the default OpenAI-compatible language-model constructor. |
+| `@beep/openai-compat/index` | `OpenAiCompatLanguageModelConfig` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:62` | Request-time tuning options shared by OpenAI-compatible language-model adapters. |
+| `@beep/openai-compat/index` | `OpenAiCompatLanguageModelOptions` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:126` | Options accepted by {@link makeFromProvider}. |
+| `@beep/openai-compat/index` | `OpenAiCompatProvider` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:99` | Provider callbacks used by the OpenAI-compatible language-model factory. |
+| `@beep/openai-compat/index` | `OpenAiCompatResponseFormat` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:637` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
+| `@beep/openai-compat/index` | `OpenAiCompatResponseFormat` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:665` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
+| `@beep/openai-compat/index` | `OpenAiCompatResponseFormatKind` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:547` | Response format discriminator accepted by OpenAI-compatible chat completion requests. |
+| `@beep/openai-compat/index` | `OpenAiCompatResponseFormatKind` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:568` | Type for {@link OpenAiCompatResponseFormatKind}. |
+| `@beep/openai-compat/index` | `OpenAiCompatSystemChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:312` | System chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatTextResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:585` | Text response format configuration. |
+| `@beep/openai-compat/index` | `OpenAiCompatToolCall` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:157` | Tool call payload emitted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatToolCallDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:216` | Incremental tool-call payload emitted by OpenAI-compatible chat completion streams. |
+| `@beep/openai-compat/index` | `OpenAiCompatToolCallFunction` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:126` | Function payload inside an OpenAI-compatible tool call. |
+| `@beep/openai-compat/index` | `OpenAiCompatToolCallFunctionDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:186` | Incremental function payload inside an OpenAI-compatible streaming tool-call delta. |
+| `@beep/openai-compat/index` | `OpenAiCompatToolChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:405` | Tool chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatUsage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:801` | Token usage returned by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/index` | `VERSION` | const | `packages/drivers/openai-compat/src/index.ts:23` | OpenAI-compatible driver package version. |
+| `@beep/openai-compat/OpenAiCompat.client` | `OpenAiCompatClient` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:322` | OpenAI-compatible HTTP client service. |
+| `@beep/openai-compat/OpenAiCompat.client` | `OpenAiCompatClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:53` | Runtime configuration accepted by {@link OpenAiCompatClient.makeLayer}. |
+| `@beep/openai-compat/OpenAiCompat.client` | `OpenAiCompatClientShape` | interface | `packages/drivers/openai-compat/src/OpenAiCompat.client.ts:87` | OpenAI-compatible HTTP client service shape. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:953` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:902` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:921` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:854` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:973` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatLanguageModelClientOptions` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:149` | Options accepted by the default OpenAI-compatible language-model constructor. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatLanguageModelConfig` | class | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:62` | Request-time tuning options shared by OpenAI-compatible language-model adapters. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatLanguageModelOptions` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:126` | Options accepted by {@link makeFromProvider}. |
+| `@beep/openai-compat/OpenAiCompat.language-model` | `OpenAiCompatProvider` | type | `packages/drivers/openai-compat/src/OpenAiCompat.language-model.ts:99` | Provider callbacks used by the OpenAI-compatible language-model factory. |
+| `@beep/openai-compat/OpenAiCompat.models` | `decodeChatCompletionChunk` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:1003` | Decodes an unknown value into an OpenAI-compatible chat completion stream chunk. |
+| `@beep/openai-compat/OpenAiCompat.models` | `decodeChatCompletionResponse` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:985` | Decodes an unknown value into an OpenAI-compatible chat completion response. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatAssistantChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:372` | Assistant chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatAssistantDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:766` | Delta message returned by OpenAI-compatible chat completion streams. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatAssistantMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:730` | Assistant message returned by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:833` | Chat completion choice returned by OpenAI-compatible endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionChunk` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:953` | Stream chunk returned by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionChunkChoice` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:911` | Stream chunk choice returned by OpenAI-compatible endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionRequest` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:685` | Chat completion request sent to OpenAI-compatible providers. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatCompletionResponse` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:876` | Chat completion response returned by OpenAI-compatible endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatMessage` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:435` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatMessage` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:467` | Chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatRole` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:41` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatChatRole` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:62` | Chat roles accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatFinishReason` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:79` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatFinishReason` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:106` | Finish reasons emitted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatFunctionTool` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:278` | Function declaration sent to OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatFunctionToolDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:246` | Function details sent to OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatJsonObjectResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:611` | JSON object response format configuration. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatJsonSchemaDefinition` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:488` | JSON schema response-format details for chat completion requests. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatJsonSchemaResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:520` | Structured response format configuration for chat completion requests. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatResponseFormat` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:637` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatResponseFormat` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:665` | Response format configuration accepted by OpenAI-compatible chat completion requests. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatResponseFormatKind` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:547` | Response format discriminator accepted by OpenAI-compatible chat completion requests. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatResponseFormatKind` | type | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:568` | Type for {@link OpenAiCompatResponseFormatKind}. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatSystemChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:312` | System chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatTextResponseFormat` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:585` | Text response format configuration. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolCall` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:157` | Tool call payload emitted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolCallDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:216` | Incremental tool-call payload emitted by OpenAI-compatible chat completion streams. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolCallFunction` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:126` | Function payload inside an OpenAI-compatible tool call. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolCallFunctionDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:186` | Incremental function payload inside an OpenAI-compatible streaming tool-call delta. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatToolChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:405` | Tool chat message accepted by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUsage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:801` | Token usage returned by OpenAI-compatible chat completion endpoints. |
+| `@beep/openai-compat/OpenAiCompat.models` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
+
+### @beep/installer-server
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/installer-server` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:722` | Discord-channel concept layer. |
+| `@beep/installer-server` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:698` | Host-dependency concept layer. |
+| `@beep/installer-server` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:738` | Concept-local installer services. |
+| `@beep/installer-server` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:760` | Complete installer server layer. |
+| `@beep/installer-server` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:464` | Build the Discord-channel concept server. |
+| `@beep/installer-server` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
+| `@beep/installer-server` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:535` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:422` | Build the provider-account concept server. |
+| `@beep/installer-server` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
+| `@beep/installer-server` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:521` | Build the stack-manifest concept server. |
+| `@beep/installer-server` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:752` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:781` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:714` | Provider-account concept layer. |
+| `@beep/installer-server` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:768` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:706` | Secret-reference concept layer. |
+| `@beep/installer-server` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:730` | Stack-manifest concept layer. |
+| `@beep/installer-server` | `VERSION` | const | `packages/installer/server/src/index.ts:15` | Package version for `@beep/installer-server`. |
+| `@beep/installer-server/layer` | `DiscordChannelServerLive` | const | `packages/installer/server/src/Layer.ts:722` | Discord-channel concept layer. |
+| `@beep/installer-server/layer` | `HostDependencyServerLive` | const | `packages/installer/server/src/Layer.ts:698` | Host-dependency concept layer. |
+| `@beep/installer-server/layer` | `InstallerConceptServerLive` | const | `packages/installer/server/src/Layer.ts:738` | Concept-local installer services. |
+| `@beep/installer-server/layer` | `InstallerServerLive` | const | `packages/installer/server/src/Layer.ts:760` | Complete installer server layer. |
+| `@beep/installer-server/layer` | `makeDiscordChannelServer` | const | `packages/installer/server/src/Layer.ts:464` | Build the Discord-channel concept server. |
+| `@beep/installer-server/layer` | `makeHostDependencyServer` | const | `packages/installer/server/src/Layer.ts:321` | Build the host-dependency concept server. |
+| `@beep/installer-server/layer` | `makeP1ManualProofWorkflow` | const | `packages/installer/server/src/Layer.ts:535` | Build the P1 Manual Mode proof workflow. |
+| `@beep/installer-server/layer` | `makeProviderAccountServer` | const | `packages/installer/server/src/Layer.ts:422` | Build the provider-account concept server. |
+| `@beep/installer-server/layer` | `makeSecretReferenceServer` | const | `packages/installer/server/src/Layer.ts:338` | Build the secret-reference concept server. |
+| `@beep/installer-server/layer` | `makeStackManifestServer` | const | `packages/installer/server/src/Layer.ts:521` | Build the stack-manifest concept server. |
+| `@beep/installer-server/layer` | `P1ManualProofWorkflowLive` | const | `packages/installer/server/src/Layer.ts:752` | P1 Manual Mode proof workflow layer. |
+| `@beep/installer-server/layer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:781` | Preview the P1 Manual Mode proof without sending a Discord message. |
+| `@beep/installer-server/layer` | `ProviderAccountServerLive` | const | `packages/installer/server/src/Layer.ts:714` | Provider-account concept layer. |
+| `@beep/installer-server/layer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:768` | Run the live P1 Manual Mode proof and return sanitized evidence. |
+| `@beep/installer-server/layer` | `SecretReferenceServerLive` | const | `packages/installer/server/src/Layer.ts:706` | Secret-reference concept layer. |
+| `@beep/installer-server/layer` | `StackManifestServerLive` | const | `packages/installer/server/src/Layer.ts:730` | Stack-manifest concept layer. |
+| `@beep/installer-server/test` | `InstallerServerTest` | const | `packages/installer/server/src/test.ts:17` | Deterministic test layer for the installer slice. |
+
 ### @beep/law-practice-domain
 
 | Import | Symbol | Kind | Source | Summary |
@@ -10232,104 +10330,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/architecture-lab-server/entities/Worker` | `WorkerServerLayer` | const | `packages/architecture-lab/server/src/entities/Worker/Worker.layer.ts:44` | Worker server layer. |
 | `@beep/architecture-lab-server/layer` | `ArchitectureLabServerLive` | const | `packages/architecture-lab/server/src/Layer.ts:21` | Live architecture lab server layer. |
 | `@beep/architecture-lab-server/test` | `ArchitectureLabServerTest` | const | `packages/architecture-lab/server/src/test.ts:21` | Test architecture lab server layer. |
-
-### @beep/hubspot
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/hubspot` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
-| `@beep/hubspot` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
-| `@beep/hubspot` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
-| `@beep/hubspot` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
-| `@beep/hubspot` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
-| `@beep/hubspot` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
-| `@beep/hubspot` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
-| `@beep/hubspot` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
-| `@beep/hubspot` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
-| `@beep/hubspot` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
-| `@beep/hubspot` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
-| `@beep/hubspot` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
-| `@beep/hubspot` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
-| `@beep/hubspot` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
-| `@beep/hubspot/HubSpot.config` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
-| `@beep/hubspot/HubSpot.config` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
-| `@beep/hubspot/HubSpot.config` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot/HubSpot.service` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
-| `@beep/hubspot/HubSpot.service` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
-| `@beep/hubspot/index` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:466` | Effect service for HubSpot Forms API submissions. |
-| `@beep/hubspot/index` | `HUBSPOT_CRM_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:41` | Default HubSpot CRM API base URL. |
-| `@beep/hubspot/index` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
-| `@beep/hubspot/index` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
-| `@beep/hubspot/index` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot/index` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:147` | Options used when constructing HubSpot driver errors. |
-| `@beep/hubspot/index` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
-| `@beep/hubspot/index` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
-| `@beep/hubspot/index` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
-| `@beep/hubspot/index` | `HubSpotFormField` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:41` | HubSpot form field submission value. |
-| `@beep/hubspot/index` | `HubSpotShape` | type | `packages/drivers/hubspot/src/HubSpot.service.ts:248` | Public HubSpot service shape. |
-| `@beep/hubspot/index` | `HubSpotSubmitFormRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:98` | HubSpot form submission request. |
-| `@beep/hubspot/index` | `HubSpotSubmitFormResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:127` | HubSpot form submission response. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactRequest` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:157` | HubSpot contact upsert request using email as the stable identifier. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactResponse` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:212` | HubSpot contact upsert response. |
-| `@beep/hubspot/index` | `HubSpotUpsertContactResult` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:185` | HubSpot contact upsert result. |
-| `@beep/hubspot/index` | `VERSION` | const | `packages/drivers/hubspot/src/index.ts:43` | Package version. |
-
-### @beep/sanity
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/sanity` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
-| `@beep/sanity` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
-| `@beep/sanity` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
-| `@beep/sanity` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
-| `@beep/sanity` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
-| `@beep/sanity` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
-| `@beep/sanity` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
-| `@beep/sanity` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
-| `@beep/sanity/index` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
-| `@beep/sanity/index` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
-| `@beep/sanity/index` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity/index` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity/index` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity/index` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity/index` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity/index` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
-| `@beep/sanity/index` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
-| `@beep/sanity/index` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
-| `@beep/sanity/index` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
-| `@beep/sanity/index` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
-| `@beep/sanity/index` | `VERSION` | const | `packages/drivers/sanity/src/index.ts:43` | Package version. |
-| `@beep/sanity/Sanity.config` | `SANITY_API_VERSION` | const | `packages/drivers/sanity/src/Sanity.config.ts:44` | Default Sanity API version used when callers do not provide one. |
-| `@beep/sanity/Sanity.config` | `SanityConfigInput` | class | `packages/drivers/sanity/src/Sanity.config.ts:65` | Runtime configuration accepted by {@link Sanity.makeLayer}. |
-| `@beep/sanity/Sanity.errors` | `SanityError` | class | `packages/drivers/sanity/src/Sanity.errors.ts:83` | Technical failure raised by the Sanity driver boundary. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorOptions` | class | `packages/drivers/sanity/src/Sanity.errors.ts:145` | Options used when constructing Sanity driver errors. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | const | `packages/drivers/sanity/src/Sanity.errors.ts:36` | Technical error reasons emitted by the Sanity driver. |
-| `@beep/sanity/Sanity.errors` | `SanityErrorReason` | type | `packages/drivers/sanity/src/Sanity.errors.ts:63` | Type for {@link SanityErrorReason}. |
-| `@beep/sanity/Sanity.service` | `Sanity` | class | `packages/drivers/sanity/src/Sanity.service.ts:304` | Effect service for Sanity content API requests. |
-| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | const | `packages/drivers/sanity/src/Sanity.service.ts:40` | Scalar JSON value accepted in Sanity query params. |
-| `@beep/sanity/Sanity.service` | `SanityQueryParamValue` | type | `packages/drivers/sanity/src/Sanity.service.ts:65` | Type for {@link SanityQueryParamValue}. |
-| `@beep/sanity/Sanity.service` | `SanityQueryRequest` | class | `packages/drivers/sanity/src/Sanity.service.ts:85` | Sanity GROQ query request. |
-| `@beep/sanity/Sanity.service` | `SanityQueryResponse` | class | `packages/drivers/sanity/src/Sanity.service.ts:113` | Sanity query response. |
-| `@beep/sanity/Sanity.service` | `SanityShape` | type | `packages/drivers/sanity/src/Sanity.service.ts:143` | Public Sanity service shape. |
 
 ### @beep/workspace-tables
 
@@ -12076,6 +12076,53 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-use-cases` | `VERSION` | const | `packages/shared/use-cases/src/index.ts:21` | Shared use-cases package version. |
 | `@beep/shared-use-cases/index` | `VERSION` | const | `packages/shared/use-cases/src/index.ts:21` | Shared use-cases package version. |
 
+### @beep/oip-web
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/oip-web` | `VERSION` | const | `apps/oip-web/src/index.ts:21` | Package version for the oip web app. |
+| `@beep/oip-web/app/api/contact/ContactRouteResponse` | `contactRequestResponse` | const | `apps/oip-web/src/app/api/contact/ContactRouteResponse.ts:134` | Builds an OIP contact route response inside an Effect runtime. |
+| `@beep/oip-web/app/api/contact/ContactRouteResponse` | `contactRequestResponseWithSubmit` | const | `apps/oip-web/src/app/api/contact/ContactRouteResponse.ts:83` | Builds an OIP contact route response using an injected contact workflow. |
+| `@beep/oip-web/app/api/contact/route` | `POST` | function | `apps/oip-web/src/app/api/contact/route.ts:26` | Handles OIP contact submissions at the Next.js route boundary. |
+| `@beep/oip-web/app/llms.txt/route` | `GET` | function | `apps/oip-web/src/app/llms.txt/route.ts:24` | Returns `llms.txt` for oip.law. |
+| `@beep/oip-web/app/manifest` | `default` | function | `apps/oip-web/src/app/manifest.ts:23` | Returns the static web manifest for oip web. |
+| `@beep/oip-web/app/robots` | `default` | function | `apps/oip-web/src/app/robots.ts:24` | Returns the robots policy for OIP. |
+| `@beep/oip-web/app/sitemap` | `default` | function | `apps/oip-web/src/app/sitemap.ts:24` | Returns the OIP sitemap. |
+| `@beep/oip-web/config/OipRedirects` | `oipRedirects` | const | `apps/oip-web/src/config/OipRedirects.ts:24` | Returns the canonical OIP redirect table for legacy OPIP compatibility. |
+| `@beep/oip-web/contact` | `contactResponseBody` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:336` | Builds a JSON-safe contact response object. |
+| `@beep/oip-web/contact` | `ContactSubmission` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:127` | Browser-submitted OIP contact form payload. |
+| `@beep/oip-web/contact` | `ContactSubmissionResponse` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:162` | Public contact submission response. |
+| `@beep/oip-web/contact` | `ContactSubmissionStatus` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:82` | Public contact submission status. |
+| `@beep/oip-web/contact` | `ContactSubmissionStatus` | type | `apps/oip-web/src/contact/ContactSubmission.model.ts:102` | Type for {@link ContactSubmissionStatus}. |
+| `@beep/oip-web/contact` | `decodeContactSubmission` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:193` | Decodes unknown input into a contact submission. |
+| `@beep/oip-web/contact` | `submitContact` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:284` | Submits an OIP contact payload to HubSpot when runtime config is present. |
+| `@beep/oip-web/content` | `AboutPanel` | class | `apps/oip-web/src/content/OipContent.model.ts:260` | Biographical bridge panel. |
+| `@beep/oip-web/content` | `ClientLogo` | class | `apps/oip-web/src/content/OipContent.model.ts:364` | Client logo reference. |
+| `@beep/oip-web/content` | `ContactContent` | class | `apps/oip-web/src/content/OipContent.model.ts:433` | Public contact and legal notice content. |
+| `@beep/oip-web/content` | `decodeOipSiteContent` | const | `apps/oip-web/src/content/OipContent.model.ts:509` | Decodes unknown input into {@link OipSiteContent} in an Effect workflow. |
+| `@beep/oip-web/content` | `decodeOipSiteContentResult` | const | `apps/oip-web/src/content/OipContent.model.ts:492` | Decodes unknown input into {@link OipSiteContent}. |
+| `@beep/oip-web/content` | `ExternalLink` | class | `apps/oip-web/src/content/OipContent.model.ts:96` | External link displayed by the public site. |
+| `@beep/oip-web/content` | `getOipSiteContent` | const | `apps/oip-web/src/content/OipContent.runtime.ts:188` | Promise boundary for Next.js server components. |
+| `@beep/oip-web/content` | `HeroContent` | class | `apps/oip-web/src/content/OipContent.model.ts:223` | Hero citation and opening claim. |
+| `@beep/oip-web/content` | `launchReviewGates` | const | `apps/oip-web/src/content/OipContent.data.ts:330` | Review gate statuses that must be closed before public launch. |
+| `@beep/oip-web/content` | `loadOipSiteContent` | const | `apps/oip-web/src/content/OipContent.runtime.ts:163` | Loads OIP site content from Sanity when configured, falling back to the |
+| `@beep/oip-web/content` | `makeJsonLdGraph` | const | `apps/oip-web/src/content/OipSeo.ts:25` | Builds conservative JSON-LD graph data for the OIP website. |
+| `@beep/oip-web/content` | `makeLlmsText` | const | `apps/oip-web/src/content/OipSeo.ts:79` | Builds `llms.txt` content from reviewed OIP site content. |
+| `@beep/oip-web/content` | `MatterItem` | class | `apps/oip-web/src/content/OipContent.model.ts:327` | Selected matter summary. |
+| `@beep/oip-web/content` | `NavItem` | class | `apps/oip-web/src/content/OipContent.model.ts:187` | Anchor navigation item. |
+| `@beep/oip-web/content` | `oipSiteContent` | const | `apps/oip-web/src/content/OipContent.data.ts:315` | Decoded OIP launch content. |
+| `@beep/oip-web/content` | `OipSiteContent` | class | `apps/oip-web/src/content/OipContent.model.ts:460` | Complete content contract for the OIP public site. |
+| `@beep/oip-web/content` | `PracticeArea` | class | `apps/oip-web/src/content/OipContent.model.ts:292` | Practice-area summary. |
+| `@beep/oip-web/content` | `PressItem` | class | `apps/oip-web/src/content/OipContent.model.ts:398` | Press item summary. |
+| `@beep/oip-web/content` | `ReviewGate` | class | `apps/oip-web/src/content/OipContent.model.ts:68` | Review note attached to a public website claim. |
+| `@beep/oip-web/content` | `ReviewStatus` | const | `apps/oip-web/src/content/OipContent.model.ts:28` | Review state for public claims that need launch approval. |
+| `@beep/oip-web/content` | `ReviewStatus` | type | `apps/oip-web/src/content/OipContent.model.ts:48` | Runtime type for {@link ReviewStatus}. |
+| `@beep/oip-web/content` | `SiteAsset` | class | `apps/oip-web/src/content/OipContent.model.ts:124` | Runtime asset reference served from the OIP app public folder. |
+| `@beep/oip-web/content` | `SiteMetadataContent` | class | `apps/oip-web/src/content/OipContent.model.ts:159` | Top-level metadata used by Next.js and JSON-LD generation. |
+| `@beep/oip-web/mdx-components` | `useMDXComponents` | function | `apps/oip-web/src/mdx-components.tsx:26` | Returns the MDX component overrides used by oip web. |
+| `@beep/oip-web/proxy` | `config` | const | `apps/oip-web/src/proxy.ts:102` | Route matcher for the OIP CSP proxy. |
+| `@beep/oip-web/proxy` | `proxy` | function | `apps/oip-web/src/proxy.ts:71` | Adds a per-request CSP nonce to OIP document responses. |
+
 ### @beep/shared-tables
 
 | Import | Symbol | Kind | Source | Summary |
@@ -13777,19 +13824,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `AIMetricsStackArgs` | class | `infra/src/AIMetrics.ts:341` | Pulumi-facing args for the AI metrics component. |
 | `@beep/infra` | `infraProjectName` | const | `infra/src/index.ts:28` | Canonical project name for this repository's infrastructure workspace. |
 | `@beep/infra` | `loadAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:450` | Load AI metrics args from Pulumi config. |
-| `@beep/infra` | `loadOpipWebRuntimeSecrets` | const | `infra/src/OpipWeb.ts:490` | Load OPIP web runtime secrets from Pulumi secret config. |
-| `@beep/infra` | `loadOpipWebStackArgs` | const | `infra/src/OpipWeb.ts:444` | Load OPIP web stack args from Pulumi config. |
+| `@beep/infra` | `loadOipWebRuntimeSecrets` | const | `infra/src/OipWeb.ts:534` | Load OIP web runtime secrets from Pulumi secret config. |
+| `@beep/infra` | `loadOipWebStackArgs` | const | `infra/src/OipWeb.ts:483` | Load OIP web stack args from Pulumi config. |
 | `@beep/infra` | `makeAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:367` | Build Pulumi component args from a schema-first install input. |
 | `@beep/infra` | `makeAIMetricsStackArgsFromConfigValues` | const | `infra/src/AIMetrics.ts:389` | Build AI metrics stack args from decoded Pulumi config values. |
-| `@beep/infra` | `makeOpipWebStackArgsFromConfigValues` | const | `infra/src/OpipWeb.ts:370` | Build OPIP web stack args from decoded Pulumi config values. |
-| `@beep/infra` | `OpipAssetsBucketConfig` | class | `infra/src/OpipWeb.ts:173` | S3 asset bucket resources for OPIP-controlled media. |
-| `@beep/infra` | `OpipDnsConfig` | class | `infra/src/OpipWeb.ts:206` | DNS configuration for Cloudflare-managed OPIP records. |
-| `@beep/infra` | `OpipPulumiStateBackendConfig` | class | `infra/src/OpipWeb.ts:130` | Pulumi DIY state backend settings for OPIP. |
-| `@beep/infra` | `OpipVercelProjectConfig` | class | `infra/src/OpipWeb.ts:252` | Vercel project configuration for `@beep/opip-web`. |
-| `@beep/infra` | `OpipWebPulumiConfigValues` | const | `infra/src/OpipWeb.ts:87` | Optional Pulumi config values before OPIP deploy defaults are applied. |
-| `@beep/infra` | `OpipWebRuntimeSecrets` | type | `infra/src/OpipWeb.ts:308` | Secret runtime values for OPIP deploy targets. |
-| `@beep/infra` | `OpipWebStack` | class | `infra/src/OpipWeb.ts:639` | Import-safe Pulumi component for OPIP production web infrastructure. |
-| `@beep/infra` | `OpipWebStackArgs` | class | `infra/src/OpipWeb.ts:326` | Pulumi-facing args for the OPIP web stack. |
+| `@beep/infra` | `makeOipWebStackArgsFromConfigValues` | const | `infra/src/OipWeb.ts:399` | Build OIP web stack args from decoded Pulumi config values. |
+| `@beep/infra` | `OipAssetsBucketConfig` | class | `infra/src/OipWeb.ts:185` | S3 asset bucket resources for OIP-controlled media. |
+| `@beep/infra` | `OipDnsConfig` | class | `infra/src/OipWeb.ts:218` | DNS configuration for Cloudflare-managed OIP records. |
+| `@beep/infra` | `OipPulumiStateBackendConfig` | class | `infra/src/OipWeb.ts:144` | Pulumi DIY state backend settings for OIP. |
+| `@beep/infra` | `OipVercelProjectConfig` | class | `infra/src/OipWeb.ts:281` | Vercel project configuration for `@beep/oip-web`. |
+| `@beep/infra` | `OipWebPulumiConfigValues` | const | `infra/src/OipWeb.ts:96` | Optional Pulumi config values before OIP deploy defaults are applied. |
+| `@beep/infra` | `OipWebRuntimeSecrets` | type | `infra/src/OipWeb.ts:337` | Secret runtime values for OIP deploy targets. |
+| `@beep/infra` | `OipWebStack` | class | `infra/src/OipWeb.ts:700` | Import-safe Pulumi component for OIP production web infrastructure. |
+| `@beep/infra` | `OipWebStackArgs` | class | `infra/src/OipWeb.ts:355` | Pulumi-facing args for the OIP web stack. |
 
 ### @beep/codedank-web
 
@@ -13997,50 +14044,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/openai` | `VERSION` | const | `packages/drivers/openai/src/index.ts:12` |  |
 | `@beep/openai/index` | `VERSION` | const | `packages/drivers/openai/src/index.ts:12` |  |
-
-### @beep/opip-web
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/opip-web` | `VERSION` | const | `apps/opip-web/src/index.ts:21` | Package version for the opip web app. |
-| `@beep/opip-web/app/api/contact/route` | `POST` | function | `apps/opip-web/src/app/api/contact/route.ts:68` | Handles OPIP contact submissions. |
-| `@beep/opip-web/app/llms.txt/route` | `GET` | function | `apps/opip-web/src/app/llms.txt/route.ts:24` | Returns `llms.txt` for opip.law. |
-| `@beep/opip-web/app/manifest` | `default` | function | `apps/opip-web/src/app/manifest.ts:23` | Returns the static web manifest for opip web. |
-| `@beep/opip-web/app/robots` | `default` | function | `apps/opip-web/src/app/robots.ts:24` | Returns the robots policy for OPIP. |
-| `@beep/opip-web/app/sitemap` | `default` | function | `apps/opip-web/src/app/sitemap.ts:24` | Returns the OPIP sitemap. |
-| `@beep/opip-web/contact` | `contactResponseBody` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:333` | Builds a JSON-safe contact response object. |
-| `@beep/opip-web/contact` | `ContactSubmission` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:125` | Browser-submitted OPIP contact form payload. |
-| `@beep/opip-web/contact` | `ContactSubmissionResponse` | class | `apps/opip-web/src/contact/ContactSubmission.model.ts:160` | Public contact submission response. |
-| `@beep/opip-web/contact` | `ContactSubmissionStatus` | const | `apps/opip-web/src/contact/ContactSubmission.model.ts:82` | Public contact submission status. |
-| `@beep/opip-web/contact` | `ContactSubmissionStatus` | type | `apps/opip-web/src/contact/ContactSubmission.model.ts:102` | Type for {@link ContactSubmissionStatus}. |
-| `@beep/opip-web/contact` | `decodeContactSubmission` | const | `apps/opip-web/src/contact/ContactSubmission.model.ts:191` | Decodes unknown input into a contact submission. |
-| `@beep/opip-web/contact` | `submitContact` | const | `apps/opip-web/src/contact/ContactSubmission.service.ts:284` | Submits an OPIP contact payload to HubSpot when runtime config is present. |
-| `@beep/opip-web/content` | `AboutPanel` | class | `apps/opip-web/src/content/OpipContent.model.ts:260` | Biographical bridge panel. |
-| `@beep/opip-web/content` | `ClientLogo` | class | `apps/opip-web/src/content/OpipContent.model.ts:364` | Client logo reference. |
-| `@beep/opip-web/content` | `ContactContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:433` | Public contact and legal notice content. |
-| `@beep/opip-web/content` | `decodeOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.model.ts:509` | Decodes unknown input into {@link OpipSiteContent} in an Effect workflow. |
-| `@beep/opip-web/content` | `decodeOpipSiteContentResult` | const | `apps/opip-web/src/content/OpipContent.model.ts:492` | Decodes unknown input into {@link OpipSiteContent}. |
-| `@beep/opip-web/content` | `ExternalLink` | class | `apps/opip-web/src/content/OpipContent.model.ts:96` | External link displayed by the public site. |
-| `@beep/opip-web/content` | `getOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.runtime.ts:188` | Promise boundary for Next.js server components. |
-| `@beep/opip-web/content` | `HeroContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:223` | Hero citation and opening claim. |
-| `@beep/opip-web/content` | `launchReviewGates` | const | `apps/opip-web/src/content/OpipContent.data.ts:330` | Review gate statuses that must be closed before public launch. |
-| `@beep/opip-web/content` | `loadOpipSiteContent` | const | `apps/opip-web/src/content/OpipContent.runtime.ts:163` | Loads OPIP site content from Sanity when configured, falling back to the |
-| `@beep/opip-web/content` | `makeJsonLdGraph` | const | `apps/opip-web/src/content/OpipSeo.ts:25` | Builds conservative JSON-LD graph data for the OPIP website. |
-| `@beep/opip-web/content` | `makeLlmsText` | const | `apps/opip-web/src/content/OpipSeo.ts:79` | Builds `llms.txt` content from reviewed OPIP site content. |
-| `@beep/opip-web/content` | `MatterItem` | class | `apps/opip-web/src/content/OpipContent.model.ts:327` | Selected matter summary. |
-| `@beep/opip-web/content` | `NavItem` | class | `apps/opip-web/src/content/OpipContent.model.ts:187` | Anchor navigation item. |
-| `@beep/opip-web/content` | `opipSiteContent` | const | `apps/opip-web/src/content/OpipContent.data.ts:315` | Decoded OPIP launch content. |
-| `@beep/opip-web/content` | `OpipSiteContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:460` | Complete content contract for the OPIP public site. |
-| `@beep/opip-web/content` | `PracticeArea` | class | `apps/opip-web/src/content/OpipContent.model.ts:292` | Practice-area summary. |
-| `@beep/opip-web/content` | `PressItem` | class | `apps/opip-web/src/content/OpipContent.model.ts:398` | Press item summary. |
-| `@beep/opip-web/content` | `ReviewGate` | class | `apps/opip-web/src/content/OpipContent.model.ts:68` | Review note attached to a public website claim. |
-| `@beep/opip-web/content` | `ReviewStatus` | const | `apps/opip-web/src/content/OpipContent.model.ts:28` | Review state for public claims that need launch approval. |
-| `@beep/opip-web/content` | `ReviewStatus` | type | `apps/opip-web/src/content/OpipContent.model.ts:48` | Runtime type for {@link ReviewStatus}. |
-| `@beep/opip-web/content` | `SiteAsset` | class | `apps/opip-web/src/content/OpipContent.model.ts:124` | Runtime asset reference served from the OPIP app public folder. |
-| `@beep/opip-web/content` | `SiteMetadataContent` | class | `apps/opip-web/src/content/OpipContent.model.ts:159` | Top-level metadata used by Next.js and JSON-LD generation. |
-| `@beep/opip-web/mdx-components` | `useMDXComponents` | function | `apps/opip-web/src/mdx-components.tsx:26` | Returns the MDX component overrides used by opip web. |
-| `@beep/opip-web/proxy` | `config` | const | `apps/opip-web/src/proxy.ts:102` | Route matcher for the OPIP CSP proxy. |
-| `@beep/opip-web/proxy` | `proxy` | function | `apps/opip-web/src/proxy.ts:71` | Adds a per-request CSP nonce to OPIP document responses. |
 
 ### @beep/canvas-ui
 

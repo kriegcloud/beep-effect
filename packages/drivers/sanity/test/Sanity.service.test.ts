@@ -89,7 +89,7 @@ const TestLayer = Sanity.makeLayer(
   new SanityConfigInput({
     apiToken: Redacted.make("sanity-token"),
     dataset: "production",
-    projectId: "opip",
+    projectId: "oip",
   })
 ).pipe(Layer.provide(TestHttpClientLayer), Layer.provideMerge(SanityTestHttpLayer));
 
@@ -99,13 +99,13 @@ describe("@beep/sanity", () => {
       "submits a GROQ query and decodes the result envelope",
       Effect.fnUntraced(function* () {
         const sanity = yield* Sanity;
-        const response = yield* sanity.fetch(new SanityQueryRequest({ query: "*[_type == 'opipSiteContent'][0]" }));
+        const response = yield* sanity.fetch(new SanityQueryRequest({ query: "*[_type == 'oipSiteContent'][0]" }));
         const testHttp = yield* SanityTestHttp;
         const captures = yield* testHttp.captures;
 
         expect(response.result).toEqual({ ok: true });
         expect(captures[0]?.method).toBe("POST");
-        expect(captures[0]?.url).toBe("https://opip.api.sanity.io/v2025-05-14/data/query/production");
+        expect(captures[0]?.url).toBe("https://oip.api.sanity.io/v2025-05-14/data/query/production");
         expect(captures[0]?.headers.authorization).toBe("Bearer sanity-token");
       })
     );
