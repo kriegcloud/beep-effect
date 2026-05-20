@@ -2,7 +2,7 @@
 
 ## Status
 
-Phase 1 local doctor and annotation-plan loop live-proofed for PR readiness
+Phase 1 complete
 
 ## Mission
 
@@ -41,23 +41,33 @@ or server configuration.
 
 ## Current Recommendation
 
-Use the implemented no-mutation agent-effectiveness doctor and annotation-plan
-loop as the trust gate before any Phoenix write path. The Phase 1 live proof is
-recorded in [history/outputs/phase1-live-proof.md](./history/outputs/phase1-live-proof.md).
-The synthesis still defers Phoenix writes, datasets, experiments, prompt
-management, and backend drivers until the repo-owned local trust gate and
-privacy-checked annotation schema prove useful.
+Use the implemented agent-effectiveness doctor, annotation-plan loop, and
+guarded Phoenix sync plumbing as the trust gate for repo-owned agent feedback.
+The Phase 1 live proof is recorded in
+[history/outputs/phase1-live-proof.md](./history/outputs/phase1-live-proof.md),
+and the post-merge closeout is recorded in
+[history/outputs/phase1-closeout.md](./history/outputs/phase1-closeout.md).
+
+The merged Phoenix sync path remains confirmation-gated. The Phase 1 closeout
+does not use live Phoenix mutation as proof, and Phase 2/3 enrichment work
+remains deferred.
 
 ## Implemented Phase 1 Commands
 
 - `beep agent-effectiveness doctor --json`
 - `beep agent-effectiveness annotations plan --json`
 - `beep agent-effectiveness annotations check --json`
+- `beep agent-effectiveness datasets bundle --json`
+- `beep agent-effectiveness prompts bundle --json`
+- `beep agent-effectiveness experiments bundle --json`
+- `beep agent-effectiveness phoenix sync --json`
 
-The commands are report-only. They inspect Phoenix reachability/project
-inventory, local AI metrics evidence, and the JSDoc worker-eval report, then
-produce sanitized metadata-only annotation proposals. They do not write to
-Phoenix or mutate agent configuration.
+The doctor and annotation commands are report-only. They inspect Phoenix
+reachability/project inventory, local AI metrics evidence, and the JSDoc
+worker-eval report, then produce sanitized metadata-only annotation proposals.
+The bundle commands produce deterministic Phoenix-ready payloads. The sync
+command defaults to dry-run and requires an explicit confirmation token before
+any Phoenix write.
 
 ## Reading Order
 

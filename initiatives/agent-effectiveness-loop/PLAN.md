@@ -13,7 +13,7 @@ Status: complete
 
 ## Phase 1 - Agent-Effectiveness Doctor And Annotation Plan
 
-Status: live-proofed for PR readiness
+Status: complete
 
 Implemented local, no-mutation outputs:
 
@@ -35,9 +35,22 @@ values, draft JSDoc, or code examples.
 Live proof is recorded in
 [history/outputs/phase1-live-proof.md](./history/outputs/phase1-live-proof.md).
 
+Implemented guarded Phoenix sync plumbing:
+
+- `beep agent-effectiveness datasets bundle --json`
+- `beep agent-effectiveness prompts bundle --json`
+- `beep agent-effectiveness experiments bundle --json`
+- `beep agent-effectiveness phoenix sync --json`
+
+This closeout treats the Phoenix driver and sync loop as guarded Phase 1B
+plumbing. Sync defaults to dry-run, requires explicit confirmation before live
+writes, and is not used as live-mutation proof for Phase 1 completion. Closeout
+evidence is recorded in
+[history/outputs/phase1-closeout.md](./history/outputs/phase1-closeout.md).
+
 ## Phase 2 - Phoenix-Native Enrichment
 
-Status: deferred until Phase 1 proof
+Status: deferred after Phase 1 closeout
 
 Candidate areas:
 
@@ -49,7 +62,7 @@ Candidate areas:
 
 ## Phase 3 - Repo Workflow Integration
 
-Status: pending Phase 1 proof
+Status: deferred after Phase 1 closeout
 
 Future implementation may add Phoenix annotation writes, datasets, experiments,
 prompt-management workflows, Phoenix API drivers, or additional AI metrics
