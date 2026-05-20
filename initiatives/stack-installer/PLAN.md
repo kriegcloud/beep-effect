@@ -12,8 +12,10 @@ P1 still requires the real Windows proof artifact.
 Status: completed
 
 Goal: Create the initiative packet, archive the bootstrap handoff, capture the
-locked decisions and P0 doc-grill amendments, name the corrected installer
-slice topology, and point the manifest at P1.
+locked decisions and P0 doc-grill amendments, name the then-current installer
+slice topology, and point the manifest at P1. The pre-v1 topology correction
+to one installer slice is recorded later as a history output and architecture
+decision.
 
 Exit Criteria:
 
@@ -62,12 +64,12 @@ P1 checkpoint, not the full P1 exit.
 Exit Criteria:
 
 - [x] Shared `OnePasswordReference` value object exists in `@beep/shared-domain`.
-- [x] P1 installer slices exist for dependencies, security, providers,
-  channels, and workspace with domain/use-cases/server role packages.
+- [x] P1 installer slice role packages exist at
+  `packages/installer/{domain,use-cases,server}`.
 - [x] Slice-owned dry-run verb contracts exist and are composed by
   `apps/stack-installer`, not by a God Layer.
-- [x] `installer-workspace` owns `AIStackManifest`, validation events, and the
-  deterministic P1A dry-run snapshot.
+- [x] `@beep/installer-domain` owns `AIStackManifest`, validation events, and
+  the deterministic P1A dry-run snapshot.
 - [x] `apps/stack-installer` exists as a Tauri 2 + React shell using
   `@beep/ui/styles/globals.css` and `AppThemeProvider`.
 - [x] Web-shell proof captured with Playwright.
@@ -250,9 +252,10 @@ Scope notes:
 - Keep macOS and Windows as the long-term parity target; Linux-first staging
   does not change the v1 parity doctrine.
 - The first real action is repair-only Bun upgrade for an existing Bun install
-  owned by `installer-dependencies`, not app-local glue code.
-- The required Bun version is an installer-owned config contract. App workflow
-  code must not read repo metadata directly to discover it.
+  owned by the installer slice, not app-local glue code.
+- The required Bun version is an installer-owned contract. App workflow code
+  must not read repo metadata directly to discover it. A separate config
+  package stays deferred until real installer config exists.
 
 Exit Criteria:
 
@@ -261,10 +264,11 @@ Exit Criteria:
   existing Bun install.
 - [ ] The action is approval-first and mutates the host only after explicit
   user approval.
-- [ ] `installer-dependencies` owns the live Bun repair contract and server
-  implementation.
-- [ ] `installer-dependencies-config` or equivalent installer-owned config
-  surface owns the required Bun version contract and its live resolution.
+- [ ] `@beep/installer-use-cases` and `@beep/installer-server` own the live Bun
+  repair contract and server implementation.
+- [ ] `@beep/installer-domain` owns the required Bun version contract and its
+  live resolution without creating a config package before real installer
+  config exists.
 - [ ] After the action runs, the same validation spine reports Bun as present
   or returns a typed failure with visible status.
 - [ ] Linux-first proof artifacts show the app-first Bun flow end to end.

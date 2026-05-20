@@ -36,12 +36,10 @@ Windows. Do not implement AI Mode in this phase.
   - `packages/drivers/onepassword-cli`
   - `packages/drivers/ai-provider-cli`
   - `packages/drivers/discord`
-- Slice-owned live validation contracts:
-  - `@beep/installer-dependencies-use-cases`
-  - `@beep/installer-security-use-cases`
-  - `@beep/installer-providers-use-cases`
-  - `@beep/installer-channels-use-cases`
-  - `@beep/installer-workspace-use-cases`
+- Installer-owned live validation contracts:
+  - `@beep/installer-domain`
+  - `@beep/installer-use-cases`
+  - `@beep/installer-server`
 
 ## Fresh-Machine Inputs
 
@@ -503,8 +501,7 @@ Review scope:
 - `initiatives/stack-installer/**`
 - `apps/stack-installer/**`
 - P1 live drivers under `packages/drivers`
-- installer slices for dependencies, security, providers, channels, and
-  workspace
+- the installer slice under `packages/installer/{domain,use-cases,server}`
 - package manifests, tests, public exports, generated config references, and
   Tauri proof flow directly affected by P1
 
@@ -522,5 +519,7 @@ explicit waivers in `history/outputs/p1-pr-readiness-review.md`.
 - Stop if a verb would accept a plaintext credential.
 - Stop if either macOS or Windows proof cannot be produced.
 - Stop if implementation starts AI Mode before Manual Mode closes.
-- Stop if the slice topology drifts from `installer-<category>/<role>`.
+- Stop if the slice topology drifts from
+  `packages/installer/{domain,use-cases,server}` without a new architecture
+  decision.
 - Stop if the proof result contains any plaintext secret.

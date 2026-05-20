@@ -34,7 +34,7 @@ In scope:
 - Manual Mode and AI Mode over one shared manifest and validation spine
 - 1Password references as the credential parameter type accepted by verbs
 - schema-first manifest, validation events, and installer contracts
-- installer slice package families under `packages/installer-<category>/<role>`
+- installer slice role packages under `packages/installer/{domain,use-cases,server}`
 - app-local MCP executor runtime adapter code under `apps/stack-installer`
 
 Out of scope for v1:
@@ -74,24 +74,24 @@ provider selection, approval modals, action streaming, scoped chat, local
 runtime adapters, and the MCP executor adapter. The MCP executor is app-local
 runtime composition, not a repo-wide tooling package and not a God Layer.
 
-Installer capabilities use sibling slices with doctrine-native slugs. P1A
-implemented dependencies, security, providers, channels, and workspace as
-dry-run role packages. P1 live harness work adds driver-backed validation
-contracts to those slices; runtime remains deferred.
+Installer capabilities use one installer slice with role packages at
+`packages/installer/domain`, `packages/installer/use-cases`, and
+`packages/installer/server`. The pre-v1 category-slice plan
+(`installer-dependencies`, `installer-security`, `installer-providers`,
+`installer-channels`, and `installer-workspace`) was corrected before v1
+compatibility existed, because those categories share one installer bounded
+context and currently add package topology without enough independent domain
+life.
 
-| Category | Slice slug | Example domain package |
-| --- | --- | --- |
-| Dependencies | `installer-dependencies` | `packages/installer-dependencies/domain` / `@beep/installer-dependencies-domain` |
-| Providers | `installer-providers` | `packages/installer-providers/domain` / `@beep/installer-providers-domain` |
-| Channels | `installer-channels` | `packages/installer-channels/domain` / `@beep/installer-channels-domain` |
-| Security | `installer-security` | `packages/installer-security/domain` / `@beep/installer-security-domain` |
-| Runtime | `installer-runtime` | `packages/installer-runtime/domain` / `@beep/installer-runtime-domain` |
-| Workspace | `installer-workspace` | `packages/installer-workspace/domain` / `@beep/installer-workspace-domain` |
+P1A and P1D now use the single installer slice. The app consumes
+`@beep/installer-domain`, `@beep/installer-use-cases`, and
+`@beep/installer-server`; it does not compose installer behavior through the
+retired category package names. Runtime remains deferred until P2 or later.
 
-Each slice owns its domain language, verb/tool contracts, validators, typed
-errors, and server implementations as role packages emerge. App and tooling
-surfaces compose generated registry artifacts; they do not own installer
-category semantics.
+The installer slice owns its domain language, verb/tool contracts, validators,
+typed errors, and server implementations. App and tooling surfaces compose the
+installer contracts; they do not own installer category semantics. A dedicated
+installer config package is deferred until real installer configuration exists.
 
 `initiatives/canonical-slice-factory` is the creation path for new installer
 slices, concepts, and role packages. Use `bun run beep architecture` with the
@@ -148,10 +148,11 @@ executor and do not own slice verbs.
     AI Mode.
 14. AI Mode consent. Consent is a durable manifest-stored preference,
     reversible globally and per step, and regenerated from registry source.
-15. Verb registry topology. Slice slugs are `installer-dependencies`,
-    `installer-providers`, `installer-channels`, `installer-security`,
-    `installer-runtime`, and `installer-workspace`; package names follow
-    `@beep/installer-<category>-<role>`.
+15. Verb registry topology. The installer v1 bounded context is one slice at
+    `packages/installer/{domain,use-cases,server}` with package names
+    `@beep/installer-domain`, `@beep/installer-use-cases`, and
+    `@beep/installer-server`. Category names remain internal concepts only
+    until they prove independent slice lifecycles.
 16. Anchoring proofs. P0 through P5 exit only on falsifiable evidence,
     including recorded screencasts where the user workflow is the proof.
 17. Packet ceremony. This packet uses the full initiative shape: `README.md`,

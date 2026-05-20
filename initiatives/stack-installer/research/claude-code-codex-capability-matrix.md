@@ -14,8 +14,8 @@ Implemented P1 behavior:
 - Codex is probed with `codex login status`.
 - Exit code `0` maps to `authenticated`; non-zero maps to
   `not-authenticated`.
-- `@beep/installer-providers-use-cases` exposes `validateProviderAuths`.
-- `@beep/installer-providers-server` maps provider probes into manifest
+- `@beep/installer-use-cases` exposes `validateProviderAuths`.
+- `@beep/installer-server` maps provider probes into manifest
   provider status values.
 
 P1 capability boundary:

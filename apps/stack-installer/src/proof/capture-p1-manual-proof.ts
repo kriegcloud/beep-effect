@@ -10,7 +10,7 @@
 
 import { AiProviderCli } from "@beep/ai-provider-cli";
 import { Discord } from "@beep/discord";
-import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-workspace-use-cases";
+import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-use-cases";
 import { OnePasswordCli } from "@beep/onepassword-cli";
 import { Sha256HexFromBytes } from "@beep/schema/Sha256";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
@@ -61,13 +61,7 @@ const provideScopedLayer =
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
-  stream.pipe(
-    Stream.decodeText(),
-    Stream.runFold(
-      () => "",
-      (acc, chunk) => `${acc}${chunk}`
-    )
-  );
+  stream.pipe(Stream.decodeText(), Stream.runCollect, Effect.map(A.join("")));
 
 const runNativeProcess = Effect.fn("StackInstaller.runNativeProcess")(function* (process: {
   readonly args: ReadonlyArray<string>;
