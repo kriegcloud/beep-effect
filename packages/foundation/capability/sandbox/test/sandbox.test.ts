@@ -43,7 +43,7 @@ import {
   SilentDisplay,
   WorktreeTimeoutError,
 } from "@beep/sandbox";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -57,7 +57,7 @@ const provideScopedLayer =
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
-  [base.replace(/\/+$/u, ""), ...segments.map((segment) => segment.replace(/^\/+|\/+$/gu, ""))]
+  [Str.replace(/\/+$/u, "")(base), ...segments.map((segment) => Str.replaceAll(/^\/+|\/+$/gu, "")(segment))]
     .filter((segment) => segment.length > 0)
     .join("/");
 const runFileCommand = (command: string, args: ReadonlyArray<string>): Effect.Effect<void> =>
