@@ -372,10 +372,10 @@ const runGitLines = Effect.fn("DocgenLocal.runGitLines")(function* (repoRoot: st
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make("git", [...args], {
         cwd: repoRoot,
-        stderr: "pipe",
+        stderr: "ignore",
         stdout: "pipe",
       });
-      const text = yield* handle.all.pipe(
+      const text = yield* handle.stdout.pipe(
         Stream.decodeText(),
         Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
       );
