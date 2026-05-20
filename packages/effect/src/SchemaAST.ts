@@ -108,8 +108,8 @@ import * as Transformation from "./SchemaTransformation.ts"
  * @see {@link Base}
  * @see {@link isAST}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export type AST =
   | Declaration
@@ -146,7 +146,7 @@ function makeGuard<T extends AST["_tag"]>(tag: T) {
  *
  * @see {@link AST}
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export function isAST(u: unknown): u is AST {
@@ -156,15 +156,15 @@ export function isAST(u: unknown): u is AST {
 /**
  * Narrows an {@link AST} to {@link Declaration}.
  *
- * @category Guard
- * @since 4.0.0
+ * @category guards
+ * @since 3.10.0
  */
 export const isDeclaration = makeGuard("Declaration")
 
 /**
  * Narrows an {@link AST} to {@link Null}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isNull = makeGuard("Null")
@@ -172,7 +172,7 @@ export const isNull = makeGuard("Null")
 /**
  * Narrows an {@link AST} to {@link Undefined}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isUndefined = makeGuard("Undefined")
@@ -180,7 +180,7 @@ export const isUndefined = makeGuard("Undefined")
 /**
  * Narrows an {@link AST} to {@link Void}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isVoid = makeGuard("Void")
@@ -188,7 +188,7 @@ export const isVoid = makeGuard("Void")
 /**
  * Narrows an {@link AST} to {@link Never}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isNever = makeGuard("Never")
@@ -196,7 +196,7 @@ export const isNever = makeGuard("Never")
 /**
  * Narrows an {@link AST} to {@link Unknown}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isUnknown = makeGuard("Unknown")
@@ -204,7 +204,7 @@ export const isUnknown = makeGuard("Unknown")
 /**
  * Narrows an {@link AST} to {@link Any}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isAny = makeGuard("Any")
@@ -212,7 +212,7 @@ export const isAny = makeGuard("Any")
 /**
  * Narrows an {@link AST} to {@link String}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isString = makeGuard("String")
@@ -220,7 +220,7 @@ export const isString = makeGuard("String")
 /**
  * Narrows an {@link AST} to {@link Number}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isNumber = makeGuard("Number")
@@ -228,7 +228,7 @@ export const isNumber = makeGuard("Number")
 /**
  * Narrows an {@link AST} to {@link Boolean}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isBoolean = makeGuard("Boolean")
@@ -236,7 +236,7 @@ export const isBoolean = makeGuard("Boolean")
 /**
  * Narrows an {@link AST} to {@link BigInt}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isBigInt = makeGuard("BigInt")
@@ -244,7 +244,7 @@ export const isBigInt = makeGuard("BigInt")
 /**
  * Narrows an {@link AST} to {@link Symbol}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isSymbol = makeGuard("Symbol")
@@ -252,31 +252,31 @@ export const isSymbol = makeGuard("Symbol")
 /**
  * Narrows an {@link AST} to {@link Literal}.
  *
- * @category Guard
- * @since 4.0.0
+ * @category guards
+ * @since 3.10.0
  */
 export const isLiteral = makeGuard("Literal")
 
 /**
  * Narrows an {@link AST} to {@link UniqueSymbol}.
  *
- * @category Guard
- * @since 4.0.0
+ * @category guards
+ * @since 3.10.0
  */
 export const isUniqueSymbol = makeGuard("UniqueSymbol")
 
 /**
  * Narrows an {@link AST} to {@link ObjectKeyword}.
  *
- * @category Guard
- * @since 4.0.0
+ * @category guards
+ * @since 3.10.0
  */
 export const isObjectKeyword = makeGuard("ObjectKeyword")
 
 /**
  * Narrows an {@link AST} to {@link Enum}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isEnum = makeGuard("Enum")
@@ -284,15 +284,15 @@ export const isEnum = makeGuard("Enum")
 /**
  * Narrows an {@link AST} to {@link TemplateLiteral}.
  *
- * @category Guard
- * @since 4.0.0
+ * @category guards
+ * @since 3.10.0
  */
 export const isTemplateLiteral = makeGuard("TemplateLiteral")
 
 /**
  * Narrows an {@link AST} to {@link Arrays}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isArrays = makeGuard("Arrays")
@@ -300,7 +300,7 @@ export const isArrays = makeGuard("Arrays")
 /**
  * Narrows an {@link AST} to {@link Objects}.
  *
- * @category Guard
+ * @category guards
  * @since 4.0.0
  */
 export const isObjects = makeGuard("Objects")
@@ -308,16 +308,16 @@ export const isObjects = makeGuard("Objects")
 /**
  * Narrows an {@link AST} to {@link Union}.
  *
- * @category Guard
- * @since 4.0.0
+ * @category guards
+ * @since 3.10.0
  */
 export const isUnion = makeGuard("Union")
 
 /**
  * Narrows an {@link AST} to {@link Suspend}.
  *
- * @category Guard
- * @since 4.0.0
+ * @category guards
+ * @since 3.10.0
  */
 export const isSuspend = makeGuard("Suspend")
 
@@ -335,7 +335,7 @@ export const isSuspend = makeGuard("Suspend")
  * @see {@link Encoding}
  * @see {@link decodeTo}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Link {
@@ -365,26 +365,31 @@ export class Link {
  * @see {@link Link}
  * @see {@link toEncoded}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export type Encoding = readonly [Link, ...Array<Link>]
 
 /**
- * Options that control parsing/validation behavior.
+ * Options that control schema parsing, validation, transformation, and output behavior.
  *
- * Pass to `Schema.decodeUnknown`, `Schema.encode`, etc. to customize error
- * reporting, excess property handling, and output key ordering.
+ * Pass to `Schema.decodeUnknown`, `Schema.encode`, and related APIs to customize
+ * error reporting, excess property handling, output key ordering, check
+ * execution, and asynchronous parser concurrency.
  *
- * - `errors` — `"first"` (default) stops at the first error; `"all"`
- *   collects every error.
- * - `onExcessProperty` — `"ignore"` (default) strips unknown keys;
+ * - `errors` — `"first"` (default) stops at the first error; `"all"` collects
+ *   every error.
+ * - `onExcessProperty` — `"ignore"` (default) strips unknown object keys;
  *   `"error"` fails; `"preserve"` keeps them.
  * - `propertyOrder` — `"none"` (default) lets the system choose key order;
  *   `"original"` preserves input key order.
+ * - `disableChecks` — skips validation checks while still applying defaults and
+ *   transformations.
+ * - `concurrency` — maximum number of async parse effects to run concurrently;
+ *   defaults to `1`, or use `"unbounded"`.
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export interface ParseOptions {
   /**
@@ -469,7 +474,7 @@ export const defaultParseOptions: ParseOptions = {}
  * @see {@link optionalKey}
  * @see {@link isOptional}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Context {
@@ -504,7 +509,7 @@ export class Context {
  * @see {@link Filter}
  * @see {@link FilterGroup}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export type Checks = readonly [Check<any>, ...Array<Check<any>>]
@@ -527,7 +532,7 @@ const TypeId = "~effect/Schema"
  *
  * @see {@link AST}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export abstract class Base {
@@ -566,8 +571,8 @@ export abstract class Base {
  *
  * @see {@link isDeclaration}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export class Declaration extends Base {
   readonly _tag = "Declaration"
@@ -621,7 +626,7 @@ export class Declaration extends Base {
  * @see {@link null}
  * @see {@link isNull}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Null extends Base {
@@ -654,7 +659,7 @@ export {
  * @see {@link undefined}
  * @see {@link isUndefined}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Undefined extends Base {
@@ -700,7 +705,7 @@ export {
  * @see {@link void}
  * @see {@link isVoid}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Void extends Base {
@@ -738,7 +743,7 @@ export {
  * @see {@link never}
  * @see {@link isNever}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Never extends Base {
@@ -756,6 +761,7 @@ export class Never extends Base {
 /**
  * Singleton {@link Never} AST instance.
  *
+ * @category constructors
  * @since 4.0.0
  */
 export const never = new Never()
@@ -766,7 +772,7 @@ export const never = new Never()
  * @see {@link any}
  * @see {@link isAny}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Any extends Base {
@@ -784,6 +790,7 @@ export class Any extends Base {
 /**
  * Singleton {@link Any} AST instance.
  *
+ * @category constructors
  * @since 4.0.0
  */
 export const any = new Any()
@@ -797,7 +804,7 @@ export const any = new Any()
  * @see {@link unknown}
  * @see {@link isUnknown}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Unknown extends Base {
@@ -815,6 +822,7 @@ export class Unknown extends Base {
 /**
  * Singleton {@link Unknown} AST instance.
  *
+ * @category constructors
  * @since 4.0.0
  */
 export const unknown = new Unknown()
@@ -826,8 +834,8 @@ export const unknown = new Unknown()
  * @see {@link objectKeyword}
  * @see {@link isObjectKeyword}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export class ObjectKeyword extends Base {
   readonly _tag = "ObjectKeyword"
@@ -844,7 +852,8 @@ export class ObjectKeyword extends Base {
 /**
  * Singleton {@link ObjectKeyword} AST instance.
  *
- * @since 4.0.0
+ * @category constructors
+ * @since 3.10.0
  */
 export const objectKeyword = new ObjectKeyword()
 
@@ -856,7 +865,7 @@ export const objectKeyword = new ObjectKeyword()
  *
  * @see {@link isEnum}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Enum extends Base {
@@ -936,8 +945,8 @@ function isTemplateLiteralPart(ast: AST): ast is TemplateLiteralPart {
  *
  * @see {@link isTemplateLiteral}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export class TemplateLiteral extends Base {
   readonly _tag = "TemplateLiteral"
@@ -1009,8 +1018,8 @@ export class TemplateLiteral extends Base {
  *
  * @see {@link isUniqueSymbol}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export class UniqueSymbol extends Base {
   readonly _tag = "UniqueSymbol"
@@ -1045,8 +1054,8 @@ export class UniqueSymbol extends Base {
  *
  * @see {@link Literal}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export type LiteralValue = string | number | boolean | bigint
 
@@ -1070,8 +1079,8 @@ export type LiteralValue = string | number | boolean | bigint
  * @see {@link LiteralValue}
  * @see {@link isLiteral}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export class Literal extends Base {
   readonly _tag = "Literal"
@@ -1127,7 +1136,7 @@ function literalToString(ast: Literal): Literal {
  * @see {@link string}
  * @see {@link isString}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class String extends Base {
@@ -1145,6 +1154,7 @@ export class String extends Base {
 /**
  * Singleton {@link String} AST instance.
  *
+ * @category constructors
  * @since 4.0.0
  */
 export const string = new String()
@@ -1163,7 +1173,7 @@ export const string = new String()
  * @see {@link number}
  * @see {@link isNumber}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Number extends Base {
@@ -1207,6 +1217,7 @@ function hasCheck(checks: ReadonlyArray<Check<unknown>>, tag: string): boolean {
 /**
  * Singleton {@link Number} AST instance.
  *
+ * @category constructors
  * @since 4.0.0
  */
 export const number = new Number()
@@ -1217,7 +1228,7 @@ export const number = new Number()
  * @see {@link boolean}
  * @see {@link isBoolean}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Boolean extends Base {
@@ -1235,6 +1246,7 @@ export class Boolean extends Base {
 /**
  * Singleton {@link Boolean} AST instance.
  *
+ * @category constructors
  * @since 4.0.0
  */
 export const boolean = new Boolean()
@@ -1248,7 +1260,7 @@ export const boolean = new Boolean()
  * @see {@link symbol}
  * @see {@link isSymbol}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Symbol extends Base {
@@ -1270,6 +1282,7 @@ export class Symbol extends Base {
 /**
  * Singleton {@link Symbol} AST instance.
  *
+ * @category constructors
  * @since 4.0.0
  */
 export const symbol = new Symbol()
@@ -1283,7 +1296,7 @@ export const symbol = new Symbol()
  * @see {@link bigInt}
  * @see {@link isBigInt}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class BigInt extends Base {
@@ -1305,6 +1318,7 @@ export class BigInt extends Base {
 /**
  * Singleton {@link BigInt} AST instance.
  *
+ * @category constructors
  * @since 4.0.0
  */
 export const bigInt = new BigInt()
@@ -1341,7 +1355,7 @@ export const bigInt = new BigInt()
  * @see {@link isArrays}
  * @see {@link Objects}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Arrays extends Base {
@@ -1570,8 +1584,8 @@ export function getIndexSignatureKeys(
  *
  * @see {@link Objects}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export class PropertySignature {
   readonly name: PropertyKey
@@ -1596,7 +1610,7 @@ export class PropertySignature {
  *
  * @see {@link IndexSignature}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class KeyValueCombiner {
@@ -1630,8 +1644,8 @@ export class KeyValueCombiner {
  * @see {@link Objects}
  * @see {@link PropertySignature}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export class IndexSignature {
   readonly parameter: AST
@@ -1653,14 +1667,15 @@ export class IndexSignature {
 }
 
 /**
- * AST node for object-like types — both structs and records.
+ * AST node for object-like schemas, including structs and records.
  *
  * - `propertySignatures` — named properties with their types (struct fields).
  * - `indexSignatures` — index signature entries (record patterns), each with
- *   a `parameter` AST (the key type) and a `type` AST (the value type).
+ *   a `parameter` AST for matching keys and a `type` AST for values.
  *
- * An `Objects` with no properties and no index signatures acts as a bare
- * `object | array` type check (accepts any non-nullish value).
+ * An `Objects` node with no properties and no index signatures performs only a
+ * non-nullish check: it accepts any value except `null` and `undefined`,
+ * including primitive values.
  *
  * Duplicate property names throw at construction time.
  *
@@ -1685,7 +1700,7 @@ export class IndexSignature {
  * @see {@link IndexSignature}
  * @see {@link Arrays}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Objects extends Base {
@@ -2252,8 +2267,8 @@ export function getCandidates(input: any, types: ReadonlyArray<AST>): ReadonlyAr
  *
  * @see {@link isUnion}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export class Union<A extends AST = AST> extends Base {
   readonly _tag = "Union"
@@ -2449,8 +2464,8 @@ export function memoizeThunk<A>(f: () => A): () => A {
  *
  * @see {@link isSuspend}
  *
- * @category model
- * @since 4.0.0
+ * @category models
+ * @since 3.10.0
  */
 export class Suspend extends Base {
   readonly _tag = "Suspend"
@@ -2501,7 +2516,7 @@ export class Suspend extends Base {
  * @see {@link Check}
  * @see {@link isPattern}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class Filter<in E> extends Pipeable.Class {
@@ -2548,7 +2563,7 @@ export class Filter<in E> extends Pipeable.Class {
  * @see {@link Filter}
  * @see {@link Check}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export class FilterGroup<in E> extends Pipeable.Class {
@@ -2582,7 +2597,7 @@ export class FilterGroup<in E> extends Pipeable.Class {
  * @see {@link Filter}
  * @see {@link FilterGroup}
  *
- * @category model
+ * @category models
  * @since 4.0.0
  */
 export type Check<T> = Filter<T> | FilterGroup<T>
@@ -2613,12 +2628,15 @@ export function makeFilterByGuard<T extends E, E>(
 }
 
 /**
- * Creates a {@link Filter} that validates strings against a regular expression.
+ * Creates a {@link Filter} that validates strings by running `RegExp.test`.
  *
- * - Returns a `Filter<string>` suitable for use with `Schema.filter` or
- *   attached directly to a `String` AST node via checks.
- * - The regex `source` is stored in annotations for serialization and
- *   arbitrary generation.
+ * The filter can be used with `Schema.filter` or attached directly to a
+ * `String` AST node through checks. The regular expression source is stored in
+ * annotations for serialization and arbitrary generation.
+ *
+ * Use a non-global, non-sticky regular expression, or reset `lastIndex`
+ * yourself, because `RegExp.test` is stateful for expressions with the `g` or
+ * `y` flag.
  *
  * **Example** (Validating an email pattern)
  *
@@ -2630,6 +2648,7 @@ export function makeFilterByGuard<T extends E, E>(
  *
  * @see {@link Filter}
  *
+ * @category constructors
  * @since 4.0.0
  */
 export function isPattern(regExp: globalThis.RegExp, annotations?: Schema.Annotations.Filter) {
@@ -2809,6 +2828,7 @@ export const optionalKeyLastLink = applyToLastLink(optionalKey)
  * @see {@link isOptional}
  * @see {@link Context}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export function optionalKey<A extends AST>(ast: A): A {
@@ -2863,6 +2883,7 @@ export function withConstructorDefault<A extends AST>(
  * @see {@link Encoding}
  * @see {@link flip}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export function decodeTo<A extends AST>(
@@ -2934,6 +2955,7 @@ export function record(key: AST, value: AST, keyValueCombiner: KeyValueCombiner 
  * @see {@link optionalKey}
  * @see {@link Context}
  *
+ * @category predicates
  * @since 4.0.0
  */
 export function isOptional(ast: AST): boolean {
@@ -2967,6 +2989,7 @@ export function isMutable(ast: AST): boolean {
  * @see {@link toEncoded}
  * @see {@link flip}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export const toType = memoize(<A extends AST>(ast: A): A => {
@@ -3000,6 +3023,7 @@ export const toType = memoize(<A extends AST>(ast: A): A => {
  * @see {@link toType}
  * @see {@link flip}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export const toEncoded = memoize((ast: AST): AST => {
@@ -3038,6 +3062,7 @@ function flipEncoding(ast: AST, encoding: Encoding): AST {
  * @see {@link toType}
  * @see {@link toEncoded}
  *
+ * @category transforming
  * @since 4.0.0
  */
 export const flip = memoize((ast: AST): AST => {
@@ -3345,6 +3370,7 @@ export const STRUCTURAL_ANNOTATION_KEY = "~structural"
  * @see {@link resolveTitle}
  * @see {@link resolveDescription}
  *
+ * @category annotations
  * @since 4.0.0
  */
 export const resolve: (ast: AST) => Schema.Annotations.Annotations | undefined = InternalAnnotations.resolve
@@ -3357,6 +3383,7 @@ export const resolve: (ast: AST) => Schema.Annotations.Annotations | undefined =
  *
  * @see {@link resolve}
  *
+ * @category annotations
  * @since 4.0.0
  */
 export const resolveAt: <A>(key: string) => (ast: AST) => A | undefined = InternalAnnotations.resolveAt
@@ -3370,6 +3397,7 @@ export const resolveAt: <A>(key: string) => (ast: AST) => A | undefined = Intern
  * @see {@link resolve}
  * @see {@link resolveTitle}
  *
+ * @category annotations
  * @since 4.0.0
  */
 export const resolveIdentifier: (ast: AST) => string | undefined = InternalAnnotations.resolveIdentifier
@@ -3381,6 +3409,7 @@ export const resolveIdentifier: (ast: AST) => string | undefined = InternalAnnot
  * @see {@link resolveIdentifier}
  * @see {@link resolveDescription}
  *
+ * @category annotations
  * @since 4.0.0
  */
 export const resolveTitle: (ast: AST) => string | undefined = InternalAnnotations.resolveTitle
@@ -3392,6 +3421,7 @@ export const resolveTitle: (ast: AST) => string | undefined = InternalAnnotation
  * @see {@link resolveTitle}
  * @see {@link resolveIdentifier}
  *
+ * @category annotations
  * @since 4.0.0
  */
 export const resolveDescription: (ast: AST) => string | undefined = InternalAnnotations.resolveDescription

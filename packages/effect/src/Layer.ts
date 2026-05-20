@@ -49,8 +49,8 @@ const TypeId = "~effect/Layer"
  * - E: The possible errors during layer construction
  * - RIn: The services this layer requires as dependencies
  *
- * @since 2.0.0
  * @category models
+ * @since 2.0.0
  */
 export interface Layer<in ROut, out E = never, out RIn = never> extends Variance<ROut, E, RIn>, Pipeable {
   /** @internal */
@@ -61,8 +61,14 @@ export interface Layer<in ROut, out E = never, out RIn = never> extends Variance
 }
 
 /**
- * @since 4.0.0
+ * Type-level hook that allows `Layer` values to participate in `Unify`
+ * inference.
+ *
+ * This is used by Effect's pipe and unification machinery to preserve the
+ * provided services, error, and requirements of a `Layer`.
+ *
  * @category models
+ * @since 4.0.0
  */
 export interface LayerUnify<A extends { [Unify.typeSymbol]?: any }> {
   Layer?: () => A[Unify.typeSymbol] extends Layer<any, any, any> | infer _ ? Layer<
@@ -74,16 +80,19 @@ export interface LayerUnify<A extends { [Unify.typeSymbol]?: any }> {
 }
 
 /**
- * @since 4.0.0
+ * Type-level marker used by `Unify` for `Layer` types that should be ignored
+ * during unification.
+ *
  * @category models
+ * @since 4.0.0
  */
 export interface LayerUnifyIgnore {}
 
 /**
  * The variance interface for Layer type parameters.
  *
- * @since 2.0.0
  * @category models
+ * @since 2.0.0
  */
 export interface Variance<in ROut, out E, out RIn> {
   readonly [TypeId]: {
@@ -98,8 +107,8 @@ export interface Variance<in ROut, out E, out RIn> {
  * This interface is used to constrain generic types to Layer types
  * without specifying exact type parameters.
  *
- * @since 3.9.0
  * @category type-level
+ * @since 3.9.0
  */
 export interface Any {
   readonly [TypeId]: {
@@ -111,8 +120,8 @@ export interface Any {
 /**
  * Extracts the service dependencies (RIn) from a Layer type.
  *
- * @since 2.0.0
  * @category type-level
+ * @since 4.0.0
  */
 export type Services<T extends Any> = T extends infer L
   ? L extends Layer<infer _ROut, infer _E, infer _RIn> ? _RIn : never
@@ -120,15 +129,15 @@ export type Services<T extends Any> = T extends infer L
 /**
  * Extracts the error type (E) from a Layer type.
  *
- * @since 2.0.0
  * @category type-level
+ * @since 2.0.0
  */
 export type Error<T extends Any> = T extends Layer<infer _ROut, infer _E, infer _RIn> ? _E : never
 /**
  * Extracts the service output type (ROut) from a Layer type.
  *
- * @since 2.0.0
  * @category type-level
+ * @since 2.0.0
  */
 export type Success<T extends Any> = T extends Layer<infer _ROut, infer _E, infer _RIn> ? _ROut : never
 
@@ -140,9 +149,10 @@ const MemoMapTypeId = "~effect/Layer/MemoMap"
  * The MemoMap prevents duplicate construction of the same layer instance,
  * enabling efficient resource sharing across layer dependencies.
  *
- * @example
+ * **Example** (Sharing layer construction with a memo map)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -162,11 +172,15 @@ const MemoMapTypeId = "~effect/Layer/MemoMap"
  * })
  * ```
  *
- * @since 2.0.0
  * @category models
+ * @since 2.0.0
  */
 export interface MemoMap {
   readonly [MemoMapTypeId]: typeof MemoMapTypeId
+  readonly get: <RIn, E, ROut>(
+    layer: Layer<ROut, E, RIn>,
+    scope: Scope.Scope
+  ) => Effect<Context.Context<ROut>, E, RIn> | undefined
   readonly getOrElseMemoize: <RIn, E, ROut>(
     layer: Layer<ROut, E, RIn>,
     scope: Scope.Scope,
@@ -174,12 +188,30 @@ export interface MemoMap {
   ) => Effect<Context.Context<ROut>, E, RIn>
 }
 
+type MemoMapEntry = {
+  observers: number
+  effect: Effect<Context.Context<any>, any>
+  readonly finalizer: (exit: Exit.Exit<unknown, unknown>) => Effect<void>
+}
+
+const memoMapReuse = <RIn, E, ROut>(
+  entry: MemoMapEntry,
+  scope: Scope.Scope
+): Effect<Context.Context<ROut>, E, RIn> => {
+  entry.observers++
+  return internalEffect.andThen(
+    internalEffect.scopeAddFinalizerExit(scope, (exit) => entry.finalizer(exit)),
+    entry.effect
+  )
+}
+
 /**
  * Returns `true` if the specified value is a `Layer`, `false` otherwise.
  *
- * @example
+ * **Example** (Checking whether a value is a layer)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -194,8 +226,8 @@ export interface MemoMap {
  * console.log(Layer.isLayer(notALayer)) // false
  * ```
  *
- * @since 2.0.0
  * @category getters
+ * @since 2.0.0
  */
 export const isLayer = (u: unknown): u is Layer<unknown, unknown, unknown> => hasProperty(u, TypeId)
 
@@ -227,9 +259,10 @@ const fromBuildUnsafe = <ROut, E, RIn>(
  * The function receives a `MemoMap` for memoization and a `Scope` for resource management.
  * A child scope is created, and if the build fails, the child scope is closed.
  *
- * @example
+ * **Example** (Constructing a layer from a build function)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -244,8 +277,8 @@ const fromBuildUnsafe = <ROut, E, RIn>(
  * )
  * ```
  *
- * @since 4.0.0
  * @category constructors
+ * @since 4.0.0
  */
 export const fromBuild = <ROut, E, RIn>(
   build: (
@@ -268,9 +301,10 @@ export const fromBuild = <ROut, E, RIn>(
  * This is similar to `fromBuild` but provides automatic memoization of the layer construction.
  * The layer will be memoized based on the provided `MemoMap`.
  *
- * @example
+ * **Example** (Memoizing layer construction)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -285,8 +319,8 @@ export const fromBuild = <ROut, E, RIn>(
  * )
  * ```
  *
- * @since 4.0.0
  * @category constructors
+ * @since 4.0.0
  */
 export const fromBuildMemo = <ROut, E, RIn>(
   build: (
@@ -298,62 +332,81 @@ export const fromBuildMemo = <ROut, E, RIn>(
   return self
 }
 
+const memoMapBuild = <RIn, E, ROut>(
+  memoMap: MemoMapImpl,
+  layer: Layer<ROut, E, RIn>,
+  scope: Scope.Scope,
+  build: (memoMap: MemoMap, scope: Scope.Scope) => Effect<Context.Context<ROut>, E, RIn>
+): Effect<Context.Context<ROut>, E, RIn> => {
+  const layerScope = Scope.makeUnsafe()
+  const deferred = Deferred.makeUnsafe<Context.Context<ROut>, E>()
+  const entry: MemoMapEntry = {
+    observers: 1,
+    effect: Deferred.await(deferred),
+    finalizer: (exit: Exit.Exit<unknown, unknown>) =>
+      internalEffect.suspend(() => {
+        entry.observers--
+        if (entry.observers === 0) {
+          memoMap.map.delete(layer)
+          return Scope.close(layerScope, exit)
+        }
+        return internalEffect.void
+      })
+  }
+  memoMap.map.set(layer, entry)
+  return internalEffect.scopeAddFinalizerExit(scope, entry.finalizer).pipe(
+    internalEffect.flatMap(() => build(memoMap, layerScope)),
+    internalEffect.onExit((exit) => {
+      entry.effect = exit
+      return Deferred.done(deferred, exit)
+    })
+  )
+}
+
 class MemoMapImpl implements MemoMap {
   get [MemoMapTypeId](): typeof MemoMapTypeId {
     return MemoMapTypeId
   }
 
-  readonly map = new Map<Layer<any, any, any>, {
-    observers: number
-    effect: Effect<Context.Context<any>, any>
-    readonly finalizer: (exit: Exit.Exit<unknown, unknown>) => Effect<void>
-  }>()
+  readonly parent: MemoMap | undefined
+
+  constructor(parent?: MemoMap) {
+    this.parent = parent
+  }
+
+  readonly map = new Map<Layer<any, any, any>, MemoMapEntry>()
+
+  get<RIn, E, ROut>(
+    layer: Layer<ROut, E, RIn>,
+    scope: Scope.Scope
+  ): Effect<Context.Context<ROut>, E, RIn> | undefined {
+    const local = this.map.get(layer)
+    if (local) {
+      return memoMapReuse(local, scope)
+    }
+    return this.parent?.get(layer, scope)
+  }
 
   getOrElseMemoize<RIn, E, ROut>(
     layer: Layer<ROut, E, RIn>,
     scope: Scope.Scope,
     build: (memoMap: MemoMap, scope: Scope.Scope) => Effect<Context.Context<ROut>, E, RIn>
   ): Effect<Context.Context<ROut>, E, RIn> {
-    if (this.map.has(layer)) {
-      const entry = this.map.get(layer)!
-      entry.observers++
-      return internalEffect.andThen(
-        internalEffect.scopeAddFinalizerExit(scope, (exit) => entry.finalizer(exit)),
-        entry.effect
-      )
+    const existing = this.get(layer, scope)
+    if (existing) {
+      return existing
     }
-    const layerScope = Scope.makeUnsafe()
-    const deferred = Deferred.makeUnsafe<Context.Context<ROut>, E>()
-    const entry = {
-      observers: 1,
-      effect: Deferred.await(deferred),
-      finalizer: (exit: Exit.Exit<unknown, unknown>) =>
-        internalEffect.suspend(() => {
-          entry.observers--
-          if (entry.observers === 0) {
-            this.map.delete(layer)
-            return Scope.close(layerScope, exit)
-          }
-          return internalEffect.void
-        })
-    }
-    this.map.set(layer, entry)
-    return internalEffect.scopeAddFinalizerExit(scope, entry.finalizer).pipe(
-      internalEffect.flatMap(() => build(this, layerScope)),
-      internalEffect.onExit((exit) => {
-        entry.effect = exit
-        return Deferred.done(deferred, exit)
-      })
-    )
+    return memoMapBuild(this, layer, scope, build)
   }
 }
 
 /**
  * Constructs a `MemoMap` that can be used to build additional layers.
  *
- * @example
+ * **Example** (Creating a memo map unsafely)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -373,17 +426,27 @@ class MemoMapImpl implements MemoMap {
  * })
  * ```
  *
- * @since 4.0.0
  * @category memo map
+ * @since 4.0.0
  */
 export const makeMemoMapUnsafe = (): MemoMap => new MemoMapImpl()
 
 /**
+ * Constructs a child `MemoMap` that can reuse layers already memoized in the
+ * parent while isolating any new layer allocations to the child map.
+ *
+ * @category memo map
+ * @since 4.0.0
+ */
+export const forkMemoMapUnsafe = (parent: MemoMap): MemoMap => new MemoMapImpl(parent)
+
+/**
  * Constructs a `MemoMap` that can be used to build additional layers.
  *
- * @example
+ * **Example** (Creating a memo map in an effect)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -403,10 +466,19 @@ export const makeMemoMapUnsafe = (): MemoMap => new MemoMapImpl()
  * })
  * ```
  *
- * @since 2.0.0
  * @category memo map
+ * @since 2.0.0
  */
 export const makeMemoMap: Effect<MemoMap> = internalEffect.sync(makeMemoMapUnsafe)
+
+/**
+ * Constructs a child `MemoMap` that can reuse layers already memoized in the
+ * parent while isolating any new layer allocations to the child map.
+ *
+ * @category memo map
+ * @since 4.0.0
+ */
+export const forkMemoMap = (parent: MemoMap): Effect<MemoMap> => internalEffect.sync(() => forkMemoMapUnsafe(parent))
 
 /**
  * A service reference for the current `MemoMap` used in layer construction.
@@ -414,8 +486,8 @@ export const makeMemoMap: Effect<MemoMap> = internalEffect.sync(makeMemoMapUnsaf
  * This service provides access to the current memoization map during layer building,
  * allowing layers to share memoized results.
  *
- * @since 3.13.0
  * @category models
+ * @since 3.13.0
  */
 export class CurrentMemoMap extends Context.Service<CurrentMemoMap, MemoMap>()("effect/Layer/CurrentMemoMap") {
   static getOrCreate: <Services>(self: Context.Context<Services>) => MemoMap = Context.getOrElse(
@@ -428,9 +500,10 @@ export class CurrentMemoMap extends Context.Service<CurrentMemoMap, MemoMap>()("
  * Builds a layer into an `Effect` value, using the specified `MemoMap` to memoize
  * the layer construction.
  *
- * @example
+ * **Example** (Building layers with an explicit memo map)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -468,8 +541,8 @@ export class CurrentMemoMap extends Context.Service<CurrentMemoMap, MemoMap>()("
  * })
  * ```
  *
- * @since 2.0.0
  * @category memo map
+ * @since 2.0.0
  */
 export const buildWithMemoMap: {
   (
@@ -495,9 +568,10 @@ export const buildWithMemoMap: {
 /**
  * Builds a layer into a scoped value.
  *
- * @example
+ * **Example** (Building a layer into a context)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -519,8 +593,8 @@ export const buildWithMemoMap: {
  * })
  * ```
  *
- * @since 2.0.0
  * @category destructors
+ * @since 2.0.0
  */
 export const build = <RIn, E, ROut>(
   self: Layer<ROut, E, RIn>
@@ -540,9 +614,10 @@ export const build = <RIn, E, ROut>(
  * the services output by the layer exceed the lifetime of the effect the
  * layer is provided to.
  *
- * @example
+ * **Example** (Building a layer with an explicit scope)
+ *
  * ```ts
- * import { Effect, Layer, Scope, Context } from "effect"
+ * import { Context, Effect, Layer, Scope } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -570,8 +645,8 @@ export const build = <RIn, E, ROut>(
  * })
  * ```
  *
- * @since 2.0.0
  * @category destructors
+ * @since 2.0.0
  */
 export const buildWithScope: {
   (scope: Scope.Scope): <RIn, E, ROut>(self: Layer<ROut, E, RIn>) => Effect<Context.Context<ROut>, E, RIn>
@@ -591,9 +666,10 @@ export const buildWithScope: {
 /**
  * Constructs a layer from the specified value.
  *
- * @example
+ * **Example** (Providing services from values)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -627,8 +703,8 @@ export const buildWithScope: {
  * )
  * ```
  *
- * @since 2.0.0
  * @category constructors
+ * @since 2.0.0
  */
 export const succeed: {
   <I, S>(service: Context.Key<I, S>): (resource: S) => Layer<I>
@@ -647,9 +723,10 @@ export const succeed: {
  * This is a more general version of `succeed` that allows you to provide multiple
  * services at once through a `Context`.
  *
- * @example
+ * **Example** (Providing multiple services from a context)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -670,8 +747,8 @@ export const succeed: {
  * const layer = Layer.succeedContext(context)
  * ```
  *
- * @since 2.0.0
  * @category constructors
+ * @since 2.0.0
  */
 export const succeedContext = <A>(context: Context.Context<A>): Layer<A> =>
   fromBuildUnsafe(constant(internalEffect.succeed(context)))
@@ -682,15 +759,16 @@ export const succeedContext = <A>(context: Context.Context<A>): Layer<A> =>
  * This layer provides no services and can be used as a neutral element
  * in layer composition or as a starting point for building layers.
  *
- * @example
+ * **Example** (Creating an empty layer)
+ *
  * ```ts
  * import { Layer } from "effect"
  *
  * const emptyLayer = Layer.empty
  * ```
  *
- * @since 2.0.0
  * @category constructors
+ * @since 2.0.0
  */
 export const empty: Layer<never> = succeedContext(Context.empty())
 
@@ -700,9 +778,10 @@ export const empty: Layer<never> = succeedContext(Context.empty())
  * This is a lazy version of `succeed` where the service value is computed
  * synchronously only when the layer is built.
  *
- * @example
+ * **Example** (Lazily providing a service)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -713,8 +792,8 @@ export const empty: Layer<never> = succeedContext(Context.empty())
  * }))
  * ```
  *
- * @since 2.0.0
  * @category constructors
+ * @since 2.0.0
  */
 export const sync: {
   <I, S>(service: Context.Key<I, S>): (evaluate: LazyArg<S>) => Layer<I>
@@ -733,9 +812,10 @@ export const sync: {
  * This is a lazy version of `succeedContext` where the Context is computed
  * synchronously only when the layer is built.
  *
- * @example
+ * **Example** (Lazily providing a context)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -748,8 +828,8 @@ export const sync: {
  * )
  * ```
  *
- * @since 2.0.0
  * @category constructors
+ * @since 2.0.0
  */
 export const syncContext = <A>(evaluate: LazyArg<Context.Context<A>>): Layer<A> =>
   fromBuildMemo(constant(internalEffect.sync(evaluate)))
@@ -761,15 +841,10 @@ export const syncContext = <A>(evaluate: LazyArg<Context.Context<A>>): Layer<A> 
  * The Effect is executed in the scope of the layer, allowing for proper
  * resource management.
  *
- * **Previously Known As**
+ * **Example** (Creating a layer from an effect)
  *
- * This API replaces the following from Effect 3.x:
- *
- * - `Layer.scoped`
- *
- * @example
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -782,8 +857,8 @@ export const syncContext = <A>(evaluate: LazyArg<Context.Context<A>>): Layer<A> 
  * )
  * ```
  *
- * @since 2.0.0
  * @category constructors
+ * @since 2.0.0
  */
 export const effect: {
   <I, S>(service: Context.Key<I, S>): <E, R>(
@@ -813,9 +888,10 @@ const effectImpl = <I, S, E, R>(
  * This allows you to create a Layer from an effectful computation that returns
  * multiple services. The Effect is executed in the scope of the layer.
  *
- * @example
+ * **Example** (Creating a layer from an effectful context)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<
  *   Database,
@@ -829,8 +905,8 @@ const effectImpl = <I, S, E, R>(
  * )
  * ```
  *
- * @since 2.0.0
  * @category constructors
+ * @since 2.0.0
  */
 export const effectContext = <A, E, R>(
   effect: Effect<Context.Context<A>, E, R>
@@ -842,13 +918,8 @@ export const effectContext = <A, E, R>(
  * This is useful when you want to run an Effect for its side effects during
  * layer construction, but don't need to provide any services.
  *
- * **Previously Known As**
+ * **Example** (Running an effect during layer construction)
  *
- * This API replaces the following from Effect 3.x:
- *
- * - `Layer.scopedDiscard`
- *
- * @example
  * ```ts
  * import { Effect, Layer } from "effect"
  *
@@ -859,8 +930,8 @@ export const effectContext = <A, E, R>(
  * )
  * ```
  *
- * @since 2.0.0
  * @category constructors
+ * @since 2.0.0
  */
 export const effectDiscard = <X, E, R>(effect: Effect<X, E, R>): Layer<never, E, Exclude<R, Scope.Scope>> =>
   effectContext(internalEffect.as(effect, Context.empty()))
@@ -871,9 +942,10 @@ export const effectDiscard = <X, E, R>(effect: Effect<X, E, R>): Layer<never, E,
  * The factory is evaluated only when the suspended layer is first built, and
  * the result is memoized with normal layer sharing semantics.
  *
- * @example
+ * **Example** (Choosing a layer lazily)
+ *
  * ```ts
- * import { Layer, Context } from "effect"
+ * import { Context, Layer } from "effect"
  *
  * class Config extends Context.Service<Config, string>()("Config") {}
  *
@@ -886,8 +958,8 @@ export const effectDiscard = <X, E, R>(effect: Effect<X, E, R>): Layer<never, E,
  * )
  * ```
  *
- * @since 4.0.0
  * @category constructors
+ * @since 2.0.0
  */
 export const suspend = <A, E, R>(evaluate: LazyArg<Layer<A, E, R>>): Layer<A, E, R> =>
   fromBuildMemo((memoMap, scope) => internalEffect.suspend(() => evaluate().build(memoMap, scope)))
@@ -899,9 +971,10 @@ export const suspend = <A, E, R>(evaluate: LazyArg<Layer<A, E, R>>): Layer<A, E,
  * use that Layer directly. The resulting Layer will have the combined error and
  * dependency types from both the outer Effect and the inner Layer.
  *
- * @example
+ * **Example** (Unwrapping an effectful layer)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -914,8 +987,8 @@ export const suspend = <A, E, R>(evaluate: LazyArg<Layer<A, E, R>>): Layer<A, E,
  * const unwrappedLayer = Layer.unwrap(layerEffect)
  * ```
  *
- * @since 4.0.0
  * @category utils
+ * @since 4.0.0
  */
 export const unwrap = <A, E1, R1, E, R>(
   self: Effect<Layer<A, E1, R1>, E, R>
@@ -947,9 +1020,10 @@ const mergeAllEffect = <Layers extends [Layer<never, any, any>, ...Array<Layer<n
  * All layers are built concurrently, and their outputs are merged into a single layer.
  * This is useful when you need to combine multiple independent layers.
  *
- * @example
+ * **Example** (Merging independent layers)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -969,8 +1043,8 @@ const mergeAllEffect = <Layers extends [Layer<never, any, any>, ...Array<Layer<n
  * const mergedLayer = Layer.mergeAll(dbLayer, loggerLayer)
  * ```
  *
- * @since 2.0.0
  * @category zipping
+ * @since 2.0.0
  */
 export const mergeAll = <Layers extends [Layer<never, any, any>, ...Array<Layer<never, any, any>>]>(
   ...layers: Layers
@@ -986,9 +1060,10 @@ export const mergeAll = <Layers extends [Layer<never, any, any>, ...Array<Layer<
  * This is a binary version of `mergeAll` that merges exactly two layers or one layer with an array of layers.
  * The layers are built concurrently and their outputs are combined.
  *
- * @example
+ * **Example** (Merging two layers)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -1008,8 +1083,8 @@ export const mergeAll = <Layers extends [Layer<never, any, any>, ...Array<Layer<
  * const mergedLayer = Layer.merge(dbLayer, loggerLayer)
  * ```
  *
- * @since 2.0.0
  * @category zipping
+ * @since 2.0.0
  */
 export const merge: {
   <RIn, E, ROut>(
@@ -1069,9 +1144,10 @@ const provideWith = (
  * builder, resulting in a new builder with the inputs of this builder as
  * well as any leftover inputs, and the outputs of the specified builder.
  *
- * @example
+ * **Example** (Providing layer dependencies)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -1127,8 +1203,8 @@ const provideWith = (
  * )
  * ```
  *
- * @since 2.0.0
  * @category utils
+ * @since 2.0.0
  */
 export const provide: {
   <RIn, E, ROut>(
@@ -1167,9 +1243,10 @@ export const provide: {
  * layer, resulting in a new layer with the inputs of this layer, and the
  * outputs of both layers.
  *
- * @example
+ * **Example** (Providing dependencies while retaining services)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -1231,8 +1308,8 @@ export const provide: {
  * )
  * ```
  *
- * @since 2.0.0
  * @category utils
+ * @since 2.0.0
  */
 export const provideMerge: {
   <RIn, E, ROut>(
@@ -1274,9 +1351,10 @@ export const provideMerge: {
 /**
  * Constructs a layer dynamically based on the output of this layer.
  *
- * @example
+ * **Example** (Creating services from layer output)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Config extends Context.Service<Config, {
  *   readonly dbUrl: string
@@ -1338,8 +1416,8 @@ export const provideMerge: {
  * )
  * ```
  *
- * @since 2.0.0
  * @category sequencing
+ * @since 2.0.0
  */
 export const flatMap: {
   <A, A2, E2, R2>(
@@ -1363,8 +1441,8 @@ export const flatMap: {
 /**
  * Performs the specified effect if this layer succeeds.
  *
- * @since 4.0.0
  * @category sequencing
+ * @since 2.0.0
  */
 export const tap: {
   <ROut, XR extends ROut, RIn2, E2, X>(
@@ -1388,8 +1466,8 @@ export const tap: {
 /**
  * Performs the specified effect if this layer fails.
  *
- * @since 4.0.0
  * @category sequencing
+ * @since 2.0.0
  */
 export const tapError: {
   <E, XE extends E, RIn2, E2, X>(
@@ -1411,16 +1489,16 @@ export const tapError: {
   ))
 
 /**
- * Performs the specified effect if this layer fails.
+ * Performs the specified effect when this layer fails with any cause.
  *
- * **Previously Known As**
+ * **Details**
+ * The callback receives the layer's `Cause`, so it can inspect typed errors,
+ * defects, and interruption information. If the callback succeeds, the layer
+ * fails again with the original cause; if the callback fails, that failure is
+ * added to the layer's error type.
  *
- * This API replaces the following from Effect 3.x:
- *
- * - `Layer.tapErrorCause`
- *
- * @since 4.0.0
  * @category sequencing
+ * @since 4.0.0
  */
 export const tapCause: {
   <E, XE extends E, RIn2, E2, X>(
@@ -1446,9 +1524,10 @@ export const tapCause: {
  * Translates effect failure into death of the fiber, making all failures
  * unchecked and not a part of the type of the layer.
  *
- * @example
+ * **Example** (Converting layer failures to defects)
+ *
  * ```ts
- * import { Data, Effect, Layer, Context } from "effect"
+ * import { Context, Data, Effect, Layer } from "effect"
  *
  * class DatabaseError extends Data.TaggedError("DatabaseError")<{
  *   message: string
@@ -1460,13 +1539,8 @@ export const tapCause: {
  *
  * // Layer that can fail during construction
  * const flakyDatabaseLayer = Layer.effect(Database)(Effect.gen(function*() {
- *   // Simulate a database connection that might fail
- *   const shouldFail = Math.random() > 0.5
- *   if (shouldFail) {
- *     return yield* new DatabaseError({ message: "Connection failed" })
- *   }
- *
- *   return { query: Effect.fn("Database.query")((sql: string) => Effect.succeed(`Result: ${sql}`)) }
+ *   console.log("connecting")
+ *   return yield* new DatabaseError({ message: "Connection failed" })
  * }))
  *
  * // Convert failures to fiber death - removes error from type
@@ -1480,12 +1554,12 @@ export const tapCause: {
  *   Effect.provide(reliableDatabaseLayer)
  * )
  *
- * // If the database layer fails, the entire fiber will die
- * // instead of the effect failing with DatabaseError
+ * // Running the program prints "connecting", then the DatabaseError is
+ * // converted into a fiber defect instead of remaining a typed error.
  * ```
  *
- * @since 2.0.0
  * @category error handling
+ * @since 2.0.0
  */
 export const orDie = <A, E, R>(self: Layer<A, E, R>): Layer<A, never, R> =>
   fromBuildUnsafe((memoMap, scope) => internalEffect.orDie(self.build(memoMap, scope)))
@@ -1513,8 +1587,8 @@ export {
   /**
    * Recovers from all errors.
    *
-   * @since 4.0.0
    * @category error handling
+   * @since 4.0.0
    */
   catch_ as catch
 }
@@ -1522,9 +1596,10 @@ export {
 /**
  * Recovers from specific tagged errors.
  *
- * @example
+ * **Example** (Recovering from tagged layer errors)
+ *
  * ```ts
- * import { Data, Effect, Layer, Context } from "effect"
+ * import { Context, Data, Effect, Layer } from "effect"
  *
  * class ConfigError extends Data.TaggedError("ConfigError") {}
  *
@@ -1541,8 +1616,8 @@ export {
  * )
  * ```
  *
- * @since 4.0.0
  * @category error handling
+ * @since 4.0.0
  */
 export const catchTag: {
   <const K extends Types.Tags<E> | NonEmptyReadonlyArray<Types.Tags<E>>, E, RIn2, E2, ROut2>(
@@ -1596,61 +1671,52 @@ export const catchTag: {
   ))
 
 /**
- * Recovers from all errors.
+ * Recovers from any failure cause by switching to another layer.
  *
- * @example
+ * **Details**
+ * The handler receives the full `Cause` of the failed layer, including typed
+ * errors, defects, and interruption information, and returns the fallback layer
+ * to build instead.
+ *
+ * **Example** (Recovering from layer failures by cause)
+ *
  * ```ts
- * import { Data, Effect, Layer, Context } from "effect"
+ * import { Context, Data, Effect, Layer } from "effect"
  *
  * class DatabaseError extends Data.TaggedError("DatabaseError")<{
  *   message: string
- * }> {}
- *
- * class NetworkError extends Data.TaggedError("NetworkError")<{
- *   reason: string
  * }> {}
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
  * }>()("Database") {}
  *
- * class Logger extends Context.Service<Logger, {
- *   readonly log: (msg: string) => Effect.Effect<void>
- * }>()("Logger") {}
+ * const primaryDatabaseLayer = Layer.effect(Database)(
+ *   Effect.fail(new DatabaseError({ message: "Primary DB unreachable" }))
+ * )
  *
- * // Primary database layer that might fail
- * const primaryDatabaseLayer = Layer.effect(Database)(Effect.gen(function*() {
- *   return yield* new DatabaseError({ message: "Primary DB unreachable" })
- *   return { query: Effect.fn("Database.query")((sql: string) => Effect.succeed(`Primary: ${sql}`)) }
- * }))
- *
- * // Fallback layers for different error causes
  * const databaseWithFallback = primaryDatabaseLayer.pipe(
  *   Layer.catchCause(() => {
- *     // For any cause/error, fallback to in-memory database
- *     return Layer.mergeAll(
- *       Layer.succeed(Database)({
- *         query: Effect.fn("Database.query")((sql: string) => Effect.succeed(`Memory: ${sql}`))
- *       }),
- *       Layer.succeed(Logger)({
- *         log: Effect.fn("Logger.log")((msg: string) =>
- *           Effect.sync(() => console.log(`[FALLBACK] ${msg}`))
- *         )
- *       })
- *     )
+ *     return Layer.succeed(Database)({
+ *       query: Effect.fn("Database.query")((sql: string) => Effect.succeed(`Memory: ${sql}`))
+ *     })
  *   })
  * )
  *
  * const program = Effect.gen(function*() {
  *   const database = yield* Database
- *   return yield* database.query("SELECT * FROM users")
+ *   const result = yield* database.query("SELECT * FROM users")
+ *   console.log(result)
  * }).pipe(
  *   Effect.provide(databaseWithFallback)
  * )
+ *
+ * Effect.runPromise(program)
+ * // Memory: SELECT * FROM users
  * ```
  *
- * @since 2.0.0
  * @category error handling
+ * @since 4.0.0
  */
 export const catchCause: {
   <E, RIn2, E2, ROut2>(
@@ -1686,8 +1752,8 @@ export const catchCause: {
  * This is useful for adapting or extending a service's behavior during the
  * creation of a layer.
  *
- * @since 3.13.0
  * @category utils
+ * @since 3.13.0
  */
 export const updateService: {
   <I, A>(
@@ -1711,53 +1777,74 @@ export const updateService: {
 /**
  * Creates a fresh version of this layer that will not be shared.
  *
- * @example
+ * **Example** (Creating non-shared layer instances)
+ *
  * ```ts
- * import { Effect, Layer, Ref, Context } from "effect"
+ * import { Context, Effect, Layer, Ref } from "effect"
  *
  * class Counter extends Context.Service<Counter, {
- *   readonly count: number
- *   readonly increment: () => Effect.Effect<number>
+ *   readonly id: number
  * }>()("Counter") {}
  *
- * // Layer that creates a counter with shared state
- * const counterLayer = Layer.effect(Counter)(Effect.gen(function*() {
- *   const ref = yield* Ref.make(0)
- *   return {
- *     count: 0,
- *     increment: Effect.fn("Counter.increment")(() =>
- *       Ref.update(ref, (n) => n + 1).pipe(
- *         Effect.flatMap(() => Ref.get(ref))
- *       )
- *     )
- *   }
+ * class Left extends Context.Service<Left, {
+ *   readonly counterId: number
+ * }>()("Left") {}
+ *
+ * class Right extends Context.Service<Right, {
+ *   readonly counterId: number
+ * }>()("Right") {}
+ *
+ * const leftLayer = Layer.effect(Left)(Effect.gen(function*() {
+ *   const counter = yield* Counter
+ *   return { counterId: counter.id }
  * }))
  *
- * // By default, layers are shared - same instance used everywhere
- * const sharedProgram = Effect.gen(function*() {
- *   const counter1 = yield* Counter
- *   const counter2 = yield* Counter
+ * const rightLayer = Layer.effect(Right)(Effect.gen(function*() {
+ *   const counter = yield* Counter
+ *   return { counterId: counter.id }
+ * }))
  *
- *   // Both counter1 and counter2 refer to the same instance
- *   console.log("Shared layer - same instance")
- * }).pipe(
- *   Effect.provide(counterLayer)
- * )
+ * const showIds = Effect.gen(function*() {
+ *   const left = yield* Left
+ *   const right = yield* Right
+ *   console.log(`same Counter: ${left.counterId === right.counterId}`)
+ * })
  *
- * // Fresh layer creates a new instance each time
- * const freshProgram = Effect.gen(function*() {
- *   const counter1 = yield* Counter
- *   const counter2 = yield* Counter
+ * const program = Effect.gen(function*() {
+ *   const nextId = yield* Ref.make(0)
  *
- *   // counter1 and counter2 are different instances
- *   console.log("Fresh layer - different instances")
- * }).pipe(
- *   Effect.provide(Layer.fresh(counterLayer))
- * )
+ *   const counterLayer = Layer.effect(Counter)(Effect.gen(function*() {
+ *     const id = yield* Ref.updateAndGet(nextId, (n) => n + 1)
+ *     console.log("constructed Counter")
+ *     return { id }
+ *   }))
+ *
+ *   const shared = Layer.merge(
+ *     Layer.provide(leftLayer, counterLayer),
+ *     Layer.provide(rightLayer, counterLayer)
+ *   )
+ *
+ *   yield* Effect.provide(showIds, shared)
+ *
+ *   const freshCounterLayer = Layer.fresh(counterLayer)
+ *   const fresh = Layer.merge(
+ *     Layer.provide(leftLayer, freshCounterLayer),
+ *     Layer.provide(rightLayer, freshCounterLayer)
+ *   )
+ *
+ *   yield* Effect.provide(showIds, fresh)
+ * })
+ *
+ * Effect.runPromise(program)
+ * // constructed Counter
+ * // same Counter: true
+ * // constructed Counter
+ * // constructed Counter
+ * // same Counter: false
  * ```
  *
- * @since 2.0.0
  * @category utils
+ * @since 2.0.0
  */
 export const fresh = <A, E, R>(self: Layer<A, E, R>): Layer<A, E, R> =>
   fromBuildUnsafe((_, scope) => self.build(makeMemoMapUnsafe(), scope))
@@ -1766,9 +1853,10 @@ export const fresh = <A, E, R>(self: Layer<A, E, R>): Layer<A, E, R> =>
  * Builds this layer and uses it until it is interrupted. This is useful when
  * your entire application is a layer, such as an HTTP server.
  *
- * @example
+ * **Example** (Launching an application layer)
+ *
  * ```ts
- * import { Console, Effect, Layer, Context } from "effect"
+ * import { Console, Context, Effect, Layer } from "effect"
  *
  * class HttpServer extends Context.Service<HttpServer, {
  *   readonly start: () => Effect.Effect<string>
@@ -1813,8 +1901,8 @@ export const fresh = <A, E, R>(self: Layer<A, E, R>): Layer<A, E, R> =>
  * // Effect.runFork(application)
  * ```
  *
+ * @category converting
  * @since 2.0.0
- * @category conversions
  */
 export const launch = <RIn, E, ROut>(self: Layer<ROut, E, RIn>): Effect<never, E, RIn> =>
   internalEffect.scoped(internalEffect.andThen(build(self), internalEffect.never))
@@ -1826,8 +1914,8 @@ export const launch = <RIn, E, ROut>(self: Layer<ROut, E, RIn>): Effect<never, E
  * while keeping non-Effect properties required. This allows you to provide
  * only the methods you need to test while leaving others unimplemented.
  *
- * @since 4.0.0
  * @category Testing
+ * @since 3.17.0
  */
 export type PartialEffectful<A extends object> = Types.Simplify<
   & {
@@ -1851,9 +1939,10 @@ type AnyEffectOrStream =
  * implementation of the service, and any methods not provided will
  * throw an unimplemented defect when called.
  *
- * @example
+ * **Example** (Mocking services for tests)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class UserService extends Context.Service<UserService, {
  *   readonly config: { apiUrl: string }
@@ -1889,8 +1978,8 @@ type AnyEffectOrStream =
  * )
  * ```
  *
- * @since 4.0.0
  * @category Testing
+ * @since 3.17.0
  */
 export const mock: {
   <I, S extends object>(service: Context.Key<I, S>): (implementation: PartialEffectful<S>) => Layer<I>
@@ -1955,7 +2044,8 @@ const ChannelTypeId: Channel.TypeId = "~effect/Channel"
  * This function provides compile-time type checking to ensure that the success
  * value of an layer conforms to a specific type constraint.
  *
- * @example
+ * **Example** (Constraining layer success types)
+ *
  * ```ts
  * import { Layer } from "effect"
  *
@@ -1971,11 +2061,11 @@ const ChannelTypeId: Channel.TypeId = "~effect/Channel"
  * // This would cause a TypeScript compilation error:
  * // const invalidLayer = satisfiesNumber(StringLayer)
  * //                                     ^^^^^^^^^^^
- * // Type 'number' is not assignable to type 'string'
+ * // Type 'string' is not assignable to type 'number'
  * ```
  *
- * @since 4.0.0
  * @category Type constraints
+ * @since 4.0.0
  */
 export const satisfiesSuccessType =
   <ROut>() => <ROut2 extends ROut, E, RIn>(layer: Layer<ROut2, E, RIn>): Layer<ROut2, E, RIn> => layer
@@ -1986,7 +2076,8 @@ export const satisfiesSuccessType =
  * This function provides compile-time type checking to ensure that the error
  * type of an layer conforms to a specific type constraint.
  *
- * @example
+ * **Example** (Constraining layer error types)
+ *
  * ```ts
  * import { Layer } from "effect"
  *
@@ -2006,8 +2097,8 @@ export const satisfiesSuccessType =
  * // Type 'string' is not assignable to type 'Error'
  * ```
  *
- * @since 4.0.0
  * @category Type constraints
+ * @since 4.0.0
  */
 export const satisfiesErrorType =
   <E>() => <ROut, E2 extends E, RIn>(layer: Layer<ROut, E2, RIn>): Layer<ROut, E2, RIn> => layer
@@ -2018,14 +2109,15 @@ export const satisfiesErrorType =
  * This function provides compile-time type checking to ensure that the
  * requirements (context) type of an layer conforms to a specific type constraint.
  *
- * @example
+ * **Example** (Constraining layer service requirements)
+ *
  * ```ts
  * import { Layer } from "effect"
  *
  * declare const FortyTwoLayer: Layer.Layer<never, never, 42>
  * declare const StringLayer: Layer.Layer<never, never, string>
  *
- * // Define a constraint that the success type must be a number
+ * // Define a constraint that the service requirements must be numbers
  * const satisfiesNumber = Layer.satisfiesServicesType<number>()
  *
  * // This works - Layer<never, never, 42> extends Layer<never, never, number>
@@ -2037,8 +2129,8 @@ export const satisfiesErrorType =
  * // Type 'string' is not assignable to type 'number'
  * ```
  *
- * @since 4.0.0
  * @category Type constraints
+ * @since 4.0.0
  */
 export const satisfiesServicesType =
   <RIn>() => <ROut, E, RIn2 extends RIn>(layer: Layer<ROut, E, RIn2>): Layer<ROut, E, RIn2> => layer
@@ -2051,8 +2143,8 @@ export const satisfiesServicesType =
  * Represents options that can be used to control the behavior of spans created
  * for layers.
  *
+ * @category models
  * @since 4.0.0
- * @category Models
  */
 export interface SpanOptions extends Tracer.SpanOptions {
   /**
@@ -2072,9 +2164,11 @@ export interface SpanOptions extends Tracer.SpanOptions {
  * operations within the layer constructor part of the same trace span. The span
  * is automatically closed when the layer's scope is closed.
  *
- * @example
+ * **Example** (Tracing layer construction with a span)
+ *
  * ```ts
- * import { Console, Effect, Layer, Context, type Tracer } from "effect"
+ * import { Console, Context, Effect, Layer } from "effect"
+ * import type { Tracer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -2106,8 +2200,8 @@ export interface SpanOptions extends Tracer.SpanOptions {
  * })
  * ```
  *
- * @since 4.0.0
  * @category tracing
+ * @since 2.0.0
  */
 export const span = (
   name: string,
@@ -2126,16 +2220,17 @@ export const span = (
 }
 
 /**
- * Constructs a new `Layer` which takes an existing span and registers it as the
- * current parent span.
+ * Constructs a layer that provides an existing span as the current parent span.
  *
- * This allows you to create a traced scope for layer construction, making all
- * operations within the layer constructor part of the same trace span. The span
- * is automatically closed when the layer's scope is closed.
+ * **Details**
+ * The supplied span is made available through `Tracer.ParentSpan` for layers
+ * that are built with this layer. This API does not create, end, or close the
+ * span; the caller remains responsible for the span's lifetime.
  *
- * @example
+ * **Example** (Using an existing parent span)
+ *
  * ```ts
- * import { Console, Effect, Layer, Context, Tracer } from "effect"
+ * import { Console, Context, Effect, Layer, Tracer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -2160,8 +2255,8 @@ export const span = (
  * }))))
  * ```
  *
- * @since 4.0.0
  * @category tracing
+ * @since 2.0.0
  */
 export const parentSpan = (span: Tracer.AnySpan): Layer<Tracer.ParentSpan> =>
   succeedContext(Tracer.ParentSpan.context(span))
@@ -2174,9 +2269,10 @@ export const parentSpan = (span: Tracer.AnySpan): Layer<Tracer.ParentSpan> =>
  * is automatically ended when the layer's scope is closed. This is useful for
  * tracking the lifecycle and performance of layer initialization.
  *
- * @example
+ * **Example** (Wrapping a layer with a span)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -2221,8 +2317,8 @@ export const parentSpan = (span: Tracer.AnySpan): Layer<Tracer.ParentSpan> =>
  * )
  * ```
  *
- * @since 4.0.0
  * @category tracing
+ * @since 2.0.0
  */
 export const withSpan: {
   (
@@ -2269,15 +2365,17 @@ export const withSpan: {
 } as any
 
 /**
- * Wraps a `Layer` with a new tracing span and sets the span as the parent span.
+ * Wraps a layer so spans created during its construction use the supplied span
+ * as their parent.
  *
- * This attaches a layer to an existing trace span, making all operations within
- * the layer children of the provided parent span. This is useful for integrating
- * layer construction into an existing trace hierarchy.
+ * **Details**
+ * Use this to attach layer construction to an existing trace hierarchy. This API
+ * does not create or end the supplied parent span.
  *
- * @example
+ * **Example** (Attaching layers to an existing parent span)
+ *
  * ```ts
- * import { Effect, Layer, Context, Tracer } from "effect"
+ * import { Context, Effect, Layer, Tracer } from "effect"
  *
  * class Database extends Context.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -2324,8 +2422,8 @@ export const withSpan: {
  * )
  * ```
  *
- * @since 4.0.0
  * @category tracing
+ * @since 2.0.0
  */
 export const withParentSpan: {
   (

@@ -104,8 +104,8 @@ const TypeId = "~effect/Config"
  * console.log(Config.isConfig("not a config"))        // false
  * ```
  *
- * @since 4.0.0
- * @category Guards
+ * @category guards
+ * @since 2.0.0
  */
 export const isConfig = (u: unknown): u is Config<unknown> => Predicate.hasProperty(u, TypeId)
 
@@ -125,8 +125,8 @@ export const isConfig = (u: unknown): u is Config<unknown> => Predicate.hasPrope
  * @see {@link orElse} – recover from a ConfigError
  * @see {@link withDefault} – provide a fallback for missing-data errors
  *
+ * @category errors
  * @since 4.0.0
- * @category Models
  */
 export class ConfigError {
   readonly _tag = "ConfigError"
@@ -156,7 +156,8 @@ export class ConfigError {
  * @see {@link schema} – the main way to create a Config
  * @see {@link make} – low-level constructor
  *
- * @since 4.0.0
+ * @category models
+ * @since 2.0.0
  */
 export interface Config<out T> extends Effect.Effect<T, ConfigError> {
   readonly [TypeId]: typeof TypeId
@@ -208,7 +209,7 @@ const Proto = {
  *
  * @see {@link schema} – higher-level constructor using Schema codecs
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function make<T>(
@@ -243,8 +244,8 @@ export function make<T>(
  *
  * @see {@link mapOrFail} – when the transformation can fail
  *
- * @category Mapping
- * @since 4.0.0
+ * @category mapping
+ * @since 2.0.0
  */
 export const map: {
   <A, B>(f: (a: A) => B): (self: Config<A>) => Config<B>
@@ -274,8 +275,8 @@ export const map: {
  *
  * @see {@link map} – when the transformation cannot fail
  *
- * @category Mapping
- * @since 4.0.0
+ * @category mapping
+ * @since 2.0.0
  */
 export const mapOrFail: {
   <A, B>(f: (a: A) => Effect.Effect<B, ConfigError>): (self: Config<A>) => Config<B>
@@ -309,7 +310,8 @@ export const mapOrFail: {
  *
  * @see {@link withDefault} – fallback only on missing data
  *
- * @since 4.0.0
+ * @category combinators
+ * @since 2.0.0
  */
 export const orElse: {
   <A2>(that: (error: ConfigError) => Config<A2>): <A>(self: Config<A>) => Config<A2 | A>
@@ -342,7 +344,8 @@ export const orElse: {
  * // { host: "localhost", port: 5432 }
  * ```
  *
- * @since 4.0.0
+ * @category combinators
+ * @since 2.0.0
  */
 export function all<const Arg extends Iterable<Config<any>> | Record<string, Config<any>>>(
   arg: Arg
@@ -420,7 +423,8 @@ function isMissingDataOnly(issue: Issue.Issue): boolean {
  * @see {@link option} – returns `Option` instead of a default value
  * @see {@link orElse} – catches all errors, not just missing data
  *
- * @since 4.0.0
+ * @category combinators
+ * @since 2.0.0
  */
 export const withDefault: {
   <const A2>(defaultValue: A2): <A>(self: Config<A>) => Config<A2 | A>
@@ -461,13 +465,17 @@ export const withDefault: {
  *
  * @see {@link withDefault} – provide a concrete fallback value instead
  *
- * @since 4.0.0
+ * @category combinators
+ * @since 2.0.0
  */
 export const option = <A>(self: Config<A>): Config<Option.Option<A>> =>
   self.pipe(map(Option.some), withDefault(Option.none()))
 
 /**
- * @since 3.0.0
+ * Extracts the successfully parsed value type from a `Config`.
+ *
+ * @category utility types
+ * @since 2.5.0
  */
 export type Success<T> = [T] extends [Config<infer A>] ? A : never
 
@@ -484,7 +492,7 @@ export type Success<T> = [T] extends [Config<infer A>] ? A : never
  * @see {@link unwrap} – construct a `Config` from a `Wrap<T>`
  *
  * @category Wrap
- * @since 4.0.0
+ * @since 2.0.0
  */
 export type Wrap<A> = [NonNullable<A>] extends [infer T] ? [IsPlainObject<T>] extends [true] ?
       | { readonly [K in keyof A]: Wrap<A[K]> }
@@ -522,7 +530,7 @@ type IsPlainObject<A> = [A] extends [Record<string, any>]
  * @see {@link Wrap} – the utility type accepted by this function
  *
  * @category Wrap
- * @since 4.0.0
+ * @since 2.0.0
  */
 export const unwrap = <T>(wrapped: Wrap<T>): Config<T> => {
   if (isConfig(wrapped)) return wrapped
@@ -669,7 +677,7 @@ const recur: (
  * @see {@link string} / {@link number} / {@link boolean} – shortcuts for
  *   single-value configs
  *
- * @category Schema
+ * @category schemas
  * @since 4.0.0
  */
 export function schema<T, E>(codec: Schema.Codec<T, E>, path?: string | ConfigProvider.Path): Config<T> {
@@ -710,7 +718,7 @@ export const FalseValues = Schema.Literals(["false", "no", "off", "0", "n"])
  *
  * @see {@link boolean} – convenience constructor
  *
- * @category Schema
+ * @category schemas
  * @since 4.0.0
  */
 export const Boolean = Schema.Literals([...TrueValues.literals, ...FalseValues.literals]).pipe(
@@ -732,7 +740,7 @@ export const Boolean = Schema.Literals([...TrueValues.literals, ...FalseValues.l
  *
  * @see {@link port} – convenience constructor
  *
- * @category Schema
+ * @category schemas
  * @since 4.0.0
  */
 export const Port = Schema.Int.check(Schema.isBetween({ minimum: 1, maximum: 65535 }))
@@ -749,7 +757,7 @@ export const Port = Schema.Int.check(Schema.isBetween({ minimum: 1, maximum: 655
  *
  * @see {@link logLevel} – convenience constructor
  *
- * @category Schema
+ * @category schemas
  * @since 4.0.0
  */
 export const LogLevel = Schema.Literals(LogLevel_.values)
@@ -789,7 +797,7 @@ export const LogLevel = Schema.Literals(LogLevel_.values)
  * // }
  * ```
  *
- * @category Schemas
+ * @category schemas
  * @since 4.0.0
  */
 export const Record = <K extends Schema.Record.Key, V extends Schema.Top>(key: K, value: V, options?: {
@@ -819,8 +827,8 @@ export const Record = <K extends Schema.Record.Key, V extends Schema.Top>(key: K
  * - Inside {@link orElse} to re-raise a specific error.
  * - Testing error handling paths.
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.0.0
  */
 export function fail(err: SourceError | Schema.SchemaError) {
   return make(() => Effect.fail(new ConfigError(err)))
@@ -844,8 +852,8 @@ export function fail(err: SourceError | Schema.SchemaError) {
  * )
  * ```
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.0.0
  */
 export function succeed<T>(value: T) {
   return make(() => Effect.succeed(value))
@@ -873,8 +881,8 @@ export function succeed<T>(value: T) {
  * @see {@link nonEmptyString} – rejects empty strings
  * @see {@link schema} – for more complex types
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.0.0
  */
 export function string(name?: string) {
   return schema(Schema.String, name)
@@ -888,8 +896,8 @@ export function string(name?: string) {
  *
  * @see {@link string} – allows empty strings
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 3.7.0
  */
 export function nonEmptyString(name?: string) {
   return schema(Schema.NonEmptyString, name)
@@ -903,8 +911,8 @@ export function nonEmptyString(name?: string) {
  * @see {@link finite} – rejects `NaN` and `Infinity`
  * @see {@link int} – only integers
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.0.0
  */
 export function number(name?: string) {
   return schema(Schema.Number, name)
@@ -918,7 +926,7 @@ export function number(name?: string) {
  * @see {@link number} – allows `NaN` and `Infinity`
  * @see {@link int} – only integers
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function finite(name?: string) {
@@ -933,7 +941,7 @@ export function finite(name?: string) {
  * @see {@link number} – allows any number
  * @see {@link port} – integers in 1–65535
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function int(name?: string) {
@@ -953,8 +961,8 @@ export function int(name?: string) {
  * const env = Config.literal("production", "ENV")
  * ```
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.0.0
  */
 export function literal<L extends AST.LiteralValue>(literal: L, name?: string) {
   return schema(Schema.Literal(literal), name)
@@ -973,7 +981,7 @@ export function literal<L extends AST.LiteralValue>(literal: L, name?: string) {
  * const env = Config.literals(["development", "production"], "ENV")
  * ```
  *
- * @category Constructors
+ * @category constructors
  * @since 4.0.0
  */
 export function literals<const L extends ReadonlyArray<AST.LiteralValue>>(literals: L, name?: string) {
@@ -1011,8 +1019,8 @@ export function literals<const L extends ReadonlyArray<AST.LiteralValue>>(litera
  * // Output: true
  * ```
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.0.0
  */
 export function boolean(name?: string) {
   return schema(Boolean, name)
@@ -1049,8 +1057,8 @@ export function boolean(name?: string) {
  * // Output: Duration { _tag: "millis", value: 10000 }
  * ```
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.5.0
  */
 export function duration(name?: string) {
   return schema(Schema.DurationFromString, name)
@@ -1083,8 +1091,8 @@ export function duration(name?: string) {
  * // Output: 8080
  * ```
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 3.16.0
  */
 export function port(name?: string) {
   return schema(Port, name)
@@ -1120,8 +1128,8 @@ export function port(name?: string) {
  * // Output: "Info"
  * ```
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.0.0
  */
 export function logLevel(name?: string) {
   return schema(LogLevel, name)
@@ -1155,8 +1163,8 @@ export function logLevel(name?: string) {
  * // Output: <redacted>
  * ```
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.0.0
  */
 export function redacted(name?: string) {
   return schema(Schema.Redacted(Schema.String), name)
@@ -1203,8 +1211,8 @@ export function redacted(name?: string) {
  * // }
  * ```
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 3.11.0
  */
 export function url(name?: string) {
   return schema(Schema.URL, name)
@@ -1229,8 +1237,8 @@ export function url(name?: string) {
  * // Date("2024-01-15T00:00:00.000Z")
  * ```
  *
- * @category Constructors
- * @since 4.0.0
+ * @category constructors
+ * @since 2.0.0
  */
 export function date(name?: string) {
   return schema(Schema.DateValid, name)
@@ -1284,8 +1292,8 @@ export function date(name?: string) {
  * @see {@link all} – combine multiple configs into a struct
  * @see {@link schema} – read structured config from a schema
  *
- * @category Combinators
- * @since 4.0.0
+ * @category combinators
+ * @since 2.0.0
  */
 export const nested: {
   (name: string): <A>(self: Config<A>) => Config<A>

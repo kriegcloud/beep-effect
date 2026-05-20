@@ -376,7 +376,7 @@ export const ensure = <A>(self: ReadonlyArray<A> | A): Array<A> => Array.isArray
  * console.log(result) // [["a", 1], ["b", 2], ["c", 3]]
  * ```
  *
- * @category conversions
+ * @category converting
  * @since 2.0.0
  */
 export const fromRecord: <K extends string, A>(self: Readonly<Record<K, A>>) => Array<[K, A]> = Record.toEntries
@@ -395,7 +395,7 @@ export const fromRecord: <K extends string, A>(self: Readonly<Record<K, A>>) => 
  *
  * @see {@link getSomes} — extract `Some` values from an array of Options
  *
- * @category conversions
+ * @category converting
  * @since 2.0.0
  */
 export const fromOption: <A>(self: Option.Option<A>) => Array<A> = Option.toArray
@@ -776,7 +776,7 @@ export const isArray: {
  * @see {@link isArrayNonEmpty} — opposite check
  *
  * @category guards
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const isArrayEmpty = <A>(self: Array<A>): self is [] => self.length === 0
 
@@ -796,7 +796,7 @@ export const isArrayEmpty = <A>(self: Array<A>): self is [] => self.length === 0
  * @see {@link isReadonlyArrayNonEmpty} — opposite check
  *
  * @category guards
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const isReadonlyArrayEmpty: <A>(self: ReadonlyArray<A>) => self is readonly [] = isArrayEmpty as any
 
@@ -817,7 +817,7 @@ export const isReadonlyArrayEmpty: <A>(self: ReadonlyArray<A>) => self is readon
  * @see {@link isArrayEmpty} — opposite check
  *
  * @category guards
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const isArrayNonEmpty: <A>(self: Array<A>) => self is NonEmptyArray<A> = internalArray.isArrayNonEmpty
 
@@ -838,7 +838,7 @@ export const isArrayNonEmpty: <A>(self: Array<A>) => self is NonEmptyArray<A> = 
  * @see {@link isReadonlyArrayEmpty} — opposite check
  *
  * @category guards
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const isReadonlyArrayNonEmpty: <A>(self: ReadonlyArray<A>) => self is NonEmptyReadonlyArray<A> =
   internalArray.isArrayNonEmpty
@@ -914,8 +914,8 @@ export const get: {
  *
  * @see {@link get} — safe version returning `Option`
  *
- * @since 2.0.0
  * @category unsafe
+ * @since 4.0.0
  */
 export const getUnsafe: {
   (index: number): <A>(self: ReadonlyArray<A>) => A
@@ -1541,8 +1541,12 @@ export const findFirst: {
 } = moduleIterable.findFirst
 
 /**
- * Returns a tuple `[element, index]` of the first element matching a
- * predicate, wrapped in an `Option`.
+ * Returns the first selected value together with its index, wrapped in an
+ * `Option`.
+ *
+ * Accepts a predicate, a refinement, or a function returning `Option`. For an
+ * `Option`-returning function, returns `[mappedValue, index]` for the first
+ * `Some`, or `Option.none()` if no element is selected.
  *
  * **Example** (Finding element with its index)
  *
@@ -1675,9 +1679,10 @@ export const insertAt: {
 })
 
 /**
- * Replaces the element at the specified index with a new value, returning a new
- * array, wrapped in an `Option`.
+ * Replaces the element at the specified index with a new value, returning the
+ * updated array in `Option.some`.
  *
+ * - Returns `Option.none()` when the index is out of bounds.
  * - Does not mutate the input.
  *
  * **Example** (Replacing an element)
@@ -1709,9 +1714,10 @@ export const replace: {
 )
 
 /**
- * Applies a function to the element at the specified index, returning a new
- * array, wrapped in an `Option`.
+ * Applies a function to the element at the specified index, returning the
+ * updated array in `Option.some`.
  *
+ * - Returns `Option.none()` when the index is out of bounds.
  * - Does not mutate the input.
  *
  * **Example** (Modifying an element)
@@ -1859,8 +1865,8 @@ export const sort: {
  * @see {@link sort} — sort by a direct `Order`
  * @see {@link sortBy} — sort by multiple orders
  *
- * @since 2.0.0
  * @category elements
+ * @since 2.0.0
  */
 export const sortWith: {
   <S extends Iterable<any>, B>(
@@ -2082,7 +2088,7 @@ export const intersperse: {
  * @see {@link modifyLastNonEmpty} — modify the last element
  *
  * @category elements
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const modifyHeadNonEmpty: {
   <A, B>(f: (a: A) => B): (self: NonEmptyReadonlyArray<A>) => NonEmptyArray<A | B>
@@ -2110,7 +2116,7 @@ export const modifyHeadNonEmpty: {
  * @see {@link setLastNonEmpty} — replace the last element
  *
  * @category elements
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const setHeadNonEmpty: {
   <B>(b: B): <A>(self: NonEmptyReadonlyArray<A>) => NonEmptyArray<A | B>
@@ -2136,7 +2142,7 @@ export const setHeadNonEmpty: {
  * @see {@link modifyHeadNonEmpty} — modify the first element
  *
  * @category elements
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const modifyLastNonEmpty: {
   <A, B>(f: (a: A) => B): (self: NonEmptyReadonlyArray<A>) => NonEmptyArray<A | B>
@@ -2162,7 +2168,7 @@ export const modifyLastNonEmpty: {
  * @see {@link setHeadNonEmpty} — replace the first element
  *
  * @category elements
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const setLastNonEmpty: {
   <B>(b: B): <A>(self: NonEmptyReadonlyArray<A>) => NonEmptyArray<A | B>
@@ -2173,11 +2179,12 @@ export const setLastNonEmpty: {
 )
 
 /**
- * Rotates an array by `n` steps. Positive `n` rotates left (front elements
- * move to the back).
+ * Rotates an array by `n` steps. Positive `n` rotates right; negative `n`
+ * rotates left.
  *
+ * - `n` is rounded to the nearest integer before rotating.
  * - Preserves `NonEmptyArray` in the return type.
- * - Returns a copy for empty arrays or `n === 0`.
+ * - Returns a copy for empty arrays or when the normalized rotation is `0`.
  *
  * **Example** (Rotating elements)
  *
@@ -2373,7 +2380,7 @@ export const splitAt: {
  * @see {@link splitAt} — for possibly-empty arrays
  *
  * @category splitting
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const splitAtNonEmpty: {
   (n: number): <A>(self: NonEmptyReadonlyArray<A>) => [beforeIndex: NonEmptyArray<A>, fromIndex: Array<A>]
@@ -2401,8 +2408,8 @@ export const splitAtNonEmpty: {
  *
  * @see {@link chunksOf} — split into fixed-size chunks
  *
- * @since 2.0.0
  * @category splitting
+ * @since 2.0.0
  */
 export const split: {
   (n: number): <A>(self: Iterable<A>) => Array<Array<A>>
@@ -2940,14 +2947,14 @@ export const of = <A>(a: A): NonEmptyArray<A> => [a]
  * Utility types for working with `ReadonlyArray` at the type level. Use these
  * to infer element types, preserve non-emptiness, and flatten nested arrays.
  *
- * @category types
  * @since 2.0.0
  */
 export declare namespace ReadonlyArray {
   /**
    * Infers the element type of an iterable.
    *
-   * @example
+   * **Example** (Inferring an element type)
+   *
    * ```ts
    * import type { Array } from "effect"
    *
@@ -2965,7 +2972,8 @@ export declare namespace ReadonlyArray {
   /**
    * Constructs an array type preserving non-emptiness.
    *
-   * @example
+   * **Example** (Preserving non-emptiness)
+   *
    * ```ts
    * import type { Array } from "effect"
    *
@@ -2982,7 +2990,8 @@ export declare namespace ReadonlyArray {
   /**
    * Creates a non-empty array if either input is non-empty.
    *
-   * @example
+   * **Example** (Preserving non-emptiness from either input)
+   *
    * ```ts
    * import type { Array } from "effect"
    *
@@ -3008,7 +3017,8 @@ export declare namespace ReadonlyArray {
   /**
    * Creates a non-empty array only if both inputs are non-empty.
    *
-   * @example
+   * **Example** (Preserving non-emptiness from both inputs)
+   *
    * ```ts
    * import type { Array } from "effect"
    *
@@ -3034,7 +3044,8 @@ export declare namespace ReadonlyArray {
   /**
    * Flattens a nested array type.
    *
-   * @example
+   * **Example** (Flattening nested array types)
+   *
    * ```ts
    * import type { Array } from "effect"
    *
@@ -3186,7 +3197,7 @@ export const getSomes: <T extends Iterable<Option.Option<X>>, X = any>(
  * @see {@link separate} — split into failures and successes
  *
  * @category filtering
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const getFailures = <T extends Iterable<Result.Result<any, any>>>(
   self: T
@@ -3218,7 +3229,7 @@ export const getFailures = <T extends Iterable<Result.Result<any, any>>>(
  * @see {@link separate} — split into failures and successes
  *
  * @category filtering
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const getSuccesses = <T extends Iterable<Result.Result<any, any>>>(
   self: T
@@ -3251,7 +3262,7 @@ export const getSuccesses = <T extends Iterable<Result.Result<any, any>>>(
  * @see {@link filter} — keep original elements matching a predicate
  *
  * @category filtering
- * @since 4.0.0
+ * @since 2.0.0
  */
 export const filterMap: {
   <A, B, X>(f: (input: NoInfer<A>, i: number) => Result.Result<B, X>): (self: Iterable<A>) => Array<B>
@@ -3324,7 +3335,7 @@ export const filter: {
  * ```
  *
  * @see {@link filter} — keep only matching elements
- * @see {@link partitionMap} — partition using a Result-returning function
+ * @see {@link separate} — split an iterable of `Result` values
  *
  * @category filtering
  * @since 2.0.0
@@ -3359,9 +3370,10 @@ export const partition: {
 )
 
 /**
- * Separates an iterable of `Result`s into two arrays: failures and successes.
+ * Separates an iterable of `Result`s into failure values and success values.
  *
- * - Equivalent to `partitionMap(identity)`.
+ * - Returns `[failures, successes]`.
+ * - Equivalent to `partition(identity)`.
  *
  * **Example** (Separating Results)
  *
@@ -3514,8 +3526,8 @@ export const liftOption = <A extends Array<unknown>, B>(
  * @see {@link liftNullishOr} — lift a nullable-returning function
  * @see {@link fromOption} — convert from Option
  *
- * @category conversions
- * @since 2.0.0
+ * @category converting
+ * @since 4.0.0
  */
 export const fromNullishOr = <A>(a: A): Array<NonNullable<A>> => a == null ? empty() : [a as NonNullable<A>]
 
@@ -3540,7 +3552,7 @@ export const fromNullishOr = <A>(a: A): Array<NonNullable<A>> => a == null ? emp
  * @see {@link liftOption} — lift an Option-returning function
  *
  * @category lifting
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const liftNullishOr = <A extends Array<unknown>, B>(
   f: (...a: A) => B
@@ -3561,7 +3573,7 @@ export const liftNullishOr = <A extends Array<unknown>, B>(
  * ```
  *
  * @category sequencing
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const flatMapNullishOr: {
   <A, B>(f: (a: A) => B): (self: ReadonlyArray<A>) => Array<NonNullable<B>>
@@ -3594,7 +3606,7 @@ export const flatMapNullishOr: {
  * @see {@link liftPredicate} — lift a boolean predicate
  *
  * @category lifting
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const liftResult = <A extends Array<unknown>, E, B>(
   f: (...a: A) => Result.Result<B, E>
@@ -3788,7 +3800,7 @@ export const unfold = <B, A>(b: B, f: (b: B) => Option.Option<readonly [A, B]>):
  * @see {@link makeEquivalence} — create an equivalence for arrays
  *
  * @category instances
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const makeOrder: <A>(O: Order.Order<A>) => Order.Order<ReadonlyArray<A>> = Order.Array
 
@@ -3809,7 +3821,7 @@ export const makeOrder: <A>(O: Order.Order<A>) => Order.Order<ReadonlyArray<A>> 
  * @see {@link makeOrder} — create an ordering for arrays
  *
  * @category instances
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const makeEquivalence: <A>(
   isEquivalent: Equivalence.Equivalence<A>
@@ -3966,8 +3978,8 @@ export const dedupeAdjacent: <A>(self: Iterable<A>) => Array<A> = dedupeAdjacent
  *
  * @see {@link intersperse} — insert separator elements without joining
  *
- * @since 2.0.0
  * @category folding
+ * @since 2.0.0
  */
 export const join: {
   (sep: string): (self: Iterable<string>) => string
@@ -3994,8 +4006,8 @@ export const join: {
  * @see {@link scan} — when you only need the accumulated results (not the final state)
  * @see {@link reduce} — when you only need the final accumulated value
  *
- * @since 2.0.0
  * @category folding
+ * @since 2.0.0
  */
 export const mapAccum: {
   <S, A, B, I extends Iterable<A> = Iterable<A>>(
@@ -4041,8 +4053,8 @@ export const mapAccum: {
  *
  * @see {@link cartesian} — returns tuples instead of applying a combiner
  *
- * @since 2.0.0
  * @category elements
+ * @since 2.0.0
  */
 export const cartesianWith: {
   <A, B, C>(that: ReadonlyArray<B>, f: (a: A, b: B) => C): (self: ReadonlyArray<A>) => Array<C>
@@ -4070,8 +4082,8 @@ export const cartesianWith: {
  *
  * @see {@link cartesianWith} — apply a combiner to each pair
  *
- * @since 2.0.0
  * @category elements
+ * @since 2.0.0
  */
 export const cartesian: {
   <B>(that: ReadonlyArray<B>): <A>(self: ReadonlyArray<A>) => Array<[A, B]>
@@ -4236,6 +4248,7 @@ const reducer = Reducer.make((a, b) => a.concat(b), [] as any)
  *
  * @see {@link makeReducerConcat} — mutable `Array` variant
  *
+ * @category folding
  * @since 4.0.0
  */
 export function getReadonlyReducerConcat<A>(): Reducer.Reducer<ReadonlyArray<A>> {
@@ -4247,6 +4260,7 @@ export function getReadonlyReducerConcat<A>(): Reducer.Reducer<ReadonlyArray<A>>
  *
  * @see {@link getReadonlyReducerConcat} — readonly variant
  *
+ * @category folding
  * @since 4.0.0
  */
 export function makeReducerConcat<A>(): Reducer.Reducer<Array<A>> {

@@ -20,7 +20,8 @@
  * - **Testable**: Built-in support for testing with controlled environments
  * - **Interruptible**: Effects can be safely interrupted and cancelled
  *
- * @example
+ * **Example** (Creating and running effects)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -38,7 +39,8 @@
  * Effect.runPromise(program).then(console.log) // 13
  * ```
  *
- * @example
+ * **Example** (Handling typed failures)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -132,14 +134,18 @@ import type * as Unify from "./Unify.ts"
 import { internalCall } from "./Utils.ts"
 
 /**
+ * Type-level identifier for `Effect` values.
+ *
  * @category Type identifiers
- * @since 2.0.0
+ * @since 4.0.0
  */
 export type TypeId = "~effect/Effect"
 
 /**
+ * Runtime identifier used to recognize `Effect` values.
+ *
  * @category Type identifiers
- * @since 2.0.0
+ * @since 4.0.0
  */
 export const TypeId: TypeId = core.EffectTypeId
 
@@ -157,28 +163,8 @@ export const TypeId: TypeId = core.EffectTypeId
  * To run an `Effect` value, you need a `Runtime`, which is a type that is
  * capable of executing `Effect` values.
  *
- * @example
- * ```ts
- * import { Data, Effect } from "effect"
- *
- * class TaskError extends Data.TaggedError("TaskError")<{ readonly message: string }> {}
- *
- * // A simple effect that succeeds with a value
- * const success = Effect.succeed(42)
- *
- * // An effect that will always fail
- * const risky = Effect.fail(new TaskError({ message: "Something went wrong" }))
- *
- * // Effects can be composed using generator functions
- * const program = Effect.gen(function*() {
- *   const value = yield* success
- *   console.log(value) // 42
- *   return value * 2
- * })
- * ```
- *
+ * @category models
  * @since 2.0.0
- * @category Models
  */
 export interface Effect<out A, out E = never, out R = never> extends Pipeable, Inspectable {
   readonly [TypeId]: Variance<A, E, R>
@@ -189,16 +175,10 @@ export interface Effect<out A, out E = never, out R = never> extends Pipeable, I
 }
 
 /**
- * @category Models
- * @since 2.0.0
- * @example
- * ```ts
- * import type { Effect } from "effect"
+ * Type-level unification support for `Effect` values.
  *
- * // EffectUnify is used internally for type unification
- * // It enables automatic unification of Effect types in unions
- * declare const unified: Effect.EffectUnify<any>
- * ```
+ * @category models
+ * @since 2.0.0
  */
 export interface EffectUnify<A extends { [Unify.typeSymbol]?: any }> {
   Effect?: () => A[Unify.typeSymbol] extends
@@ -208,16 +188,10 @@ export interface EffectUnify<A extends { [Unify.typeSymbol]?: any }> {
 }
 
 /**
+ * Type lambda used to represent `Effect` in higher-kinded APIs.
+ *
  * @category Type Lambdas
  * @since 2.0.0
- * @example
- * ```ts
- * import type { Effect } from "effect"
- *
- * // EffectTypeLambda is used for higher-kinded type operations
- * // It defines the type structure for Effect in higher-kinded contexts
- * declare const lambda: Effect.EffectTypeLambda
- * ```
  */
 export interface EffectTypeLambda extends TypeLambda {
   readonly type: Effect<this["Target"], this["Out1"], this["Out2"]>
@@ -226,8 +200,8 @@ export interface EffectTypeLambda extends TypeLambda {
 /**
  * Variance interface for Effect, encoding the type parameters' variance.
  *
+ * @category models
  * @since 2.0.0
- * @category Models
  */
 export interface Variance<A, E, R> {
   _A: Covariant<A>
@@ -236,46 +210,28 @@ export interface Variance<A, E, R> {
 }
 
 /**
- * @since 2.0.0
- * @category Models
- * @example
- * ```ts
- * import type { Effect } from "effect"
+ * Extracts the success type from an `Effect`.
  *
- * // Extract the success type from an Effect
- * declare const myEffect: Effect.Effect<string, Error, never>
- * // This type utility extracts the success type A from Effect<A, E, R>
- * ```
+ * @category models
+ * @since 2.0.0
  */
 export type Success<T> = T extends Effect<infer _A, infer _E, infer _R> ? _A
   : never
 
 /**
- * @since 2.0.0
- * @category Models
- * @example
- * ```ts
- * import type { Effect } from "effect"
+ * Extracts the error type from an `Effect`.
  *
- * // Extract the error type from an Effect
- * declare const myEffect: Effect.Effect<string, Error, never>
- * // This type utility extracts the error type E from Effect<A, E, R>
- * ```
+ * @category models
+ * @since 2.0.0
  */
 export type Error<T> = T extends Effect<infer _A, infer _E, infer _R> ? _E
   : never
 
 /**
- * @since 2.0.0
- * @category Models
- * @example
- * ```ts
- * import type { Effect } from "effect"
+ * Extracts the required services type from an `Effect`.
  *
- * // Extract the context/services type from an Effect
- * declare const myEffect: Effect.Effect<string, Error, { database: string }>
- * // This type utility extracts the context type R from Effect<A, E, R>
- * ```
+ * @category models
+ * @since 4.0.0
  */
 export type Services<T> = T extends Effect<infer _A, infer _E, infer _R> ? _R
   : never
@@ -283,7 +239,8 @@ export type Services<T> = T extends Effect<infer _A, infer _E, infer _R> ? _R
 /**
  * Tests if a value is an `Effect`.
  *
- * @example
+ * **Example** (Checking whether a value is an Effect)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -291,32 +248,16 @@ export type Services<T> = T extends Effect<infer _A, infer _E, infer _R> ? _R
  * console.log(Effect.isEffect("hello")) // false
  * ```
  *
+ * @category guards
  * @since 2.0.0
- * @category Guards
  */
 export const isEffect: (u: unknown) => u is Effect<any, any, any> = core.isEffect
 
 /**
  * Iterator interface for Effect generators, enabling Effect values to work with generator functions.
  *
- * @example
- * ```ts
- * import { Effect } from "effect"
- *
- * // Effects are iterable and work with generator functions
- * const program = Effect.gen(function*() {
- *   const effect: Effect.Effect<number, never, never> = Effect.succeed(42)
- *
- *   // The effect's iterator is used internally by yield*
- *   const result = yield* effect
- *   return result * 2
- * })
- *
- * Effect.runPromise(program).then(console.log) // 84
- * ```
- *
- * @since 2.0.0
- * @category Models
+ * @category models
+ * @since 4.0.0
  */
 export interface EffectIterator<T extends Effect<any, any, any>> {
   next(
@@ -332,59 +273,22 @@ export interface EffectIterator<T extends Effect<any, any, any>> {
  * Namespace containing type utilities for the `Effect.all` function, which handles
  * collecting multiple effects into various output structures.
  *
- * @example
- * ```ts
- * import { Effect } from "effect"
- *
- * // All namespace types are used when working with Effect.all
- * const effects = [
- *   Effect.succeed(1),
- *   Effect.succeed("hello"),
- *   Effect.succeed(true)
- * ] as const
- *
- * const program = Effect.all(effects).pipe(
- *   Effect.map(([num, str, bool]) => ({ num, str, bool }))
- * )
- *
- * Effect.runPromise(program).then(console.log) // { num: 1, str: "hello", bool: true }
- * ```
- *
  * @since 2.0.0
- * @category Models
  */
 export declare namespace All {
   /**
+   * Alias for any `Effect` value accepted by `Effect.all`.
+   *
+   * @category models
    * @since 2.0.0
-   * @category Models
-   * @example
-   * ```ts
-   * import { Data, Effect } from "effect"
-   *
-   * class OopsError extends Data.TaggedError("OopsError")<{}> {}
-   *
-   * // EffectAny represents an Effect with any type parameters
-   * const effects: Array<Effect.All.EffectAny> = [
-   *   Effect.succeed(42),
-   *   Effect.succeed("hello"),
-   *   Effect.fail(new OopsError())
-   * ]
-   * ```
    */
   export type EffectAny = Effect<any, any, any>
 
   /**
-   * @since 2.0.0
-   * @category Models
-   * @example
-   * ```ts
-   * import type { Effect } from "effect"
+   * Computes the return type for `Effect.all` when collecting an iterable.
    *
-   * // ReturnIterable computes the return type for Effect.all with iterables
-   * type EffectArray = Array<Effect.Effect<number, string, never>>
-   * type Result = Effect.All.ReturnIterable<EffectArray, false>
-   * // Result: Effect<Array<number>, string, never>
-   * ```
+   * @category models
+   * @since 2.0.0
    */
   export type ReturnIterable<
     T extends Iterable<EffectAny>,
@@ -398,20 +302,10 @@ export declare namespace All {
     : never
 
   /**
-   * @since 2.0.0
-   * @category Models
-   * @example
-   * ```ts
-   * import type { Effect } from "effect"
+   * Computes the return type for `Effect.all` when collecting a tuple.
    *
-   * // ReturnTuple computes the return type for Effect.all with tuples
-   * type EffectTuple = [
-   *   Effect.Effect<string, Error, never>,
-   *   Effect.Effect<number, Error, never>
-   * ]
-   * type Result = Effect.All.ReturnTuple<EffectTuple, false>
-   * // Result: Effect<[string, number], Error, never>
-   * ```
+   * @category models
+   * @since 2.0.0
    */
   export type ReturnTuple<
     T extends ReadonlyArray<unknown>,
@@ -439,20 +333,10 @@ export declare namespace All {
     : never
 
   /**
-   * @since 2.0.0
-   * @category Models
-   * @example
-   * ```ts
-   * import type { Effect } from "effect"
+   * Computes the return type for `Effect.all` when collecting a record.
    *
-   * // ReturnObject computes the return type for Effect.all with objects
-   * type EffectRecord = {
-   *   a: Effect.Effect<string, Error, never>
-   *   b: Effect.Effect<number, Error, never>
-   * }
-   * type Result = Effect.All.ReturnObject<EffectRecord, false>
-   * // Result: Effect<{ a: string, b: number }, Error, never>
-   * ```
+   * @category models
+   * @since 2.0.0
    */
   export type ReturnObject<T, Discard extends boolean, Mode extends boolean = false> = [T] extends [
     Record<string, EffectAny>
@@ -475,18 +359,10 @@ export declare namespace All {
     : never
 
   /**
-   * @since 2.0.0
-   * @category Models
-   * @example
-   * ```ts
-   * import type { Effect } from "effect"
+   * Detects whether `Effect.all` should discard collected values.
    *
-   * // IsDiscard checks if options have discard flag set to true
-   * type DiscardOptions = { discard: true }
-   * type NoDiscardOptions = { discard: false }
-   * type WithDiscard = Effect.All.IsDiscard<DiscardOptions> // true
-   * type WithoutDiscard = Effect.All.IsDiscard<NoDiscardOptions> // false
-   * ```
+   * @category models
+   * @since 2.0.0
    */
   export type IsDiscard<A> = [Extract<A, { readonly discard: true }>] extends [
     never
@@ -494,24 +370,18 @@ export declare namespace All {
     : true
 
   /**
+   * Detects whether `Effect.all` should collect results in `Result` mode.
+   *
+   * @category models
    * @since 4.0.0
-   * @category Models
    */
   export type IsResult<A> = [Extract<A, { readonly mode: "result" }>] extends [never] ? false : true
 
   /**
-   * @since 2.0.0
-   * @category Models
-   * @example
-   * ```ts
-   * import type { Effect } from "effect"
+   * Computes the return type for `Effect.all` from its input and options.
    *
-   * // Return determines the result type based on input and options
-   * type EffectArray = Array<Effect.Effect<number, string, never>>
-   * type Options = { discard: false }
-   * type Result = Effect.All.Return<EffectArray, Options>
-   * // Result: Effect<Array<number>, string, never>
-   * ```
+   * @category models
+   * @since 2.0.0
    */
   export type Return<
     Arg extends Iterable<EffectAny> | Record<string, EffectAny>,
@@ -527,49 +397,25 @@ export declare namespace All {
 }
 
 /**
- * Combines multiple effects into one, returning results based on the input
- * structure.
+ * Combines an iterable or record of effects into one effect whose success shape
+ * follows the input.
  *
  * **Details**
  *
- * Use this function when you need to run multiple effects and combine their
- * results into a single output. It supports tuples, iterables, structs, and
- * records, making it flexible for different input types.
+ * Tuple and iterable inputs collect results in order. Record inputs collect
+ * results under the same keys. By default, the combined effect fails on the
+ * first failure; with concurrent execution, effects that have already started
+ * may be interrupted, while effects not yet started are skipped.
  *
- * For instance, if the input is a tuple:
+ * **Options**
  *
- * ```ts skip-type-checking
- * //         ┌─── a tuple of effects
- * //         ▼
- * Effect.all([effect1, effect2, ...])
- * ```
+ * Use `concurrency` to control sequential or concurrent execution. Use
+ * `mode: "result"` to run every effect and collect each success or failure as a
+ * `Result` in the same output shape. Use `discard: true` to ignore successful
+ * values and return `void`.
  *
- * the effects are executed sequentially, and the result is a new effect
- * containing the results as a tuple. The results in the tuple match the order
- * of the effects passed to `Effect.all`.
+ * **Example** (Collecting tuple results in order)
  *
- * **Concurrency**
- *
- * You can control the execution order (e.g., sequential vs. concurrent) using
- * the `concurrency` option.
- *
- * **Short-Circuiting Behavior**
- *
- * This function stops execution on the first error it encounters, this is
- * called "short-circuiting". If any effect in the collection fails, the
- * remaining effects will not run, and the error will be propagated. To change
- * this behavior, you can use the `mode` option, which allows all effects to run
- * and collect every success / failure as `Result` values.
- *
- * **The `mode` option**
- *
- * The `{ mode: "result" }` option changes the behavior of `Effect.all` to
- * ensure all effects run, even if some fail. Instead of stopping on the first
- * failure, this mode collects both successes and failures, returning an array
- * of `Result` instances where each result is either an `Ok` (success) or a
- * `Err` (failure).
- *
- * @example Combining Effects in Tuples
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -589,7 +435,8 @@ export declare namespace All {
  * // [ 42, 'Hello' ]
  * ```
  *
- * @example Combining Effects in Iterables
+ * **Example** (Collecting iterable results in order)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -609,7 +456,8 @@ export declare namespace All {
  * // [ 1, 2, 3 ]
  * ```
  *
- * @example Combining Effects in Structs
+ * **Example** (Collecting struct results by key)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -629,7 +477,8 @@ export declare namespace All {
  * // { a: 42, b: 'Hello' }
  * ```
  *
- * @example Combining Effects in Records
+ * **Example** (Collecting record results by key)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -649,7 +498,8 @@ export declare namespace All {
  * // { key1: 1, key2: 2 }
  * ```
  *
- * @example Short-Circuiting Behavior
+ * **Example** (Stopping on the first failure)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -672,8 +522,8 @@ export declare namespace All {
  *
  * @see {@link forEach} for iterating over elements and applying an effect.
  *
- * @since 2.0.0
  * @category Collecting
+ * @since 2.0.0
  */
 export const all: <
   const Arg extends
@@ -701,7 +551,8 @@ export const all: <
  * This function runs every effect and never fails. Use `concurrency` to control
  * parallelism.
  *
- * @example
+ * **Example** (Separating successes and failures)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -713,8 +564,8 @@ export const all: <
  * // [ ["0 is even", "2 is even"], [1, 3] ]
  * ```
  *
- * @since 3.0.0
  * @category Collecting
+ * @since 2.0.0
  */
 export const partition: {
   <A, B, E, R>(
@@ -738,7 +589,8 @@ export const partition: {
  * Use `discard: true` to ignore successful values while still validating all
  * elements.
  *
- * @example
+ * **Example** (Validating every element)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -760,8 +612,8 @@ export const partition: {
  * // }
  * ```
  *
- * @since 4.0.0
  * @category Error Accumulation
+ * @since 2.0.0
  */
 export const validate: {
   <A, B, E, R>(
@@ -802,7 +654,8 @@ export const validate: {
  * The predicate receives the element and its index. Evaluation short-circuits
  * as soon as an element matches.
  *
- * @example
+ * **Example** (Finding the first successful match)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -812,8 +665,8 @@ export const validate: {
  * // { _id: 'Option', _tag: 'Some', value: 3 }
  * ```
  *
- * @since 2.0.0
  * @category Collecting
+ * @since 2.0.0
  */
 export const findFirst: {
   <A, E, R>(
@@ -831,8 +684,8 @@ export const findFirst: {
  * The filter receives the element and index. Evaluation short-circuits on the
  * first `Result.succeed` and returns the transformed value in `Option.some`.
  *
- * @since 4.0.0
  * @category Collecting
+ * @since 4.0.0
  */
 export const findFirstFilter: {
   <A, B, X, E, R>(
@@ -867,11 +720,10 @@ export const findFirstFilter: {
  *
  * @see {@link all} for combining multiple effects into one.
  *
- * @example
+ * **Example** (Mapping over an iterable with effects)
+ *
  * ```ts
- * // Title: Applying Effects to Iterable Elements
- * import { Effect } from "effect"
- * import { Console } from "effect"
+ * import { Console, Effect } from "effect"
  *
  * const result = Effect.forEach(
  *   [1, 2, 3, 4, 5],
@@ -889,10 +741,10 @@ export const findFirstFilter: {
  * // [ 2, 4, 6, 8, 10 ]
  * ```
  *
- * @example
- * // Title: Using discard to Ignore Results
- * import { Effect } from "effect"
- * import { Console } from "effect"
+ * **Example** (Running effects without collecting results)
+ *
+ * ```ts
+ * import { Console, Effect } from "effect"
  *
  * // Apply effects but discard the results
  * const result = Effect.forEach(
@@ -910,9 +762,10 @@ export const findFirstFilter: {
  * // Currently at index 3
  * // Currently at index 4
  * // undefined
+ * ```
  *
- * @since 2.0.0
  * @category Collecting
+ * @since 2.0.0
  */
 export const forEach: {
   <B, E, R, S extends Iterable<any>, const Discard extends boolean = false>(
@@ -929,7 +782,8 @@ export const forEach: {
 /**
  * Executes a body effect repeatedly while a condition holds true.
  *
- * @example
+ * **Example** (Repeating an effectful loop)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -950,8 +804,8 @@ export const forEach: {
  * // Current count: 5
  * ```
  *
- * @since 2.0.0
  * @category Collecting
+ * @since 2.0.0
  */
 export const whileLoop: <A, E, R>(options: {
   readonly while: LazyArg<boolean>
@@ -979,7 +833,7 @@ export const whileLoop: <A, E, R>(options: {
  * This defect is not a standard error but indicates a flaw in the logic that
  * was expected to be error-free. You can think of it similar to an unexpected
  * crash in the program, which can be further managed or logged using tools like
- * {@link catchAllDefect}.
+ * {@link catchDefect}.
  *
  * **Interruptions**
  *
@@ -988,9 +842,9 @@ export const whileLoop: <A, E, R>(options: {
  *
  * @see {@link tryPromise} for a version that can handle failures.
  *
- * @example
+ * **Example** (Wrapping a non-rejecting Promise)
+ *
  * ```ts
- * // Title: Delayed Message
  * import { Effect } from "effect"
  *
  * const delay = (message: string) =>
@@ -1008,8 +862,8 @@ export const whileLoop: <A, E, R>(options: {
  * const program = delay("Async operation completed successfully!")
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const promise: <A>(
   evaluate: (signal: AbortSignal) => PromiseLike<A>
@@ -1041,7 +895,8 @@ export const promise: <A>(
  * An optional `AbortSignal` can be provided to allow for interruption of the
  * wrapped `Promise` API.
  *
- * @example Fetching a TODO Item
+ * **Example** (Wrapping a fetch request that may fail)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -1056,7 +911,8 @@ export const promise: <A>(
  * const program = getTodo(1)
  * ```
  *
- * @example Custom Error Handling
+ * **Example** (Mapping Promise rejections to a tagged error)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -1076,8 +932,8 @@ export const promise: <A>(
  *
  * @see {@link promise} if the effectful computation is asynchronous and does not throw errors.
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const tryPromise: <A, E = Cause.UnknownError>(
   options:
@@ -1095,9 +951,9 @@ export const tryPromise: <A, E = Cause.UnknownError>(
  *
  * @see {@link fail} to create an effect that represents a failure.
  *
- * @example
+ * **Example** (Creating a successful effect)
+ *
  * ```ts
- * // Title: Creating a Successful Effect
  * import { Effect } from "effect"
  *
  * // Creating an effect that represents a successful scenario
@@ -1107,15 +963,16 @@ export const tryPromise: <A, E = Cause.UnknownError>(
  * const success = Effect.succeed(42)
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const succeed: <A>(value: A) => Effect<A> = internal.succeed
 
 /**
  * Returns an effect which succeeds with `None`.
  *
- * @example
+ * **Example** (Succeeding with Option.none)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -1125,15 +982,16 @@ export const succeed: <A>(value: A) => Effect<A> = internal.succeed
  * // Output: { _id: 'Option', _tag: 'None' }
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const succeedNone: Effect<Option<never>> = internal.succeedNone
 
 /**
  * Returns an effect which succeeds with the value wrapped in a `Some`.
  *
- * @example
+ * **Example** (Succeeding with Option.some)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -1143,8 +1001,8 @@ export const succeedNone: Effect<Option<never>> = internal.succeedNone
  * // Output: { _id: 'Option', _tag: 'Some', value: 42 }
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const succeedSome: <A>(value: A) => Effect<Option<A>> = internal.succeedSome
 
@@ -1162,9 +1020,9 @@ export const succeedSome: <A>(value: A) => Effect<Option<A>> = internal.succeedS
  * - **Handling Circular Dependencies**: Useful in managing circular dependencies, such as recursive functions that need to avoid eager evaluation to prevent stack overflow.
  * - **Unifying Return Types**: Can help TypeScript unify return types in situations where multiple branches of logic return different effects, simplifying type inference.
  *
- * @example
+ * **Example** (Lazily evaluating side effects)
+ *
  * ```ts
- * // Title: Lazy Evaluation with Side Effects
  * import { Effect } from "effect"
  *
  * let i = 0
@@ -1180,8 +1038,9 @@ export const succeedSome: <A>(value: A) => Effect<Option<A>> = internal.succeedS
  * console.log(Effect.runSync(good)) // Output: 2
  * ```
  *
- * @example
- * // Title: Recursive Fibonacci
+ * **Example** (Suspending recursive Fibonacci evaluation)
+ *
+ * ```ts
  * import { Effect } from "effect"
  *
  * const blowsUp = (n: number): Effect.Effect<number> =>
@@ -1203,9 +1062,11 @@ export const succeedSome: <A>(value: A) => Effect<Option<A>> = internal.succeedS
  *
  * console.log(Effect.runSync(allGood(32)))
  * // Output: 3524578
+ * ```
  *
- * @example
- * // Title: Using Effect.suspend to Help TypeScript Infer Types
+ * **Example** (Helping TypeScript infer recursive effect types)
+ *
+ * ```ts
  * import { Effect } from "effect"
  *
  * //   Without suspend, TypeScript may struggle with type inference.
@@ -1226,9 +1087,10 @@ export const succeedSome: <A>(value: A) => Effect<Option<A>> = internal.succeedS
  *       ? Effect.fail(new Error("Cannot divide by zero"))
  *       : Effect.succeed(a / b)
  *   )
+ * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const suspend: <A, E, R>(
   effect: LazyArg<Effect<A, E, R>>
@@ -1249,13 +1111,13 @@ export const suspend: <A, E, R>(
  * This defect is not a standard error but indicates a flaw in the logic that
  * was expected to be error-free. You can think of it similar to an unexpected
  * crash in the program, which can be further managed or logged using tools like
- * {@link catchAllDefect}.
+ * {@link catchDefect}.
  *
  * @see {@link try_ | try} for a version that can handle failures.
  *
- * @example
+ * **Example** (Capturing synchronous logging in an Effect)
+ *
  * ```ts
- * // Title: Logging a Message
  * import { Effect } from "effect"
  *
  * const log = (message: string) =>
@@ -1268,16 +1130,16 @@ export const suspend: <A, E, R>(
  * const program = log("Hello, World!")
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const sync: <A>(thunk: LazyArg<A>) => Effect<A> = internal.sync
 
 const void_: Effect<void> = internal.void
 export {
   /**
-   * @since 2.0.0
    * @category Creating Effects
+   * @since 2.0.0
    */
   void_ as void
 }
@@ -1285,42 +1147,29 @@ export {
 const undefined_: Effect<undefined> = internal.undefined
 export {
   /**
-   * @since 4.0.0
    * @category Creating Effects
+   * @since 4.0.0
    */
   undefined_ as undefined
 }
 
 /**
- * Creates an `Effect` from a callback-based asynchronous function.
+ * Creates an `Effect` from a callback-based asynchronous API.
  *
  * **Details**
  *
- * The `resume` function:
- * - Must be called exactly once. Any additional calls will be ignored.
- * - Can return an optional `Effect` that will be run if the `Fiber` executing
- *   this `Effect` is interrupted. This can be useful in scenarios where you
- *   need to handle resource cleanup if the operation is interrupted.
- * - Can receive an `AbortSignal` to handle interruption if needed.
- *
- * The `FiberId` of the fiber that may complete the async callback may also be
- * specified using the `blockingOn` argument. This is called the "blocking
- * fiber" because it suspends the fiber executing the `async` effect (i.e.
- * semantically blocks the fiber from making progress). Specifying this fiber id
- * in cases where it is known will improve diagnostics, but not affect the
- * behavior of the returned effect.
+ * The registration function receives a `resume` callback and, when requested,
+ * an `AbortSignal`. Call `resume` at most once with the effect that should
+ * complete the fiber; later calls are ignored. Return an optional cleanup
+ * effect from the registration function to run if the fiber is interrupted.
  *
  * **When to Use**
  *
- * Use `Effect.callback` when dealing with APIs that use callback-style instead of
- * `async/await` or `Promise`.
- * * **Previously Known As**
+ * Use `Effect.callback` when integrating APIs that complete through callbacks
+ * instead of returning a `Promise`.
  *
- * This API replaces the following from Effect 3.x:
+ * **Example** (Integrating callback APIs)
  *
- * - `Effect.async`
- *
- * @example
  * ```ts
  * import { Effect } from "effect"
  *
@@ -1336,8 +1185,8 @@ export {
  * const program = delay(1000)
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 4.0.0
  */
 export const callback: <A, E = never, R = never>(
   register: (
@@ -1351,7 +1200,8 @@ export const callback: <A, E = never, R = never>(
  * Returns an effect that will never produce anything. The moral equivalent of
  * `while(true) {}`, only without the wasted CPU cycles.
  *
- * @example
+ * **Example** (Creating a never-ending effect)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -1365,8 +1215,8 @@ export const callback: <A, E = never, R = never>(
  * const timedProgram = Effect.timeout(program, "1 second")
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const never: Effect<never> = internal.never
 
@@ -1374,10 +1224,10 @@ export const never: Effect<never> = internal.never
  * An `Effect` containing an empty record `{}`, used as the starting point for
  * do notation chains.
  *
- * @example
+ * **Example** (Starting do notation)
+ *
  * ```ts
- * import { Effect } from "effect"
- * import { pipe } from "effect/Function"
+ * import { Effect, pipe } from "effect"
  *
  * const program = pipe(
  *   Effect.Do,
@@ -1387,8 +1237,8 @@ export const never: Effect<never> = internal.never
  * )
  * ```
  *
- * @since 4.0.0
  * @category Do notation
+ * @since 2.0.0
  */
 export const Do: Effect<{}> = internal.Do
 
@@ -1396,8 +1246,8 @@ export const Do: Effect<{}> = internal.Do
  * Gives a name to the success value of an `Effect`, creating a single-key
  * record used in do notation pipelines.
  *
- * @since 4.0.0
  * @category Do notation
+ * @since 2.0.0
  */
 export const bindTo: {
   <N extends string>(name: N): <A, E, R>(self: Effect<A, E, R>) => Effect<{ [K in N]: A }, E, R>
@@ -1422,8 +1272,8 @@ export {
   /**
    * Adds a computed plain value to the do notation record.
    *
-   * @since 4.0.0
    * @category Do notation
+   * @since 2.0.0
    */
   let_ as let
 }
@@ -1431,8 +1281,8 @@ export {
 /**
  * Adds an `Effect` value to the do notation record under a given name.
  *
- * @since 4.0.0
  * @category Do notation
+ * @since 2.0.0
  */
 export const bind: {
   <N extends string, A extends Record<string, any>, B, E2, R2>(
@@ -1463,7 +1313,8 @@ export const bind: {
  * explicit control over the execution of effects. You can `yield*` values from
  * effects and return the final result at the end.
  *
- * @example
+ * **Example** (Sequencing effects with generators)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -1495,8 +1346,8 @@ export const bind: {
  * })
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const gen: {
   <Eff extends Effect<any, any, any>, AEff>(
@@ -1529,10 +1380,13 @@ export const gen: {
 /**
  * Type helpers for `Effect.gen` generator return signatures.
  *
- * @since 4.0.0
+ * @since 2.0.0
  */
 export namespace gen {
   /**
+   * Generator return type accepted by `Effect.gen`.
+   *
+   * @category Creating Effects
    * @since 4.0.0
    */
   export type Return<A, E = never, R = never> = Generator<Effect<any, E, R>, A, any>
@@ -1545,13 +1399,13 @@ export namespace gen {
  *
  * Use this function to explicitly signal an error in an `Effect`. The error
  * will keep propagating unless it is handled. You can handle the error with
- * functions like {@link catchAll} or {@link catchTag}.
+ * functions like {@link catchTag} or {@link catchTags}.
  *
  * @see {@link succeed} to create an effect that represents a successful value.
  *
- * @example
+ * **Example** (Creating a failed effect)
+ *
  * ```ts
- * // Title: Creating a Failed Effect
  * import { Data, Effect } from "effect"
  *
  * class OperationFailedError extends Data.TaggedError("OperationFailedError")<{}> {}
@@ -1563,8 +1417,8 @@ export namespace gen {
  * )
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const fail: <E>(error: E) => Effect<never, E> = internal.fail
 
@@ -1574,7 +1428,8 @@ export const fail: <E>(error: E) => Effect<never, E> = internal.fail
  * This function is useful when you need to create an error effect but want to
  * defer the computation of the error value until the effect is actually run.
  *
- * @example
+ * **Example** (Lazily creating failures)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -1586,8 +1441,8 @@ export const fail: <E>(error: E) => Effect<never, E> = internal.fail
  * // Output: { _id: 'Exit', _tag: 'Failure', cause: ... }
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const failSync: <E>(evaluate: LazyArg<E>) => Effect<never, E> = internal.failSync
 
@@ -1597,7 +1452,8 @@ export const failSync: <E>(evaluate: LazyArg<E>) => Effect<never, E> = internal.
  * This function allows you to create effects that fail with complex error
  * structures, including multiple errors, defects, interruptions, and more.
  *
- * @example
+ * **Example** (Failing with a full Cause)
+ *
  * ```ts
  * import { Cause, Effect } from "effect"
  *
@@ -1609,8 +1465,8 @@ export const failSync: <E>(evaluate: LazyArg<E>) => Effect<never, E> = internal.
  * // Output: { _id: 'Exit', _tag: 'Failure', cause: ... }
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const failCause: <E>(cause: Cause.Cause<E>) => Effect<never, E> = internal.failCause
 
@@ -1620,7 +1476,8 @@ export const failCause: <E>(cause: Cause.Cause<E>) => Effect<never, E> = interna
  * This function is useful when you need to create a failure effect with a
  * complex cause but want to defer the computation until the effect is run.
  *
- * @example
+ * **Example** (Lazily creating a Cause)
+ *
  * ```ts
  * import { Cause, Effect } from "effect"
  *
@@ -1632,8 +1489,8 @@ export const failCause: <E>(cause: Cause.Cause<E>) => Effect<never, E> = interna
  * // Output: { _id: 'Exit', _tag: 'Failure', cause: ... }
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const failCauseSync: <E>(
   evaluate: LazyArg<Cause.Cause<E>>
@@ -1656,12 +1513,11 @@ export const failCauseSync: <E>(
  * The error channel of the resulting effect is of type `never`, indicating that
  * it cannot recover from this failure.
  *
- * @see {@link dieSync} for a variant that throws a specified error, evaluated lazily.
- * @see {@link dieMessage} for a variant that throws a `RuntimeException` with a message.
+ * @see {@link die} for a variant that dies with an already computed defect.
  *
- * @example
+ * **Example** (Failing when division by zero)
+ *
  * ```ts
- * // Title: Terminating on Division by Zero with a Specified Error
  * import { Effect } from "effect"
  *
  * const divide = (a: number, b: number) =>
@@ -1679,8 +1535,8 @@ export const failCauseSync: <E>(
  * //   ...stack trace...
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const die: (defect: unknown) => Effect<never> = internal.die
 
@@ -1713,7 +1569,8 @@ export {
    * @see {@link sync} if the effectful computation is synchronous and does not
    * throw errors.
    *
-   * @example Basic Usage with Default Error Handling
+   * **Example** (Parsing JSON with typed error mapping)
+   *
    * ```ts
    * import { Effect } from "effect"
    *
@@ -1732,7 +1589,8 @@ export {
    * // Output: Exit.failure with Error
    * ```
    *
-   * @example Custom Error Handling
+   * **Example** (Mapping synchronous exceptions to a tagged error)
+   *
    * ```ts
    * import { Data, Effect } from "effect"
    *
@@ -1748,8 +1606,8 @@ export {
    * // Output: Exit.failure with custom Error message
    * ```
    *
-   * @since 2.0.0
    * @category Creating Effects
+   * @since 2.0.0
    */
   try_ as try
 }
@@ -1757,7 +1615,8 @@ export {
 /**
  * Yields control back to the Effect runtime, allowing other fibers to execute.
  *
- * @example
+ * **Example** (Yielding to other fibers)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -1770,15 +1629,16 @@ export {
  * Effect.runPromise(program)
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 2.0.0
  */
 export const yieldNow: Effect<void> = internal.yieldNow
 
 /**
  * Yields control back to the Effect runtime with a specified priority, allowing other fibers to execute.
  *
- * @example
+ * **Example** (Yielding with priority)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -1791,15 +1651,16 @@ export const yieldNow: Effect<void> = internal.yieldNow
  * Effect.runPromise(program)
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 4.0.0
  */
 export const yieldNowWith: (priority?: number) => Effect<void> = internal.yieldNowWith
 
 /**
  * Provides access to the current fiber within an effect computation.
  *
- * @example
+ * **Example** (Reading the current fiber)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -1811,8 +1672,8 @@ export const yieldNowWith: (priority?: number) => Effect<void> = internal.yieldN
  * // Output: Fiber ID: 1
  * ```
  *
- * @since 2.0.0
  * @category Creating Effects
+ * @since 4.0.0
  */
 export const withFiber: <A, E = never, R = never>(
   evaluate: (fiber: Fiber<unknown, unknown>) => Effect<A, E, R>
@@ -1825,7 +1686,8 @@ export const withFiber: <A, E = never, R = never>(
 /**
  * Converts a `Result` to an `Effect`.
  *
- * @example
+ * **Example** (Converting a Result into an Effect)
+ *
  * ```ts
  * import { Effect, Result } from "effect"
  *
@@ -1840,15 +1702,19 @@ export const withFiber: <A, E = never, R = never>(
  * // { _id: 'Exit', _tag: 'Failure', cause: { _id: 'Cause', _tag: 'Fail', failure: 'Something went wrong' } }
  * ```
  *
+ * @category converting
  * @since 4.0.0
- * @category Conversions
  */
 export const fromResult: <A, E>(result: Result.Result<A, E>) => Effect<A, E> = internal.fromResult
 
 /**
- * Converts an `Option` to an `Effect`.
+ * Converts an `Option` into an `Effect`.
  *
- * @example
+ * `Option.some` becomes a successful effect with the contained value, while
+ * `Option.none` becomes a failed effect with `NoSuchElementError`.
+ *
+ * **Example** (Converting an Option into an Effect)
+ *
  * ```ts
  * import { Effect, Option } from "effect"
  *
@@ -1863,8 +1729,8 @@ export const fromResult: <A, E>(result: Result.Result<A, E>) => Effect<A, E> = i
  * // { _id: 'Exit', _tag: 'Failure', cause: { _id: 'Cause', _tag: 'Fail', failure: { _id: 'NoSuchElementError' } } }
  * ```
  *
+ * @category converting
  * @since 4.0.0
- * @category Conversions
  */
 export const fromOption: <A>(
   option: Option<A>
@@ -1874,7 +1740,8 @@ export const fromOption: <A>(
  * Converts a nullable value to an `Effect`, failing with a `NoSuchElementError`
  * when the value is `null` or `undefined`.
  *
- * @example
+ * **Example** (Failing on nullish values)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -1891,8 +1758,8 @@ export const fromOption: <A>(
  * // Output: hello
  * ```
  *
+ * @category converting
  * @since 4.0.0
- * @category Conversions
  */
 export const fromNullishOr: <A>(value: A) => Effect<NonNullable<A>, Cause.NoSuchElementError> = internal.fromNullishOr
 
@@ -1930,7 +1797,8 @@ export const fromNullishOr: <A>(value: A) => Effect<NonNullable<A>, Cause.NoSuch
  * step produces a new `Effect` while flattening any nested effects that may
  * occur.
  *
- * @example
+ * **Example** (Sequencing dependent effects)
+ *
  * ```ts
  * import { Data, Effect, pipe } from "effect"
  *
@@ -1960,8 +1828,8 @@ export const fromNullishOr: <A>(value: A) => Effect<NonNullable<A>, Cause.NoSuch
  *
  * @see {@link tap} for a version that ignores the result of the effect.
  *
+ * @category sequencing
  * @since 2.0.0
- * @category Sequencing
  */
 export const flatMap: {
   <A, B, E1, R1>(
@@ -1976,7 +1844,8 @@ export const flatMap: {
 /**
  * Flattens an `Effect` that produces another `Effect` into a single effect.
  *
- * @example
+ * **Example** (Flattening nested effects)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -1989,15 +1858,15 @@ export const flatMap: {
  * })
  * ```
  *
+ * @category sequencing
  * @since 2.0.0
- * @category Sequencing
  */
 export const flatten: <A, E, R, E2, R2>(self: Effect<Effect<A, E, R>, E2, R2>) => Effect<A, E | E2, R | R2> =
   internal.flatten
 
 /**
- * Chains two actions, where the second action can depend on the result of the
- * first.
+ * Runs this effect and then runs another effect, optionally using the first
+ * effect's success value to choose the next effect.
  *
  * **Syntax**
  *
@@ -2011,31 +1880,21 @@ export const flatten: <A, E, R, E2, R2>(self: Effect<Effect<A, E, R>, E2, R2>) =
  *
  * **When to Use**
  *
- * Use `andThen` when you need to run multiple actions in sequence, with the
- * second action depending on the result of the first. This is useful for
- * combining effects or handling computations that must happen in order.
+ * Use `andThen` when one effect must run after another and the second effect
+ * may depend on the first effect's success value.
  *
  * **Details**
  *
- * The second action can be:
+ * When the second argument is an `Effect`, the first success value is discarded
+ * and the returned effect produces the second effect's value. When the second
+ * argument is a function, it receives the first success value and must return
+ * the next `Effect`.
  *
- * - A constant value (similar to {@link as})
- * - A function returning a value (similar to {@link map})
- * - A `Promise`
- * - A function returning a `Promise`
- * - An `Effect`
- * - A function returning an `Effect` (similar to {@link flatMap})
+ * Failures or requirements from either effect are preserved in the returned
+ * effect.
  *
- * **Note:** `andThen` works well with both `Option` and `Result` types,
- * treating them as effects.
+ * **Example** (Sequencing a discount calculation after fetching a total)
  *
- * **Previously Known As**
- *
- * This API replaces the following from Effect 3.x:
- *
- * - `Effect.zipRight`
- *
- * @example Applying a Discount Based on Fetched Amount
  * ```ts
  * import { Data, Effect, pipe } from "effect"
  *
@@ -2074,8 +1933,8 @@ export const flatten: <A, E, R, E2, R2>(self: Effect<Effect<A, E, R>, E2, R2>) =
  * // Output: 190
  * ```
  *
+ * @category sequencing
  * @since 2.0.0
- * @category Sequencing
  */
 export const andThen: {
   <A, B, E2, R2>(
@@ -2111,17 +1970,10 @@ export const andThen: {
  * next part of the chain. Note that if the side effect fails, the entire chain
  * will fail too.
  *
- * **Previously Known As**
+ * **Example** (Logging a step in a pipeline)
  *
- * This API replaces the following from Effect 3.x:
- *
- * - `Effect.zipLeft`
- *
- * @example
  * ```ts
- * // Title: Logging a step in a pipeline
- * import { Data, Effect, pipe } from "effect"
- * import { Console } from "effect"
+ * import { Console, Data, Effect, pipe } from "effect"
  *
  * class DiscountRateError extends Data.TaggedError("DiscountRateError")<{}> {}
  *
@@ -2151,8 +2003,8 @@ export const andThen: {
  * // 95
  * ```
  *
+ * @category sequencing
  * @since 2.0.0
- * @category Sequencing
  */
 export const tap: {
   <A, B, E2, R2>(
@@ -2194,13 +2046,8 @@ export const tap: {
  * The resulting effect cannot fail directly because all recoverable failures
  * are represented inside the `Result` type.
  *
- * **Previously Known As**
+ * **Example** (Capturing success or failure as Result)
  *
- * This API replaces the following from Effect 3.x:
- *
- * - `Effect.either`
- *
- * @example
  * ```ts
  * import { Effect } from "effect"
  *
@@ -2220,8 +2067,8 @@ export const tap: {
  * @see {@link option} for a version that uses `Option` instead.
  * @see {@link exit} for a version that encapsulates both recoverable errors and defects in an `Exit`.
  *
- * @since 4.0.0
  * @category Outcome Encapsulation
+ * @since 4.0.0
  */
 export const result: <A, E, R>(self: Effect<A, E, R>) => Effect<Result.Result<A, E>, never, R> = internal.result
 
@@ -2233,7 +2080,8 @@ export const result: <A, E, R>(self: Effect<A, E, R>) => Effect<Result.Result<A,
  * Success values become `Option.some`, recoverable failures become
  * `Option.none`, and defects still fail the effect.
  *
- * @example
+ * **Example** (Capturing success or failure as Option)
+ *
  * ```ts
  * import { Console, Effect, Option } from "effect"
  *
@@ -2253,8 +2101,8 @@ export const result: <A, E, R>(self: Effect<A, E, R>) => Effect<Result.Result<A,
  * @see {@link result} for a version that uses `Result` instead.
  * @see {@link exit} for a version that encapsulates both recoverable errors and defects in an `Exit`.
  *
- * @since 2.0.0
  * @category Output Encapsulation
+ * @since 2.0.0
  */
 export const option: <A, E, R>(self: Effect<A, E, R>) => Effect<Option<A>, never, R> = internal.option
 
@@ -2271,7 +2119,8 @@ export const option: <A, E, R>(self: Effect<A, E, R>) => Effect<Option<A>, never
  * the `Exit.Failure` type. The error type is set to `never`, indicating that
  * the effect is structured to never fail directly.
  *
- * @example
+ * **Example** (Capturing completion as Exit)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -2291,8 +2140,8 @@ export const option: <A, E, R>(self: Effect<A, E, R>) => Effect<Option<A>, never
  * @see {@link option} for a version that uses `Option` instead.
  * @see {@link result} for a version that uses `Result` instead.
  *
- * @since 2.0.0
  * @category Outcome Encapsulation
+ * @since 2.0.0
  */
 export const exit: <A, E, R>(
   self: Effect<A, E, R>
@@ -2320,7 +2169,8 @@ export const exit: <A, E, R>(
  * effect is not modified. Instead, a new effect is returned with the updated
  * value.
  *
- * @example Adding a Service Charge
+ * **Example** (Adding a service charge)
+ *
  * ```ts
  * import { Effect, pipe } from "effect"
  *
@@ -2341,8 +2191,8 @@ export const exit: <A, E, R>(
  * @see {@link mapBoth} for a version that operates on both channels.
  * @see {@link flatMap} or {@link andThen} for a version that can return a new effect.
  *
+ * @category mapping
  * @since 2.0.0
- * @category Mapping
  */
 export const map: {
   <A, B>(f: (a: A) => B): <E, R>(self: Effect<A, E, R>) => Effect<B, E, R>
@@ -2355,9 +2205,9 @@ export const map: {
  * `as` allows you to ignore the original value inside an effect and
  * replace it with a new constant value.
  *
- * @example
+ * **Example** (Replacing a success value)
+ *
  * ```ts
- * // Title: Replacing a Value
  * import { Effect, pipe } from "effect"
  *
  * // Replaces the value 5 with the constant "new value"
@@ -2367,8 +2217,8 @@ export const map: {
  * // Output: "new value"
  * ```
  *
+ * @category mapping
  * @since 2.0.0
- * @category Mapping
  */
 export const as: {
   <B>(value: B): <A, E, R>(self: Effect<A, E, R>) => Effect<B, E, R>
@@ -2380,7 +2230,8 @@ export const as: {
  * in an `Option` value. If the original `Effect` value fails, the returned
  * `Effect` value will also fail.
  *
- * @example
+ * **Example** (Wrapping success in Option.some)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -2390,7 +2241,7 @@ export const as: {
  * // { _id: 'Option', _tag: 'Some', value: 42 }
  * ```
  *
- * @category Mapping
+ * @category mapping
  * @since 2.0.0
  */
 export const asSome: <A, E, R>(self: Effect<A, E, R>) => Effect<Option<A>, E, R> = internal.asSome
@@ -2401,7 +2252,8 @@ export const asSome: <A, E, R>(self: Effect<A, E, R>) => Effect<Option<A>, E, R>
  * succeed. If the original `Effect` value fails, the returned `Effect` value
  * will fail with the same error.
  *
- * @example
+ * **Example** (Discarding success values)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -2411,8 +2263,8 @@ export const asSome: <A, E, R>(self: Effect<A, E, R>) => Effect<Option<A>, E, R>
  * // undefined (void)
  * ```
  *
+ * @category mapping
  * @since 2.0.0
- * @category Mapping
  */
 export const asVoid: <A, E, R>(self: Effect<A, E, R>) => Effect<void, E, R> = internal.asVoid
 
@@ -2425,7 +2277,8 @@ export const asVoid: <A, E, R>(self: Effect<A, E, R>) => Effect<void, E, R> = in
  * be helpful in scenarios where you want to handle a success as a failure or
  * treat an error as a valid result.
  *
- * @example
+ * **Example** (Swapping success and failure channels)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -2438,8 +2291,8 @@ export const asVoid: <A, E, R>(self: Effect<A, E, R>) => Effect<void, E, R> = in
  * const flipped = Effect.flip(program)
  * ```
  *
+ * @category mapping
  * @since 2.0.0
- * @category Mapping
  */
 export const flip: <A, E, R>(self: Effect<A, E, R>) => Effect<E, A, R> = internal.flip
 
@@ -2461,9 +2314,9 @@ export const flip: <A, E, R>(self: Effect<A, E, R>) => Effect<E, A, R> = interna
  * @see {@link zipWith} for a version that combines the results with a custom function.
  * @see {@link validate} for a version that accumulates errors.
  *
- * @example
+ * **Example** (Combining two effects sequentially)
+ *
  * ```ts
- * // Title: Combining Two Effects Sequentially
  * import { Effect } from "effect"
  *
  * const task1 = Effect.succeed(1).pipe(
@@ -2488,8 +2341,9 @@ export const flip: <A, E, R>(self: Effect<A, E, R>) => Effect<E, A, R> = interna
  * // [ 1, 'hello' ]
  * ```
  *
- * @example
- * // Title: Combining Two Effects Concurrently
+ * **Example** (Combining two effects concurrently)
+ *
+ * ```ts
  * import { Effect } from "effect"
  *
  * const task1 = Effect.succeed(1).pipe(
@@ -2509,9 +2363,10 @@ export const flip: <A, E, R>(self: Effect<A, E, R>) => Effect<E, A, R> = interna
  * // timestamp=... level=INFO fiber=#0 message="task2 done"
  * // timestamp=... level=INFO fiber=#0 message="task1 done"
  * // [ 1, 'hello' ]
+ * ```
  *
+ * @category zipping
  * @since 2.0.0
- * @category Zipping
  */
 export const zip: {
   <A2, E2, R2>(
@@ -2540,9 +2395,9 @@ export const zip: {
  * By default, the effects are run sequentially. To execute them concurrently,
  * use the `{ concurrent: true }` option.
  *
- * @example
+ * **Example** (Combining two success values with a function)
+ *
  * ```ts
- * // Title: Combining Effects with a Custom Function
  * import { Effect } from "effect"
  *
  * const task1 = Effect.succeed(1).pipe(
@@ -2568,8 +2423,8 @@ export const zip: {
  * // 6
  * ```
  *
+ * @category zipping
  * @since 2.0.0
- * @category Zipping
  */
 export const zipWith: {
   <A2, E2, R2, A, B>(
@@ -2615,14 +2470,8 @@ export {
    *
    * @see {@link catchCause} for a version that can recover from both recoverable and unrecoverable errors.
    *
-   * **Previously Known As**
-   *
-   * This API replaces the following from Effect 3.x:
-   *
-   * - `Effect.catchAll`
-   *
+   * @category error handling
    * @since 4.0.0
-   * @category Error Handling
    */
   catch_ as catch
 }
@@ -2641,7 +2490,8 @@ export {
  * The error type must have a readonly `_tag` field to use `catchTag`. This
  * field is used to identify and match errors.
  *
- * @example
+ * **Example** (Handling a tagged error)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -2664,8 +2514,8 @@ export {
  * )
  * ```
  *
+ * @category error handling
  * @since 2.0.0
- * @category Error Handling
  */
 export const catchTag: {
   <
@@ -2720,7 +2570,8 @@ export const catchTag: {
  * The error type must have a readonly `_tag` field to use `catchTag`. This
  * field is used to identify and match errors.
  *
- * @example
+ * **Example** (Handling multiple tagged errors)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -2744,8 +2595,8 @@ export const catchTag: {
  * })
  * ```
  *
+ * @category error handling
  * @since 2.0.0
- * @category Error Handling
  */
 export const catchTags: {
   <
@@ -2815,7 +2666,8 @@ export const catchTags: {
  * Use this to handle nested error causes without removing the parent error
  * from the error channel. The handler receives the unwrapped reason.
  *
- * @example
+ * **Example** (Handling an error reason)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -2841,8 +2693,8 @@ export const catchTags: {
  * )
  * ```
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const catchReason: {
   <
@@ -2897,7 +2749,8 @@ export const catchReason: {
 /**
  * Catches multiple reasons within a tagged error using an object of handlers.
  *
- * @example
+ * **Example** (Handling multiple error reasons)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -2925,8 +2778,8 @@ export const catchReason: {
  * )
  * ```
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const catchReasons: {
   <
@@ -3017,8 +2870,8 @@ export const catchReasons: {
  *
  * Used by `catchReasons` and `unwrapReason` to constrain the parent error tag to reason-bearing errors.
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export type TagsWithReason<E> = {
   [T in Tags<E>]: ReasonTags<ExtractTag<E, T>> extends never ? never : T
@@ -3028,7 +2881,8 @@ export type TagsWithReason<E> = {
  * Promotes nested reason errors into the Effect error channel, replacing
  * the parent error.
  *
- * @example
+ * **Example** (Extracting the reason from a tagged error)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -3051,8 +2905,8 @@ export type TagsWithReason<E> = {
  * const unwrapped = program.pipe(Effect.unwrapReason("AiError"))
  * ```
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const unwrapReason: {
   <
@@ -3089,13 +2943,8 @@ export const unwrapReason: {
  * they often indicate serious issues. However, in some cases, such as
  * dynamically loaded plugins, controlled recovery might be needed.
  *
- * **Previously Known As**
+ * **Example** (Recovering from full failure causes)
  *
- * This API replaces the following from Effect 3.x:
- *
- * - `Effect.catchAllCause`
- *
- * @example
  * ```ts
  * import { Cause, Console, Effect } from "effect"
  *
@@ -3113,8 +2962,8 @@ export const unwrapReason: {
  * })
  * ```
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const catchCause: {
   <E, A2, E2, R2>(
@@ -3127,35 +2976,26 @@ export const catchCause: {
 } = internal.catchCause
 
 /**
- * Recovers from all defects using a provided recovery function.
+ * Recovers from defects using a provided recovery function.
  *
  * **When to Use**
  *
- * There is no sensible way to recover from defects. This method should be used
- * only at the boundary between Effect and an external system, to transmit
- * information on a defect for diagnostic or explanatory purposes.
+ * Use this sparingly, usually at integration boundaries where defects must be
+ * reported or translated for an external system.
  *
  * **Details**
  *
- * `catchAllDefect` allows you to handle defects, which are unexpected errors
- * that usually cause the program to terminate. This function lets you recover
- * from these defects by providing a function that handles the error. However,
- * it does not handle expected errors (like those from {@link fail}) or
- * execution interruptions (like those from {@link interrupt}).
+ * `catchDefect` handles unexpected defects, such as thrown exceptions or
+ * values passed to `die`, without catching typed failures or interruptions.
  *
  * **When to Recover from Defects**
  *
- * Defects are unexpected errors that typically shouldn't be recovered from, as
- * they often indicate serious issues. However, in some cases, such as
- * dynamically loaded plugins, controlled recovery might be needed.
+ * Defects are unexpected errors that typically should not be recovered from, as
+ * they often indicate serious issues. In some cases, such as dynamically loaded
+ * plugins, controlled recovery may be needed.
  *
- * **Previously Known As**
+ * **Example** (Recovering from defects)
  *
- * This API replaces the following from Effect 3.x:
- *
- * - `Effect.catchAllDefect`
- *
- * @example
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -3172,8 +3012,8 @@ export const catchCause: {
  * })
  * ```
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const catchDefect: {
   <A2, E2, R2>(
@@ -3195,14 +3035,8 @@ export const catchDefect: {
  * matching. Non-matching errors re-fail with the original cause. Defects and
  * interrupts are not caught.
  *
- * **Previously Known As**
+ * **Example** (Recovering when a predicate matches)
  *
- * This API replaces the following:
- *
- * - `Effect.catchSome` (Effect 3.x)
- * - `Effect.catchIf`
- *
- * @example
  * ```ts
  * import { Data, Effect, Filter } from "effect"
  *
@@ -3227,8 +3061,8 @@ export const catchDefect: {
  * )
  * ```
  *
+ * @category error handling
  * @since 2.0.0
- * @category Error Handling
  */
 export const catchIf: {
   <E, EB extends E, A2, E2, R2, A3 = never, E3 = Exclude<E, EB>, R3 = never>(
@@ -3258,8 +3092,8 @@ export const catchIf: {
 /**
  * Recovers from specific errors using a `Filter`.
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const catchFilter: {
   <E, EB, A2, E2, R2, X, A3 = never, E3 = X, R3 = never>(
@@ -3281,7 +3115,8 @@ export const catchFilter: {
  * Success values become `Option.some`, `NoSuchElementError` becomes
  * `Option.none`, and all other errors are preserved.
  *
- * @example
+ * **Example** (Recovering from missing Option values)
+ *
  * ```ts
  * import { Effect, Option } from "effect"
  *
@@ -3292,14 +3127,8 @@ export const catchFilter: {
  * Effect.runPromise(none).then(console.log) // { _id: 'Option', _tag: 'None' }
  * ```
  *
- * **Previously Known As**
- *
- * This API replaces the following from Effect 3.x:
- *
- * - `Effect.optionFromOptional`
- *
- * @since 2.0.0
- * @category Error Handling
+ * @category error handling
+ * @since 4.0.0
  */
 export const catchNoSuchElement: <A, E, R>(
   self: Effect<A, E, R>
@@ -3312,13 +3141,8 @@ export const catchNoSuchElement: <A, E, R>(
  * that match a specific predicate. This is useful when you want to handle
  * only certain types of errors while letting others propagate.
  *
- * **Previously Known As**
+ * **Example** (Recovering from selected causes)
  *
- * This API replaces the following from Effect 3.x:
- *
- * - `Effect.catchSomeCause`
- *
- * @example
  * ```ts
  * import { Cause, Console, Effect } from "effect"
  *
@@ -3340,8 +3164,8 @@ export const catchNoSuchElement: <A, E, R>(
  * // Then: "Fallback response"
  * ```
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const catchCauseIf: {
   <E, B, E2, R2>(
@@ -3358,8 +3182,8 @@ export const catchCauseIf: {
 /**
  * Recovers from specific failures based on a `Filter`.
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const catchCauseFilter: {
   <E, B, E2, R2, EB, X extends Cause.Cause<any>>(
@@ -3384,9 +3208,10 @@ export const catchCauseFilter: {
  *
  * @see {@link map} for a version that operates on the success channel.
  * @see {@link mapBoth} for a version that operates on both channels.
- * @see {@link orElseFail} if you want to replace the error with a new one.
+ * @see {@link mapError} if you want to replace the error with a new one.
  *
- * @example
+ * **Example** (Transforming the error channel)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -3404,8 +3229,8 @@ export const catchCauseFilter: {
  * )
  * ```
  *
+ * @category error handling
  * @since 2.0.0
- * @category Error Handling
  */
 export const mapError: {
   <E, E2>(f: (e: E) => E2): <A, R>(self: Effect<A, E, R>) => Effect<A, E2, R>
@@ -3422,7 +3247,8 @@ export const mapError: {
  * the error and the success values without altering the overall success or
  * failure status of the effect.
  *
- * @example
+ * **Example** (Transforming success and failure channels)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -3443,8 +3269,8 @@ export const mapError: {
  * @see {@link map} for a version that operates on the success channel.
  * @see {@link mapError} for a version that operates on the error channel.
  *
+ * @category mapping
  * @since 2.0.0
- * @category Mapping
  */
 export const mapBoth: {
   <E, E2, A, A2>(
@@ -3457,23 +3283,19 @@ export const mapBoth: {
 } = internal.mapBoth
 
 /**
- * Converts an effect's failure into a fiber termination, removing the error from the effect's type.
+ * Converts typed failures from the error channel into defects, removing the
+ * error type from the returned effect.
  *
- * **When to Use*
+ * **When to Use**
  *
- * Use `orDie` when failures should be treated as unrecoverable defects and no error handling is required.
+ * Use `orDie` when a typed failure represents an unrecoverable bug or invalid
+ * state and should not be handled as a recoverable error.
  *
- * **Details**
+ * @see {@link mapError} to transform the error before converting it into a defect with {@link orDie}.
  *
- * The `orDie` function is used when you encounter errors that you do not want to handle or recover from.
- * It removes the error type from the effect and ensures that any failure will terminate the fiber.
- * This is useful for propagating failures as defects, signaling that they should not be handled within the effect.
+ * **Example** (Converting typed failures into defects)
  *
- * @see {@link orDieWith} if you need to customize the error.
- *
- * @example
  * ```ts
- * // Title: Propagating an Error as a Defect
  * import { Data, Effect } from "effect"
  *
  * class DivideByZeroError extends Data.TaggedError("DivideByZeroError")<{}> {}
@@ -3493,21 +3315,23 @@ export const mapBoth: {
  * //   ...stack trace...
  * ```
  *
- * @since 2.0.0
  * @category Converting Failures to Defects
+ * @since 2.0.0
  */
 export const orDie: <A, E, R>(self: Effect<A, E, R>) => Effect<A, never, R> = internal.orDie
 
 /**
- * The `tapError` function executes an effectful operation to inspect the
- * failure of an effect without modifying it.
+ * Runs an effectful operation when the source effect fails, while preserving
+ * the original failure when the operation succeeds.
  *
- * This function is useful when you want to perform some side effect (like
- * logging or tracking) on the failure of an effect, but without changing the
- * result of the effect itself. The error remains in the effect's error channel,
- * while the operation you provide can inspect or act on it.
+ * **Details**
  *
- * @example
+ * Use this for logging, metrics, or other failure-side observations. If the
+ * operation passed to `tapError` fails, that error is also represented in the
+ * returned effect's error channel.
+ *
+ * **Example** (Running effects on failure)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -3525,8 +3349,8 @@ export const orDie: <A, E, R>(self: Effect<A, E, R>) => Effect<A, never, R> = in
  * // expected error: NetworkError
  * ```
  *
+ * @category sequencing
  * @since 2.0.0
- * @category Sequencing
  */
 export const tapError: {
   <E, X, E2, R2>(
@@ -3541,10 +3365,12 @@ export const tapError: {
 /**
  * Runs an effectful handler when a failure's `_tag` matches.
  *
- * Use this with tagged-union errors to perform side effects for a tag (or tag
- * list) while preserving the original failure.
+ * Use this with tagged-union errors to perform side effects for one tag or a
+ * list of tags. When the handler succeeds, the original failure is preserved;
+ * if the handler fails, its error is also included in the returned effect.
  *
- * @example
+ * **Example** (Running effects for tagged failures)
+ *
  * ```ts
  * import { Console, Data, Effect } from "effect"
  *
@@ -3568,8 +3394,8 @@ export const tapError: {
  * // expected error: 504
  * ```
  *
+ * @category sequencing
  * @since 2.0.0
- * @category Sequencing
  */
 export const tapErrorTag: {
   <const K extends Tags<E> | Arr.NonEmptyReadonlyArray<Tags<E>>, E, A1, E1, R1>(
@@ -3592,21 +3418,17 @@ export const tapErrorTag: {
 } = internal.tapErrorTag
 
 /**
- * The `tapCause` function allows you to inspect the complete cause
- * of an error, including failures and defects.
+ * Runs an effectful operation with the full `Cause` when the source effect
+ * fails.
  *
- * This function is helpful when you need to log, monitor, or handle specific
- * error causes in your effects. It gives you access to the full error cause,
- * whether it's a failure, defect, or other exceptional conditions, without
- * altering the error or the overall result of the effect.
+ * **Details**
  *
- * **Previously Known As**
+ * Use this to log or inspect typed failures, defects, and interruptions. When
+ * the operation succeeds, the original cause is preserved. If the operation
+ * fails, its error is also represented in the returned effect.
  *
- * This API replaces the following from Effect 3.x:
+ * **Example** (Observing full failure causes)
  *
- * - `Effect.tapErrorCause`
- *
- * @example
  * ```ts
  * import { Cause, Console, Effect } from "effect"
  *
@@ -3622,8 +3444,8 @@ export const tapErrorTag: {
  * // Then: { _id: 'Exit', _tag: 'Failure', cause: ... }
  * ```
  *
- * @since 2.0.0
- * @category Sequencing
+ * @category sequencing
+ * @since 4.0.0
  */
 export const tapCause: {
   <E, X, E2, R2>(
@@ -3642,7 +3464,8 @@ export const tapCause: {
  * the cause matches a specific predicate. This is useful for conditional logging,
  * monitoring, or other side effects based on the type of failure.
  *
- * @example
+ * **Example** (Observing selected failure causes)
+ *
  * ```ts
  * import { Cause, Console, Effect } from "effect"
  *
@@ -3660,8 +3483,8 @@ export const tapCause: {
  * // Then: { _id: 'Exit', _tag: 'Failure', cause: ... }
  * ```
  *
+ * @category sequencing
  * @since 4.0.0
- * @category Sequencing
  */
 export const tapCauseIf: {
   <E, B, E2, R2>(
@@ -3678,8 +3501,8 @@ export const tapCauseIf: {
 /**
  * Conditionally executes a side effect based on the cause of a failed effect.
  *
+ * @category sequencing
  * @since 4.0.0
- * @category Sequencing
  */
 export const tapCauseFilter: {
   <E, B, E2, R2, EB, X extends Cause.Cause<any>>(
@@ -3694,22 +3517,17 @@ export const tapCauseFilter: {
 } = internal.tapCauseFilter
 
 /**
- * Inspect severe errors or defects (non-recoverable failures) in an effect.
+ * Runs an effectful operation when the source effect dies with a defect.
  *
  * **Details**
  *
- * This function is specifically designed to handle and inspect defects, which
- * are critical failures in your program, such as unexpected runtime exceptions
- * or system-level errors. Unlike normal recoverable errors, defects typically
- * indicate serious issues that cannot be addressed through standard error
- * handling.
+ * Use this for diagnostics such as logging unexpected thrown exceptions or
+ * values passed to `die`. Recoverable failures are not handled. When the
+ * operation succeeds, the original defect is preserved; if the operation fails,
+ * its error is also represented in the returned effect.
  *
- * When a defect occurs in an effect, the function you provide to this function
- * will be executed, allowing you to log, monitor, or handle the defect in some
- * way. Importantly, this does not alter the main result of the effect. If no
- * defect occurs, the effect behaves as if this function was not used.
+ * **Example** (Observing defects)
  *
- * @example
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -3742,8 +3560,8 @@ export const tapCauseFilter: {
  * //   ... stack trace ...
  * ```
  *
+ * @category sequencing
  * @since 2.0.0
- * @category Sequencing
  */
 export const tapDefect: {
   <E, B, E2, R2>(f: (defect: unknown) => Effect<B, E2, R2>): <A, R>(self: Effect<A, E, R>) => Effect<A, E | E2, R | R2>
@@ -3755,7 +3573,8 @@ export const tapDefect: {
  *
  * Yields between attempts so other fibers can run.
  *
- * @example
+ * **Example** (Retrying until success)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -3780,8 +3599,8 @@ export const tapDefect: {
  * // Ready
  * ```
  *
- * @since 2.0.0
  * @category Repetition / Recursion
+ * @since 2.0.0
  */
 export const eventually: <A, E, R>(self: Effect<A, E, R>) => Effect<A, never, R> = internal.eventually
 
@@ -3790,31 +3609,16 @@ export const eventually: <A, E, R>(self: Effect<A, E, R>) => Effect<A, never, R>
 // -----------------------------------------------------------------------------
 
 /**
- * @since 2.0.0
- * @category Error Handling
- * @example
- * ```ts
- * import type { Effect } from "effect"
+ * Type helpers for retrying effects.
  *
- * // Retry namespace contains types for retry operations
- * declare const effect: Effect.Effect<string, Error, never>
- * declare const options: Effect.Retry.Options<Error>
- * // Use Effect.retry with these types for retrying failed effects
- * ```
+ * @since 2.0.0
  */
 export declare namespace Retry {
   /**
-   * @since 2.0.0
-   * @category Error Handling
-   * @example
-   * ```ts
-   * import type { Effect } from "effect"
+   * Computes the result type of `Effect.retry` from the original effect and retry options.
    *
-   * // Return type for retry operations with specific options
-   * declare const options: Effect.Retry.Options<Error>
-   * type RetryResult = Effect.Retry.Return<never, Error, string, typeof options>
-   * // Result: Effect with retried operation result types
-   * ```
+   * @category error handling
+   * @since 2.0.0
    */
   export type Return<R, E, A, O extends Options<E>> = Effect<
     A,
@@ -3840,20 +3644,10 @@ export declare namespace Retry {
     : never
 
   /**
-   * @since 2.0.0
-   * @category Error Handling
-   * @example
-   * ```ts
-   * import { Schedule } from "effect"
-   * import type { Effect } from "effect"
+   * Options that control whether and how a failing effect is retried.
    *
-   * // Options for configuring retry behavior
-   * const retryOptions: Effect.Retry.Options<Error> = {
-   *   times: 3,
-   *   schedule: Schedule.exponential("100 millis"),
-   *   while: (error) => error.message !== "STOP"
-   * }
-   * ```
+   * @category error handling
+   * @since 2.0.0
    */
   export interface Options<E> {
     while?: ((error: E) => boolean | Effect<boolean, any, any>) | undefined
@@ -3864,27 +3658,24 @@ export declare namespace Retry {
 }
 
 /**
- * Retries a failing effect based on a defined retry policy.
+ * Retries typed failures from an effect according to a retry policy.
  *
  * **Details**
  *
- * The `Effect.retry` function takes an effect and a {@link Schedule} policy,
- * and will automatically retry the effect if it fails, following the rules of
- * the policy.
+ * The policy can be a `Schedule`, a schedule builder, or a `Retry.Options`
+ * object using `schedule`, `times`, `while`, or `until`. If a retry eventually
+ * succeeds, the returned effect succeeds with that value. If the policy stops
+ * while the effect is still failing, the last failure is propagated.
  *
- * If the effect ultimately succeeds, the result will be returned.
- *
- * If the maximum retries are exhausted and the effect still fails, the failure
- * is propagated.
+ * Defects and interruptions are not retried as typed failures.
  *
  * **When to Use**
  *
- * This can be useful when dealing with intermittent failures, such as network
- * issues or temporary resource unavailability. By defining a retry policy, you
- * can control the number of retries, the delay between them, and when to stop
- * retrying.
+ * Use `retry` when typed failures may be transient, such as network issues or
+ * temporary resource unavailability.
  *
- * @example
+ * **Example** (Retrying with a schedule)
+ *
  * ```ts
  * import { Data, Effect, Schedule } from "effect"
  *
@@ -3910,8 +3701,8 @@ export declare namespace Retry {
  * @see {@link retryOrElse} for a version that allows you to run a fallback.
  * @see {@link repeat} if your retry condition is based on successful outcomes rather than errors.
  *
+ * @category error handling
  * @since 2.0.0
- * @category Error Handling
  */
 export const retry: {
   <E, O extends Retry.Options<E>>(options: O): <A, R>(self: Effect<A, E, R>) => Retry.Return<R, E, A, O>
@@ -3954,7 +3745,8 @@ export const retry: {
  *
  * @see {@link retry} for a version that does not run a fallback effect.
  *
- * @example
+ * **Example** (Falling back after retries are exhausted)
+ *
  * ```ts
  * import { Console, Data, Effect, Schedule } from "effect"
  *
@@ -3989,8 +3781,8 @@ export const retry: {
  * // Network data
  * ```
  *
+ * @category error handling
  * @since 2.0.0
- * @category Error Handling
  */
 export const retryOrElse: {
   <A1, E, E1, R1, A2, E2, R2>(
@@ -4005,19 +3797,16 @@ export const retryOrElse: {
 } = internalSchedule.retryOrElse
 
 /**
- * The `sandbox` function transforms an effect by exposing the full cause
- * of any error, defect, or fiber interruption that might occur during its
- * execution. It changes the error channel of the effect to include detailed
- * information about the cause, which is wrapped in a `Cause<E>` type.
+ * Exposes an effect's full failure cause in the error channel as `Cause<E>`.
  *
- * This function is useful when you need access to the complete underlying cause
- * of failures, defects, or interruptions, enabling more detailed error
- * handling. Once you apply `sandbox`, you can use operators like
- * {@link catchAll} and {@link catchTags} to handle specific error conditions.
- * If necessary, you can revert the sandboxing operation with {@link unsandbox}
- * to return to the original error handling behavior.
+ * **Details**
  *
- * @example
+ * Use `sandbox` when downstream error handling needs to distinguish typed
+ * failures, defects, and interruptions. Use `unsandbox` to restore the original
+ * typed error channel after cause-level handling.
+ *
+ * **Example** (Exposing failures as causes)
+ *
  * ```ts
  * import { Cause, Effect } from "effect"
  *
@@ -4033,10 +3822,10 @@ export const retryOrElse: {
  * // Output: "Caught cause: Something went wrong"
  * ```
  *
- * @see {@link unsandbox} to restore the original error handling.
+ * @see {@link sandbox} to expose failures as full causes.
  *
+ * @category error handling
  * @since 2.0.0
- * @category Error Handling
  */
 export const sandbox: <A, E, R>(
   self: Effect<A, E, R>
@@ -4054,9 +3843,9 @@ export const sandbox: <A, E, R>(
  * Use the `log` option to emit the full {@link Cause} when the effect fails,
  * and `message` to prepend a custom log message.
  *
- * @example
+ * **Example** (Discarding success and failure values)
+ *
  * ```ts
- * // Title: Using Effect.ignore to Discard Values
  * import { Effect } from "effect"
  *
  * //      ┌─── Effect<number, string, never>
@@ -4068,9 +3857,9 @@ export const sandbox: <A, E, R>(
  * const program = task.pipe(Effect.ignore)
  * ```
  *
- * @example
+ * **Example** (Logging failures while ignoring results)
+ *
  * ```ts
- * // Title: Logging failures while ignoring results
  * import { Effect } from "effect"
  *
  * const task = Effect.fail("Uh oh!")
@@ -4079,14 +3868,8 @@ export const sandbox: <A, E, R>(
  * const programWarn = task.pipe(Effect.ignore({ log: "Warn", message: "Ignoring task failure" }))
  * ```
  *
- * **Previously Known As**
- *
- * This API replaces the following from Effect 3.x:
- *
- * - `Effect.ignoreLogged`
- *
+ * @category error handling
  * @since 2.0.0
- * @category Error Handling
  */
 export const ignore: <
   Arg extends Effect<any, any, any> | {
@@ -4111,7 +3894,8 @@ export const ignore: <
  * Use the `log` option to emit the full {@link Cause} when the effect fails,
  * and `message` to prepend a custom log message.
  *
- * @example
+ * **Example** (Ignoring failures and logging causes)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -4121,8 +3905,8 @@ export const ignore: <
  * const programLog = task.pipe(Effect.ignoreCause({ log: true, message: "Ignoring failure cause" }))
  * ```
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const ignoreCause: <
   Arg extends Effect<any, any, any> | {
@@ -4149,9 +3933,10 @@ export const ignoreCause: <
  * and retry timing is derived per step (the first attempt uses the remaining
  * attempts schedule; later retries apply the step schedule at least once).
  *
- * @example
+ * **Example** (Retrying with an execution plan)
+ *
  * ```ts
- * import { Effect, ExecutionPlan, Layer, Context } from "effect"
+ * import { Context, Effect, ExecutionPlan, Layer } from "effect"
  *
  * const Endpoint = Context.Service<{ url: string }>("Endpoint")
  *
@@ -4171,8 +3956,8 @@ export const ignoreCause: <
  * const program = Effect.withExecutionPlan(fetchUrl, plan)
  * ```
  *
- * @since 3.16.0
  * @category Fallback
+ * @since 3.16.0
  */
 export const withExecutionPlan: {
   <Input, Provides, PlanE, PlanR>(
@@ -4192,8 +3977,8 @@ export const withExecutionPlan: {
  * If the `defectsOnly` option is set to `true`, only defects (unrecoverable
  * errors) will be reported, while regular failures will be ignored.
  *
+ * @category error handling
  * @since 4.0.0
- * @category Error Handling
  */
 export const withErrorReporting: <
   Arg extends Effect<any, any, any> | { readonly defectsOnly?: boolean | undefined } | undefined = {
@@ -4210,23 +3995,18 @@ export const withErrorReporting: <
 // -----------------------------------------------------------------------------
 
 /**
- * Replaces the original failure with a success value, ensuring the effect
- * cannot fail.
+ * Recovers from a typed failure by producing a fallback success value.
  *
- * `orElseSucceed` allows you to replace the failure of an effect with a
- * success value. If the effect fails, it will instead succeed with the provided
- * value, ensuring the effect always completes successfully. This is useful when
- * you want to guarantee a successful result regardless of whether the original
- * effect failed.
+ * **Details**
  *
- * The function ensures that any failure is effectively "swallowed" and replaced
- * by a successful value, which can be helpful for providing default values in
- * case of failure.
+ * If the source effect succeeds, its value is preserved. If it fails in the
+ * error channel, `orElseSucceed` evaluates the fallback and succeeds with that
+ * value, removing the typed error from the returned effect.
  *
- * **Important**: This function only applies to failed effects. If the effect
- * already succeeds, it will remain unchanged.
+ * Defects and interruptions are not recovered by this operator.
  *
- * @example
+ * **Example** (Replacing failures with a value)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -4247,8 +4027,8 @@ export const withErrorReporting: <
  * // { _id: 'Exit', _tag: 'Success', value: 18 }
  * ```
  *
- * @since 2.0.0
  * @category Fallback
+ * @since 2.0.0
  */
 export const orElseSucceed: {
   <A2>(
@@ -4280,7 +4060,8 @@ export const orElseSucceed: {
  * attempting multiple APIs, reading configuration from several sources, or
  * trying alternative resource locations in order.
  *
- * @example
+ * **Example** (Trying alternatives until one succeeds)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -4300,8 +4081,8 @@ export const orElseSucceed: {
  * // Output: "secondary result"
  * ```
  *
- * @since 2.0.0
  * @category Fallback
+ * @since 2.0.0
  */
 export const firstSuccessOf: <Eff extends Effect<any, any, any>>(
   effects: Iterable<Eff>
@@ -4321,11 +4102,10 @@ export const firstSuccessOf: <Eff extends Effect<any, any, any>>(
  * your program waits for a task to finish, ensuring that it doesn't hang
  * indefinitely if the task takes too long.
  *
- * @see {@link timeoutFail} for a version that raises a custom error.
- * @see {@link timeoutFailCause} for a version that raises a custom defect.
- * @see {@link timeoutTo} for a version that allows specifying both success and timeout handlers.
+ * @see {@link timeoutOrElse} for a version that allows specifying both success and timeout handlers.
  *
- * @example
+ * **Example** (Failing when work takes too long)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -4354,8 +4134,8 @@ export const firstSuccessOf: <Eff extends Effect<any, any, any>>(
  * // }
  * ```
  *
- * @since 2.0.0
  * @category Delays & Timeouts
+ * @since 2.0.0
  */
 export const timeout: {
   (
@@ -4368,25 +4148,21 @@ export const timeout: {
 } = internal.timeout
 
 /**
- * Handles timeouts by returning an `Option` that represents either the result
- * or a timeout.
+ * Runs an effect with a time limit and represents only the timeout case as
+ * `Option.none`.
  *
- * The `timeoutOption` function provides a way to gracefully handle
- * timeouts by wrapping the outcome of an effect in an `Option` type. If the
- * effect completes within the specified time, it returns a `Some` containing
- * the result. If the effect times out, it returns a `None`, allowing you to
- * treat the timeout as a regular result instead of throwing an error.
+ * **Details**
  *
- * This is useful when you want to handle timeouts without causing the program
- * to fail, making it easier to manage situations where you expect tasks might
- * take too long but want to continue executing other tasks.
+ * If the source effect succeeds before the timeout, the returned effect
+ * succeeds with `Option.some(value)`. If the timeout wins, the source effect is
+ * interrupted and the returned effect succeeds with `Option.none`. If the
+ * source effect fails before the timeout, that failure is preserved.
  *
  * @see {@link timeout} for a version that raises a `TimeoutException`.
- * @see {@link timeoutFail} for a version that raises a custom error.
- * @see {@link timeoutFailCause} for a version that raises a custom defect.
- * @see {@link timeoutTo} for a version that allows specifying both success and timeout handlers.
+ * @see {@link timeoutOrElse} for a version that allows specifying both success and timeout handlers.
  *
- * @example
+ * **Example** (Returning None on timeout)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -4413,8 +4189,8 @@ export const timeout: {
  * // ]
  * ```
  *
- * @since 3.1.0
  * @category Delays & Timeouts
+ * @since 3.1.0
  */
 export const timeoutOption: {
   (
@@ -4432,7 +4208,8 @@ export const timeoutOption: {
  * This function is useful when you want to set a maximum duration for an operation
  * and provide an alternative action if the timeout is exceeded.
  *
- * @example
+ * **Example** (Falling back on timeout)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -4459,8 +4236,8 @@ export const timeoutOption: {
  * // Cached result
  * ```
  *
- * @since 3.1.0
  * @category Delays & Timeouts
+ * @since 4.0.0
  */
 export const timeoutOrElse: {
   <A2, E2, R2>(options: {
@@ -4480,7 +4257,8 @@ export const timeoutOrElse: {
  * Returns an effect that is delayed from this effect by the specified
  * `Duration`.
  *
- * @example
+ * **Example** (Delaying an effect)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -4493,8 +4271,8 @@ export const timeoutOrElse: {
  * // Waits 1 second, then prints: "Delayed message"
  * ```
  *
- * @since 2.0.0
  * @category Delays & Timeouts
+ * @since 2.0.0
  */
 export const delay: {
   (
@@ -4507,10 +4285,11 @@ export const delay: {
 } = internal.delay
 
 /**
- * Returns an effect that suspends for the specified duration. This method is
- * asynchronous, and does not actually block the fiber executing the effect.
+ * Returns an effect that suspends the current fiber for the specified duration
+ * without blocking a JavaScript thread.
  *
- * @example
+ * **Example** (Pausing without blocking)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -4525,8 +4304,8 @@ export const delay: {
  * // Output: "End" (after 2 seconds)
  * ```
  *
- * @since 2.0.0
  * @category Delays & Timeouts
+ * @since 2.0.0
  */
 export const sleep: (duration: Duration.Input) => Effect<void> = internal.sleep
 
@@ -4536,7 +4315,8 @@ export const sleep: (duration: Duration.Input) => Effect<void> = internal.sleep
  * The original success, failure, or interruption is preserved; only the success
  * value is paired with the duration.
  *
- * @example
+ * **Example** (Measuring execution time)
+ *
  * ```ts
  * import { Console, Duration, Effect } from "effect"
  *
@@ -4546,8 +4326,8 @@ export const sleep: (duration: Duration.Input) => Effect<void> = internal.sleep
  * })
  * ```
  *
- * @since 2.0.0
  * @category Delays & Timeouts
+ * @since 2.0.0
  */
 export const timed: <A, E, R>(self: Effect<A, E, R>) => Effect<[duration: Duration.Duration, result: A], E, R> =
   internal.timed
@@ -4557,27 +4337,24 @@ export const timed: <A, E, R>(self: Effect<A, E, R>) => Effect<[duration: Durati
 // -----------------------------------------------------------------------------
 
 /**
- * Races multiple effects and returns the first successful result.
+ * Runs multiple effects concurrently and returns the first successful result.
  *
  * **Details**
  *
- * This function runs multiple effects concurrently and returns the result of
- * the first one to succeed. If one effect succeeds, the others will be
- * interrupted.
- *
- * If none of the effects succeed, the function will fail with the last error
- * encountered.
+ * Early failures do not finish the race; `raceAll` keeps waiting until one
+ * effect succeeds or every effect has failed. When one effect succeeds, the
+ * remaining effects are interrupted. If every effect fails, the returned effect
+ * fails with a cause containing the collected failure reasons.
  *
  * **When to Use**
  *
- * This is useful when you want to race multiple effects, but only care about
- * the first one to succeed. It is commonly used in cases like timeouts,
- * retries, or when you want to optimize for the faster response without
- * worrying about the other effects.
+ * Use `raceAll` when early failures should be ignored until a success occurs
+ * or all effects fail.
  *
  * @see {@link race} for a version that handles only two effects.
  *
- * @example
+ * **Example** (Racing many effects)
+ *
  * ```ts
  * import { Duration, Effect } from "effect"
  *
@@ -4592,8 +4369,8 @@ export const timed: <A, E, R>(self: Effect<A, E, R>) => Effect<[duration: Durati
  * // Result: "Fast" (after ~100ms)
  * ```
  *
- * @since 2.0.0
  * @category Racing
+ * @since 2.0.0
  */
 export const raceAll: <Eff extends Effect<any, any, any>>(
   all: Iterable<Eff>,
@@ -4607,15 +4384,17 @@ export const raceAll: <Eff extends Effect<any, any, any>>(
 ) => Effect<Success<Eff>, Error<Eff>, Services<Eff>> = internal.raceAll
 
 /**
- * Races multiple effects and returns the first successful result.
+ * Runs multiple effects concurrently and completes with the first effect to
+ * finish, whether it succeeds or fails.
  *
  * **Details**
  *
- * Similar to `raceAll`, this function runs multiple effects concurrently
- * and returns the result of the first one to succeed. If one effect succeeds,
- * the others will be interrupted.
+ * After the first effect completes, all remaining effects are interrupted. Use
+ * `raceAll` when early failures should be ignored until a success occurs or
+ * all effects fail.
  *
- * @example
+ * **Example** (Taking the first settled result)
+ *
  * ```ts
  * import { Duration, Effect } from "effect"
  *
@@ -4630,8 +4409,8 @@ export const raceAll: <Eff extends Effect<any, any, any>>(
  * // Result: "First" (after ~200ms, even though effect2 completes first but fails)
  * ```
  *
- * @since 4.0.0
  * @category Racing
+ * @since 4.0.0
  */
 export const raceAllFirst: <Eff extends Effect<any, any, any>>(
   all: Iterable<Eff>,
@@ -4650,7 +4429,8 @@ export const raceAllFirst: <Eff extends Effect<any, any, any>>(
  * If one effect succeeds, the other is interrupted and `onWinner` can observe the
  * winning fiber. If both fail, the race fails.
  *
- * @example
+ * **Example** (Racing two effects)
+ *
  * ```ts
  * import { Console, Duration, Effect } from "effect"
  *
@@ -4666,8 +4446,8 @@ export const raceAllFirst: <Eff extends Effect<any, any, any>>(
  * // Output: winner: slow-success
  * ```
  *
- * @since 2.0.0
  * @category Racing
+ * @since 2.0.0
  */
 export const race: {
   <A2, E2, R2>(
@@ -4695,7 +4475,8 @@ export const race: {
  *
  * The losing effect is interrupted, and `onWinner` can observe the winning fiber.
  *
- * @example
+ * **Example** (Observing the winning fiber)
+ *
  * ```ts
  * import { Console, Duration, Effect } from "effect"
  *
@@ -4714,8 +4495,8 @@ export const race: {
  * // Output: failed: fast-fail
  * ```
  *
- * @since 2.0.0
  * @category Racing
+ * @since 2.0.0
  */
 export const raceFirst: {
   <A2, E2, R2>(
@@ -4745,7 +4526,8 @@ export const raceFirst: {
  * Filters elements of an iterable using a predicate, refinement, or effectful
  * predicate.
  *
- * @example
+ * **Example** (Filtering success values)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -4758,8 +4540,8 @@ export const raceFirst: {
  * // Use Effect.filterMapEffect for effectful Filter.Filter callbacks
  * ```
  *
+ * @category filtering
  * @since 2.0.0
- * @category Filtering
  */
 export const filter: {
   <A, B extends A>(
@@ -4790,8 +4572,8 @@ export const filter: {
 /**
  * Filters and maps elements of an iterable with a `Filter`.
  *
- * @since 4.0.0
- * @category Filtering
+ * @category filtering
+ * @since 2.0.0
  */
 export const filterMap: {
   <A, B, X>(
@@ -4806,8 +4588,8 @@ export const filterMap: {
 /**
  * Effectfully filters and maps elements of an iterable with a `FilterEffect`.
  *
+ * @category filtering
  * @since 4.0.0
- * @category Filtering
  */
 export const filterMapEffect: {
   <A, B, X, E, R>(
@@ -4831,7 +4613,8 @@ export const filterMapEffect: {
  * `orElse` effect can produce an alternative value or perform additional
  * computations.
  *
- * @example
+ * **Example** (Filtering with a fallback effect)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -4848,8 +4631,8 @@ export const filterMapEffect: {
  * // Result: "Number 5 is odd" (since 5 is not even)
  * ```
  *
+ * @category filtering
  * @since 2.0.0
- * @category Filtering
  */
 export const filterOrElse: {
   <A, C, E2, R2, B extends A>(
@@ -4875,8 +4658,8 @@ export const filterOrElse: {
 /**
  * Filters an effect with a `Filter`, providing an alternative effect on failure.
  *
+ * @category filtering
  * @since 4.0.0
- * @category Filtering
  */
 export const filterMapOrElse: {
   <A, B, X, C, E2, R2>(
@@ -4899,7 +4682,8 @@ export const filterMapOrElse: {
  * predicate evaluates to `false`, the effect fails with either a custom
  * error (if `orFailWith` is provided) or a `NoSuchElementError`.
  *
- * @example
+ * **Example** (Filtering with a custom failure)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -4916,8 +4700,8 @@ export const filterMapOrElse: {
  * // Result: Effect.fail("Expected even number, got 5")
  * ```
  *
+ * @category filtering
  * @since 2.0.0
- * @category Filtering
  */
 export const filterOrFail: {
   <A, E2, B extends A>(
@@ -4957,8 +4741,8 @@ export const filterOrFail: {
 /**
  * Filters an effect with a `Filter`, failing when the filter fails.
  *
+ * @category filtering
  * @since 4.0.0
- * @category Filtering
  */
 export const filterMapOrFail: {
   <A, B, X, E2>(
@@ -4984,22 +4768,23 @@ export const filterMapOrFail: {
 // -----------------------------------------------------------------------------
 
 /**
- * Conditionally executes an effect based on a boolean condition.
+ * Conditionally runs an effect based on the result of an effectful boolean
+ * condition.
  *
  * **Details**
  *
- * This function allows you to run an effect only if a given condition evaluates
- * to `true`. If the condition is `true`, the effect is executed, and its result
- * is wrapped in an `Option.some`. If the condition is `false`, the effect is
- * skipped, and the result is `Option.none`.
+ * The condition effect is evaluated first. If it succeeds with `true`, the
+ * source effect is run and its success value is wrapped in `Option.some`. If it
+ * succeeds with `false`, the source effect is skipped and the result is
+ * `Option.none`. If the condition effect fails, that failure is preserved.
  *
  * **When to Use**
  *
- * This function is useful for scenarios where you need to dynamically decide
- * whether to execute an effect based on runtime logic, while also representing
- * the skipped case explicitly.
+ * Use this when an effectful check decides whether to run another effect while
+ * representing the skipped case explicitly.
  *
- * @example
+ * **Example** (Conditionally running an effect)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -5015,11 +4800,10 @@ export const filterMapOrFail: {
  * // { _id: 'Option', _tag: 'Some', value: undefined }
  * ```
  *
- * @see {@link whenEffect} for a version that allows the condition to be an effect.
- * @see {@link unless} for a version that executes the effect when the condition is `false`.
+ * @see {@link when} for conditional execution with a boolean condition.
  *
- * @since 2.0.0
  * @category Conditional Operators
+ * @since 2.0.0
  */
 export const when: {
   <E2 = never, R2 = never>(
@@ -5053,9 +4837,9 @@ export const when: {
  *
  * @see {@link matchEffect} if you need to perform side effects in the handlers.
  *
- * @example
+ * **Example** (Matching success and failure values)
+ *
  * ```ts
- * // Title: Handling Both Success and Failure Cases
  * import { Data, Effect } from "effect"
  *
  * class ExampleError extends Data.TaggedError("ExampleError")<{ readonly message: string }> {}
@@ -5085,8 +4869,8 @@ export const when: {
  * // Output: "failure: Uh oh!"
  * ```
  *
- * @since 2.0.0
  * @category Pattern Matching
+ * @since 2.0.0
  */
 export const match: {
   <E, A2, A, A3>(options: {
@@ -5119,7 +4903,8 @@ export const match: {
  * optimal performance for resolved effects. This is particularly useful in
  * scenarios where you frequently work with already computed values.
  *
- * @example
+ * **Example** (Pattern matching eagerly when possible)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -5135,8 +4920,8 @@ export const match: {
  * @see {@link match} for the non-eager version.
  * @see {@link matchEffect} if you need to perform side effects in the handlers.
  *
- * @since 2.0.0
  * @category Pattern Matching
+ * @since 4.0.0
  */
 export const matchEager: {
   <E, A2, A, A3>(options: {
@@ -5166,7 +4951,8 @@ export const matchEager: {
  * regular failures, defects, or interruptions. You can provide specific
  * handling logic for each failure type based on the cause.
  *
- * @example
+ * **Example** (Matching on success or failure causes)
+ *
  * ```ts
  * import { Cause, Effect } from "effect"
  *
@@ -5185,8 +4971,8 @@ export const matchEager: {
  * handlers.
  * @see {@link match} if you don't need to handle the cause of the failure.
  *
- * @since 2.0.0
  * @category Pattern Matching
+ * @since 2.0.0
  */
 export const matchCause: {
   <E, A2, A, A3>(options: {
@@ -5217,7 +5003,8 @@ export const matchCause: {
  * and you want to avoid the overhead of the effect pipeline. For pending effects,
  * it automatically falls back to the regular `matchCause` behavior.
  *
- * @example
+ * **Example** (Eagerly matching already completed effects)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -5227,8 +5014,8 @@ export const matchCause: {
  * })
  * ```
  *
- * @since 3.8.0
  * @category Pattern Matching
+ * @since 4.0.0
  */
 export const matchCauseEager: {
   <E, A2, A, A3>(options: {
@@ -5250,8 +5037,8 @@ export const matchCauseEager: {
  * If the effect is an `Exit`, the matching handler runs immediately; otherwise it behaves like
  * {@link matchCauseEffect}.
  *
- * @since 4.0.0
  * @category Pattern Matching
+ * @since 4.0.0
  */
 export const matchCauseEffectEager: {
   <E, A2, E2, R2, A, A3, E3, R3>(
@@ -5281,7 +5068,8 @@ export const matchCauseEffectEager: {
  * you to respond accordingly while performing side effects (like logging or
  * other operations).
  *
- * @example
+ * **Example** (Effectfully matching on causes)
+ *
  * ```ts
  * import { Cause, Console, Data, Effect, Result } from "effect"
  *
@@ -5319,8 +5107,8 @@ export const matchCauseEffectEager: {
  * @see {@link matchCause} if you don't need side effects and only want to handle the result or failure.
  * @see {@link matchEffect} if you don't need to handle the cause of the failure.
  *
- * @since 2.0.0
  * @category Pattern Matching
+ * @since 2.0.0
  */
 export const matchCauseEffect: {
   <E, A2, E2, R2, A, A3, E3, R3>(options: {
@@ -5337,25 +5125,24 @@ export const matchCauseEffect: {
 } = internal.matchCauseEffect
 
 /**
- * Handles both success and failure cases of an effect, allowing for additional
- * side effects.
+ * Handles both success and failure by running effectful handlers.
  *
  * **Details**
  *
- * The `matchEffect` function is similar to {@link match}, but it enables you to
- * perform side effects in the handlers for both success and failure outcomes.
+ * Use `matchEffect` when either branch needs to return an `Effect`, such as
+ * performing logging, recovery, notification, or other effectful work. The
+ * returned effect succeeds or fails according to the handler that is run.
  *
  * **When to Use**
  *
- * This is useful when you need to execute additional actions, like logging or
- * notifying users, based on whether an effect succeeds or fails.
+ * Use this when the failure or success branch must run additional effects.
  *
  * @see {@link match} if you don't need side effects and only want to handle the
  * result or failure.
  *
- * @example
+ * **Example** (Matching success and failure with effectful handlers)
+ *
  * ```ts
- * // Title: Handling Both Success and Failure Cases with Side Effects
  * import { Data, Effect } from "effect"
  *
  * class ExampleError extends Data.TaggedError("ExampleError")<{ readonly message: string }> {}
@@ -5394,8 +5181,8 @@ export const matchCauseEffect: {
  * // failure: Uh oh!
  * ```
  *
- * @since 2.0.0
  * @category Pattern Matching
+ * @since 2.0.0
  */
 export const matchEffect: {
   <E, A2, E2, R2, A, A3, E3, R3>(options: {
@@ -5420,7 +5207,7 @@ export const matchEffect: {
  *
  * Defects are not converted; if the effect dies, the resulting effect dies too.
  *
- * **Example**
+ * **Example** (Checking whether an effect fails)
  *
  * ```ts
  * import { Console, Effect } from "effect"
@@ -5434,8 +5221,8 @@ export const matchEffect: {
  * // Output: true
  * ```
  *
- * @since 2.0.0
  * @category Condition Checking
+ * @since 2.0.0
  */
 export const isFailure: <A, E, R>(self: Effect<A, E, R>) => Effect<boolean, never, R> = internal.isFailure
 
@@ -5445,7 +5232,7 @@ export const isFailure: <A, E, R>(self: Effect<A, E, R>) => Effect<boolean, neve
  * Returns `false` for failures in the error channel, but defects still fail the
  * effect.
  *
- * **Example**
+ * **Example** (Checking whether an effect succeeds)
  *
  * ```ts
  * import { Console, Effect } from "effect"
@@ -5463,8 +5250,8 @@ export const isFailure: <A, E, R>(self: Effect<A, E, R>) => Effect<boolean, neve
  * // failed: false
  * ```
  *
- * @since 2.0.0
  * @category Condition Checking
+ * @since 2.0.0
  */
 export const isSuccess: <A, E, R>(self: Effect<A, E, R>) => Effect<boolean, never, R> = internal.isSuccess
 
@@ -5479,9 +5266,10 @@ export const isSuccess: <A, E, R>(self: Effect<A, E, R>) => Effect<boolean, neve
  * in the effect's environment. This can be useful for debugging, introspection,
  * or when you need to pass the entire context to another function.
  *
- * @example
+ * **Example** (Reading the full context)
+ *
  * ```ts
- * import { Console, Effect, Option, Context } from "effect"
+ * import { Console, Context, Effect, Option } from "effect"
  *
  * const Logger = Context.Service<{
  *   log: (msg: string) => void
@@ -5507,8 +5295,8 @@ export const isSuccess: <A, E, R>(self: Effect<A, E, R>) => Effect<boolean, neve
  * const provided = Effect.provideContext(program, context)
  * ```
  *
- * @since 2.0.0
  * @category Environment
+ * @since 2.0.0
  */
 export const context: <R = never>() => Effect<Context.Context<R>, never, R> = internal.context
 
@@ -5519,9 +5307,10 @@ export const context: <R = never>() => Effect<Context.Context<R>, never, R> = in
  * computations based on all available services. This is useful when you need
  * to conditionally execute logic based on what services are available.
  *
- * @example
+ * **Example** (Deriving values from the context)
+ *
  * ```ts
- * import { Console, Effect, Option, Context } from "effect"
+ * import { Console, Context, Effect, Option } from "effect"
  *
  * const Logger = Context.Service<{
  *   log: (msg: string) => void
@@ -5553,8 +5342,8 @@ export const context: <R = never>() => Effect<Context.Context<R>, never, R> = in
  * })
  * ```
  *
- * @since 2.0.0
  * @category Environment
+ * @since 2.0.0
  */
 export const contextWith: <R, A, E, R2>(
   f: (context: Context.Context<R>) => Effect<A, E, R2>
@@ -5565,9 +5354,10 @@ export const contextWith: <R, A, E, R2>(
  * to build the layer every time; by default, layers are shared between provide
  * calls.
  *
- * @example
+ * **Example** (Providing dependencies with a layer)
+ *
  * ```ts
- * import { Effect, Layer, Context } from "effect"
+ * import { Context, Effect, Layer } from "effect"
  *
  * interface Database {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -5590,8 +5380,8 @@ export const contextWith: <R, A, E, R2>(
  * // Output: "Result for: SELECT * FROM users"
  * ```
  *
- * @since 2.0.0
  * @category Environment
+ * @since 2.0.0
  */
 export const provide: {
   <const Layers extends [Layer.Any, ...Array<Layer.Any>]>(
@@ -5650,9 +5440,10 @@ export const provide: {
  * that contains all the required services. It removes the provided services
  * from the effect's requirements, making them available to the effect.
  *
- * @example
+ * **Example** (Providing a complete context)
+ *
  * ```ts
- * import { Effect, Context } from "effect"
+ * import { Context, Effect } from "effect"
  *
  * // Define service keys
  * const Logger = Context.Service<{
@@ -5677,8 +5468,8 @@ export const provide: {
  * const provided = Effect.provideContext(program, context)
  * ```
  *
- * @since 2.0.0
  * @category Environment
+ * @since 4.0.0
  */
 export const provideContext: {
   <XR>(
@@ -5693,9 +5484,10 @@ export const provideContext: {
 /**
  * Accesses a service from the context.
  *
- * @example
+ * **Example** (Accessing a required service)
+ *
  * ```ts
- * import { Effect, Context } from "effect"
+ * import { Context, Effect } from "effect"
  *
  * interface Database {
  *   readonly query: (sql: string) => Effect.Effect<string>
@@ -5709,8 +5501,8 @@ export const provideContext: {
  * })
  * ```
  *
- * @since 4.0.0
  * @category Context
+ * @since 4.0.0
  */
 export const service: <I, S>(service: Context.Key<I, S>) => Effect<S, never, I> = internal.service
 
@@ -5724,9 +5516,10 @@ export const service: <I, S>(service: Context.Key<I, S>) => Effect<S, never, I> 
  * available, it returns `None`. Unlike `service`, this function does not
  * require the service to be present in the environment.
  *
- * @example
+ * **Example** (Accessing an optional service)
+ *
  * ```ts
- * import { Effect, Option, Context } from "effect"
+ * import { Context, Effect, Option } from "effect"
  *
  * // Define a service key
  * const Logger = Context.Service<{
@@ -5745,8 +5538,8 @@ export const service: <I, S>(service: Context.Key<I, S>) => Effect<S, never, I> 
  * })
  * ```
  *
- * @since 2.0.0
  * @category Context
+ * @since 2.0.0
  */
 export const serviceOption: <I, S>(key: Context.Key<I, S>) => Effect<Option<S>> = internal.serviceOption
 
@@ -5758,9 +5551,10 @@ export const serviceOption: <I, S>(key: Context.Key<I, S>) => Effect<Option<S>> 
  * This function allows you to transform the context required by an effect,
  * providing part of the context and leaving the rest to be fulfilled later.
  *
- * @example
+ * **Example** (Updating the context before running)
+ *
  * ```ts
- * import { Effect, Context } from "effect"
+ * import { Context, Effect } from "effect"
  *
  * // Define services
  * const Logger = Context.Service<{
@@ -5787,8 +5581,8 @@ export const serviceOption: <I, S>(key: Context.Key<I, S>) => Effect<Option<S>> 
  * })
  * ```
  *
- * @since 4.0.0
  * @category Context
+ * @since 4.0.0
  */
 export const updateContext: {
   <R2, R>(
@@ -5801,11 +5595,16 @@ export const updateContext: {
 } = internal.updateContext
 
 /**
- * Updates the service with the required service entry.
+ * Runs an effect with a service implementation transformed by the provided
+ * function.
  *
- * @example
+ * The service must be available in the effect's context; `updateService`
+ * replaces it for the wrapped effect with the value returned by the updater.
+ *
+ * **Example** (Replacing a service for one effect)
+ *
  * ```ts
- * import { Console, Effect, Context } from "effect"
+ * import { Console, Context, Effect } from "effect"
  *
  * // Define a counter service
  * const Counter = Context.Service<{ count: number }>("Counter")
@@ -5825,8 +5624,8 @@ export const updateContext: {
  * // 1
  * ```
  *
- * @since 2.0.0
  * @category Context
+ * @since 2.0.0
  */
 export const updateService: {
   <I, A>(
@@ -5852,9 +5651,10 @@ export const updateService: {
  *
  * @see {@link provide} for providing multiple layers to an effect.
  *
- * @example
+ * **Example** (Providing a service value)
+ *
  * ```ts
- * import { Console, Effect, Context } from "effect"
+ * import { Console, Context, Effect } from "effect"
  *
  * // Define a service for configuration
  * const Config = Context.Service<{
@@ -5882,8 +5682,8 @@ export const updateService: {
  * // data
  * ```
  *
- * @since 2.0.0
  * @category Context
+ * @since 2.0.0
  */
 export const provideService: {
   <I, S>(
@@ -5904,18 +5704,19 @@ export const provideService: {
 } = internal.provideService
 
 /**
- * Provides the effect with the single service it requires. If the effect
- * requires more than one service use `provide` instead.
+ * Provides one service to an effect using an effectful acquisition.
  *
- * This function is similar to `provideService`, but instead of providing a
- * static service implementation, it allows you to provide an effect that
- * will produce the service. This is useful when the service needs to be
- * acquired through an effectful computation (e.g., reading from a database,
- * making an HTTP request, or allocating resources).
+ * **Details**
  *
- * @example
+ * `provideServiceEffect` runs the acquisition effect to produce the service
+ * implementation, removes that service from the wrapped effect's requirements,
+ * and leaves any other requirements to be provided later. Acquisition failures
+ * are included in the returned effect's error channel.
+ *
+ * **Example** (Providing a service with an effect)
+ *
  * ```ts
- * import { Console, Effect, Context } from "effect"
+ * import { Console, Context, Effect } from "effect"
  *
  * // Define a database connection service
  * interface DatabaseConnection {
@@ -5952,8 +5753,8 @@ export const provideService: {
  * // Result for: SELECT * FROM users
  * ```
  *
- * @since 2.0.0
  * @category Context
+ * @since 2.0.0
  */
 export const provideServiceEffect: {
   <I, S, E2, R2>(
@@ -5974,7 +5775,8 @@ export const provideServiceEffect: {
 /**
  * Sets the concurrency level for parallel operations within an effect.
  *
- * @example
+ * **Example** (Setting local concurrency)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -5999,8 +5801,8 @@ export const provideServiceEffect: {
  * // [1, 2, 3, 4, 5]
  * ```
  *
+ * @category references
  * @since 2.0.0
- * @category References
  */
 export const withConcurrency: {
   (
@@ -6019,7 +5821,8 @@ export const withConcurrency: {
 /**
  * Returns the current scope for resource management.
  *
- * @example
+ * **Example** (Accessing the current scope)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -6044,8 +5847,8 @@ export const withConcurrency: {
  * // Releasing resource
  * ```
  *
+ * @category resource management
  * @since 2.0.0
- * @category Resource Management & Finalization
  */
 export const scope: Effect<Scope, never, Scope> = internal.scope
 
@@ -6054,7 +5857,8 @@ export const scope: Effect<Scope, never, Scope> = internal.scope
  * ensuring that their finalizers are run as soon as this workflow completes
  * execution, whether by success, failure, or interruption.
  *
- * @example
+ * **Example** (Running a scoped acquisition)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -6077,8 +5881,8 @@ export const scope: Effect<Scope, never, Scope> = internal.scope
  * // Output: "Releasing resource"
  * ```
  *
+ * @category resource management
  * @since 2.0.0
- * @category Resource Management & Finalization
  */
 export const scoped: <A, E, R>(
   self: Effect<A, E, R>
@@ -6087,7 +5891,8 @@ export const scoped: <A, E, R>(
 /**
  * Creates a scoped effect by providing access to the scope.
  *
- * @example
+ * **Example** (Working with an explicit scope)
+ *
  * ```ts
  * import { Console, Effect, Scope } from "effect"
  *
@@ -6119,27 +5924,28 @@ export const scoped: <A, E, R>(
  * // Manual finalizer
  * ```
  *
- * @since 2.0.0
- * @category Resource Management & Finalization
+ * @category resource management
+ * @since 3.11.0
  */
 export const scopedWith: <A, E, R>(
   f: (scope: Scope) => Effect<A, E, R>
 ) => Effect<A, E, R> = internal.scopedWith
 
 /**
- * This function constructs a scoped resource from an `acquire` and `release`
- * `Effect` value.
+ * Constructs a scoped resource from an acquisition effect and a release
+ * finalizer.
  *
- * If the `acquire` `Effect` value successfully completes execution, then the
- * `release` `Effect` value will be added to the finalizers associated with the
- * scope of this `Effect` value, and it is guaranteed to be run when the scope
- * is closed.
+ * **Details**
  *
- * The `acquire` and `release` `Effect` values will be run uninterruptibly.
- * Additionally, the `release` `Effect` value may depend on the `Exit` value
- * specified when the scope is closed.
+ * If acquisition succeeds, the release finalizer is added to the current scope
+ * and is guaranteed to run when that scope closes. The finalizer receives the
+ * `Exit` value used to close the scope.
  *
- * @example
+ * By default, acquisition is protected by an uninterruptible region. Pass
+ * `{ interruptible: true }` to allow the acquisition effect to be interrupted.
+ *
+ * **Example** (Acquiring and releasing a resource)
+ *
  * ```ts
  * import { Console, Effect, Exit } from "effect"
  *
@@ -6176,8 +5982,8 @@ export const scopedWith: <A, E, R>(
  * )
  * ```
  *
+ * @category resource management
  * @since 2.0.0
- * @category Resource Management & Finalization
  */
 export const acquireRelease: <A, E, R, R2>(
   acquire: Effect<A, E, R>,
@@ -6198,12 +6004,13 @@ export const acquireRelease: <A, E, R, R2>(
  * JavaScript disposal protocal instead of requiring an explicit release
  * function.
  *
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using}
+ * @see [JavaScript `using` declarations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using)
  *
- * @example
+ * **Example** (Acquiring a disposable resource)
+ *
  * ```ts
  * import sqlite from "node:sqlite";
- * import { Effect } from "effect";
+ * import { Effect } from "effect"
  *
  * const program = Effect.scoped(
  *   Effect.gen(function* () {
@@ -6219,8 +6026,8 @@ export const acquireRelease: <A, E, R, R2>(
  * )
  * ```
  *
+ * @category resource management
  * @since 4.0.0
- * @category Resource Management & Finalization
  */
 export const acquireDisposable: <A extends AsyncDisposable | Disposable, E, R>(
   acquire: Effect<A, E, R>
@@ -6249,7 +6056,8 @@ export const acquireDisposable: <A extends AsyncDisposable | Disposable, E, R>(
  * is not desired, errors produced by the `release` `Effect` value can be caught
  * and ignored.
  *
- * @example
+ * **Example** (Using a resource with cleanup)
+ *
  * ```ts
  * import { Console, Effect, Exit } from "effect"
  *
@@ -6294,8 +6102,8 @@ export const acquireDisposable: <A extends AsyncDisposable | Disposable, E, R>(
  * // Closing connection to db://localhost:5432 (success)
  * ```
  *
+ * @category resource management
  * @since 2.0.0
- * @category Resource Management & Finalization
  */
 export const acquireUseRelease: <Resource, E, R, A, E2, R2, E3, R3>(
   acquire: Effect<Resource, E, R>,
@@ -6312,7 +6120,8 @@ export const acquireUseRelease: <Resource, E, R, A, E2, R2, E3, R3>(
  * whether the effect succeeds or fails. They're commonly used for resource
  * cleanup, logging, or other side effects that should always occur.
  *
- * @example
+ * **Example** (Registering scope finalizers)
+ *
  * ```ts
  * import { Console, Effect, Exit } from "effect"
  *
@@ -6341,8 +6150,8 @@ export const acquireUseRelease: <Resource, E, R, A, E2, R2, E3, R3>(
  * // operation result
  * ```
  *
+ * @category resource management
  * @since 2.0.0
- * @category Resource Management & Finalization
  */
 export const addFinalizer: <R>(
   finalizer: (exit: Exit.Exit<unknown, unknown>) => Effect<void, never, R>
@@ -6359,7 +6168,8 @@ export const addFinalizer: <R>(
  * should generally not be used for releasing resources. For higher-level
  * logic built on `ensuring`, see the `acquireRelease` family of methods.
  *
- * @example
+ * **Example** (Always running cleanup)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -6384,8 +6194,8 @@ export const addFinalizer: <R>(
  * // 42
  * ```
  *
+ * @category resource management
  * @since 2.0.0
- * @category Resource Management & Finalization
  */
 export const ensuring: {
   <X, R1>(
@@ -6401,9 +6211,10 @@ export const ensuring: {
  * Runs the specified effect if this effect fails, providing the error to the
  * effect if it exists. The provided effect will not be interrupted.
  *
- * @example
+ * **Example** (Running cleanup on failure)
+ *
  * ```ts
- * import { Cause, Data, Console, Effect } from "effect"
+ * import { Cause, Console, Data, Effect } from "effect"
  *
  * class TaskError extends Data.TaggedError("TaskError")<{ readonly message: string }> {}
  *
@@ -6420,8 +6231,8 @@ export const ensuring: {
  * // TaskError: Something went wrong
  * ```
  *
+ * @category resource management
  * @since 2.0.0
- * @category Resource Management & Finalization
  */
 export const onError: {
   <E, X, R2>(
@@ -6437,7 +6248,8 @@ export const onError: {
  * Runs the finalizer only when this effect fails and the `Cause` matches the
  * provided predicate.
  *
- * @example
+ * **Example** (Running cleanup for selected failures)
+ *
  * ```ts
  * import { Cause, Console, Effect } from "effect"
  *
@@ -6453,8 +6265,8 @@ export const onError: {
  * )
  * ```
  *
+ * @category resource management
  * @since 4.0.0
- * @category Resource Management & Finalization
  */
 export const onErrorIf: {
   <E, XE, XR>(
@@ -6471,8 +6283,8 @@ export const onErrorIf: {
 /**
  * Runs the finalizer only when this effect fails and the cause matches the provided `Filter`.
  *
+ * @category resource management
  * @since 4.0.0
- * @category Resource Management & Finalization
  */
 export const onErrorFilter: {
   <A, E, EB, X, XE, XR>(
@@ -6487,12 +6299,16 @@ export const onErrorFilter: {
 } = internal.onErrorFilter
 
 /**
- * The low level primitive that powers `onExit`.
- * function is used to run a finalizer when the effect exits, regardless of the
- * exit status.
+ * Runs an optional finalizer with the effect's `Exit` value when the effect
+ * completes.
  *
- * @since 2.0.0
- * @category Resource Management & Finalization
+ * **Details**
+ *
+ * This low-level operator preserves the source effect's result unless the
+ * finalizer fails. Prefer `onExit` for normal cleanup logic.
+ *
+ * @category resource management
+ * @since 4.0.0
  */
 export const onExitPrimitive: <A, E, R, XE = never, XR = never>(
   self: Effect<A, E, R>,
@@ -6504,7 +6320,8 @@ export const onExitPrimitive: <A, E, R, XE = never, XR = never>(
  * Ensures that a cleanup functions runs, whether this effect succeeds, fails,
  * or is interrupted.
  *
- * @example
+ * **Example** (Observing every exit)
+ *
  * ```ts
  * import { Console, Effect, Exit } from "effect"
  *
@@ -6523,8 +6340,8 @@ export const onExitPrimitive: <A, E, R, XE = never, XR = never>(
  * // 42
  * ```
  *
+ * @category resource management
  * @since 2.0.0
- * @category Resource Management & Finalization
  */
 export const onExit: {
   <A, E, XE = never, XR = never>(
@@ -6540,7 +6357,8 @@ export const onExit: {
  * Runs the cleanup effect only when the `Exit` satisfies the provided
  * predicate.
  *
- * @example
+ * **Example** (Observing selected exits)
+ *
  * ```ts
  * import { Console, Effect, Exit } from "effect"
  *
@@ -6554,8 +6372,8 @@ export const onExit: {
  * )
  * ```
  *
+ * @category resource management
  * @since 4.0.0
- * @category Resource Management & Finalization
  */
 export const onExitIf: {
   <A, E, XE, XR>(
@@ -6572,8 +6390,8 @@ export const onExitIf: {
 /**
  * Runs the cleanup effect only when the `Exit` matches the provided `Filter`.
  *
+ * @category resource management
  * @since 4.0.0
- * @category Resource Management & Finalization
  */
 export const onExitFilter: {
   <A, E, XE, XR, B, X>(
@@ -6614,7 +6432,8 @@ export const onExitFilter: {
  * @see {@link cachedInvalidateWithTTL} for a similar function that includes an
  * additional effect for manually invalidating the cached value.
  *
- * @example
+ * **Example** (Memoizing an effect until invalidated)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -6651,8 +6470,8 @@ export const onExitFilter: {
  * // result 3
  * ```
  *
- * @since 2.0.0
  * @category Caching
+ * @since 2.0.0
  */
 export const cached: <A, E, R>(self: Effect<A, E, R>) => Effect<Effect<A, E, R>> = internal.cached
 
@@ -6688,7 +6507,8 @@ export const cached: <A, E, R>(self: Effect<A, E, R>) => Effect<Effect<A, E, R>>
  * @see {@link cachedInvalidateWithTTL} for a similar function that includes an
  * additional effect for manually invalidating the cached value.
  *
- * @example
+ * **Example** (Memoizing an effect with TTL)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -6719,8 +6539,8 @@ export const cached: <A, E, R>(self: Effect<A, E, R>) => Effect<Effect<A, E, R>>
  * // result 2
  * ```
  *
- * @since 2.0.0
  * @category Caching
+ * @since 2.0.0
  */
 export const cachedWithTTL: {
   (timeToLive: Duration.Input): <A, E, R>(self: Effect<A, E, R>) => Effect<Effect<A, E, R>>
@@ -6759,7 +6579,8 @@ export const cachedWithTTL: {
  * @see {@link cachedWithTTL} for a similar function that caches the result for
  * a specified duration but does not include an effect for manual invalidation.
  *
- * @example
+ * **Example** (Memoizing with TTL and invalidation)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -6793,8 +6614,8 @@ export const cachedWithTTL: {
  * // result 2
  * ```
  *
- * @since 2.0.0
  * @category Caching
+ * @since 2.0.0
  */
 export const cachedInvalidateWithTTL: {
   (timeToLive: Duration.Input): <A, E, R>(self: Effect<A, E, R>) => Effect<[Effect<A, E, R>, Effect<void>]>
@@ -6808,7 +6629,8 @@ export const cachedInvalidateWithTTL: {
 /**
  * Returns an effect that is immediately interrupted.
  *
- * @example
+ * **Example** (Creating an interrupted effect)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -6821,15 +6643,16 @@ export const cachedInvalidateWithTTL: {
  * // Throws: InterruptedException
  * ```
  *
- * @since 2.0.0
  * @category Interruption
+ * @since 2.0.0
  */
 export const interrupt: Effect<never> = internal.interrupt
 
 /**
  * Returns a new effect that allows the effect to be interruptible.
  *
- * @example
+ * **Example** (Allowing interruption)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -6842,8 +6665,8 @@ export const interrupt: Effect<never> = internal.interrupt
  * // Later: fiber.interrupt()
  * ```
  *
- * @since 2.0.0
  * @category Interruption
+ * @since 2.0.0
  */
 export const interruptible: <A, E, R>(
   self: Effect<A, E, R>
@@ -6852,7 +6675,8 @@ export const interruptible: <A, E, R>(
 /**
  * Runs the specified finalizer effect if this effect is interrupted.
  *
- * @example
+ * **Example** (Running cleanup on interruption)
+ *
  * ```ts
  * import { Console, Effect, Fiber } from "effect"
  *
@@ -6869,8 +6693,8 @@ export const interruptible: <A, E, R>(
  * // Output: Task was interrupted, cleaning up...
  * ```
  *
- * @since 2.0.0
  * @category Interruption
+ * @since 2.0.0
  */
 export const onInterrupt: {
   <XE, XR>(
@@ -6885,7 +6709,8 @@ export const onInterrupt: {
 /**
  * Returns a new effect that disables interruption for the given effect.
  *
- * @example
+ * **Example** (Preventing interruption)
+ *
  * ```ts
  * import { Console, Effect, Fiber } from "effect"
  *
@@ -6902,8 +6727,8 @@ export const onInterrupt: {
  * Effect.runPromise(Fiber.interrupt(fiber))
  * ```
  *
- * @since 2.0.0
  * @category Interruption
+ * @since 2.0.0
  */
 export const uninterruptible: <A, E, R>(
   self: Effect<A, E, R>
@@ -6913,7 +6738,8 @@ export const uninterruptible: <A, E, R>(
  * Disables interruption and provides a restore function to restore the
  * interruptible state within the effect.
  *
- * @example
+ * **Example** (Restoring interruption in protected regions)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -6935,8 +6761,8 @@ export const uninterruptible: <A, E, R>(
  * )
  * ```
  *
- * @since 2.0.0
  * @category Interruption
+ * @since 2.0.0
  */
 export const uninterruptibleMask: <A, E, R>(
   f: (
@@ -6949,7 +6775,8 @@ export const uninterruptibleMask: <A, E, R>(
  * `restore` function. This function can be used to restore the interruptibility
  * of any specific region of code.
  *
- * @example
+ * **Example** (Controlling interruptibility locally)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -6971,8 +6798,8 @@ export const uninterruptibleMask: <A, E, R>(
  * )
  * ```
  *
- * @since 2.0.0
  * @category Interruption
+ * @since 2.0.0
  */
 export const interruptibleMask: <A, E, R>(
   f: (
@@ -6983,8 +6810,8 @@ export const interruptibleMask: <A, E, R>(
 /**
  * Creates an AbortSignal that is managed by the provided scope.
  *
- * @since 4.0.0
  * @category Interruption
+ * @since 4.0.0
  */
 export const abortSignal: Effect<AbortSignal, never, Scope> = internal.abortSignal
 
@@ -6993,31 +6820,16 @@ export const abortSignal: Effect<AbortSignal, never, Scope> = internal.abortSign
 // -----------------------------------------------------------------------------
 
 /**
- * @since 2.0.0
- * @category Repetition / Recursion
- * @example
- * ```ts
- * import type { Effect } from "effect"
+ * Type helpers for repeating effects.
  *
- * // Repeat namespace contains types for repeating operations
- * declare const effect: Effect.Effect<string, Error, never>
- * declare const options: Effect.Repeat.Options<string>
- * // Use Effect.repeat with these types for repeating successful effects
- * ```
+ * @since 2.0.0
  */
 export declare namespace Repeat {
   /**
-   * @since 2.0.0
-   * @category Repetition / Recursion
-   * @example
-   * ```ts
-   * import type { Effect } from "effect"
+   * Computes the result type of `Effect.repeat` from the original effect and repeat options.
    *
-   * // Return type for repeat operations with specific options
-   * declare const options: Effect.Repeat.Options<string>
-   * type RepeatResult = Effect.Repeat.Return<never, Error, string, typeof options>
-   * // Result: Effect with repeated operation result types
-   * ```
+   * @category Repetition / Recursion
+   * @since 2.0.0
    */
   export type Return<R, E, A, O extends Options<A>> = Effect<
     O extends { until: Predicate.Refinement<A, infer B> } ? B
@@ -7045,20 +6857,10 @@ export declare namespace Repeat {
     : never
 
   /**
-   * @since 2.0.0
-   * @category Repetition / Recursion
-   * @example
-   * ```ts
-   * import { Schedule } from "effect"
-   * import type { Effect } from "effect"
+   * Options that control whether and how an effect is repeated.
    *
-   * // Options for configuring repeat behavior
-   * const repeatOptions: Effect.Repeat.Options<number> = {
-   *   times: 5,
-   *   schedule: Schedule.fixed("100 millis"),
-   *   while: (result) => result < 10
-   * }
-   * ```
+   * @category Repetition / Recursion
+   * @since 2.0.0
    */
   export interface Options<A> {
     while?: ((_: A) => boolean | Effect<boolean, any, any>) | undefined
@@ -7071,7 +6873,8 @@ export declare namespace Repeat {
 /**
  * Repeats this effect forever (until the first error).
  *
- * @example
+ * **Example** (Repeating forever)
+ *
  * ```ts
  * import { Console, Effect, Fiber } from "effect"
  *
@@ -7094,8 +6897,8 @@ export declare namespace Repeat {
  * })
  * ```
  *
- * @since 2.0.0
  * @category Repetition / Recursion
+ * @since 2.0.0
  */
 export const forever: <
   Arg extends Effect<any, any, any> | {
@@ -7133,12 +6936,11 @@ export const forever: <
  * delays, limiting recursions, or dynamically adjusting based on the outcome of
  * each execution.
  *
- * @example
+ * **Example** (Repeating successful effects with a schedule)
+ *
  * ```ts
  * // Success Example
- * import { Effect } from "effect"
- * import { Schedule } from "effect"
- * import { Console } from "effect"
+ * import { Console, Effect, Schedule } from "effect"
  *
  * const action = Console.log("success")
  * const policy = Schedule.addDelay(Schedule.recurs(2), () => Effect.succeed("100 millis"))
@@ -7147,10 +6949,11 @@ export const forever: <
  * // Effect.runPromise(program).then((n) => console.log(`repetitions: ${n}`))
  * ```
  *
- * @example
+ * **Example** (Stopping repetition on failure)
+ *
+ * ```ts
  * // Failure Example
- * import { Effect } from "effect"
- * import { Schedule } from "effect"
+ * import { Effect, Schedule } from "effect"
  *
  * let count = 0
  *
@@ -7170,9 +6973,10 @@ export const forever: <
  * const program = Effect.repeat(action, policy)
  *
  * // Effect.runPromiseExit(program).then(console.log)
+ * ```
  *
- * @since 2.0.0
  * @category Repetition / Recursion
+ * @since 2.0.0
  */
 export const repeat: {
   <O extends Repeat.Options<A>, A>(options: O): <E, R>(self: Effect<A, E, R>) => Repeat.Return<R, E, A, O>
@@ -7198,27 +7002,20 @@ export const repeat: {
 } = internalSchedule.repeat
 
 /**
- * Repeats an effect with a schedule, handling failures using a custom handler.
+ * Repeats an effect according to a schedule and runs a fallback effect if
+ * repetition fails before the schedule completes.
  *
  * **Details**
  *
- * This function allows you to execute an effect repeatedly based on a specified
- * schedule. If the effect fails at any point, a custom failure handler is
- * invoked. The handler is provided with both the failure value and the output
- * of the schedule at the time of failure. If the effect fails immediately, the
- * schedule will never be executed and the output provided to the handler will
- * be `None`. This enables advanced error recovery or alternative fallback logic
- * while maintaining flexibility in how repetitions are handled.
+ * If the repeated effect or schedule step fails, `orElse` receives the failure
+ * and the latest schedule metadata when at least one schedule step has run;
+ * otherwise it receives `None`. If the schedule completes normally, the
+ * returned effect succeeds with the schedule's output.
  *
- * For example, using a schedule with `recurs(2)` will allow for two additional
- * repetitions after the initial execution, provided the effect succeeds. If a
- * failure occurs during any iteration, the failure handler is invoked to handle
- * the situation.
+ * **Example** (Recovering after repetition stops)
  *
- * @example
  * ```ts
- * import { Console, Effect, Schedule } from "effect"
- * import * as Option from "effect/Option"
+ * import { Console, Effect, Option, Schedule } from "effect"
  *
  * let attempt = 0
  * const task = Effect.gen(function*() {
@@ -7243,8 +7040,8 @@ export const repeat: {
  * )
  * ```
  *
- * @since 2.0.0
  * @category Repetition / Recursion
+ * @since 2.0.0
  */
 export const repeatOrElse: {
   <R2, A, B, E, E2, E3, R3>(
@@ -7263,8 +7060,8 @@ export const repeatOrElse: {
  *
  * Use with `Effect.all` to run the replicated effects and collect results.
  *
- * @since 2.0.0
  * @category Collecting
+ * @since 2.0.0
  */
 export const replicate: {
   (n: number): <A, E, R>(self: Effect<A, E, R>) => Array<Effect<A, E, R>>
@@ -7276,7 +7073,8 @@ export const replicate: {
  *
  * Use `concurrency` to control parallelism and `discard: true` to ignore results.
  *
- * @example
+ * **Example** (Replicating an effect)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -7286,8 +7084,8 @@ export const replicate: {
  * })
  * ```
  *
- * @since 2.0.0
  * @category Collecting
+ * @since 2.0.0
  */
 export const replicateEffect: {
   (
@@ -7311,22 +7109,19 @@ export const replicateEffect: {
 } = internal.replicateEffect
 
 /**
- * Repeats an effect based on a specified schedule.
+ * Runs an effect repeatedly according to a schedule and returns the schedule's
+ * final output.
  *
  * **Details**
  *
- * This function allows you to execute an effect repeatedly according to a given
- * schedule. The schedule determines the timing and number of repetitions. Each
- * repetition can also depend on the decision of the schedule, providing
- * flexibility for complex workflows. This function does not modify the effect's
- * success or failure; it only controls its repetition.
+ * The schedule is first stepped with `undefined`. After each successful
+ * execution, the effect's success value is fed to the schedule to decide
+ * whether to run again. The returned effect fails if the effect or schedule
+ * fails, and otherwise succeeds with the schedule output when the schedule
+ * completes.
  *
- * For example, you can use a schedule that recurs a specific number of times,
- * adds delays between repetitions, or customizes repetition behavior based on
- * external inputs. The effect runs initially and is repeated according to the
- * schedule.
+ * **Example** (Scheduling repeated execution)
  *
- * @example
  * ```ts
  * import { Console, Effect, Schedule } from "effect"
  *
@@ -7352,8 +7147,8 @@ export const replicateEffect: {
  * @see {@link scheduleFrom} for a variant that allows the schedule's decision
  * to depend on the result of this effect.
  *
- * @since 2.0.0
  * @category Repetition / Recursion
+ * @since 2.0.0
  */
 export const schedule: {
   <Output, Error, Env>(
@@ -7369,21 +7164,19 @@ export const schedule: {
 ): Effect<Output, E, R | Env> => scheduleFrom(self, undefined, schedule))
 
 /**
- * Runs an effect repeatedly according to a schedule, starting from a specified
- * initial input value.
+ * Runs an effect repeatedly according to a schedule that is initialized with a
+ * specific schedule input.
  *
  * **Details**
  *
- * This function allows you to repeatedly execute an effect based on a schedule.
- * The schedule starts with the given `initial` input value, which is passed to
- * the first execution. Subsequent executions of the effect are controlled by
- * the schedule's rules, using the output of the previous iteration as the input
- * for the next one.
+ * `initial` is passed to the schedule before the first execution, not to the
+ * effect itself. After each successful execution, the effect's success value is
+ * fed back into the schedule to decide whether to continue. The returned effect
+ * succeeds with the schedule output when the schedule completes and fails if
+ * the effect or schedule fails.
  *
- * The returned effect will complete when the schedule ends or the effect fails,
- * propagating the error.
+ * **Example** (Scheduling from an initial value)
  *
- * @example
  * ```ts
  * import { Console, Effect, Schedule } from "effect"
  *
@@ -7404,8 +7197,8 @@ export const schedule: {
  * // Returns the schedule count
  * ```
  *
- * @since 2.0.0
  * @category Repetition / Recursion
+ * @since 2.0.0
  */
 export const scheduleFrom: {
   <Input, Output, Error, Env>(
@@ -7426,7 +7219,8 @@ export const scheduleFrom: {
 /**
  * Returns the current tracer from the context.
  *
- * @example
+ * **Example** (Accessing the current tracer)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7437,15 +7231,16 @@ export const scheduleFrom: {
  * })
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const tracer: Effect<Tracer> = internal.tracer
 
 /**
  * Provides a tracer to an effect.
  *
- * @example
+ * **Example** (Providing a tracer)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7458,8 +7253,8 @@ export const tracer: Effect<Tracer> = internal.tracer
  * // const traced = Effect.withTracer(program, customTracer)
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const withTracer: {
   (value: Tracer): <A, E, R>(effect: Effect<A, E, R>) => Effect<A, E, R>
@@ -7467,9 +7262,15 @@ export const withTracer: {
 } = internal.withTracer
 
 /**
- * Disable the tracer for the given Effect.
+ * Enables or disables tracing for spans created by the given effect.
  *
- * @example
+ * **Details**
+ *
+ * When `enabled` is `false`, spans created inside the effect are not registered
+ * with the current tracer and do not propagate as normal trace parents.
+ *
+ * **Example** (Enabling or disabling tracing)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7480,8 +7281,8 @@ export const withTracer: {
  * )
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const withTracerEnabled: {
   (enabled: boolean): <A, E, R>(effect: Effect<A, E, R>) => Effect<A, E, R>
@@ -7491,7 +7292,8 @@ export const withTracerEnabled: {
 /**
  * Enables or disables tracer timing for the given Effect.
  *
- * @example
+ * **Example** (Enabling or disabling tracing timing)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7502,8 +7304,8 @@ export const withTracerEnabled: {
  * )
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const withTracerTiming: {
   (enabled: boolean): <A, E, R>(effect: Effect<A, E, R>) => Effect<A, E, R>
@@ -7513,7 +7315,8 @@ export const withTracerTiming: {
 /**
  * Adds an annotation to each span in this effect.
  *
- * @example
+ * **Example** (Annotating all spans)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7533,8 +7336,8 @@ export const withTracerTiming: {
  * })
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const annotateSpans: {
   (
@@ -7558,7 +7361,8 @@ export const annotateSpans: {
 /**
  * Adds an annotation to the current span if available.
  *
- * @example
+ * **Example** (Annotating the current span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7575,8 +7379,8 @@ export const annotateSpans: {
  * const traced = Effect.withSpan(program, "user-operation")
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const annotateCurrentSpan: {
   (key: string, value: unknown): Effect<void>
@@ -7584,9 +7388,15 @@ export const annotateCurrentSpan: {
 } = internal.annotateCurrentSpan
 
 /**
- * Returns the current span from the context.
+ * Returns the currently active local tracing span.
  *
- * @example
+ * **Details**
+ *
+ * The effect fails with `NoSuchElementError` when there is no active local
+ * `Span`.
+ *
+ * **Example** (Reading the current span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7599,15 +7409,22 @@ export const annotateCurrentSpan: {
  * const traced = Effect.withSpan(program, "my-span")
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const currentSpan: Effect<Span, Cause.NoSuchElementError> = internal.currentSpan
 
 /**
- * Returns the current parent span from the context.
+ * Returns the current parent span from the effect context.
  *
- * @example
+ * **Details**
+ *
+ * The effect succeeds with either a local span or external span when one is
+ * present, and fails with `NoSuchElementError` when no parent span is
+ * available.
+ *
+ * **Example** (Reading the parent span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7625,15 +7442,21 @@ export const currentSpan: Effect<Span, Cause.NoSuchElementError> = internal.curr
  * const traced = Effect.withSpan(program, "parent-span")
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const currentParentSpan: Effect<AnySpan, Cause.NoSuchElementError> = internal.currentParentSpan
 
 /**
- * Returns the annotations of the current span.
+ * Returns the tracing span annotations currently carried in the effect context.
  *
- * @example
+ * **Details**
+ *
+ * These annotations are applied to spans created inside the context, such as
+ * spans created by `withSpan`, `useSpan`, or `makeSpan`.
+ *
+ * **Example** (Providing span annotations)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7653,19 +7476,21 @@ export const currentParentSpan: Effect<AnySpan, Cause.NoSuchElementError> = inte
  * // Output: Current span annotations: { userId: "123", operation: "data-processing" }
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const spanAnnotations: Effect<Readonly<Record<string, unknown>>> = internal.spanAnnotations
 
 /**
- * Retrieves the span links associated with the current span.
+ * Returns the tracing span links currently carried in the effect context.
  *
- * Span links are connections between spans that are related but not in a
- * parent-child relationship. They are useful for linking spans across different
- * traces or connecting spans from parallel operations.
+ * **Details**
  *
- * @example
+ * These links are attached to spans created inside the context. Span links
+ * connect related spans without making one span the parent of another.
+ *
+ * **Example** (Providing span links)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7677,8 +7502,8 @@ export const spanAnnotations: Effect<Readonly<Record<string, unknown>>> = intern
  * })
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const spanLinks: Effect<ReadonlyArray<SpanLink>> = internal.spanLinks
 
@@ -7689,7 +7514,8 @@ export const spanLinks: Effect<ReadonlyArray<SpanLink>> = internal.spanLinks
  * parent-child relationship. For example, you might want to link spans from
  * parallel operations or connect spans across different traces.
  *
- * @example
+ * **Example** (Linking one span to another span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7711,7 +7537,8 @@ export const spanLinks: Effect<ReadonlyArray<SpanLink>> = internal.spanLinks
  * })
  * ```
  *
- * @example
+ * **Example** (Linking multiple spans at once)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7729,8 +7556,8 @@ export const spanLinks: Effect<ReadonlyArray<SpanLink>> = internal.spanLinks
  * })
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const linkSpans: {
   (
@@ -7745,9 +7572,16 @@ export const linkSpans: {
 } = internal.linkSpans
 
 /**
- * Create a new span for tracing.
+ * Creates a new tracing span and returns it without managing its lifetime.
  *
- * @example
+ * **Details**
+ *
+ * The span is not added to the current span stack and is not ended
+ * automatically. Use `withSpan`, `useSpan`, or `makeSpanScoped` when the span
+ * should be installed as context or closed automatically.
+ *
+ * **Example** (Creating a span manually)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7758,8 +7592,8 @@ export const linkSpans: {
  * })
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const makeSpan: (name: string, options?: SpanOptionsNoTrace) => Effect<Span> = internal.makeSpan
 
@@ -7770,7 +7604,8 @@ export const makeSpan: (name: string, options?: SpanOptionsNoTrace) => Effect<Sp
  * The span is not added to the current span stack, so no child spans will be
  * created for it.
  *
- * @example
+ * **Example** (Creating a scoped standalone span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7784,8 +7619,8 @@ export const makeSpan: (name: string, options?: SpanOptionsNoTrace) => Effect<Sp
  * )
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const makeSpanScoped: (
   name: string,
@@ -7799,7 +7634,8 @@ export const makeSpanScoped: (
  * The span is not added to the current span stack, so no child spans will be
  * created for it.
  *
- * @example
+ * **Example** (Running an effect with a standalone span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7813,8 +7649,8 @@ export const makeSpanScoped: (
  * )
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const useSpan: {
   <A, E, R>(name: string, evaluate: (span: Span) => Effect<A, E, R>): Effect<A, E, R>
@@ -7824,7 +7660,8 @@ export const useSpan: {
 /**
  * Wraps the effect with a new span for tracing.
  *
- * @example
+ * **Example** (Wrapping an effect in a child span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7838,8 +7675,8 @@ export const useSpan: {
  * })
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const withSpan: {
   <Args extends ReadonlyArray<any>>(
@@ -7862,7 +7699,8 @@ export const withSpan: {
  *
  * The span is ended when the Scope is finalized.
  *
- * @example
+ * **Example** (Creating a scoped child span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7875,8 +7713,8 @@ export const withSpan: {
  * )
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const withSpanScoped: {
   (
@@ -7895,7 +7733,8 @@ export const withSpanScoped: {
 /**
  * Adds the provided span to the current span stack.
  *
- * @example
+ * **Example** (Setting a parent span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -7907,8 +7746,8 @@ export const withSpanScoped: {
  * })
  * ```
  *
+ * @category tracing
  * @since 2.0.0
- * @category Tracing
  */
 export const withParentSpan: {
   (value: AnySpan, options?: TraceOptions): <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, Exclude<R, ParentSpan>>
@@ -7922,10 +7761,11 @@ export const withParentSpan: {
 /**
  * Executes a request using the provided resolver.
  *
- * @since 2.0.0
  * @category Requests & Batching
+ * @since 2.0.0
  *
- * @example
+ * **Example** (Executing a request through a resolver)
+ *
  * ```ts
  * import { Console, Effect, Exit, Request, RequestResolver } from "effect"
  *
@@ -7965,8 +7805,8 @@ export const request: {
  *
  * It returns a canceler that removes the pending request entry.
  *
- * @since 4.0.0
  * @category Requests & Batching
+ * @since 4.0.0
  */
 export const requestUnsafe: <A extends Request.Any>(
   self: A,
@@ -8002,7 +7842,8 @@ export const requestUnsafe: <A extends Request.Any>(
  * fibers leak. This behavior is called "auto supervision", and if this
  * behavior is not desired, you may use the `forkDetach` or `forkIn` methods.
  *
- * @example
+ * **Example** (Forking a child fiber)
+ *
  * ```ts
  * import { Effect, Fiber } from "effect"
  *
@@ -8024,8 +7865,8 @@ export const requestUnsafe: <A extends Request.Any>(
  * })
  * ```
  *
- * @since 4.0.0
  * @category Supervision & Fibers
+ * @since 4.0.0
  */
 export const forkChild: <
   Arg extends Effect<any, any, any> | {
@@ -8048,7 +7889,8 @@ export const forkChild: <
  * Forks the effect in the specified scope. The fiber will be interrupted
  * when the scope is closed.
  *
- * @example
+ * **Example** (Forking into a supplied scope)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -8068,8 +7910,8 @@ export const forkChild: <
  * )
  * ```
  *
- * @since 2.0.0
  * @category Supervision & Fibers
+ * @since 2.0.0
  */
 export const forkIn: {
   (
@@ -8092,7 +7934,8 @@ export const forkIn: {
 /**
  * Forks the fiber in a `Scope`, interrupting it when the scope is closed.
  *
- * @example
+ * **Example** (Forking into the current scope)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -8118,8 +7961,8 @@ export const forkIn: {
  * )
  * ```
  *
- * @since 2.0.0
  * @category Supervision & Fibers
+ * @since 2.0.0
  */
 export const forkScoped: <
   Arg extends Effect<any, any, any> | {
@@ -8143,7 +7986,8 @@ export const forkScoped: <
  * new fiber is attached to the global scope, when the fiber executing the
  * returned effect terminates, the forked fiber will continue running.
  *
- * @example
+ * **Example** (Forking a detached fiber)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -8167,8 +8011,8 @@ export const forkScoped: <
  * })
  * ```
  *
- * @since 2.0.0
  * @category Supervision & Fibers
+ * @since 4.0.0
  */
 export const forkDetach: <
   Arg extends Effect<any, any, any> | {
@@ -8191,15 +8035,16 @@ export const forkDetach: <
  * Waits for all child fibers forked by this effect to complete before this
  * effect completes.
  *
- * @since 2.0.0
  * @category Supervision & Fibers
+ * @since 2.0.0
  */
 export const awaitAllChildren: <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, R> = internal.awaitAllChildren
 
 /**
  * Access the fiber currently executing the effect.
  *
- * @example
+ * **Example** (Accessing the current fiber)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -8209,15 +8054,16 @@ export const awaitAllChildren: <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, 
  * })
  * ```
  *
- * @since 4.0.0
  * @category Supervision & Fibers
+ * @since 4.0.0
  */
 export const fiber: Effect<Fiber<unknown, unknown>> = internal.fiber
 
 /**
  * Access the current fiber id executing the effect.
  *
- * @example
+ * **Example** (Accessing the current fiber id)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -8232,8 +8078,8 @@ export const fiber: Effect<Fiber<unknown, unknown>> = internal.fiber
  * )
  * ```
  *
- * @since 4.0.0
  * @category Supervision & Fibers
+ * @since 2.0.0
  */
 export const fiberId: Effect<number> = internal.fiberId
 
@@ -8245,27 +8091,8 @@ export const fiberId: Effect<number> = internal.fiberId
  * Configuration options for running Effect programs, providing control over
  * interruption and scheduling behavior.
  *
- * @example
- * ```ts
- * import { Effect } from "effect"
- *
- * const program = Effect.gen(function*() {
- *   yield* Effect.sleep("2 seconds")
- *   return "completed"
- * })
- *
- * // Run with abort signal for cancellation
- * const controller = new AbortController()
- * const options: Effect.RunOptions = {
- *   signal: controller.signal
- * }
- *
- * const fiber = Effect.runFork(program, options)
- * // Later: controller.abort() to cancel
- * ```
- *
- * @since 4.0.0
  * @category Running Effects
+ * @since 4.0.0
  */
 export interface RunOptions {
   readonly signal?: AbortSignal | undefined
@@ -8287,13 +8114,10 @@ export interface RunOptions {
  * Unless you specifically need a `Promise` or synchronous operation,
  * `runFork` is a good default choice.
  *
- * @example
+ * **Example** (Running an effect in the background)
+ *
  * ```ts
- * // Title: Running an Effect in the Background
- * import { Effect } from "effect"
- * import { Schedule } from "effect"
- * import { Fiber } from "effect"
- * import { Console } from "effect"
+ * import { Console, Effect, Fiber, Schedule } from "effect"
  *
  * //      ┌─── Effect<number, never, never>
  * //      ▼
@@ -8311,8 +8135,8 @@ export interface RunOptions {
  * }, 500)
  * ```
  *
- * @since 2.0.0
  * @category Running Effects
+ * @since 2.0.0
  */
 export const runFork: <A, E>(effect: Effect<A, E, never>, options?: RunOptions | undefined) => Fiber<A, E> =
   internal.runFork
@@ -8320,9 +8144,10 @@ export const runFork: <A, E>(effect: Effect<A, E, never>, options?: RunOptions |
 /**
  * Runs an effect in the background with the provided services.
  *
- * @example
+ * **Example** (Running with services in the background)
+ *
  * ```ts
- * import { Effect, Context } from "effect"
+ * import { Context, Effect } from "effect"
  *
  * interface Logger {
  *   log: (message: string) => void
@@ -8343,8 +8168,8 @@ export const runFork: <A, E>(effect: Effect<A, E, never>, options?: RunOptions |
  * const fiber = Effect.runForkWith(services)(program)
  * ```
  *
- * @since 4.0.0
  * @category Running Effects
+ * @since 4.0.0
  */
 export const runForkWith: <R>(
   context: Context.Context<R>
@@ -8355,9 +8180,10 @@ export const runForkWith: <R>(
  *
  * The returned interruptor calls `fiber.interruptUnsafe`, optionally with an interruptor id.
  *
- * @example
+ * **Example** (Running with services and a callback)
+ *
  * ```ts
- * import { Console, Effect, Exit, Context } from "effect"
+ * import { Console, Context, Effect, Exit } from "effect"
  *
  * interface Logger {
  *   log: (message: string) => Effect.Effect<void>
@@ -8387,8 +8213,8 @@ export const runForkWith: <R>(
  * interrupt()
  * ```
  *
- * @since 4.0.0
  * @category Running Effects
+ * @since 4.0.0
  */
 export const runCallbackWith: <R>(
   context: Context.Context<R>
@@ -8404,7 +8230,8 @@ export const runCallbackWith: <R>(
  * The interruptor calls `fiber.interruptUnsafe` with the optional interruptor
  * id.
  *
- * @example
+ * **Example** (Running with a callback)
+ *
  * ```ts
  * import { Console, Effect, Exit } from "effect"
  *
@@ -8431,8 +8258,8 @@ export const runCallbackWith: <R>(
  * // interrupt() to cancel the fiber if needed
  * ```
  *
- * @since 4.0.0
  * @category Running Effects
+ * @since 2.0.0
  */
 export const runCallback: <A, E>(
   effect: Effect<A, E, never>,
@@ -8453,25 +8280,28 @@ export const runCallback: <A, E>(
  *
  * @see {@link runPromiseExit} for a version that returns an `Exit` type instead of rejecting.
  *
- * @example
+ * **Example** (Running a successful effect as a Promise)
+ *
  * ```ts
- * // Title: Running a Successful Effect as a Promise
  * import { Effect } from "effect"
  *
  * Effect.runPromise(Effect.succeed(1)).then(console.log)
  * // Output: 1
  * ```
  *
- * @example
+ * **Example** (Running effects as promises)
+ *
+ * ```ts
  * //Example: Handling a Failing Effect as a Rejected Promise
  * import { Effect } from "effect"
  *
  * Effect.runPromise(Effect.fail("my error")).catch(console.error)
  * // Output:
  * // (FiberFailure) Error: my error
+ * ```
  *
- * @since 2.0.0
  * @category Running Effects
+ * @since 2.0.0
  */
 export const runPromise: <A, E>(
   effect: Effect<A, E>,
@@ -8481,9 +8311,10 @@ export const runPromise: <A, E>(
 /**
  * Executes an effect as a Promise with the provided services.
  *
- * @example
+ * **Example** (Running with services as a promise)
+ *
  * ```ts
- * import { Effect, Context } from "effect"
+ * import { Context, Effect } from "effect"
  *
  * interface Config {
  *   apiUrl: string
@@ -8503,8 +8334,8 @@ export const runPromise: <A, E>(
  * Effect.runPromiseWith(context)(program).then(console.log)
  * ```
  *
- * @since 4.0.0
  * @category Running Effects
+ * @since 4.0.0
  */
 export const runPromiseWith: <R>(
   context: Context.Context<R>
@@ -8526,9 +8357,9 @@ export const runPromiseWith: <R>(
  * - If it fails, the failure information is provided as a `Failure` containing
  *   a `Cause` type.
  *
- * @example
+ * **Example** (Observing promise results as Exit)
+ *
  * ```ts
- * // Title: Handling Results as Exit
  * import { Effect } from "effect"
  *
  * // Execute a successful effect and get the Exit result as a Promise
@@ -8554,8 +8385,8 @@ export const runPromiseWith: <R>(
  * // }
  * ```
  *
- * @since 2.0.0
  * @category Running Effects
+ * @since 2.0.0
  */
 export const runPromiseExit: <A, E>(
   effect: Effect<A, E>,
@@ -8565,9 +8396,10 @@ export const runPromiseExit: <A, E>(
 /**
  * Runs an effect and returns a Promise of Exit with provided services.
  *
- * @example
+ * **Example** (Running with services as an Exit promise)
+ *
  * ```ts
- * import { Effect, Exit, Context } from "effect"
+ * import { Context, Effect, Exit } from "effect"
  *
  * interface Database {
  *   query: (sql: string) => string
@@ -8591,8 +8423,8 @@ export const runPromiseExit: <A, E>(
  * })
  * ```
  *
- * @since 4.0.0
  * @category Running Effects
+ * @since 4.0.0
  */
 export const runPromiseExitWith: <R>(
   context: Context.Context<R>
@@ -8600,23 +8432,24 @@ export const runPromiseExitWith: <R>(
   internal.runPromiseExitWith
 
 /**
- * Executes an effect synchronously, running it immediately and returning the
- * result.
+ * Executes an effect synchronously and returns its success value.
  *
  * **When to Use**
  *
- * Use `runSync` to run an effect that does not fail and does not include
- * any asynchronous operations.
+ * Use `runSync` only for effects that can complete synchronously.
  *
- * If the effect fails or involves asynchronous work, it will throw an error,
- * and execution will stop where the failure or async operation occurs.
+ * **Details**
+ *
+ * If the effect fails, dies, is interrupted, or performs asynchronous work,
+ * `runSync` throws a `FiberFailure` instead of returning a value. Use
+ * `runSyncExit` when you want the failure captured as an `Exit`.
  *
  * @see {@link runSyncExit} for a version that returns an `Exit` type instead of
  * throwing an error.
  *
- * @example
+ * **Example** (Running a synchronous effect)
+ *
  * ```ts
- * // Title: Synchronous Logging
  * import { Effect } from "effect"
  *
  * const program = Effect.sync(() => {
@@ -8631,8 +8464,9 @@ export const runPromiseExitWith: <R>(
  * // Output: 1
  * ```
  *
- * @example
- * // Title: Incorrect Usage with Failing or Async Effects
+ * **Example** (Throwing for failed or async effects)
+ *
+ * ```ts
  * import { Effect } from "effect"
  *
  * try {
@@ -8652,18 +8486,20 @@ export const runPromiseExitWith: <R>(
  * }
  * // Output:
  * // (FiberFailure) AsyncFiberException: Fiber #0 cannot be resolved synchronously. This is caused by using runSync on an effect that performs async work
+ * ```
  *
- * @since 2.0.0
  * @category Running Effects
+ * @since 2.0.0
  */
 export const runSync: <A, E>(effect: Effect<A, E>) => A = internal.runSync
 
 /**
  * Executes an effect synchronously with provided services.
  *
- * @example
+ * **Example** (Running synchronously with services)
+ *
  * ```ts
- * import { Effect, Context } from "effect"
+ * import { Context, Effect } from "effect"
  *
  * interface MathService {
  *   add: (a: number, b: number) => number
@@ -8684,8 +8520,8 @@ export const runSync: <A, E>(effect: Effect<A, E>) => A = internal.runSync
  * console.log(result) // 5
  * ```
  *
- * @since 4.0.0
  * @category Running Effects
+ * @since 4.0.0
  */
 export const runSyncWith: <R>(
   context: Context.Context<R>
@@ -8711,9 +8547,9 @@ export const runSyncWith: <R>(
  * return an `Failure` with a `Die` cause, indicating that the effect cannot be
  * resolved synchronously.
  *
- * @example
+ * **Example** (Observing synchronous results as Exit)
+ *
  * ```ts
- * // Title: Handling Results as Exit
  * import { Effect } from "effect"
  *
  * console.log(Effect.runSyncExit(Effect.succeed(1)))
@@ -8737,8 +8573,9 @@ export const runSyncWith: <R>(
  * // }
  * ```
  *
- * @example
- * // Title: Asynchronous Operation Resulting in Die
+ * **Example** (Capturing async work as a Die cause)
+ *
+ * ```ts
  * import { Effect } from "effect"
  *
  * console.log(Effect.runSyncExit(Effect.promise(() => Promise.resolve(1))))
@@ -8756,18 +8593,20 @@ export const runSyncWith: <R>(
  * //     }
  * //   }
  * // }
+ * ```
  *
- * @since 2.0.0
  * @category Running Effects
+ * @since 2.0.0
  */
 export const runSyncExit: <A, E>(effect: Effect<A, E>) => Exit.Exit<A, E> = internal.runSyncExit
 
 /**
  * Runs an effect synchronously with provided services, returning an Exit result.
  *
- * @example
+ * **Example** (Running synchronously with services as Exit)
+ *
  * ```ts
- * import { Effect, Exit, Context } from "effect"
+ * import { Context, Effect, Exit } from "effect"
  *
  * // Define a logger service
  * const Logger = Context.Service<{
@@ -8797,8 +8636,8 @@ export const runSyncExit: <A, E>(effect: Effect<A, E>) => Exit.Exit<A, E> = inte
  * // Success: 42
  * ```
  *
- * @since 4.0.0
  * @category Running Effects
+ * @since 4.0.0
  */
 export const runSyncExitWith: <R>(
   context: Context.Context<R>
@@ -8813,19 +8652,22 @@ export const runSyncExitWith: <R>(
  *
  * Use these to describe generator-based signatures and traced or untraced variants.
  *
- * @since 3.12.0
- * @category Function
+ * @since 3.11.0
  */
 export namespace fn {
   /**
+   * Generator return type accepted by `Effect.fn` and `Effect.fnUntraced`.
+   *
+   * @category models
    * @since 3.19.0
-   * @category Models
    */
   export type Return<A, E = never, R = never> = Generator<Effect<any, E, R>, A, any>
 
   /**
+   * Type of the untraced function builder used by `Effect.fnUntraced`.
+   *
+   * @category models
    * @since 3.11.0
-   * @category Models
    */
   export type Untraced = {
     <Eff extends Effect<any, any, any>, AEff, Args extends Array<any>>(
@@ -10410,8 +10252,10 @@ export namespace fn {
   }
 
   /**
-   * @since 3.11.0
-   * @category Models
+   * Type of the traced function builder used by `Effect.fn`.
+   *
+   * @category models
+   * @since 4.0.0
    */
   export type Traced = {
     <Eff extends Effect<any, any, any>, AEff, Args extends Array<any>>(
@@ -12856,7 +12700,8 @@ export namespace fn {
  *
  * `Effect.fnUntraced` also acts as a `pipe` function, so you can append transforms after the body.
  *
- * @example
+ * **Example** (Defining untraced effect functions)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -12868,8 +12713,8 @@ export namespace fn {
  * Effect.runFork(greet("Ada"))
  * ```
  *
- * @since 3.12.0
  * @category Function
+ * @since 3.12.0
  */
 export const fnUntraced: fn.Untraced = internal.fnUntraced
 
@@ -12878,7 +12723,8 @@ export const fnUntraced: fn.Untraced = internal.fnUntraced
  *
  * Pipeable functions run after the body and can transform the resulting Effect.
  *
- * @example
+ * **Example** (Defining traced effect functions)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -12897,8 +12743,8 @@ export const fnUntraced: fn.Untraced = internal.fnUntraced
  * })
  * ```
  *
- * @since 3.12.0
  * @category Function
+ * @since 3.11.0
  */
 export const fn: fn.Traced & {
   (name: string, options?: SpanOptionsNoTrace): fn.Traced
@@ -12912,7 +12758,8 @@ export const fn: fn.Traced & {
  * Retrieves the `Clock` service from the context and provides it to the
  * specified effectful function.
  *
- * @example
+ * **Example** (Accessing the Clock service)
+ *
  * ```ts
  * import { Console, Effect } from "effect"
  *
@@ -12928,8 +12775,8 @@ export const fn: fn.Traced & {
  * // Current time is: 1735484929744
  * ```
  *
- * @since 2.0.0
  * @category Clock
+ * @since 2.0.0
  */
 export const clockWith: <A, E, R>(
   f: (clock: Clock) => Effect<A, E, R>
@@ -12945,7 +12792,8 @@ export const clockWith: <A, E, R>(
  * If no level is provided, the logger uses the fiber's current log level and
  * extracts any `Cause` values from the message list.
  *
- * @example
+ * **Example** (Logging at a dynamic level)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -12956,8 +12804,8 @@ export const clockWith: <A, E, R>(
  * })
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const logWithLevel: (level?: Severity) => (...message: ReadonlyArray<any>) => Effect<void> =
   internal.logWithLevel
@@ -12965,7 +12813,8 @@ export const logWithLevel: (level?: Severity) => (...message: ReadonlyArray<any>
 /**
  * Logs one or more messages using the default log level.
  *
- * @example
+ * **Example** (Logging at the default level)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -12985,15 +12834,16 @@ export const logWithLevel: (level?: Severity) => (...message: ReadonlyArray<any>
  * // 4
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const log: (...message: ReadonlyArray<any>) => Effect<void> = internal.logWithLevel()
 
 /**
  * Logs one or more messages at the FATAL level.
  *
- * @example
+ * **Example** (Logging fatal messages)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13014,15 +12864,16 @@ export const log: (...message: ReadonlyArray<any>) => Effect<void> = internal.lo
  * // timestamp=2023-... level=FATAL message="System shutting down"
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const logFatal: (...message: ReadonlyArray<any>) => Effect<void> = internal.logWithLevel("Fatal")
 
 /**
  * Logs one or more messages at the WARNING level.
  *
- * @example
+ * **Example** (Logging warnings)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13044,15 +12895,16 @@ export const logFatal: (...message: ReadonlyArray<any>) => Effect<void> = intern
  * // timestamp=2023-... level=WARN message="Using deprecated API endpoint"
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const logWarning: (...message: ReadonlyArray<any>) => Effect<void> = internal.logWithLevel("Warn")
 
 /**
  * Logs one or more messages at the ERROR level.
  *
- * @example
+ * **Example** (Logging errors)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13077,15 +12929,16 @@ export const logWarning: (...message: ReadonlyArray<any>) => Effect<void> = inte
  * // timestamp=2023-... level=ERROR message="Caught error: Something went wrong"
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const logError: (...message: ReadonlyArray<any>) => Effect<void> = internal.logWithLevel("Error")
 
 /**
  * Logs one or more messages at the INFO level.
  *
- * @example
+ * **Example** (Logging information)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13105,15 +12958,16 @@ export const logError: (...message: ReadonlyArray<any>) => Effect<void> = intern
  * // timestamp=2023-... level=INFO message="Application version: 1.2.3"
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const logInfo: (...message: ReadonlyArray<any>) => Effect<void> = internal.logWithLevel("Info")
 
 /**
  * Logs one or more messages at the DEBUG level.
  *
- * @example
+ * **Example** (Logging debug messages)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13134,15 +12988,16 @@ export const logInfo: (...message: ReadonlyArray<any>) => Effect<void> = interna
  * // timestamp=2023-... level=DEBUG message="Variable state: x=10 y=20 z=30"
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const logDebug: (...message: ReadonlyArray<any>) => Effect<void> = internal.logWithLevel("Debug")
 
 /**
  * Logs one or more messages at the TRACE level.
  *
- * @example
+ * **Example** (Logging trace messages)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13166,15 +13021,16 @@ export const logDebug: (...message: ReadonlyArray<any>) => Effect<void> = intern
  * // timestamp=2023-... level=TRACE message="Exiting function processData"
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const logTrace: (...message: ReadonlyArray<any>) => Effect<void> = internal.logWithLevel("Trace")
 
 /**
  * Adds a logger to the set of loggers which will output logs for this effect.
  *
- * @example
+ * **Example** (Adding a logger to an effect)
+ *
  * ```ts
  * import { Effect, Logger } from "effect"
  *
@@ -13195,8 +13051,8 @@ export const logTrace: (...message: ReadonlyArray<any>) => Effect<void> = intern
  * // Output includes both default and custom log outputs
  * ```
  *
- * @since 2.0.0
- * @category Logging
+ * @category logging
+ * @since 4.0.0
  */
 export const withLogger = dual<
   <Output>(
@@ -13216,7 +13072,8 @@ export const withLogger = dual<
 /**
  * Adds an annotation to each log line in this effect.
  *
- * @example
+ * **Example** (Adding log annotations)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13239,8 +13096,8 @@ export const withLogger = dual<
  * // All log messages will include the userId and operation annotations
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const annotateLogs = dual<
   {
@@ -13287,7 +13144,8 @@ export const annotateLogs = dual<
  * `annotateLogsScoped` updates annotations for the entire current `Scope` and
  * restores the previous annotations when the scope closes.
  *
- * @example
+ * **Example** (Adding scoped log annotations)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13302,8 +13160,8 @@ export const annotateLogs = dual<
  * Effect.runPromise(program)
  * ```
  *
- * @since 4.0.0
- * @category Logging
+ * @category logging
+ * @since 3.1.0
  */
 export const annotateLogsScoped: {
   (key: string, value: unknown): Effect<void, never, Scope>
@@ -13313,7 +13171,8 @@ export const annotateLogsScoped: {
 /**
  * Adds a span to each log line in this effect.
  *
- * @example
+ * **Example** (Adding a log span)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13337,8 +13196,8 @@ export const annotateLogsScoped: {
  * // All log messages will include span information showing the nested operation context
  * ```
  *
+ * @category logging
  * @since 2.0.0
- * @category Logging
  */
 export const withLogSpan = dual<
   (label: string) => <A, E, R>(effect: Effect<A, E, R>) => Effect<A, E, R>,
@@ -13363,7 +13222,8 @@ export const withLogSpan = dual<
  * Also accepts an optional function which can be used to map the `Exit` value
  * of the `Effect` into a valid `Input` for the `Metric`.
  *
- * @example
+ * **Example** (Incrementing a metric for each execution)
+ *
  * ```ts
  * import { Effect, Metric } from "effect"
  *
@@ -13382,7 +13242,8 @@ export const withLogSpan = dual<
  * )
  * ```
  *
- * @example
+ * **Example** (Mapping exits before updating a metric)
+ *
  * ```ts
  * import { Effect, Exit, Metric } from "effect"
  *
@@ -13402,8 +13263,8 @@ export const withLogSpan = dual<
  * )
  * ```
  *
- * @since 4.0.0
  * @category Tracking
+ * @since 4.0.0
  */
 export const track: {
   <Input, State, E, A>(
@@ -13442,7 +13303,8 @@ export const track: {
  * Also accepts an optional function which can be used to map the success value
  * of the `Effect` into a valid `Input` for the `Metric`.
  *
- * @example
+ * **Example** (Counting successful results)
+ *
  * ```ts
  * import { Effect, Metric } from "effect"
  *
@@ -13460,7 +13322,8 @@ export const track: {
  * )
  * ```
  *
- * @example
+ * **Example** (Mapping successes before tracking)
+ *
  * ```ts
  * import { Effect, Metric } from "effect"
  *
@@ -13477,8 +13340,8 @@ export const track: {
  * )
  * ```
  *
- * @since 4.0.0
  * @category Tracking
+ * @since 4.0.0
  */
 export const trackSuccesses: {
   <Input, State, A>(
@@ -13517,7 +13380,8 @@ export const trackSuccesses: {
  * Also accepts an optional function which can be used to map the error value
  * of the `Effect` into a valid `Input` for the `Metric`.
  *
- * @example
+ * **Example** (Counting expected failures)
+ *
  * ```ts
  * import { Effect, Metric } from "effect"
  *
@@ -13535,7 +13399,8 @@ export const trackSuccesses: {
  * )
  * ```
  *
- * @example
+ * **Example** (Mapping errors before tracking)
+ *
  * ```ts
  * import { Data, Effect, Metric } from "effect"
  *
@@ -13554,8 +13419,8 @@ export const trackSuccesses: {
  * )
  * ```
  *
- * @since 4.0.0
  * @category Tracking
+ * @since 4.0.0
  */
 export const trackErrors: {
   <Input, State, E>(
@@ -13594,7 +13459,8 @@ export const trackErrors: {
  * Also accepts an optional function which can be used to map the defect value
  * of the `Effect` into a valid `Input` for the `Metric`.
  *
- * @example
+ * **Example** (Counting defects)
+ *
  * ```ts
  * import { Effect, Metric } from "effect"
  *
@@ -13612,7 +13478,8 @@ export const trackErrors: {
  * )
  * ```
  *
- * @example
+ * **Example** (Mapping defects before tracking)
+ *
  * ```ts
  * import { Effect, Metric } from "effect"
  *
@@ -13632,8 +13499,8 @@ export const trackErrors: {
  * )
  * ```
  *
- * @since 4.0.0
  * @category Tracking
+ * @since 4.0.0
  */
 export const trackDefects: {
   <Input, State>(
@@ -13669,7 +13536,8 @@ export const trackDefects: {
  * that the wrapped `Effect` took to complete into a valid `Input` for the
  * `Metric`.
  *
- * @example
+ * **Example** (Recording execution duration)
+ *
  * ```ts
  * import { Effect, Metric } from "effect"
  *
@@ -13685,7 +13553,8 @@ export const trackDefects: {
  * )
  * ```
  *
- * @example
+ * **Example** (Mapping duration before tracking)
+ *
  * ```ts
  * import { Duration, Effect, Metric } from "effect"
  *
@@ -13702,8 +13571,8 @@ export const trackDefects: {
  * )
  * ```
  *
- * @since 4.0.0
  * @category Tracking
+ * @since 4.0.0
  */
 export const trackDuration: {
   <Input, State>(
@@ -13753,7 +13622,8 @@ export const trackDuration: {
  * - a journal that stores any non committed change to TxRef values
  * - a retry flag to know if the transaction should be retried
  *
- * @example
+ * **Example** (Building transactions)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -13765,8 +13635,8 @@ export const trackDuration: {
  * })
  * ```
  *
- * @since 4.0.0
  * @category Transactions
+ * @since 4.0.0
  */
 export class Transaction extends Context.Service<
   Transaction,
@@ -13800,7 +13670,8 @@ export class Transaction extends Context.Service<
  * The outermost `tx` call creates the transaction boundary and commits or rolls back the full
  * composed transaction.
  *
- * @example
+ * **Example** (Running a transaction)
+ *
  * ```ts
  * import { Effect, TxRef } from "effect"
  *
@@ -13821,8 +13692,8 @@ export class Transaction extends Context.Service<
  * })
  * ```
  *
- * @since 4.0.0
  * @category Transactions
+ * @since 4.0.0
  */
 export const tx = <A, E, R>(
   effect: Effect<A, E, R>
@@ -13918,10 +13789,10 @@ function clearTransaction(state: Transaction["Service"]) {
  *
  * NOTE: the transaction retries on any change to transactional values (i.e. TxRef) accessed in its body.
  *
- * @since 4.0.0
  * @category Transactions
+ * @since 4.0.0
  *
- * @example
+ * **Example** (Retrying transactions)
  *
  * ```ts
  * import { Effect, TxRef } from "effect"
@@ -13958,20 +13829,9 @@ export const txRetry: Effect<never, never, Transaction> = flatMap(
   }
 )
 /**
- * @since 4.0.0
- * @category Effectify
- * @example
- * ```ts
- * import { Effect } from "effect"
+ * Type helpers for converting callback-based functions into `Effect` functions.
  *
- * // Effectify namespace contains utilities for converting callback-based APIs
- * declare function readFile(
- *   path: string,
- *   cb: (err: Error | null, data?: string) => void
- * ): void
- * const effectReadFile = Effect.effectify(readFile)
- * // Converts callback-based functions to Effect-based functions
- * ```
+ * @since 4.0.0
  */
 export declare namespace Effectify {
   interface Callback<E, A> {
@@ -13983,20 +13843,10 @@ export declare namespace Effectify {
   type WithoutNull<A> = unknown extends A ? void : Exclude<A, null | undefined>
 
   /**
-   * @since 4.0.0
-   * @category Effectify
-   * @example
-   * ```ts
-   * import type { Effect } from "effect"
+   * Converts a callback-based function type into an `Effect`-returning function type.
    *
-   * // Effectify type converts callback-based function types to Effect-based types
-   * type CallbackFn = (
-   *   x: number,
-   *   cb: (err: Error | null, result?: string) => void
-   * ) => void
-   * type EffectFn = Effect.Effectify.Effectify<CallbackFn, Error>
-   * // Result: (x: number) => Effect<string, Error>
-   * ```
+   * @category Effectify
+   * @since 4.0.0
    */
   export type Effectify<T, E> = T extends {
     (...args: ArgsWithCallback<infer Args1, infer _E1, infer A1>): infer _R1
@@ -14141,20 +13991,10 @@ export declare namespace Effectify {
     : never
 
   /**
+   * Extracts the callback error type from a callback-based function type.
+   *
    * @category Util
    * @since 4.0.0
-   * @example
-   * ```ts
-   * import type { Effect } from "effect"
-   *
-   * // EffectifyError extracts error types from callback-based function types
-   * type CallbackFn = (
-   *   x: number,
-   *   cb: (err: Error | null, result?: string) => void
-   * ) => void
-   * type ErrorType = Effect.Effectify.EffectifyError<CallbackFn>
-   * // Result: Error | null
-   * ```
    */
   export type EffectifyError<T> = T extends {
     (...args: ArgsWithCallback<infer _Args1, infer E1, infer _A1>): infer _R1
@@ -14235,9 +14075,19 @@ export declare namespace Effectify {
 }
 
 /**
- * Converts a callback-based function to a function that returns an `Effect`.
+ * Converts an error-first callback API into a function that returns an
+ * `Effect`.
  *
- * @example Basic Usage
+ * **Details**
+ *
+ * The original function is called with the supplied arguments plus a final
+ * callback. A non-null callback error fails the returned effect, while a
+ * successful callback value becomes the effect success. Use `onError` to map
+ * callback errors and `onSyncError` to turn synchronous throws into typed
+ * failures; otherwise synchronous throws become defects.
+ *
+ * **Example** (Converting callbacks to effects)
+ *
  * ```ts
  * import { Effect } from "effect"
  * import * as fs from "fs"
@@ -14252,7 +14102,8 @@ export declare namespace Effectify {
  * // Output: contents of package.json
  * ```
  *
- * @example Custom Error Handling
+ * **Example** (Mapping callback errors to typed failures)
+ *
  * ```ts
  * import { Effect } from "effect"
  * import * as fs from "fs"
@@ -14268,8 +14119,8 @@ export declare namespace Effectify {
  * // Output: Exit.failure with custom error message
  * ```
  *
- * @since 4.0.0
  * @category Effectify
+ * @since 4.0.0
  */
 export const effectify: {
   <F extends (...args: Array<any>) => any>(fn: F): Effectify.Effectify<F, Effectify.EffectifyError<F>>
@@ -14309,7 +14160,8 @@ export const effectify: {
  * This function provides compile-time type checking to ensure that the success
  * value of an effect conforms to a specific type constraint.
  *
- * @example
+ * **Example** (Constraining the success type)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -14325,8 +14177,8 @@ export const effectify: {
  * // Type 'string' is not assignable to type 'number'
  * ```
  *
- * @since 4.0.0
  * @category Type Constraints
+ * @since 4.0.0
  */
 export const satisfiesSuccessType = <A>() => <A2 extends A, E, R>(effect: Effect<A2, E, R>): Effect<A2, E, R> => effect
 
@@ -14336,7 +14188,8 @@ export const satisfiesSuccessType = <A>() => <A2 extends A, E, R>(effect: Effect
  * This function provides compile-time type checking to ensure that the error
  * type of an effect conforms to a specific type constraint.
  *
- * @example
+ * **Example** (Constraining the error type)
+ *
  * ```ts
  * import { Data, Effect } from "effect"
  *
@@ -14354,8 +14207,8 @@ export const satisfiesSuccessType = <A>() => <A2 extends A, E, R>(effect: Effect
  * // Type 'string' is not assignable to type 'ValidationError'
  * ```
  *
- * @since 4.0.0
  * @category Type Constraints
+ * @since 4.0.0
  */
 export const satisfiesErrorType = <E>() => <A, E2 extends E, R>(effect: Effect<A, E2, R>): Effect<A, E2, R> => effect
 
@@ -14365,7 +14218,8 @@ export const satisfiesErrorType = <E>() => <A, E2 extends E, R>(effect: Effect<A
  * This function provides compile-time type checking to ensure that the
  * requirements (context) type of an effect conforms to a specific type constraint.
  *
- * @example
+ * **Example** (Constraining the services type)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -14381,8 +14235,8 @@ export const satisfiesErrorType = <E>() => <A, E2 extends E, R>(effect: Effect<A
  * // const constrainedInvalid = satisfiesStringServices(invalidEffect)
  * ```
  *
- * @since 4.0.0
  * @category Type Constraints
+ * @since 4.0.0
  */
 export const satisfiesServicesType = <R>() => <A, E, R2 extends R>(effect: Effect<A, E, R2>): Effect<A, E, R2> => effect
 
@@ -14402,7 +14256,8 @@ export const satisfiesServicesType = <R>() => <A, E, R2 extends R>(effect: Effec
  * - For **Failure effects**: Returns the failure as-is without applying the mapping
  * - For **Pending effects**: Falls back to the regular `map` behavior
  *
- * @example
+ * **Example** (Mapping already completed effects)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -14415,8 +14270,8 @@ export const satisfiesServicesType = <R>() => <A, E, R2 extends R>(effect: Effec
  * const mappedPending = Effect.mapEager(pending, (n) => n * 2) // Uses regular map
  * ```
  *
- * @since 4.0.0
  * @category Eager
+ * @since 4.0.0
  */
 export const mapEager: {
   <A, B>(f: (a: A) => B): <E, R>(self: Effect<A, E, R>) => Effect<B, E, R>
@@ -14439,7 +14294,8 @@ export const mapEager: {
  * - For **Failure effects**: Applies the mapping function immediately to the error
  * - For **Pending effects**: Falls back to the regular `mapError` behavior
  *
- * @example
+ * **Example** (Mapping errors eagerly when possible)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -14455,8 +14311,8 @@ export const mapEager: {
  * ) // Uses regular mapError
  * ```
  *
- * @since 4.0.0
  * @category Eager
+ * @since 4.0.0
  */
 export const mapErrorEager: {
   <E, E2>(f: (e: E) => E2): <A, R>(self: Effect<A, E, R>) => Effect<A, E2, R>
@@ -14479,7 +14335,8 @@ export const mapErrorEager: {
  * - For **Failure effects**: Applies the `onFailure` function immediately to the error
  * - For **Pending effects**: Falls back to the regular `mapBoth` behavior
  *
- * @example
+ * **Example** (Mapping both channels eagerly when possible)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -14497,8 +14354,8 @@ export const mapErrorEager: {
  * }) // onFailure applied eagerly
  * ```
  *
- * @since 4.0.0
  * @category Eager
+ * @since 4.0.0
  */
 export const mapBothEager: {
   <E, E2, A, A2>(
@@ -14526,7 +14383,8 @@ export const mapBothEager: {
  * - For **Failure effects**: Returns the failure as-is without applying the flatMap
  * - For **Pending effects**: Falls back to the regular `flatMap` behavior
  *
- * @example
+ * **Example** (Flat mapping eagerly when possible)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -14542,8 +14400,8 @@ export const mapBothEager: {
  * ) // Uses regular flatMap
  * ```
  *
- * @since 4.0.0
  * @category Eager
+ * @since 4.0.0
  */
 export const flatMapEager: {
   <A, B, E2, R2>(f: (a: A) => Effect<B, E2, R2>): <E, R>(self: Effect<A, E, R>) => Effect<B, E | E2, R | R2>
@@ -14566,7 +14424,8 @@ export const flatMapEager: {
  * - For **Failure effects**: Applies the catch function immediately to the error
  * - For **Pending effects**: Falls back to the regular `catch` behavior
  *
- * @example
+ * **Example** (Catching failures eagerly when possible)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -14592,8 +14451,8 @@ export const flatMapEager: {
  * ) // Uses regular catch
  * ```
  *
- * @since 4.0.0
  * @category Eager
+ * @since 4.0.0
  */
 export const catchEager: {
   <E, B, E2, R2>(
@@ -14611,7 +14470,8 @@ export const catchEager: {
  * Executes generator functions eagerly when all yielded effects are synchronous,
  * stopping at the first async effect and deferring to normal execution.
  *
- * @example
+ * **Example** (Defining eager untraced effect functions)
+ *
  * ```ts
  * import { Effect } from "effect"
  *
@@ -14624,7 +14484,7 @@ export const catchEager: {
  * const effect = computation() // Executed immediately if all effects are sync
  * ```
  *
- * @since 4.0.0
  * @category Eager
+ * @since 4.0.0
  */
 export const fnUntracedEager: fn.Untraced = internal.fnUntracedEager

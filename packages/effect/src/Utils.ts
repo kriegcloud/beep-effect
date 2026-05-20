@@ -109,6 +109,8 @@ export class SingleShotGen<T, A> implements IterableIterator<T, A> {
   }
 
   /**
+   * Yields the stored value once, then completes with the value sent back in.
+   *
    * @since 2.0.0
    */
   next(a: A): IteratorResult<T, A> {
@@ -125,6 +127,8 @@ export class SingleShotGen<T, A> implements IterableIterator<T, A> {
   }
 
   /**
+   * Creates a fresh single-shot iterator over the stored value.
+   *
    * @since 2.0.0
    */
   [Symbol.iterator](): IterableIterator<T, A> {
@@ -153,8 +157,7 @@ export class SingleShotGen<T, A> implements IterableIterator<T, A> {
  * **Example** (Declaring variance for a TypeLambda)
  *
  * ```ts
- * import type { Utils } from "effect"
- * import type * as Option from "effect/Option"
+ * import type { Option, Utils } from "effect"
  *
  * declare const variance: Utils.Variance<
  *   Option.OptionTypeLambda,

@@ -117,11 +117,10 @@ export type Equivalence<in A> = (self: A, that: A) => boolean
  * **Example** (Type-level usage)
  *
  * ```ts
- * import type { Equivalence } from "effect"
- * import type { Kind } from "effect/HKT"
+ * import type { Equivalence, HKT } from "effect"
  *
  * // Used internally for type-level computations
- * type NumberEquivalence = Kind<
+ * type NumberEquivalence = HKT.Kind<
  *   Equivalence.EquivalenceTypeLambda,
  *   never,
  *   never,
@@ -242,7 +241,8 @@ export const strictEqual: <A>() => Equivalence<A> = () => isStrictEquivalent
 /**
  * An `Equivalence` instance for strings using strict equality (`===`).
  *
- * @example
+ * **Example** (Comparing strings)
+ *
  * ```ts
  * import { Equivalence } from "effect"
  *
@@ -260,7 +260,8 @@ export const String: Equivalence<string> = isStrictEquivalent
  *
  * `NaN` is considered equal to `NaN`.
  *
- * @example
+ * **Example** (Comparing numbers)
+ *
  * ```ts
  * import { Equivalence } from "effect"
  *
@@ -279,7 +280,8 @@ export const Number: Equivalence<number> = make((self, that) =>
 /**
  * An `Equivalence` instance for booleans using strict equality (`===`).
  *
- * @example
+ * **Example** (Comparing booleans)
+ *
  * ```ts
  * import { Equivalence } from "effect"
  *
@@ -295,7 +297,8 @@ export const Boolean: Equivalence<boolean> = isStrictEquivalent
 /**
  * An `Equivalence` instance for bigints using strict equality (`===`).
  *
- * @example
+ * **Example** (Comparing bigints)
+ *
  * ```ts
  * import { Equivalence } from "effect"
  *
@@ -838,7 +841,7 @@ export function Record<A>(value: Equivalence<A>): Equivalence<Record<PropertyKey
  * - {@link combineAll} - Combine multiple equivalences
  * - {@link Reducer} - Reducer type for collection operations
  *
- * @category utilities
+ * @category utils
  * @since 4.0.0
  */
 export function makeReducer<A>() {
@@ -850,23 +853,14 @@ export function makeReducer<A>() {
 }
 
 /**
- * An `Equivalence` instance for `Date` objects.
+ * An `Equivalence` instance for `Date` objects that compares their
+ * `getTime()` values using `Equivalence.Number`.
  *
- * Dates are compared by their time value (milliseconds since the Unix epoch),
- * using {@link Date.prototype.getTime}.
+ * Different `Date` instances that represent the same millisecond timestamp are
+ * equivalent. Because `Equivalence.Number` treats `NaN` as equal to `NaN`, two
+ * invalid `Date` values are also considered equivalent.
  *
- * When to use this:
- * - When comparing `Date` objects by their exact point in time
- * - When you need value-based equality instead of reference equality
- * - When working with collections that contain `Date` values
- *
- * Behavior:
- * - Does not mutate inputs
- * - Two dates are equivalent if `self.getTime() === that.getTime()`
- * - Internally uses {@link Number} equivalence
- * - Different `Date` instances representing the same time are considered equivalent
- *
- * **Example**
+ * **Example** (Comparing Date values)
  *
  * ```ts
  * import { Equivalence } from "effect"
@@ -898,7 +892,7 @@ export function makeReducer<A>() {
  * See also: {@link Number}, {@link mapInput}, {@link strictEqual}
  *
  * @category instances
- * @since 4.0.0
+ * @since 2.0.0
  */
 export const Date: Equivalence<Date> = mapInput(
   Number,
