@@ -2432,9 +2432,13 @@ const toPhoenixDatasetCreateInput = (dataset: AgentEffectivenessDatasetSpec): Ph
 const datasetSelectorFor = (dataset: AgentEffectivenessDatasetSpec): PhoenixDatasetSelector =>
   new PhoenixDatasetSelector({ kind: "dataset-name", value: dataset.name });
 
+const phoenixNotFoundStatusPattern = /\b404\b/u;
+
 const isDatasetNotFoundCause = (cause: string): boolean => {
   const normalized = Str.toLowerCase(cause);
-  return Str.contains(normalized, "not found") || Str.contains(normalized, "404");
+  // Matches Phoenix SDK dataset miss messages (`Dataset with name ... not found`)
+  // plus HTTP status messages such as `URL: 404 Not Found`.
+  return Str.contains(normalized, "not found") || phoenixNotFoundStatusPattern.test(normalized);
 };
 
 const isDatasetNotFoundError = (error: PhoenixError): boolean =>
@@ -2747,6 +2751,7 @@ const forbiddenPatterns = [
 ] as const;
 
 const decodeUnknownRecordOption = S.decodeUnknownOption(UnknownRecord);
+const maxPrivacyScanDepth = 16;
 
 const checkText = (
   annotationId: string,
@@ -2766,11 +2771,24 @@ const checkText = (
     )
   );
 
-const checkUnknownText = (
+const depthFinding = (subjectId: string, subject: string): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => [
+  new AgentEffectivenessAnnotationCheckFinding({
+    annotationId: subjectId,
+    code: "max-nested-depth",
+    message: `${subject} exceeds the maximum privacy scan depth.`,
+  }),
+];
+
+function checkUnknownText(
   subjectId: string,
   value: unknown,
-  subject: string
-): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => {
+  subject: string,
+  depth = 0
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> {
+  if (depth > maxPrivacyScanDepth) {
+    return depthFinding(subjectId, subject);
+  }
+
   if (P.isString(value)) {
     return checkText(subjectId, value, subject);
   }
@@ -2778,27 +2796,36 @@ const checkUnknownText = (
   if (A.isArray(value)) {
     return pipe(
       value,
-      A.flatMap((entry) => checkUnknownText(subjectId, entry, subject))
+      A.flatMap((entry) => checkUnknownText(subjectId, entry, subject, depth + 1))
     );
   }
 
   const record = decodeUnknownRecordOption(value);
   if (O.isSome(record)) {
-    return checkRecordText(subjectId, record.value, subject);
+    return checkRecordText(subjectId, record.value, subject, depth + 1);
   }
 
   return [];
-};
+}
 
-const checkRecordText = (
+function checkRecordText(
   subjectId: string,
   record: Readonly<Record<string, unknown>>,
-  subject: string
-): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
-  pipe(
+  subject: string,
+  depth = 0
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> {
+  if (depth > maxPrivacyScanDepth) {
+    return depthFinding(subjectId, subject);
+  }
+
+  return pipe(
     R.toEntries(record),
-    A.flatMap(([key, value]) => [...checkText(subjectId, key, subject), ...checkUnknownText(subjectId, value, subject)])
+    A.flatMap(([key, value]) => [
+      ...checkText(subjectId, key, subject),
+      ...checkUnknownText(subjectId, value, subject, depth),
+    ])
   );
+}
 
 const checkDatasetExample = (
   dataset: AgentEffectivenessDatasetSpec,

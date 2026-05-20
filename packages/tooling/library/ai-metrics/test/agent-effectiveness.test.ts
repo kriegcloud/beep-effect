@@ -794,7 +794,11 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           provideScopedLayer(
             Layer.mergeAll(
               runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb")),
-              Phoenix.makeLayerWithSdk(phoenixWriteSdk(calls, { datasetLookupFailure: new Error("offline") }))
+              Phoenix.makeLayerWithSdk(
+                phoenixWriteSdk(calls, {
+                  datasetLookupFailure: new Error("connect ECONNREFUSED 127.0.0.1:4040"),
+                })
+              )
             )
           )
         );
