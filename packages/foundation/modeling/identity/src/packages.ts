@@ -1353,7 +1353,7 @@ export const $CanvasId: Identity.IdentityComposer<"@beep/canvas"> = composers.$C
 /**
  * Identity composer for `@beep/repo-codegraph`.
  *
- * 
+ *
  * @example
  * ```typescript
  * import { $RepoCodegraphId } from "@beep/identity"
