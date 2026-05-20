@@ -1,0 +1,562 @@
+/**
+ * Changeset package graph validation for release safety.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $RepoCliId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
+import { A, Str } from "@beep/utils";
+import { Console, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+import { parseDocument } from "yaml";
+
+const $I = $RepoCliId.create("commands/Quality/ChangesetGraph");
+
+const changesetFrontmatterPattern = /^---\r?\n([\s\S]*?)\r?\n---/;
+const nulSeparator = "\u0000";
+const gitWorkspacePackageJsonPathspecs = ["package.json"] as const;
+
+class ChangesetGraphWorkspacesObject extends S.Class<ChangesetGraphWorkspacesObject>(
+  $I`ChangesetGraphWorkspacesObject`
+)(
+  {
+    packages: S.Array(S.String).pipe(S.optionalKey),
+  },
+  $I.annote("ChangesetGraphWorkspacesObject", {
+    description: "Object-form root package workspace declaration used by the changeset graph guard.",
+  })
+) {}
+
+class ChangesetGraphPackageJson extends S.Class<ChangesetGraphPackageJson>($I`ChangesetGraphPackageJson`)(
+  {
+    name: S.optionalKey(S.String),
+    workspaces: S.optionalKey(S.Union([S.Array(S.String), ChangesetGraphWorkspacesObject])),
+  },
+  $I.annote("ChangesetGraphPackageJson", {
+    description: "Minimal package.json shape used by the changeset graph guard.",
+  })
+) {}
+
+/**
+ * A package name referenced by a changeset file.
+ *
+ * @example
+ * ```ts
+ * import { ChangesetGraphPackageReference } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
+ *
+ * const reference = new ChangesetGraphPackageReference({
+ *   file: ".changeset/example.md",
+ *   packageName: "@beep/schema"
+ * })
+ * console.log(reference.packageName)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class ChangesetGraphPackageReference extends S.Class<ChangesetGraphPackageReference>(
+  $I`ChangesetGraphPackageReference`
+)(
+  {
+    file: S.String,
+    packageName: S.String,
+  },
+  $I.annote("ChangesetGraphPackageReference", {
+    description: "A package name referenced by a changeset file.",
+  })
+) {}
+
+/**
+ * Summary emitted by the changeset package graph guard.
+ *
+ * @example
+ * ```ts
+ * import { ChangesetGraphSummary } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
+ *
+ * const summary = new ChangesetGraphSummary({
+ *   workspacePackages: 1,
+ *   changesetFiles: 1,
+ *   references: 1,
+ *   missingReferences: []
+ * })
+ * console.log(summary.workspacePackages)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class ChangesetGraphSummary extends S.Class<ChangesetGraphSummary>($I`ChangesetGraphSummary`)(
+  {
+    workspacePackages: S.Number,
+    changesetFiles: S.Number,
+    references: S.Number,
+    missingReferences: S.Array(ChangesetGraphPackageReference),
+  },
+  $I.annote("ChangesetGraphSummary", {
+    description: "Aggregate result emitted by the changeset package graph guard.",
+  })
+) {}
+
+/**
+ * Failure raised while validating changeset package references.
+ *
+ * @example
+ * ```ts
+ * import { ChangesetGraphError } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
+ *
+ * const error = new ChangesetGraphError({
+ *   message: "Changeset graph validation failed."
+ * })
+ * console.log(error.message)
+ * ```
+ * @category error-handling
+ * @since 0.0.0
+ */
+export class ChangesetGraphError extends TaggedErrorClass<ChangesetGraphError>($I`ChangesetGraphError`)(
+  "ChangesetGraphError",
+  {
+    message: S.String,
+    file: S.optionalKey(S.String),
+    cause: S.optionalKey(S.Defect),
+  },
+  $I.annote("ChangesetGraphError", {
+    description: "Failure raised while validating changeset package references.",
+  })
+) {}
+
+const decodePackageJson = S.decodeUnknownEffect(S.fromJsonString(ChangesetGraphPackageJson));
+const decodeChangesetFrontmatter = S.decodeUnknownEffect(S.Record(S.String, S.Unknown));
+
+const byReferenceKeyAscending: Order.Order<ChangesetGraphPackageReference> = Order.mapInput(
+  Order.String,
+  (reference) => `${reference.file}${nulSeparator}${reference.packageName}`
+);
+
+const normalizePath = Str.replaceAll("\\", "/");
+const stripTrailingSlashes = Str.replace(/\/+$/g, "");
+const isReadmeChangeset = Str.endsWith("/README.md");
+
+type ChangesetGraphWorkspaces = ChangesetGraphPackageJson["workspaces"];
+
+const isWorkspacePatternArray = (value: Exclude<ChangesetGraphWorkspaces, undefined>): value is ReadonlyArray<string> =>
+  A.isArray(value) && A.every(value, P.isString);
+
+const toNulSeparatedLines: (output: string) => ReadonlyArray<string> = flow(
+  Str.split(nulSeparator),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty),
+  A.dedupe,
+  A.sort(Order.String)
+);
+
+const workspacePatternsFrom = (document: ChangesetGraphPackageJson): ReadonlyArray<string> => {
+  if (P.isUndefined(document.workspaces)) {
+    return A.empty<string>();
+  }
+
+  return isWorkspacePatternArray(document.workspaces)
+    ? document.workspaces
+    : (document.workspaces.packages ?? A.empty());
+};
+
+const packageJsonPathspecForWorkspacePattern = (pattern: string): string =>
+  `:(glob)${pipe(pattern, normalizePath, stripTrailingSlashes)}/package.json`;
+
+const extractFrontmatter = (content: string): O.Option<string> =>
+  pipe(
+    O.fromNullishOr(changesetFrontmatterPattern.exec(content)),
+    O.flatMap((match) => O.fromNullishOr(match[1]))
+  );
+
+const collectGitOutput = Effect.fn("ChangesetGraph.collectGitOutput")(function* (
+  repoRoot: string,
+  args: ReadonlyArray<string>
+): Effect.fn.Return<string, ChangesetGraphError, ChildProcessSpawner.ChildProcessSpawner> {
+  const output = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make("git", [...args], {
+        cwd: repoRoot,
+        stdout: "pipe",
+        stderr: "ignore",
+      });
+      const text = yield* handle.stdout.pipe(
+        Stream.decodeText(),
+        Stream.runFold(
+          () => "",
+          (acc, chunk) => acc + chunk
+        )
+      );
+      const exitCode = yield* handle.exitCode;
+
+      if (exitCode !== 0) {
+        return yield* new ChangesetGraphError({
+          message: `git ${A.join(args, " ")} failed with exit code ${exitCode}.`,
+        });
+      }
+
+      return text;
+    })
+  ).pipe(
+    Effect.mapError(
+      (cause) =>
+        new ChangesetGraphError({
+          message: `Failed to run git ${A.join(args, " ")}.`,
+          cause,
+        })
+    )
+  );
+
+  return output;
+});
+
+const readPackageJson = Effect.fn("ChangesetGraph.readPackageJson")(function* (
+  filePath: string
+): Effect.fn.Return<ChangesetGraphPackageJson, ChangesetGraphError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs.readFileString(filePath).pipe(
+    Effect.mapError(
+      (cause) =>
+        new ChangesetGraphError({
+          message: `Failed to read package manifest ${filePath}.`,
+          file: filePath,
+          cause,
+        })
+    )
+  );
+
+  return yield* decodePackageJson(content).pipe(
+    Effect.mapError(
+      (cause) =>
+        new ChangesetGraphError({
+          message: `Failed to parse package manifest ${filePath}.`,
+          file: filePath,
+          cause,
+        })
+    )
+  );
+});
+
+const collectWorkspacePackageJsonFiles = Effect.fn("ChangesetGraph.collectWorkspacePackageJsonFiles")(function* (
+  repoRoot: string
+): Effect.fn.Return<
+  ReadonlyArray<string>,
+  ChangesetGraphError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const path = yield* Path.Path;
+  const rootPackageJson = yield* readPackageJson(path.join(repoRoot, "package.json"));
+  const workspacePathspecs = pipe(
+    workspacePatternsFrom(rootPackageJson),
+    A.map(packageJsonPathspecForWorkspacePattern)
+  );
+  const output = yield* collectGitOutput(repoRoot, [
+    "ls-files",
+    "-z",
+    "--",
+    ...gitWorkspacePackageJsonPathspecs,
+    ...workspacePathspecs,
+  ]);
+
+  return pipe(
+    toNulSeparatedLines(output),
+    A.filter((file) => file !== "package.json")
+  );
+});
+
+const collectWorkspacePackageNames = Effect.fn("ChangesetGraph.collectWorkspacePackageNames")(function* (
+  repoRoot: string
+): Effect.fn.Return<
+  ReadonlyArray<string>,
+  ChangesetGraphError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const path = yield* Path.Path;
+  const packageJsonFiles = yield* collectWorkspacePackageJsonFiles(repoRoot);
+  const names = yield* Effect.forEach(
+    packageJsonFiles,
+    Effect.fn(function* (file) {
+      const document = yield* readPackageJson(path.join(repoRoot, file));
+      if (P.isUndefined(document.name)) {
+        return yield* new ChangesetGraphError({
+          message: `Workspace package manifest ${file} does not declare a package name.`,
+          file,
+        });
+      }
+      return document.name;
+    }),
+    { concurrency: 8 }
+  );
+
+  return pipe(names, A.dedupe, A.sort(Order.String));
+});
+
+const collectChangesetFiles = Effect.fn("ChangesetGraph.collectChangesetFiles")(function* (
+  repoRoot: string
+): Effect.fn.Return<
+  ReadonlyArray<string>,
+  ChangesetGraphError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const output = yield* collectGitOutput(repoRoot, ["ls-files", "-z", "--", ":(glob).changeset/*.md"]);
+  const trackedFiles = pipe(
+    toNulSeparatedLines(output),
+    A.filter((file) => !isReadmeChangeset(file)),
+    A.sort(Order.String)
+  );
+  const existingFiles = yield* Effect.forEach(
+    trackedFiles,
+    Effect.fn(function* (file) {
+      const exists = yield* fs.exists(path.join(repoRoot, file)).pipe(
+        Effect.mapError(
+          (cause) =>
+            new ChangesetGraphError({
+              message: `Failed to inspect changeset file ${file}.`,
+              file,
+              cause,
+            })
+        )
+      );
+      return exists ? O.some(file) : O.none<string>();
+    }),
+    { concurrency: 8 }
+  );
+
+  return pipe(
+    existingFiles,
+    A.filter(O.isSome),
+    A.map((option) => option.value),
+    A.sort(Order.String)
+  );
+});
+
+/**
+ * Parse package references from one changeset Markdown document.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { changesetPackageReferencesFromText } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
+ *
+ * const program = changesetPackageReferencesFromText(
+ *   ".changeset/example.md",
+ *   "---\n\"@beep/schema\": patch\n---\n\nPatch schema."
+ * )
+ * Effect.runPromise(program)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const changesetPackageReferencesFromText = Effect.fn("ChangesetGraph.changesetPackageReferencesFromText")(
+  function* (
+    file: string,
+    content: string
+  ): Effect.fn.Return<ReadonlyArray<ChangesetGraphPackageReference>, ChangesetGraphError> {
+    const frontmatter = extractFrontmatter(content);
+
+    if (O.isNone(frontmatter)) {
+      return A.empty<ChangesetGraphPackageReference>();
+    }
+
+    const document = yield* Effect.try({
+      try: () => parseDocument(frontmatter.value),
+      catch: (cause) =>
+        new ChangesetGraphError({
+          message: `Failed to parse changeset frontmatter in ${file}.`,
+          file,
+          cause,
+        }),
+    });
+
+    if (!A.isReadonlyArrayEmpty(document.errors)) {
+      const message = pipe(
+        A.head(document.errors),
+        O.map((error) => error.message),
+        O.getOrElse(() => "YAML parser reported an unknown error.")
+      );
+      return yield* new ChangesetGraphError({
+        message: `Invalid changeset frontmatter in ${file}: ${message}`,
+        file,
+      });
+    }
+
+    const value = yield* Effect.try({
+      try: () => document.toJSON(),
+      catch: (cause) =>
+        new ChangesetGraphError({
+          message: `Failed to read changeset frontmatter in ${file}.`,
+          file,
+          cause,
+        }),
+    });
+
+    if (P.isNullish(value)) {
+      return A.empty<ChangesetGraphPackageReference>();
+    }
+
+    const decoded = yield* decodeChangesetFrontmatter(value).pipe(
+      Effect.mapError(
+        (cause) =>
+          new ChangesetGraphError({
+            message: `Changeset frontmatter in ${file} must be a package bump mapping.`,
+            file,
+            cause,
+          })
+      )
+    );
+
+    return pipe(
+      R.keys(decoded),
+      A.filter(Str.isNonEmpty),
+      A.map((packageName) => new ChangesetGraphPackageReference({ file, packageName })),
+      A.sort(byReferenceKeyAscending)
+    );
+  }
+);
+
+const collectChangesetPackageReferences = Effect.fn("ChangesetGraph.collectChangesetPackageReferences")(function* (
+  repoRoot: string,
+  files: ReadonlyArray<string>
+): Effect.fn.Return<
+  ReadonlyArray<ChangesetGraphPackageReference>,
+  ChangesetGraphError,
+  FileSystem.FileSystem | Path.Path
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const references = yield* Effect.forEach(
+    files,
+    Effect.fn(function* (file) {
+      const content = yield* fs.readFileString(path.join(repoRoot, file)).pipe(
+        Effect.mapError(
+          (cause) =>
+            new ChangesetGraphError({
+              message: `Failed to read changeset file ${file}.`,
+              file,
+              cause,
+            })
+        )
+      );
+      return yield* changesetPackageReferencesFromText(file, content);
+    }),
+    { concurrency: 8 }
+  );
+
+  return pipe(A.flatten(references), A.sort(byReferenceKeyAscending));
+});
+
+/**
+ * Find changeset package references that are not in the workspace graph.
+ *
+ * @param workspacePackageNames - Current workspace package names.
+ * @param references - Package references parsed from changeset files.
+ * @returns References that do not resolve to a workspace package.
+ * @example
+ * ```ts
+ * import { ChangesetGraphPackageReference, findMissingChangesetPackageReferences } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
+ *
+ * const missing = findMissingChangesetPackageReferences(
+ *   ["@beep/schema"],
+ *   [new ChangesetGraphPackageReference({ file: ".changeset/demo.md", packageName: "@beep/missing" })]
+ * )
+ * console.log(missing.length)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const findMissingChangesetPackageReferences: {
+  (
+    references: ReadonlyArray<ChangesetGraphPackageReference>
+  ): (workspacePackageNames: ReadonlyArray<string>) => ReadonlyArray<ChangesetGraphPackageReference>;
+  (
+    workspacePackageNames: ReadonlyArray<string>,
+    references: ReadonlyArray<ChangesetGraphPackageReference>
+  ): ReadonlyArray<ChangesetGraphPackageReference>;
+} = dual(
+  2,
+  (
+    workspacePackageNames: ReadonlyArray<string>,
+    references: ReadonlyArray<ChangesetGraphPackageReference>
+  ): ReadonlyArray<ChangesetGraphPackageReference> =>
+    pipe(
+      references,
+      A.filter((reference) => !A.some(workspacePackageNames, (packageName) => packageName === reference.packageName)),
+      A.dedupeWith((left, right) => left.file === right.file && left.packageName === right.packageName),
+      A.sort(byReferenceKeyAscending)
+    )
+);
+
+const makeSummary = (
+  workspacePackageNames: ReadonlyArray<string>,
+  changesetFiles: ReadonlyArray<string>,
+  references: ReadonlyArray<ChangesetGraphPackageReference>
+): ChangesetGraphSummary =>
+  new ChangesetGraphSummary({
+    workspacePackages: A.length(workspacePackageNames),
+    changesetFiles: A.length(changesetFiles),
+    references: A.length(references),
+    missingReferences: findMissingChangesetPackageReferences(workspacePackageNames, references),
+  });
+
+/**
+ * Build a changeset graph summary from already-collected inputs.
+ *
+ * @example
+ * ```ts
+ * import { makeChangesetGraphSummary } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
+ *
+ * const summary = makeChangesetGraphSummary(["@beep/schema"], [".changeset/demo.md"], [])
+ * console.log(summary.changesetFiles)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const makeChangesetGraphSummary = makeSummary;
+
+/**
+ * Run the non-mutating changeset package graph guard.
+ *
+ * @example
+ * ```ts
+ * import { runChangesetGraphCheck } from "@beep/repo-cli/commands/Quality/ChangesetGraph"
+ *
+ * const program = runChangesetGraphCheck(process.cwd())
+ * console.log(program)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const runChangesetGraphCheck = Effect.fn("ChangesetGraph.runChangesetGraphCheck")(function* (
+  repoRoot: string
+): Effect.fn.Return<
+  ChangesetGraphSummary,
+  ChangesetGraphError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const workspacePackageNames = yield* collectWorkspacePackageNames(repoRoot);
+  const changesetFiles = yield* collectChangesetFiles(repoRoot);
+  const references = yield* collectChangesetPackageReferences(repoRoot, changesetFiles);
+  const summary = makeSummary(workspacePackageNames, changesetFiles, references);
+
+  yield* Console.log(
+    `[changeset-graph] workspace_packages=${summary.workspacePackages} changeset_files=${summary.changesetFiles} references=${summary.references} missing_references=${A.length(summary.missingReferences)}`
+  );
+
+  if (!A.isReadonlyArrayEmpty(summary.missingReferences)) {
+    yield* Console.error("[changeset-graph] changeset package references outside current workspace graph:");
+    for (const reference of summary.missingReferences) {
+      yield* Console.error(`- ${reference.file} :: ${reference.packageName}`);
+    }
+    return yield* new ChangesetGraphError({
+      message: "Changeset package graph validation failed.",
+    });
+  }
+
+  return summary;
+});
