@@ -1579,6 +1579,7 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
     labelRows,
     A.flatMap((row) => [
       annotation({
+        idSuffix: row.labelId,
         metadata: { labelId: row.labelId, qualityGate: row.qualityGate },
         name: "agent.outcome.passed",
         optimization: "maximize",
@@ -1588,6 +1589,7 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
         value: row.passed,
       }),
       annotation({
+        idSuffix: row.labelId,
         metadata: { labelId: row.labelId, qualityGate: row.qualityGate },
         name: "agent.outcome.rating",
         optimization: "maximize",
@@ -1597,6 +1599,7 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
         value: row.rating,
       }),
       annotation({
+        idSuffix: row.labelId,
         metadata: { labelId: row.labelId, qualityGate: row.qualityGate },
         name: "agent.interventions",
         optimization: "minimize",
@@ -1606,6 +1609,7 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
         value: row.interventionCount,
       }),
       annotation({
+        idSuffix: row.labelId,
         metadata: { labelId: row.labelId, qualityGate: row.qualityGate },
         name: "agent.follow_up_fix",
         optimization: "minimize",

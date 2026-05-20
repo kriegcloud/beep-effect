@@ -99,6 +99,51 @@ const seedScorecardWithCoverageGaps = Effect.fn("AgentEffectivenessTest.seedScor
   );
 });
 
+const seedOutcomeLabel = Effect.fn("AgentEffectivenessTest.seedOutcomeLabel")(function* ({
+  labelId,
+  labeledAtEpochMillis,
+}: {
+  readonly labelId: string;
+  readonly labeledAtEpochMillis: number;
+}) {
+  const duckdb = yield* DuckDb;
+  yield* ensureAiMetricsDerivedStorage;
+  yield* duckdb.run(
+    `INSERT OR REPLACE INTO ai_metrics_outcome_labels (
+      label_id,
+      agent_task_id,
+      rating,
+      passed,
+      quality_gate,
+      intervention_count,
+      follow_up_fix,
+      note,
+      labeled_at_epoch_ms
+    ) VALUES (
+      $labelId,
+      $agentTaskId,
+      $rating,
+      $passed,
+      $qualityGate,
+      $interventionCount,
+      $followUpFix,
+      $note,
+      $labeledAtEpochMillis
+    )`,
+    {
+      agentTaskId: "agent-task-relabeled",
+      followUpFix: false,
+      interventionCount: 0,
+      labelId,
+      labeledAtEpochMillis,
+      note: null,
+      passed: true,
+      qualityGate: "passed",
+      rating: 1,
+    }
+  );
+});
+
 const workerReportJson = `{
   "cleanup": { "deleteStatus": "completed", "stopStatus": "completed" },
   "otlp": { "status": "exported" },
@@ -341,6 +386,50 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
           expect(workerViolationIds).toEqual([
             "jsdoc-worker-eval:worker-report:jsdoc-worker-eval-latest:worker.policy_violation:missing-example",
             "jsdoc-worker-eval:worker-report:jsdoc-worker-eval-latest:worker.policy_violation:missing-since",
+          ]);
+        }).pipe(provideScopedLayer(runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb"))));
+      })
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
+  it.effect("disambiguates relabeled task annotations by label id", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        yield* Effect.gen(function* () {
+          const dataRoot = path.join(tmpDir, "metrics");
+          yield* writeText(path.join(dataRoot, "derived", ".keep"), "");
+          yield* seedOutcomeLabel({ labeledAtEpochMillis: 1, labelId: "label-first" });
+          yield* seedOutcomeLabel({ labeledAtEpochMillis: 2, labelId: "label-second" });
+
+          const plan = yield* makeAgentEffectivenessAnnotationPlan(
+            new AgentEffectivenessAnnotationPlanInput({
+              doctor: new AgentEffectivenessDoctorInput({
+                dataRoot,
+                noPhoenix: true,
+                workerEvalReportPath: path.join(tmpDir, "missing-worker-report.json"),
+              }),
+            })
+          );
+          const labelIds = pipe(
+            plan.annotations,
+            A.filter((annotation) => annotation.targetRef === "agent-task-relabeled"),
+            A.map((annotation) => annotation.annotationId)
+          );
+          const check = makeAgentEffectivenessAnnotationCheckReport(plan);
+
+          expect(check.status).toBe(AgentEffectivenessStatus.Enum.passed);
+          expect(A.length(labelIds)).toBe(8);
+          expect(A.length(labelIds)).toBe(A.length(A.dedupe(labelIds)));
+          expect(labelIds).toEqual([
+            "ai-metrics:agent-task:agent-task-relabeled:agent.outcome.passed:label-second",
+            "ai-metrics:agent-task:agent-task-relabeled:agent.outcome.rating:label-second",
+            "ai-metrics:agent-task:agent-task-relabeled:agent.interventions:label-second",
+            "ai-metrics:agent-task:agent-task-relabeled:agent.follow_up_fix:label-second",
+            "ai-metrics:agent-task:agent-task-relabeled:agent.outcome.passed:label-first",
+            "ai-metrics:agent-task:agent-task-relabeled:agent.outcome.rating:label-first",
+            "ai-metrics:agent-task:agent-task-relabeled:agent.interventions:label-first",
+            "ai-metrics:agent-task:agent-task-relabeled:agent.follow_up_fix:label-first",
           ]);
         }).pipe(provideScopedLayer(runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb"))));
       })
