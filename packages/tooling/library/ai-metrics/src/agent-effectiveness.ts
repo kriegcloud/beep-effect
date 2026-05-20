@@ -16,12 +16,13 @@ import {
   PhoenixDatasetCreateInput,
   PhoenixDatasetExample,
   PhoenixDatasetSelector,
+  type PhoenixError,
   PhoenixExperimentCreateInput,
   PhoenixPromptChatMessage,
   PhoenixPromptCreateInput,
   type PhoenixShape,
 } from "@beep/phoenix";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass, UnknownRecord } from "@beep/schema";
 import { A, O, P, Str } from "@beep/utils";
 import { DateTime, Effect, FileSystem, flow, Match, Path, pipe } from "effect";
 import * as R from "effect/Record";
@@ -1275,6 +1276,8 @@ const decodeRunpodWorkerEvalReportJson = S.decodeUnknownEffect(S.fromJsonString(
 const decodePhoenixGraphqlResponse = S.decodeUnknownEffect(PhoenixGraphqlResponse);
 const encodeDoctorReportJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDoctorReport));
 const encodeAnnotationPlanJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationPlan));
+const encodeAnnotationPlanJsonSync = S.encodeUnknownSync(S.fromJsonString(AgentEffectivenessAnnotationPlan));
+const decodeUnknownJsonSync = S.decodeUnknownSync(S.UnknownFromJsonString);
 const encodeAnnotationCheckJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationCheckReport));
 const encodeDatasetBundleJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDatasetBundle));
 const encodePromptBundleJson = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessPromptBundle));
@@ -2437,13 +2440,37 @@ const toPhoenixDatasetCreateInput = (dataset: AgentEffectivenessDatasetSpec): Ph
 const datasetSelectorFor = (dataset: AgentEffectivenessDatasetSpec): PhoenixDatasetSelector =>
   new PhoenixDatasetSelector({ kind: "dataset-name", value: dataset.name });
 
+const phoenixNotFoundStatusPattern = /\b404\b/u;
+
+const isDatasetNotFoundCause = (cause: string): boolean => {
+  const normalized = Str.toLowerCase(cause);
+  // Matches Phoenix SDK dataset miss messages (`Dataset with name ... not found`)
+  // plus HTTP status messages such as `URL: 404 Not Found`.
+  return Str.contains(normalized, "not found") || phoenixNotFoundStatusPattern.test(normalized);
+};
+
+const isDatasetNotFoundError = (error: PhoenixError): boolean =>
+  error.operation === "getDatasetInfo" &&
+  error.reason === "transport" &&
+  pipe(O.fromUndefinedOr(error.cause), O.exists(isDatasetNotFoundCause));
+
+const findPhoenixDatasetInfo = Effect.fn("AiMetrics.findPhoenixDatasetInfo")(function* (
+  phoenix: PhoenixShape,
+  selector: PhoenixDatasetSelector
+) {
+  return yield* phoenix.getDatasetInfo(selector).pipe(
+    Effect.map(O.some),
+    Effect.catchIf(isDatasetNotFoundError, () => Effect.succeed(O.none()))
+  );
+});
+
 const syncPhoenixDataset = Effect.fn("AiMetrics.syncPhoenixDataset")(function* (
   phoenix: PhoenixShape,
   dataset: AgentEffectivenessDatasetSpec
 ) {
   const input = toPhoenixDatasetCreateInput(dataset);
   const selector = datasetSelectorFor(dataset);
-  const existing = yield* phoenix.getDatasetInfo(selector).pipe(Effect.option);
+  const existing = yield* findPhoenixDatasetInfo(phoenix, selector);
 
   if (O.isSome(existing)) {
     const appended = yield* phoenix.appendDatasetExamples(
@@ -2726,9 +2753,13 @@ export const syncAgentEffectivenessPhoenix: (
 const forbiddenPatterns = [
   { code: "private-home-path", pattern: /\/home\/[A-Za-z0-9_.-]+/u },
   { code: "onepassword-ref", pattern: /op:\/\//u },
+  // Keep this assignment- or key-shaped to avoid false positives on metric names like provider_model_token_cost.
   { code: "secret-shaped-value", pattern: /(?:\b(?:SECRET|TOKEN|API[_-]?KEY)\b\s*[=:]|sk-[A-Za-z0-9_-]{12,})/iu },
   { code: "raw-worker-draft", pattern: /draftJsDoc|@example|```ts/u },
 ] as const;
+
+const decodeUnknownRecordOption = S.decodeUnknownOption(UnknownRecord);
+const maxPrivacyScanDepth = 16;
 
 const checkText = (
   annotationId: string,
@@ -2748,11 +2779,24 @@ const checkText = (
     )
   );
 
-const checkUnknownText = (
+const depthFinding = (subjectId: string, subject: string): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => [
+  new AgentEffectivenessAnnotationCheckFinding({
+    annotationId: subjectId,
+    code: "max-nested-depth",
+    message: `${subject} exceeds the maximum privacy scan depth.`,
+  }),
+];
+
+function checkUnknownText(
   subjectId: string,
   value: unknown,
-  subject: string
-): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> => {
+  subject: string,
+  depth = 0
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> {
+  if (depth > maxPrivacyScanDepth) {
+    return depthFinding(subjectId, subject);
+  }
+
   if (P.isString(value)) {
     return checkText(subjectId, value, subject);
   }
@@ -2760,114 +2804,41 @@ const checkUnknownText = (
   if (A.isArray(value)) {
     return pipe(
       value,
-      A.flatMap((entry, index) => checkUnknownText(`${subjectId}[${index}]`, entry, subject))
+      A.flatMap((entry, index) => checkUnknownText(`${subjectId}[${index}]`, entry, subject, depth + 1))
     );
   }
 
-  if (P.isObject(value)) {
-    return checkRecordText(subjectId, value as Readonly<Record<string, unknown>>, subject);
+  const record = decodeUnknownRecordOption(value);
+  if (O.isSome(record)) {
+    return checkRecordText(subjectId, record.value, subject, depth + 1);
   }
 
   return [];
-};
+}
 
-const checkRecordText = (
+function checkRecordText(
   subjectId: string,
   record: Readonly<Record<string, unknown>>,
-  subject: string
-): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
-  pipe(
+  subject: string,
+  depth = 0
+): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> {
+  if (depth > maxPrivacyScanDepth) {
+    return depthFinding(subjectId, subject);
+  }
+
+  return pipe(
     R.toEntries(record),
-    A.flatMap(([key, value]) => [
-      ...checkText(subjectId, key, subject),
-      ...checkUnknownText(`${subjectId}.${key}`, value, subject),
-    ])
+    A.flatMap(([key, value]) => {
+      const entryId = `${subjectId}.${key}`;
+      return [...checkText(entryId, key, subject), ...checkUnknownText(entryId, value, subject, depth)];
+    })
   );
+}
 
 const checkPlanPayload = (
   plan: AgentEffectivenessAnnotationPlan
 ): ReadonlyArray<AgentEffectivenessAnnotationCheckFinding> =>
-  checkUnknownText(
-    "plan",
-    {
-      doctor: {
-        aiMetrics: {
-          dataRoot: plan.doctor.aiMetrics.dataRoot,
-          derivedDuckDbPath: plan.doctor.aiMetrics.derivedDuckDbPath,
-          latestForwarder:
-            plan.doctor.aiMetrics.latestForwarder === null
-              ? null
-              : {
-                  configSnapshotId: plan.doctor.aiMetrics.latestForwarder.configSnapshotId,
-                  ingestRunId: plan.doctor.aiMetrics.latestForwarder.ingestRunId,
-                  target: plan.doctor.aiMetrics.latestForwarder.target,
-                },
-          latestScorecard:
-            plan.doctor.aiMetrics.latestScorecard === null
-              ? null
-              : {
-                  configSnapshotId: plan.doctor.aiMetrics.latestScorecard.configSnapshotId,
-                  coverageGaps: plan.doctor.aiMetrics.latestScorecard.coverageGaps,
-                  scorecardId: plan.doctor.aiMetrics.latestScorecard.scorecardId,
-                },
-          message: plan.doctor.aiMetrics.message,
-          sourceCoverage: pipe(
-            plan.doctor.aiMetrics.sourceCoverage,
-            A.map((coverage) => ({
-              lastTimestamp: coverage.lastTimestamp,
-              sourceKind: coverage.sourceKind,
-            }))
-          ),
-          status: plan.doctor.aiMetrics.status,
-          unavailableMetrics: plan.doctor.aiMetrics.unavailableMetrics,
-        },
-        dataRoot: plan.doctor.dataRoot,
-        generatedAt: plan.doctor.generatedAt,
-        jsdocWorkerEval: {
-          cleanupDeleteStatus: plan.doctor.jsdocWorkerEval.cleanupDeleteStatus,
-          cleanupStopStatus: plan.doctor.jsdocWorkerEval.cleanupStopStatus,
-          message: plan.doctor.jsdocWorkerEval.message,
-          otlpStatus: plan.doctor.jsdocWorkerEval.otlpStatus,
-          policyViolationCodes: plan.doctor.jsdocWorkerEval.policyViolationCodes,
-          reportPath: plan.doctor.jsdocWorkerEval.reportPath,
-          status: plan.doctor.jsdocWorkerEval.status,
-        },
-        phoenix: {
-          baseUrl: plan.doctor.phoenix.baseUrl,
-          message: plan.doctor.phoenix.message,
-          projects: pipe(
-            plan.doctor.phoenix.projects,
-            A.map((project) => ({
-              name: project.name,
-              sessionAnnotationNames: project.sessionAnnotationNames,
-              spanAnnotationNames: project.spanAnnotationNames,
-              traceAnnotationNames: project.traceAnnotationNames,
-            }))
-          ),
-          status: plan.doctor.phoenix.status,
-          version: plan.doctor.phoenix.version,
-        },
-        schemaVersion: plan.doctor.schemaVersion,
-        summary: {
-          failures: plan.doctor.summary.failures,
-          status: plan.doctor.summary.status,
-          unavailable: plan.doctor.summary.unavailable,
-          warnings: plan.doctor.summary.warnings,
-        },
-        target: plan.doctor.target,
-      },
-      generatedAt: plan.generatedAt,
-      mutationPolicy: plan.mutationPolicy,
-      schemaVersion: plan.schemaVersion,
-      summary: {
-        failures: plan.summary.failures,
-        status: plan.summary.status,
-        unavailable: plan.summary.unavailable,
-        warnings: plan.summary.warnings,
-      },
-    },
-    "Plan payload"
-  );
+  checkUnknownText("plan", decodeUnknownJsonSync(encodeAnnotationPlanJsonSync(plan)), "Plan payload");
 
 const checkDatasetExample = (
   dataset: AgentEffectivenessDatasetSpec,
@@ -2907,7 +2878,7 @@ const checkAnnotation = (
     R.toEntries(annotation.metadata),
     A.flatMap(([key, value]) => [
       ...checkText(annotation.annotationId, key),
-      ...checkText(annotation.annotationId, value),
+      ...checkUnknownText(annotation.annotationId, value, "Annotation"),
     ])
   );
   const valueFindings = P.isString(annotation.value) ? checkText(annotation.annotationId, annotation.value) : [];
