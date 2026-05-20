@@ -326,7 +326,7 @@ const printLookupSummary = Effect.fn(function* (result: RepoCodegraphLookupResul
       yield* Console.log(`- ${symbolName} (${exportKind}) :: ${packageName}`);
       yield* Console.log(`  recommended: ${importSpecifier}`);
       if (snippet) {
-        const importKeyword = isTypeOnlyExportKind(match.exportKind) ? "import type" : "import";
+        const importKeyword = isTypeOnlyExportKind(exportKind) ? "import type" : "import";
         yield* Console.log(`  ${importKeyword} { ${symbolName} } from "${importSpecifier}";`);
       }
       yield* Console.log(`  source: ${sourcePath}:${match.sourceLine}`);

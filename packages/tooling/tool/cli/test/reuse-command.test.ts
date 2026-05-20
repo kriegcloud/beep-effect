@@ -294,6 +294,28 @@ describe("reuse command", () => {
   );
 
   it(
+    "keeps machine-readable lookup JSON unsanitized for control-sequence input",
+    () =>
+      Effect.runPromise(
+        Effect.gen(function* () {
+          const query = "UnknownRecord\u001b]52;c;clipboard\u0007\rspoof";
+          const caller = "packages/missing\u001b[31m/domain";
+          yield* runReuseCommand(["lookup", "--query", query, "--from", caller, "--json"]);
+
+          const result = yield* parseLoggedJson(decodeRepoCodegraphLookupResultJson);
+          const output = A.join(yield* TestConsole.logLines, "\n");
+
+          expect(result.query).toBe(query);
+          expect(result.warnings.join("\n")).toContain(caller);
+          expect(output).toContain("\\u001b");
+          expect(output).toContain("\\u0007");
+          expect(output).toContain("\\r");
+        }).pipe(provideScopedLayer(CommandTestLayer))
+      ),
+    120_000
+  );
+
+  it(
     "runs strict lookup through the command child-process spawner",
     () =>
       Effect.runPromise(

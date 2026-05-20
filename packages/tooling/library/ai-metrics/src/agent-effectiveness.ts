@@ -2753,7 +2753,8 @@ export const syncAgentEffectivenessPhoenix: (
 const forbiddenPatterns = [
   { code: "private-home-path", pattern: /\/home\/[A-Za-z0-9_.-]+/u },
   { code: "onepassword-ref", pattern: /op:\/\//u },
-  // Keep this assignment- or key-shaped to avoid false positives on metric names like provider_model_token_cost.
+  // Deliberately require assignment-shaped labels or key-like values here. Standalone words like TOKEN can appear
+  // in benign policy/status labels, and broader matching produced false positives on metrics such as provider_model_token_cost.
   { code: "secret-shaped-value", pattern: /(?:\b(?:SECRET|TOKEN|API[_-]?KEY)\b\s*[=:]|sk-[A-Za-z0-9_-]{12,})/iu },
   { code: "raw-worker-draft", pattern: /draftJsDoc|@example|```ts/u },
 ] as const;
