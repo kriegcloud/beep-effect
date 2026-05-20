@@ -274,13 +274,13 @@ Scorecard summary:
 
 ### P7 Mirror And Retention Proof
 
-- Copied the active proof data root to disposable root
-  `/tmp/ai-metrics-p7-proof-data` for mirror build proof.
+- Copied the active proof data root to a private `mktemp -d` disposable root
+  using `umask 077` for mirror build proof.
 - Disposable copy size: `3.5G`.
 - Mirror build succeeded:
   - bundle id: `p7-mirror-1778587546832`
   - bundle root:
-    `/tmp/ai-metrics-p7-proof-data/mirror/bundles/p7-mirror-1778587546832`
+    `$AI_METRICS_P7_PROOF_DATA_ROOT/mirror/bundles/p7-mirror-1778587546832`
   - privacy proof: `safe=true`, `forbiddenMatches=[]`
   - omitted table: `ai_metrics_raw_archive_objects`
   - mirror work DuckDB was cleaned after build
@@ -314,9 +314,9 @@ Scorecard summary:
 - Restore drill first rejected the disposable copy because copied DuckDB rows
   still point at the active raw archive layout; that path validation is
   expected for copied data roots.
-- Restore drill then used the active root as read source and
-  `/tmp/ai-metrics-p7-restore` as disposable restore target for the bounded
-  window `2026-05-12T11:00:00Z` to `2026-05-12T13:00:00Z`:
+- Restore drill then used the active root as read source and a private
+  `mktemp -d` restore target for the bounded window
+  `2026-05-12T11:00:00Z` to `2026-05-12T13:00:00Z`:
   - replayed objects: `1`
   - hash matched: `true`
   - transcript text printed: `false`

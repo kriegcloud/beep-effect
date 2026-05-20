@@ -33,6 +33,7 @@ const retentionSchemaVersion = "beep.ai_metrics.retention_inventory.v1";
 const retentionMutationSchemaVersion = "beep.ai_metrics.retention_mutation.v1";
 const restoreDrillSchemaVersion = "beep.ai_metrics.retention_restore_drill.v1";
 const AiMetricsRetentionMutationMode = LiteralKit(["delete", "compact"] as const);
+const RawArchiveObjectIdPattern = /^raw-[a-f0-9]{64}$/u;
 
 type RawArchivePlanItem = {
   readonly archiveObjectId: string;
@@ -109,6 +110,48 @@ const relativeToDataRoot = (dataRoot: string, absolutePath: string): string =>
 const quoteSqlString = flow(Str.replace(/'/gu, "''"), (value) => `'${value}'`);
 
 const sqlStringList: (values: ReadonlyArray<string>) => string = flow(A.map(quoteSqlString), A.join(", "));
+
+const normalizedRelativePath = (path: Path.Path, root: string, filePath: string): string =>
+  pipe(path.relative(root, filePath), Str.replace(/\\/gu, "/"));
+
+const isStrictChildPath = (path: Path.Path, root: string, filePath: string): boolean => {
+  const relativePath = normalizedRelativePath(path, root, filePath);
+  return (
+    Str.isNonEmpty(relativePath) &&
+    relativePath !== ".." &&
+    !Str.startsWith("../")(relativePath) &&
+    !Str.startsWith("/")(relativePath)
+  );
+};
+
+const validateRawArchivePath = (
+  path: Path.Path,
+  dataRoot: string,
+  item: RawArchivePlanItem
+): Effect.Effect<string, AiMetricsRetentionError> => {
+  if (!RawArchiveObjectIdPattern.test(item.archiveObjectId)) {
+    return Effect.fail(
+      retentionFailure("AI metrics raw archive object id is not in the generated raw digest format.", {
+        archiveObjectId: item.archiveObjectId,
+      })
+    );
+  }
+
+  const sourceArchiveDir = path.resolve(dataRoot, "raw", item.sourceKind);
+  const expectedArchivePath = path.resolve(sourceArchiveDir, `${item.archiveObjectId}.json`);
+  const selectedArchivePath = path.resolve(item.archivePath);
+  if (selectedArchivePath !== expectedArchivePath || !isStrictChildPath(path, sourceArchiveDir, selectedArchivePath)) {
+    return Effect.fail(
+      retentionFailure("AI metrics raw archive path is outside the expected storage layout.", {
+        archiveObjectId: item.archiveObjectId,
+        expectedArchivePath,
+        selectedArchivePath,
+      })
+    );
+  }
+
+  return Effect.succeed(selectedArchivePath);
+};
 
 /**
  * Error raised by P7 AI metrics retention workflows.
@@ -632,15 +675,7 @@ const removeRawArchivePaths = Effect.fn("AiMetrics.retention.removeRawArchivePat
   yield* Effect.forEach(
     items,
     Effect.fnUntraced(function* (item) {
-      const expectedArchivePath = path.resolve(dataRoot, "raw", item.sourceKind, `${item.archiveObjectId}.json`);
-      const selectedArchivePath = path.resolve(item.archivePath);
-      if (selectedArchivePath !== expectedArchivePath) {
-        return yield* retentionFailure("AI metrics raw archive path is outside the expected storage layout.", {
-          archiveObjectId: item.archiveObjectId,
-          expectedArchivePath,
-          selectedArchivePath,
-        });
-      }
+      const selectedArchivePath = yield* validateRawArchivePath(path, dataRoot, item);
       yield* fs
         .remove(selectedArchivePath, { force: true })
         .pipe(
@@ -808,20 +843,7 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
   const startedAtEpochMillis = yield* Clock.currentTimeMillis;
 
   for (const item of selected) {
-    const expectedArchivePath = path.resolve(
-      input.selector.dataRoot,
-      "raw",
-      item.sourceKind,
-      `${item.archiveObjectId}.json`
-    );
-    const selectedArchivePath = path.resolve(item.archivePath);
-    if (selectedArchivePath !== expectedArchivePath) {
-      return yield* retentionFailure("AI metrics raw archive path is outside the expected storage layout.", {
-        archiveObjectId: item.archiveObjectId,
-        expectedArchivePath,
-        selectedArchivePath,
-      });
-    }
+    const selectedArchivePath = yield* validateRawArchivePath(path, input.selector.dataRoot, item);
     const envelope = yield* readEncryptedRawArchiveEnvelope(selectedArchivePath).pipe(
       Effect.mapError((cause) =>
         retentionFailure("Failed to read retained archive object during restore drill.", cause)
@@ -835,13 +857,17 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
         retentionFailure("Failed to decrypt retained archive object during restore drill.", cause)
       )
     );
-    const contentHash = yield* hashPublicTextSha256(plaintext).pipe(
-      Effect.mapError((cause) => retentionFailure("Failed to hash restored archive plaintext.", cause))
+    const contentHash = yield* hashPrivateIdentifier(plaintext, input.hashSalt).pipe(
+      Effect.mapError((cause) => retentionFailure("Failed to hash restored archive plaintext identity.", cause))
     );
-    if (contentHash !== item.plaintextContentHash) {
+    const legacyPublicContentHash = yield* hashPublicTextSha256(plaintext).pipe(
+      Effect.mapError((cause) => retentionFailure("Failed to hash restored archive plaintext legacy identity.", cause))
+    );
+    if (contentHash !== item.plaintextContentHash && legacyPublicContentHash !== item.plaintextContentHash) {
       return yield* retentionFailure("Restored AI metrics archive object failed plaintext hash verification.", {
         archiveObjectId: item.archiveObjectId,
         expectedPlaintextContentHash: item.plaintextContentHash,
+        legacyRestoredPlaintextContentHash: legacyPublicContentHash,
         restoredPlaintextContentHash: contentHash,
       });
     }

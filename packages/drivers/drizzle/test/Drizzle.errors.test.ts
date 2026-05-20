@@ -58,10 +58,10 @@ describe("DrizzleError", () => {
     );
 
     expect(O.getOrThrow(error.query)).toBe("select * from users where id = $1");
-    expect(O.getOrThrow(error.params)).toEqual([1]);
+    expect(O.getOrThrow(error.params)).toEqual(["<redacted>"]);
   });
 
-  it("returns existing DrizzleError values unchanged", () => {
+  it("returns existing DrizzleError values with redacted params", () => {
     const cause = new Error("driver failed");
     const existing = new DrizzleError({
       operation: "execute",
@@ -74,11 +74,11 @@ describe("DrizzleError", () => {
       params: ["ignored"],
     });
 
-    expect(error).toBe(existing);
+    expect(error).not.toBe(existing);
     expect(error.operation).toBe("execute");
     expect(O.getOrThrow(error.cause)).toBe(cause);
     expect(O.getOrThrow(error.query)).toBe("select * from accounts where slug = $1");
-    expect(O.getOrThrow(error.params)).toEqual(["alpha"]);
+    expect(O.getOrThrow(error.params)).toEqual(["<redacted>"]);
     expect(error.message).toBe(existing.message);
   });
 
@@ -113,7 +113,7 @@ describe("DrizzleError", () => {
     const error = DrizzleError.fromUnknown("execute", cause);
 
     expect(O.isNone(error.query)).toBe(true);
-    expect(O.getOrThrow(error.params)).toEqual(["alpha"]);
+    expect(O.getOrThrow(error.params)).toEqual(["<redacted>"]);
     expect(O.getOrThrow(error.cause)).toBe(cause);
   });
 
@@ -227,10 +227,10 @@ describe("DrizzleError", () => {
     const error = DrizzleError.fromUnknown("execute", Cause.fail(nativeCause));
 
     expect(O.getOrThrow(error.query)).toBe("select * from accounts where slug = $1");
-    expect(O.getOrThrow(error.params)).toEqual(["alpha, beta"]);
+    expect(O.getOrThrow(error.params)).toEqual(["<redacted>"]);
   });
 
-  it("returns Cause.fail DrizzleError values unchanged", () => {
+  it("returns Cause.fail DrizzleError values with redacted params", () => {
     const cause = new Error("driver failed");
     const existing = new DrizzleError({
       operation: "execute",
@@ -243,11 +243,11 @@ describe("DrizzleError", () => {
       params: ["ignored"],
     });
 
-    expect(error).toBe(existing);
+    expect(error).not.toBe(existing);
     expect(error.operation).toBe("execute");
     expect(O.getOrThrow(error.cause)).toBe(cause);
     expect(O.getOrThrow(error.query)).toBe("select * from accounts where slug = $1");
-    expect(O.getOrThrow(error.params)).toEqual(["alpha"]);
+    expect(O.getOrThrow(error.params)).toEqual(["<redacted>"]);
     expect(error.message).toBe(existing.message);
   });
 
@@ -256,7 +256,7 @@ describe("DrizzleError", () => {
     const error = DrizzleError.fromUnknown("execute", cause);
 
     expect(O.getOrThrow(error.query)).toBe("select 1 where payload = $1");
-    expect(O.getOrThrow(error.params)).toEqual(["alpha, beta, gamma"]);
+    expect(O.getOrThrow(error.params)).toEqual(["<redacted>"]);
   });
 
   it("decodes an omitted cause as none", () => {

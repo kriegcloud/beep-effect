@@ -157,3 +157,20 @@ export const p1ProofBundleExtractionProcess: {
       ? { args: ["-xzf", options.bundlePath, "-C", options.outputRoot], command: "tar" }
       : { args: ["-o", options.bundlePath, "-d", options.outputRoot], command: "unzip" }
 );
+
+/**
+ * Build the native listing process for a returned proof bundle.
+ *
+ * @category factories
+ * @since 0.0.0
+ */
+export const p1ProofBundleListingProcess: {
+  (platform: P1RequiredPlatform, options: P1ProofBundleExtractionOptions): P1ProofBundleExtractionProcess;
+  (options: P1ProofBundleExtractionOptions): (platform: P1RequiredPlatform) => P1ProofBundleExtractionProcess;
+} = dual(
+  2,
+  (platform: P1RequiredPlatform, options: P1ProofBundleExtractionOptions): P1ProofBundleExtractionProcess =>
+    platform === "macos"
+      ? { args: ["-tzf", options.bundlePath], command: "tar" }
+      : { args: ["-Z1", options.bundlePath], command: "unzip" }
+);

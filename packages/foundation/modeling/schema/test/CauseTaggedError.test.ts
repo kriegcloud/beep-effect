@@ -77,6 +77,20 @@ describe("CauseTaggedError", () => {
     })
   );
 
+  it.effect("keeps static helpers callable after destructuring", () =>
+    Effect.gen(function* () {
+      const { mapError, new: makeDomainError } = DomainError;
+      const cause = new Error("kapow");
+      const constructed = makeDomainError(cause, "boom");
+      const mapped = yield* pipe(Effect.fail("raw failure"), mapError("mapped"), Effect.flip);
+
+      expect(constructed).toBeInstanceOf(DomainError);
+      expect(constructed.cause).toBe(cause);
+      expect(mapped).toBeInstanceOf(DomainError);
+      expect(mapped.message).toBe("mapped");
+    })
+  );
+
   it.effect("maps extra-field errors in data-first form", () =>
     Effect.gen(function* () {
       const error = yield* Effect.flip(

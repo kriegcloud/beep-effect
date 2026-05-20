@@ -34,6 +34,22 @@ const processExists = (pid) => {
   }
 };
 
+const readProcessCommand = async (pid) =>
+  fs.promises
+    .readFile(`/proc/${pid}/cmdline`, "utf8")
+    .then((text) => text.replaceAll("\u0000", " ").trim())
+    .catch(() => "");
+
+const isExpectedProofWatcherProcess = async (pid) => {
+  if (!Number.isInteger(pid) || pid <= 1) {
+    return false;
+  }
+
+  const command = await readProcessCommand(pid);
+
+  return command.includes("p1:proof:watch") && command.includes(outputRoot);
+};
+
 const stopProcessGroup = (pid) => {
   try {
     process.kill(-pid);
@@ -51,6 +67,10 @@ const stopExisting = async () => {
 
   if (!Number.isInteger(pid) || !processExists(pid)) {
     return;
+  }
+
+  if (!(await isExpectedProofWatcherProcess(pid))) {
+    throw new Error(`Refusing to stop pid ${pid}; it is not the expected proof watcher process.`);
   }
 
   if (!replaceExisting) {

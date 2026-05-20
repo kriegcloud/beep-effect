@@ -16,6 +16,7 @@ import * as S from "effect/Schema";
 import { getPgErrorName, PgErrorName } from "./Postgres.sqlstate.ts";
 
 const $I = $PostgresId.create("Postgres.errors");
+const REDACTED_SQL_PARAMETER = "<redacted>";
 
 /**
  * Optional diagnostic context captured while normalizing Postgres-adjacent failures.
@@ -192,7 +193,12 @@ const makeQueryContext = (
   params: ReadonlyArray<unknown> | undefined
 ): Pick<PostgresErrorContext, "params" | "query"> => ({
   ...R.getSomes({ query: O.fromUndefinedOr(query) }),
-  ...R.getSomes({ params: O.fromUndefinedOr(params) }),
+  ...R.getSomes({
+    params: O.map(
+      O.fromUndefinedOr(params),
+      A.map(() => REDACTED_SQL_PARAMETER)
+    ),
+  }),
 });
 
 const parseDrizzleMessage = (value: unknown): PostgresErrorContext => {
@@ -364,7 +370,10 @@ export class PostgresError extends TaggedErrorClass<PostgresError>($I`PostgresEr
       columnName: optionFrom(context.columnName ?? O.getOrUndefined(readString(pgError, "column"))),
       constraintName: optionFrom(context.constraintName ?? O.getOrUndefined(readString(pgError, "constraint"))),
       query: optionFrom(context.query ?? drizzleContext.query),
-      params: optionFrom(context.params ?? drizzleContext.params),
+      params: O.map(
+        optionFrom(context.params ?? drizzleContext.params),
+        A.map(() => REDACTED_SQL_PARAMETER)
+      ),
       sourceLocation: optionFrom(context.sourceLocation ?? O.getOrUndefined(extractSourceLocation(cause))),
     });
   };

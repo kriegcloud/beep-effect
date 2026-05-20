@@ -420,22 +420,44 @@ const attachStatusCauseTaggedErrorStatics = <
     fields: StatusCauseTaggedErrorFields,
     annotations?: S.Annotations.Declaration<TUnsafe.Any, readonly [S.Struct<StatusCauseTaggedErrorFields>]>
   ) => StatusCauseTaggedErrorClassLike;
+  const makeNew = makeStatusCauseTaggedErrorNew<Self, Fields>(fields);
+  const noCause = makeStatusCauseTaggedErrorNoCause<Self, Fields>();
+  const mapError = makeStatusCauseTaggedErrorMapError<Self, Fields>(fields);
+  const staticTarget = (target: unknown): StatusCauseTaggedErrorClassLike =>
+    P.isFunction(target) ? (target as StatusCauseTaggedErrorClassLike) : errorClass;
+  const extendStatusCauseTaggedError = function (
+    this: StatusCauseTaggedErrorClassLike | undefined,
+    identifier: string
+  ) {
+    const target = this ?? errorClass;
+    const extend = originalExtend.call(target, identifier);
+
+    return (newFields: StatusCauseTaggedErrorFields, annotations?: TUnsafe.Any) => {
+      const extended = extend(newFields, annotations);
+
+      return attachStatusCauseTaggedErrorStatics(extended, {
+        ...fields,
+        ...newFields,
+      } as StatusCauseTaggedErrorFields);
+    };
+  };
 
   return withStatics(errorClass, () => ({
-    new: makeStatusCauseTaggedErrorNew<Self, Fields>(fields),
-    noCause: makeStatusCauseTaggedErrorNoCause<Self, Fields>(),
-    mapError: makeStatusCauseTaggedErrorMapError<Self, Fields>(fields),
-    extend: function (this: StatusCauseTaggedErrorClassLike, identifier: string) {
-      const extend = originalExtend.call(this, identifier);
-
-      return (newFields: StatusCauseTaggedErrorFields, annotations?: TUnsafe.Any) => {
-        const extended = extend(newFields, annotations);
-
-        return attachStatusCauseTaggedErrorStatics(extended, {
-          ...fields,
-          ...newFields,
-        } as StatusCauseTaggedErrorFields);
-      };
+    get new(): StatusCauseTaggedErrorNew<Self, Fields> {
+      return makeNew.bind(staticTarget(this)) as unknown as StatusCauseTaggedErrorNew<Self, Fields>;
+    },
+    get noCause(): StatusCauseTaggedErrorNoCause<Self, Fields> {
+      return noCause.bind(staticTarget(this)) as unknown as StatusCauseTaggedErrorNoCause<Self, Fields>;
+    },
+    get mapError(): StatusCauseTaggedErrorMapError<Self, Fields> {
+      return mapError.bind(staticTarget(this)) as unknown as StatusCauseTaggedErrorMapError<Self, Fields>;
+    },
+    get extend(): StatusCauseTaggedErrorExtendMethod<Tag, Fields, ErrorClass> {
+      return extendStatusCauseTaggedError.bind(staticTarget(this)) as unknown as StatusCauseTaggedErrorExtendMethod<
+        Tag,
+        Fields,
+        ErrorClass
+      >;
     },
   })) as StatusCauseTaggedErrorClassWithStatics<Self, Tag, Fields, Brand, ErrorClass>;
 };

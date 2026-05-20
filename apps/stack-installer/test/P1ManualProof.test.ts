@@ -18,7 +18,7 @@ import { OnePasswordCli, OnePasswordCliProcessResult } from "@beep/onepassword-c
 import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import type { TUnsafe } from "@beep/types";
 import { describe, expect, it, layer } from "@effect/vitest";
-import { Effect, Layer } from "effect";
+import { Effect, Exit, Layer } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -31,6 +31,7 @@ import {
   p1ProofBundleExtractionCommand,
   p1ProofBundleExtractionProcess,
   p1ProofBundleFileNameForPlatform,
+  p1ProofBundleListingProcess,
   p1ProofMissingRequiredArtifactFiles,
 } from "../src/proof/P1ProofArtifacts.js";
 import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "../src/proof/P1ProofCommands.js";
@@ -171,6 +172,27 @@ describe("P1 Manual Mode proof harness", () => {
       })
     );
 
+    it.effect("rejects unapproved 1Password references before live secret reads", () =>
+      Effect.gen(function* () {
+        const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Other Discord Bot/token");
+        const exit = yield* Effect.exit(
+          runP1ManualProof(
+            new P1ManualProofRequest({
+              discordBotTokenReference,
+              discordChannelDisplayName: "proof-channel",
+              discordChannelId: "channel-1",
+              discordGuildId: "guild-1",
+              operatorLabel: "test",
+              targetPlatform: "macos",
+              testMessageContent: "Stack Installer P1 proof",
+            })
+          )
+        );
+
+        expect(Exit.isFailure(exit)).toBe(true);
+      })
+    );
+
     it.effect("records Bash commands for macOS proof artifacts", () =>
       Effect.gen(function* () {
         const discordBotTokenReference = yield* decodeOnePasswordReference("op://Private/Discord Bot/token");
@@ -193,6 +215,7 @@ describe("P1 Manual Mode proof harness", () => {
         expect(commands).toContain("command -v op");
         expect(commands).toContain("(cd apps/stack-installer && bun run p1:proof:capture");
         expect(commands).toContain("--output-dir '/repo/output/stack-installer/p1-live/macos'");
+        expect(commands).not.toContain('{"targetPlatform":"macos"}');
         expect(commands).not.toContain("Get-Command op");
         expect(p1ProofCommandsTextMatchesPlatform(commands, "macos")).toBe(true);
         expect(p1ProofCommandsTextMatchesPlatform(commands, "windows")).toBe(false);
@@ -222,6 +245,7 @@ describe("P1 Manual Mode proof harness", () => {
         expect(commands).toContain("Push-Location apps/stack-installer");
         expect(commands).toContain("$stackInstallerOutputDir = 'C:\\repo\\output\\stack-installer\\p1-live\\windows'");
         expect(commands).toContain('--output-dir "$stackInstallerOutputDir"');
+        expect(commands).not.toContain('{"targetPlatform":"windows"}');
         expect(commands).not.toContain("command -v op");
         expect(commands).not.toContain("(cd apps/stack-installer");
         expect(p1ProofCommandsTextMatchesPlatform(commands, "windows")).toBe(true);
@@ -272,6 +296,21 @@ describe("P1 proof artifact helpers", () => {
       })
     ).toEqual({
       args: ["-o", "/proof root/stack-installer-p1-windows.zip", "-d", "/proof root"],
+      command: "unzip",
+    });
+    expect(
+      p1ProofBundleListingProcess("macos", { bundlePath: "/proof root/stack-installer-p1-macos.tgz", outputRoot: "" })
+    ).toEqual({
+      args: ["-tzf", "/proof root/stack-installer-p1-macos.tgz"],
+      command: "tar",
+    });
+    expect(
+      p1ProofBundleListingProcess("windows", {
+        bundlePath: "/proof root/stack-installer-p1-windows.zip",
+        outputRoot: "",
+      })
+    ).toEqual({
+      args: ["-Z1", "/proof root/stack-installer-p1-windows.zip"],
       command: "unzip",
     });
   });

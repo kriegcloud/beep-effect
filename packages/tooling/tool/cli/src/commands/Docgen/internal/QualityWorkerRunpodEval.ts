@@ -282,6 +282,7 @@ export class RunDocgenQualityWorkerRunpodEvalOptions extends S.Class<RunDocgenQu
     report: DocgenQualityReport,
     scope: DocgenQualityWorkerEvalScope,
     sourceQualityReport: S.String,
+    allowPublicTemplateSearch: S.optional(S.Boolean),
     skipTemplateSearch: S.optional(S.Boolean),
     templateId: S.optional(S.String),
   },
@@ -538,9 +539,11 @@ const fallbackTemplate = ({
   });
 
 const resolveTemplate = Effect.fn("DocgenQualityWorkerRunpodEval.resolveTemplate")(function* ({
+  allowPublicTemplateSearch,
   skipTemplateSearch,
   templateId,
 }: {
+  readonly allowPublicTemplateSearch: boolean;
   readonly skipTemplateSearch: boolean;
   readonly templateId?: string;
 }) {
@@ -556,7 +559,7 @@ const resolveTemplate = Effect.fn("DocgenQualityWorkerRunpodEval.resolveTemplate
     });
   }
 
-  if (skipTemplateSearch) {
+  if (skipTemplateSearch || !allowPublicTemplateSearch) {
     return fallbackTemplate({
       searchIncludedPublicTemplates: false,
       searchIncludedRunpodTemplates: false,
@@ -656,10 +659,12 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
   gpuTypeIds,
   model,
   runId,
+  allowPublicTemplateSearch,
   skipTemplateSearch,
   templateId,
 }: {
   readonly allow24GbFallback: boolean;
+  readonly allowPublicTemplateSearch: boolean;
   readonly gpuTypeIds?: ReadonlyArray<string>;
   readonly model: string;
   readonly runId: string;
@@ -669,6 +674,7 @@ const acquireRunpodPod = Effect.fn("DocgenQualityWorkerRunpodEval.acquireRunpodP
   const startedAtMs = globalThis.performance.now();
   const runpod = yield* Runpod;
   const template = yield* resolveTemplate({
+    allowPublicTemplateSearch,
     skipTemplateSearch,
     ...(templateId === undefined ? {} : { templateId }),
   });
@@ -1076,6 +1082,7 @@ export const runDocgenQualityWorkerRunpodEval = Effect.fn(
   const { acquired, workerDurationMs, workerEval } = yield* Effect.acquireUseRelease(
     acquireRunpodPod({
       allow24GbFallback: options.allow24GbFallback ?? false,
+      allowPublicTemplateSearch: options.allowPublicTemplateSearch ?? false,
       ...(options.gpuTypeIds === undefined ? {} : { gpuTypeIds: options.gpuTypeIds }),
       model: options.model,
       runId,

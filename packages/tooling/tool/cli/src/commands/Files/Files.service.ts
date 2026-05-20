@@ -18,6 +18,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
 import { A, Str } from "@beep/utils";
 import {
+  Config,
   Console,
   Context,
   Effect,
@@ -196,6 +197,48 @@ interface ArchiveCandidateCollectedEntries {
   readonly files: ReadonlyArray<SortableFile>;
   readonly skipped: ReadonlyArray<ArchivePoorCandidatesSkippedEntry>;
 }
+
+const FfmpegLocalProtocolWhitelist = "file,pipe";
+const TrustedMediaToolRoots = ["/usr/bin", "/usr/local/bin", "/opt/homebrew/bin"] as const;
+const UnsafeMetadataVideoExtensions = ["asf", "asx", "m3u", "m3u8", "m4u", "mxu"] as const;
+
+const isUnsafeMetadataVideoExtension = (extension: string): boolean =>
+  UnsafeMetadataVideoExtensions.includes(
+    normalizeBareExtension(extension) as (typeof UnsafeMetadataVideoExtensions)[number]
+  );
+
+const resolveTrustedMediaToolPath = Effect.fn("Files.resolveTrustedMediaToolPath")(function* (
+  toolName: "ffmpeg" | "ffprobe",
+  envVarName: "BEEP_FFMPEG_PATH" | "BEEP_FFPROBE_PATH"
+): Effect.fn.Return<string, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const configuredPath = yield* Config.option(Config.string(envVarName)).pipe(
+    Effect.orElseSucceed(O.none<string>),
+    Effect.map(flow(O.map(Str.trim), O.filter(Str.isNonEmpty)))
+  );
+
+  if (O.isSome(configuredPath) && !path.isAbsolute(configuredPath.value)) {
+    return yield* new FilesCommandError({
+      message: `${envVarName} must be an absolute path to a trusted ${toolName} binary.`,
+    });
+  }
+
+  const candidates = O.isSome(configuredPath)
+    ? [configuredPath.value]
+    : TrustedMediaToolRoots.map((root) => path.join(root, toolName));
+
+  for (const candidate of candidates) {
+    const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(() => false));
+    if (exists) {
+      return candidate;
+    }
+  }
+
+  return yield* new FilesCommandError({
+    message: `Could not find a trusted ${toolName} binary. Install ${toolName} in a system tool directory or set ${envVarName} to an absolute path.`,
+  });
+});
 
 /**
  * Service contract for dataset file curation operations.
@@ -1238,6 +1281,25 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
       let overwritesExisting = false;
 
       if (captionExists) {
+        const captionCanonicalPath = yield* fs.realPath(captionPath).pipe(Effect.option);
+        if (
+          O.isNone(captionCanonicalPath) ||
+          !stringEquivalence(captionCanonicalPath.value, path.join(canonicalDir, captionName))
+        ) {
+          skipped = A.append(
+            skipped,
+            makeCreateCaptionFilesSkippedEntry(
+              sourceName,
+              sourcePath,
+              O.some(extension),
+              O.some(captionName),
+              "caption-target-not-file",
+              `Caption target "${captionName}" is a symlink or cannot be resolved inside the source directory.`
+            )
+          );
+          return;
+        }
+
         const captionStat = yield* fs
           .stat(captionPath)
           .pipe(
@@ -1315,22 +1377,48 @@ const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan
 
 const applyCreateCaptionFilesPlan = Effect.fn("Files.applyCreateCaptionFilesPlan")(function* (
   plan: CreateCaptionFilesPlan
-): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem | Terminal.Terminal> {
+): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
   const fs = yield* FileSystem.FileSystem;
-  yield* runFilesProgressForEach(
-    plan.entries,
-    (entry) =>
-      fs
-        .writeFileString(entry.captionPath, plan.caption)
-        .pipe(
-          Effect.mapError((cause) =>
-            formatPlatformError("Failed to write caption sidecar", entry.captionPath, { cause })
-          )
-        ),
-    {
-      concurrency: FilesConcurrency.scan,
-      label: "captions write",
-    }
+  const path = yield* Path.Path;
+
+  yield* Effect.acquireUseRelease(
+    fs
+      .makeTempDirectory({ directory: plan.directory, prefix: ".beep-files-create-captions-" })
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to create temporary caption directory", plan.directory, { cause })
+        )
+      ),
+    Effect.fnUntraced(function* (tempDir) {
+      yield* runFilesProgressForEach(
+        plan.entries,
+        Effect.fnUntraced(function* (entry, index) {
+          const tempPath = path.join(
+            tempDir,
+            `${formatIndex(index, `${A.length(plan.entries)}`.length + 1)}-${entry.captionName}`
+          );
+          yield* fs
+            .writeFileString(tempPath, plan.caption)
+            .pipe(
+              Effect.mapError((cause) =>
+                formatPlatformError("Failed to write temporary caption sidecar", tempPath, { cause })
+              )
+            );
+          yield* fs
+            .rename(tempPath, entry.captionPath)
+            .pipe(
+              Effect.mapError((cause) =>
+                formatPlatformError("Failed to move caption sidecar into place", entry.captionPath, { cause })
+              )
+            );
+        }),
+        {
+          concurrency: FilesConcurrency.scan,
+          label: "captions write",
+        }
+      );
+    }),
+    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
   );
 });
 
@@ -1740,11 +1828,27 @@ const probeImageDimensions = Effect.fn("Files.probeImageDimensions")(function* (
 
 const runFfprobe = Effect.fn("Files.runFfprobe")(function* (
   file: SortableFile
-): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  string,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   const path = yield* Path.Path;
+  const ffprobePath = yield* resolveTrustedMediaToolPath("ffprobe", "BEEP_FFPROBE_PATH");
   const command = ChildProcess.make(
-    "ffprobe",
-    ["-v", "error", "-select_streams", "v:0", "-show_streams", "-of", "json", file.sourcePath],
+    ffprobePath,
+    [
+      "-v",
+      "error",
+      "-protocol_whitelist",
+      FfmpegLocalProtocolWhitelist,
+      "-select_streams",
+      "v:0",
+      "-show_streams",
+      "-of",
+      "json",
+      file.sourcePath,
+    ],
     {
       cwd: path.dirname(file.sourcePath),
       stderr: "pipe",
@@ -1781,7 +1885,11 @@ const runFfprobe = Effect.fn("Files.runFfprobe")(function* (
 
 const probeVideoDimensions = Effect.fn("Files.probeVideoDimensions")(function* (
   file: SortableFile
-): Effect.fn.Return<MediaDimensions, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  MediaDimensions,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   const outputText = yield* runFfprobe(file);
   const output = yield* decodeFfprobeOutputJson(outputText).pipe(
     Effect.mapError(
@@ -1814,7 +1922,11 @@ const probeVideoDimensions = Effect.fn("Files.probeVideoDimensions")(function* (
 
 const probeMediaDimensions = Effect.fn("Files.probeMediaDimensions")(function* (
   file: SortableFile
-): Effect.fn.Return<MediaDimensions, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  MediaDimensions,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   const mediaKind = yield* pipe(
     file.mediaKind,
     O.match({
@@ -3293,6 +3405,11 @@ const buildStripMetadataPlan = Effect.fn("Files.buildStripMetadataPlan")(functio
       continue;
     }
 
+    if (mediaKind === "video" && isUnsafeMetadataVideoExtension(file.extension)) {
+      skippedCount += 1;
+      continue;
+    }
+
     entries = A.append(
       entries,
       new StripMetadataPlanEntry({
@@ -3359,14 +3476,21 @@ const cropImageBordersToTemp = Effect.fn("Files.cropImageBordersToTemp")(functio
 const runFfmpegStripMetadata = Effect.fn("Files.runFfmpegStripMetadata")(function* (
   entry: StripMetadataPlanEntry,
   tempPath: string
-): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  string,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   const path = yield* Path.Path;
+  const ffmpegPath = yield* resolveTrustedMediaToolPath("ffmpeg", "BEEP_FFMPEG_PATH");
   const command = ChildProcess.make(
-    "ffmpeg",
+    ffmpegPath,
     [
       "-hide_banner",
       "-nostdin",
       "-y",
+      "-protocol_whitelist",
+      FfmpegLocalProtocolWhitelist,
       "-i",
       entry.sourcePath,
       "-map",
@@ -3421,14 +3545,22 @@ const runFfmpegStripMetadata = Effect.fn("Files.runFfmpegStripMetadata")(functio
 const stripVideoMetadataToTemp = Effect.fn("Files.stripVideoMetadataToTemp")(function* (
   entry: StripMetadataPlanEntry,
   tempPath: string
-): Effect.fn.Return<void, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  void,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   yield* runFfmpegStripMetadata(entry, tempPath);
 });
 
 const stripMetadataToTemp = Effect.fn("Files.stripMetadataToTemp")(function* (
   entry: StripMetadataPlanEntry,
   tempPath: string
-): Effect.fn.Return<void, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  void,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   if (entry.mediaKind === "image") {
     yield* stripImageMetadataToTemp(entry, tempPath);
     return;

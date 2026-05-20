@@ -27,6 +27,49 @@ import * as AcpError from "./errors.ts";
 const $I = $AcpId.create("protocol");
 const isAcpError = S.is(AcpError.AcpError);
 const isAcpRequestError = S.is(AcpError.AcpRequestError);
+const ACP_PROTOCOL_QUEUE_CAPACITY = 1_024;
+const ACP_PROTOCOL_DISCONNECT_QUEUE_CAPACITY = 16;
+const ACP_STDIO_CLIENT_ID = 0;
+type MinimalReadonlySet<T> = Iterable<T> & {
+  readonly entries: () => IterableIterator<[T, T]>;
+  readonly forEach: (callbackfn: (value: T, value2: T, set: ReadonlySet<T>) => void, thisArg?: unknown) => void;
+  readonly has: (value: T) => boolean;
+  readonly keys: () => IterableIterator<T>;
+  readonly size: number;
+  readonly values: () => IterableIterator<T>;
+};
+
+const singleValueSetIterator = <A>(value: A): IterableIterator<A> => {
+  let isDone = false;
+  const iterator: IterableIterator<A> = {
+    [Symbol.iterator]: () => iterator,
+    next: () => {
+      if (isDone) {
+        return {
+          done: true,
+          value: undefined,
+        };
+      }
+      isDone = true;
+      return {
+        done: false,
+        value,
+      };
+    },
+  };
+  return iterator;
+};
+const ACP_STDIO_CLIENT_IDS = {
+  [Symbol.iterator]: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
+  entries: () => singleValueSetIterator<[number, number]>([ACP_STDIO_CLIENT_ID, ACP_STDIO_CLIENT_ID]),
+  forEach: (callbackfn, thisArg?: unknown) => {
+    callbackfn.call(thisArg, ACP_STDIO_CLIENT_ID, ACP_STDIO_CLIENT_ID, ACP_STDIO_CLIENT_IDS);
+  },
+  has: (value) => value === ACP_STDIO_CLIENT_ID,
+  keys: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
+  size: 1,
+  values: () => singleValueSetIterator(ACP_STDIO_CLIENT_ID),
+} satisfies MinimalReadonlySet<number> as unknown as ReadonlySet<number>;
 
 /**
  * Structured log event emitted by the ACP protocol adapter.
@@ -210,11 +253,11 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   options: AcpPatchedProtocolOptions
 ): Effect.fn.Return<AcpPatchedProtocol, never, Scope.Scope> {
   const parser = parserFactory.makeUnsafe();
-  const serverQueue = yield* Queue.unbounded<RpcMessage.FromClientEncoded>();
-  const clientQueue = yield* Queue.unbounded<RpcMessage.FromServerEncoded>();
-  const notificationQueue = yield* Queue.unbounded<AcpIncomingNotification>();
-  const disconnects = yield* Queue.unbounded<number>();
-  const outgoing = yield* Queue.unbounded<string | Uint8Array, Cause.Done<void>>();
+  const serverQueue = yield* Queue.bounded<RpcMessage.FromClientEncoded>(ACP_PROTOCOL_QUEUE_CAPACITY);
+  const clientQueue = yield* Queue.bounded<RpcMessage.FromServerEncoded>(ACP_PROTOCOL_QUEUE_CAPACITY);
+  const notificationQueue = yield* Queue.bounded<AcpIncomingNotification>(ACP_PROTOCOL_QUEUE_CAPACITY);
+  const disconnects = yield* Queue.bounded<number>(ACP_PROTOCOL_DISCONNECT_QUEUE_CAPACITY);
+  const outgoing = yield* Queue.bounded<string | Uint8Array, Cause.Done<void>>(ACP_PROTOCOL_QUEUE_CAPACITY);
   const nextRequestId = yield* Ref.make(1n);
   const terminationHandled = yield* Ref.make(false);
   const extPending = yield* Ref.make(HashMap.empty<string, Deferred.Deferred<unknown, AcpError.AcpError>>());
@@ -578,7 +621,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   });
 
   const serverProtocol = RpcServer.Protocol.of({
-    clientIds: Effect.succeed(HashSet.make(0) as unknown as ReadonlySet<number>),
+    clientIds: Effect.succeed(ACP_STDIO_CLIENT_IDS),
     disconnects,
     end: Effect.fn($I`AcpServer_Protocol_end`)((_clientId) => Queue.end(outgoing)),
     initialMessage: Effect.succeedNone,

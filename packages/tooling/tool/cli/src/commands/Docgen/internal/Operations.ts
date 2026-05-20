@@ -1614,7 +1614,7 @@ export const aggregateGeneratedDocs: (options?: {
         fileCount,
       });
     }),
-    { concurrency: "unbounded" }
+    { concurrency: 1 }
   );
 });
 

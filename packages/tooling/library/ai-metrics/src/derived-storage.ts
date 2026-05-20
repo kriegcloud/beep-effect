@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { DuckDb, type DuckDbError, DuckDbParquetExport } from "@beep/duckdb";
+import { DuckDb, type DuckDbClient, type DuckDbError, DuckDbParquetExport } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
@@ -360,6 +360,11 @@ const migrationColumns = [
     columnName: "coverage_gaps_json",
     tableName: "ai_metrics_scorecards",
   },
+  {
+    columnDefinition: "archive_run_object_id VARCHAR",
+    columnName: "archive_run_object_id",
+    tableName: "ai_metrics_raw_archive_objects",
+  },
 ] as const;
 
 const migrationBackfillStatements = [
@@ -378,6 +383,16 @@ const currentAgentTaskIdExpression = (tableAlias: string): string =>
   `concat('agent-task-', sha256(concat('agent-task', chr(0), ${tableAlias}.config_snapshot_id, chr(0), ${tableAlias}.source_kind, chr(0), ${tableAlias}.source_role, chr(0), ${tableAlias}.source_path_hash)))`;
 
 const legacyAgentTaskIdMigrationStatements = [
+  `UPDATE ai_metrics_sessions AS sessions
+   SET agent_task_id = ${currentAgentTaskIdExpression("task")}
+   FROM ai_metrics_agent_tasks AS task
+   WHERE sessions.agent_task_id = task.agent_task_id
+     AND task.agent_task_id = ${legacyAgentTaskIdExpression("task")}`,
+  `UPDATE ai_metrics_outcome_labels AS label
+   SET agent_task_id = ${currentAgentTaskIdExpression("task")}
+   FROM ai_metrics_agent_tasks AS task
+   WHERE label.agent_task_id = task.agent_task_id
+     AND task.agent_task_id = ${legacyAgentTaskIdExpression("task")}`,
   `DELETE FROM ai_metrics_agent_tasks AS legacy
    WHERE legacy.agent_task_id = ${legacyAgentTaskIdExpression("legacy")}
      AND EXISTS (
@@ -391,6 +406,12 @@ const legacyAgentTaskIdMigrationStatements = [
    WHERE task.agent_task_id = ${legacyAgentTaskIdExpression("task")}`,
 ] as const;
 
+const rawArchiveObjectIdMigrationStatements = [
+  `UPDATE ai_metrics_raw_archive_objects
+   SET archive_run_object_id = concat('archive-object-', sha256(concat('archive-object', chr(0), ingest_run_id, chr(0), archive_object_id)))
+   WHERE archive_run_object_id IS NULL`,
+] as const;
+
 type MigrationColumn = {
   readonly columnDefinition: string;
   readonly columnName: string;
@@ -401,6 +422,7 @@ type DerivedStorageMigration = {
   readonly migrationId: string;
   readonly requiredColumns?: ReadonlyArray<Pick<MigrationColumn, "columnName" | "tableName">>;
   readonly statements: ReadonlyArray<string>;
+  readonly transactional?: boolean;
 };
 
 const derivedStorageMigrations = [
@@ -416,8 +438,20 @@ const derivedStorageMigrations = [
       { columnName: "source_kind", tableName: "ai_metrics_agent_tasks" },
       { columnName: "source_path_hash", tableName: "ai_metrics_agent_tasks" },
       { columnName: "source_role", tableName: "ai_metrics_agent_tasks" },
+      { columnName: "agent_task_id", tableName: "ai_metrics_sessions" },
+      { columnName: "agent_task_id", tableName: "ai_metrics_outcome_labels" },
     ],
     statements: legacyAgentTaskIdMigrationStatements,
+    transactional: true,
+  },
+  {
+    migrationId: "ai-metrics-raw-archive-object-id-v2",
+    requiredColumns: [
+      { columnName: "archive_run_object_id", tableName: "ai_metrics_raw_archive_objects" },
+      { columnName: "archive_object_id", tableName: "ai_metrics_raw_archive_objects" },
+      { columnName: "ingest_run_id", tableName: "ai_metrics_raw_archive_objects" },
+    ],
+    statements: rawArchiveObjectIdMigrationStatements,
   },
 ] as const satisfies ReadonlyArray<DerivedStorageMigration>;
 
@@ -606,20 +640,33 @@ const runDerivedStorageMigrationOnce: (migration: DerivedStorageMigration) => Ef
       return;
     }
 
-    yield* duckdb.runMany(migration.statements);
-    yield* duckdb.run(
-      `INSERT OR REPLACE INTO ai_metrics_schema_migrations (
+    const appliedAtEpochMillis = globalThis.String(yield* Clock.currentTimeMillis);
+    const recordMigration = (client: Pick<DuckDbClient, "run">): Effect.Effect<void, DuckDbError> =>
+      client.run(
+        `INSERT OR REPLACE INTO ai_metrics_schema_migrations (
       migration_id,
       applied_at_epoch_ms
     ) VALUES (
       $migrationId,
       $appliedAtEpochMillis
     )`,
-      {
-        appliedAtEpochMillis: globalThis.String(yield* Clock.currentTimeMillis),
-        migrationId: migration.migrationId,
-      }
-    );
+        {
+          appliedAtEpochMillis,
+          migrationId: migration.migrationId,
+        }
+      );
+
+    if (migration.transactional === true) {
+      yield* duckdb.withTransaction(
+        Effect.fn(function* (transaction) {
+          yield* transaction.runMany(migration.statements);
+          yield* recordMigration(transaction);
+        })
+      );
+    } else {
+      yield* duckdb.runMany(migration.statements);
+      yield* recordMigration(duckdb);
+    }
   });
 
 const ensureAiMetricsDerivedStorageRaw = Effect.fn("AiMetrics.derivedStorage.ensureRaw")(function* () {

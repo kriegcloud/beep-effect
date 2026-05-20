@@ -14,8 +14,8 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Display } from "./Display.ts";
-import { PromptError, PromptExpansionTimeoutError, type SandboxError } from "./Sandbox.errors.ts";
-import { SandboxExecOptions, type SandboxHandle } from "./Sandbox.provider.ts";
+import { PromptError, type SandboxError } from "./Sandbox.errors.ts";
+import type { SandboxHandle } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("Prompt");
 
@@ -30,7 +30,6 @@ const SHELL_BLOCK_PATTERN = /!`([^`]+)`/gu;
  */
 export const SHELL_BLOCK_MARKER = "\u0000BEEP_SANDBOX_SHELL_BLOCK\u0000" as const;
 
-const MARKED_SHELL_BLOCK_PATTERN = new RegExp(`!${SHELL_BLOCK_MARKER}\`([^\`]+)\``, "gu");
 const DEFAULT_PROMPT_EXPANSION_TIMEOUT = Duration.millis(30_000);
 
 /**
@@ -328,70 +327,8 @@ export const substitutePromptArgs = Effect.fn("Prompt.substitutePromptArgs")(fun
   })(markedPrompt);
 });
 
-const replaceMarkedShellBlocks = (
-  prompt: string,
-  matches: ReadonlyArray<RegExpMatchArray>,
-  results: ReadonlyArray<string>
-): string => {
-  let result = prompt;
-
-  for (let index = matches.length - 1; index >= 0; index--) {
-    const match = matches[index];
-    const start = match?.index;
-    const replacement = results[index];
-
-    if (match === undefined || start === undefined || replacement === undefined) {
-      continue;
-    }
-
-    result = `${Str.slice(0, start)(result)}${replacement}${Str.slice(start + match[0].length)(result)}`;
-  }
-
-  return Str.replaceAll(SHELL_BLOCK_MARKER, "")(result);
-};
-
-const expandShellExpression = Effect.fn("Prompt.expandShellExpression")(function* <R>(
-  sandbox: SandboxHandle<R>,
-  cwd: string,
-  command: string,
-  timeout: Duration.Duration
-) {
-  const result = yield* sandbox
-    .exec(
-      command,
-      new SandboxExecOptions({
-        cwd,
-      })
-    )
-    .pipe(
-      Effect.timeoutOrElse({
-        duration: timeout,
-        orElse: () =>
-          Effect.fail(
-            PromptExpansionTimeoutError.new(
-              "prompt expansion timeout",
-              `Shell expression \`${command}\` timed out after ${Duration.toMillis(timeout)}ms`,
-              {
-                expression: command,
-                timeoutMs: timeout,
-              }
-            )
-          ),
-      })
-    );
-
-  if (result.exitCode !== 0) {
-    return yield* PromptError.new(
-      result.stderr || result.stdout,
-      `Command \`${command}\` exited with code ${result.exitCode}: ${result.stderr || result.stdout}`
-    );
-  }
-
-  return Str.trimEnd(result.stdout);
-});
-
 /**
- * Expand marked shell prompt expressions inside a sandbox.
+ * Normalize marked shell prompt expressions without executing repository-controlled commands.
  *
  * @category combinators
  * @since 0.0.0
@@ -406,41 +343,8 @@ export const expandPromptShellExpressions: {
   ): (sandbox: SandboxHandle<R>) => Effect.Effect<string, SandboxError, R | Display>;
 } = dual(
   2,
-  Effect.fn("Prompt.expandPromptShellExpressions")(function* <R>(
-    sandbox: SandboxHandle<R>,
-    options: ExpandPromptShellExpressionsOptions
-  ) {
-    const matches = [...Str.matchAll(MARKED_SHELL_BLOCK_PATTERN)(options.prompt)];
-
-    if (matches.length === 0) {
-      return Str.replaceAll(SHELL_BLOCK_MARKER, "")(options.prompt);
-    }
-
-    const display = yield* Display;
-
-    return yield* display.taskLog(
-      "Expanding shell expressions",
-      Effect.fn("Prompt.expandPromptShellExpressions.task")(function* (message) {
-        const results = yield* Effect.forEach(
-          matches,
-          (match) => {
-            const command = match[1] ?? "";
-
-            return expandShellExpression(sandbox, options.cwd, command, options.timeoutMs);
-          },
-          { concurrency: "unbounded" }
-        );
-
-        for (let index = 0; index < matches.length; index++) {
-          const command = matches[index]?.[1] ?? "";
-          const result = results[index] ?? "";
-          const tokens = Math.ceil(result.length / 4);
-
-          message(`${command} => ~${tokens} tokens`);
-        }
-
-        return replaceMarkedShellBlocks(options.prompt, matches, results);
-      })
-    );
-  })
+  Effect.fn("Prompt.expandPromptShellExpressions")(
+    <R>(_sandbox: SandboxHandle<R>, options: ExpandPromptShellExpressionsOptions) =>
+      Effect.succeed(Str.replaceAll(SHELL_BLOCK_MARKER, "")(options.prompt))
+  )
 );

@@ -254,7 +254,7 @@ describe("quality task adapter", () => {
     });
   });
 
-  it("prefers resolved external SQL URLs over Testcontainers-only defaults", () => {
+  it("requires explicit test SQL URLs over generic application defaults", () => {
     expect(
       sqlIntegrationConnectionUriFromEnvForTesting({
         BEEP_TEST_DATABASE_URL: "postgres://test:secret@127.0.0.1:5432/test",
@@ -266,11 +266,13 @@ describe("quality task adapter", () => {
       sqlIntegrationConnectionUriFromEnvForTesting({
         DATABASE_URL: "postgres://test:secret@127.0.0.1:5432/test",
       })
-    ).toEqual(O.some("postgres://test:secret@127.0.0.1:5432/test"));
+    ).toEqual(O.none());
 
     expect(
       sqlIntegrationConnectionUriFromEnvForTesting({
-        DATABASE_URL: "op://beep-dev-secrets/DATABASE_URL",
+        BEEP_TEST_DATABASE_URL: "op://beep-dev-secrets/DATABASE_URL",
+        DATABASE_URL: "postgres://test:secret@127.0.0.1:5432/test",
+        DATABASE_URL_UNPOOLED: "postgres://test:secret@127.0.0.1:5432/test",
       })
     ).toEqual(O.none());
   });
@@ -354,6 +356,28 @@ describe("quality task adapter", () => {
           expect(logText).toContain("[beep-cli] test:slow: bun -e await Bun.sleep(20); console.log('slow')");
           expect(logText).toContain("[beep-cli] test:fast: bun -e console.log('fast')");
           expectSubstringBefore(logText, "[beep-cli] test:slow output:\nslow", "[beep-cli] test:fast output:\nfast");
+        })
+      )
+    ));
+
+  it("truncates retained grouped quality step output", () =>
+    Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          yield* runQualityTaskStepGroupForTesting(
+            "test:group",
+            [
+              bunScriptStep(
+                "test:large-output",
+                "process.stdout.write('x'.repeat(300000)); console.log('tail-marker')"
+              ),
+            ],
+            1
+          );
+
+          const logText = A.join(yield* TestConsole.logLines, "\n");
+          expect(logText).toContain("[beep-cli] output truncated after 262144 characters");
+          expect(Str.length(logText)).toBeLessThan(270_000);
         })
       )
     ));
