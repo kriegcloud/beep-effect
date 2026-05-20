@@ -13339,7 +13339,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `OpipVercelProjectConfig` | class | `infra/src/OpipWeb.ts:252` | Vercel project configuration for `@beep/opip-web`. |
 | `@beep/infra` | `OpipWebPulumiConfigValues` | const | `infra/src/OpipWeb.ts:87` | Optional Pulumi config values before OPIP deploy defaults are applied. |
 | `@beep/infra` | `OpipWebRuntimeSecrets` | type | `infra/src/OpipWeb.ts:308` | Secret runtime values for OPIP deploy targets. |
-| `@beep/infra` | `OpipWebStack` | class | `infra/src/OpipWeb.ts:636` | Import-safe Pulumi component for OPIP production web infrastructure. |
+| `@beep/infra` | `OpipWebStack` | class | `infra/src/OpipWeb.ts:639` | Import-safe Pulumi component for OPIP production web infrastructure. |
 | `@beep/infra` | `OpipWebStackArgs` | class | `infra/src/OpipWeb.ts:326` | Pulumi-facing args for the OPIP web stack. |
 
 ### @beep/codedank-web
