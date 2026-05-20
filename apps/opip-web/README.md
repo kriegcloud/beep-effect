@@ -30,9 +30,9 @@ quiet. Start with `NEXT_PUBLIC_REACT_GRAB=1 bun run dev`, hover an element, then
 press `Cmd+C` on macOS or `Ctrl+C` on Linux/Windows to copy source context for
 refinement work.
 
-## Launch Initiative
+## Launch Goal
 
-The launch packet lives at `../../initiatives/opip-web-launch`.
+The launch packet lives at `../../goals/opip-web-launch`.
 
 V1 is a single-page, build-ready public site. Public claims, client marks,
 selected matters, contact details, and disclaimers remain review-gated before

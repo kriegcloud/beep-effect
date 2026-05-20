@@ -172,10 +172,7 @@ interface EntityModel {
   };
 }
 
-const fixtureRoot = new URL(
-  "../../../initiatives/agentic-professional-runtime/fixtures/runtime-data-loop/",
-  import.meta.url
-);
+const fixtureRoot = new URL("../../../goals/agentic-professional-runtime/fixtures/runtime-data-loop/", import.meta.url);
 
 const readJson = <A>(schema: S.Decoder<A, never>, scenarioId: string, fileName: string): Promise<A> =>
   Bun.file(new URL(`${scenarioId}/${fileName}`, fixtureRoot))
