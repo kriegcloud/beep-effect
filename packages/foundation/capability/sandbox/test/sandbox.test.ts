@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import {
   AgentCommandOptions,
@@ -47,7 +48,7 @@ import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, it } from "@effect/vitest";
-import { DateTime, Duration, Effect, Exit, Fiber, Layer, Random, Ref } from "effect";
+import { DateTime, Duration, Effect, Exit, Fiber, Layer, Ref } from "effect";
 import { TestClock } from "effect/testing";
 
 const provideScopedLayer =
@@ -70,7 +71,7 @@ const runFileCommand = (command: string, args: ReadonlyArray<string>): Effect.Ef
 const makeDirectory = (path: string): Effect.Effect<void> => runFileCommand("mkdir", ["-p", path]);
 const makeTempDirectory: (prefix: string) => Effect.Effect<string> = Effect.fn("SandboxTest.makeTempDirectory")(
   function* (prefix: string) {
-    const suffix = yield* Random.nextUUIDv4;
+    const suffix = randomUUID();
     const dir = joinPath(tmpdir(), `${prefix}${suffix}`);
     yield* makeDirectory(dir);
     return dir;

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import {
@@ -9,7 +10,7 @@ import {
 } from "@beep/utils/Glob";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
-import { Effect, Layer, Match, Random } from "effect";
+import { Effect, Layer, Match } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
@@ -44,7 +45,7 @@ const makeDirectory = (path: string) => runFileCommand("mkdir", ["-p", path]);
 const makeTempDirectory: (prefix: string) => TestEffect<string> = Effect.fn("GlobTest.makeTempDirectory")(function* (
   prefix: string
 ) {
-  const suffix = yield* Random.nextUUIDv4;
+  const suffix = randomUUID();
   const dir = joinPath(tmpdir(), `${prefix}${suffix}`);
   yield* makeDirectory(dir);
   return dir;

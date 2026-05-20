@@ -3,8 +3,8 @@
  *
  * @since 0.0.0
  */
-import { A } from "@beep/utils";
-import { pipe } from "effect";
+import { A, thunkEmptyRecord } from "@beep/utils";
+import { pipe, Result } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -22,19 +22,20 @@ type YamlRuntime = {
 
 type YamlModule = typeof YamlPackage;
 
-export type YamlParseResult =
-  | {
-      readonly _tag: "success";
-      readonly value: unknown;
-    }
-  | {
-      readonly _tag: "failure";
-      readonly messages: ReadonlyArray<string>;
-    };
+export type YamlParseResult = Result.Result<unknown, ReadonlyArray<string>>;
 
 type YamlModuleLoader = () => YamlModule;
 
 export const loadYamlModule = (): YamlModule => YamlPackage;
+
+const yamlDocumentToResult = (document: {
+  readonly errors: ReadonlyArray<{ readonly message: string }>;
+  toJSON: () => unknown;
+}): YamlParseResult =>
+  A.match(document.errors, {
+    onEmpty: () => Result.succeed(document.toJSON()),
+    onNonEmpty: (errors) => Result.fail(A.map(errors, ({ message }) => message)),
+  });
 
 const getBunRuntime = (runtime: YamlRuntime): O.Option<BunYamlRuntime> => O.fromNullishOr(runtime.Bun);
 
@@ -57,18 +58,16 @@ const getBunYamlParse = (input: unknown): O.Option<(input: string) => unknown> =
     )
   );
 
+const makeBunYamlParse = (parse: (input: string) => unknown) => ({
+  Bun: {
+    YAML: {
+      parse,
+    },
+  },
+});
+
 export const getGlobalYamlRuntime = (): YamlRuntime =>
-  pipe(
-    getBunYamlParse(globalThis),
-    O.map((parse) => ({
-      Bun: {
-        YAML: {
-          parse,
-        },
-      },
-    })),
-    O.getOrElse(() => ({}))
-  );
+  getBunYamlParse(globalThis).pipe(O.map(makeBunYamlParse), O.getOrElse(thunkEmptyRecord));
 
 export const makeParseYaml: {
   (runtime: YamlRuntime, loadYaml: YamlModuleLoader): (input: string) => unknown;
@@ -77,12 +76,9 @@ export const makeParseYaml: {
   2,
   (runtime: YamlRuntime, loadYaml: YamlModuleLoader) =>
     (input: string): unknown =>
-      pipe(
-        getBunRuntime(runtime),
-        O.match({
-          onNone: () => loadYaml().parse(input),
-          onSome: ({ YAML }) => YAML.parse(input),
-        })
+      getBunRuntime(runtime).pipe(
+        O.map(({ YAML }) => YAML.parse(input)),
+        O.getOrElse(() => loadYaml().parse(input))
       )
 );
 
@@ -93,30 +89,10 @@ export const makeParseYamlForSchema: {
   2,
   (runtime: YamlRuntime, loadYaml: YamlModuleLoader) =>
     (input: string): YamlParseResult =>
-      pipe(
-        getBunRuntime(runtime),
+      getBunRuntime(runtime).pipe(
         O.match({
-          onNone: () => {
-            const document = loadYaml().parseDocument(input);
-
-            return A.match(document.errors, {
-              onEmpty: () =>
-                ({
-                  _tag: "success",
-                  value: document.toJSON(),
-                }) satisfies YamlParseResult,
-              onNonEmpty: (errors) =>
-                ({
-                  _tag: "failure",
-                  messages: A.map(errors, ({ message }) => message),
-                }) satisfies YamlParseResult,
-            });
-          },
-          onSome: ({ YAML }) =>
-            ({
-              _tag: "success",
-              value: YAML.parse(input),
-            }) satisfies YamlParseResult,
+          onNone: () => yamlDocumentToResult(loadYaml().parseDocument(input)),
+          onSome: ({ YAML }) => Result.succeed(YAML.parse(input)),
         })
       )
 );

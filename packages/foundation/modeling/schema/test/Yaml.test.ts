@@ -2,7 +2,7 @@ import { $SchemaId } from "@beep/identity";
 import { makeParseYaml, makeParseYamlForSchema } from "@beep/schema/internal/yaml";
 import { decodeYamlTextAs, parseYaml, YamlTextToUnknown } from "@beep/schema/Yaml";
 import { describe, expect, it } from "@effect/vitest";
-import { Cause, Effect, Exit } from "effect";
+import { Cause, Effect, Exit, Result } from "effect";
 import * as S from "effect/Schema";
 import * as yaml from "yaml";
 
@@ -60,9 +60,9 @@ describe("Yaml", () => {
     const parseWithoutBun = makeParseYamlForSchema({}, () => yaml);
     const result = parseWithoutBun("name: [Ada");
 
-    expect(result._tag).toBe("failure");
-    if (result._tag === "failure") {
-      expect(result.messages.join("; ")).toContain("Flow sequence in block collection");
+    expect(Result.isFailure(result)).toBe(true);
+    if (Result.isFailure(result)) {
+      expect(result.failure.join("; ")).toContain("Flow sequence in block collection");
     }
   });
 
