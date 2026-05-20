@@ -16,12 +16,13 @@ import {
   PhoenixDatasetCreateInput,
   PhoenixDatasetExample,
   PhoenixDatasetSelector,
+  type PhoenixError,
   PhoenixExperimentCreateInput,
   PhoenixPromptChatMessage,
   PhoenixPromptCreateInput,
   type PhoenixShape,
 } from "@beep/phoenix";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass, UnknownRecord } from "@beep/schema";
 import { A, O, P, Str } from "@beep/utils";
 import { DateTime, Effect, FileSystem, flow, Match, Path, pipe } from "effect";
 import * as R from "effect/Record";
@@ -2431,13 +2432,33 @@ const toPhoenixDatasetCreateInput = (dataset: AgentEffectivenessDatasetSpec): Ph
 const datasetSelectorFor = (dataset: AgentEffectivenessDatasetSpec): PhoenixDatasetSelector =>
   new PhoenixDatasetSelector({ kind: "dataset-name", value: dataset.name });
 
+const isDatasetNotFoundCause = (cause: string): boolean => {
+  const normalized = Str.toLowerCase(cause);
+  return Str.contains(normalized, "not found") || Str.contains(normalized, "404");
+};
+
+const isDatasetNotFoundError = (error: PhoenixError): boolean =>
+  error.operation === "getDatasetInfo" &&
+  error.reason === "transport" &&
+  pipe(O.fromUndefinedOr(error.cause), O.exists(isDatasetNotFoundCause));
+
+const findPhoenixDatasetInfo = Effect.fn("AiMetrics.findPhoenixDatasetInfo")(function* (
+  phoenix: PhoenixShape,
+  selector: PhoenixDatasetSelector
+) {
+  return yield* phoenix.getDatasetInfo(selector).pipe(
+    Effect.map(O.some),
+    Effect.catchIf(isDatasetNotFoundError, () => Effect.succeed(O.none()))
+  );
+});
+
 const syncPhoenixDataset = Effect.fn("AiMetrics.syncPhoenixDataset")(function* (
   phoenix: PhoenixShape,
   dataset: AgentEffectivenessDatasetSpec
 ) {
   const input = toPhoenixDatasetCreateInput(dataset);
   const selector = datasetSelectorFor(dataset);
-  const existing = yield* phoenix.getDatasetInfo(selector).pipe(Effect.option);
+  const existing = yield* findPhoenixDatasetInfo(phoenix, selector);
 
   if (O.isSome(existing)) {
     const appended = yield* phoenix.appendDatasetExamples(
@@ -2725,6 +2746,8 @@ const forbiddenPatterns = [
   { code: "raw-worker-draft", pattern: /draftJsDoc|@example|```ts/u },
 ] as const;
 
+const decodeUnknownRecordOption = S.decodeUnknownOption(UnknownRecord);
+
 const checkText = (
   annotationId: string,
   value: string,
@@ -2757,6 +2780,11 @@ const checkUnknownText = (
       value,
       A.flatMap((entry) => checkUnknownText(subjectId, entry, subject))
     );
+  }
+
+  const record = decodeUnknownRecordOption(value);
+  if (O.isSome(record)) {
+    return checkRecordText(subjectId, record.value, subject);
   }
 
   return [];
@@ -2810,7 +2838,7 @@ const checkAnnotation = (
     R.toEntries(annotation.metadata),
     A.flatMap(([key, value]) => [
       ...checkText(annotation.annotationId, key),
-      ...checkText(annotation.annotationId, value),
+      ...checkUnknownText(annotation.annotationId, value, "Annotation"),
     ])
   );
   const valueFindings = P.isString(annotation.value) ? checkText(annotation.annotationId, annotation.value) : [];

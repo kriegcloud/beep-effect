@@ -262,6 +262,7 @@ const phoenixWriteSdk = (
     readonly prompts: Array<string>;
   },
   options: {
+    readonly datasetLookupFailure?: Error;
     readonly existingDatasetNames?: ReadonlyArray<string>;
   } = {}
 ): PhoenixSdkShape => ({
@@ -322,12 +323,17 @@ const phoenixWriteSdk = (
   getDatasetExamples: () =>
     Promise.resolve(new PhoenixDatasetExamplesResult({ examples: [], versionId: "version-id" })),
   getDatasetInfo: (selector) => {
+    const forcedFailure = O.fromUndefinedOr(options.datasetLookupFailure);
+    if (O.isSome(forcedFailure)) {
+      return Promise.reject(forcedFailure.value);
+    }
+
     const existing = pipe(
       options.existingDatasetNames ?? [],
       A.findFirst((name) => name === selector.value)
     );
     if (O.isNone(existing)) {
-      return Promise.reject(new Error("not found"));
+      return Promise.reject(new Error(`Dataset with name ${selector.value} not found`));
     }
 
     return Promise.resolve(
@@ -737,6 +743,58 @@ describe("@beep/repo-ai-metrics agent-effectiveness", () => {
                   ],
                 })
               )
+            )
+          )
+        );
+      })
+    ).pipe(provideScopedLayer(NodeServices.layer))
+  );
+
+  it.effect("does not create datasets when Phoenix dataset lookup transport fails", () =>
+    withTempDirectory((tmpDir) =>
+      Effect.gen(function* () {
+        const path = yield* Path.Path;
+        const calls = {
+          annotations: [] as string[],
+          appends: [] as string[],
+          datasets: [] as string[],
+          experiments: [] as string[],
+          prompts: [] as string[],
+        };
+        yield* Effect.gen(function* () {
+          const dataRoot = path.join(tmpDir, "metrics");
+          const workerReportPath = path.join(tmpDir, "worker-eval.json");
+          const annotationPlan = new AgentEffectivenessAnnotationPlanInput({
+            doctor: new AgentEffectivenessDoctorInput({
+              dataRoot,
+              noPhoenix: true,
+              workerEvalReportPath: workerReportPath,
+            }),
+          });
+          yield* writeText(workerReportPath, workerReportJson);
+
+          const error = yield* pipe(
+            syncAgentEffectivenessPhoenix(
+              new AgentEffectivenessPhoenixSyncInput({
+                annotationPlan,
+                confirmToken: AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION,
+                dryRun: false,
+              })
+            ),
+            Effect.flip
+          );
+
+          expect(error.message).toBe("Failed to sync agent-effectiveness datasets to Phoenix.");
+          expect(calls.appends).toEqual([]);
+          expect(calls.datasets).toEqual([]);
+          expect(calls.prompts).toEqual([]);
+          expect(calls.experiments).toEqual([]);
+          expect(calls.annotations).toEqual([]);
+        }).pipe(
+          provideScopedLayer(
+            Layer.mergeAll(
+              runtimeLayer(path.join(tmpDir, "metrics/derived/ai-metrics.duckdb")),
+              Phoenix.makeLayerWithSdk(phoenixWriteSdk(calls, { datasetLookupFailure: new Error("offline") }))
             )
           )
         );

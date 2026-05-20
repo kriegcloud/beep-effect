@@ -193,7 +193,7 @@ const causeFromUnknown = (cause: unknown): O.Option<string> =>
     ? O.none()
     : O.firstSomeOf([
         readString(cause, "_tag"),
-        readString(cause, "name"),
         readString(cause, "message"),
+        readString(cause, "name"),
         P.isString(cause) ? O.some("String") : O.none(),
       ]);
