@@ -205,7 +205,10 @@ try {
 
   const statusJson = JSON.parse(statusWithToken.text);
 
-  assert(statusJson.outputRoot === outputRoot, "Expected /status outputRoot to match the smoke output root.");
+  assert(
+    statusJson.outputRootName === path.basename(outputRoot),
+    "Expected /status outputRootName to match the smoke output root name."
+  );
   assert(statusJson.bundles.macos === false, "Expected smoke macOS bundle status to be false.");
   assert(statusJson.bundles.windows === false, "Expected smoke Windows bundle status to be false.");
   assert(commandsWithToken.text.includes("/upload/stack-installer-p1-macos.tgz"), "Expected macOS upload route.");

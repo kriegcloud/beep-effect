@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { flow, pipe } from "effect";
+import { pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -252,6 +252,33 @@ const aliasedCategoryOption = (value: string): O.Option<JSDocCategory> =>
 const rejectedCategoryMessageOption = (value: string): O.Option<string> =>
   O.fromNullishOr(JSDOC_CATEGORY_REJECTED_VALUES[value]);
 
+const MAX_JSDOC_CATEGORY_LENGTH = 128;
+
+type CategoryCharacterKind = "digit" | "lower" | "separator" | "upper";
+
+const charCodeAt = (value: string): number => value.charCodeAt(0);
+
+const isUpperAscii = (value: string): boolean => {
+  const code = charCodeAt(value);
+  return code >= 65 && code <= 90;
+};
+
+const isLowerAscii = (value: string): boolean => {
+  const code = charCodeAt(value);
+  return code >= 97 && code <= 122;
+};
+
+const isDigitAscii = (value: string): boolean => {
+  const code = charCodeAt(value);
+  return code >= 48 && code <= 57;
+};
+
+const lowerAscii = (value: string): string =>
+  isUpperAscii(value) ? String.fromCharCode(charCodeAt(value) + 32) : value;
+
+const appendCategorySeparator = (output: string): string =>
+  output === "" || Str.endsWith("-")(output) ? output : `${output}-`;
+
 /**
  * Normalize free-form category text to the repo slug key format.
  *
@@ -266,15 +293,38 @@ const rejectedCategoryMessageOption = (value: string): O.Option<string> =>
  * @category normalization
  * @since 0.0.0
  */
-export const normalizeJSDocCategoryKey: (value: string) => string = flow(
-  Str.trim,
-  Str.replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2"),
-  Str.replace(/([a-z0-9])([A-Z])/g, "$1-$2"),
-  Str.replace(/[^A-Za-z0-9]+/g, "-"),
-  Str.toLowerCase,
-  Str.replace(/-+/g, "-"),
-  Str.replace(/^-|-$/g, "")
-);
+export const normalizeJSDocCategoryKey = (value: string): string => {
+  const characters = A.fromIterable(Str.trim(value));
+  let output = "";
+  let previousKind: CategoryCharacterKind = "separator";
+
+  for (let index = 0; index < characters.length; index += 1) {
+    const character = characters[index] ?? "";
+    const next = characters[index + 1] ?? "";
+
+    if (isUpperAscii(character) || isLowerAscii(character) || isDigitAscii(character)) {
+      const currentKind: CategoryCharacterKind = isDigitAscii(character)
+        ? "digit"
+        : isUpperAscii(character)
+          ? "upper"
+          : "lower";
+      const startsNewWord =
+        currentKind === "upper" &&
+        output !== "" &&
+        !Str.endsWith("-")(output) &&
+        (previousKind === "lower" || previousKind === "digit" || (previousKind === "upper" && isLowerAscii(next)));
+
+      output = `${startsNewWord ? appendCategorySeparator(output) : output}${lowerAscii(character)}`;
+      previousKind = currentKind;
+      continue;
+    }
+
+    output = appendCategorySeparator(output);
+    previousKind = "separator";
+  }
+
+  return Str.replace(/-$/u, "")(output);
+};
 
 /**
  * Check whether a string is already a canonical category slug.
@@ -309,6 +359,16 @@ export const isCanonicalJSDocCategory = (value: string): value is JSDocCategory 
  */
 export const normalizeJSDocCategory = (value: string): JSDocCategoryNormalization => {
   const original = Str.trim(value);
+
+  if (Str.length(original) > MAX_JSDOC_CATEGORY_LENGTH) {
+    return new JSDocCategoryNormalization({
+      original: `${Str.slice(0, MAX_JSDOC_CATEGORY_LENGTH)(original)}...`,
+      normalized: "",
+      status: "rejected",
+      message: `@category value exceeds ${MAX_JSDOC_CATEGORY_LENGTH} characters.`,
+    });
+  }
+
   const normalized = normalizeJSDocCategoryKey(original);
 
   if (normalized === "") {

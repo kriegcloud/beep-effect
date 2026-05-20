@@ -222,6 +222,30 @@ describe("@beep/utils Glob", () => {
       })
     ));
 
+  it("skips dangling symlinks in the Node fallback scanner", () =>
+    runTest(
+      Effect.gen(function* () {
+        const program = Effect.acquireUseRelease(
+          acquireFixture,
+          (fixture) =>
+            makeSymlink(joinPath(fixture.dir, "missing.ts"), joinPath(fixture.dir, "src", "dangling.ts")).pipe(
+              Effect.flatMap(() =>
+                withBunGlobDisabled(
+                  runGlob("src/**", {
+                    cwd: fixture.dir,
+                    nodir: true,
+                  })
+                )
+              )
+            ),
+          (fixture) => fixture.cleanup
+        );
+        const results = yield* program;
+
+        expect(results).toEqual(["src/errors/problem.ts", "src/index.ts", "src/nested/deep.ts"]);
+      })
+    ));
+
   it("does not recurse into symlinked directories", () =>
     runTest(
       Effect.gen(function* () {

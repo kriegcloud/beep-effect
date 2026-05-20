@@ -32,6 +32,7 @@ import {
   p1ProofBundleExtractionCommand,
   p1ProofBundleExtractionProcess,
   p1ProofBundleFileNameForPlatform,
+  p1ProofBundleListingProcess,
   p1ProofMissingRequiredArtifactFiles,
 } from "./P1ProofArtifacts.js";
 import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "./P1ProofCommands.js";
@@ -59,8 +60,72 @@ const provideScopedLayer =
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
-const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
-  stream.pipe(Stream.decodeText(), Stream.runCollect, Effect.map(A.join("")));
+type ProcessOutputLimits = {
+  readonly maxStderrChars?: number;
+  readonly maxStdoutChars?: number;
+};
+
+type ProcessOutputLimitExceeded = {
+  readonly _tag: "ProcessOutputLimitExceeded";
+  readonly label: string;
+  readonly maxChars: number;
+  readonly message: string;
+};
+
+const collectText = <E>(
+  stream: Stream.Stream<Uint8Array, E>,
+  label: string,
+  maxChars: number | undefined
+): Effect.Effect<string, E | ProcessOutputLimitExceeded> =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runFoldEffect(
+      () => "",
+      (acc, chunk) => {
+        const nextLength = acc.length + chunk.length;
+        return maxChars !== undefined && nextLength > maxChars
+          ? Effect.fail({
+              _tag: "ProcessOutputLimitExceeded" as const,
+              label,
+              maxChars,
+              message: `${label} exceeded ${maxChars} characters`,
+            })
+          : Effect.succeed(`${acc}${chunk}`);
+      }
+    )
+  );
+
+const runNativeProcess = Effect.fn("StackInstaller.runNativeProcess")(function* (
+  process: {
+    readonly args: ReadonlyArray<string>;
+    readonly command: string;
+  },
+  limits: ProcessOutputLimits = {}
+) {
+  return yield* Effect.scoped(
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const handle = yield* spawner.spawn(
+        ChildProcess.make(process.command, A.fromIterable(process.args), {
+          stderr: "pipe",
+          stdin: "ignore",
+          stdout: "pipe",
+        })
+      );
+
+      return yield* Effect.all(
+        [
+          collectText(handle.stdout, "stdout", limits.maxStdoutChars),
+          collectText(handle.stderr, "stderr", limits.maxStderrChars),
+          handle.exitCode,
+        ],
+        {
+          concurrency: "unbounded",
+        }
+      );
+    })
+  );
+});
 
 const argAfter = (name: string): O.Option<string> =>
   pipe(
@@ -241,34 +306,144 @@ const proofArtifactStatus = Effect.fn("StackInstaller.proofArtifactStatus")(func
   ]);
 });
 
+const normalizeBundleEntry = (entry: string): string => {
+  const trimmed = pipe(entry, Str.trim, Str.replaceAll("\\", "/"));
+
+  return Str.endsWith("/")(trimmed) ? Str.slice(0, -1)(trimmed) : trimmed;
+};
+
+const isSafeBundleEntry = (platform: P1RequiredPlatform, entry: string): boolean => {
+  const normalized = normalizeBundleEntry(entry);
+  const segments = Str.split("/")(normalized);
+  const firstSegment = A.head(segments);
+
+  return (
+    Str.isNonEmpty(normalized) &&
+    !Str.includes("\u0000")(normalized) &&
+    !Str.startsWith("/")(normalized) &&
+    O.isSome(firstSegment) &&
+    firstSegment.value === platform &&
+    A.every(segments, (segment) => Str.isNonEmpty(segment) && segment !== "." && segment !== "..")
+  );
+};
+
+const validateBundleEntries = Effect.fn("StackInstaller.validateBundleEntries")(function* (
+  platform: P1RequiredPlatform,
+  bundlePath: string
+) {
+  const process = p1ProofBundleListingProcess(platform, { bundlePath, outputRoot: "" });
+  const [stdout, stderr, exitCode] = yield* runNativeProcess(process, {
+    maxStderrChars: 64_000,
+    maxStdoutChars: 1_000_000,
+  });
+
+  yield* requireAudit(
+    exitCode === 0,
+    `Failed to list ${bundlePath} with ${process.command}; exitCode=${exitCode}; stderr=${stderr}; stdout=${stdout}`
+  );
+
+  const entries = pipe(Str.split("\n")(stdout), A.map(Str.trim), A.filter(Str.isNonEmpty));
+  const unsafeEntries = pipe(
+    entries,
+    A.filter((entry) => !isSafeBundleEntry(platform, entry))
+  );
+
+  yield* requireAudit(
+    A.isReadonlyArrayEmpty(unsafeEntries),
+    `Refusing to extract ${bundlePath}; archive entries must stay under ${platform}/ and avoid traversal segments: ${pipe(
+      unsafeEntries,
+      A.take(10),
+      A.join(", ")
+    )}`
+  );
+});
+
+const validateExtractedBundleEntries = Effect.fn("StackInstaller.validateExtractedBundleEntries")(function* (
+  platform: P1RequiredPlatform,
+  extractionRoot: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const entries = yield* fs.readDirectory(extractionRoot, { recursive: true });
+  const unsafeEntries = pipe(
+    entries,
+    A.filter((entry) => !isSafeBundleEntry(platform, entry))
+  );
+  const unsafeSpecialEntries = yield* Effect.forEach(
+    entries,
+    Effect.fnUntraced(function* (entry) {
+      const entryPath = path.join(extractionRoot, entry);
+      const symlinkTarget = yield* fs.readLink(entryPath).pipe(Effect.option);
+
+      if (O.isSome(symlinkTarget)) {
+        return O.some(`${entry} (SymbolicLink)`);
+      }
+
+      const info = yield* fs.stat(entryPath);
+      return info.type === "File" || info.type === "Directory" ? O.none<string>() : O.some(`${entry} (${info.type})`);
+    }),
+    { concurrency: 8 }
+  ).pipe(Effect.map(A.getSomes));
+
+  yield* requireAudit(
+    A.isReadonlyArrayEmpty(unsafeEntries),
+    `Refusing extracted bundle; extracted paths must stay under ${platform}/ and avoid traversal segments: ${pipe(
+      unsafeEntries,
+      A.take(10),
+      A.join(", ")
+    )}`
+  );
+  yield* requireAudit(
+    A.isReadonlyArrayEmpty(unsafeSpecialEntries),
+    `Refusing extracted bundle; extracted entries must be regular files or directories: ${pipe(
+      unsafeSpecialEntries,
+      A.take(10),
+      A.join(", ")
+    )}`
+  );
+});
+
 const runExtractionProcess = Effect.fn("StackInstaller.runExtractionProcess")(function* (
   platform: P1RequiredPlatform,
   bundlePath: string,
   outputRoot: string
 ) {
-  const process = p1ProofBundleExtractionProcess(platform, { bundlePath, outputRoot });
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const stagingDir = yield* fs.makeTempDirectory({ directory: outputRoot, prefix: `.p1-proof-${platform}-` });
 
-  const [stdout, stderr, exitCode] = yield* Effect.scoped(
-    Effect.gen(function* () {
-      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-      const handle = yield* spawner.spawn(
-        ChildProcess.make(process.command, A.fromIterable(process.args), {
-          stderr: "pipe",
-          stdin: "ignore",
-          stdout: "pipe",
-        })
-      );
+  yield* Effect.gen(function* () {
+    const stagedBundlePath = path.join(stagingDir, p1ProofBundleFileNameForPlatform(platform));
+    const stagedExtractionRoot = path.join(stagingDir, "extract");
+    const stagedOutputDir = path.join(stagedExtractionRoot, platform);
+    const outputDir = path.join(outputRoot, platform);
 
-      return yield* Effect.all([collectText(handle.stdout), collectText(handle.stderr), handle.exitCode], {
-        concurrency: "unbounded",
-      });
-    })
-  );
+    yield* fs.makeDirectory(stagedExtractionRoot, { recursive: true });
+    yield* fs.copyFile(bundlePath, stagedBundlePath);
+    yield* validateBundleEntries(platform, stagedBundlePath);
 
-  yield* requireAudit(
-    exitCode === 0,
-    `Failed to extract ${bundlePath} with ${process.command}; exitCode=${exitCode}; stderr=${stderr}; stdout=${stdout}`
-  );
+    const process = p1ProofBundleExtractionProcess(platform, {
+      bundlePath: stagedBundlePath,
+      outputRoot: stagedExtractionRoot,
+    });
+    const [stdout, stderr, exitCode] = yield* runNativeProcess(process);
+
+    yield* requireAudit(
+      exitCode === 0,
+      `Failed to extract ${bundlePath} with ${process.command}; exitCode=${exitCode}; stderr=${stderr}; stdout=${stdout}`
+    );
+    yield* validateExtractedBundleEntries(platform, stagedExtractionRoot);
+
+    const stagedOutputDirExists = yield* fs.exists(stagedOutputDir).pipe(Effect.orElseSucceed(() => false));
+    yield* requireAudit(
+      stagedOutputDirExists,
+      `Extracted bundle did not create expected proof directory: ${outputDir}`
+    );
+
+    const outputDirExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+    yield* requireAudit(!outputDirExists, `Refusing to replace existing proof directory: ${outputDir}`);
+    yield* fs.rename(stagedOutputDir, outputDir);
+  }).pipe(Effect.ensuring(fs.remove(stagingDir, { force: true, recursive: true }).pipe(Effect.ignore)));
 });
 
 const intakePlatformBundle = Effect.fn("StackInstaller.intakePlatformBundle")(function* (

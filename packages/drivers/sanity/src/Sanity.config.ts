@@ -10,6 +10,24 @@ import * as S from "effect/Schema";
 
 const $I = $SanityId.create("Sanity.config");
 
+const SanityProjectId = S.String.check(S.isPattern(/^[a-z0-9][a-z0-9-]*$/u)).pipe(
+  $I.annoteSchema("SanityProjectId", {
+    description: "Sanity project id safe for use as a first-party Sanity API subdomain.",
+  })
+);
+
+const SanityDataset = S.String.check(S.isPattern(/^[A-Za-z0-9_-]+$/u)).pipe(
+  $I.annoteSchema("SanityDataset", {
+    description: "Sanity dataset name accepted in first-party API paths.",
+  })
+);
+
+const SanityApiVersion = S.String.check(S.isPattern(/^\d{4}-\d{2}-\d{2}$/u)).pipe(
+  $I.annoteSchema("SanityApiVersion", {
+    description: "Date-shaped Sanity API version string.",
+  })
+);
+
 /**
  * Default Sanity API version used when callers do not provide one.
  *
@@ -48,10 +66,10 @@ export class SanityConfigInput extends S.Class<SanityConfigInput>($I`SanityConfi
   {
     apiHost: S.optionalKey(S.String),
     apiToken: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    apiVersion: S.optionalKey(S.String),
-    dataset: S.optionalKey(S.String),
+    apiVersion: S.optionalKey(SanityApiVersion),
+    dataset: S.optionalKey(SanityDataset),
     headers: S.optionalKey(S.Record(S.String, S.String)),
-    projectId: S.optionalKey(S.String),
+    projectId: S.optionalKey(SanityProjectId),
   },
   $I.annote("SanityConfigInput", {
     description: "Runtime configuration accepted by the Sanity API driver layer.",

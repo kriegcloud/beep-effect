@@ -60,6 +60,7 @@
   "dependencies": {
     "@beep/duckdb": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/phoenix": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "effect": "catalog:",

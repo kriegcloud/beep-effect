@@ -73,6 +73,7 @@ type Operation = {
   readonly methodName: string;
   readonly operationId: string;
   readonly path: string;
+  readonly requestBodyRequired: boolean;
   readonly requestClassName: string;
   readonly requestFields: readonly RequestField[];
   readonly responseBody: "json" | "none" | "text";
@@ -156,7 +157,8 @@ const buildOperations = (document: OpenApiDocument): readonly Operation[] => {
       const descriptorName = `${methodName}Operation`;
       const parameters = mergeParameters(pathItem.parameters ?? [], operation.parameters ?? []);
       const bodySchema = operation.requestBody?.content?.["application/json"]?.schema;
-      const requestFields = renderRequestFields(parameters, bodySchema, operation.requestBody?.required === true);
+      const requestBodyRequired = operation.requestBody?.required === true;
+      const requestFields = renderRequestFields(parameters, bodySchema, requestBodyRequired);
       const response = chooseResponse(methodName, operation.responses ?? {});
 
       operations = A.append(operations, {
@@ -169,6 +171,7 @@ const buildOperations = (document: OpenApiDocument): readonly Operation[] => {
         methodName,
         operationId: operation.operationId,
         path,
+        requestBodyRequired,
         requestClassName,
         requestFields,
         responseBody: response.body,
@@ -595,6 +598,7 @@ export class RunpodOperationDescriptor extends S.Class<RunpodOperationDescriptor
   pathParams: S.Array(S.String),
   queryParams: S.Array(S.String),
   requestBody: RunpodRequestBodyKind,
+  requestBodyRequired: S.Boolean,
   responseBody: RunpodResponseBodyKind,
   status: S.String,
   },
@@ -638,6 +642,7 @@ export const ${operation.descriptorName} = new RunpodOperationDescriptor({
       ? '"json"'
       : '"none"'
   },
+  requestBodyRequired: ${operation.requestBodyRequired ? "true" : "false"},
   responseBody: "${operation.responseBody}",
   status: "${operation.status}",
 });`;

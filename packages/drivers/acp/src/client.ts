@@ -30,6 +30,7 @@ import * as AcpProtocol from "./protocol.ts";
 import * as AcpRpcs from "./rpc.ts";
 
 const $I = $AcpId.create("client");
+const ACP_CLIENT_PENDING_NOTIFICATION_CAPACITY = 256;
 
 /**
  * Options for constructing an ACP client service.
@@ -420,6 +421,14 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
       }
     );
 
+  const bufferNotification = <A>(registration: BufferedNotificationHandler<A>, notification: A) =>
+    Effect.sync(() => {
+      if (registration.pending.length >= ACP_CLIENT_PENDING_NOTIFICATION_CAPACITY) {
+        registration.pending.splice(0, registration.pending.length - ACP_CLIENT_PENDING_NOTIFICATION_CAPACITY + 1);
+      }
+      A.appendInPlace(registration.pending, notification);
+    });
+
   const flushBufferedNotifications = <A>(method: string, registration: BufferedNotificationHandler<A>) =>
     Effect.suspend(() => {
       if (registration.handlers.length === 0 || registration.pending.length === 0) {
@@ -435,15 +444,13 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
     Match.tagsExhaustive({
       SessionUpdate: (value) => {
         if (notificationHandlers.sessionUpdate.handlers.length === 0) {
-          A.appendInPlace(notificationHandlers.sessionUpdate.pending, value.params);
-          return Effect.void;
+          return bufferNotification(notificationHandlers.sessionUpdate, value.params);
         }
         return runNotificationHandlers(value.method, notificationHandlers.sessionUpdate, value.params);
       },
       ElicitationComplete: (value) => {
         if (notificationHandlers.elicitationComplete.handlers.length === 0) {
-          A.appendInPlace(notificationHandlers.elicitationComplete.pending, value.params);
-          return Effect.void;
+          return bufferNotification(notificationHandlers.elicitationComplete, value.params);
         }
         return runNotificationHandlers(value.method, notificationHandlers.elicitationComplete, value.params);
       },

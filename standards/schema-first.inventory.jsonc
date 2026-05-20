@@ -226,6 +226,22 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/drivers/phoenix/src/Phoenix.service.ts",
+      "symbol": "PhoenixSdkShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/phoenix",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/phoenix/src/Phoenix.service.ts",
+      "symbol": "PhoenixShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/phoenix",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/drivers/runpod/src/Runpod.service.ts",
       "symbol": "RunpodShape",
       "kind": "exported-interface",
@@ -1240,6 +1256,14 @@
       "status": "exception",
       "owner": "@beep/ui",
       "reason": "React tour configuration is coupled to Step render contracts containing ReactNode values, so it stays tracked as a UI boundary exception."
+    },
+    {
+      "file": "packages/shared/domain/src/values/LocalDate/LocalDate.model.ts",
+      "symbol": "LocalDateFields",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/shared-domain",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
       "file": "packages/tooling/library/repo-utils/src/FsUtils.ts",

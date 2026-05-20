@@ -269,8 +269,8 @@ export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncrypte
     const sourcePathHash = yield* hashPrivateIdentifier(sourcePath, hashSalt).pipe(
       Effect.mapError((cause) => archiveFailure("Failed to hash raw archive source path.", cause))
     );
-    const plaintextContentHash = yield* hashPublicTextSha256(content).pipe(
-      Effect.mapError((cause) => archiveFailure("Failed to hash raw archive plaintext.", cause))
+    const plaintextContentHash = yield* hashPrivateIdentifier(content, hashSalt).pipe(
+      Effect.mapError((cause) => archiveFailure("Failed to hash raw archive plaintext identity.", cause))
     );
     const archiveObjectId = yield* archiveObjectIdFor(sourceKind, sourcePathHash, plaintextContentHash);
     const archivePath = archiveObjectPath(pathApi, rawArchiveDir, sourceKind, archiveObjectId);

@@ -40,7 +40,14 @@ const fileMode = async (filePath) => {
 
 const readText = async (filePath) => fs.promises.readFile(filePath, "utf8").catch(() => "");
 
-const recentLines = (text, count = 12) => (text.trim() ? text.trim().split(/\r?\n/).slice(-count) : []);
+const sanitizeLogLine = (line) => {
+  const withoutControls = line.replace(/[^\t\x20-\x7e]/g, "?").replace(/\t/g, " ");
+
+  return withoutControls.length > 240 ? `${withoutControls.slice(0, 237)}...` : withoutControls;
+};
+
+const recentLines = (text, count = 12) =>
+  text.trim() ? text.trim().split(/\r?\n/).slice(-count).map(sanitizeLogLine) : [];
 
 const formatDuration = (milliseconds) => {
   const totalSeconds = Math.ceil(milliseconds / 1000);
@@ -200,7 +207,7 @@ const watcherProcesses = (root) => {
   if (result.status !== 0) {
     return {
       available: false,
-      detail: (result.stderr || result.stdout || "ps unavailable").trim(),
+      detail: "ps unavailable",
       pids: [],
     };
   }
@@ -405,7 +412,7 @@ const alternateLandingHasExpectedUrl = alternateLanding
   : false;
 const alternateStatusHasExpectedShape =
   !alternateUrlBase ||
-  (parseJson(alternateStatusWithToken?.text ?? "")?.outputRoot === outputRoot &&
+  (parseJson(alternateStatusWithToken?.text ?? "")?.outputRootName === path.basename(outputRoot) &&
     typeof parseJson(alternateStatusWithToken?.text ?? "")?.bundles?.macos === "boolean" &&
     typeof parseJson(alternateStatusWithToken?.text ?? "")?.bundles?.windows === "boolean");
 const alternateCommandsHaveUploadRoutes =

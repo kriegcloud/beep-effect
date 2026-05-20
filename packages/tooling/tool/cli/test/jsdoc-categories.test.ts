@@ -11,6 +11,7 @@ describe("JSDoc category taxonomy", () => {
     expect(normalizeJSDocCategoryKey("DomainModel")).toBe("domain-model");
     expect(normalizeJSDocCategoryKey("Resource Management & Finalization")).toBe("resource-management-finalization");
     expect(normalizeJSDocCategoryKey("tool_schemas")).toBe("tool-schemas");
+    expect(normalizeJSDocCategoryKey("HTTPServerAdapter")).toBe("http-server-adapter");
   });
 
   it("accepts canonical kebab-case values", () => {
@@ -59,6 +60,13 @@ describe("JSDoc category taxonomy", () => {
     expect(normalizeJSDocCategory("")).toMatchObject({
       message: "Empty @category value.",
       status: "unknown",
+    });
+  });
+
+  it("rejects overlong category text before normalization", () => {
+    expect(normalizeJSDocCategory("A".repeat(10_000))).toMatchObject({
+      message: "@category value exceeds 128 characters.",
+      status: "rejected",
     });
   });
 });

@@ -111,7 +111,7 @@ describe("PostgresError", () => {
     expect(O.getOrThrow(error.sqlStateName)).toBe("UNIQUE_VIOLATION");
     expect(O.getOrThrow(error.constraintName)).toBe("users_email_key");
     expect(O.getOrThrow(error.query)).toBe("select * from users where email = $1");
-    expect(O.getOrThrow(error.params)).toEqual(["a@example.com"]);
+    expect(O.getOrThrow(error.params)).toEqual(["<redacted>"]);
   });
 
   it("keeps duplicate SQLSTATE aliases without losing the canonical name", () => {
@@ -128,7 +128,7 @@ describe("PostgresError", () => {
     const diagnostics = extractPostgresDiagnostics(cause);
 
     expect(O.getOrThrow(diagnostics.query)).toBe("select 1 where id = $1");
-    expect(O.getOrThrow(diagnostics.params)).toEqual(["1"]);
+    expect(O.getOrThrow(diagnostics.params)).toEqual(["<redacted>"]);
   });
 
   it("constructs schema-owned diagnostic context", () => {
@@ -146,7 +146,7 @@ describe("PostgresError", () => {
     const diagnostics = extractPostgresDiagnostics(cause);
 
     expect(O.getOrThrow(diagnostics.query)).toBe("select 1 where payload = $1");
-    expect(O.getOrThrow(diagnostics.params)).toEqual(['{"label":"a,b"}, opaque']);
+    expect(O.getOrThrow(diagnostics.params)).toEqual(["<redacted>"]);
   });
 
   it("falls back to reason when cause is missing or undefined", () => {
@@ -209,7 +209,7 @@ describe("PostgresError", () => {
     );
 
     expect(O.getOrThrow(diagnostics.query)).toBe("select * from users where email = $1");
-    expect(O.getOrThrow(diagnostics.params)).toEqual(["a@example.com"]);
+    expect(O.getOrThrow(diagnostics.params)).toEqual(["<redacted>"]);
   });
 
   it("unwraps Cause.fail existing PostgresError values", () => {
@@ -337,7 +337,7 @@ describe("Postgres formatting", () => {
 
     expect(rendered).toContain("POSTGRES ERROR");
     expect(rendered).toContain("select '");
-    expect(rendered).toContain('$1="still, opaque"');
+    expect(rendered).toContain('$1="<redacted>"');
   });
 
   it("formats Postgres errors with invalid Date params without throwing", () => {
@@ -350,7 +350,7 @@ describe("Postgres formatting", () => {
     );
 
     expect(rendered).toContain("POSTGRES ERROR");
-    expect(rendered).toContain("Invalid Date");
+    expect(rendered).toContain('$1="<redacted>"');
   });
 
   it("formats array params with throwing string coercion without throwing", () => {
@@ -379,7 +379,7 @@ describe("Postgres formatting", () => {
     );
 
     expect(rendered).toContain("POSTGRES ERROR");
-    expect(rendered).toContain("<unprintable>");
+    expect(rendered).toContain('$1="<redacted>"');
   });
 
   it("formats hostile proxy and Date subclass params without throwing", () => {
@@ -399,8 +399,8 @@ describe("Postgres formatting", () => {
     );
 
     expect(rendered).toContain("POSTGRES ERROR");
-    expect(rendered).toContain("$1=[Object]");
-    expect(rendered).toContain("$2=<unprintable>");
+    expect(rendered).toContain('$1="<redacted>"');
+    expect(rendered).toContain('$2="<redacted>"');
   });
 
   it("formats hostile proxy errors without throwing", () => {
@@ -438,7 +438,7 @@ describe("Postgres formatting", () => {
     expect(rendered).toContain("UNIQUE_VIOLATION");
     expect(rendered).toContain("users");
     expect(rendered).toContain("select");
-    expect(rendered).toContain('$1="a@example.com"');
+    expect(rendered).toContain('$1="<redacted>"');
   });
 });
 

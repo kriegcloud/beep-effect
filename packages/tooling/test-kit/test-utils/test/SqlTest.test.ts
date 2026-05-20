@@ -4,6 +4,7 @@ import {
   NodeSqliteTestDriver,
   PgExternalTestDriver,
   PgliteTestcontainersTestDriver,
+  PgliteTestcontainersTestDriverConfig,
   SqlTestHarnessError,
   type SqlTestHooks,
   TestDatabaseInfo,
@@ -204,6 +205,15 @@ describe("SqlTest", () => {
       }
     })
   );
+
+  it("uses a generated PGLite Testcontainers password by default", () => {
+    const config = new PgliteTestcontainersTestDriverConfig({});
+
+    expect(config.username).toBe("postgres");
+    expect(config.database).toBe("postgres");
+    expect(config.password).not.toBe("postgres");
+    expect(config.password.length).toBeGreaterThan(20);
+  });
 
   it.effect("rejects invalid external PostgreSQL connection URIs as typed harness errors", () =>
     Effect.gen(function* () {

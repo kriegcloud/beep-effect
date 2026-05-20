@@ -407,24 +407,40 @@ const attachCauseTaggedErrorStatics = <
   fields: Fields
 ): CauseTaggedErrorWithStatics<Self, Tag, Fields, Brand, ErrorClass> => {
   const originalExtend = errorClass.extend as CauseTaggedErrorRawExtend;
+  const makeNew = makeCauseTaggedErrorNew<Self, Fields>(fields);
+  const mapError = makeCauseTaggedErrorMapError<Self, Fields>(fields);
+  const staticTarget = (target: unknown): CauseTaggedErrorLike =>
+    P.isFunction(target) ? (target as CauseTaggedErrorLike) : errorClass;
+  const extendCauseTaggedError = function (this: CauseTaggedErrorLike | undefined, identifier: string) {
+    const target = this ?? errorClass;
+    const extend = originalExtend.call(target, identifier);
+
+    return (
+      newFields: CauseTaggedErrorFields,
+      annotations?: S.Annotations.Declaration<unknown, readonly [S.Struct<CauseTaggedErrorFields>]>
+    ) => {
+      const extended = extend(newFields, annotations);
+
+      return attachCauseTaggedErrorStatics(extended, {
+        ...fields,
+        ...newFields,
+      });
+    };
+  };
 
   return withStatics(errorClass, () => ({
-    new: makeCauseTaggedErrorNew<Self, Fields>(fields),
-    mapError: makeCauseTaggedErrorMapError<Self, Fields>(fields),
-    extend: function (this: CauseTaggedErrorLike, identifier: string) {
-      const extend = originalExtend.call(this, identifier);
-
-      return (
-        newFields: CauseTaggedErrorFields,
-        annotations?: S.Annotations.Declaration<unknown, readonly [S.Struct<CauseTaggedErrorFields>]>
-      ) => {
-        const extended = extend(newFields, annotations);
-
-        return attachCauseTaggedErrorStatics(extended, {
-          ...fields,
-          ...newFields,
-        });
-      };
+    get new(): CauseTaggedErrorNew<Self, Fields> {
+      return makeNew.bind(staticTarget(this)) as unknown as CauseTaggedErrorNew<Self, Fields>;
+    },
+    get mapError(): CauseTaggedErrorMapError<Self, Fields> {
+      return mapError.bind(staticTarget(this)) as unknown as CauseTaggedErrorMapError<Self, Fields>;
+    },
+    get extend(): CauseTaggedErrorExtendMethod<Tag, Fields, ErrorClass> {
+      return extendCauseTaggedError.bind(staticTarget(this)) as unknown as CauseTaggedErrorExtendMethod<
+        Tag,
+        Fields,
+        ErrorClass
+      >;
     },
   })) as unknown as CauseTaggedErrorWithStatics<Self, Tag, Fields, Brand, ErrorClass>;
 };

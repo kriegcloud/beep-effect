@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { makePgliteTestcontainerResource, type PgliteTestcontainerResource } from "@beep/test-utils";
-import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
 import { Cause, Console, Effect, FileSystem, flow, Match, Path, pipe, type Scope, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -22,6 +22,8 @@ const $I = $RepoCliId.create("commands/Quality/Tasks");
 
 const QUALITY_TASK_NAMES = ["build", "check", "test", "lint", "audit"] as const;
 const LINT_POLICY_GROUP_CONCURRENCY = 3;
+const GROUPED_STEP_OUTPUT_MAX_CHARS = 256 * 1024;
+const groupedStepOutputTruncatedNotice = `\n[beep-cli] output truncated after ${GROUPED_STEP_OUTPUT_MAX_CHARS} characters`;
 const LINT_POLICY_SUBCOMMANDS = [
   "circular",
   "package-test-imports",
@@ -279,6 +281,11 @@ type QualityTaskStepOutput = {
   readonly step: QualityTaskStep;
 };
 
+type BoundedStepOutputState = {
+  readonly text: string;
+  readonly truncated: boolean;
+};
+
 type ParsedFixArgsState = {
   readonly fix: boolean;
   readonly args: ReadonlyArray<string>;
@@ -493,11 +500,7 @@ const usableSqlConnectionUri = (value: string | undefined): O.Option<string> =>
   );
 
 const sqlIntegrationConnectionUriFromEnv = (env: Record<string, string | undefined>): O.Option<string> =>
-  pipe(
-    usableSqlConnectionUri(env.BEEP_TEST_DATABASE_URL),
-    O.orElse(() => usableSqlConnectionUri(env.DATABASE_URL)),
-    O.orElse(() => usableSqlConnectionUri(env.DATABASE_URL_UNPOOLED))
-  );
+  usableSqlConnectionUri(env.BEEP_TEST_DATABASE_URL);
 
 const turboEnvOverrides = Effect.fn("QualityTasks.turboEnvOverrides")(function* (
   command: string,
@@ -620,6 +623,38 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
 
 const runSteps = (steps: ReadonlyArray<QualityTaskStep>) => Effect.forEach(steps, runStep, { discard: true });
 
+const emptyBoundedStepOutputState = (): BoundedStepOutputState => ({
+  text: "",
+  truncated: false,
+});
+
+const appendBoundedStepOutput = (state: BoundedStepOutputState, chunk: string): BoundedStepOutputState => {
+  if (state.truncated) {
+    return state;
+  }
+
+  const remaining = GROUPED_STEP_OUTPUT_MAX_CHARS - Str.length(state.text);
+
+  if (remaining <= 0) {
+    return {
+      text: `${state.text}${groupedStepOutputTruncatedNotice}`,
+      truncated: true,
+    };
+  }
+
+  if (Str.length(chunk) <= remaining) {
+    return {
+      text: `${state.text}${chunk}`,
+      truncated: false,
+    };
+  }
+
+  return {
+    text: `${state.text}${Str.slice(0, remaining)(chunk)}${groupedStepOutputTruncatedNotice}`,
+    truncated: true,
+  };
+};
+
 const collectResolvedStepOutput = Effect.fn("QualityTasks.collectResolvedStepOutput")(function* (
   step: QualityTaskStep
 ): Effect.fn.Return<QualityTaskStepOutput, QualityTaskConfigurationError, ChildProcessSpawner.ChildProcessSpawner> {
@@ -638,13 +673,13 @@ const collectResolvedStepOutput = Effect.fn("QualityTasks.collectResolvedStepOut
         stdout: "pipe",
         stderr: "pipe",
       });
-      const output = yield* handle.all.pipe(
+      const outputState = yield* handle.all.pipe(
         Stream.decodeText(),
-        Stream.runFold(thunkEmptyStr, (acc, chunk) => acc + chunk)
+        Stream.runFold(emptyBoundedStepOutputState, appendBoundedStepOutput)
       );
       const exitCode = yield* handle.exitCode;
       return {
-        output: Str.trim(output),
+        output: Str.trim(outputState.text),
         exitCode,
       };
     })

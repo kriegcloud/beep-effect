@@ -21,6 +21,7 @@ const maxBytes = Number.parseInt(argAfter("--max-bytes", `${2 * 1024 * 1024 * 10
 const allowedFileNames = new Set(["stack-installer-p1-macos.tgz", "stack-installer-p1-windows.zip"]);
 const requiredPlatforms = ["macos", "windows"];
 const requiredArtifactFiles = ["proof.json", "commands.txt", "sha256sums.txt"];
+const configuredUrlBase = `http://${host}:${port}`;
 const uploadCommandsPath = path.join(outputRoot, "proof-upload-commands.txt");
 const nextActionsPath = path.join(outputRoot, "OPERATOR_NEXT_ACTIONS.md");
 
@@ -29,7 +30,7 @@ if (!token) {
 }
 
 const logRequest = (request, statusCode, message, details = "") => {
-  const requestUrl = new URL(request.url ?? "/", `http://${request.headers.host ?? `${host}:${port}`}`);
+  const requestUrl = new URL(request.url ?? "/", configuredUrlBase);
   const remoteAddress = request.socket.remoteAddress ?? "unknown";
   const sanitizedPath = `${requestUrl.pathname}${requestUrl.searchParams.has("token") ? "?token=<redacted>" : ""}`;
   const suffix = details ? ` ${details}` : "";
@@ -49,14 +50,14 @@ const sendJson = (response, statusCode, body) => {
   response.end(`${JSON.stringify(body, null, 2)}\n`);
 };
 
-const requestToken = (request, requestUrl) => {
+const requestToken = (request) => {
   const authorization = request.headers.authorization ?? "";
 
   if (authorization.startsWith("Bearer ")) {
     return authorization.slice("Bearer ".length);
   }
 
-  return requestUrl.searchParams.get("token") ?? "";
+  return "";
 };
 
 const fileExists = async (filePath) =>
@@ -98,15 +99,13 @@ const uploadStatus = async () => ({
     macos: await fileExists(path.join(outputRoot, "stack-installer-p1-macos.tgz")),
     windows: await fileExists(path.join(outputRoot, "stack-installer-p1-windows.zip")),
   },
-  outputRoot,
+  outputRootName: path.basename(outputRoot),
   platforms: Object.fromEntries(
     await Promise.all(requiredPlatforms.map(async (platform) => [platform, await platformArtifactStatus(platform)]))
   ),
 });
 
-const landingPage = (requestHost) => {
-  const requestUrlBase = requestHost ? `http://${requestHost}` : `http://${host}:${port}`;
-
+const landingPage = () => {
   return [
     "Stack Installer P1 proof upload endpoint",
     "",
@@ -117,19 +116,19 @@ const landingPage = (requestHost) => {
     "4. Run the platform proof, package the artifact, and upload only the approved bundle name.",
     "",
     "Public checks:",
-    `- GET ${requestUrlBase}/health`,
+    `- GET ${configuredUrlBase}/health`,
     "",
     "Token-protected checks:",
-    `- GET ${requestUrlBase}/status`,
-    `- GET ${requestUrlBase}/commands`,
-    `- GET ${requestUrlBase}/next-actions`,
+    `- GET ${configuredUrlBase}/status`,
+    `- GET ${configuredUrlBase}/commands`,
+    `- GET ${configuredUrlBase}/next-actions`,
     "",
     "Allowed uploads:",
-    `- PUT or POST ${requestUrlBase}/upload/stack-installer-p1-macos.tgz`,
-    `- PUT or POST ${requestUrlBase}/upload/stack-installer-p1-windows.zip`,
+    `- PUT or POST ${configuredUrlBase}/upload/stack-installer-p1-macos.tgz`,
+    `- PUT or POST ${configuredUrlBase}/upload/stack-installer-p1-windows.zip`,
     "",
     "Fetch next actions from a proof machine:",
-    `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${requestUrlBase}/next-actions'`,
+    `curl -f -H "Authorization: Bearer \${STACK_INSTALLER_PROOF_UPLOAD_TOKEN}" '${configuredUrlBase}/next-actions'`,
     "",
     "Use an Authorization: Bearer token header for /status, /commands, /next-actions, and /upload requests.",
     "Do not put the proof upload token in URLs, chat, commits, screencasts, or command transcripts.",
@@ -138,16 +137,16 @@ const landingPage = (requestHost) => {
 
 const server = http.createServer(async (request, response) => {
   try {
-    const requestUrl = new URL(request.url ?? "/", `http://${request.headers.host ?? `${host}:${port}`}`);
+    const requestUrl = new URL(request.url ?? "/", configuredUrlBase);
 
     if (request.method === "GET" && requestUrl.pathname === "/") {
       logRequest(request, 200, "landing");
-      send(response, 200, landingPage(request.headers.host));
+      send(response, 200, landingPage());
       return;
     }
 
     if (request.method === "GET" && requestUrl.pathname === "/next-actions") {
-      if (requestToken(request, requestUrl) !== token) {
+      if (requestToken(request) !== token) {
         logRequest(request, 403, "invalid-token");
         send(response, 403, "Invalid upload token.");
         return;
@@ -173,7 +172,7 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (request.method === "GET" && requestUrl.pathname === "/status") {
-      if (requestToken(request, requestUrl) !== token) {
+      if (requestToken(request) !== token) {
         logRequest(request, 403, "invalid-token");
         send(response, 403, "Invalid upload token.");
         return;
@@ -185,7 +184,7 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (request.method === "GET" && requestUrl.pathname === "/commands") {
-      if (requestToken(request, requestUrl) !== token) {
+      if (requestToken(request) !== token) {
         logRequest(request, 403, "invalid-token");
         send(response, 403, "Invalid upload token.");
         return;
@@ -210,7 +209,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (requestToken(request, requestUrl) !== token) {
+    if (requestToken(request) !== token) {
       logRequest(request, 403, "invalid-token");
       send(response, 403, "Invalid upload token.");
       return;
@@ -248,7 +247,12 @@ const server = http.createServer(async (request, response) => {
       }
     });
 
-    await pipeline(request, fs.createWriteStream(temporaryPath, { flags: "w", mode: 0o600 }));
+    try {
+      await pipeline(request, fs.createWriteStream(temporaryPath, { flags: "w", mode: 0o600 }));
+    } catch (error) {
+      await removeIfExists(temporaryPath);
+      throw error;
+    }
     await fs.promises.chmod(temporaryPath, 0o600);
     await fs.promises.rename(temporaryPath, destinationPath);
     await fs.promises.chmod(destinationPath, 0o600);
@@ -259,7 +263,7 @@ const server = http.createServer(async (request, response) => {
     const message = error instanceof Error ? error.message : String(error);
 
     logRequest(request, 500, "error", message);
-    send(response, 500, message);
+    send(response, 500, "Internal proof upload server error.");
   }
 });
 

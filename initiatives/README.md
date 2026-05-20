@@ -31,6 +31,7 @@ actually lives here.
 - `agentic-professional-runtime`
 - `agent-governance-control-plane`
 - `canvas`
+- `codex-security-findings` — local Codex Security finding catalog, current-HEAD triage, and remediation queue.
 - `ip-law-knowledge-graph`
 - `oip-web-production-hardening`
 - `oip-web-launch` — implementation complete; launch review pending.

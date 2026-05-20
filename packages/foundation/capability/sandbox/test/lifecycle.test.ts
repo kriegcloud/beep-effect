@@ -35,7 +35,7 @@ const provideScopedLayer =
 
 describe("@beep/sandbox lifecycle foundation", () => {
   it.effect(
-    "expands marked prompt shell expressions inside the sandbox only",
+    "preserves prompt shell expressions without executing them",
     Effect.fnUntraced(function* () {
       const commands: Array<{ readonly command: string; readonly cwd?: string }> = [];
       const displayRef = yield* Ref.make<ReadonlyArray<DisplayEntry>>([]);
@@ -66,8 +66,8 @@ describe("@beep/sandbox lifecycle foundation", () => {
         })
       ).pipe(provideScopedLayer(DisplayLayer));
 
-      expect(expanded).toBe("Context: sandbox !`echo substituted`");
-      expect(commands).toEqual([{ command: "echo sandbox", cwd: "/sandbox/repo" }]);
+      expect(expanded).toBe("Context: !`echo sandbox` !`echo substituted`");
+      expect(commands).toEqual([]);
     })
   );
 

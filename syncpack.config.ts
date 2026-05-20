@@ -62,6 +62,7 @@ const config = {
     "packages/drivers/ai-provider-cli/package.json",
     "packages/drivers/sanity/package.json",
     "packages/drivers/hubspot/package.json",
+    "packages/drivers/phoenix/package.json",
     "packages/drivers/konva/package.json",
     "apps/canvas/package.json",
   ],

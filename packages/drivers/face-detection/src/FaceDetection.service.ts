@@ -28,6 +28,9 @@ import {
 
 const $I = $FaceDetectionId.create("FaceDetection.service");
 const divisor = 32;
+const MAX_FACE_DETECTION_IMAGE_BYTES = 64 * 1024 * 1024;
+const MAX_FACE_DETECTION_IMAGE_PIXELS = 16_777_216;
+const MAX_FACE_DETECTION_TENSOR_PIXELS = 16_777_216;
 const strides = [8, 16, 32] as const;
 const outputNames = [
   "cls_8",
@@ -148,6 +151,28 @@ const releaseSession = (session: OrtSession): Effect.Effect<void, never> =>
 
 const toPaddedDimension = (value: number): number => Math.ceil(value / divisor) * divisor;
 
+const checkedPixelCount = (
+  operation: string,
+  imagePath: string | undefined,
+  width: number,
+  height: number,
+  maxPixels: number
+): Effect.Effect<number, FaceDetectionError> => {
+  const pixels = width * height;
+
+  if (!Number.isSafeInteger(pixels) || pixels > maxPixels) {
+    return Effect.fail(
+      new FaceDetectionError({
+        ...(imagePath === undefined ? {} : { imagePath }),
+        message: `Face detection ${operation} dimensions exceed the ${maxPixels} pixel safety limit.`,
+        operation: "preprocessImage",
+      })
+    );
+  }
+
+  return Effect.succeed(pixels);
+};
+
 const fixedInputDimensions = (
   session: OrtSession,
   inputName: string
@@ -179,7 +204,9 @@ const fixedInputDimensions = (
     return Effect.succeed(O.none());
   }
 
-  return Effect.succeed(O.some(new ModelInputDimensions({ height, width })));
+  return checkedPixelCount("model input", undefined, width, height, MAX_FACE_DETECTION_TENSOR_PIXELS).pipe(
+    Effect.as(O.some(new ModelInputDimensions({ height, width })))
+  );
 };
 
 const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
@@ -197,6 +224,7 @@ const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
 
   const width = metadata.width ?? 0;
   const height = metadata.height ?? 0;
+  const imageBytes = metadata.size ?? 0;
 
   if (width < 1 || height < 1) {
     return yield* new FaceDetectionError({
@@ -205,6 +233,16 @@ const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
       operation: "preprocessImage",
     });
   }
+
+  if (imageBytes > MAX_FACE_DETECTION_IMAGE_BYTES) {
+    return yield* new FaceDetectionError({
+      imagePath,
+      message: `Image file exceeds the ${MAX_FACE_DETECTION_IMAGE_BYTES} byte face-detection safety limit.`,
+      operation: "preprocessImage",
+    });
+  }
+
+  yield* checkedPixelCount("source image", imagePath, width, height, MAX_FACE_DETECTION_IMAGE_PIXELS);
 
   const scale = pipe(
     inputDimensions,
@@ -225,6 +263,9 @@ const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
   const resizedHeight = Math.round(height * scale);
   const offsetX = O.isSome(inputDimensions) ? (padWidth - resizedWidth) / 2 : 0;
   const offsetY = O.isSome(inputDimensions) ? (padHeight - resizedHeight) / 2 : 0;
+
+  yield* checkedPixelCount("tensor", imagePath, padWidth, padHeight, MAX_FACE_DETECTION_TENSOR_PIXELS);
+
   const decoded = yield* Effect.tryPromise({
     try: () => {
       let image = sharp(imagePath)
@@ -259,6 +300,14 @@ const preprocessImage = Effect.fn("FaceDetection.preprocessImage")(function* (
       operation: "preprocessImage",
     });
   }
+
+  yield* checkedPixelCount(
+    "decoded image",
+    imagePath,
+    decoded.info.width,
+    decoded.info.height,
+    MAX_FACE_DETECTION_IMAGE_PIXELS
+  );
 
   const tensorData = new Uint8Array(3 * padWidth * padHeight);
 

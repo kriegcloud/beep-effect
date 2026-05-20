@@ -338,13 +338,18 @@ describe("ai-metrics command", () => {
           ]);
 
           const output = yield* loggedText();
-          expect(output).toContain("--max-file-bytes 8388608");
-          expect(output).toContain("--max-files 5");
+          expect(output).toContain("--max-file-bytes");
+          expect(output).toContain("8388608");
+          expect(output).toContain("--max-files");
+          expect(output).toContain("5");
           expect(output).toContain("OnUnitInactiveSec=30m");
-          expect(output).toContain("capture PATH at render time");
-          expect(output).toContain("/usr/bin/env PATH=");
-          expect(output).toContain(" bun packages/tooling/tool/cli/src/bin.ts -- ai-metrics forwarder run");
-          expect(output).toContain("--otlp --otlp-base-url");
+          expect(output).toContain("pins the Bun executable path");
+          expect(output).toContain(process.execPath);
+          expect(output).toContain("packages/tooling/tool/cli/src/bin.ts");
+          expect(output).toContain("ai-metrics");
+          expect(output).toContain("forwarder");
+          expect(output).toContain("--otlp");
+          expect(output).toContain("--otlp-base-url");
           expect(output).toContain("beep-ai-metrics-forwarder.timer");
           expect(output).not.toContain("--max-files 200");
           expect(process.exitCode ?? 0).toBe(0);
